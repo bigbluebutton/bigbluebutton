@@ -14,6 +14,11 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
+case class MeetingRecordingNotificationColumnsDbModel(
+    notifyRecordingIsOn:   Boolean,
+    notifyRecordingAppend: String,
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -25,7 +30,7 @@ case class MeetingDbModel(
     cameraBridge:                          String,
     screenShareBridge:                     String,
     audioBridge:                           String,
-    notifyRecordingIsOn:                   Boolean,
+    recordingNotificationColumns:          MeetingRecordingNotificationColumnsDbModel,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
@@ -51,7 +56,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     cameraBridge,
     screenShareBridge,
     audioBridge,
-    notifyRecordingIsOn,
+    recordingNotificationColumns,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
@@ -75,6 +80,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
+  val notifyRecordingAppend = column[String]("notifyRecordingAppend")
+  val recordingNotificationColumns = (notifyRecordingIsOn, notifyRecordingAppend) <> (MeetingRecordingNotificationColumnsDbModel.tupled, MeetingRecordingNotificationColumnsDbModel.unapply)
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
@@ -109,7 +116,10 @@ object MeetingDAO {
           cameraBridge = meetingProps.meetingProp.cameraBridge,
           screenShareBridge = meetingProps.meetingProp.screenShareBridge,
           audioBridge = meetingProps.meetingProp.audioBridge,
-          notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
+          recordingNotificationColumns = MeetingRecordingNotificationColumnsDbModel(
+            notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
+            notifyRecordingAppend = meetingProps.meetingProp.notifyRecordingAppend,
+          ),
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
@@ -157,7 +167,7 @@ object MeetingDAO {
     MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
     MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
     MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
-    MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
+    MeetingBreakoutRoomPropsDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
     LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
     PluginModel.persistPluginsForClient(meetingProps.meetingProp.intId, pluginProps)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
@@ -165,13 +175,13 @@ object MeetingDAO {
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
     val subqueryBreakoutRooms = TableQuery[BreakoutRoomDbTableDef]
-      .filter(_.parentMeetingId === parentMeetingId)
+      .filter(_.meetingId === parentMeetingId)
       .filter(_.endedAt.isEmpty)
-      .map(_.externalId)
+      .map(_.breakoutRoomMeetingId)
 
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
-        .filter(_.extId in subqueryBreakoutRooms)
+        .filter(_.meetingId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
     )

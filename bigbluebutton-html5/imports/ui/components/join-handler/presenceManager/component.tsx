@@ -1,7 +1,5 @@
 import { useMutation } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
-import Bowser from 'bowser';
-import { isBrowserSupported } from 'livekit-client';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   GetGuestLobbyInfo,
@@ -16,10 +14,11 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
-import Legacy from '/imports/ui/components/legacy/component';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import Auth from '/imports/ui/services/auth';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -51,8 +50,6 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     guestStatus: string;
     guestLobbyMessage: string | null;
     positionInWaitingQueue: number | null;
-    isSupportedBrowser: boolean | undefined;
-    hasWebrtcSupport: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -79,14 +76,14 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   guestLobbyMessage,
   guestStatus,
   positionInWaitingQueue,
-  isSupportedBrowser,
-  hasWebrtcSupport,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
   const [isGuestAllowed, setIsGuestAllowed] = useState(guestStatus === GUEST_STATUSES.ALLOW);
+  const PUBLIC_CONFIG = window.meetingClientSettings.public;
+  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
   useEffect(() => {
     const allowed = guestStatus === GUEST_STATUSES.ALLOW;
@@ -100,8 +97,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [guestStatus]);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('sessionToken') as string;
+    const sessionToken = Auth.sessionToken as string;
     setAuthData({
       meetingId,
       userId,
@@ -170,21 +166,6 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
-  if (isSupportedBrowser === false || hasWebrtcSupport === false) {
-    const reason = isSupportedBrowser === false ? 'USER_AGENT' : 'WEBRTC';
-    const message = isSupportedBrowser === false
-      ? 'The browser is not supported or is using an outdated version.'
-      : 'WebRTC is not supported in this browser.';
-    logger.warn({
-      logCode: 'unsupported_browser',
-      extraInfo: {
-        reason,
-      },
-    }, message);
-
-    return <Legacy setLoading={loadingContextInfo.setLoading} />;
-  }
-
   const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
 
   return (
@@ -208,6 +189,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         !isGuestAllowed && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut)
           ? (
             <GuestWaitContainer
+              meetingName={meetingName}
+              clientTitle={CLIENT_TITLE}
               guestLobbyMessage={guestLobbyMessage}
               guestStatus={guestStatus}
               logoutUrl={logoutUrl}
@@ -278,11 +261,6 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     customDarkLogoUrl,
   } = meetingStaticStore;
 
-  const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
-  const userAgent = window.navigator?.userAgent;
-  const isSupportedBrowser = Bowser.getParser(userAgent).satisfies(MIN_BROWSER_CONFIG);
-  const hasWebrtcSupport = isBrowserSupported();
-
   return (
     <PresenceManager
       authToken={authToken ?? ''}
@@ -307,8 +285,6 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       guestLobbyMessage={guestStatusDetails?.guestLobbyMessage ?? null}
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus ?? ''}
-      isSupportedBrowser={isSupportedBrowser}
-      hasWebrtcSupport={hasWebrtcSupport}
     >
       {children}
     </PresenceManager>

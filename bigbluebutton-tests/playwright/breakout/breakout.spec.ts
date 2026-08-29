@@ -1,0 +1,226 @@
+import { test } from '../core/setup/fixtures';
+import { ClientSettingsOverride } from './clientSettingsOverride';
+import { Create } from './create';
+import { Join } from './join';
+
+test.describe.parallel('Breakout', { tag: '@ci' }, () => {
+  test.describe.parallel('Creating', () => {
+    test('Create Breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.create();
+    });
+
+    test('Change number of rooms', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.changeNumberOfRooms();
+    });
+
+    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.changeDurationTime();
+    });
+
+    test('Change rooms name', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.changeRoomsName();
+    });
+
+    test('Remove and reset assignments', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.removeAndResetAssignments();
+    });
+
+    test('Drag and drop user in a room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.dragDropUserInRoom();
+    });
+
+    test('Inherit lock settings checkbox is visible and unchecked by default', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.inheritLockSettingsCheckboxIsVisible();
+    });
+
+    test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockViewersVisibleInBreakoutGearMenu();
+    });
+
+    test('Moderator can disable inherited lock settings in breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanDisableInheritedLockInBreakout();
+    });
+
+    test('Moderator can apply lock settings in breakout room without inheritance', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanApplyLockSettingsInBreakout();
+    });
+
+    test('Moderator can apply lock settings in breakout room with inheritance', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanApplyLockSettingsInBreakoutWithInheritance();
+    });
+
+    test('Lock settings are NOT propagated to breakout when checkbox is unchecked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockSettingsNotPropagatedByDefault();
+    });
+
+    test('Lock settings ARE propagated to breakout when checkbox is checked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockSettingsPropagatedWhenChecked();
+    });
+
+    test('See other viewers webcams (webcamsOnlyForModerator) IS propagated to breakout when checkbox is checked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.webcamsOnlyForModeratorPropagatedWhenChecked();
+    });
+
+    test('See other viewers webcams (webcamsOnlyForModerator) is NOT propagated to breakout when checkbox is unchecked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.webcamsOnlyForModeratorNotPropagatedByDefault();
+    });
+  });
+
+  test.describe.parallel('After creating', () => {
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#moderators-creating-breakout-rooms-and-assiging-users-automated
+    test('Join Breakout room', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinRoom();
+    });
+
+    test('Join Breakout room and share webcam', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinAndShareWebcam();
+    });
+
+    test('Join Breakout room and share screen', async ({ browser, context, page, browserName }, testInfo) => {
+      test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinAndShareScreen();
+    });
+
+    test('Join Breakout room and share Audio', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinAndShareAudio();
+    });
+
+    test('Join Breakout room with Audio', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinWithAudio();
+    });
+
+    test('Join Breakout room with Audio and Video', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinWithAudioAndVideo();
+    });
+
+    test('Message to all rooms', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.messageToAllRooms();
+    });
+
+    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.changeDurationTime();
+    });
+
+    test('User name shows below rooms name', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.usernameShowsBelowRoomsName();
+    });
+
+    test('Show breakout room time remaining', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.showBreakoutRoomTimeRemaining();
+    });
+
+    test('End all breakout rooms', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.endAllBreakoutRooms();
+    });
+
+    test('Invite user after creating rooms', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.inviteUserAfterCreatingRooms();
+    });
+
+    test('Move user to another room', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.moveUserToOtherRoom();
+    });
+
+    test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create(true);
+      await join.exportBreakoutNotes();
+    });
+
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create(false, true);
+      await join.exportBreakoutWhiteboard();
+    });
+
+    test('User can choose a room', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.createToAllowChooseOwnRoom();
+      await join.userCanChooseRoom();
+    });
+
+    test('Breakout rooms can use different presentations', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.breakoutWithDifferentPresentations();
+    });
+
+    // https://github.com/bigbluebutton/bigbluebutton/issues/25138
+    test('Breakout room inherits client settings override from parent meeting', async ({ browser, context, page }, testInfo) => {
+      const override = new ClientSettingsOverride(browser, context);
+      await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
+    });
+  });
+});

@@ -20,13 +20,14 @@ const LoadedChatMessagesHookContainer = (props: GeneralHookManagerProps) => {
     message: message.message,
     messageId: message.messageId,
     user: message.user,
+    senderRole: message.senderRole,
     messageMetadata: message.messageMetadata,
   }));
 
-  const { numberOfUses } = props;
-  const previousNumberOfUses = usePreviousValue(numberOfUses);
+  const { version } = props;
+  const previousVersion = usePreviousValue(version);
 
-  const updateLoadedChatMessagesForPlugin = () => {
+  const updateLoadedChatMessagesForPlugin: () => void = () => {
     window.dispatchEvent(new CustomEvent<
       UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<LoadedChatMessage[]>>
     >(HookEvents.BBB_CORE_SENT_NEW_DATA, {
@@ -38,11 +39,11 @@ const LoadedChatMessagesHookContainer = (props: GeneralHookManagerProps) => {
   };
 
   useEffect(() => {
-    const previousNumberOfUsesValue = previousNumberOfUses || 0;
-    if (numberOfUses > previousNumberOfUsesValue) {
+    const previousVersionValue = previousVersion ?? 0;
+    if (version > previousVersionValue) {
       updateLoadedChatMessagesForPlugin();
     }
-  }, [numberOfUses]);
+  }, [version]);
   useEffect(() => {
     updateLoadedChatMessagesForPlugin();
   }, [chatMessagesData]);

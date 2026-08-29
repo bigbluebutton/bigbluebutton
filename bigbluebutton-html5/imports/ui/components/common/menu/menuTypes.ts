@@ -1,9 +1,11 @@
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
+
 export type MenuOptionItemType = {
   key: string;
   dataTest?: string;
   label?: string;
   customStyles?: object;
-  iconRight?: string;
+  iconRight?: PluginIconType;
   onClick?: () => void;
   disabled?: boolean;
 };

@@ -38,12 +38,12 @@ export class Checkbox extends Rectangle {
 
   /**
    * Draws a "Checkbox" shape on the SVG canvas.
-   * @return {G} Returns the SVG group element containing
+   * @return {Promise<G>} Returns the SVG group element containing
    *             the rectangle and the checkmark.
   */
-  draw() {
+  async draw() {
     // Draw the base rectangle
-    const rectGroup = super.draw();
+    const rectGroup = await super.draw();
 
     // Get the lines for the checkmark
     const lines = Checkbox.getCheckBoxLines(this.w, this.h + this.growY);
@@ -60,7 +60,7 @@ export class Checkbox extends Rectangle {
       rectGroup.add(line);
     });
 
-    this.drawLabel(rectGroup);
+    await this.drawLabel(rectGroup);
 
     return rectGroup;
   }

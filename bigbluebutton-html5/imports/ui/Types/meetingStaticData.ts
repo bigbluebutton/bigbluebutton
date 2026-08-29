@@ -19,6 +19,7 @@ export interface MeetingStaticData {
   customLogoUrl: string | null;
   customDarkLogoUrl: string | null;
   notifyRecordingIsOn: boolean;
+  notifyRecordingAppend: string;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
   recordingPolicies: {
@@ -48,7 +49,7 @@ export interface MeetingStaticData {
     captureSlides: boolean;
     captureSlidesFilename: string;
     freeJoin: boolean;
-    parentId: string;
+    parentMeetingId: string;
     privateChatEnabled: boolean;
     record: boolean;
     sequence: number;

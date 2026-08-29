@@ -2,8 +2,8 @@ package org.bigbluebutton.api.model.validator;
 
 import org.bigbluebutton.api.model.constraint.NotNull;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class NotNullValidator implements ConstraintValidator<NotNull, Object> {
 

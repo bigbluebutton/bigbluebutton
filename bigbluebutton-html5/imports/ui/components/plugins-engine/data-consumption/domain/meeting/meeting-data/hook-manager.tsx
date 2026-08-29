@@ -1,0 +1,58 @@
+import { useEffect, useRef } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import {
+  HookEvents,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
+
+import { equals } from 'ramda';
+import formatMeetingResponseFromGraphql from './utils';
+import { GeneralHookManagerProps } from '../../../types';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { Meeting } from '/imports/ui/Types/meeting';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+
+const MeetingDataHookContainer: React.FunctionComponent<
+  GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<Meeting>>>
+> = (
+  props: GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<Meeting>>>,
+) => {
+  const previousMeeting = useRef<GraphqlDataHookSubscriptionResponse<Partial<Meeting>> | null>(null);
+
+  const { data: meeting, version } = props;
+  const previousVersion = usePreviousValue(version);
+  const updateMeetingForPlugin = () => {
+    const meetingProjection: PluginSdk.GraphqlResponseWrapper<
+    PluginSdk.MeetingData> = formatMeetingResponseFromGraphql(
+      meeting,
+    );
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.MeetingData>>>(
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
+        {
+          detail: {
+            data: meetingProjection,
+            hook: DataConsumptionHooks.MEETING_DATA,
+          },
+        },
+      ),
+    );
+  };
+  useEffect(() => {
+    if (!equals(previousMeeting.current, meeting)) {
+      previousMeeting.current = meeting;
+      updateMeetingForPlugin();
+    }
+  }, [meeting]);
+  useEffect(() => {
+    const previousVersionValue = previousVersion ?? 0;
+    if (version > previousVersionValue) {
+      updateMeetingForPlugin();
+    }
+  }, [version]);
+
+  return null;
+};
+
+export default MeetingDataHookContainer;

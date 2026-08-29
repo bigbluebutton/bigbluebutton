@@ -33,7 +33,7 @@ trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper with RightsManagementTr
         gc <- state.groupChats.find(msg.body.chatId)
       } yield {
         ChatMessageDAO.deleteAllFromChat(liveMeeting.props.meetingProp.intId, msg.body.chatId)
-        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, "", GroupChatMessageType.PUBLIC_CHAT_HIST_CLEARED, Map(), "")
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, "", "", GroupChatMessageType.PUBLIC_CHAT_HIST_CLEARED, Map(), "")
         broadcastEvent(msg)
         val newGc = gc.clearMessages()
         val gcs = state.groupChats.update(newGc)

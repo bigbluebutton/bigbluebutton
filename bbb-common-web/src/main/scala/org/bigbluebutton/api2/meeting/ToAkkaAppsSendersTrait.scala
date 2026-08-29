@@ -31,7 +31,8 @@ trait ToAkkaAppsSendersTrait extends SystemConfiguration {
       role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, bot = msg.bot,
       guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus, excludeFromDashboard = msg.excludeFromDashboard,
-      enforceLayout = msg.enforceLayout, logoutUrl = msg.logoutUrl, userMetadata = msg.userMetadata)
+      enforceLayout = msg.enforceLayout, logoutUrl = msg.logoutUrl, joinRequestMetadata = msg.joinRequestMetadata,
+      userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
     val message = BbbCommonEnvCoreMsg(envelope, req)
     sendToBus(message)

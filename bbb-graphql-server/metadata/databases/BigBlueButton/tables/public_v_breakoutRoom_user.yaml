@@ -11,7 +11,7 @@ select_permissions:
     permission:
       columns:
         - assignedAt
-        - breakoutRoomId
+        - breakoutRoomMeetingId
         - inviteDismissedAt
         - joinURL
         - joinedAt

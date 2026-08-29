@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { setUserSettings } from '/imports/ui/core/local-states/useUserSettings';
+import { setUseCurrentLocale } from '/imports/ui/core/local-states/useCurrentLocale';
 import BBBWeb from '/imports/api/bbb-web-api';
 import Session from '/imports/ui/services/storage/in-memory';
+import Auth from '/imports/ui/services/auth';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 
@@ -36,8 +38,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
       setLoading(false);
     }, CONNECTION_TIMEOUT);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('sessionToken');
+    const sessionToken = Auth.sessionToken as string | null;
 
     if (!sessionToken) {
       setLoading(false);
@@ -68,7 +69,11 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
               }
               return { [parameter]: parsedValue };
             });
-            setUserSettings(filteredData.reduce((acc, item) => Object.assign(acc, item), {}));
+            const mergedSettings = filteredData.reduce((acc, item) => Object.assign(acc, item), {});
+            setUserSettings(mergedSettings);
+            if (typeof mergedSettings.bbb_override_default_locale === 'string') {
+              setUseCurrentLocale(mergedSettings.bbb_override_default_locale);
+            }
             setFetched(true);
             if (timeoutRef.current) {
               clearTimeout(timeoutRef.current);

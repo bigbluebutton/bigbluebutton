@@ -24,6 +24,11 @@ const AwayOption = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  & > span b {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
 `;
 
 const ToggleButtonWrapper = styled.div`

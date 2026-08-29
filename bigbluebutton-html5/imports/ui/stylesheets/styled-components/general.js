@@ -3,6 +3,8 @@ const borderSize = '2px';
 const borderSizeLarge = '3px';
 const borderRadius = '.2rem';
 const borderRadiusRounded = '.5rem';
+const avatarBorderRadius = '50%';
+const moderatorAvatarBorderRadius = '5px';
 const smPaddingX = '.75rem';
 const smPaddingY = '.3rem';
 const mdPaddingY = '.45rem';
@@ -187,4 +189,6 @@ export {
   xlPadding,
   xsPadding,
   borderRadiusRounded,
+  avatarBorderRadius,
+  moderatorAvatarBorderRadius,
 };

@@ -18,6 +18,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -51,9 +52,9 @@ const intlMessages = defineMessages({
     defaultMessage: 'Minimize',
   },
   optionsLabel: {
-    id: 'app.navBar.optionsDropdown.optionsLabel',
-    description: 'Options button label',
-    defaultMessage: 'Options',
+    id: 'app.presentation.options.label',
+    description: 'Whiteboard options button label',
+    defaultMessage: 'Whiteboard options',
   },
   snapshotLabel: {
     id: 'app.presentation.options.snapshot',
@@ -181,6 +182,47 @@ const PresentationMenu = (props) => {
       svgElem.appendChild(pollShapeImage);
     }
 
+    // Embed the slide background as a credentialed data URL before rasterizing.
+    // tldraw's getSvg fetches image assets WITHOUT credentials, so under a
+    // cluster-proxy (client on the proxy origin, slide served by the BBB node
+    // origin) the slide request is answered with 401 and tldraw inlines the
+    // error page instead of the slide - the exported snapshot then shows a
+    // broken image. We re-fetch the slide from its asset src WITH credentials
+    // and replace the broken reference so the export matches what is on screen,
+    // on same-origin and cluster-proxy setups alike.
+    try {
+      const bgAssetId = backgroundShape?.props?.assetId;
+      const asset = bgAssetId
+        ? (tldrawAPI.getAsset?.(bgAssetId) || tldrawAPI.store?.get?.(bgAssetId))
+        : null;
+      const slideSrc = asset?.props?.src;
+      if (slideSrc) {
+        const response = await fetch(slideSrc, { credentials: 'include' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const slideDataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        svgElem.querySelectorAll('image').forEach((imageEl) => {
+          const href = imageEl.getAttribute('href') || imageEl.getAttribute('xlink:href');
+          // Annotations and polls are already valid data:image URIs; only the
+          // slide background fails to inline, so replace anything that is not.
+          if (!href || !href.startsWith('data:image')) {
+            imageEl.removeAttribute('xlink:href');
+            imageEl.setAttribute('href', slideDataUrl);
+          }
+        });
+      }
+    } catch (error) {
+      logger.warn({
+        logCode: 'presentation_snapshot_inline_image_error',
+        extraInfo: { error: error?.message || String(error) },
+      }, `Snapshot: failed to embed slide image for export: ${error?.message || error}`);
+    }
+
     if (isIos || isSafari) {
       const svgString = new XMLSerializer().serializeToString(svgElem);
       const blob = new Blob([svgString], { type: 'image/svg+xml' });
@@ -216,7 +258,7 @@ const PresentationMenu = (props) => {
             uiDataGetter:
               PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
           },
-        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]`);
+        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]: ${e}`);
       }
     };
 
@@ -230,11 +272,27 @@ const PresentationMenu = (props) => {
         updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
       );
     };
-  }, []);
-  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  }, [tldrawAPI, slideNum]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
+
+  const {
+    isOpen: isClearModalOpen,
+    open: openIsClearModal,
+    close: closeIsClearModal,
+  } = useModalRegistration({
+    id: 'clearAnnotationsModal',
+    priority: 'low',
+  });
+
+  const setIsClearModalOpen = (open) => {
+    if (open) {
+      openIsClearModal();
+    } else {
+      closeIsClearModal();
+    }
+  };
 
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
@@ -472,12 +530,14 @@ const PresentationMenu = (props) => {
             label: item.label,
             icon: item.icon,
             onClick: item.onClick,
+            dataTest: item.dataTest,
           });
           break;
         case PresentationDropdownItemType.SEPARATOR:
           menuItems.push({
             key: `${item.id}-${index}`,
             isSeparator: true,
+            dataTest: item.dataTest,
           });
           break;
         default:

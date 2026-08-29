@@ -1,0 +1,38 @@
+diff --git a/pkg/config/config.go b/pkg/config/config.go
+index 8e2dc35..536fa59 100644
+--- a/pkg/config/config.go
++++ b/pkg/config/config.go
+@@ -69,6 +69,7 @@ type Config struct {
+ 	SIPPortListen      int                 `yaml:"sip_port_listen"` // SIP signaling port to listen on
+ 	SIPHostname        string              `yaml:"sip_hostname"`
+ 	SIPRingingInterval time.Duration       `yaml:"sip_ringing_interval"` // from 1 sec up to 60 (default '1s')
++	NoPinWaitForSubscribe bool                `yaml:"no_pin_wait_for_subscribe"`
+ 	TLS                *TLSConfig          `yaml:"tls"`
+ 	RTPPort            rtcconfig.PortRange `yaml:"rtp_port"`
+ 	Logging            logger.Config       `yaml:"logging"`
+@@ -117,6 +118,7 @@ func NewConfig(confString string) (*Config, error) {
+ 		ApiSecret:   os.Getenv("LIVEKIT_API_SECRET"),
+ 		WsUrl:       os.Getenv("LIVEKIT_WS_URL"),
+ 		ServiceName: "sip",
++		NoPinWaitForSubscribe: true,
+ 	}
+ 	if confString != "" {
+ 		if err := yaml.Unmarshal([]byte(confString), conf); err != nil {
+diff --git a/pkg/sip/inbound.go b/pkg/sip/inbound.go
+index abaf8ff..b791904 100644
+--- a/pkg/sip/inbound.go
++++ b/pkg/sip/inbound.go
+@@ -917,8 +917,11 @@ func (c *inboundCall) handleInvite(ctx context.Context, tid traceid.ID, req *sip
+ 		c.log().Infow("Waiting for track subscription(s)")
+ 		// For dispatches without pin, we first wait for LK participant to become available,
+ 		// and also for at least one track subscription. In the meantime we keep ringing.
+-		if ok, err := c.waitSubscribe(ctx, disp.RingingTimeout); !ok {
+-			return err // already sent a response. Could be success if caller hung up
++
++		if c.s.conf.NoPinWaitForSubscribe {
++			if ok, err := c.waitSubscribe(ctx, disp.RingingTimeout); !ok {
++				return err // already sent a response. Could be success if caller hung up
++			}
+ 		}
+ 		if ok, err := acceptCall(answerData); !ok {
+ 			return err // already sent a response. Could be success if caller hung up

@@ -3,8 +3,9 @@ package org.bigbluebutton.api.model.request;
 import jakarta.ws.rs.core.MediaType;
 import org.bigbluebutton.api.model.shared.Checksum;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Map;
 import java.util.Set;
 

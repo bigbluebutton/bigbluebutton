@@ -21,6 +21,7 @@ select_permissions:
         - hasSharedNotes
         - hasTimer
         - isSharedNotesPinned
+        - isEtherpadSharedNotes
         - showRemainingTime
       filter:
         meetingId:

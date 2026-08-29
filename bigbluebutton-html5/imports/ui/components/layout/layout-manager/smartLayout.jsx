@@ -173,7 +173,7 @@ const SmartLayout = (props) => {
         ? mediaBounds.width
         : presentationToolbarMinWidth;
 
-    cameraDockBounds.top = navBarHeight;
+    cameraDockBounds.top = navBarHeight + bannerAreaHeight();
     cameraDockBounds.left = mediaAreaBounds.left;
     cameraDockBounds.right = isRTL ? sidebarSize : null;
     cameraDockBounds.zIndex = 1;

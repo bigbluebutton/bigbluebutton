@@ -194,12 +194,18 @@ public class PresentationFileProcessor {
         for (int page = 1; page <= pres.getNumberOfPages(); page++) {
             File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
 
+            boolean useBlanks = false;
             if(!pageFile.exists()) {
                 File extractedPageFile = extractPage(pres, page);
                 if (extractedPageFile.length() > maxBigPdfPageSize) {
                     File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
-                    downscaledPageFile.renameTo(pageFile);
-                    extractedPageFile.delete();
+                    if (downscaledPageFile == null) {
+                        useBlanks = true;
+                        extractedPageFile.renameTo(pageFile);
+                    } else {
+                        downscaledPageFile.renameTo(pageFile);
+                        extractedPageFile.delete();
+                    }
                 } else {
                     extractedPageFile.renameTo(pageFile);
                 }
@@ -211,6 +217,7 @@ public class PresentationFileProcessor {
                     pageFile,
                     svgImagesRequired,
                     generatePngs,
+                    useBlanks,
                     textFileCreator,
                     svgImageCreator,
                     thumbnailCreator,
@@ -243,12 +250,13 @@ public class PresentationFileProcessor {
         String presDir = pres.getUploadedFile().getParent();
         File tempPage = new File(presDir + "/downscaled" + "-" + pageNum + ".pdf");
         PdfPageDownscaler downscaler = new PdfPageDownscaler();
-        downscaler.downscale(filePage, tempPage);
-        if (tempPage.exists()) {
+        boolean success = downscaler.downscale(filePage, tempPage);
+        if (tempPage.exists() && success) {
             return tempPage;
         }
 
-        return filePage;
+        log.warn("Failed to downscale [{}]", filePage);
+        return null;
     }
 
     private File extractPage(UploadedPresentation pres, int page) {

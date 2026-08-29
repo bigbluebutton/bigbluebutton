@@ -7,6 +7,7 @@ case class UserConnectionStatusDbModel(
     sessionToken:       String,
     clientSessionUUID:  String,
     connectionAliveAt:  Option[java.sql.Timestamp],
+    serverRequestId:    Option[String],
     networkRttInMs:     Option[Double],
     applicationRttInMs: Option[Double],
     traceLog:           Option[String],
@@ -16,13 +17,14 @@ case class UserConnectionStatusDbModel(
 
 class UserConnectionStatusDbTableDef(tag: Tag) extends Table[UserConnectionStatusDbModel](tag, None, "user_connectionStatus") {
   override def * = (
-    meetingId, userId, sessionToken, clientSessionUUID, connectionAliveAt, networkRttInMs, applicationRttInMs, traceLog, status
+    meetingId, userId, sessionToken, clientSessionUUID, connectionAliveAt, serverRequestId, networkRttInMs, applicationRttInMs, traceLog, status
   ) <> (UserConnectionStatusDbModel.tupled, UserConnectionStatusDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val sessionToken = column[String]("sessionToken", O.PrimaryKey)
   val clientSessionUUID = column[String]("clientSessionUUID", O.PrimaryKey)
   val connectionAliveAt = column[Option[java.sql.Timestamp]]("connectionAliveAt")
+  val serverRequestId = column[Option[String]]("serverRequestId")
   val networkRttInMs = column[Option[Double]]("networkRttInMs")
   val applicationRttInMs = column[Option[Double]]("applicationRttInMs")
   val traceLog = column[Option[String]]("traceLog")
@@ -40,6 +42,7 @@ object UserConnectionStatusDAO {
           sessionToken = sessionToken,
           clientSessionUUID = clientSessionUUID,
           connectionAliveAt = None,
+          serverRequestId = None,
           networkRttInMs = None,
           applicationRttInMs = None,
           traceLog = None,
@@ -49,17 +52,27 @@ object UserConnectionStatusDAO {
     )
   }
 
-  def updateUserAlive(meetingId: String, userId: String, sessionToken: String, clientSessionUUID: String, rtt: Double, appRtt: Double, traceLog: String, status: String) = {
+  def updateUserAlive(
+                       meetingId: String,
+                       userId: String,
+                       sessionToken: String,
+                       clientSessionUUID: String,
+                       serverRequestId: String,
+                       rtt: Double,
+                       appRtt: Double,
+                       traceLog: String,
+                       status: String) = {
     DatabaseConnection.enqueue(
       TableQuery[UserConnectionStatusDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
         .filter(_.sessionToken === sessionToken)
         .filter(_.clientSessionUUID === clientSessionUUID)
-        .map(t => (t.connectionAliveAt, t.networkRttInMs, t.applicationRttInMs, t.traceLog, t.status))
+        .map(t => (t.connectionAliveAt, t.serverRequestId, t.networkRttInMs, t.applicationRttInMs, t.traceLog, t.status))
         .update(
           (
             Some(new java.sql.Timestamp(System.currentTimeMillis())),
+            Some(serverRequestId),
             rtt match {
               case 0                => None
               case someRtt: Double  => Some(someRtt)

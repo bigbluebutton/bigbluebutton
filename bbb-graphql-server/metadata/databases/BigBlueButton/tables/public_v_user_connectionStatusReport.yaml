@@ -26,6 +26,7 @@ select_permissions:
         - currentStatus
         - lastUnstableStatus
         - lastUnstableStatusAt
+        - meetingId
         - userId
       filter:
         _or:

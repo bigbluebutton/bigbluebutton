@@ -4,6 +4,7 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
+import {rasterizeSlideBackground} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
 import sanitize from 'sanitize-filename';
@@ -51,11 +52,11 @@ function toPx(pt) {
  * @function overlayDraw
  * @param {Object} svg - The SVG element to which the drawing will be added.
  * @param {Object} annotation - The annotation data used to create the drawing.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayDraw(svg, annotation) {
+async function overlayDraw(svg, annotation) {
   const drawing = new Draw(annotation);
-  const drawnDrawing = drawing.draw();
+  const drawnDrawing = await drawing.draw();
 
   svg.add(drawnDrawing);
 }
@@ -66,11 +67,11 @@ function overlayDraw(svg, annotation) {
  * @function overlayGeo
  * @param {Object} svg - SVG element to which the geometric shape will be added.
  * @param {Object} annotation - Annotation data used to create the geo shape.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayGeo(svg, annotation) {
+async function overlayGeo(svg, annotation) {
   const geo = createGeoObject(annotation);
-  const geoDrawn = geo.draw();
+  const geoDrawn = await geo.draw();
   svg.add(geoDrawn);
 }
 
@@ -80,14 +81,14 @@ function overlayGeo(svg, annotation) {
  * @function overlayHighlight
  * @param {Object} svg - SVG element to which the highlight will be applied.
  * @param {Object} annotation - JSON annotation data.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayHighlight(svg, annotation) {
+async function overlayHighlight(svg, annotation) {
   // Adjust JSON properties
   annotation.opacity = 0.3;
 
   const highlight = new Highlight(annotation);
-  const highlightDrawn = highlight.draw();
+  const highlightDrawn = await highlight.draw();
   svg.add(highlightDrawn);
 }
 
@@ -98,11 +99,11 @@ function overlayHighlight(svg, annotation) {
  * @function overlayLine
  * @param {Object} svg - SVG element to which the line will be added.
  * @param {Object} annotation - JSON annotation data for the line.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayLine(svg, annotation) {
+async function overlayLine(svg, annotation) {
   const line = new Line(annotation);
-  const lineDrawn = line.draw();
+  const lineDrawn = await line.draw();
   svg.add(lineDrawn);
 }
 
@@ -112,11 +113,11 @@ function overlayLine(svg, annotation) {
  * @function overlayArrow
  * @param {Object} svg - The SVG element where the arrow will be added.
  * @param {Object} annotation - JSON annotation data for the arrow.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayArrow(svg, annotation) {
+async function overlayArrow(svg, annotation) {
   const arrow = new Arrow(annotation);
-  const arrowDrawn = arrow.draw();
+  const arrowDrawn = await arrow.draw();
   svg.add(arrowDrawn);
 }
 
@@ -126,11 +127,11 @@ function overlayArrow(svg, annotation) {
  * @function overlaySticky
  * @param {Object} svg - SVG element to which the sticky note will be added.
  * @param {Object} annotation - JSON annotation data for the sticky note.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlaySticky(svg, annotation) {
+async function overlaySticky(svg, annotation) {
   const stickyNote = new StickyNote(annotation);
-  const stickyNoteDrawn = stickyNote.draw();
+  const stickyNoteDrawn = await stickyNote.draw();
   svg.add(stickyNoteDrawn);
 }
 
@@ -141,15 +142,15 @@ function overlaySticky(svg, annotation) {
  * @function overlayText
  * @param {Object} svg - The SVG element where the text will be added.
  * @param {Object} annotation - JSON annotation data for the text.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayText(svg, annotation) {
+async function overlayText(svg, annotation) {
   if (annotation?.props?.size == null || annotation?.props?.text?.length == 0) {
     return;
   }
 
   const text = new TextShape(annotation);
-  const textDrawn = text.draw();
+  const textDrawn = await text.draw();
   svg.add(textDrawn);
 }
 
@@ -158,11 +159,11 @@ function overlayText(svg, annotation) {
  * @function overlayText
  * @param {Object} svg - The SVG element where the frame will be added.
  * @param {Object} annotation - JSON frame data.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayFrame(svg, annotation) {
+async function overlayFrame(svg, annotation) {
   const frameShape = new Frame(annotation);
-  const frame = frameShape.draw();
+  const frame = await frameShape.draw();
   svg.add(frame);
 }
 
@@ -171,11 +172,11 @@ function overlayFrame(svg, annotation) {
  * @function overlayPoll
  * @param {Object} svg - The SVG element where the poll will be added.
  * @param {Object} annotation - JSON poll data.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayPoll(svg, annotation) {
+async function overlayPoll(svg, annotation) {
   const pollShape = new Poll(annotation);
-  const poll = pollShape.draw();
+  const poll = await pollShape.draw();
   svg.add(poll);
 }
 
@@ -186,37 +187,37 @@ function overlayPoll(svg, annotation) {
  * @function overlayAnnotation
  * @param {Object} svg - SVG element onto which the annotation will be overlaid.
  * @param {Object} annotation - JSON annotation data.
- * @return {void}
+ * @return {Promise<void>}
  */
-export function overlayAnnotation(svg, annotation) {
+export async function overlayAnnotation(svg, annotation) {
   try {
     switch (annotation.type) {
       case 'draw':
-        overlayDraw(svg, annotation);
+        await overlayDraw(svg, annotation);
         break;
       case 'geo':
-        overlayGeo(svg, annotation);
+        await overlayGeo(svg, annotation);
         break;
       case 'highlight':
-        overlayHighlight(svg, annotation);
+        await overlayHighlight(svg, annotation);
         break;
       case 'line':
-        overlayLine(svg, annotation);
+        await overlayLine(svg, annotation);
         break;
       case 'arrow':
-        overlayArrow(svg, annotation);
+        await overlayArrow(svg, annotation);
         break;
       case 'text':
-        overlayText(svg, annotation);
+        await overlayText(svg, annotation);
         break;
       case 'note':
-        overlaySticky(svg, annotation);
+        await overlaySticky(svg, annotation);
         break;
       case 'frame':
-        overlayFrame(svg, annotation);
+        await overlayFrame(svg, annotation);
         break;
       case 'poll':
-        overlayPoll(svg, annotation);
+        await overlayPoll(svg, annotation);
         break;
       default:
         logger.info(`Unknown annotation type ${annotation.type}.`);
@@ -235,9 +236,9 @@ export function overlayAnnotation(svg, annotation) {
  * @function overlayAnnotations
  * @param {Object} svg - SVG element onto which annotations will be overlaid.
  * @param {Array} slideAnnotations - Array of JSON annotation data objects.
- * @return {void}
+ * @return {Promise<void>}
  */
-function overlayAnnotations(svg, slideAnnotations) {
+async function overlayAnnotations(svg, slideAnnotations) {
   // Sort annotations by lowest child index
   slideAnnotations = sortByKey(slideAnnotations, 'annotationInfo', 'index');
 
@@ -272,7 +273,7 @@ function overlayAnnotations(svg, slideAnnotations) {
         for (const childId of annotation.annotationInfo.children) {
           const childAnnotation =
           slideAnnotations.find((ann) => ann.id == childId);
-          overlayAnnotation(svg, childAnnotation.annotationInfo);
+          await overlayAnnotation(svg, childAnnotation.annotationInfo);
         }
 
         break;
@@ -289,7 +290,7 @@ function overlayAnnotations(svg, slideAnnotations) {
         const parentId = annotation.annotationInfo.parentId;
         // Don't render an annotation if it is contained in a frame.
         if (!frameMap.has(parentId)) {
-          overlayAnnotation(svg, annotation.annotationInfo);
+          await overlayAnnotation(svg, annotation.annotationInfo);
         }
     }
   }
@@ -306,9 +307,9 @@ async function processPresentationAnnotations() {
   const client = redis.createClient({
     password: config.redis.password,
     socket: {
-        host: config.redis.host,
-        port: config.redis.port
-    }
+      host: config.redis.host,
+      port: config.redis.port,
+    },
   });
 
   await client.connect();
@@ -338,7 +339,9 @@ async function processPresentationAnnotations() {
     } else if (fs.existsSync(svgBackgroundSlide)) {
       backgroundFormat = 'svg';
     } else {
-      logger.error(`Skipping slide ${currentSlide.page} (${jobId}): unknown extension`);
+      logger.error(
+          `Skipping slide ${currentSlide.page} (${jobId}): unknown extension`,
+      );
       continue;
     }
 
@@ -347,7 +350,9 @@ async function processPresentationAnnotations() {
     const slideHeight = currentSlide.height;
 
     if (!slideWidth || !slideHeight) {
-      logger.error(`Skipping slide ${currentSlide.page} (${jobId}): unknown dimensions`);
+      logger.error(
+          `Skipping slide ${currentSlide.page} (${jobId}): unknown dimensions`,
+      );
       continue;
     }
 
@@ -374,16 +379,47 @@ async function processPresentationAnnotations() {
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
 
+    // The background slide is composited into the annotated SVG as an <image>
+    // sized to the canvas. When the background is itself an SVG, CairoSVG only
+    // rescales it to that box if it is resolution-independent; slides carrying
+    // absolute units (e.g. width="720pt") keep their intrinsic size and render
+    // cropped into the top-left corner (issue #25303). Rasterizing the slide to
+    // a PNG first sidesteps this: a raster image always scales to the <image>
+    // box. The helper ensures the slide has a viewBox (so slides missing one
+    // still fill the raster) and renders at the same resolution as the final
+    // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
+    let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
+
+    if (backgroundFormat === 'svg') {
+      try {
+        // Rasterize the same SVG we validated above (svgBackgroundSlide), not
+        // the dropbox copy, so it is clear which file feeds the raster.
+        backgroundSlide = rasterizeSlideBackground(
+            svgBackgroundSlide,
+            `${bgImagePath}-bg.png`,
+            {
+              width: toPx(slideWidth),
+              height: toPx(slideHeight),
+              cairosvg: config.shared.cairosvg,
+              unsafe: config.process.cairoSVGUnsafeFlag,
+            });
+      } catch (error) {
+        logger.error(`Rasterizing slide ${currentSlide.page} ` +
+          `failed for job ${jobId}: ${error.message}`);
+        statusUpdate.setError();
+      }
+    }
+
     // Add the image element
     canvas
-        .image(`file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`)
+        .image(`file://${backgroundSlide}`)
         .size(scaledWidth, scaledHeight);
 
     // Add a group element with class 'whiteboard'
     const whiteboard = canvas.group().attr({class: 'wb'});
 
     // 4. Overlay annotations onto slides
-    overlayAnnotations(whiteboard, currentSlide.annotations);
+    await overlayAnnotations(whiteboard, currentSlide.annotations);
 
     const svg = canvas.svg();
 
@@ -399,13 +435,17 @@ async function processPresentationAnnotations() {
       }
     });
 
-/**
- * Constructs the command arguments for converting an annotated slide from SVG to PDF format.
- * `cairoSVGUnsafeFlag` should be enabled (true) for CairoSVG versions >= 2.7.0
- * to allow external resources, such as presentation slides, to be loaded.
- *
- * @const {string[]} convertAnnotatedSlide - The command arguments for the conversion process.
- */
+    /**
+     * Constructs the command arguments for converting an annotated slide from
+     * SVG to PDF format.
+     *
+     * `cairoSVGUnsafeFlag` should be enabled (true) for CairoSVG
+     * versions >= 2.7.0 to allow external resources, such as presentation
+     * slides, to be loaded.
+     *
+     * @const {string[]} convertAnnotatedSlide - The command arguments for the
+     * conversion process.
+     */
     const convertAnnotatedSlide = [
       SVGfile,
       '--output-width', toPx(slideWidth),

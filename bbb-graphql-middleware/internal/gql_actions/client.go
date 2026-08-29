@@ -2,7 +2,6 @@ package gql_actions
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -57,7 +56,7 @@ RangeLoop:
 								browserConnection,
 								browserMessage.ID,
 								fmt.Sprintf(
-									"Mutation %s is not valid with length %d and the max allowed is %d",
+									"Mutation failed (%s): Length %d and the max allowed is %d",
 									browserMessage.Payload.OperationName,
 									mutationLength, config.GetConfig().Server.MaxMutationLength))
 							continue
@@ -65,12 +64,14 @@ RangeLoop:
 					}
 
 					// Rate limiter from config max_connection_mutations_per_minute
-					ctxRateLimiter, _ := context.WithTimeout(browserConnection.Context, 30*time.Second)
-					if err := browserConnection.FromBrowserToGqlActionsRateLimiter.Wait(ctxRateLimiter); err != nil {
+					if !browserConnection.FromBrowserToGqlActionsRateLimiter.Allow() {
 						sendErrorMessage(
 							browserConnection,
 							browserMessage.ID,
-							fmt.Sprintf("Rate limit exceeded: Maximum %d mutations per minute allowed. Please try again later.", config.GetConfig().Server.MaxConnectionMutationsPerMinute),
+							fmt.Sprintf("Mutation failed (%s): Rate limit exceeded - Maximum %d mutations per minute allowed",
+								browserMessage.Payload.OperationName,
+								config.GetConfig().Server.MaxConnectionMutationsPerMinute,
+							),
 						)
 
 						continue
@@ -83,11 +84,25 @@ RangeLoop:
 								// Add Prometheus Metrics
 								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
 							} else {
-								sendErrorMessage(browserConnection, browserMessage.ID, fmt.Sprintf("It was not able to send the request to Graphql Actions: %s", err.Error()))
+								sendErrorMessage(
+									browserConnection,
+									browserMessage.ID,
+									fmt.Sprintf("Mutation failed (%s): It was not able to send the request to Graphql Actions: %s",
+										browserMessage.Payload.OperationName,
+										err.Error(),
+									),
+								)
 								continue
 							}
 						} else {
-							sendErrorMessage(browserConnection, browserMessage.ID, fmt.Sprintf("It was not able to parse graphQL query: %s", err.Error()))
+							sendErrorMessage(
+								browserConnection,
+								browserMessage.ID,
+								fmt.Sprintf("Mutation failed (%s): It was not able to parse graphQL query: %s",
+									browserMessage.Payload.OperationName,
+									err.Error(),
+								),
+							)
 							continue
 						}
 					}

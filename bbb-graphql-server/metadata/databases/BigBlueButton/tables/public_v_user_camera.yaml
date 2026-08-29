@@ -32,8 +32,9 @@ select_permissions:
     permission:
       columns:
         - contentType
-        - showAsContent
         - hasAudio
+        - meetingId
+        - showAsContent
         - streamId
         - userId
       filter:
@@ -53,8 +54,9 @@ select_permissions:
     permission:
       columns:
         - contentType
-        - showAsContent
         - hasAudio
+        - meetingId
+        - showAsContent
         - streamId
         - userId
       filter:

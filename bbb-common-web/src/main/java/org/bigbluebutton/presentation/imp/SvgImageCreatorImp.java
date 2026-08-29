@@ -30,6 +30,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     private SlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
+    private long useTagThreshold;
     private long pathsThreshold;
     private int convPdfToSvgTimeout = 60;
     private int pdfFontsTimeout = 3;
@@ -39,13 +40,23 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
     private ImageResizer imageResizer;
+    private ImageResolutionService imageResolutionService;
+
+    private long maxBigSvgSize;
 
     @Override
-    public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
+    public boolean createSvgImage(UploadedPresentation pres, int page, boolean useBlank) throws TimeoutException{
         boolean success = false;
         File svgImagesPresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
         if (!svgImagesPresentationDir.exists())
             svgImagesPresentationDir.mkdir();
+
+        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+
+        if (useBlank) {
+            copyBlankSvg(destSvg);
+            return true;
+        }
 
         try {
             success = generateSvgImage(svgImagesPresentationDir, pres, page);
@@ -55,7 +66,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         }
 
         if (!success) {
-            File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
             if (destSvg.exists()) {
                 destSvg.delete();
             }
@@ -212,10 +222,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-
         if (destsvg.length() == 0 ||
                 pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
+                pHandler.numberOfUseTags() > useTagThreshold ||
                 rasterizeCurrSlide) {
 
             // We need t delete the destination file as we are starting a
@@ -295,11 +305,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     if (base64Size > browserLimit) {
                         log.error("Encoded PNG is too large for the browser");
                     } else {
-                        int width = 500;
-                        int height = 500;
+                        int width = MAX_SVG_WIDTH;
+                        int height = MAX_SVG_HEIGHT;
 
-                        ImageResolutionService imgResService = new ImageResolutionService();
-                        ImageResolution imageResolution = imgResService.identifyImageResolution(tempPng);
+                        ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                         log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
 
                         if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
@@ -310,9 +319,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
                             log.info("The image exceeds max dimension allowed, it will be resized.");
                             imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
-                            imageResolution = imgResService.identifyImageResolution(tempPng);
-                            width = imageResolution.getWidth();
-                            height = imageResolution.getHeight();
+                            imageResolution = imageResolutionService.identifyImageResolution(tempPng);
+                            if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                                width = imageResolution.getWidth();
+                                height = imageResolution.getHeight();
+                            } else {
+                                log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
+                                         page, pres.getName(), width, height);
+                            }
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
@@ -360,7 +374,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         long endConv = System.currentTimeMillis();
 
-        //System.out.println("******** CREATING SVG page " + page + " " + (endConv - startConv));
+        long svgLength = destsvg.length();
+        if (maxBigSvgSize > 0 && svgLength > maxBigSvgSize) {
+            log.warn("Generated SVG [{}] is too large: {}; using blank SVG instead", destsvg, svgLength);
+            return false;
+        }
 
         if (done) {
             return true;
@@ -394,8 +412,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         rawCommand  += " -q -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFile;
         if (analyze) {
-            rawCommand += " && cat " + destFile;
-            rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
+            rawCommand += " && grep -oE '<image|<path|<use' "+destFile+" | sort | uniq -c ";
         }
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
@@ -470,6 +487,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         imageTagThreshold = threshold;
     }
 
+    public void setUseTagThreshold(long threshold) {
+        useTagThreshold = threshold;
+    }
+
     public void setPathsThreshold(long threshold) {
         pathsThreshold = threshold;
     }
@@ -497,5 +518,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setImageResizer(ImageResizer imageResizer) {
         this.imageResizer = imageResizer;
+    }
+
+    public void setImageResolutionService(ImageResolutionService imageResolutionService) {
+        this.imageResolutionService = imageResolutionService;
+    }
+
+    public void setMaxBigSvgSize(long maxBigSvgSize) {
+        this.maxBigSvgSize = maxBigSvgSize;
     }
 }

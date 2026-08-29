@@ -71,6 +71,7 @@ class DataSaving extends BaseMenu {
                       ariaLabelledBy="webcamToggle"
                       ariaLabel={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
                       showToggleLabel={showToggleLabel}
+                      data-test="webcamToggleBtn"
                     />
                   </Styled.FormElementRight>
                 </Styled.Col>
@@ -97,6 +98,7 @@ class DataSaving extends BaseMenu {
                       ariaLabelledBy="screenShare"
                       ariaLabel={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
                       showToggleLabel={showToggleLabel}
+                      data-test="desktopSharingToggleBtn"
                     />
                   </Styled.FormElementRight>
                 </Styled.Col>

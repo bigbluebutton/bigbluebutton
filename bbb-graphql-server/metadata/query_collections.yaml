@@ -40,6 +40,7 @@
               customLogoUrl
               customDarkLogoUrl
               notifyRecordingIsOn
+              notifyRecordingAppend
               presentationUploadExternalDescription
               presentationUploadExternalUrl
               recordingPolicies {
@@ -52,6 +53,7 @@
                 allowModsToEjectCameras
                 allowModsToUnmuteUsers
                 authenticatedGuest
+                allowPromoteGuestToModerator
                 maxUserConcurrentAccesses
                 maxUsers
                 meetingLayout
@@ -66,7 +68,7 @@
                 captureSlides
                 captureSlidesFilename
                 freeJoin
-                parentId
+                parentMeetingId
                 privateChatEnabled
                 record
                 sequence

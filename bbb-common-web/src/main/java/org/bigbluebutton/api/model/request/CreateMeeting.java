@@ -4,9 +4,8 @@ import jakarta.ws.rs.core.MediaType;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +19,8 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         ATTENDEE_PW("attendeePW"),
         MODERATOR_PW("moderatorPW"),
         IS_BREAKOUT_ROOM("isBreakoutRoom"),
-        RECORD("record");
+        RECORD("record"),
+        PRES_UPLOAD_EXT_URL("presentationUploadExternalUrl");
 
         private final String value;
 
@@ -54,6 +54,9 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     @IsBooleanConstraint(message = "Record must be a boolean value (true or false)")
     private String recordString;
     private Boolean record;
+
+    @UrlConstraint
+    private String presentationUploadExternalUrl;
 
     public CreateMeeting(Checksum checksum, HttpServletRequest servletRequest) {
         super(checksum, servletRequest);
@@ -123,6 +126,14 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         this.record = record;
     }
 
+    public String getPresentationUploadExternalUrl() {
+        return presentationUploadExternalUrl;
+    }
+
+    public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
+        this.presentationUploadExternalUrl = presentationUploadExternalUrl;
+    }
+
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.NAME.getValue())) setName(params.get(Params.NAME.getValue())[0]);
@@ -132,6 +143,7 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         if(params.containsKey(Params.MODERATOR_PW.getValue())) setModeratorPW(params.get(Params.MODERATOR_PW.getValue())[0]);
         if(params.containsKey(Params.IS_BREAKOUT_ROOM.getValue())) setBreakoutRoomString(params.get(Params.IS_BREAKOUT_ROOM.value)[0]);
         if(params.containsKey(Params.RECORD.getValue())) setRecordString(params.get(Params.RECORD.getValue())[0]);
+        if(params.containsKey(Params.PRES_UPLOAD_EXT_URL.getValue())) setPresentationUploadExternalUrl(params.get(Params.PRES_UPLOAD_EXT_URL.getValue())[0]);
     }
 
     @Override

@@ -36,6 +36,7 @@ object TestDataGen {
       callerName = user.name,
       callerNum = user.name,
       color = "#ff6242",
+      speechLocale = "",
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -61,6 +62,7 @@ object TestDataGen {
       callerName = name,
       callerNum = name,
       color = "#ff6242",
+      speechLocale = "",
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -76,14 +78,22 @@ object TestDataGen {
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    WebcamStream(streamId, userId, subscribers)
+    WebcamStream(
+      streamId = streamId,
+      userId = userId,
+      userName = userId,
+      contentType = "camera",
+      hasAudio = false,
+      showAsContent = false,
+      subscribers = subscribers
+    )
   }
 
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
     val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
       role = regUser.role,bot = regUser.bot, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
-      locked = false, presenter = false, avatar = regUser.avatarURL, regUser.webcamBackgroundURL, color = "#ff6242",
+      locked = false, presenter = false, whiteboardWriteAccess = false, avatar = regUser.avatarURL, webcamBackground = regUser.webcamBackgroundURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
     Users2x.add(liveMeeting.users2x, u)
     u

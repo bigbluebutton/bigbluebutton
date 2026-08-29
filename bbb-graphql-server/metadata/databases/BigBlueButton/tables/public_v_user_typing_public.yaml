@@ -25,7 +25,6 @@ select_permissions:
         - userId
         - lastTypingAt
         - startedTypingAt
-        - isCurrentlyTyping
       filter:
         _and:
           - meetingId:

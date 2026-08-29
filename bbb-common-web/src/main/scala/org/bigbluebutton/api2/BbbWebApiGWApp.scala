@@ -26,7 +26,8 @@ class BbbWebApiGWApp(
     redisHost:                String,
     redisPort:                Int,
     redisPassword:            String,
-    redisExpireKey:           Int
+    redisExpireKey:           Int,
+    val pageTokenSecret:      String = ""
 ) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
@@ -125,8 +126,12 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean,
+                    sharedNotesInitialContentJson: java.util.ArrayList[AnyRef],
+                    sharedNotesInitialContentMarkdown: java.lang.String,
+                    sharedNotesEditor:         java.lang.String,
                     recordFullDurationMedia: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
+                    multiUserWhiteboardEnabled: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
                     userCameraCap:    java.lang.Integer,
                     maxPinnedCameras: java.lang.Integer,
@@ -169,6 +174,7 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
+                    notifyRecordingAppend:                  String,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
@@ -177,11 +183,15 @@ class BbbWebApiGWApp(
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
+    val sharedNotesInitialContentJsonVector: Vector[AnyRef] = sharedNotesInitialContentJson.asScala.toVector
     val meetingProp = MeetingProp(
       name = meetingName,
       extId = extMeetingId,
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
+      sharedNotesInitialContentJson = sharedNotesInitialContentJsonVector,
+      sharedNotesInitialContentMarkdown = sharedNotesInitialContentMarkdown,
+      sharedNotesEditor = sharedNotesEditor,
       maxPinnedCameras = maxPinnedCameras.intValue(),
       cameraBridge,
       screenShareBridge,
@@ -189,6 +199,7 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
+      notifyRecordingAppend,
       presentationUploadExternalDescription,
       presentationUploadExternalUrl
     )
@@ -230,6 +241,7 @@ class BbbWebApiGWApp(
       maxUsers = maxUsers.intValue(),
       maxUserConcurrentAccesses = maxUserConcurrentAccesses,
       webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      multiUserWhiteboardEnabled = multiUserWhiteboardEnabled,
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
@@ -301,7 +313,8 @@ class BbbWebApiGWApp(
                    role: String, extUserId: String, authToken: String, sessionToken: String,
                    avatarURL: String, webcamBackgroundURL: String, bot: java.lang.Boolean, guest: java.lang.Boolean,
                    authed: java.lang.Boolean, guestStatus: String, excludeFromDashboard: java.lang.Boolean,
-                   enforceLayout: String, logoutUrl: String, userMetadata: java.util.Map[String, String]): Unit = {
+                   enforceLayout: String, logoutUrl: String, joinRequestMetadata: java.util.Map[String, String],
+                   userMetadata: java.util.Map[String, String]): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -314,7 +327,7 @@ class BbbWebApiGWApp(
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
       avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, bot = bot.booleanValue(), guest = guest.booleanValue(),
       authed = authed.booleanValue(), guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard,
-      enforceLayout = enforceLayout, logoutUrl = logoutUrl, userMetadata = (userMetadata).asScala.toMap)
+      enforceLayout = enforceLayout, logoutUrl = logoutUrl, joinRequestMetadata = (joinRequestMetadata).asScala.toMap, userMetadata = (userMetadata).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
@@ -376,7 +389,7 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
       // Send new event with page urls
-      val newEvent = MsgBuilder.buildPresentationPageConvertedSysMsg(msg.asInstanceOf[DocPageGeneratedProgress])
+      val newEvent = MsgBuilder.buildPresentationPageConvertedSysMsg(msg.asInstanceOf[DocPageGeneratedProgress], pageTokenSecret)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
     } else if (msg.isInstanceOf[DocConversionProgress]) {
       val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[DocConversionProgress])
@@ -385,7 +398,7 @@ class BbbWebApiGWApp(
       val event = MsgBuilder.buildOfficeToPdfConversionFailedMsg(msg.asInstanceOf[OfficeToPdfConversionFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
-      val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
+      val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress], pageTokenSecret)
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
 
       // Send new event with page urls

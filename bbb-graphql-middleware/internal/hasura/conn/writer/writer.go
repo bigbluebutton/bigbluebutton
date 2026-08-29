@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"slices"
 	"strings"
 	"sync"
@@ -21,9 +22,12 @@ import (
 )
 
 var (
-	allowedSubscriptions []string
-	deniedSubscriptions  []string
-	jsonPatchDisabled    = config.GetConfig().Server.JsonPatchDisabled
+	allowedSubscriptions    []string
+	deniedSubscriptions     []string
+	jsonPatchDisabled       = config.GetConfig().Server.JsonPatchDisabled
+	dumpQueriesDir          = ""
+	dumpQueriesCounter      = make(map[string]int)
+	dumpQueriesCounterMutex sync.RWMutex
 )
 
 func init() {
@@ -33,6 +37,9 @@ func init() {
 
 	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
 		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
+	}
+	if config.GetConfig().DumpQueriesDir != "" {
+		dumpQueriesDir = config.GetConfig().DumpQueriesDir
 	}
 }
 
@@ -97,6 +104,7 @@ RangeLoop:
 					// Identify type based on query string
 					messageType := common.Query
 					var lastReceivedDataChecksum uint32
+					var lastReceivedData common.HasuraMessage
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
@@ -170,6 +178,7 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+								lastReceivedData = existingSubscriptionData.LastReceivedData
 								streamCursorField = existingSubscriptionData.StreamCursorField
 								streamCursorVariableName = existingSubscriptionData.StreamCursorVariableName
 								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
@@ -218,6 +227,7 @@ RangeLoop:
 						JsonPatchSupported:         jsonPatchSupported,
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
+						LastReceivedData:           lastReceivedData,
 					}
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
@@ -231,9 +241,24 @@ RangeLoop:
 						Inc()
 
 					// Dump of all subscriptions for analysis purpose
-					// queryCounter++
-					// saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
-					// saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
+					if dumpQueriesDir != "" {
+						dumpQueriesCounterMutex.Lock()
+						if _, exists := dumpQueriesCounter[browserConnection.Id]; !exists {
+							dumpQueriesCounter[browserConnection.Id] = 1
+						} else {
+							dumpQueriesCounter[browserConnection.Id]++
+						}
+						counterValue := dumpQueriesCounter[browserConnection.Id]
+						dumpQueriesCounterMutex.Unlock()
+
+						if errSavingQueryDump := saveContentToFile(
+							fmt.Sprintf("/%s/%s", common.GetUniqueID(), browserConnection.Id),
+							fmt.Sprintf("%02d-%s-%s", counterValue, string(messageType), strings.ReplaceAll(browserMessage.Payload.OperationName, "/", "_")),
+							fromBrowserMessage,
+						); errSavingQueryDump != nil {
+							hc.BrowserConn.Logger.Error(errSavingQueryDump)
+						}
+					}
 				}
 
 				if browserMessage.Type == "complete" {
@@ -244,8 +269,14 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 					browserConnection.ActiveStreamingsMutex.Lock()
-					if browserConnection.ActiveStreamings["getCursorCoordinatesStream"] == browserMessage.ID {
-						delete(browserConnection.ActiveStreamings, "getCursorCoordinatesStream")
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
+					}
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
+					}
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
 					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
@@ -277,26 +308,33 @@ RangeLoop:
 	}
 }
 
-//
-//var queryCounter = 0
-//
-//func saveItToFile(filename string, contentInBytes []byte) {
-//	filePath := fmt.Sprintf("/tmp/%s.txt", filename)
-//	//message, err := json.Marshal(contentInBytes)
-//
-//	fmt.Printf("Saving %s\n", filePath)
-//
-//	file, err := os.Create(filePath)
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer file.Close()
-//
-//	_, err = file.Write(contentInBytes)
-//	if err != nil {
-//		panic(err)
-//	}
-//}
+func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
+	fileDir := fmt.Sprintf("%s/%s", dumpQueriesDir, subDir)
+	filePath := fmt.Sprintf("%s/%s.txt", fileDir, filename)
+
+	if _, err := os.Stat(fileDir); os.IsNotExist(err) {
+		// Create directory (and parents if needed)
+		err := os.MkdirAll(fileDir, 0o755)
+		if err != nil {
+			return fmt.Errorf("error creating directory: %v", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("error checking directory: %v", err)
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("error creating query dump: %v", err)
+	}
+	defer file.Close()
+
+	_, err = file.Write(contentInBytes)
+	if err != nil {
+		return fmt.Errorf("error writing query dump: %v", err)
+	}
+
+	return nil
+}
 
 func calculateQueryDepth(query string) (int, error) {
 	src := source.NewSource(&source.Source{
@@ -373,4 +411,21 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
 	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
+}
+
+func removeValueFromSlice(mapWithSlices map[string][]string, key string, value string) (bool, map[string][]string) {
+	removed := false
+	if slice, ok := mapWithSlices[key]; ok {
+		if i := slices.Index(slice, value); i >= 0 {
+			slice = slices.Delete(slice, i, i+1)
+			if len(slice) == 0 {
+				delete(mapWithSlices, key)
+			} else {
+				mapWithSlices[key] = slice
+			}
+			removed = true
+		}
+	}
+
+	return removed, mapWithSlices
 }

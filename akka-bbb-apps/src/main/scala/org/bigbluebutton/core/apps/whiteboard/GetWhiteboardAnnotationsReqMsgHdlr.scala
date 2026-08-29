@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait GetWhiteboardAnnotationsReqMsgHdlr {
@@ -24,7 +25,12 @@ trait GetWhiteboardAnnotationsReqMsgHdlr {
     val whiteboardId = msg.body.whiteboardId
 
     val history = getWhiteboardAnnotations(whiteboardId, liveMeeting)
-    val multiUser = getWhiteboardAccess(whiteboardId, liveMeeting)
+    val multiUser = {
+      Users2x
+        .findAll(liveMeeting.users2x)
+        .filter(_.whiteboardWriteAccess)
+        .map(u => u.intId)
+    }.toArray
     broadcastEvent(msg, history, multiUser)
   }
 }

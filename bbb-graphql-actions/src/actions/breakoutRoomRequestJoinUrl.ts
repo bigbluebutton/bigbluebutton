@@ -6,7 +6,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   throwErrorIfInvalidInput(input,
       [
-        {name: 'breakoutRoomId', type: 'string', required: true},
+        {name: 'breakoutRoomMeetingId', type: 'string', required: true},
       ]
   )
 
@@ -24,7 +24,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     meetingId: routing.meetingId,
     userId: routing.userId,
-    breakoutId: input.breakoutRoomId,
+    breakoutId: input.breakoutRoomMeetingId,
   };
 
   return { eventName, routing, header, body };

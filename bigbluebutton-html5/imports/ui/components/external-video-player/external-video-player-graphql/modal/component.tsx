@@ -38,7 +38,6 @@ const intlMessages = defineMessages({
 });
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
-const PANOPTO_MATCH_URL = /https?:\/\/([^/]+\/Panopto)(\/Pages\/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)/;
 
 const YOUTUBE_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu.be)\/.+$/);
 
@@ -68,11 +67,6 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
     if (YOUTUBE_SHORTS_REGEX.test(url)) {
       const shortsUrl = url.replace('shorts/', 'watch?v=');
       externalVideoUrl = shortsUrl;
-    } else if (PANOPTO_MATCH_URL.test(url)) {
-      const m = url.match(PANOPTO_MATCH_URL);
-      if (m && m.length >= 4) {
-        externalVideoUrl = `https://${m[1]}/Podcast/Social/${m[3]}.mp4`;
-      }
     }
 
     if (YOUTUBE_REGEX.test(externalVideoUrl)) {
@@ -102,7 +96,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
             {intl.formatMessage(intlMessages.input)}
             <input
               id="video-modal-input"
-              onChange={(e) => setVideoUrl(e.target.value)}
+              onChange={(e) => setVideoUrl(e.target.value.trim())}
               name="video-modal-input"
               placeholder={intl.formatMessage(intlMessages.urlInput)}
               aria-describedby="exernal-video-note"

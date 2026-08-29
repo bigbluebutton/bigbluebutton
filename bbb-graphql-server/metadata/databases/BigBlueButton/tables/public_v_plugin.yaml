@@ -13,6 +13,7 @@ select_permissions:
         - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
+        - loggerSettings
         - localesBaseUrl
         - loadFailureReason
         - loadFailureSource
@@ -26,6 +27,7 @@ select_permissions:
         - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
+        - loggerSettings
         - localesBaseUrl
         - loadFailureReason
         - loadFailureSource

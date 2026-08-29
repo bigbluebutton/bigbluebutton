@@ -5,7 +5,7 @@ import React, {
   useMemo,
   KeyboardEventHandler,
 } from 'react';
-import { makeVar, useMutation } from '@apollo/client';
+import { makeVar, useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
@@ -38,8 +38,6 @@ import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './pa
 import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
 import Storage from '/imports/ui/services/storage/in-memory';
-import browserInfo from '/imports/utils/browserInfo';
-import deviceInfo from '/imports/utils/deviceInfo';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -67,7 +65,7 @@ interface ChatListProps {
         lastSeenAt: string,
       },
     }
-  ) => void;
+  ) => Promise<unknown>;
 }
 
 const isElement = (el: unknown): el is HTMLElement => {
@@ -102,19 +100,24 @@ const setLastSender = (lastSenderPerPage: Map<number, string>) => {
 };
 
 const lastSeenQueue = makeVar<{ [key: string]: Set<number> }>({});
-const setter = makeVar<{ [key: string]:(lastSeenTime: string) => void }>({});
 const lastSeenAtVar = makeVar<{ [key: string]: number }>({});
+const pendingLastSeenAtVar = makeVar<{ [key: string]: number }>({});
 const chatIdVar = makeVar<string>('');
 
 const dispatchLastSeen = () => setTimeout(() => {
   const lastSeenQueueValue = lastSeenQueue();
-  if (lastSeenQueueValue[chatIdVar()]) {
-    const lastTimeQueue = Array.from(lastSeenQueueValue[chatIdVar()]);
+  const activeChatId = chatIdVar();
+  if (lastSeenQueueValue[activeChatId]) {
+    const lastTimeQueue = Array.from(lastSeenQueueValue[activeChatId]);
     const lastSeenTime = Math.max(...lastTimeQueue);
     const lastSeenAtVarValue = lastSeenAtVar();
-    if (lastSeenTime > (lastSeenAtVarValue[chatIdVar()] ?? 0)) {
-      lastSeenAtVar({ ...lastSeenAtVar(), [chatIdVar()]: lastSeenTime });
-      setter()[chatIdVar()](new Date(lastSeenTime).toISOString());
+    const pendingLastSeenAtVarValue = pendingLastSeenAtVar();
+    if (
+      lastSeenTime > (lastSeenAtVarValue[activeChatId] ?? 0)
+      && lastSeenTime > (pendingLastSeenAtVarValue[activeChatId] ?? 0)
+    ) {
+      pendingLastSeenAtVar({ ...pendingLastSeenAtVarValue, [activeChatId]: lastSeenTime });
+      lastSeenQueue({ ...lastSeenQueueValue, [activeChatId]: new Set([lastSeenTime]) });
     }
   }
 }, 500);
@@ -210,6 +213,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
   const [isScrollingDisabled, setIsScrollingDisabled] = useState(false);
   const allPagesLoaded = loadingPages.size === 0;
+  const pendingLastSeenAtByChat = useReactiveVar(pendingLastSeenAtVar);
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -318,24 +322,56 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, [isStartSentinelVisible]);
 
   useEffect(() => {
-    setter({
-      ...setter(),
-      [chatId]: setLastMessageCreatedAt,
-    });
     chatIdVar(chatId);
     setLastMessageCreatedAt('');
   }, [chatId]);
 
   useEffect(() => {
-    if (lastMessageCreatedAt !== '') {
-      setMessageAsSeenMutation({
-        variables: {
+    const lastSeenTime = new Date(lastMessageCreatedAt).getTime();
+    if (!Number.isFinite(lastSeenTime) || lastMessageCreatedAt === '') return;
+
+    setMessageAsSeenMutation({
+      variables: {
+        chatId,
+        lastSeenAt: lastMessageCreatedAt,
+      },
+    }).then(() => {
+      // Use callback to confirm we have no connection issues before updating the last seen time
+      const lastSeenAtVarValue = lastSeenAtVar();
+      if (lastSeenTime > (lastSeenAtVarValue[chatId] ?? 0)) {
+        lastSeenAtVar({ ...lastSeenAtVarValue, [chatId]: lastSeenTime });
+      }
+
+      const pending = pendingLastSeenAtVar();
+      if ((pending[chatId] ?? 0) <= lastSeenTime) {
+        const pendingKeys = Object.keys(pending);
+        const pendingOtherKeys = pendingKeys.filter((key) => key !== chatId);
+        const rest = pendingOtherKeys.reduce((acc, key) => {
+          acc[key] = pending[key];
+          return acc;
+        }, {} as { [key: string]: number });
+        pendingLastSeenAtVar(rest);
+      }
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_set_last_seen_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
           chatId,
-          lastSeenAt: lastMessageCreatedAt,
         },
-      });
-    }
-  }, [lastMessageCreatedAt]);
+      }, `Setting chat last seen failed: ${e?.message}`);
+    });
+  }, [lastMessageCreatedAt, chatId, setMessageAsSeenMutation]);
+
+  useEffect(() => {
+    const pendingLastSeenAt = pendingLastSeenAtByChat[chatId];
+    if (!pendingLastSeenAt) return;
+    if (pendingLastSeenAt <= (lastSeenAtVar()[chatId] ?? 0)) return;
+    if (pendingLastSeenAt <= new Date(lastMessageCreatedAt || 0).getTime()) return;
+
+    setLastMessageCreatedAt(new Date(pendingLastSeenAt).toISOString());
+  }, [pendingLastSeenAtByChat, chatId, lastMessageCreatedAt]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -520,98 +556,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     setLockLoadingNewPages(loadingPages.size !== 0);
   }, [loadingPages]);
 
-  const scrollEndFrameRef = React.useRef<number>();
-  const userStartedScrollingAt = React.useRef<number | null>(null);
-  const scrollEventCount = React.useRef(0);
-  const scrollActivityCheckInterval = React.useRef<ReturnType<typeof setInterval>>();
-
-  const pollScrollEndEvent = useCallback((
-    setFrameId: (id: number) => void,
-    onScrollEnd: () => void,
-    {
-      stabilityFrames,
-      currentFrame,
-    } = {
-      stabilityFrames: 20,
-      currentFrame: 0,
-    },
-  ) => {
-    if (currentFrame < stabilityFrames) {
-      const frameId = requestAnimationFrame(() => {
-        pollScrollEndEvent(setFrameId, onScrollEnd, {
-          stabilityFrames,
-          currentFrame: currentFrame + 1,
-        });
-      });
-      setFrameId(frameId);
-      return;
-    }
-
-    onScrollEnd();
-  }, []);
-
-  const startScrollEndEventPolling = useCallback((onScrollEnd: () => void) => {
-    if (scrollEndFrameRef.current != null) {
-      cancelAnimationFrame(scrollEndFrameRef.current);
-      scrollEndFrameRef.current = undefined;
-    }
-    scrollEndFrameRef.current = requestAnimationFrame(() => {
-      pollScrollEndEvent((frameId) => {
-        scrollEndFrameRef.current = frameId;
-      }, onScrollEnd);
-    });
-  }, []);
-
-  const startScrollActivityCheck = useCallback(() => {
-    userStartedScrollingAt.current = Date.now();
-
-    scrollActivityCheckInterval.current = setInterval(() => {
-      if (userStartedScrollingAt.current === null) return;
-      const now = Date.now();
-      const timeEllapsedInSeconds = (now - userStartedScrollingAt.current) / 1000;
-      const scrollRatio = scrollEventCount.current / timeEllapsedInSeconds;
-      if (scrollRatio > 100) {
-        const messageElements = Array.from(document.querySelectorAll('#chat-list [data-message-type]')) as HTMLElement[];
-        const messageTypeCount = messageElements.reduce((acc, element) => {
-          const { messageType } = element.dataset;
-          if (messageType) {
-            if (acc[messageType]) {
-              acc[messageType] += 1;
-            } else {
-              acc[messageType] = 1;
-            }
-          }
-          return acc;
-        }, {} as Record<string, number | undefined>);
-
-        logger.warn({
-          logCode: 'high_scroll_activity_in_chat',
-          extraInfo: {
-            userLoadedMessagesByType: {
-              totalMessages: messageElements.length,
-              ...messageTypeCount,
-            },
-            userId: currentUser?.userId,
-            browserName: browserInfo.browserName,
-            browserVersion: browserInfo.browserVersion,
-            deviceName: deviceInfo.osName,
-            deviceVersion: deviceInfo.osVersion,
-            scrollRatio,
-          },
-        }, 'User performed high scroll activity in chat');
-      }
-    }, 1000);
-  }, [currentUser?.userId]);
-
-  useEffect(() => () => {
-    if (scrollActivityCheckInterval.current) {
-      clearInterval(scrollActivityCheckInterval.current);
-    }
-    if (scrollEndFrameRef.current) {
-      cancelAnimationFrame(scrollEndFrameRef.current);
-    }
-  }, []);
-
   return (
     <>
       {
@@ -640,16 +584,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 if (userScrolledUp !== showStartSentinel) {
                   setShowStartSentinel(userScrolledUp);
                 }
-                if (scrollActivityCheckInterval.current == null) {
-                  startScrollActivityCheck();
-                }
-                startScrollEndEventPolling(() => {
-                  userStartedScrollingAt.current = null;
-                  scrollEventCount.current = 0;
-                  clearInterval(scrollActivityCheckInterval.current);
-                  scrollActivityCheckInterval.current = undefined;
-                });
-                scrollEventCount.current += 1;
               }}
               onWheel={(e) => {
                 if (isScrollingDisabled) {
@@ -707,7 +641,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                       currentUserId={currentUser?.userId ?? ''}
                       currentUserIsLocked={!!currentUser?.locked}
                       currentUserIsModerator={!!currentUser?.isModerator}
-                      isBreakoutRoom={!!meeting?.isBreakout}
                       messageToolbarIsEnabled={messageToolbarIsEnabled}
                       chatDeleteEnabled={CHAT_DELETE_ENABLED}
                       chatEditEnabled={CHAT_EDIT_ENABLED}

@@ -12,7 +12,6 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 import java.io.File
-import java.net.URI
 
 trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -173,16 +172,18 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
         // Return existing uploaded file directly
-        val convertedFileName = new URI(null, null, currentPres.get.filenameConverted, null).getRawPath
-        val originalFilename = new URI(null, null, currentPres.get.name, null).getRawPath
+        val convertedFileName = currentPres.get.filenameConverted
+        val originalFilename = currentPres.get.name
         val originalFileExt = originalFilename.split("\\.").last
         val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
-        val convertedFileURI = if (convertedFileName != "") List("presentation", "download", meetingId,
-          s"${presId}?presFilename=${presId}.${convertedFileExt}&filename=$convertedFileName").mkString("", File.separator, "")
+        val convertedFileURI = if (convertedFileName != "") PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, presId, convertedFileExt, convertedFileName
+        )
         else ""
-        val originalFileURI = List("presentation", "download", meetingId,
-          s"${presId}?presFilename=${presId}.${originalFileExt}&filename=$originalFilename").mkString("", File.separator, "")
+        val originalFileURI = PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, presId, originalFileExt, originalFilename
+        )
 
         val event = buildNewPresFileAvailable("", originalFileURI, convertedFileURI, presId,
           m.body.fileStateType)
@@ -265,7 +266,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         "fileURI" -> m.body.annotatedFileURI,
         "filename" -> m.body.fileName
       )
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     } else if (m.body.fileStateType == "Converted") {
       PresPresentationDAO.updateDownloadUri(m.body.presId, m.body.convertedFileURI)
     } else if (m.body.fileStateType == "Original") {

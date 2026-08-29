@@ -5,9 +5,10 @@ on:
       - Automated tests
     types:
       - completed
-      - requested
+      - in_progress
 env:
   isCompleted: ${{ github.event.workflow_run.status == 'completed' }}
+  AUTO_COMMENT_MARKER: "<!-- bbb-automated-tests -->"
 jobs:
   get-pr-data:
     runs-on: ubuntu-latest
@@ -20,45 +21,85 @@ jobs:
       workflow-id: ${{ github.event.workflow_run.id || steps.set-env.outputs.workflow-id }}
     steps:
       - name: Find associated pull request
-        if: ${{ !fromJson(env.isCompleted) }}
         id: pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
-            const response = await github.rest.search.issuesAndPullRequests({
-              q: 'repo:${{ github.repository }} is:pr sha:${{ github.event.workflow_run.head_sha }}',
-              per_page: 1,
+            // PR resolution strategy:
+            // 1) Use workflow_run.pull_requests payload when available.
+            // 2) If multiple PRs, disambiguate using head repo + head branch.
+            // 3) Fallback to list PRs associated with commit SHA and apply same filter.
+            // 4) If still ambiguous or empty, skip to avoid commenting on the wrong PR.
+
+            const run = context.payload.workflow_run
+            const prs = run.pull_requests || []
+            if (prs.length === 1) {
+              core.info(`Found PR from workflow_run payload: #${prs[0].number}`)
+              return prs[0].number
+            }
+            if (prs.length > 1) {
+              const headRepo = run.head_repository?.full_name
+              const headBranch = run.head_branch
+              const matched = prs.filter((p) =>
+                p.head?.ref === headBranch &&
+                p.head?.repo?.full_name === headRepo
+              )
+              core.info(`Multiple PRs in workflow_run payload: ${prs.map(p => `#${p.number}`).join(', ')}`)
+              if (matched.length === 1) {
+                core.info(`Matched PR by head repo+branch: #${matched[0].number}`)
+                return matched[0].number
+              }
+              core.info(`Unable to disambiguate PRs from payload by head repo+branch`)
+            }
+
+            core.info('Falling back to PRs associated with commit SHA')
+            const list = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: run.head_sha,
+              per_page: 100,
             })
-            const items = response.data.items
-            if (items.length < 1) {
-              console.error('No PRs found')
+            const open = list.data.filter((p) => p.state === 'open')
+            const headRepo = run.head_repository?.full_name
+            const headBranch = run.head_branch
+            const matched = open.filter((p) =>
+              p.head?.ref === headBranch &&
+              p.head?.repo?.full_name === headRepo
+            )
+            core.info(`Commit PRs: total=${list.data.length} open=${open.length} matched=${matched.length}`)
+            if (matched.length === 1) {
+              core.info(`Matched PR by commit+head repo+branch: #${matched[0].number}`)
+              return matched[0].number
+            }
+            if (matched.length === 0) {
+              core.info('No open PR matched commit+head repo+branch')
               return
             }
-            const pullRequestNumber = items[0].number
-            return pullRequestNumber
+            core.info('Multiple open PRs matched commit+head repo+branch; skipping to avoid wrong comment')
+            return
       - name: Download PR artifact
         if: ${{ fromJson(env.isCompleted) }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             try {
-              let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-                 owner: context.repo.owner,
-                 repo: context.repo.repo,
-                 run_id: context.payload.workflow_run.id,
+              let allArtifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.payload.workflow_run.id,
               });
-              let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              let matchArtifact = allArtifacts.find((artifact) => {
                 return artifact.name == "pr-comment-data"
-              })[0];
+              });
               if (!matchArtifact) {
                 console.log('No artifact found');
                 return;
               }
               let download = await github.rest.actions.downloadArtifact({
-                 owner: context.repo.owner,
-                 repo: context.repo.repo,
-                 artifact_id: matchArtifact.id,
-                 archive_format: 'zip',
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: matchArtifact.id,
+                archive_format: 'zip',
               });
               let fs = require('fs');
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr-comment-data.zip`, Buffer.from(download.data));
@@ -90,59 +131,171 @@ jobs:
   publish-test-results:
     runs-on: ubuntu-latest
     needs: get-pr-data
-    if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}
+    if: ${{ github.repository_owner == 'bigbluebutton' && needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id && github.event.workflow_run.status == 'completed' && github.event.workflow_run.conclusion != 'success' }}
+    permissions:
+      actions: read
+      contents: read
     steps:
-      - name: Publish Test Results
-        run: echo "hello world"
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Download tests report artifact
+        uses: actions/github-script@v8
+        with:
+          script: |
+            try {
+              const allArtifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.payload.workflow_run.id,
+              });
+              const report = allArtifacts.find((artifact) => {
+                return artifact.name == "tests-report";
+              });
+              if (!report) {
+                core.exportVariable('REPORT_ARTIFACT_FOUND', 'false');
+                console.log('No tests-report artifact found');
+                return;
+              }
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: report.id,
+                archive_format: 'zip',
+              });
+              const fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/tests-report.zip`, Buffer.from(download.data));
+              core.exportVariable('REPORT_ARTIFACT_FOUND', 'true');
+            } catch (error) {
+              console.log('Error fetching or downloading tests-report artifact:', error);
+              core.exportVariable('REPORT_ARTIFACT_FOUND', 'false');
+            }
+      - name: Unzip tests report artifact
+        if: ${{ env.REPORT_ARTIFACT_FOUND == 'true' }}
+        run: unzip tests-report.zip -d tests-report
+      - name: Normalize report directory
+        if: ${{ env.REPORT_ARTIFACT_FOUND == 'true' }}
+        run: |
+          if [ -d "tests-report/playwright-report" ]; then
+            echo "REPORT_PATH=tests-report/playwright-report" >> "$GITHUB_ENV"
+          else
+            echo "REPORT_PATH=tests-report" >> "$GITHUB_ENV"
+          fi
+      - name: Publish report to reports repository
+        if: ${{ env.REPORT_ARTIFACT_FOUND == 'true' }}
+        uses: ./.github/actions/publish-playwright-report
+        with:
+          reports-repo: ${{ github.repository_owner }}/bbb-ci-playwright-reports
+          token: ${{ secrets.PLAYWRIGHT_REPORTS_REPO_TOKEN }}
+          pr-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          workflow-id: ${{ needs.get-pr-data.outputs.workflow-id }}
+          report-path: ${{ env.REPORT_PATH }}
   comment-pr:
     runs-on: ubuntu-latest
+    concurrency:
+      group: comment-pr-${{ needs.get-pr-data.outputs.pr-number }}
+      cancel-in-progress: true
     permissions:
       pull-requests: write
     needs: get-pr-data
     if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}
     steps:
-      - name: Find Comment
-        uses: peter-evans/find-comment@v3
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Check if test reports exist
+        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) }}
+        id: check-reports
+        uses: ./.github/actions/check-artifact-exists
+        with:
+          artifact-name: tests-report
+      - name: Cleanup previous comments
+        uses: actions/github-script@v8
         id: fc
         with:
-          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
-          comment-author: "github-actions[bot]"
-          body-includes: Automated tests Summary
-      - name: Remove previous comment
-        if: steps.fc.outputs.comment-id != ''
-        uses: actions/github-script@v7
-        with:
           script: |
-            github.rest.issues.deleteComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: ${{ steps.fc.outputs.comment-id }}
-            })
+            const marker = process.env.AUTO_COMMENT_MARKER;
+            const { owner, repo } = context.repo;
+            const issue_number = Number('${{ needs.get-pr-data.outputs.pr-number }}');
+            core.info(`Auto-comment cleanup: marker=${marker} issue=${owner}/${repo}#${issue_number}`);
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number, per_page: 100 }
+            );
+            core.info(`Auto-comment cleanup: fetched ${comments.length} comments`);
+
+            const targets = comments.filter((c) =>
+              c.user?.login === 'github-actions[bot]' && c.body?.includes(marker)
+            );
+            core.info(`Auto-comment cleanup: found ${targets.length} matching comments`);
+            core.info(`Auto-comment cleanup summary: will delete ${targets.length} comment(s)`);
+
+            for (const c of targets) {
+              try {
+                await github.rest.issues.deleteComment({ owner, repo, comment_id: c.id });
+                core.info(`Auto-comment cleanup: deleted comment ${c.id}`);
+              } catch (e) {
+                if (e.status === 404) {
+                  core.info(`Auto-comment cleanup: comment ${c.id} already deleted (404)`);
+                  continue;
+                }
+                core.warning(`Auto-comment cleanup: failed to delete ${c.id}: ${e.message}`);
+                throw e;
+              }
+            }
       - name: In progress tests comment
-        if: ${{ !fromJson(env.isCompleted) }}
+        if: ${{ github.event.action == 'in_progress' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
-            <h1>Automated tests Summary</h1>
-            <h3><strong>:hourglass_flowing_sand:</strong> Tests are running...</h3>
+            ${{ env.AUTO_COMMENT_MARKER }}
+            <h2><strong>:hourglass_flowing_sand:</strong> Automated tests are running...</h2>
       - name: Passing tests comment
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
-            <h1>Automated tests Summary</h1>
-            <h3><strong>:white_check_mark:</strong> All the CI tests have passed!</h3>
-      - name: Failing tests comment
-        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) }}
+            ${{ env.AUTO_COMMENT_MARKER }}
+            <h2><strong>:white_check_mark:</strong> Automated tests have passed!</h2>
+      - name: Failing tests comment (with report)
+        if: ${{ github.event.workflow_run.conclusion == 'failure' && fromJson(env.isCompleted) && fromJson(steps.check-reports.outputs.result || 'false') }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
-            <h1> Automated tests Summary</h1>
-            <h3><strong>:rotating_light:</strong> Test workflow has failed</h3>
+            ${{ env.AUTO_COMMENT_MARKER }}
+            <h2><strong>:rotating_light:</strong> Automated tests failed</h2>
 
-            ___
+            - [Test results](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }}/${{ needs.get-pr-data.outputs.workflow-id }})
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
+      - name: Failing tests comment (without report)
+        if: ${{ github.event.workflow_run.conclusion == 'failure' && fromJson(env.isCompleted) && !fromJson(steps.check-reports.outputs.result || 'false') }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            ${{ env.AUTO_COMMENT_MARKER }}
+            <h2><strong>:rotating_light:</strong> Automated tests failed</h2>
 
-            [Click here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }}) to check the action test reports (_to view the report locally, see the [docs](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/README.md#check-test-results)_)
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
+      - name: Comment on cancellation
+        if: ${{ github.event.workflow_run.conclusion == 'cancelled' && fromJson(env.isCompleted) }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            ${{ env.AUTO_COMMENT_MARKER }}
+            <h2><strong>:warning:</strong> Automated tests were cancelled</h2>
+
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
+      - name: Skipped tests comment
+        if: ${{ github.event.workflow_run.conclusion == 'skipped' && fromJson(env.isCompleted) }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            ${{ env.AUTO_COMMENT_MARKER }}
+            <h2><strong>:fast_forward:</strong> Automated tests were skipped</h2>
+
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})

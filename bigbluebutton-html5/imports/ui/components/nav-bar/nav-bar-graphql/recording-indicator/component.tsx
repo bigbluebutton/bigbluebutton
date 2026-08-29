@@ -26,6 +26,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import Service from './service';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -87,6 +88,7 @@ interface RecordingIndicatorProps {
   micUser: boolean;
   isPhone: boolean;
   recordingNotificationEnabled: boolean;
+  notifyRecordingAppend: string;
   serverTime: number;
   isModerator: boolean;
   hasError: boolean;
@@ -102,16 +104,49 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   isModerator,
   record,
   recordingNotificationEnabled,
+  notifyRecordingAppend,
   hasError,
   isLoading,
 }) => {
   const intl = useIntl();
-  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
-  const [isRecordingNotifyModalOpen, setIsRecordingNotifyModalOpen] = useState(false);
   const [shouldNotify, setShouldNotify] = useState(true);
   const [time, setTime] = useState(0);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
+
+  const {
+    isOpen: isRecordingModalOpen,
+    open: openRecordingModal,
+    close: closeRecordingModal,
+  } = useModalRegistration({
+    id: 'recordingIndicatorModal',
+    priority: 'high',
+  });
+
+  const setIsRecordingModalOpen = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      openRecordingModal();
+    } else {
+      closeRecordingModal();
+    }
+  }, [openRecordingModal, closeRecordingModal]);
+
+  const {
+    isOpen: isRecordingNotifyModalOpen,
+    open: openRecordingNotifyModal,
+    close: closeRecordingNotifyModal,
+  } = useModalRegistration({
+    id: 'recordingNotifyModal',
+    priority: 'high',
+  });
+
+  const setIsRecordingNotifyModalOpen = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      openRecordingNotifyModal();
+    } else {
+      closeRecordingNotifyModal();
+    }
+  }, [openRecordingNotifyModal, closeRecordingNotifyModal]);
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {
@@ -281,6 +316,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
           }}
           priority="high"
           isOpen={isRecordingNotifyModalOpen}
+          notifyRecordingAppend={notifyRecordingAppend}
           closeModal={() => {
             setIsRecordingNotifyModalOpen(false);
             setShouldNotify(false);
@@ -327,6 +363,7 @@ const RecordingIndicatorContainer: React.FC = () => {
   } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
     notifyRecordingIsOn: meeting.notifyRecordingIsOn,
+    notifyRecordingAppend: meeting.notifyRecordingAppend,
     recordingPolicies: meeting.recordingPolicies,
   }));
 
@@ -386,6 +423,7 @@ const RecordingIndicatorContainer: React.FC = () => {
           && currentMeeting?.notifyRecordingIsOn)
           ?? false
       }
+      notifyRecordingAppend={currentMeeting?.notifyRecordingAppend ?? ''}
       serverTime={passedTime > 0 ? passedTime : 0}
       isModerator={currentUser?.isModerator ?? false}
       hasError={Boolean(currentMeetingErrors || meetingRecordingError)}

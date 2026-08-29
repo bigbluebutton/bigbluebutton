@@ -54,8 +54,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	newLogger.SetFormatter(&logrus.JSONFormatter{})
 
 	// Obtain id for this connection
-	lastBrowserConnectionId.Add(1)
-	browserConnectionId := "BC" + fmt.Sprintf("%010d", lastBrowserConnectionId.Load())
+	browserId := lastBrowserConnectionId.Add(1)
+	browserConnectionId := "BC" + fmt.Sprintf("%010d", browserId)
 	connectionLogger := newLogger.WithField("browserConnectionId", browserConnectionId)
 
 	// Starts a context that will be dependent on the connection, so we can cancel subroutines when the connection is dropped
@@ -101,7 +101,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		Websocket:                          browserWsConn,
 		BrowserRequestCookies:              r.Cookies(),
 		ActiveSubscriptions:                make(map[string]common.GraphQlSubscription, 1),
-		ActiveStreamings:                   make(map[string]string, 1),
+		ActiveStreamings:                   make(map[string][]string, 1),
 		Context:                            browserConnectionContext,
 		ContextCancelFunc:                  browserConnectionContextCancel,
 		ConnAckSentToBrowser:               false,
@@ -348,7 +348,6 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 	browserConnection.Lock()
 	browserConnection.BBBWebSessionVariables = sessionVariables
 	browserConnection.CurrentlyInMeeting = hasuraRole == "bbb_client"
-	browserConnection.BBBWebSessionVariables = sessionVariables
 	browserConnection.Unlock()
 
 	return nil, ""
@@ -519,7 +518,7 @@ func InvalidateIdleBrowserConnectionsRoutine() {
 				browserConnection.Logger.Info("Closing browser connection, reason: idle timeout")
 				errCloseWs := browserConnection.Websocket.Close(websocket.StatusNormalClosure, "idle timeout")
 				if errCloseWs != nil {
-					browserConnection.Logger.Debugf("Error on close websocket: %v", errCloseWs)
+					browserConnection.Logger.Warnf("Error on close websocket: %v", errCloseWs)
 				}
 			}
 		}

@@ -22,6 +22,7 @@ case class PluginDataChannelEntryDbModel(
     toRoles:            Option[List[String]],
     toUserIds:          Option[List[String]],
     createdAt:          java.sql.Timestamp,
+    updatedAt:          java.sql.Timestamp,
     deletedAt:          Option[java.sql.Timestamp],
 )
 
@@ -36,8 +37,9 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
   val toRoles = column[Option[List[String]]]("toRoles")
   val toUserIds = column[Option[List[String]]]("toUserIds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
+  val updatedAt = column[java.sql.Timestamp]("updatedAt")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
-  override def * = (meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, toRoles, toUserIds, createdAt, deletedAt) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
+  override def * = (meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, toRoles, toUserIds, createdAt, updatedAt, deletedAt) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
 }
 
 object PluginDataChannelEntryDAO {
@@ -59,6 +61,7 @@ object PluginDataChannelEntryDAO {
           },
           toUserIds = if(toUserIds.isEmpty) None else Some(toUserIds),
           createdAt = new java.sql.Timestamp(System.currentTimeMillis()),
+          updatedAt = new java.sql.Timestamp(System.currentTimeMillis()),
           deletedAt = None
         )
       )
@@ -116,6 +119,7 @@ object PluginDataChannelEntryDAO {
   def replace(meetingId: String, pluginName: String, channelName: String,
              subChannelName: String,  entryId: String, payloadJson: JsValue) = {
 
+    val now = new java.sql.Timestamp(System.currentTimeMillis())
     DatabaseConnection.enqueue(
       TableQuery[PluginDataChannelEntryDbTableDef]
         .filter(_.meetingId === meetingId)
@@ -124,8 +128,8 @@ object PluginDataChannelEntryDAO {
         .filter(_.subChannelName === subChannelName)
         .filter(_.entryId === entryId)
         .filter(_.deletedAt.isEmpty)
-        .map(_.payloadJson)
-        .update(payloadJson)
+        .map(entry => (entry.payloadJson, entry.updatedAt))
+        .update((payloadJson, now))
     )
   }
 

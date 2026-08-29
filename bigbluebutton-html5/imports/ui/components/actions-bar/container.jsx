@@ -125,7 +125,7 @@ const ActionsBarContainer = (props) => {
         isReactionsButtonEnabled,
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
         hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
-        isMeteorConnected: connected,
+        isConnected: connected,
         hasCameraAsContent: currentMeeting?.componentsFlags?.hasCameraAsContent,
         intl,
         allowExternalVideo,

@@ -52,7 +52,7 @@ if [ ! -f "${HTML5_CONFIG}" ]; then
 fi
 
 #
-# Enable Looging of the HTML5 client for debugging
+# Enable Logging of the HTML5 client for debugging
 #
 enableHTML5ClientLog() {
   echo "  - Enable HTML5 client log to /var/log/nginx/html5-client.log"
@@ -123,6 +123,51 @@ enableUFWRules() {
   ufw --force enable
 }
 
+#
+# Enable firewalld rules to open only
+#
+enableFirewalldRules() {
+  echo "  - Enable Firewalld and opening 22/tcp, 80/tcp, 443/tcp and 16384:32768/udp"
+
+  if ! which firewall-cmd > /dev/null; then
+    apt-get install -y firewalld
+  fi
+
+  # Ensure firewalld is running
+  systemctl enable firewalld
+  systemctl start firewalld
+
+  # Use existing firewalld services and direct port commands
+  firewall-cmd --permanent --add-service=ssh
+  firewall-cmd --permanent --add-service=http
+  firewall-cmd --permanent --add-service=https
+  firewall-cmd --permanent --add-port=16384-32768/udp
+
+  # Check if haproxy is running and open port 3478
+  if systemctl is-enabled haproxy > /dev/null 2>&1; then
+    if systemctl -q is-active haproxy; then
+      echo "  - Local haproxy detected and running -- opening port 3478"
+      firewall-cmd --permanent --add-port=3478/tcp
+      firewall-cmd --permanent --add-port=3478/udp
+    else
+      if firewall-cmd --list-ports | grep -q "3478/tcp\|3478/udp"; then
+        echo "  - Local haproxy not running -- closing port 3478"
+        firewall-cmd --permanent --remove-port=3478/tcp
+        firewall-cmd --permanent --remove-port=3478/udp
+      fi
+    fi
+  else
+    if firewall-cmd --list-ports | grep -q "3478/tcp\|3478/udp"; then
+      echo "  - Local haproxy not running -- closing port 3478"
+      firewall-cmd --permanent --remove-port=3478/tcp
+      firewall-cmd --permanent --remove-port=3478/udp
+    fi
+  fi
+
+  # Reload firewalld to apply changes
+  firewall-cmd --reload
+}
+
 
 notCalled() {
 #
@@ -145,6 +190,7 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 #enableHTML5ClientLog
 #enableUFWRules
+#enableFirewalldRules
 
 
 # Shorten the FreeSWITCH "you have been muted" and "you have been unmuted" prompts

@@ -10,6 +10,7 @@ object PluginHdlrHelpers {
     permissionType.map(_.toLowerCase).map {
       case "all"       => true
       case "moderator" => user.role == Roles.MODERATOR_ROLE
+      case "viewer"    => user.role == Roles.VIEWER_ROLE
       case "presenter" => user.presenter
       case "creator"   => creatorCheck
       case _           => false

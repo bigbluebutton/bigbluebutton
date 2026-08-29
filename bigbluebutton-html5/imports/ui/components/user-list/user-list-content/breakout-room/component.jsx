@@ -36,7 +36,7 @@ const BreakoutRoomItem = ({
     return (
       <Styled.Messages>
         <Styled.Container>
-          <Styled.SmallTitle>
+          <Styled.SmallTitle data-test="breakoutRoomsTitle">
             {intl.formatMessage(intlMessages.breakoutTitle)}
           </Styled.SmallTitle>
         </Styled.Container>

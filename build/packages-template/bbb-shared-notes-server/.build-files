@@ -1,0 +1,5 @@
+after-install.sh
+bbb-shared-notes-server.service
+before-remove.sh
+build.sh
+opts-jammy.sh

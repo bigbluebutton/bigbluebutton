@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { DataGrid } from '@mui/x-data-grid';
 import ReactMarkdown from 'react-markdown';
 import UserAvatar from './UserAvatar';
 
-// Type of genericData is of the form: {
+// Type of pluginUserData is of the form: {
 //  columnTitle: string;
 //  value: string
 // }
 const PluginsTable = (props) => {
   const {
-    genericDataColumnTitleList,
-    allUsers, intl, genericDataCardTitle,
+    pluginUserDataColumnTitleList,
+    allUsers, intl, pluginUserDataCardTitle,
   } = props;
+
+  const [allUserPluginInformation, setAllUserPluginInformation] = useState({});
 
   const commonUserProps = {
     field: 'User',
@@ -43,15 +45,54 @@ const PluginsTable = (props) => {
     },
   ];
 
+  useEffect(() => {
+    const hasUserInformationChanged = () => {
+      const newUserIds = Object.keys(allUsers);
+      const oldUserIds = Object.keys(allUserPluginInformation);
+
+      const hasLengthChanged = (
+        newUserIds.length !== oldUserIds.length);
+
+      const hasKeysChanged = hasLengthChanged
+        || newUserIds.some((uId) => !oldUserIds.includes(uId))
+        || oldUserIds.some((uId) => !newUserIds.includes(uId));
+      if (hasKeysChanged) {
+        return true;
+      }
+      const hasPluginInformationChanged = Object.values(allUsers).some((newU) => {
+        const oldU = allUserPluginInformation[newU.userKey];
+
+        const oldUPluginDataList = oldU?.pluginUserData?.[pluginUserDataCardTitle] || [];
+        const newUPluginDataKeys = newU?.pluginUserData?.[pluginUserDataCardTitle] || [];
+
+        const hasPluginDataKeyChanged = oldUPluginDataList.length !== newUPluginDataKeys.length
+          || oldUPluginDataList.some((oldUGDEntry) => {
+            const newUPluginDataList = newUPluginDataKeys.filter(
+              (newUGDKey) => oldUGDEntry.columnTitle === newUGDKey.columnTitle,
+            );
+            if (newUPluginDataList.length === 0) return true;
+            const newPluginDataContainsOldItem = newUPluginDataList.some(
+              (newUPluginDataItem) => newUPluginDataItem.value === oldUGDEntry.value,
+            );
+            return !newPluginDataContainsOldItem;
+          });
+        return hasPluginDataKeyChanged;
+      });
+      return hasPluginInformationChanged;
+    };
+
+    if (hasUserInformationChanged()) setAllUserPluginInformation(allUsers);
+  }, [allUsers]);
+
   gridCols.push({
     ...commonCountProps,
-    valueGetter: (params) => Object.keys(
-      params?.row?.User?.genericData?.[genericDataCardTitle],
-    )?.length || 0,
+    valueGetter: (params) => [...(new Set(Object.keys(
+      params?.row?.User?.pluginUserData?.[pluginUserDataCardTitle],
+    )))].length || 0,
     renderCell: (params) => params?.value,
   });
 
-  genericDataColumnTitleList.map((pluginColumnTitle) => {
+  pluginUserDataColumnTitleList.map((pluginColumnTitle) => {
     const commonColProps = {
       field: pluginColumnTitle,
       headerName: pluginColumnTitle,
@@ -66,56 +107,52 @@ const PluginsTable = (props) => {
     });
     return pluginColumnTitle;
   });
-
-  const gridRows = [];
-  Object.values(allUsers).map((u, i) => {
-    if (Object.keys(u?.genericData)?.length === 0) return u;
-    gridRows.push({
-      id: i + 1,
-      User: u,
-      // This is going to be of the form:
-      // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry
-      ...u.genericData?.[genericDataCardTitle].reduce((acc, curr) => {
-        const {
-          columnTitle,
-          value,
-        } = curr;
-        acc[columnTitle] = (
-          <ReactMarkdown
-            components={{
-              a: ({ href, children }) => (
-                <a href={href} className="text-blue-600 underline">
-                  {children}
-                </a>
-              ),
-              img: ({
-                node, src, alt, ...restProps
-              }) => (
-                <a href={src} target="_blank" rel="noopener noreferrer" className="block border border-gray-300">
-                  <img
-                    src={src}
-                    alt={alt}
-                    {...restProps}
-                    style={{
-                      maxHeight: '120px',
-                      height: 'auto',
-                      maxWidth: '120px',
-                      width: 'auto',
-                      cursor: 'pointer',
-                    }}
-                  />
-                </a>
-              ),
-            }}
-          >
-            {value}
-          </ReactMarkdown>
-        );
-        return acc;
-      }, {}),
-    });
-    return u;
-  });
+  const gridRows = useMemo(() => Object.values(allUserPluginInformation).filter(
+    (u) => !(Object.keys(u?.pluginUserData)?.length === 0),
+  ).map((u, i) => ({
+    id: i + 1,
+    User: u,
+    // This is going to be of the form:
+    // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry
+    ...u.pluginUserData?.[pluginUserDataCardTitle].reduce((acc, curr) => {
+      const {
+        columnTitle,
+        value,
+      } = curr;
+      acc[columnTitle] = (
+        <ReactMarkdown
+          components={{
+            a: ({ href, children }) => (
+              <a href={href} className="text-blue-600 underline">
+                {children}
+              </a>
+            ),
+            img: ({
+              node, src, alt, ...restProps
+            }) => (
+              <a href={src} target="_blank" rel="noopener noreferrer" className="block border border-gray-300">
+                <img
+                  src={src}
+                  alt={alt}
+                  {...restProps}
+                  style={{
+                    maxHeight: '120px',
+                    height: 'auto',
+                    maxWidth: '120px',
+                    width: 'auto',
+                    cursor: 'pointer',
+                  }}
+                />
+              </a>
+            ),
+          }}
+        >
+          {value}
+        </ReactMarkdown>
+      );
+      return acc;
+    }, {}),
+  })), [allUserPluginInformation]);
 
   const commonGridProps = {
     autoHeight: true,
@@ -125,7 +162,6 @@ const PluginsTable = (props) => {
     disableSelectionOnClick: true,
     rowHeight: 125,
   };
-
   return (
     <div className="bg-white" style={{ width: '100%' }}>
       <DataGrid

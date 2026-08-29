@@ -23,6 +23,7 @@ select_permissions:
         - moderatorsCanUnmuteAudio
         - userCameraCap
         - webcamsOnlyForModerator
+        - multiUserWhiteboardEnabled
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -42,6 +43,7 @@ select_permissions:
         - moderatorsCanUnmuteAudio
         - userCameraCap
         - webcamsOnlyForModerator
+        - multiUserWhiteboardEnabled
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

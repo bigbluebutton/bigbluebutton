@@ -3,12 +3,12 @@ package org.bigbluebutton.api.model.validator;
 import org.apache.http.entity.ContentType;
 import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.request.Request;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class ContentTypeValidator implements ConstraintValidator<ContentTypeConstraint, Request> {
 
@@ -25,7 +25,8 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
         String contentTypeHeader = servletRequest.getHeader("Content-Type");
         log.info("Validating {} request with content type {}", requestMethod, contentType);
 
-        boolean requestBodyPresent = servletRequest.getContentLength() > 0;
+        boolean requestBodyPresent = servletRequest.getContentLengthLong() > 0
+                || servletRequest.getHeader("Transfer-Encoding") != null;
         if (requestBodyPresent) {
             if (contentType == null || contentTypeHeader == null) return false;
             else {

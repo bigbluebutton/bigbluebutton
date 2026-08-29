@@ -10,6 +10,7 @@ case class MeetingUsersPoliciesDbModel(
                                 maxUsers: Int,
                                 maxUserConcurrentAccesses: Int,
                                 webcamsOnlyForModerator: Boolean,
+                                multiUserWhiteboardEnabled: Boolean,
                                 userCameraCap: Int,
                                 guestPolicy: String,
                                 guestLobbyMessage: Option[String],
@@ -25,6 +26,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
   val maxUsers = column[Int]("maxUsers")
   val maxUserConcurrentAccesses = column[Int]("maxUserConcurrentAccesses")
   val webcamsOnlyForModerator = column[Boolean]("webcamsOnlyForModerator")
+  val multiUserWhiteboardEnabled = column[Boolean]("multiUserWhiteboardEnabled")
   val userCameraCap = column[Int]("userCameraCap")
   val guestPolicy = column[String]("guestPolicy")
   val guestLobbyMessage = column[Option[String]]("guestLobbyMessage")
@@ -36,7 +38,10 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
 
 //  val fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest, allowPromoteGuestToModerator) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
+  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses,
+    webcamsOnlyForModerator, multiUserWhiteboardEnabled, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout,
+    allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest, allowPromoteGuestToModerator
+  ) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
 }
 
 object MeetingUsersPoliciesDAO {
@@ -48,6 +53,7 @@ object MeetingUsersPoliciesDAO {
           maxUsers = usersProp.maxUsers,
           maxUserConcurrentAccesses = usersProp.maxUserConcurrentAccesses,
           webcamsOnlyForModerator = usersProp.webcamsOnlyForModerator,
+          multiUserWhiteboardEnabled = usersProp.multiUserWhiteboardEnabled,
           userCameraCap = usersProp.userCameraCap,
           guestPolicy = usersProp.guestPolicy,
           guestLobbyMessage = None,
@@ -90,6 +96,16 @@ object MeetingUsersPoliciesDAO {
         .filter(_.meetingId === meetingId)
         .map(u => u.webcamsOnlyForModerator)
         .update(webcamsOnlyForModerator)
+    )
+  }
+
+  def updateMultiUserWhiteboardEnabled(meetingId: String, multiUserWhiteboardEnabled: Boolean) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingUsersPoliciesDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.multiUserWhiteboardEnabled =!= multiUserWhiteboardEnabled)
+        .map(u => u.multiUserWhiteboardEnabled)
+        .update(multiUserWhiteboardEnabled)
     )
   }
 

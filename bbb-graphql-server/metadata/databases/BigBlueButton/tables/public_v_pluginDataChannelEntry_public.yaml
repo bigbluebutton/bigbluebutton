@@ -1,0 +1,26 @@
+table:
+  name: v_pluginDataChannelEntry_public
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pluginDataChannelEntry_public
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdAt
+        - pluginName
+        - subChannelName
+        - channelName
+        - entryId
+        - payloadJson
+        - createdBy
+        - updatedAt
+        - toRoles
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+    comment: ""

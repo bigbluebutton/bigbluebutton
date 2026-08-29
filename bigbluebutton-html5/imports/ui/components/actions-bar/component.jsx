@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
@@ -46,20 +47,24 @@ class ActionsBar extends PureComponent {
                 buttonProps = {
                   key: `${plugin.type}-${plugin.id}`,
                   onClick: plugin.onClick,
-                  hideLabel: true,
-                  color: 'primary',
-                  size: 'lg',
-                  circle: true,
-                  label: plugin.tooltip,
+                  hideLabel: plugin.hideLabel !== false,
+                  color: plugin.color || 'primary',
+                  size: plugin.size || 'lg',
+                  circle: plugin.circle !== false,
+                  style: plugin.style,
+                  label: plugin.label || plugin.tooltip,
+                  tooltipLabel: plugin.tooltip,
                   dataTest: plugin.dataTest,
                 };
-                if (plugin?.icon && typeof plugin.icon === 'object' && 'iconName' in plugin.icon) {
+                if (typeof plugin?.icon === 'string') {
+                  buttonProps.icon = plugin.icon;
+                } else if (plugin?.icon && typeof plugin.icon === 'object' && 'iconName' in plugin.icon) {
                   buttonProps.icon = plugin.icon.iconName;
                 } else if (plugin?.icon && typeof plugin.icon === 'object' && 'svgContent' in plugin.icon) {
                   buttonProps.customIcon = (
-                    <i>
+                    <PluginButtonIcon>
                       {plugin.icon.svgContent}
-                    </i>
+                    </PluginButtonIcon>
                   );
                 }
                 actionBarItemToReturn = (
@@ -139,7 +144,7 @@ class ActionsBar extends PureComponent {
       stopExternalVideoShare,
       isTimerActive,
       isTimerEnabled,
-      isMeteorConnected,
+      isConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
@@ -204,7 +209,7 @@ class ActionsBar extends PureComponent {
               stopExternalVideoShare,
               isTimerActive,
               isTimerEnabled,
-              isMeteorConnected,
+              isConnected,
               setMeetingLayout,
               setPushLayout,
               presentationIsOpen,
@@ -226,16 +231,16 @@ class ActionsBar extends PureComponent {
             {shouldShowPresentationButton && (
               <ScreenshareButtonContainer {...{
                 amIPresenter,
-                isMeteorConnected,
+                isConnected,
               }}
               />
             )}
             {isReactionsButtonEnabled && this.renderReactionsButton()}
-            {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
             <Styled.Gap>
+              {isRaiseHandEnabled && <RaiseHandButtonContainer />}
               {
                 showScreenshareQuickSwapButton && <SwapPresentationButton />
               }

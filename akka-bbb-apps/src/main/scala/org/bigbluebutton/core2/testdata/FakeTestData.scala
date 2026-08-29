@@ -61,7 +61,7 @@ trait FakeTestData {
     val rusers = Users2x.findAll(liveMeeting.users2x)
     val others = rusers.filterNot(u => u.intId == ruser1.id)
     val subscribers = others.map { o => o.intId }
-    val wstream1 = FakeUserGenerator.createFakeWebcamStreamFor(ruser1.id, subscribers.toSet)
+    val wstream1 = FakeUserGenerator.createFakeWebcamStreamFor(ruser1.id, ruser1.name, subscribers.toSet)
     Webcams.addWebcamStream(liveMeeting.props.meetingProp.intId, liveMeeting.webcams, wstream1)
 
     createFakeUser(liveMeeting, ruser1)
@@ -71,7 +71,7 @@ trait FakeTestData {
     UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId,
       name = regUser.name, role = regUser.role, pin = false,
       mobile = false, bot = regUser.bot, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
-      reactionEmoji = "none", raiseHand = false, away = false, locked = false, presenter = false,
+      reactionEmoji = "none", raiseHand = false, away = false, locked = false, presenter = false, whiteboardWriteAccess = false,
       avatar = regUser.avatarURL, webcamBackground = regUser.webcamBackgroundURL, color = "#ff6242", clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
   }
 

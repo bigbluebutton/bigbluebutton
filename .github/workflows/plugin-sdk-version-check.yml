@@ -1,10 +1,5 @@
 name: Plugin SDK - Match version of html5 package.json with bigbluebutton.properties
 on:
-  push:
-    branches:
-      - "develop"
-      - "v2.[5-9].x-release"
-      - "v[3-9].*.x-release"
   pull_request:
     types: [opened, synchronize, reopened]
 permissions:
@@ -15,12 +10,12 @@ jobs:
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: refs/pull/${{ github.event.number }}/merge
       - name: Checkout commit/branch
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
 

@@ -199,6 +199,15 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.voiceProp.voiceConf,
           outGW
         )
+
+        val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.props.voiceProp.voiceConf,
+          mutedUser.intId,
+          Some(mutedUser),
+          leftVoiceConf = false
+        )
+        outGW.send(eventUserVoiceStatus)
       }
     }
   }
@@ -227,6 +236,27 @@ object VoiceApp extends SystemConfiguration {
               VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
             }
 
+            // Talking is edge-triggered (FS only emits start/stop-talking
+            // transitions), so a missed or overridden edge vent would
+            // desync until the next transition, which never comes if the
+            // member kept talking throughout. Reconcile talking state here
+            // as well.
+            for {
+              current <- VoiceUsers.findWithVoiceUserId(
+                liveMeeting.voiceUsers,
+                cvu.voiceUserId
+              )
+            } yield {
+              if (current.talking != cvu.talking) {
+                handleUserTalking(
+                  liveMeeting,
+                  outGW,
+                  cvu.voiceUserId,
+                  cvu.talking
+                )
+              }
+            }
+
             // Purge voice users that don't have a matching user record
             // Avoid this if the meeting is a breakout room since might be real
             // voice users participating
@@ -241,7 +271,19 @@ object VoiceApp extends SystemConfiguration {
               }
             }
           case None =>
-            if (!cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+            if (cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+              // Dial-in users get their user record from the voice join itself.
+            } else {
+              // Same rule as in UserJoinedVoiceConfEvtMsgHdlr: the VU is created
+              // either way. If orphaned, with downgraded media permissions.
+              if (liveMeeting.voiceUserReconciler.isOrphanedVoiceJoin(liveMeeting, cvu.intId)) {
+                liveMeeting.voiceUserReconciler.fenceVoiceJoin(
+                  liveMeeting,
+                  outGW,
+                  cvu.intId,
+                  cvu.voiceUserId
+                )
+              }
               handleUserJoinedVoiceConfEvtMsg(
                 liveMeeting,
                 outGW,
@@ -253,12 +295,13 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callerIdName,
                 cvu.callerIdNum,
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
+                speechLocale = "",
                 cvu.muted,
-                false,
-                false,
-                cvu.talking,
+                listenOnlyInputDevice = false,
+                deafened = false,
+                talking = cvu.talking,
                 cvu.calledInto,
-                cvu.hold,
+                hold = cvu.hold,
                 cvu.uuid,
               )
             }
@@ -307,6 +350,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdName: String,
       callerIdNum:  String,
       color:        String,
+      speechLocale: String,
       muted:        Boolean,
       listenOnlyInputDevice: Boolean,
       deafened:     Boolean,
@@ -358,6 +402,14 @@ object VoiceApp extends SystemConfiguration {
     checkAndEjectOldDuplicateVoiceConfUser(intId, liveMeeting, outGW)
 
     val isListenOnly = if (callerIdName.startsWith("LISTENONLY")) true else false
+    val isDialInUser = if (intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+      true
+    } else {
+      Users2x.findWithIntId(liveMeeting.users2x, intId) match {
+        case Some(u) => u.clientType == ClientType.DIAL_IN
+        case None    => true // If no user is found, we assume it's dial-in (i.e. voice-only)
+      }
+    }
 
     val voiceUserState = VoiceUserState(
       intId,
@@ -367,6 +419,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdName,
       callerIdNum,
       color,
+      speechLocale,
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -387,6 +440,15 @@ object VoiceApp extends SystemConfiguration {
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
     UserVoiceDAO.update(voiceUserState)
     UserDAO.updateVoiceUserJoined(voiceUserState)
+
+    val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+      voiceUserState.meetingId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserState.intId,
+      Some(voiceUserState),
+      leftVoiceConf = false
+    )
+    outGW.send(eventUserVoiceStatus)
 
     val newTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
       liveMeeting
@@ -415,8 +477,17 @@ object VoiceApp extends SystemConfiguration {
     if (!isListenOnly) {
       enforceMuteOnStartThreshold(liveMeeting, outGW)
 
-      // if the meeting is muted tell freeswitch to mute the new person
-      if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)) {
+      // If the meeting is muted tell freeswitch to mute the new person
+      // Dial-in users may skip this if dialInEnforceMuteOnStart=false (akka-apps config)
+      // Skip members that already joined muted (e.g. SFU's mute-on-start
+      // dialplans): the extra conference mute command is a no-op that FS may
+      // only execute when a held channel wakes up, and its stale mute-member
+      // event then races (and can override) a subsequent unmute.
+      // Dial-in is exempt: those channels are never held at creation, and
+      // for LiveKit SIP this is the only server-side mute hook.
+      if (MeetingStatus2x.isMeetingMuted(liveMeeting.status)
+        && (!muted || isDialInUser)
+        && (dialInEnforceMuteOnStart || !isDialInUser)) {
         val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
           liveMeeting.props.meetingProp.intId,
           voiceConf,
@@ -474,6 +545,16 @@ object VoiceApp extends SystemConfiguration {
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        user.intId,
+        None,
+        leftVoiceConf = true
+      )
+      outGW.send(eventUserVoiceStatus)
+
 
       if (!user.listenOnly) {
         enforceMuteOnStartThreshold(liveMeeting, outGW)
@@ -731,6 +812,16 @@ object VoiceApp extends SystemConfiguration {
             outGW
           )
         }
+
+        val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.props.voiceProp.voiceConf,
+          vu.intId,
+          Some(vu),
+          leftVoiceConf = false
+        )
+        outGW.send(eventUserVoiceStatus)
+
       case _ =>
     }
   }
@@ -880,7 +971,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW
       )
-      AudioFloorManager.handleUserTalking(
+      liveMeeting.audioFloorManager.handleUserTalking(
         talkingUser.intId,
         talking,
         System.currentTimeMillis(),
@@ -895,6 +986,17 @@ object VoiceApp extends SystemConfiguration {
         talking
       )
       outGW.send(event)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        talkingUser.intId,
+        Some(talkingUser),
+        leftVoiceConf = false
+      )
+      outGW.send(eventUserVoiceStatus)
+
+
     }
   }
 

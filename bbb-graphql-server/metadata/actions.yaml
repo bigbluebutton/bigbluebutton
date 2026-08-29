@@ -11,41 +11,27 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: audioGroupCreate
+  - name: mediaGroupCreate
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Creates a new AudioGroup (or do nothing if there's one with the specified ID)
-  - name: audioGroupDestroy
+    comment: Creates a new MediaGroup (or do nothing if there's one with the specified ID)
+  - name: mediaGroupDestroy
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Destroys an AudioGroup
-  - name: audioGroupJoin
+    comment: Destroys a MediaGroup
+  - name: mediaGroupSetUserState
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Joins an user to an AudioGroup
-  - name: audioGroupLeave
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-    comment: Removes an user from an AudioGroup
-  - name: audioGroupUpdateParticipant
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
-    permissions:
-      - role: bbb_client
-    comment: Updates an AudioGroup's participant state
+    comment: Sets a user's media group state
   - name: breakoutRoomCreate
     definition:
       kind: synchronous
@@ -310,7 +296,19 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: pluginLearningAnalyticsDashboardSendGenericData
+  - name: pluginLearningAnalyticsDashboardUpsertUserData
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: pluginLearningAnalyticsDashboardDeleteUserData
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
+  - name: pluginLearningAnalyticsDashboardClearAllUsersData
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -425,7 +423,7 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: presentationSetWriters
+  - name: userSetWhiteboardWriteAccess
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
@@ -665,6 +663,6 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
-    - name: AudioGroupParticipant
+    - name: MediaGroupParticipant
   objects: []
   scalars: []

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.running
 import org.apache.pekko.actor.ActorContext
 import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.util.YamlUtil
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
@@ -33,10 +34,24 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val deskshareModel = new ScreenshareModel
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
-  private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
+  private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings, props.meetingProp.intId)
   private val (plugins, pluginSettings) = PluginModel.createPluginModelFromJson(props.pluginProp, props.systemProps.html5PluginSdkVersion, clientSettingsBeforePluginValidation)
-  val clientSettings: Map[String, Object] = ClientSettings.mergePluginSettingsIntoClientSettings(
-    clientSettingsBeforePluginValidation, pluginSettings)
+  val clientSettings: Map[String, Object] = {
+    val merged = ClientSettings.mergePluginSettingsIntoClientSettings(
+      clientSettingsBeforePluginValidation, pluginSettings)
+
+    if (props.meetingProp.disabledFeatures.contains("slidePreloading")) {
+      YamlUtil.mergeImmutableMaps(merged, Map[String, Object](
+        "public" -> Map[String, Object](
+          "app" -> Map[String, Object](
+            "preloadNextSlides" -> Int.box(0)
+          )
+        )
+      ))
+    } else {
+      merged
+    }
+  }
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
@@ -56,6 +71,9 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
     liveMeeting.layouts,
     props.usersProp.meetingLayout,
   )
+
+  // Set initial multiUserWhiteboardEnabled state
+  MeetingStatus2x.setMultiUserWhiteboardEnabled(liveMeeting.status, liveMeeting.props.usersProp.multiUserWhiteboardEnabled)
 
   private val recordEvents = props.recordProp.record || props.recordProp.keepEvents
   val outMsgRouter = new OutMsgRouter(recordEvents, outGW)

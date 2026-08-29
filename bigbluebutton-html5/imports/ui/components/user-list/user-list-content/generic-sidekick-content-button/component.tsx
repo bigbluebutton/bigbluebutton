@@ -94,7 +94,9 @@ const GenericSidekickContentNavButton = ({
         key={genericContentSidekickId(section)}
       >
         <Styled.Container>
-          <Styled.SmallTitle>
+          <Styled.SmallTitle
+            data-test={`sidekick_section_title_${section}`}
+          >
             {renamedSection[section] || section}
           </Styled.SmallTitle>
         </Styled.Container>

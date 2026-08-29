@@ -7,7 +7,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       terminateAndRetryConnection: 30000,
       mobileFontSize: '16px',
       desktopFontSize: '14px',
-      audioChatNotification: false,
       autoJoin: true,
       listenOnlyMode: true,
       forceListenOnly: false,
@@ -15,7 +14,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipCheckOnJoin: false,
       enableDynamicAudioDeviceSelection: true,
       clientTitle: 'BigBlueButton',
-      appName: 'BigBlueButton HTML5 Client',
       bbbServerVersion: 'HTML5_FULL_BBB_VERSION',
       displayBbbServerVersion: true,
       copyright: '©2023 BigBlueButton Inc.',
@@ -44,6 +42,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
@@ -82,7 +81,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         threshold: -50,
         duration: 4000,
       },
-      remainingTimeThreshold: 30,
       remainingTimeAlertThresholdArray: [
         1,
         5,
@@ -97,6 +95,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
+        lockBreakoutRecordingSetting: false,
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,
@@ -203,15 +202,18 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       connectionTimeout: 60000,
       showHelpButton: true,
-      effectiveConnection: [
-        'critical',
-        'danger',
-        'warning',
-      ],
       fallbackOnEmptyLocaleString: true,
-      disableWebsocketFallback: true,
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
+      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
+    },
+    sharedNotes: {
+      serverHostname: '',
+      maxDocumentChars: 99999,
+      maxLengthForContentUpdate: 512,
+      staticFormattingToolbar: true,
+      importMarkdownEnabled: false,
+      exportMarkdownEnabled: false,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -219,7 +221,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     kurento: {
       wsUrl: 'HOST',
       cameraWsOptions: {
-        wsConnectionTimeout: 4000,
+        connectionTimeout: 4000,
         maxRetries: 7,
         debug: false,
         heartbeat: {
@@ -355,6 +357,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       cameraSortingModes: {
         defaultSorting: 'LOCAL_ALPHABETICAL',
         paginationSorting: 'VOICE_ACTIVITY_LOCAL',
+        showAudioOnlyOnFirstPage: true,
+        maxAudioOnlyUsers: 2,
+        partitionPrivilegedStreams: true,
       },
       cameraQualityThresholds: {
         enabled: true,
@@ -470,10 +475,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         ],
       },
     },
-    syncUsersWithConnectionManager: {
-      enabled: false,
-      syncInterval: 60000,
-    },
     poll: {
       enabled: true,
       allowCustomResponseInput: true,
@@ -487,9 +488,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
     },
     captions: {
-      enabled: true,
-      id: 'captions',
-      dictation: false,
       background: '#000000',
       font: {
         color: '#ffffff',
@@ -504,14 +502,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
       lines: 2,
       time: 5000,
-      showButton: false,
-      defaultPad: 'en',
       captionLimit: 3,
       lineLimit: 60,
     },
     timer: {
       enabled: true,
-      alarm: true,
+      time: 5,
       music: {
         enabled: false,
         volume: 0.4,
@@ -519,23 +515,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         track2: 'CalmMusic',
         track3: 'aristocratDrums',
       },
-      interval: {
-        clock: 100,
-        offset: 60000,
-      },
-      time: 5,
-      tabIndicator: false,
     },
     chat: {
       enabled: true,
       itemsPerPage: 100,
-      timeBetweenFetchs: 1000,
       enableSaveAndCopyPublicChat: true,
-      bufferChatInsertsMs: 0,
       startClosed: false,
       min_message_length: 1,
       max_message_length: 5000,
-      grouping_messages_window: 10000,
       type_system: 'SYSTEM_MESSAGE',
       type_public: 'PUBLIC_ACCESS',
       type_private: 'PRIVATE_ACCESS',
@@ -565,22 +552,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enable: false,
       },
       disableEmojis: [],
-      allowedElements: [
-        'a',
-        'code',
-        'em',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'li',
-        'ol',
-        'ul',
-        'p',
-        'strong',
-      ],
+      markdownImageAllowed: false,
       toolbar: [],
     },
     userReaction: {
@@ -682,8 +654,13 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
-        selectiveSubscription: false,
+        selectiveSubscription: {
+          enabled: true,
+          audioSubscriptionPoolSize: 0,
+          muteDebounceMs: 2500,
+        },
         logLevel: LogLevel.warn,
+        reconnectOnFatalFailures: true,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,
@@ -697,6 +674,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
             forceStereo: false,
           },
           unpublishOnMute: false,
+          unpublishAfterMuteMs: 5000,
+          useLiveKitAudioState: false,
         },
         camera: {
           publishOptions: {
@@ -839,14 +818,17 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     whiteboard: {
       annotationsQueueProcessInterval: 60,
-      cursorInterval: 150,
+      cursorInterval: 100,
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
+      maxHistoryStackSize: 400,
+      slideSwapDecodeTimeoutMs: 250,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
+      allowInfiniteWhiteboardPanForViewers: false,
       annotations: {
         status: {
           start: 'DRAW_START',
@@ -954,31 +936,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'board.jpg',
       ],
     },
-    minBrowserVersions: {
-      safari: '>=14',
-      chrome: '>=87',
-      firefox: '>=80',
-      edge: '>=85',
-      mobile: {
-        safari: '>=14',
-        chrome: '>=87',
-      },
-    },
   },
   private: {
-    analytics: {
-      includeChat: true,
-    },
+    analytics: {},
     app: {
       host: '127.0.0.1',
       localesUrl: '/locale-list',
-      pencilChunkLength: 100,
-      loadSlidesFromHttpAlways: false,
-    },
-    prometheus: {
-      enabled: false,
-      path: '/metrics',
-      collectDefaultMetrics: false,
     },
   },
 };

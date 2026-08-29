@@ -12,10 +12,11 @@ export class Rectangle extends Geo {
    * Draws a rectangle shape based on the instance properties.
    *
    * @method draw
-   * @return {G} An SVG group element containing the drawn rectangle shape.
+   * @return {Promise<G>} An SVG group element containing
+   * the drawn rectangle shape.
    *
  */
-  draw() {
+  async draw() {
     const rectGroup = this.shapeGroup;
 
     const rectangle = new Rect({
@@ -36,7 +37,7 @@ export class Rectangle extends Geo {
 
     this.setFill(rectangle);
     rectGroup.add(rectangle);
-    this.drawLabel(rectGroup);
+    await this.drawLabel(rectGroup);
 
     return rectGroup;
   }

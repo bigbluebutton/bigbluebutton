@@ -16,7 +16,7 @@ select_permissions:
         - captureSlides
         - captureSlidesFilename
         - freeJoin
-        - parentId
+        - parentMeetingId
         - privateChatEnabled
         - record
         - sequence
@@ -32,7 +32,7 @@ select_permissions:
         - captureSlides
         - captureSlidesFilename
         - freeJoin
-        - parentId
+        - parentMeetingId
         - privateChatEnabled
         - record
         - sequence

@@ -2,9 +2,9 @@
 
 TARGET=$(basename "$(pwd)")
 
-SERVER_VERSION=v1.9.0
-CLI_VERSION=2.3.1
-SIP_VERSION=v1.1.1
+SERVER_VERSION=v1.9.12
+CLI_VERSION=2.13.2
+SIP_VERSION=v1.2.0
 
 PACKAGE=$(echo "$TARGET" | cut -d'_' -f1)
 VERSION=$(echo "$TARGET" | cut -d'_' -f2)
@@ -80,6 +80,17 @@ if [ -z "$SIP_DIR" ]; then
     echo "Error: Could not find livekit-sip directory in extracted archive"
     exit 1
 fi
+
+# Apply livekit-sip patches if any. All patches end in "_sip.patch" and are in
+# the same directory as this script.
+for patch in "$BUILDDIR"/*_sip.patch; do
+    if [ -f "$patch" ]; then
+        echo "Applying patch: $patch"
+        pushd "$SIP_DIR" > /dev/null
+        git apply "$patch"
+        popd > /dev/null
+    fi
+done
 
 pushd "$SIP_DIR" > /dev/null
 

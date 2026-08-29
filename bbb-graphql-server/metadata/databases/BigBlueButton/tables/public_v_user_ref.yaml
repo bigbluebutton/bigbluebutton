@@ -22,7 +22,7 @@ select_permissions:
         - extId
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - isDialIn
         - isModerator
         - currentlyInMeeting
@@ -37,6 +37,7 @@ select_permissions:
         - lastName
         - lastNameSortable
         - pinned
+        - pinnedTime
         - presenter
         - raiseHand
         - reactionEmoji

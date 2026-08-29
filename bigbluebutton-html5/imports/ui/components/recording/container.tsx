@@ -10,7 +10,7 @@ import Service from '/imports/ui/components/nav-bar/nav-bar-graphql/recording-in
 import useMeeting from '../../core/hooks/useMeeting';
 
 interface RecordingContainerProps {
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOpen: (visible: boolean) => void;
   amIModerator: boolean;
   onRequestClose: () => void;
   priority: string;

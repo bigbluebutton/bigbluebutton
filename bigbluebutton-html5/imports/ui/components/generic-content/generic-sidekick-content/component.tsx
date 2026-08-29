@@ -9,11 +9,11 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
   layoutContextDispatch,
   genericContentId,
   genericContentLabel,
+  dataTest,
 }) => (
-  <Styled.Container
-    data-test={genericContentId}
-  >
+  <Styled.Container>
     <Styled.Header
+      data-test={`sidekick_header_${dataTest}`}
       leftButtonProps={{
         onClick: () => {
           layoutContextDispatch({
@@ -32,6 +32,7 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
       customRightButton={null}
     />
     <GenericContentItem
+      dataTest={dataTest}
       key={genericContentId}
       renderFunction={renderFunction}
     />

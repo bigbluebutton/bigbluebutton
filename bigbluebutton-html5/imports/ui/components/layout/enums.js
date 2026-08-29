@@ -1,4 +1,5 @@
 export const LAYOUT_TYPE = {
+  UNIFIED_LAYOUT: 'unified',
   CUSTOM_LAYOUT: 'custom',
   SMART_LAYOUT: 'smart',
   PRESENTATION_FOCUS: 'presentationFocus',
@@ -37,6 +38,7 @@ export const HIDDEN_LAYOUTS = [
   LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
   LAYOUT_TYPE.MEDIA_ONLY,
   LAYOUT_TYPE.PLUGINS_ONLY,
+  LAYOUT_TYPE.UNIFIED_LAYOUT,
 ];
 
 export const LAYOUT_ELEMENTS = {

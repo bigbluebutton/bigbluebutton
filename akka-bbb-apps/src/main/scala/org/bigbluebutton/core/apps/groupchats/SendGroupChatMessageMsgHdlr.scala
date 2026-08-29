@@ -1,14 +1,15 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.checkPermission
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.PluginModel.{ ServerCommands, getPluginManifestContentByName }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core.models.Users2x
+import org.bigbluebutton.core.models.{ GroupChatMessage, PluginModel, Roles, UserState, Users2x }
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core.models.Roles
 
 trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
@@ -24,102 +25,156 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       }
     }
 
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
-    var privateChatDisabled: Boolean = false
-    val replyChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("replyChatMessage")
-    var chatLocked: Boolean = false
-    var chatLockedForUser: Boolean = false
-    var hasModMembers: Boolean = false
-    var isPrivateChat: Boolean = false
+    val minMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.min_message_length", 1)
+    val maxMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.max_message_length", 5000)
+    val msgLen = msg.body.msg.message.length
 
-    for {
-      user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
-      groupChat <- state.groupChats.find(msg.body.chatId)
-    } yield {
-      if (groupChat.access == GroupChatAccess.PRIVATE) {
-        privateChatDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("privateChat")
-        isPrivateChat = true
-      }
+    if (msgLen < minMsgLen || msgLen > maxMsgLen) {
+      log.warning(
+        s"Ignoring chat message from user ${msg.header.userId} in meeting ${liveMeeting.props.meetingProp.intId}: message length $msgLen out of bounds [$minMsgLen, $maxMsgLen]"
+      )
+      state
+    } else {
+      val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+      var privateChatDisabled: Boolean = false
+      val replyChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("replyChatMessage")
+      var chatLocked: Boolean = false
+      var chatLockedForUser: Boolean = false
+      var hasModMembers: Boolean = false
+      var isPrivateChat: Boolean = false
 
-      if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
-        chatLockedForUser = true
-      }
-
-      if (user.role != Roles.MODERATOR_ROLE && user.locked) {
-        val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
-        if (groupChat.access == GroupChatAccess.PRIVATE) {
-          val modMembers = groupChat.users.filter(cu => Users2x.findWithIntId(liveMeeting.users2x, cu.id) match {
-            case Some(user) => user.role == Roles.MODERATOR_ROLE
-            case None       => false
-          })
-          // don't lock private chats that involve a moderator
-          if (modMembers.isEmpty) {
-            chatLocked = permissions.disablePrivChat
-          } else {
-            hasModMembers = true
-          }
-        } else {
-          chatLocked = permissions.disablePubChat
-        }
-      } else {
-        hasModMembers = true
-      }
-    }
-
-    if (!(!isPrivateChat && chatDisabled) &&
-      !(isPrivateChat && privateChatDisabled && !hasModMembers) &&
-      !(applyPermissionCheck && chatLocked) &&
-      !chatLockedForUser) {
-      val newState = for {
-        sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
-        chat <- state.groupChats.find(msg.body.chatId)
+      for {
+        user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+        groupChat <- state.groupChats.find(msg.body.chatId)
       } yield {
-        val chatIsPrivate = chat.access == GroupChatAccess.PRIVATE;
-        val userIsAParticipant = chat.users.exists(u => u.id == sender.id);
+        if (groupChat.access == GroupChatAccess.PRIVATE) {
+          privateChatDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("privateChat")
+          isPrivateChat = true
+        }
 
-        if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
-          val moderatorChatEmphasizedEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
-            liveMeeting.clientSettings,
-            "public.chat.moderatorChatEmphasized",
-            alternativeValue = true
-          )
+        if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
+          chatLockedForUser = true
+        }
 
-          val emphasizedText = moderatorChatEmphasizedEnabled &&
-            !chatIsPrivate &&
-            sender.role == Roles.MODERATOR_ROLE
-
-          val messageType = determineMessageType(msg.body.msg.metadata)
-          val groupChatMsgReceived = {
-            if (replyChatMessageDisabled && msg.body.msg.replyToMessageId != "") {
-              msg.body.msg.copy(replyToMessageId = "")
+        if (user.role != Roles.MODERATOR_ROLE && user.locked) {
+          val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+          if (groupChat.access == GroupChatAccess.PRIVATE) {
+            val modMembers = groupChat.users.filter(cu => Users2x.findWithIntId(liveMeeting.users2x, cu.id) match {
+              case Some(user) => user.role == Roles.MODERATOR_ROLE
+              case None       => false
+            })
+            // don't lock private chats that involve a moderator
+            if (modMembers.isEmpty) {
+              chatLocked = permissions.disablePrivChat
             } else {
-              msg.body.msg
+              hasModMembers = true
             }
+          } else {
+            chatLocked = permissions.disablePubChat
           }
-
-          val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText)
-          val updatedGroupChat = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcMessage, messageType)
-
-          val event = buildGroupChatMessageBroadcastEvtMsg(
-            liveMeeting.props.meetingProp.intId,
-            msg.header.userId, msg.body.chatId, gcMessage
-          )
-
-          bus.outGW.send(event)
-
-          state.update(updatedGroupChat)
         } else {
-          val reason = "User isn't a participant of the chat"
-          PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-          state
+          hasModMembers = true
         }
       }
 
-      newState match {
-        case Some(ns) => ns
-        case None     => state
+      if (!(!isPrivateChat && chatDisabled) &&
+        !(isPrivateChat && privateChatDisabled && !hasModMembers) &&
+        !(applyPermissionCheck && chatLocked) &&
+        !chatLockedForUser) {
+        val newState = for {
+          userState <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+          sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
+          chat <- state.groupChats.find(msg.body.chatId)
+        } yield {
+          val chatIsPrivate = chat.access == GroupChatAccess.PRIVATE;
+          val userIsAParticipant = chat.users.exists(u => u.id == sender.id);
+
+          if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
+            val moderatorChatEmphasizedEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+              liveMeeting.clientSettings,
+              "public.chat.moderatorChatEmphasized",
+              alternativeValue = true
+            )
+
+            val emphasizedText = moderatorChatEmphasizedEnabled &&
+              !chatIsPrivate &&
+              sender.role == Roles.MODERATOR_ROLE
+
+            val messageType = determineMessageType(msg.body.msg.metadata)
+            val isPluginMessage = messageType == GroupChatMessageType.PLUGIN
+
+            val groupChatMsgReceived = {
+              if (replyChatMessageDisabled && msg.body.msg.replyToMessageId != "") {
+                msg.body.msg.copy(replyToMessageId = "")
+              } else {
+                msg.body.msg
+              }
+            }
+
+            val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
+            val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType, allowedHtmlElements)
+
+            val allowSendPluginMessage =
+              if (isPluginMessage) getAllowSendPluginMessage(liveMeeting.plugins, gcMessage, userState) else true
+
+            if (allowSendPluginMessage) {
+              val updatedGroupChat = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcMessage, messageType)
+
+              val event = buildGroupChatMessageBroadcastEvtMsg(
+                liveMeeting.props.meetingProp.intId,
+                msg.header.userId, msg.body.chatId,
+                chat.users.map(u => u.id), gcMessage
+              )
+
+              bus.outGW.send(event)
+
+              state.update(updatedGroupChat)
+            } else {
+              val reason = f"Plugin message is not allowed for user with userId ${msg.header.userId}"
+              PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+              state
+            }
+          } else {
+            val reason = "User isn't a participant of the chat"
+            PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+            state
+          }
+        }
+
+        newState match {
+          case Some(ns) => ns
+          case None     => state
+        }
+      } else { state }
+    }
+  }
+
+  private def getAllowSendPluginMessage(pluginInstance: PluginModel, chatMessage: GroupChatMessage, user: UserState): Boolean = {
+    (for {
+      rawPluginName <- chatMessage.metadata.get("pluginName")
+      pluginName = rawPluginName.toString
+      rawCustomValue <- chatMessage.metadata.get("custom")
+      customStr = rawCustomValue.toString
+      custom = customStr.toBooleanOption.getOrElse(false)
+      plugin = getPluginManifestContentByName(pluginInstance, pluginName).get
+    } yield {
+      val isCustomPluginMessage = pluginName.nonEmpty && custom
+
+      def checkServerCommandPermission(permissionList: Option[List[String]]): Boolean = {
+        permissionList match {
+          case Some(permissionList) => isRoleAllowedToSendMessage(permissionList, user)
+          case None                 => true
+        }
       }
-    } else { state }
+      if (isCustomPluginMessage) {
+        val customMessagePermissions = ServerCommands.getPluginPermissionForCustomMessage(plugin)
+        checkServerCommandPermission(customMessagePermissions)
+      } else true
+    }).getOrElse(true)
+  }
+
+  private def isRoleAllowedToSendMessage(allowedRoles: List[String], user: UserState): Boolean = {
+    checkPermission(user, allowedRoles).contains(true)
   }
 
 }

@@ -46,6 +46,12 @@ const NotificationsBarContainer = () => {
   const { hasNotification } = layoutSelectInput((i) => i.notificationsBar);
   const dispatch = layoutDispatch();
 
+  const showConnectionErrors = window.meetingClientSettings
+    .public.app.showConnectionErrors || [];
+  const checkIfAllowed = (status) => showConnectionErrors.includes(status)
+  // Allow all connection errors in development mode
+  || process.env.NODE_ENV === 'development';
+
   const { data: meeting } = useMeeting((m) => ({
     isBreakout: m.isBreakout,
     componentsFlags: m.componentsFlags,
@@ -67,15 +73,18 @@ const NotificationsBarContainer = () => {
         isCritical ? intlMessages.connectionCode3002 : intlMessages.connectionCode3001,
       );
 
+      const canShowTheMessage = checkIfAllowed(code);
+
       logger.warn({
         logCode: 'connection_disconnected',
         extraInfo: {
           errorCode: code,
           isCritical,
           connected,
+          messageShownForUser: canShowTheMessage,
         },
       }, `NotificationsBar: ${msg} (connected=${connected}, isCritical=${isCritical})`);
-
+      if (!canShowTheMessage) return null;
       return msg;
     }
 
@@ -84,47 +93,50 @@ const NotificationsBarContainer = () => {
       const msg = intl.formatMessage(
         isCritical ? intlMessages.connectionCode3004 : intlMessages.connectionCode3003,
       );
-
+      const canShowTheMessage = checkIfAllowed(code);
       logger.warn({
         logCode: 'connection_server_unresponsive',
         extraInfo: {
           errorCode: code,
           isCritical,
           serverIsResponding,
+          errorShownForUser: canShowTheMessage,
         },
       }, `NotificationsBar: ${msg} (serverIsResponding=${serverIsResponding}, isCritical=${isCritical})`);
-
+      if (!canShowTheMessage) return null;
       return msg;
     }
 
     if (connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess) {
       const code = 3005;
       const msg = intl.formatMessage(intlMessages.connectionCode3005);
-
+      const canShowTheMessage = checkIfAllowed(code);
       logger.warn({
         logCode: 'connection_slow_data',
         extraInfo: {
           errorCode: code,
           pingIsComing,
           lastRttRequestSuccess,
+          errorShownForUser: canShowTheMessage,
         },
       }, `NotificationsBar: ${msg} (pingIsComing=${pingIsComing}, lastRttSuccess=${lastRttRequestSuccess})`);
-
+      if (!canShowTheMessage) return null;
       return msg;
     }
 
     if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
       const code = 3006;
       const msg = intl.formatMessage(intlMessages.connectionCode3006);
-
+      const canShowTheMessage = checkIfAllowed(code);
       logger.warn({
         logCode: 'connection_subscription_failed',
         extraInfo: {
           errorCode: code,
           subscriptionFailed,
+          errorShownForUser: canShowTheMessage,
         },
       }, `NotificationsBar: ${msg} (subscriptionFailed=${subscriptionFailed})`);
-
+      if (!canShowTheMessage) return null;
       return msg;
     }
 
@@ -146,7 +158,7 @@ const NotificationsBarContainer = () => {
       return <MeetingRemainingTime />;
     }
 
-    if (meeting.componentsFlags?.showRemainingTime) {
+    if (meeting?.componentsFlags?.showRemainingTime) {
       return <MeetingRemainingTime />;
     }
 

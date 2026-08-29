@@ -1,10 +1,8 @@
 package org.bigbluebutton.api.model.shared;
 
-import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.util.ParamsUtil;
-
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public abstract class Checksum {
 

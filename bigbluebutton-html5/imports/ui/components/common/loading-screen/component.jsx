@@ -2,7 +2,7 @@ import React from 'react';
 import Styled from './styles';
 
 const LoadingScreen = () => (
-  <Styled.Background>
+  <Styled.Background data-test="loadingScreen">
     <Styled.Spinner animations>
       <Styled.Bounce1 animations />
       <Styled.Bounce2 animations />

@@ -3,14 +3,13 @@ import Styled from '../styles';
 
 interface DragAndDropPros {
   MAX_INPUT_CHARS: number;
-  handlePollValuesText: (value: string) => void;
+  handleTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   [key: string]: unknown;
 }
 
 const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((props, ref) => {
-  const { MAX_INPUT_CHARS, handlePollValuesText } = props;
+  const { MAX_INPUT_CHARS, handleTextareaChange } = props;
   const [drag, setDrag] = useState(false);
-  const [pollValueText, setPollValueText] = useState('');
   const dropRef = useRef<HTMLTextAreaElement | null>(null);
   const dragCounter = useRef(0);
 
@@ -61,12 +60,6 @@ const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((prop
     };
   }, []);
 
-  const setPollValues = () => {
-    if (pollValueText) {
-      handlePollValuesText(pollValueText);
-    }
-  };
-
   const setPollValuesFromFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -74,7 +67,6 @@ const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((prop
       if (!result) return;
       const text = typeof result === 'string' ? result : String(result);
       setPollText(text);
-      setPollValues();
     };
     reader.readAsText(file);
   };
@@ -84,7 +76,7 @@ const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((prop
     const text = arr.map((line) => (
       line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line
     )).join('\n');
-    setPollValueText(text);
+    handleTextareaChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   };
 
   const getCleanProps = () => {

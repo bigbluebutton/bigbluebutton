@@ -13,7 +13,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-release:17",
+    "-release:21",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -52,7 +52,7 @@ crossPaths := false
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false
 
-scalaVersion := "2.13.9"
+scalaVersion := "2.13.18"
 
 publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository")))
 

@@ -4,21 +4,15 @@ import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import scala.collection.immutable.{ Map }
 
 case class Whiteboard(
     id:             String,
-    multiUser:      Array[String],
-    oldMultiUser:   Array[String],
-    changedModeOn:  Long,
     annotationsMap: Map[String, AnnotationVO]
 )
 
 class WhiteboardApp2x(implicit val context: ActorContext)
   extends SendCursorPositionPubMsgHdlr
-  with ClearWhiteboardPubMsgHdlr
   with DeleteWhiteboardAnnotationsPubMsgHdlr
-  with ModifyWhiteboardAccessPubMsgHdlr
   with SendWhiteboardAnnotationsPubMsgHdlr
   with GetWhiteboardAnnotationsReqMsgHdlr {
 
@@ -52,22 +46,4 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.deleteAnnotations(whiteboardId, liveMeeting.props.meetingProp.intId, requesterId, annotationsIds, isPresenter, isModerator)
   }
 
-  def getWhiteboardAccess(whiteboardId: String, liveMeeting: LiveMeeting): Array[String] = {
-    liveMeeting.wbModel.getWhiteboardAccess(whiteboardId)
-  }
-
-  def modifyWhiteboardAccess(whiteboardId: String, multiUser: Array[String], liveMeeting: LiveMeeting) {
-    liveMeeting.wbModel.modifyWhiteboardAccess(liveMeeting.props.meetingProp.intId, whiteboardId, multiUser)
-  }
-
-  def filterWhiteboardMessage(whiteboardId: String, userId: String, liveMeeting: LiveMeeting): Boolean = {
-    // Need to check if the wb mode change from multi-user to single-user. Give 5sec allowance to
-    // allow delayed messages to be handled as clients may have been sending messages while the wb
-    // mode was changed. (ralam nov 22, 2017)
-    !liveMeeting.wbModel.hasWhiteboardAccess(whiteboardId, userId)
-  }
-
-  def isNonEjectionGracePeriodOver(wbId: String, userId: String, liveMeeting: LiveMeeting): Boolean = {
-    liveMeeting.wbModel.isNonEjectionGracePeriodOver(wbId, userId)
-  }
 }

@@ -37,6 +37,7 @@ public class ImageSlidesGenerationService {
 	private TextFileCreator textFileCreator;
 	private PngCreator pngCreator;
 	private ImageResizer imageResizer;
+	private ImageResolutionService imageResolutionService;
 	private long maxImageWidth = 2048;
 	private long maxImageHeight = 1536;
 	private boolean svgImagesRequired=true;
@@ -61,12 +62,9 @@ public class ImageSlidesGenerationService {
 			if (generatePngs) {
 				createPngImages(pres, page);
 			}
-
-			notifier.sendConversionUpdateMessage(page, pres, page);
 		}
 
 		System.out.println("****** Conversion complete for " + pres.getName());
-		notifier.sendConversionCompletedMessage(pres);
 	}
 
 	public void createBlanks(UploadedPresentation pres) {
@@ -79,21 +77,20 @@ public class ImageSlidesGenerationService {
 	private void createTextFiles(UploadedPresentation pres, int page) {
 		log.debug("Creating textfiles for accessibility.");
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
-		textFileCreator.createTextFile(pres, page);
+		textFileCreator.createTextFile(pres, page, false);
 	}
 	
 	private void createThumbnails(UploadedPresentation pres, int page) {
 		log.debug("Creating thumbnails.");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
-		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile());
+		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile(), false);
 	}
 	
 	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
 		log.debug("Creating SVG images.");
 
 		try {
-			ImageResolutionService imgResService = new ImageResolutionService();
-			ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
+			ImageResolution imageResolution = imageResolutionService.identifyImageResolution(pres.getUploadedFile());
 
 			log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
 
@@ -106,11 +103,11 @@ public class ImageSlidesGenerationService {
 		}
 
 		notifier.sendCreatingSvgImagesUpdateMessage(pres);
-		svgImageCreator.createSvgImage(pres, page);
+		svgImageCreator.createSvgImage(pres, page, false);
 	}
 	
    private void createPngImages(UploadedPresentation pres, int page) {
-        pngCreator.createPng(pres, page, pres.getUploadedFile());
+        pngCreator.createPng(pres, page, pres.getUploadedFile(), false);
    }
 
 	private void resizeImage(UploadedPresentation pres, String ratio) {
@@ -148,6 +145,10 @@ public class ImageSlidesGenerationService {
 	public void setImageResizer(ImageResizer imageResizer) {
 	    this.imageResizer = imageResizer;
 	}
+
+    public void setImageResolutionService(ImageResolutionService imageResolutionService) {
+        this.imageResolutionService = imageResolutionService;
+    }
 	
 	public void setMaxImageWidth(long maxImageWidth) {
 	    this.maxImageWidth = maxImageWidth;

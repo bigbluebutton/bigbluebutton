@@ -24,7 +24,15 @@ export const enum ChatMessageType {
   PLUGIN = 'plugin'
 }
 
-export const SYSTEM_SENDERS = new Set<ChatMessageType>([
+export const MESSAGE_HIGHLIGHT = new Set<ChatMessageType>([
   ChatMessageType.BREAKOUT_ROOM,
   ChatMessageType.API,
+]);
+
+export const SYSTEM_MESSAGES_WITH_HEADERS = new Set<ChatMessageType>([
+  ChatMessageType.BREAKOUT_ROOM,
+  ChatMessageType.API,
+  ChatMessageType.PLUGIN,
+  ChatMessageType.PRESENTATION,
+  ChatMessageType.POLL,
 ]);

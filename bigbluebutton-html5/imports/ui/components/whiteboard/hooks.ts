@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react';
 import {
-  CurrentPageWritersResponse,
   CursorCoordinates,
   CursorCoordinatesResponse,
-  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  CURRENT_CURSORS_SUBSCRIPTION,
   CURRENT_PAGE_CURSORS_COORDINATES_STREAM,
-  UsersCurrentPageWritersResponse,
+  UserWhiteboardCursor,
+  UserWhiteboardCursorResponse,
 } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
-interface mergedData extends CursorCoordinates, UsersCurrentPageWritersResponse { }
+interface mergedData extends CursorCoordinates, UserWhiteboardCursor { }
 
 // Custom hook to fetch and merge data
 export const useMergedCursorData = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    meetingId: m.meetingId,
+  }));
+
   const [
     cursorCoordinates,
     setCursorCoordinates,
@@ -21,17 +27,25 @@ export const useMergedCursorData = () => {
   const [
     userCursor,
     setUserCursor,
-  ] = useState<{ [key: string]: UsersCurrentPageWritersResponse }>({});
+  ] = useState<{ [key: string]: UserWhiteboardCursor }>({});
 
   const [
     userCursorMerged,
     setUserCursorMerged,
   ] = useState<mergedData[]>([]);
   // Fetch cursor coordinates
-  const { data: cursorUsersSubscriptionData } = useDeduplicatedSubscription<CurrentPageWritersResponse>(
-    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  const { data: cursorUsersSubscriptionData } = useDeduplicatedSubscription<UserWhiteboardCursorResponse>(
+    CURRENT_CURSORS_SUBSCRIPTION,
   );
-  const cursorUsersSubscriptionDataString = JSON.stringify(cursorUsersSubscriptionData);
+  const filteredCursorUsers = meeting?.meetingId
+    ? filterByMeetingId(
+      cursorUsersSubscriptionData?.user_whiteboardCursorAccess,
+      meeting.meetingId,
+      CURRENT_CURSORS_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
+    : [];
+  const cursorUsersSubscriptionDataString = JSON.stringify(filteredCursorUsers);
 
   const { data: cursorCoordinatesData } = useDeduplicatedSubscription<CursorCoordinatesResponse>(
     CURRENT_PAGE_CURSORS_COORDINATES_STREAM,
@@ -54,11 +68,11 @@ export const useMergedCursorData = () => {
   }, [cursorCoordinatesDataString]);
 
   useEffect(() => {
-    if (cursorUsersSubscriptionData) {
-      const cursorData = cursorUsersSubscriptionData.pres_page_writers.reduce((acc, cursor) => {
+    if (filteredCursorUsers.length > 0) {
+      const cursorData = filteredCursorUsers.reduce((acc, cursor) => {
         acc[cursor.userId] = cursor;
         return acc;
-      }, {} as { [key: string]: UsersCurrentPageWritersResponse });
+      }, {} as { [key: string]: UserWhiteboardCursor });
       setUserCursor(cursorData);
     }
   }, [cursorUsersSubscriptionDataString]);

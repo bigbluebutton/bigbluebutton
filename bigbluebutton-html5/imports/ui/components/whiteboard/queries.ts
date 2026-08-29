@@ -12,17 +12,26 @@ export interface CursorCoordinatesResponse {
   pres_page_cursor_stream: CursorCoordinates[];
 }
 
-export interface UsersCurrentPageWritersResponse {
+export interface UserWhiteboardWriteAccess {
   userId: string;
-  user: {
-    name: string;
-    presenter: boolean;
-  };
+  name: string;
+  presenter: boolean;
 }
 
-// Interface for the pres_page_writers subscription
+// Interface for the whiteboard writers subscription
 export interface CurrentPageWritersResponse {
-  pres_page_writers: Array<UsersCurrentPageWritersResponse>;
+  user_whiteboardWriteAccess: Array<UserWhiteboardWriteAccess>;
+}
+
+export interface UserWhiteboardCursor {
+  meetingId: string;
+  userId: string;
+  name: string;
+  presenter: boolean;
+}
+
+export interface UserWhiteboardCursorResponse {
+  user_whiteboardCursorAccess: Array<UserWhiteboardCursor>;
 }
 
 export interface CurrentPresentationPagesSubscriptionResponse {
@@ -159,17 +168,6 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
   }
 }`;
 
-export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStream($lastUpdatedAt: timestamptz){
-  pres_annotation_curr_stream(batch_size: 1000, cursor: {initial_value: {lastUpdatedAt: $lastUpdatedAt}}) {
-    annotationId
-    annotationInfo
-    lastUpdatedAt
-    pageId
-    presentationId
-    userId
-  }
-}`;
-
 export const ANNOTATION_HISTORY_STREAM = gql`
   subscription annotationHistoryStream($updatedAt: timestamptz, $pageId: String!) {
     pres_annotation_history_curr_stream(
@@ -187,26 +185,29 @@ export const ANNOTATION_HISTORY_STREAM = gql`
   }
 `;
 
-export const CURRENT_PAGE_WRITERS_QUERY = gql`
-  query currentPageWritersQuery($pageId: String!) {
-    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
+export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
+  subscription whiteboardWriteAccessSubscription {
+    user_whiteboardWriteAccess(
+      order_by: { userId: asc }
+    ) {
       userId
-      pageId
+      name
+      presenter
+      isModerator
     }
   }
 `;
 
-export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
-  subscription currentPageWritersSubscription {
-    pres_page_writers(
-      where: { isCurrentPage: {_eq: true} },
+export const CURRENT_CURSORS_SUBSCRIPTION = gql`
+  subscription whiteboardCursorAccessSubscription {
+    user_whiteboardCursorAccess(
       order_by: { userId: asc }
     ) {
+      meetingId
       userId
-      user {
-        name
-        presenter
-      }
+      name
+      presenter
+      isModerator
     }
   }
 `;

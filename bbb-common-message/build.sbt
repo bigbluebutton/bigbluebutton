@@ -12,7 +12,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-release:17",
+    "-release:21",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -55,7 +55,7 @@ scalariformAutoformat := true
 // Do not append Scala versions to the generated artifacts
 //crossPaths := false
 
-scalaVersion := "2.13.9"
+scalaVersion := "2.13.18"
 
 // This forbids including Scala related libraries into the dependency
 //autoScalaLibrary := false

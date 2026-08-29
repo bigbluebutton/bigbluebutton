@@ -20,7 +20,9 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
-import getStorageSingletonInstance from '../../services/storage';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
+import SessionStorage from '../../services/storage/session';
+import { ModalRegistration } from '../../core/singletons/modalController';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -38,10 +40,6 @@ const intlMessages = defineMessages({
   newMsgAria: {
     id: 'app.navBar.toggleUserList.newMsgAria',
     description: 'label for new message screen reader alert',
-  },
-  defaultBreakoutName: {
-    id: 'app.createBreakoutRoom.room',
-    description: 'default breakout room name',
   },
   leaveMeetingLabel: {
     id: 'app.navBar.leaveMeetingBtnLabel',
@@ -65,9 +63,6 @@ const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
-  breakoutNum: PropTypes.number,
-  breakoutName: PropTypes.string,
-  meetingName: PropTypes.string,
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
@@ -87,30 +82,46 @@ const renderPluginItems = (pluginItems) => {
           pluginItems.map((pluginItem) => {
             let returnComponent;
             switch (pluginItem.type) {
-              case NavBarItemType.BUTTON:
+              case NavBarItemType.BUTTON: {
+                const navBarIconProps = {};
+                if (typeof pluginItem?.icon === 'string') navBarIconProps.icon = pluginItem.icon;
+                else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'iconName' in pluginItem.icon) navBarIconProps.icon = pluginItem.icon.iconName;
+                else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'svgContent' in pluginItem.icon) {
+                  navBarIconProps.customIcon = (
+                    <PluginButtonIcon>
+                      {pluginItem.icon.svgContent}
+                    </PluginButtonIcon>
+                  );
+                }
                 returnComponent = (
                   <Styled.PluginComponentWrapper
                     key={`${pluginItem.id}-${pluginItem.type}`}
                   >
                     <Button
                       disabled={pluginItem.disabled}
-                      icon={pluginItem.icon}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
-                      color="primary"
-                      tooltip={pluginItem.tooltip}
+                      color={pluginItem.color || 'primary'}
+                      circle={pluginItem.circle === true}
+                      hideLabel={pluginItem.hideLabel === true}
+                      size={pluginItem.size || 'md'}
+                      style={pluginItem.style}
+                      tooltipLabel={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
+                      dataTest={pluginItem.dataTest}
+                      {...navBarIconProps}
                     />
                   </Styled.PluginComponentWrapper>
                 );
                 break;
+              }
               case NavBarItemType.INFO:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
                     key={`${pluginItem.id}-${pluginItem.type}`}
                     tooltip={pluginItem.tooltip}
                   >
-                    <Styled.PluginInfoComponent>
+                    <Styled.PluginInfoComponent data-test={pluginItem.dataTest}>
                       {pluginItem.label}
                     </Styled.PluginInfoComponent>
                   </Styled.PluginComponentWrapper>
@@ -159,51 +170,13 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
-    this.setModalIsOpen = this.setModalIsOpen.bind(this);
-
-    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
-
-    this.state = {
-      isModalOpen: props.showSessionDetailsOnJoin && !(ShownId === props.meetingId),
-    };
-  }
-
-  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? (
-      <Component
-        {...{
-          ...otherOptions,
-          onRequestClose: () => setIsOpen(false),
-          priority,
-          setIsOpen,
-          isOpen,
-        }}
-      />
-    ) : null;
+    this.setModalIsOpen = () => {};
   }
 
   componentDidMount() {
     const {
       shortcuts: TOGGLE_USERLIST_AK,
-      intl,
-      breakoutNum,
-      breakoutName,
-      meetingName,
     } = this.props;
-
-    if (breakoutNum && breakoutNum > 0) {
-      if (breakoutName && meetingName) {
-        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
-          roomNumber: breakoutNum,
-        });
-
-        if (breakoutName === defaultBreakoutName) {
-          document.title = `${breakoutNum} - ${meetingName}`;
-        } else {
-          document.title = `${breakoutName} - ${meetingName}`;
-        }
-      }
-    }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
@@ -221,16 +194,19 @@ class NavBar extends Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
+  componentDidUpdate() {
+    const {
+      showSessionDetailsOnJoin,
+      meetingId,
+    } = this.props;
+    const ShownId = SessionStorage.getItem('alreadyShowSessionDetailsOnJoin');
+    if (showSessionDetailsOnJoin && ShownId !== meetingId) {
+      this.setModalIsOpen(true);
+    }
   }
 
-  setModalIsOpen(isOpen) {
-    if (!isOpen) {
-      const { meetingId } = this.props;
-      getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
-    }
-    this.setState({ isModalOpen: isOpen });
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   handleToggleUserList() {
@@ -301,6 +277,20 @@ class NavBar extends Component {
     });
   }
 
+  static renderModal(isOpen, setIsOpen, priority, ModalComponent, otherOptions) {
+    return isOpen ? (
+      <ModalComponent
+        {...{
+          ...otherOptions,
+          onRequestClose: () => setIsOpen(false),
+          priority,
+          setIsOpen,
+          isOpen,
+        }}
+      />
+    ) : null;
+  }
+
   render() {
     const {
       hasUnreadMessages,
@@ -315,11 +305,9 @@ class NavBar extends Component {
       sidebarNavigation,
       currentUserId,
       isDirectLeaveButtonEnabled,
-      isMeteorConnected,
+      isConnected,
       hideTopRow,
     } = this.props;
-
-    const { isModalOpen } = this.state;
 
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
@@ -396,16 +384,37 @@ class NavBar extends Component {
               <Styled.PresentationTitle
                 data-test="presentationTitle"
                 id="presentationTitle"
-                onClick={() => this.setModalIsOpen(true)}
               >
                 <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
-                  <span>
+                  <Styled.TitleButton
+                    aria-haspopup="dialog"
+                    onClick={() => this.setModalIsOpen(true)}
+                  >
                     {presentationTitle}
                     <Icon iconName="device_list_selector" />
-                  </span>
+                  </Styled.TitleButton>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, 'low', SessionDetailsModal)}
+              <ModalRegistration id="SessionDetailsModal" priority="low">
+                {
+                  ({
+                    isOpen,
+                    open,
+                    close,
+
+                  }) => {
+                    this.setModalIsOpen = (value) => {
+                      if (!value) {
+                        const { meetingId } = this.props;
+                        SessionStorage.setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+                      }
+                      if (value) open();
+                      else close();
+                    };
+                    return NavBar.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
+                  }
+                }
+              </ModalRegistration>
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}
@@ -417,7 +426,7 @@ class NavBar extends Component {
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-              {isDirectLeaveButtonEnabled && isMeteorConnected
+              {isDirectLeaveButtonEnabled && isConnected
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
               <OptionsDropdownContainer
                 amIModerator={amIModerator}

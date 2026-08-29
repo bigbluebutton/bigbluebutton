@@ -65,7 +65,7 @@ object FakeUserGenerator {
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, "", "", role,
       authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
-      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
+      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map.empty, Map.empty, false)
     RegisteredUsers.add(users, ru, meetingId)
     ru
   }
@@ -82,6 +82,7 @@ object FakeUserGenerator {
       callerName = user.name,
       callerNum = user.name,
       "#ff6242",
+      speechLocale = "",
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -110,6 +111,7 @@ object FakeUserGenerator {
       callerName = name,
       callerNum = name,
       "#ff6242",
+      speechLocale = "",
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -124,9 +126,17 @@ object FakeUserGenerator {
     )
   }
 
-  def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
+  def createFakeWebcamStreamFor(userId: String, userName: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    WebcamStream(streamId, userId, "camera", hasAudio = false, showAsContent = false, subscribers)
+    WebcamStream(
+      streamId = streamId,
+      userId = userId,
+      userName = userName,
+      contentType = "camera",
+      hasAudio = false,
+      showAsContent = false,
+      subscribers = subscribers
+    )
   }
 
 }

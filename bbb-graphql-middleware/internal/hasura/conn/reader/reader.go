@@ -124,7 +124,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 
 			// Inject pg + gql-middleware time to traceLog
 			if subscription.OperationName == "ConnStatusWithTraceLog" {
-				_, _, messageData := getHasuraMessage(message, subscription, hc.BrowserConn.Logger)
+				_, _, messageData := getHasuraMessage(message, subscription, hc.BrowserConn.MeetingId, hc.BrowserConn.Logger)
 				if _, existsConnectionStatusKey := messageData.Payload.Data["user_connectionStatus"]; existsConnectionStatusKey {
 					type ConnectionStatusMessage struct {
 						MeetingId          string `json:"meetingId"`
@@ -179,7 +179,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 }
 
 func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, subscription common.GraphQlSubscription, queryId string) bool {
-	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message, subscription, hc.BrowserConn.Logger)
+	dataChecksum, messageDataKey, messageData := getHasuraMessage(*message, subscription, hc.BrowserConn.MeetingId, hc.BrowserConn.Logger)
 
 	// Check whether ReceivedData is different from the LastReceivedData
 	// Otherwise stop forwarding this message
@@ -189,7 +189,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 
 	lastDataChecksumWas := subscription.LastReceivedDataChecksum
 	lastReceivedDataWas := subscription.LastReceivedData
-	cacheKey := mergeUint32(subscription.LastReceivedDataChecksum, dataChecksum)
+	cacheKey := combineUint32ToUint64(subscription.LastReceivedDataChecksum, dataChecksum)
 
 	// Store LastReceivedData Checksum
 	subscription.LastReceivedData = messageData
@@ -200,18 +200,18 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 
 	// Apply msg patch when it supports it
 	if subscription.JsonPatchSupported {
-		*message = msgpatch.GetPatchedMessage(*message, messageDataKey, lastReceivedDataWas, messageData, cacheKey, lastDataChecksumWas, dataChecksum)
+		*message = msgpatch.GetPatchedMessage(*message, messageDataKey, lastReceivedDataWas, messageData, cacheKey, lastDataChecksumWas, dataChecksum, hc.BrowserConn.MeetingId)
 	}
 
 	return true
 }
 
-func mergeUint32(a, b uint32) uint32 {
-	return (a << 16) | (b >> 16)
+func combineUint32ToUint64(a, b uint32) uint64 {
+	return (uint64(a) << 32) | uint64(b)
 }
 
 func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscription common.GraphQlSubscription, queryId string) {
-	lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(message, subscription.StreamCursorField)
+	lastCursor := common.GetLastStreamCursorValueFromReceivedMessage(message, subscription.StreamCursorField, hc.BrowserConn.MeetingId)
 	if lastCursor != nil && subscription.StreamCursorCurrValue != lastCursor {
 		subscription.StreamCursorCurrValue = lastCursor
 
@@ -244,13 +244,13 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 	go retransmiter.RetransmitSubscriptionStartMessages(hc)
 }
 
-func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, logger *logrus.Entry) (uint32, string, common.HasuraMessage) {
+func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, meetingId string, logger *logrus.Entry) (uint32, string, common.HasuraMessage) {
 	dataChecksum := crc32.ChecksumIEEE(message)
 
-	common.GlobalCacheLocks.Lock(dataChecksum)
-	defer common.GlobalCacheLocks.Unlock(dataChecksum)
+	common.GlobalCacheLocks.Lock(uint64(dataChecksum))
+	defer common.GlobalCacheLocks.Unlock(uint64(dataChecksum))
 
-	dataKey, hasuraMessage, dataMapExists := common.GetHasuraMessageCache(dataChecksum)
+	dataKey, hasuraMessage, dataMapExists := common.GetHasuraMessageCache(meetingId, dataChecksum)
 	if dataMapExists {
 		return dataChecksum, dataKey, hasuraMessage
 	}
@@ -265,7 +265,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, l
 		break
 	}
 
-	common.StoreHasuraMessageCache(dataChecksum, dataKey, hasuraMessage)
+	common.StoreHasuraMessageCache(meetingId, dataChecksum, dataKey, hasuraMessage)
 
 	// Add Prometheus metrics only once for each dataChecksum
 	dataSize := len(string(message))

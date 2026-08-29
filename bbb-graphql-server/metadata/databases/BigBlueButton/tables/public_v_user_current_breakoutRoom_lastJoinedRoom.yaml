@@ -1,0 +1,39 @@
+table:
+  name: v_user_current_breakoutRoom_lastJoinedRoom
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_current_breakoutRoom_lastJoinedRoom
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - breakoutRoomMeetingId
+        - isDefaultName
+        - isUserCurrentlyInRoom
+        - sequence
+        - shortName
+        - userId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+      query_root_fields: []
+      subscription_root_fields: []
+    comment: ""
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - breakoutRoomMeetingId
+        - isDefaultName
+        - isUserCurrentlyInRoom
+        - sequence
+        - shortName
+        - userId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+      query_root_fields: []
+      subscription_root_fields: []
+    comment: ""

@@ -1,0 +1,27 @@
+name: Check if artifact exists
+description: Check if a specific artifact exists in the workflow run
+inputs:
+  artifact-name:
+    description: The name of the artifact to check for
+    required: true
+outputs:
+  result:
+    description: Whether the artifact exists (true/false)
+    value: ${{ steps.check.outputs.result }}
+runs:
+  using: composite
+  steps:
+    - name: Check if artifact exists
+      id: check
+      uses: actions/github-script@v8
+      with:
+        script: |
+          const runId = context.payload.workflow_run?.id ?? context.runId;
+          const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: runId,
+          });
+          const artifactExists = artifacts.some(a => a.name.includes('${{ inputs.artifact-name }}'));
+          console.log(`Artifact containing '${{ inputs.artifact-name }}' found: ${artifactExists}`);
+          return artifactExists;

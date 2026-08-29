@@ -16,7 +16,7 @@ subscription userCurrentSubscription {
     extId
     guest
     guestStatus
-    hasDrawPermissionOnCurrentPage
+    whiteboardWriteAccess
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
     isDialIn
@@ -46,7 +46,7 @@ subscription userCurrentSubscription {
       logoutUrl
     }
     lastBreakoutRoom {
-      currentlyInRoom
+      isUserCurrentlyInRoom
       sequence
       shortName
     }
@@ -74,11 +74,6 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
-    }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
     }
   }
 }

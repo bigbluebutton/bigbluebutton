@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { PluginLoaderManagerProps } from './types';
-import { useEffect } from 'react';
 import logger from '/imports/startup/client/logger';
+import { setLogger } from '../utils';
 
 const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
@@ -8,11 +9,20 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     containerRef,
     setNumberOfLoadedPlugins,
     setLastLoadedPlugin,
+    pluginApi,
+    loggerSettings,
     pluginConfig: plugin,
   } = props;
 
+  const [isLoggerLoaded, setIsLoggerLoaded] = useState(false);
+
   useEffect(() => {
-    if (!plugin || !containerRef) {
+    setLogger(pluginApi, loggerSettings);
+    setIsLoggerLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!plugin || !containerRef || !isLoggerLoaded) {
       return;
     }
 
@@ -44,7 +54,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
       script.setAttribute('integrity', plugin.javascriptEntrypointIntegrity);
     }
     document.head.appendChild(script);
-  }, [plugin, containerRef]);
+  }, [plugin, containerRef, isLoggerLoaded]);
   return null;
 };
 

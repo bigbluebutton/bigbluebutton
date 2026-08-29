@@ -22,6 +22,8 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
+
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 
 interface AvatarProps {
@@ -41,6 +43,7 @@ interface AvatarProps {
     isFirefox?: boolean;
     isEdge?: boolean;
     isSkeleton?: boolean;
+    order?: number;
 }
 
 interface UserItemContentsProps {
@@ -335,6 +338,36 @@ const Avatar = styled.div<AvatarProps>`
   align-items:center;  
   // ================ content ================
 
+  /* ================ raised-hand order badge ================ */
+  ${({ order }) => (order !== undefined && order > 0) && css`
+    &:before {
+      content: "${order}";
+      opacity: 1;
+      top: ${userIndicatorsOffset};
+      right: ${userIndicatorsOffset};
+      left: auto;
+      bottom: auto;
+      width: 1.1rem;
+      height: 1.1rem;
+      min-width: 1.1rem;
+      border-radius: 50% !important;
+      background-color: ${colorPrimary};
+      color: ${colorWhite};
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      letter-spacing: 0;
+      font-size: .75rem;
+      z-index: 2;
+
+      [dir="rtl"] & {
+        right: auto;
+        left: ${userIndicatorsOffset};
+      }
+    }
+  `}
+  /* ================ raised-hand order badge ================ */
+
   & .react-loading-skeleton {    
     height: 2.25rem;
     width: 2.25rem;
@@ -349,6 +382,15 @@ const UserAdditionalInformationIcon = styled(Icon)`
   margin-right: ${smPaddingX};
 `;
 
+const SvgContentUserListIcon = styled(PluginButtonIcon)`
+  display: inline-flex;
+  align-items: center;
+`;
+
+const SvgContentUserListIconMargin = styled(PluginButtonIcon)`
+  margin-right: ${smPaddingX};
+`;
+
 const pulse = (color: string) => keyframes`
     0% {
       box-shadow: 0 0 0 0 ${color}80;
@@ -356,7 +398,6 @@ const pulse = (color: string) => keyframes`
     100% {
       box-shadow: 0 0 0 10px ${color}00;
     }
-  }
 `;
 
 // ======================== User Name ========================
@@ -426,5 +467,7 @@ export default {
   UserAdditionalInformationIcon,
   UserNameSub,
   UserName,
+  SvgContentUserListIcon,
+  SvgContentUserListIconMargin,
   IconRightContainer,
 };

@@ -5,13 +5,14 @@ import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
+import OverflowTile from './overflow-tile/component';
 import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
@@ -77,17 +78,19 @@ interface VideoListProps {
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
+  overflowCount: number;
+  overflowUsers: GridItem[];
   streams: VideoItem[];
   intl: IntlShape;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  gridSize: number;
 }
 
 interface VideoListState {
   optimalGrid: {
-    cols: number,
     rows: number,
     filledArea: number,
     width: number;
@@ -113,7 +116,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     this.state = {
       optimalGrid: {
-        cols: 1,
         rows: 1,
         filledArea: 0,
         columns: 0,
@@ -146,7 +148,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   componentDidUpdate(prevProps: VideoListProps) {
     const {
-      layoutType, cameraDock, streams, focusedId,
+      layoutType, cameraDock, streams, focusedId, overflowCount,
     } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
@@ -154,14 +156,19 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock: prevCameraDock,
       streams: prevStreams,
       focusedId: prevFocusedId,
+      overflowCount: prevOverflowCount,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
+    // The overflow tile can mount/unmount without a stream-count change (users
+    // joining or leaving with no camera), and a tile the grid template was not
+    // computed for lands in an implicit auto-height row.
     if (layoutType !== prevLayoutType
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
-      || streams.length !== prevStreams.length) {
+      || streams.length !== prevStreams.length
+      || overflowCount !== prevOverflowCount) {
       this.handleCanvasResize();
     }
   }
@@ -227,8 +234,23 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       streams,
       cameraDock,
       layoutContextDispatch,
+      isGridEnabled,
+      gridSize,
+      overflowCount,
     } = this.props;
-    let numItems = streams.length;
+    const visibleStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    );
+    const videoCount = visibleStreams.filter((item) => item.type !== VIDEO_TYPES.GRID).length;
+    const hasGridItems = visibleStreams.length > videoCount;
+    const overflowTileShown = isGridEnabled && overflowCount > 0;
+    // "grid == page": cameras always get their slots, so capacity grows to the
+    // page when cameras alone meet/exceed the grid size. The overflow tile
+    // consumes an extra slot only when there is no avatar for it to replace.
+    let numItems = isGridEnabled
+      ? Math.min(Math.max(gridSize, videoCount), visibleStreams.length)
+      : visibleStreams.length;
+    if (overflowTileShown && !hasGridItems) numItems += 1;
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -240,7 +262,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = streams.filter(
+    const hasFocusedItem = visibleStreams.filter(
       (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
     ).length && numItems > 2;
 
@@ -258,7 +280,13 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
-      }, { filledArea: 0 });
+      }, { filledArea: 0 } as {
+        columns: number;
+        rows: number;
+        width: number;
+        height: number;
+        filledArea: number;
+    });
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
@@ -354,21 +382,50 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       setUserCamerasRequestedFromPlugin,
       focusedId,
       pluginUserCameraHelperPerPosition,
+      isGridEnabled,
+      overflowCount,
+      overflowUsers,
     } = this.props;
-    const numOfStreams = streams.length;
+    const numOfStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    ).length;
 
-    return streams.map((item) => {
+    const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
+
+    // The overflow tile may only take an avatar's slot, never a camera's.
+    // Avatars (GRID items) are appended after video streams, so remove the last
+    // GRID item; on a full-camera page there is none and the tile gets its own
+    // slot ("grid == page" keeps every camera of the page visible).
+    let lastGridUserIndex = -1;
+    if (shouldShowOverflowTile) {
+      for (let i = streams.length - 1; i >= 0; i -= 1) {
+        if (streams[i].type === VIDEO_TYPES.GRID) {
+          lastGridUserIndex = i;
+          break;
+        }
+      }
+    }
+    const streamsToRender = lastGridUserIndex !== -1
+      ? streams.filter((_, idx) => idx !== lastGridUserIndex)
+      : streams;
+
+    const videoItems = streamsToRender.map((item) => {
       const { userId, name } = item;
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const shouldRender = item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false;
+
+      if (!shouldRender) return null;
 
       return (
         <Styled.VideoListItem
           key={key}
           $focused={isFocused}
           data-test="webcamVideoItem"
+          data-video-type={isStream ? 'stream' : 'grid'}
+          data-user-name={name}
         >
           <VideoListItemContainer
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
@@ -395,6 +452,21 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         </Styled.VideoListItem>
       );
     });
+
+    if (shouldShowOverflowTile) {
+      videoItems.push(
+        <Styled.VideoListItem
+          key="overflow-tile"
+          $focused={false}
+          data-test="overflowTile"
+          data-overflow-count={overflowCount}
+        >
+          <OverflowTile overflowCount={overflowCount} overflowUsers={overflowUsers} />
+        </Styled.VideoListItem>,
+      );
+    }
+
+    return videoItems;
   }
 
   render() {
@@ -421,6 +493,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
         {!streams.length && !isGridEnabled ? null : (
           <Styled.VideoList
+            data-test="webcamVideoList"
             ref={(ref) => {
               this.grid = ref;
             }}

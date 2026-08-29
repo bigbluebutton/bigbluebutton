@@ -48,11 +48,14 @@ const GenericContentSidekickContainer: React.FC<GenericContentSidekickContainerP
     return null;
   }
 
+  const { dataTest } = pickedGenericSidekickContent;
+
   return (
     <GenericSidekickContent
       layoutContextDispatch={layoutContextDispatch}
       genericContentId={pickedGenericSidekickContent.id}
       renderFunction={pickedGenericSidekickContent.contentFunction}
+      dataTest={dataTest}
       genericContentLabel={pickedGenericSidekickContent.name}
     />
   );

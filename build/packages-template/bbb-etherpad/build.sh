@@ -8,6 +8,9 @@ VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 TAG=$(echo $TARGET | cut -d'_' -f4)
 
+#
+# Harden static asset path resolution in Minify.js (upstream fix, back-ported).
+patch -p1 -F0 --forward -i fix-etherpad-static-serving.patch
 
 #
 # Clean up directories
@@ -48,7 +51,7 @@ npm pack ./ep_redis_publisher
 npm install ./ep_redis_publisher-*.tgz
 
 rm -rf ep_cursortrace
-git clone https://github.com/mconf/ep_cursortrace.git
+git clone --branch v3.1.20-2 --depth 1 https://github.com/mconf/ep_cursortrace.git
 npm pack ./ep_cursortrace
 npm install ./ep_cursortrace-*.tgz
 

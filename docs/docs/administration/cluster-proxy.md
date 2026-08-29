@@ -101,7 +101,7 @@ For each BigBlueButton server in your cluster, repeat the following steps:
 Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 
 ```ini
-defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client
+defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
 graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
@@ -127,6 +127,8 @@ public:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
     uploadEndpoint: 'https://bbb-01.example.com/bigbluebutton/presentation/upload'
+  sharedNotes:
+    serverHostname: bbb-01.example.com
   # for BBB 2.4:
   note:
     url: 'https://bbb-01.example.com/pad'
@@ -138,9 +140,16 @@ public:
 ---
 
 Create a new file in `/etc/bigbluebutton/nginx/bbb-cluster.nginx`
-and prepend the mount point of bbb-html5 in all location sections:
+- replace `bbb-proxy.example.com` with your proxy origin in `$bbb_cors_origin`
+- prepend the `bbb-html5` mount point in all `location` sections
+
 
 ```
+# Enable per-origin CORS
+# Required because the HTML5 client is served from the proxy origin while slides (and other requests)
+# are fetched directly from this BBB node with credentials
+set $bbb_cors_origin 'https://bbb-proxy.example.com';
+
 # running in production (static assets)
 location /bbb-01/html5client {
     gzip_static on;
@@ -218,16 +227,13 @@ _**Note:** This one includes the protocol._
 ---
 
 If your proxy server uses a different root domain than your BBB server, you’ll need an additional configuration.
-Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.yml`:
+Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.properties`:
 
-```yaml
-server:
-  servlet:
-    session:
-      cookie:
-        secure: true
-        SameSite: none
+```shell
+server.servlet.session.cookie.secure=true
+server.servlet.session.cookie.SameSite=none
 ```
+
 _**Note:** This change will be reverted with subsequent bbb-web updates. If you rely on the override, look to include it in a post-installation routine._
 
 ---

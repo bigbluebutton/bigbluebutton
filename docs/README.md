@@ -1,6 +1,6 @@
 # BigBlueButton Docs
 
-These docs are automatically built using [Docusaurus 2](https://docusaurus.io/)
+These docs are automatically built using [Docusaurus](https://docusaurus.io/)
 and GitHub Actions (see [deploy-docs.yml](../.github/workflows/deploy-docs.yml)).
 
 ## Local Development

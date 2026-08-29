@@ -10,6 +10,19 @@ import { ObjectToCustomSubscriptionHookContainerMap } from './domain/shared/cust
 import { ObjectToCustomQueryHookContainerMap } from './domain/shared/custom-query/types';
 import { ObjectToCustomHookContainerMap } from './types';
 import { EssentialHookInformation } from './domain/shared/types';
+import logger from '/imports/startup/client/logger';
+
+const applyHookUsageCountDelta = (hookName: string, currentCount: number, delta: number) => {
+  const newCount = currentCount + delta;
+  if (newCount < 0) {
+    logger.warn({
+      logCode: 'attempt_to_decrement_hook_usage_below_zero',
+      extraInfo: { hookName, currentCount, delta },
+    }, 'Attempted to decrement hook usage count below zero. This should not happen and indicates that something went wrong.');
+    return 0;
+  }
+  return newCount;
+};
 
 const hookUsageSetStateCallback = (
   removeEntry: boolean, mapObj: Map<string, Map<string, ObjectToCustomHookContainerMap>>,
@@ -22,9 +35,14 @@ const hookUsageSetStateCallback = (
     if (removeEntry) {
       mapToBeSet.delete(hookArgumentsAsKey);
     } else {
+      const versionIncrement = (delta > 0 ? 1 : 0);
       mapToBeSet.set(hookArgumentsAsKey, {
-        count: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.count || 0) + delta,
-        version: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.version || 0) + 1,
+        count: applyHookUsageCountDelta(
+          hookName,
+          mapObj.get(hookName)?.get(hookArgumentsAsKey)?.count || 0,
+          delta,
+        ),
+        version: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.version ?? 0) + versionIncrement,
         hookArguments,
       });
     }
@@ -48,9 +66,14 @@ const updateHookUsage = (
     && hookName !== DataConsumptionHooks.CUSTOM_QUERY) {
     setHookUtilizationCount((mapObj) => {
       const newMap = new Map<string, EssentialHookInformation>(mapObj.entries());
+      const versionIncrement = (delta > 0 ? 1 : 0);
       newMap.set(hookName, {
-        count: (mapObj.get(hookName)?.count || 0) + delta,
-        version: (mapObj.get(hookName)?.version || 0) + 1,
+        count: applyHookUsageCountDelta(
+          hookName,
+          (mapObj.get(hookName)?.count || 0),
+          delta,
+        ),
+        version: (mapObj.get(hookName)?.version ?? 0) + versionIncrement,
       });
       return newMap;
     });

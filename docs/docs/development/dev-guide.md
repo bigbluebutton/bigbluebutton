@@ -40,6 +40,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-pads -- manages the control to Etherpad
 - bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
 - bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
+- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (serving as the Shared Notes component and replacing Etherpad)
 - bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
 This document describes how to set up a development environment using an existing BigBlueButton 3.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
@@ -131,7 +132,7 @@ It includes all you need to be able to run a local BigBlueButton development env
 First, you need to install the core development tools.
 
 ```bash
-sudo apt-get install git-core openjdk-17-jdk-headless
+sudo apt-get install git-core openjdk-21-jdk-headless
 ```
 
 With the JDK installed, you need to set the JAVA_HOME variable. Edit `~/.profile` (here we are using vim to edit the file)
@@ -143,7 +144,7 @@ vi ~/.profile
 Add the following line at the end of the file
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ```
 
 Reload your profile (this will happen automatically when you next login, but we'll do it explicitly here to load the new environment variable).
@@ -156,7 +157,7 @@ Do a quick test to ensure JAVA_HOME is set.
 
 ```bash
 $ echo $JAVA_HOME
-/usr/lib/jvm/java-17-openjdk-amd64
+/usr/lib/jvm/java-21-openjdk-amd64
 ```
 
 In the next step, you need to install a number of tools using sdkman.
@@ -165,9 +166,9 @@ In the next step, you need to install a number of tools using sdkman.
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-sdk install gradle 7.3.1
-sdk install grails 5.3.2
-sdk install sbt 1.6.2
+sdk install gradle 8.14.3 
+sdk install grails 7.0.0
+sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
 
@@ -295,6 +296,11 @@ sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbl
 sudo bbb-conf --restart
 ```
 
+Edit `/usr/share/bigbluebutton/nginx/bbb-html5.nginx` and comment the line that includes `bbb-html5.nginx.static`, then uncomment the line that includes `bbb-html5.nginx.dev`.
+After that, restart nginx with: `sudo systemctl restart nginx`
+
+Remember to revert the change when you stop using the development client.
+
 Install the npm dependencies.
 
 ```bash
@@ -334,136 +340,22 @@ cd ~/dev/bigbluebutton/bbb-common-message
 
 ## Developing BBB-Web
 
-Give your user account access to upload slides to the presentation directory and also access to write log files.
+```bash
+cd ~/dev/bigbluebutton/bigbluebutton-web
+```
+
+To rebuild and deploy your changes, replacing the existing `bbb-web` in `/usr/share/bbb-web`:
 
 ```bash
-sudo chmod -R ugo+rwx /var/bigbluebutton
-sudo chmod -R ugo+rwx /var/log/bigbluebutton
+./deploy_to_usr_share.sh --build
 ```
+The --build option builds bbb-common-web, which is required when building bbb-web for the first time. After that, if you have not changed the bbb-common-web source code, you can omit the --build option.
 
-Open the file `~/.sbt/1.0/global.sbt` using your editor
+Alternatively, to run bbb-web in development mode on port 8090 without replacing the deployed files:
 
 ```bash
-mkdir -p ~/.sbt/1.0
-vi ~/.sbt/1.0/global.sbt
+./run-dev.sh --build
 ```
-
-Add the following into it
-
-```scala
-resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
-updateOptions := updateOptions.value.withCachedResolution(true)
-```
-
-Build bbb-common-web
-
-```bash
-cd ~/dev/bigbluebutton/bbb-common-web
-./deploy.sh
-```
-
-Now let's start building bbb-web
-
-```bash
-cd ~/dev/bigbluebutton/bigbluebutton-web/
-```
-
-We need to stop the bbb-web service
-
-```bash
-sudo service bbb-web stop
-```
-
-Download the necessary libraries.
-
-```bash
-./build.sh
-```
-
-Start grails and tell to listen on port 8090
-
-```bash
-./run.sh
-```
-
-or
-
-```bash
-grails -reloading -Dserver.port=8090 run-app
-```
-
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
-
-Now test again if you can create and join a meeting.
-
-The command above will run a development version of bbb-web, but if you want to deploy your custom-built bbb-web you need to package a war file.
-
-**Instructions for deploying bbb-web**
-
-First we need to compile all the project in a single war file.
-
-```bash
-grails assemble
-```
-
-The `war` application is generated under `build/libs/bigbluebutton-0.10.0.war`.
-
-Create a new directory and open it.
-
-```bash
-mkdir exploded && cd exploded
-```
-
-Extract the war content in the newly create directory
-
-```bash
-jar -xvf ../build/libs/bigbluebutton-0.10.0.war
-```
-
-Then copy the `run-prod.sh` after checking all the jar dependencies are listed in
-
-```bash
-cp ../run-prod.sh .
-```
-
-In the next step we will make a copy of the current production directory for `bbb-web`
-
-```bash
-sudo cp -R /usr/share/bbb-web /usr/share/bbb-web-old
-```
-
-Then we will delete all the files we need to be copied for production
-
-```bash
-sudo rm -rf /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/run-prod.sh  /usr/share/bbb-web/WEB-INF/
-```
-
-Next, let's copy the complied files into the production directory
-
-```bash
-sudo cp -R . /usr/share/bbb-web/
-```
-
-Make sure the copied files have the right user ownership.
-
-```bash
-$ sudo chown bigbluebutton:bigbluebutton /usr/share/bbb-web
-$ sudo chown -R bigbluebutton:bigbluebutton /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/run-prod.sh /usr/share/bbb-web/WEB-INF/
-```
-
-And finally we run the service.
-
-```bash
-sudo service bbb-web start
-```
-
-If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
-
-```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && sudo mv /usr/share/bbb-web-old /usr/share/bbb-web
-```
-
-Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
 
 ## Developing Akka-Apps
 
@@ -569,15 +461,15 @@ The above will re-sync your clock.
 
 ### Resolving Conflicts Between Java Versions
 
-In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'17' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 17 for its operation, but the `sbt` build tool is using Java 11 instead.
+In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'21' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 21 for its operation, but the `sbt` build tool is using an older version instead.
 
-To address this, you need to set the appropriate Java version. The following command will set Java 17 as the active version:
+To address this, you need to set the appropriate Java version. The following command will set Java 21 as the active version:
 
 ```bash
-update-java-alternatives -s java-1.17.0-openjdk-amd64
+update-java-alternatives -s java-1.21.0-openjdk-amd64
 ```
 
-By executing this command, the system is instructed to use Java 17, i.e., the version with which BBB is currently compatible.
+By executing this command, the system is instructed to use Java 21, i.e., the version with which BBB is currently compatible.
 
 ## Set up HTTPS
 

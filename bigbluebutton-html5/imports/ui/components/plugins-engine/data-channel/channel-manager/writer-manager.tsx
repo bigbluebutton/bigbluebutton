@@ -64,7 +64,7 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
       receivers: undefined,
     };
     if (!msg) {
-      logger.error({
+      logger.debug({
         logCode: 'plugin_data_channel',
         extraInfo: {
           pluginName,

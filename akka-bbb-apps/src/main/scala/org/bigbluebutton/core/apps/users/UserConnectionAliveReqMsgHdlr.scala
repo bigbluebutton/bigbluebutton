@@ -14,7 +14,7 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleUserConnectionAliveReqMsg(msg: UserConnectionAliveReqMsg): Unit = {
-    log.info("handleUserConnectionAliveReqMsg: networkRttInMs={} userId={}", msg.body.networkRttInMs, msg.body.userId)
+    log.info("handleUserConnectionAliveReqMsg: networkRttInMs={} userId={} serverRequestId={}", msg.body.networkRttInMs, msg.body.userId, msg.body.serverRequestId)
 
     val traceLog = {
       if (msg.body.traceLog != "") {
@@ -39,6 +39,7 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
         user.intId,
         msg.body.sessionToken,
         msg.body.clientSessionUUID,
+        msg.body.serverRequestId,
         msg.body.networkRttInMs,
         msg.body.applicationRttInMs,
         traceLog,

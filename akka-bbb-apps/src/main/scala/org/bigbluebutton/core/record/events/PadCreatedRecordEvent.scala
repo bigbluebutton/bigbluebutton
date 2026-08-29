@@ -27,8 +27,12 @@ class PadCreatedRecordEvent extends AbstractPadRecordEvent {
   def setPadId(padId: String) {
     eventMap.put(PAD_ID, padId)
   }
+  def setSharedNotesEditor(sharedNotesEditor: String) {
+    eventMap.put(SHARED_NOTES_EDITOR, sharedNotesEditor)
+  }
 }
 
 object PadCreatedRecordEvent {
   protected final val PAD_ID = "padId"
+  protected final val SHARED_NOTES_EDITOR = "sharedNotesEditor"
 }

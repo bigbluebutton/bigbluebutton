@@ -58,7 +58,7 @@ bbb_config() {
   touch /var/log/bigbluebutton/bbb-web.log
   chown bigbluebutton:bigbluebutton /var/log/bigbluebutton/bbb-web.log
 
-  update-java-alternatives -s java-1.17.0-openjdk-amd64
+  update-java-alternatives -s java-1.21.0-openjdk-amd64
 
   # This drop-in configures the `bbb-web` system service to support `systemd-run --user` in headless environments.
   # It sets the required `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS` environment variables so the Java process

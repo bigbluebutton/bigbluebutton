@@ -124,7 +124,7 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
       items.then((updatedReactionItems) => setReactionItems(updatedReactionItems));
     };
     updateShortcodes();
-  }, [reactions]);
+  }, [reactions, currentUser?.userId]);
 
   return (
     <Styled.ReactionsWrapper

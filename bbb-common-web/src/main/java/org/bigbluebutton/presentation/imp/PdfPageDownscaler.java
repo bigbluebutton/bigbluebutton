@@ -13,8 +13,6 @@ public class PdfPageDownscaler {
                 + "/etc/bigbluebutton/nopdfmark.ps" + SPACE
                 + source.getAbsolutePath();
 
-        //System.out.println("DOWNSCALING " + COMMAND);
-
         return new ExternalProcessExecutor().exec(COMMAND, execTimeout);
     }
 

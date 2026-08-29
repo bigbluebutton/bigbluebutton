@@ -8,8 +8,10 @@ import {
   webcamBackgroundColor,
   colorDanger,
   webcamPlaceholderBorder,
+  webcamTalkingBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+import { UserCameraButtonsContainerWrapperProps } from './types'
 
 const rotate360 = keyframes`
   from {
@@ -98,6 +100,8 @@ const Content = styled.div<{
 
 const WebcamConnecting = styled.div<{
   animations: boolean;
+  talking: boolean;
+  customHighlight: boolean;
 }>`
   display: flex;
   justify-content: center;
@@ -108,6 +112,14 @@ const WebcamConnecting = styled.div<{
   border-radius: 10px;
   background-color: ${webcamBackgroundColor};
   z-index: 0;
+
+  ${({ talking }) => talking && `
+    background-color: ${webcamTalkingBackgroundColor};
+  `}
+
+  ${({ talking, customHighlight }) => talking && customHighlight && customHighlight.length > 0 && `
+    background-color: rgba(${customHighlight[0]}, ${customHighlight[1]}, ${customHighlight[2]}, 0.15);
+  `}
 
   &::after {
     content: "";
@@ -201,11 +213,46 @@ const BottomBar = styled.div`
   justify-content: space-between;
 `;
 
-const RaiseHand = styled.div`
-  font-size: 32px;
+const SqueezedName = styled(TextElipsis)`
+  color: ${colorWhite};
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 0 0.5rem;
+  font-size: 80%;
+  max-width: 100%;
 `;
 
-const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainterWrapperProps>`
+const RaiseHand = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const RaiseHandNumber = styled.div`
+  position: absolute;
+  top: 14px;
+  left: 45%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 1;
+`;
+
+const RaiseHandEmoji = styled.div`
+  font-size: 32px;
+  line-height: 1;
+  display: block;
+`;
+
+const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerWrapperProps>`
   position: absolute;
   z-index: 2;
   display: flex;
@@ -229,13 +276,16 @@ const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainte
 
 export default {
   Content,
-  UserCameraButtonsContainterWrapper,
+  UserCameraButtonsContainerWrapper,
   WebcamConnecting,
   LoadingText,
   VideoContainer,
   Video,
   TopBar,
   BottomBar,
+  SqueezedName,
   VideoDisabled,
   RaiseHand,
+  RaiseHandNumber,
+  RaiseHandEmoji,
 };

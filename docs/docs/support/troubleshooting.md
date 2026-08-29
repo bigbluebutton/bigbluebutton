@@ -533,33 +533,31 @@ The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792
 
 ### The browser is not supported
 
-When you attempt to join a BigBlueButton session, the client looks for supported browsers before fully loading. The client gets its list of supported browsers from `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. You can see the list of supported browsers at the bottom. For example,
+When you attempt to join a BigBlueButton session, the client checks your browser before loading. The browser and version are compared against a built-in list of minimum supported versions.
 
-```yaml
-- browser: mobileSafari
-  version:
-    - 11
-    - 1
-```
+If the browser is older than the required version, the main client bundle is not loaded. Instead, a message appears at the top of the page:
 
-states that `Mobile Safari` version 11.1 or later is supported (notice the first letter is lower case and concatenated with the remainder of the browser name).
+> **Browser not supported**
+> Please update your browser or contact support service.
 
-To add a browser to the list, first find your browser's useragent. You could use a tool like https://wtools.io/check-my-user-agent as well. For example, with the Vivaldi browser you might see
+#### Supported browsers and minimum versions
 
-```log
-Vivaldi 2.8.1664 / Linux 0.0.0
-```
+BigBlueButton supports the following browsers and minimum versions:
 
-Next, to add this as a supported browser, append to `settings.yml`
+* Safari — 14 or newer
+* Chrome — 87 or newer
+* Firefox — 80 or newer
+* Microsoft Edge — 85 or newer
+* MiuiBrowser — not supported
 
-```yaml
-- browser: vivaldi
-  version:
-    - 2
-    - 8
-```
+For Safari versions between 14 and 15, a special compatibility bundle is automatically loaded to ensure proper functionality. All other supported browsers use the standard client bundle.
 
-save the updated `settings.yml` file, and then restart your BigBlueButton server with `sudo bbb-conf --restart`. Note any browser you add must support WebRTC libraries (not all do), so be sure to check it first with [https://test.webrtc.org/](https://test.webrtc.org/).
+#### Notes
+
+* Any browser below the listed minimum version will display the unsupported browser banner and will not load the BigBlueButton client.
+* Browsers must support **WebRTC** for audio, video, and screen sharing to function properly. You can verify WebRTC support using [https://test.webrtc.org/](https://test.webrtc.org/).
+
+
 
 
 ### nginx not running

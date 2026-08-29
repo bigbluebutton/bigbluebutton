@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Test outputs and reports
+test-results/
+playwright-report/
+logs/
+dist/
+
+# Environment file
+.env
+
+# Recordings and generated content
+pr-*
+
+# IDE
+.vscode/
+
+# Lock files
+package-lock.json
