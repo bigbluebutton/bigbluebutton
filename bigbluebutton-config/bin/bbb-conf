@@ -180,7 +180,7 @@ BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 # Properties that have been retired and should no longer be set by administrators.
 # bbb-conf --check will warn if any of these are found in $BBB_WEB_ETC_CONFIG.
 RETIRED_BBB_WEB_PROPERTIES=(
-    allowDuplicateExtUserid           # Removed in BBB 4.0 (use maxUserConcurrentAccesses=1 instead)
+    allowDuplicateExtUserid           # Removed in BBB 4.0 (use maxUserConcurrentAccesses instead)
     lockSettingsDisableNote           # Renamed in BBB 2.5 (use lockSettingsDisableNotes instead)
     breakoutRoomsEnabled              # Removed in BBB 3.0
     learningDashboardEnabled          # Removed in BBB 3.0
