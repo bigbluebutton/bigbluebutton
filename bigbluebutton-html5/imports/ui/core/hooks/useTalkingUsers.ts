@@ -34,7 +34,30 @@ const useTalkingUsers = (): TalkingUsersHookResult => {
   return useMemo(() => {
     if (shouldUseLiveKit) return liveKitTalkingUsersState;
 
-    return bbbTalkingUsersState;
+    // Opt-in off: BBB voice-activity is authoritative. But it only knows users
+    // with a server voice record, so a participant who is audible in a LiveKit
+    // room without one (e.g. a moderator transferred into a breakout to listen)
+    // never gets an indicator. Overlay those LiveKit-only talkers on top.
+    //
+    // Restricted to web identities ("w_"): those are keyed identically in
+    // LiveKit and in BBB, so they dedup cleanly against the BBB data.
+    // Dial-in participants use a different key on each side (their LiveKit
+    // identity vs. the "v_<sid>" BBB id) and are always server-tracked, so
+    // overlaying them could double them, so still BBB-mandated.
+    const bbbData = bbbTalkingUsersState.data;
+    const liveKitData = liveKitTalkingUsersState.data;
+    const extraUserIds = Object.keys(liveKitData).filter(
+      (userId) => userId.startsWith('w_') && !(userId in bbbData),
+    );
+
+    if (extraUserIds.length === 0) return bbbTalkingUsersState;
+
+    const mergedData = { ...bbbData };
+    extraUserIds.forEach((userId) => {
+      mergedData[userId] = liveKitData[userId];
+    });
+
+    return { ...bbbTalkingUsersState, data: mergedData };
   }, [shouldUseLiveKit, bbbTalkingUsersState, liveKitTalkingUsersState]);
 };
 

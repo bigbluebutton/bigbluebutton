@@ -24,6 +24,7 @@ class LiveMeeting(
     val presModel:           PresentationModel,
     val webcams:             Webcams,
     val voiceUsers:          VoiceUsers,
+    val liveKitMemberships:  LiveKitMemberships,
     val users2x:             Users2x,
     val guestsWaiting:       GuestsWaiting,
     val clientSettings:      Map[String, Object],

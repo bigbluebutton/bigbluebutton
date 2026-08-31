@@ -117,6 +117,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
   const freeJoin = meetingData?.breakoutRoomsCommonProperties?.freeJoin ?? false;
   const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
+  const audioBridgeKnown = Boolean(meetingData?.audioBridge);
 
   const breakoutDurationInSeconds = isInBreakout
     ? (meetingData?.durationInSeconds ?? 0)
@@ -234,7 +235,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       return;
     }
     closeBreakoutWindow();
-    if (!isUsingLiveKit && userJoinedAudio && userRoom) {
+    if (audioBridgeKnown && !isUsingLiveKit && userJoinedAudio && userRoom) {
       breakoutRoomTransfer({
         variables: {
           fromMeetingId: userRoom.breakoutRoomMeetingId,
@@ -249,6 +250,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     isInBreakout, userJoinedAudio, userRoom, meetingId,
     breakoutRoomTransfer, closePanel,
     rejoinAudio, userLeaveMeeting,
+    isUsingLiveKit, audioBridgeKnown,
   ]);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);

@@ -554,6 +554,21 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - you should see the correct presentation selected displayed for each user/room
 
+### Moderator listens to a breakout room audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/listenToRoom.spec.ts)
+
+Requires the LiveKit audio bridge (the default). A viewer must be in a breakout room with audio.
+
+1. As a moderator in the main room, join audio, open the breakout rooms panel and pick "Listen to this room's audio" from a running room's options menu.
+
+   - a persistent notification should appear naming the room, with a "Return to main room" button
+   - you should hear the breakout room's audio; the main room's audio should go silent
+   - unmuting should make you audible in the breakout (its members see your talking indicator); main-room users should see you as muted
+2. Mute and unmute using the main room's audio controls: the breakout side should reflect it.
+
+3. Click "Return to main room".
+
+   - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
