@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { elements as e } from '../core/elements';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
-import { openPublicChat } from './util';
+import { checkLastMessageSent, openPublicChat } from './util';
 
 test.describe('Export system messages', { tag: '@ci' }, () => {
   test('presentation download message exports as text (no token/URL)', async ({ browser, context, page }, testInfo) => {
@@ -32,16 +32,26 @@ test.describe('Export system messages', { tag: '@ci' }, () => {
     await mu.initModPage(page, { testInfo });
     await openPublicChat(mu.modPage);
 
-    await mu.modPage.fill(e.chatBox, 'to be deleted');
+    const messageText = 'to be deleted';
+    const deletedMessageText = `This message has been deleted by ${mu.modPage.username}`;
+
+    await mu.modPage.fill(e.chatBox, messageText);
     await mu.modPage.waitAndClick(e.sendButton);
+    await checkLastMessageSent(mu.modPage, messageText);
+
     const last = mu.modPage.page.locator(e.chatMessageItem).last();
     await last.hover();
-    await mu.modPage.waitAndClick(e.deleteMessageButton);
+    const deleteButton = last.locator(e.deleteMessageButton);
+    await expect(deleteButton).toBeVisible();
+    await deleteButton.click();
+    await expect(mu.modPage.page.locator(e.simpleModal)).toBeVisible();
     await mu.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
+    await expect(last).toContainText(deletedMessageText);
+    await expect(last).not.toContainText(messageText);
 
     await mu.modPage.waitAndClick(e.chatOptions);
     const { content } = await mu.modPage.handleDownload(mu.modPage.page.locator(e.chatSave));
-    expect(content).toContain('This message has been deleted by');
-    expect(content).not.toContain('to be deleted');
+    expect(content).toContain(deletedMessageText);
+    expect(content).not.toContain(messageText);
   });
 });
