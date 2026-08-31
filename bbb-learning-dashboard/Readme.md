@@ -1,5 +1,7 @@
 Learning Analytics Dashboard will be accessible through https://yourdomain/learning-analytics-dashboard
 
+The dashboard is a React application built with [Vite](https://vite.dev/).
+
 # Dev Instructions
 
 ## Prepare destination directory
@@ -29,6 +31,10 @@ cp .env.example .env
 ./run-dev.sh
 ```
 
+`run-dev.sh` starts the Vite dev server on port 3100 and points nginx at it,
+so the dashboard is reachable through `https://yourdomain/learning-analytics-dashboard/`
+with hot module reload.
+
 ---
 
 # Build modes
@@ -53,16 +59,25 @@ Behavior:
 
 ## Standalone mode
 
-Built with `REACT_APP_STANDALONE_MODE=true`. Use this when the dashboard is served as a self-contained static application, decoupled from a live BBB server.
+Built with `VITE_STANDALONE_MODE=true`. Use this when the dashboard is served as a self-contained static application, decoupled from a live BBB server.
 
 ```
-REACT_APP_STANDALONE_MODE=true npm run build
+VITE_STANDALONE_MODE=true npm run build
 ```
 
 Behavior:
-- Asset paths are relative (`homepage: "."`), making the bundle location-independent
+- Asset paths are relative (Vite `base: './'`), making the bundle location-independent
 - Session data fetched from `learning_dashboard_data.json` relative to the current URL
 - Token validation skipped (no query parameters expected)
 - Locale files fetched relative to the app root (must be bundled alongside the app)
 - Presentation assets resolved relative to the current URL
 - Data polling disabled (data is considered to be static)
+
+---
+
+# Environment variables
+
+Variables prefixed with `VITE_` in `.env` are inlined into the bundle at build time:
+
+- `VITE_EXTERNAL_HELP_PAGE_URL` — if set, the Help button opens this URL instead of the built-in help modal.
+- `VITE_STANDALONE_MODE` — see "Standalone mode" above.

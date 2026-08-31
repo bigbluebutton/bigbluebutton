@@ -65,8 +65,8 @@ class App extends React.Component {
   }
 
   handleOpenModal() {
-    if (process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL) {
-      window.open(process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL, '_blank');
+    if (import.meta.env.VITE_EXTERNAL_HELP_PAGE_URL) {
+      window.open(import.meta.env.VITE_EXTERNAL_HELP_PAGE_URL, '_blank');
       return;
     }
     this.setState({ modalOpen: true });
@@ -108,7 +108,7 @@ class App extends React.Component {
   }
 
   setDashboardParams(callback) {
-    if (process.env.REACT_APP_STANDALONE_MODE === 'true') {
+    if (import.meta.env.VITE_STANDALONE_MODE === 'true') {
       if (typeof callback === 'function') callback();
       return;
     }
@@ -214,7 +214,7 @@ class App extends React.Component {
       activitiesJson, learningDashboardAccessToken, sessionToken,
     } = this.state;
     const { intl } = this.props;
-    if (process.env.REACT_APP_STANDALONE_MODE !== 'true'
+    if (import.meta.env.VITE_STANDALONE_MODE !== 'true'
         && learningDashboardAccessToken === '' && sessionToken === '') {
       return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
     }
@@ -301,7 +301,7 @@ class App extends React.Component {
       this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
     };
 
-    const isStandaloneMode = process.env.REACT_APP_STANDALONE_MODE === 'true';
+    const isStandaloneMode = import.meta.env.VITE_STANDALONE_MODE === 'true';
 
     if (isStandaloneMode) {
       fetch('learning_dashboard_data.json')
@@ -335,7 +335,7 @@ class App extends React.Component {
       handleFailure();
     }
 
-    if (process.env.REACT_APP_STANDALONE_MODE !== 'true') {
+    if (import.meta.env.VITE_STANDALONE_MODE !== 'true') {
       setTimeout(() => {
         this.fetchActivitiesJson();
       }, 10000 * (2 ** invalidSessionCount));
@@ -383,7 +383,7 @@ class App extends React.Component {
       modalOpen, sessionDataDownloaded,
     } = this.state;
 
-    const presentationBase = process.env.REACT_APP_STANDALONE_MODE === 'true'
+    const presentationBase = import.meta.env.VITE_STANDALONE_MODE === 'true'
       ? 'presentation'
       : null;
     const { intl } = this.props;
@@ -825,7 +825,7 @@ class App extends React.Component {
               className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50 flex items-center"
               onClick={this.handleOpenModal}
             >
-              {process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL ? (
+              {import.meta.env.VITE_EXTERNAL_HELP_PAGE_URL ? (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                 </svg>
