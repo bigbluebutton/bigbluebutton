@@ -236,7 +236,7 @@ const isWasmProcessingEnabled = () => getEffectiveAudioProcessingMode() === 'adv
 const loadWasmProcessor = async () => {
   if (isBBBAWasmSupported()) {
     try {
-      await loadWasmProcessorFiles();
+      await loadWasmProcessorFiles(window.meetingClientSettings);
       return true;
     } catch (error) {
       logger.warn({
