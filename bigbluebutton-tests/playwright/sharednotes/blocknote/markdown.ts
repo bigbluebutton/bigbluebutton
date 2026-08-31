@@ -4,7 +4,12 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { createMeetingWithModules } from '../../core/helpers';
 import { MultiUsers } from '../../user/multiusers';
-import { enableMarkdownNotesOptions, getBlockNoteEditorLocator, startBlockNoteSharedNotes } from './util';
+import {
+  enableMarkdownNotesOptions,
+  expectedSharedNotesFilename,
+  getBlockNoteEditorLocator,
+  startBlockNoteSharedNotes,
+} from './util';
 
 // Markdown seeded through the sharedNotesInitialContentMarkdown create parameter.
 // Kept in sync with the value passed in markdown.spec.ts.
@@ -60,6 +65,9 @@ export class MarkdownSharedNotes extends MultiUsers {
     await expect(editor, 'the typed note should be visible in the editor').toContainText(noteText);
 
     await this.modPage.waitAndClick(e.notesOptions);
+    const exportRequestPromise = this.modPage.page.context().waitForEvent('request', {
+      predicate: (request) => request.url().includes('/export/md'),
+    });
     const download = await this.modPage.handleDownload(
       this.modPage.page.locator(e.exportNotesAsMarkdown),
       undefined,
@@ -68,18 +76,17 @@ export class MarkdownSharedNotes extends MultiUsers {
 
     if (!download?.download) throw new Error('Markdown export download did not start');
     const filename = download.download.suggestedFilename();
+    const exportRequest = await exportRequestPromise;
+    expect(
+      new URL(exportRequest.url()).searchParams.has('meetingName'),
+      'meeting data should not be exposed in the export URL',
+    ).toBeFalsy();
 
-    // Issue #15778: the download must identify the meeting instead of using a generic
-    // "document_<timestamp>" name. Expected shape:
-    //   <sanitized meeting name>_<YYYY-MM-DD_HH-mm-ss-SSS download moment>_Shared_Notes.md
-    // The millisecond segment is what keeps two downloads of the same notes apart.
-    // The harness names the meeting after its id (already header/filesystem-safe ASCII),
-    // so the sanitized name segment equals the meeting id.
-    const filenamePattern = new RegExp(
-      `^${this.modPage.meetingId}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}_Shared_Notes\\.md$`,
-    );
-    expect(filename, 'the exported filename should identify the meeting and be tagged as shared notes').toMatch(
-      filenamePattern,
+    // The filename uses the server-local rendering of createTime. Tests must run
+    // in the same timezone as the BBB server for this deterministic comparison.
+    const expectedFilename = await expectedSharedNotesFilename(this.modPage.meetingId, 'md');
+    expect(filename, 'the exported filename should identify the meeting and use its create time').toBe(
+      expectedFilename,
     );
     expect(download.content, 'the exported markdown should contain the typed note').toContain(noteText);
   }

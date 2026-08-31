@@ -5,6 +5,7 @@ import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import {
   enableMarkdownNotesOptions,
+  expectedSharedNotesFilename,
   getBlockNoteEditorLocator,
   getBlockNoteReadOnlyLocator,
   hasNoUnreadNotesIndicator,
@@ -199,19 +200,14 @@ export class BlockNoteSharedNotes extends MultiUsers {
       'empty shared notes PDF export should return a PDF document',
     ).toContain('application/pdf');
 
-    // Issue #15778: the Content-Disposition filename must identify the meeting
-    //   <sanitized meeting name>_<YYYY-MM-DD_HH-mm-ss-SSS download moment>_Shared_Notes.<ext>
-    // The millisecond segment is what keeps two downloads of the same notes apart.
-    // The harness names the meeting after its id (already header-safe ASCII), so the
-    // sanitized name segment equals the meeting id.
-    const filenamePattern = (ext: string) =>
-      new RegExp(
-        `filename="${this.modPage.meetingId}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}_Shared_Notes\\.${ext}"`,
-      );
+    // The filename uses the server-local rendering of createTime. Tests must run
+    // in the same timezone as the BBB server for this deterministic comparison.
+    const expectedContentDisposition = async (ext: string) =>
+      `attachment; filename="${await expectedSharedNotesFilename(this.modPage.meetingId, ext)}"`;
     expect(
       pdfResponse.headers()['content-disposition'] || '',
-      'the empty PDF export filename should identify the meeting and be tagged as shared notes',
-    ).toMatch(filenamePattern('pdf'));
+      'the empty PDF export filename should identify the meeting and use its create time',
+    ).toBe(await expectedContentDisposition('pdf'));
 
     // Issue #25122 is general ("empty page should not be an error"), so every
     // export format must treat an empty document as a valid empty file. Reuse
@@ -241,7 +237,7 @@ export class BlockNoteSharedNotes extends MultiUsers {
       expect(
         response.headers()['content-disposition'] || '',
         `empty shared notes ${format} export filename should identify the meeting`,
-      ).toMatch(filenamePattern(format));
+      ).toBe(await expectedContentDisposition(format));
       // eslint-disable-next-line no-await-in-loop
       if (body) body(await response.text());
     }

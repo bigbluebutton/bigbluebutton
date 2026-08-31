@@ -8,6 +8,8 @@ import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
 import { exportHtmlToPdf } from "./handlers/exportDocumentToPdf";
 import { exportDocumentToJson } from "./handlers/exportDocumentToJson";
 import { exportDocumentToYjs } from "./handlers/exportDocumentToYjs";
+import { sanitizeFilenameSegment } from "../common/filename";
+import { decodeURLEncodedString } from "./utils";
 
 interface DocumentApi {
   get: RequestHandler;
@@ -30,39 +32,23 @@ const sendExportError = (
 // stays comfortably under the 255-byte filesystem limit (fixed overhead is ~35 chars).
 const MAX_MEETING_NAME_LENGTH = 200;
 
-// Coerce a possibly-array/undefined query value to a plain string (or undefined).
-const firstQueryValue = (value: unknown): string | undefined => {
-  if (Array.isArray(value)) return typeof value[0] === 'string' ? value[0] : undefined;
-  return typeof value === 'string' ? value : undefined;
-};
-
-// Millisecond precision: two exports of the same notes are told apart even when
-// they happen within the same second, so a download never silently overwrites the
-// previous one. Separator scheme follows the poll-result download filename
-// (bigbluebutton-html5 .../poll-content/component.tsx).
 const formatTimestamp = (date: Date): string => {
-  const pad = (n: number, width = 2) => String(n).padStart(width, '0');
+  const pad = (n: number) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-    + `_${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}-${pad(date.getMilliseconds(), 3)}`;
+    + `_${pad(date.getHours())}-${pad(date.getMinutes())}`;
 };
 
-// Same sanitization used for breakout notes capture (redis/handler.ts): keep only
-// header-safe, filesystem-safe ASCII so the value is safe to drop into Content-Disposition.
 const sanitizeMeetingName = (name: string): string =>
-  name
-    .replace(/\s/g, '_')
-    .replace(/[^a-z0-9_.-]/gi, '_')
-    .slice(0, MAX_MEETING_NAME_LENGTH);
+  sanitizeFilenameSegment(name).slice(0, MAX_MEETING_NAME_LENGTH);
 
-// Build the download filename from the meeting name supplied by the client, stamped
-// with the moment of the download. meetingName is optional: paramless callers
-// (breakout capture, direct API, stale clients) must never make this throw, so the
-// input is defensively coerced.
 const getExportFilename = (
   extension: string,
   meetingName?: string,
+  meetingCreateTime?: string,
 ): string => {
-  const timestamp = formatTimestamp(new Date());
+  const parsedMeetingCreateTime = Number(meetingCreateTime);
+  const hasMeetingCreateTime = Number.isFinite(parsedMeetingCreateTime) && parsedMeetingCreateTime > 0;
+  const timestamp = formatTimestamp(new Date(hasMeetingCreateTime ? parsedMeetingCreateTime : Date.now()));
 
   const sanitized = typeof meetingName === 'string' ? sanitizeMeetingName(meetingName) : '';
   const hasName = /[a-z0-9]/i.test(sanitized);
@@ -145,11 +131,17 @@ const documentApi: DocumentApi = {
       return sendExportError(response, 400, 'Invalid document name');
     }
 
-    // Meeting name for the download filename, supplied by the client as a query
-    // param (the shared-notes server itself has no access to the meeting name).
-    const meetingName = firstQueryValue(request.query.meetingName);
+    const encodedMeetingName = request.headers['meeting-name'];
+    const meetingName = typeof encodedMeetingName === 'string'
+      ? decodeURLEncodedString(encodedMeetingName) || undefined
+      : undefined;
+    const meetingCreateTime = request.headers['meeting-create-time'];
     const buildFilename = (extension: string): string =>
-      getExportFilename(extension, meetingName);
+      getExportFilename(
+        extension,
+        meetingName,
+        typeof meetingCreateTime === 'string' ? meetingCreateTime : undefined,
+      );
 
     try {
       switch (format) {
