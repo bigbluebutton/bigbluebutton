@@ -1429,7 +1429,7 @@ Missing parameter error
 
 ### `GET` sendChatMessage
 
-This call enables you to send a message to the public chat of a running meeting.
+This call enables you to send a message to the public chat of a running meeting. Messages are rendered as plain text: any special characters are escaped before the message is displayed, and HTML or Markdown formatting is not applied.
 
 <i>Added:</i> 3.0
 
@@ -1456,6 +1456,25 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?meetingID=test01&mes
     <message></message>
 </response>
 ```
+
+**Errors**
+
+In addition to the standard BigBlueButton checksum error, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
+
+missingParamMeetingID
+: The required `meetingID` parameter is missing or empty.
+
+missingParamMessage
+: The required `message` parameter is missing.
+
+sizeError
+: A parameter is outside its allowed length: `message` must be between 1 and 500 characters, `meetingID` between 2 and 256 characters, and `userName` at most 255 characters.
+
+validationError
+: The `meetingID` contains invalid characters (it must not contain a comma).
+
+meetingNotFound
+: No running meeting matches the provided `meetingID`. The meeting must be running (created and not yet ended) — the message cannot be queued for a future meeting.
 
 ## Internal API calls
 
