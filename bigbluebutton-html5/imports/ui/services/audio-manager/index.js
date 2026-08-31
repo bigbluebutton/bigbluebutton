@@ -1389,7 +1389,17 @@ class AudioManager {
   }
 
   async updateAudioConstraints(constraints) {
+    const prevInputStream = this.inputStream;
+
     await this.bridge.updateAudioConstraints(constraints);
+    this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+
+    // Bridges may re-acquire the stream when doing this. Cleanup is in order if
+    // applicable (i.e.: old one is stale, compare via id).
+    if (prevInputStream && (prevInputStream.id !== this.inputStream?.id)) {
+      destroyWasmProcessor(prevInputStream);
+      MediaStreamUtils.stopMediaStreamTracks(prevInputStream);
+    }
   }
 
   /**
