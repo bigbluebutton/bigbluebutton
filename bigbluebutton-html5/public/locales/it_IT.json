@@ -631,7 +631,7 @@
     "app.navBar.speakersListLabel": "Persone che parlano",
     "app.leaveConfirmation.confirmLabel": "Uscita",
     "app.leaveConfirmation.confirmDesc": "Ti disconnette dalla sessione",
-    "app.createBreakoutRoom.listen.title": "Listening to {roomName}",
+    "app.createBreakoutRoom.listen.title": "Stai ascoltando la stanza {roomName}",
     "app.createBreakoutRoom.listen.description": "Al momento sei all'interno di una stanza separata. Il tuo microfono è attivo solo in questa stanza.",
     "app.createBreakoutRoom.listen.terminateLabel": " Torna alla stanza principale",
     "app.createBreakoutRoom.listen.terminateAriaLabel": "Torna alla stanza principale e interrompi l'ascolto della sessione di gruppo",
