@@ -33,6 +33,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customStyleUrl: null,
       darkTheme: {
         enabled: true,
+        autoDetectFromSystem: true,
       },
       askForConfirmationOnLeave: false,
       wakeLock: {
@@ -152,6 +153,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audio: {
           inputDeviceId: 'undefined',
           outputDeviceId: 'undefined',
+          processingMode: 'advanced',
         },
         dataSaving: {
           viewParticipantsWebcams: true,
@@ -419,6 +421,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           moderator: 2,
           viewer: 2,
         },
+        gridEnabled: true,
         desktopGridSizes: {
           moderator: 48,
           viewer: 48,
@@ -637,6 +640,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
           enabled: false,
+          provider: 'bbba',
           constraints: {
             echoCancellation: true,
             autoGainControl: true,
@@ -863,6 +867,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
+      slideSwapDecodeTimeoutMs: 250,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

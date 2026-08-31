@@ -39,7 +39,7 @@ import WebRTCStatsObserver from '/imports/ui/components/stats/component';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
-import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import LiveKitMembershipsManager from '/imports/ui/components/livekit/memberships-manager/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
@@ -49,6 +49,7 @@ import useJoinLogger from './hooks/useJoinLogger';
 import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
+import useSystemThemeSync from './hooks/useSystemThemeSync';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
 import DocumentTitleManager from './document-title-manager/component';
@@ -108,6 +109,7 @@ const App: React.FC<AppProps> = ({
   useJoinLogger(meetingId, meetingName, isBreakout);
   usePollShortcut(layoutContextDispatch, isPollingEnabled);
   useUserStatusNotifications(meetingId, currentUserAway, currentUserRaiseHand, intl);
+  useSystemThemeSync();
 
   useEffect(() => {
     AppService.setDarkTheme(darkTheme);
@@ -181,7 +183,7 @@ const App: React.FC<AppProps> = ({
             <PresentationUploaderToastContainer intl={intl} />
           )}
           <BreakoutJoinConfirmationContainerGraphQL />
-          <BBBLiveKitRoomContainer />
+          <LiveKitMembershipsManager />
           <AudioContainer currentUserHasVoice={currentUserHasVoice} />
           {!hideNotificationToasts && isNotificationEnabled && (
             <ToastContainer rtl />

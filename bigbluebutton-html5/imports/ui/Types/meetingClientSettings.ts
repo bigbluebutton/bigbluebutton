@@ -115,6 +115,7 @@ export interface BbbTabletApp {
 
 export interface DarkTheme {
   enabled: boolean
+  autoDetectFromSystem: boolean
 }
 
 export interface WakeLock {
@@ -229,6 +230,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
+  processingMode: 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -441,6 +443,7 @@ export interface Pagination {
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
+  gridEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }
@@ -695,6 +698,7 @@ export interface LiveKitSettings {
 
 export interface AudioWasmProcessingSettings {
   enabled: boolean
+  provider?: 'bbba' | 'workadventureDtln'
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -705,6 +709,8 @@ export interface Audio2 {
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
   audioWasmProcessing?: AudioWasmProcessingSettings
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  microphoneConstraints?: Record<string, unknown>
 }
 
 export interface Screenshare2 {
@@ -813,6 +819,7 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
+  slideSwapDecodeTimeoutMs: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

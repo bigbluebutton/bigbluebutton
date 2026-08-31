@@ -193,7 +193,10 @@ async function sanitizeLog(
   msg: ConsoleMessage,
   { colorize, drop_references }: { colorize?: boolean; drop_references?: boolean } = {},
 ): Promise<string> {
-  const args = await Promise.all(msg.args().map((itm) => itm.jsonValue()));
+  // A navigation (page.reload) destroys the execution context mid-flight;
+  // degrade to the arg's string form instead of failing the test from a
+  // fire-and-forget console listener.
+  const args = await Promise.all(msg.args().map((itm) => itm.jsonValue().catch(() => String(itm))));
 
   // Handle cases where args[0] might be undefined or not a string
   if (!args[0] || typeof args[0] !== 'string') {

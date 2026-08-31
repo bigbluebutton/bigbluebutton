@@ -50,19 +50,18 @@ public class Meeting {
 	private long endTime = 0;
 	private boolean forciblyEnded = false;
 	private String telVoice;
-	private String webVoice;
 	private String moderatorPass = "";
 	private String viewerPass = "";
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private ArrayList<String> disabledFeatures;
 	private Boolean notifyRecordingIsOn;
+	private String notifyRecordingAppend = "";
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String welcomeMsgForModerators = "";
 	private String loginUrl;
 	private String logoutUrl;
-	private int logoutTimer = 0;
 	private int maxUsers;
 	private String bannerColor = "#FFFFFF";
 	private String bannerText = "";
@@ -105,11 +104,10 @@ public class Meeting {
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Long> enteredUsers;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList<>();
+	private final List<BreakoutRoomIds> breakoutRooms = new ArrayList<>();
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
-	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private String cameraBridge = "livekit";
 	private String screenShareBridge = "livekit";
@@ -152,6 +150,7 @@ public class Meeting {
 		pluginManifests = builder.pluginManifests;
 		html5PluginSdkVersion = builder.html5PluginSdkVersion;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
+		notifyRecordingAppend = builder.notifyRecordingAppend;
 		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
 		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
 		if (builder.viewerPass == null){
@@ -171,7 +170,6 @@ public class Meeting {
         bannerText = builder.bannerText;
         loginUrl = builder.loginUrl;
         logoutUrl = builder.logoutUrl;
-        logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
         defaultBotAvatarURL = builder.defaultBotAvatarURL;
 				defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
@@ -190,7 +188,6 @@ public class Meeting {
         userCameraCap = builder.userCameraCap;
         maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
-        webVoice = builder.webVoice;
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
@@ -225,12 +222,16 @@ public class Meeting {
         enteredUsers = new  ConcurrentHashMap<>();
     }
 
-	public void addBreakoutRoom(String meetingId) {
-		breakoutRooms.add(meetingId);
+	public void addBreakoutRoom(String externalId, String internalId) {
+		breakoutRooms.add(new BreakoutRoomIds(externalId, internalId));
 	}
 
 	public List<String> getBreakoutRooms() {
-		return breakoutRooms;
+		return breakoutRooms.stream().map(BreakoutRoomIds::externalId).collect(Collectors.toList());
+	}
+
+	public List<String> getBreakoutRoomsInternalIds() {
+		return breakoutRooms.stream().map(BreakoutRoomIds::internalId).collect(Collectors.toList());
 	}
 
 	public Map<String, String> getMetadata() {
@@ -450,10 +451,6 @@ public class Meeting {
 	    return parentMeetingId;
 	}
 
-	public String getWebVoice() {
-		return webVoice;
-	}
-
 	public String getTelVoice() {
 		return telVoice;
 	}
@@ -496,6 +493,10 @@ public class Meeting {
 
 	public Boolean getNotifyRecordingIsOn() {
 		return notifyRecordingIsOn;
+	}
+
+	public String getNotifyRecordingAppend() {
+		return notifyRecordingAppend;
 	}
 
 	public String getPresentationUploadExternalDescription() {
@@ -662,10 +663,6 @@ public class Meeting {
 		return maxUserConcurrentAccesses;
 	}
 
-	public int getLogoutTimer() {
-		return logoutTimer;
-	}
-
 	public String getBannerColor() {
 		return bannerColor;
 	}
@@ -772,14 +769,6 @@ public class Meeting {
 
 	public void setCustomDarkLogoURL(String url) {
 		customDarkLogoURL = url;
-	}
-
-	public void setCustomCopyright(String copyright) {
-    	customCopyright = copyright;
-	}
-
-	public String getCustomCopyright() {
-    	return customCopyright;
 	}
 
 	public void setMuteOnStart(Boolean mute) {
@@ -1046,6 +1035,12 @@ public class Meeting {
         this.sharedNotesInitialContentMarkdownFromPayload = sharedNotesInitialContentMarkdownFromPayload;
     }
 
+	// Both IDs are captured at breakout-creation time and kept together so they can't drift apart.
+	// The internal ID is needed for Learning Dashboard cleanup: a breakout is dropped from
+	// MeetingService's live registry as soon as it ends, so by the time this parent meeting ends
+	// there's no live Meeting object left to read it back from.
+	public record BreakoutRoomIds(String externalId, String internalId) {}
+
     /***
 	 * Meeting Builder
 	 *
@@ -1077,10 +1072,10 @@ public class Meeting {
 		private ArrayList<PluginManifest> pluginManifests;
 		private String html5PluginSdkVersion;
 		private Boolean notifyRecordingIsOn;
+		private String notifyRecordingAppend = "";
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
     	private int duration;
-    	private String webVoice;
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
@@ -1091,7 +1086,6 @@ public class Meeting {
 			private String cameraBridge;
 			private String screenShareBridge;
 			private String audioBridge;
-    	private int logoutTimer;
     	private Map<String, String> metadata;
     	private Map<String, String> pluginMetadataParametersMap;
     	private String dialNumber;
@@ -1220,11 +1214,6 @@ public class Meeting {
 					return this;
 				}
 
-    	public Builder withWebVoice(String w) {
-    		this.webVoice = w;
-    		return this;
-    	}
-
     	public Builder withTelVoice(String t) {
     		this.telVoice = t;
     		return this;
@@ -1275,6 +1264,11 @@ public class Meeting {
 	    	return this;
 	    }
 
+		public Builder withNotifyRecordingAppend(String message) {
+			this.notifyRecordingAppend = message;
+			return this;
+		}
+
     	public Builder withPresentationUploadExternalDescription(String d) {
 	    	this.presentationUploadExternalDescription = d;
 	    	return this;
@@ -1323,11 +1317,6 @@ public class Meeting {
     	public Builder withLogoutUrl(String l) {
     	  logoutUrl = l;
     	  return this;
-    	}
-
-    	public Builder withLogoutTimer(int l) {
-    		logoutTimer = l;
-    		return this;
     	}
 
     	public Builder withBannerColor(String c) {

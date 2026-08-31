@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
+import deviceInfo from '/imports/utils/deviceInfo';
 import withShortcutHelper from '/imports/ui/services/shortcuts/withShortcutHelper';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
@@ -52,7 +53,7 @@ const RaiseHandButton = (props) => {
       accessKey={shortcuts.raisehand}
       hideLabel
       circle
-      size="lg"
+      size={deviceInfo.isMobile ? 'md' : 'lg'}
       hoverColor={listItemBgHover}
     />
   );

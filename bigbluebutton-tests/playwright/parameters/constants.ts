@@ -23,7 +23,9 @@ export const constants = {
   lockSettingsDisablePublicChat: 'lockSettingsDisablePublicChat=true',
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
-  notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
+  notifyRecordingIsOn: 'notifyRecordingIsOn=true',
+  notifyRecordingAppendMessage: 'This meeting will be summarized using AI — <strong>plain text</strong>',
+  notifyRecordingAppend: 'notifyRecordingAppend=This meeting will be summarized using AI — <strong>plain text</strong>',
   preUploadedPresentation:
     'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedHeavyPresentation:
@@ -78,8 +80,11 @@ export const constants = {
   skipVideoPreviewOnFirstJoin: 'userdata-bbb_skip_video_preview_on_first_join=true',
   skipVideoPreviewIfPreviousDevice: 'userdata-bbb_skip_video_preview_if_previous_device=true',
   mirrorOwnWebcam: 'userdata-bbb_mirror_own_webcam=true',
-  showParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=false',
-  showSessionDetailsOnJoin: 'bbb_show_session_details_on_join=true',
+  showParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=true',
+  showParticipantsAndPublicChatOnLogin:
+    'userdata-bbb_show_participants_on_login=true&userdata-bbb_show_public_chat_on_login=true',
+  hideParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=false',
+  showSessionDetailsOnJoin: 'userdata-bbb_show_session_details_on_join=true',
   hideActionsBar: 'userdata-bbb_hide_actions_bar=true',
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
   overrideDefaultLocaleToRTL: 'userdata-bbb_override_default_locale=ar',

@@ -226,6 +226,17 @@ object UserDAO {
     )
   }
 
+  def logOutTransferredUser(meetingId: String, userId: String) = {
+    DatabaseConnection.enqueue(
+      sqlu"""update "user"
+             set "loggedOut" = true
+              where "userId" = ${userId}
+              and "meetingId" = ${meetingId}
+              and "transferredFromParentMeeting" is true
+              """
+    )
+  }
+
   def permanentlyDeleteAllFromMeeting(meetingId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[UserDbTableDef]

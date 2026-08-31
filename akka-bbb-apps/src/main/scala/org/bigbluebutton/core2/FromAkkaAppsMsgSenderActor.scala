@@ -54,6 +54,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toVoiceConfRedisChannel, json)
 
       // Sent to SFU
+      case UpdateLiveKitParticipantPermissionsSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
       case EjectUserFromSfuSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
       case CamBroadcastStopSysMsg.NAME =>
@@ -63,6 +65,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case ToggleListenOnlyModeSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
       case GenerateLiveKitTokenReqMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
+      case RemoveLiveKitParticipantSysMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
 
       //==================================================================
