@@ -150,8 +150,6 @@ public class ParamsProcessorUtil {
   	private Integer userInactivityInspectTimerInMinutes = 120;
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
-    private Boolean defaultAllowDuplicateExtUserid = true;
-
     private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
@@ -968,11 +966,6 @@ public class ParamsProcessorUtil {
         String avatarURL = useDefaultAvatar ? defaultAvatarURL : "";
         String botAvatarURL = defaultBotAvatarURL;
         String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
-
-        if(defaultAllowDuplicateExtUserid == false) {
-            log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
-            maxUserConcurrentAccesses = 1;
-        }
 
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
@@ -1874,10 +1867,6 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsPresenterPolicy(String lockSettingsPresenterPolicy) {
 		this.defaultLockSettingsPresenterPolicy = lockSettingsPresenterPolicy;
-	}
-
-	public void setAllowDuplicateExtUserid(Boolean allow) {
-		this.defaultAllowDuplicateExtUserid = allow;
 	}
 
     public void setMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
