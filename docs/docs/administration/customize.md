@@ -1670,7 +1670,7 @@ If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.
 
 #### Advanced Filtering (WASM audio processing)
 
-BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
+BigBlueButton 4.0 ships with an optional WASM-based audio processor that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
 
 It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
 
@@ -1678,12 +1678,17 @@ It is **disabled by default**. To make it available to users, set `enabled: true
 public:
   media:
     audio:
-      # audioWasmProcessing: audio input processing through WASM/BBBA
-      #   enabled: whether BBBA should be exposed to users. If false, the
-      #            browser's built-in audio processing is used instead.
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, the browser's built-in audio processing is used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured here.
       audioWasmProcessing:
         enabled: true
+        provider: bbba
         constraints:
           echoCancellation: true
           autoGainControl: true

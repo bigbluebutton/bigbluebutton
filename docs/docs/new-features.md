@@ -286,7 +286,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.
 - `public.sidebarNavigation.appsToLabelAsNew` (default `[]`) - apps to highlight with a "new" label (e.g. `poll`, `breakoutroom`, `timer`, `audio-captions`).
-- `public.media.audio.audioWasmProcessing` - configuration block for the "Advanced Filtering" (WASM/BBBA) audio-processing option; see [Dedicated Audio settings tab](#dedicated-audio-settings-tab).
+- `public.media.audio.audioWasmProcessing` - configuration block for the "Advanced Filtering" (WASM) audio-processing option; `provider` selects the backend (`bbba` default, or `workadventureDtln`) and a provider may override values set in `constraints`; see [Dedicated Audio settings tab](#dedicated-audio-settings-tab).
 - `public.app.defaultSettings.audio.processingMode` (default `standard`) - which of the three audio-processing modes (`advanced`, `standard`, `original`) comes pre-selected for a new user in Settings > Audio. `advanced` falls back to `standard` when WASM processing is unsupported by the browser or disabled server-side.
 - `public.media.audio.microphoneConstraints` - browser-level audio constraints (auto gain control, echo cancellation, noise suppression) applied when the user selects the `standard` audio-processing mode (moved from `public.app.defaultSettings.application.microphoneConstraints`).
 - `public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`, `public.timer.serverSyncTimeInterval` - timer presets and behavior.
