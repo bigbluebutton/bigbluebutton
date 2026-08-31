@@ -57,6 +57,61 @@ export async function getCurrentPresentationHeight(locator: Locator) {
   return locator.evaluate((element) => window.getComputedStyle(element).getPropertyValue('height'));
 }
 
+// Rasterizes the current slide image (the server-generated SVG referenced by the
+// tl-image background) onto an off-screen canvas and returns the fraction of
+// near-black pixels. Used to detect slides that converted to a blank image, e.g.
+// when an embedded figure is silently dropped during conversion (issue #23953).
+export async function getCurrentSlideDarkPixelRatio(testPage: Page): Promise<number> {
+  await testPage.waitForSelector(e.currentSlideImg);
+  const slideUrl = await testPage.page.evaluate(
+    ([selector]) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      return el?.style?.backgroundImage?.split('"')[1] ?? null;
+    },
+    [e.currentSlideImg],
+  );
+  expect(slideUrl, 'should resolve the current slide image URL from the whiteboard').toBeTruthy();
+
+  // Fetch the SVG bytes through the authenticated browser context, then rasterize
+  // it in-page via a same-origin blob URL so the canvas is not tainted.
+  const response = await testPage.page.request.get(slideUrl as string);
+  expect(response.ok(), `should fetch the current slide image (HTTP ${response.status()})`).toBeTruthy();
+  const svg = await response.text();
+
+  return testPage.page.evaluate(async (svgText) => {
+    const blob = new Blob([svgText], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    try {
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('failed to load slide image'));
+        img.src = url;
+      });
+      const width = 400;
+      const height = Math.max(1, Math.round((width * (img.height || 595)) / (img.width || 842)));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('failed to get canvas 2d context');
+      // Composite over white so transparent regions read as white, matching the client.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      const { data } = ctx.getImageData(0, 0, width, height);
+      let dark = 0;
+      const total = width * height;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] + data[i + 1] + data[i + 2] < 150) dark += 1;
+      }
+      return dark / total;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }, svg);
+}
+
 export async function getCurrentPresentationToastLocator(testPage: Page) {
   return testPage.page.locator(e.smallToastMsg).filter({ hasText: e.defaultCurrentPresentationLabel });
 }

@@ -8,6 +8,7 @@ import {
   checkSvgIndex,
   expectSlidesEqualBetweenPages,
   getCurrentPresentationHeight,
+  getCurrentSlideDarkPixelRatio,
   getSlideOuterHtml,
   uploadMultiplePresentations,
   uploadSinglePresentation,
@@ -553,6 +554,34 @@ export class Presentation extends MultiUsers {
         maxDiffPixels: 1000,
       });
     }
+  }
+
+  // Regression test for https://github.com/bigbluebutton/bigbluebutton/issues/23953
+  // The PDF embeds a soft-masked (SMask) image inside a transparency group. poppler's
+  // cairo backend (pdftocairo) fails to composite it and produces a fully blank slide,
+  // while the client reports the conversion as successful. The slide must render its
+  // content (a large black rectangle) instead of a blank page.
+  async blurredImagePresentationRendersTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.blurImagePresentationFileName, UPLOAD_PDF_WAIT_TIME);
+    await this.modPage.closeAllToastNotifications();
+
+    const modDarkRatio = await getCurrentSlideDarkPixelRatio(this.modPage);
+    expect(
+      modDarkRatio,
+      'the uploaded PDF slide should render its embedded figure (a black rectangle), not a blank page (issue #23953)',
+    ).toBeGreaterThan(0.02);
+
+    // The attendee must receive the same non-blank slide.
+    await this.userPage.closeAllToastNotifications();
+    const userDarkRatio = await getCurrentSlideDarkPixelRatio(this.userPage);
+    expect(
+      userDarkRatio,
+      'the attendee should also see the embedded figure rendered on the slide (issue #23953)',
+    ).toBeGreaterThan(0.02);
   }
 
   async uploadMultiplePresentationsTest() {

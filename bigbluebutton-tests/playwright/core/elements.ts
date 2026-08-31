@@ -427,6 +427,7 @@ export const elements = {
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
   maskSamplePdf: 'sample-with-mask.pdf',
+  blurImagePresentationFileName: 'blurImage.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
