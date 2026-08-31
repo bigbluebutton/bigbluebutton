@@ -1429,7 +1429,7 @@ Missing parameter error
 
 ### `GET` sendChatMessage
 
-This call enables you to send a message to the public chat of a running meeting.
+This call enables you to send a message to the public chat of a running meeting. Messages are rendered as plain text: any special characters are escaped before the message is displayed, and HTML or Markdown formatting is not applied.
 
 <i>Added:</i> 3.0
 
