@@ -322,16 +322,18 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
-- Grails 7.0.8
+- Grails 7.0.12
 - Gradle 8.14.3
 - Groovy 4.0.21
-- Spring 6.2.11
-- Spring Boot 3.5.14
+- Java 21
+- Spring 6.2.19
+- Spring Boot 3.5.16
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.36](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.36)
 - [3.0.35](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.35)
 - [3.0.34](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.34)
 - [3.0.33](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.33)
@@ -457,6 +459,12 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 
 The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
 
+#### Upgrade to Java 21
+
+Starting with BigBlueButton 3.0.36 the JVM components build and run on Java 21 (previously Java 17). The `bbb-web` package now depends on `openjdk-21-jdk`, and `bbb-apps-akka` and `bbb-fsesl-akka` require a Java 21 runtime, so upgrading the packages pulls Java 21 in automatically — the `bbb-web` post-install step also switches the system default with `update-java-alternatives -s java-1.21.0-openjdk-amd64`. Java 21 is available from the standard Ubuntu 22.04 repositories, so no additional apt source is needed.
+
+If you build from source, install `openjdk-21-jdk-headless` and point `JAVA_HOME` at `/usr/lib/jvm/java-21-openjdk-amd64`. The build tooling moved to sbt 1.10.7 at the same time; see the [Development Guide](/development/guide) for the full setup.
+
 ### Changes to events.xml
 
 Retired events
@@ -486,7 +494,7 @@ Modified/added events
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
 - `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
 - `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
-- `html5PluginSdkVersion` bumped to `0.0.104` (in BBB 3.0.33)
+- `html5PluginSdkVersion` bumped to `0.0.105` (in BBB 3.0.36)
 
 #### Added
 - `pluginManifestFetchTimeout` added

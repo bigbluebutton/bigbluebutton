@@ -1602,7 +1602,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join

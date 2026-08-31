@@ -22,13 +22,17 @@ buildscript {
 version "0.10.0"
 group "org.bigbluebutton.web"
 
+ext['spring-boot.version'] = springVersion
 ext['tomcat.version'] = '10.1.56'
-ext['netty.version'] = '4.1.135.Final'
+ext['netty.version'] = '4.1.137.Final'
 ext['postgresql.version'] = '42.7.13'
 ext['spring-framework.version'] = '6.2.19'
 ext['jackson-bom.version'] = '2.22.1'
 ext['logback.version'] = '1.5.38'
 ext['spring-data-bom.version'] = '2025.0.13'
+ext['httpclient5.version'] = '5.6.3'
+ext['httpcore5.version'] = '5.4.3'
+ext['opentelemetry.version'] = '1.62.0'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -125,6 +129,8 @@ configurations.all {
   resolutionStrategy {
     dependencySubstitution {
       substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.20.0')
+      substitute module('com.google.protobuf:protobuf-java') using module('com.google.protobuf:protobuf-java:3.25.5')
+      substitute module('org.codehaus.plexus:plexus-utils') using module('org.codehaus.plexus:plexus-utils:3.6.1')
     }
   }
 }
