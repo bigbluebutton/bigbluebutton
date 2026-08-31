@@ -69,6 +69,52 @@ async function assertDesktopLayoutActive(page: Page) {
 }
 
 export class Layouts extends MultiUsers {
+  private layoutMutationRates: unknown[] = [];
+
+  private layoutMutationErrors: string[] = [];
+
+  async configurePhoneLandscapeLayoutDelay() {
+    await this.context.addInitScript(() => {
+      Object.defineProperty(navigator, 'userAgent', {
+        get: () => 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 Chrome/140.0.0.0 Mobile Safari/537.36',
+      });
+    });
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('SetLayoutProps')) {
+          const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
+          this.layoutMutationRates.push(rateMatch?.[1] === 'null' ? null : Number(rateMatch?.[1]));
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes("Parameter 'presentationVideoRate' should be of type number")) {
+          this.layoutMutationErrors.push(serializedMessage);
+        }
+        const delay = serializedMessage.includes('cameraDockAspectRatio') ? 2500 : 0;
+        setTimeout(() => webSocket.send(message), delay);
+      });
+    });
+  }
+
+  async phoneLandscapePublishesFinitePresentationVideoRate() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.page.setViewportSize({ width: 915, height: 412 });
+    await this.modPage.shareWebcam();
+    await this.modPage.page.waitForTimeout(5000);
+
+    expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);
+    expect(this.layoutMutationRates.length, 'the presenter should publish its layout').toBeGreaterThan(0);
+    expect(
+      this.layoutMutationRates.every((rate) => typeof rate === 'number' && Number.isFinite(rate)),
+      'every presentation video rate should be a finite number',
+    ).toBe(true);
+    expect(this.layoutMutationErrors, 'the server should accept every layout mutation').toHaveLength(0);
+  }
+
   async focusOnPresentation() {
     await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
