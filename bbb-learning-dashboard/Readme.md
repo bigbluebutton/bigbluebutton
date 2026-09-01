@@ -6,28 +6,28 @@ The dashboard is a React application built with [Vite](https://vite.dev/).
 
 ## Prepare destination directory
 
-```
+```bash
 mkdir -p /var/bigbluebutton/learning-dashboard
 chown bigbluebutton /var/bigbluebutton/learning-dashboard/
 ```
 
 ## Build instructions
 
-```
+```bash
 cp .env.example .env
 ```
 
-```
+```bash
 ./deploy.sh
 ```
 
 ## Development instructions
 
-```
+```bash
 cp .env.example .env
 ```
 
-```
+```bash
 ./run-dev.sh
 ```
 
@@ -45,7 +45,7 @@ The dashboard supports two build modes controlled by a build-time environment va
 
 Built without any special flags. This is the normal BBB deployment.
 
-```
+```bash
 npm run build
 ```
 
@@ -61,7 +61,7 @@ Behavior:
 
 Built with `VITE_STANDALONE_MODE=true`. Use this when the dashboard is served as a self-contained static application, decoupled from a live BBB server.
 
-```
+```bash
 VITE_STANDALONE_MODE=true npm run build
 ```
 
