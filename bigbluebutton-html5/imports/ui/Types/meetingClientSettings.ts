@@ -443,6 +443,7 @@ export interface Pagination {
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
+  gridEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }
@@ -697,6 +698,7 @@ export interface LiveKitSettings {
 
 export interface AudioWasmProcessingSettings {
   enabled: boolean
+  provider?: 'bbba' | 'workadventureDtln'
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }

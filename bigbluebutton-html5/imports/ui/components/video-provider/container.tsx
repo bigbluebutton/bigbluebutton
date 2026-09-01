@@ -7,6 +7,7 @@ import {
   useCurrentVideoPageIndex,
   useExitVideo,
   useInfo,
+  useIsGridEnabled,
   useIsPaginationEnabled,
   useIsCamSharingLocked,
   useLockUser,
@@ -23,7 +24,6 @@ import { VideoItem } from './types';
 import { debounce } from '/imports/utils/debounce';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import {
   useConnectingStream,
@@ -128,7 +128,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const myPageSize = useMyPageSize();
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
-  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  const isGridEnabled = useIsGridEnabled();
 
   useEffect(() => {
     if (isPaginationEnabled) {

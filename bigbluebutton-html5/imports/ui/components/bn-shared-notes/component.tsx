@@ -18,6 +18,7 @@ import {
   ComponentsContext,
   FormattingToolbar,
   NestBlockButton,
+  SuggestionMenuController,
   UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
@@ -25,7 +26,7 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
 
-import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -85,6 +86,17 @@ const escapeBlurExtension = Extension.create({
     };
   },
 });
+
+const shouldOpenSlashMenu = (transaction: Transaction) => {
+  const { $from } = transaction.selection;
+  if ($from.parent.type.isInGroup('tableContent')) return false;
+
+  const previousCharacter = $from.parent.textBetween(
+    Math.max(0, $from.parentOffset - 1),
+    $from.parentOffset,
+  );
+  return previousCharacter === '' || /\s/.test(previousCharacter);
+};
 
 // TODO: remove this workaround once y-prosemirror's cursor decoration can set `marks: []`
 // (the upstream-correct fix is `marks: []` on the cursor `Decoration.widget` in
@@ -255,6 +267,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       renderCursor: renderCollaborationCursor,
     },
     schema,
+    links: {
+      onClick: (event) => {
+        if (event.ctrlKey || event.metaKey) {
+          const anchor = (event.target as HTMLElement | null)?.closest<HTMLAnchorElement>(
+            'a[data-inline-content-type="link"]',
+          );
+          if (anchor?.href) window.open(anchor.href, '_blank', 'noopener,noreferrer');
+        }
+        return true;
+      },
+    },
     dictionary: {
       ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
       placeholders: {
@@ -359,12 +382,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   }, [editable]);
 
   // Keep editor focus when clicking SideMenu/DragHandleMenu items.
-  // Skip draggable="true" elements — preventDefault on mousedown prevents drag.
+  // Skip native editable controls and BlockNote form popovers so their focus is preserved.
+  // Also skip draggable="true" elements — preventDefault on mousedown prevents drag.
   React.useEffect(() => {
     const { portalElement } = editor;
     if (!portalElement) return undefined;
     const mousedownHandler = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
+      const target = e.target as HTMLElement;
+      const nativeEditableSelector = '[draggable="true"], input, textarea, select, [contenteditable="true"], .bn-form-popover';
+      if (target.closest(nativeEditableSelector)) return;
       e.preventDefault();
       editor.focus();
     };
@@ -428,6 +454,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           }
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
+          }
+          /* BlockNote fixes link form inputs at 300px, which overflows the
+             Shared Notes panel and scrolls the panel when an input is focused. */
+          .bn-mantine .bn-form-popover .mantine-TextInput-root {
+            width: 100%;
           }
           /* Toolbar and editor are siblings inside .bn-container. DOM order matches
              visual order (toolbar first, editor second), so tab order is correct. */
@@ -495,6 +526,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editor={editor}
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        slashMenu={false}
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
@@ -522,7 +554,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             </div>
           </ToolbarWithAccessibleMenus>
         )}
-        <BlockNoteViewEditor />
+        <BlockNoteViewEditor>
+          <SuggestionMenuController
+            triggerCharacter="/"
+            shouldOpen={shouldOpenSlashMenu}
+          />
+        </BlockNoteViewEditor>
       </BlockNoteView>
       {isImportModalOpen && editable && (
         <MarkdownImportModal

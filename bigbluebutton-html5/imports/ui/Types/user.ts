@@ -55,8 +55,10 @@ export interface sessionCurrent {
   enforceLayout: boolean;
 }
 
-export interface Livekit {
-  livekitToken: string;
+export interface LiveKitRoomMembership {
+  roomName: string;
+  purpose: string;
+  token: string | null;
 }
 
 export interface User {
@@ -111,7 +113,7 @@ export interface User {
   raiseHandTime?: string;
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
-  livekit?: Livekit;
+  livekitRooms?: LiveKitRoomMembership[];
   meeting: UserMeeting;
   presPagesWritable: Array<{
     pageId: string;

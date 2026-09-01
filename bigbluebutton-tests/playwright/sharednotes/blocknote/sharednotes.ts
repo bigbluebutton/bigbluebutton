@@ -55,6 +55,39 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
   }
 
+  async typeFractionsWithoutOpeningSlashMenu() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    const equation = '1/4 + 1/4 = 1/2';
+    await editorLocator.click();
+    await editorLocator.pressSequentially(equation);
+
+    await expect(
+      this.modPage.page.locator(e.blockNoteSlashMenuItem),
+      'a slash inside a fraction should not open the slash menu',
+    ).toHaveCount(0);
+
+    await editorLocator.press('Enter');
+    await expect(editorLocator, 'pressing Enter should keep the complete equation').toContainText(equation);
+
+    await editorLocator.pressSequentially('/');
+    await expect(
+      this.modPage.page.locator(e.blockNoteSlashMenuItem).first(),
+      'a slash at the start of a block should open the slash menu',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
   async formatTextInSharedNotes() {
     const { sharedNotesEnabled } = this.modPage.settings || {};
 

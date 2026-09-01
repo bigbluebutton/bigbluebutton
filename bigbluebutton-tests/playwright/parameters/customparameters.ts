@@ -20,7 +20,7 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
     await this.modPage.wasRemoved(
       e.hidePublicChat,
-      'should display the hide public chat element when the public chat is open',
+      'should not display the hide public chat element when the public chat is closed',
     );
   }
 
@@ -29,7 +29,28 @@ export class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list');
+  }
+
+  async showParticipantsInsteadOfPublicChatOnLogin() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list');
+    await this.modPage.wasRemoved(
+      e.hidePublicChat,
+      'should not display the hide public chat element when the users list is open',
+    );
+  }
+
+  async hideParticipantsOnLogin() {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
+  }
+
+  async showParticipantsOnLoginOnTablet() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list on a tablet');
+  }
+
+  async showParticipantsOnLoginOnPhone() {
+    await this.modPage.wasRemoved(e.usersList, 'should not display the users list on a phone');
+    await this.modPage.wasRemoved(e.hidePublicChat, 'should not display the public chat on a phone');
   }
 
   async showSessionDetailsOnJoin() {
