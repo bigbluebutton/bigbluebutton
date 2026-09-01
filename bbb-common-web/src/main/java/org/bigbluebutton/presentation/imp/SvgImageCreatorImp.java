@@ -33,7 +33,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private long useTagThreshold;
     private long pathsThreshold;
     private long maskTagThreshold = 0;
-    private long filterTagThreshold = 0;
+    private long filterTagThreshold = 1;
     private int convPdfToSvgTimeout = 60;
     private int pdfFontsTimeout = 3;
     private int svgResolutionPpi = 300;
@@ -229,7 +229,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 pHandler.numberOfPaths() > pathsThreshold ||
                 pHandler.numberOfUseTags() > useTagThreshold ||
                 (maskTagThreshold > 0 && pHandler.numberOfMaskTags() >= maskTagThreshold) ||
-                pHandler.numberOfFilterTags() > filterTagThreshold ||
+                (filterTagThreshold > 0 && pHandler.numberOfFilterTags() >= filterTagThreshold) ||
                 rasterizeCurrSlide) {
 
             // We need t delete the destination file as we are starting a
