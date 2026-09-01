@@ -333,7 +333,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)</>)
+    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)<p><i>Updated in 4.0:</i> breakout rooms always use the parent meeting's effective <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> value; an explicit parameter and the <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code> fallback only apply to top-level meetings.</p></>)
   },
   {
     "name": "endWhenNoModerator",
@@ -452,7 +452,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "default": "blockNote",
-    "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
+    "description": (<>Editor to be rendered in the shared-notes area: <code>blockNote</code> or <code>etherpad</code>. Values are stripped of control characters and surrounding whitespace, matched case-insensitively, and stored using the canonical spelling. Unknown values cause the create request to fail.</>)
   },
   {
     "name": "sharedNotesInitialContentJsonUrl",
@@ -625,6 +625,9 @@ const createEndpointTableData = [
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">multiFunctionalMode</code> - <b>Multi-Functional Mode - multiple sidebars</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
             </li>
           </ul>
         </>

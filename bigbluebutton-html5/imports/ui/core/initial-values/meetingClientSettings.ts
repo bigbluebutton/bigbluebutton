@@ -421,6 +421,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           moderator: 2,
           viewer: 2,
         },
+        gridEnabled: true,
         desktopGridSizes: {
           moderator: 48,
           viewer: 48,
@@ -639,6 +640,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
           enabled: false,
+          provider: 'bbba',
           constraints: {
             echoCancellation: true,
             autoGainControl: true,

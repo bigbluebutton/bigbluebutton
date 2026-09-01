@@ -225,33 +225,49 @@ const useMouseEvents = ({
     // Get the current camera position and zoom level
     const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
 
-    let currentZoomLevel = cz / initialZoomRef.current;
-    if (event.deltaY < 0) {
-      currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
+    // Check if user wants to zoom (Ctrl/Cmd key pressed)
+    if (event.ctrlKey || event.metaKey) {
+      let currentZoomLevel = cz / initialZoomRef.current;
+      if (event.deltaY < 0) {
+        currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
+      } else {
+        currentZoomLevel = Math.max(currentZoomLevel - ZOOM_OUT_FACTOR, MIN_ZOOM_FACTOR);
+      }
+
+      // Convert zoom level to a percentage for backend
+      const zoomPercentage = currentZoomLevel * 100;
+      zoomChanger(zoomPercentage);
+
+      // Calculate the new camera zoom factor
+      const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
+
+      // Calculate the mouse position in canvas space using whiteboardRef
+      const rect = whiteboardRef.current?.getBoundingClientRect();
+      const canvasMouseX = (mouseX - (rect?.left || 0)) / cz + cx;
+      const canvasMouseY = (mouseY - (rect?.top || 0)) / cz + cy;
+
+      // Calculate the new camera position to keep the mouse position under the cursor
+      const nextCamera = {
+        x: cx + (canvasMouseX - cx) * (cz / newCameraZoomFactor - 1),
+        y: cy + (canvasMouseY - cy) * (cz / newCameraZoomFactor - 1),
+        z: newCameraZoomFactor,
+      };
+
+      tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
     } else {
-      currentZoomLevel = Math.max(currentZoomLevel - ZOOM_OUT_FACTOR, MIN_ZOOM_FACTOR);
+      // Default behavior: Scroll (Pan vertically)
+      const panFactor = 2.5; // Scroll speed multiplier
+
+      const panAmount = -(event.deltaY * panFactor) / cz;
+
+      const nextCamera = {
+        x: cx,
+        y: cy + panAmount,
+        z: cz,
+      };
+
+      tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
     }
-
-    // Convert zoom level to a percentage for backend
-    const zoomPercentage = currentZoomLevel * 100;
-    zoomChanger(zoomPercentage);
-
-    // Calculate the new camera zoom factor
-    const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
-
-    // Calculate the mouse position in canvas space using whiteboardRef
-    const rect = whiteboardRef.current?.getBoundingClientRect();
-    const canvasMouseX = (mouseX - (rect?.left || 0)) / cz + cx;
-    const canvasMouseY = (mouseY - (rect?.top || 0)) / cz + cy;
-
-    // Calculate the new camera position to keep the mouse position under the cursor
-    const nextCamera = {
-      x: cx + (canvasMouseX - cx) * (cz / newCameraZoomFactor - 1),
-      y: cy + (canvasMouseY - cy) * (cz / newCameraZoomFactor - 1),
-      z: newCameraZoomFactor,
-    };
-
-    tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
 
     if (isWheelZoomRef.currentTimeout) {
       clearTimeout(isWheelZoomRef.currentTimeout);

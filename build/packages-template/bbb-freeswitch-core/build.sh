@@ -31,7 +31,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git checkout v1.13.17
+git checkout v1.13.18
 ./bootstrap.sh
 ./configure
 
@@ -45,7 +45,7 @@ if [ ! -d spandsp ]; then
   git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
-git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
+git checkout v3.1.1
 ./bootstrap.sh
 ./configure
 
@@ -112,9 +112,6 @@ patch -p0 < $BUILDDIR/floor.patch
 patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
 # Enables mod_audio_fork in the build process  (used in built-in speech transcription)
 patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
-
-# Relevant changes from v1.11.0 and v1.11.1
-patch -p1 < $BUILDDIR/1111.patch
 
 ./bootstrap.sh 
 

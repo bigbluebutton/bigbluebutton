@@ -1,5 +1,21 @@
 import { User } from '/imports/ui/Types/user';
 
+const compareLivekitRooms = (
+  aRooms: Partial<User>['livekitRooms'],
+  bRooms: Partial<User>['livekitRooms'],
+): boolean => {
+  const aLen = aRooms?.length ?? 0;
+  const bLen = bRooms?.length ?? 0;
+  if (aLen === 0 && bLen === 0) return true;
+  if (aLen !== bLen || !aRooms || !bRooms) return false;
+  for (let i = 0; i < aRooms.length; i += 1) {
+    if (aRooms[i].roomName !== bRooms[i].roomName) return false;
+    if (aRooms[i].purpose !== bRooms[i].purpose) return false;
+    if ((aRooms[i].token ?? null) !== (bRooms[i].token ?? null)) return false;
+  }
+  return true;
+};
+
 export const userComparator = (a?: Partial<User>, b?: Partial<User>): boolean => {
   if (a === b) return true;
   if (!a && !b) return true;
@@ -84,9 +100,7 @@ export const userComparator = (a?: Partial<User>, b?: Partial<User>): boolean =>
   const bSession = b.sessionCurrent;
   if ((aSession?.enforceLayout ?? false) !== (bSession?.enforceLayout ?? false)) return false;
 
-  const aLivekit = a.livekit;
-  const bLivekit = b.livekit;
-  if ((aLivekit?.livekitToken ?? '') !== (bLivekit?.livekitToken ?? '')) return false;
+  if (!compareLivekitRooms(a.livekitRooms, b.livekitRooms)) return false;
 
   return true;
 };

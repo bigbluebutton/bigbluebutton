@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME, LOOP_INTERVAL, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { isLiveKit } from '../core/livekit';
 import { checkScreenshots } from '../layouts/util';
 import { MultiUsers } from '../user/multiusers';
 import { constants } from './constants';
@@ -168,6 +169,13 @@ export class CreateParameters extends MultiUsers {
     await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the attendee');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.unmuteUser);
+    // With LiveKit the server cannot publish a remote user's track, so the
+    // moderator's unmute always goes through the attendee's consent modal.
+    if (isLiveKit) {
+      await this.userPage.hasElement(e.confirmUnmuteButton, 'should display the unmute consent modal for the attendee');
+      await this.userPage.hasElement(e.denyUnmuteButton, 'should display the deny option on the unmute consent modal');
+      await this.userPage.waitAndClick(e.confirmUnmuteButton);
+    }
     await this.userPage.hasElement(e.muteMicButton, 'should display the mute microphone button for the attendee');
   }
 
