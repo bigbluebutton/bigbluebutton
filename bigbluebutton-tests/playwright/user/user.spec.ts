@@ -81,7 +81,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.stopwatchTest();
     });
 
-    test('Timer', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    // needs a rewrite for the redesigned timer panel: timer mode no longer renders an
+    // in-panel countdown (div[data-test="timerCurrent"]) and the duration inputs were
+    // renamed (timerHoursInput/timerMinutesInput/timerSecondsInput, plus preset buttons)
+    test('Timer', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, { testInfo });
       await timer.timerTest();
@@ -369,7 +372,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.saveUserNames();
     });
 
-    test('Disable users join muted', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    // the "users join muted" toggle is gone from the 4.0 client (only orphaned
+    // app.userList.userOptions.usersJoinMuted* locale strings remain) - needs a
+    // decision upstream: restore the UI or drop this test
+    test('Disable users join muted', { tag: ['@need-update', '@media'] }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
       await multiusers.disabledUsersJoinMuted();
@@ -383,7 +389,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.muteAllUsersExceptPresenter();
     });
 
-    test('Clear all status icon', async ({ browser, context, page }, testInfo) => {
+    // "clear all reactions" is gone from the 4.0 client (only orphaned
+    // app.userList.userOptions.clearAllReactions* locale strings remain), and
+    // reactions no longer render inside div[data-test="moderatorAvatar"]
+    test('Clear all status icon', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
       await multiusers.initModPage2(context, { testInfo });

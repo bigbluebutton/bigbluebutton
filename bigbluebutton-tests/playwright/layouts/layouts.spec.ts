@@ -145,7 +145,11 @@ test.describe.parallel('Device type breakpoint crossing', { tag: '@ci' }, () => 
   });
 });
 
-test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
+// The manual layout selection modal these tests drive (li[data-test="manageLayoutBtn"])
+// was removed from the client in 3ef18df03a ("remove layout selection modal and related
+// settings") - unified layout replaced user-selectable layouts, so this whole section
+// needs a rewrite against the unified layout behavior, not a selector fix.
+test.describe.parallel('Layout', { tag: ['@need-update', '@media'] }, () => {
   let layouts: Layouts;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {
