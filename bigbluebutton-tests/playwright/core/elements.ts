@@ -336,8 +336,9 @@ export const elements = {
   notificationsTab: 'span[id="notificationTab"]',
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
-  userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
-  userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
+  // data-test moved from the <input> to the MUI Checkbox root in the settings redesign
+  userJoinPushAlerts: '[data-test="userJoinPopupAlerts"]',
+  userLeavePushAlerts: '[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
@@ -446,8 +447,12 @@ export const elements = {
   restorePresentation: 'button[data-test="restorePresentation"]',
   shareExternalVideoBtn: 'div[data-test="shareExternalVideo"]',
   stopExternalVideoBtn: 'button[data-test="stopExternalVideoShare"]',
-  videoModalInput: 'input[id="video-modal-input"]',
-  startShareVideoBtn: 'button[data-test="startNewVideo"]',
+  // dual selector: data-test lands with the client fix; the id form matches
+  // 4.0 builds that predate it (the input moved into the media-sharing view)
+  videoModalInput: 'input[data-test="externalVideoUrlInput"], input[id="standard-basic"]',
+  // the media-sharing view's confirm button (was startNewVideo before the
+  // external video share moved into the media area)
+  startShareVideoBtn: 'button[data-test="ShareExternalVideo"]',
   videoPlayer: 'div[data-test="videoPlayer"]',
   presentationTitle: 'h1[data-test="presentationTitle"]',
   fitToWidthButton: 'button[data-test="fitToWidthButton"]',
@@ -544,6 +549,9 @@ export const elements = {
   closeUserList: 'button[data-test="closeUserList"]',
   userListPanel: 'div[data-test="userListPanel"]',
   clearStatus: 'li[data-test="clearStatus"]',
+  // direct crowd-action button in the participants panel (replaced the
+  // manageUsers gear dropdown's "mute all except presenter" item)
+  muteAllUsers: 'button[data-test="muteAllUsers"]',
 
   // Lock Viewers
   lockViewersButton: 'button[data-test="lockViewersButton"]',
@@ -569,7 +577,9 @@ export const elements = {
   lockPrivateChat: 'input[data-test="lockPrivateChat"]',
   lockEditSharedNotes: 'input[data-test="lockEditSharedNotes"]',
   lockUserList: 'input[data-test="lockUserList"]',
-  hideViewersAnnotation: 'input[data-test="hideViewersAnnotation"]',
+  // the lock modal renamed this item's input hook to lockShareWhiteboard
+  // (the row wrapper keeps data-test="hideViewersAnnotationItem")
+  hideViewersAnnotation: 'input[data-test="lockShareWhiteboard"]',
   hideViewersCursor: 'input[data-test="hideViewersCursor"]',
   whiteboardCursorIndicator: 'svg use[href="#cursor"]',
 
