@@ -566,6 +566,11 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.skipSlide);
     await this.modPage.closeAllToastNotifications();
 
+    // Snapshot the attendee's slide first: uploadSinglePresentation only waits on
+    // the moderator page, so the attendee assertion below must wait for the new
+    // slide to propagate before measuring it.
+    const userSlideBeforeUpload = await getSlideOuterHtml(this.userPage);
+
     await uploadSinglePresentation(this.modPage, e.blurImagePresentationFileName, UPLOAD_PDF_WAIT_TIME);
     await this.modPage.closeAllToastNotifications();
 
@@ -577,6 +582,12 @@ export class Presentation extends MultiUsers {
 
     // The attendee must receive the same non-blank slide.
     await this.userPage.closeAllToastNotifications();
+    await expect
+      .poll(() => getSlideOuterHtml(this.userPage), {
+        message: 'the attendee should receive the uploaded presentation slide',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .not.toBe(userSlideBeforeUpload);
     const userDarkRatio = await getCurrentSlideDarkPixelRatio(this.userPage);
     expect(
       userDarkRatio,
