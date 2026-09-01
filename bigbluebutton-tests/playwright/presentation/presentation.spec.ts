@@ -3,6 +3,7 @@ import path from 'path';
 import { linkIssue } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
+import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
@@ -213,6 +214,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.sendPresentationToDownload();
+    });
+
+    test('Exported text annotations do not overlap', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
     });
 
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
