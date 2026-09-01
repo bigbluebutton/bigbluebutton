@@ -5,7 +5,7 @@ runs:
   steps:
     - uses: actions/setup-node@v5
       with:
-        node-version: 22
+        node-version: 24
     - name: Install dependencies
       shell: bash
       working-directory: ./bigbluebutton-tests/playwright

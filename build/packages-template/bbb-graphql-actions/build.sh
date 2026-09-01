@@ -56,5 +56,5 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --description "BigBlueButton GraphQL Actions" \
     $DIRECTORIES \
     $OPTS \
-    -d 'nodejs (>= 18)' -d 'nodejs (<< 23)'
+    -d 'nodejs (>= 24)' -d 'nodejs (<< 25)'
 
