@@ -1,3 +1,4 @@
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
@@ -578,14 +579,9 @@ export const PresentationSelect = styled(Select)`
   }
 `;
 
-export const StartButtonWrapper = styled.div`
+export const StartButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
   padding: 0.75rem 1rem;
   margin-top: auto;
-  display: flex;
-
-  > * {
-    width: 100%;
-  }
 `;
 
 export const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({

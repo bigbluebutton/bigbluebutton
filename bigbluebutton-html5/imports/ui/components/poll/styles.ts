@@ -578,16 +578,11 @@ const ButtonsActions = styled.div`
   gap: 0.75rem;
 `;
 
-const ButtonWrapper = ButtonWrappers.FullWidthButtonWrapper;
+const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
 
-const StartPollButtonWrapper = styled.div`
+const StartPollButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
   margin-top: 1rem;
-  display: flex;
   width: 100%;
-
-  > * {
-    width: 100%;
-  }
 `;
 
 const THeading = styled.th`

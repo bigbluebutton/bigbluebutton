@@ -163,9 +163,19 @@ const BecomePresenterViewContainer = styled.div`
   padding: 1rem;
   flex-direction: column;
   gap: 1rem;
+`;
 
-  > button {
-    min-width: 8.5rem;
+// `size="sm"` shrinks the take-presenter button to its label, which leaves it
+// visibly narrower than the text above it. Hold a floor wide enough for the
+// longest of the two labels this view renders, without reaching into
+// BBButton's own markup.
+const becomePresenterButtonMinWidth = '8.5rem';
+
+const BecomePresenterButtonWrapper = styled.div`
+  display: flex;
+
+  > * {
+    min-width: ${becomePresenterButtonMinWidth};
   }
 `;
 
@@ -205,6 +215,7 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
 
 export default {
   Overlay,
+  BecomePresenterButtonWrapper,
   ModalContainer,
   HeaderContainer,
   ContentContainer,

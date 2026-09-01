@@ -355,6 +355,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                       })()}
                       disabled={isRequesting || breakout.isUserCurrentlyInRoom}
                       onClick={() => handleFreeJoinRoom(breakout)}
+                      dataTest={`freeJoinRoom${breakout.sequence}`}
                     />
                   </Styled.ButtonWrapper>
                 </Styled.FreeJoinRoomCard>
