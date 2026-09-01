@@ -85,7 +85,8 @@ export class Layouts extends MultiUsers {
         const serializedMessage = message.toString();
         if (serializedMessage.includes('SetLayoutProps')) {
           const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
-          this.layoutMutationRates.push(rateMatch?.[1] === 'null' ? null : Number(rateMatch?.[1]));
+          if (!rateMatch) throw new Error('SetLayoutProps message is missing presentationVideoRate');
+          this.layoutMutationRates.push(rateMatch[1] === 'null' ? null : Number(rateMatch[1]));
         }
         server.send(message);
       });

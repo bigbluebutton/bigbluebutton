@@ -35,7 +35,7 @@ const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) 
     presentationVideoRate = height / window.innerHeight;
   }
   const rate = parseFloat(presentationVideoRate.toFixed(2));
-  return Number.isFinite(rate) ? rate : 0;
+  return Number.isFinite(rate) ? Math.min(1, Math.max(0, rate)) : 0;
 };
 
 export {
