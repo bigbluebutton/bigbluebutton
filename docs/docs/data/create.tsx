@@ -333,7 +333,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)</>)
+    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)<p><i>Updated in 4.0:</i> breakout rooms inherit the parent meeting's value instead of falling back to <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>.</p></>)
   },
   {
     "name": "endWhenNoModerator",
