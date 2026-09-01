@@ -77,16 +77,18 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     return () => clearTimeout(timeout);
   }, [searchText, MENTION_PICKER_DEBOUNCE_MS]);
 
+  const hasSearchTerm = debouncedSearch.trim() !== '';
+
   const where = useMemo(() => ({
     _and: [
-      makeUserSearchWhere(debouncedSearch),
+      // With no term to narrow by, makeUserSearchWhere would ask for `name _ilike '%'`: a
+      // pattern match that keeps the query off the name index and matches everything anyway.
+      ...(hasSearchTerm ? [makeUserSearchWhere(debouncedSearch)] : []),
       { bot: { _eq: false } },
       { loggedOut: { _eq: false } },
       { userId: { _neq: Auth.userID } },
     ],
-  }), [debouncedSearch]);
-
-  const hasSearchTerm = debouncedSearch.trim() !== '';
+  }), [debouncedSearch, hasSearchTerm]);
 
   const { data, loading } = useDeduplicatedSubscription<GetMentionUsersResponse>(
     GET_MENTION_USERS,
