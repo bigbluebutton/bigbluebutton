@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as xml2js from 'xml2js';
 
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
-import { createMeeting, getApiCallUrl, getRandomInt } from '../core/helpers';
+import { createMeeting, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
 import { MultiUsers } from '../user/multiusers';
 
 // Minimal shape of the /create response we assert on (xml2js wraps every
@@ -120,6 +120,34 @@ export class API extends MultiUsers {
     expect(second.response.errors?.[0]?.error?.[0]?.key?.[0], 'collision should surface nonUniqueVoiceBridge').toEqual(
       'nonUniqueVoiceBridge',
     );
+  }
+
+  // Long display names are accepted end to end. The name columns the join feeds
+  // (user_voice.callerName, chat_message.senderName) used to be narrow varchars,
+  // so a long name joined fine but the dependent inserts were silently discarded
+  // by Postgres; they are text now, so a 300 character name must join normally.
+  static async testJoinLongFullNameAccepted() {
+    const meetingID = await createMeeting();
+    const joinUrl = getJoinURL({
+      meetingID,
+      fullName: 'a'.repeat(300),
+      options: { joinParameter: 'redirect=false' },
+    });
+    const response = await axios.get(joinUrl, {
+      adapter: 'http',
+      headers: { Accept: 'application/xml' },
+    });
+    const { response: parsed } = await xml2js.parseStringPromise(response.data);
+    expect(parsed.returncode, 'a 300 character fullName should join').toEqual(['SUCCESS']);
+    expect(parsed.messageKey, 'the join should succeed normally').toEqual(['successfullyJoined']);
+  }
+
+  // A long name also joins through the full client (init asserts authentication
+  // and layout render). 150 characters, not 300: the console log harness names
+  // its file after the username and would hit the filesystem name limit.
+  async testJoinLongFullNameThroughClient(page: PlaywrightPage, testInfo: TestInfo) {
+    await this.initModPage(page, { testInfo, fullName: 'a'.repeat(150) });
+    await this.modPage.page.close();
   }
 
   async testGetMeetingInfo(page: PlaywrightPage, testInfo: TestInfo) {
