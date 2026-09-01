@@ -83,6 +83,7 @@ export class Layouts extends MultiUsers {
       const server = webSocket.connectToServer();
       webSocket.onMessage((message) => {
         const serializedMessage = message.toString();
+        // SetLayoutProps is the GraphQL operation whose presentationVideoRate payload this regression protects.
         if (serializedMessage.includes('SetLayoutProps')) {
           const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
           if (!rateMatch) throw new Error('SetLayoutProps message is missing presentationVideoRate');
@@ -92,9 +93,11 @@ export class Layouts extends MultiUsers {
       });
       server.onMessage((message) => {
         const serializedMessage = message.toString();
+        // This server validation message is the regression's observable symptom for a non-numeric rate.
         if (serializedMessage.includes("Parameter 'presentationVideoRate' should be of type number")) {
           this.layoutMutationErrors.push(serializedMessage);
         }
+        // Delaying cameraDockAspectRatio reproduces the subscription race that previously produced NaN.
         const delay = serializedMessage.includes('cameraDockAspectRatio') ? 2500 : 0;
         setTimeout(() => webSocket.send(message), delay);
       });
@@ -105,8 +108,10 @@ export class Layouts extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.page.setViewportSize({ width: 915, height: 412 });
     await this.modPage.shareWebcam();
+    // Five seconds covers the delayed update and leaves time for the resulting layout mutations to settle.
     await this.modPage.page.waitForTimeout(5000);
 
+    // Fewer than 20 mutations catches a feedback loop while allowing the expected responsive layout updates.
     expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);
     expect(this.layoutMutationRates.length, 'the presenter should publish its layout').toBeGreaterThan(0);
     expect(
