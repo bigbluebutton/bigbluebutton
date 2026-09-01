@@ -73,6 +73,10 @@ export class Layouts extends MultiUsers {
 
   private layoutMutationErrors: string[] = [];
 
+  private injectedPresentationVideoRate = false;
+
+  private receivedCameraDockAspectRatios: number[] = [];
+
   async configurePhoneLandscapeLayoutDelay() {
     await this.context.addInitScript(() => {
       Object.defineProperty(navigator, 'userAgent', {
@@ -102,6 +106,61 @@ export class Layouts extends MultiUsers {
         setTimeout(() => webSocket.send(message), delay);
       });
     });
+  }
+
+  async configurePresentationVideoRateClampProbe() {
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('SetLayoutProps')) {
+          if (!this.injectedPresentationVideoRate) {
+            const rewrittenMessage = serializedMessage.replace(
+              /"presentationVideoRate":-?\d+(?:\.\d+)?/,
+              '"presentationVideoRate":2',
+            );
+            if (rewrittenMessage === serializedMessage) {
+              throw new Error('SetLayoutProps message is missing a numeric presentationVideoRate');
+            }
+            this.receivedCameraDockAspectRatios = [];
+            this.injectedPresentationVideoRate = true;
+            server.send(rewrittenMessage);
+          }
+          return;
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (this.injectedPresentationVideoRate) {
+          const ratioMatches = serializedMessage.matchAll(/"cameraDockAspectRatio":(-?\d+(?:\.\d+)?)/g);
+          for (const match of ratioMatches) this.receivedCameraDockAspectRatios.push(Number(match[1]));
+        }
+        webSocket.send(message);
+      });
+    });
+  }
+
+  async serverClampsPresentationVideoRate() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+
+    await expect
+      .poll(() => this.injectedPresentationVideoRate, {
+        message: 'the harness should inject an out-of-range presentation video rate',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBe(true);
+    await expect
+      .poll(() => this.receivedCameraDockAspectRatios.includes(1), {
+        message: 'the server should broadcast the clamped camera dock aspect ratio',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBe(true);
+    expect(
+      this.receivedCameraDockAspectRatios,
+      'the server should never broadcast the injected out-of-range rate',
+    ).not.toContain(2);
   }
 
   async phoneLandscapePublishesFinitePresentationVideoRate() {
