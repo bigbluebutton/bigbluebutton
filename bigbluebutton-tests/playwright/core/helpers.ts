@@ -183,10 +183,10 @@ export async function checkRootPermission(): Promise<void> {
     handleOutput: (stdout: string) => !!stdout,
     timeout: 5000,
   });
-  await expect(
-    checkSudo,
-    'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)',
-  ).toBeTruthy();
+  // skip rather than fail: these tests kill TCP sessions, which needs
+  // passwordless sudo - a machine-setup precondition, not a product defect
+  // (grant it beforehand by running "sudo -v" and entering the password)
+  test.skip(!checkSudo, 'Test requires root permission: run "sudo -v" first or grant passwordless sudo');
 }
 
 async function sanitizeLog(
