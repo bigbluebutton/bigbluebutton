@@ -381,14 +381,16 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
-          <BBButton
-            dataTest="takePresenterButton"
-            label={intl.formatMessage(intlMessages.takePresenter)}
-            variant="primary"
-            size="sm"
-            onClick={handleTakePresenter}
-            iconStart={<CoPresentIcon />}
-          />
+          <Styled.BecomePresenterButtonWrapper>
+            <BBButton
+              dataTest="takePresenterButton"
+              label={intl.formatMessage(intlMessages.takePresenter)}
+              variant="primary"
+              size="sm"
+              onClick={handleTakePresenter}
+              iconStart={<CoPresentIcon />}
+            />
+          </Styled.BecomePresenterButtonWrapper>
         </Styled.BecomePresenterViewContainer>
       );
     }
@@ -409,14 +411,16 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
-          <BBButton
-            dataTest="takePresenterButton"
-            label={intl.formatMessage(intlMessages.takePresenter)}
-            variant="primary"
-            size="sm"
-            onClick={handleRequestPresenterWithFeedback}
-            iconStart={<CoPresentIcon />}
-          />
+          <Styled.BecomePresenterButtonWrapper>
+            <BBButton
+              dataTest="takePresenterButton"
+              label={intl.formatMessage(intlMessages.takePresenter)}
+              variant="primary"
+              size="sm"
+              onClick={handleRequestPresenterWithFeedback}
+              iconStart={<CoPresentIcon />}
+            />
+          </Styled.BecomePresenterButtonWrapper>
         </Styled.BecomePresenterViewContainer>
       );
     }

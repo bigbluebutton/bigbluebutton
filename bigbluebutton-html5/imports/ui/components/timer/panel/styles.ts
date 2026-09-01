@@ -524,7 +524,7 @@ const ButtonRow = styled.div`
   gap: 1rem;
 `;
 
-const ButtonWrapper = ButtonWrappers.FullWidthButtonWrapper;
+const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
 
 const FooterSeparator = styled(BaseSeparator)`
   margin-top: auto;
