@@ -468,10 +468,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             min-height: 0;
             overflow-y: auto;
           }
-          /* BlockNote 0.53 centers the side menu with floating-ui offsets that
-             assume its default 30px height, so overriding the height would
-             misalign heading drag handles. Historical context:
-             https://github.com/TypeCellOS/BlockNote/issues/2224. */
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
             .bn-collaboration-cursor__label {
