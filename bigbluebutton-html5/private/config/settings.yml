@@ -1204,6 +1204,10 @@ public:
     # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
     # slide. Latency above this bound still shows the original white flash.
     slideSwapDecodeTimeoutMs: 250
+    # Presenter mouse wheel behavior over the presentation:
+    # true  - the wheel scrolls (pans) the slide; hold Ctrl/Cmd while scrolling to zoom
+    # false - the wheel zooms directly (behavior of BBB 3.0 and earlier)
+    wheelZoomRequiresCtrl: true
     lockToolbarTools: false
     annotations:
       status:
