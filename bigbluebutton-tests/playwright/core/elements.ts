@@ -321,6 +321,7 @@ export const elements = {
   blockNoteEditor: '#bn-notes-scroll-container .bn-editor',
   blockNoteEditable: '#bn-notes-scroll-container .bn-editor[contenteditable="true"]',
   blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
+  blockNoteSideMenu: '#bn-notes-scroll-container .bn-side-menu',
   blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
   blockNoteLinkToolbar: '.bn-link-toolbar',
   blockNoteLinkForm: '.bn-form-popover',
