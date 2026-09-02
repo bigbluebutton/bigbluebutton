@@ -169,7 +169,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.camerasOnly();
     });
 
-    test('PRESENTATION_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('PRESENTATION_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, {
@@ -188,7 +188,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.participantsAndChatOnly();
     });
 
-    test('MEDIA_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('MEDIA_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.mediaOnly, testInfo });
@@ -197,7 +197,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Enforce Layout', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Enforce Layout', { tag: '@flaky' }, () => {
     test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
@@ -780,7 +780,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinReturnFromBreakouts();
     });
 
-    test('After Uploading large presentation', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('After Uploading large presentation', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(context, {

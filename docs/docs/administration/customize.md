@@ -1785,7 +1785,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsRecord` | Enable recordings in breakout rooms | true/false | false _`overwritable`_ |
 | `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
-| `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
+| `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends. For a breakout room's dashboard, the countdown starts when the parent meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use. Control characters and surrounding whitespace are stripped, values are case-insensitive, and invalid configured defaults fall back to `blockNote`. | etherpad, blockNote | blockNote _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |

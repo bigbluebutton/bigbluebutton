@@ -442,9 +442,13 @@ export class Shape {
     const parsedFont = opentype.parse(decompressedArrayBuffer);
     const fontSize = Shape.determineFontSize(this.size, this.type);
 
-    // In order to avoid bad line breaks due to rendering mismatch between
-    // environments (browser and CairoSVG) we add some spacing for safety.
-    width += (this.getSmallestCharWidth(text, parsedFont, fontSize) - 1);
+    // measureTextWidth sums bare glyph advances, so it cannot apply the font's
+    // GPOS kerning the way the client's browser layout does and overestimates a
+    // line by up to ~3%. The margin must absorb that overestimate: wrapping a
+    // line the client kept on one line makes the shape taller than the box the
+    // client stored, overlapping the annotation below it (#24566). Erring wider
+    // only risks mild horizontal overflow, which cannot interleave text.
+    width += (this.getSmallestCharWidth(text, parsedFont, fontSize) * 2);
 
     // Subtract inline padding
     width -= (this.padding * 2);

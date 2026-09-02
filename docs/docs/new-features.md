@@ -58,7 +58,7 @@ The client now follows the operating system's light/dark preference (`prefers-co
 
 Audio settings moved into a dedicated **Audio** tab in the Settings modal, where each user picks how their microphone signal is processed before it is sent to other participants:
 
-- **Advanced Filtering** - an optional WASM-based audio processor (internally "BBBA") that runs on top of the microphone stream, isolating the speaker's voice and eliminating background noise. It is disabled by default and has to be made available by the administrator; see [Advanced Filtering (WASM audio processing)](/administration/customize#advanced-filtering-wasm-audio-processing) for configuration details.
+- **Advanced Filtering** - an optional WASM-based audio processor that runs on top of the microphone stream, isolating the speaker's voice and eliminating background noise. Two interchangeable backends are available, selected by the administrator via `public.media.audio.audioWasmProcessing.provider`: `bbba` (the default) and `workadventureDtln` (DTLN noise suppression as used by WorkAdventure). It is disabled by default and has to be made available by the administrator; see [Advanced Filtering (WASM audio processing)](/administration/customize#advanced-filtering-wasm-audio-processing) for configuration details.
 - **Standard Filtering** (default) - the browser's built-in filters: auto gain control, echo cancellation, and noise suppression.
 - **Original Audio** - no processing at all; the raw microphone signal is transmitted. Ideal for sharing music, singing, or instruments.
 
@@ -71,6 +71,10 @@ The mode pre-selected for a new user is controlled by `public.app.defaultSetting
 When browser-based (WebSpeech) live captions are enabled and a user holds the audio floor but no transcription is produced for a short while, BigBlueButton now shows a toast suggesting the wrong microphone may be selected or the environment is too noisy. The alert can optionally link to a knowledge-base article and is configurable via `public.app.audioCaptions.microphoneAlert` in `settings.yml`.
 
 <!-- TODO add screenshot of the wrong-microphone caption alert -->
+
+#### Whiteboard: scroll to pan, Ctrl+scroll to zoom
+
+Scrolling the mouse wheel over the whiteboard now pans the presentation, and holding `Ctrl` (`Cmd` on macOS) while scrolling zooms in and out - matching the navigation model of most design tools.
 
 ### Engagement
 
@@ -105,6 +109,10 @@ A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowin
 A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
 
 <!-- TODO add screenshot of a jumbomoji chat message -->
+
+#### Learning Dashboard for breakout rooms
+
+The Learning Dashboard is no longer disabled in breakout rooms: each breakout gets its own dashboard, tracking activity the same way the parent meeting does (an inherited `disabledFeatures=learningDashboard` still turns it off). A breakout's dashboard data is also kept until the *parent* meeting ends - previously cleanup was anchored to the breakout's own end - so instructors can review breakout activity for as long as the main room is running (plus `learningDashboardCleanupDelayInMinutes`).
 
 <!-- ### Analytics -->
 
@@ -178,6 +186,14 @@ via the bbb-webrtc-recorder application. If `livekit/egress` was previously
 installed in a server, any steps done to enable it should be reverted. Refer to
 the [previous installations steps](https://github.com/bigbluebutton/bigbluebutton/blob/6eab874ffa8d0e82453dad3b06621dea16e15e6d/docs/docs/new-features.md?plain=1#L209-L237).
 
+Listening into a breakout room from the parent meeting is now supported on the
+LiveKit bridge, at feature parity with the FreeSWITCH/mediasoup transfer flow.
+A moderator using the breakout panel's listen action is switched into the
+breakout's audio - mute/unmute applies to the breakout while listening - and gets
+a persistent toast naming the room, with a "Return to main room" button. Under
+the hood this is built on a new membership-based LiveKit token model, which also
+brings automatic token refresh for long-running sessions.
+
 We encourage users to provide feedback via our GitHub issue tracker or the mailing
 lists.
 
@@ -197,6 +213,7 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.1)
 - [4.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.5)
 - [4.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.4)
 - [4.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.3)
@@ -268,7 +285,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.24`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.26`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
@@ -285,6 +302,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 
 #### Added
 
+- `public.kurento.pagination.gridEnabled` (default `true`) - whether the camera-less avatar grid (the "webcam grid") is shown while the presentation is minimized. The grid can also be disabled per meeting with `disabledFeatures=webcamGrid`.
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.

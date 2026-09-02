@@ -6,3 +6,12 @@ playwright-report/
 blob-report/
 logs/
 dist/
+
+# same-run visual baselines: whiteboardResize.ts writes these on every run
+# (Screenshot A) and compares the post-resize state against them within the
+# same run, so committed copies are dead weight that git sees as modified
+# after each execution
+whiteboard/whiteboard.spec.ts-snapshots/mod-whiteboard-resize-initial-*.png
+whiteboard/whiteboard.spec.ts-snapshots/mod-whiteboard-resize-zoomed-initial-*.png
+whiteboard/whiteboard.spec.ts-snapshots/user-whiteboard-resize-initial-*.png
+whiteboard/whiteboard.spec.ts-snapshots/user-whiteboard-resize-zoomed-initial-*.png
