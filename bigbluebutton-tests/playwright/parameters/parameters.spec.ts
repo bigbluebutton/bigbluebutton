@@ -669,6 +669,18 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.predefinedGroups();
   });
 
+  test('Predefined groups with names longer than 100 characters', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25676);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, { createParameter: `${encodeCustomParams(c.groupsWithLongNames)}`, testInfo });
+    await customParam.initUserPage(context, {
+      fullName: `Attendee-1235`,
+      joinParameter: 'userID=1235',
+      testInfo,
+    });
+    await customParam.predefinedGroupsWithLongNames();
+  });
+
   test.describe.parallel('Audio', () => {
     test('Auto join', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
