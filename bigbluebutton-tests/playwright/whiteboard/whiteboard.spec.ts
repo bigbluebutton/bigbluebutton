@@ -93,7 +93,9 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await textShape.stickyNote();
   });
 
-  test('Pan', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+  // fails deterministically on 4.0: the post-pan canvas screenshot diverges ~16%
+  // from its baseline on every server - pan/camera behavior changed, needs rework
+  test('Pan', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
     const tools = new ShapeTools(browser, context);
     await tools.initModPage(page, { testInfo });

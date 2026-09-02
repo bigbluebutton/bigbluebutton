@@ -67,7 +67,8 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setVideoUrl(event.target.value.trim());
             }}
-            id="standard-basic"
+            id="external-video-url-input"
+            inputProps={{ 'data-test': 'externalVideoUrlInput' } as React.InputHTMLAttributes<HTMLInputElement>}
             placeholder={intl.formatMessage(intlMessages.urlInput)}
             variant="standard"
             fullWidth

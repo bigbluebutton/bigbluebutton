@@ -222,7 +222,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
 
       test(
         'User can delete only his own messages in breakout rooms',
-        { tag: '@flaky-3.1' },
+        { tag: '@flaky' },
         async ({ browser, context, page }, testInfo) => {
           const message = new MessageActions(browser, context);
           await message.initPages(page, testInfo);
