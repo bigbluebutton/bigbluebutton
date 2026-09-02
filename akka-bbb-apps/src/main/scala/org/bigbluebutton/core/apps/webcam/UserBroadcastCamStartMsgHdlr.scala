@@ -48,6 +48,9 @@ trait UserBroadcastCamStartMsgHdlr {
       val userIsPresenter = !permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)
       val startAsContent = msg.body.contentType == "screenshare" && userIsPresenter
 
+      // Request fulfilled, even if the answer never arrived.
+      Users2x.setUserCameraRequested(liveMeeting.users2x, msg.header.userId, requested = false)
+
       for {
         user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
         webcam = WebcamStream(

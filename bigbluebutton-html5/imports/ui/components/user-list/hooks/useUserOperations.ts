@@ -3,7 +3,9 @@ import { useIntl } from 'react-intl';
 import { User, RaisedHandUser } from '/imports/ui/Types/user';
 import { isVoiceOnlyUser } from '/imports/ui/components/user-list/user-list-participants/list-item/service';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
-import { CHAT_CREATE_WITH_USER, SET_ROLE, USER_EJECT_CAMERAS } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
+import {
+  CHAT_CREATE_WITH_USER, SET_ROLE, USER_EJECT_CAMERAS, USER_REQUEST_CAMERA,
+} from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
 import { USER_SET_WHITEBOARD_WRITE_ACCESS } from '/imports/ui/components/presentation/mutations';
 import {
   EJECT_FROM_MEETING,
@@ -27,6 +29,7 @@ export const mapRaisedHandToUser = (raisedHandUser: RaisedHandUser): User => {
     isModerator: raisedHandUser.isModerator ?? false,
     raiseHand: raisedHandUser.raiseHand ?? true,
     raiseHandTime: raisedHandUser.raiseHandTime,
+    requestedCameraByMod: raisedHandUser.requestedCameraByMod ?? false,
     locked: false,
     voice: {
       joined: voiceData.joined ?? false,
@@ -74,6 +77,7 @@ export const useUserOperations = (userId?: string) => {
   const [setRole] = useMutation(SET_ROLE);
   const [setLocked] = useMutation(SET_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
+  const [userRequestCamera] = useMutation(USER_REQUEST_CAMERA);
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
@@ -95,6 +99,7 @@ export const useUserOperations = (userId?: string) => {
       setRole,
       setLocked,
       userEjectCameras,
+      userRequestCamera,
       setRaiseHand,
       removeUser,
     },

@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.{ Users2x, Webcams, WebcamStream }
+import org.bigbluebutton.core.models.{ ClientType, Users2x, Webcams, WebcamStream }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -75,6 +75,42 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
 
     (allowModsToEjectCameras &&
       hasPermission)
+  }
+
+  // Permission only. Unlike isCameraEjectAllowed, the handler checks the flag
+  // separately, so a moderator is not ejected over a disabled feature.
+  def isCameraRequestAllowed(
+      liveMeeting: LiveMeeting,
+      userId:      String
+  ): Boolean = {
+    !permissionFailed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.VIEWER_LEVEL,
+      liveMeeting.users2x,
+      userId
+    )
+  }
+
+  // Whether #userId could actually accept a camera request. Dial-in users and
+  // bots have no client to prompt, so a request would never be answered.
+  def canBeAskedToShareCamera(
+      liveMeeting: LiveMeeting,
+      userId:      String
+  ): Boolean = {
+    Users2x.findWithIntId(liveMeeting.users2x, userId) match {
+      case Some(user) => {
+        val hasClientToPrompt = !user.bot && user.clientType != ClientType.DIAL_IN
+        val isSharingCamera = Webcams.findWebcamsForUser(liveMeeting.webcams, userId).nonEmpty
+        val camBroadcastLocked = LockSettingsUtil.isCameraBroadcastLocked(user, liveMeeting)
+        val camCapReached = hasReachedCameraCap(liveMeeting, userId)
+
+        (hasClientToPrompt &&
+          !isSharingCamera &&
+          !camBroadcastLocked &&
+          !camCapReached)
+      }
+      case _ => false
+    }
   }
 
   def isWebcamsOnlyForModeratorUpdateAllowed(

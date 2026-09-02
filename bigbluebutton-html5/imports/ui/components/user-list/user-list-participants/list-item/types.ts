@@ -41,6 +41,7 @@ export interface UserActionPermissions {
   allowedToDemote: boolean | undefined;
   allowedToChangeUserLockStatus: boolean | undefined;
   allowedToEjectCameras: boolean | undefined;
+  allowedToRequestCamera: boolean | undefined;
   allowedToRemove: boolean | undefined;
   allowedToLowerHand: boolean | undefined;
 }

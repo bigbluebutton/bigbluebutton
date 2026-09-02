@@ -47,6 +47,7 @@ export interface App {
   skipCheck: boolean
   skipCheckOnJoin: boolean
   enableDynamicAudioDeviceSelection: boolean
+  skipEchoTestIfPreviousDevice: boolean
   clientTitle: string
   bbbServerVersion: string
   displayBbbServerVersion: boolean
@@ -140,6 +141,9 @@ export interface AudioCaptions {
   showInSidebarNavigation: boolean
   microphoneAlert: MicrophoneAlert
   language: Language
+  // settings.yml ships `terms:` with no value, which reaches the client as an
+  // explicit null — the defaults merge leaves it as-is, so read sites guard.
+  terms: Record<string, string> | null
 }
 
 export interface MicrophoneAlert {
@@ -227,14 +231,18 @@ export interface Application {
   raiseHandPushAlerts: boolean
   guestWaitingAudioAlerts: boolean
   guestWaitingPushAlerts: boolean
+  muteUnmuteAudioAlerts: boolean
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
+  directLeaveButton: boolean
   darkTheme: boolean
+  webcamBorderHighlightColor: number[]
   fallbackLocale: string
   overrideLocale: string | null
+  audioWasmProcessing: boolean
 }
 
 export interface Audio {
@@ -335,6 +343,7 @@ export interface Kurento {
   cameraWsOptions: CameraWsOptions
   gUMTimeout: number
   signalCandidates: boolean
+  restartIce: RestartIce
   traceLogs: boolean
   cameraTimeouts: CameraTimeouts
   screenshare: Screenshare
@@ -346,11 +355,23 @@ export interface Kurento {
   autoShareWebcam: boolean
   skipVideoPreview: boolean
   skipVideoPreviewOnFirstJoin: boolean
+  skipVideoPreviewIfPreviousDevice: boolean
   cameraSortingModes: CameraSortingModes
   cameraQualityThresholds: CameraQualityThresholds
   pagination: Pagination
   paginationThresholds: PaginationThresholds
   videoMediaServer?: string
+}
+
+export interface RestartIce {
+  audio: RestartIceOptions
+  video: RestartIceOptions
+  screenshare: RestartIceOptions
+}
+
+export interface RestartIceOptions {
+  enabled: boolean
+  retries: number
 }
 
 export interface CameraWsOptions {
@@ -372,6 +393,7 @@ export interface CameraTimeouts {
 }
 
 export interface Screenshare {
+  showButtonForNonPresenters: boolean
   enableVolumeControl: boolean
   subscriberOffering: boolean
   bitrate: number
@@ -565,6 +587,7 @@ export interface Chat {
   markdownImageAllowed: boolean
   imagePaste: ChatImagePaste
   toolbar: string[]
+  announcePresenterChangeInChat: boolean
 }
 
 export interface ChatImagePaste {
@@ -621,8 +644,11 @@ export interface Notes {
 export interface Layout {
   hidePresentationOnJoin: boolean
   showParticipantsOnLogin: boolean
+  showSessionDetailsOnJoin: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
+  usersPerUserListPage: number
+  syncCameraDockSizeAndPosition: boolean
 }
 
 export interface SidebarNavigationButtons {
@@ -665,8 +691,12 @@ export interface Media {
   listenOnlyOffering: boolean
   toggleMuteThrottleTime: number
   localEchoTest: LocalEchoTest
-  networkPriorities: MediaNetworkPriorities
+  // Commented out in settings.yml: absence means "do not set networkPriority
+  // on sender encodings at all", so it must stay absent from the defaults.
+  networkPriorities?: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
+  skipInitialCamEnumeration: boolean
+  screenshareTroubleshootingLinks: Record<string, string>
   livekit: LiveKitSettings
 }
 
@@ -759,10 +789,15 @@ export interface Stats {
   timeout: number
   logMediaStats: LogMediaStats
   notification: Notification
-  loss: number[]
-  rtt: number[]
-  level: string[]
+  loss: StatsThresholds
+  rtt: StatsThresholds
   help: string
+}
+
+export interface StatsThresholds {
+  warning: number
+  danger: number
+  critical: number
 }
 
 export interface LogMediaStats {
@@ -842,6 +877,7 @@ export interface Whiteboard {
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
   allowInfiniteWhiteboardPanForViewers: boolean
+  locales: string[]
   styles: Styles
   toolbar: Toolbar
 }
@@ -861,6 +897,11 @@ export interface Status {
 }
 
 export interface Styles {
+  colorStyle: string
+  dashStyle: string
+  fillStyle: string
+  fontStyle: string
+  sizeStyle: string
   text: Text
 }
 
@@ -894,6 +935,7 @@ export interface ClientLog {
 }
 
 export interface Console {
+  enableRuntimeErrorLogging: boolean
   enabled: boolean
   level: string
 }

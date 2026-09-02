@@ -38,6 +38,7 @@ subscription userCurrentSubscription {
     requestedPresenter
     registeredAt
     requestedUnmuteByMod
+    requestedCameraByMod
     role
     speechLocale
     captionLocale

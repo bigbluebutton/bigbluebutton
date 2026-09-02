@@ -148,6 +148,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CamBroadcastStoppedInSfuEvtMsg](envelope, jsonNode)
       case EjectUserCamerasCmdMsg.NAME =>
         routeGenericMsg[EjectUserCamerasCmdMsg](envelope, jsonNode)
+      case RequestUserCameraCmdMsg.NAME =>
+        routeGenericMsg[RequestUserCameraCmdMsg](envelope, jsonNode)
+      case CameraRequestAnswerReqMsg.NAME =>
+        routeGenericMsg[CameraRequestAnswerReqMsg](envelope, jsonNode)
       case GetWebcamsOnlyForModeratorReqMsg.NAME =>
         routeGenericMsg[GetWebcamsOnlyForModeratorReqMsg](envelope, jsonNode)
       case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>

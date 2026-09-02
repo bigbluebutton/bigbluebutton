@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
-import Styled from './styles';
+import MediaConsentModal from '/imports/ui/components/common/media-consent-modal/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const propTypes = {
@@ -40,11 +40,6 @@ const RequestUnmuteComponent = ({
   handleConfirm,
   handleDeny,
 }) => {
-  useEffect(() => {
-    const alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/notify.mp3`);
-    alert.play();
-  }, []);
-
   const [isSmallViewport, setIsSmallViewport] = useState(
     // eslint-disable-next-line no-undef
     () => globalThis.matchMedia(smallOnly).matches,
@@ -63,34 +58,18 @@ const RequestUnmuteComponent = ({
     : intl.formatMessage(intlMessages.denyButtonLabel);
 
   return (
-    <Styled.RequestModal
-      isOpen
-      priority="high"
+    <MediaConsentModal
       title={intl.formatMessage(intlMessages.modalTitle)}
-      onRequestClose={handleDeny}
-      shouldShowCloseButton
-    >
-      <Styled.Subtitle>
-        <FormattedMessage {...intlMessages.modalSubtitle} />
-      </Styled.Subtitle>
-      <Styled.RequestModalContent>
-        <Styled.RequestModalButton
-          label={intl.formatMessage(intlMessages.confirmButtonLabel)}
-          data-test="confirmUnmute"
-          icon="unmute"
-          onClick={handleConfirm}
-          color="primary"
-        />
-        <Styled.RequestModalButton
-          label={denyLabel}
-          data-test="denyUnmute"
-          icon="mute"
-          onClick={handleDeny}
-          color="danger"
-          ghost
-        />
-      </Styled.RequestModalContent>
-    </Styled.RequestModal>
+      subtitle={<FormattedMessage {...intlMessages.modalSubtitle} />}
+      confirmLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
+      denyLabel={denyLabel}
+      confirmIcon="unmute"
+      denyIcon="mute"
+      confirmDataTest="confirmUnmute"
+      denyDataTest="denyUnmute"
+      onConfirm={handleConfirm}
+      onDeny={handleDeny}
+    />
   );
 };
 

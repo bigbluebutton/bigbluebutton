@@ -45,6 +45,7 @@
               usersPolicies {
                 allowModsToEjectCameras
                 allowModsToUnmuteUsers
+                allowModsToRequestCameraShare
                 authenticatedGuest
                 allowPromoteGuestToModerator
                 maxUserConcurrentAccesses

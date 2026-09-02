@@ -148,6 +148,11 @@ Updated in 4.0:
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
+Updated in 4.1:
+
+- **create**
+  - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines).
+
 ## API Data Types
 
 There are three types in the API.

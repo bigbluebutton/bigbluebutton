@@ -60,6 +60,7 @@ case class UsersProp(
     allowModsToUnmuteUsers:       Boolean,
     requireUserConsentBeforeUnmuting:     Boolean,
     allowModsToEjectCameras:      Boolean,
+    allowModsToRequestCameraShare: Boolean,
     authenticatedGuest:           Boolean,
     allowPromoteGuestToModerator: Boolean,
     waitingGuestUsersTimeout: Long

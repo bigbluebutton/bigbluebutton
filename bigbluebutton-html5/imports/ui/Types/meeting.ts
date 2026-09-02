@@ -45,6 +45,7 @@ export interface MeetingRecordingPolicies {
 
 export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
+  allowModsToRequestCameraShare: boolean;
   allowModsToUnmuteUsers: boolean;
   authenticatedGuest: boolean;
   allowPromoteGuestToModerator: boolean;

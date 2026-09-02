@@ -1,3 +1,4 @@
+// Shared by request-unmute-modal and request-camera-modal.
 import styled, { css } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';

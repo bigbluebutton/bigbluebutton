@@ -106,6 +106,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private boolean defaultAllowModsToRequestCameraShare = false;
     private String defaultCameraBridge = "livekit";
     private String defaultScreenShareBridge = "livekit";
     private String defaultAudioBridge = "livekit";
@@ -1130,6 +1131,12 @@ public class ParamsProcessorUtil {
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
+    Boolean allowModsToRequestCameraShare = defaultAllowModsToRequestCameraShare;
+    if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_REQUEST_CAMERA_SHARE))) {
+      allowModsToRequestCameraShare = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_REQUEST_CAMERA_SHARE));
+    }
+    meeting.setAllowModsToRequestCameraShare(allowModsToRequestCameraShare);
+
         int maxNumPages = defaultMaxNumPages;
         if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
             try {
@@ -1788,6 +1795,14 @@ public class ParamsProcessorUtil {
 
   public Boolean getAllowModsToEjectCameras() {
     return defaultAllowModsToEjectCameras;
+  }
+
+  public void setAllowModsToRequestCameraShare(Boolean value) {
+    defaultAllowModsToRequestCameraShare = value;
+  }
+
+  public Boolean getAllowModsToRequestCameraShare() {
+    return defaultAllowModsToRequestCameraShare;
   }
 
 	public List<String> decodeIds(String encodeid) {
