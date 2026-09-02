@@ -435,7 +435,8 @@ const PushLayoutEngineContainer = (props) => {
     propagateLayout: pushLayoutMeeting,
     cameraDockIsResizing: isMeetingLayoutResizing,
     cameraDockPlacement: meetingLayoutCameraPosition,
-    cameraDockAspectRatio: meetingLayoutVideoRate,
+    // Only the aspect ratio is defaulted because its delayed value feeds a numeric calculation.
+    cameraDockAspectRatio: meetingLayoutVideoRate = 0,
     cameraWithFocus: meetingLayoutFocusedCamera,
     presentationMinimized: meetingPresentationMinimized,
     setByUserId: meetingLayoutSetByUserId,

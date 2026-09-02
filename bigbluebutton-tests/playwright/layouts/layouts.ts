@@ -69,6 +69,117 @@ async function assertDesktopLayoutActive(page: Page) {
 }
 
 export class Layouts extends MultiUsers {
+  private layoutMutationRates: unknown[] = [];
+
+  private layoutMutationErrors: string[] = [];
+
+  private injectedPresentationVideoRate = false;
+
+  private receivedCameraDockAspectRatios: number[] = [];
+
+  async configurePhoneLandscapeLayoutDelay() {
+    await this.context.addInitScript(() => {
+      Object.defineProperty(navigator, 'userAgent', {
+        get: () => 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 Chrome/140.0.0.0 Mobile Safari/537.36',
+      });
+    });
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        // SetLayoutProps is the GraphQL operation whose presentationVideoRate payload this regression protects.
+        if (serializedMessage.includes('SetLayoutProps')) {
+          const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
+          if (!rateMatch) throw new Error('SetLayoutProps message is missing presentationVideoRate');
+          this.layoutMutationRates.push(rateMatch[1] === 'null' ? null : Number(rateMatch[1]));
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        // This server validation message is the regression's observable symptom for a non-numeric rate.
+        if (serializedMessage.includes("Parameter 'presentationVideoRate' should be of type number")) {
+          this.layoutMutationErrors.push(serializedMessage);
+        }
+        // Delaying cameraDockAspectRatio reproduces the subscription race that previously produced NaN.
+        const delay = serializedMessage.includes('cameraDockAspectRatio') ? 2500 : 0;
+        setTimeout(() => webSocket.send(message), delay);
+      });
+    });
+  }
+
+  async configurePresentationVideoRateClampProbe() {
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('SetLayoutProps')) {
+          if (!this.injectedPresentationVideoRate) {
+            const rewrittenMessage = serializedMessage.replace(
+              /"presentationVideoRate":-?\d+(?:\.\d+)?/,
+              '"presentationVideoRate":2',
+            );
+            if (rewrittenMessage === serializedMessage) {
+              throw new Error('SetLayoutProps message is missing a numeric presentationVideoRate');
+            }
+            this.receivedCameraDockAspectRatios = [];
+            this.injectedPresentationVideoRate = true;
+            server.send(rewrittenMessage);
+          }
+          return;
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (this.injectedPresentationVideoRate) {
+          const ratioMatches = serializedMessage.matchAll(/"cameraDockAspectRatio":(-?\d+(?:\.\d+)?)/g);
+          for (const match of ratioMatches) this.receivedCameraDockAspectRatios.push(Number(match[1]));
+        }
+        webSocket.send(message);
+      });
+    });
+  }
+
+  async serverClampsPresentationVideoRate() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+
+    await expect
+      .poll(() => this.injectedPresentationVideoRate, {
+        message: 'the harness should inject an out-of-range presentation video rate',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBe(true);
+    await expect
+      .poll(() => this.receivedCameraDockAspectRatios.includes(1), {
+        message: 'the server should broadcast the clamped camera dock aspect ratio',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBe(true);
+    expect(
+      this.receivedCameraDockAspectRatios,
+      'the server should never broadcast the injected out-of-range rate',
+    ).not.toContain(2);
+  }
+
+  async phoneLandscapePublishesFinitePresentationVideoRate() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.page.setViewportSize({ width: 915, height: 412 });
+    await this.modPage.shareWebcam();
+    // Five seconds covers the delayed update and leaves time for the resulting layout mutations to settle.
+    await this.modPage.page.waitForTimeout(5000);
+
+    // Fewer than 20 mutations catches a feedback loop while allowing the expected responsive layout updates.
+    expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);
+    expect(this.layoutMutationRates.length, 'the presenter should publish its layout').toBeGreaterThan(0);
+    expect(
+      this.layoutMutationRates.every((rate) => typeof rate === 'number' && Number.isFinite(rate)),
+      'every presentation video rate should be a finite number',
+    ).toBe(true);
+    expect(this.layoutMutationErrors, 'the server should accept every layout mutation').toHaveLength(0);
+  }
+
   async focusOnPresentation() {
     await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);

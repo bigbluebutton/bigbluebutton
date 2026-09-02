@@ -145,6 +145,62 @@ test.describe.parallel('Device type breakpoint crossing', { tag: '@ci' }, () => 
   });
 });
 
+test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@ci' }, () => {
+  test(
+    'Presenter shares a webcam without publishing an invalid presentation video rate',
+    { tag: '@media' },
+    async ({ browser }, testInfo) => {
+      linkIssue(25681);
+      const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+      try {
+        const layouts = new Layouts(browser, context);
+        await layouts.configurePhoneLandscapeLayoutDelay();
+        const page = await context.newPage();
+        await layouts.initModPage(page, {
+          createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+          joinParameter: 'userdata-bbb_auto_join_audio=false',
+          shouldCloseAudioModal: false,
+          clientSettingsOverrides: {
+            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
+          },
+          testInfo,
+        });
+        await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
+      } finally {
+        await context.close();
+      }
+    },
+  );
+});
+
+test.describe.parallel('Unified Layout - server layout rate validation', { tag: '@ci' }, () => {
+  test('Server clamps an out-of-range presentation video rate', async ({ browser }, testInfo) => {
+    linkIssue(25681);
+    const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+    try {
+      const layouts = new Layouts(browser, context);
+      await layouts.configurePresentationVideoRateClampProbe();
+      const page = await context.newPage();
+      await layouts.initModPage(page, {
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        joinParameter: 'userdata-bbb_auto_join_audio=false',
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: {
+          public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
+        },
+        testInfo,
+      });
+      await layouts.initUserPage(context, {
+        joinParameter: 'userdata-bbb_auto_join_audio=false',
+        shouldCloseAudioModal: false,
+      });
+      await layouts.serverClampsPresentationVideoRate();
+    } finally {
+      await context.close();
+    }
+  });
+});
+
 // The manual layout selection modal these tests drive (li[data-test="manageLayoutBtn"])
 // was removed from the client in 3ef18df03a ("remove layout selection modal and related
 // settings") - unified layout replaced user-selectable layouts, so this whole section
