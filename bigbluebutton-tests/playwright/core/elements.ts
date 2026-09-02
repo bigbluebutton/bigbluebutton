@@ -767,14 +767,7 @@ export const elements = {
   fullscreenModal: 'div[id="fsmodal"]',
   sharedNotesBackground: 'div[data-test="notes"]',
 
-  // Layout management
-  manageLayoutBtn: 'li[data-test="manageLayoutBtn"]',
-  focusOnPresentation: 'button[data-test="presentationFocusLayout"]',
-  focusOnVideo: 'button[data-test="videoFocusLayout"]',
-  smartLayout: 'button[data-test="smartLayout"]',
-  customLayout: 'button[data-test="customLayout"]',
-  updateLayoutBtn: 'button[data-test="updateLayoutBtn"]',
-  updateEveryoneLayoutToggle: 'input[data-test="updateEveryoneLayoutToggle"]',
+  // Layout
   cameraDock: 'div#cameraDock',
 
   // Font size
