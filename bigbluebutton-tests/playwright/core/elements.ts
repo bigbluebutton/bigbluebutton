@@ -556,6 +556,7 @@ export const elements = {
   // Lock Viewers
   lockViewersButton: 'button[data-test="lockViewersButton"]',
   unlockUserButton: 'li[data-test="unlockUserButton"]',
+  togglePublicChat: 'li[data-test="togglePublicChat"]',
   applyLockSettings: 'button[data-test="applyLockSettings"]',
   guestPolicyTab: '[data-test="guestPolicyTab"]',
   guestPolicySelector: '[data-test="guestPolicySelector"]',
