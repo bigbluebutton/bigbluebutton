@@ -57,6 +57,26 @@ export async function getCurrentPresentationHeight(locator: Locator) {
   return locator.evaluate((element) => window.getComputedStyle(element).getPropertyValue('height'));
 }
 
+// The rendered slide image (a tldraw shape) keeps the aspect ratio of the source page,
+// independent of the current zoom. Reading it lets a test assert that bbb-web sized the
+// slide from the SVG's real dimensions instead of silently falling back to the 1440x1080
+// (4:3) default. Returns null while the slide image has not laid out yet.
+export async function getCurrentSlideAspectRatio(testPage: Page): Promise<number | null> {
+  await testPage.waitForSelector(e.currentSlideImg);
+  return testPage.page.evaluate(
+    ([slideImg]) => {
+      const node = document.querySelector(slideImg) as HTMLElement | null;
+      if (!node) return null;
+      const style = window.getComputedStyle(node);
+      const width = parseFloat(style.width);
+      const height = parseFloat(style.height);
+      if (!width || !height) return null;
+      return width / height;
+    },
+    [e.currentSlideImg],
+  );
+}
+
 export async function getCurrentPresentationToastLocator(testPage: Page) {
   return testPage.page.locator(e.smallToastMsg).filter({ hasText: e.defaultCurrentPresentationLabel });
 }
