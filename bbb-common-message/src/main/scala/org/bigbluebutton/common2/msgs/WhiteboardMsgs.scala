@@ -40,7 +40,7 @@ case class GetWhiteboardAnnotationsReqMsgBody(whiteboardId: String)
 
 object SendCursorPositionPubMsg { val NAME = "SendCursorPositionPubMsg" }
 case class SendCursorPositionPubMsg(header: BbbClientMsgHeader, body: SendCursorPositionPubMsgBody) extends StandardMsg
-case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double)
+case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double, laserType: String)
 
 object SendWhiteboardAnnotationsPubMsg { val NAME = "SendWhiteboardAnnotationsPubMsg" }
 case class SendWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsPubMsgBody) extends StandardMsg
@@ -70,7 +70,7 @@ case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
-case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double)
+case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double, laserType: String)
 
 object SendWhiteboardAnnotationsEvtMsg { val NAME = "SendWhiteboardAnnotationsEvtMsg" }
 case class SendWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
