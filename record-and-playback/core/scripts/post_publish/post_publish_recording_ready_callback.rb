@@ -35,6 +35,7 @@ opts = Optimist::options do
   opt :format, "Playback format name", :type => String
 end
 meeting_id = opts[:meeting_id]
+playback_format = opts[:format]
 
 bbb_web_properties = "/etc/bigbluebutton/bbb-web.properties"
 events_xml = "/var/bigbluebutton/recording/raw/#{meeting_id}/events.xml"
@@ -78,9 +79,16 @@ begin
     external_meeting_id = BigBlueButton::Events.get_external_meeting_id(events_xml)
 
     payload = { meeting_id: external_meeting_id, record_id: meeting_id }
+    payload[:type] = playback_format unless playback_format.nil? || playback_format.empty?
     payload_encoded = JWT.encode(payload, secret)
 
     uri = URI.parse(callback_url)
+    unless playback_format.nil? || playback_format.empty?
+      params = URI.decode_www_form(uri.query || '')
+      params << ['type', playback_format]
+      uri.query = URI.encode_www_form(params)
+    end
+
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == 'https')
 
