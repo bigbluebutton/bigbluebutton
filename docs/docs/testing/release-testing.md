@@ -368,6 +368,31 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
     - Once it's shared, it should use the presentation area and not be affected by changes on presentations (e.g. delete, upload, enable download).
     - To start a normal webcam sharing, you need to first stop sharing and then click on "Share webcam" and "Start sharing".
 
+### Ask a participant to share their camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/requestCamera.spec.ts)
+
+1. Create the meeting with `allowModsToRequestCameraShare=true` and join with 2 users (a moderator and an attendee).
+
+2. Moderator: open the user list, open the attendee's options and click "Ask to share camera".
+
+    - The moderator should see a "Camera request sent to [user name]" notification.
+    - The attendee should be prompted with "A moderator is asking you to share your camera".
+    - The option should no longer be offered to the moderator while the request is pending.
+
+3. Attendee: click "Keep camera off".
+
+    - The prompt should close and no camera should be shared.
+    - The moderator should be offered the option again.
+
+4. Moderator: ask again. Attendee: click "Share camera".
+
+    - The regular webcam settings modal should open (unless `skipVideoPreview` is set).
+    - After "Start sharing", all users should see the attendee's webcam.
+    - The option should not be offered while the attendee is sharing.
+
+5. Moderator: ask again after the attendee stops sharing, then promote the attendee to moderator (and, in a separate run, make them the presenter) while the request is still unanswered.
+
+    - The prompt should stay on screen through the role change and accepting it should still share the camera.
+
 ## Screenshare
 
 ### Sharing screen in Full Screen mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/screenshare/screenshare.spec.js)

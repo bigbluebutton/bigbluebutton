@@ -97,6 +97,7 @@ export interface User {
   locked: boolean;
   registeredAt: string;
   requestedUnmuteByMod: boolean;
+  requestedCameraByMod: boolean;
   whiteboardWriteAccess: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   breakoutRoomsSummary?: BreakoutRoomsSummary;

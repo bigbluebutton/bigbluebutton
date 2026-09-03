@@ -63,6 +63,7 @@ public interface IBbbWebApiGWApp {
                      Boolean allowModsToUnmuteUsers,
                      Boolean requireUserConsentBeforeUnmuting,
                      Boolean allowModsToEjectCameras,
+                     Boolean allowModsToRequestCameraShare,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams,

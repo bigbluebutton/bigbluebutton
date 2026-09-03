@@ -13,24 +13,24 @@ const propTypes = {
 
 const intlMessages = defineMessages({
   modalTitle: {
-    id: 'app.unmute.modal.title',
-    description: 'Title for the unmute request modal',
+    id: 'app.camera.modal.title',
+    description: 'Title for the camera request modal',
   },
   modalSubtitle: {
-    id: 'app.unmute.modal.subtitle',
-    description: 'Subtitle for the unmute request modal',
+    id: 'app.camera.modal.subtitle',
+    description: 'Subtitle for the camera request modal',
   },
   confirmButtonLabel: {
-    id: 'app.unmute.modal.confirm.label',
-    description: 'Label for the unmute confirmation button',
+    id: 'app.camera.modal.confirm.label',
+    description: 'Label for the camera confirmation button',
   },
   denyButtonLabel: {
-    id: 'app.unmute.modal.deny.label',
-    description: 'Label for the unmute denial button',
+    id: 'app.camera.modal.deny.label',
+    description: 'Label for the camera denial button',
   },
 });
 
-const RequestUnmuteComponent = ({
+const RequestCameraComponent = ({
   intl,
   handleConfirm,
   handleDeny,
@@ -40,15 +40,15 @@ const RequestUnmuteComponent = ({
     subtitle={<FormattedMessage {...intlMessages.modalSubtitle} />}
     confirmLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
     denyLabel={intl.formatMessage(intlMessages.denyButtonLabel)}
-    confirmIcon="unmute"
-    denyIcon="mute"
-    confirmDataTest="confirmUnmute"
-    denyDataTest="denyUnmute"
+    confirmIcon="video"
+    denyIcon="video_off"
+    confirmDataTest="confirmShareCamera"
+    denyDataTest="denyShareCamera"
     onConfirm={handleConfirm}
     onDeny={handleDeny}
   />
 );
 
-RequestUnmuteComponent.propTypes = propTypes;
+RequestCameraComponent.propTypes = propTypes;
 
-export default RequestUnmuteComponent;
+export default RequestCameraComponent;

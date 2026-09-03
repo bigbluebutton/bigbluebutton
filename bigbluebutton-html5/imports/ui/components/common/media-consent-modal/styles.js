@@ -1,3 +1,4 @@
+// Shared by request-unmute-modal and request-camera-modal.
 import styled, { css } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
@@ -26,7 +27,7 @@ const RequestModal = styled(ModalSimple)`
   button[class*="close"] {
     top: ${$2xlPadding};
     right: ${$2xlPadding};
-    
+
     i {
       font-size: 1.5rem !important;
     }
@@ -55,7 +56,7 @@ const RequestModalContent = styled.div`
 const RequestModalButton = styled(Button)`
   margin: 0;
   font-weight: 400;
-  
+
   font-size: 1.125rem;
   padding: ${$2xlPadding} ${jumboPaddingY};
   border-radius: 1.25rem;

@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers.permissionFailed
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.models.{ WebcamStream, Webcams }
+import org.bigbluebutton.core.models.{ Users2x, WebcamStream, Webcams }
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait UserBroadcastCamStartMsgHdlr {
@@ -48,6 +48,9 @@ trait UserBroadcastCamStartMsgHdlr {
       val userIsPresenter = !permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)
       val startAsContent = msg.body.contentType == "screenshare" && userIsPresenter
       val webcam = WebcamStream(msg.body.stream, msg.header.userId, msg.body.contentType, msg.body.hasAudio, showAsContent = startAsContent, Set.empty)
+
+      // Request fulfilled, even if the answer never arrived.
+      Users2x.setUserCameraRequested(liveMeeting.users2x, msg.header.userId, requested = false)
 
       for {
         _ <- Webcams.addWebcamStream(liveMeeting.props.meetingProp.intId, liveMeeting.webcams, webcam)

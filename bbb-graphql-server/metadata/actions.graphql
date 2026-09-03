@@ -593,6 +593,18 @@ type Mutation {
 }
 
 type Mutation {
+  userRequestCamera(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userCameraRequestAnswer(
+    accepted: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userEjectFromMeeting(
     userId: String!
     banUser: Boolean!
