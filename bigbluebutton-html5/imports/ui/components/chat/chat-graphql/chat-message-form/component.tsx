@@ -204,20 +204,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, []);
 
   useEffect(() => {
-    // load all shortcodes and aliases for emojis to exclude
-    let emojisToExclude = [
-      ...DISABLE_EMOJIS,
-    ];
-
-    emojisToExclude.forEach(async (shortcode) => {
-      const shortcodes = await getAllShortCodes(shortcode);
-
-      emojisToExclude = Array.from(new Set([...emojisToExclude, ...shortcodes]));
-      setEmojisToExclude(emojisToExclude);
-    });
-  }, []);
-
-  useEffect(() => {
     const loadExcludedEmojis = async () => {
       let allExcluded = [...DISABLE_EMOJIS];
 
@@ -657,6 +643,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
               showSkinTones={false}
+              exceptEmojis={emojisToExclude}
             />
           </Styled.EmojiPickerWrapper>
         ) : null}
