@@ -84,10 +84,14 @@ export const waitForRoomConnection = (
       return;
     }
 
-    // A room torn down before the wait started gets no further events either.
-    // A room that has simply not connected yet reports the same state, so only
-    // abort for one that has been connected before.
-    if (room.state === ConnectionState.Disconnected && hasConnectedOnce(room)) {
+    // A secondary room torn down before the wait started gets no further
+    // events: its membership is gone and a new one gets a new Room. A room
+    // that has simply not connected yet reports the same state, so only abort
+    // for one that has been connected before. The primary is durable: it is
+    // reconnected by the next membership mount, so it is waited for instead.
+    if (room.state === ConnectionState.Disconnected
+      && hasConnectedOnce(room)
+      && !liveKitRoomRegistry.isPrimary(room)) {
       reject(new Error('Room already disconnected'));
 
       return;
