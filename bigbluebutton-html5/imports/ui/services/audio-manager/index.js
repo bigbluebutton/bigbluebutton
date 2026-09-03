@@ -676,10 +676,14 @@ class AudioManager {
 
     let newMuteState;
 
-    // when user leaves voice conf, set muted = false
-    // as the user might have been transfered to a breakout room
+    // On the FreeSWITCH bridge a voice-conf leave means a transfer may be under
+    // way, so the user is unmuted. Under LiveKit it can only be a reconnect or a
+    // disconnect, and the event carries no observed voice state at all: akka
+    // builds it from an empty voice user, whose mute field is a hard-coded
+    // placeholder. Neither half of it says anything about this user, so the
+    // whole event is ignored rather than just its unmute.
     if (leftVoiceConf !== undefined && leftVoiceConf) {
-      newMuteState = false;
+      if (!this.isUsingLiveKit) newMuteState = false;
     } else if (muted !== undefined && muted !== this.isMuted) {
       newMuteState = muted;
     }
