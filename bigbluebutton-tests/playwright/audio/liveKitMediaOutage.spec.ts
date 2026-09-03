@@ -17,8 +17,10 @@ import {
   REJOIN_WAIT_TIME,
   sampleMediaOutage,
   sampleVoiceClaims,
+  simulateRoomScenario,
   unmuteViewer,
   waitForMediaInterrupted,
+  waitForRoomReconnected,
 } from './liveKitReconnection';
 import { connectMicrophone } from './util';
 
@@ -177,8 +179,54 @@ test.describe('LiveKit media outage', { tag: ['@ci', '@media'] }, () => {
     // without saying so is not: the user goes on presenting to a meeting that
     // cannot see them.
     expect(
-      cameraAfter.publications === 0 && moderatorSees === false && wasTold === false,
-      `a camera dropped by a rejoin must not be dropped in silence (observed ${JSON.stringify({
+      moderatorSees === false && wasTold === false,
+      `a camera the meeting stopped receiving must not be lost in silence (observed ${JSON.stringify({
+        cameraBefore,
+        cameraAfter,
+        moderatorSees,
+        toasts,
+      })})`,
+    ).toBe(false);
+  });
+
+  // The matrix covers `signal-reconnect`, the resume that works. This is the
+  // one that does not: simulateScenario('resume-reconnect') calls the engine's
+  // failNext() first, so the resume fails and degrades into a full reconnect.
+  test('a resume that fails does not silently drop the webcam', async ({ browser }, testInfo) => {
+    test.setTimeout(ELEMENT_WAIT_EXTRA_LONG_TIME * 12);
+    const fixture = await initReconnectionScenario(browser, testInfo, { webcam: true });
+    const { modPage, viewerPage, viewerUserId } = fixture;
+
+    await expectViewerAudioFlowing(fixture);
+    await expect(async () => {
+      expect(
+        await getLiveCameraIdentities(modPage.page),
+        'the moderator should receive the viewer camera to begin with',
+      ).toContain(viewerUserId);
+    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    const cameraBefore = await getLocalCameraState(viewerPage.page);
+    expect(cameraBefore.publications, 'the viewer should be publishing a camera to begin with').toBeGreaterThan(0);
+
+    await simulateRoomScenario(viewerPage.page, 'resume-reconnect');
+    await waitForRoomReconnected(viewerPage.page);
+    await viewerPage.page.waitForTimeout(SETTLE_TIME);
+
+    // The microphone survives this, which is what makes the camera's silence a
+    // bug rather than a property of the reconnect.
+    await expectViewerAudioFlowing(fixture);
+
+    const cameraAfter = await getLocalCameraState(viewerPage.page);
+    const moderatorSees = (await getLiveCameraIdentities(modPage.page)).includes(viewerUserId);
+    const toasts = await viewerPage.page.locator(e.smallToastMsg).allTextContents();
+    const wasTold = toasts.some((text) => text.trim().length > 0);
+
+    // The local publication is not the invariant: the reconnect sometimes drops
+    // it and sometimes republishes it under a fresh SID that no one receives.
+    // What has to hold either way is that the camera still reaches the meeting,
+    // or that the user is told it does not.
+    expect(
+      moderatorSees === false && wasTold === false,
+      `a camera the meeting stopped receiving must not be lost in silence (observed ${JSON.stringify({
         cameraBefore,
         cameraAfter,
         moderatorSees,
