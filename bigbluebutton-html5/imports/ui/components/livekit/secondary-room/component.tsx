@@ -1,11 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useRef, useState, useMemo,
+} from 'react';
 import { LogLevel, type Room } from 'livekit-client';
 import { RoomAudioRenderer } from '@livekit/components-react';
 import Auth from '/imports/ui/services/auth';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import {
   liveKitRoomRegistry,
-  DEFAULT_ROOM_OPTIONS,
+  resolveRoomOptions,
   type MembershipKey,
 } from '/imports/ui/services/livekit';
 import BaseLiveKitRoom from '/imports/ui/components/livekit/base-room/component';
@@ -53,7 +55,9 @@ const SecondaryLiveKitRoom: React.FC<SecondaryLiveKitRoomProps> = ({
   const speakerLevel = useSpeakerLevel();
   const url = meetingSettings.public.media?.livekit?.url ?? `wss://${window.location.hostname}/livekit`;
   const logLevel = meetingSettings.public.media?.livekit?.logLevel ?? LogLevel.warn;
-  const roomOptions = meetingSettings.public.media?.livekit?.roomOptions ?? DEFAULT_ROOM_OPTIONS;
+  const configuredRoomOptions = meetingSettings.public.media?.livekit?.roomOptions;
+  // A fresh object per render would re-run the room-options effect downstream.
+  const roomOptions = useMemo(() => resolveRoomOptions(configuredRoomOptions), [configuredRoomOptions]);
   const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? true;
 
   const key: MembershipKey = membershipKey ?? `${membership.purpose}:${membership.roomName}`;

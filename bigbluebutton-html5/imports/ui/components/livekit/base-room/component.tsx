@@ -19,6 +19,7 @@ import shouldForceRelay from '/imports/ui/components/livekit/utils';
 import { ForcedReconnectionError } from '/imports/ui/components/livekit/errors';
 import {
   LK_FATAL_ERROR_EVENT,
+  applyRoomOptions,
   isOrphaningDisconnect,
   type LiveKitFatalErrorDetail,
   type MembershipKey,
@@ -141,8 +142,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       },
     };
 
-    // eslint-disable-next-line no-param-reassign
-    room.options = { ...room.options, ...roomOptions };
+    applyRoomOptions(room, roomOptions);
     setOptionsApplied(true);
     setConnectOptions(opts);
   }, [room, roomOptions, iceServersLoading, iceServers, hasTurnServer, withAutoSubscribe]);

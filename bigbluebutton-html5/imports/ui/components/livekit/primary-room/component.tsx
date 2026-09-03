@@ -1,5 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useState, useMemo,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
@@ -23,7 +25,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import {
   liveKitRoomRegistry,
-  DEFAULT_ROOM_OPTIONS,
+  resolveRoomOptions,
   PRIMARY_KEY,
 } from '/imports/ui/services/livekit';
 import {
@@ -120,7 +122,9 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
   const url = meetingSettings.public.media?.livekit?.url ?? `wss://${window.location.hostname}/livekit`;
   const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
   const logLevel = meetingSettings.public.media?.livekit?.logLevel ?? LogLevel.warn;
-  const roomOptions = meetingSettings.public.media?.livekit?.roomOptions ?? DEFAULT_ROOM_OPTIONS;
+  const configuredRoomOptions = meetingSettings.public.media?.livekit?.roomOptions;
+  // A fresh object per render would re-run the room-options effect downstream.
+  const roomOptions = useMemo(() => resolveRoomOptions(configuredRoomOptions), [configuredRoomOptions]);
   const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? true;
   const speakerLevel = useSpeakerLevel();
   const { data: bridges } = useMeeting((m) => ({
