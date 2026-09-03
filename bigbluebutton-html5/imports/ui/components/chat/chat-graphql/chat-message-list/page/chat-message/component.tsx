@@ -252,7 +252,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 }, ref) => {
   const intl = useIntl();
   const chatMessageContentWrapperRef = React.useRef<HTMLDivElement>(null);
-  const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
@@ -440,14 +439,14 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   };
 
-  useEffect(() => {
+  // Registering through a callback ref instead of an effect ties the element plugins receive
+  // to the node's own lifecycle: React detaches the ref before attaching the replacement, so
+  // a deletion drops the entry and a remount swaps in the node that is actually on the page
+  const registerMessageContent = useCallback((domElement: HTMLDivElement | null) => {
     setRenderedChatMessages((renderedMessages) => {
-      const domElement = messageContentRef.current;
       const index = renderedMessages.findIndex((m) => m.messageId === message.messageId);
 
       if (!domElement) {
-        // A deleted message unmounts its content element, so keeping the entry would
-        // hand plugins a node that is no longer attached to the document
         return index === -1 ? renderedMessages : renderedMessages.filter((_, i) => i !== index);
       }
 
@@ -461,7 +460,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         i === index ? { messageId: message.messageId, message: domElement } : renderedMessage
       ));
     });
-  }, [message.messageId, message.deletedAt]);
+  }, [message.messageId, setRenderedChatMessages]);
 
   const scrollEndFrameRef = React.useRef<number>();
 
@@ -1022,8 +1021,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       )}
       {!deleteTime && (
         <MessageItemWrapper
+          data-test="chatMessageContent"
           data-chat-message-id={message?.messageId}
-          ref={messageContentRef}
+          ref={registerMessageContent}
         >
           {messageContent.component}
           {messageReadFeedbackEnabled && (
