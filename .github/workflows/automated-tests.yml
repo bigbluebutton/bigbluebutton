@@ -405,6 +405,19 @@ jobs:
       fail-fast: false
     env:
       SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
+      # --- Official plugin testing knobs (see .github/ci-tested-plugins.md) ---
+      # How many official plugins are downloaded, built and tested at once. They are
+      # independent of each other (each suite injects only its own manifest URL and
+      # creates meetings with random IDs), but they share a single BBB instance and a
+      # single runner, and each plugin's Playwright config runs one worker under CI -
+      # so keep this low. Set it to 1 to test one plugin at a time.
+      PLUGIN_PARALLELISM: 2
+      # Wall-clock cap for a single plugin's whole pipeline: download, npm ci, build,
+      # deploy and its Playwright run. Stops one hanging suite from eating the step.
+      PLUGIN_TIMEOUT_MINUTES: 15
+      # Fixed slack added on top of the computed per-wave budget, covering the step's
+      # own setup and the report handling around it.
+      PLUGIN_BUDGET_BASE_MINUTES: 10
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -548,6 +561,185 @@ jobs:
           else
             npm run test-chromium-ci
           fi
+      - name: Compute official plugin test budget
+        id: plugin-budget
+        run: |
+          # The step timeout has to grow with the plugin list, otherwise adding
+          # plugins silently walks CI into a timeout. Plugins run PLUGIN_PARALLELISM
+          # at a time, so the cost scales with the number of *waves*, not with the
+          # raw plugin count. Budgeting a full PLUGIN_TIMEOUT_MINUTES per wave means
+          # the step can never be killed before every plugin has had its own cap.
+          COUNT="$(jq 'length' .github/ci-tested-plugins.json)"
+          WAVES=$(( (COUNT + PLUGIN_PARALLELISM - 1) / PLUGIN_PARALLELISM ))
+          TIMEOUT=$(( PLUGIN_BUDGET_BASE_MINUTES + WAVES * PLUGIN_TIMEOUT_MINUTES ))
+          echo "$COUNT plugin(s), $PLUGIN_PARALLELISM at a time -> $WAVES wave(s) -> ${TIMEOUT}min step timeout"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "timeout=$TIMEOUT" >> "$GITHUB_OUTPUT"
+      - name: Test official plugins
+        # fromJSON turns the output string into the number timeout-minutes expects.
+        timeout-minutes: ${{ fromJSON(steps.plugin-budget.outputs.timeout) }}
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
+          BBB_SECRET: bbbci
+        run: |
+          PLUGINS_JSON="$GITHUB_WORKSPACE/.github/ci-tested-plugins.json"
+          LOG_DIR="$(mktemp -d)"
+          mkdir -p bigbluebutton-tests/official-plugins
+
+          plugin_field() {
+            jq -r --arg name "$1" --arg field "$2" \
+              '.[] | select(.name == $name) | .[$field] // ""' "$PLUGINS_JSON"
+          }
+
+          normalize_flaky() {
+            grep -Ev '^[[:space:]]*(#|$)' \
+              | sed 's/\r$//' \
+              | sed -E 's/[][(){}.^$*+?|\]/\\&/g' \
+              | sed 's/ › /.*/g'
+          }
+
+          # Download, build, deploy and test one plugin. Inherits `set -e`, so it
+          # stops at the first failing command and the caller records the status.
+          test_plugin() {
+            local NAME="$1"
+            local REPO REF SERVE_PATH FLAKY_PATTERN
+            REPO="$(plugin_field "$NAME" repo)"
+            REF="$(plugin_field "$NAME" ref)"
+            SERVE_PATH="$(plugin_field "$NAME" servePath)"
+
+            echo "Downloading $NAME from $REPO at ref $REF"
+            mkdir -p "bigbluebutton-tests/official-plugins/$NAME"
+            wget --no-verbose -O "/tmp/${NAME}.tar.gz" "https://github.com/${REPO}/archive/${REF}.tar.gz"
+            tar -xzf "/tmp/${NAME}.tar.gz" -C "bigbluebutton-tests/official-plugins/$NAME" --strip-components=1
+
+            cd "bigbluebutton-tests/official-plugins/$NAME"
+
+            echo "Building $NAME"
+            npm ci
+            npm run build-bundle
+            sudo mkdir -p "/var/www/bigbluebutton-default/${SERVE_PATH}"
+            sudo cp -r dist "/var/www/bigbluebutton-default/${SERVE_PATH}/"
+
+            # Every plugin writes to the same ~/.cache/ms-playwright, so the browser
+            # installs are serialised to avoid concurrent writes to one cache entry.
+            echo "Installing Playwright browsers for $NAME"
+            flock /tmp/playwright-install.lock npx playwright install chromium
+
+            FLAKY_PATTERN="$({
+              if [ -f "flaky-tests.txt" ]; then
+                normalize_flaky < flaky-tests.txt || true
+              fi
+              jq -r --arg name "$NAME" '.[] | select(.name == $name) | .flakyTests // [] | .[]' \
+                "$PLUGINS_JSON" \
+                | normalize_flaky
+            } | sort -u | paste -sd'|' -)"
+
+            echo "Running tests for $NAME"
+            if [ -n "$FLAKY_PATTERN" ]; then
+              npm run test-chromium-ci -- --grep-invert "$FLAKY_PATTERN"
+            else
+              npm run test-chromium-ci
+            fi
+          }
+
+          # `timeout` needs a command, so the helpers are exported and re-entered
+          # through a child bash below.
+          export -f test_plugin plugin_field normalize_flaky
+          export PLUGINS_JSON
+
+          # Fan out over the plugin list, at most $PLUGIN_PARALLELISM at a time. Each
+          # plugin's output is buffered to its own file and replayed as a collapsible
+          # group once everything finished, so concurrent runs don't interleave in the
+          # CI log.
+          while IFS= read -r NAME; do
+            while [ "$(jobs -rp | wc -l)" -ge "$PLUGIN_PARALLELISM" ]; do
+              # Frees up a slot. The reaped job's exit status is read back from its
+              # status file below, so discarding it here loses nothing.
+              wait -n || true
+            done
+            echo "Starting $NAME"
+            {
+              status=0
+              timeout -k 30s "${PLUGIN_TIMEOUT_MINUTES}m" \
+                bash -ec 'test_plugin "$1"' _ "$NAME" > "$LOG_DIR/$NAME.log" 2>&1 || status=$?
+              if [ "$status" -eq 124 ]; then
+                echo "Timed out after ${PLUGIN_TIMEOUT_MINUTES}m" >> "$LOG_DIR/$NAME.log"
+              fi
+              echo "$status" > "$LOG_DIR/$NAME.status"
+            } &
+          done < <(jq -r '.[].name' "$PLUGINS_JSON")
+          wait || true
+
+          overall_exit=0
+          while IFS= read -r NAME; do
+            status="$(cat "$LOG_DIR/$NAME.status" 2>/dev/null || echo 1)"
+            echo "::group::$NAME (exit $status)"
+            cat "$LOG_DIR/$NAME.log" 2>/dev/null || true
+            echo "::endgroup::"
+            if [ "$status" -ne 0 ]; then
+              echo "::error::Official plugin failed: $NAME (exit $status)"
+              overall_exit=1
+            fi
+          done < <(jq -r '.[].name' "$PLUGINS_JSON")
+          exit $overall_exit
+      - if: failure()
+        name: Collect official plugin blob reports
+        shell: bash
+        run: |
+          # publish-report merges every `blob-report-*` artifact with `playwright
+          # merge-reports`, which only reads report files at the top level of the
+          # folder it is given. Uploading a `**/blob-report` glob would produce a
+          # nested layout that gets silently dropped from the combined report, so the
+          # per-plugin blobs are flattened into a single directory here. Blob files
+          # are named `report-<n>.zip` in every plugin, hence the name prefix.
+          mkdir -p bigbluebutton-tests/official-plugins-blob-report
+          jq -r '.[].name' .github/ci-tested-plugins.json \
+          | while IFS= read -r NAME; do
+            BLOB_DIR="bigbluebutton-tests/official-plugins/$NAME/blob-report"
+            [ -d "$BLOB_DIR" ] || continue
+            for BLOB in "$BLOB_DIR"/*; do
+              [ -e "$BLOB" ] || continue
+              cp "$BLOB" "bigbluebutton-tests/official-plugins-blob-report/${NAME}-$(basename "$BLOB")"
+            done
+          done
+      - if: failure()
+        name: Upload official plugin blob reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: blob-report-official-plugins
+          path: bigbluebutton-tests/official-plugins-blob-report
+          if-no-files-found: ignore
+      - if: failure()
+        name: Generate official plugin HTML reports from blob reports
+        shell: bash
+        run: |
+          jq -r '.[].name' .github/ci-tested-plugins.json \
+          | while IFS= read -r NAME; do
+            BLOB_DIR="bigbluebutton-tests/official-plugins/$NAME/blob-report"
+            if [ -d "$BLOB_DIR" ]; then
+              echo "Generating HTML report for $NAME"
+              (
+                cd "bigbluebutton-tests/official-plugins/$NAME"
+                npx playwright merge-reports --reporter html ./blob-report
+              )
+            fi
+          done
+      - if: failure()
+        name: Upload official plugin HTML reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-report_official-plugins
+          path: bigbluebutton-tests/official-plugins/**/playwright-report
+          if-no-files-found: ignore
+      - if: always()
+        name: Upload official plugin logs
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-logs-official-plugins
+          path: bigbluebutton-tests/official-plugins/**/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6
