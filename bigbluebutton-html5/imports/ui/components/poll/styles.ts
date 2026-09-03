@@ -1,5 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import { BBBHint } from '@bigbluebutton/bbb-ui-components-react/Hint';
+import { BBBTextInput } from '@bigbluebutton/bbb-ui-components-react/TextInput';
+import PollTextArea from './components/PollTextArea';
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
@@ -9,11 +11,9 @@ import {
   smPaddingX,
   smPaddingY,
   lgPaddingX,
-  borderRadius,
   borderSize,
   pollInputHeight,
   pollSmMargin,
-  pollMdMargin,
   mdPaddingX,
   pollStatsElementWidth,
   pollResultWidth,
@@ -23,21 +23,24 @@ import {
   contentSidebarBottomScrollPadding,
   borderRadiusRounded,
   mdPaddingY,
+  lgBorderRadius,
+  borderSizeSmall,
+  lgPadding,
+  $2xlPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
   colorBlueLight,
   colorBorder,
-  colorGray,
+  colorGrayIcons,
+  colorGrayUserListToolbar,
   colorGrayLighter,
-  colorGrayLightest,
   colorDanger,
   colorWarning,
   colorHeading,
   colorPrimary,
   colorGrayDark,
   colorWhite,
-  pollBlue,
   pollStatsBorderColor,
   colorOffWhite,
   SegmentedButtonRingOffsetShadow,
@@ -55,32 +58,55 @@ import {
   colorGreen600,
   colorGreen100,
   colorBlueLightest,
+  colorBlueDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
   fontSizeSmall,
   fontSizeSmaller,
   lineHeightComputed,
+  textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+
+// Design spec for the text inside every poll button. The library's button hardcodes
+// font-weight 600 and line-height normal, so both are restated wherever one is styled.
+// font-family is deliberately left alone: the spec asks for Nunito Sans, which this app
+// does not ship - it bundles Source Sans Pro only - so naming it here would just fall
+// through to a fallback face and look worse than the app's own font.
+const pollButtonText = css`
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  line-height: 1;
+  letter-spacing: 0;
+`;
+
+// The metrics every full-width poll button shares. BBButton drops `className`, so each
+// call site wraps it in a styled element and reaches the button through `& > button`;
+// this keeps the box itself defined once.
+const pollButtonBox = css`
+  justify-content: center;
+  min-height: ${pollInputHeight};
+  padding: ${lgPadding} ${$2xlPadding};
+  border-radius: ${lgBorderRadius};
+  white-space: pre-wrap;
+  ${pollButtonText}
+`;
 
 const Separator = styled(BaseSeparator)``;
 
 const PanelContent = styled(BasePanelContent)``;
 
-const ToggleLabel = styled.span`
-  margin-right: ${smPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${smPaddingX};
-  }
-`;
-
 type PollOptionInputProps = {
-  isCorrect?: boolean;
+  $isCorrect?: boolean;
 };
 
-const PollOptionInput = styled.input<PollOptionInputProps>`
+// The library's text input renders a MUI field, and the class lands on the field root,
+// so the poll's own box - sizing, border and the quiz highlight - is applied to
+// `.MuiInputBase-root`, which is the element that actually draws it.
+const PollOptionInput = styled(BBBTextInput)<PollOptionInputProps>`
+  // No explicit width: the library's wrapper is a column flex, so the field stretches to
+  // it on its own - pinning it to 100% would make the margin below overflow instead.
   margin-right: 1rem;
 
   [dir="rtl"] & {
@@ -88,34 +114,39 @@ const PollOptionInput = styled.input<PollOptionInputProps>`
       margin-left: 1rem;
   }
 
-  &:focus {
-    outline: none;
-    border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
+  .MuiInputBase-root {
+    min-height: ${pollInputHeight};
+    color: ${colorText};
+    padding: ${lgPadding} ${$2xlPadding};
+    border-radius: ${lgBorderRadius};
+    font-size: ${fontSizeBase};
+    border: ${borderSizeSmall} solid ${colorBorder};
+
+    &.Mui-focused {
+      box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 ${borderSizeSmall} ${colorPrimary};
+    }
+
+    ${({ $isCorrect }) => $isCorrect && `
+      background-color: rgb(240, 253, 244);
+      border-color: rgb(134 239 172 / 1);
+    `}
+  }
+`;
+const DeletePollOptionButton = styled.div`
+  display: flex;
+  flex: none;
+  margin-left: ${lgPadding};
+
+  [dir="rtl"] & {
+    margin-right: ${lgPadding};
+    margin-left: 0;
   }
 
-  width: 100%;
-  color: ${colorText};
-  -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2) ${smPaddingX};
-  border-radius: ${borderRadius};
-  font-size: ${fontSizeBase};
-  border: 1px solid ${colorBorder};
-  box-shadow: 0 0 0 1px ${colorBorder};
-
-  ${({ isCorrect }) => isCorrect && ` 
-    background-color: rgb(240, 253, 244);
-    border-color: rgb(134 239 172 / 1);
-  `}
-`;
-// @ts-ignore - Button is a JS Component
-const DeletePollOptionButton = styled(Button)`
-  font-size: ${fontSizeBase};
-  flex: none;
-  width: 40px;
-  position: relative;
-  & > i {
-    font-size: 150%;
+  & > button {
+    width: ${pollInputHeight};
+    min-height: ${pollInputHeight};
+    border-radius: ${lgBorderRadius};
+    font-size: ${fontSizeBase};
   }
 `;
 
@@ -135,93 +166,105 @@ const Instructions = styled.div`
 `;
 
 type PollQuestionAreaProps = {
-  hasError: boolean;
+  $hasError?: boolean;
 };
 
-const PollQuestionArea = styled.textarea<PollQuestionAreaProps>`
-  resize: none;
+// Wraps the library's textarea. The doubled selector (&&) is what makes these rules win:
+// both sides are a single class on the same element, so specificity alone would tie and
+// the result would depend on stylesheet order.
+const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
+  && {
+    resize: none;
+    width: 100%;
+    margin: 0;
+    color: ${colorText};
+    -webkit-appearance: none;
+    padding: ${$2xlPadding} ${jumboPaddingY};
+    border-radius: ${lgBorderRadius};
+    font-size: ${fontSizeBase};
+    line-height: ${lineHeightComputed};
+    border: ${borderSizeSmall} solid ${colorBorder};
+    // The library caps its textarea and hides the overflow; the poll question holds up
+    // to 1200 characters, so it has to be able to grow and then scroll.
+    max-height: none;
+    overflow-y: auto;
 
-  &:focus {
-    outline: none;
-    border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 ${borderSizeSmall} ${colorPrimary};
+    }
+
+    ${({ $hasError }) => $hasError && `
+      border-color: ${colorDanger};
+      box-shadow: 0 0 0 ${borderSizeSmall} ${colorDanger};
+    `}
   }
-
-  width: 100%;
-  color: ${colorText};
-  -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2) ${smPaddingX};
-  border-radius: ${borderRadius};
-  font-size: ${fontSizeBase};
-  border: 1px solid ${colorBorder};
-  box-shadow: 0 0 0 1px ${colorBorder};
-
-  ${({ hasError }) => hasError && `
-    border-color: ${colorDanger};
-    box-shadow: 0 0 0 1px ${colorDanger};
-  `}
 `;
 
 const PollQuestionAreaWrapper = styled.div`
-  margin-bottom: ${lgPaddingX};
+  margin-bottom: ${$2xlPadding};
 `;
 
 const SectionHeading = styled.h4`
   margin-top: 0;
   font-weight: 600;
   color: ${colorHeading};
-  margin-bottom: .25rem; 
+  margin-bottom: ${lgPadding};
 `;
 
 const ResponseType = styled.div`
   display: flex;
-  justify-content: space-between;
-  flex-flow: wrap;
+  flex-direction: column;
+  gap: ${lgPadding};
   overflow-wrap: break-word;
   position: relative;
   width: 100%;
-  margin-bottom: ${lgPaddingX};
+  margin-bottom: ${$2xlPadding};
+`;
+
+// One wrapper per response type, because the selected/unselected split cannot be
+// expressed through the library's variants alone: its `tertiary` is a blue, borderless
+// button and its `primary` fills with the client's lighter #0F70D7, while the spec asks
+// for a grey box at rest and the darker brand blue once picked. Both states are painted
+// here, so the variant underneath only decides the focus outline.
+const ResponseTypeButton = styled.div<{ $selected: boolean }>`
+  display: flex;
+  width: 100%;
 
   & > button {
     position: relative;
     width: 100%;
-  }
-`;
-
-// @ts-ignore - Button is a JS Component
-const PollConfigButton = styled(Button)`
-  border: solid ${colorBorder} 1px;
-  min-height: ${pollInputHeight};
-  font-size: ${fontSizeBase};
-  white-space: pre-wrap;
-  width: 100%;
-  margin-bottom: 1rem;
-
-  & > span {
-    &:hover {
-      opacity: 1;
-    }
+    ${pollButtonBox}
   }
 
-  ${({ selected }) => selected && `
-    background-color: ${colorGrayLightest};
-    font-size: ${fontSizeBase};
-
-    &:hover,
-    &:focus,
-    &:active {
-      background-color: ${colorGrayLightest} !important;
-      box-shadow: none !important;
+  /* !important is load-bearing in both states: the library states its hover as
+     \`&&:hover:not(...)\`, which outranks any selector reachable from this wrapper.
+     Without it the box would flip to the library's own colours on the way to being
+     clicked; a toggle is meant to hold one fill through every interaction state.
+     The library also paints the label span directly (\`& span { color: ... }\`), and a
+     colour set on the span beats one inherited from the button, so the text needs its
+     own rule or it keeps the variant's. */
+  ${({ $selected }) => ($selected ? css`
+    & > button {
+      background-color: ${colorBlueDark} !important;
+      border: ${borderSizeSmall} solid ${colorBlueDark} !important;
     }
-  `}
 
-  ${({ small }) => small && `
-    width: 49% !important;
-  `}
+    & > button,
+    & > button span {
+      color: ${colorWhite} !important;
+    }
+  ` : css`
+    & > button {
+      background-color: ${colorGrayUserListToolbar} !important;
+      border: ${borderSizeSmall} solid ${colorGrayIcons} !important;
+    }
 
-  ${({ full }) => full && `
-    width: 100%;
-  `}
+    & > button,
+    & > button span {
+      color: ${colorGrayIcons} !important;
+    }
+  `)}
 `;
 
 const PollParagraph = styled.div`
@@ -230,28 +273,20 @@ const PollParagraph = styled.div`
 `;
 
 const PollCheckbox = styled.div`
-  display: inline-block;
-  margin-right: ${pollSmMargin};
-  margin-bottom: ${pollMdMargin};
+  display: block;
+  margin-bottom: ${$2xlPadding};
 `;
 
-// @ts-ignore - Button is a JS Component
-const AddItemButton = styled(Button)`
-  top: 1px;
-  position: relative;
-  display: block;
+const AddItemButton = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
-  text-align: left;
-  color: ${colorPrimary};
-  padding-left: 0;
-  padding-right: 0;
-  font-size: ${fontSizeBase};
-  white-space: pre-wrap;
 
-  &:hover {
-    & > span {
-      opacity: 1;
-    }
+  & > button {
+    gap: ${lgPadding};
+    white-space: pre-wrap;
+    text-decoration: underline;
+    ${pollButtonText}
   }
 `;
 
@@ -276,117 +311,49 @@ const CustomInputRow = styled.div`
   justify-content: space-between;
 `;
 
-const Col = styled.div`
+const StartPollBtn = styled.div`
   display: flex;
-  position: relative;
-  flex-flow: column;
-  flex-grow: 1;
-  
-  &:last-child {
-    padding-right: 0;
-    padding-left: 1rem;
+  width: 100%;
 
-    [dir="rtl"] & {
-      padding-right: 0.1rem;
-      padding-left: 0;
-    }
+  & > button {
+    position: relative;
+    width: 100%;
+    overflow-wrap: break-word;
+    ${pollButtonBox}
   }
 `;
 
-const Toggle = styled.label`
-  margin-left: auto;
+const PollFooter = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
+  flex-shrink: 0;
+  width: 100%;
+  padding: ${$2xlPadding} ${jumboPaddingY};
+  border-top: ${borderSizeSmall} solid ${colorBorder};
+  background-color: ${colorWhite};
+
+  // The running-poll actions render nothing until their subscription resolves; without
+  // this the footer would flash as an empty bordered bar.
+  &:empty {
+    display: none;
+  }
 `;
 
-// @ts-ignore - Button is a JS Component
-const StartPollBtn = styled(Button)`
-  position: relative;
-  width: 100%;
-  min-height: ${pollInputHeight};
-  margin-top: 1rem;
-  font-size: ${fontSizeBase};
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
+const CancelPollBtn = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: ${lgPadding};
 
-  &:hover {
-    & > span {
-      opacity: 1;
-    }
+  & > button {
+    text-decoration: underline;
+    ${pollButtonText}
   }
 `;
 
 const NoSlidePanelContainer = styled.div`
   color: ${colorGrayDark};
   text-align: center;
-`;
-
-// @ts-ignore - Button is a JS Component
-const PollButton = styled(Button)`
-  margin-top: ${smPaddingY};
-  margin-bottom: ${smPaddingY};
-  // background-color: ${colorWhite};
-  box-shadow: 0 0 0 1px ${colorPrimary};
-  color: ${colorWhite};
-  background-color: ${colorPrimary}
-
-  & > span {
-    color: ${colorGray};
-  }
-
-  & > span:hover {
-    color: ${colorWhite};
-    opacity: 1;
-  }
-
-  &:active {
-    background-color: ${colorWhite};
-    box-shadow: 0 0 0 1px ${pollBlue};
-
-    & > span {
-      color: ${pollBlue};
-    }
-  }
-
-  &:focus {
-    background-color: ${colorWhite};
-    box-shadow: 0 0 0 1px ${pollBlue};
-
-    & > span {
-      color: ${pollBlue};
-    }
-  }
-
-  &:nth-child(even) {
-    margin-right: inherit;
-    margin-left: ${smPaddingY};
-
-    [dir="rtl"] & {
-      margin-right: ${smPaddingY};
-      margin-left: inherit;
-    }
-  }
-
-  &:nth-child(odd) {
-    margin-right: 1rem;
-    margin-left: inherit;
-
-    [dir="rtl"] & {
-      margin-right: inherit;
-      margin-left: ${smPaddingY};
-    }
-  }
-
-  &:hover {
-    box-shadow: 0 0 0 1px ${colorWhite};
-    background-color: ${colorWhite};
-    color: ${pollBlue};
-
-    & > span {
-      color: ${pollBlue};
-      opacity: 1;
-    }
-  }
 `;
 
 const DragAndDropPollContainer = styled.div`
@@ -409,30 +376,10 @@ const ResponseArea = styled.div`
   flex-flow: column wrap;
 `;
 
-const CustomInputHeading = styled(SectionHeading)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding-bottom: ${jumboPaddingY};
-`;
-
-const CustomInputHeadingCol = styled(Col)`
-  overflow: hidden;
-`;
-
-const CustomInputToggleCol = styled(Col)`
-  flex-shrink: 0;
-`;
-
-const AnonymousHeading = styled(CustomInputHeading)``;
-
-const AnonymousHeadingCol = styled(CustomInputHeadingCol)``;
-
-const AnonymousToggleCol = styled(CustomInputToggleCol)``;
-
 const AnonymousRow = styled(Row)`
   flex-flow: nowrap;
   width: 100%;
+  margin-bottom: ${$2xlPadding};
 `;
 
 const ResultLeft = styled.td`
@@ -587,30 +534,16 @@ const ConnectingAnimation = styled.span<ConnectingAnimationProps>`
   }
 `;
 
-const ButtonsActions = styled.div`
+const LiveResultActionsRow = styled.div`
   display: flex;
+  gap: ${lgPadding};
   width: 100%;
-  justify-content: space-between;
-  align-items: center;
-`;
 
-// @ts-ignore - Button is a JS Component
-const PublishButton = styled(Button)`
-  width: 48%;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-`;
-
-const CancelButton = styled(PublishButton)``;
-
-// @ts-ignore - Button is a JS Component
-const LiveResultButton = styled(Button)`
-  width: 100%;
-  margin-top: ${smPaddingY};
-  margin-bottom: ${smPaddingY};
-  font-size: ${fontSizeBase};
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
+  & > button {
+    flex: 1 1 0;
+    overflow-wrap: break-word;
+    ${pollButtonBox}
+  }
 `;
 
 const THeading = styled.th`
@@ -621,20 +554,24 @@ const THeading = styled.th`
   }
 `;
 
-const DndTextArea = styled.textarea<{ active: boolean }>`
-  ${({ active }) => active && `
-    background: ${colorGrayLighter};
-  `}
-
-  ${({ active }) => !active && `
-    background: ${colorWhite};
-  `}
+// Layered on top of PollQuestionArea via its `as` prop, so it only adds the drop
+// highlight; && for the same reason PollQuestionArea needs it.
+const DndTextArea = styled(PollTextArea)<{ $active: boolean }>`
+  && {
+    background: ${({ $active }) => ($active ? colorGrayLighter : colorWhite)};
+  }
 `;
 
 const ContentWrapper = styled(ScrollboxVertical)`
+  // ScrollboxVertical paints scroll shadows as radial-gradients on its background. The
+  // panel is meant to read flat, so they are dropped here rather than in the shared
+  // component, which every other panel still relies on.
+  background: none;
   margin: 0 ${smPadding} 0;
-  padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
-  height: 100%;
+  padding: ${contentSidebarPadding} ${jumboPaddingY} ${contentSidebarBottomScrollPadding};
+  flex: 1 1 auto;
+  // Lets the box shrink below its content height so the footer stays pinned
+  min-height: 0;
 `;
 
 const CorrectAnswerCheckbox = styled.input`
@@ -772,6 +709,10 @@ const InfoBoxContainer = styled.div<InfoBoxContainerProps>`
   `}
 `;
 
+const TypedResponseHint = styled(BBBHint)`
+  margin-bottom: ${$2xlPadding};
+`;
+
 const ResponseHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -817,7 +758,6 @@ const PollInputContainer = styled.div`
 export default {
   Separator,
   PanelContent,
-  ToggleLabel,
   PollOptionInput,
   DeletePollOptionButton,
   ErrorSpacer,
@@ -826,28 +766,22 @@ export default {
   PollQuestionArea,
   SectionHeading,
   ResponseType,
-  PollConfigButton,
+  ResponseTypeButton,
   PollParagraph,
   PollCheckbox,
   AddItemButton,
   Row,
-  Col,
-  Toggle,
   StartPollBtn,
+  PollFooter,
+  CancelPollBtn,
+  LiveResultActionsRow,
   NoSlidePanelContainer,
-  PollButton,
   DragAndDropPollContainer,
   Warning,
   CustomInputRow,
   Question,
   OptionWrapper,
   ResponseArea,
-  CustomInputHeading,
-  CustomInputHeadingCol,
-  CustomInputToggleCol,
-  AnonymousHeading,
-  AnonymousHeadingCol,
-  AnonymousToggleCol,
   AnonymousRow,
   ResultLeft,
   ResultRight,
@@ -861,10 +795,6 @@ export default {
   Title,
   Status,
   ConnectingAnimation,
-  ButtonsActions,
-  PublishButton,
-  CancelButton,
-  LiveResultButton,
   THeading,
   DndTextArea,
   ContentWrapper,
@@ -877,6 +807,7 @@ export default {
   QuizCorrectAnswerCheckbox,
   InfoBoxContainer,
   ResponseHeader,
+  TypedResponseHint,
   SelectedCorrectAnswerIndicator,
   CorrectLabel,
   PollInputContainer,
