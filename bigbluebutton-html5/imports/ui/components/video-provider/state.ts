@@ -52,10 +52,22 @@ const setConnectingStream = (stream: ConnectingStream | null) => {
 
 const getConnectingStream = () => connectingStream();
 
+// Cameras this client asked to stop. Their rows disappearing is expected, so
+// it must not be read as the meeting losing a camera the user still wants.
+const expectedStreamStops = new Set<string>();
+
+const expectStreamStop = (stream: string) => {
+  expectedStreamStops.add(stream);
+};
+
+const consumeExpectedStreamStop = (stream: string) => expectedStreamStops.delete(stream);
+
 export {
   useVideoState,
   setVideoState,
   getVideoState,
+  expectStreamStop,
+  consumeExpectedStreamStop,
   useConnectingStream,
   getConnectingStream,
   setConnectingStream,
