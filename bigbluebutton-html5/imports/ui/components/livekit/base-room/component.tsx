@@ -51,6 +51,11 @@ interface BaseLiveKitRoomProps {
 }
 
 const DEFAULT_MAX_CONN_ATTEMPTS = 10;
+// livekit-client only backs its connection attempts off against its own cloud
+// hosts, so a self-hosted deployment gets none and the whole attempt budget
+// would be spent in the time it takes to refuse a socket ten times.
+const RECONNECT_BASE_DELAY_MS = 1000;
+const RECONNECT_MAX_DELAY_MS = 8000;
 
 const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   membershipKey,
@@ -84,6 +89,11 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   } = useIceServers(bbbSessionToken);
   const isReconnectingRef = useRef(false);
   const reconnectExhaustedRef = useRef(false);
+  // A refused room answers every attempt with its own disconnect, and each one
+  // would otherwise count as an attempt of ours: the budget then goes in the
+  // time it takes to refuse it ten times, however the retries are paced. One
+  // cycle, one attempt.
+  const retryPendingRef = useRef(false);
 
   const onDisconnected = useCallback((reason?: DisconnectReason) => {
     logger.warn({
@@ -105,9 +115,12 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       return;
     }
 
+    if (retryPendingRef.current) return;
+
     // The SDK emits no error for a disconnect it will not retry, so the retry
     // effect has nothing to act on; a room whose owner keeps it (the primary)
     // is reconnected through that effect, so trigger it here
+    retryPendingRef.current = true;
     setConnError(new ForcedReconnectionError(`Terminal disconnect (reason=${reason})`));
     setConnAttempts((p) => p + 1);
   }, [logPrefix, url, iceServers, connAttempts, membershipKey, onTerminalDisconnect]);
@@ -124,6 +137,10 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
         connAttempts,
       },
     }, `${logPrefix}: room error: ${error.message}`);
+
+    if (retryPendingRef.current) return;
+
+    retryPendingRef.current = true;
     setConnError(error);
     setConnAttempts((p) => p + 1);
   }, [logPrefix, url, connAttempts, membershipKey]);
@@ -133,6 +150,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       logCode: `${logPrefix}_connected`,
       extraInfo: { membershipKey, url },
     }, `${logPrefix}: connected`);
+    retryPendingRef.current = false;
     setConnAttempts(0);
     setConnError(null);
   }, [logPrefix, url, membershipKey]);
@@ -192,29 +210,38 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       || iceServersLoading
       || !connError
       || connAttempts >= maxConnAttempts) {
-      return;
+      return undefined;
     }
 
     if (!(connError instanceof ConnectionError) && !(connError instanceof ForcedReconnectionError)) {
       setConnError(null);
       setConnAttempts(0);
 
-      return;
+      return undefined;
     }
 
-    setConnError(null);
-    room.connect(url, token, connectOptions).catch((error: Error) => {
-      logger.debug({
-        logCode: `${logPrefix}_connect_retry_error`,
-        extraInfo: {
-          membershipKey,
-          connAttempts,
-          url,
-          errorMessage: error?.message,
-          errorStack: error?.stack,
-        },
-      }, `${logPrefix}: retry connect failed: ${(error)?.message}`);
-    });
+    const delay = Math.min(
+      RECONNECT_BASE_DELAY_MS * (2 ** Math.max(0, connAttempts - 1)),
+      RECONNECT_MAX_DELAY_MS,
+    );
+    const timer = setTimeout(() => {
+      setConnError(null);
+      retryPendingRef.current = false;
+      room.connect(url, token, connectOptions).catch((error: Error) => {
+        logger.debug({
+          logCode: `${logPrefix}_connect_retry_error`,
+          extraInfo: {
+            membershipKey,
+            connAttempts,
+            url,
+            errorMessage: error?.message,
+            errorStack: error?.stack,
+          },
+        }, `${logPrefix}: retry connect failed: ${(error)?.message}`);
+      });
+    }, delay);
+
+    return () => clearTimeout(timer);
   }, [
     room,
     token,
