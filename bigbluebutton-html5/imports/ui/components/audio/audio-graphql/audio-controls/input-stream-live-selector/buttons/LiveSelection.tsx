@@ -15,7 +15,7 @@ import {
   notify,
   truncateDeviceName,
 } from '../service';
-import MuteToggle from './muteToggle';
+import MuteToggle, { type MuteToggleProps } from './muteToggle';
 import ListenOnly from './listenOnly';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
@@ -78,16 +78,8 @@ const intlMessages = defineMessages({
   },
 });
 
-interface MuteToggleProps {
-  talking: boolean;
-  muted: boolean;
-  disabled: boolean;
-  isAudioLocked: boolean;
-  toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void;
-  away: boolean;
-}
-
-interface LiveSelectionProps extends MuteToggleProps {
+interface LiveSelectionProps extends Pick<MuteToggleProps,
+  'talking' | 'muted' | 'disabled' | 'mediaInterrupted' | 'isAudioLocked' | 'toggleMuteMicrophone' | 'away'> {
   listenOnly: boolean;
   inputDevices: MediaDeviceInfo[];
   outputDevices: MediaDeviceInfo[];
@@ -113,6 +105,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
   talking,
   muted,
   disabled,
+  mediaInterrupted,
   isAudioLocked,
   toggleMuteMicrophone,
   away,
@@ -355,6 +348,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           talking={talking}
           muted={muted}
           disabled={disabled || isAudioLocked}
+          mediaInterrupted={mediaInterrupted}
           isAudioLocked={isAudioLocked}
           toggleMuteMicrophone={toggleMuteMicrophone}
           away={away}
@@ -376,6 +370,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
                   talking={talking}
                   muted={muted}
                   disabled={disabled || isAudioLocked}
+                  mediaInterrupted={mediaInterrupted}
                   isAudioLocked={isAudioLocked}
                   toggleMuteMicrophone={toggleMuteMicrophone}
                   away={away}

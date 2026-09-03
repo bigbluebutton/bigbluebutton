@@ -28,6 +28,10 @@ export const isOrphaningDisconnect = (reason?: DisconnectReason): boolean => {
   return reason === undefined || !NON_ORPHANING_DISCONNECT_REASONS.includes(reason);
 };
 
+export const isReconnectingState = (state: ConnectionState): boolean => {
+  return state === ConnectionState.Reconnecting || state === ConnectionState.SignalReconnecting;
+};
+
 export interface LiveKitFatalErrorDetail {
   key: MembershipKey;
   source: string;
@@ -160,6 +164,7 @@ export const lkToggleMuteCameras = (mute: boolean): void => {
 
 export {
   liveKitRoomRegistry,
+  hasConnectedOnce,
   applyRoomOptions,
   resolveRoomOptions,
   DEFAULT_ROOM_OPTIONS,

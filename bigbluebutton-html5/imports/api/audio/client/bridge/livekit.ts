@@ -183,6 +183,13 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.observeLiveKitEvents();
   }
 
+  // Which room the microphone is actually published into. A breakout listen-in
+  // moves it off the primary, and anything reasoning about "is my audio
+  // interrupted" has to follow it rather than watch the primary room.
+  get micRoomKey(): MembershipKey {
+    return this.activeMicRoomKey;
+  }
+
   get clientSessionId(): string {
     if (this.clientSessionUUID === '0') {
       this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';

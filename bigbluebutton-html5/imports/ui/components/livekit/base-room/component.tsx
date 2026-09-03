@@ -5,8 +5,10 @@ import { useReactiveVar } from '@apollo/client';
 import { LiveKitRoom } from '@livekit/components-react';
 import {
   ConnectionError,
+  ConnectionState,
   DisconnectReason,
   LogLevel,
+  RoomEvent,
   setLogLevel,
   type Room,
   type InternalRoomOptions,
@@ -21,6 +23,7 @@ import {
   LK_FATAL_ERROR_EVENT,
   applyRoomOptions,
   isOrphaningDisconnect,
+  isReconnectingState,
   type LiveKitFatalErrorDetail,
   type MembershipKey,
 } from '/imports/ui/services/livekit';
@@ -53,6 +56,7 @@ interface BaseLiveKitRoomProps {
 const DEFAULT_MAX_CONN_ATTEMPTS = 10;
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 8000;
+const RECONNECT_STALL_TIMEOUT_MS = 60000;
 
 const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   membershipKey,
@@ -255,6 +259,56 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
     logPrefix,
     membershipKey,
   ]);
+
+  // This effect is a last resort to detect a stalled reconnect attempt.
+  // If it isn't recovered and the signal is stuck, force a disconnect
+  // and log accordingly. This stems from actual production observations and is
+  // an attempting at tracking/fixing these stalls.
+  useEffect(() => {
+    let stallTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const forceReconnect = () => {
+      stallTimer = undefined;
+
+      if (isReconnectingRef.current) return;
+
+      isReconnectingRef.current = true;
+      retryPendingRef.current = true;
+      logger.warn({
+        logCode: `${logPrefix}_reconnect_stalled`,
+        extraInfo: {
+          membershipKey, url, connAttempts: connAttemptsRef.current, state: room.state,
+        },
+      }, `${logPrefix}: room stalled, forcing a reconnect`);
+
+      room.disconnect(false).catch(() => {}).then(() => {
+        setConnError(new ForcedReconnectionError(`Reconnect stalled (state=${room.state})`));
+        setConnAttempts((p) => p + 1);
+        isReconnectingRef.current = false;
+      });
+    };
+
+    const dispatchStallTimer = (state: ConnectionState) => {
+      if (isReconnectingState(state)) {
+        if (!stallTimer) stallTimer = setTimeout(forceReconnect, RECONNECT_STALL_TIMEOUT_MS);
+
+        return;
+      }
+
+      if (stallTimer) clearTimeout(stallTimer);
+
+      stallTimer = undefined;
+    };
+
+    room.on(RoomEvent.ConnectionStateChanged, dispatchStallTimer);
+    dispatchStallTimer(room.state);
+
+    return () => {
+      if (stallTimer) clearTimeout(stallTimer);
+
+      room.off(RoomEvent.ConnectionStateChanged, dispatchStallTimer);
+    };
+  }, [room, logPrefix, membershipKey, url]);
 
   // Reconnection tracking
   useEffect(() => {
