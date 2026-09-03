@@ -86,7 +86,7 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
                 checked={secretPoll}
                 onChange={() => handleToggle()}
                 label={intl.formatMessage(intlMessages.secretPollLabel)}
-                helperText={intl.formatMessage(intlMessages.isSecretPollLabel)}
+                helperText={secretPoll ? intl.formatMessage(intlMessages.isSecretPollLabel) : undefined}
                 inputProps={{ 'data-test': 'anonymousPollBtn' } as React.InputHTMLAttributes<HTMLInputElement>}
               />
             </Styled.AnonymousRow>
