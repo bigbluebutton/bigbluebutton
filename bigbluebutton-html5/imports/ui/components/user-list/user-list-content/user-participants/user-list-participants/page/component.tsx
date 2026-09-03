@@ -90,9 +90,16 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   isLastItem,
   restOfUsers,
   setVisibleUsers,
+  search,
 }) => {
   const offset = index * 50;
   const limit = useRef(50);
+
+    const where = {
+        _and: search.trim().split(/\s+/).map((term: string) => ({
+            name: { _ilike: `%${term}%` }
+        }))
+    };
 
   const {
     data: meeting,
@@ -112,7 +119,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   const {
     data: usersData,
     loading: usersLoading,
-  } = useLoadedUserList({ offset, limit: limit.current }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
+  } = useLoadedUserList({ offset, limit: limit.current, where }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
   const users = meeting?.meetingId
     ? filterByMeetingId(

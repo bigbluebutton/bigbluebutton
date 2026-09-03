@@ -278,10 +278,22 @@ const UserListItem = styled.li`
   margin-left: .5rem;
 `;
 
+const Search = styled.input`
+  padding: 0.5rem;
+`;
+
+const UserListContainer = styled.div`
+  display: flex;
+  flex-flow: column;
+`;
+
+
 export default {
   Avatar,
   Skeleton,
+  UserListContainer,
   UserListColumn,
   VirtualizedList,
   UserListItem,
+  Search,
 };
