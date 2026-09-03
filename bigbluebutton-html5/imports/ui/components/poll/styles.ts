@@ -35,6 +35,7 @@ import {
   colorGrayIcons,
   colorGrayUserListToolbar,
   colorGrayLighter,
+  colorGrayLight,
   colorDanger,
   colorWarning,
   colorHeading,
@@ -589,7 +590,7 @@ const SegmentedButtonContainer = styled.div`
   display: flex;
   padding: 0.15rem;
   background-color: ${colorOffWhite};
-  border: ${borderSizeSmall} solid ${colorGrayLighter};
+  border: ${borderSizeSmall} solid ${colorGrayLight};
   border-radius: ${borderRadiusRounded};
 `;
 
