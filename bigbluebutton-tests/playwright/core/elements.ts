@@ -364,7 +364,6 @@ export const elements = {
   pollSidebarButton: 'div[data-test="pollSidebarButton"]',
   minimizePolling: 'button[data-test="minimizePolling"]',
   startPoll: 'button[data-test="startPoll"]',
-  restartPoll: 'button[data-test="restartPoll"]',
   hidePollDesc: 'button[data-test="hidePollDesc"]',
   pollingContainer: 'aside[data-test="pollingContainer"]',
   pollLetterAlternatives: 'button[data-test="pollLetterAlternatives"]',

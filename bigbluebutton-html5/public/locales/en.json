@@ -495,7 +495,6 @@
     "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.cancelLabel": "Cancel",
     "app.poll.newPoll.label": "New poll",
-    "app.poll.backLabel": "Start A Poll",
     "app.poll.ariaInputCount": "Custom poll option {currentOption} of {totalOptions}",
     "app.poll.closeLabel": "Close",
     "app.poll.waitingLabel": "Waiting for responses ({current}/{total})",
