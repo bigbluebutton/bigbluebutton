@@ -30,6 +30,7 @@ import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
 } from '/imports/ui/components/audio/service';
+import { getActiveProviderId } from '/imports/ui/components/audio/audio-processor/service';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -791,6 +792,8 @@ class AudioManager {
             isListenOnly: this.isListenOnly,
             stats: getRTCStatsLogMetadata(stats),
             clientSessionNumber: this.bridge.clientSessionNumber,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio Joined');
       });
@@ -879,6 +882,8 @@ class AudioManager {
             outputDeviceId: this.outputDeviceId,
             outputDevices: this.outputDevicesJSON,
             isListenOnly: this.isListenOnly,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio ended without issue');
       } else if (status === FAILED) {
@@ -1393,6 +1398,21 @@ class AudioManager {
 
     await this.bridge.updateAudioConstraints(constraints);
     this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+
+    logger.info({
+      logCode: 'audio_constraints_updated',
+      extraInfo: {
+        bridge: this.bridgeName,
+        inputDeviceId: this.inputDeviceId,
+        inputDevices: this.inputDevicesJSON,
+        outputDeviceId: this.outputDeviceId,
+        outputDevices: this.outputDevicesJSON,
+        clientSessionNumber: this.bridge.clientSessionNumber,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+        wasmProcessingEnabled: isWasmProcessingEnabled(),
+        wasmProcessingProvider: getActiveProviderId(),
+      },
+    });
 
     // Bridges may re-acquire the stream when doing this. Cleanup is in order if
     // applicable (i.e.: old one is stale, compare via id).
