@@ -65,6 +65,9 @@ const WhiteboardContainer = (props) => {
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+  const { pacing } = WHITEBOARD_CONFIG;
+  const maxBatchSize = pacing?.maxBatchSize;
+  const hardFlushMS = pacing?.hardFlushMS;
   const layoutContextDispatch = layoutDispatch();
 
   const [editor, setEditor] = useState(null);
@@ -78,8 +81,11 @@ const WhiteboardContainer = (props) => {
   const shapesQueueRef = useRef([]);
   const removedQueueRef = useRef([]);
   const flushScheduledRef = useRef(false);
-
   const currentPresentationPageRef = useRef();
+  const pacedOutboxRef = useRef(new Map());
+  const pacedTimerRef = useRef(null);
+  const lastFlushAtRef = useRef(0);
+  const inFlightRef = useRef(false);
 
   // Aggregates the queues and updates state at once.
   const flushUpdates = useCallback(() => {
@@ -146,6 +152,10 @@ const WhiteboardContainer = (props) => {
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (pacedTimerRef.current) {
+        clearTimeout(pacedTimerRef.current);
+        pacedTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -216,6 +226,7 @@ const WhiteboardContainer = (props) => {
 
   const submitAnnotations = async (newAnnotations) => {
     if (!curPageIdRef.current) return false;
+
     const isAnnotationSent = await presentationSubmitAnnotations({
       variables: {
         pageId: curPageIdRef.current,
@@ -226,8 +237,18 @@ const WhiteboardContainer = (props) => {
     return isAnnotationSent?.data?.presAnnotationSubmit;
   };
 
+  const queueSubmitAnnotations = async (newAnnotations) => {
+    for (const a of newAnnotations || []) {
+      const annotationId = a.id || a.annotationId;
+      if (!annotationId) continue;
+      pacedOutboxRef.current.set(annotationId, { ...a, id: annotationId });
+    }
+    scheduleOutbox();
+    return true;
+  };
+
   const persistShapeWrapper = (shape, whiteboardId, amIModerator) => {
-    persistShape(shape, whiteboardId, amIModerator, submitAnnotations);
+    persistShape(shape, whiteboardId, amIModerator, queueSubmitAnnotations);
   };
 
   const publishCursorUpdate = useCallback((payload) => {
@@ -254,6 +275,17 @@ const WhiteboardContainer = (props) => {
   const cursorArray = useMergedCursorData();
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
+
+  const getPaceMs = (activeWriters) => {
+    const baseMs = Number.isFinite(pacing?.baseMS) ? pacing.baseMS : 60;
+    const hardMs = Number.isFinite(pacing?.hardFlushMS) ? pacing.hardFlushMS : 5000;
+    const targetAps = Number.isFinite(pacing?.targetAPS) ? pacing.targetAPS : 0;
+    const active = Math.max(1, Number.isFinite(activeWriters) ? activeWriters : 1);
+    if (targetAps <= 0) return baseMs;
+    const perWriterAps = Math.max(1, Math.floor(targetAps / active));
+    const perWriterMs  = Math.floor(1000 / perWriterAps);
+    return Math.min(hardMs, Math.max(baseMs, perWriterMs));
+  }
 
   useEffect(() => {
     setTimeout(async () => {
@@ -491,6 +523,57 @@ const WhiteboardContainer = (props) => {
     index: 'a0',
     typeName: 'shape',
   });
+
+  const getActiveWritersCount = () => (cursorArray?.filter(c => c && c.xPercent !== -1).length) || 0;
+
+  const flushOutbox = useCallback(async () => {
+    if (inFlightRef.current) return;
+    if (!curPageIdRef.current) {
+      pacedOutboxRef.current.clear();
+      return;
+    }
+    const entries = Array.from(pacedOutboxRef.current.values());
+    if (entries.length === 0) return;
+
+    const batch = entries.slice(0, maxBatchSize);
+    batch.forEach(a => pacedOutboxRef.current.delete(a.id || a.annotationId));
+
+    try {
+      inFlightRef.current = true;
+
+      await presentationSubmitAnnotations({
+        variables: {
+          pageId: curPageIdRef.current,
+          annotations: batch,
+        },
+      });
+
+      lastFlushAtRef.current = Date.now();
+    } catch (err) {
+      batch.forEach(a => pacedOutboxRef.current.set(a.id || a.annotationId, a));
+    } finally {
+      inFlightRef.current = false;
+    }
+
+    if (pacedOutboxRef.current.size > 0) {
+      scheduleOutbox();
+    }
+  }, [presentationSubmitAnnotations, maxBatchSize]);
+
+  const scheduleOutbox = useCallback(() => {
+    if (pacedTimerRef.current) return;
+
+    const nowMs = Date.now();
+    const sinceMs = Math.max(0, nowMs - (lastFlushAtRef.current || 0));
+    const paceMs = Math.max(0, getPaceMs(getActiveWritersCount()));
+    const dueInMs = Math.max(0, paceMs - sinceMs);
+    const waitMs = Math.min(dueInMs, Math.max(0, hardFlushMS || 0));
+
+    pacedTimerRef.current = setTimeout(() => {
+      pacedTimerRef.current = null;
+      void flushOutbox();
+    }, waitMs);
+  }, [flushOutbox, hardFlushMS]);
 
   if (!currentPresentationPage) return null;
 
