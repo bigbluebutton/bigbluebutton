@@ -441,16 +441,27 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   };
 
   useEffect(() => {
-    setRenderedChatMessages((messages) => {
-      if (messageContentRef.current && !messages.some((m) => m.messageId === message.messageId)) {
-        messages.push({
-          messageId: message.messageId,
-          message: messageContentRef.current,
-        });
+    setRenderedChatMessages((renderedMessages) => {
+      const domElement = messageContentRef.current;
+      const index = renderedMessages.findIndex((m) => m.messageId === message.messageId);
+
+      if (!domElement) {
+        // A deleted message unmounts its content element, so keeping the entry would
+        // hand plugins a node that is no longer attached to the document
+        return index === -1 ? renderedMessages : renderedMessages.filter((_, i) => i !== index);
       }
-      return messages;
+
+      if (index === -1) {
+        return [...renderedMessages, { messageId: message.messageId, message: domElement }];
+      }
+
+      if (renderedMessages[index].message === domElement) return renderedMessages;
+
+      return renderedMessages.map((renderedMessage, i) => (
+        i === index ? { messageId: message.messageId, message: domElement } : renderedMessage
+      ));
     });
-  }, [chatMessageContentWrapperRef]);
+  }, [message.messageId, message.deletedAt]);
 
   const scrollEndFrameRef = React.useRef<number>();
 
@@ -1267,6 +1278,7 @@ const propsToCompare = [
   'focused',
   'message.createdAt',
   'message.message',
+  'message.deletedAt',
   'message.recipientHasSeen',
   'message.user.currentlyInMeeting',
   'message.reactions.length',
