@@ -49,6 +49,10 @@ const intlMessages = defineMessages({
     id: 'app.media.mediaReconnecting',
     description: 'Media reconnection in progress toast message',
   },
+  mediaReconnectFailed: {
+    id: 'app.media.mediaReconnectFailed',
+    description: 'Media reconnection gave up toast message',
+  },
 });
 
 const TALKING_CLEAR_GRACE_MS = 500;
@@ -177,6 +181,18 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
     notify(intl.formatMessage(intlMessages.mediaReconnecting), 'warning', 'warning');
   }, [intl]);
 
+  const onReconnectExhausted = useCallback(() => {
+    // Nothing retries reconnecting the primary room after this, so keep
+    // the toast open (autoClose: false) to make it clear for the user that
+    // we reached a dead end.
+    notify(
+      intl.formatMessage(intlMessages.mediaReconnectFailed),
+      'error',
+      'warning',
+      { autoClose: false },
+    );
+  }, [intl]);
+
   const { sessionToken } = Auth;
   if (!membership.token || typeof sessionToken !== 'string') return null;
 
@@ -195,6 +211,7 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
       reconnectOnFatalFailures={reconnectOnFatalFailures}
       logPrefix="livekit_primary"
       onFatalReconnect={onFatalReconnect}
+      onReconnectExhausted={onReconnectExhausted}
     >
       <PrimaryObserver room={room} url={url} usingAudio={usingAudio} />
       {withAudioPlayback && (!hasActiveSecondary || !canPlayAudio) && <LKAutoplayModalContainer />}
