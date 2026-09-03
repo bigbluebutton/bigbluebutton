@@ -15,6 +15,7 @@ fi
 
 
 WSURL=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
+PROTOCOL=$(awk -F '[=:]' '$1 == "bigbluebutton.web.serverURL" {print $2}' /etc/bigbluebutton/bbb-web.properties)
 
 yq e -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_FILE
 
