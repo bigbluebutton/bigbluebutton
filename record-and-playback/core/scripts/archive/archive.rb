@@ -47,7 +47,7 @@ end
 
 def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
-  events = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
+  events = Nokogiri::XML(File.read("#{raw_archive_dir}/#{meeting_id}/events.xml"))
   notes_id = BigBlueButton::Events.get_notes_id(events)
   notes_editor = BigBlueButton::Events.get_notes_editor(events)
 
@@ -68,7 +68,7 @@ def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_
   if File.exist? tmp_note
     # If the notes are empty, do not archive them
     blank = false
-    content = File.open(tmp_note).read
+    content = File.read(tmp_note)
     if content.strip.empty?
       blank = true
     end
@@ -169,7 +169,7 @@ end
 def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
 
-  doc = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
+  doc = Nokogiri::XML(File.read("#{raw_archive_dir}/#{meeting_id}/events.xml"))
 
   # Find the start and stop timestamps for the current recording segment
   start_timestamp = BigBlueButton::Events.get_segment_start_timestamp(
@@ -302,12 +302,8 @@ if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp
     events_archiver.delete_events(meeting_id)
   end
 
-  File.open(archive_norecord_file, "w") do |archive_norecord|
-    archive_norecord.write("Archived #{meeting_id} (no recording marks")
-  end
+  File.write(archive_norecord_file, "Archived #{meeting_id} (no recording marks")
 
 else
-  File.open(archive_done_file, "w") do |archive_done|
-    archive_done.write("Archived #{meeting_id}")
-  end
+  File.write(archive_done_file, "Archived #{meeting_id}")
 end
