@@ -122,15 +122,16 @@ export class API extends MultiUsers {
     );
   }
 
-  // Long display names are accepted end to end. The name columns the join feeds
+  // Long display names are accepted end to end, up to the 255 character limit
+  // enforced at the join edge. The name columns the join feeds
   // (user_voice.callerName, chat_message.senderName) used to be narrow varchars,
   // so a long name joined fine but the dependent inserts were silently discarded
-  // by Postgres; they are text now, so a 300 character name must join normally.
+  // by Postgres; they are text now, so a 255 character name must join normally.
   static async testJoinLongFullNameAccepted() {
     const meetingID = await createMeeting();
     const joinUrl = getJoinURL({
       meetingID,
-      fullName: 'a'.repeat(300),
+      fullName: 'a'.repeat(255),
       options: { joinParameter: 'redirect=false' },
     });
     const response = await axios.get(joinUrl, {
@@ -138,8 +139,29 @@ export class API extends MultiUsers {
       headers: { Accept: 'application/xml' },
     });
     const { response: parsed } = await xml2js.parseStringPromise(response.data);
-    expect(parsed.returncode, 'a 300 character fullName should join').toEqual(['SUCCESS']);
+    expect(parsed.returncode, 'a 255 character fullName should join').toEqual(['SUCCESS']);
     expect(parsed.messageKey, 'the join should succeed normally').toEqual(['successfullyJoined']);
+  }
+
+  // Above the limit the join is rejected, matching the userName bound already
+  // enforced on sendChatMessage. Join validation errors respond with a redirect
+  // carrying the errors JSON in the Location query, not with an XML body.
+  static async testJoinFullNameOverLimitRejected() {
+    const meetingID = await createMeeting();
+    const joinUrl = getJoinURL({
+      meetingID,
+      fullName: 'a'.repeat(300),
+    });
+    const response = await axios.get(joinUrl, {
+      adapter: 'http',
+      maxRedirects: 0,
+      validateStatus: (status) => status === 302,
+    });
+    expect(response.status, 'a 300 character fullName should fail the join').toEqual(302);
+    expect(
+      decodeURIComponent(String(response.headers.location)),
+      'the redirect must carry the offending key',
+    ).toContain('fullNameTooLong');
   }
 
   // A long name also joins through the full client (init asserts authentication

@@ -28,6 +28,11 @@ test.describe.parallel('API', () => {
     await API.testJoinLongFullNameAccepted();
   });
 
+  test('joinFullNameOverLimitRejected', { tag: '@ci' }, async () => {
+    linkIssue(25682);
+    await API.testJoinFullNameOverLimitRejected();
+  });
+
   test('joinLongFullNameThroughClient', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(25682);
     const api = new API(browser, context);
