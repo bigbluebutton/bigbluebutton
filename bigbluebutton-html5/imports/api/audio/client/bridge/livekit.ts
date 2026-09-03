@@ -600,12 +600,23 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       this.clearUnpublishRequest();
 
       this.unpublishRequest = setTimeout(() => {
+        this.unpublishRequest = null;
         // If the publication is unmuted, we don't need to unpublish anymore
         // (this unpublish request is only set if the publication is muted)
         if (!this.hasMicrophoneTrack() || !this.isLocalPublicationMuted()) return;
 
-        this.unpublish();
-        this.unpublishRequest = null;
+        // An unhandled rejection here reaches the client's error boundary.
+        this.unpublish().catch((error) => {
+          logger.warn({
+            logCode: 'livekit_audio_unpublish_after_mute_error',
+            extraInfo: {
+              errorMessage: (error as Error)?.message,
+              errorName: (error as Error)?.name,
+              bridge: this.bridgeName,
+              role: this.role,
+            },
+          }, `LiveKit: unpublish after mute failed - ${(error as Error)?.message}`);
+        });
       }, unpublishAfterMuteMs);
     }
   }
@@ -676,6 +687,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private handleRoomReconnecting(): void {
     this.reconnectingSince = Date.now();
+    // The SDK replaces its PeerConnections on a full reconnect; a pending
+    // unpublish would target a sender the new connection never created.
+    this.clearUnpublishRequest();
   }
 
   private handleRoomReconnected(): void {
