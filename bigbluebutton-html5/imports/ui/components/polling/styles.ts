@@ -5,6 +5,7 @@ import {
   jumboPaddingY,
   smPaddingX,
   borderRadius,
+  borderRadiusRounded,
   borderSize,
   pollWidth,
   overlayIndex,
@@ -15,7 +16,6 @@ import {
   pollColAmount,
   borderSizeSmall,
   pollInputHeight,
-  lgBorderRadius,
   lgPadding,
   $2xlPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -56,7 +56,7 @@ const pollOptionBox = css`
   width: 100%;
   min-height: ${pollInputHeight};
   padding: ${lgPadding} ${$2xlPadding};
-  border-radius: ${lgBorderRadius};
+  border-radius: ${borderRadiusRounded};
   cursor: pointer;
   overflow-wrap: anywhere;
   font-size: ${fontSizeBase};
@@ -132,6 +132,7 @@ const TypedResponseInput = styled.input`
 // @ts-ignore Until everything in Typescript
 const SubmitVoteButton = styled(Button)`
   font-size: ${fontSizeBase};
+  border-radius: ${borderRadiusRounded};
 `;
 
 const PollingSecret = styled.div`
@@ -275,7 +276,7 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
 
   z-index: ${pollIndex};
   border: 1px solid ${colorBorder};
-  border-radius: ${borderRadius};
+  border-radius: ${borderRadiusRounded};
   align-items: center;
   text-align: center;
   font-weight: 600;
@@ -283,10 +284,6 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
-
-  &:focus {
-    border: 1px solid ${colorPrimary};
-  }
 
   [dir="rtl"] & {
     left: ${jumboPaddingX};
