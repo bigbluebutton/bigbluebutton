@@ -40,6 +40,18 @@ location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$
 	auth_request_set $file_too_large_header $upstream_http_x_file_too_large;
 }
 
+# Currently you needs a manual edit of /usr/share/bigbluebutton/nginx/web
+location = /bigbluebutton/presentation-notes/upload {
+	proxy_pass         http://127.0.0.1:8090;
+	proxy_redirect     default;
+	proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+	add_header P3P 'CP="No P3P policy available"';
+
+	client_max_body_size       1000m;
+	client_body_buffer_size    128k;
+}
+
 location /bigbluebutton/presentation/download {
 	return 404;
 }

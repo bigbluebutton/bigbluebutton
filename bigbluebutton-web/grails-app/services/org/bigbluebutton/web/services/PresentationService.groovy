@@ -32,6 +32,9 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.Comparator
 import java.util.concurrent.atomic.AtomicInteger
 
 class PresentationService {
@@ -192,6 +195,164 @@ class PresentationService {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
 	}
 
+	def showNote(String conf, String room, String presentationName, String id) {
+		 new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "notes" + File.separatorChar + "${id}.txt")
+	}
+
+	def uploadNotesPptx(String conf, String room, String presentationId, file) {
+		def presDir = new File(
+			roomDirectory(conf, room).absolutePath
+				+ File.separatorChar
+				+ presentationId
+		)
+
+		if (!presDir.exists()) {
+			throw new RuntimeException("Presentation directory does not exist: ${presDir.absolutePath}")
+		}
+
+		def timestamp = System.currentTimeMillis()
+
+			def pptxTmpFile = new File(
+				presDir.absolutePath
+					+ File.separatorChar
+					+ "notes.${timestamp}.pptx"
+			)
+
+			try {
+				file.transferTo(pptxTmpFile)
+
+				log.info("Saved notes pptx temporarily to ${pptxTmpFile.absolutePath}")
+
+				extractNotesFromPptxFile(presDir, pptxTmpFile)
+
+				if (pptxTmpFile.exists()) {
+					pptxTmpFile.delete()
+				}
+
+				return true
+			} catch (Exception e) {
+				log.error("Failed to upload/extract notes pptx. meetingId=${conf}, room=${room}, pres=${presentationId}", e)
+
+				if (pptxTmpFile.exists()) {
+					pptxTmpFile.delete()
+				}
+
+				throw e
+			}
+		}
+
+		def extractNotesFromExistingPptx(String conf, String room, String presentationId) {
+			def presDir = new File(
+				roomDirectory(conf, room).absolutePath
+					+ File.separatorChar
+					+ presentationId
+			)
+
+			if (!presDir.exists()) {
+				throw new FileNotFoundException("Presentation directory does not exist: ${presDir.absolutePath}")
+			}
+
+			def pptxFile = new File(
+				presDir.absolutePath
+					+ File.separatorChar
+					+ "${presentationId}.pptx"
+			)
+
+			if (!pptxFile.exists()) {
+				throw new FileNotFoundException("Existing pptx file not found: ${pptxFile.absolutePath}")
+			}
+
+			log.info("Extracting notes from existing pptx: ${pptxFile.absolutePath}")
+
+			extractNotesFromPptxFile(presDir, pptxFile)
+
+			return true
+		}
+
+		private void extractNotesFromPptxFile(File presDir, File pptxFile) {
+			// We need to change the path if the script is copied in other locations.
+			//  Is there a better place to copy?
+			def script = new File("/usr/local/bin/extract_pptx_notes.py")
+
+			if (!script.exists()) {
+				throw new RuntimeException("Notes extraction script does not exist: ${script.absolutePath}")
+			}
+
+			def timestamp = System.currentTimeMillis()
+
+			def notesDir = new File(
+				presDir.absolutePath
+					+ File.separatorChar
+					+ "notes"
+			)
+
+			def notesTmpDir = new File(
+				presDir.absolutePath
+					+ File.separatorChar
+					+ "notes.tmp.${timestamp}"
+			)
+
+			try {
+				if (!notesTmpDir.mkdirs() && !notesTmpDir.exists()) {
+					throw new RuntimeException("Failed to create notes tmp dir: ${notesTmpDir.absolutePath}")
+				}
+
+				def cmd = [
+					"python3",
+					script.absolutePath,
+					pptxFile.absolutePath,
+					"--output",
+					notesTmpDir.absolutePath
+				]
+
+				log.info("Running notes extraction: ${cmd.join(' ')}")
+
+				def proc = new ProcessBuilder(cmd)
+					.redirectErrorStream(false)
+					.start()
+
+				def stdout = new StringBuffer()
+				def stderr = new StringBuffer()
+
+				proc.consumeProcessOutput(stdout, stderr)
+
+				boolean finished = proc.waitFor(120, TimeUnit.SECONDS)
+
+				if (!finished) {
+					proc.destroyForcibly()
+					throw new RuntimeException("Notes extraction timed out")
+				}
+
+				if (proc.exitValue() != 0) {
+					throw new RuntimeException(
+					"Notes extraction failed. exit=${proc.exitValue()}, stderr=${stderr.toString()}"
+				)
+			}
+
+			log.info("Notes extraction stdout: ${stdout.toString()}")
+
+			if (notesDir.exists()) {
+				deleteRecursively(notesDir)
+			}
+
+			Files.move(
+				notesTmpDir.toPath(),
+				notesDir.toPath(),
+				StandardCopyOption.REPLACE_EXISTING
+			)
+
+			log.info("Updated presentation notes: notesDir=${notesDir.absolutePath}")
+		} catch (Exception e) {
+			log.error("Failed to extract notes. pptx=${pptxFile.absolutePath}", e)
+
+			if (notesTmpDir.exists()) {
+				deleteRecursively(notesTmpDir)
+			}
+
+			throw e
+		}
+	}
+
 	def showThumbnail = {conf, room, presentationName, thumb ->
 		def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
 				"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
@@ -259,6 +420,23 @@ class PresentationService {
 
 	}
 
+	private void deleteRecursively(File file) {
+		if (file == null || !file.exists()) {
+			return
+		}
+
+		def stream = Files.walk(file.toPath())
+
+		try {
+			stream
+				.sorted(Comparator.reverseOrder())
+				.forEach { path ->
+					Files.deleteIfExists(path)
+				}
+		} finally {
+			stream.close()
+		}
+	}
 }
 
 /*** Helper classes **/
