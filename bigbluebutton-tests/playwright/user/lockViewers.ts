@@ -126,6 +126,34 @@ export class LockViewers extends MultiUsers {
     await this.userPage2.hasElement(e.isTalking, 'should display the is talking element for the second attendee');
   }
 
+  async lockPublicChatForSpecificUser() {
+    // no meeting-wide lock is active: the per-user action must be available anyway
+    const attendeeRow = this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username });
+    const isAttendeeRowVisible = await attendeeRow.isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+    if (!isAttendeeRowVisible) {
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+    }
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page.locator(`${e.togglePublicChat}:visible`).first().click();
+    await this.userPage.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the locked attendee');
+    await this.userPage.hasElementDisabled(
+      e.sendButton,
+      'should have the send button on the public chat disabled for the locked attendee',
+    );
+    await expect(attendeeRow, 'should display the locked label on the attendee row for the moderator').toContainText(
+      /locked/i,
+    );
+    // unlock the same user
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page.locator(`${e.togglePublicChat}:visible`).first().click();
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should have the public chat enabled again for the unlocked attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(attendeeRow, 'should remove the locked label from the attendee row').not.toContainText(/locked/i);
+  }
+
   async lockSendPublicChatMessages() {
     // mod send a message
     await this.modPage.fill(e.chatBox, e.message);

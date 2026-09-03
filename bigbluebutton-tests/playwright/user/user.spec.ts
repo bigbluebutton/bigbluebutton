@@ -69,6 +69,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await lockViewers.lockedViewerCanSendPrivateMessageToModerator();
     });
 
+    test('Lock public chat for a specific user', async ({ browser, context, page }, testInfo) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page, testInfo);
+      await lockViewers.lockPublicChatForSpecificUser();
+    });
+
     test('Toggle user list', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
