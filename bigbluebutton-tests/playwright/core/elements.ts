@@ -158,6 +158,8 @@ export const elements = {
   // Chat
   chatBox: 'textarea[id="message-input"]',
   chatMessageItem: 'div[data-test="chatMessageItem"]',
+  chatMessageContent: 'div[data-test="chatMessageContent"]',
+  chatMessageItemKeyboardFocused: 'div[data-test="chatMessageItem"].chat-message-container-keyboard-focused',
   partnerDisconnectedMessage: 'span[data-test="partnerDisconnected"]',
   chatButton: 'button[data-test*="ChatButton"]',
   messagesSidebarButton: 'div[data-test="messagesSidebarButton"]',
