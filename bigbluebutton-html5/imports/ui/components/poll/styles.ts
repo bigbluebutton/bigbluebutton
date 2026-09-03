@@ -43,10 +43,7 @@ import {
   colorWhite,
   pollStatsBorderColor,
   colorOffWhite,
-  SegmentedButtonRingOffsetShadow,
-  SegmentedButtonRingShadow,
-  SegmentedButtonBoxShadowSm,
-  slate900,
+  colorGray,
   darkCyanLime,
   colorInfoBoxQuizBg,
   colorInfoBoxQuizBorder,
@@ -592,6 +589,7 @@ const SegmentedButtonContainer = styled.div`
   display: flex;
   padding: 0.15rem;
   background-color: ${colorOffWhite};
+  border: ${borderSizeSmall} solid ${colorGrayLighter};
   border-radius: ${borderRadiusRounded};
 `;
 
@@ -603,7 +601,7 @@ const SegmentedButton = styled.button<TabSelectorButtonProps>`
   border: 0;
   background-color: transparent;
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  color: rgb(75 85 99 / 1);
+  color: ${colorGray};
   font-weight: 500;
   font-size: ${fontSizeBase};
   line-height: ${lineHeightComputed};
@@ -612,17 +610,18 @@ const SegmentedButton = styled.button<TabSelectorButtonProps>`
   border-radius: .5rem;
   cursor: pointer;
 
-  &:hover {
-    color: rgb(17 24 39 / 1);
-  }
+  ${({ active }) => (active ? `
+    color: ${colorWhite};
+    background-color: ${colorPrimary};
 
-  ${({ active }) => active && `
-    box-shadow: var(${SegmentedButtonRingOffsetShadow}, 0 0 #0000),
-                var(${SegmentedButtonRingShadow}, 0 0 #0000),
-                var(${SegmentedButtonBoxShadowSm});
-    color: ${slate900};
-    background-color: ${colorWhite};
-  `}
+    &:hover {
+      background-color: ${colorBlueDark};
+    }
+  ` : `
+    &:hover {
+      color: ${colorGrayDark};
+    }
+  `)}
 
 
 `;
