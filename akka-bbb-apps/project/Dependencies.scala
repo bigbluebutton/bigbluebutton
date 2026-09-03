@@ -41,7 +41,6 @@ object Dependencies {
     val scalaTest = "3.2.11"
     val mockito = "2.23.0"
     val akkaTestKit = "2.6.0"
-    val jacksonDataFormat = "2.18.9"
   }
 
   object Compile {
@@ -76,7 +75,7 @@ object Dependencies {
     val slickPgSprayJson = "com.github.tminglei" %% "slick-pg_spray-json" % Versions.slickPg
 
     val postgresql = "org.postgresql" % "postgresql" % Versions.postgresql
-    val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jacksonDataFormat
+    val jacksonDataFormat = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jackson
   }
 
   object Test {
@@ -121,10 +120,16 @@ object Dependencies {
     Compile.jacksonDataFormat) ++ testing
 
   // Pin transitively-pulled artifacts to fixed releases; keep the jackson suite aligned.
+  // Every jackson artifact has to be listed here, not just the core trio: jackson-module-scala
+  // asserts at startup that databind is within its own minor range, so letting conflict
+  // resolution bump the module while the trio stays pinned produces a jar set that compiles
+  // and then dies in YamlUtil's static init with "Scala module X requires Jackson Databind Y".
   val overrides = Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % Versions.jackson,
     "com.fasterxml.jackson.core" % "jackson-core" % Versions.jackson,
     "com.fasterxml.jackson.core" % "jackson-annotations" % Versions.jackson,
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson,
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jackson,
     "io.netty" % "netty-handler" % Versions.netty,
     "io.netty" % "netty-codec" % Versions.netty,
     "io.netty" % "netty-common" % Versions.netty,
