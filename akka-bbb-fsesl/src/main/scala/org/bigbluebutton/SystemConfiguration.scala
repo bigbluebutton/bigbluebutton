@@ -12,6 +12,7 @@ trait SystemConfiguration {
   lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
   lazy val redisExpireKey = Try(config.getInt("redis.keyExpiry")).getOrElse(1209600)
 
+  lazy val eslEnabled = Try(config.getBoolean("freeswitch.esl.enabled")).getOrElse(true)
   lazy val eslHost = Try(config.getString("freeswitch.esl.host")).getOrElse("127.0.0.1")
   lazy val eslPort = Try(config.getInt("freeswitch.esl.port")).getOrElse(8021)
   lazy val eslPassword = Try(config.getString("freeswitch.esl.password")).getOrElse("ClueCon")
