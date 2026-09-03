@@ -42,6 +42,7 @@ export interface App {
   forceListenOnly: boolean
   skipCheck: boolean
   skipCheckOnJoin: boolean
+  deafenAudioUntilExplicitJoin: boolean
   enableDynamicAudioDeviceSelection: boolean
   clientTitle: string
   bbbServerVersion: string
