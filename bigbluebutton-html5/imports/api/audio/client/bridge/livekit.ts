@@ -1887,7 +1887,22 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           micRoom,
           micRoom.localParticipant.setMicrophoneEnabled(true, constraints, publishOptions),
         );
-        this.originalStream = this.inputStream;
+
+        if (this.publicationTrackStream) {
+          // setMicrophoneEnabled creates a new stream in this path (publicationTrackStream)
+          this.originalStream = this.publicationTrackStream;
+        } else {
+          logger.warn({
+            logCode: 'livekit_audio_publish_pub_stream_missing',
+            extraInfo: {
+              bridge: this.bridgeName,
+              role: this.role,
+              inputDeviceId: this.inputDeviceId,
+              streamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+            },
+          }, 'LiveKit: published without a publication stream, keeping the previous capture');
+        }
+
         logger.debug({
           logCode: 'livekit_audio_publish_without_stream',
           extraInfo: {
