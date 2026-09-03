@@ -1,32 +1,38 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   mdPaddingY,
   smPaddingY,
   jumboPaddingY,
   smPaddingX,
   borderRadius,
+  borderSize,
   pollWidth,
-  pollSmMargin,
   overlayIndex,
   overlayOpacity,
   pollIndex,
-  lgPaddingY,
   pollBottomOffset,
   jumboPaddingX,
   pollColAmount,
-  borderSize,
+  borderSizeSmall,
+  pollInputHeight,
+  lgBorderRadius,
+  lgPadding,
+  $2xlPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
   fontSizeBase,
   fontSizeLarge,
+  textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorText,
   colorBorder,
-  colorGrayDark,
   colorWhite,
   colorPrimary,
+  colorBlueDark,
+  colorGrayIcons,
+  colorGrayUserListToolbar,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
@@ -98,22 +104,115 @@ const PollingSecret = styled.div`
   max-width: ${pollWidth};
 `;
 
-const MultipleResponseAnswersTable = styled.table`
-  margin-left: auto;
-  margin-right: auto;
+// Tells a multiple-response poll apart from a single-response one at a glance: without a
+// box to tick, both render as a row of rounded option boxes and nothing says more than one
+// answer is allowed. Sits left of the label and is decorative - the real checkbox below
+// carries the semantics - so it is aria-hidden at the call site.
+const MultipleChoiceIndicator = styled.span`
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: ${borderSize} solid currentColor;
+  border-radius: ${borderRadius};
+  box-sizing: border-box;
+
+  /* The tick: two borders of an empty box, rotated into a check. Hidden rather than
+     unmounted so ticking an option doesn't reflow the row. */
+  &::after {
+    content: '';
+    width: 0.3rem;
+    height: 0.55rem;
+    margin-bottom: 0.15rem;
+    border: solid transparent;
+    border-width: 0 ${borderSize} ${borderSize} 0;
+    transform: rotate(45deg);
+  }
 `;
 
-const PollingCheckbox = styled.div`
-  display: inline-block;
-  margin-right: ${pollSmMargin};
-`;
-
-const CheckboxContainer = styled.tr`
-  margin-bottom: ${pollSmMargin};
-`;
-
-const MultipleResponseAnswersTableAnswerText = styled.td`
+// A one-line reminder that more than one answer may be picked. The container centres its
+// text and sets font-weight 600 for the question; this is help text, so it opts out of
+// both to read as a caption rather than a second heading.
+const MultipleChoiceHint = styled.div`
+  margin-bottom: ${lgPadding};
   text-align: left;
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+  color: ${colorText};
+`;
+
+// Multiple-response options are laid out two per row - a b / c d - and styled as toggle
+// boxes matching the creation panel: grey at rest, brand fill once picked. An odd option
+// count simply leaves the last one alone on its row.
+const MultipleChoiceGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${lgPadding};
+  width: 100%;
+  margin-bottom: ${jumboPaddingY};
+`;
+
+const MultipleChoiceLabel = styled.label<{ $checked: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: ${lgPadding};
+  width: 100%;
+  min-height: ${pollInputHeight};
+  padding: ${lgPadding} ${$2xlPadding};
+  border-radius: ${lgBorderRadius};
+  cursor: pointer;
+  text-align: left;
+  overflow-wrap: anywhere;
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  line-height: 1;
+
+  background-color: ${colorGrayUserListToolbar};
+  color: ${colorGrayIcons};
+  border: ${borderSizeSmall} solid ${colorGrayIcons};
+
+  ${({ $checked }) => $checked && css`
+    background-color: ${colorBlueDark};
+    color: ${colorWhite};
+    border-color: ${colorBlueDark};
+
+    /* Filled box with a blue tick, so the picked state still reads as a ticked checkbox
+       once the option itself is blue. */
+    ${MultipleChoiceIndicator} {
+      background-color: ${colorWhite};
+      border-color: ${colorWhite};
+
+      &::after {
+        border-color: ${colorBlueDark};
+      }
+    }
+  `}
+`;
+
+const MultipleChoiceOption = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+// A real checkbox, laid over the whole box rather than hidden: the checked state stays
+// announced natively and keyboard operation is unchanged, while a click anywhere on the
+// option toggles it. Opacity rather than display/visibility so it stays hit-testable.
+const MultipleChoiceInput = styled.input`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+
+  &:focus-visible + ${MultipleChoiceLabel} {
+    outline: ${borderSize} solid ${colorPrimary};
+    outline-offset: ${borderSizeSmall};
+  }
 `;
 
 const Overlay = styled.div`
@@ -158,7 +257,6 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   z-index: ${pollIndex};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
-  box-shadow: ${colorGrayDark} 0px 0px ${lgPaddingY};
   align-items: center;
   text-align: center;
   font-weight: 600;
@@ -234,10 +332,12 @@ export default {
   TypedResponseInput,
   SubmitVoteButton,
   PollingSecret,
-  MultipleResponseAnswersTable,
-  PollingCheckbox,
-  CheckboxContainer,
-  MultipleResponseAnswersTableAnswerText,
+  MultipleChoiceGrid,
+  MultipleChoiceHint,
+  MultipleChoiceIndicator,
+  MultipleChoiceOption,
+  MultipleChoiceInput,
+  MultipleChoiceLabel,
   Overlay,
   QHeader,
   QTitle,

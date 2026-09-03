@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.optionalQuestion.label',
     description: '',
   },
+  newPollLabel: {
+    id: 'app.poll.newPoll.label',
+    description: 'heading above the poll question input',
+  },
 });
 
 interface PollQuestionAreaProps {
@@ -60,31 +64,43 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
   const questionPlaceholder = (type === pollTypes.Response)
     ? intlMessages.questionLabel
     : intlMessages.optionalQuestionLabel;
+  // Custom input swaps the library's textarea for the drag-and-drop one, which needs the
+  // two extra props to turn a dropped file into poll options.
+  const dragAndDropProps = customInput
+    ? { as: DraggableTextArea, MAX_INPUT_CHARS, handleTextareaChange }
+    : {};
   return (
     <Styled.PollQuestionAreaWrapper>
+      {!customInput && (
+        <Styled.SectionHeading>
+          {intl.formatMessage(intlMessages.newPollLabel)}
+        </Styled.SectionHeading>
+      )}
       <Styled.PollQuestionArea
-        hasError={hasQuestionError || hasOptionError}
+        $hasError={Boolean(hasQuestionError || hasOptionError)}
         data-test="pollQuestionArea"
         value={customInput ? questionAndOptions : question}
-        onChange={(e) => handleTextareaChange(e)}
-        onPaste={(e) => { e.stopPropagation(); setIsPasting(true); }}
-        onCut={(e) => { e.stopPropagation(); }}
-        onCopy={(e) => { e.stopPropagation(); }}
-        onKeyPress={(event) => {
+        onChange={handleTextareaChange}
+        onPaste={(e: React.ClipboardEvent) => { e.stopPropagation(); setIsPasting(true); }}
+        onCut={(e: React.ClipboardEvent) => { e.stopPropagation(); }}
+        onCopy={(e: React.ClipboardEvent) => { e.stopPropagation(); }}
+        onKeyPress={(event: React.KeyboardEvent) => {
           if (event.key === KEYS.ENTER && customInput) {
             handlePollLetterOptions();
           }
         }}
-        rows="5"
-        cols="35"
+        rows={3}
+        cols={35}
         maxLength={QUESTION_MAX_INPUT_CHARS}
         aria-label={intl.formatMessage(customInput ? questionsAndOptionsPlaceholder
           : questionPlaceholder)}
         placeholder={intl.formatMessage(customInput ? questionsAndOptionsPlaceholder
           : questionPlaceholder)}
-        {...{ MAX_INPUT_CHARS }}
-        handleTextareaChange={handleTextareaChange}
-        as={customInput ? DraggableTextArea : 'textarea'}
+        // The panel owns focus (it refocuses whenever the custom-input mode flips), so the
+        // library's own autofocus stays off to keep a single owner.
+        autoFocus={false}
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...dragAndDropProps}
         ref={textareaRef}
       />
       {hasQuestionError || hasOptionError ? (

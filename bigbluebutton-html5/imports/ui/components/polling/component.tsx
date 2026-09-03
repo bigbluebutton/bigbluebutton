@@ -5,7 +5,6 @@ import ReactDOM from 'react-dom';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import KEYS from '/imports/utils/keys';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   POLL_SUBMIT_TYPED_VOTE,
@@ -56,6 +55,9 @@ const intlMessages = defineMessages({
   },
   responsePlaceholder: {
     id: 'app.polling.responsePlaceholder',
+  },
+  multipleResponseHint: {
+    id: 'app.polling.multipleResponseHint',
   },
 });
 
@@ -267,45 +269,43 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
             }
           </Styled.PollingTitle>
         )}
-        <Styled.MultipleResponseAnswersTable>
+        <Styled.MultipleChoiceHint id="pollMultipleChoiceHint" data-test="multipleResponseHint">
+          {intl.formatMessage(intlMessages.multipleResponseHint)}
+        </Styled.MultipleChoiceHint>
+        <Styled.MultipleChoiceGrid role="group" aria-describedby="pollMultipleChoiceHint">
           {poll.options.map((option) => {
             const formattedMessageIndex = option.optionDesc.toLowerCase();
             let label = option.optionDesc;
             if (pollAnswerIds[formattedMessageIndex]) {
               label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
             }
+            const checked = checkedAnswers.includes(option.optionId);
 
             return (
-              <Styled.CheckboxContainer key={option.optionId}>
-                {/* eslint-disable-next-line */}
-                <td>
-                  <Styled.PollingCheckbox data-test="optionsAnswers">
-                    <Checkbox
-                      id={`answerInput${option.optionDesc}`}
-                      onChange={() => handleCheckboxChange(option.optionId)}
-                      checked={checkedAnswers.includes(option.optionId)}
-                      ariaLabelledBy={`pollAnswerLabel${option.optionDesc}`}
-                      ariaDescribedBy={`pollAnswerDesc${option.optionDesc}`}
-                    />
-                  </Styled.PollingCheckbox>
-                </td>
-                <Styled.MultipleResponseAnswersTableAnswerText>
-                  <label
-                    id={`pollAnswerLabel${option.optionDesc}`}
-                    htmlFor={`answerInput${option.optionDesc}`}
-                  >
-                    {label}
-                  </label>
-                  <Styled.Hidden id={`pollAnswerDesc${option.optionDesc}`}>
-                    {intl.formatMessage(intlMessages.pollAnswerDesc, {
-                      option: label,
-                    })}
-                  </Styled.Hidden>
-                </Styled.MultipleResponseAnswersTableAnswerText>
-              </Styled.CheckboxContainer>
+              <Styled.MultipleChoiceOption key={option.optionId} data-test="optionsAnswers">
+                <Styled.MultipleChoiceInput
+                  type="checkbox"
+                  id={`answerInput${option.optionDesc}`}
+                  checked={checked}
+                  onChange={() => handleCheckboxChange(option.optionId)}
+                  aria-describedby={`pollAnswerDesc${option.optionDesc}`}
+                />
+                <Styled.MultipleChoiceLabel
+                  htmlFor={`answerInput${option.optionDesc}`}
+                  $checked={checked}
+                >
+                  <Styled.MultipleChoiceIndicator aria-hidden="true" />
+                  {label}
+                </Styled.MultipleChoiceLabel>
+                <Styled.Hidden id={`pollAnswerDesc${option.optionDesc}`}>
+                  {intl.formatMessage(intlMessages.pollAnswerDesc, {
+                    option: label,
+                  })}
+                </Styled.Hidden>
+              </Styled.MultipleChoiceOption>
             );
           })}
-        </Styled.MultipleResponseAnswersTable>
+        </Styled.MultipleChoiceGrid>
         <div>
           <Styled.SubmitVoteButton
             disabled={checkedAnswers.length === 0}
