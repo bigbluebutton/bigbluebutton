@@ -269,7 +269,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     if (isLocal) {
       const localStream = bridgeRefs.current.localVideoStreams[stream];
 
-      if (localStream) {
+      if (localStream?.mediaStream) {
         videoElement.pause();
         videoElement.srcObject = localStream.mediaStream;
         videoElement.load();
@@ -315,6 +315,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
     try {
       const localBBBStream = VideoService.getPreloadedStream();
+
+      if (!localBBBStream) throw new Error('LiveKit: no preloaded camera stream to publish');
+
       bridgeRefs.current.localVideoStreams[stream] = localBBBStream;
       const { mediaStream } = localBBBStream;
       const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
