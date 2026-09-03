@@ -184,15 +184,15 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
                 return (
                   <Styled.PollButtonWrapper key={option.optionId}>
                     <Styled.PollingButton
-                      color="primary"
-                      size="md"
-                      label={label}
+                      type="button"
                       key={option.optionDesc}
                       onClick={() => handleVote(poll.pollId, [option.optionId])}
                       aria-labelledby={`pollAnswerLabel${option.optionDesc}`}
                       aria-describedby={`pollAnswerDesc${option.optionDesc}`}
                       data-test="pollAnswerOption"
-                    />
+                    >
+                      {label}
+                    </Styled.PollingButton>
                     <Styled.Hidden id={`pollAnswerLabel${option.optionDesc}`}>
                       {intl.formatMessage(intlMessages.pollAnswerLabel, {
                         option: label,

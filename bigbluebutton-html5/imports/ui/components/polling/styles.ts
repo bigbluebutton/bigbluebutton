@@ -47,23 +47,58 @@ const PollingTitle = styled.h1`
   font-weight: 600;
 `;
 
+// The option box both answer modes share. A single-response option votes on click and a
+// multiple-response one toggles, but to the eye they are the same control, so height,
+// radius and resting greys live here instead of being restated per mode.
+const pollOptionBox = css`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: ${pollInputHeight};
+  padding: ${lgPadding} ${$2xlPadding};
+  border-radius: ${lgBorderRadius};
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  line-height: 1;
+
+  background-color: ${colorGrayUserListToolbar};
+  color: ${colorGrayIcons};
+  border: ${borderSizeSmall} solid ${colorGrayIcons};
+`;
+
+// The brand fill that marks the active option: a ticked checkbox in a multiple-response
+// poll, the hovered/focused option in a single-response one.
+const pollOptionBoxActive = css`
+  background-color: ${colorBlueDark};
+  color: ${colorWhite};
+  border-color: ${colorBlueDark};
+`;
+
 const PollButtonWrapper = styled.div`
-  text-align: center;
-  padding: ${smPaddingY};
   width: 100%;
 `;
 
-// @ts-ignore Until everything in Typescript
-const PollingButton = styled(Button)`
-  width: 100%;
-  max-width: 9em;
+// A plain button rather than the common one: that component caps itself at 9em and paints
+// a solid brand pill, which is the pre-redesign look and left single-response polls
+// looking nothing like multiple-response ones.
+const PollingButton = styled.button`
+  ${pollOptionBox}
+  justify-content: center;
+  text-align: center;
+  font-family: inherit;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
-  @media ${hasPhoneDimentions} {
-    max-width: none;
+  &:hover,
+  &:focus-visible {
+    ${pollOptionBoxActive}
   }
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+  &:focus-visible {
+    outline: ${borderSize} solid ${colorPrimary};
+    outline-offset: ${borderSizeSmall};
+  }
 `;
 
 const Hidden = styled.div`
@@ -155,29 +190,13 @@ const MultipleChoiceGrid = styled.div`
 `;
 
 const MultipleChoiceLabel = styled.label<{ $checked: boolean }>`
-  display: flex;
-  align-items: center;
+  ${pollOptionBox}
   justify-content: flex-start;
   gap: ${lgPadding};
-  width: 100%;
-  min-height: ${pollInputHeight};
-  padding: ${lgPadding} ${$2xlPadding};
-  border-radius: ${lgBorderRadius};
-  cursor: pointer;
   text-align: left;
-  overflow-wrap: anywhere;
-  font-size: ${fontSizeBase};
-  font-weight: ${textFontWeight};
-  line-height: 1;
-
-  background-color: ${colorGrayUserListToolbar};
-  color: ${colorGrayIcons};
-  border: ${borderSizeSmall} solid ${colorGrayIcons};
 
   ${({ $checked }) => $checked && css`
-    background-color: ${colorBlueDark};
-    color: ${colorWhite};
-    border-color: ${colorBlueDark};
+    ${pollOptionBoxActive}
 
     /* Filled box with a blue tick, so the picked state still reads as a ticked checkbox
        once the option itself is blue. */
@@ -297,13 +316,11 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
 const PollingAnswers = styled.div<{ removeColumns: boolean; stacked: boolean }>`
   display: grid;
   grid-template-columns: repeat(${pollColAmount}, 1fr);
+  gap: ${lgPadding};
+  width: 100%;
 
   @media ${hasPhoneDimentions} {
     grid-template-columns: repeat(1, 1fr);
-
-    & div button {
-      grid-column: 1;
-    }
   }
 
   z-index: 1;
@@ -316,10 +333,6 @@ const PollingAnswers = styled.div<{ removeColumns: boolean; stacked: boolean }>`
   ${({ stacked }) => stacked
     && `
     grid-template-columns: repeat(1, 1fr);
-
-    & div button {
-      max-width: none !important;
-    }
   `}
 `;
 
