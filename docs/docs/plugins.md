@@ -180,14 +180,17 @@ In the future, support for additional placeholders may be added.
 
 #### SDK version compatibility
 
-The `requiredSdkVersion` field declares which versions of the
-`bigbluebutton-html-plugin-sdk` a plugin can run against. Keep this range aligned
-with the SDK version used to build the plugin in its `package.json`.
+The `requiredSdkVersion` field declares the SDK range supported by the plugin,
+starting with the first SDK version on which it works. This minimum compatible
+version is separate from the SDK dependency used to build the plugin in its
+`package.json`, which may be newer.
 
 When a meeting starts, BigBlueButton reads its SDK version from the
 `html5PluginSdkVersion` server property and checks whether that version satisfies
-the manifest range. A plugin with an incompatible range is not loaded, and the
-reason is exposed as a plugin load failure from `bbb-apps-akka`.
+the manifest range declared by the plugin. The plugin author is responsible for
+choosing the range that determines which BigBlueButton versions can load it. If
+the server SDK does not satisfy that range, BigBlueButton records a plugin load
+failure in `bbb-apps-akka`.
 
 The field accepts a [semantic version range](https://semver.org/). The two ranges
 used by official plugins have different behavior before version 1.0:
