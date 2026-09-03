@@ -178,6 +178,31 @@ In the future, support for additional placeholders may be added.
 
 ### Manifest Json
 
+#### SDK version compatibility
+
+The `requiredSdkVersion` field declares which versions of the
+`bigbluebutton-html-plugin-sdk` a plugin can run against. Keep this range aligned
+with the SDK version used to build the plugin in its `package.json`.
+
+When a meeting starts, BigBlueButton reads its SDK version from the
+`html5PluginSdkVersion` server property and checks whether that version satisfies
+the manifest range. A plugin with an incompatible range is not loaded, and the
+reason is exposed as a plugin load failure from `bbb-apps-akka`.
+
+The field accepts a [semantic version range](https://semver.org/). The two ranges
+used by official plugins have different behavior before version 1.0:
+
+- A tilde range allows patch updates within the specified minor version. For
+  example, `~0.0.77` accepts `0.0.77` and `0.0.78`, but rejects `0.1.0`.
+- A caret range allows updates that do not change the left-most non-zero version.
+  For example, `^0.1.26` accepts `0.1.26` and `0.1.27`, but rejects `0.2.0`.
+  On the `0.0.x` line, `^0.0.77` accepts only `0.0.77`.
+
+Official plugins on the legacy `0.0.x` line therefore use tilde ranges, as shown
+in the examples below. Plugins on the `0.1.x` line use caret ranges. This caret
+convention continues to express compatibility when the SDK reaches `1.x`: for
+example, `^1.0.0` accepts compatible `1.x` releases and rejects `2.0.0`.
+
 Here is a complete `manifest.json` example with all possible configurations:
 
 ```json
