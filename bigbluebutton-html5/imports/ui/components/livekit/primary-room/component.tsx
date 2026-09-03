@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 import React, {
-  useCallback, useEffect, useState, useMemo,
+  useCallback, useEffect, useRef, useState, useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
@@ -14,6 +14,7 @@ import {
 } from '@livekit/components-react';
 import {
   ConnectionQuality,
+  ConnectionState,
   LogLevel,
   RoomEvent,
   type Room,
@@ -50,6 +51,10 @@ const intlMessages = defineMessages({
   },
 });
 
+// Long enough that a resume landing in well under a second does not flicker
+// the speaker indicator for everyone in the meeting.
+const TALKING_CLEAR_GRACE_MS = 500;
+
 interface PrimaryLiveKitRoomProps {
   membership: LiveKitRoomRow;
 }
@@ -79,11 +84,36 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
     }, `LK primary: ${connectionState}`);
   }, [connectionState, url]);
 
+  // livekit-client only moves the speaking flag on the active-speaker events of
+  // a live session, so a room that stops carrying anything freezes it at its
+  // last value, and it stays frozen once the room returns until a fresh update
+  // arrives. A frozen `true` must not be published: it holds the floor for a
+  // user who is transmitting nothing.
+  const isRoomConnected = connectionState === ConnectionState.Connected;
+  const speakingIsFrozen = useRef(false);
+
   useEffect(() => {
-    if (!usingAudio) return;
+    if (!usingAudio) return undefined;
+
+    if (!isRoomConnected) {
+      speakingIsFrozen.current = true;
+      const timer = setTimeout(() => {
+        setUserTalking({ variables: { talking: false } });
+      }, TALKING_CLEAR_GRACE_MS);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (speakingIsFrozen.current) {
+      if (isSpeaking) return undefined;
+
+      speakingIsFrozen.current = false;
+    }
 
     setUserTalking({ variables: { talking: isSpeaking } });
-  }, [isSpeaking, isMuted, usingAudio]);
+
+    return undefined;
+  }, [isSpeaking, isMuted, usingAudio, isRoomConnected]);
 
   useEffect(() => {
     if (!usingAudio) return;
