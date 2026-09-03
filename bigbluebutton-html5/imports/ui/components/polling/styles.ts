@@ -31,7 +31,7 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueDark,
-  colorGrayIcons,
+  colorGray,
   colorGrayUserListToolbar,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -64,8 +64,8 @@ const pollOptionBox = css`
   line-height: 1;
 
   background-color: ${colorGrayUserListToolbar};
-  color: ${colorGrayIcons};
-  border: ${borderSizeSmall} solid ${colorGrayIcons};
+  color: ${colorGray};
+  border: ${borderSizeSmall} solid ${colorGray};
 `;
 
 // The brand fill that marks the active option: a ticked checkbox in a multiple-response
