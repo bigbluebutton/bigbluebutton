@@ -5,6 +5,7 @@ import React, {
   useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
 import {
   type LocalTrack,
   type RemoteParticipant,
@@ -31,6 +32,11 @@ import {
   liveKitRoomRegistry,
 } from '/imports/ui/services/livekit';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import { notify } from '/imports/ui/services/notification';
+import {
+  expectStreamStop,
+  consumeExpectedStreamStop,
+} from '/imports/ui/components/video-provider/state';
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -49,7 +55,13 @@ const intlClientErrors = defineMessages({
     id: 'app.video.inactiveError',
     description: 'Camera stopped unexpectedly',
   },
+  mediaTimedOutError: {
+    id: 'app.video.mediaTimedOutError',
+    description: 'Camera stream was interrupted',
+  },
 });
+
+const CAMERA_STOPPED_TOAST_ID = 'livekit-camera-stopped';
 
 const intlSFUErrors = defineMessages({
   2000: {
@@ -72,9 +84,9 @@ interface LiveKitCameraBridgeProps {
   currentVideoPageIndex: number;
   streams: VideoItem[];
   playStart: (cameraId: string) => void;
-  exitVideo: () => void;
+  exitVideo: (expected?: boolean) => void;
   lockUser: () => void;
-  stopVideo: (cameraId?: string) => void;
+  stopVideo: (cameraId?: string, expected?: boolean) => void;
   overflowCount: number;
   overflowUsers: GridItem[];
 }
@@ -138,6 +150,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
 
+  // Streams whose failures were already surfaced to the end user. Avoids trailing toasts.
+  const announcedFailures = useRef(new Set<string>());
+
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;
     const errorLocale = intlClientErrors[errorName as keyof typeof intlClientErrors]
@@ -156,7 +171,10 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }, `LiveKit: camera failure ${errorName} - ${errorMessage}`);
 
     if (isLocal) {
+      if (errorLocale) announcedFailures.current.add(stream);
+
       stopStream(stream, false);
+
       if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
     } else {
       const stillExists = streamsRef.current.some(
@@ -188,7 +206,12 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       extraInfo: { role, cameraId: stream, restarting },
     }, `LiveKit: camera stop requested. Role ${role}, restarting ${restarting}`);
 
-    if (isLocal) stopVideo(stream);
+    if (isLocal) {
+      if (restarting) expectStreamStop(stream);
+
+      stopVideo(stream, restarting);
+    }
+
     destroyStream(stream);
   }, [stopVideo]);
 
@@ -218,6 +241,23 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }
 
     if (isLocal) {
+      const wasPublished = !!bridgeRefs.current.localTracks[stream];
+      const alreadyAnnounced = announcedFailures.current.delete(stream);
+
+      // Bubble up the unexpect camera stop to the end user
+      if (wasPublished && !alreadyAnnounced && !consumeExpectedStreamStop(stream)) {
+        logger.warn({
+          logCode: 'livekit_camera_stopped_unexpectedly',
+          extraInfo: { cameraId: stream },
+        }, 'LiveKit: camera stopped without the user asking');
+        notify(
+          intl.formatMessage(intlClientErrors.mediaTimedOutError),
+          'error',
+          'video',
+          { autoClose: false, toastId: CAMERA_STOPPED_TOAST_ID },
+        );
+      }
+
       const track = bridgeRefs.current.localTracks[stream];
       const localRoom = liveKitRoomRegistry.getPrimary();
       const { videoTrackPublications } = localRoom?.localParticipant ?? {};
@@ -366,6 +406,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       }
 
       bridgeRefs.current.localTracks[stream] = publication.track;
+      consumeExpectedStreamStop(stream);
+      announcedFailures.current.delete(stream);
+      toast.dismiss(CAMERA_STOPPED_TOAST_ID);
       localBBBStream.on('streamSwapped', ({ newStream }: { oldStream: MediaStream, newStream: MediaStream }) => {
         if (newStream) replaceVideoTracks(stream, newStream);
       });
@@ -503,20 +546,21 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   useEffect(() => {
     const evtRoom = liveKitRoomRegistry.getPrimary();
+    const handleBeforeUnload = () => exitVideo();
 
-    window.addEventListener('beforeunload', exitVideo);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     evtRoom?.on(RoomEvent.TrackUnpublished, handleTrackUnpublished);
     evtRoom?.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
     evtRoom?.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
 
     return () => {
-      window.removeEventListener('beforeunload', exitVideo);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       evtRoom?.off(RoomEvent.TrackUnpublished, handleTrackUnpublished);
       evtRoom?.off(RoomEvent.TrackSubscribed, handleTrackSubscribed);
       evtRoom?.off(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
 
       VideoService.updatePeerDictionaryReference({});
-      exitVideo();
+      exitVideo(false);
       Object.keys(bridgeRefs.current.localTracks).forEach((stream) => {
         stopStream(stream, false);
       });

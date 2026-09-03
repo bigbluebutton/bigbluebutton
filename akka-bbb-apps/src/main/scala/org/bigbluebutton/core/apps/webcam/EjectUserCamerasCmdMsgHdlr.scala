@@ -40,6 +40,7 @@ trait EjectUserCamerasCmdMsgHdlr {
           meetingId,
           userId,
           webcam.streamId,
+          CameraHdlrHelpers.CAM_EJECTED_BY_MODERATOR,
           bus.outGW
         )
       }

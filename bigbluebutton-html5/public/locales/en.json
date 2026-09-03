@@ -1419,6 +1419,8 @@
     "app.video.genericError": "An unknown error has occurred with the device ({error})",
     "app.video.inactiveError": "Your webcam stopped unexpectedly. Please review your browser's permissions",
     "app.video.mediaTimedOutError": "Your webcam stream has been interrupted. Try sharing it again",
+    "app.video.ejectedByModerator": "A moderator has stopped your webcam",
+    "app.video.ejectedByLockSettings": "Your webcam was stopped because webcam sharing is locked",
     "app.video.mediaFlowTimeout1020": "Media could not reach the server (error 1020)",
     "app.video.suggestWebcamLock": "Enforce lock setting to viewers webcams?",
     "app.video.suggestWebcamLockReason": "(this will improve the stability of the session)",
