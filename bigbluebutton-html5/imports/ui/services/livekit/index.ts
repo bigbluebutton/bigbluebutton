@@ -3,7 +3,6 @@ import {
   DisconnectReason,
   RoomEvent,
   Track,
-  type InternalRoomOptions,
   type Room,
   type LocalTrackPublication,
   type TrackPublication,
@@ -27,12 +26,6 @@ const NON_ORPHANING_DISCONNECT_REASONS: DisconnectReason[] = [
 
 export const isOrphaningDisconnect = (reason?: DisconnectReason): boolean => {
   return reason === undefined || !NON_ORPHANING_DISCONNECT_REASONS.includes(reason);
-};
-
-export const DEFAULT_ROOM_OPTIONS: Partial<InternalRoomOptions> = {
-  adaptiveStream: true,
-  dynacast: true,
-  stopLocalTrackOnUnpublish: false,
 };
 
 export interface LiveKitFatalErrorDetail {
@@ -163,6 +156,9 @@ export const lkToggleMuteCameras = (mute: boolean): void => {
 
 export {
   liveKitRoomRegistry,
+  applyRoomOptions,
+  resolveRoomOptions,
+  DEFAULT_ROOM_OPTIONS,
   PRIMARY_KEY,
   breakoutListenKey,
 } from './registry';
