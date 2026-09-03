@@ -12,6 +12,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       forceListenOnly: false,
       skipCheck: false,
       skipCheckOnJoin: false,
+      deafenAudioUntilExplicitJoin: false,
       enableDynamicAudioDeviceSelection: true,
       clientTitle: 'BigBlueButton',
       bbbServerVersion: 'HTML5_FULL_BBB_VERSION',
