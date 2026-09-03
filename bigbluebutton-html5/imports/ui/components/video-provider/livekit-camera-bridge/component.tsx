@@ -269,7 +269,8 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     if (isLocal) {
       const localStream = bridgeRefs.current.localVideoStreams[stream];
 
-      if (localStream) {
+      // A stopped local track keeps its publication entry but has no media stream.
+      if (localStream?.mediaStream) {
         videoElement.pause();
         videoElement.srcObject = localStream.mediaStream;
         videoElement.load();
@@ -315,6 +316,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
     try {
       const localBBBStream = VideoService.getPreloadedStream();
+
+      // The preload is dropped when its capture ends (a server-side unpublish
+      // stops the track); publishing then has nothing to send.
+      if (!localBBBStream) throw new Error('LiveKit: no preloaded camera stream to publish');
+
       bridgeRefs.current.localVideoStreams[stream] = localBBBStream;
       const { mediaStream } = localBBBStream;
       const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
