@@ -97,9 +97,19 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       },
     }, `${logPrefix}: room disconnected, reason=${reason}`);
 
-    if (isOrphaningDisconnect(reason)) {
-      onTerminalDisconnect?.(reason);
+    if (!isOrphaningDisconnect(reason)) return;
+
+    if (onTerminalDisconnect) {
+      onTerminalDisconnect(reason);
+
+      return;
     }
+
+    // The SDK emits no error for a disconnect it will not retry, so the retry
+    // effect has nothing to act on; a room whose owner keeps it (the primary)
+    // is reconnected through that effect, so trigger it here
+    setConnError(new ForcedReconnectionError(`Terminal disconnect (reason=${reason})`));
+    setConnAttempts((p) => p + 1);
   }, [logPrefix, url, iceServers, connAttempts, membershipKey, onTerminalDisconnect]);
 
   const onError = useCallback((error: Error) => {

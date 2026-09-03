@@ -71,7 +71,11 @@ class LiveKitRoomRegistry {
 
     if (!room) return;
 
-    this.rooms.delete(key);
+    // The primary room outlives memberships: every bridge, observer and hook
+    // on the page holds it, and a membership deleted and re-created server-side
+    // (eject, rejoin) must reconnect the object they hold rather than orphan it.
+    if (key !== PRIMARY_KEY) this.rooms.delete(key);
+
     room.disconnect().catch(() => {});
   }
 
@@ -85,6 +89,10 @@ class LiveKitRoomRegistry {
 
   getPrimary(): Room {
     return this.acquire(PRIMARY_KEY);
+  }
+
+  isPrimary(room: Room): boolean {
+    return this.rooms.get(PRIMARY_KEY) === room;
   }
 
   has(key: MembershipKey): boolean {
