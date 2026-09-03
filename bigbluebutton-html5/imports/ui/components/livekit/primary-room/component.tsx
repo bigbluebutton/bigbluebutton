@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 import React, {
-  useCallback, useEffect, useState, useMemo,
+  useCallback, useEffect, useRef, useState, useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
@@ -14,6 +14,7 @@ import {
 } from '@livekit/components-react';
 import {
   ConnectionQuality,
+  ConnectionState,
   LogLevel,
   RoomEvent,
   type Room,
@@ -50,6 +51,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const TALKING_CLEAR_GRACE_MS = 500;
+
 interface PrimaryLiveKitRoomProps {
   membership: LiveKitRoomRow;
 }
@@ -79,11 +82,34 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
     }, `LK primary: ${connectionState}`);
   }, [connectionState, url]);
 
+  const isRoomConnected = connectionState === ConnectionState.Connected;
+  const speakingIsFrozen = useRef(false);
+
   useEffect(() => {
-    if (!usingAudio) return;
+    if (!usingAudio) return undefined;
+
+    if (!isRoomConnected) {
+      speakingIsFrozen.current = true;
+      // Cleanup the talking state after a grace period if LiveKit disconnected.
+      // This happens server-side on a longer timeout as well; also do it here, on
+      // a faster grace period, to clean up the state quicker whenever possible.
+      const timer = setTimeout(() => {
+        setUserTalking({ variables: { talking: false } });
+      }, TALKING_CLEAR_GRACE_MS);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (speakingIsFrozen.current) {
+      if (isSpeaking) return undefined;
+
+      speakingIsFrozen.current = false;
+    }
 
     setUserTalking({ variables: { talking: isSpeaking } });
-  }, [isSpeaking, isMuted, usingAudio]);
+
+    return undefined;
+  }, [isSpeaking, isMuted, usingAudio, isRoomConnected]);
 
   useEffect(() => {
     if (!usingAudio) return;
