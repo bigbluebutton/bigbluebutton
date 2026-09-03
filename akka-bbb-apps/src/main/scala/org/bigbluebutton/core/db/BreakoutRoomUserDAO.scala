@@ -5,6 +5,7 @@ import org.bigbluebutton.core.domain.{BreakoutRoom2x, BreakoutUser}
 import org.bigbluebutton.core.models.RegisteredUser
 import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class BreakoutRoomUserDbModel(
       breakoutRoomMeetingId:  String,
@@ -61,21 +62,54 @@ object BreakoutRoomUserDAO {
   }
 
   def updateUserJoined(breakoutRoomUser: BreakoutUser, parentMeetingUser: RegisteredUser, breakoutRoom: BreakoutRoom2x) = {
-      DatabaseConnection.enqueue(
+      // Single source of presence truth, computed once per audit tick and reused below for both the
+      // self-correcting presence UPDATE and the buid-set log (avoids re-evaluating the same EXISTS).
+      val presenceCheck =
+        sql"""select exists (
+                select 1
+                from "user"
+                where "user"."meetingId" = ${breakoutRoom.id}
+                and "user"."userId" = ${breakoutRoomUser.userId}
+                and "currentlyInMeeting" is true
+              )""".as[Boolean].head
+
+      // (a) ALWAYS-RUNNING presence update: self-corrects in_room if the join-time read race locked it
+      //     wrong. Guarded so it writes ONLY when the stored value actually differs from the computed
+      //     truth: in steady state (already correct) IS DISTINCT FROM is false -> no match, no write, no
+      //     trigger, no dead-tuple churn; when stuck wrong it matches and corrects on the next tick.
+      def presenceUpdate(presenceExists: Boolean) =
+        sqlu"""UPDATE "breakoutRoom_user" SET
+                "isUserCurrentlyInRoom" = ${presenceExists}
+                WHERE "meetingId" = ${parentMeetingUser.meetingId}
+                AND "userId" = ${parentMeetingUser.id}
+                AND "breakoutRoomMeetingId" = ${breakoutRoom.id}
+                AND "isUserCurrentlyInRoom" IS DISTINCT FROM ${presenceExists}"""
+
+      // (b) ONE-SHOT breakoutRoomUserId/joinedAt update: keeps the optimization (runs once), guarded by
+      //     the stale-write check. No longer touches isUserCurrentlyInRoom - that is (a)'s job now.
+      val buidUpdate =
         sqlu"""UPDATE "breakoutRoom_user" SET
                 "breakoutRoomUserId" = ${breakoutRoomUser.userId},
-                "joinedAt" = current_timestamp,
-                "isUserCurrentlyInRoom" = exists (
-                  select 1
-                  from "user"
-                  where "user"."meetingId" = ${breakoutRoom.id}
-                  and "user"."userId" = ${breakoutRoomUser.userId}
-                  and "currentlyInMeeting" is true
-                )
+                "joinedAt" = current_timestamp
                 WHERE "meetingId" = ${parentMeetingUser.meetingId}
                 AND "userId" = ${parentMeetingUser.id}
                 AND "breakoutRoomMeetingId" = ${breakoutRoom.id}
                 AND "breakoutRoomUserId" is distinct from ${breakoutRoomUser.userId}"""
+
+      DatabaseConnection.enqueue(
+        (for {
+          presenceExists <- presenceCheck
+          _ <- presenceUpdate(presenceExists)
+          rowsAffected <- buidUpdate
+        } yield {
+          // Fires once, at buid-set: a presenceExists=false here IS the join-time read race firing.
+          if (rowsAffected != 0) {
+            DatabaseConnection.logger.info(
+              "breakoutAudit: presence at buid-set parentUserId={} breakoutRoomId={} breakoutUserId={} presenceExists={}",
+              parentMeetingUser.id, breakoutRoom.id, breakoutRoomUser.userId, presenceExists.toString
+            )
+          }
+        })
       )
   }
 
