@@ -125,8 +125,8 @@ const PollOptionInput = styled(BBBTextInput)<PollOptionInputProps>`
     }
 
     ${({ $isCorrect }) => $isCorrect && `
-      background-color: rgb(240, 253, 244);
-      border-color: rgb(134 239 172 / 1);
+      background-color: ${colorGreen100};
+      border-color: ${colorGreen600};
     `}
   }
 `;
