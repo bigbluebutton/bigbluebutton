@@ -1839,7 +1839,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           micRoom,
           micRoom.localParticipant.setMicrophoneEnabled(true, constraints, publishOptions),
         );
-        this.originalStream = this.inputStream;
+        this.originalStream = this.publicationTrackStream;
         logger.debug({
           logCode: 'livekit_audio_publish_without_stream',
           extraInfo: {
