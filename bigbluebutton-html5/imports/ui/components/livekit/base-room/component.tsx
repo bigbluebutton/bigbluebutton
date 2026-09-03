@@ -5,8 +5,10 @@ import { useReactiveVar } from '@apollo/client';
 import { LiveKitRoom } from '@livekit/components-react';
 import {
   ConnectionError,
+  ConnectionState,
   DisconnectReason,
   LogLevel,
+  RoomEvent,
   setLogLevel,
   type Room,
   type InternalRoomOptions,
@@ -21,6 +23,7 @@ import {
   LK_FATAL_ERROR_EVENT,
   applyRoomOptions,
   isOrphaningDisconnect,
+  isReconnectingState,
   type LiveKitFatalErrorDetail,
   type MembershipKey,
 } from '/imports/ui/services/livekit';
@@ -56,6 +59,10 @@ const DEFAULT_MAX_CONN_ATTEMPTS = 10;
 // would be spent in the time it takes to refuse a socket ten times.
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 8000;
+// Past livekit-client's own reconnect ladder, which runs to roughly 52s once
+// its jitter is counted, so only a session it has already given up on gets
+// here.
+const RECONNECT_STALL_TIMEOUT_MS = 60000;
 
 const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   membershipKey,
@@ -256,6 +263,51 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
     logPrefix,
     membershipKey,
   ]);
+
+  // A session the SDK stops trying to restore does not always end in a
+  // Disconnected event: a signal socket that stays open and carries nothing
+  // leaves the room in (signal)Reconnecting indefinitely, so onDisconnected
+  // never runs, connError is never set and the retry effect below has nothing
+  // to act on. Manufacture the terminal signal from the connection state.
+  useEffect(() => {
+    let stallTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const forceReconnect = () => {
+      if (isReconnectingRef.current) return;
+
+      isReconnectingRef.current = true;
+      retryPendingRef.current = true;
+      logger.warn({
+        logCode: `${logPrefix}_reconnect_stalled`,
+        extraInfo: {
+          membershipKey, url, connAttempts, state: room.state,
+        },
+      }, `${logPrefix}: room held out of connected, forcing a reconnect`);
+
+      // The captures outlive this teardown: it is ours, not the user leaving.
+      room.disconnect(false).catch(() => {}).then(() => {
+        setConnError(new ForcedReconnectionError(`Reconnect stalled (state=${room.state})`));
+        setConnAttempts((p) => p + 1);
+        isReconnectingRef.current = false;
+      });
+    };
+
+    const armStallTimer = (state: ConnectionState) => {
+      if (stallTimer) clearTimeout(stallTimer);
+
+      stallTimer = isReconnectingState(state)
+        ? setTimeout(forceReconnect, RECONNECT_STALL_TIMEOUT_MS)
+        : undefined;
+    };
+
+    room.on(RoomEvent.ConnectionStateChanged, armStallTimer);
+    armStallTimer(room.state);
+
+    return () => {
+      if (stallTimer) clearTimeout(stallTimer);
+      room.off(RoomEvent.ConnectionStateChanged, armStallTimer);
+    };
+  }, [room, logPrefix, membershipKey, url, connAttempts]);
 
   // Reconnection tracking
   useEffect(() => {

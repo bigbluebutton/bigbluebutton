@@ -28,6 +28,12 @@ export const isOrphaningDisconnect = (reason?: DisconnectReason): boolean => {
   return reason === undefined || !NON_ORPHANING_DISCONNECT_REASONS.includes(reason);
 };
 
+// States a room can only be in once it has connected, so callers can act on a
+// session that broke without treating a first connection as one.
+export const isReconnectingState = (state: ConnectionState): boolean => {
+  return state === ConnectionState.Reconnecting || state === ConnectionState.SignalReconnecting;
+};
+
 export interface LiveKitFatalErrorDetail {
   key: MembershipKey;
   source: string;

@@ -3,6 +3,7 @@ import React, {
   useCallback, useEffect, useRef, useState, useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   RoomAudioRenderer,
@@ -27,6 +28,7 @@ import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings
 import {
   liveKitRoomRegistry,
   resolveRoomOptions,
+  isReconnectingState,
   PRIMARY_KEY,
 } from '/imports/ui/services/livekit';
 import {
@@ -58,6 +60,10 @@ const intlMessages = defineMessages({
 // Long enough that a resume landing in well under a second does not flicker
 // the speaker indicator for everyone in the meeting.
 const TALKING_CLEAR_GRACE_MS = 500;
+// Same idea for the notice, which is louder, so it tolerates a little more of
+// an interruption before it is worth saying anything.
+const MEDIA_INTERRUPTED_NOTICE_GRACE_MS = 1000;
+const MEDIA_RECONNECT_TOAST_ID = 'livekit-media-reconnecting';
 
 interface PrimaryLiveKitRoomProps {
   membership: LiveKitRoomRow;
@@ -70,6 +76,7 @@ interface PrimaryObserverProps {
 }
 
 const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio }) => {
+  const intl = useIntl();
   const { localParticipant } = useLocalParticipant();
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const [setUserDeafened] = useMutation(USER_SET_DEAFENED);
@@ -118,6 +125,31 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
 
     return undefined;
   }, [isSpeaking, isMuted, usingAudio, isRoomConnected]);
+
+  // The indicator is fed from connection quality, which a session carrying
+  // nothing stops reporting, so an interruption otherwise shows nowhere at all
+  // while the microphone still presents as open. The notice has to outlast the
+  // interruption rather than a toast's usual few seconds.
+  const isMediaInterrupted = isReconnectingState(connectionState);
+
+  useEffect(() => {
+    if (!isMediaInterrupted) {
+      toast.dismiss(MEDIA_RECONNECT_TOAST_ID);
+
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      notify(
+        intl.formatMessage(intlMessages.mediaReconnecting),
+        'warning',
+        'warning',
+        { autoClose: false, toastId: MEDIA_RECONNECT_TOAST_ID },
+      );
+    }, MEDIA_INTERRUPTED_NOTICE_GRACE_MS);
+
+    return () => clearTimeout(timer);
+  }, [isMediaInterrupted, intl]);
 
   useEffect(() => {
     if (!usingAudio) return;
@@ -188,6 +220,7 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
   // Nothing retries the primary room after this, so the notice has to outlive
   // a toast's usual lifetime: it is the only cue that a reload is the way back.
   const onReconnectExhausted = useCallback(() => {
+    toast.dismiss(MEDIA_RECONNECT_TOAST_ID);
     notify(
       intl.formatMessage(intlMessages.mediaReconnectFailed),
       'error',
