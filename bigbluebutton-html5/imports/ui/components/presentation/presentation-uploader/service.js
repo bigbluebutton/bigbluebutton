@@ -89,6 +89,7 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
   current,
+  expandAnimations,
 ) => {
   if (!file) return Promise.resolve();
 
@@ -103,6 +104,11 @@ const uploadAndConvertPresentation = (
 
   data.append('is_downloadable', downloadable);
   data.append('current', current);
+
+  data.append(
+    'expand_animations',
+    expandAnimations === true ? 'true' : 'false',
+  );
 
   const opts = {
     method: 'POST',
@@ -132,6 +138,7 @@ const uploadAndConvertPresentations = (
   p.name,
   p.presentationId, p.file, p.downloadable, meetingId, uploadEndpoint,
   p.onUpload, p.onProgress, p.onConversion, p.current,
+  p.expandAnimations === true,
 )));
 
 const removePresentations = (
@@ -257,6 +264,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
       return {
         file,
         downloadable: false, // by default new presentations are set not to be downloadable
+        expandAnimations: false,
         isRemovable: true,
         presentationId: id,
         name: file.name,
