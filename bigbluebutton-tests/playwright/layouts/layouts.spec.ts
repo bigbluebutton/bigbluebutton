@@ -222,9 +222,11 @@ test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@ci' 
         !pagination.paginationEnabled ||
           pagination.moderatorPageSize !== 0 ||
           pagination.viewerPageSize !== 5 ||
-          pagination.thresholdsEnabled,
+          pagination.thresholdsEnabled ||
+          !pagination.partitionPrivilegedStreams,
         'encodes the server-default pagination config (paginationEnabled, desktopPageSizes ' +
-          `moderator 0 / viewer 5, paginationThresholds disabled) - got ${JSON.stringify(pagination)}`,
+          'moderator 0 / viewer 5, paginationThresholds disabled, partitionPrivilegedStreams ' +
+          `enabled) - got ${JSON.stringify(pagination)}`,
       );
 
       // 5 extra webcam viewers join sequentially on top of the two base users,

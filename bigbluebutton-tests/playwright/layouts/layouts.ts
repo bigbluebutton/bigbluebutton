@@ -477,6 +477,10 @@ export class Layouts extends MultiUsers {
         moderatorPageSize: Number(pageSizes?.moderator),
         viewerPageSize: Number(pageSizes?.viewer),
         thresholdsEnabled: Boolean(publicSettings?.kurento?.paginationThresholds?.enabled),
+        // The scenario assumes the own camera stays on every page, which only holds
+        // when privileged streams (pinned + local cameras) are partitioned out of
+        // the pagination (video-provider/hooks/index.ts).
+        partitionPrivilegedStreams: Boolean(publicSettings?.kurento?.cameraSortingModes?.partitionPrivilegedStreams),
       };
     });
   }
@@ -550,7 +554,7 @@ export class Layouts extends MultiUsers {
     ).toHaveCount(6, { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await this.userPage.waitAndClick(e.nextPageVideoPagination);
-    // The page change is debounced (pageChangeDebounceTime, default 1000ms), so poll
+    // The page change is debounced (pageChangeDebounceTime, 1000ms per the shipped settings.yml), so poll
     // for the settled count instead of asserting instantly after the click.
     await expect
       .poll(() => this.userPage.getVisibleLocator(e.webcamVideoItem).count(), {
