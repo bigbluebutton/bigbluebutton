@@ -475,14 +475,14 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   private isTrackPublishedWithStream(stream: MediaStream | null): boolean {
     if (!stream) return false;
 
-    const pubs = this.getLocalMicTrackPubs();
+    const trackIds = stream.getAudioTracks().map((track) => track.id);
 
-    if (pubs.length === 0) return false;
+    if (trackIds.length === 0) return false;
 
-    return pubs.some((pub) => {
-      const pubStream = pub.track?.mediaStream;
+    return this.getLocalMicTrackPubs().some((pub) => {
+      const track = pub.track?.mediaStreamTrack;
 
-      return pubStream?.id === stream.id && pubStream?.active;
+      return !!track && trackIds.includes(track.id) && track.readyState === 'live';
     });
   }
 
@@ -1688,6 +1688,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       }, 'LiveKit: failed to unpublish audio track before publish');
     }
 
+    let micRoom: Room | undefined;
+
     try {
       // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
@@ -1716,7 +1718,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: audio stream is inactive, fallback');
       }
 
-      const micRoom = this.activeMicRoom ?? this.resolvePrimaryRoom();
+      micRoom = this.activeMicRoom ?? this.resolvePrimaryRoom();
 
       if (!micRoom) {
         logger.warn({
@@ -1733,6 +1735,23 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       // when this runs. Wait for room conn here.
       await waitForRoomConnection(micRoom);
 
+      // The wait also ends when the SDK reconnects, which may cause
+      // the input stream to be republished (see handleSignalRestarted
+      // in the SDK's Room.ts) via republishAllTracks. Skip if that's the case.
+      if (inputStream && this.isTrackPublishedWithStream(inputStream)) {
+        logger.debug({
+          logCode: 'livekit_audio_publish_republished_skip',
+          extraInfo: {
+            bridge: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+          },
+        }, 'LiveKit: stream republished while waiting for the room, skipping publish');
+
+        return;
+      }
+
       if (inputStream && inputStream.active) {
         // Get tracks from the stream and publish them. Map into an array of
         // Promise objects and wait for all of them to resolve.
@@ -1745,9 +1764,10 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
           },
         }, 'LiveKit: publishing audio track with stream');
+        const { localParticipant } = micRoom;
         const trackPublishers = inputStream.getAudioTracks()
           .map((track) => {
-            return micRoom.localParticipant.publishTrack(track, publishOptions);
+            return localParticipant.publishTrack(track, publishOptions);
           });
         await LiveKitAudioBridge.bindToRoomLiveness(micRoom, Promise.all(trackPublishers));
       } else {
@@ -1773,6 +1793,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
       this.audioPublished();
     } catch (error) {
+      const publishedAnyway = !!inputStream && this.isTrackPublishedWithStream(inputStream);
+
       logger.error({
         logCode: 'livekit_audio_publish_error',
         extraInfo: {
@@ -1783,8 +1805,20 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           role: this.role,
           inputDeviceId: this.inputDeviceId,
           streamData: MediaStreamUtils.getMediaStreamLogData(inputStream || this.originalStream),
+          publishedAnyway,
         },
       }, 'LiveKit: failed to publish audio track');
+
+      // A timeout on a stream that is published anyway is most likely a duplicate publish
+      // request, not a bugged room. No need to trigger the fatal error handling if that's
+      // the case
+      if (publishedAnyway) {
+        const micPub = micRoom?.localParticipant.getTrackPublication(Track.Source.Microphone);
+        this.currentMicTrack = micPub?.track?.mediaStreamTrack ?? undefined;
+        this.audioPublished();
+
+        return;
+      }
 
       if (LiveKitAudioBridge.isFatalPublishError(error as Error)) {
         if (this.micSwitchGeneration === switchGeneration) {
