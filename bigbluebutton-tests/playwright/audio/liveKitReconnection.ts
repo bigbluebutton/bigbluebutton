@@ -21,6 +21,7 @@ import {
   expectUserRemoved,
   getMeetingUserIds,
   getOwnUserId,
+  getUserVoiceRows,
   isApolloClientExposed,
 } from './floorProbe';
 import {
@@ -254,6 +255,132 @@ export const waitForRoomReconnected = async (page: PlaywrightPage): Promise<void
   }).toPass({ timeout: RECONNECT_WAIT_TIME });
 };
 
+// Makes the SDK's publishTrack call through and then reject. That is the state
+// doPublish's catch block exists for - the track reached the room but the call
+// the bridge awaited did not resolve - and it is what a publish racing the
+// SDK's own republish produces. Returns false if the room is not exposed.
+export const failPublishAfterItLands = (page: PlaywrightPage): Promise<boolean> =>
+  page.evaluate(() => {
+    const w = window as TestWindow & { bbbPublishesLanded?: number };
+    const participant = w.liveKitRoom?.localParticipant as
+      | { publishTrack: (track: unknown, options: unknown) => Promise<unknown> }
+      | undefined;
+
+    if (!participant) return false;
+
+    const original = participant.publishTrack.bind(participant);
+    w.bbbPublishesLanded = 0;
+    participant.publishTrack = async (track: unknown, options: unknown) => {
+      await original(track, options);
+      w.bbbPublishesLanded = (w.bbbPublishesLanded ?? 0) + 1;
+
+      throw new Error('publish rejected after the track landed');
+    };
+
+    return true;
+  });
+
+export const getLandedPublishCount = (page: PlaywrightPage): Promise<number> =>
+  page.evaluate(() => (window as TestWindow & { bbbPublishesLanded?: number }).bbbPublishesLanded ?? 0);
+
+export interface MediaOutageObservation {
+  mediaConnected: boolean;
+  showsOpenMic: boolean;
+  showsMutedMic: boolean;
+  micPublications: number;
+  toldTheUser: boolean;
+}
+
+// The three facts a media outage has to be judged on together: whether the
+// media session is up, whether the UI still offers an open microphone, and
+// whether anything at all told the user. Any one of them being different makes
+// the outage defensible; all three at once is the silent-open-mic failure.
+export const observeMediaOutage = async (page: PlaywrightPage): Promise<MediaOutageObservation> => {
+  const local = await getLocalMicState(page).catch(() => null);
+  const toasts = await page.locator(e.smallToastMsg).allTextContents();
+
+  return {
+    mediaConnected: local?.roomState === 'connected',
+    showsOpenMic: (await page.locator(e.muteMicButton).count()) > 0,
+    showsMutedMic: (await page.locator(e.unmuteMicButton).count()) > 0,
+    micPublications: local?.micPublications ?? 0,
+    toldTheUser:
+      (await page.locator(e.notificationBannerBar).count()) > 0 || toasts.some((text) => text.trim().length > 0),
+  };
+};
+
+// Waits until the LiveKit session is demonstrably interrupted. Without this a
+// case could assert against an outage that never reached the media path.
+export const waitForMediaInterrupted = async (page: PlaywrightPage): Promise<string> => {
+  let observed = 'connected';
+  await expect(async () => {
+    observed = (await getLocalMicState(page)).roomState;
+    expect(observed, 'the outage should interrupt the LiveKit session').not.toBe('connected');
+  }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME * 2 });
+
+  return observed;
+};
+
+// Samples the media-outage facts from the test side for the length of an
+// outage. A single end-of-outage read is not enough: the client moves through
+// phases (signalReconnecting with the mic still shown, then dropped out of
+// audio entirely), so whether the bad combination is visible depends on when
+// you look.
+export const sampleMediaOutage = async (
+  page: PlaywrightPage,
+  durationMs: number,
+  intervalMs = 2_000,
+): Promise<MediaOutageObservation[]> => {
+  const samples: MediaOutageObservation[] = [];
+  const rounds = Math.max(1, Math.floor(durationMs / intervalMs));
+
+  for (let i = 0; i < rounds; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await page.waitForTimeout(intervalMs);
+    // eslint-disable-next-line no-await-in-loop
+    samples.push(await observeMediaOutage(page));
+  }
+
+  return samples;
+};
+
+export interface VoiceClaimSample {
+  mediaConnected: boolean;
+  rowPresent: boolean;
+  talking: boolean;
+  muted: boolean;
+}
+
+// Pairs the viewer's own media state with what the server records about them,
+// so a case can assert on the disagreement rather than on either side alone.
+export const sampleVoiceClaims = async (
+  viewer: PlaywrightPage,
+  moderator: PlaywrightPage,
+  viewerUserId: string,
+  durationMs: number,
+  intervalMs = 2_000,
+): Promise<VoiceClaimSample[]> => {
+  const samples: VoiceClaimSample[] = [];
+  const rounds = Math.max(1, Math.floor(durationMs / intervalMs));
+
+  for (let i = 0; i < rounds; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await viewer.waitForTimeout(intervalMs);
+    // eslint-disable-next-line no-await-in-loop
+    const local = await getLocalMicState(viewer).catch(() => null);
+    // eslint-disable-next-line no-await-in-loop
+    const row = (await getUserVoiceRows(moderator).catch(() => [])).find((r) => r.userId === viewerUserId);
+    samples.push({
+      mediaConnected: local?.roomState === 'connected',
+      rowPresent: !!row,
+      talking: row?.talking === true,
+      muted: row?.muted === true,
+    });
+  }
+
+  return samples;
+};
+
 export const simulateRoomScenario = (page: PlaywrightPage, scenario: string): Promise<void> =>
   page.evaluate(async (s) => {
     const room = (window as TestWindow).liveKitRoom;
@@ -268,6 +395,9 @@ export interface ReconnectionFixture {
   viewerUserId: string;
   // Console log codes seen on the viewer page (from clientLogger objects).
   viewerLogCodes: string[];
+  // The raw console text behind those codes. A logCode says which branch ran;
+  // the text carries the error message, which is what some cases assert on.
+  viewerLogLines: string[];
   cutGraphql: () => Promise<void>;
   restoreGraphql: () => void;
   // Resolves once the client logs its GraphQL connection status back to
@@ -279,6 +409,11 @@ export interface ReconnectionFixture {
   stallLiveKitSignal: () => void;
   // Closes the stalled socket from the server side and lifts the stall.
   dropLiveKitSignal: () => Promise<void>;
+  // Refuses every LiveKit signal socket, including the ones a reconnect opens,
+  // so the SDK's retries and the room's own retry effect both fail. GraphQL is
+  // left alone, which is what separates a media outage from a network outage.
+  cutLiveKitSignal: () => Promise<void>;
+  restoreLiveKitSignal: () => void;
 }
 
 // Moderator (server-state probe + audio witness) and a viewer publishing an
@@ -336,8 +471,13 @@ export const initReconnectionScenario = async (
   });
 
   let stallSignal = false;
+  let blockSignal = false;
   const liveSignalSockets = new Set<WebSocketRoute>();
   await viewerRawPage.routeWebSocket(/\/livekit\/rtc/, (ws) => {
+    if (blockSignal) {
+      ws.close();
+      return;
+    }
     const server = ws.connectToServer();
     liveSignalSockets.add(ws);
     ws.onMessage((message) => {
@@ -375,6 +515,7 @@ export const initReconnectionScenario = async (
     viewerPage,
     viewerUserId,
     viewerLogCodes,
+    viewerLogLines,
     cutGraphql: async () => {
       blockGraphql = true;
       cutAtLine = viewerLogLines.length;
@@ -397,6 +538,13 @@ export const initReconnectionScenario = async (
     dropLiveKitSignal: async () => {
       await Promise.all([...liveSignalSockets].map((ws) => ws.close()));
       stallSignal = false;
+    },
+    cutLiveKitSignal: async () => {
+      blockSignal = true;
+      await Promise.all([...liveSignalSockets].map((ws) => ws.close()));
+    },
+    restoreLiveKitSignal: () => {
+      blockSignal = false;
     },
   };
 };
