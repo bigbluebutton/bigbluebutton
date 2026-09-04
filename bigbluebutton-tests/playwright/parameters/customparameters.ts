@@ -12,7 +12,7 @@ import { checkDefaultLocationReset, checkScreenshots } from '../layouts/util';
 import { uploadSinglePresentation } from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
-import { constants as c } from './constants';
+import { constants as c, LONG_GROUP_NAMES } from './constants';
 import * as util from './util';
 
 export class CustomParameters extends MultiUsers {
@@ -963,6 +963,46 @@ export class CustomParameters extends MultiUsers {
       e.userNameBreakoutRoom,
       /Attendee/,
       'should have the attendee name on the breakout room below a room on the main breakout panel',
+    );
+  }
+
+  async predefinedGroupsWithLongNames() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+
+    await this.modPage.hasElement(e.breakoutBox0, 'should display the breakout box for unassigned users');
+
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the breakout box for room 1');
+    await this.modPage.hasElementCount(
+      `${e.breakoutBox1} div[draggable="true"]`,
+      1,
+      'should display only 1 user in the breakout room 1',
+    );
+    await this.modPage.hasText(
+      e.breakoutBox1,
+      LONG_GROUP_NAMES.control,
+      'should seed the short control group name into breakout room 1',
+    );
+    await this.modPage.hasText(
+      e.breakoutBox2,
+      LONG_GROUP_NAMES.chars150,
+      'should seed the 150-character group name into breakout room 2',
+    );
+
+    // the panel renders 2 rooms by default; expand it to display the two boundary groups
+    await this.modPage.waitAndClick(e.increaseRooms);
+    await this.modPage.waitAndClick(e.increaseRooms);
+    await this.modPage.hasText(
+      'div[id="breakoutBox-3"]',
+      LONG_GROUP_NAMES.boundary100,
+      'should seed the 100-character group name into breakout room 3',
+    );
+    await this.modPage.hasText(
+      'div[id="breakoutBox-4"]',
+      LONG_GROUP_NAMES.boundary101,
+      'should seed the 101-character group name into breakout room 4',
     );
   }
 

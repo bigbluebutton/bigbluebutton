@@ -249,9 +249,9 @@ from (
 
 create unlogged table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "groupId"    varchar(100),
+    "groupId"    text,
     "groupIndex" integer,
-    "name"       varchar(100),
+    "name"       text,
     "usersExtId" varchar[],
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );

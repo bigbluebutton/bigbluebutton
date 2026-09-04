@@ -4,6 +4,14 @@ import { parameters } from '../core/parameters';
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
 export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
 
+// group names around the old varchar(100) limit of meeting_group (issue 25676)
+export const LONG_GROUP_NAMES = {
+  control: 'Control Group',
+  chars150: 'G'.repeat(150),
+  boundary100: 'H'.repeat(100),
+  boundary101: 'I'.repeat(101),
+};
+
 const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
 export const constants = {
@@ -50,6 +58,12 @@ export const constants = {
   enforceMediaOnly: 'enforceLayout=MEDIA_ONLY',
   groups:
     'groups=[{"id":"1","name":"Room 1","roster":["1235"]},{"id":"2","name":"Room 2","roster":["2333","2335"]},{"id":"3","roster":[]}]',
+  groupsWithLongNames: `groups=${JSON.stringify([
+    { id: 'groupControl', name: LONG_GROUP_NAMES.control, roster: ['1235'] },
+    { id: 'g'.repeat(150), name: LONG_GROUP_NAMES.chars150, roster: [] },
+    { id: 'groupBoundary100', name: LONG_GROUP_NAMES.boundary100, roster: [] },
+    { id: 'groupBoundary101', name: LONG_GROUP_NAMES.boundary101, roster: [] },
+  ])}`,
   // Custom Parameters
   autoJoin: 'userdata-bbb_auto_join_audio=false',
   listenOnlyMode: 'userdata-bbb_listen_only_mode=false',
