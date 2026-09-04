@@ -564,29 +564,49 @@ For external applications that integrate to BigBlueButton using the [insertDocum
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
-#### End meeting callback URL
+#### Meeting Ended Callback URL
 
-You can ask the BigBlueButton server to make a callback to your application when the meeting ends. Upon receiving the callback your application could, for example, change the interface for the user to hide the 'join' button.
+You can ask the BigBlueButton server to make a callback to your application when the meeting ends.
+Upon receiving the callback your application could, for example, change the interface for the user to hide the 'join' button.
 
-To specify the callback to BigBlueButton, pass a URL using the meta-parameter `meta_endCallbackUrl` on the `create` command. When the BigBlueButton server ends the meeting, it will check if `meta_endCallbackUrl` is sent URL and, if so, make a HTTP GET request to the given URL.
+To specify the callback to BigBlueButton, pass a URL using the parameter `meetingEndedURL` on the `create` request.
+When the BigBlueButton server ends the meeting, it will make an HTTP GET request to the passed URL.
+
+BigBlueButton will add an additional query parameter, `recordingmarks=true|false`,
+which provides a hint as to whether a recording will be generated for the meeting.
+The value will be `true` if the meeting was set to be recorded
+(`record=true` was passed on the create API call)
+and recording was started during the live session
+(a moderator clicked the Start/Stop Record button during the meeting,
+or `autoStartRecording=true` was passed on the create call).
 
 For example, to specify the callback URL as
-
 ```
-  https://myapp.example.com/callback?meetingID=test01
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50
 ```
-
-add the following parameter to the `create` API call: `&meta_endCallbackUrl=https%3A%2F%2Fmyapp.example.com%2Fcallback%3FmeetingID%3Dtest01` (note the callback URL needs to be URLEncoded).
-
-Later, when the meeting ends, BigBlueButton will make an HTTPS GET request to this URL (HTTPS is supported and recommended) and to the URL add an additional parameter: `recordingmarks=true|false`.
-
-The value for `recordingmarks` will be `true` if (a) the meeting was set to be recorded (`record=true` was passed on the create API call), and (b) a moderator clicked the Start/Stop Record button during the meeting (which places recording marks in the events). Given the example URL above, here's the final callback if both (a) and (b) are true:
-
+add the following parameter to the `create` API call:
 ```
-https://myapp.example.com/callback?meetingID=test01&recordingmarks=true
+&meetingEndedURL=https%3A%2F%2Fmyapp.example.com%2FmeetingEndedCallback%3Ftoken%3Da817dde5-0a18-43ad-9016-2d5d4c758a50
+```
+(note the callback URL needs to be URLEncoded).
+The actual URL that the callback will be made to will look like
+```
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true
 ```
 
-Another param is the `meetingEndedURL` create param. This create param is a callback to indicate the meeting has ended. This is a duplicate of the endCallbackUrl meta param. We have this separate as we want this param to stay on the server and not propagated to client and recordings. Can be used by scalelite to be notified right away when meeting ends. The meta callback url can be used to inform third parties.
+For security reasons, the callback URL that your application generates should be authenticated in some way,
+to prevent malicious users from causing your application to think a meeting has ended while it is still running.
+The recommended way to do this is to include an unguessable parameter on the URL,
+and then verify this parameter when you receive the callback request.
+For example, you could include a randomly generated one-time-use token,
+or a signed claim in a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token).
+We strongly recommend using `https` URLs.
+
+This function was previously implemented using the parameter name `meta_endCallbackUrl`,
+which applications should no longer use.
+`meta_*` parameters may be exposed to users in the meeting,
+leaking any secret token or signed parameters that the application included in the URL.
+
 
 #### Learning Analytics Dashboard callback URL
 
