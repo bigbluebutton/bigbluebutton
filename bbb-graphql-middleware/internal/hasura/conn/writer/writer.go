@@ -268,15 +268,13 @@ RangeLoop:
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
+					// Iterate the canonical list rather than naming the streams individually, so a
+					// newly added stream is torn down with the rest.
 					browserConnection.ActiveStreamingsMutex.Lock()
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
+					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
+						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {
+							browserConnection.ActiveStreamings = newActiveStreamings
+						}
 					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}

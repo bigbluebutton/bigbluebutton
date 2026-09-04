@@ -8,6 +8,8 @@ import { ConnectionState, RemoteParticipant, RoomEvent } from 'livekit-client';
 import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import { getBbbUserIdForParticipant } from '/imports/ui/components/livekit/selective-subscription/service';
 import Auth from '/imports/ui/services/auth';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useWhoIsUnmutedLiveKit from './useWhoIsUnmutedLiveKit';
 import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
@@ -52,6 +54,9 @@ const createUseTalkingUsersLiveKit = () => {
         name: user.name,
         color: user?.color,
         speechLocale: user?.speechLocale,
+        // Carried through so the hideUserList guard below can tell a moderator from a
+        // viewer without a second subscription.
+        role: user?.role,
       };
     });
 
@@ -82,6 +87,18 @@ const createUseTalkingUsersLiveKit = () => {
     // so mute state is correct whenever LiveKit is the bridge - see isLiveKitActive.
     const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
     const { data: userMetadataMap, loading } = useData();
+    const { data: currentUserData } = useCurrentUser((user) => ({
+      locked: user.locked,
+    }));
+    const { data: currentMeeting } = useMeeting((m) => ({
+      lockSettings: m.lockSettings,
+    }));
+    // v_user.locked is already false for moderators, so this is the same two-term check the
+    // user list and video tiles use.
+    const hideUserList = Boolean(
+      currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList,
+    );
+    const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
     const isConnected = connectionState === ConnectionState.Connected;
     const participantsByUserId = useMemo(() => {
       const participants = new Map<string, RemoteParticipant>();
@@ -135,6 +152,18 @@ const createUseTalkingUsersLiveKit = () => {
 
         let userMetadata = userMetadataMap[userId];
 
+        // With "Hide user list" active, a locked viewer must not be shown a talking
+        // indicator for anyone but themselves and moderators. This mirrors the server-side
+        // gate on the voice-activity stream, and has to run BEFORE the fallback below:
+        // LiveKit participant names are the users' real display names, so falling back to
+        // them would reconstruct exactly the names the lock is meant to hide. It also drops
+        // entries captured before the lock was applied, since the metadata map never evicts.
+        if (hideUserList
+          && !isLocalUser
+          && userMetadata?.role !== ROLE_MODERATOR) {
+          return;
+        }
+
         if (!userMetadata) {
           const participant = isLocalUser
             ? localParticipant
@@ -169,6 +198,8 @@ const createUseTalkingUsersLiveKit = () => {
       bbbTalkingUsers,
       unmutedUsers,
       userMetadataMap,
+      hideUserList,
+      ROLE_MODERATOR,
     ]);
 
     // Apply timing logic to the voice activity state. Every pass rebuilds the full

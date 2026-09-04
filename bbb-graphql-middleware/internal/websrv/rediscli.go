@@ -115,6 +115,10 @@ func StartRedisListener() {
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 			go streamingserver.RemoveUserCursorsCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+			// Voice states are normally evicted by the "left voice conf" event, but that event can
+			// be missed (e.g. an akka-apps restart). Without this the row would linger in the
+			// replay cache until the meeting ends.
+			go streamingserver.RemoveUserUserVoiceStatesCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 		}
 
 		if messageName == "SendCursorPositionEvtMsg" {
