@@ -42,9 +42,17 @@ const ContentMessagePoll = styled(ContentMessage)`
   margin-top: ${fontSizeSmall};
 `;
 
+// Sits inside the shared toast icon, which already draws and colors the round badge.
+const MentionIcon = styled.span`
+  font-weight: bold;
+  font-size: ${fontSizeSmall};
+  line-height: 1;
+`;
+
 export default {
   PushMessageContent,
   UserNameMessage,
   ContentMessage,
   ContentMessagePoll,
+  MentionIcon,
 };

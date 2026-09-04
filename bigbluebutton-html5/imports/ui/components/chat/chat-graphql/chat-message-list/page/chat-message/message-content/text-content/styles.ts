@@ -5,8 +5,9 @@ import {
   colorOffWhite,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
-interface ChatMessageProps {
+interface ChatMessageProps extends ChatMentionStylesProps {
   systemMsg?: boolean;
   $jumbomoji?: boolean;
 }
@@ -76,6 +77,8 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   & h6 {
     margin: 0;
   }
+
+  ${chatMentionStyles}
 `;
 
 export default {

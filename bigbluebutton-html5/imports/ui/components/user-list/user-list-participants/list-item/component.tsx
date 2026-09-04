@@ -26,6 +26,7 @@ import { UserListItemProps } from './types';
 import UserNameWithSubs from './user-name-with-subs/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useUserOperations } from '/imports/ui/components/user-list/hooks/useUserOperations';
+import { getFilteredAvatar } from '/imports/ui/components/user-list/service';
 
 const getIconComponent = (icon: PluginSdk.PluginIconType): React.ReactNode => {
   if (typeof icon === 'string') {
@@ -141,7 +142,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setRaiseHand,
   );
 
-  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = getFilteredAvatar(user);
 
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;

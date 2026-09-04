@@ -490,6 +490,14 @@ export const getUsersPerUserListPage = () => window.meetingClientSettings?.publi
   ?.usersPerUserListPage
   || DEFAULT_USERS_PER_USER_LIST_PAGE;
 
+/**
+ * The avatar image to show for a participant: a reaction or the away state takes it over.
+ * Shared so the user list, the avatar content and the mention picker can't drift apart.
+ */
+export const getFilteredAvatar = (user) => (
+  (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar
+);
+
 export const makeUserSearchWhere = (searchQuery) => {
   const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
   const escapeTerm = (term) => term.replace(/[\\%_]/g, '\\$&');
@@ -512,5 +520,6 @@ export default {
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
+  getFilteredAvatar,
   makeUserSearchWhere,
 };

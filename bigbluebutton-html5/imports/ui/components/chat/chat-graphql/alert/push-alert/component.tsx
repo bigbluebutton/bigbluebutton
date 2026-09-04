@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import Styled from '../styles';
 
 interface ChatPushAlertProps {
   notify: (...args: unknown[]) => void;
@@ -9,6 +10,7 @@ interface ChatPushAlertProps {
   content: React.ReactNode;
   alertDuration: number;
   layoutContextDispatch: (...args: unknown[]) => void;
+  isMention?: boolean;
 }
 
 const ChatPushAlert: React.FC<ChatPushAlertProps> = (props) => {
@@ -52,13 +54,22 @@ const ChatPushAlert: React.FC<ChatPushAlertProps> = (props) => {
       title,
       content,
       alertDuration,
+      isMention,
     } = props;
 
-    return notify(
+    // One toast per chat: a second mention refreshes it instead of stacking a new one.
+    const icon = isMention
+      ? { svgContent: <Styled.MentionIcon data-test="chatMentionToast" aria-hidden="true">@</Styled.MentionIcon> }
+      : 'chat';
+    const options = isMention
+      ? { autoClose: alertDuration, toastId: `mention-${chatId}` }
+      : { autoClose: alertDuration };
+
+    notify(
       link(title, chatId),
       'info',
-      'chat',
-      { autoClose: alertDuration },
+      icon,
+      options,
       link(content, chatId),
       true,
     );

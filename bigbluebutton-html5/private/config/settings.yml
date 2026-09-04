@@ -808,6 +808,10 @@ public:
     typingIndicator:
       enabled: true
       showNames: true
+    mentions:
+      pickerLimit: 5        # max suggestions per lookup
+      pickerDebounceMs: 500 # delay before a refined term hits the server
+      maxWords: 3           # how many words after "@" still count as a name
     moderatorChatEmphasized: true
     privateMessageReadFeedback:
       enabled: false

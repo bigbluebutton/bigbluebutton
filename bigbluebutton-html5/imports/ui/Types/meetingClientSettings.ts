@@ -569,6 +569,7 @@ export interface Chat {
   storage_key: string
   system_messages_keys: SystemMessagesKeys
   typingIndicator: TypingIndicator
+  mentions: Mentions
   moderatorChatEmphasized: boolean
   privateMessageReadFeedback: MessageReadFeedback
   autoConvertEmoji: boolean
@@ -593,6 +594,12 @@ export interface SystemMessagesKeys {
 export interface TypingIndicator {
   enabled: boolean
   showNames: boolean
+}
+
+export interface Mentions {
+  pickerLimit: number
+  pickerDebounceMs: number
+  maxWords: number
 }
 
 export interface MessageReadFeedback {
