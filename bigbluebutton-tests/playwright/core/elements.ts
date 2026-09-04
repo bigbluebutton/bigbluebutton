@@ -52,6 +52,7 @@ export const elements = {
   closePopup: 'button[data-test="closePopup"]',
   restoreWelcomeMessages: 'li[data-test="restoreWelcomeMessages"]',
   navigationSidebarContainer: 'div[data-test="navigationSidebarContainer"]',
+  sidebarNavigationScrollbox: 'div[data-test="sidebarNavigationScrollbox"]',
   appsGallerySidebarButton: 'div[data-test="appsGallerySidebarButton"]',
 
   // Accesskey

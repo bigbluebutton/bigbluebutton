@@ -27,4 +27,5 @@ export interface ListItemProps {
   $hasPrivateNotification?: boolean;
   $disabled?: boolean;
   $locked?: boolean;
+  $isMobile?: boolean;
 }
