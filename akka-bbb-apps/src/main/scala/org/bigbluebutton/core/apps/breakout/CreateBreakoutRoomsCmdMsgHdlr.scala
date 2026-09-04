@@ -98,7 +98,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val (lsPrivChat, lsCam, lsMic, lsPubChat, lsNotes, lsHideUsers, lsLockOnJoin, lsLockOnJoinCfg, lsHideCursor, lsHideAnnotation) =
         if (msg.body.inheritLockSettings)
           (lockSettings.disablePrivChat, lockSettings.disableCam, lockSettings.disableMic, lockSettings.disablePubChat,
-            lockSettings.disableNotes, lockSettings.hideUserList, lockSettings.lockOnJoin,
+            lockSettings.disableNotes, lockSettings.isolateUsers, lockSettings.lockOnJoin,
             lockSettings.lockOnJoinConfigurable, lockSettings.hideViewersCursor, lockSettings.hideViewersAnnotation)
         else
           (false, false, false, false, false, false, false, false, false, false)

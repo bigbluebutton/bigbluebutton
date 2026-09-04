@@ -45,7 +45,7 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
-  hideUserListTitle: {
+  isolateUsersTitle: {
     id: 'app.userList.lockedUsersTitle',
     description: 'Title for the Header when user is locked',
   },
@@ -97,7 +97,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }));
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
-  const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
+  const isolateUsers = currentUserData?.locked && meetingInfo?.lockSettings?.isolateUsers;
   const handleGetUsers = useCallback(() => {
     getUsers();
   }, [getUsers]);
@@ -160,8 +160,8 @@ const UserList: React.FC<UserListComponentProps> = () => {
     );
   }, [currentUserData]);
 
-  const title = hideUserList
-    ? intl.formatMessage(intlMessages.hideUserListTitle, { userCount: count })
+  const title = isolateUsers
+    ? intl.formatMessage(intlMessages.isolateUsersTitle, { userCount: count })
     : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 
   return (
