@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/pagination_request_data.proto";
+
+message ListMeetingsRequest {
+  PaginationRequestData pagination_request_data = 1;
+}

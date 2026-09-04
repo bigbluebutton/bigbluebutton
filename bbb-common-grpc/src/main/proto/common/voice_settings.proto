@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message VoiceSettings {
+  string voice_bridge = 1;
+  string voice_conf = 2;
+  string dial_number = 3;
+  bool mute_on_start = 4;
+  int32 voice_bridge_length = 5;
+}

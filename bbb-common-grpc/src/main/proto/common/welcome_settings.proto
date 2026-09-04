@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message WelcomeSettings {
+  string welcome_msg_template = 1;
+  string welcome_msg = 2;
+  string mod_only_msg = 3;
+}

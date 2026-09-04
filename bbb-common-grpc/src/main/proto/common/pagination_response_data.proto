@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message PaginationResponseData {
+  // A token that can be sent as `page_token` to retrieve the next page.
+  // If this field is empty, there are no subsequent pages
+  string next_page_token = 1;
+}

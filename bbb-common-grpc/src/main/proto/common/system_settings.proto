@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message SystemSettings {
+  string login_url = 1;
+  string logout_url = 2;
+  string custom_logo_url = 3;
+  string custom_dark_logo_url = 4;
+  string banner_text = 5;
+  string banner_colour = 6;
+}

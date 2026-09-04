@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/created_meeting_info.proto";
+
+message CreateMeetingResponse {
+  CreatedMeetingInfo created_meeting_info = 1;
+}

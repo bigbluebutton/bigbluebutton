@@ -1,0 +1,14 @@
+#Temporary location to make it work with API-Mate (that always include /api at the end)
+location /meeting-api/api/ {
+  proxy_pass http://127.0.0.1:9100/;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
+
+location /meeting-api/ {
+  proxy_pass http://127.0.0.1:9100/;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}

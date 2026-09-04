@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message RecordSettings {
+  bool record = 1;
+  bool auto_start_recording = 2;
+  bool allow_start_stop_recording = 3;
+  bool record_full_duration_media = 4;
+  bool keep_events = 5;
+}

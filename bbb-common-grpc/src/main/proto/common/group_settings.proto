@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message GroupSettings {
+  string group_id = 1;
+  string name = 2;
+  repeated string users_ext_ids = 3;
+}
