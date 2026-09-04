@@ -60,6 +60,10 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.mobileAppModal.dismissLabel',
     description: 'Close button label',
   },
+  closeLabel: {
+    id: 'app.videoPreview.closeLabel',
+    description: 'Close settings button label',
+  },
   cameraLabel: {
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
@@ -581,6 +585,22 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
             )}
             {!shared && camCapReached ? (
               <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
+            ) : shared ? (
+              <div style={{ display: 'flex' }}>
+                <Styled.SharingButton
+                  data-test="stopSharingWebcam"
+                  color="danger"
+                  label={intl.formatMessage(intlMessages.stopSharingLabel)}
+                  onClick={() => handleStopSharing()}
+                  disabled={isCameraLoading || shouldDisableButtons}
+                />
+                <Styled.CancelButton
+                  data-test="closeWebcamSettings"
+                  color="primary"
+                  label={intl.formatMessage(intlMessages.closeLabel)}
+                  onClick={closeModal}
+                />
+              </div>
             ) : (
               <div style={{ display: 'flex' }}>
                 <Styled.CancelButton
@@ -590,20 +610,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
                 />
                 <Styled.SharingButton
                   data-test="startSharingWebcam"
-                  color={shared ? 'danger' : 'primary'}
-                  label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+                  color="primary"
+                  label={intl.formatMessage(intlMessages.startSharingLabel)}
                   onClick={() => {
-                    if (shared) {
-                      handleStopSharing();
-                    } else {
-                      handleStartSharing(webcamDeviceId as string);
-                      if (isAway) {
-                        setAway({
-                          variables: {
-                            away: false,
-                          },
-                        });
-                      }
+                    handleStartSharing(webcamDeviceId as string);
+                    if (isAway) {
+                      setAway({
+                        variables: {
+                          away: false,
+                        },
+                      });
                     }
                   }}
                   disabled={isCameraLoading || shouldDisableButtons}
