@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 
 	"dario.cat/mergo"
@@ -70,11 +71,43 @@ func GetConfig() *Config {
 	return instance
 }
 
+// sourceRelativeConfigPath returns the config.yml that sits beside this source file, or "" when
+// the source tree is not there (an installed binary). Tests need this rather than an env var set
+// from a TestMain: internal/common resolves config.GetConfig() in its package variables, which Go
+// initialises before any test hook in an importing package can run.
+//
+// Only consulted when the installed config is absent, which is otherwise a fatal, so it cannot
+// shadow a real installation.
+func sourceRelativeConfigPath() string {
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		return ""
+	}
+
+	candidate := filepath.Join(filepath.Dir(thisFile), "config.yml")
+	if _, err := os.Stat(candidate); err != nil {
+		return ""
+	}
+
+	return candidate
+}
+
 func (c *Config) loadConfigs() {
-	// Load default config file
-	configDefault, err := loadConfigFile(DefaultConfigPath)
+	// Load default config file. The path can be redirected with BBB_GRAPHQL_MIDDLEWARE_CONFIG, and
+	// falls back to the checked-in config.yml, so the packages can be built and tested without an
+	// installed bbb-graphql-middleware.
+	defaultConfigPath := DefaultConfigPath
+	if envConfigPath := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_CONFIG"); envConfigPath != "" {
+		defaultConfigPath = envConfigPath
+	} else if _, err := os.Stat(defaultConfigPath); err != nil {
+		if sourcePath := sourceRelativeConfigPath(); sourcePath != "" {
+			defaultConfigPath = sourcePath
+		}
+	}
+
+	configDefault, err := loadConfigFile(defaultConfigPath)
 	if err != nil {
-		log.Fatalf("Error while loading config file (%s): %v", DefaultConfigPath, err)
+		log.Fatalf("Error while loading config file (%s): %v", defaultConfigPath, err)
 	}
 
 	// Load override config file if exists

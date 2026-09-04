@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
@@ -24,8 +25,9 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")
 
-	// Create a new HTTP client with a cookie jar.
-	client := &http.Client{}
+	// Create a new HTTP client with a cookie jar. The timeout is important: a hung akka-apps would
+	// otherwise leave the caller's session variables stale indefinitely.
+	client := &http.Client{Timeout: 5 * time.Second}
 
 	// Check if the session_vars hook URL is set.
 	if sessionVarsHookUrl == "" {
