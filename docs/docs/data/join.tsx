@@ -5,6 +5,7 @@ const joinEndpointTableData = [
     "name": "fullName",
     "required": true,
     "type": "String",
+    "maxLength": 255,
     "description": (<>The full name that is to be used to identify this user to other conference attendees.</>)
   },
   {

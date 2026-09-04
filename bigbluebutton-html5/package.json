@@ -54,6 +54,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
+    "@bigbluebutton/bbb-ui-components-react": "^0.7.0",
     "@bigbluebutton/tldraw": "^2.0.0-alpha.35",
     "@blocknote/core": "^0.53.0",
     "@blocknote/mantine": "^0.53.0",

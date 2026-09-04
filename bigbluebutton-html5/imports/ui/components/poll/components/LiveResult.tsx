@@ -5,6 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from '../styles';
 import {
   ResponseInfo,
@@ -205,48 +206,55 @@ const LiveResult: React.FC<LiveResultProps> = ({
       {numberOfAnswerCount >= 0
         ? (
           <Styled.ButtonsActions>
-            <Styled.PublishButton
-              onClick={() => {
-                Session.setItem('pollInitiated', false);
-                publishPoll(pollId, shouldShowCorrectAnswer);
-                stopPoll();
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                  value: true,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                  value: PANELS.CHAT,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_ID_CHAT_OPEN,
-                  value: PUBLIC_GROUP_CHAT_KEY,
-                });
-              }}
-              disabled={numberOfAnswerCount <= 0}
-              label={intl.formatMessage(intlMessages.publishLabel)}
-              data-test="publishPollingLabel"
-              color="primary"
-            />
-            <Styled.CancelButton
-              onClick={() => {
-                Session.setItem('pollInitiated', false);
-                Session.setItem('resetPollPanel', true);
-                stopPoll();
-              }}
-              label={intl.formatMessage(intlMessages.cancelPollLabel)}
-              data-test="cancelPollLabel"
-            />
+            <Styled.ButtonWrapper>
+              <BBButton
+                variant="primary"
+                onClick={() => {
+                  Session.setItem('pollInitiated', false);
+                  publishPoll(pollId, shouldShowCorrectAnswer);
+                  stopPoll();
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                    value: true,
+                  });
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                    value: PANELS.CHAT,
+                  });
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_ID_CHAT_OPEN,
+                    value: PUBLIC_GROUP_CHAT_KEY,
+                  });
+                }}
+                disabled={numberOfAnswerCount <= 0}
+                label={intl.formatMessage(intlMessages.publishLabel)}
+                dataTest="publishPollingLabel"
+              />
+            </Styled.ButtonWrapper>
+            <Styled.ButtonWrapper>
+              <BBButton
+                variant="secondary"
+                onClick={() => {
+                  Session.setItem('pollInitiated', false);
+                  Session.setItem('resetPollPanel', true);
+                  stopPoll();
+                }}
+                label={intl.formatMessage(intlMessages.cancelPollLabel)}
+                dataTest="cancelPollLabel"
+              />
+            </Styled.ButtonWrapper>
           </Styled.ButtonsActions>
         ) : (
-          <Styled.LiveResultButton
-            onClick={() => {
-              stopPoll();
-            }}
-            label={intl.formatMessage(intlMessages.backLabel)}
-            color="primary"
-            data-test="restartPoll"
-          />
+          <Styled.ButtonsActions>
+            <Styled.ButtonWrapper>
+              <BBButton
+                variant="primary"
+                onClick={() => stopPoll()}
+                label={intl.formatMessage(intlMessages.backLabel)}
+                dataTest="restartPoll"
+              />
+            </Styled.ButtonWrapper>
+          </Styled.ButtonsActions>
         )}
       <Styled.Separator />
       {

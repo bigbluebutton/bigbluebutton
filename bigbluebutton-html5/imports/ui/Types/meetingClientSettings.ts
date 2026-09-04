@@ -820,6 +820,7 @@ export interface Whiteboard {
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
   slideSwapDecodeTimeoutMs: number
+  wheelZoomRequiresCtrl: boolean
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

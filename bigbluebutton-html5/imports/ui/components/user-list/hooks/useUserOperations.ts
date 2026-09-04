@@ -11,6 +11,7 @@ import {
   SET_LOCKED,
   SET_PRESENTER,
   SET_RAISE_HAND,
+  SET_USER_CHAT_LOCKED,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
@@ -73,6 +74,7 @@ export const useUserOperations = (userId?: string) => {
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setRole] = useMutation(SET_ROLE);
   const [setLocked] = useMutation(SET_LOCKED);
+  const [setUserChatLocked] = useMutation(SET_USER_CHAT_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
@@ -94,6 +96,7 @@ export const useUserOperations = (userId?: string) => {
       setPresenter,
       setRole,
       setLocked,
+      setUserChatLocked,
       userEjectCameras,
       setRaiseHand,
       removeUser,

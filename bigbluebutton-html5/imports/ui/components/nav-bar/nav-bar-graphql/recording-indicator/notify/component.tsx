@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
 
@@ -98,17 +99,25 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
           ) : null}
         </Styled.Description>
         <Styled.Footer>
-          <Styled.NotifyButton
-            color="primary"
+          <Styled.ScreenreaderLabel id="recordingNotifyContinueLabel">
+            {intl.formatMessage(intlMessages.continueAriaLabel)}
+          </Styled.ScreenreaderLabel>
+          <Styled.ScreenreaderLabel id="recordingNotifyLeaveLabel">
+            {intl.formatMessage(intlMessages.leaveAriaLabel)}
+          </Styled.ScreenreaderLabel>
+          <BBButton
+            variant="primary"
             dataTest="recordingNotifyContinue"
             label={intl.formatMessage(intlMessages.continue)}
             onClick={handleContinueInRecordedSession}
-            aria-label={intl.formatMessage(intlMessages.continueAriaLabel)}
+            ariaLabelledBy="recordingNotifyContinueLabel"
           />
-          <Styled.NotifyButton
+          <BBButton
+            variant="secondary"
+            dataTest="recordingNotifyLeave"
             label={intl.formatMessage(intlMessages.leave)}
             onClick={skipButtonHandle}
-            aria-label={intl.formatMessage(intlMessages.leaveAriaLabel)}
+            ariaLabelledBy="recordingNotifyLeaveLabel"
           />
         </Styled.Footer>
       </Styled.Container>

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
@@ -268,33 +269,31 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
         </Styled.InfoCard>
       );
     }
-    if (!freeJoin) {
-      if (userRoom) {
-        const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
-        return (
-          <Styled.InfoCard>
-            <Styled.RoomNumberSquare>
-              {userRoom.sequence}
-            </Styled.RoomNumberSquare>
-            <Styled.InfoText>
-              {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
-            </Styled.InfoText>
-            <Styled.EnterRoomBtn
-              type="button"
-              onClick={handleEnterRoom}
-              data-test={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
+    if (userRoom) {
+      const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
+      return (
+        <Styled.InfoCard>
+          <Styled.RoomNumberSquare>
+            {userRoom.sequence}
+          </Styled.RoomNumberSquare>
+          <Styled.InfoText>
+            {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
+          </Styled.InfoText>
+          <Styled.ButtonWrapper>
+            <BBButton
+              variant="primary"
+              dataTest={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
+              label={isCurrentlyInRoom
+                ? intl.formatMessage(intlMessages.alreadyConnected)
+                : intl.formatMessage(intlMessages.joinRoom)}
               disabled={isCurrentlyInRoom}
-              aria-label={isCurrentlyInRoom
-                ? intl.formatMessage(intlMessages.alreadyConnected)
-                : intl.formatMessage(intlMessages.joinRoom)}
-            >
-              {isCurrentlyInRoom
-                ? intl.formatMessage(intlMessages.alreadyConnected)
-                : intl.formatMessage(intlMessages.joinRoom)}
-            </Styled.EnterRoomBtn>
-          </Styled.InfoCard>
-        );
-      }
+              onClick={handleEnterRoom}
+            />
+          </Styled.ButtonWrapper>
+        </Styled.InfoCard>
+      );
+    }
+    if (!freeJoin) {
       return (
         <>
           <Styled.InfoCard>
@@ -307,32 +306,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             {intl.formatMessage(intlMessages.notAssignedHelp)}
           </Styled.NotAssignedHelpText>
         </>
-      );
-    }
-    if (userRoom) {
-      const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
-      return (
-        <Styled.InfoCard>
-          <Styled.RoomNumberSquare>
-            {userRoom.sequence}
-          </Styled.RoomNumberSquare>
-          <Styled.InfoText>
-            {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
-          </Styled.InfoText>
-          <Styled.EnterRoomBtn
-            type="button"
-            onClick={handleEnterRoom}
-            data-test={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
-            disabled={isCurrentlyInRoom}
-            aria-label={isCurrentlyInRoom
-              ? intl.formatMessage(intlMessages.alreadyConnected)
-              : intl.formatMessage(intlMessages.joinRoom)}
-          >
-            {isCurrentlyInRoom
-              ? intl.formatMessage(intlMessages.alreadyConnected)
-              : intl.formatMessage(intlMessages.joinRoom)}
-          </Styled.EnterRoomBtn>
-        </Styled.InfoCard>
       );
     }
     return null;
@@ -374,26 +347,19 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                       <Icon iconName="user_list" />
                     </Styled.FreeJoinRoomCount>
                   </Styled.FreeJoinRoomCardHeader>
-                  <Styled.FreeJoinRequestBtn
-                    type="button"
-                    $isCurrent={isCurrent}
-                    disabled={
-                      isRequesting
-                      || breakout.isUserCurrentlyInRoom
-                    }
-                    onClick={() => handleFreeJoinRoom(breakout)}
-                    aria-label={(() => {
-                      if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
-                      if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
-                      return intl.formatMessage(intlMessages.requestToJoin);
-                    })()}
-                  >
-                    {(() => {
-                      if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
-                      if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
-                      return intl.formatMessage(intlMessages.requestToJoin);
-                    })()}
-                  </Styled.FreeJoinRequestBtn>
+                  <Styled.ButtonWrapper>
+                    <BBButton
+                      variant={isCurrent ? 'primary' : 'secondary'}
+                      label={(() => {
+                        if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
+                        if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
+                        return intl.formatMessage(intlMessages.requestToJoin);
+                      })()}
+                      disabled={isRequesting || breakout.isUserCurrentlyInRoom}
+                      onClick={() => handleFreeJoinRoom(breakout)}
+                      dataTest={`freeJoinRoom${breakout.sequence}`}
+                    />
+                  </Styled.ButtonWrapper>
                 </Styled.FreeJoinRoomCard>
               );
             })}
@@ -404,21 +370,22 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       )}
       {isInBreakout && (
         <Styled.BottomBar>
-          {/* @ts-ignore */}
-          <Styled.CallModeratorBtn
-            icon="user"
-            color="primary"
-            label={intl.formatMessage(intlMessages.callModerator)}
-            onClick={handleCallModerator}
-            data-test="callModeratorButton"
-          />
-          {/* @ts-ignore */}
-          <Styled.ReturnBtn
-            label={intl.formatMessage(intlMessages.returnToMainSession)}
-            onClick={handleReturnToMainSession}
-            data-test="returnToMainSessionButton"
-            ghost
-          />
+          <Styled.ButtonWrapper>
+            <BBButton
+              variant="primary"
+              label={intl.formatMessage(intlMessages.callModerator)}
+              onClick={handleCallModerator}
+              dataTest="callModeratorButton"
+            />
+          </Styled.ButtonWrapper>
+          <Styled.ButtonWrapper>
+            <BBButton
+              variant="secondary"
+              label={intl.formatMessage(intlMessages.returnToMainSession)}
+              onClick={handleReturnToMainSession}
+              dataTest="returnToMainSessionButton"
+            />
+          </Styled.ButtonWrapper>
         </Styled.BottomBar>
       )}
     </Styled.PanelContent>
