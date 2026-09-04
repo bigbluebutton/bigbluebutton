@@ -8,6 +8,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       mobileFontSize: '16px',
       desktopFontSize: '14px',
       autoJoin: true,
+      preFlightScreen: false,
       listenOnlyMode: true,
       forceListenOnly: false,
       skipCheck: false,

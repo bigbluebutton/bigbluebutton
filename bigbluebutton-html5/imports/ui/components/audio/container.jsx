@@ -15,6 +15,7 @@ import {
 
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import PreFlightContainer from './pre-flight/container';
 import useAudioManagerStateSync from './hooks/useAudioManagerStateSync';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -120,6 +121,7 @@ const AudioContainer = (props) => {
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
 
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+  const preFlightScreen = getFromUserSettings('bbb_pre_flight_screen', APP_CONFIG.preFlightScreen);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
   const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
   const { userWebcam } = userLocks;
@@ -138,6 +140,11 @@ const AudioContainer = (props) => {
 
   const audioModal = useModalRegistration({
     id: 'audioModal',
+    priority: 'high',
+  });
+
+  const preFlightModal = useModalRegistration({
+    id: 'preFlightModal',
     priority: 'high',
   });
 
@@ -189,6 +196,17 @@ const AudioContainer = (props) => {
       currentUser?.name,
       bridges,
     );
+
+    // The pre-flight screen takes precedence over autoJoin/auto-share: it shows
+    // a device selection + camera preview screen and defers the actual audio and
+    // video join until the user clicks the join button on that screen.
+    if (preFlightScreen) {
+      if (!currentUserHasVoice && !Service.isUsingAudio()) {
+        Session.setItem('audioModalIsOpen', true);
+        preFlightModal.open();
+      }
+      return Promise.resolve(false);
+    }
 
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
@@ -251,8 +269,11 @@ const AudioContainer = (props) => {
 
     if (!lockSettingsLoaded) return;
     init().then(() => {
-      // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
-      if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
+      // Skip auto join audio if user has already joined in another tab (currentUserHasVoice).
+      // When the pre-flight screen is enabled it takes precedence: the join is
+      // deferred to the pre-flight join button, so skip the breakout auto-join.
+      const skipBreakoutAutoJoin = preFlightScreen || Service.isUsingAudio() || currentUserHasVoice;
+      if (meetingIsBreakout && !skipBreakoutAutoJoin) {
         joinAudio();
       }
     });
@@ -299,6 +320,21 @@ const AudioContainer = (props) => {
 
   return (
     <>
+      {preFlightModal.isOpen ? (
+        <PreFlightContainer
+          {...{
+            priority: 'high',
+            // This block only renders while the modal is open, so close is the
+            // only meaningful setIsOpen target here.
+            setIsOpen: preFlightModal.close,
+            isOpen: true,
+            onJoined: () => {
+              Session.setItem('audioModalIsOpen', false);
+              preFlightModal.close();
+            },
+          }}
+        />
+      ) : null}
       {audioModal.isOpen ? (
         <AudioModalContainer
           {...{

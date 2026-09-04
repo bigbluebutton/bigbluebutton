@@ -84,6 +84,18 @@ export const elements = {
   speechRecognition: 'select[id="speechSelect"]',
   speechRecognitionUnsupported: 'div[data-test="speechRecognitionUnsupported"]',
 
+  // Pre-flight screen
+  preFlightModal: 'div[data-test="preFlightModal"]',
+  preFlightJoinButton: 'button[data-test="preFlightJoinButton"]',
+  preFlightListenOnlyButton: 'button[data-test="preFlightListenOnlyButton"]',
+  preFlightVideoPreview: 'video[data-test="preFlightVideoPreview"]',
+  preFlightInputDeviceSelector: 'label[for="preFlightInputDeviceSelector"] select',
+  preFlightOutputDeviceSelector: 'label[for="preFlightOutputDeviceSelector"] select',
+  preFlightCameraSelect: '[data-test="preFlightCameraSelect"]',
+  preFlightShareCameraToggle: 'button[data-test="preFlightShareCameraToggle"]',
+  preFlightMuteToggle: 'button[data-test="preFlightMuteToggle"]',
+  preFlightGuestRoom: '[data-test="preFlightGuestRoom"]',
+
   // Breakout
   createBreakoutRoomsButton: 'button[data-test="createBreakoutRoomsButton"]',
   updateBreakoutRoomsButton: 'button[data-test="updateBreakoutRoomsButton"]',

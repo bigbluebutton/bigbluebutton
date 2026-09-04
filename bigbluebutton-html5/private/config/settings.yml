@@ -6,6 +6,12 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
+    # Shows a pre-flight screen when the user joins the room, with a camera
+    # preview and microphone/camera/speaker selection, before connecting audio
+    # and video. When enabled, it takes precedence over autoJoin: the join is
+    # deferred until the user clicks the join button on the pre-flight screen.
+    # The audio modal remains the fallback flow when this is disabled.
+    preFlightScreen: false
     # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
