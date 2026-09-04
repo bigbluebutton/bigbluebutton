@@ -1,6 +1,9 @@
 /* eslint no-underscore-dangle: 0 */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState, useMemo,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   RoomAudioRenderer,
@@ -12,6 +15,7 @@ import {
 } from '@livekit/components-react';
 import {
   ConnectionQuality,
+  ConnectionState,
   LogLevel,
   RoomEvent,
   type Room,
@@ -23,7 +27,8 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import {
   liveKitRoomRegistry,
-  DEFAULT_ROOM_OPTIONS,
+  resolveRoomOptions,
+  isReconnectingState,
   PRIMARY_KEY,
 } from '/imports/ui/services/livekit';
 import {
@@ -46,7 +51,19 @@ const intlMessages = defineMessages({
     id: 'app.media.mediaReconnecting',
     description: 'Media reconnection in progress toast message',
   },
+  mediaReconnectFailed: {
+    id: 'app.media.mediaReconnectFailed',
+    description: 'Media reconnection gave up toast message',
+  },
 });
+
+// Long enough that a resume landing in well under a second does not flicker
+// the speaker indicator for everyone in the meeting.
+const TALKING_CLEAR_GRACE_MS = 500;
+// Same idea for the notice, which is louder, so it tolerates a little more of
+// an interruption before it is worth saying anything.
+const MEDIA_INTERRUPTED_NOTICE_GRACE_MS = 1000;
+const MEDIA_RECONNECT_TOAST_ID = 'livekit-media-reconnecting';
 
 interface PrimaryLiveKitRoomProps {
   membership: LiveKitRoomRow;
@@ -59,6 +76,7 @@ interface PrimaryObserverProps {
 }
 
 const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio }) => {
+  const intl = useIntl();
   const { localParticipant } = useLocalParticipant();
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const [setUserDeafened] = useMutation(USER_SET_DEAFENED);
@@ -77,11 +95,61 @@ const PrimaryObserver: React.FC<PrimaryObserverProps> = ({ room, url, usingAudio
     }, `LK primary: ${connectionState}`);
   }, [connectionState, url]);
 
+  // livekit-client only moves the speaking flag on the active-speaker events of
+  // a live session, so a room that stops carrying anything freezes it at its
+  // last value, and it stays frozen once the room returns until a fresh update
+  // arrives. A frozen `true` must not be published: it holds the floor for a
+  // user who is transmitting nothing.
+  const isRoomConnected = connectionState === ConnectionState.Connected;
+  const speakingIsFrozen = useRef(false);
+
   useEffect(() => {
-    if (!usingAudio) return;
+    if (!usingAudio) return undefined;
+
+    if (!isRoomConnected) {
+      speakingIsFrozen.current = true;
+      const timer = setTimeout(() => {
+        setUserTalking({ variables: { talking: false } });
+      }, TALKING_CLEAR_GRACE_MS);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (speakingIsFrozen.current) {
+      if (isSpeaking) return undefined;
+
+      speakingIsFrozen.current = false;
+    }
 
     setUserTalking({ variables: { talking: isSpeaking } });
-  }, [isSpeaking, isMuted, usingAudio]);
+
+    return undefined;
+  }, [isSpeaking, isMuted, usingAudio, isRoomConnected]);
+
+  // The indicator is fed from connection quality, which a session carrying
+  // nothing stops reporting, so an interruption otherwise shows nowhere at all
+  // while the microphone still presents as open. The notice has to outlast the
+  // interruption rather than a toast's usual few seconds.
+  const isMediaInterrupted = isReconnectingState(connectionState);
+
+  useEffect(() => {
+    if (!isMediaInterrupted) {
+      toast.dismiss(MEDIA_RECONNECT_TOAST_ID);
+
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      notify(
+        intl.formatMessage(intlMessages.mediaReconnecting),
+        'warning',
+        'warning',
+        { autoClose: false, toastId: MEDIA_RECONNECT_TOAST_ID },
+      );
+    }, MEDIA_INTERRUPTED_NOTICE_GRACE_MS);
+
+    return () => clearTimeout(timer);
+  }, [isMediaInterrupted, intl]);
 
   useEffect(() => {
     if (!usingAudio) return;
@@ -120,7 +188,9 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
   const url = meetingSettings.public.media?.livekit?.url ?? `wss://${window.location.hostname}/livekit`;
   const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
   const logLevel = meetingSettings.public.media?.livekit?.logLevel ?? LogLevel.warn;
-  const roomOptions = meetingSettings.public.media?.livekit?.roomOptions ?? DEFAULT_ROOM_OPTIONS;
+  const configuredRoomOptions = meetingSettings.public.media?.livekit?.roomOptions;
+  // A fresh object per render would re-run the room-options effect downstream.
+  const roomOptions = useMemo(() => resolveRoomOptions(configuredRoomOptions), [configuredRoomOptions]);
   const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? true;
   const speakerLevel = useSpeakerLevel();
   const { data: bridges } = useMeeting((m) => ({
@@ -147,6 +217,18 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
     notify(intl.formatMessage(intlMessages.mediaReconnecting), 'warning', 'warning');
   }, [intl]);
 
+  // Nothing retries the primary room after this, so the notice has to outlive
+  // a toast's usual lifetime: it is the only cue that a reload is the way back.
+  const onReconnectExhausted = useCallback(() => {
+    toast.dismiss(MEDIA_RECONNECT_TOAST_ID);
+    notify(
+      intl.formatMessage(intlMessages.mediaReconnectFailed),
+      'error',
+      'warning',
+      { autoClose: false },
+    );
+  }, [intl]);
+
   const { sessionToken } = Auth;
   if (!membership.token || typeof sessionToken !== 'string') return null;
 
@@ -165,6 +247,7 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
       reconnectOnFatalFailures={reconnectOnFatalFailures}
       logPrefix="livekit_primary"
       onFatalReconnect={onFatalReconnect}
+      onReconnectExhausted={onReconnectExhausted}
     >
       <PrimaryObserver room={room} url={url} usingAudio={usingAudio} />
       {withAudioPlayback && (!hasActiveSecondary || !canPlayAudio) && <LKAutoplayModalContainer />}

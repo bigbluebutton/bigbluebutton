@@ -3,7 +3,6 @@ import {
   DisconnectReason,
   RoomEvent,
   Track,
-  type InternalRoomOptions,
   type Room,
   type LocalTrackPublication,
   type TrackPublication,
@@ -29,10 +28,10 @@ export const isOrphaningDisconnect = (reason?: DisconnectReason): boolean => {
   return reason === undefined || !NON_ORPHANING_DISCONNECT_REASONS.includes(reason);
 };
 
-export const DEFAULT_ROOM_OPTIONS: Partial<InternalRoomOptions> = {
-  adaptiveStream: true,
-  dynacast: true,
-  stopLocalTrackOnUnpublish: false,
+// States a room can only be in once it has connected, so callers can act on a
+// session that broke without treating a first connection as one.
+export const isReconnectingState = (state: ConnectionState): boolean => {
+  return state === ConnectionState.Reconnecting || state === ConnectionState.SignalReconnecting;
 };
 
 export interface LiveKitFatalErrorDetail {
@@ -91,10 +90,14 @@ export const waitForRoomConnection = (
       return;
     }
 
-    // A room torn down before the wait started gets no further events either.
-    // A room that has simply not connected yet reports the same state, so only
-    // abort for one that has been connected before.
-    if (room.state === ConnectionState.Disconnected && hasConnectedOnce(room)) {
+    // A secondary room torn down before the wait started gets no further
+    // events: its membership is gone and a new one gets a new Room. A room
+    // that has simply not connected yet reports the same state, so only abort
+    // for one that has been connected before. The primary is durable: it is
+    // reconnected by the next membership mount, so it is waited for instead.
+    if (room.state === ConnectionState.Disconnected
+      && hasConnectedOnce(room)
+      && !liveKitRoomRegistry.isPrimary(room)) {
       reject(new Error('Room already disconnected'));
 
       return;
@@ -163,6 +166,9 @@ export const lkToggleMuteCameras = (mute: boolean): void => {
 
 export {
   liveKitRoomRegistry,
+  applyRoomOptions,
+  resolveRoomOptions,
+  DEFAULT_ROOM_OPTIONS,
   PRIMARY_KEY,
   breakoutListenKey,
 } from './registry';

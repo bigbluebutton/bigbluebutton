@@ -676,9 +676,11 @@ class AudioManager {
 
     let newMuteState;
 
-    // when user leaves voice conf, set muted = false
-    // as the user might have been transfered to a breakout room
-    if (leftVoiceConf !== undefined && leftVoiceConf) {
+    // When a user leaves voice conf, set muted=false only only on the
+    // FreeSWITCH bridge as it might have transferred to a breakut room.
+    // Under LiveKit, it can only be a reconn or disconn as transfers work
+    // differently and unmuting there would publish a microphone the user muted.
+    if (!this.isUsingLiveKit && leftVoiceConf !== undefined && leftVoiceConf) {
       newMuteState = false;
     } else if (muted !== undefined && muted !== this.isMuted) {
       newMuteState = muted;

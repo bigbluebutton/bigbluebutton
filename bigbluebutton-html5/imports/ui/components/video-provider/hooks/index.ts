@@ -23,6 +23,7 @@ import {
   setVideoState,
   useConnectingStream,
   getVideoState,
+  expectStreamStop,
 } from '/imports/ui/components/video-provider/state';
 import {
   GRID_USERS_SUBSCRIPTION,
@@ -938,7 +939,10 @@ export const useExitVideo = (forceExit = false) => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  const exitVideo = useCallback(async () => {
+  // `deliberate` says whether the user asked for this. The camera bridge tears
+  // itself down on faults too, and that teardown must stay distinguishable from
+  // someone choosing to stop their camera.
+  const exitVideo = useCallback(async (deliberate = true) => {
     const { isConnected } = getVideoState();
 
     if (isConnected || forceExit) {
@@ -946,7 +950,11 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      const results = ownStreamsRef.current.map((streamId) => sendUserUnshareWebcam(streamId));
+      const results = ownStreamsRef.current.map((streamId) => {
+        if (deliberate) expectStreamStop(streamId);
+
+        return sendUserUnshareWebcam(streamId);
+      });
 
       return Promise.all(results).then(() => {
         videoService.exitedVideo();
@@ -993,13 +1001,16 @@ export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  return useCallback(async (cameraId?: string) => {
+  // `deliberate` says whether the user asked for this: the camera bridge stops
+  // streams on faults through the same call, and that must stay separable.
+  return useCallback(async (cameraId?: string, deliberate = true) => {
     const streams = ownStreamsRef.current;
     const connectingStream = getConnectingStream();
     const hasTargetStream = streams.some((streamId) => streamId === cameraId);
     const hasOtherStream = streams.some((streamId) => streamId !== cameraId);
 
-    if (hasTargetStream) {
+    if (hasTargetStream && cameraId) {
+      if (deliberate) expectStreamStop(cameraId);
       cameraBroadcastStop({ variables: { cameraId } });
     }
 

@@ -5,8 +5,10 @@ import { useReactiveVar } from '@apollo/client';
 import { LiveKitRoom } from '@livekit/components-react';
 import {
   ConnectionError,
+  ConnectionState,
   DisconnectReason,
   LogLevel,
+  RoomEvent,
   setLogLevel,
   type Room,
   type InternalRoomOptions,
@@ -19,7 +21,9 @@ import shouldForceRelay from '/imports/ui/components/livekit/utils';
 import { ForcedReconnectionError } from '/imports/ui/components/livekit/errors';
 import {
   LK_FATAL_ERROR_EVENT,
+  applyRoomOptions,
   isOrphaningDisconnect,
+  isReconnectingState,
   type LiveKitFatalErrorDetail,
   type MembershipKey,
 } from '/imports/ui/services/livekit';
@@ -50,6 +54,15 @@ interface BaseLiveKitRoomProps {
 }
 
 const DEFAULT_MAX_CONN_ATTEMPTS = 10;
+// livekit-client only backs its connection attempts off against its own cloud
+// hosts, so a self-hosted deployment gets none and the whole attempt budget
+// would be spent in the time it takes to refuse a socket ten times.
+const RECONNECT_BASE_DELAY_MS = 1000;
+const RECONNECT_MAX_DELAY_MS = 8000;
+// Past livekit-client's own reconnect ladder, which runs to roughly 52s once
+// its jitter is counted, so only a session it has already given up on gets
+// here.
+const RECONNECT_STALL_TIMEOUT_MS = 60000;
 
 const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   membershipKey,
@@ -83,6 +96,11 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   } = useIceServers(bbbSessionToken);
   const isReconnectingRef = useRef(false);
   const reconnectExhaustedRef = useRef(false);
+  // A refused room answers every attempt with its own disconnect, and each one
+  // would otherwise count as an attempt of ours: the budget then goes in the
+  // time it takes to refuse it ten times, however the retries are paced. One
+  // cycle, one attempt.
+  const retryPendingRef = useRef(false);
 
   const onDisconnected = useCallback((reason?: DisconnectReason) => {
     logger.warn({
@@ -96,9 +114,22 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       },
     }, `${logPrefix}: room disconnected, reason=${reason}`);
 
-    if (isOrphaningDisconnect(reason)) {
-      onTerminalDisconnect?.(reason);
+    if (!isOrphaningDisconnect(reason)) return;
+
+    if (onTerminalDisconnect) {
+      onTerminalDisconnect(reason);
+
+      return;
     }
+
+    if (retryPendingRef.current) return;
+
+    // The SDK emits no error for a disconnect it will not retry, so the retry
+    // effect has nothing to act on; a room whose owner keeps it (the primary)
+    // is reconnected through that effect, so trigger it here
+    retryPendingRef.current = true;
+    setConnError(new ForcedReconnectionError(`Terminal disconnect (reason=${reason})`));
+    setConnAttempts((p) => p + 1);
   }, [logPrefix, url, iceServers, connAttempts, membershipKey, onTerminalDisconnect]);
 
   const onError = useCallback((error: Error) => {
@@ -113,6 +144,10 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
         connAttempts,
       },
     }, `${logPrefix}: room error: ${error.message}`);
+
+    if (retryPendingRef.current) return;
+
+    retryPendingRef.current = true;
     setConnError(error);
     setConnAttempts((p) => p + 1);
   }, [logPrefix, url, connAttempts, membershipKey]);
@@ -122,6 +157,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       logCode: `${logPrefix}_connected`,
       extraInfo: { membershipKey, url },
     }, `${logPrefix}: connected`);
+    retryPendingRef.current = false;
     setConnAttempts(0);
     setConnError(null);
   }, [logPrefix, url, membershipKey]);
@@ -141,8 +177,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       },
     };
 
-    // eslint-disable-next-line no-param-reassign
-    room.options = { ...room.options, ...roomOptions };
+    applyRoomOptions(room, roomOptions);
     setOptionsApplied(true);
     setConnectOptions(opts);
   }, [room, roomOptions, iceServersLoading, iceServers, hasTurnServer, withAutoSubscribe]);
@@ -182,29 +217,38 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       || iceServersLoading
       || !connError
       || connAttempts >= maxConnAttempts) {
-      return;
+      return undefined;
     }
 
     if (!(connError instanceof ConnectionError) && !(connError instanceof ForcedReconnectionError)) {
       setConnError(null);
       setConnAttempts(0);
 
-      return;
+      return undefined;
     }
 
-    setConnError(null);
-    room.connect(url, token, connectOptions).catch((error: Error) => {
-      logger.debug({
-        logCode: `${logPrefix}_connect_retry_error`,
-        extraInfo: {
-          membershipKey,
-          connAttempts,
-          url,
-          errorMessage: error?.message,
-          errorStack: error?.stack,
-        },
-      }, `${logPrefix}: retry connect failed: ${(error)?.message}`);
-    });
+    const delay = Math.min(
+      RECONNECT_BASE_DELAY_MS * (2 ** Math.max(0, connAttempts - 1)),
+      RECONNECT_MAX_DELAY_MS,
+    );
+    const timer = setTimeout(() => {
+      setConnError(null);
+      retryPendingRef.current = false;
+      room.connect(url, token, connectOptions).catch((error: Error) => {
+        logger.debug({
+          logCode: `${logPrefix}_connect_retry_error`,
+          extraInfo: {
+            membershipKey,
+            connAttempts,
+            url,
+            errorMessage: error?.message,
+            errorStack: error?.stack,
+          },
+        }, `${logPrefix}: retry connect failed: ${(error)?.message}`);
+      });
+    }, delay);
+
+    return () => clearTimeout(timer);
   }, [
     room,
     token,
@@ -219,6 +263,51 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
     logPrefix,
     membershipKey,
   ]);
+
+  // A session the SDK stops trying to restore does not always end in a
+  // Disconnected event: a signal socket that stays open and carries nothing
+  // leaves the room in (signal)Reconnecting indefinitely, so onDisconnected
+  // never runs, connError is never set and the retry effect below has nothing
+  // to act on. Manufacture the terminal signal from the connection state.
+  useEffect(() => {
+    let stallTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const forceReconnect = () => {
+      if (isReconnectingRef.current) return;
+
+      isReconnectingRef.current = true;
+      retryPendingRef.current = true;
+      logger.warn({
+        logCode: `${logPrefix}_reconnect_stalled`,
+        extraInfo: {
+          membershipKey, url, connAttempts, state: room.state,
+        },
+      }, `${logPrefix}: room held out of connected, forcing a reconnect`);
+
+      // The captures outlive this teardown: it is ours, not the user leaving.
+      room.disconnect(false).catch(() => {}).then(() => {
+        setConnError(new ForcedReconnectionError(`Reconnect stalled (state=${room.state})`));
+        setConnAttempts((p) => p + 1);
+        isReconnectingRef.current = false;
+      });
+    };
+
+    const armStallTimer = (state: ConnectionState) => {
+      if (stallTimer) clearTimeout(stallTimer);
+
+      stallTimer = isReconnectingState(state)
+        ? setTimeout(forceReconnect, RECONNECT_STALL_TIMEOUT_MS)
+        : undefined;
+    };
+
+    room.on(RoomEvent.ConnectionStateChanged, armStallTimer);
+    armStallTimer(room.state);
+
+    return () => {
+      if (stallTimer) clearTimeout(stallTimer);
+      room.off(RoomEvent.ConnectionStateChanged, armStallTimer);
+    };
+  }, [room, logPrefix, membershipKey, url, connAttempts]);
 
   // Reconnection tracking
   useEffect(() => {

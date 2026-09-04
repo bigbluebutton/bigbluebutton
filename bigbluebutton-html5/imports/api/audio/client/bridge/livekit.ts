@@ -39,6 +39,13 @@ const SENDRECV_ROLE = 'sendrecv';
 const PUBLISH_OP = 'publish';
 const UNPUBLISH_OP = 'unpublish';
 const DEFAULT_UNPUBLISH_AFTER_MUTE_MS = 5000;
+// A full reconnect unpublishes and republishes the mic. The server reads the
+// transient unpublish as a mute and the voice record follows; taken as intent,
+// the SDK would republish the track muted and pin the transient. That record
+// mute reaches the client within ~0.2 s of Reconnecting (loaded servers take
+// longer); one landing later in a long reconnect is somebody's real command,
+// so the window past which a record mute is applied again is bounded.
+const RECONNECT_RECORD_MUTE_WINDOW_MS = 3000;
 
 interface JoinOptions {
   inputStream: MediaStream;
@@ -115,6 +122,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // setSenderTrackEnabled.
   private shouldBeMuted: boolean;
 
+  // When the mic room last entered Reconnecting; null once it left it.
+  private reconnectingSince: number | null;
+
   private static assembleTrackName(
     clientSessionId: string,
     deviceId: string | null | undefined,
@@ -156,10 +166,13 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.handleLocalTrackPublished = this.handleLocalTrackPublished.bind(this);
     this.handleLocalTrackUnpublished = this.handleLocalTrackUnpublished.bind(this);
     this.handleRoomReconnected = this.handleRoomReconnected.bind(this);
+    this.handleRoomReconnecting = this.handleRoomReconnecting.bind(this);
+    this.handleRoomConnected = this.handleRoomConnected.bind(this);
     this.unpublishRequest = null;
     this.isPublishPending = false;
     this.publishGeneration = 0;
     this.shouldBeMuted = true;
+    this.reconnectingSince = null;
 
     this.observeLiveKitEvents();
   }
@@ -471,17 +484,20 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     return pubs.every((pub) => pub.isMuted);
   }
 
+  // Compares capture tracks: the SDK wraps a published track in a MediaStream
+  // of its own and mints a new one on every republish, so stream ids never
+  // match the bridge's capture stream after a reconnect.
   private isTrackPublishedWithStream(stream: MediaStream | null): boolean {
     if (!stream) return false;
 
-    const pubs = this.getLocalMicTrackPubs();
+    const trackIds = stream.getAudioTracks().map((track) => track.id);
 
-    if (pubs.length === 0) return false;
+    if (trackIds.length === 0) return false;
 
-    return pubs.some((pub) => {
-      const pubStream = pub.track?.mediaStream;
+    return this.getLocalMicTrackPubs().some((pub) => {
+      const track = pub.track?.mediaStreamTrack;
 
-      return pubStream?.id === stream.id && pubStream?.active;
+      return !!track && trackIds.includes(track.id) && track.readyState === 'live';
     });
   }
 
@@ -584,12 +600,23 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       this.clearUnpublishRequest();
 
       this.unpublishRequest = setTimeout(() => {
+        this.unpublishRequest = null;
         // If the publication is unmuted, we don't need to unpublish anymore
         // (this unpublish request is only set if the publication is muted)
         if (!this.hasMicrophoneTrack() || !this.isLocalPublicationMuted()) return;
 
-        this.unpublish();
-        this.unpublishRequest = null;
+        // An unhandled rejection here reaches the client's error boundary.
+        this.unpublish().catch((error) => {
+          logger.warn({
+            logCode: 'livekit_audio_unpublish_after_mute_error',
+            extraInfo: {
+              errorMessage: (error as Error)?.message,
+              errorName: (error as Error)?.name,
+              bridge: this.bridgeName,
+              role: this.role,
+            },
+          }, `LiveKit: unpublish after mute failed - ${(error as Error)?.message}`);
+        });
       }, unpublishAfterMuteMs);
     }
   }
@@ -658,10 +685,66 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }, `LiveKit: audio track unpublished - ${trackSid}`);
   }
 
+  private handleRoomReconnecting(): void {
+    this.reconnectingSince = Date.now();
+    // The SDK replaces its PeerConnections on a full reconnect; a pending
+    // unpublish would target a sender the new connection never created.
+    this.clearUnpublishRequest();
+  }
+
   private handleRoomReconnected(): void {
+    this.reconnectingSince = null;
     // A full reconnect republishes local tracks using the SDK's local mute
     // state, which may have drifted from BBB's authoritative state. Reinforce.
     this.reinforceMuteState('room_reconnected');
+    this.reconcileMicPublication('room_reconnected');
+  }
+
+  private handleRoomConnected(): void {
+    this.reconnectingSince = null;
+    this.reconcileMicPublication('room_connected');
+  }
+
+  // See RECONNECT_RECORD_MUTE_WINDOW_MS.
+  private isReconnectTransientMute(): boolean {
+    return this.activeMicRoom?.state === ConnectionState.Reconnecting
+      && this.reconnectingSince !== null
+      && Date.now() - this.reconnectingSince < RECONNECT_RECORD_MUTE_WINDOW_MS;
+  }
+
+  // The mic room can come back after an operation aimed at it already failed:
+  // a rejoin after a server-side eject reconnects the same Room, a full
+  // reconnect cancels a pending publish. Nothing replays those, so re-derive
+  // the publication from the last intent once the room is usable again.
+  private reconcileMicPublication(reason: string): void {
+    if (this.shouldBeMuted || this.joinInFlight) return;
+    if (this.inputDeviceId === 'listen-only' || !this.originalStream) return;
+    if (this.hasMicrophoneTrack()) return;
+
+    logger.info({
+      logCode: 'livekit_audio_mic_reconciled',
+      extraInfo: {
+        bridge: this.bridgeName,
+        role: this.role,
+        reason,
+        inputDeviceId: this.inputDeviceId,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+      },
+    }, `LiveKit: republishing the microphone after room connect - ${reason}`);
+
+    this.publish(this.originalStream).catch((error) => {
+      logger.error({
+        logCode: 'livekit_audio_mic_reconcile_error',
+        extraInfo: {
+          errorMessage: (error as Error)?.message,
+          errorName: (error as Error)?.name,
+          errorStack: (error as Error)?.stack,
+          bridge: this.bridgeName,
+          role: this.role,
+          reason,
+        },
+      }, `LiveKit: failed to republish the microphone after room connect - ${(error as Error)?.message}`);
+    });
   }
 
   // Re-assert the desired muted state onto the local microphone track. LiveKit
@@ -722,6 +805,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // defenses + publish logging).
   private attachMicObservers(room: Room): void {
     this.detachMicObservers(room);
+    room.on(RoomEvent.Connected, this.handleRoomConnected);
+    room.on(RoomEvent.Reconnecting, this.handleRoomReconnecting);
     room.on(RoomEvent.Reconnected, this.handleRoomReconnected);
     room.localParticipant.on(ParticipantEvent.TrackMuted, this.handleLocalTrackMuted);
     room.localParticipant.on(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
@@ -730,6 +815,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   private detachMicObservers(room: Room): void {
+    room.off(RoomEvent.Connected, this.handleRoomConnected);
+    room.off(RoomEvent.Reconnecting, this.handleRoomReconnecting);
     room.off(RoomEvent.Reconnected, this.handleRoomReconnected);
     room.localParticipant.off(ParticipantEvent.TrackMuted, this.handleLocalTrackMuted);
     room.localParticipant.off(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
@@ -741,6 +828,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     if (previous === target) return;
     if (previous) this.detachMicObservers(previous);
 
+    // The window belongs to the room that entered Reconnecting.
+    this.reconnectingSince = null;
     this.attachMicObservers(target);
   }
 
@@ -1164,6 +1253,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   setSenderTrackEnabled(shouldEnable: boolean): void {
     // Record the latest mute intent so reconnect/republish/out-of-band track
     // unmutes can be reconciled against it (see reinforceMuteState).
+    const previousIntent = this.shouldBeMuted;
     this.shouldBeMuted = !shouldEnable;
     const trackPubs = this.getLocalMicTrackPubs();
     const isCurrentlyMuted = this.isLocalPublicationMuted();
@@ -1257,6 +1347,23 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: audio track unmute no-op - no matching pubs or no original stream');
       }
     } else {
+      // The intent that preceded the reconnect stands; the republished track
+      // corrects the record within the same reconnect (see the window constant).
+      if (this.isReconnectTransientMute()) {
+        this.shouldBeMuted = previousIntent;
+        logger.info({
+          logCode: 'livekit_audio_mute_ignored_reconnecting',
+          extraInfo: {
+            bridge: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            previousIntent,
+          },
+        }, 'LiveKit: mute ignored while the room reconnects');
+
+        return;
+      }
+
       if (isCurrentlyMuted || !hasPublishedTrack) return;
 
       // Track is published and unmuted - mute it
@@ -1645,6 +1752,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       }, 'LiveKit: failed to unpublish audio track before publish');
     }
 
+    // The catch block's recovery reads this, so it cannot live in the try.
+    let micRoom: Room | undefined;
+
     try {
       // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
@@ -1673,7 +1783,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: audio stream is inactive, fallback');
       }
 
-      const micRoom = this.activeMicRoom ?? this.resolvePrimaryRoom();
+      micRoom = this.activeMicRoom ?? this.resolvePrimaryRoom();
 
       if (!micRoom) {
         logger.warn({
@@ -1690,6 +1800,22 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       // when this runs. Wait for room conn here.
       await waitForRoomConnection(micRoom);
 
+      // The wait also ends on an SDK reconnect, whose republishAllTracks may
+      // have put this very stream back; publishing it twice gets no answer.
+      if (inputStream && this.isTrackPublishedWithStream(inputStream)) {
+        logger.debug({
+          logCode: 'livekit_audio_publish_republished_skip',
+          extraInfo: {
+            bridge: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+          },
+        }, 'LiveKit: stream republished while waiting for the room, skipping publish');
+
+        return;
+      }
+
       if (inputStream && inputStream.active) {
         // Get tracks from the stream and publish them. Map into an array of
         // Promise objects and wait for all of them to resolve.
@@ -1702,9 +1828,10 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
           },
         }, 'LiveKit: publishing audio track with stream');
+        const { localParticipant } = micRoom;
         const trackPublishers = inputStream.getAudioTracks()
           .map((track) => {
-            return micRoom.localParticipant.publishTrack(track, publishOptions);
+            return localParticipant.publishTrack(track, publishOptions);
           });
         await LiveKitAudioBridge.bindToRoomLiveness(micRoom, Promise.all(trackPublishers));
       } else {
@@ -1712,7 +1839,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           micRoom,
           micRoom.localParticipant.setMicrophoneEnabled(true, constraints, publishOptions),
         );
-        this.originalStream = this.inputStream;
+        this.originalStream = this.publicationTrackStream;
         logger.debug({
           logCode: 'livekit_audio_publish_without_stream',
           extraInfo: {
@@ -1742,6 +1869,19 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           streamData: MediaStreamUtils.getMediaStreamLogData(inputStream || this.originalStream),
         },
       }, 'LiveKit: failed to publish audio track');
+
+      // A timeout on a stream that is published anyway is a duplicate, not a
+      // dead room: the caller got what it asked for and reconnecting would
+      // only churn the session.
+      const publishedAnyway = !!inputStream && this.isTrackPublishedWithStream(inputStream);
+
+      if (publishedAnyway) {
+        const micPub = micRoom?.localParticipant.getTrackPublication(Track.Source.Microphone);
+        this.currentMicTrack = micPub?.track?.mediaStreamTrack ?? undefined;
+        this.audioPublished();
+
+        return;
+      }
 
       if (LiveKitAudioBridge.isFatalPublishError(error as Error)) {
         if (this.micSwitchGeneration === switchGeneration) {

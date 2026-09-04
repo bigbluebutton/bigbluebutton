@@ -1,6 +1,11 @@
 import { type Browser, expect, type TestInfo, type WebSocketRoute } from '@playwright/test';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import {
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  PASSIVE_REMOVAL_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { isLiveKit } from '../core/livekit';
 import { Page } from '../core/page';
@@ -32,14 +37,10 @@ const APOLLO_EXPOSURE_SKIP_REASON =
   'requires window.__APOLLO_CLIENT__ for the server-state probe ' +
   '(dev bundle or enableApolloDevTools provisioned via clientSettingsOverride)';
 
-// Passive user removal: natural eject by akka-apps on disconnects. Lands
-// ~20s after the client's GraphQL closes: 10s user-left flag plus a 10s akka-audit tick.
-const PASSIVE_REMOVAL_WAIT_TIME = 45_000;
-
 // VoiceUser <-> Users2x enforcement timer. Fencing usually lands with user
-// removal- so do the above 45s + a blanket 15s which usually is LK's own ejection
+// removal, so the removal budget plus one element wait for LK's own ejection
 // timer.
-const ENFORCEMENT_WAIT_TIME = 60_000;
+const ENFORCEMENT_WAIT_TIME = PASSIVE_REMOVAL_WAIT_TIME + ELEMENT_WAIT_EXTRA_LONG_TIME;
 
 // A still-flowing media stream would add hundreds of packets in this.
 const SILENCE_SAMPLE_WINDOW = 3_000;
@@ -218,6 +219,10 @@ test.describe('Audio state sync', { tag: ['@ci', '@media'] }, () => {
 
   // The other half of enforcement: a user who comes back has to end up whole -
   // publishing again, and with the voice record they were fenced under.
+  // With the primary Room kept across the membership remount, the suppressed
+  // disconnect leaves the old session connected and the remount's connect is a
+  // no-op, so the restore is proven on that session rather than on a fresh one;
+  // the canPublish controls below hold either way.
   test('a fenced user regains audio when they are re-admitted', async ({ browser }, testInfo) => {
     // Longer than the 3min default: this is the only case that waits out a removal
     // and a re-admission, so it pays both budgets twice - once fencing, once

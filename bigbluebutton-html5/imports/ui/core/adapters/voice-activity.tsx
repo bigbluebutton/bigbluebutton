@@ -49,8 +49,10 @@ const VoiceActivityAdapter = () => {
     // LiveKit state should be resilient to GraphQL disconnections on certain
     // occasions. Complete absence of data from either sources is treated in
     // the LK hooks.
+    // Talking state is transient and goes stale within seconds; the unmuted
+    // set is kept, as an absent entry reads as muted and the microphone keeps
+    // sending through the outage - the stream replays it on reconnection.
     if (!connected && !shouldUseLiveKitAudioState) {
-      dispatchWhoIsUnmutedUpdate(undefined);
       dispatchWhoIsTalkingUpdate(undefined);
       dispatchTalkingUserUpdate(undefined);
     }
