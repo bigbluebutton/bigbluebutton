@@ -22,11 +22,12 @@ import {
   fontSizeLarge,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  colorText,
   colorBorder,
-  colorGrayDark,
-  colorWhite,
+  colorBorderSurface,
+  colorGrayDarkSurface,
   colorPrimary,
+  colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
@@ -84,7 +85,7 @@ const TypedResponseInput = styled.input`
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   border: 1px solid ${colorBorder};
-  box-shadow: 0 0 0 1px ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorderSurface};
   margin-bottom: 1rem;
 `;
 
@@ -158,12 +159,12 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   z-index: ${pollIndex};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
-  box-shadow: ${colorGrayDark} 0px 0px ${lgPaddingY};
+  box-shadow: ${colorGrayDarkSurface} 0px 0px ${lgPaddingY};
   align-items: center;
   text-align: center;
   font-weight: 600;
   padding: ${mdPaddingY};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
 

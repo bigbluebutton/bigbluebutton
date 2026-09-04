@@ -1,8 +1,16 @@
 import styled, { css } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  colorDanger, colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
-  colorText, colorGrayIcons, appsPanelTextColor,
+  appsGalleryOutlineColor,
+  appsPanelTextColor,
+  colorDanger,
+  colorGrayIcons,
+  colorGrayUserListToolbar,
+  colorPrimary,
+  colorText,
+  colorTextSecondary,
+  colorWhiteSurface,
+  mediaSharingChipBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
@@ -56,7 +64,7 @@ const ModalContainer = styled.div<{
   reducedWidth?: boolean,
 }>`
   position: fixed;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   box-shadow: -4px 4px 8px 0px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
@@ -211,8 +219,8 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  background-color: #e0e0e0;
-  color: #666;
+  background-color: ${mediaSharingChipBg};
+  color: ${colorTextSecondary};
   border: none;
   cursor: not-allowed;
   opacity: 0.7;

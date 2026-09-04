@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorLink,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const TestAudioButton = styled(Button)`
   margin: 0 !important;
@@ -22,9 +25,9 @@ const TestAudioButton = styled(Button)`
   &:active {
     border: none;
     background-color: transparent !important;
-    color: #0c5cb2 !important;
+    color: ${colorLink} !important;
     i {
-      color: #0c5cb2;
+      color: ${colorLink};
     }
   }
 `;

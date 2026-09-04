@@ -16,16 +16,29 @@ export class SystemTheme extends MultiUsers {
     });
   }
 
-  // Waits until the applied theme matches the expectation. DarkReader injects
-  // <style class="darkreader ..."> elements while the dark theme is enabled and
-  // removes them when it is disabled, so their presence is a reliable signal.
+  // Waits until the applied theme matches the expectation. The native theme
+  // stamps data-theme="dark" on <html> while dark mode is on and removes the
+  // attribute when it is off, so its presence is the signal.
+  //
+  // The attribute alone is not enough: it only proves JS ran. The dark palette
+  // lives in public/stylesheets/theme-dark.css, a file nothing else in the suite
+  // verifies, so if it ever failed to ship these tests would stay green over a
+  // fully light UI. --color-background is declared only by that sheet and only
+  // under [data-theme='dark'], so resolving to a non-empty value is proof the
+  // sheet shipped and applied. Asserted non-empty rather than equal to #181A23
+  // because a branded client may override --color-background-dark-theme.
   async expectDarkTheme(shouldBeDark: boolean, description: string): Promise<void> {
     await expect
-      .poll(() => this.modPage.page.evaluate(() => document.querySelectorAll('style.darkreader').length > 0), {
+      .poll(() => this.modPage.page.evaluate(() => document.documentElement.getAttribute('data-theme') === 'dark'), {
         message: description,
         timeout: ELEMENT_WAIT_TIME,
       })
       .toBe(shouldBeDark);
+
+    const paletteApplied = await this.modPage.page.evaluate(
+      () => getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim().length > 0,
+    );
+    await expect(paletteApplied, `${description} (dark palette sheet applied)`).toBe(shouldBeDark);
   }
 
   // Opens Settings, flips the "Dark mode" switch and saves, i.e. records an

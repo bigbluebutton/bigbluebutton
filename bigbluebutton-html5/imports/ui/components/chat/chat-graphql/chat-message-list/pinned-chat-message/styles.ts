@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import {
-  colorWhite,
-  colorBlueAux,
   appsGalleryOutlineColor,
-  colorNeutral2,
+  colorBlueAux,
   colorDangerDark,
-  colorGrayLightest,
+  colorGrayLightestBorder,
+  colorNeutral2,
   colorOffWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmall,
@@ -26,7 +26,7 @@ import {
 import OrIcon from '/imports/ui/components/common/icon/component';
 
 const Wrapper = styled.div`
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border-radius: ${borderRadiusRounded};
   border: ${borderSizeSmall} solid ${appsGalleryOutlineColor};
   padding: ${$2xlPadding};
@@ -110,7 +110,7 @@ const MessagePreview = styled.div<{ $collapsed?: boolean }>`
 
   & pre:has(code), p code:not(pre > code) {
     background-color: ${colorOffWhite};
-    border: solid ${borderSizeSmall} ${colorGrayLightest};
+    border: solid ${borderSizeSmall} ${colorGrayLightestBorder};
     border-radius: ${borderRadius};
     padding: ${smPadding};
     margin: 0;

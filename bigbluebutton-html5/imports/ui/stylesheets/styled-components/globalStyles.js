@@ -7,11 +7,12 @@ import {
   borderSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  dropdownBg,
-  colorText,
-  colorWhite,
-  colorGrayLighter,
+  colorGrayLighterSurface,
   colorOverlay,
+  colorSurfaceNeutral,
+  colorText,
+  colorWhiteSurface,
+  dropdownBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const GlobalStyle = createGlobalStyle`
@@ -67,7 +68,7 @@ const GlobalStyle = createGlobalStyle`
 
   .fullscreenModalOverlay {
     z-index: 900;
-    background: #fff;
+    background: ${colorWhiteSurface};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,10 +94,10 @@ const GlobalStyle = createGlobalStyle`
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
     cursor: pointer;
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
 
     &:focus {
-      background-color: #EEE;
+      background-color: ${colorSurfaceNeutral};
     }
   }
 
@@ -106,7 +107,7 @@ const GlobalStyle = createGlobalStyle`
     flex: 1;
     background-color: inherit;
     max-width: 17.75rem !important;
-    background-color: ${colorWhite} !important;
+    background-color: ${colorWhiteSurface} !important;
   }
 
   @keyframes track-progress {
@@ -127,7 +128,7 @@ const GlobalStyle = createGlobalStyle`
     height: 5px;
     z-index: 999;
     animation: track-progress linear 1;
-    background-color: ${colorGrayLighter} !important;
+    background-color: ${colorGrayLighterSurface} !important;
     border-radius: ${borderRadius};
 
     [dir="rtl"] & {
@@ -137,7 +138,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .actionToast {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     display: flex;
     padding: ${smPaddingX};
     border-radius: ${borderRadius};
@@ -152,7 +153,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .raiseHandToast {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     padding: 1rem;
 
     i.close {

@@ -8,10 +8,12 @@ import {
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
-  colorWhite,
+  colorBlack,
   colorGrayLightest,
   colorOffWhite,
+  colorPrimary,
+  colorTextStrong,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarger,
@@ -90,7 +92,7 @@ const ToastTextContent = styled.div`
   position: relative;
   overflow: hidden;
   margin-top: ${smPaddingY};
-  color: black;
+  color: ${colorBlack};
 
   & > div:first-of-type {
     font-weight: bold;
@@ -179,7 +181,7 @@ const Button = styled.button`
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
     0px 2px 3px rgba(0, 0, 0, 0.24),
     0px 2px 6px rgba(0, 0, 0, 0.1);
-  color: #2d2d2d;
+  color: ${colorTextStrong};
   cursor: pointer;
   padding: .3rem .5rem;
   display: flex;

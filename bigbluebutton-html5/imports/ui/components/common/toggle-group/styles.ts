@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { ToggleButton as MuiToggleButton, ToggleButtonProps } from '@mui/material';
 import FormControlMui from '@mui/material/FormControl';
-import { colorPrimary, colorWhite, colorGrayLight } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayLight, colorPrimary, colorWhite, colorWhiteSurface,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ToggleButton {
   hasTitle?: boolean;
@@ -17,7 +19,7 @@ const ToggleButton = styled(MuiToggleButton)<ToggleButtonProps & ToggleButton>`
   `};
 
   ${({ selected }) => !selected && `
-    background-color: ${colorWhite} !important;
+    background-color: ${colorWhiteSurface} !important;
     color: ${colorGrayLight} !important;
   `};
 
@@ -30,7 +32,7 @@ const ToggleGroupContainer = styled.div`
   display: flex;
   flex-direction: column;
   .MuiToggleButtonGroup-root {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     border-radius: 2rem;
   }
 `;

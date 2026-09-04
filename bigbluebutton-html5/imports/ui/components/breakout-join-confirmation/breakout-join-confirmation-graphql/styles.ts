@@ -1,12 +1,14 @@
 import styled from 'styled-components';
 import { Select as SelectMui, type SelectProps } from '@mui/material';
 import {
-  colorWhite,
-  colorGrayLighter,
   colorGray,
   colorGrayDark,
+  colorGrayLighter,
+  colorGrayLighterSurface,
   colorPrimary,
   colorText,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -21,7 +23,7 @@ const Overlay = styled.div`
 `;
 
 const Dialog = styled.div`
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border-radius: 0.75rem;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
   width: 32rem;
@@ -58,7 +60,7 @@ const CloseButton = styled.button`
 
   &:hover {
     color: ${colorGrayDark};
-    background: ${colorGrayLighter};
+    background: ${colorGrayLighterSurface};
   }
 `;
 
@@ -106,7 +108,7 @@ const EnterButton = styled.button`
 `;
 
 const CancelButton = styled.button`
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   color: ${colorText};
   border: 1px solid ${colorGrayLighter};
   border-radius: 0.5rem;
@@ -116,7 +118,7 @@ const CancelButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: ${colorGrayLighter};
+    background: ${colorGrayLighterSurface};
   }
 `;
 
@@ -138,7 +140,7 @@ const Select = styled(SelectMui)<SelectProps>`
   .MuiSelect-select {
     padding: 0.625rem;
     font-size: 1rem;
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
   }
 `;
 

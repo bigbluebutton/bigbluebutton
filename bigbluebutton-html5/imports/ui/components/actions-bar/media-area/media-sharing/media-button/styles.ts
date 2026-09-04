@@ -1,12 +1,10 @@
 import {
   colorGrayUserListToolbar, btnDefaultColor, btnPrimaryBg, btnPrimaryColor,
-  colorText, colorBlueAux,
+  colorText, colorBlueAux, defaultBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import { ButtonBase } from '@mui/material';
 import styled from 'styled-components';
-
-const btnBorder = 'var(--btn-default-border, #B0BDC9)';
 
 // Outer container for the media button.
 const MediaButtonContainer = styled.div`
@@ -26,7 +24,7 @@ const ButtonFrame = styled(ButtonBase)<ButtonFrameProps>`
   width: 4.5rem;
   height: 4.5rem;
   border-radius: 16px !important;
-  border: 1px solid ${btnBorder} !important;
+  border: 1px solid var(--btn-default-border, ${defaultBorder}) !important;
   padding: 0.5rem !important;
   box-sizing: border-box;
   display: flex;

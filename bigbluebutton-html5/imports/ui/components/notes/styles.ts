@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import {
   mdPaddingX, lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhiteSurface } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import CommonHeader from '/imports/ui/components/common/control-header/component';
 import {
@@ -24,7 +24,7 @@ const PanelContent = styled(BasePanelContent)<{isOnMediaArea: boolean, isHidden:
 const Separator = styled(BaseSeparator)``;
 
 const Notes = styled.div<{ isChrome: boolean }>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   padding: ${mdPaddingX};
   display: flex;
   flex-grow: 1;
@@ -45,7 +45,7 @@ const Notes = styled.div<{ isChrome: boolean }>`
 `;
 
 const Header = styled(CommonHeader)`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   padding-bottom: .2rem;
   padding-left: ${mdPaddingX};
   border-radius: ${lgBorderRadius} ${lgBorderRadius} 0 0;

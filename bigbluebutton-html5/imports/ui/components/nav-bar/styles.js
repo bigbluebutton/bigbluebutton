@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
   colorBackground,
   colorGray,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';

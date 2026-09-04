@@ -1,10 +1,12 @@
 import styled, { css } from 'styled-components';
 import {
+  colorBorder,
+  colorBorderSurface,
   colorDangerDark,
-  colorBorder, colorOffWhite,
+  colorOffWhite,
   colorPrimary,
   colorText,
-  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPadding, smPadding, smPaddingX, xlPadding,
@@ -13,8 +15,8 @@ import EmojiButton from '../chat-message-list/page/chat-message/message-toolbar/
 
 const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
   border-radius: 0.375rem;
-  background-color: ${colorWhite};
-  box-shadow: inset 0 0 0 1px ${colorBorder};
+  background-color: ${colorWhiteSurface};
+  box-shadow: inset 0 0 0 1px ${colorBorderSurface};
   display: flex;
   align-items: center;
   overflow: hidden;

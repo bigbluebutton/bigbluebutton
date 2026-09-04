@@ -3,13 +3,14 @@ import {
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
-  colorWhite,
-  colorGrayLighter,
   colorBlueAux,
-  colorText,
-  colorGray,
   colorBorder,
+  colorGray,
+  colorGrayLighter,
+  colorPrimary,
+  colorText,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmall,
@@ -227,7 +228,7 @@ const ReturnBtn = styled(Button)`
   width: 100%;
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   color: ${colorText};
   border: 1px solid ${colorGrayLighter};
   border-radius: 1rem;

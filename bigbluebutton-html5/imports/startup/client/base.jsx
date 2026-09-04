@@ -9,11 +9,29 @@ import { layoutDispatch } from '/imports/ui/components/layout/context';
 import logger from '/imports/startup/client/logger';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Source Sans Pro, Arial, sans-serif',
-  },
-});
+const typography = {
+  fontFamily: 'Source Sans Pro, Arial, sans-serif',
+};
+
+const muiBrand = {
+  primary: { main: '#1976d2' },
+  secondary: { main: '#9c27b0' },
+};
+
+const themes = {
+  light: createTheme({ typography, palette: { ...muiBrand } }),
+  dark: createTheme({
+    typography,
+    palette: {
+      ...muiBrand,
+      mode: 'dark',
+      background: {
+        default: '#181A23',
+        paper: '#2D2F38',
+      },
+    },
+  }),
+};
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -93,10 +111,12 @@ class Base extends Component {
   }
 
   render() {
+    const { darkTheme } = this.props;
+
     return (
       <>
         <DebugWindow />
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={darkTheme ? themes.dark : themes.light}>
           <AppContainer {...this.props} />
         </ThemeProvider>
       </>
@@ -105,13 +125,14 @@ class Base extends Component {
 }
 
 const BaseContainer = (props) => {
-  const { animations } = useSettings(SETTINGS.APPLICATION);
+  const { animations, darkTheme } = useSettings(SETTINGS.APPLICATION);
   const layoutContextDispatch = layoutDispatch();
 
   return (
     <Base
       {...{
         animations,
+        darkTheme,
         layoutContextDispatch,
         ...props,
       }}

@@ -3,16 +3,17 @@ import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
 import Select from '@mui/material/Select';
 import {
-  colorPrimary,
+  btnPrimaryBg,
+  colorBlueLighter,
+  colorDanger,
   colorGray,
   colorGrayLight,
   colorGrayLighter,
-  colorWhite,
   colorGrayUserListToolbar,
+  colorInfoBannerBg,
+  colorPrimary,
   colorText,
-  btnPrimaryBg,
-  colorDanger,
-  colorBlueLighter,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
@@ -332,7 +333,7 @@ export const InfoBanner = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  background: #e8f0fe;
+  background: ${colorInfoBannerBg};
   border-radius: 0.75rem;
   padding: 0.75rem;
   margin: 0.5rem 0;

@@ -6,7 +6,12 @@ import {
   dropdownCaretHeight,
   dropdownCaretWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorGray } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayBorder,
+  colorWhiteBorder,
+  colorWhiteSurface,
+  scrollFadeColor,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Content = styled.div`
@@ -15,7 +20,7 @@ const Content = styled.div`
   outline-style: solid;
   z-index: 9999;
   position: absolute;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border-radius: ${borderRadius};
   box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
   border: 0;
@@ -44,7 +49,7 @@ const Content = styled.div`
   @media ${smallOnly} {
     z-index: 1015;
     border-radius: 0;
-    background-color: #fff;
+    background-color: ${colorWhiteSurface};
     box-shadow: none;
     position: fixed;
     top: 0 !important;
@@ -72,13 +77,13 @@ const Content = styled.div`
   &:after {
     border-left: ${dropdownCaretWidth} solid transparent;
     border-right: ${dropdownCaretWidth} solid transparent;
-    border-top: ${dropdownCaretHeight} solid ${colorWhite};
+    border-top: ${dropdownCaretHeight} solid ${colorWhiteBorder};
     bottom: 0;
     margin-bottom: calc(${dropdownCaretHeight} * -1);
   }
 
   &:before {
-    border-top: ${dropdownCaretHeight} solid ${colorGray};
+    border-top: ${dropdownCaretHeight} solid ${colorGrayBorder};
   }
 
   transform: translateX(100%);
@@ -104,8 +109,8 @@ const Content = styled.div`
 const Scrollable = styled.div`
   @media ${smallOnly} {
     overflow-y: auto;
-    background: linear-gradient(white 30%, rgba(255,255,255,0)),
-      linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+    background: linear-gradient(${scrollFadeColor} 30%, transparent),
+      linear-gradient(transparent, ${scrollFadeColor} 70%) 0 100%,
       /* Shadows */
       radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
       radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;

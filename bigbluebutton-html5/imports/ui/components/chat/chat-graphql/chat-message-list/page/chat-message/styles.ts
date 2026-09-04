@@ -14,12 +14,14 @@ import {
 
 import {
   colorBlueLightest,
-  colorGrayLight,
   colorBorder,
   colorGrayDark,
-  colorWhite,
-  colorSelectedCorrectAnswerText,
+  colorGrayLight,
+  colorGrayUserListToolbar,
+  colorSelectedCorrectAnswerTextBorder,
+  colorWhiteSurface,
   emphasizedMessageBackgroundColor,
+  highlightedMessageBackgroundColor,
   highlightedMessageBorderColor,
   systemMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -66,11 +68,11 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   ${({ isPresentationUpload }) => isPresentationUpload && `
       border: 1px solid ${systemMessageBorderColor};
       border-radius: 8px;
-      background-color: ${colorWhite};
+      background-color: ${colorWhiteSurface};
     `}
   ${({ messageHighlight }) => messageHighlight && `
-    background-color: #fef9f1;
-    border-left: 2px solid ${colorSelectedCorrectAnswerText};
+    background-color: ${highlightedMessageBackgroundColor};
+    border-left: 2px solid ${colorSelectedCorrectAnswerTextBorder};
     border-radius: 0px 3px 3px 0px;
     padding: 8px 2px;
   `}
@@ -90,7 +92,7 @@ export const ChatMessageContentWrapper = styled.div<ChatMessageContentWrapperPro
 
   ${({ $isSystemSender, isCustomPluginMessage }) => !$isSystemSender && !isCustomPluginMessage
   && `
-    background-color: #f4f6fa;
+    background-color: ${colorGrayUserListToolbar};
   `}
 
   ${({ $highlight, isCustomPluginMessage }) => ($highlight && !isCustomPluginMessage) && `

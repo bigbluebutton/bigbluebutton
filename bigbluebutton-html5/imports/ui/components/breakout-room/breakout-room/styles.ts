@@ -8,15 +8,15 @@ import {
   contentSidebarBottomScrollPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorBorder,
-  colorPrimary,
-  colorGray,
-  colorDanger,
-  userListBg,
-  colorWhite,
   colorBlueAux,
-  listItemBgHover,
+  colorBorder,
+  colorDanger,
+  colorGray,
+  colorPrimary,
   colorText,
+  colorWhiteSurface,
+  listItemBgHover,
+  userListBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   headingsFontWeight,
@@ -232,12 +232,12 @@ const Duration = styled.span`
 `;
 
 const Content = styled(ScrollboxVertical)`
-  background: linear-gradient(${colorWhite} 30%, rgba(255,255,255,0)),
-    linear-gradient(rgba(255,255,255,0), ${colorWhite} 70%) 0 100%,
+  background: linear-gradient(${colorWhiteSurface} 30%, rgba(255,255,255,0)),
+    linear-gradient(rgba(255,255,255,0), ${colorWhiteSurface} 70%) 0 100%,
     radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
 
-  background-color: #fff;
+  background-color: ${colorWhiteSurface};
   padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
   display: flex;
   flex-grow: 1;
@@ -269,7 +269,7 @@ const Wrapper = styled.div`
 
 const Input = styled(TextareaAutosize)`
   flex: 1;
-  background: #fff;
+  background: ${colorWhiteSurface};
   background-clip: padding-box;
   margin: 0;
   color: ${colorText};

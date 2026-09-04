@@ -24,38 +24,56 @@ import {
   btnFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  btnDefaultColor,
-  btnDefaultBg,
-  btnDefaultGhostColor,
-  btnDefaultGhostBg,
-  btnDefaultGhostActiveBg,
-  btnDefaultGhostBorder,
-  btnPrimaryBorder,
-  btnPrimaryColor,
-  btnPrimaryBg,
-  btnPrimaryHoverBg,
-  btnPrimaryActiveBg,
-  btnSuccessBorder,
-  btnSuccessColor,
-  btnSuccessBg,
-  btnWarningBorder,
-  btnWarningColor,
-  btnWarningBg,
-  btnDangerBorder,
-  btnDangerColor,
+  appsGalleryOutlineColorSurface,
   btnDangerBg,
   btnDangerBgHover,
+  btnDangerBorder,
+  btnDangerColor,
+  btnDangerColorSurface,
+  btnDarkBg,
+  btnDarkBgText,
   btnDarkBorder,
   btnDarkColor,
-  btnDarkBg,
-  btnOfflineBorder,
-  btnOfflineColor,
-  btnOfflineBg,
+  btnDarkColorSurface,
+  btnDefaultBg,
+  btnDefaultBgText,
+  btnDefaultColor,
+  btnDefaultColorSurface,
+  btnDefaultGhostActiveBg,
+  btnDefaultGhostBg,
+  btnDefaultGhostBorder,
+  btnDefaultGhostColor,
+  btnDefaultGhostColorBorder,
+  btnMutedBg,
+  btnMutedBgText,
   btnMutedBorder,
   btnMutedColor,
-  btnMutedBg,
-  colorWhite,
+  btnMutedColorSurface,
+  btnOfflineBg,
+  btnOfflineBgText,
+  btnOfflineBorder,
+  btnOfflineColor,
+  btnOfflineColorSurface,
+  btnPrimaryActiveBg,
+  btnPrimaryBg,
+  btnPrimaryBorder,
+  btnPrimaryColor,
+  btnPrimaryColorSurface,
+  btnPrimaryHoverBg,
+  btnSuccessBg,
+  btnSuccessBorder,
+  btnSuccessColor,
+  btnSuccessColorSurface,
+  btnWarningBg,
+  btnWarningBorder,
+  btnWarningColor,
+  btnWarningColorSurface,
+  colorControlActiveSurface,
+  colorControlActiveText,
+  colorControlBorder,
   colorGray,
+  colorWhite,
+  colorWhiteBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import BaseButton from './base/component';
 
@@ -269,9 +287,9 @@ const ButtonWrapper = styled(BaseButton)`
     size, circle, ghost, color,
   }) => size === 'lg' && circle && ghost && color === 'default' && `
     span {
-      box-shadow: 0 0 1px 0px ${btnDefaultGhostColor} inset, 0 0 1px 0px ${btnDefaultGhostColor};
+      box-shadow: 0 0 1px 0px ${btnDefaultGhostColorBorder} inset, 0 0 1px 0px ${btnDefaultGhostColorBorder};
       background-color: transparent !important;
-      border-color: ${btnDefaultGhostColor} !important;
+      border-color: ${btnDefaultGhostColorBorder} !important;
     }
 
     & > span{
@@ -335,7 +353,7 @@ const ButtonWrapper = styled(BaseButton)`
     right: 0;
     bottom: 0;
     border-radius: 50%;
-    border: 2px solid white;
+    border: 2px solid ${colorWhiteBorder};
     border-top-color: transparent;
     animation: spin 1.5s ease infinite;
   }
@@ -453,30 +471,30 @@ const ButtonSpan = styled.span`
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
       color: ${colorGray};
-      box-shadow: 0 0 0 1px #CDD6E0 !important;
-      background-color: #DCE4EC !important;
+      box-shadow: 0 0 0 1px ${colorControlBorder} !important;
+      background-color: ${appsGalleryOutlineColorSurface} !important;
     }
     
     &:hover {
-      color: hsl(210, 13%, 20%) !important;
-      background-color: #DCE4EC !important;
+      color: ${colorControlActiveText} !important;
+      background-color: ${appsGalleryOutlineColorSurface} !important;
     }
 
     &:active {
-      color: hsl(210, 13%, 20%) !important;
-      background-color: hsl(210, 30%, 80%) !important;
+      color: ${colorControlActiveText} !important;
+      background-color: ${colorControlActiveSurface} !important;
     }
 
     &:focus:hover {
-      color: hsl(210, 13%, 20%) !important;
-      box-shadow: 0 0 0 1px #CDD6E0 !important;
-      background-color: #DCE4EC !important;
+      color: ${colorControlActiveText} !important;
+      box-shadow: 0 0 0 1px ${colorControlBorder} !important;
+      background-color: ${appsGalleryOutlineColorSurface} !important;
     }
 
     &:focus:active {
-      color: hsl(210, 13%, 20%) !important;
-      box-shadow: 0 0 0 1px #CDD6E0 !important;
-      background-color: hsl(210, 30%, 80%) !important;
+      color: ${colorControlActiveText} !important;
+      box-shadow: 0 0 0 1px ${colorControlBorder} !important;
+      background-color: ${colorControlActiveSurface} !important;
     }
   `}
 
@@ -528,7 +546,7 @@ const ButtonSpan = styled.span`
     }
 
     &:hover & {
-      color: ${btnDefaultBg};
+      color: ${btnDefaultBgText};
     }
   `}
 
@@ -666,21 +684,21 @@ const ButtonSpan = styled.span`
   `}
 
   ${({ ghost, color, size }) => ghost && color === 'default' && size !== 'lg' && `
-    color: ${btnDefaultBg};
+    color: ${btnDefaultBgText};
     background-image: none;
     background-color: transparent;
     border: ${borderSizeLarge} solid transparent;
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnDefaultBg};
-      background-color: ${btnDefaultColor};
+      color: ${btnDefaultBgText};
+      background-color: ${btnDefaultColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg} !important;
     }
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnDefaultBg};
-      background-color: ${btnDefaultColor};
+      color: ${btnDefaultBgText};
+      background-color: ${btnDefaultColorSurface};
     }
   `}
 
@@ -690,7 +708,7 @@ const ButtonSpan = styled.span`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnPrimaryBg};
-      background-color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnPrimaryBg};
     }
@@ -698,7 +716,7 @@ const ButtonSpan = styled.span`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnPrimaryBg};
-      background-color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryColorSurface};
     }
   `}
 
@@ -708,7 +726,7 @@ const ButtonSpan = styled.span`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnSuccessBg};
-      background-color: ${btnSuccessColor};
+      background-color: ${btnSuccessColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnSuccessBg};
     }
@@ -716,7 +734,7 @@ const ButtonSpan = styled.span`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnSuccessBg};
-      background-color: ${btnSuccessColor};
+      background-color: ${btnSuccessColorSurface};
     }
   `}
 
@@ -726,7 +744,7 @@ const ButtonSpan = styled.span`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnWarningBg};
-      background-color: ${btnWarningColor};
+      background-color: ${btnWarningColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnWarningBg};
     }
@@ -734,7 +752,7 @@ const ButtonSpan = styled.span`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnWarningBg};
-      background-color: ${btnWarningColor};
+      background-color: ${btnWarningColorSurface};
     }
   `}
 
@@ -744,7 +762,7 @@ const ButtonSpan = styled.span`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnDangerBg};
-      background-color: ${btnDangerColor};
+      background-color: ${btnDangerColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDangerBg};
     }
@@ -752,61 +770,61 @@ const ButtonSpan = styled.span`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnDangerBg};
-      background-color: ${btnDangerColor};
+      background-color: ${btnDangerColorSurface};
     }
   `}
 
   ${({ ghost, color }) => ghost && color === 'dark' && `
-    color: ${btnDarkBg};
+    color: ${btnDarkBgText};
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnDarkBg};
-      background-color: ${btnDarkColor};
+      color: ${btnDarkBgText};
+      background-color: ${btnDarkColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDarkBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnDarkBg};
-      background-color: ${btnDarkColor};
+      color: ${btnDarkBgText};
+      background-color: ${btnDarkColorSurface};
     }
   `}
 
   ${({ ghost, color }) => ghost && color === 'offline' && `
-    color: ${btnOfflineBg};
+    color: ${btnOfflineBgText};
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnOfflineBg};
-      background-color: ${btnOfflineColor};
+      color: ${btnOfflineBgText};
+      background-color: ${btnOfflineColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnOfflineBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnOfflineBg};
-      background-color: ${btnOfflineColor};
+      color: ${btnOfflineBgText};
+      background-color: ${btnOfflineColorSurface};
     }
   `}
 
   ${({ ghost, color }) => ghost && color === 'muted' && `
-    color: ${btnMutedBg};
+    color: ${btnMutedBgText};
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnMutedBg};
-      background-color: ${btnMutedColor};
+      color: ${btnMutedBgText};
+      background-color: ${btnMutedColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnMutedBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnMutedBg};
-      background-color: ${btnMutedColor};
+      color: ${btnMutedBgText};
+      background-color: ${btnMutedColorSurface};
     }
   `}
 
@@ -1074,6 +1092,7 @@ const Button = styled(BaseButton)`
 
     &:focus {
       background: hsl(210, 30%, 95%);
+      color: ${colorControlActiveText};
       box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
     }
 
@@ -1105,22 +1124,22 @@ const Button = styled(BaseButton)`
   `}
 
   ${({ ghost, color }) => ghost && color === 'default' && `
-    color: ${btnDefaultBg};
+    color: ${btnDefaultBgText};
     background-image: none;
     background-color: transparent;
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnDefaultBg};
-      background-color: ${btnDefaultColor};
+      color: ${btnDefaultBgText};
+      background-color: ${btnDefaultColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnDefaultBg};
-      background-color: ${btnDefaultColor};
+      color: ${btnDefaultBgText};
+      background-color: ${btnDefaultColorSurface};
     }
   `}
 
@@ -1132,7 +1151,7 @@ const Button = styled(BaseButton)`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnPrimaryBg};
-      background-color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnPrimaryBg};
     }
@@ -1140,7 +1159,7 @@ const Button = styled(BaseButton)`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnPrimaryBg};
-      background-color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryColorSurface};
     }
   `}
 
@@ -1152,7 +1171,7 @@ const Button = styled(BaseButton)`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnSuccessBg};
-      background-color: ${btnSuccessColor};
+      background-color: ${btnSuccessColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnSuccessBg};
     }
@@ -1160,7 +1179,7 @@ const Button = styled(BaseButton)`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnSuccessBg};
-      background-color: ${btnSuccessColor};
+      background-color: ${btnSuccessColorSurface};
     }
   `}
 
@@ -1172,7 +1191,7 @@ const Button = styled(BaseButton)`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnWarningBg};
-      background-color: ${btnWarningColor};
+      background-color: ${btnWarningColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnWarningBg};
     }
@@ -1180,7 +1199,7 @@ const Button = styled(BaseButton)`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnWarningBg};
-      background-color: ${btnWarningColor};
+      background-color: ${btnWarningColorSurface};
     }
   `}
 
@@ -1192,7 +1211,7 @@ const Button = styled(BaseButton)`
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnDangerBg};
-      background-color: ${btnDangerColor};
+      background-color: ${btnDangerColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDangerBg};
     }
@@ -1200,67 +1219,67 @@ const Button = styled(BaseButton)`
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnDangerBg};
-      background-color: ${btnDangerColor};
+      background-color: ${btnDangerColorSurface};
     }
   `}
 
   ${({ ghost, color }) => ghost && color === 'dark' && `
-    color: ${btnDarkBg};
+    color: ${btnDarkBgText};
     background-image: none;
     background-color: transparent;
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnDarkBg};
-      background-color: ${btnDarkColor};
+      color: ${btnDarkBgText};
+      background-color: ${btnDarkColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDarkBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnDarkBg};
-      background-color: ${btnDarkColor};
+      color: ${btnDarkBgText};
+      background-color: ${btnDarkColorSurface};
     }
   `}
 
   ${({ ghost, color }) => ghost && color === 'offline' && `
-    color: ${btnOfflineBg};
+    color: ${btnOfflineBgText};
     background-image: none;
     background-color: transparent;
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnOfflineBg};
-      background-color: ${btnOfflineColor};
+      color: ${btnOfflineBgText};
+      background-color: ${btnOfflineColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnOfflineBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnOfflineBg};
-      background-color: ${btnOfflineColor};
+      color: ${btnOfflineBgText};
+      background-color: ${btnOfflineColorSurface};
     }
   `}
 
   ${({ ghost, color }) => ghost && color === 'muted' && `
-    color: ${btnMutedBg};
+    color: ${btnMutedBgText};
     background-image: none;
     background-color: transparent;
 
     &:focus,
     .buttonWrapper:focus & {
-      color: ${btnMutedBg};
-      background-color: ${btnMutedColor};
+      color: ${btnMutedBgText};
+      background-color: ${btnMutedColorSurface};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnMutedBg};
     }
 
     &:hover,
     .buttonWrapper:hover & {
-      color: ${btnMutedBg};
-      background-color: ${btnMutedColor};
+      color: ${btnMutedBgText};
+      background-color: ${btnMutedColorSurface};
     }
   `}
 
