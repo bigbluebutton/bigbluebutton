@@ -13,6 +13,8 @@ import {
   DefaultHorizontalAlignStyle,
   DefaultVerticalAlignStyle,
   InstancePresenceRecordType,
+  AssetRecordType,
+  createShapeId,
   setDefaultUiAssetUrls,
   setDefaultEditorAssetUrls,
   toolbarItem,
@@ -39,14 +41,26 @@ import { useMouseEvents, useCursor } from './hooks';
 import {
   notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls,
   debouncedUpdateShapes, sanitizeShape, setupColorThemePaletteOverrides,
+  reconstructImageAssets,
 } from './service';
 import NoopTool from './custom-tools/noop-tool/component';
 import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/component';
 import SessionStorage from '/imports/ui/services/storage/session';
+import Auth from '/imports/ui/services/auth';
+import { uploadImage, UploadImageError } from '/imports/ui/services/file-upload';
+import { notify } from '/imports/ui/services/notification';
 
 setupColorThemePaletteOverrides();
 
 const CAMERA_TYPE = 'camera';
+// Fallback upper bound (ms) for waiting on the new slide's background image to decode
+// before swapping the visible page, used when meetingClientSettings does not provide
+// public.whiteboard.slideSwapDecodeTimeoutMs. Kept short: a warm/near cache decodes in
+// sub-frame time and wins the race, while a cold or slow asset falls through fast to the
+// old (un-gated) behavior rather than pinning the toolbar/zoom UI - which are NOT gated -
+// on a stale slide for long. Above this bound the original white flash still shows; the
+// gate mitigates the common near-cache case, it does not eliminate the worst (slow) case.
+const SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT = 250;
 const colorStyles = [
   'black',
   'blue',
@@ -92,6 +106,38 @@ const createLookup = (arr) => arr.reduce((acc, entry) => {
   return acc;
 }, {});
 
+// Reads an image's natural dimensions without decoding it into the tldraw store.
+const getImageDimensions = (file) => new Promise((resolve, reject) => {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    resolve({ width: img.naturalWidth, height: img.naturalHeight });
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    reject(new Error('Could not read image dimensions'));
+  };
+  img.src = url;
+});
+
+// Pulls the first image out of async-clipboard items (used for Ctrl+V, which BBB
+// intercepts before tldraw can route it through the drop handler).
+const extractClipboardImageFile = async (items) => {
+  const allowed = window.meetingClientSettings.public.fileUpload.allowedMimeTypes;
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+    const type = item.types.find((t) => allowed.includes(t));
+    if (type) {
+      // eslint-disable-next-line no-await-in-loop
+      const blob = await item.getType(type);
+      const ext = type.split('/')[1];
+      return new File([blob], `pasted-image.${ext}`, { type });
+    }
+  }
+  return null;
+};
+
 const defaultUser = {
   userId: '',
 };
@@ -119,7 +165,31 @@ const intlMessages = defineMessages({
     id: 'app.poll.answer.false',
     description: 'Poll option for false/incorrect answer',
   },
+  imagePasteErrorType: {
+    id: 'app.whiteboard.imagePaste.errorType',
+    description: 'Toast shown when a pasted whiteboard file is not a supported image type',
+  },
+  imagePasteErrorTooLarge: {
+    id: 'app.whiteboard.imagePaste.errorTooLarge',
+    description: 'Toast shown when a pasted whiteboard image is too large',
+  },
+  imagePasteErrorDimensions: {
+    id: 'app.whiteboard.imagePaste.errorDimensions',
+    description: 'Toast shown when a pasted whiteboard image exceeds the maximum pixel dimensions',
+  },
+  imagePasteErrorQuota: {
+    id: 'app.whiteboard.imagePaste.errorQuota',
+    description: 'Toast shown when a pasted whiteboard image exceeds the meeting storage quota',
+  },
+  imagePasteErrorUpload: {
+    id: 'app.whiteboard.imagePaste.errorUpload',
+    description: 'Toast shown when a pasted whiteboard image fails to upload',
+  },
 });
+
+// Longest side (in tldraw page units) a pasted image is scaled down to on insert.
+// Keeps large photos from covering the whole slide; the user can still resize.
+const IMAGE_PASTE_MAX_SIZE = 512;
 
 // Persists the presenter's actual zoom ratio across React unmount/remount cycles
 // (e.g. minimize → restore presentation). A plain module-level object outlives
@@ -178,6 +248,7 @@ const Whiteboard = React.memo((props) => {
     lockToolbarTools,
     layoutChanged,
     pointerDiameter = 5,
+    isImagePasteEnabled = false,
   } = props;
 
   const allowInfiniteWhiteboardPanForViewers = window.meetingClientSettings?.public?.whiteboard?.allowInfiniteWhiteboardPanForViewers;
@@ -193,6 +264,10 @@ const Whiteboard = React.memo((props) => {
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
   const [cursorZoom, setCursorZoom] = React.useState({ slideZoom: 1, containerZoom: 1 });
+  // Re-surfaces a deferred slide-swap failure into render so ErrorBoundaryWithReload can
+  // catch it (see the decode-gate effect). Setting state with a function that throws makes
+  // the throw happen during render, where the boundary sees it - a bare .catch could not.
+  const [, setSwapError] = React.useState();
   const updateCursorZoomRef = React.useRef(null);
 
   if (isMounting) {
@@ -236,8 +311,10 @@ const Whiteboard = React.memo((props) => {
   const hasZoomSyncedRef = useRef(false);
   const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
+  const imagePasteEnabledRef = useRef(isImagePasteEnabled);
 
   currentUserRef.current = currentUser;
+  imagePasteEnabledRef.current = isImagePasteEnabled;
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -496,8 +573,9 @@ const Whiteboard = React.memo((props) => {
     }
     debouncedUpdateShapes(
       shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+      currentUser?.userId, imagePasteEnabledRef.current,
     );
-  }, [shapes]);
+  }, [shapes, currentUser?.userId]);
 
   React.useEffect(() => {
     if (removedShapes && removedShapes.length > 0) {
@@ -610,6 +688,101 @@ const Whiteboard = React.memo((props) => {
     });
   };
 
+  const notifyImagePasteError = useCallback((err) => {
+    const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+    const messageByReason = {
+      'too-large': intlMessages.imagePasteErrorTooLarge,
+      'image-too-large': intlMessages.imagePasteErrorDimensions,
+      'quota-exceeded': intlMessages.imagePasteErrorQuota,
+      'unsupported-type': intlMessages.imagePasteErrorType,
+      'upload-failed': intlMessages.imagePasteErrorUpload,
+    };
+    const message = messageByReason[reason] || intlMessages.imagePasteErrorUpload;
+    const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+    const formatted = (reason === 'image-too-large' && dims)
+      ? intl?.formatMessage(message, dims)
+      : intl?.formatMessage(message);
+    if (intl) notify(formatted, 'error', 'whiteboard');
+    logger.error(
+      { logCode: 'whiteboard_image_upload_error', extraInfo: { reason } },
+      `Whiteboard image upload failed: ${err?.message}`,
+    );
+  }, [intl]);
+
+  // Uploads image files and inserts them as tldraw image shapes. Shared by the
+  // drop handler (registerExternalContentHandler) and the Ctrl+V paste path.
+  const insertImageFiles = useCallback(async (files, point) => {
+    const editor = tlEditorRef.current;
+    if (!editor || !imagePasteEnabledRef.current) return;
+    if (!(isPresenterRef.current || hasWBAccessRef.current)) return;
+
+    const allowed = window.meetingClientSettings.public.fileUpload.allowedMimeTypes;
+    const imageFiles = Array.from(files || []).filter((f) => f?.type && allowed.includes(f.type));
+    if (imageFiles.length === 0) return;
+
+    const position = point ?? editor.getViewportPageCenter();
+    let offsetX = 0;
+
+    // Sequential so annotation order is deterministic and a failure is per-file.
+    for (let i = 0; i < imageFiles.length; i += 1) {
+      const file = imageFiles[i];
+      try {
+        // Dimensions are read before uploading so a file the browser cannot
+        // decode fails locally instead of leaving an orphan upload behind.
+        // eslint-disable-next-line no-await-in-loop
+        const { width, height } = await getImageDimensions(file);
+        // eslint-disable-next-line no-await-in-loop
+        const relativeUrl = await uploadImage(file);
+        const scale = Math.min(1, IMAGE_PASTE_MAX_SIZE / Math.max(width, height, 1));
+        const w = Math.max(1, Math.round(width * scale));
+        const h = Math.max(1, Math.round(height * scale));
+        const assetId = AssetRecordType.createId();
+
+        // The asset is rebuilt locally and never persisted; create it as a remote
+        // change so it does not flow into the annotation persistence batch.
+        editor.store.mergeRemoteChanges(() => {
+          editor.createAssets([{
+            id: assetId,
+            typeName: 'asset',
+            type: 'image',
+            meta: {},
+            props: {
+              w,
+              h,
+              src: Auth.authenticateURL(relativeUrl),
+              name: file.name || '',
+              isAnimated: false,
+              mimeType: file.type,
+            },
+          }]);
+        });
+
+        editor.createShapes([{
+          id: createShapeId(),
+          type: 'image',
+          x: position.x - w / 2 + offsetX,
+          y: position.y - h / 2,
+          opacity: 1,
+          props: { assetId, w, h },
+          // The relative src is the only image data persisted; the asset record is
+          // rebuilt from it on load and the server validates it (WhiteboardModel).
+          meta: { bbbImageSrc: relativeUrl },
+        }]);
+        offsetX += w + 10;
+      } catch (err) {
+        notifyImagePasteError(err);
+      }
+    }
+  }, [tlEditorRef, notifyImagePasteError]);
+
+  const pasteClipboardText = useCallback(() => navigator.clipboard.readText().then((text) => {
+    const match = text.match(/<tldraw>(.*)<\/tldraw>/);
+    if (match && match[1]) {
+      const content = JSON.parse(decompressFromBase64(match[1]));
+      pasteTldrawContent(tlEditorRef.current, content);
+    }
+  }), [tlEditorRef]);
+
   const handlePaste = useCallback(() => {
     if (isPasting) {
       return;
@@ -621,20 +794,34 @@ const Whiteboard = React.memo((props) => {
       if (clipboardContent) {
         pasteTldrawContent(tlEditorRef.current, clipboardContent);
         isPasting = false;
-      } else {
-        navigator.clipboard.readText().then((text) => {
-          const match = text.match(/<tldraw>(.*)<\/tldraw>/);
-          if (match && match[1]) {
-            const content = JSON.parse(decompressFromBase64(match[1]));
-            pasteTldrawContent(tlEditorRef.current, content);
-          }
-          isPasting = false;
-        }).catch(() => {
-          isPasting = false;
-        });
+        return;
       }
+
+      const canPasteImage = imagePasteEnabledRef.current
+        && (isPresenterRef.current || hasWBAccessRef.current)
+        && !!navigator.clipboard?.read;
+
+      if (!canPasteImage) {
+        pasteClipboardText().catch(() => {}).finally(() => { isPasting = false; });
+        return;
+      }
+
+      // Ctrl+V is intercepted by BBB before tldraw sees it, so read the clipboard
+      // ourselves: an image goes through the upload path, anything else falls back
+      // to the internal tldraw-content/text paste.
+      navigator.clipboard.read()
+        .then(async (items) => {
+          const file = await extractClipboardImageFile(items);
+          if (file) {
+            await insertImageFiles([file]);
+          } else {
+            await pasteClipboardText();
+          }
+        })
+        .catch(() => pasteClipboardText().catch(() => {}))
+        .finally(() => { isPasting = false; });
     }, 100);
-  }, [tlEditorRef]);
+  }, [tlEditorRef, insertImageFiles, pasteClipboardText]);
 
   const handleKeyDown = useCallback((event) => {
     if (event.repeat) {
@@ -1250,6 +1437,15 @@ const Whiteboard = React.memo((props) => {
     setTldrawAPI(editor);
     setEditor(editor);
 
+    // Only override the default file handler when the feature is on. When it is
+    // off we leave tldraw's default in place, so a dropped image still becomes an
+    // (invalid) image shape that gets rejected with a notification downstream.
+    if (imagePasteEnabledRef.current) {
+      editor.registerExternalContentHandler('files', async ({ point, files }) => {
+        await insertImageFiles(files, point);
+      });
+    }
+
     let initialColorStyle = colorStyle;
     let initialDashStyle = dashStyle;
     let initialFillStyle = fillStyle;
@@ -1342,7 +1538,8 @@ const Whiteboard = React.memo((props) => {
         const filteredShapes = localShapes?.filter((item) => item?.index !== 'a0') || [];
         const shapeNumberExceeded = filteredShapes
           .length + addedCount - 1 > maxNumberOfAnnotations;
-        const invalidShapeType = Object.keys(added).find((id) => !isValidShapeType(added[id]));
+        const invalidShapeType = Object.keys(added)
+          .find((id) => !isValidShapeType(added[id], imagePasteEnabledRef.current));
 
         if (addedCount > 0 && (shapeNumberExceeded || invalidShapeType)) {
           // notify and undo last command without persisting
@@ -1551,7 +1748,7 @@ const Whiteboard = React.memo((props) => {
           .filter((shape) => {
             const shapePresId = shape.meta?.presentationId;
             return (!shapePresId || shapePresId === currentPresId)
-              && isValidShapeType(shape);
+              && isValidShapeType(shape, imagePasteEnabledRef.current);
           })
           .map((shape) => sanitizeShape(shape))
         : [];
@@ -1563,6 +1760,7 @@ const Whiteboard = React.memo((props) => {
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
           if (remoteShapesArray.length > 0) {
+            reconstructImageAssets(editor.store, remoteShapesArray);
             editor.store.put(remoteShapesArray);
           }
           editor.history.clear();
@@ -2241,13 +2439,6 @@ const Whiteboard = React.memo((props) => {
     }
   }, [otherCursors, whiteboardWriters]);
 
-  const updateStore = (pages, cameras) => {
-    tlEditorRef.current.store.put(pages);
-    tlEditorRef.current.store.put(cameras);
-    tlEditorRef.current.store.put(assets);
-    tlEditorRef.current.store.put(bgShape);
-  };
-
   const finalizeStore = () => {
     tlEditorRef.current.history.clear();
   };
@@ -2265,38 +2456,69 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     const formattedPageId = parseInt(curPageIdRef.current, 10);
-    if (tlEditorRef.current && formattedPageId !== 0) {
-      // If a viewer is mid-edit (select.editing_shape) when the slide changes,
-      // the store mutation below (cleanupStore + setCurrentPage) removes the shape
-      // being edited out from under tldraw, leaving the editor in editing_shape with
-      // a dangling editingShapeId. The next pointer-down then hits EditingShape's
-      // `Expected an editing shape!` assertion and crashes the client (issue 25332).
-      // Commit the in-progress edit first so tldraw exits editing_shape (running
-      // EditingShape.onExit) while the shape still exists. Guarded so a normal slide
-      // change (no active edit) never resets the presenter's current tool.
+    if (!tlEditorRef.current || formattedPageId === 0) return undefined;
+
+    // The new page's background image-shape used to be mounted here synchronously, before
+    // its SVG had been fetched/decoded, leaving the presentation area blank until the asset
+    // arrived (issue 25397). We defer only the VISIBLE part of the swap (cleanupStore +
+    // background + setCurrentPage) behind a decode-gate so the page becomes visible once it
+    // is paintable, double-buffering the change instead of flashing white.
+    let cancelled = false;
+    const currentPageId = `page:${formattedPageId}`;
+
+    // Create the new page + its camera record synchronously, before the gate. These records
+    // are invisible (nothing renders until setCurrentPage runs in applyPageSwap), but remote
+    // annotations for the new page arrive via debouncedUpdateShapes (service.js, 175ms)
+    // parented to `page:N`. With the visible swap now deferred behind the decode - commonly
+    // past 175ms on the cold-cache path this fix targets - that debounce would otherwise put
+    // page-parented shapes before the page exists, and tldraw drops them or throws in
+    // ensureStoreIsUsable (inside a debounce callback, no error boundary). Creating the page
+    // up front keeps the parent present regardless of gate timing.
+    const ensurePageAndCamera = () => {
+      tlEditorRef.current.store.mergeRemoteChanges(() => {
+        tlEditorRef.current.batch(() => {
+          const pages = [];
+          const cameras = [];
+          if (!tlEditorRef.current.getPage(currentPageId)) {
+            pages.push(...createPage(currentPageId));
+          }
+          const cameraExists = tlEditorRef.current.store.allRecords().some(
+            (record) => record.typeName === 'camera' && record.id === `camera:${currentPageId}`,
+          );
+          if (!cameraExists) {
+            cameras.push(createCamera(formattedPageId, tlEditorRef.current.getCamera()?.z));
+          }
+          if (pages.length) tlEditorRef.current.store.put(pages);
+          if (cameras.length) tlEditorRef.current.store.put(cameras);
+        });
+      });
+    };
+
+    const applyPageSwap = () => {
+      // Rapid-navigation / unmount guard: while awaiting the decode the user may have
+      // navigated on, or the effect may have been cleaned up (React runs the cleanup below
+      // on unmount and before re-running the effect). The `cancelled` flag - set in that
+      // cleanup - covers both, so a late decode for an abandoned page can't clobber the
+      // current one; re-check tlEditorRef too since the editor can be torn down mid-decode.
+      if (cancelled) return;
+      if (!tlEditorRef.current) return;
+      if (parseInt(curPageIdRef.current, 10) !== formattedPageId) return;
+
+      // If a viewer is mid-edit (select.editing_shape) when the slide changes, the store
+      // mutation below removes the shape being edited out from under tldraw, leaving a
+      // dangling editingShapeId; the next pointer-down then trips EditingShape's `Expected
+      // an editing shape!` assertion and crashes the client (issue 25332). Commit the
+      // in-progress edit first so tldraw exits editing_shape while the shape still exists.
+      // Guarded so a normal slide change never resets the presenter's current tool.
       if (tlEditorRef.current.getEditingShape()) {
         tlEditorRef.current.complete();
       }
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
-          const currentPageId = `page:${formattedPageId}`;
-          const tlZ = tlEditorRef.current.getCamera()?.z;
-          const cameras = [];
-          const pages = [];
-          const currPageExists = tlEditorRef.current?.getPage(currentPageId);
-          if (!currPageExists) {
-            const currentPage = createPage(currentPageId);
-            pages.push(...currentPage);
-          }
-          const allRecords = tlEditorRef.current.store.allRecords();
-          const cameraRecords = allRecords.filter(
-            (record) => record.typeName === 'camera' && record.id === `camera:page:${formattedPageId}`,
-          );
-          if (cameraRecords?.length < 1) {
-            cameras.push(createCamera(formattedPageId, tlZ));
-          }
+          // Page + camera already exist (ensurePageAndCamera ran synchronously above).
           cleanupStore(currentPageId);
-          updateStore(pages, cameras);
+          tlEditorRef.current.store.put(assets);
+          tlEditorRef.current.store.put(bgShape);
           tlEditorRef.current.setCurrentPage(currentPageId);
           finalizeStore();
         });
@@ -2310,7 +2532,62 @@ const Whiteboard = React.memo((props) => {
           adjustCameraOnMount(true);
         });
       }
+    };
+
+    ensurePageAndCamera();
+
+    // `assets` is derived from the same currentPresentationPage as curPageId in the same
+    // render (container.jsx:439-453), so assets[0].props.src is the background for THIS
+    // page and is never stale relative to it. A stale src would silently disable the gate
+    // (the swap just returns), so keep that derivation in lock-step with curPageId.
+    const bgShapeSrc = assets?.[0]?.props?.src;
+    if (!bgShapeSrc) {
+      // No background URL to gate on (currentPresentationPage has no svgUrl): nothing to
+      // decode, so swap now.
+      applyPageSwap();
+      return undefined;
     }
+
+    // Prime a detached Image so the visible swap only happens once the new slide's
+    // background is decodable. When the SVG is browser-cacheable (see the sibling
+    // Cache-Control PR) this prime also warms the cache tldraw's later same-origin no-cors
+    // load reuses; on cluster-proxy/cross-origin setups the entries may not be shared, in
+    // which case the gate still works but without the cache-hit saving.
+    const img = new Image();
+    img.src = bgShapeSrc;
+    let fallbackTimer;
+    const decodeTimeout = window.meetingClientSettings?.public?.whiteboard?.slideSwapDecodeTimeoutMs
+      ?? SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT;
+    Promise.race([
+      // decode() rejects on a broken/401/malformed asset; swallow it so a bad asset degrades
+      // to "apply the swap anyway" (the pre-fix behavior) and never wedges navigation.
+      img.decode().catch(() => {}),
+      new Promise((resolve) => {
+        fallbackTimer = setTimeout(resolve, decodeTimeout);
+      }),
+    ])
+      .then(applyPageSwap)
+      .catch((error) => {
+        // The synchronous swap used to throw straight into ErrorBoundaryWithReload, which
+        // recovered with a reload. Inside this async chain a throw would escape as an
+        // unhandled rejection - no boundary, no reload. Log it, then re-surface it into
+        // render via setSwapError so the boundary still sees it.
+        logger.error({ logCode: 'SlideSwapDecodeGate' }, `Deferred page swap failed: ${error}`);
+        setSwapError(() => { throw error; });
+      })
+      .finally(() => {
+        // Clear the fallback timer on the decode-wins path too: the cleanup below only runs
+        // on unmount / effect re-run, not when the race resolves normally.
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+      });
+
+    return () => {
+      cancelled = true;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      // Release the detached decode Image so a burst of rapid navigation doesn't pin a queue
+      // of half-decoded SVGs in flight.
+      img.removeAttribute('src');
+    };
   }, [curPageId]);
 
   React.useEffect(() => {
@@ -2484,6 +2761,7 @@ Whiteboard.propTypes = {
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,
   pointerDiameter: PropTypes.number,
+  isImagePasteEnabled: PropTypes.bool,
   setTldrawIsMounting: PropTypes.func.isRequired,
   presentationId: PropTypes.string,
   setTldrawAPI: PropTypes.func.isRequired,

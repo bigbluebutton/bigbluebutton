@@ -12,11 +12,15 @@ import {
   BlockTypeSelect,
   ColorStyleButton,
   ComponentsContext,
+  FilePanelController,
+  FilePanelProps,
   FormattingToolbar,
   NestBlockButton,
   UnnestBlockButton,
+  UploadTab,
   useComponentsContext,
   useCreateBlockNote,
+  useDictionary,
 } from '@blocknote/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
@@ -37,11 +41,22 @@ import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
 import MarkdownImportModal from './markdown-import-modal/component';
 import { useSharedNotesImport } from './import-context';
+import { useIsSharedNotesImagePasteEnabled } from '/imports/ui/services/features';
+import { uploadImage, UploadImageError } from '/imports/ui/services/file-upload';
+import Auth from '/imports/ui/services/auth';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
 // producing `ReferenceError: observable is not defined` in the minified bundle.
 (globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
+
+// Exact shape of a same-origin upload URL, mirroring the server-side gates
+// (akka MarkdownUtil.UploadedImagePattern and the whiteboard's
+// UPLOADED_IMAGE_SRC_PATTERN): /bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}.
+// A full-shape match (not a `startsWith` prefix) is what blocks a backslash
+// bypass like `/bigbluebutton/fileUpload/\evil.com/x.png`, which a browser folds
+// into an external request.
+const UPLOADED_IMAGE_URL_PATTERN = /^\/bigbluebutton\/fileUpload\/[A-Za-z0-9-]+\/[a-f0-9-]+\.(png|jpe?g|gif|webp)$/;
 
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
 
@@ -152,6 +167,26 @@ const intlMessages = defineMessages({
     id: 'app.notes.blocknote.maxCharCountError',
     description: 'Error message for when number of typed characters exceeds the maximum',
   },
+  imagePasteErrorType: {
+    id: 'app.notes.blocknote.imagePasteErrorType',
+    description: 'Error shown when a pasted image is not an accepted type',
+  },
+  imagePasteErrorTooLarge: {
+    id: 'app.notes.blocknote.imagePasteErrorTooLarge',
+    description: 'Error shown when a pasted image exceeds the size limit',
+  },
+  imagePasteErrorDimensions: {
+    id: 'app.notes.blocknote.imagePasteErrorDimensions',
+    description: 'Error shown when a pasted image exceeds the maximum dimensions',
+  },
+  imagePasteErrorQuota: {
+    id: 'app.notes.blocknote.imagePasteErrorQuota',
+    description: 'Error shown when the meeting storage quota is exceeded',
+  },
+  imagePasteErrorUpload: {
+    id: 'app.notes.blocknote.imagePasteErrorUpload',
+    description: 'Error shown when the image upload fails',
+  },
 });
 
 // Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
@@ -175,6 +210,32 @@ const AccessibleMenuRoot: React.FC<{
     {children}
   </MantineMenu>
 );
+
+// BlockNote's default file panel always renders an Embed tab, which accepts an
+// arbitrary URL and stores it in the Yjs document, making every participant's
+// browser fetch from that external host (IP leak / tracking pixel — the exact
+// vector the same-origin image gates exist to prevent). This upload-only panel
+// replaces it; display-time enforcement additionally lives in resolveFileUrl.
+function UploadOnlyFilePanel(props: FilePanelProps): React.ReactElement {
+  const { blockId } = props;
+  const Components = useComponentsContext()!;
+  const dict = useDictionary();
+  const [loading, setLoading] = React.useState(false);
+  const uploadTabName = dict.file_panel.upload.title;
+  return (
+    <Components.FilePanel.Root
+      className="bn-panel"
+      defaultOpenTab={uploadTabName}
+      openTab={uploadTabName}
+      setOpenTab={() => {}}
+      tabs={[{
+        name: uploadTabName,
+        tabPanel: <UploadTab blockId={blockId} setLoading={setLoading} />,
+      }]}
+      loading={loading}
+    />
+  );
+}
 
 // Patches ComponentsContext so every Generic.Menu.Root in the toolbar uses
 // AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
@@ -211,16 +272,19 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const blockNoteLocale = useBlockNoteLocaleLanguage();
   const [notificationErrorMessage, setNotificationErrorMessage] = React.useState<string | null>(null);
 
-  // Remove Media block types for now
+  const imagePasteEnabled = useIsSharedNotesImagePasteEnabled();
+
+  // Media blocks are removed by default. The `image` block is reintroduced only
+  // when image paste is enabled; audio/file/video stay out.
   const {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     audio, image, file, video, ...remainingBlockSpecs
   } = defaultBlockSpecs;
 
   const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...remainingBlockSpecs,
-    },
+    blockSpecs: imagePasteEnabled
+      ? { ...remainingBlockSpecs, image }
+      : { ...remainingBlockSpecs },
   });
 
   const {
@@ -268,6 +332,89 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editor = useCreateBlockNote({
     tabBehavior: 'prefer-indent',
+    // Uploads pasted/dropped images to the meeting-scoped bbb-file-upload service
+    // and stores only the returned same-origin URL in the block. Undefined when the
+    // feature is off, so BlockNote does not accept image content at all.
+    uploadFile: imagePasteEnabled
+      ? async (fileToUpload: File) => {
+        try {
+          return await uploadImage(fileToUpload);
+        } catch (err) {
+          // Handle locally so the rejection does not surface as a generic
+          // BlockNote/unhandled-error toast (which the user would see in the
+          // wrong surface, e.g. the whiteboard). Map the stable reason to a
+          // localized message and notify here, in the notes surface.
+          const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+          const messageByReason = {
+            'too-large': intlMessages.imagePasteErrorTooLarge,
+            'image-too-large': intlMessages.imagePasteErrorDimensions,
+            'quota-exceeded': intlMessages.imagePasteErrorQuota,
+            'unsupported-type': intlMessages.imagePasteErrorType,
+            'upload-failed': intlMessages.imagePasteErrorUpload,
+          } as const;
+          const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+          const msgKey = messageByReason[reason] ?? intlMessages.imagePasteErrorUpload;
+          const formatted = (reason === 'image-too-large' && dims)
+            ? intlRef.current.formatMessage(msgKey, dims)
+            : intlRef.current.formatMessage(msgKey);
+          notify(formatted, 'error', 'notes');
+          // Remove the image block that BlockNote inserted (it is currently
+          // stuck in "Loading..." because the upload failed). Find the most
+          // recently inserted image-type block whose URL is still empty/missing
+          // (the one we were supposed to fill) and remove it. Returning a value
+          // (even '') leaves the block visible; removing it gives the user the
+          // expected "nothing was inserted" feedback, paired with the toast.
+          try {
+            type EditorBlock = {
+              id: string;
+              type: string;
+              props?: { url?: string };
+              children?: EditorBlock[];
+            };
+            // Depth-first flatten: the failed image block may be nested (e.g.
+            // pasted inside a list item), where a top-level-only scan misses it.
+            const flatten = (bs: EditorBlock[]): EditorBlock[] => bs.flatMap(
+              (b) => [b, ...flatten(b.children ?? [])],
+            );
+            const blocks = flatten(editor.document as EditorBlock[]);
+            for (let i = blocks.length - 1; i >= 0; i -= 1) {
+              const b = blocks[i];
+              if (b.type === 'image' && !(b.props && b.props.url)) {
+                // removeBlocks expects a BlockIdentifier; the id field is enough.
+                editor.removeBlocks([{ id: b.id } as never]);
+                break;
+              }
+            }
+          } catch (removeErr) {
+            // Best-effort: if removeBlocks fails for any reason, do not mask
+            // the original upload error. The toast already informed the user.
+            logger.warn({
+              logCode: 'notes_image_block_remove_error',
+            }, `Could not remove failed image block: ${removeErr instanceof Error ? removeErr.message : removeErr}`);
+          }
+          // Returning '' also prevents BlockNote from leaving the block in a
+          // pending state if removal did not land (defensive).
+          return '';
+        }
+      }
+      : undefined,
+    // The raw upload URL is what gets stored in the Yjs document (so it stays
+    // portable and rewritable for recording/playback), but the file-upload
+    // service authorizes the GET from the sessionToken query param. Without this
+    // resolver BlockNote renders `<img src=/bigbluebutton/fileUpload/...>` with no
+    // token and the image 401s for author and everyone. resolveFileUrl runs at
+    // display time: only a URL matching the exact upload shape gets the token via
+    // Auth.authenticateURL; anything else resolves to '' so an image block pointing
+    // at an external host (pasted HTML, or injected straight into the Yjs doc by a
+    // crafted client) never triggers a request that leaks participants' IPs to a
+    // third party. Matching the full shape (not just the `/bigbluebutton/fileUpload/`
+    // prefix) mirrors the chat renderer's same-origin gate (MarkdownUtil's
+    // UploadedImagePattern): a lax prefix check would let `/bigbluebutton/fileUpload/\evil.com/x.png`
+    // through, which a browser folds to `https://evil.com/...` - the exact IP-leak
+    // vector the gate exists to close.
+    resolveFileUrl: async (url: string) => (
+      UPLOADED_IMAGE_URL_PATTERN.test(url) ? Auth.authenticateURL(url) : ''
+    ),
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
       fragment,
@@ -343,7 +490,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         return defaultPasteHandler();
       }
     },
-  }, [blockNoteLocale, notificationErrorMessage]);
+  }, [blockNoteLocale, notificationErrorMessage, imagePasteEnabled]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
@@ -504,8 +651,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editor={editor}
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        filePanel={false}
         renderEditor={false}
       >
+        <FilePanelController filePanel={UploadOnlyFilePanel} />
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
           <ToolbarWithAccessibleMenus>
             <div

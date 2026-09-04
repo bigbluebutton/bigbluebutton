@@ -954,18 +954,12 @@ class MeetingActor(
     )
   }
 
-  private def resolveUserName(userId: String): String = {
-    val userName: String = Users2x.findWithIntId(liveMeeting.users2x, userId).map(_.name).getOrElse("")
-    if (userName.isEmpty) log.error(s"Failed to map username for id $userId")
-    userName
-  }
-
   private def getMeetingInfoWebcamDetails(): Webcam = {
     val liveWebcams: Vector[org.bigbluebutton.core.models.WebcamStream] = findAll(liveMeeting.webcams)
     val numOfLiveWebcams: Int = liveWebcams.length
     val broadcasts: List[Broadcast] = liveWebcams.map(webcam => Broadcast(
       webcam.streamId,
-      User(webcam.userId, resolveUserName(webcam.userId)), 0L
+      User(webcam.userId, webcam.userName), 0L
     )).toList
     val subscribers: Set[String] = liveWebcams.flatMap(_.subscribers).toSet
     val webcamStream: msgs.WebcamStream = msgs.WebcamStream(broadcasts, subscribers)
@@ -980,14 +974,14 @@ class MeetingActor(
     val numOfListenOnlyUsers: Int = listenOnlyUsers.length
     val listenOnlyAudio = ListenOnlyAudio(
       numOfListenOnlyUsers,
-      listenOnlyUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
+      listenOnlyUsers.map(voiceUserState => User(voiceUserState.voiceUserId, voiceUserState.callerName)).toList
     )
 
     val freeswitchUsers: Vector[VoiceUserState] = findAllFreeswitchCallers(liveMeeting.voiceUsers)
     val numOfFreeswitchUsers: Int = freeswitchUsers.length
     val twoWayAudio = TwoWayAudio(
       numOfFreeswitchUsers,
-      freeswitchUsers.map(voiceUserState => User(voiceUserState.voiceUserId, resolveUserName(voiceUserState.intId))).toList
+      freeswitchUsers.map(voiceUserState => User(voiceUserState.voiceUserId, voiceUserState.callerName)).toList
     )
 
     // TODO: Placeholder values

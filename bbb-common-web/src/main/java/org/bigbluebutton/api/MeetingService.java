@@ -588,8 +588,7 @@ public class MeetingService implements MessageListener {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
-    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
-    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
+    if (existingId == null && existingTelVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
       ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
@@ -696,7 +695,7 @@ public class MeetingService implements MessageListener {
             m.getAllowModsToRequestCameraShare(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
+            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
@@ -768,19 +767,6 @@ public class MeetingService implements MessageListener {
       for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
           Meeting m = entry.getValue();
           if (telVoice.equals(m.getTelVoice())) {
-              if (!m.isForciblyEnded())
-                  return m;
-          }
-      }
-      return null;
-  }
-
-  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
-      if (webVoice == null)
-          return null;
-      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
-          Meeting m = entry.getValue();
-          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
@@ -942,6 +928,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
+      params.put(ApiParams.NOTIFY_RECORDING_APPEND, parentMeeting.getNotifyRecordingAppend());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
       params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 

@@ -1,0 +1,44 @@
+# Default CORS origin for uploaded assets.
+# For cluster-proxy setups it can be overridden in /etc/bigbluebutton/nginx/bbb-cluster.nginx
+if ($bbb_cors_origin = '') {
+        set $bbb_cors_origin '*';
+}
+
+# Upload endpoint. The POST is proxied to the bbb-file-upload node service. The
+# session is authenticated by the connection checkAuthorization, which injects
+# the Meeting-Id / User-Id headers the service trusts (the body is never trusted
+# for identity). Matches the exact path so it never collides with the serving
+# regex below.
+location = /bigbluebutton/fileUpload/upload {
+  auth_request /bigbluebutton/connection/checkAuthorization;
+  auth_request_set $meeting_id $sent_http_meeting_id;
+  auth_request_set $user_id $sent_http_user_id;
+
+  proxy_pass http://127.0.0.1:8094/upload;
+  proxy_http_version 1.1;
+  proxy_set_header Host $host;
+  proxy_set_header Meeting-Id $meeting_id;
+  proxy_set_header User-Id $user_id;
+
+  # A touch above the 5 MB file cap to allow for multipart overhead.
+  client_max_body_size 6m;
+}
+
+# Serving. GET is handled straight from disk by nginx (no hop to the node
+# service). The strict regex only matches {meetingId}/{uuid}.{ext}, so there is
+# no query-string-as-path traversal surface. The auth_request validates that the
+# path meetingId belongs to the requesting session's meeting family.
+location ~ ^/bigbluebutton/fileUpload/(?<mid>[A-Za-z0-9-]+)/(?<file>[a-f0-9-]+\.(png|jpe?g|gif|webp))$ {
+  auth_request /bigbluebutton/connection/checkFileUploadAuthorization;
+
+  # The file-uploads directory name is part of the recording format.
+  # Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+  # nginx template and the record-and-playback scripts.
+  alias /var/bigbluebutton/$mid/file-uploads/$file;
+
+  add_header X-Content-Type-Options nosniff always;
+  # No Allow-Credentials here: it would contradict the '*' default origin (the
+  # combination is invalid per the CORS spec), and the images are consumed via
+  # plain <img> tags, which do not need credentialed CORS at all.
+  add_header 'Access-Control-Allow-Origin' $bbb_cors_origin always;
+}

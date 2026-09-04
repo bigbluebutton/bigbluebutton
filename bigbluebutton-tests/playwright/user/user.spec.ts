@@ -37,6 +37,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.audioOnlyTileVisibleForAttendee();
     });
 
+    test('Locked viewer can send private messages to moderator', async ({ browser, context, page }, testInfo) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page, testInfo);
+      await lockViewers.lockedViewerCanSendPrivateMessageToModerator();
+    });
+
     test('Toggle user list', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });

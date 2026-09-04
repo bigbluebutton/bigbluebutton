@@ -31,6 +31,7 @@ create unlogged table "meeting" (
 	"screenShareBridge" varchar(30),
 	"audioBridge" varchar(30),
 	"notifyRecordingIsOn" boolean,
+	"notifyRecordingAppend" text,
 	"presentationUploadExternalDescription" text,
 	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),

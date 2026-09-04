@@ -168,13 +168,15 @@ export const generateActionsPermissions = (
   const preventSelfChat = !amISubjectUser;
   const moderatorOverride = currentUserIsModerator
     && !amISubjectUser && !isDialInUser && isPrivateChatEnabled;
+  const viewerToModeratorOverride = isSubjectUserModerator
+    && isChatEnabled && isPrivateChatEnabled && !isDialInUser && !isSubjectUserBot;
   const regularUserCondition = (isPrivateChatEnabled
     && isChatEnabled
     && !lockSettings?.disablePrivateChat
     && !isDialInUser)
     || currentUserIsModerator;
   const allowedToChatPrivately = preventSelfChat
-    && (moderatorOverride || regularUserCondition || !userChatIsLocked)
+    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || !userChatIsLocked)
     && type === 'participant';
 
   const allowedToMuteAudio = hasAuthority

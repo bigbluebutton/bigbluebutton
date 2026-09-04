@@ -322,6 +322,13 @@ FileUtils.cp_r("#{playback_dir}/css", process_dir)
 FileUtils.cp_r("#{playback_dir}/js", process_dir)
 FileUtils.cp_r("#{playback_dir}/video-js", process_dir)
 
+# Copy pasted images (chat/notes/whiteboard) from raw files, so the publish step
+# can put them next to the playback files, where the rewritten urls point. The
+# file-uploads directory name is part of the recording format: it must match
+# bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload nginx template
+# and the record-and-playback scripts.
+FileUtils.cp_r("#{raw_archive_dir}/file-uploads", process_dir) unless Dir["#{raw_archive_dir}/file-uploads/*"].empty?
+
 logger.info 'Processing successfully completed, writing done file'
 
 File.write(donefile, "Processed #{meeting_id}")

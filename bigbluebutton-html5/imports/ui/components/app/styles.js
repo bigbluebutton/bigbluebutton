@@ -64,6 +64,10 @@ const DtfInvert = `
       background-color: ${colorTldrawBackground} !important;
     }
   }
+  [data-test="messageContent"] img,
+  [data-test="imageLightbox"] img {
+    background-color: white !important;
+  }
   .tlui-slider__thumb {
     background-color: var(--darkreader-text--color-text-1) !important;
   }

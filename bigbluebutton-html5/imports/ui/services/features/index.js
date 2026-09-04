@@ -165,3 +165,48 @@ export function useIsEmojiPickerEnabled() {
   return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
     && EMOJI_PICKER_ENABLED;
 }
+
+/**
+ * This hook returns `true` if pasting/dropping images into the chat is enabled.
+ * Requires the `chatImagePaste` feature (not disabled via API) and both the
+ * `public.chat.imagePaste.enabled` and `public.chat.markdownImageAllowed`
+ * client settings. The latter is required because the pasted image is rendered
+ * server-side as markdown: without it the whole paste-upload-send flow would
+ * run only for akka to strip the `<img>` and deliver a blank message.
+ * @returns {boolean}
+ */
+export function useIsChatImagePasteEnabled() {
+  const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.chat.imagePaste.enabled;
+  const MARKDOWN_IMAGE_ALLOWED = window.meetingClientSettings.public.chat.markdownImageAllowed;
+  return !useDisabledFeatures().includes('chatImagePaste')
+    && IMAGE_PASTE_ENABLED
+    && MARKDOWN_IMAGE_ALLOWED;
+}
+
+/**
+ * This hook returns `true` if pasting/dropping images into the BlockNote shared
+ * notes editor is enabled. Requires both the `sharedNotesImagePaste` feature (not
+ * disabled via API) and the `public.app.sharedNotes.imagePaste.enabled` client
+ * setting. Only applies when the meeting uses `sharedNotesEditor=blockNote`.
+ * @returns {boolean}
+ */
+export function useIsSharedNotesImagePasteEnabled() {
+  const settings = window.meetingClientSettings.public.app.sharedNotes.imagePaste;
+  const IMAGE_PASTE_ENABLED = settings.enabled;
+  return !useDisabledFeatures().includes('sharedNotesImagePaste')
+    && IMAGE_PASTE_ENABLED;
+}
+
+/**
+ * This hook returns `true` if pasting/dropping images into the whiteboard is
+ * enabled. Requires both the `whiteboardImagePaste` feature (not disabled via
+ * API) and the `public.whiteboard.imagePaste.enabled` client setting. Anyone who
+ * can already draw (presenter or whiteboard write access) can paste; no new
+ * permission is introduced.
+ * @returns {boolean}
+ */
+export function useIsWhiteboardImagePasteEnabled() {
+  const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.whiteboard.imagePaste.enabled;
+  return !useDisabledFeatures().includes('whiteboardImagePaste')
+    && IMAGE_PASTE_ENABLED;
+}
