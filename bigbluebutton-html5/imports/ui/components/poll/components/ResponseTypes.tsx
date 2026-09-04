@@ -1,7 +1,13 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import { pollTypes, pollTypesKeys } from '../service';
 import Styled from '../styles';
+
+// The library's Button has no `selected` state. The selected look is its `primary` fill;
+// the unselected one is the design's grey, which no variant provides - Styled.ResponseTypeButton
+// paints it, so the variant underneath is only a neutral base.
+const variantFor = (selected: boolean) => (selected ? 'primary' : 'tertiary');
 
 const intlMessages = defineMessages({
   responseTypesLabel: {
@@ -73,6 +79,7 @@ interface ResponseTypesProps {
   setOptList: (optList: Array<{ key: string; val: string }>) => void;
   isQuiz: boolean;
   setCorrectAnswer: (correctAnswer: { text: string; index: number }) => void;
+  setMultipleResponse: (multipleResponse: boolean) => void;
 }
 
 const ResponseTypes: React.FC<ResponseTypesProps> = ({
@@ -82,6 +89,7 @@ const ResponseTypes: React.FC<ResponseTypesProps> = ({
   setOptList,
   isQuiz,
   setCorrectAnswer,
+  setMultipleResponse,
 }) => {
   const intl = useIntl();
   if (!customInput) {
@@ -91,81 +99,86 @@ const ResponseTypes: React.FC<ResponseTypesProps> = ({
           {intl.formatMessage(intlMessages.responseTypesLabel)}
         </Styled.SectionHeading>
         <Styled.ResponseType>
-          <Styled.PollConfigButton
-            selected={type === pollTypes.TrueFalse}
-            small={false}
-            label={intl.formatMessage(intlMessages.tf)}
-            aria-describedby="poll-config-button"
-            data-test="pollTrueFalse"
-            color="default"
-            onClick={() => {
-              setType(pollTypes.TrueFalse);
-              setOptList([
-                {
-                  key: pollTypesKeys.true,
-                  val: intl.formatMessage(intlMessages.true),
-                },
-                {
-                  key: pollTypesKeys.false,
-                  val: intl.formatMessage(intlMessages.false),
-                },
-              ]);
-              setCorrectAnswer({ text: '', index: -1 });
-            }}
-          />
-          <Styled.PollConfigButton
-            selected={type === pollTypes.Letter}
-            small={false}
-            label={intl.formatMessage(intlMessages.a4)}
-            aria-describedby="poll-config-button"
-            data-test="pollLetterAlternatives"
-            color="default"
-            onClick={() => {
-              if (!customInput) {
-                setType(pollTypes.Letter);
+          <Styled.ResponseTypeButton $selected={type === pollTypes.TrueFalse}>
+            <BBButton
+              variant={variantFor(type === pollTypes.TrueFalse)}
+              label={intl.formatMessage(intlMessages.tf)}
+              ariaDescribedBy="poll-config-button"
+              dataTest="pollTrueFalse"
+              color="default"
+              onClick={() => {
+                setType(pollTypes.TrueFalse);
                 setOptList([
-                  { key: pollTypesKeys.A, val: intl.formatMessage(intlMessages.a) },
-                  { key: pollTypesKeys.B, val: intl.formatMessage(intlMessages.b) },
-                  { key: pollTypesKeys.C, val: intl.formatMessage(intlMessages.c) },
-                  { key: pollTypesKeys.D, val: intl.formatMessage(intlMessages.d) },
+                  {
+                    key: pollTypesKeys.true,
+                    val: intl.formatMessage(intlMessages.true),
+                  },
+                  {
+                    key: pollTypesKeys.false,
+                    val: intl.formatMessage(intlMessages.false),
+                  },
                 ]);
                 setCorrectAnswer({ text: '', index: -1 });
-              }
-            }}
-          />
-          <Styled.PollConfigButton
-            selected={type === pollTypes.YesNoAbstention}
-            small={false}
-            full
-            label={intl.formatMessage(intlMessages.yna)}
-            aria-describedby="poll-config-button"
-            data-test="pollYesNoAbstentionBtn"
-            color="default"
-            onClick={() => {
-              setType(pollTypes.YesNoAbstention);
-              setOptList([
-                { key: pollTypesKeys.yes, val: intl.formatMessage(intlMessages.yes) },
-                { key: pollTypesKeys.no, val: intl.formatMessage(intlMessages.no) },
-                { key: pollTypesKeys.abstention, val: intl.formatMessage(intlMessages.abstention) },
-              ]);
-              setCorrectAnswer({ text: '', index: -1 });
-            }}
-          />
+              }}
+            />
+          </Styled.ResponseTypeButton>
+          <Styled.ResponseTypeButton $selected={type === pollTypes.Letter}>
+            <BBButton
+              variant={variantFor(type === pollTypes.Letter)}
+              label={intl.formatMessage(intlMessages.a4)}
+              ariaDescribedBy="poll-config-button"
+              dataTest="pollLetterAlternatives"
+              color="default"
+              onClick={() => {
+                if (!customInput) {
+                  setType(pollTypes.Letter);
+                  setOptList([
+                    { key: pollTypesKeys.A, val: intl.formatMessage(intlMessages.a) },
+                    { key: pollTypesKeys.B, val: intl.formatMessage(intlMessages.b) },
+                    { key: pollTypesKeys.C, val: intl.formatMessage(intlMessages.c) },
+                    { key: pollTypesKeys.D, val: intl.formatMessage(intlMessages.d) },
+                  ]);
+                  setCorrectAnswer({ text: '', index: -1 });
+                }
+              }}
+            />
+          </Styled.ResponseTypeButton>
+          <Styled.ResponseTypeButton $selected={type === pollTypes.YesNoAbstention}>
+            <BBButton
+              variant={variantFor(type === pollTypes.YesNoAbstention)}
+              label={intl.formatMessage(intlMessages.yna)}
+              ariaDescribedBy="poll-config-button"
+              dataTest="pollYesNoAbstentionBtn"
+              color="default"
+              onClick={() => {
+                setType(pollTypes.YesNoAbstention);
+                setOptList([
+                  { key: pollTypesKeys.yes, val: intl.formatMessage(intlMessages.yes) },
+                  { key: pollTypesKeys.no, val: intl.formatMessage(intlMessages.no) },
+                  { key: pollTypesKeys.abstention, val: intl.formatMessage(intlMessages.abstention) },
+                ]);
+                setCorrectAnswer({ text: '', index: -1 });
+              }}
+            />
+          </Styled.ResponseTypeButton>
           {
             !isQuiz && (
-              <Styled.PollConfigButton
-                selected={type === pollTypes.Response}
-                small={false}
-                full
-                label={intl.formatMessage(intlMessages.userResponse)}
-                aria-describedby="poll-config-button"
-                data-test="userResponseBtn"
-                color="default"
-                onClick={() => {
-                  setType(pollTypes.Response);
-                  setCorrectAnswer({ text: '', index: -1 });
-                }}
-              />
+              <Styled.ResponseTypeButton $selected={type === pollTypes.Response}>
+                <BBButton
+                  variant={variantFor(type === pollTypes.Response)}
+                  label={intl.formatMessage(intlMessages.userResponse)}
+                  ariaDescribedBy="poll-config-button"
+                  dataTest="userResponseBtn"
+                  color="default"
+                  onClick={() => {
+                    setType(pollTypes.Response);
+                    setCorrectAnswer({ text: '', index: -1 });
+                    // A typed response cannot be multiple choice; without this the flag
+                    // stays set from a previous type and still reaches POLL_CREATE.
+                    setMultipleResponse(false);
+                  }}
+                />
+              </Styled.ResponseTypeButton>
             )
           }
         </Styled.ResponseType>

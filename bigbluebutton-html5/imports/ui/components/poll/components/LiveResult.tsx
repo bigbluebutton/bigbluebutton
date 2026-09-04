@@ -1,23 +1,14 @@
-import { useMutation } from '@apollo/client';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Session from '/imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
 import Styled from '../styles';
-import {
-  ResponseInfo,
-  UserInfo,
-  getCurrentPollData,
-  getCurrentPollDataResponse,
-} from '../queries';
+import { ResponseInfo, UserInfo } from '../queries';
 import logger from '/imports/startup/client/logger';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
-import { layoutDispatch, layoutSelect, layoutSelectOutput } from '../../layout/context';
-import { ACTIONS, PANELS } from '../../layout/enums';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { layoutSelect, layoutSelectOutput } from '../../layout/context';
+import useCurrentPoll from '../useCurrentPoll';
 import CustomizedAxisTick from './CustomizedAxisTick';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import Tooltip from '../../common/tooltip/component';
@@ -31,18 +22,6 @@ const intlMessages = defineMessages({
   responsesTitle: {
     id: 'app.poll.liveResult.responsesTitle',
     description: 'heading label for poll responses',
-  },
-  publishLabel: {
-    id: 'app.poll.publishLabel',
-    description: 'label for the publish button',
-  },
-  cancelPollLabel: {
-    id: 'app.poll.cancelPollLabel',
-    description: 'label for cancel poll button',
-  },
-  backLabel: {
-    id: 'app.poll.backLabel',
-    description: 'label for the return to poll options button',
   },
   doneLabel: {
     id: 'app.createBreakoutRoom.doneLabel',
@@ -80,10 +59,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.abstention',
     description: 'Poll Abstention option value',
   },
-  showCorrectAnswerLabel: {
-    id: 'app.poll.quiz.showCorrectAnswer',
-    description: 'Label for checkbox to show correct answer in quiz poll',
-  },
   correctAnswerTitle: {
     id: 'app.poll.quiz.liveResult.title.correct',
     description: 'Title for correct answer in quiz poll live result',
@@ -104,7 +79,6 @@ interface LiveResultProps {
   usersCount: number;
   numberOfAnswerCount: number;
   animations: boolean;
-  pollId: string;
   users: Array<UserInfo>;
   isSecret: boolean;
   isQuiz: boolean;
@@ -117,31 +91,14 @@ const LiveResult: React.FC<LiveResultProps> = ({
   usersCount,
   numberOfAnswerCount,
   animations,
-  pollId,
   users,
   isSecret,
   isQuiz,
   type,
 }) => {
-  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-  const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
-
   const intl = useIntl();
-  const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
-  const [stopPoll] = useMutation(POLL_CANCEL);
-  const [shouldShowCorrectAnswer, setShouldShowCorrectAnswers] = React.useState(true);
-
-  const layoutContextDispatch = layoutDispatch();
   const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
-  const publishPoll = useCallback((pId: string, showAnswer: boolean) => {
-    pollPublishResult({
-      variables: {
-        pollId: pId,
-        showAnswer,
-      },
-    });
-  }, []);
 
   const translatedResponses = responses.map((response) => {
     const translationKey = intlMessages[response.optionDesc.toLowerCase() as keyof typeof intlMessages];
@@ -184,70 +141,6 @@ const LiveResult: React.FC<LiveResultProps> = ({
           </BarChart>
         </ResponsiveContainer>
       </Styled.Stats>
-      {
-        isQuiz && (
-          <Styled.ShowCorrectAnswerLabel
-            htmlFor="showCorrectAnswerCheckbox"
-            data-test="showCorrectAnswerCheckbox"
-          >
-            <input
-              id="showCorrectAnswerCheckbox"
-              type="checkbox"
-              checked={shouldShowCorrectAnswer}
-              onChange={(e) => {
-                setShouldShowCorrectAnswers(e.target.checked);
-              }}
-            />
-            {intl.formatMessage(intlMessages.showCorrectAnswerLabel)}
-          </Styled.ShowCorrectAnswerLabel>
-        )
-      }
-      {numberOfAnswerCount >= 0
-        ? (
-          <Styled.ButtonsActions>
-            <Styled.PublishButton
-              onClick={() => {
-                Session.setItem('pollInitiated', false);
-                publishPoll(pollId, shouldShowCorrectAnswer);
-                stopPoll();
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                  value: true,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                  value: PANELS.CHAT,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_ID_CHAT_OPEN,
-                  value: PUBLIC_GROUP_CHAT_KEY,
-                });
-              }}
-              disabled={numberOfAnswerCount <= 0}
-              label={intl.formatMessage(intlMessages.publishLabel)}
-              data-test="publishPollingLabel"
-              color="primary"
-            />
-            <Styled.CancelButton
-              onClick={() => {
-                Session.setItem('pollInitiated', false);
-                Session.setItem('resetPollPanel', true);
-                stopPoll();
-              }}
-              label={intl.formatMessage(intlMessages.cancelPollLabel)}
-              data-test="cancelPollLabel"
-            />
-          </Styled.ButtonsActions>
-        ) : (
-          <Styled.LiveResultButton
-            onClick={() => {
-              stopPoll();
-            }}
-            label={intl.formatMessage(intlMessages.backLabel)}
-            color="primary"
-            data-test="restartPoll"
-          />
-        )}
       <Styled.Separator />
       {
         !isSecret
@@ -313,15 +206,15 @@ const LiveResult: React.FC<LiveResultProps> = ({
 
 const LiveResultContainer: React.FC = () => {
   const {
-    data: currentPollData,
+    currentPoll,
     loading: currentPollLoading,
     error: currentPollDataError,
-  } = useDeduplicatedSubscription<getCurrentPollDataResponse>(getCurrentPollData);
+    numberOfAnswerCount,
+    usersCount,
+  } = useCurrentPoll();
 
-  if (currentPollLoading || !currentPollData) {
-    return null;
-  }
-
+  // This is the single place the poll subscription's failure is reported, so a failure is
+  // logged once no matter how many components are reading the poll.
   if (currentPollDataError) {
     connectionStatus.setSubscriptionFailed(true);
     logger.error(
@@ -336,34 +229,30 @@ const LiveResultContainer: React.FC = () => {
     return null;
   }
 
-  if (!currentPollData.poll.length) return null;
+  if (currentPollLoading || !currentPoll) return null;
+
   const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   const { animations } = Settings.application;
-  const currentPoll = currentPollData.poll[0];
-  const isSecret = currentPoll.secret;
   const {
     questionText,
     responses,
-    pollId,
     users,
     type,
+    secret: isSecret,
+    quiz: isQuiz,
   } = currentPoll;
-
-  const numberOfAnswerCount = currentPoll.responses_aggregate.aggregate.sum.optionResponsesCount;
-  const numberOfUsersCount = currentPoll.users_aggregate.aggregate.count;
 
   return (
     <LiveResult
       questionText={questionText}
       responses={responses}
       isSecret={isSecret}
-      usersCount={numberOfUsersCount}
-      numberOfAnswerCount={numberOfAnswerCount ?? 0}
+      usersCount={usersCount}
+      numberOfAnswerCount={numberOfAnswerCount}
       animations={animations}
-      pollId={pollId}
       users={users}
-      isQuiz={currentPoll.quiz}
+      isQuiz={isQuiz}
       type={type}
     />
   );

@@ -1,5 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { MdOutlineDelete } from 'react-icons/md';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import { pollTypes } from '../service';
 import Styled from '../styles';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
@@ -89,13 +91,19 @@ const PollInputs: React.FC<PollInputsProps> = ({
               type="text"
               value={o.val}
               placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-              data-test="pollOptionItem"
-              isCorrect={isQuiz && correctAnswer.index === i}
-              onChange={(e) => handleInputChange(e, i)}
-              maxLength={MAX_INPUT_CHARS}
-              onPaste={(e) => { e.stopPropagation(); }}
-              onCut={(e) => { e.stopPropagation(); }}
-              onCopy={(e) => { e.stopPropagation(); }}
+              $isCorrect={isQuiz && correctAnswer.index === i}
+              onChange={(e) => handleInputChange(e as React.ChangeEvent<HTMLInputElement>, i)}
+              // The library wraps a MUI field, so anything that has to reach the <input>
+              // itself - the test hook included - goes through the htmlInput slot.
+              slotProps={{
+                htmlInput: {
+                  'data-test': 'pollOptionItem',
+                  maxLength: MAX_INPUT_CHARS,
+                  onPaste: (e: React.ClipboardEvent) => { e.stopPropagation(); },
+                  onCut: (e: React.ClipboardEvent) => { e.stopPropagation(); },
+                  onCopy: (e: React.ClipboardEvent) => { e.stopPropagation(); },
+                },
+              }}
             />
             {isQuiz && correctAnswer.index === i && (
               <Styled.CorrectLabel
@@ -107,18 +115,20 @@ const PollInputs: React.FC<PollInputsProps> = ({
             )}
           </Styled.PollInputContainer>
           {optList.length > MIN_OPTIONS_LENGTH && (
-            <Styled.DeletePollOptionButton
-              label={intl.formatMessage(intlMessages.delete)}
-              aria-describedby={`option-${i}`}
-              icon="delete"
-              data-test="deletePollOption"
-              hideLabel
-              circle
-              color="default"
-              onClick={() => {
-                handleRemoveOption(i);
-              }}
-            />
+            <Styled.DeletePollOptionButton>
+              <BBButton
+                layout="squared"
+                icon={<MdOutlineDelete />}
+                ariaLabel={intl.formatMessage(intlMessages.delete)}
+                ariaDescribedBy={`option-${i}`}
+                dataTest="deletePollOption"
+                variant="tertiary"
+                color="default"
+                onClick={() => {
+                  handleRemoveOption(i);
+                }}
+              />
+            </Styled.DeletePollOptionButton>
           )}
           <span className="sr-only" id={`option-${i}`}>
             {intl.formatMessage(

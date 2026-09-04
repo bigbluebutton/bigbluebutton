@@ -3,6 +3,8 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
 import { Input } from '../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { addAlert } from '../screenreader-alert/service';
@@ -15,13 +17,15 @@ import {
   pollTypesKeys,
   validateInput,
 } from './service';
-import Toggle from '/imports/ui/components/common/switch/component';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
+import StartPollButton from './components/StartPollButton';
 import Styled from './styles';
 import ResponseChoices from './components/ResponseChoices';
 import ResponseTypes from './components/ResponseTypes';
 import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
+import LiveResultActions from './components/LiveResultActions';
 import Session from '/imports/ui/services/storage/in-memory';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import SessionStorage from '/imports/ui/services/storage/session';
@@ -199,14 +203,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.deleteRespDesc',
     description: '',
   },
-  on: {
-    id: 'app.switch.onLabel',
-    description: 'label for toggle switch on state',
-  },
-  off: {
-    id: 'app.switch.offLabel',
-    description: 'label for toggle switch off state',
-  },
   removePollOpt: {
     id: 'app.poll.removePollOpt',
     description: 'screen reader alert for removed poll option',
@@ -218,6 +214,10 @@ const intlMessages = defineMessages({
   pollingQuestion: {
     id: 'app.polling.pollQuestionTitle',
     description: 'polling question header',
+  },
+  cancelLabel: {
+    id: 'app.poll.cancelLabel',
+    description: 'label for the button that dismisses poll creation',
   },
 });
 
@@ -250,6 +250,32 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     text: string;
     index: number;
   }>({ text: '', index: -1 });
+
+  const { closePanel } = usePanelClose(PANELS.POLL);
+  // Set by the Cancel action so the unmount effect below knows not to persist the draft.
+  const discardedRef = useRef(false);
+
+  const discardPoll = useCallback(() => {
+    // "Cancel" promises to throw the draft away; without this the unmount effect would
+    // persist it to pollSavedState and the panel would restore it on the next open.
+    discardedRef.current = true;
+    SessionStorage.removeItem('pollSavedState');
+    Session.setItem('pollInitiated', false);
+    closePanel();
+  }, [closePanel]);
+
+  const resetPollForm = useCallback(() => {
+    const newType = customInput ? pollTypes.Custom : '';
+    setType(newType);
+    setOptList([]);
+    setQuestion('');
+    setQuestionAndOptions('');
+    setCorrectAnswer({ text: '', index: -1 });
+    setIsQuiz(false);
+    setCustomInput(false);
+    setSecretPoll(false);
+    setMultipleResponse(false);
+  }, [customInput]);
 
   const quickPollVariables = useStorageKey('quickPollVariables') as {
     multipleResponse: boolean;
@@ -405,6 +431,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   ]);
 
   useEffect(() => () => {
+    if (discardedRef.current) return;
     SessionStorage.setItem('pollSavedState', getPollCurrentState());
   }, [getPollCurrentState]);
 
@@ -656,33 +683,16 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
         {
           ALLOW_CUSTOM_INPUT && (
             <Styled.CustomInputRow>
-              <Styled.CustomInputHeadingCol aria-hidden="true">
-                <Styled.CustomInputHeading>
-                  {intl.formatMessage(intlMessages.customInputToggleLabel)}
-                </Styled.CustomInputHeading>
-              </Styled.CustomInputHeadingCol>
-              <Styled.CustomInputToggleCol>
-                <Styled.Toggle>
-                  <Styled.ToggleLabel>
-                    {customInput
-                      ? intl.formatMessage(intlMessages.on)
-                      : intl.formatMessage(intlMessages.off)}
-                  </Styled.ToggleLabel>
-                  <Toggle
-                    // @ts-ignore - JS component wrapped by intl
-                    icons={false}
-                    checked={customInput}
-                    onChange={() => {
-                      const newType = !customInput ? pollTypes.Custom : '';
-                      setType(newType);
-                      setCustomInput(!customInput);
-                    }}
-                    ariaLabel={intl.formatMessage(intlMessages.customInputToggleLabel)}
-                    showToggleLabel={false}
-                    data-test="autoOptioningPollBtn"
-                  />
-                </Styled.Toggle>
-              </Styled.CustomInputToggleCol>
+              <BBBToggle
+                checked={customInput}
+                onChange={() => {
+                  const newType = !customInput ? pollTypes.Custom : '';
+                  setType(newType);
+                  setCustomInput(!customInput);
+                }}
+                label={intl.formatMessage(intlMessages.customInputToggleLabel)}
+                inputProps={{ 'data-test': 'autoOptioningPollBtn' } as React.InputHTMLAttributes<HTMLInputElement>}
+              />
             </Styled.CustomInputRow>
           )
         }
@@ -711,6 +721,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           setType={setType}
           isQuiz={isQuiz}
           setCorrectAnswer={setCorrectAnswer}
+          setMultipleResponse={setMultipleResponse}
         />
         <ResponseChoices
           type={type}
@@ -720,19 +731,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           handleAddOption={handleAddOption}
           secretPoll={secretPoll}
           question={question}
-          setError={setError}
-          setIsPolling={() => {
-            const newType = customInput ? pollTypes.Custom : '';
-            setType(newType);
-            setOptList([]);
-            setQuestion('');
-            setQuestionAndOptions('');
-            setCorrectAnswer({ text: '', index: -1 });
-            setIsQuiz(false);
-            setCustomInput(false);
-            setSecretPoll(false);
-            setMultipleResponse(false);
-          }}
           handleToggle={handleToggle}
           error={error}
           handleInputChange={handleInputChange}
@@ -764,6 +762,32 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
         <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
         <span className="sr-only" id="start-poll-button">{intl.formatMessage(intlMessages.startPollDesc)}</span>
       </Styled.ContentWrapper>
+      <Styled.PollFooter>
+        {hasPoll ? <LiveResultActions /> : (
+          <>
+            <StartPollButton
+              question={question}
+              multipleResponse={multipleResponse}
+              optList={optList}
+              type={type}
+              secretPoll={secretPoll}
+              setError={setError}
+              setIsPolling={resetPollForm}
+              isQuiz={isQuiz}
+              correctAnswer={correctAnswer}
+            />
+            <Styled.CancelPollBtn>
+              <BBButton
+                dataTest="cancelPollCreation"
+                label={intl.formatMessage(intlMessages.cancelLabel)}
+                variant="subtle"
+                color="default"
+                onClick={discardPoll}
+              />
+            </Styled.CancelPollBtn>
+          </>
+        )}
+      </Styled.PollFooter>
     </>
   );
 };
