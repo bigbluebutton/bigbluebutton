@@ -405,6 +405,7 @@ export const elements = {
   noPresentation: 'h4[data-test="noPresentation"]',
   autoOptioningPollBtn: 'input[data-test="autoOptioningPollBtn"]',
   currentPollQuestion: 'span[data-test="currentPollQuestion"]',
+  pollStatus: 'div[data-test="pollStatus"]',
   allowMultiple: 'div[data-test="allowMultiple"] input[type="checkbox"]',
   firstPollAnswerDescOption: `${pollAnswerOptionDesc} input:nth-child(1)`,
   secondPollAnswerDescOption: `${pollAnswerOptionDesc}>>nth=1`,

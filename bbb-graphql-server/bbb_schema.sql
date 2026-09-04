@@ -1905,7 +1905,15 @@ LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionI
 WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
-CREATE VIEW "v_poll" AS SELECT * FROM "poll";
+CREATE VIEW "v_poll" AS
+SELECT poll.*,
+(
+    -- Secret polls keep the userId only in a separate response marker row.
+    SELECT count(DISTINCT response."userId")::integer
+    FROM poll_response response
+    WHERE response."pollId" = poll."pollId"
+) AS "numResponders"
+FROM poll;
 
 CREATE VIEW v_poll_option AS
 SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"
