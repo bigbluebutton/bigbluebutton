@@ -434,6 +434,7 @@ export const elements = {
   // dimensions - if the upload silently reverted to a default, the ratio would not match.
   nonDefaultRatioPresentationFileName: 'sample.pdf',
   maskSamplePdf: 'sample-with-mask.pdf',
+  blurImagePresentationFileName: 'blurImage.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
