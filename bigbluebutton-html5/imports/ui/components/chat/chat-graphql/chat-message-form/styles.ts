@@ -1,14 +1,16 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
-  colorText,
-  colorGrayLighter,
-  colorGrayLight,
+  colorBorder,
+  colorBorderSurface,
   colorDanger,
   colorGrayDark,
-  colorBorder,
-  colorWhite,
+  colorGrayDarkSurface,
+  colorGrayLight,
+  colorGrayLighterSurface,
   colorPrimary,
+  colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -69,12 +71,12 @@ const Input = styled(TextareaAutosize)`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: ${colorGrayLighter};
+    background: ${colorGrayLighterSurface};
     border-radius: 10px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: ${colorGrayDark};
+    background: ${colorGrayDarkSurface};
   }
 
   &::-webkit-scrollbar-track {
@@ -103,7 +105,7 @@ const SendButton = styled(Button)`
     height: 100%;
     display: flex;
     align-items: center;
-    border-radius: 0 0.75rem 0.75rem 0;
+    border-radius: 0.75rem;
   }
 
   [dir="rtl"]  & {
@@ -188,21 +190,13 @@ const InputWrapper = styled.div`
   z-index: 0;
   border-radius: 0.75rem;
   border: 1px solid ${colorBorder};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   gap: 3px;
   cursor: text;
 
-  [dir='ltr'] & {
-    border-radius: 0.75rem 0 0 0.75rem;
-  }
-
-  [dir='rtl'] & {
-    border-radius: 0 0.75rem 0.75rem 0;
-  }
-
   &:focus-within {
     border-color: ${colorPrimary};
-    box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
+    box-shadow: 0 0 0 ${xsPadding} ${colorBorderSurface};
   }
 
   overflow-y: hidden;

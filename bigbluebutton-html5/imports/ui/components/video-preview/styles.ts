@@ -8,14 +8,16 @@ import {
   lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBlack,
   colorBorder,
   colorGrayLabel,
-  colorWhite,
-  colorBlack,
-  colorGrayLighter,
+  colorGrayLighterText,
   colorGrayLightest,
   colorPrimary,
   colorText,
+  colorTextBorder,
+  colorWhiteBorder,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
@@ -122,8 +124,8 @@ const Label = styled.label`
 `;
 
 const Select = styled.select`
-  background-color: ${colorWhite};
-  border: ${borderSize} solid ${colorWhite};
+  background-color: ${colorWhiteSurface};
+  border: ${borderSize} solid ${colorWhiteBorder};
   border-radius: ${borderSize};
   border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};
@@ -360,7 +362,7 @@ const WebcamTabSelector = styled(Tab)`
   flex-grow: 1;
   text-align: center;
   font-weight: bold;
-  color: ${colorGrayLighter};
+  color: ${colorGrayLighterText};
 
   &.is-selected {
     border: none;
@@ -369,7 +371,7 @@ const WebcamTabSelector = styled(Tab)`
 `;
 
 const HeaderSeparator = styled.div`
-  border-left: 1px solid ${colorText};
+  border-left: 1px solid ${colorTextBorder};
   content: '|';
   margin: 0 1.5rem; 
   height: 1.5rem;
@@ -386,15 +388,14 @@ const BottomSeparator = styled.div`
   margin-bottom: calc(${lineHeightComputed} * 1.25);
 `;
 
-const IconSvg = styled.img<{darkThemeState: boolean}>`
+const IconSvg = styled.img`
   height: ${fontSizeLarger};
   border-radius: 5px;
   margin: 5px;
 
-  ${({ darkThemeState }) => darkThemeState && css`
-      filter: invert(1);
-    `}
-
+  :root[data-theme='dark'] & {
+    filter: invert(1);
+  }
 `;
 
 // @ts-ignore - Button is JSX element

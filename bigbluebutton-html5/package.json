@@ -83,7 +83,6 @@
     "bowser": "^2.12.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
-    "darkreader": "^4.9.117",
     "emoji-mart": "^5.5.2",
     "eventemitter2": "~6.4.6",
     "fast-json-patch": "^3.1.1",

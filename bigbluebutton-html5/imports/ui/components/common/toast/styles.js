@@ -8,18 +8,21 @@ import {
   lineHeightComputed,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
+  colorBlack,
   colorGrayDark,
-  toastDefaultColor,
+  colorGrayLighterSurface,
+  toastSurface,
+  toastTextColor,
   toastDefaultBg,
-  toastInfoColor,
-  toastInfoBg,
-  toastSuccessColor,
-  toastSuccessBg,
-  toastErrorColor,
+  toastDefaultColor,
   toastErrorBg,
-  toastWarningColor,
+  toastErrorColor,
+  toastInfoBg,
+  toastInfoColor,
+  toastSuccessBg,
+  toastSuccessColor,
   toastWarningBg,
-  colorGrayLighter,
+  toastWarningColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   toastOffsetSm,
@@ -130,7 +133,7 @@ const ToastMessage = styled.div`
   overflow-x: hidden;
   overflow-wrap: break-word;
   word-break: break-word;
-  color: black !important;
+  color: ${colorBlack} !important;
   font-family: Arial, sans-serif;
 
   ${({ small }) => small && `
@@ -146,7 +149,7 @@ const Separator = styled.div`
   position: relative;
   width: 100%;
   height: ${borderSizeSmall};
-  background-color: ${colorGrayLighter};
+  background-color: ${colorGrayLighterSurface};
   margin-top: calc(${lineHeightComputed} * .5);
   margin-bottom: calc(${lineHeightComputed} * .5);
   ${({ visible }) => visible === false && `
@@ -211,6 +214,12 @@ const ToastifyGlobalStyle = createGlobalStyle`
     width: auto !important;
     /* Make individual toasts fill the container instead of using their default fixed width */
     --toastify-toast-width: 100%;
+    --toastify-color-light: ${toastSurface};
+    --toastify-text-color-light: ${toastTextColor};
+  }
+
+  .Toastify__close-button--light {
+    color: ${colorBlack};
   }
 
   [dir="rtl"] .Toastify__toast-container {

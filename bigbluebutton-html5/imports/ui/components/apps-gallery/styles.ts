@@ -1,11 +1,13 @@
 import styled from 'styled-components';
 import {
-  colorPrimary,
+  appsGalleryOutlineColorSurface,
   colorBlueAux,
-  appsGalleryOutlineColor,
-  unpinnedAppIconColor,
-  colorWhite,
   colorBorder,
+  colorBorderSurface,
+  colorPrimary,
+  colorWhite,
+  colorWhiteSurface,
+  unpinnedAppIconColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   titlesFontWeight,
@@ -125,7 +127,7 @@ const PinApp = styled.div<{pinned: boolean}>`
   }
 
   &:hover {
-    background-color: ${appsGalleryOutlineColor};
+    background-color: ${appsGalleryOutlineColorSurface};
   }
 `;
 
@@ -171,10 +173,10 @@ const SearchWrapper = styled.div`
   padding: 0.4rem 0.75rem;
   border: 1px solid ${colorBorder};
   border-radius: ${lgBorderRadius};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
 
   &:focus-within {
-    box-shadow: 0 0 0 0.2rem ${colorBorder};
+    box-shadow: 0 0 0 0.2rem ${colorBorderSurface};
   }
 
   > i {
@@ -228,7 +230,7 @@ const ViewToggleButton = styled.button<{ $active: boolean }>`
   }
 
   &:hover {
-    background-color: ${appsGalleryOutlineColor};
+    background-color: ${appsGalleryOutlineColorSurface};
     color: ${colorPrimary};
   }
 
@@ -310,7 +312,7 @@ const TilePinApp = styled.div<{ pinned: boolean }>`
   }
 
   &:hover {
-    background-color: ${appsGalleryOutlineColor};
+    background-color: ${appsGalleryOutlineColorSurface};
   }
 `;
 

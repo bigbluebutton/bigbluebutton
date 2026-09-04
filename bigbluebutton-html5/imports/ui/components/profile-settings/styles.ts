@@ -1,7 +1,16 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary, colorDanger,
-  colorGrayDark, colorLink, colorBorder, colorSuccess, colorGrayLight,
+  colorBorder,
+  colorDanger,
+  colorGrayDark,
+  colorGrayLight,
+  colorInfoSurfaceAlt,
+  colorLink,
+  colorPrimary,
+  colorSuccess,
+  colorText,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
@@ -32,7 +41,7 @@ const RootContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
 `;
 
 const ProfileSettings = styled(ScrollboxVertical)`
@@ -42,7 +51,7 @@ const ProfileSettings = styled(ScrollboxVertical)`
   flex-direction: column;
   gap: 0.75rem;
   border-radius: ${contentSidebarBorderRadius};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   overflow-y: auto;
   overflow-x: hidden;
 `;
@@ -110,7 +119,7 @@ const VideoPreviewContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
 
   color: ${colorText};
   font-weight: normal;
@@ -498,7 +507,7 @@ const AddCameraButtonAndText = styled.div<{ disabled?: boolean }>`
   gap: 1rem;
   &:hover {
     border-radius: 0.5rem;
-    background: #E9F0FF;
+    background: ${colorInfoSurfaceAlt};
   }
 
   ${({ disabled }) => disabled && `

@@ -176,6 +176,7 @@ const Whiteboard = React.memo((props) => {
     isPhone,
     setEditor,
     lockToolbarTools,
+    darkTheme,
     layoutChanged,
     pointerDiameter = 5,
   } = props;
@@ -204,6 +205,10 @@ const Whiteboard = React.memo((props) => {
   const zoomValueRef = React.useRef(null);
   const prevShapesRef = React.useRef(shapes);
   const tlEditorRef = React.useRef(null);
+
+  React.useEffect(() => {
+    tlEditorRef.current?.user?.updateUserPreferences({ isDarkMode: Boolean(darkTheme) });
+  }, [darkTheme]);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
   const prevZoomValueRef = React.useRef(null);
@@ -1304,7 +1309,7 @@ const Whiteboard = React.memo((props) => {
     DefaultHorizontalAlignStyle.defaultValue = isRTL ? 'end' : 'start';
     DefaultVerticalAlignStyle.defaultValue = 'start';
 
-    editor?.user?.updateUserPreferences({ locale: language });
+    editor?.user?.updateUserPreferences({ locale: language, isDarkMode: Boolean(darkTheme) });
     if (lockToolbarTools) {
       editor?.updateInstanceState({ isToolLocked: true });
     }

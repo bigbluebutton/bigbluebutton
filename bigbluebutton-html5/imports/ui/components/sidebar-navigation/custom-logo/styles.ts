@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-import { colorBorder } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBorderSurface } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 import { navigationSidebarLogoPadding } from '/imports/ui/stylesheets/styled-components/general';
 
 const Separator = styled.div`
   height: 1px;
-  background-color: ${colorBorder};
+  background-color: ${colorBorderSurface};
   margin-bottom: calc(${lineHeightComputed} * .5);
 `;
 

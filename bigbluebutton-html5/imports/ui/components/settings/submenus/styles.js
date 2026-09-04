@@ -4,7 +4,8 @@ import {
   colorGrayDark,
   colorGrayLabel,
   colorPrimary,
-  colorWhite,
+  colorWhiteBorder,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { Switch } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
@@ -80,8 +81,8 @@ const Select = styled.select`
     border-radius: ${borderSize};
   }
 
-  background-color: ${colorWhite};
-  border: ${borderSize} solid ${colorWhite};
+  background-color: ${colorWhiteSurface};
+  border: ${borderSize} solid ${colorWhiteBorder};
   border-radius: ${borderSize};
   border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};

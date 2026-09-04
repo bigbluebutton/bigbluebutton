@@ -26,6 +26,8 @@ import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { User } from '../../Types/user';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
@@ -198,6 +200,7 @@ interface BlockNoteAppProps {
 }
 
 function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
   const {
     hocuspocusProvider,
     currentUser,
@@ -502,7 +505,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       <BlockNoteView
         editable={editable}
         editor={editor}
-        theme="light"
+        theme={darkTheme ? 'dark' : 'light'}
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
         renderEditor={false}
       >

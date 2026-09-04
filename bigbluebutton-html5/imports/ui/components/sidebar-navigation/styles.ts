@@ -14,11 +14,12 @@ import {
   navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorGrayDark,
-  colorWhite,
-  colorDanger,
-  notificationBadgeBg,
   colorBackground,
+  colorDanger,
+  colorGrayDarkBorder,
+  colorWhiteBorder,
+  colorWhiteSurface,
+  notificationBadgeBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { Separator as BaseSeparator } from '/imports/ui/components/sidebar-content/styles';
@@ -40,7 +41,7 @@ const NavigationSidebarBackdrop = styled.div<{animations: boolean, isMobile: boo
 `;
 
 const NavigationSidebar = styled.div<{animations: boolean, isMobile: boolean, isExpanded: boolean}>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   border-radius: ${navigationSidebarBorderRadius};
   display: flex;
   flex-direction: column;
@@ -74,7 +75,7 @@ const NavigationToggleButton = styled(Button)`
       bottom: ${navigationSidebarNotificationBadgeBottom};
       right: ${navigationSidebarNotificationBadgeRight};
       background-color: ${notificationBadgeBg};
-      border: ${borderSizeSmall} solid ${colorWhite};
+      border: ${borderSizeSmall} solid ${colorWhiteBorder};
     }
   `}
 `;
@@ -151,7 +152,7 @@ const BadgeCircle = styled.div`
   bottom: ${borderSize};
   right: 3px;
   background-color: ${colorDanger};
-  border: ${borderSize} solid ${colorGrayDark};
+  border: ${borderSize} solid ${colorGrayDarkBorder};
   display: flex;
   justify-content: center;
   align-items: center;

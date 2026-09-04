@@ -2,7 +2,13 @@ import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  audioModalIconBg,
+  audioModalIconColor,
+  audioModalIconSecondaryColor,
+  colorBlack,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
   btnSpacing,
@@ -18,16 +24,16 @@ const AudioOptions = styled.span`
 
 const AudioModalButton = styled(Button)`
   i {
-    color: #3c5764;
+    color: ${audioModalIconSecondaryColor};
   }
 
   // Modifies the audio button icon colour
   & span:first-child {
     display: inline-block;
-    color: #1b3c4b;
-    background-color: #f1f8ff;
+    color: ${audioModalIconColor};
+    background-color: ${audioModalIconBg};
     box-shadow: none;
-    border: 5px solid #f1f8ff;
+    border: 5px solid ${audioModalIconBg};
     font-size: 3.5rem;
 
     @media ${smallOnly} {
@@ -53,13 +59,13 @@ const AudioModalButton = styled(Button)`
   &:hover span:first-child,
   &:focus span:first-child {
     border: 5px solid ${colorPrimary};
-    background-color: #f1f8ff;
+    background-color: ${audioModalIconBg};
   }
 
   // Modifies the button label text
   & span:last-child {
     display: block;
-    color: black;
+    color: ${colorBlack};
     font-size: 1rem;
     font-weight: 600;
     margin-top: ${btnSpacing};

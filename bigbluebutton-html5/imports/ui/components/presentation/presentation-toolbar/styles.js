@@ -1,12 +1,15 @@
 import styled from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import {
-  colorPrimary,
+  appsGalleryOutlineColorSurface,
+  colorBlueLightestBorder,
+  colorControlBorder,
+  colorGrayDarkBorder,
+  colorGrayDarkSurface,
   colorOffWhite,
-  toolbarButtonColor,
+  colorPrimary,
   colorWhite,
-  colorGrayDark,
-  colorBlueLightest,
+  toolbarButtonColor,
   toolbarButtonColorDisabled,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -26,7 +29,7 @@ const PresentationToolbarWrapper = styled.div`
   align-self: center;
   z-index: 1;
   background-color: ${colorOffWhite};
-  border-top: 1px solid ${colorBlueLightest};
+  border-top: 1px solid ${colorBlueLightestBorder};
   border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
   min-width: fit-content;
   width: 100%;
@@ -174,13 +177,13 @@ const SkipSlideSelect = styled.select`
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
-    background-color: #DCE4EC;
+    background-color: ${appsGalleryOutlineColorSurface};
     border-radius: 4px;
   }
 
   &:focus {
     outline-style: solid;
-    box-shadow: 0 0 0 1px #cdd6e0 !important;
+    box-shadow: 0 0 0 1px ${colorControlBorder} !important;
   }
 `;
 
@@ -232,7 +235,7 @@ const FitToWidthButton = styled(Button)`
 
   ${({ $fitToWidth }) => $fitToWidth && `
     & > span {
-      border: solid ${borderSizeLarge} ${colorGrayDark};
+      border: solid ${borderSizeLarge} ${colorGrayDarkBorder};
     }
   `}
 
@@ -254,7 +257,7 @@ const MultiUserTool = styled.span`
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
+  box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDarkSurface};
   font-size: ${smPaddingX};
   user-select: none;
   cursor: pointer;
