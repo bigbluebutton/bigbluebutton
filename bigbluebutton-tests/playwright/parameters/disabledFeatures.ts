@@ -44,14 +44,6 @@ export class DisabledFeatures extends MultiUsers {
     );
   }
 
-  async layouts() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.wasRemoved(
-      e.manageLayoutBtn,
-      'should not display manage layout option when the actions is open',
-    );
-  }
-
   async learningDashboard() {
     await this.modPage.hasElement(e.usersListSidebarButton, 'should display the users list button on the sidebar');
     await this.modPage.wasRemoved(e.learningDashboardSidebarButton, 'should not display the learning dashboard button on the sidebar');
@@ -185,11 +177,6 @@ export class DisabledFeatures extends MultiUsers {
   async externalVideosExclude() {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.hasElement(e.shareExternalVideoBtn, 'should display the share external video button');
-  }
-
-  async layoutsExclude() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.hasElement(e.manageLayoutBtn, 'should display the manage layout button');
   }
 
   async learningDashboardExclude() {
