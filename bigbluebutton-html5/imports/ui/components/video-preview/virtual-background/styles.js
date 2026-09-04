@@ -7,13 +7,14 @@ import {
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorBorder,
-  userThumbnailBorder,
-  btnPrimaryBorder,
   btnDefaultColor,
+  btnPrimaryBorder,
+  colorBorder,
   colorGrayLabel,
   colorPrimary,
-  colorWhite,
+  colorWhiteBorder,
+  colorWhiteSurface,
+  userThumbnailBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
@@ -86,8 +87,8 @@ const ThumbnailButton = styled(Button)`
 `;
 
 const Select = styled.select`
-  background-color: ${colorWhite};
-  border: ${borderSize} solid ${colorWhite};
+  background-color: ${colorWhiteSurface};
+  border: ${borderSize} solid ${colorWhiteBorder};
   border-radius: ${borderSize};
   border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};

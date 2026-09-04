@@ -4,8 +4,9 @@ import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/ty
 import {
   colorGrayDark,
   colorPrimary,
-  colorWhite,
   colorText,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -86,7 +87,7 @@ const Item = styled.li`
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px ${colorWhite}, 0 0 2px 4px rgba(${colorPrimary}, .4);
+    box-shadow: 0 0 0 2px ${colorWhiteSurface}, 0 0 2px 4px rgba(${colorPrimary}, .4);
     outline-style: solid;
   }
 `;

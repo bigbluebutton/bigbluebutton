@@ -6,7 +6,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGray,
-  colorGrayLightest,
+  colorGrayLightestBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -40,7 +40,7 @@ const IFrame = styled.iframe<{amIPresenter: boolean, preventInteraction: boolean
   overflow: hidden;
   border-style: none;
   pointer-events: ${({ preventInteraction }) => (preventInteraction ? 'none' : 'inherit')};
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorGrayLightestBorder};
   border-radius: ${({ amIPresenter }) => (amIPresenter
     ? `0 0 ${lgBorderRadius} ${lgBorderRadius}`
     : `${lgBorderRadius}`

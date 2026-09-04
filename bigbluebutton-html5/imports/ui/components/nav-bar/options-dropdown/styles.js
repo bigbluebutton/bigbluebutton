@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  colorGrayDark,
-  btnPrimaryColor,
   btnPrimaryActiveBg,
+  btnPrimaryColor,
+  colorGrayDarkSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -65,7 +65,7 @@ const ToggleButtonWrapper = styled.div`
   align-items: center;
 
   &:focus {
-    background-color: ${colorGrayDark};
+    background-color: ${colorGrayDarkSurface};
   }
 
   & > button {

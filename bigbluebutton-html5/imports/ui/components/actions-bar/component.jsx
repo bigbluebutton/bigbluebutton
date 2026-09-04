@@ -153,7 +153,6 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
-      isDarkThemeEnabled,
       isMobile,
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
@@ -235,7 +234,6 @@ class ActionsBar extends PureComponent {
                     hasPinnedSharedNotes={isSharedNotesPinned}
                     hasGenericContent={hasGenericContent}
                     hasCameraAsContent={hasCameraAsContent}
-                    isDarkThemeEnabled={isDarkThemeEnabled}
                   />
                 )}
               {((amIPresenter || amIModerator)

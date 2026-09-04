@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import {
-  colorGrayLight,
   colorBorder,
-  colorWhite,
+  colorGrayLight,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
 const contentText = `
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 15px;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   color: ${colorGrayLight};
   bottom: 0;
   box-sizing: border-box;

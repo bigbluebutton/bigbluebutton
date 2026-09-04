@@ -9,11 +9,11 @@ import {
   mobileNavbarButtonSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
+  btnDefaultGhostBg,
   colorDanger,
   colorDangerDark,
   colorGray,
-  btnDefaultGhostBg,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';

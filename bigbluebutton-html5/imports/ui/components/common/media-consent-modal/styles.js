@@ -2,8 +2,8 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
-  colorWhite,
   colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   $2xlPadding,
@@ -15,7 +15,7 @@ const RequestModal = styled(ModalSimple)`
   padding: ${$2xlPadding};
 
   border-radius: ${appsButtonsBorderRadius};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   button[class*="close"] {

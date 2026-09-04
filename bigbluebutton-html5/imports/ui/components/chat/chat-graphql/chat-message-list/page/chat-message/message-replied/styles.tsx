@@ -1,9 +1,13 @@
 import styled from 'styled-components';
 import {
-  colorDangerDark,
   colorBorder,
+  colorBorderSurface,
+  colorDangerDark,
   colorGrayLight,
-  colorOffWhite, colorPrimary, colorText, colorWhite,
+  colorOffWhite,
+  colorPrimary,
+  colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
 import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
@@ -11,8 +15,8 @@ import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/component
 const Container = styled.div`
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
-  background-color: ${colorWhite};
-  box-shadow: inset 0 0 0 1px ${colorBorder};
+  background-color: ${colorWhiteSurface};
+  box-shadow: inset 0 0 0 1px ${colorBorderSurface};
   padding: ${smPadding} ${$3xlPadding};
   position: relative;
   overflow: hidden;

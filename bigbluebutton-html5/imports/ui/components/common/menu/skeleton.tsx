@@ -1,4 +1,8 @@
 import React from 'react';
+import {
+  appsGalleryOutlineColorSurface,
+  colorWhiteSurface,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -10,7 +14,7 @@ const MenuSkeleton: React.FC = () => {
 
   return (
     <Styled.Skeleton>
-      <SkeletonTheme baseColor="#DCE4EC">
+      <SkeletonTheme baseColor={appsGalleryOutlineColorSurface} highlightColor={colorWhiteSurface}>
         <Styled.SkeletonWrapper>
           <Skeleton direction={isRTL ? 'rtl' : 'ltr'} />
         </Styled.SkeletonWrapper>
