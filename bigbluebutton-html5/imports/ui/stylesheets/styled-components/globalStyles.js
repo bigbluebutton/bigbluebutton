@@ -30,6 +30,9 @@ const GlobalStyle = createGlobalStyle`
     .MuiPaper-root {
       width: 100%;
     }
+    .override-mobile-styles {
+      width: auto !important;
+    }
   }
   .MuiList-padding {
     padding: 0 !important;

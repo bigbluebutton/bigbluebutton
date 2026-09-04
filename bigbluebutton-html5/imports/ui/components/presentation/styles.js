@@ -18,14 +18,9 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
+import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
 
-const VisuallyHidden = styled.span`
-  position: absolute;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  height: 1px; width: 1px;
-  margin: -1px; padding: 0; border: 0;
-`;
+const { VisuallyHidden } = VisuallyHiddenStyles;
 
 const PresentationSvg = styled.svg`
   object-fit: contain;

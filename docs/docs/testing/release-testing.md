@@ -579,6 +579,21 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - you should see the correct presentation selected displayed for each user/room
 
+### Moderator listens to a breakout room audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/listenToRoom.spec.ts)
+
+Requires the LiveKit audio bridge (the default). A viewer must be in a breakout room with audio.
+
+1. As a moderator in the main room, join audio, open the breakout rooms panel and pick "Listen to this room's audio" from a running room's options menu.
+
+   - a persistent notification should appear naming the room, with a "Return to main room" button
+   - you should hear the breakout room's audio; the main room's audio should go silent
+   - unmuting should make you audible in the breakout (its members see your talking indicator); main-room users should see you as muted
+2. Mute and unmute using the main room's audio controls: the breakout side should reflect it.
+
+3. Click "Return to main room".
+
+   - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
@@ -1120,6 +1135,20 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 18. All users should see "Public chat is enabled" notification.
 
 19. All users should be able to send public chat messages now.
+
+### Public chat for a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/user/user.spec.ts)
+
+1. Join meeting with a moderator and a viewer. Do not enable any "Lock viewers" setting.
+
+2. Moderator: open the viewer's actions menu in the user list and select "Lock public chat".
+
+3. Viewer: should see the public chat textbox and send button disabled, while other viewers keep sending public chat messages.
+
+4. Moderator: the viewer's row in the user list should show the "Locked" label. The moderator should still be able to send public chat messages.
+
+5. Moderator: open the same viewer's actions menu and select "Unlock public chat".
+
+6. Viewer: should be able to send public chat messages again and the "Locked" label should disappear.
 
 ### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
@@ -1671,35 +1700,33 @@ Note :
 
 4. Moderator: choose "Ask moderator".
 
-5. "Waiting Users" tab should appear above the user list for all moderators.
+5. Waiting users should appear inline in the user list for all moderators.
 
-6. Moderator: click "Waiting Users" tab, the waiting users panel should open and include "Currently no pending users..." label.
-
-7. Try to join the meeting as moderator
+6. Try to join the meeting as moderator
 
     - Moderators should be able to join bypassing lobby
 
-8. Try to join the meeting as viewer
+7. Try to join the meeting as viewer
 
     - You should get into a lobby screen indicating your position in the queue
 
-9. Moderator: the waiting users panel should be populated with the list of pending viewers and options of how to proceed (if the panel is closed, the pending users counter should appear on top of the "Waiting Users" tab).
+8. Moderator: the user list should show separate "Waiting Authenticated Users" and "Waiting Guests" sections, each with its pending-user count. Expanding a section should show its users and queue-specific actions with the affected count in their labels. The global "Allow everyone" and "Deny everyone" actions should appear only when both queues contain users, also with the total affected count. Searching should filter the visible rows while keeping both queue headers, full counts, and bulk-action scopes unchanged.
 
-10. Moderator: type in the textbox, press Enter or click "Send" button. The message should be visible to all waiting viewers on their lobby screens (as well as in the moderator's waiting users panel).
+9. Moderator: click "Permissions and Policies" at the bottom of the user list, select "Guest Policy", enable "Message to the guests' lobby", type the message, and press Enter or click "Send". The message should be visible to all waiting viewers on their lobby screens.
 
-11. Moderator: click "Message" for a specific viewer in the list, type in the textbox, press Enter or click "Send" button. The message should appear only for that specific viewer.
+10. Moderator: click "Message" for a specific viewer in the list, type in the textbox, press Enter or click "Send" button. The message should appear only for that specific viewer.
 
-    - Click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
+    - Click the global "Deny everyone" action. All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be affected by this, but instead they should be placed in the waiting lobby.
 
-    - Select "Remember choice" and click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" option should become current in the waiting users modal and all new viewers should be redirected to the home page.
+    - Select "Remember choice" and click the global "Deny everyone" action. All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" should become the active Guest Policy setting, and all new viewers should be redirected to the home page.
 
-    - Click "Allow everyone". All the waiting viewers should successfully join the meeting. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
+    - Click the global "Allow everyone" action. All the waiting viewers should successfully join the meeting. All new viewers should not be affected by this, but instead they should be placed in the waiting lobby.
 
-    - Select "Remember choice" and click "Allow everyone". All the waiting viewers should successfully join the meeting. "Always allow" option should become current in the waiting users modal and all new viewers should be able to join bypassing the waiting lobby.
+    - Select "Remember choice" and click the global "Allow everyone" action. All the waiting viewers should successfully join the meeting. "Always accept" should become the active Guest Policy setting, and all new viewers should be able to join bypassing the waiting lobby.
 
     - Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
 
-    - Click "Deny" for the specific user in teh waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
+    - Click "Deny" for the specific user in the waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
 
 ## Reactions bar
 

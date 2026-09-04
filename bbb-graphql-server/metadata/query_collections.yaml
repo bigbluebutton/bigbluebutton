@@ -33,6 +33,7 @@
               customLogoUrl
               customDarkLogoUrl
               notifyRecordingIsOn
+              notifyRecordingAppend
               presentationUploadExternalDescription
               presentationUploadExternalUrl
               recordingPolicies {

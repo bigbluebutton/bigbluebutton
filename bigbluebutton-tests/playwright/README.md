@@ -114,6 +114,16 @@ npm run test:ssh -- HOSTNAME
 
 _You can check the official documentation [here](https://playwright.dev/docs/test-cli)_
 
+#### 2.3. Quarantine tags
+
+The `test-chromium`/`test-firefox` gates run `@ci`-tagged tests minus everything tagged:
+
+- `@flaky` — genuinely intermittent; passes on retry or under different timing
+- `@need-update` — the covered feature changed or was removed; the test itself needs a rewrite (a comment at the test states what changed)
+- `@known-issue` — the test and its assertions are correct, but a known/suspected product issue makes it fail deterministically (a comment or `linkIssue()` at the test points to the issue)
+- `@setting-required:<setting>` — needs a non-default server setting
+- `@only-headed` — cannot run headless
+
 ## Skip SDK tests without the need of a new release
 
 Instead pushing changes with `@flaky` flag addition into the BigBlueButton SDK repository, you can simply add the flaky tests into `/bigbluebutton-tests/playwright/sdk-flaky-tests.txt` which will skip them on CI workflow runs (added on [this PR](https://github.com/bigbluebutton/bigbluebutton/pull/23656))

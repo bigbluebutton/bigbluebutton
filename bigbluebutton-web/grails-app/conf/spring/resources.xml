@@ -239,7 +239,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="userInactivityThresholdInMinutes" value="${userInactivityThresholdInMinutes}"/>
         <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
-        <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="cameraBridge" value="${cameraBridge}"/>
         <property name="screenShareBridge" value="${screenShareBridge}"/>
@@ -262,7 +261,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="lockSettingsHideViewersAnnotation" value="${lockSettingsHideViewersAnnotation}"/>
         <property name="lockSettingsPresenterPolicy" value="${lockSettingsPresenterPolicy}"/>
-        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
@@ -299,6 +297,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
         <property name="pageTokenSecret" value="${pageTokenSecret}"/>
+        <property name="numDownloadThreads" value="${numPresentationDownloadThreads}"/>
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">

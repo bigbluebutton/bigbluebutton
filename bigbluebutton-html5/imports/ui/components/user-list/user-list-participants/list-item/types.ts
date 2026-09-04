@@ -40,6 +40,7 @@ export interface UserActionPermissions {
   allowedToPromote: boolean | undefined;
   allowedToDemote: boolean | undefined;
   allowedToChangeUserLockStatus: boolean | undefined;
+  allowedToLockPublicChat: boolean | undefined;
   allowedToEjectCameras: boolean | undefined;
   allowedToRequestCamera: boolean | undefined;
   allowedToRemove: boolean | undefined;

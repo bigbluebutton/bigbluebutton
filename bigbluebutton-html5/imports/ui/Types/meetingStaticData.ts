@@ -19,6 +19,7 @@ export interface MeetingStaticData {
   customLogoUrl: string | null;
   customDarkLogoUrl: string | null;
   notifyRecordingIsOn: boolean;
+  notifyRecordingAppend: string;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
   recordingPolicies: {
