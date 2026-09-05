@@ -444,6 +444,20 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     ).filter((publication) => publication.source === Track.Source.Microphone);
   }
 
+  // The SDK re-acquires its own captures on unmute, so those are always
+  // resumable; a track the bridge handed it (user provided) will not be
+  // touched and has to be usable already.
+  private static canUnmuteInPlace(publication: LocalTrackPublication): boolean {
+    const { track } = publication;
+
+    if (!track) return false;
+    if (!track.isUserProvided) return true;
+
+    const capture = track.mediaStreamTrack;
+
+    return capture?.readyState === 'live' && !capture.muted;
+  }
+
   private static publicationMatchesDevice(
     publication: LocalTrackPublication | null,
     deviceId: string | null | undefined,
@@ -1358,9 +1372,14 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         (pub) => LiveKitAudioBridge.publicationMatchesDevice(pub, this.inputDeviceId),
       );
 
-      // Track is published but muted - just unmute it
-      if (currentPubs.length > 0) {
-        const mutedPubs = currentPubs.filter((pub) => pub.isMuted);
+      // Track is published but muted - unmute it in place only where that will
+      // carry audio again, otherwise fall through and re-acquire.
+      const resumablePubs = currentPubs.filter(
+        (pub) => LiveKitAudioBridge.canUnmuteInPlace(pub),
+      );
+
+      if (resumablePubs.length > 0) {
+        const mutedPubs = resumablePubs.filter((pub) => pub.isMuted);
 
         if (mutedPubs.length > 0) {
           mutedPubs.forEach((pub) => pub.unmute());
@@ -1376,9 +1395,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             },
           }, `LiveKit: unmuting audio track - ${trackName}`);
         }
-      } else if (trackPubs.length === 0 && this.originalStream) {
-        // Track was unpublished on previous mute toggle, so publish again.
-        // Only publish if we have an original stream (audio was shared before).
+      } else if (this.originalStream && (trackPubs.length === 0 || currentPubs.length > 0)) {
+        // Either nothing is published (unpublished on a previous mute toggle) or
+        // this device's publication cannot carry audio again. Publish either
+        // way; doPublish drops a stale publication first, and its
+        // inactive-stream fallback re-acquires a capture that has ended.
         this.publish(this.originalStream).catch(handleMuteError);
         logger.debug({
           logCode: 'livekit_audio_track_unmute_publish',
