@@ -139,6 +139,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.userRequestCamera,
     () => modal.setIsOpen(true),
     operations.setRaiseHand,
+    operations.setUserChatLocked,
   );
 
   const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;

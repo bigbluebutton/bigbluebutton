@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import {
   borderSize,
   borderSizeSmall,
+  mobileNavbarButtonSize,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarBorderRadius,
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsContainerGapSmallHeight,
@@ -23,6 +25,7 @@ import {
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { Separator as BaseSeparator } from '/imports/ui/components/sidebar-content/styles';
 import Button from '/imports/ui/components/common/button/component';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const smallHeight = '(max-height: 40em)';
 
@@ -62,6 +65,22 @@ const NavigationToggleButton = styled(Button)`
   margin: 0;
   z-index: 3;
   align-self: center;
+
+  @media ${smallOnly} {
+    margin-top: calc((${mobileNavbarButtonSize} - ${mobileNavigationSidebarToggleButtonSize}) / 2);
+
+    & > span:first-of-type {
+      width: ${mobileNavigationSidebarToggleButtonSize};
+      height: ${mobileNavigationSidebarToggleButtonSize};
+      min-width: ${mobileNavigationSidebarToggleButtonSize};
+      padding: 0 !important;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   ${({ hasNotification }) => hasNotification && `
     position: relative;
 

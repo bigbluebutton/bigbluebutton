@@ -1,3 +1,5 @@
+import { devices } from '@playwright/test';
+
 import { linkIssue } from '../core/helpers';
 import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
@@ -7,11 +9,49 @@ import { CustomParameters } from './customparameters';
 import { DisabledFeatures } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
 
+const iPhone11 = devices['iPhone 11'];
+const iPad = devices['iPad (gen 7)'];
+
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.recordMeeting, testInfo });
     await createParam.recordMeeting();
+  });
+
+  test.describe.parallel('Recording notification consent', () => {
+    test('Appends escaped custom text to the consent modal', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25579);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter: `${c.recordMeeting}&${c.notifyRecordingIsOn}&${encodeCustomParams(c.notifyRecordingAppend)}`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.recordingNotificationAppend(c.notifyRecordingAppendMessage);
+    });
+
+    test('Keeps the existing modal unchanged for an empty append', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25579);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter: `${c.recordMeeting}&${c.notifyRecordingIsOn}&notifyRecordingAppend=`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.recordingNotificationAppend();
+    });
+
+    test('Does not enable consent notifications by itself', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25579);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter: `${c.recordMeeting}&${encodeCustomParams(c.notifyRecordingAppend)}`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.recordingNotificationAppend(undefined, false);
+    });
   });
 
   test.describe.parallel('Banner', () => {
@@ -129,7 +169,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.camerasOnly();
     });
 
-    test('PRESENTATION_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('PRESENTATION_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, {
@@ -148,7 +188,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.participantsAndChatOnly();
     });
 
-    test('MEDIA_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('MEDIA_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.mediaOnly, testInfo });
@@ -157,7 +197,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Enforce Layout', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Enforce Layout', { tag: '@flaky' }, () => {
     test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
@@ -481,6 +521,47 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.showParticipantsOnLogin();
   });
 
+  test('Show Participants Instead of Public Chat on Login', async ({ browser, context, page }, testInfo) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, {
+      joinParameter: c.showParticipantsAndPublicChatOnLogin,
+      testInfo,
+    });
+    await customParam.showParticipantsInsteadOfPublicChatOnLogin();
+  });
+
+  test('Hide Participants on Login', async ({ browser, context, page }, testInfo) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, { joinParameter: c.hideParticipantsOnLogin, testInfo });
+    await customParam.hideParticipantsOnLogin();
+  });
+
+  // The participants panel follows the phone guard, not the mobile one: tablets open it
+  // like a desktop does, phones open no panel at all.
+  test.describe.parallel('Show Participants on Login per device', () => {
+    test.beforeEach(({ browserName }) => {
+      test.skip(browserName === 'firefox', 'Device emulation is not supported in Firefox browser');
+    });
+
+    test('Tablet', async ({ browser }, testInfo) => {
+      const context = await browser.newContext({ ...iPad });
+      const tabletPage = await context.newPage();
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(tabletPage, { joinParameter: c.showParticipantsOnLogin, testInfo });
+      await customParam.showParticipantsOnLoginOnTablet();
+      await context.close();
+    });
+
+    test('Phone', async ({ browser }, testInfo) => {
+      const context = await browser.newContext({ ...iPhone11 });
+      const phonePage = await context.newPage();
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(phonePage, { joinParameter: c.showParticipantsOnLogin, testInfo });
+      await customParam.showParticipantsOnLoginOnPhone();
+      await context.close();
+    });
+  });
+
   test('Show Session Details on Join', async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, {
@@ -699,7 +780,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinReturnFromBreakouts();
     });
 
-    test('After Uploading large presentation', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('After Uploading large presentation', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(context, {

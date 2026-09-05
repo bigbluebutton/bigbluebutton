@@ -206,6 +206,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     operations.userRequestCamera,
     () => modal.setIsOpen(true),
     operations.setRaiseHand,
+    operations.setUserChatLocked,
   );
 
   const Settings = getSettingsSingletonInstance();

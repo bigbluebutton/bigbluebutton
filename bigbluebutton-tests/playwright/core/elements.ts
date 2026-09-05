@@ -99,6 +99,10 @@ export const elements = {
   roomOptions2: 'button[data-test="roomOptions2"]',
   joinRoom1: 'button[data-test="joinRoom1"]',
   joinFirstRoom: 'button[data-test^="joinRoom"]',
+  // Free-join room list: one stable id per room, independent of the button's
+  // label, which changes with the locale and with the join state.
+  freeJoinRoom1: 'button[data-test="freeJoinRoom1"]',
+  freeJoinRoom2: 'button[data-test="freeJoinRoom2"]',
   allowChoiceRoom: 'input[id="opt-freeJoin"]',
   labelGeneratingURL: 'span[data-test="labelGeneratingURL"]',
   endBreakoutRoomsButton: 'button[data-test="endBreakoutRoomsButton"]',
@@ -151,6 +155,9 @@ export const elements = {
   breakoutMessageInput: 'input[data-test="messageInput"]',
   callModeratorButton: 'button[data-test="callModeratorButton"]',
   returnToMainSessionButton: 'button[data-test="returnToMainSessionButton"]',
+  listenToBreakoutRoomButton: 'li[data-test^="listenToBreakoutRoomButton"]',
+  breakoutTransferReturnButton: 'button[data-test="breakoutTransferReturnButton"]',
+  breakoutListenToast: 'div[data-test="breakoutListenToast"]',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',
@@ -185,9 +192,8 @@ export const elements = {
   chatNotificationMessageText: 'div[data-test="chatMessageNotificationContent"] p',
   secondChatUserMessageText: 'p[data-test="chatUserMessageText"]>>nth=1',
   chatWelcomeMessageText: 'div[data-test="welcomeMessage"]',
-  waitingUsersLobbyMessage: 'div[data-test="lobbyMessage"] >> textarea',
-  sendLobbyMessage: 'div[data-test="lobbyMessage"] >> button',
-  lobbyMessage: 'div[data-test="lobbyMessage"] >> p',
+  waitingUsersLobbyMessage: 'input[data-test="lobbyMessageInput"]',
+  sendLobbyMessage: 'button[data-test="sendLobbyMessageButton"]',
   positionInWaitingQueue: 'div[id="positionInWaitingQueue"]',
   allowEveryone: 'button[data-test="allowEveryone"]',
   denyEveryone: 'button[data-test="denyEveryone"]',
@@ -195,9 +201,14 @@ export const elements = {
   privateMessageGuest: 'button[data-test="privateMessageGuest"]',
   acceptGuest: 'button[data-test="acceptGuest"]',
   denyGuest: 'button[data-test="denyGuest"]',
-  inputPrivateLobbyMessage: 'div[data-test="privateLobbyMessage"] >> textarea',
-  sendPrivateLobbyMessage: 'div[data-test="privateLobbyMessage"] >> button',
-  rememberCheckboxId: 'input[id="rememberCheckboxId"]',
+  inputPrivateLobbyMessage: 'input[data-test="privateLobbyMessage"]',
+  sendPrivateLobbyMessage: 'button[data-test="sendMessageButton"]',
+  rememberChoice: '[data-test="rememberChoice"]',
+  authenticatedWaitingUsers: '[data-test="authenticatedWaitingUsers"]',
+  guestWaitingUsers: '[data-test="guestWaitingUsers"]',
+  allowAllAuthenticatedWaiting: 'button[data-test="allowAllAuthenticated"]',
+  denyAllAuthenticatedWaiting: 'button[data-test="denyAllAuthenticated"]',
+  userListSearch: 'input[aria-label="Search users"]',
   welcomeMessage: 'h1[id="welcome-message"]',
   chatMessageEditedLabel: 'span[data-test="chatMessageEditedLabel"]',
   chatEditingWarningContainer: 'div[data-test="chatEditingWarningContainer"]',
@@ -246,9 +257,13 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
+  recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
+  recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
+  recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
+  recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
   webcamMirroredVideoContainer: 'video[data-test="mirroredVideoContainer"]',
   currentUserLocalStreamVideo: 'video[data-local-stream="true"]',
-  usersList: 'div[data-test="userList"]',
+  usersList: 'div[data-test="userListPanel"]',
   selectCameraQualityId: 'select[id="setQuality"]',
   virtualBackgrounds: 'div[data-test="virtualBackground"]',
   virtualBackgroundToggle: 'input[data-test="virtualBackgroundToggle"]',
@@ -301,6 +316,7 @@ export const elements = {
   exportPlainButton: 'a[id="exportplaina"] span',
   pinNotes: 'li[data-test="pinNotes"]',
   unpinNotes: 'button[data-test="unpinNotes"]',
+  pinnedNotesHeader: 'header[data-test="pinnedNotesHeader"]',
   exportetherpad: 'span[id="exportetherpad"]',
   exporthtml: 'span[id="exporthtml"]',
 
@@ -309,8 +325,13 @@ export const elements = {
   blockNoteEditor: '#bn-notes-scroll-container .bn-editor',
   blockNoteEditable: '#bn-notes-scroll-container .bn-editor[contenteditable="true"]',
   blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
+  blockNoteSideMenu: '#bn-notes-scroll-container .bn-side-menu',
   blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
+  blockNoteLinkToolbar: '.bn-link-toolbar',
+  blockNoteLinkForm: '.bn-form-popover',
   blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',
+  blockNoteAlignTextLeftButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Align text left"]',
+  blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 
@@ -320,8 +341,9 @@ export const elements = {
   notificationsTab: 'span[id="notificationTab"]',
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
-  userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
-  userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
+  // data-test moved from the <input> to the MUI Checkbox root in the settings redesign
+  userJoinPushAlerts: '[data-test="userJoinPopupAlerts"]',
+  userLeavePushAlerts: '[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
@@ -345,6 +367,7 @@ export const elements = {
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',
+  recordingNotifyDefaultText: 'A recording will be available based on the remainder of this session',
   whiteboardAvailableToast: 'The whiteboard is now available',
   whiteboardDisabledToast: 'The whiteboard access has been removed',
   inviteSentRoom1: 'Attendee was invited to Room 1',
@@ -410,6 +433,12 @@ export const elements = {
   uploadPresentationFileName: 'uploadTest.png',
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
+  // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707), a source whose
+  // aspect ratio matches nothing else in the meeting: neither the 1920x1080 (16:9) default
+  // deck nor the 1440x1080 (4:3) fallback. Used to assert that slides keep their real
+  // dimensions - if the upload silently reverted to a default, the ratio would not match.
+  nonDefaultRatioPresentationFileName: 'sample.pdf',
+  maskSamplePdf: 'sample-with-mask.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
@@ -429,8 +458,12 @@ export const elements = {
   restorePresentation: 'button[data-test="restorePresentation"]',
   shareExternalVideoBtn: 'div[data-test="shareExternalVideo"]',
   stopExternalVideoBtn: 'button[data-test="stopExternalVideoShare"]',
-  videoModalInput: 'input[id="video-modal-input"]',
-  startShareVideoBtn: 'button[data-test="startNewVideo"]',
+  // dual selector: data-test lands with the client fix; the id form matches
+  // 4.0 builds that predate it (the input moved into the media-sharing view)
+  videoModalInput: 'input[data-test="externalVideoUrlInput"], input[id="standard-basic"]',
+  // the media-sharing view's confirm button (was startNewVideo before the
+  // external video share moved into the media area)
+  startShareVideoBtn: 'button[data-test="ShareExternalVideo"]',
   videoPlayer: 'div[data-test="videoPlayer"]',
   presentationTitle: 'h1[data-test="presentationTitle"]',
   fitToWidthButton: 'button[data-test="fitToWidthButton"]',
@@ -469,6 +502,10 @@ export const elements = {
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
   shortcutsTab: 'span[id="shortcutsTab"]',
+  audioTab: 'span[id="audioTab"]',
+  advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
+  standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
+  originalAudioRadio: 'input[data-test="originalAudioRadio"]',
 
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
@@ -497,7 +534,6 @@ export const elements = {
   avatarsWrapperAvatar: 'div[data-test="avatarsWrapperAvatar"]',
   guestPolicyLabel: 'li[data-test="guestPolicyLabel"]',
   downloadUserNamesList: 'li[data-test="downloadUserNamesList"]',
-  waitingUsersBtn: 'div[data-test="waitingUsersBtn"]',
   joinMeetingDemoPage: 'div[class^="join-meeting"]',
   askModerator: 'li[data-test="askModerator"]',
   alwaysAccept: 'li[data-test="alwaysAccept"]',
@@ -519,6 +555,8 @@ export const elements = {
   userBannedMessage2: 'div[id="app"] >> div >> div:nth-child(2)',
   meetingEndedModalTitle: 'div[data-test="meetingEndedModal"]',
   unmuteUser: 'div[data-test="unmuteUser"]',
+  confirmUnmuteButton: 'button[data-test="confirmUnmute"]',
+  denyUnmuteButton: 'button[data-test="denyUnmute"]',
   ejectCamera: 'li[data-test="ejectCamera"]',
   requestUserCamera: 'li[data-test="requestUserCamera"]',
   confirmShareCamera: 'button[data-test="confirmShareCamera"]',
@@ -526,10 +564,14 @@ export const elements = {
   closeUserList: 'button[data-test="closeUserList"]',
   userListPanel: 'div[data-test="userListPanel"]',
   clearStatus: 'li[data-test="clearStatus"]',
+  // direct crowd-action button in the participants panel (replaced the
+  // manageUsers gear dropdown's "mute all except presenter" item)
+  muteAllUsers: 'button[data-test="muteAllUsers"]',
 
   // Lock Viewers
   lockViewersButton: 'button[data-test="lockViewersButton"]',
   unlockUserButton: 'li[data-test="unlockUserButton"]',
+  togglePublicChat: 'li[data-test="togglePublicChat"]',
   applyLockSettings: 'button[data-test="applyLockSettings"]',
   guestPolicyTab: '[data-test="guestPolicyTab"]',
   guestPolicySelector: '[data-test="guestPolicySelector"]',
@@ -551,7 +593,9 @@ export const elements = {
   lockPrivateChat: 'input[data-test="lockPrivateChat"]',
   lockEditSharedNotes: 'input[data-test="lockEditSharedNotes"]',
   lockUserList: 'input[data-test="lockUserList"]',
-  hideViewersAnnotation: 'input[data-test="hideViewersAnnotation"]',
+  // the lock modal renamed this item's input hook to lockShareWhiteboard
+  // (the row wrapper keeps data-test="hideViewersAnnotationItem")
+  hideViewersAnnotation: 'input[data-test="lockShareWhiteboard"]',
   hideViewersCursor: 'input[data-test="hideViewersCursor"]',
   whiteboardCursorIndicator: 'svg use[href="#cursor"]',
 

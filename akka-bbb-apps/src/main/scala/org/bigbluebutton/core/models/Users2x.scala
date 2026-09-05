@@ -256,6 +256,17 @@ object Users2x {
     }
   }
 
+  def setUserUnmuteRequested(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.requestedUnmuteByMod).setTo(true)
+      users.save(newUser)
+      UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
   def resetUserUnmuteRequested(users: Users2x, intId: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)

@@ -1,10 +1,12 @@
 import styled, { css } from 'styled-components';
+import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
 import { fontSizeLarge, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  smPaddingX,
+  mdPadding,
   borderSize,
   borderSizeLarge,
   borderSizeSmall,
+  mobileNavbarButtonSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
@@ -14,6 +16,7 @@ import {
   btnDefaultGhostBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 interface RecordingIndicatorIconProps {
   titleMargin: boolean;
@@ -41,12 +44,18 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   font-size: ${fontSizeBase};
   user-select: none;
 
+  @media ${smallOnly} {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+
   ${({ isRTL, titleMargin }) => isRTL && titleMargin && `
-      margin-left: ${smPaddingX};
+      margin-left: ${mdPadding};
   `}
 
   ${({ isRTL, titleMargin }) => !isRTL && titleMargin && `
-      margin-right: ${smPaddingX};
+      margin-right: ${mdPadding};
   `}
 `;
 
@@ -55,7 +64,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   align-items: center;
   user-select: none;
   background: ${btnDefaultGhostBg};
-  
+
   &:hover {
     outline-style: solid;
     outline: transparent dotted 2px;
@@ -65,7 +74,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     color: ${colorWhite} !important;
     cursor: pointer;
   }
-      
+
   &:focus {
     background-clip: padding-box;
     outline: transparent dotted 2px;
@@ -107,6 +116,25 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   ${({ isPhone, recording }) => isPhone && !recording && css`
     justify-content: center;
   `}
+
+  ${({ recording }) => !recording && `
+    @media ${smallOnly} {
+      width: ${mobileNavbarButtonSize};
+      height: ${mobileNavbarButtonSize};
+      min-width: ${mobileNavbarButtonSize};
+      padding: 0 !important;
+      border-radius: 50% !important;
+      justify-content: center;
+    }
+  `}
+
+  ${({ recording }) => recording && `
+    @media ${smallOnly} {
+      height: ${mobileNavbarButtonSize};
+      padding: 0 0.6rem !important;
+      align-items: center;
+    }
+  `}
 `;
 
 const PresentationTitle = styled.div`
@@ -132,16 +160,7 @@ const PresentationTitle = styled.div`
   }
 `;
 
-const VisuallyHidden = styled.span`
-  position: absolute;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  width: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-`;
+const { VisuallyHidden } = VisuallyHiddenStyles;
 
 const PresentationTitleSeparator = styled.span`
   color: ${colorGray};

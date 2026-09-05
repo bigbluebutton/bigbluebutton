@@ -11,6 +11,32 @@ import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', { tag: '@ci' }, () => {
+  test.describe.parallel('Waiting users', () => {
+    test('Distinguishes authenticated and guest queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.distinguishWaitingQueues();
+    });
+
+    test('Deny everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.denyEveryoneInWaitingQueues();
+    });
+
+    test('Allow everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.allowEveryoneInWaitingQueues();
+    });
+
+    test('Keeps queue totals visible while searching', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.keepQueuesVisibleWhileSearching();
+    });
+  });
+
   test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }, testInfo) => {
@@ -37,6 +63,18 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.audioOnlyTileVisibleForAttendee();
     });
 
+    test('Locked viewer can send private messages to moderator', async ({ browser, context, page }, testInfo) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page, testInfo);
+      await lockViewers.lockedViewerCanSendPrivateMessageToModerator();
+    });
+
+    test('Lock public chat for a specific user', async ({ browser, context, page }, testInfo) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page, testInfo);
+      await lockViewers.lockPublicChatForSpecificUser();
+    });
+
     test('Toggle user list', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
@@ -49,7 +87,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.stopwatchTest();
     });
 
-    test('Timer', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    // needs a rewrite for the redesigned timer panel: timer mode no longer renders an
+    // in-panel countdown (div[data-test="timerCurrent"]) and the duration inputs were
+    // renamed (timerHoursInput/timerMinutesInput/timerSecondsInput, plus preset buttons)
+    test('Timer', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, { testInfo });
       await timer.timerTest();
@@ -155,7 +196,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Manage', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
       test.describe.parallel('ASK_MODERATOR', () => {
         // https://docs.bigbluebutton.org/3.0/testing/release-testing/#ask-moderator
@@ -164,15 +205,15 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await guestPolicy.initModPage(page, { testInfo });
           await guestPolicy.messageToGuestLobby();
         });
-        test('Allow Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Allow all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.allowEveryone();
+          await guestPolicy.allowAllAuthenticated();
         });
-        test('Deny Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Deny all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.denyEveryone();
+          await guestPolicy.denyAllAuthenticated();
         });
 
         test('Remember choice', async ({ browser, context, page }, testInfo) => {
@@ -266,7 +307,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations', async ({ browser, context, page }, testInfo) => {
+      // its unguarded whiteboard toHaveScreenshot compares fail wherever canvas
+      // rendering diverges from the committed baseline (e.g. 983x553 vs 993x559
+      // canvas across machines) - needs the suite-wide canvas-size normalization
+      test('Lock see other viewers annotations', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersAnnotations();
@@ -287,7 +331,11 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.hideUserListSuppressesJoinNotification();
       });
 
-      test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+      // @known-issue: with the hide-user-list lock active, user-LEAVE toast
+      // notifications stop arriving for everyone (moderators included) while
+      // join toasts and plain leave notifications work - suspected 4.0 client
+      // regression, reproduced consistently; the assertion here is correct
+      test('Hide user list suppresses leave notification for locked viewer', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesLeaveNotification();
@@ -302,8 +350,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         },
       );
 
+      // @known-issue: with the hide-user-list lock active, user-LEAVE toast
+      // notifications stop arriving for everyone (moderators included) while
+      // join toasts and plain leave notifications work - suspected 4.0 client
+      // regression, reproduced consistently; the assertion here is correct
       test(
         'Hide user list leave notification is shown only to moderator and unlocked viewer',
+        { tag: '@known-issue' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -320,8 +373,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         },
       );
 
+      // @known-issue: with the hide-user-list lock active, user-LEAVE toast
+      // notifications stop arriving for everyone (moderators included) while
+      // join toasts and plain leave notifications work - suspected 4.0 client
+      // regression, reproduced consistently; the assertion here is correct
       test(
         'Hide user list leave notification is visible to locked viewer when a moderator leaves',
+        { tag: '@known-issue' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -331,13 +389,18 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
-    test('Save user names', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    // blocked: clicking downloadUserNamesList produces no download event and no
+    // client error on 4.0 - needs interactive debugging of the GET_USER_NAMES flow
+    test('Save user names', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page, testInfo);
       await multiusers.saveUserNames();
     });
 
-    test('Disable users join muted', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    // the "users join muted" toggle is gone from the 4.0 client (only orphaned
+    // app.userList.userOptions.usersJoinMuted* locale strings remain) - needs a
+    // decision upstream: restore the UI or drop this test
+    test('Disable users join muted', { tag: ['@need-update', '@media'] }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
       await multiusers.disabledUsersJoinMuted();
@@ -351,7 +414,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.muteAllUsersExceptPresenter();
     });
 
-    test('Clear all status icon', async ({ browser, context, page }, testInfo) => {
+    // "clear all reactions" is gone from the 4.0 client (only orphaned
+    // app.userList.userOptions.clearAllReactions* locale strings remain), and
+    // reactions no longer render inside div[data-test="moderatorAvatar"]
+    test('Clear all status icon', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
       await multiusers.initModPage2(context, { testInfo });

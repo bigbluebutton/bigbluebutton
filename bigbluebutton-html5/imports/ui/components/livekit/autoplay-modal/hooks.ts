@@ -11,7 +11,7 @@ export interface AutoplayState {
 
 export type AutoplayHandler = (indirect?: boolean) => Promise<void>;
 
-export const useAutoplayState = (liveKitRoom: Room): [AutoplayState, AutoplayHandler] => {
+export const useAutoplayState = (liveKitRoom: Room | undefined): [AutoplayState, AutoplayHandler] => {
   const { canPlayAudio, startAudio } = useAudioPlayback(liveKitRoom);
   const [state, setState] = useState<AutoplayState>({
     hasAttempted: false,

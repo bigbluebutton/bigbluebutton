@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
+import java.util.List;
 
 public class LearningDashboardService {
     private static Logger log = LoggerFactory.getLogger(LearningDashboardService.class);
@@ -68,7 +69,10 @@ public class LearningDashboardService {
         }
     }
 
-    public void removeJsonDataFile(String meetingId, int cleanUpDelayMinutes) {
+    // meetingIds is the meeting whose Learning Dashboard is being cleaned up, plus (for a parent
+    // meeting) the internal IDs of any breakout rooms it had: they share the parent's cleanup delay
+    // and are batched into this single scheduled task instead of one Timer thread per room.
+    public void removeJsonDataFiles(List<String> meetingIds, int cleanUpDelayMinutes) {
 
         Calendar cleanUpDelayCalendar = Calendar.getInstance();
         cleanUpDelayCalendar.add(Calendar.MINUTE, cleanUpDelayMinutes);
@@ -78,9 +82,11 @@ public class LearningDashboardService {
                 new java.util.TimerTask() {
                     @Override
                     public void run() {
-                        File ldMeetingFilesDir = new File(learningDashboardFilesDir + File.separatorChar + meetingId);
-                        LearningDashboardService.deleteDirectory(ldMeetingFilesDir);
-                        log.info("Learning Dashboard files removed for meeting {}.",meetingId);
+                        for (String meetingId : meetingIds) {
+                            File ldMeetingFilesDir = new File(learningDashboardFilesDir + File.separatorChar + meetingId);
+                            LearningDashboardService.deleteDirectory(ldMeetingFilesDir);
+                            log.info("Learning Dashboard files removed for meeting {}.",meetingId);
+                        }
                     }
                 }, cleanUpDelayCalendar.getTime()
         );
@@ -96,6 +102,9 @@ public class LearningDashboardService {
          * delete files inside a directory before a directory can be deleted.
          **/
         File[] files = directory.listFiles();
+        // listFiles() is null when the directory doesn't exist (e.g. a breakout that never got any
+        // Learning Dashboard activity) — skip it instead of throwing and aborting the rest of the batch.
+        if (files == null) return;
         for (File file : files) {
             if (file.isDirectory()) {
                 deleteDirectory(file);

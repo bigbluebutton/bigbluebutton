@@ -40,7 +40,7 @@ import WebRTCStatsObserver from '/imports/ui/components/stats/component';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
-import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import LiveKitMembershipsManager from '/imports/ui/components/livekit/memberships-manager/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
@@ -185,7 +185,7 @@ const App: React.FC<AppProps> = ({
             <PresentationUploaderToastContainer intl={intl} />
           )}
           <BreakoutJoinConfirmationContainerGraphQL />
-          <BBBLiveKitRoomContainer />
+          <LiveKitMembershipsManager />
           <AudioContainer currentUserHasVoice={currentUserHasVoice} />
           {!hideNotificationToasts && isNotificationEnabled && (
             <ToastContainer rtl />

@@ -1,20 +1,13 @@
-import styled, { css } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
-  colorPrimary,
-  colorDanger,
   colorWhite,
   colorText,
-  btnPrimaryHoverBg,
-  btnDangerBgHover,
   btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  jumboPaddingY,
   $2xlPadding,
-  borderSizeSmall,
   appsButtonsBorderRadius,
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -67,50 +60,6 @@ const RequestModalContent = styled.div`
   gap: ${$2xlPadding};
   margin-top: 1rem;
   padding: 1rem;
-`;
-
-const RequestModalButton = styled(Button)`
-  margin: 0;
-  font-weight: 400;
-
-  font-size: 1.125rem;
-  padding: ${$2xlPadding} ${jumboPaddingY};
-  border-radius: 1.25rem;
-  flex-grow: 0;
-
-  i {
-    font-size: 1.5rem;
-  }
-
-  ${({ color }) => color === 'primary' && css`
-    background-color: ${colorPrimary};
-    color: ${colorWhite};
-    border: ${borderSizeSmall} solid ${colorPrimary};
-
-    &:hover, &:focus {
-      background-color: ${btnPrimaryHoverBg};
-      border-color: ${btnPrimaryHoverBg};
-    }
-  `}
-
-  ${({ ghost, color }) => ghost && color === 'danger' && css`
-    background-color: transparent;
-    border: ${borderSizeSmall} solid ${colorDanger};
-    color: ${colorDanger};
-
-    i {
-      color: ${colorDanger};
-    }
-
-    &:hover, &:focus {
-      background-color: ${btnDangerBgHover};
-      border-color: ${btnDangerBgHover};
-      color: ${colorWhite};
-      i {
-        color: ${colorWhite};
-      }
-    }
-  `}
 `;
 
 const NotificationContent = styled.div`
@@ -195,7 +144,6 @@ export default {
   UserInfo,
   UserName,
   RequestModalContent,
-  RequestModalButton,
   NotificationContent,
   NotificationActions,
   ConfirmationButton,
