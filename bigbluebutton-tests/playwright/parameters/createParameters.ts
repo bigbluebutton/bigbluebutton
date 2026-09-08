@@ -21,10 +21,13 @@ export class CreateParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecordingButton);
 
     const userRecordingButton = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    // Structural assertion, not an exact color: the palette is themeable and
+    // dark theme shifts every computed color. Only the recording state draws a
+    // border, so its presence is what marks recording as started.
     await expect(
       userRecordingButton,
       'should show recording as started for the attendee before checking the consent modal',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    ).toHaveCSS('border-top-style', 'solid', { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     if (!shouldShowModal) {
       // Give the recording-change effects time to run before asserting that the gate suppressed the modal.
