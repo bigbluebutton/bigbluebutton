@@ -252,6 +252,26 @@ module BigBlueButton
     @props
   end
 
+  # Recording formats a meeting opted out of via the
+  # meta_bbb-disable-recording-formats create parameter.
+  #
+  # @return [Array<String>] lowercased format names
+  def self.disabled_recording_formats(recording_dir, meeting_id)
+    events_xml = File.join(recording_dir, 'raw', meeting_id, 'events.xml')
+    return [] unless File.exist?(events_xml)
+
+    metadata = BigBlueButton::Events.get_meeting_metadata(events_xml)
+    value = metadata['bbb-disable-recording-formats']
+    value = value.nil? ? '' : value.value.to_s
+    value.delete('[]')
+         .split(',')
+         .map { |format| format.strip.downcase }
+         .reject(&:empty?)
+  rescue StandardError => e
+    BigBlueButton.logger.warn("Failed to read bbb-disable-recording-formats metadata: #{e.message}")
+    []
+  end
+
   def self.create_redis_publisher
     props = BigBlueButton.read_props
     redis_host = props['redis_host']
