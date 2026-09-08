@@ -1111,6 +1111,7 @@
     "app.error.408": "Authentifizierung fehlgeschlagen",
     "app.error.409": "Konflikt",
     "app.error.410": "Sitzung ist zu Ende",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Ups, irgendwas ist schiefgelaufen",
     "app.error.503": "Verbindung wurde getrennt",
     "app.error.disconnected.rejoin": "Bitte Seite neu laden um wieder beizutreten.",
