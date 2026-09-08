@@ -101,18 +101,39 @@ validate_format() {
    fi
 }
 
-# Is a recording format disabled for this meeting through the
-# meta_bbb-disable-recording-formats create parameter? Checked before anything
-# is removed: rap-enqueue would refuse the job, leaving the output deleted with
-# nothing scheduled to rebuild it.
-format_disabled() {
-   local id=$1 fmt=$2
+# The recording formats this meeting opted out of through the
+# meta_bbb-disable-recording-formats create parameter, space separated.
+# Non-zero exit means the metadata could not be read at all.
+disabled_formats() {
+   local id=$1
+   local events=$RECORDING_DIR/raw/$id/events.xml
+   [ -f "$events" ] || return 0
+   # Almost no meeting carries the parameter, and parsing the XML costs a ruby
+   # start-up per meeting, so only pay for it when the attribute is present.
+   grep -q 'bbb-disable-recording-formats' "$events" || return 0
    ruby -e '
       $LOAD_PATH.unshift("/usr/local/bigbluebutton/core/lib")
       require "recordandplayback"
-      exit(BigBlueButton.disabled_recording_formats(ARGV[0], ARGV[1])
-                        .include?(ARGV[2].downcase) ? 0 : 1)
-   ' "$RECORDING_DIR" "$id" "$fmt" 2>/dev/null
+      puts BigBlueButton.disabled_recording_formats(ARGV[0], ARGV[1]).join(" ")
+   ' "$RECORDING_DIR" "$id"
+}
+
+# May we touch this format for this meeting? Checked before anything is
+# removed: rap-enqueue refuses an opted-out format, which would otherwise leave
+# the output deleted with nothing scheduled to rebuild it. A metadata read
+# failure refuses too, rather than being taken for "not disabled".
+format_allowed() {
+   local id=$1 fmt=$2 list f
+   if ! list=$(disabled_formats "$id"); then
+      echo "Could not read the disabled recording formats for $id, refusing to touch it."
+      return 1
+   fi
+   for f in $list; do
+      if [ "$f" = "${fmt,,}" ]; then
+         echo "Format '$fmt' is disabled for $id by meta_bbb-disable-recording-formats."
+         return 1
+      fi
+   done
 }
 
 # What the steps chain runs after the given step, empty if the chain has no
@@ -152,16 +173,15 @@ mark_for_rebuild() {
    local FMT=$2
    if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
       echo "Raw files for $MEETING_ID do not exist, can't rebuild"
-      exit 1
+      return 1
    fi
 
   # Single-format rebuild: re-process and re-publish only the requested format,
   # leaving the sanity step and every other format's output untouched.
   if [ -n "$FMT" ]; then
-     if format_disabled "$MEETING_ID" "$FMT"; then
-        echo "Format '$FMT' is disabled for $MEETING_ID by meta_bbb-disable-recording-formats."
-        echo "Nothing was removed."
-        exit 1
+     if ! format_allowed "$MEETING_ID" "$FMT"; then
+        echo "Nothing was removed for $MEETING_ID."
+        return 1
      fi
      echo "Marking for rebuild $MEETING_ID (format: $FMT)"
 
@@ -203,10 +223,9 @@ mark_for_republish() {
 
    # Restrict to a single format when --format was given
    if [ -n "$FMT" ]; then
-      if format_disabled "$MEETING_ID" "$FMT"; then
-         echo "Format '$FMT' is disabled for $MEETING_ID by meta_bbb-disable-recording-formats."
-         echo "Nothing was removed."
-         exit 1
+      if ! format_allowed "$MEETING_ID" "$FMT"; then
+         echo "Nothing was removed for $MEETING_ID."
+         return 1
       fi
       republish_types=$FMT
       echo "Marking for republish $MEETING_ID (format: $FMT)"
@@ -221,8 +240,7 @@ mark_for_republish() {
          continue
       fi
 
-      if format_disabled "$MEETING_ID" "$type"; then
-         echo "Skipping $type for $MEETING_ID: disabled by meta_bbb-disable-recording-formats"
+      if ! format_allowed "$MEETING_ID" "$type"; then
          continue
       fi
 
@@ -509,7 +527,7 @@ if [ $REBUILD ]; then
    if [ -z "$MEETING_ID" ]; then
       echo "Pass an internal meeting id as parameter."
    else
-      mark_for_rebuild "$MEETING_ID" "$FORMAT"
+      mark_for_rebuild "$MEETING_ID" "$FORMAT" || exit 1
    fi
 fi
 
