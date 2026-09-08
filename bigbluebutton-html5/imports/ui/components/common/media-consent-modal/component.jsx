@@ -1,12 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.node.isRequired,
   confirmLabel: PropTypes.string.isRequired,
   denyLabel: PropTypes.string.isRequired,
+  denyLabelMobile: PropTypes.string,
   confirmIcon: PropTypes.string.isRequired,
   denyIcon: PropTypes.string.isRequired,
   confirmDataTest: PropTypes.string.isRequired,
@@ -22,6 +26,7 @@ const MediaConsentModal = ({
   subtitle,
   confirmLabel,
   denyLabel,
+  denyLabelMobile = null,
   confirmIcon,
   denyIcon,
   confirmDataTest,
@@ -36,6 +41,23 @@ const MediaConsentModal = ({
     alert.play().catch(() => {});
   }, []);
 
+  const [isSmallViewport, setIsSmallViewport] = useState(
+    // eslint-disable-next-line no-undef
+    () => globalThis.matchMedia(smallOnly).matches,
+  );
+
+  useEffect(() => {
+    // eslint-disable-next-line no-undef
+    const mediaQuery = globalThis.matchMedia(smallOnly);
+    const handleChange = (event) => setIsSmallViewport(event.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const effectiveDenyLabel = (isSmallViewport && denyLabelMobile)
+    ? denyLabelMobile
+    : denyLabel;
+
   return (
     <Styled.RequestModal
       isOpen
@@ -48,20 +70,21 @@ const MediaConsentModal = ({
         {subtitle}
       </Styled.Subtitle>
       <Styled.RequestModalContent>
-        <Styled.RequestModalButton
+        <BBButton
           label={confirmLabel}
-          data-test={confirmDataTest}
-          icon={confirmIcon}
+          dataTest={confirmDataTest}
+          iconStart={<Icon iconName={confirmIcon} />}
           onClick={onConfirm}
-          color="primary"
+          variant="primary"
+          color="default"
         />
-        <Styled.RequestModalButton
-          label={denyLabel}
-          data-test={denyDataTest}
-          icon={denyIcon}
+        <BBButton
+          label={effectiveDenyLabel}
+          dataTest={denyDataTest}
+          iconStart={<Icon iconName={denyIcon} />}
           onClick={onDeny}
+          variant="secondary"
           color="danger"
-          ghost
         />
       </Styled.RequestModalContent>
     </Styled.RequestModal>

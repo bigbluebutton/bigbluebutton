@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import KEYS from '/imports/utils/keys';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import useMuteSoundAlert from '/imports/ui/core/hooks/useMuteSoundAlert';
@@ -183,7 +184,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
         aria-label={label}
         color={!muted ? 'primary' : 'default'}
         icon={muted ? 'mute' : 'unmute'}
-        size="lg"
+        size={deviceInfo.isMobile ? 'md' : 'lg'}
         circle
         accessKey={toggleMuteShourtcut}
         $talking={talking || undefined}

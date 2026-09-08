@@ -21,7 +21,6 @@ const LearningDashboardListItem = () => {
   const isModerator = currentUser?.isModerator || false;
   const { data: meetingInfo } = useMeeting((meeting) => ({
     learningDashboardAccessToken: meeting.learningDashboardAccessToken,
-    isBreakout: meeting?.isBreakout,
   }));
 
   const openLearningDashboardPanel = useCallback(() => {
@@ -30,7 +29,7 @@ const LearningDashboardListItem = () => {
 
   const label = intl.formatMessage(intlMessages.learningDashboardLabel);
 
-  if (!isLearningDashboardEnabled || !isModerator || meetingInfo?.isBreakout) return null;
+  if (!isLearningDashboardEnabled || !isModerator) return null;
 
   return (
     <SidebarNavigationButton

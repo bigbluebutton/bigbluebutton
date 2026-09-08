@@ -1,21 +1,15 @@
 // Shared by request-unmute-modal and request-camera-modal.
-import styled, { css } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
-  colorPrimary,
-  colorDanger,
   colorWhite,
   colorText,
-  btnPrimaryHoverBg,
-  btnDangerBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  jumboPaddingY,
   $2xlPadding,
-  borderSizeSmall,
   appsButtonsBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const RequestModal = styled(ModalSimple)`
   padding: ${$2xlPadding};
@@ -32,6 +26,19 @@ const RequestModal = styled(ModalSimple)`
       font-size: 1.5rem !important;
     }
   }
+
+  @media ${smallOnly} {
+    header {
+      padding: 0;
+      align-items: flex-start;
+    }
+
+    h2 {
+      text-transform: none;
+      text-align: left;
+      line-height: 1.3;
+    }
+  }
 `;
 
 const Subtitle = styled.p`
@@ -42,6 +49,11 @@ const Subtitle = styled.p`
   padding-bottom: 1.5rem;
   margin-top: 0rem;
   color: ${colorText};
+
+  @media ${smallOnly} {
+    margin-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 `;
 
 const RequestModalContent = styled.div`
@@ -51,55 +63,25 @@ const RequestModalContent = styled.div`
   gap: ${$2xlPadding};
   margin-top: 1rem;
   padding: 1rem;
-`;
 
-const RequestModalButton = styled(Button)`
-  margin: 0;
-  font-weight: 400;
+  @media ${smallOnly} {
+    flex-direction: row-reverse;
+    gap: 1rem;
+    margin-top: 0;
+    padding: 0;
 
-  font-size: 1.125rem;
-  padding: ${$2xlPadding} ${jumboPaddingY};
-  border-radius: 1.25rem;
-  flex-grow: 0;
+    button {
+      flex: 1;
 
-  i {
-    font-size: 1.5rem;
-  }
-
-  ${({ color }) => color === 'primary' && css`
-    background-color: ${colorPrimary};
-    color: ${colorWhite};
-    border: ${borderSizeSmall} solid ${colorPrimary};
-
-    &:hover, &:focus {
-      background-color: ${btnPrimaryHoverBg};
-      border-color: ${btnPrimaryHoverBg};
-    }
-  `}
-
-  ${({ ghost, color }) => ghost && color === 'danger' && css`
-    background-color: transparent;
-    border: ${borderSizeSmall} solid ${colorDanger};
-    color: ${colorDanger};
-
-    i {
-      color: ${colorDanger};
-    }
-
-    &:hover, &:focus {
-      background-color: ${btnDangerBgHover};
-      border-color: ${btnDangerBgHover};
-      color: ${colorWhite};
       i {
-        color: ${colorWhite};
+        display: none;
       }
     }
-  `}
+  }
 `;
 
 export default {
   RequestModal,
   Subtitle,
   RequestModalContent,
-  RequestModalButton,
 };

@@ -39,6 +39,7 @@ export const meetingComparator = <T>(
   if ((aData.meetingId ?? '') !== (bData.meetingId ?? '')) return false;
   if ((aData.name ?? '') !== (bData.name ?? '')) return false;
   if ((aData.notifyRecordingIsOn ?? false) !== (bData.notifyRecordingIsOn ?? false)) return false;
+  if ((aData.notifyRecordingAppend ?? '') !== (bData.notifyRecordingAppend ?? '')) return false;
   if ((aData.presentationUploadExternalDescription ?? '') !== (bData.presentationUploadExternalDescription ?? '')) return false;
   if ((aData.presentationUploadExternalUrl ?? '') !== (bData.presentationUploadExternalUrl ?? '')) return false;
   if ((aData.endWhenNoModerator ?? false) !== (bData.endWhenNoModerator ?? false)) return false;

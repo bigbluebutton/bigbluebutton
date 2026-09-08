@@ -31,6 +31,7 @@ create unlogged table "meeting" (
 	"screenShareBridge" varchar(30),
 	"audioBridge" varchar(30),
 	"notifyRecordingIsOn" boolean,
+	"notifyRecordingAppend" text,
 	"presentationUploadExternalDescription" text,
 	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),
@@ -744,8 +745,8 @@ CREATE UNLOGGED TABLE "user_voice" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
 	"voiceUserId" varchar(100),
-	"callerName" varchar(100),
-	"callerNum" varchar(100),
+	"callerName" text,
+	"callerNum" text,
 	"callingWith" varchar(100),
 	"joined" boolean,
 	"listenOnly" boolean,
@@ -1276,7 +1277,7 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
-    "senderName" varchar(255),
+    "senderName" text,
 	"senderRole" varchar(20),
 	"createdAt" timestamp with time zone not null,
 	"editedAt" timestamp with time zone,
@@ -2631,16 +2632,20 @@ from "meeting";
 
 ------------------------
 ----LiveKit
-CREATE UNLOGGED TABLE "user_livekit"(
-	"meetingId" varchar(100),
-	"userId" varchar(50),
-	"livekitToken" TEXT,
-	CONSTRAINT "user_livekit_pkey" PRIMARY KEY ("meetingId", "userId"),
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+-- Note: in LK, roomName is the unique identifier for a room. In our case, it is
+-- the BBB meeting ID for the meeting that owns this LK room.
+CREATE UNLOGGED TABLE "user_livekit_room" (
+    "meetingId"   varchar(100) NOT NULL,
+    "userId"      varchar(50)  NOT NULL,
+    "roomName"    varchar(255) NOT NULL,
+    "purpose"     varchar(64)  NOT NULL,
+    "token"       TEXT,
+    CONSTRAINT "user_livekit_room_pkey" PRIMARY KEY ("meetingId", "userId", "roomName"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
-CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
-CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
+-- No secondary index: the PK btree serves (meetingId) and
+-- (meetingId, userId) prefix lookups (Hasura per-user filter, sweeps).
+CREATE VIEW  "v_user_livekit_room" AS SELECT * FROM "user_livekit_room";
 
 CREATE UNLOGGED TABLE "mediaGroup" (
 	"meetingId" 			varchar(100),

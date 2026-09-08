@@ -71,14 +71,14 @@ html {
 @font-face {
     font-family: 'Open Sans';
     src: url('/static/fonts/OpenSans-SemiBold.ttf');
-    font-weight: bolder;
+    font-weight: 600;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Open Sans';
     src: url('/static/fonts/OpenSans-SemiBoldItalic.ttf');
-    font-weight: bolder;
+    font-weight: 600;
     font-style: italic;
 }
 

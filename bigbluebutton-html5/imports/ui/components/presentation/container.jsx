@@ -279,7 +279,6 @@ const PresentationContainer = ({
           presentationBounds: presentation,
           fullscreenContext,
           fullscreenElementId,
-          isMobile: deviceType === DEVICE_TYPE.MOBILE,
           isTabledLandscape: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE,
           isIphone,
           currentSlide,

@@ -7,6 +7,7 @@ import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -37,6 +38,9 @@ const CrowdActionButtons: React.FC = () => {
     sidebarContent?.width && sidebarContent?.minWidth
     && sidebarContent.width <= sidebarContent.minWidth + 1,
   );
+  const { isMobile } = deviceInfo;
+  // On mobile, keep the footer buttons side by side instead of stacked.
+  const isMinWidthLayout = isAtMinWidth && !isMobile;
 
   const muteAll = () => {
     setMuted({
@@ -68,7 +72,7 @@ const CrowdActionButtons: React.FC = () => {
           setIsOpen={lockViewersModal.close}
         />
       )}
-      <Styled.ActionButtonsWrapper $isMinWidth={isAtMinWidth}>
+      <Styled.ActionButtonsWrapper $isMinWidth={isMinWidthLayout}>
         <Styled.ActionButtonWrapper>
           <Styled.ActionButtonLabel>
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}

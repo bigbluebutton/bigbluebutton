@@ -4,7 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import AudioService from '/imports/ui/components/audio/service';
 import KEYS from '/imports/utils/keys';
-import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
@@ -277,18 +276,6 @@ const isMeetingLocked = (lockSettings, usersPolicies) => {
   return isLocked;
 };
 
-const toggleVoice = (userId, voiceToggle) => {
-  if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone(voiceToggle);
-  } else {
-    voiceToggle(userId);
-    logger.info({
-      logCode: 'usermenu_option_mute_toggle_audio',
-      extraInfo: { logType: 'moderator_action', userId },
-    }, 'moderator muted user microphone');
-  }
-};
-
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
   if (!dropdownContent) return;
@@ -501,7 +488,6 @@ export const makeUserSearchWhere = (searchQuery) => {
 export default {
   sortUsersByName,
   sortUsers,
-  toggleVoice,
   getActiveChats,
   isMeetingLocked,
   isPublicChat,

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly, hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   borderSize,
   borderRadius,
@@ -41,7 +41,9 @@ const Content = styled.div`
     display: block;
   }
 
-  @media ${smallOnly} {
+  // Short viewports too, not only narrow ones: both callers sit in the slide controls
+  // bar, which scrolls there and would clip content left in flow.
+  @media ${smallOnly}, ${hasPhoneDimentions} {
     z-index: 1015;
     border-radius: 0;
     background-color: #fff;

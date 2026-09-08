@@ -28,6 +28,10 @@ const intlMessages = defineMessages({
     id: 'app.unmute.modal.deny.label',
     description: 'Label for the unmute denial button',
   },
+  denyButtonLabelMobile: {
+    id: 'app.unmute.modal.deny.label.mobile',
+    description: 'Label for the unmute denial button on mobile',
+  },
 });
 
 const RequestUnmuteComponent = ({
@@ -40,6 +44,7 @@ const RequestUnmuteComponent = ({
     subtitle={<FormattedMessage {...intlMessages.modalSubtitle} />}
     confirmLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
     denyLabel={intl.formatMessage(intlMessages.denyButtonLabel)}
+    denyLabelMobile={intl.formatMessage(intlMessages.denyButtonLabelMobile)}
     confirmIcon="unmute"
     denyIcon="mute"
     confirmDataTest="confirmUnmute"

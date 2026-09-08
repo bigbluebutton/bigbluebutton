@@ -31,6 +31,7 @@ import {
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
+import { useIsWebcamGridEnabled } from '/imports/ui/services/features';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
@@ -340,7 +341,7 @@ const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
 export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
-  const isGridEnabled = useStorageKey('isGridEnabled');
+  const isGridEnabled = useIsGridEnabled();
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
@@ -554,6 +555,13 @@ export const useGridSize = () => {
   return size;
 };
 
+export const useIsGridEnabled = () => {
+  const isGridLayout = useStorageKey('isGridEnabled');
+  const isWebcamGridEnabled = useIsWebcamGridEnabled();
+
+  return !!isGridLayout && isWebcamGridEnabled;
+};
+
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
@@ -703,8 +711,12 @@ const reserveAudioOnlyTiles = ({
   const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
     ? audioOnlyUsers.filter((audioUser) => !excludeStreams.find((s) => s.userId === audioUser.userId))
     : [];
+  // Caps maxAudioOnlyUsers below its configured value on a small page: the two slots
+  // of a mobile page hold one audio-only tile, not two.
+  const cameraSlotFloor = reservedCount === 0 && others.length > 0 ? 1 : 0;
+  const audioOnlySlots = Math.max(0, Math.min(availableSlots - cameraSlotFloor, maxAudioOnlyUsers));
   const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
-    ? Math.min(uniqueAudioOnly.length, Math.min(availableSlots, maxAudioOnlyUsers))
+    ? Math.min(uniqueAudioOnly.length, audioOnlySlots)
     : 0;
 
   let totalNumberOfOtherStreams: number;

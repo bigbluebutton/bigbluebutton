@@ -76,8 +76,10 @@ subscription userCurrentSubscription {
     sessionCurrent {
       enforceLayout
     }
-    livekit {
-      livekitToken
+    livekitRooms(order_by: { roomName: asc }) {
+      roomName
+      purpose
+      token
     }
   }
 }
