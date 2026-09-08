@@ -115,6 +115,38 @@ format_disabled() {
    ' "$RECORDING_DIR" "$id" "$fmt" 2>/dev/null
 }
 
+# What the steps chain runs after the given step, empty if the chain has no
+# entry for it. read_props shallow-merges the override, so an override that
+# defines 'steps' replaces the whole map rather than adding to it.
+step_after() {
+   local step=$1 file=$BBB_YML
+   local override=/etc/bigbluebutton/recording/recording.yml
+   if [ -f "$override" ] && [ -n "$(yq e '.steps // ""' "$override" 2>/dev/null)" ]; then
+      file=$override
+   fi
+   yq e ".steps.\"$step\" // \"\"" "$file" 2>/dev/null
+}
+
+# Remove a format's status files from the given $STATUS subdirectories, for the
+# meeting and for each of its segments (<meeting id>-<break timestamp>-<format>).
+remove_format_status() {
+   local id=$1 fmt=$2 sub
+   for sub in "${@:3}"; do
+      rm -vf "$STATUS"/"$sub"/"$id"-"$fmt".* "$STATUS"/"$sub"/"$id"-[0-9]*-"$fmt".*
+   done
+}
+
+# Remove a format's published output for the meeting and for each of its
+# segments (<meeting id>-<break timestamp>).
+remove_published_output() {
+   local id=$1 fmt=$2 dir
+   for dir in "${PUBLISHED_DIR:?}"/"$fmt" \
+              "$RAW_PRESENTATION_SRC"/unpublished/"$fmt" \
+              "$RAW_PRESENTATION_SRC"/deleted/"$fmt"; do
+      rm -rf "$dir"/"$id" "$dir"/"$id"-[0-9]*
+   done
+}
+
 mark_for_rebuild() {
    MEETING_ID=$1
    local FMT=$2
@@ -126,7 +158,6 @@ mark_for_rebuild() {
   # Single-format rebuild: re-process and re-publish only the requested format,
   # leaving the sanity step and every other format's output untouched.
   if [ -n "$FMT" ]; then
-     validate_format "$FMT"
      if format_disabled "$MEETING_ID" "$FMT"; then
         echo "Format '$FMT' is disabled for $MEETING_ID by meta_bbb-disable-recording-formats."
         echo "Nothing was removed."
@@ -135,14 +166,11 @@ mark_for_rebuild() {
      echo "Marking for rebuild $MEETING_ID (format: $FMT)"
 
      # Clear out this format's done files only
-     rm -vf "$STATUS"/processed/"$MEETING_ID"-"$FMT".*
-     rm -vf "$STATUS"/published/"$MEETING_ID"-"$FMT".*
+     remove_format_status "$MEETING_ID" "$FMT" processed published
 
      # Remove this format's published + intermediate output
-     rm -rf "${PUBLISHED_DIR:?}"/"$FMT"/"$MEETING_ID"
-     rm -rf "$RAW_PRESENTATION_SRC"/unpublished/"$FMT"/"$MEETING_ID"
-     rm -rf "$RAW_PRESENTATION_SRC"/deleted/"$FMT"/"$MEETING_ID"
-     rm -rf "$BASE"/process/"$FMT"/"$MEETING_ID"
+     remove_published_output "$MEETING_ID" "$FMT"
+     rm -rf "$BASE"/process/"$FMT"/"$MEETING_ID" "$BASE"/process/"$FMT"/"$MEETING_ID"-[0-9]*
 
      # Restart processing at the 'process' step for this format only; the steps
      # workflow chains process:<format> -> publish:<format>.
@@ -160,9 +188,7 @@ mark_for_rebuild() {
 
   # Remove the existing 'published' recording files
   for type in $TYPES; do
-     rm -rf "${PUBLISHED_DIR:?}"/"$type"/"$MEETING_ID"
-     rm -rf "$RAW_PRESENTATION_SRC"/unpublished/"$type"/"$MEETING_ID"
-     rm -rf "$RAW_PRESENTATION_SRC"/deleted/"$type"/"$MEETING_ID"
+     remove_published_output "$MEETING_ID" "$type"
   done
 
   # Restart processing at the 'sanity' step
@@ -173,10 +199,10 @@ mark_for_republish() {
    MEETING_ID=$1
    local FMT=$2
    local republish_types=$TYPES
+   local republished=0
 
    # Restrict to a single format when --format was given
    if [ -n "$FMT" ]; then
-      validate_format "$FMT"
       if format_disabled "$MEETING_ID" "$FMT"; then
          echo "Format '$FMT' is disabled for $MEETING_ID by meta_bbb-disable-recording-formats."
          echo "Nothing was removed."
@@ -201,16 +227,21 @@ mark_for_republish() {
       fi
 
       # Clear out the publish done files for this format only
-      rm -vf "$STATUS"/published/"$MEETING_ID"-"$type".*
+      remove_format_status "$MEETING_ID" "$type" published
 
       # Remove the existing 'published' recording files
-      rm -rf "${PUBLISHED_DIR:?}"/"$type"/"$MEETING_ID"
-      rm -rf "$RAW_PRESENTATION_SRC"/unpublished/"$type"/"$MEETING_ID"
-      rm -rf "$RAW_PRESENTATION_SRC"/deleted/"$type"/"$MEETING_ID"
+      remove_published_output "$MEETING_ID" "$type"
 
       # Restart processing at the 'publish' step
       /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "publish:$type" "$MEETING_ID"
+      republished=1
    done
+
+   # An explicit single-format request that republished nothing is a failure,
+   # not a silent no-op. Sweeping every meeting stays best-effort.
+   if [ -n "$FMT" ] && [ "$republished" = 0 ]; then
+      return 1
+   fi
 }
 
 need_root() {
@@ -457,6 +488,23 @@ while [ $# -gt 0 ]; do
    exit 1
 done
 
+# Validate --format once, before any action touches the filesystem.
+if [ -n "$FORMAT" ]; then
+   if [ -z "$REBUILD$REBUILDALL$REPUBLISH" ]; then
+      echo "--format only applies to --rebuild, --rebuildall or --republish."
+      exit 1
+   fi
+   validate_format "$FORMAT"
+   # Processing a format the steps chain does not continue would remove the
+   # current output and never publish a replacement.
+   if [ -n "$REBUILD$REBUILDALL" ] && [ -z "$(step_after "process:$FORMAT")" ]; then
+      echo "Format '$FORMAT' has no 'process:$FORMAT' entry in the recording steps chain,"
+      echo "so processing it would never publish a result."
+      echo "Run 'bbb-record --list-workflows' to see the enabled steps. Nothing was removed."
+      exit 1
+   fi
+fi
+
 if [ $REBUILD ]; then
    if [ -z "$MEETING_ID" ]; then
       echo "Pass an internal meeting id as parameter."
@@ -481,7 +529,7 @@ if [ $REPUBLISH ]; then
          mark_for_republish "$recording" "$FORMAT"
       done
    else
-      mark_for_republish "$MEETING_ID" "$FORMAT"
+      mark_for_republish "$MEETING_ID" "$FORMAT" || exit 1
    fi
 fi
 
