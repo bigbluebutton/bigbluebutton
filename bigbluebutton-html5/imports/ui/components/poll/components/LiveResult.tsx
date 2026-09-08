@@ -103,7 +103,7 @@ interface LiveResultProps {
   questionText: string;
   responses: Array<ResponseInfo>;
   usersCount: number;
-  numberOfAnswerCount: number;
+  respondedUsersCount: number;
   animations: boolean;
   pollId: string;
   users: Array<UserInfo>;
@@ -116,7 +116,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
   usersCount,
-  numberOfAnswerCount,
+  respondedUsersCount,
   animations,
   pollId,
   users,
@@ -160,18 +160,18 @@ const LiveResult: React.FC<LiveResultProps> = ({
       </Styled.Instructions>
       <Styled.Stats>
         {questionText ? <Styled.Title data-test="currentPollQuestion">{questionText}</Styled.Title> : null}
-        <Styled.Status>
-          {usersCount !== numberOfAnswerCount
+        <Styled.Status data-test="pollStatus">
+          {usersCount !== respondedUsersCount
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  current: numberOfAnswerCount,
+                  current: respondedUsersCount,
                   total: usersCount,
                 })} `}
               </span>
             )
             : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {usersCount !== numberOfAnswerCount
+          {usersCount !== respondedUsersCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
         <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
@@ -203,7 +203,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
           </Styled.ShowCorrectAnswerLabel>
         )
       }
-      {numberOfAnswerCount >= 0
+      {respondedUsersCount >= 0
         ? (
           <Styled.ButtonsActions>
             <Styled.ButtonWrapper>
@@ -226,7 +226,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
                     value: PUBLIC_GROUP_CHAT_KEY,
                   });
                 }}
-                disabled={numberOfAnswerCount <= 0}
+                disabled={respondedUsersCount <= 0}
                 label={intl.formatMessage(intlMessages.publishLabel)}
                 dataTest="publishPollingLabel"
               />
@@ -358,7 +358,7 @@ const LiveResultContainer: React.FC = () => {
     type,
   } = currentPoll;
 
-  const numberOfAnswerCount = currentPoll.responses_aggregate.aggregate.sum.optionResponsesCount;
+  const respondedUsersCount = currentPoll.numResponders;
   const numberOfUsersCount = currentPoll.users_aggregate.aggregate.count;
 
   return (
@@ -367,7 +367,7 @@ const LiveResultContainer: React.FC = () => {
       responses={responses}
       isSecret={isSecret}
       usersCount={numberOfUsersCount}
-      numberOfAnswerCount={numberOfAnswerCount ?? 0}
+      respondedUsersCount={respondedUsersCount}
       animations={animations}
       pollId={pollId}
       users={users}
