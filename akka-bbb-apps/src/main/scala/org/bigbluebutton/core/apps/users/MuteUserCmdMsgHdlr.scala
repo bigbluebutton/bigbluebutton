@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs.MuteUserCmdMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
+import org.bigbluebutton.core.models.{ ClientType, IntIdPrefixType, Roles, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -54,9 +54,30 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
 
             val isUnmuting = !msg.body.mute
             val isActingOnOtherUser = msg.body.userId != msg.header.userId
-            val settingRequiresRequest = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting;
-
-            val shouldRequestUnmute = isUnmuting && isActingOnOtherUser && settingRequiresRequest
+            val requireUserConsentBeforeUnmuting = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting
+            // Voice-only participants have no client, so a consent prompt can
+            // never be answered. VoiceUserState carries no client type, so the
+            // dial-in intId prefix is checked first and Users2x is consulted as
+            // a fallback; a missing user record also means voice-only.
+            val isVoiceOnlyUser = if (u.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+              true
+            } else {
+              Users2x.findWithIntId(liveMeeting.users2x, u.intId) match {
+                case Some(tu) => tu.clientType == ClientType.DIAL_IN
+                case None     => true
+              }
+            }
+            // shouldRequestUnmute: whether we need consent before unmuting a
+            // remote user. This is controlled by two factors:
+            //  - bbb-web's requireUserConsentBeforeUnmuting setting
+            //  - If the audio bridge is LiveKit, which will _always_ require
+            //    user consent before unmuting due to technical limitations.
+            //    Voice-only participants are exempt: they keep publishing while
+            //    muted, so the server can unmute them directly.
+            val shouldRequestUnmute = isUnmuting &&
+              isActingOnOtherUser &&
+              (requireUserConsentBeforeUnmuting ||
+                (isUsingLiveKitAudio(liveMeeting) && !isVoiceOnlyUser))
 
             if (shouldRequestUnmute) {
               log.info("Requesting user to unmute. meetingId=" + meetingId + " userId=" + u.intId)

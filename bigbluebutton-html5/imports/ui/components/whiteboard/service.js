@@ -386,17 +386,49 @@ const sanitizeShape = (shape) => {
 };
 
 const debouncedUpdateShapes = debounce((
-  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape, currentUserId,
 ) => {
   if (shapes && Object.keys(shapes).length > 0) {
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
+      const editingShape = tlEditorRef.current?.getEditingShape();
       const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
+        const remoteVersion = Number(shape.meta?.version ?? 0);
+        const localVersion = Number(editingShape?.meta?.version ?? 0);
+        const echoAuthor = shape.meta?.updatedBy ?? shape.meta?.createdBy;
+        const isOwnActiveFrame = Boolean(currentUserId)
+          && editingShape?.id === shape.id
+          && editingShape.type === 'frame'
+          && shape.type === 'frame'
+          && shape.props?.name !== undefined
+          && echoAuthor === currentUserId;
+
+        // store.put replaces the whole local record. Ignore older self echoes so
+        // they cannot roll back keystrokes or any other newer local frame fields.
+        if (isOwnActiveFrame && remoteVersion < localVersion) {
+          return acc;
+        }
+
+        const shouldPreserveActiveFrameName = isOwnActiveFrame
+          && editingShape.props.name !== shape.props.name;
+
+        // Preserve the locally controlled name for current or newer self echoes
+        // while still reconciling the rest of the server record.
+        const shapeToMerge = shouldPreserveActiveFrameName
+          ? {
+            ...shape,
+            props: {
+              ...shape.props,
+              name: editingShape.props.name,
+            },
+          }
+          : shape;
+
         if (
           (shape.meta?.presentationId === presentationIdRef.current
           || shape?.whiteboardId?.includes(presentationIdRef.current))
           && isValidShapeType(shape)
         ) {
-          acc.push(sanitizeShape(shape));
+          acc.push(sanitizeShape(shapeToMerge));
         }
         return acc;
       }, []);

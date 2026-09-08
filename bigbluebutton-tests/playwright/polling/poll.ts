@@ -440,6 +440,9 @@ export class Polling extends MultiUsers {
   async parentheticalQuestionLetterPoll() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.page.waitForTimeout(5000);
@@ -472,6 +475,9 @@ export class Polling extends MultiUsers {
   async parentheticalQuestionTypedResponse() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.page.waitForTimeout(5000);

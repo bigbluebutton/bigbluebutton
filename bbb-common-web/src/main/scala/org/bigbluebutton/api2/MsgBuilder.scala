@@ -6,7 +6,6 @@ import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
 import org.slf4j.{ Logger, LoggerFactory }
 
@@ -22,7 +21,6 @@ import scala.math.BigDecimal.RoundingMode
 import scala.util.{ Try, Using }
 
 object MsgBuilder {
-  private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
   private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
 
   private def generatePageToken(presId: String, page: Int, secret: String): String = {
@@ -122,17 +120,11 @@ object MsgBuilder {
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
       case Some(d) =>
-        logger.info("Dimensions found from probe")
         width = d.width
         height = d.height
+        logger.debug(s"SVG dims from probe: ${d.width.toInt}x${d.height.toInt} for $pageAbsoluteSvgPath")
       case None =>
-        logger.info("Falling back to image resolution service")
-
-        val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
-        if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
-          width = imageResolution.getWidth
-          height = imageResolution.getHeight
-        }
+        logger.warn(s"SVG dimensions unresolved from probe (width/height/viewBox absent or unparseable); using defaults ${width.toInt}x${height.toInt} for $pageAbsoluteSvgPath")
     }
 
     val content = Try {
@@ -495,12 +487,26 @@ object MsgBuilder {
                 val H = roundPx(h, scale)
                 return Some(SvgDimensions(W, H))
               case _ =>
-                return None
+                // width/height absent or unparseable (e.g. percentage): fall back to the
+                // viewBox, which pdftocairo always emits ("min-x min-y width height").
+                return Option(reader.getAttributeValue(null, "viewBox")).flatMap(parseViewBoxDims(_, scale))
             }
           case _ =>
         }
       }
       None
+    }.toOption.flatten
+  }
+
+  // Derive dimensions from the SVG viewBox ("min-x min-y width height"; values separated by
+  // whitespace and/or commas). Used as a safety net when width/height are absent or unparseable.
+  private def parseViewBoxDims(viewBox: String, scale: Int): Option[SvgDimensions] = {
+    val parts = viewBox.trim.split("[\\s,]+").filter(_.nonEmpty)
+    if (parts.length != 4) return None
+    Try {
+      val w = parts(2).toDouble
+      val h = parts(3).toDouble
+      if (w > 0 && h > 0 && w.isFinite && h.isFinite) Some(SvgDimensions(roundPx(w, scale), roundPx(h, scale))) else None
     }.toOption.flatten
   }
 

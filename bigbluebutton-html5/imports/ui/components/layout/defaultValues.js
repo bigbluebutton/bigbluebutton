@@ -18,6 +18,7 @@ const DEFAULT_VALUES = {
   cameraDockTabOrder: 4,
   cameraDockMinHeight: 120,
   cameraDockMinWidth: 120,
+  phoneLandscapeCameraWidthPercentage: 0.25,
   camerasMargin: 10,
   captionsMargin: 10,
 

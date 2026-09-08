@@ -3,15 +3,15 @@ import { colorDanger, colorGray, colorWhite } from '/imports/ui/stylesheets/styl
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
-const Notes = styled.div<{isPresenter: boolean}>`
+const Notes = styled.div<{isPresenter: boolean, isOnMediaArea: boolean}>`
   background-color: ${colorWhite};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
   height: 100%;
   overflow: auto;
-  border-radius: ${({ isPresenter }) => (
-    isPresenter ? `0 0 ${lgBorderRadius} ${lgBorderRadius}` : `${lgBorderRadius}`)};
+  border-radius: ${({ isPresenter, isOnMediaArea }) => (
+    isPresenter || isOnMediaArea ? `0 0 ${lgBorderRadius} ${lgBorderRadius}` : `${lgBorderRadius}`)};
 
   @media ${smallOnly} {
     transform: none !important;

@@ -122,6 +122,20 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     xmlResponseToString() == buildCreateMeetingResponse(controller.meetingService.meetings.getAt(0))
   }
 
+  def "Test create canonicalizes a padded shared notes editor"() {
+    given: "a create request with whitespace and control characters around a known editor"
+    createMeetingWithDefaultParameters()
+    params[ApiParams.SHARED_NOTES_EDITOR] = " \tEtherpad\r\n "
+    setChecksumAndQueryString('create')
+
+    when: "the request runs through validation and meeting creation"
+    controller.create()
+
+    then: "the meeting stores the canonical editor instead of silently using the default"
+    xmlResponseToString() == buildCreateMeetingResponse(controller.meetingService.meetings.getAt(0))
+    controller.meetingService.meetings.getAt(0).sharedNotesEditor == "etherpad"
+  }
+
   def "Test create a meeting with malformed XML body"() {
     when: "necessary meeting parameters are provided with malformed XML"
     createMeetingWithDefaultParameters()

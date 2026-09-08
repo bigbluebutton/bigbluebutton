@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
 import { fontSizeLarge, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   mdPadding,
@@ -332,16 +333,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   `}
 `;
 
-const VisuallyHidden = styled.span`
-  position: absolute;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  width: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-`;
+const { VisuallyHidden } = VisuallyHiddenStyles;
 
 const PresentationTitleSeparator = styled.span`
   color: ${colorGray};

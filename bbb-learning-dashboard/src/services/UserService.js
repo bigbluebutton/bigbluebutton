@@ -217,7 +217,9 @@ export function makeUserCSVData(users, polls, intl) {
     // Add the anonymous answers
     anonymousRecord += `,"${pollValues[i].anonymousAnswers.join('\r\n')}"`;
   }
-  userRecords.Anonymous = anonymousRecord;
+  if (pollValues.some((poll) => poll.anonymous)) {
+    userRecords.Anonymous = anonymousRecord;
+  }
 
   return [
     header,
