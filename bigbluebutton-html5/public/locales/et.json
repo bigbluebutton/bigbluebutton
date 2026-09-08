@@ -1111,6 +1111,7 @@
     "app.error.408": "Autentimine ebaõnnestus",
     "app.error.409": "Konflikt",
     "app.error.410": "Sessioon on lõppenud",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Oih, midagi läks valesti",
     "app.error.503": "Ühendus on katkenud",
     "app.error.disconnected.rejoin": "Uuesti liitumiseks võid lehte värskendada.",
