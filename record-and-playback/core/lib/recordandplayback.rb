@@ -255,8 +255,13 @@ module BigBlueButton
   # Recording formats a meeting opted out of via the
   # meta_bbb-disable-recording-formats create parameter.
   #
+  # The metadata is unreadable rarely enough that the processing pipeline treats
+  # a failure as "nothing disabled" and carries on. Callers that remove output
+  # before acting on the answer must not do that, so they pass strict: true and
+  # get the error instead.
+  #
   # @return [Array<String>] lowercased format names
-  def self.disabled_recording_formats(recording_dir, meeting_id)
+  def self.disabled_recording_formats(recording_dir, meeting_id, strict: false)
     events_xml = File.join(recording_dir, 'raw', meeting_id, 'events.xml')
     return [] unless File.exist?(events_xml)
 
@@ -268,6 +273,8 @@ module BigBlueButton
          .map { |format| format.strip.downcase }
          .reject(&:empty?)
   rescue StandardError => e
+    raise if strict
+
     BigBlueButton.logger.warn("Failed to read bbb-disable-recording-formats metadata: #{e.message}")
     []
   end
