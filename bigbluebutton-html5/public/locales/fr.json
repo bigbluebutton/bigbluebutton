@@ -1111,6 +1111,7 @@
     "app.error.408": "Échec de l'authentification",
     "app.error.409": "Conflit",
     "app.error.410": "Cette réunion est close",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Oups, quelque chose s'est mal passé",
     "app.error.503": "Vous avez été déconnecté",
     "app.error.disconnected.rejoin": "Vous pouvez rafraichir la page pour réintégrer la réunion.",
