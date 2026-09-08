@@ -101,6 +101,20 @@ validate_format() {
    fi
 }
 
+# Is a recording format disabled for this meeting through the
+# meta_bbb-disable-recording-formats create parameter? Checked before anything
+# is removed: rap-enqueue would refuse the job, leaving the output deleted with
+# nothing scheduled to rebuild it.
+format_disabled() {
+   local id=$1 fmt=$2
+   ruby -e '
+      $LOAD_PATH.unshift("/usr/local/bigbluebutton/core/lib")
+      require "recordandplayback"
+      exit(BigBlueButton.disabled_recording_formats(ARGV[0], ARGV[1])
+                        .include?(ARGV[2].downcase) ? 0 : 1)
+   ' "$RECORDING_DIR" "$id" "$fmt" 2>/dev/null
+}
+
 mark_for_rebuild() {
    MEETING_ID=$1
    local FMT=$2
@@ -113,6 +127,11 @@ mark_for_rebuild() {
   # leaving the sanity step and every other format's output untouched.
   if [ -n "$FMT" ]; then
      validate_format "$FMT"
+     if format_disabled "$MEETING_ID" "$FMT"; then
+        echo "Format '$FMT' is disabled for $MEETING_ID by meta_bbb-disable-recording-formats."
+        echo "Nothing was removed."
+        exit 1
+     fi
      echo "Marking for rebuild $MEETING_ID (format: $FMT)"
 
      # Clear out this format's done files only
@@ -158,6 +177,11 @@ mark_for_republish() {
    # Restrict to a single format when --format was given
    if [ -n "$FMT" ]; then
       validate_format "$FMT"
+      if format_disabled "$MEETING_ID" "$FMT"; then
+         echo "Format '$FMT' is disabled for $MEETING_ID by meta_bbb-disable-recording-formats."
+         echo "Nothing was removed."
+         exit 1
+      fi
       republish_types=$FMT
       echo "Marking for republish $MEETING_ID (format: $FMT)"
    else
@@ -168,6 +192,11 @@ mark_for_republish() {
       if [[ ! -d $BASE/process/$type/$MEETING_ID ]]; then
          echo "Processed files for $MEETING_ID ($type) do not exist, can't republish"
          echo "Try rebuilding the recording instead."
+         continue
+      fi
+
+      if format_disabled "$MEETING_ID" "$type"; then
+         echo "Skipping $type for $MEETING_ID: disabled by meta_bbb-disable-recording-formats"
          continue
       fi
 
