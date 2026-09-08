@@ -201,42 +201,40 @@ test.describe.parallel('Unified Layout - server layout rate validation', { tag: 
   });
 });
 
-// The manual layout selection modal these tests drive (li[data-test="manageLayoutBtn"])
-// was removed from the client in 3ef18df03a ("remove layout selection modal and related
-// settings") - unified layout replaced user-selectable layouts, so this whole section
-// needs a rewrite against the unified layout behavior, not a selector fix.
-test.describe.parallel('Layout', { tag: ['@need-update', '@media'] }, () => {
-  let layouts: Layouts;
+test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@ci' }, () => {
+  test(
+    'Viewer pages through webcams at the default page size while the moderator sees them all',
+    { tag: '@media' },
+    async ({ browser, context }, testInfo) => {
+      linkIssue(25730);
+      const layouts = new Layouts(browser, context);
+      await initializePages(layouts, browser, {
+        isMultiUser: true,
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        testInfo,
+        recordVideo: true,
+      });
 
-  test.beforeEach(async ({ browser, context }, testInfo) => {
-    linkIssue(24367);
-    layouts = new Layouts(browser, context);
-    await initializePages(layouts, browser, { isMultiUser: true, testInfo });
-    await layouts.modPage.shareWebcam();
-    await layouts.userPage.shareWebcam();
-  });
+      // The scenario encodes the server-default desktop pagination config;
+      // on servers configured differently the expected tile counts would not hold.
+      const pagination = await layouts.getDesktopPaginationConfig();
+      test.skip(
+        !pagination.paginationEnabled ||
+          pagination.moderatorPageSize !== 0 ||
+          pagination.viewerPageSize !== 5 ||
+          pagination.thresholdsEnabled ||
+          !pagination.partitionPrivilegedStreams,
+        'encodes the server-default pagination config (paginationEnabled, desktopPageSizes ' +
+          'moderator 0 / viewer 5, paginationThresholds disabled, partitionPrivilegedStreams ' +
+          `enabled) - got ${JSON.stringify(pagination)}`,
+      );
 
-  test('Focus on presentation', async () => {
-    await layouts.focusOnPresentation();
-  });
+      // 5 extra webcam viewers join sequentially on top of the two base users,
+      // so the timeout has to scale with the number of webcams (same rationale
+      // as webcam/gridTileCount.spec.ts).
+      test.setTimeout(7 * 25_000 + 60_000);
 
-  test('Grid Layout', async () => {
-    await layouts.gridLayout();
-  });
-
-  test('Smart layout', async () => {
-    await layouts.smartLayout();
-  });
-
-  test('Custom layout', async () => {
-    await layouts.customLayout();
-  });
-
-  test("Update everyone's layout", async () => {
-    await layouts.updateEveryone();
-  });
-
-  test('Video Pagination', async () => {
-    await layouts.videoPagination();
-  });
+      await layouts.viewerPaginationAtServerDefaults();
+    },
+  );
 });
