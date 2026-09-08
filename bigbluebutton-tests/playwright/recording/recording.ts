@@ -61,9 +61,7 @@ export class Recording extends MultiUsers {
       recordingIndicatorButton,
       'recording indicator button should have no visible border when not recording',
     ).toHaveCSS('border-top-style', 'none');
-    const idleBackground = await recordingIndicatorButton.evaluate(
-      (el) => getComputedStyle(el).backgroundColor,
-    );
+    const idleBackground = await recordingIndicatorButton.evaluate((el) => getComputedStyle(el).backgroundColor);
 
     // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
@@ -75,10 +73,7 @@ export class Recording extends MultiUsers {
       recordingIndicatorButton,
       'recording indicator button should gain a 1px outline when recording',
     ).toHaveCSS('border-top-style', 'solid');
-    await expect(
-      recordingIndicatorButton,
-      'recording outline should be 1px wide',
-    ).toHaveCSS('border-top-width', '1px');
+    await expect(recordingIndicatorButton, 'recording outline should be 1px wide').toHaveCSS('border-top-width', '1px');
     await expect(
       recordingIndicatorButton,
       'recording indicator button background should change when recording starts',
