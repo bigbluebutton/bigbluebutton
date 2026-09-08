@@ -99,6 +99,10 @@ export const elements = {
   roomOptions2: 'button[data-test="roomOptions2"]',
   joinRoom1: 'button[data-test="joinRoom1"]',
   joinFirstRoom: 'button[data-test^="joinRoom"]',
+  // Free-join room list: one stable id per room, independent of the button's
+  // label, which changes with the locale and with the join state.
+  freeJoinRoom1: 'button[data-test="freeJoinRoom1"]',
+  freeJoinRoom2: 'button[data-test="freeJoinRoom2"]',
   allowChoiceRoom: 'input[id="opt-freeJoin"]',
   labelGeneratingURL: 'span[data-test="labelGeneratingURL"]',
   endBreakoutRoomsButton: 'button[data-test="endBreakoutRoomsButton"]',
