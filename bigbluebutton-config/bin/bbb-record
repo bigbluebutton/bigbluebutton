@@ -107,14 +107,24 @@ validate_format() {
 disabled_formats() {
    local id=$1
    local events=$RECORDING_DIR/raw/$id/events.xml
-   [ -f "$events" ] || return 0
+   # No events.xml means there is no opt-out to honour. Anything else we cannot
+   # read is reported as a failure, so callers refuse instead of assuming.
+   [ -e "$events" ] || return 0
+   if [ ! -f "$events" ] || [ ! -r "$events" ]; then
+      return 1
+   fi
    # Almost no meeting carries the parameter, and parsing the XML costs a ruby
    # start-up per meeting, so only pay for it when the attribute is present.
-   grep -q 'bbb-disable-recording-formats' "$events" || return 0
+   grep -q 'bbb-disable-recording-formats' "$events"
+   case $? in
+      0) ;;          # present: read it authoritatively below
+      1) return 0 ;; # definitely absent
+      *) return 1 ;; # could not be read
+   esac
    ruby -e '
       $LOAD_PATH.unshift("/usr/local/bigbluebutton/core/lib")
       require "recordandplayback"
-      puts BigBlueButton.disabled_recording_formats(ARGV[0], ARGV[1]).join(" ")
+      puts BigBlueButton.disabled_recording_formats(ARGV[0], ARGV[1], strict: true).join(" ")
    ' "$RECORDING_DIR" "$id"
 }
 
@@ -148,23 +158,28 @@ step_after() {
    yq e ".steps.\"$step\" // \"\"" "$file" 2>/dev/null
 }
 
-# Remove a format's status files from the given $STATUS subdirectories, for the
-# meeting and for each of its segments (<meeting id>-<break timestamp>-<format>).
+# Remove a format's status files for the meeting, from the given $STATUS
+# subdirectories.
+#
+# Segment artifacts (<meeting id>-<break timestamp>-<format>) are deliberately
+# left alone: rap-enqueue.rb can only enqueue a bare meeting id, so a segment
+# removed here would never be rebuilt. Rebuilding segments needs the enqueue
+# side to grow a break timestamp first.
 remove_format_status() {
    local id=$1 fmt=$2 sub
    for sub in "${@:3}"; do
-      rm -vf "$STATUS"/"$sub"/"$id"-"$fmt".* "$STATUS"/"$sub"/"$id"-[0-9]*-"$fmt".*
+      rm -vf "$STATUS"/"$sub"/"$id"-"$fmt".*
    done
 }
 
-# Remove a format's published output for the meeting and for each of its
-# segments (<meeting id>-<break timestamp>).
+# Remove a format's published output for the meeting. Segments are left alone,
+# for the reason given on remove_format_status above.
 remove_published_output() {
    local id=$1 fmt=$2 dir
    for dir in "${PUBLISHED_DIR:?}"/"$fmt" \
               "$RAW_PRESENTATION_SRC"/unpublished/"$fmt" \
               "$RAW_PRESENTATION_SRC"/deleted/"$fmt"; do
-      rm -rf "$dir"/"$id" "$dir"/"$id"-[0-9]*
+      rm -rf "$dir"/"$id"
    done
 }
 
@@ -190,7 +205,7 @@ mark_for_rebuild() {
 
      # Remove this format's published + intermediate output
      remove_published_output "$MEETING_ID" "$FMT"
-     rm -rf "$BASE"/process/"$FMT"/"$MEETING_ID" "$BASE"/process/"$FMT"/"$MEETING_ID"-[0-9]*
+     rm -rf "$BASE"/process/"$FMT"/"$MEETING_ID"
 
      # Restart processing at the 'process' step for this format only; the steps
      # workflow chains process:<format> -> publish:<format>.
