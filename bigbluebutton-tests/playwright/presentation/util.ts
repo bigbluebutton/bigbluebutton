@@ -143,6 +143,50 @@ export async function uploadSinglePresentation(
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 
+// The browser sends the whole file and bbb-web refuses it on size (maxFileSizeUpload, 30 MB
+// by default) before the PDF is ever parsed, so the payload only has to be big enough, not a
+// valid document. Building it in memory keeps a file that large out of the repo.
+const OVERSIZED_PRESENTATION_BYTES = 31 * 1000 * 1000;
+
+function buildOversizedPdf(sizeInBytes: number): Buffer {
+  const header = Buffer.from(
+    '%PDF-1.4\n' +
+      '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n' +
+      '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n' +
+      '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj\n',
+  );
+  const trailer = Buffer.from('\ntrailer<</Root 1 0 R/Size 4>>\n%%EOF\n');
+  const padding = Buffer.alloc(sizeInBytes - header.length - trailer.length, 0x25); // '%' - a PDF comment
+  return Buffer.concat([header, padding, trailer]);
+}
+
+// Sibling of uploadSinglePresentation for the rejected path: that one asserts a successful
+// upload (new thumbnail and slide change), which never happens for a rejected file.
+export async function uploadOversizedPresentation(testPage: Page, fileName: string) {
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(
+    e.presentationFileUpload,
+    'should display the presentation space for uploading a new file, when the manage presentations is opened',
+  );
+  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
+
+  await testPage.page.setInputFiles(e.presentationFileUpload, {
+    name: fileName,
+    mimeType: 'application/pdf',
+    buffer: buildOversizedPdf(OVERSIZED_PRESENTATION_BYTES),
+  });
+
+  await testPage.hasText(
+    e.presentationUploadProgressToast,
+    e.presentationTooLargeLabel,
+    'should display the size rejection on the presentation upload toast',
+    UPLOAD_PDF_WAIT_TIME,
+  );
+  await testPage.press('Escape'); // close the media sharing menu
+  await testPage.waitForSelectorDetached(e.presentationFileUpload);
+}
+
 export async function uploadMultiplePresentations(
   testPage: Page,
   fileNames: string[],
