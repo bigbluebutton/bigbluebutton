@@ -1111,6 +1111,7 @@
     "app.error.408": "المصادقة فشلت",
     "app.error.409": "تعارض",
     "app.error.410": "انتهى الاجتماع",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "عفوا، حدث خطأ ما",
     "app.error.503": "لقد تم قطع اتصالك",
     "app.error.disconnected.rejoin": "يمكنك تحديث الصفحة للانضمام مجددًا.",
