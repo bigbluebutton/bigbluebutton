@@ -1111,6 +1111,7 @@
     "app.error.408": "Η αυθεντικοποίηση απέτυχε",
     "app.error.409": "Διένεξη",
     "app.error.410": "Η τηλεδιάσκεψη ολοκληρώθηκε",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Ωχ, κάτι πήγε στραβά",
     "app.error.503": "Έχετε αποσυνδεθεί",
     "app.error.disconnected.rejoin": "Ανανεώστε τη σελίδα για επανασύνδεση.",
