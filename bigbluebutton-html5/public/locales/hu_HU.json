@@ -1111,6 +1111,7 @@
     "app.error.408": "Hitelesítés nem sikerült",
     "app.error.409": "Konfliktus",
     "app.error.410": "Az előadás véget ért",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Sajnáljuk, hiba történt",
     "app.error.503": "Lecsatlakoztál",
     "app.error.disconnected.rejoin": "Az újracsatlakozáshoz frissítheted az oldalt.",
