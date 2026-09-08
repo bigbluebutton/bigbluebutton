@@ -1111,6 +1111,7 @@
     "app.error.408": "認証に失敗しました",
     "app.error.409": "競合",
     "app.error.410": "会議は終了しました",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "問題が起こりました",
     "app.error.503": "接続が切断されました",
     "app.error.disconnected.rejoin": "ページを再読み込みすると再び参加できます",
