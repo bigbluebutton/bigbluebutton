@@ -71,6 +71,17 @@ begin
       next
     end
 
+    # Honour the per-meeting opt-out. The worker pipeline only checks this when
+    # it schedules the next step itself, so a step enqueued directly here would
+    # otherwise rebuild a format the meeting explicitly disabled.
+    if !step_format.nil? &&
+       BigBlueButton.disabled_recording_formats(props['recording_dir'], meeting_id)
+                    .include?(step_format.downcase)
+      warn "Format #{step_format} is disabled for meeting #{meeting_id} " \
+           'by meta_bbb-disable-recording-formats, not enqueuing'
+      next
+    end
+
     opts = common_opts.merge('meeting_id': meeting_id)
 
     warn "Enqueing #{step_name} worker with #{opts.inspect}"

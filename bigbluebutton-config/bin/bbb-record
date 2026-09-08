@@ -93,6 +93,14 @@ readonly TYPES
 
 declare -r MEETING_PATTERN="^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"
 
+validate_format() {
+   local fmt=$1
+   if ! printf '%s\n' $TYPES | grep -qxF "$fmt"; then
+      echo "Unknown format '$fmt'. Valid formats: ${TYPES//$'\n'/ }"
+      exit 1
+   fi
+}
+
 mark_for_rebuild() {
    MEETING_ID=$1
    local FMT=$2
@@ -104,10 +112,7 @@ mark_for_rebuild() {
   # Single-format rebuild: re-process and re-publish only the requested format,
   # leaving the sanity step and every other format's output untouched.
   if [ -n "$FMT" ]; then
-     if ! printf '%s\n' $TYPES | grep -qx "$FMT"; then
-        echo "Unknown format '$FMT'. Valid formats: $(echo $TYPES | tr '\n' ' ')"
-        exit 1
-     fi
+     validate_format "$FMT"
      echo "Marking for rebuild $MEETING_ID (format: $FMT)"
 
      # Clear out this format's done files only
@@ -147,17 +152,27 @@ mark_for_rebuild() {
 
 mark_for_republish() {
    MEETING_ID=$1
-   echo "Marking for republish $MEETING_ID"
+   local FMT=$2
+   local republish_types=$TYPES
 
-   for type in $TYPES; do
+   # Restrict to a single format when --format was given
+   if [ -n "$FMT" ]; then
+      validate_format "$FMT"
+      republish_types=$FMT
+      echo "Marking for republish $MEETING_ID (format: $FMT)"
+   else
+      echo "Marking for republish $MEETING_ID"
+   fi
+
+   for type in $republish_types; do
       if [[ ! -d $BASE/process/$type/$MEETING_ID ]]; then
          echo "Processed files for $MEETING_ID ($type) do not exist, can't republish"
          echo "Try rebuilding the recording instead."
          continue
       fi
 
-      # Clear out the publish done files
-      rm -vf "$STATUS"/published/"$MEETING_ID"*
+      # Clear out the publish done files for this format only
+      rm -vf "$STATUS"/published/"$MEETING_ID"-"$type".*
 
       # Remove the existing 'published' recording files
       rm -rf "${PUBLISHED_DIR:?}"/"$type"/"$MEETING_ID"
@@ -233,8 +248,8 @@ usage() {
    echo
    echo "Administration:"
    echo "   --rebuild <internal meetingID>     rebuild the output for the given internal meetingID"
-   echo "   --rebuild <internal meetingID> --format <name>"
-   echo "                                      rebuild only one playback format (e.g. presentation, video, ai-summary)"
+   echo "   --format <recording format name>   with --rebuild, --rebuildall or --republish,"
+   echo "                                      act on only one playback format (see --list-workflows)"
    echo "   --rebuildall                       rebuild every recording"
    echo "   --delete <internal meetingID>      delete one meeting and recording"
    echo "   --deleteall                        delete all meetings and recordings"
@@ -296,16 +311,18 @@ while [ $# -gt 0 ]; do
       continue
    fi
    if [ "$1" = "-format" ] || [ "$1" = "--format" ]; then
-      if [ -n "${2}" ]; then
-         FORMAT="${2}"
-         shift
+      if [ -z "${2}" ] || [[ "${2}" == -* ]]; then
+         echo "$1 requires a recording format name, e.g. $1 presentation"
+         echo "Run 'bbb-record --list-workflows' to see the available formats."
+         exit 1
       fi
-      shift
+      FORMAT="${2}"
+      shift 2
       continue
    fi
    if [ "$1" = "-rebuildall" ] || [ "$1" = "--rebuildall" ]; then
       need_root
-      if [ ! -z "${2}" ]; then
+      if [ -n "${2}" ] && [[ "${2}" != -* ]]; then
          MEETING_ID="${2}"
          shift
       fi
@@ -316,7 +333,7 @@ while [ $# -gt 0 ]; do
 
    if [ "$1" = "-republish" ] || [ "$1" = "--republish" ]; then
       need_root
-      if [ ! -z "${2}" ]; then
+      if [ -n "${2}" ] && [[ "${2}" != -* ]]; then
          MEETING_ID="${2}"
          shift
       fi
@@ -422,7 +439,7 @@ fi
 if [ $REBUILDALL ]; then
    echo "Rebuilding all recordings"
    for recording in $(dir "$BASE"/raw); do
-      [[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild "$recording"
+      [[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild "$recording" "$FORMAT"
    done
 fi
 
@@ -432,12 +449,10 @@ if [ $REPUBLISH ]; then
       # Republish all meetings
       #
       for recording in $(dir "$BASE"/raw); do
-         echo "Marking for republish: $recording"
-         mark_for_republish "$recording"
+         mark_for_republish "$recording" "$FORMAT"
       done
    else
-      echo "Marking for republish: $MEETING_ID"
-      mark_for_republish "$MEETING_ID"
+      mark_for_republish "$MEETING_ID" "$FORMAT"
    fi
 fi
 
