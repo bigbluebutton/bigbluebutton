@@ -18,7 +18,7 @@ const BBBA_PARAM = {
 };
 
 const BBBA_DEFAULTS = {
-  [BBBA_PARAM.INTENSITY]: 95,
+  [BBBA_PARAM.INTENSITY]: 100,
   [BBBA_PARAM.LEVELER_TARGET]: -18,
   [BBBA_PARAM.SB_STRENGTH]: 60,
   [BBBA_PARAM.MB_STRENGTH]: 60,
@@ -302,10 +302,4 @@ export default {
   loadFiles,
   createProcessorStream,
   forcedMicrophoneConstraints,
-  // Intensity is the only BBBA parameter exposed to end users (Settings >
-  // Audio). Advertised here rather than hardcoded in the dispatcher so a
-  // provider without such a knob - workadventureDtln - simply omits it and the
-  // UI hides the control.
-  intensityParamIndex: BBBA_PARAM.INTENSITY,
-  defaultIntensity: BBBA_DEFAULTS[BBBA_PARAM.INTENSITY],
 };

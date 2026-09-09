@@ -7,15 +7,11 @@ import {
 } from './types';
 import {
   isWasmProcessorSupported, isWasmProcessingConfigEnabled, getConstraintsForMode,
-  getEffectiveAudioProcessingMode, getEffectiveAudioProcessingIntensity,
-  isWasmProcessorIntensitySupported, setWasmProcessorIntensity,
-  MIN_PROCESSING_INTENSITY, MAX_PROCESSING_INTENSITY,
+  getEffectiveAudioProcessingMode,
 } from '/imports/api/audio/client/bridge/service';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 const AUDIO_SECTION_TITLE_ID = 'audioProcessingSectionTitle';
-const INTENSITY_LABEL_ID = 'advancedFilteringIntensityLabel';
-const INTENSITY_DESC_ID = 'advancedFilteringIntensityDesc';
 
 const intlMessages = defineMessages({
   audioTabTitle: {
@@ -54,14 +50,6 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.advancedFilteringDisabledReason',
     description: 'reason shown when advanced filtering is unavailable',
   },
-  advancedFilteringIntensityLabel: {
-    id: 'app.submenu.audio.advancedFilteringIntensity',
-    description: 'advanced audio filtering intensity slider label',
-  },
-  advancedFilteringIntensityDesc: {
-    id: 'app.submenu.audio.advancedFilteringIntensityDesc',
-    description: 'advanced audio filtering intensity slider description',
-  },
 });
 
 class AudioMenu extends BaseMenu {
@@ -76,7 +64,6 @@ class AudioMenu extends BaseMenu {
       settings: props.settings,
       audioSettings: props.audioSettings,
       audioFilterMode: getEffectiveAudioProcessingMode(),
-      audioFilterIntensity: getEffectiveAudioProcessingIntensity(),
     };
   }
 
@@ -95,55 +82,11 @@ class AudioMenu extends BaseMenu {
     });
   }
 
-  // Applied to the live processor as the slider moves so the user can hear
-  // what they are choosing; persisted with the rest of the tab on Save.
-  handleAudioFilterIntensityChange(intensity: number) {
-    const { audioSettings } = this.state;
-    audioSettings.processingIntensity = intensity;
-
-    this.handleUpdateSettings('audio', audioSettings);
-    setWasmProcessorIntensity(intensity);
-
-    this.setState({
-      audioSettings,
-      audioFilterIntensity: intensity,
-    });
-  }
-
-  renderIntensityControl(disabled: boolean) {
-    const { intl } = this.props;
-    const { audioFilterIntensity } = this.state;
-
-    return (
-      <Styled.IntensityControl>
-        <Styled.IntensityLabel id={INTENSITY_LABEL_ID}>
-          {intl.formatMessage(intlMessages.advancedFilteringIntensityLabel)}
-        </Styled.IntensityLabel>
-        <Styled.IntensityDescription id={INTENSITY_DESC_ID}>
-          {intl.formatMessage(intlMessages.advancedFilteringIntensityDesc)}
-        </Styled.IntensityDescription>
-        <Styled.IntensitySlider
-          value={audioFilterIntensity}
-          min={MIN_PROCESSING_INTENSITY}
-          max={MAX_PROCESSING_INTENSITY}
-          step={1}
-          disabled={disabled}
-          valueLabelDisplay="auto"
-          aria-labelledby={INTENSITY_LABEL_ID}
-          aria-describedby={INTENSITY_DESC_ID}
-          data-test="advancedFilteringIntensitySlider"
-          onChange={(_, value) => this.handleAudioFilterIntensityChange(value as number)}
-        />
-      </Styled.IntensityControl>
-    );
-  }
-
   renderAudioFilters() {
     const { intl } = this.props;
     const { audioFilterMode } = this.state;
     const wasmConfigEnabled = isWasmProcessingConfigEnabled();
     const wasmBrowserSupported = isWasmProcessorSupported();
-    const intensitySupported = isWasmProcessorIntensitySupported();
 
     const options: AudioFilterOption[] = [];
 
@@ -213,26 +156,11 @@ class AudioMenu extends BaseMenu {
             </Styled.FilterOption>
           );
 
-          // The option itself is a <label>: an interactive slider nested in it
-          // would re-select the radio on every drag, so it goes alongside.
-          const showIntensity = option.value === 'advanced'
-            && intensitySupported
-            && !option.disabled;
-
           if (showReason && option.disabledReasonMsg) {
             return (
               <Tooltip key={option.value} title={intl.formatMessage(option.disabledReasonMsg)}>
                 {optionElement}
               </Tooltip>
-            );
-          }
-
-          if (showIntensity) {
-            return (
-              <React.Fragment key={option.value}>
-                {optionElement}
-                {this.renderIntensityControl(audioFilterMode !== 'advanced')}
-              </React.Fragment>
             );
           }
 

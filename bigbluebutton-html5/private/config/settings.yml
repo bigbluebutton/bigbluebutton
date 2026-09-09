@@ -277,11 +277,6 @@ public:
         # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
         # it falls back to 'standard' (advanced -> standard).
         processingMode: standard
-        # processingIntensity: how aggressively advanced/BBBA filtering is
-        # applied, 0-100. Only has an effect while processingMode is
-        # 'advanced'; the other two modes do not run BBBA at all. Users can
-        # override this in Settings > Audio.
-        processingIntensity: 95
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
