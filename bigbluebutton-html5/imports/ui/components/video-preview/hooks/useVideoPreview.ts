@@ -109,6 +109,8 @@ export const useVideoPreview = ({
   isCameraAsContent = false,
   isCameraShared = false,
   forceOpen,
+  skipPreview = false,
+  deferInitialization = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -558,7 +560,7 @@ export const useVideoPreview = ({
   } = {}) => {
     if (devices) VideoService.updateNumberOfDevices(devices);
     // Video preview skip is activated, short circuit via a simpler procedure
-    if (PreviewService.getSkipVideoPreview() && !forceOpen) {
+    if ((skipPreview || PreviewService.getSkipVideoPreview()) && !forceOpen) {
       skipVideoPreview();
       return;
     }
@@ -609,6 +611,7 @@ export const useVideoPreview = ({
     isMounted,
     webcamDeviceId.current,
     isCameraAsContent,
+    skipPreview,
     getCameraStream,
     handleDeviceError,
     setAvailableWebcams,
@@ -656,7 +659,8 @@ export const useVideoPreview = ({
   useEffect(() => {
     isMounted.current = true;
 
-    initializeCameras();
+    // Read once on purpose: an entry-state decision, not a reactive one.
+    if (!deferInitialization) initializeCameras();
 
     return () => {
       isMounted.current = false;
@@ -758,8 +762,9 @@ export const useVideoPreview = ({
   }, [getInitialCameraStream, handleStartSharing, cleanupStreamAndVideo]);
 
   const shouldSkipVideoPreview = useCallback(() => {
-    return PreviewService.getSkipVideoPreview() && !forceOpen && !skipPreviewFailed && !isCameraShared;
-  }, [forceOpen, skipPreviewFailed, isCameraShared]);
+    return (skipPreview || PreviewService.getSkipVideoPreview())
+      && !forceOpen && !skipPreviewFailed && !isCameraShared;
+  }, [skipPreview, forceOpen, skipPreviewFailed, isCameraShared]);
 
   return {
     // state
