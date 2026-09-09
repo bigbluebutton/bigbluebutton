@@ -1,0 +1,211 @@
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import { JoinErrorCodeTable } from '/imports/ui/components/meeting-ended/service';
+import Auth from '/imports/ui/services/auth';
+
+const REDIRECT_TIMEOUT = 15000;
+
+export const GUEST_STATUSES = {
+  ALLOW: 'ALLOW',
+  DENY: 'DENY',
+  WAIT: 'WAIT',
+};
+
+export const intlMessages = defineMessages({
+  windowTitle: {
+    id: 'app.guest.windowTitle',
+    description: 'tab title',
+  },
+  guestWait: {
+    id: 'app.guest.guestWait',
+    description: '',
+  },
+  noSessionToken: {
+    id: 'app.guest.noSessionToken',
+    description: '',
+  },
+  guestInvalid: {
+    id: 'app.guest.guestInvalid',
+    description: '',
+  },
+  allow: {
+    id: 'app.guest.allow',
+    description: '',
+  },
+  [JoinErrorCodeTable.GUEST_DENY]: {
+    id: 'app.guest.guestDeny',
+    description: '',
+  },
+  firstPosition: {
+    id: 'app.guest.firstPositionInWaitingQueue',
+    description: '',
+  },
+  position: {
+    id: 'app.guest.positionInWaitingQueue',
+    description: '',
+  },
+  calculating: {
+    id: 'app.guest.calculating',
+    description: '',
+  },
+  messageFromHost: {
+    id: 'app.guest.messageFromHost',
+    description: 'Label for host message',
+    defaultMessage: 'Message from host',
+  },
+  waitingForApproval: {
+    id: 'app.guest.waitingForApproval',
+    description: 'Waiting status text',
+    defaultMessage: 'Waiting for approval',
+  },
+});
+
+export interface GuestWaitStateProps {
+  guestStatus: string | null;
+  guestLobbyMessage: string | null;
+  positionInWaitingQueue: number | null;
+  logoutUrl: string;
+  meetingName: string;
+  clientTitle: string;
+}
+
+export interface GuestWaitState {
+  message: string;
+  positionMessage: string;
+  animate: boolean;
+  hasCustomMessage: boolean;
+  showPositionInWaitingQueue: boolean;
+}
+
+/**
+ * Guest lobby state and side effects (window title, status transitions, deny
+ * redirect), shared by the standalone wait screen and the pre-flight lobby.
+ */
+const useGuestWaitState = (props: GuestWaitStateProps): GuestWaitState => {
+  const {
+    guestLobbyMessage,
+    guestStatus,
+    logoutUrl,
+    positionInWaitingQueue,
+    meetingName,
+    clientTitle,
+  } = props;
+
+  const intl = useIntl();
+  const [animate, setAnimate] = useState(true);
+  const [message, setMessage] = useState(intl.formatMessage(intlMessages.guestWait));
+  const [positionMessage, setPositionMessage] = useState(intl.formatMessage(intlMessages.calculating));
+  const lobbyMessageRef = useRef('');
+  const positionInWaitingQueueRef = useRef('');
+  const loadingContextInfo = useContext(LoadingContext);
+  const showPositionInWaitingQueue = window.meetingClientSettings
+    .public.app.showGuestLobbyWaitingQueuePosition !== false;
+
+  const updateLobbyMessage = useCallback((newMessage: string | null) => {
+    if (!newMessage) {
+      setMessage(intl.formatMessage(intlMessages.guestWait));
+      return;
+    }
+    if (newMessage !== lobbyMessageRef.current) {
+      lobbyMessageRef.current = newMessage;
+      if (lobbyMessageRef.current.length !== 0) {
+        setMessage(lobbyMessageRef.current);
+      } else {
+        setMessage(intl.formatMessage(intlMessages.guestWait));
+      }
+    }
+  }, [intl]);
+
+  const updatePositionInWaitingQueue = useCallback((newPositionInWaitingQueue: number) => {
+    if (positionInWaitingQueueRef.current !== newPositionInWaitingQueue.toString()) {
+      positionInWaitingQueueRef.current = newPositionInWaitingQueue.toString();
+      if (positionInWaitingQueueRef.current === '1') {
+        setPositionMessage(intl.formatMessage(intlMessages.firstPosition));
+      } else {
+        setPositionMessage(`${intl.formatMessage(intlMessages.position).trim()} ${positionInWaitingQueueRef.current}`);
+      }
+    }
+  }, [intl]);
+
+  useEffect(() => {
+    const lobbyTitle = intl.formatMessage(intlMessages.windowTitle);
+    if (meetingName) {
+      document.title = `${lobbyTitle} - ${meetingName}`;
+      return;
+    }
+    document.title = lobbyTitle;
+  }, [intl, meetingName, clientTitle]);
+
+  useEffect(() => {
+    const { sessionToken } = Auth;
+
+    if (loadingContextInfo.isLoading) {
+      loadingContextInfo.setLoading(false);
+    }
+
+    if (!sessionToken) {
+      setAnimate(false);
+      setMessage(intl.formatMessage(intlMessages.noSessionToken));
+      return;
+    }
+
+    if (!guestStatus) {
+      setAnimate(false);
+      setPositionMessage('');
+      setMessage(intl.formatMessage(intlMessages.guestInvalid));
+      return;
+    }
+
+    if (guestStatus === GUEST_STATUSES.ALLOW) {
+      setPositionMessage('');
+      updateLobbyMessage(intl.formatMessage(intlMessages.allow));
+      setAnimate(false);
+      return;
+    }
+
+    if (guestStatus === GUEST_STATUSES.DENY) {
+      setAnimate(false);
+      setPositionMessage('');
+      const reasonCode = JoinErrorCodeTable.GUEST_DENY;
+      const reason = intl.formatMessage(intlMessages[reasonCode]);
+      setMessage(reason);
+      setTimeout(() => {
+        const url = `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(reasonCode)}`;
+        window.location.assign(url);
+      }, REDIRECT_TIMEOUT);
+      return;
+    }
+
+    // WAIT
+    updateLobbyMessage(guestLobbyMessage || '');
+    if (showPositionInWaitingQueue && positionInWaitingQueue) {
+      updatePositionInWaitingQueue(positionInWaitingQueue);
+    }
+  }, [
+    guestLobbyMessage,
+    guestStatus,
+    logoutUrl,
+    positionInWaitingQueue,
+    intl,
+    showPositionInWaitingQueue,
+    updateLobbyMessage,
+    updatePositionInWaitingQueue,
+  ]);
+
+  return {
+    message,
+    positionMessage,
+    animate,
+    hasCustomMessage: !!guestLobbyMessage && guestLobbyMessage.length > 0,
+    showPositionInWaitingQueue,
+  };
+};
+
+export default useGuestWaitState;
