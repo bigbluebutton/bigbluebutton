@@ -7,6 +7,7 @@ import {
   createWasmProcessorStream,
   destroyWasmProcessor,
   getProviderForcedMicrophoneConstraints,
+  getWasmProcessorDefaultIntensity,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
@@ -19,6 +20,8 @@ const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
 const AUDIO_PROCESSING_MODES = ['advanced', 'standard', 'original'];
+const MIN_WASM_PROCESSING_INTENSITY = 0;
+const MAX_WASM_PROCESSING_INTENSITY = 100;
 
 const DISABLED_MICROPHONE_CONSTRAINTS = {
   autoGainControl: false,
@@ -158,6 +161,22 @@ const getWasmProcessingSettings = () => {
 };
 
 const isWasmProcessingConfigEnabled = () => !!getWasmProcessingSettings().enabled;
+
+// media.audio.audioWasmProcessing.intensity is admin-only config: there is no
+// user-facing control for it, so it is read fresh per processor rather than
+// tracked in Settings. Unset or unparseable falls back to whatever the
+// provider ships. Clamped because the value is free-form YAML and
+// _mapi_set_parameter takes whatever it is handed.
+const getWasmProcessingIntensity = () => {
+  const parsed = Number(getWasmProcessingSettings().intensity);
+
+  if (!Number.isFinite(parsed)) return getWasmProcessorDefaultIntensity();
+
+  return Math.min(
+    MAX_WASM_PROCESSING_INTENSITY,
+    Math.max(MIN_WASM_PROCESSING_INTENSITY, parsed),
+  );
+};
 
 const isAdvancedProcessingSupported = () => isWasmProcessorSupported()
   && isWasmProcessingConfigEnabled();
@@ -460,7 +479,9 @@ const doGUM = async (
     // device IDs that don't correspond to any real device.
     const realDeviceId = stream.getAudioTracks()[0]?.getSettings()?.deviceId;
 
-    const wasmProcessorStream = await createWasmProcessorStream(stream);
+    const wasmProcessorStream = await createWasmProcessorStream(stream, {
+      intensity: getWasmProcessingIntensity(),
+    });
 
     // Register the per-stream mapping from the processed tracks to the real
     // device ID for later resolution
@@ -538,4 +559,5 @@ export {
   isWasmProcessingEnabled,
   getConstraintsForMode,
   getEffectiveAudioProcessingMode,
+  getWasmProcessingIntensity,
 };

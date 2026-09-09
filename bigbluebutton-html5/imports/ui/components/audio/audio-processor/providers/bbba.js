@@ -18,7 +18,7 @@ const BBBA_PARAM = {
 };
 
 const BBBA_DEFAULTS = {
-  [BBBA_PARAM.INTENSITY]: 100,
+  [BBBA_PARAM.INTENSITY]: 95,
   [BBBA_PARAM.LEVELER_TARGET]: -18,
   [BBBA_PARAM.SB_STRENGTH]: 60,
   [BBBA_PARAM.MB_STRENGTH]: 60,
@@ -302,4 +302,10 @@ export default {
   loadFiles,
   createProcessorStream,
   forcedMicrophoneConstraints,
+  // Intensity is the only BBBA parameter an admin can retune from
+  // settings.yml. Advertised here rather than hardcoding index 7 at the call
+  // site, so a provider without such a knob - workadventureDtln - simply omits
+  // both and the config key becomes a no-op for it.
+  intensityParamIndex: BBBA_PARAM.INTENSITY,
+  defaultIntensity: BBBA_DEFAULTS[BBBA_PARAM.INTENSITY],
 };
