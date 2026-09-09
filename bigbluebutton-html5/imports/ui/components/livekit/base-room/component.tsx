@@ -9,12 +9,15 @@ import {
   DisconnectReason,
   LogLevel,
   RoomEvent,
-  setLogLevel,
   type Room,
   type InternalRoomOptions,
   type RoomConnectOptions,
 } from 'livekit-client';
 import logger from '/imports/startup/client/logger';
+import {
+  applyLiveKitSdkLogLevel,
+  installLiveKitSdkLogBridge,
+} from '/imports/ui/services/livekit/sdk-log-bridge';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import shouldForceRelay from '/imports/ui/components/livekit/utils';
@@ -36,6 +39,7 @@ interface BaseLiveKitRoomProps {
   bbbSessionToken: string;
   roomOptions: Partial<InternalRoomOptions>;
   logLevel?: LogLevel;
+  sdkLogBridge?: boolean;
   audio?: boolean;
   video?: boolean;
   withAutoSubscribe?: boolean;
@@ -66,6 +70,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   bbbSessionToken,
   roomOptions,
   logLevel,
+  sdkLogBridge = true,
   audio = false,
   video = false,
   withAutoSubscribe = true,
@@ -194,7 +199,13 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   }, [room, url, logPrefix, membershipKey]);
 
   useEffect(() => {
-    if (logLevel !== undefined) setLogLevel(logLevel);
+    if (!sdkLogBridge) return;
+
+    installLiveKitSdkLogBridge();
+  }, [sdkLogBridge]);
+
+  useEffect(() => {
+    if (logLevel !== undefined) applyLiveKitSdkLogLevel(logLevel);
   }, [logLevel]);
 
   useEffect(() => {

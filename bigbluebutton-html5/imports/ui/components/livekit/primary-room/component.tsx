@@ -201,6 +201,7 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
   // A fresh object per render would re-run the room-options effect downstream.
   const roomOptions = useMemo(() => resolveRoomOptions(configuredRoomOptions), [configuredRoomOptions]);
   const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? true;
+  const sdkLogBridge = meetingSettings.public.media?.livekit?.sdkLogBridge ?? true;
   const speakerLevel = useSpeakerLevel();
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
@@ -256,6 +257,7 @@ const PrimaryLiveKitRoom: React.FC<PrimaryLiveKitRoomProps> = ({ membership }) =
       bbbSessionToken={sessionToken}
       roomOptions={roomOptions}
       logLevel={logLevel}
+      sdkLogBridge={sdkLogBridge}
       audio={false}
       video={false}
       withAutoSubscribe={!withSelectiveSubscription}

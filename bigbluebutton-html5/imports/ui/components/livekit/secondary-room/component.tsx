@@ -55,6 +55,7 @@ const SecondaryLiveKitRoom: React.FC<SecondaryLiveKitRoomProps> = ({
   const speakerLevel = useSpeakerLevel();
   const url = meetingSettings.public.media?.livekit?.url ?? `wss://${window.location.hostname}/livekit`;
   const logLevel = meetingSettings.public.media?.livekit?.logLevel ?? LogLevel.warn;
+  const sdkLogBridge = meetingSettings.public.media?.livekit?.sdkLogBridge ?? true;
   const configuredRoomOptions = meetingSettings.public.media?.livekit?.roomOptions;
   // A fresh object per render would re-run the room-options effect downstream.
   const roomOptions = useMemo(() => resolveRoomOptions(configuredRoomOptions), [configuredRoomOptions]);
@@ -108,6 +109,7 @@ const SecondaryLiveKitRoom: React.FC<SecondaryLiveKitRoomProps> = ({
       bbbSessionToken={sessionToken}
       roomOptions={roomOptions}
       logLevel={logLevel}
+      sdkLogBridge={sdkLogBridge}
       audio={false}
       video={false}
       withAutoSubscribe
