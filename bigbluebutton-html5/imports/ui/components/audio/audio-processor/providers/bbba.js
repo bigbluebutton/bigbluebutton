@@ -212,24 +212,35 @@ const loadFiles = () => new Promise((resolve, reject) => {
     new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11]),
   );
 
+  // These three are fetched from fixed URLs, unlike the webpack bundle which
+  // carries a content hash and so can never go stale. Nothing sets
+  // Cache-Control on /html5client/wasm, so a browser is free to keep serving a
+  // cached copy after a redeploy - which pairs a NEW bundle with an OLD
+  // worklet. That combination is silently broken rather than merely outdated:
+  // the two disagree about the port protocol, every mapi_set_parameter call
+  // throws in the worklet, and the plugin keeps its built-in defaults with no
+  // signal on the main thread. 'no-cache' forces revalidation (a cheap 304
+  // when unchanged) instead of blind reuse.
+  const fetchOpts = { cache: 'no-cache' };
+
   // load wasm files and worklet
   const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
   const serverPathPrefix = pathMatch ? pathMatch[1] : '';
   const basepath = `${serverPathPrefix}/html5client/wasm/`;
   const suffix = supportsSIMD ? '' : '-nosimd';
-  fetch(`${basepath}BBBA${suffix}-mapi.wasm`).then((resp) => {
+  fetch(`${basepath}BBBA${suffix}-mapi.wasm`, fetchOpts).then((resp) => {
     resp.arrayBuffer().then((bytes) => {
       loadedFiles.wasmBlob = bytes;
       checkResolved();
     }).catch(catchHandler);
   }).catch(catchHandler);
-  fetch(`${basepath}BBBA${suffix}-mapi.js`).then((resp) => {
+  fetch(`${basepath}BBBA${suffix}-mapi.js`, fetchOpts).then((resp) => {
     resp.text().then((text) => {
       loadedFiles.wasmJS = text;
       checkResolved();
     }).catch(catchHandler);
   }).catch(catchHandler);
-  fetch(`${basepath}mapi-proc.js`).then((resp) => {
+  fetch(`${basepath}mapi-proc.js`, fetchOpts).then((resp) => {
     resp.text().then((text) => {
       loadedFiles.worklet = text;
       checkResolved();
