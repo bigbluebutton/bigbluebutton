@@ -372,7 +372,7 @@
     "app.presentation.options.minimize": "Minimizar",
     "app.presentation.options.snapshot": "Capturar slide atual",
     "app.presentation.options.downloading": "Downloading...",
-    "app.presentation.options.downloaded": "Donwload da apresentação atual encerrado",
+    "app.presentation.options.downloaded": "Download da apresentação atual encerrado",
     "app.presentation.options.downloadFailed": "Não foi possível fazer o download da apresentação atual",
     "app.presentation.presentationToolbar.noNextSlideDesc": "Fim da apresentação",
     "app.presentation.presentationToolbar.noPrevSlideDesc": "Início da apresentação",
