@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: ISC
 
 // known constants
-const maxSymbolLength = 255;
 const nominalBufferSize = 128;
 
 // function to setup wasm + emscripten module options for offline fetch
@@ -35,18 +34,11 @@ class MapiProcessorInstance {
         this.audioPtrs = module._malloc(module.HEAPU32.BYTES_PER_ELEMENT);
         module.HEAPU32[this.audioPtrs + (0 << 2) >> 2] = this.audioData;
 
-        this.csymbolData = module._malloc(maxSymbolLength);
     }
 
-    csymbol(symbol) {
-        const len = Math.min(maxSymbolLength, this.module.lengthBytesUTF8(symbol) + 1);
-        this.module.stringToUTF8(symbol, this.csymbolData, len);
-        return this.csymbolData;
-    }
-
-    // NOTE mapi_set_parameter takes a parameter INDEX, not a symbol. The
-    // indices are listed in index.html; passing a string pointer here silently
-    // does nothing and trips a DPF assertion.
+    // mapi_set_parameter addresses parameters by INDEX. The port message field
+    // is named 'index' for that reason: it used to be called 'symbol', which
+    // invited callers to pass a name and silently wrote parameter 0 instead.
     param(index, value) {
         this.module._mapi_set_parameter(this.handle, index, value);
     }
@@ -59,7 +51,6 @@ class MapiProcessorInstance {
             this.module._mapi_destroy(this.handle);
             this.module._free(this.audioData);
             this.module._free(this.audioPtrs);
-            this.module._free(this.csymbolData);
         } catch (err) {
             // module may already be gone; nothing useful to do here
         }
@@ -152,7 +143,7 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
             return;
         }
 
-        this.bbba.param(data.symbol, data.value);
+        this.bbba.param(data.index, data.value);
     }
 
     destroy() {

@@ -1,5 +1,31 @@
 import { isGenericWasmProcessingSupported } from '../wasmCapability';
 
+// mapi_set_parameter addresses parameters by INDEX, not by name. The order is
+// fixed by the Faust dsp and is exported in plugin/pregen/FaustPluginInfo.h of
+// the BigBlueBetterAudio repository:
+//   0 pre_gain  1 vad_ext  2 post_gain  3 leveler_target
+//   4 mb_strength  5 sb_strength  6 limiter_gain (output)
+// Extra parameters follow the Faust ones, so intensity is 7.
+// These must be revisited if the dsp parameter list ever changes.
+const BBBA_PARAM = {
+  PRE_GAIN: 0,
+  VAD_EXT: 1,
+  POST_GAIN: 2,
+  LEVELER_TARGET: 3,
+  MB_STRENGTH: 4,
+  SB_STRENGTH: 5,
+  INTENSITY: 7,
+};
+
+const BBBA_DEFAULTS = {
+  [BBBA_PARAM.INTENSITY]: 100,
+  [BBBA_PARAM.LEVELER_TARGET]: -18,
+  [BBBA_PARAM.SB_STRENGTH]: 60,
+  [BBBA_PARAM.MB_STRENGTH]: 60,
+  [BBBA_PARAM.PRE_GAIN]: 2,
+  [BBBA_PARAM.POST_GAIN]: 0,
+};
+
 // files loaded during loadFiles()
 const loadedFiles = {
   // store first caught error
@@ -14,16 +40,41 @@ const loadedFiles = {
 
 // create audio worklet or script processor
 // we rely on script processor because worklets must run at 128 block size, which is not possible on low-spec machines
+// Firefox implements createMediaStreamTrackSource, which taps the track rather
+// than going through the stream-level plumbing of createMediaStreamSource. That
+// is the better behaved path there; Chrome does not implement it.
+const createSourceNode = (audioContext, stream) => {
+  const track = stream.getAudioTracks()[0];
+  if (track && typeof audioContext.createMediaStreamTrackSource === 'function') {
+    try {
+      return audioContext.createMediaStreamTrackSource(track);
+    } catch (error) {
+      // fall through to the portable path
+    }
+  }
+  return audioContext.createMediaStreamSource(stream);
+};
+
 const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reject) => {
-  const contextSource = audioContext.createMediaStreamSource(stream);
+  const contextSource = createSourceNode(audioContext, stream);
   const contextDestination = audioContext.createMediaStreamDestination();
 
   if (!navigator.userAgent.match(/Android/i)) {
     // Using Audio Worklet
-    const processorBlob = new Blob([loadedFiles.worklet], { type: 'text/javascript' });
-    const processorURL = URL.createObjectURL(processorBlob);
+    // addModule re-runs the worklet script, and registerProcessor throws
+    // NotSupportedError on a duplicate name. Harmless while every call gets a
+    // fresh context, fatal the moment one is reused, so guard it per context.
+    const addModuleOnce = () => {
+      if (audioContext.__mapiModuleAdded) return Promise.resolve();
+      const processorBlob = new Blob([loadedFiles.worklet], { type: 'text/javascript' });
+      const processorURL = URL.createObjectURL(processorBlob);
+      return audioContext.audioWorklet.addModule(processorURL).then(() => {
+        audioContext.__mapiModuleAdded = true;
+        URL.revokeObjectURL(processorURL);
+      });
+    };
 
-    audioContext.audioWorklet.addModule(processorURL).then(() => {
+    addModuleOnce().then(() => {
       const audioProcessorOptions = {
         channelCount: 1,
         numberOfInputs: 1,
@@ -33,12 +84,9 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
       const processor = new AudioWorkletNode(audioContext, 'mapi-proc', audioProcessorOptions);
       processor.port.onmessage = (event) => {
         if (event.data?.type === 'loaded') {
-          processor.port.postMessage({ type: 'param', symbol: 'intensity', value: 100 });
-          processor.port.postMessage({ type: 'param', symbol: 'leveler_target', value: -18 });
-          processor.port.postMessage({ type: 'param', symbol: 'sb_strength', value: 60 });
-          processor.port.postMessage({ type: 'param', symbol: 'mb_strength', value: 60 });
-          processor.port.postMessage({ type: 'param', symbol: 'pre_gain', value: 2 });
-          processor.port.postMessage({ type: 'param', symbol: 'post_gain', value: 0 });
+          Object.entries(BBBA_DEFAULTS).forEach(([index, value]) => {
+            processor.port.postMessage({ type: 'param', index: Number(index), value });
+          });
 
           contextSource.connect(processor);
           processor.connect(contextDestination);
@@ -81,14 +129,6 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
       const audioPtrs = module._malloc(module.HEAPU32.BYTES_PER_ELEMENT);
       module.HEAPU32[(audioPtrs + (0 << 2)) >> 2] = audioData;
 
-      const maxSymbolLength = 255;
-      const csymbolData = module._malloc(maxSymbolLength);
-      const csymbol = (symbol) => {
-        const len = Math.min(maxSymbolLength, module.lengthBytesUTF8(symbol) + 1);
-        module.stringToUTF8(symbol, csymbolData, len);
-        return csymbolData;
-      };
-
       let enabled = true;
       processor.onaudioprocess = (e) => {
         if (!enabled) {
@@ -118,7 +158,7 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
               enabled = !!data.enable;
               break;
             case 'param':
-              module._mapi_set_parameter(handle, csymbol(data.symbol), data.value);
+              module._mapi_set_parameter(handle, data.index, data.value);
               break;
             case 'destroy':
               break;
@@ -127,6 +167,10 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
           }
         },
       };
+
+      Object.entries(BBBA_DEFAULTS).forEach(([index, value]) => {
+        module._mapi_set_parameter(handle, Number(index), value);
+      });
 
       contextSource.connect(processor);
       processor.connect(contextDestination);
@@ -196,10 +240,23 @@ const loadFiles = () => new Promise((resolve, reject) => {
 // create an audio processor on top of a stream, resolving to the contract
 // shape the audio-processor dispatcher expects from every provider
 const createProcessorStream = (stream) => new Promise((resolve, reject) => {
-  // fetch sampleRate from stream - BBBA runs at whatever rate the mic gives it
-  const { sampleRate } = stream.getAudioTracks()[0]?.getSettings() || {};
-
-  const audioContext = new AudioContext({ sampleRate });
+  // BBBA must run at 48 kHz: rnnoise is a 48 kHz model with a fixed 480-sample
+  // frame and the wasm build contains no resampler, so feeding it another rate
+  // degrades the denoising. Ask the context for 48 kHz and let the browser
+  // resample the capture. Note this cannot be taken from the track: Firefox
+  // does not report sampleRate in getSettings(), so the previous code resolved
+  // to { sampleRate: undefined } and silently fell back to the device rate.
+  let audioContext;
+  try {
+    audioContext = new AudioContext({ sampleRate: 48000 });
+  } catch (error) {
+    // a browser may refuse an explicit rate; carry on rather than fail outright
+    audioContext = new AudioContext();
+  }
+  if (audioContext.sampleRate !== 48000) {
+    // eslint-disable-next-line no-console
+    console.warn(`BBBA: AudioContext is at ${audioContext.sampleRate} Hz, rnnoise expects 48000 Hz`);
+  }
   const closeAndReject = (error) => {
     audioContext.close?.().catch(() => {});
     reject(error);
