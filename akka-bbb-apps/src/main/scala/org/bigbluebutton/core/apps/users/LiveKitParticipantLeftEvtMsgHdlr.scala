@@ -3,9 +3,8 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.db.ScreenshareDAO
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, Webcams }
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -53,10 +52,6 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
           leftVoiceConf = true
         )
         outGW.send(eventUserVoiceStatus)
-      }
-
-      Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
-        CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, meetingId, userId, webcam.streamId, outGW)
       }
 
       if (isPresenter && ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
