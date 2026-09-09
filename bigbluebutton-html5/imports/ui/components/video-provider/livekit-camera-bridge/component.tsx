@@ -439,7 +439,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const stream = publication.trackName;
       bridgeRefs.current.remoteTracks[stream] = track;
       attachLiveKitStream(stream);
-      logger.debug({
+      logger.info({
         logCode: 'livekit_camera_subscribed',
         extraInfo: {
           cameraId: stream,
@@ -461,7 +461,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     bridgeRefs.current.subscriptions.delete(trackSid);
     const stream = publication?.trackName;
 
-    logger.debug({
+    logger.info({
       logCode: 'livekit_camera_unsubscribed',
       extraInfo: {
         cameraId: stream,
