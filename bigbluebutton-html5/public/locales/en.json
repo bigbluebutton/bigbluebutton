@@ -765,6 +765,8 @@
     "app.submenu.audio.advancedFiltering": "Advanced Filtering",
     "app.submenu.audio.advancedFilteringDesc": "Isolates your voice and eliminates background noise. Ideal for classrooms, busy environments, or external noise.",
     "app.submenu.audio.advancedFilteringDisabledReason": "Not supported by your browser.",
+    "app.submenu.audio.advancedFilteringIntensity": "Filtering intensity",
+    "app.submenu.audio.advancedFilteringIntensityDesc": "Higher values remove more background noise. Lower values keep more of your original sound.",
     "app.submenu.audio.standardFiltering": "Standard Filtering",
     "app.submenu.audio.standardFilteringDesc": "Reduces noise while maintaining a natural sound. Ideal for everyday use.",
     "app.submenu.audio.originalAudio": "Original Audio",

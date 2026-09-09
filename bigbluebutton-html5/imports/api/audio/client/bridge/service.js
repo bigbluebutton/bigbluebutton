@@ -7,9 +7,12 @@ import {
   createWasmProcessorStream,
   destroyWasmProcessor,
   getProviderForcedMicrophoneConstraints,
+  getWasmProcessorDefaultIntensity,
+  isWasmProcessorIntensitySupported,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
+  setWasmProcessorIntensity,
 } from '/imports/ui/components/audio/audio-processor/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
@@ -19,6 +22,8 @@ const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
 const AUDIO_PROCESSING_MODES = ['advanced', 'standard', 'original'];
+const MIN_PROCESSING_INTENSITY = 0;
+const MAX_PROCESSING_INTENSITY = 100;
 
 const DISABLED_MICROPHONE_CONSTRAINTS = {
   autoGainControl: false,
@@ -237,6 +242,25 @@ const getEffectiveAudioProcessingMode = () => {
   }
 
   return getDefaultAudioProcessingMode();
+};
+
+// Resolves the advanced-filtering intensity the way getEffectiveAudioProcessingMode
+// resolves the mode: the user's persisted pick first, then the admin default in
+// defaultSettings.audio.processingIntensity, then whatever the provider itself
+// ships as its default. Clamped, because both of the earlier sources are
+// free-form and _mapi_set_parameter takes whatever it is handed.
+const getEffectiveAudioProcessingIntensity = () => {
+  const Settings = getSettingsSingletonInstance();
+  const configuredDefault = window.meetingClientSettings.public.app
+    .defaultSettings.audio.processingIntensity;
+  const candidate = hasPersistedChange(SETTINGS.AUDIO, 'processingIntensity')
+    ? Settings.audio.processingIntensity
+    : configuredDefault;
+  const parsed = Number(candidate);
+
+  if (!Number.isFinite(parsed)) return getWasmProcessorDefaultIntensity();
+
+  return Math.min(MAX_PROCESSING_INTENSITY, Math.max(MIN_PROCESSING_INTENSITY, parsed));
 };
 
 const getAudioConstraints = (constraintFields = {}) => {
@@ -460,7 +484,9 @@ const doGUM = async (
     // device IDs that don't correspond to any real device.
     const realDeviceId = stream.getAudioTracks()[0]?.getSettings()?.deviceId;
 
-    const wasmProcessorStream = await createWasmProcessorStream(stream);
+    const wasmProcessorStream = await createWasmProcessorStream(stream, {
+      intensity: getEffectiveAudioProcessingIntensity(),
+    });
 
     // Register the per-stream mapping from the processed tracks to the real
     // device ID for later resolution
@@ -538,4 +564,9 @@ export {
   isWasmProcessingEnabled,
   getConstraintsForMode,
   getEffectiveAudioProcessingMode,
+  getEffectiveAudioProcessingIntensity,
+  isWasmProcessorIntensitySupported,
+  setWasmProcessorIntensity,
+  MIN_PROCESSING_INTENSITY,
+  MAX_PROCESSING_INTENSITY,
 };

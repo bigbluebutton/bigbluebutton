@@ -18,6 +18,7 @@ export interface AudioSettings {
 
 export interface AudioProcessingSettings {
   processingMode?: AudioFilterMode;
+  processingIntensity?: number;
   [key: string]: unknown;
 }
 
@@ -41,4 +42,5 @@ export interface AudioMenuState {
   settings: AudioSettings;
   audioSettings: AudioProcessingSettings;
   audioFilterMode: AudioFilterMode;
+  audioFilterIntensity: number;
 }

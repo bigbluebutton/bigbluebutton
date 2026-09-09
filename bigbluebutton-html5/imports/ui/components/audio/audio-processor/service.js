@@ -31,10 +31,19 @@ const isWasmProcessorSupported = () => getActiveProvider().isSupported();
 
 const loadWasmProcessorFiles = () => getActiveProvider().loadFiles();
 
-const createWasmProcessorStream = async (stream) => {
+// The provider seeds its own defaults on load; a user-chosen intensity has to
+// be re-applied to every processor that gets built, not just the primary one,
+// or a device switch/rejoin silently reverts to the provider default.
+const createWasmProcessorStream = async (stream, { intensity } = {}) => {
   const {
     stream: outputStream, context, setEnabled, destroy, setParameter,
   } = await getActiveProvider().createProcessorStream(stream);
+
+  const { intensityParamIndex } = getActiveProvider();
+
+  if (typeof intensity === 'number' && typeof intensityParamIndex === 'number') {
+    setParameter?.(intensityParamIndex, intensity);
+  }
 
   processorRegistry.set(outputStream.id, {
     context,
@@ -79,6 +88,20 @@ const setWasmProcessorParameter = (index, value) => {
   activeProviderControl?.setParameter?.(index, value);
 };
 
+// Whether the active provider exposes a user-facing intensity knob at all.
+const isWasmProcessorIntensitySupported = () => typeof getActiveProvider()
+  .intensityParamIndex === 'number';
+
+const getWasmProcessorDefaultIntensity = () => getActiveProvider().defaultIntensity;
+
+const setWasmProcessorIntensity = (value) => {
+  const { intensityParamIndex } = getActiveProvider();
+
+  if (typeof intensityParamIndex !== 'number') return;
+
+  setWasmProcessorParameter(intensityParamIndex, value);
+};
+
 export {
   adoptWasmProcessor,
   createWasmProcessorStream,
@@ -87,6 +110,9 @@ export {
   getProviderForcedMicrophoneConstraints,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
+  getWasmProcessorDefaultIntensity,
+  isWasmProcessorIntensitySupported,
   setWasmProcessorEnabled,
+  setWasmProcessorIntensity,
   setWasmProcessorParameter,
 };

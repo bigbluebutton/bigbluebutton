@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Radio, RadioGroup } from '@mui/material';
+import { Radio, RadioGroup, Slider } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
 import {
   appsPanelTextColor,
@@ -99,6 +99,46 @@ const FilterOption = styled.label`
   }
 `;
 
+// Indented to read as belonging to the Advanced Filtering radio above it,
+// lining up with that option's label rather than its radio.
+const IntensityControl = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.5rem 0 2rem;
+`;
+
+const IntensityLabel = styled.div`
+  color: ${appsPanelTextColor};
+  font-size: ${fontSizeSmall};
+  font-style: normal;
+  font-weight: ${headingsFontWeight};
+  line-height: normal;
+`;
+
+const IntensityDescription = styled.p`
+  margin: 0;
+  color: ${appsPanelTextColor};
+  font-size: ${fontSizeSmall};
+  font-style: normal;
+  font-weight: ${textFontWeight};
+  line-height: normal;
+`;
+
+const IntensitySlider = styled(Slider)`
+  color: ${colorPrimary};
+  margin: 0;
+
+  & .MuiSlider-thumb {
+    height: 1rem;
+    width: 1rem;
+  }
+
+  & .MuiSlider-track {
+    height: 5px;
+  }
+`;
+
 export default {
   Form,
   AudioMenuContainer,
@@ -110,4 +150,8 @@ export default {
   FilterOptionHeader,
   FilterOptionTitle,
   FilterOptionDescription,
+  IntensityControl,
+  IntensityLabel,
+  IntensityDescription,
+  IntensitySlider,
 };
