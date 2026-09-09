@@ -325,8 +325,25 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }
   };
 
+  const findRemoteCameraPublication = (stream: string): RemoteTrackPublication | undefined => {
+    let found: RemoteTrackPublication | undefined;
+
+    liveKitRoomRegistry.getPrimary()?.remoteParticipants.forEach((participant: RemoteParticipant) => {
+      participant.videoTrackPublications.forEach((publication: RemoteTrackPublication) => {
+        if (!found && lkIsCameraSource(publication) && publication.trackName === stream) found = publication;
+      });
+    });
+
+    return found;
+  };
+
   const subscribeToRemotePub = (stream: string) => {
-    const publication = bridgeRefs.current.publications.get(stream) as RemoteTrackPublication;
+    // Pull the remote publish fresh to avoid staleness during reconnects
+    const remotePub = findRemoteCameraPublication(stream);
+    const publication = remotePub
+      ?? (bridgeRefs.current.publications.get(stream) as RemoteTrackPublication | undefined);
+
+    if (remotePub) bridgeRefs.current.publications.set(stream, remotePub);
 
     // If a publication is not present yet, it will be added when we receive
     // the publish event from the server and this function will be called again
@@ -474,9 +491,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   };
 
   const handleTrackPublished = useCallback((publication: RemoteTrackPublication) => {
-    const { trackName } = publication;
+    const { trackName, trackSid } = publication;
 
-    if (!lkIsCameraSource(publication) || bridgeRefs.current.publications.has(trackName)) return;
+    if (!lkIsCameraSource(publication)) return;
+    // A republished stream carries a new sid; let it replace the cached entry.
+    if (bridgeRefs.current.publications.get(trackName)?.trackSid === trackSid) return;
 
     bridgeRefs.current.publications.set(trackName, publication);
 
