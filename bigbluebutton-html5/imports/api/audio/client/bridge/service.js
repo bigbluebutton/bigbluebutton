@@ -479,9 +479,9 @@ const doGUM = async (
     // device IDs that don't correspond to any real device.
     const realDeviceId = stream.getAudioTracks()[0]?.getSettings()?.deviceId;
 
-    const wasmProcessorStream = await createWasmProcessorStream(stream, {
-      intensity: getWasmProcessingIntensity(),
-    });
+    const configuredIntensity = getWasmProcessingSettings().intensity;
+    const intensity = getWasmProcessingIntensity();
+    const wasmProcessorStream = await createWasmProcessorStream(stream, { intensity });
 
     // Register the per-stream mapping from the processed tracks to the real
     // device ID for later resolution
@@ -501,6 +501,11 @@ const doGUM = async (
         originalTrackDeviceId: realDeviceId ?? 'N/A',
         processedTrackDeviceId: wasmProcessorStream.getAudioTracks()[0]?.getSettings()?.deviceId ?? 'N/A',
         registeredRealDeviceId: realDeviceId ?? 'N/A',
+        // `configured` undefined means the key never reached the browser:
+        // client settings are snapshotted into the meeting at creation, so an
+        // edited settings.yml needs a bbb-web restart AND a new meeting.
+        intensity,
+        configuredIntensity: configuredIntensity ?? 'unset (using provider default)',
       },
     }, 'Audio: createWasmProcessorStream succeeded');
 
