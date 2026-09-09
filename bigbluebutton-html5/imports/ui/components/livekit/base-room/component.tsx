@@ -18,6 +18,7 @@ import {
   applyLiveKitSdkLogLevel,
   installLiveKitSdkLogBridge,
 } from '/imports/ui/services/livekit/sdk-log-bridge';
+import { probeSubscriberNegotiation } from '/imports/ui/services/livekit/negotiation-probe';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import shouldForceRelay from '/imports/ui/components/livekit/utils';
@@ -44,6 +45,8 @@ interface BaseLiveKitRoomProps {
   video?: boolean;
   withAutoSubscribe?: boolean;
   reconnectOnFatalFailures?: boolean;
+  // Instrumentation to track subscriber offers the server sends this room. Off by default.
+  probeNegotiation?: boolean;
   logPrefix: string;
   maxConnAttempts?: number;
   // Invoked once when reconnect attempts are exhausted (connAttempts reaches
@@ -75,6 +78,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   video = false,
   withAutoSubscribe = true,
   reconnectOnFatalFailures = true,
+  probeNegotiation = false,
   logPrefix,
   maxConnAttempts = DEFAULT_MAX_CONN_ATTEMPTS,
   onReconnectExhausted,
@@ -203,6 +207,20 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
 
     installLiveKitSdkLogBridge();
   }, [sdkLogBridge]);
+
+  // Reactivate the negotiation probe on a reconnection/room re-creation
+  useEffect(() => {
+    if (!probeNegotiation) return undefined;
+
+    const probe = () => probeSubscriberNegotiation(room, logPrefix);
+
+    probe();
+    room.on(RoomEvent.SignalConnected, probe);
+
+    return () => {
+      room.off(RoomEvent.SignalConnected, probe);
+    };
+  }, [room, logPrefix, probeNegotiation]);
 
   useEffect(() => {
     if (logLevel !== undefined) applyLiveKitSdkLogLevel(logLevel);
