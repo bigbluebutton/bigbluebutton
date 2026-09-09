@@ -44,12 +44,30 @@ class MapiProcessorInstance {
         return this.csymbolData;
     }
 
-    param(symbol, value) {
-        this.module._mapi_set_parameter(this.handle, this.csymbol(symbol), value);
+    // NOTE mapi_set_parameter takes a parameter INDEX, not a symbol. The
+    // indices are listed in index.html; passing a string pointer here silently
+    // does nothing and trips a DPF assertion.
+    param(index, value) {
+        this.module._mapi_set_parameter(this.handle, index, value);
+    }
+
+    // release the plugin instance and its heap allocations
+    destroy() {
+        if (! this.handle)
+            return;
+        try {
+            this.module._mapi_destroy(this.handle);
+            this.module._free(this.audioData);
+            this.module._free(this.audioPtrs);
+            this.module._free(this.csymbolData);
+        } catch (err) {
+            // module may already be gone; nothing useful to do here
+        }
+        this.handle = 0;
     }
 
     process(buffer, bufferSize, bufferOffset) {
-        if (! this.enabled)
+        if (! this.enabled || ! this.handle)
             return;
 
         for (let i = 0; i < bufferSize; ++i)
@@ -139,6 +157,8 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
 
     destroy() {
         this.disconnected = true;
+        if (this.bbba)
+            this.bbba.destroy();
         this.bbba = null;
     }
 
@@ -151,8 +171,9 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
         const input = inputs[0];
         const output = outputs[0];
 
-        // IO check, can be zero if stream is not connected yet
-        if (input.length == 0 || output.length == 0)
+        // IO check, can be zero if stream is not connected yet, or if the node
+        // has been taken out of the graph
+        if (input.length == 0 || output.length == 0 || ! input[0] || ! output[0])
             return true;
 
         // use in-place processing
