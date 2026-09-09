@@ -135,6 +135,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     ],
   });
   const [meetingSettings] = useMeetingSettings();
+  const watchedRemoteTracks = useRef(new WeakSet<MediaStreamTrack>());
   const bridgeRefs = useRef<LiveKitCameraBridgeRefs>({
     remoteTracks: {},
     localTracks: {},
@@ -442,6 +443,36 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     }
   }, [handleLocalStreamInactive, handleStreamFailure, playStart]);
 
+  const watchRemoteTrackEnd = (mediaStreamTrack: MediaStreamTrack) => {
+    if (mediaStreamTrack == null) return;
+    if (watchedRemoteTracks.current.has(mediaStreamTrack)) return;
+
+    watchedRemoteTracks.current.add(mediaStreamTrack);
+
+    const onEnded = () => {
+      const carried = Object.entries(bridgeRefs.current.remoteTracks)
+        .find(([, track]) => track.mediaStreamTrack === mediaStreamTrack);
+
+      if (!carried) return;
+
+      const [stream, track] = carried;
+      logger.debug({
+        logCode: 'livekit_camera_track_ended',
+        extraInfo: { cameraId: stream, trackSid: track.sid },
+      }, `LiveKit: camera track ended - ${track.sid}`);
+
+      // Failed makes the camera container render the placeholder instead
+      notifyStreamStateChange(stream, 'failed');
+    };
+
+    if (mediaStreamTrack.readyState === 'ended') {
+      onEnded();
+      return;
+    }
+
+    mediaStreamTrack.addEventListener('ended', onEnded, { once: true });
+  };
+
   const handleTrackSubscribed = (
     track: RemoteTrack,
     publication: RemoteTrackPublication,
@@ -456,6 +487,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const stream = publication.trackName;
       bridgeRefs.current.remoteTracks[stream] = track;
       attachLiveKitStream(stream);
+      watchRemoteTrackEnd(track?.mediaStreamTrack);
       logger.info({
         logCode: 'livekit_camera_subscribed',
         extraInfo: {
@@ -486,6 +518,9 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         trackSid: publication.trackSid,
       },
     }, `LiveKit: camera unsubscribed - ${trackSid}`);
+
+    // Failed makes the camera container render the placeholder instead
+    notifyStreamStateChange(stream, 'failed');
 
     delete bridgeRefs.current.remoteTracks[stream];
   };
