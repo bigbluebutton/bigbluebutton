@@ -4,8 +4,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.models.{ VoiceUsers, Users2x }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.models.Webcams
-import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.db.ScreenshareDAO
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
@@ -56,17 +54,6 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
       )
       outGW.send(eventUserVoiceStatus)
 
-    }
-
-    // Clean up any webcams associated with the user
-    Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
-      CameraHdlrHelpers.stopBroadcastedCam(
-        liveMeeting,
-        meetingId,
-        userId,
-        webcam.streamId,
-        outGW
-      )
     }
 
     // Clean up any screenshare associated with the user
