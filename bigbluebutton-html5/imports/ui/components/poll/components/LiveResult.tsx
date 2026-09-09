@@ -77,7 +77,7 @@ interface LiveResultProps {
   questionText: string;
   responses: Array<ResponseInfo>;
   usersCount: number;
-  numberOfAnswerCount: number;
+  respondedUsersCount: number;
   animations: boolean;
   users: Array<UserInfo>;
   isSecret: boolean;
@@ -89,7 +89,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
   usersCount,
-  numberOfAnswerCount,
+  respondedUsersCount,
   animations,
   users,
   isSecret,
@@ -116,18 +116,18 @@ const LiveResult: React.FC<LiveResultProps> = ({
       </Styled.Instructions>
       <Styled.Stats>
         {questionText ? <Styled.Title data-test="currentPollQuestion">{questionText}</Styled.Title> : null}
-        <Styled.Status>
-          {usersCount !== numberOfAnswerCount
+        <Styled.Status data-test="pollStatus">
+          {usersCount !== respondedUsersCount
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  current: numberOfAnswerCount,
+                  current: respondedUsersCount,
                   total: usersCount,
                 })} `}
               </span>
             )
             : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {usersCount !== numberOfAnswerCount
+          {usersCount !== respondedUsersCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
         <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
@@ -209,7 +209,7 @@ const LiveResultContainer: React.FC = () => {
     currentPoll,
     loading: currentPollLoading,
     error: currentPollDataError,
-    numberOfAnswerCount,
+    respondedUsersCount,
     usersCount,
   } = useCurrentPoll();
 
@@ -249,7 +249,7 @@ const LiveResultContainer: React.FC = () => {
       responses={responses}
       isSecret={isSecret}
       usersCount={usersCount}
-      numberOfAnswerCount={numberOfAnswerCount}
+      respondedUsersCount={respondedUsersCount}
       animations={animations}
       users={users}
       isQuiz={isQuiz}

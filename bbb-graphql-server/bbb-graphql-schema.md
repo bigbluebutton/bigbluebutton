@@ -422,6 +422,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `createdAt`
 - `ended`
 - `multipleResponses`
+- `numResponders`
 - `ownerId`
 - `pollId`
 - `published`

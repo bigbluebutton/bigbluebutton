@@ -2,7 +2,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { getCurrentPollData, getCurrentPollDataResponse } from './queries';
 
 /**
- * The running poll, plus the two aggregates every consumer needs.
+ * The running poll, plus the two counts every consumer needs.
  *
  * The results view and the footer actions are rendered in different subtrees but describe
  * the same poll, so they read it through here rather than each unpacking the subscription
@@ -21,7 +21,7 @@ const useCurrentPoll = () => {
     currentPoll,
     loading,
     error,
-    numberOfAnswerCount: currentPoll?.responses_aggregate.aggregate.sum.optionResponsesCount ?? 0,
+    respondedUsersCount: currentPoll?.numResponders ?? 0,
     usersCount: currentPoll?.users_aggregate.aggregate.count ?? 0,
   };
 };

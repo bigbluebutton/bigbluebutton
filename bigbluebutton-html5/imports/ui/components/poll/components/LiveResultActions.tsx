@@ -40,7 +40,7 @@ const LiveResultActions: React.FC = () => {
   const [shouldShowCorrectAnswer, setShouldShowCorrectAnswers] = useState(true);
   const layoutContextDispatch = layoutDispatch();
 
-  const { currentPoll, numberOfAnswerCount } = useCurrentPoll();
+  const { currentPoll, respondedUsersCount } = useCurrentPoll();
 
   const publishPoll = useCallback((pId: string, showAnswer: boolean) => {
     pollPublishResult({
@@ -79,7 +79,7 @@ const LiveResultActions: React.FC = () => {
           label={intl.formatMessage(intlMessages.publishLabel)}
           variant="primary"
           color="default"
-          disabled={numberOfAnswerCount <= 0}
+          disabled={respondedUsersCount <= 0}
           onClick={() => {
             Session.setItem('pollInitiated', false);
             publishPoll(pollId, shouldShowCorrectAnswer);
