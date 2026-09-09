@@ -12,7 +12,7 @@ import {
 import {
   PresentationToolbarItemType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-toolbar-item/enums';
-import Styled from './styles';
+import Styled, { COMPACT_ATTRIBUTE } from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -119,10 +119,16 @@ class PresentationToolbar extends PureComponent {
     this.fullscreenToggleHandler = this.fullscreenToggleHandler.bind(this);
     this.switchSlide = this.switchSlide.bind(this);
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
+    this.updateCompactMode = this.updateCompactMode.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener('keydown', this.switchSlide);
+    this.updateCompactMode();
+  }
+
+  componentDidUpdate() {
+    this.updateCompactMode();
   }
 
   componentWillUnmount() {
@@ -149,6 +155,20 @@ class PresentationToolbar extends PureComponent {
       return setMultiUserWhiteboardDisabled();
     }
     return setMultiUserWhiteboardEnabled();
+  }
+
+  updateCompactMode() {
+    const { toolbarWidth } = this.props;
+    const { wrapper } = this;
+
+    if (!wrapper || !toolbarWidth) return;
+
+    wrapper.setAttribute(COMPACT_ATTRIBUTE, 'false');
+    const widthNeeded = wrapper.scrollWidth;
+
+    const isCompact = widthNeeded > Math.floor(toolbarWidth) + 1;
+
+    wrapper.setAttribute(COMPACT_ATTRIBUTE, isCompact.toString());
   }
 
   disableInfiniteWhiteboard() {
@@ -387,6 +407,7 @@ class PresentationToolbar extends PureComponent {
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
+        ref={(ref) => { this.wrapper = ref; }}
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
@@ -511,19 +532,21 @@ class PresentationToolbar extends PureComponent {
             <Styled.MUTPlaceholder />
           )}
           {!isMobile ? (
-            <TooltipContainer>
-              <ZoomTool
-                slidePosition={slidePosition}
-                zoomValue={zoom}
-                currentSlideNum={currentSlideNum}
-                change={this.change}
-                minBound={isInfiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT}
-                maxBound={MAX_PERCENT}
-                step={STEP}
-                isInfiniteWhiteboard={isInfiniteWhiteboard}
-                isConnected={isConnected}
-              />
-            </TooltipContainer>
+            <Styled.ZoomToolWrapper>
+              <TooltipContainer>
+                <ZoomTool
+                  slidePosition={slidePosition}
+                  zoomValue={zoom}
+                  currentSlideNum={currentSlideNum}
+                  change={this.change}
+                  minBound={isInfiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT}
+                  maxBound={MAX_PERCENT}
+                  step={STEP}
+                  isInfiniteWhiteboard={isInfiniteWhiteboard}
+                  isConnected={isConnected}
+                />
+              </TooltipContainer>
+            </Styled.ZoomToolWrapper>
           ) : null}
           <Styled.FitToWidthButton
             role="button"
@@ -591,10 +614,12 @@ PresentationToolbar.propTypes = {
   maxNumberOfActiveUsers: PropTypes.number.isRequired,
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  toolbarWidth: PropTypes.number,
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
+  toolbarWidth: 0,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));
