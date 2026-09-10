@@ -31,7 +31,7 @@ object Boot extends App with SystemConfiguration with WebApi {
 
   val eslConnection = new DefaultManagerConnection(eslHost, eslPort, eslPassword)
 
-  val healthz = HealthzService(system)
+  val healthz = HealthzService(system, eslEnabled)
 
   val voiceConfService = new VoiceConferenceService(healthz, redisPublisher)
 
@@ -41,7 +41,11 @@ object Boot extends App with SystemConfiguration with WebApi {
   val eslEventListener = new ESLEventListener(fsConfEventListener)
   val connManager = new ConnectionManager(eslConnection, eslEventListener, fsConfEventListener)
 
-  connManager.start()
+  if (eslEnabled) {
+    connManager.start()
+  } else {
+    System.out.println("FreeSWITCH ESL disabled (freeswitch.esl.enabled=false)")
+  }
 
   val fsApplication = new FreeswitchApplication(connManager, fsProfile)
   fsApplication.start()

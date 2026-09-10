@@ -23,14 +23,14 @@ case class FreeswitchStatus(lastUpdateOn: Long, lastUpdateOnHuman: String, statu
 case class FreeswitchHeartbeat(lastUpdateOn: Long, lastUpdateOnHuman: String, heartbeat: Map[String, String])
 
 object HealthzService {
-  def apply(system: ActorSystem) = new HealthzService(system)
+  def apply(system: ActorSystem, eslEnabled: Boolean = true) = new HealthzService(system, eslEnabled)
 }
 
-class HealthzService(system: ActorSystem) {
+class HealthzService(system: ActorSystem, eslEnabled: Boolean) {
   implicit def executionContext = system.dispatcher
   implicit val timeout: Timeout = 2.seconds
 
-  val actorRef = system.actorOf(HealthzActor.props())
+  val actorRef = system.actorOf(HealthzActor.props(eslEnabled))
 
   def getHealthz(): Future[GetHealthResponseMessage] = {
     val future = actorRef.ask(GetHealthMessage).mapTo[GetHealthResponseMessage]
@@ -56,10 +56,10 @@ class HealthzService(system: ActorSystem) {
 }
 
 object HealthzActor {
-  def props(): Props = Props(classOf[HealthzActor])
+  def props(eslEnabled: Boolean = true): Props = Props(classOf[HealthzActor], eslEnabled)
 }
 
-class HealthzActor extends Actor
+class HealthzActor(eslEnabled: Boolean) extends Actor
   with ActorLogging {
 
   val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
@@ -77,12 +77,16 @@ class HealthzActor extends Actor
       val now = System.currentTimeMillis()
       heartbeat = FreeswitchHeartbeat(now, sdf.format(now), msg.status)
     case GetHealthMessage =>
-      val now = System.currentTimeMillis()
-      if ((now - heartbeat.lastUpdateOn < twoMins) &&
-        (now - status.lastUpdateOn < twoMins)) {
+      if (!eslEnabled) {
         sender ! GetHealthResponseMessage(isHealthy = true)
       } else {
-        sender ! GetHealthResponseMessage(isHealthy = false)
+        val now = System.currentTimeMillis()
+        if ((now - heartbeat.lastUpdateOn < twoMins) &&
+          (now - status.lastUpdateOn < twoMins)) {
+          sender ! GetHealthResponseMessage(isHealthy = true)
+        } else {
+          sender ! GetHealthResponseMessage(isHealthy = false)
+        }
       }
     case GetFreeswitchStatusMessage =>
       sender ! GetFreeswitchStatusResponseMessage(status.status.toArray, heartbeat.heartbeat)
