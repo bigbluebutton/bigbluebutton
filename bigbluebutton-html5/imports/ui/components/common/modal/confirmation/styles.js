@@ -1,8 +1,6 @@
 import styled from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
-  smPaddingX,
   mdPaddingX,
   lgPaddingY,
   jumboPaddingY,
@@ -46,22 +44,9 @@ const Checkbox = styled.input`
 `;
 
 const Footer = styled.div`
-  display:flex;
+  display: flex;
+  gap: 0.75rem;
   margin-bottom: ${lgPaddingY};
-`;
-
-const ConfirmationButton = styled(Button)`
-  padding-right: ${jumboPaddingY};
-  padding-left: ${jumboPaddingY};
-  margin: 0 ${smPaddingX} 0 0;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${smPaddingX};
-  }
-`;
-
-const CancelButton = styled(ConfirmationButton)`
-  margin: 0;
 `;
 
 const Label = styled.label`
@@ -75,7 +60,5 @@ export default {
   DescriptionText,
   Checkbox,
   Footer,
-  ConfirmationButton,
-  CancelButton,
   Label,
 };

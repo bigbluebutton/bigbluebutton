@@ -20,6 +20,11 @@ const usePushLayoutUpdater = (pushLayout: boolean) => {
       variables: {
         syncWithPresenterLayout: pushLayout,
       },
+    }).catch((error) => {
+      logger.error({
+        logCode: 'set_sync_with_presenter_layout_failed',
+        extraInfo: { error: error?.message },
+      }, 'Failed to set sync with presenter layout.');
     });
   };
 
@@ -51,6 +56,11 @@ const useMeetingLayoutUpdater = (
         focusedCamera: focusedId || 'none',
         presentationVideoRate: calculatePresentationVideoRate(propagatedCameraDock),
       },
+    }).catch((error) => {
+      logger.error({
+        logCode: 'set_meeting_layout_props_failed',
+        extraInfo: { error: error?.message },
+      }, 'Failed to set meeting layout properties.');
     });
   };
 

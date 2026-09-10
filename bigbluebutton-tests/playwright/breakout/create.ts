@@ -2,6 +2,7 @@ import { expect, Page as PlaywrightPage } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { uploadOversizedPresentation, uploadSinglePresentation } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
 
 export class Create extends MultiUsers {
@@ -478,5 +479,47 @@ export class Create extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+  }
+
+  async rejectedPresentationDoesNotEnableSlideSelection() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
+    await uploadOversizedPresentation(this.modPage, e.rejectedPresentationFileName);
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.hasElement(
+      e.createBreakoutRoomsButton,
+      'should display the breakout room creation panel',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    // default.pdf is the only accepted presentation, so there is nothing to choose from
+    await this.modPage.wasRemoved(
+      e.changeSlideBreakoutRoom1,
+      'should not display the slide selection when the only other presentation was rejected on upload',
+    );
+  }
+
+  async rejectedPresentationIsNotOfferedAsBreakoutSlide() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await this.modPage.closeAllToastNotifications();
+    await uploadOversizedPresentation(this.modPage, e.rejectedPresentationFileName);
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.changeSlideBreakoutRoom1, ELEMENT_WAIT_LONGER_TIME);
+    const listbox = this.modPage.page.locator('ul[role="listbox"]');
+    await expect(
+      listbox.locator('li[role="option"]'),
+      'should display 3 available options on presentation selection (current slide, default and the accepted presentation)',
+    ).toHaveCount(3);
+    await expect(
+      listbox.locator('li[role="option"]', { hasText: e.rejectedPresentationFileName }),
+      'should not offer the rejected presentation as a breakout room slide',
+    ).toHaveCount(0);
   }
 }

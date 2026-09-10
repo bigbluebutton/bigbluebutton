@@ -3,9 +3,11 @@ import {
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
+  PANELS,
   SYNC,
   PRESENTATION_AREA,
 } from './enums';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
@@ -25,6 +27,25 @@ const isDesktop = () => windowSize() >= tabletLandscapeUpperBoundary;
 const getWaitLayout = () => {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(WAIT_LAYOUT_PARAMETER) || false;
+};
+
+/**
+ * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null.
+ */
+const getInitialSidebarContentPanel = (isChatEnabled) => {
+  // Safe at load time: consumers call this after window.meetingClientSettings is populated.
+  const { chat, layout } = window.meetingClientSettings.public;
+  const shouldOpenParticipants = getFromUserSettings(
+    'bbb_show_participants_on_login',
+    layout.showParticipantsOnLogin,
+  );
+  const shouldOpenChat = isChatEnabled && getFromUserSettings(
+    'bbb_show_public_chat_on_login',
+    !chat.startClosed,
+  );
+  if (shouldOpenParticipants) return PANELS.USERLIST;
+  if (shouldOpenChat) return PANELS.CHAT;
+  return null;
 };
 
 const device = {
@@ -190,6 +211,6 @@ const getDeviceType = () => {
 
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
-  getWaitLayout, getDeviceType,
+  getWaitLayout, getDeviceType, getInitialSidebarContentPanel,
   isValidSynchronizationLayout,
 };

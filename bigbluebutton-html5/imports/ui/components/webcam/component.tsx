@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Resizable } from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
-import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
+import { useIsGridEnabled, useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -434,7 +434,7 @@ const WebcamContainer: React.FC = () => {
   const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
   const snapToCameraGrid = isUnifiedLayout;
 
-  const isGridEnabled = isUnifiedLayout && !presentationIsOpen;
+  const isGridEnabled = useIsGridEnabled();
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
   VideoService.updateActivePeers(videoUsers);

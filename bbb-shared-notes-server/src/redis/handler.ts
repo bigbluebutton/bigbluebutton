@@ -1,4 +1,5 @@
 import { Logger } from '../common/logger';
+import { sanitizeFilenameSegment } from '../common/filename';
 import { connectionsMap } from '../common/singleton';
 import { sender } from './sender';
 import config from '../config';
@@ -204,8 +205,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     // Export the document
     const documentName = presId;
     const notesFormat = 'pdf';
-    const underscoredFilename = serverSideFilename.replace(/\s/g, '_');
-    const sanitizedFilename = underscoredFilename.replace(/[^a-z0-9_.-]/gi, '_');
+    const sanitizedFilename = sanitizeFilenameSegment(serverSideFilename);
     const outputFilename = `${sanitizedFilename}.${notesFormat}`;
     const filePath = path.join(temporarySavingDir, outputFilename);
 

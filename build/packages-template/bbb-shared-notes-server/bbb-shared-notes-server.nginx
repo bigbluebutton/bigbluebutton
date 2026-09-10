@@ -56,6 +56,8 @@ location /hocuspocus/api/ {
   auth_request_set $auth_status $upstream_status;
   auth_request_set $meeting_id $sent_http_meeting_id;
   auth_request_set $user_id $sent_http_user_id;
+  auth_request_set $meeting_name $sent_http_meeting_name;
+  auth_request_set $meeting_create_time $sent_http_meeting_create_time;
 
   gzip_static on;
   proxy_pass http://localhost:8787/api/;
@@ -65,6 +67,8 @@ location /hocuspocus/api/ {
   proxy_set_header Host $host;
   proxy_set_header Meeting-Id $meeting_id;
   proxy_set_header User-id $user_id;
+  proxy_set_header Meeting-Name $meeting_name;
+  proxy_set_header Meeting-Create-Time $meeting_create_time;
 }
 
 location /hocuspocus/sample {

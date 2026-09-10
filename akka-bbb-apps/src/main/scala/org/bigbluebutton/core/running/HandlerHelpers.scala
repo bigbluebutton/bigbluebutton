@@ -440,6 +440,16 @@ trait HandlerHelpers extends SystemConfiguration {
       voiceConf = liveMeeting.props.voiceProp.voiceConf
     )
   }
+
+  def buildLiveKitParticipantMetadata(
+    meetingId:  String,
+    voiceConf:  String,
+  ): LiveKitParticipantMetadata = {
+    LiveKitParticipantMetadata(
+      meetingId = meetingId,
+      voiceConf = voiceConf
+    )
+  }
 }
 
 object HandlerHelpers {

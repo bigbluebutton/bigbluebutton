@@ -13,7 +13,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{ChatMessageDAO, MediaGroupUserDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
@@ -136,6 +136,26 @@ object UsersApp {
     outGW.send(event)
   }
 
+  def removeUserLiveKitMemberships(
+    liveMeeting: LiveMeeting,
+    meetingId: String,
+    userId: String,
+    outGW: OutMsgRouter
+  ): Unit = {
+    LiveKitMemberships.removeByUser(liveMeeting.liveKitMemberships, userId).foreach { m =>
+      if (m.purpose != "primary") {
+        // Explicit-return parity: without loggedOut the transferred row keeps
+        // currentlyInMeeting=true (ghost user in the breakout) and the
+        // media-group back-fill re-picks it. Enqueued before the media-group
+        // delete so a concurrent back-fill cannot re-insert the reaped row.
+        UserDAO.logOutTransferredUser(m.roomName, userId)
+        // Clear every media-group enrollment this transferred listener holds in the breakout.
+        MediaGroupUserDAO.deleteAllForUser(m.roomName, userId)
+        outGW.send(MsgBuilder.buildRemoveLiveKitParticipantSysMsg(meetingId, m.roomName, m.userId))
+      }
+    }
+  }
+
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
@@ -157,6 +177,7 @@ object UsersApp {
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
       UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
+      removeUserLiveKitMemberships(liveMeeting, meetingId, userId, outGW)
     }
 
     for {
@@ -185,25 +206,6 @@ object UsersApp {
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
       }
     }
-  }
-
-  def sendGenerateLiveKitTokenReqMsg(
-    outGW: OutMsgRouter,
-    meetingId: String,
-    userId: String,
-    userName: String,
-    grant: LiveKitGrant,
-    metadata: LiveKitParticipantMetadata
-  ): Unit = {
-    val event = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
-      meetingId,
-      userId,
-      userName,
-      grant,
-      metadata
-    )
-
-    outGW.send(event)
   }
 
 }

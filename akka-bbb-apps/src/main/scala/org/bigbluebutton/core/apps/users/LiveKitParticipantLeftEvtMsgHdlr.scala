@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.models.{ VoiceUsers, Users2x }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
-import org.bigbluebutton.core.models.Webcams
-import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.apps.ScreenshareModel
-import org.bigbluebutton.core.db.ScreenshareDAO
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
+import org.bigbluebutton.core.db.ScreenshareDAO
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, Webcams }
+import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait LiveKitParticipantLeftEvtMsgHdlr {
   this: BaseMeetingActor =>
@@ -19,63 +18,54 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
   def handleLiveKitParticipantLeftEvtMsg(msg: LiveKitParticipantLeftEvtMsg) {
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = msg.header.userId
-    val isPresenter = Users2x.isPresenter(userId, liveMeeting.users2x)
+    val roomName = msg.body.roomName
+    val isPrimaryRoom = roomName == meetingId
 
-    // User has been removed from LK - this is an ACK for the reconciler, forget them
-    liveMeeting.voiceUserReconciler.forget(userId)
+    // Media cleanup below is primary-room-only; non-primary leaves are ignored
+    // as they should not affect the user's voice state, webcam state, or presenter state.
+    if (isPrimaryRoom) {
+      val isPresenter = Users2x.isPresenter(userId, liveMeeting.users2x)
 
-    // Clean up any voice users associated with the user
-    for {
-      vu <- VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, userId)
-    } yield {
-      liveMeeting.audioFloorManager.handleUserLeftVoice(
-        vu.intId,
-        System.currentTimeMillis(),
-        liveMeeting,
-        outGW
-      )
-      VoiceUsers.removeWithIntId(
-        liveMeeting.voiceUsers,
-        meetingId,
-        userId
-      )
-      val event = MsgBuilder.buildUserLeftVoiceConfToClientEvtMsg(
-        meetingId,
-        userId,
-        liveMeeting.props.voiceProp.voiceConf,
-        vu.voiceUserId
-      )
-      outGW.send(event)
+      // ACK for the reconciler. Primary-scoped: it tracks the user's own
+      // meeting voice state, which a secondary-room leave must not touch.
+      liveMeeting.voiceUserReconciler.forget(userId)
 
-      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
-        meetingId,
-        liveMeeting.props.voiceProp.voiceConf,
-        userId,
-        None,
-        leftVoiceConf = true
-      )
-      outGW.send(eventUserVoiceStatus)
+      for {
+        vu <- VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, userId)
+      } yield {
+        liveMeeting.audioFloorManager.handleUserLeftVoice(
+          vu.intId,
+          System.currentTimeMillis(),
+          liveMeeting,
+          outGW
+        )
+        VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, meetingId, userId)
+        val event = MsgBuilder.buildUserLeftVoiceConfToClientEvtMsg(
+          meetingId, userId, liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
+        )
+        outGW.send(event)
 
-    }
+        val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+          meetingId,
+          liveMeeting.props.voiceProp.voiceConf,
+          userId,
+          None,
+          leftVoiceConf = true
+        )
+        outGW.send(eventUserVoiceStatus)
+      }
 
-    // Clean up any webcams associated with the user
-    Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
-      CameraHdlrHelpers.stopBroadcastedCam(
-        liveMeeting,
-        meetingId,
-        userId,
-        webcam.streamId,
-        outGW
-      )
-    }
+      Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
+        CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, meetingId, userId, webcam.streamId, outGW)
+      }
 
-    // Clean up any screenshare associated with the user
-    if (isPresenter && ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
-      ScreenshareDAO.updateStopped(
-        meetingId,
-        ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel)
-      )
-      ScreenshareApp2x.broadcastStopped(outGW, liveMeeting)
+      if (isPresenter && ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
+        ScreenshareDAO.updateStopped(
+          meetingId,
+          ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel)
+        )
+        ScreenshareApp2x.broadcastStopped(outGW, liveMeeting)
+      }
     }
   }
 }

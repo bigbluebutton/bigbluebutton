@@ -30,6 +30,7 @@ import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
 } from '/imports/ui/components/audio/service';
+import { getActiveProviderId } from '/imports/ui/components/audio/audio-processor/service';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -96,6 +97,7 @@ class AudioManager {
       bypassGUM: makeVar(false),
       permissionStatus: makeVar(null),
       transparentListenOnlySupported: makeVar(false),
+      isUsingLiveKit: makeVar(false),
     });
 
     this._inputStream = makeVar(null);
@@ -125,7 +127,7 @@ class AudioManager {
     checkMediaDevicesTarget();
   }
 
-  isUsingLiveKit() {
+  isBridgeLiveKit() {
     return this.bridge?.bridgeName === 'livekit';
   }
 
@@ -133,7 +135,7 @@ class AudioManager {
     const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
     const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
 
-    return this.isUsingLiveKit() && useLiveKitAudioState;
+    return this.isUsingLiveKit && useLiveKitAudioState;
   }
 
   onBeforeUnload() {
@@ -357,6 +359,7 @@ class AudioManager {
     this.loadBridges(bridges, userData);
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
+    this.isUsingLiveKit = this.isBridgeLiveKit();
     this.audioEventHandler = audioEventHandler;
 
     // Only observe GraphQL voice activity if not using LiveKit's audio state
@@ -789,6 +792,8 @@ class AudioManager {
             isListenOnly: this.isListenOnly,
             stats: getRTCStatsLogMetadata(stats),
             clientSessionNumber: this.bridge.clientSessionNumber,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio Joined');
       });
@@ -877,6 +882,8 @@ class AudioManager {
             outputDeviceId: this.outputDeviceId,
             outputDevices: this.outputDevicesJSON,
             isListenOnly: this.isListenOnly,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio ended without issue');
       } else if (status === FAILED) {
@@ -1387,7 +1394,32 @@ class AudioManager {
   }
 
   async updateAudioConstraints(constraints) {
+    const prevInputStream = this.inputStream;
+
     await this.bridge.updateAudioConstraints(constraints);
+    this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+
+    logger.info({
+      logCode: 'audio_constraints_updated',
+      extraInfo: {
+        bridge: this.bridgeName,
+        inputDeviceId: this.inputDeviceId,
+        inputDevices: this.inputDevicesJSON,
+        outputDeviceId: this.outputDeviceId,
+        outputDevices: this.outputDevicesJSON,
+        clientSessionNumber: this.bridge.clientSessionNumber,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+        wasmProcessingEnabled: isWasmProcessingEnabled(),
+        wasmProcessingProvider: getActiveProviderId(),
+      },
+    });
+
+    // Bridges may re-acquire the stream when doing this. Cleanup is in order if
+    // applicable (i.e.: old one is stale, compare via id).
+    if (prevInputStream && (prevInputStream.id !== this.inputStream?.id)) {
+      destroyWasmProcessor(prevInputStream);
+      MediaStreamUtils.stopMediaStreamTracks(prevInputStream);
+    }
   }
 
   /**

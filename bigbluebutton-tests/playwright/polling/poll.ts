@@ -24,6 +24,11 @@ export class Polling extends MultiUsers {
     );
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer, 'should not display the received answer for the attendee');
+    await this.modPage.hasText(
+      e.pollStatus,
+      'Done',
+      'should display the anonymous poll as done after each attendee has answered',
+    );
   }
 
   async quickPoll() {
@@ -221,6 +226,11 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
+    await this.modPage.hasText(
+      e.pollStatus,
+      'Done',
+      'should display the poll as done after each attendee has submitted multiple answers',
+    );
     await this.modPage.hasText(
       e.userVoteLiveResult,
       '1',
@@ -440,6 +450,9 @@ export class Polling extends MultiUsers {
   async parentheticalQuestionLetterPoll() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.page.waitForTimeout(5000);
@@ -472,6 +485,9 @@ export class Polling extends MultiUsers {
   async parentheticalQuestionTypedResponse() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.page.waitForTimeout(5000);

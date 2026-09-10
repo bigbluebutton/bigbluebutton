@@ -299,7 +299,9 @@ export class MultiUsers {
   }
 
   async saveUserNames() {
-    await this.modPage.waitAndClick(e.manageUsers);
+    // downloadUserNamesList is a direct header button of the participants
+    // panel now (the manageUsers gear dropdown is gone)
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     const downloadUserNamesListLocator = this.modPage.page.locator(e.downloadUserNamesList);
     const { content } = await this.modPage.handleDownload(downloadUserNamesListLocator);
 
@@ -530,9 +532,10 @@ export class MultiUsers {
     await this.modPage.joinMicrophone();
     await this.modPage2.joinMicrophone();
     await this.userPage.joinMicrophone();
-    // mute all users except the presenter
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.muteAllExceptPresenter);
+    // mute all users except the presenter: a direct crowd-action button in the
+    // participants panel now (the manageUsers gear dropdown is gone)
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.muteAllUsers);
     // check if presenter is not muted
     await this.modPage.checkUserTalkingIndicator();
     // check number of talking indicator's element

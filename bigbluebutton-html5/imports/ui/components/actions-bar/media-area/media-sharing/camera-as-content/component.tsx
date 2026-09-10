@@ -11,6 +11,8 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import PreviewService from '/imports/ui/components/video-preview/service';
 import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 import ModalStyled from '../styles';
+import Icon from '/imports/ui/components/common/icon/component';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import * as ScreenShareService from '/imports/ui/components/screenshare/service';
 import { useStopVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useVideoPreview';
@@ -245,11 +247,12 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
         </ProfileStyled.DeviceContainer>
       </Styled.Content>
       <ModalStyled.FooterContainer>
-        <ModalStyled.ConfirmationButton
-          data-test={!hasCameraAsContent ? 'StartCameraAsContent' : 'StopCameraAsContent'}
+        <BBButton
+          dataTest={!hasCameraAsContent ? 'StartCameraAsContent' : 'StopCameraAsContent'}
           label={!hasCameraAsContent
             ? formatMessage(intlMessages.shareLabel) : formatMessage(intlMessages.stopSharingLabel)}
-          color={!hasCameraAsContent ? 'primary' : 'danger'}
+          variant="primary"
+          color={!hasCameraAsContent ? 'default' : 'danger'}
           onClick={async () => {
             if (hasCameraAsContent) {
               ScreenShareService.screenshareHasEnded();
@@ -277,7 +280,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
             }
           }}
           disabled={isCameraLoading || !availableWebcams || availableWebcams.length === 0 || isTransitioning}
-          icon={hasCameraAsContent ? 'video_off' : undefined}
+          iconStart={hasCameraAsContent ? <Icon iconName="video_off" /> : undefined}
         />
       </ModalStyled.FooterContainer>
     </>

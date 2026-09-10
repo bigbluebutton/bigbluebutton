@@ -535,14 +535,6 @@ export class Page {
     await this.page.locator(selector).hover();
   }
 
-  async dragAndDropWebcams(position: string): Promise<void> {
-    await this.page.locator(e.webcamContainer).first().hover({ timeout: 5000 });
-    await this.page.mouse.down();
-    await this.page.locator(e.whiteboard).hover({ timeout: 5000 }); // action for dispatching isDragging event
-    await this.page.locator(position).hover({ timeout: 5000 });
-    await this.page.mouse.up();
-  }
-
   async dragWebcam(
     cameraSelector: string,
     targetSelector: string | null,
