@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import MediaConsentModal from '/imports/ui/components/common/media-consent-modal/component';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -39,39 +38,21 @@ const RequestUnmuteComponent = ({
   intl,
   handleConfirm,
   handleDeny,
-}) => {
-  const [isSmallViewport, setIsSmallViewport] = useState(
-    // eslint-disable-next-line no-undef
-    () => globalThis.matchMedia(smallOnly).matches,
-  );
-
-  useEffect(() => {
-    // eslint-disable-next-line no-undef
-    const mediaQuery = globalThis.matchMedia(smallOnly);
-    const handleChange = (event) => setIsSmallViewport(event.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  const denyLabel = isSmallViewport
-    ? intl.formatMessage(intlMessages.denyButtonLabelMobile)
-    : intl.formatMessage(intlMessages.denyButtonLabel);
-
-  return (
-    <MediaConsentModal
-      title={intl.formatMessage(intlMessages.modalTitle)}
-      subtitle={<FormattedMessage {...intlMessages.modalSubtitle} />}
-      confirmLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
-      denyLabel={denyLabel}
-      confirmIcon="unmute"
-      denyIcon="mute"
-      confirmDataTest="confirmUnmute"
-      denyDataTest="denyUnmute"
-      onConfirm={handleConfirm}
-      onDeny={handleDeny}
-    />
-  );
-};
+}) => (
+  <MediaConsentModal
+    title={intl.formatMessage(intlMessages.modalTitle)}
+    subtitle={<FormattedMessage {...intlMessages.modalSubtitle} />}
+    confirmLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
+    denyLabel={intl.formatMessage(intlMessages.denyButtonLabel)}
+    denyLabelMobile={intl.formatMessage(intlMessages.denyButtonLabelMobile)}
+    confirmIcon="unmute"
+    denyIcon="mute"
+    confirmDataTest="confirmUnmute"
+    denyDataTest="denyUnmute"
+    onConfirm={handleConfirm}
+    onDeny={handleDeny}
+  />
+);
 
 RequestUnmuteComponent.propTypes = propTypes;
 

@@ -17,6 +17,13 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     await sharedNotes.typeInSharedNotes();
   });
 
+  test('Type fractions without opening the slash menu', async ({ browser, context }, testInfo) => {
+    linkIssue(25577);
+    const sharedNotes = new BlockNoteSharedNotes(browser, context);
+    await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
+    await sharedNotes.typeFractionsWithoutOpeningSlashMenu();
+  });
+
   test('Format text in shared notes', async ({ browser, context }, testInfo) => {
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
@@ -63,6 +70,14 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
+  });
+
+  test('Pinned header exposes permitted notes actions', async ({ browser, context, browserName }, testInfo) => {
+    linkIssue(25584);
+    test.skip(browserName === 'firefox', 'Webcams does not work properly, due to heavy firefox for testing');
+    const sharedNotes = new BlockNoteSharedNotes(browser, context);
+    await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
+    await sharedNotes.pinnedHeaderActions();
   });
 
   test('Unread indicator notifies users of new notes content', async ({ browser, context }, testInfo) => {

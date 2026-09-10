@@ -6,6 +6,7 @@ import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { toast } from 'react-toastify';
 import { unique } from 'radash';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -722,10 +723,10 @@ class PresentationUploader extends Component {
         {this.renderExternalUpload()}
         {this.renderPresentationList()}
         <ModalStyled.FooterContainer>
-          <ModalStyled.ConfirmationButton
-            data-test="sharePresentationButton"
+          <BBButton
+            variant="primary"
+            dataTest="sharePresentationButton"
             label={intl.formatMessage(intlMessages.shareLabel)}
-            color="primary"
             onClick={this.handleConfirm}
             disabled={currentPresentation === activeThumbnailId || !activeThumbnailId}
           />

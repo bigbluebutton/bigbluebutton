@@ -80,7 +80,10 @@ export const constants = {
   skipVideoPreviewOnFirstJoin: 'userdata-bbb_skip_video_preview_on_first_join=true',
   skipVideoPreviewIfPreviousDevice: 'userdata-bbb_skip_video_preview_if_previous_device=true',
   mirrorOwnWebcam: 'userdata-bbb_mirror_own_webcam=true',
-  showParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=false',
+  showParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=true',
+  showParticipantsAndPublicChatOnLogin:
+    'userdata-bbb_show_participants_on_login=true&userdata-bbb_show_public_chat_on_login=true',
+  hideParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=false',
   showSessionDetailsOnJoin: 'userdata-bbb_show_session_details_on_join=true',
   hideActionsBar: 'userdata-bbb_hide_actions_bar=true',
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',

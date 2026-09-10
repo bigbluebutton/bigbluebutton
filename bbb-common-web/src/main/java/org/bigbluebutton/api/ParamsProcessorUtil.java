@@ -146,14 +146,11 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
-    private Integer clientLogoutTimerInMinutes = 0;
     private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;
     private Integer defaultMeetingExpireWhenLastUserLeftInMinutes = 1;
   	private Integer userInactivityInspectTimerInMinutes = 120;
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
-    private Boolean defaultAllowDuplicateExtUserid = true;
-
     private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
@@ -603,7 +600,6 @@ public class ParamsProcessorUtil {
         boolean record = processRecordMeeting(params.get(ApiParams.RECORD));
         int maxUsers = processMaxUser(params.get(ApiParams.MAX_PARTICIPANTS));
         int meetingDuration = processMeetingDuration(params.get(ApiParams.DURATION));
-        int logoutTimer = processLogoutTimer(params.get(ApiParams.LOGOUT_TIMER));
 
         // Banner parameters
         String bannerText = params.get(ApiParams.BANNER_TEXT);
@@ -666,13 +662,12 @@ public class ParamsProcessorUtil {
 
         String sharedNotesEditor = defaultSharedNotesEditor;
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_EDITOR))) {
-            try {
-                sharedNotesEditor = params
-                        .get(ApiParams.SHARED_NOTES_EDITOR);
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [sharedNotesEditor] for meeting=[{}]",
-                        internalMeetingId);
+            String canonicalSharedNotesEditor = SharedNotesEditor.canonicalize(
+                    params.get(ApiParams.SHARED_NOTES_EDITOR));
+            if (canonicalSharedNotesEditor != null) {
+                sharedNotesEditor = canonicalSharedNotesEditor;
+            } else {
+                log.warn("Invalid param [sharedNotesEditor] for meeting=[{}]", internalMeetingId);
             }
         }
 
@@ -774,11 +769,6 @@ public class ParamsProcessorUtil {
             }
 
         }
-
-        // Learning Dashboard not allowed for Breakout Rooms
-        if(isBreakout) {
-		listOfDisabledFeatures.add("learningDashboard");
-	}
 
 	//Set Learning Dashboard configs
         String learningDashboardAccessToken = "";
@@ -978,11 +968,6 @@ public class ParamsProcessorUtil {
         String botAvatarURL = defaultBotAvatarURL;
         String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
 
-        if(defaultAllowDuplicateExtUserid == false) {
-            log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
-            maxUserConcurrentAccesses = 1;
-        }
-
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -991,7 +976,6 @@ public class ParamsProcessorUtil {
                 .withDuration(meetingDuration)
                 .withLoginUrl(loginUrl)
                 .withLogoutUrl(logoutUrl)
-                .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice)
                 .withDialNumber(dialNumber)
@@ -1367,18 +1351,6 @@ public class ParamsProcessorUtil {
     return mDuration;
   }
 
-	public int processLogoutTimer(String logoutTimer) {
-		int mDuration = clientLogoutTimerInMinutes;
-
-		try {
-			mDuration = Integer.parseInt(logoutTimer);
-		} catch(Exception ex) {
-			mDuration = clientLogoutTimerInMinutes;
-		}
-
-		return mDuration;
-	}
-
     public boolean isTestMeeting(String telVoice) {
         return ((!StringUtils.isEmpty(telVoice)) && (!StringUtils.isEmpty(testVoiceBridge))
                 && (telVoice.equals(testVoiceBridge)));
@@ -1693,10 +1665,6 @@ public class ParamsProcessorUtil {
 		this.defaultMeetingLayout =  meetingLayout;
 	}
 
-	public void setClientLogoutTimerInMinutes(Integer value) {
-		clientLogoutTimerInMinutes = value;
-	}
-
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
         defaultMeetingExpireWhenLastUserLeftInMinutes = value;
 	}
@@ -1916,10 +1884,6 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsPresenterPolicy = lockSettingsPresenterPolicy;
 	}
 
-	public void setAllowDuplicateExtUserid(Boolean allow) {
-		this.defaultAllowDuplicateExtUserid = allow;
-	}
-
     public void setMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
 		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
 	}
@@ -2025,7 +1989,14 @@ public class ParamsProcessorUtil {
     }
 
     public void setSharedNotesEditor(String sharedNotesEditor) {
-        this.defaultSharedNotesEditor = sharedNotesEditor;
+        String canonicalSharedNotesEditor = SharedNotesEditor.canonicalize(sharedNotesEditor);
+        if (canonicalSharedNotesEditor == null) {
+            log.error("Invalid default [sharedNotesEditor]=[{}]; using [{}]", sharedNotesEditor,
+                    SharedNotesEditor.BLOCK_NOTE);
+            this.defaultSharedNotesEditor = SharedNotesEditor.BLOCK_NOTE;
+        } else {
+            this.defaultSharedNotesEditor = canonicalSharedNotesEditor;
+        }
     }
 
     /**

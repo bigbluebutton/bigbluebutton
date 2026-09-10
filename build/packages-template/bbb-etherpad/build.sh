@@ -8,6 +8,9 @@ VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 TAG=$(echo $TARGET | cut -d'_' -f4)
 
+#
+# Harden static asset path resolution in Minify.js (upstream fix, back-ported).
+patch -p1 -F0 --forward -i fix-etherpad-static-serving.patch
 
 #
 # Clean up directories

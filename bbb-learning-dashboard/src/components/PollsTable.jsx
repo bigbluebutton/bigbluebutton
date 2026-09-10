@@ -376,14 +376,14 @@ const PollsTable = (props) => {
     return v;
   });
 
-  Object.values(allUsers).map((u, i) => {
+  Object.values(allUsers).map((u) => {
     if (u?.isModerator && Object.keys(u?.answers)?.length === 0) return u;
-    gridRows.push({ id: i + 1, User: u, ...{ ...initPollData, ...u?.answers } });
+    gridRows.push({ id: u.userKey, User: u, ...{ ...initPollData, ...u?.answers } });
     return u;
   });
 
   if (hasAnonymousPoll) {
-    anonGridRow.push({ id: 1, User: { name: 'Anonymous' }, ...{ ...initPollData, ...anonymousPollData } });
+    anonGridRow.push({ id: 'anonymous', User: { name: 'Anonymous' }, ...{ ...initPollData, ...anonymousPollData } });
   }
 
   const commonGridProps = {

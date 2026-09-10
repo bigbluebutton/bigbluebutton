@@ -15,7 +15,6 @@ fi
 
 PKGS="bbb-apps-akka
 bbb-config
-bbb-etherpad
 bbb-export-annotations
 bbb-file-upload
 bbb-freeswitch-core
@@ -26,7 +25,6 @@ bbb-learning-dashboard
 bbb-libreoffice-docker
 bbb-livekit
 bbb-mkclean
-bbb-pads
 bbb-shared-notes-server
 bbb-playback
 bbb-playback-presentation

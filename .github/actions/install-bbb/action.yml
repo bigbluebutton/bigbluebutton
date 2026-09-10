@@ -161,6 +161,9 @@ runs:
 
         ./bbb-install.sh -v noble-40-dev -s bbb-ci.test -r packages.bigbluebutton.org -j -d /certs/
 
+        # Etherpad is opt-in since 4.0; install explicitly for the Etherpad e2e tests
+        apt-get install -y bbb-etherpad bbb-pads
+
         bbb-conf --salt bbbci
         sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
         sed -i "s/\"loglevel\": \"INFO\"/\"loglevel\": \"DEBUG\"/" /usr/share/etherpad-lite/settings.json

@@ -210,3 +210,8 @@ export function useIsWhiteboardImagePasteEnabled() {
   return !useDisabledFeatures().includes('whiteboardImagePaste')
     && IMAGE_PASTE_ENABLED;
 }
+
+export function useIsWebcamGridEnabled() {
+  const GRID_ENABLED = window.meetingClientSettings.public.kurento.pagination.gridEnabled ?? true;
+  return useDisabledFeatures().indexOf('webcamGrid') === -1 && GRID_ENABLED;
+}

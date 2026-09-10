@@ -463,17 +463,17 @@ class ApiController {
       withFormat {
         xml {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+                  "the password, should the meeting have one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
         '*' {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+                  "the password, should the meeting have one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
       }
       return
     }
 
-    // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
+    // We prepend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
     String internalUserID = "w_" + Util.randomAlphanumeric(12).toLowerCase()
@@ -1013,10 +1013,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
         '*' {
-          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     } else {
@@ -1366,94 +1366,97 @@ class ApiController {
         reject = true
         respMessage = "Meeting not found"
       }
+    }
 
-      if (reject) {
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          json {
-            def builder = new JsonBuilder()
-            builder.response {
-              returncode RESP_CODE_FAILED
-              message respMessage
-              sessionToken
-            }
-            render(contentType: "application/json", text: builder.toPrettyString())
-          }
-        }
-      } else {
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData.put("meetingid", us.meetingID);
-        logData.put("extMeetingid", us.externMeetingID);
-        logData.put("name", us.fullname);
-        logData.put("userid", us.internalUserId);
-        logData.put("sessionToken", sessionToken);
-        logData.put("logCode", "getJoinUrl");
-        logData.put("description", "Request join URL");
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
+    if (reject) {
+      def builder = new JsonBuilder()
+      builder.response {
+        returncode RESP_CODE_FAILED
+        message respMessage
+        sessionToken
+      }
+      String responseText = builder.toPrettyString()
 
-        log.info(" --analytics-- data=" + logStr);
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json { render(contentType: "application/json", text: responseText) }
+        '*' { render(contentType: "application/json", text: responseText) }
+      }
+    } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userid", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("logCode", "getJoinUrl");
+      logData.put("description", "Request join URL");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
 
-        String method = 'join'
-        String externalMeetingId = validationService.encodeString(meeting.getExternalId())
-        String fullName = validationService.encodeString(us.fullname)
-        ListHashMap<String, String> queryParameters = new ListHashMap<>();
-        queryParameters.put("fullName", fullName);
-        queryParameters.put("meetingID", externalMeetingId);
-        queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
-        queryParameters.put("redirect", "true");
-        queryParameters.put("existingUserID", us.getInternalUserId());
+      log.info(" --analytics-- data=" + logStr);
 
-        // replaceSession: If this link is intended to replace the previous session of the user
-        if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
-          queryParameters.put("replaceSessionToken", sessionToken);
-        }
+      String method = 'join'
+      String externalMeetingId = validationService.encodeString(meeting.getExternalId())
+      String fullName = validationService.encodeString(us.fullname)
+      ListHashMap<String, String> queryParameters = new ListHashMap<>();
+      queryParameters.put("fullName", fullName);
+      queryParameters.put("meetingID", externalMeetingId);
+      queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
+      queryParameters.put("redirect", "true");
+      queryParameters.put("existingUserID", us.getInternalUserId());
 
-        if (!StringUtils.isEmpty(params.sessionName)) {
-          queryParameters.put("sessionName", params.sessionName);
-        }
+      // replaceSession: If this link is intended to replace the previous session of the user
+      if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
+        queryParameters.put("replaceSessionToken", sessionToken);
+      }
 
-        List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(","));
+      if (!StringUtils.isEmpty(params.sessionName)) {
+        queryParameters.put("sessionName", params.sessionName);
+      }
 
-        boolean isModerator = us.role?.equals(ROLE_MODERATOR);
-        boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
+      List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(","));
 
-        request.getParameterMap()
-                .findAll { key, value ->
-                  // always allow `enforceLayout`
-                  if (key == "enforceLayout") return true
+      boolean isModerator = us.role?.equals(ROLE_MODERATOR);
+      boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
 
-                  // For prefix userdata-
-                  if (key.startsWith("userdata-")) {
-                    if (isModerator && !meeting.isBreakout()) return true
-                    if (blockAllUserdataForViewers) return false
-                    return !userdataBlocklistForViewers.contains(key - "userdata-")
-                  }
+      request.getParameterMap()
+              .findAll { key, value ->
+                // always allow `enforceLayout`
+                if (key == "enforceLayout") return true
 
-                  return false
+                // For prefix userdata-
+                if (key.startsWith("userdata-")) {
+                  if (isModerator && !meeting.isBreakout()) return true
+                  if (blockAllUserdataForViewers) return false
+                  return !userdataBlocklistForViewers.contains(key - "userdata-")
                 }
-                .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
-                .each { key, value -> queryParameters.put(key, value[-1]) }
 
-        String httpQueryString = "";
-        for(String parameterName : queryParameters.keySet()) {
-          httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
-        }
+                return false
+              }
+              .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+              .each { key, value -> queryParameters.put(key, value[-1]) }
 
-        String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
-        String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          json {
-            def builder = new JsonBuilder()
-            builder.response {
-              returncode RESP_CODE_SUCCESS
-              message "Join URL provided successfully."
-              url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
-            }
-            render(contentType: "application/json", text: builder.toPrettyString())
-          }
-        }
+      String httpQueryString = "";
+      for(String parameterName : queryParameters.keySet()) {
+        httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
+      }
+
+      String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
+      String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
+
+      def builder = new JsonBuilder()
+      builder.response {
+        returncode RESP_CODE_SUCCESS
+        message "Join URL provided successfully."
+        url "${defaultServerUrl}/bigbluebutton/api/${method}?${httpQueryString}&checksum=${checksum}"
+      }
+      String responseText = builder.toPrettyString()
+
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json { render(contentType: "application/json", text: responseText) }
+        '*' { render(contentType: "application/json", text: responseText) }
       }
     }
   }
