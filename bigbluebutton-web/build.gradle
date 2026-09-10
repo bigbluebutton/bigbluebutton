@@ -173,6 +173,39 @@ assets {
 }
 
 test {
+  // Spock 2.x runs on the JUnit Platform only. Without this the JUnit 4 runner
+  // discovers zero specs and the task passes vacuously.
+  useJUnitPlatform()
+
+  // Guard against that regressing. Before useJUnitPlatform() was added, this
+  // task reported success while executing zero tests, which hid every failure in
+  // ApiControllerSpec for as long as it existed. A green build that ran nothing
+  // must be a failure, not a pass.
+  //
+  // Bump MIN_EXPECTED_TESTS when adding specs; it is a floor, not an exact count,
+  // so it does not need to track every new test case.
+  ext.MIN_EXPECTED_TESTS = 40
+  ext.executedTestCount = 0
+
+  afterSuite { desc, result ->
+    if (desc.parent == null) {
+      // Root suite: `result` aggregates the whole run.
+      test.ext.executedTestCount = result.testCount
+    }
+  }
+
+  doLast {
+    int executed = test.ext.executedTestCount
+    if (executed < test.ext.MIN_EXPECTED_TESTS) {
+      throw new GradleException(
+          "Test discovery looks broken: executed ${executed} tests, expected at least " +
+          "${test.ext.MIN_EXPECTED_TESTS}. Either specs stopped being discovered (check " +
+          "useJUnitPlatform() above) or specs were removed — if the removal was intended, " +
+          "lower MIN_EXPECTED_TESTS in bigbluebutton-web/build.gradle.")
+    }
+    logger.lifecycle("Test discovery check: executed ${executed} tests (floor ${test.ext.MIN_EXPECTED_TESTS}).")
+  }
+
   testLogging {
     events "passed", "failed", "skipped"
     showStandardStreams = true
