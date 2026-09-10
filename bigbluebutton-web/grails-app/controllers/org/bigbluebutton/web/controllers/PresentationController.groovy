@@ -53,6 +53,19 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
+  private static final Pattern UPLOAD_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9_-]+)/upload'
+  )
+
+  private static final int MAX_LOGGED_PARAM_LENGTH = 64
+
+  private static String sanitizeForLog(Object value) {
+    if (value == null) return "null"
+    String sanitized = String.valueOf(value).replaceAll('[^A-Za-z0-9_./-]', '?')
+    return sanitized.length() > MAX_LOGGED_PARAM_LENGTH ?
+            sanitized.substring(0, MAX_LOGGED_PARAM_LENGTH) + "..." : sanitized
+  }
+
   def index = {
     render(view: 'upload-file')
   }
@@ -224,19 +237,40 @@ class PresentationController {
   }
 
   def upload = {
-    // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
-      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
+    // The token is taken from the request path, which is the only form the upload endpoint is
+    // reachable through. Anything else is refused without consuming a token.
+    def requestUri = request.requestURI == null ? "" : request.requestURI.split('\\?')[0]
+    def uriMatcher = UPLOAD_URI_PATTERN.matcher(requestUri)
+    if (!uriMatcher.matches()) {
+      log.debug("Refusing presentation upload that did not arrive on the upload path." +
+              " uri=" + sanitizeForLog(requestUri))
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'invalid auth token'
+      return
+    }
+    def authzToken = uriMatcher.group(1)
+
+    // Atomically validate and consume the single-use authorization token.
+    // Only the first concurrent POST with a given token gets a non-null result;
+    // any replay (or an unknown token) gets null and is rejected.
+    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(authzToken)
+    if (presUploadToken == null) {
+      log.debug "WARNING! AuthzToken=" + sanitizeForLog(authzToken) + " was not valid (or already used) in meetingId=" + sanitizeForLog(params.conference)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
 
-    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
-    meetingService.expirePresentationUploadToken(params.authzToken)
+    def meetingId = presUploadToken.meetingId
+    if (params.conference != null && params.conference != meetingId) {
+      log.warn("Ignoring conference parameter that does not match the upload token." +
+              " meetingId=" + meetingId +
+              " presentationId=" + presUploadToken.presentationId +
+              " requestedMeetingId=" + sanitizeForLog(params.conference))
+    }
 
-    def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
       if (meeting == null) {
@@ -263,7 +297,14 @@ class PresentationController {
     }
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
-    def podId = params.pod_id
+    def podId = presUploadToken.podId
+    if (params.pod_id != null && params.pod_id != podId) {
+      log.warn("Ignoring pod_id parameter that does not match the upload token." +
+              " meetingId=" + meetingId +
+              " presentationId=" + presUploadToken.presentationId +
+              " tokenPodId=" + podId +
+              " requestedPodId=" + sanitizeForLog(params.pod_id))
+    }
 
     // Defaults current to false (optional upload parameter)
     def current = false
@@ -272,7 +313,7 @@ class PresentationController {
       current = params.current.toBoolean()
     }
     
-    log.debug "@Default presentation pod" + podId
+    log.debug "Presentation pod from upload token: " + podId
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -298,7 +339,7 @@ class PresentationController {
     }
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      log.debug("Upload failed. Invalid filename " + sanitizeForLog(presOrigFilename))
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
     } else {
@@ -311,7 +352,7 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
+    log.debug("processing file upload " + sanitizeForLog(presFilename) + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
     def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
@@ -326,6 +367,7 @@ class PresentationController {
             uploadFailed,
             uploadFailReasons
     )
+    uploadedPres.setSystemUpload(presUploadToken.isSystemUpload())
     if (isPresentationMimeTypeValid) {
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."
@@ -333,7 +375,7 @@ class PresentationController {
       }
       uploadedPres.setUploadedFile(pres);
       presentationService.processUploadedPresentation(uploadedPres)
-      log.debug("file upload success " + presFilename)
+      log.debug("file upload success " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-success'
@@ -341,7 +383,7 @@ class PresentationController {
       def mimeType = SupportedFileTypes.detectMimeType(pres)
       presentationService.sendDocConversionFailedOnMimeType(uploadedPres, mimeType, filenameExt)
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-      log.debug("file upload failed " + presFilename)
+      log.debug("file upload failed " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-failed'

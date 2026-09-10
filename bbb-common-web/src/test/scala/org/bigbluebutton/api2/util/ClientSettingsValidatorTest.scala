@@ -8,6 +8,29 @@ import org.bigbluebutton.api.util.UnitSpec
  */
 class ClientSettingsValidatorTest extends UnitSpec {
 
+  // jackson-module-scala is pinned to 2.13.5 while tika-parsers-standard-package pulls
+  // jackson-databind up to 2.21.3, so the module's version guard throws from YamlUtil's and
+  // JsonUtil's object initialisers. That is an ExceptionInInitializerError, i.e. a LinkageError,
+  // which scalatest treats as a reason to abort the whole RUN - taking every suite scheduled
+  // after this one down with it, silently. Cancel instead so the run completes and reports.
+  // Remove this guard once the jackson versions are reconciled.
+  private def cancelIfJacksonSkewed(): Unit = {
+    try ClientSettingsValidator.validateOverride("public:\n  a: 1\n", "{}")
+    catch {
+      // LinkageError is not NonFatal, so catch Throwable deliberately.
+      case e: Throwable if isLinkage(e) =>
+        cancel("jackson-module-scala 2.13.5 vs jackson-databind 2.21.3 - see project/Dependencies.scala", e)
+    }
+  }
+
+  private def isLinkage(e: Throwable): Boolean =
+    e.isInstanceOf[LinkageError] || Option(e.getCause).exists(isLinkage)
+
+  override def withFixture(test: NoArgTest) = {
+    cancelIfJacksonSkewed()
+    super.withFixture(test)
+  }
+
   // A small stand-in for settings.yml acting as the catalog (YAML).
   val catalog: String =
     "public:\n" +

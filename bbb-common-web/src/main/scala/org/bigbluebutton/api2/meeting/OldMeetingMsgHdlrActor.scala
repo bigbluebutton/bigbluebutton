@@ -9,6 +9,10 @@ import org.bigbluebutton.common2.msgs._
 object OldMeetingMsgHdlrActor {
   def props(olgMsgGW: OldMessageReceivedGW): Props =
     Props(classOf[OldMeetingMsgHdlrActor], olgMsgGW)
+
+  def toPresentationUploadToken(msg: PresentationUploadTokenSysPubMsg): PresentationUploadToken =
+    new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename,
+      msg.body.meetingId, msg.body.presentationId, msg.header.userId)
 }
 
 class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
@@ -211,7 +215,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId, msg.body.presentationId))
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationUploadToken(msg))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {

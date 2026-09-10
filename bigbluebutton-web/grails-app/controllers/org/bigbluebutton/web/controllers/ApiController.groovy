@@ -36,6 +36,7 @@ import org.bigbluebutton.api.service.DownloadResult
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
+import org.bigbluebutton.api.util.RequestRateLimiter
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.SupportedFileTypes
@@ -72,6 +73,7 @@ class ApiController {
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
   PresentationUrlDownloadService presDownloadService
+  RequestRateLimiter insertDocumentRateLimiter
   StunTurnService stunTurnService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
@@ -1203,6 +1205,28 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null) {
+      // Rate limit per meeting (keyed by the internal meeting ID, which is guaranteed
+      // unique) before reading/decoding the request body, so a caller cannot flood the
+      // upload/conversion pipeline with repeated insertDocument requests.
+      String internalMeetingId = meeting.getInternalId()
+      if (!insertDocumentRateLimiter.allow(internalMeetingId, System.currentTimeMillis())) {
+        log.warn("Rejecting insertDocument: rate limit exceeded. meetingID={} internalMeetingID={}",
+                externalMeetingId, internalMeetingId)
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Too many presentation upload requests, please try again later.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Too many presentation upload requests, please try again later.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
+        return
+      }
+
       String requestBody = request.inputStream == null ? null : request.inputStream.text
       requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
@@ -1679,6 +1703,16 @@ class ApiController {
         listOfPresentation.add(0, [name: "default", current: true])
       }
       presentationListHasCurrent = hasCurrent;
+    }
+
+    int maxPresentations = paramsProcessorUtil.getMaxPresentationsPerRequest()
+    if (maxPresentations > 0 && listOfPresentation.size() > maxPresentations) {
+      int dropped = listOfPresentation.size() - maxPresentations
+      log.warn("Presentation count {} exceeds maxPresentationsPerRequest {} for meeting {} " +
+               "(isFromInsertAPI={}); processing first {} and dropping {}.",
+               listOfPresentation.size(), maxPresentations, conf.getInternalId(),
+               isFromInsertAPI, maxPresentations, dropped)
+      listOfPresentation = listOfPresentation.take(maxPresentations)
     }
 
     // Filenames are validated synchronously (on the request thread) while the
