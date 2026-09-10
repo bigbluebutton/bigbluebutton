@@ -224,19 +224,26 @@ class PresentationController {
   }
 
   def upload = {
-    // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
-      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
+    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(params.authzToken)
+    if (presUploadToken == null) {
+      log.debug "Presentation upload authorization token was not valid for meetingId=" + params.conference
+      response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
 
-    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
-    meetingService.expirePresentationUploadToken(params.authzToken)
+    if (!presUploadToken.isValidFor(params.conference)) {
+      log.warn "Presentation upload token scope mismatch for requested meetingId=" + params.conference
+      response.setStatus(403)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'upload token scope mismatch'
+      return
+    }
 
-    def meetingId = params.conference
+    def meetingId = presUploadToken.meetingId
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
       if (meeting == null) {
@@ -263,7 +270,7 @@ class PresentationController {
     }
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
-    def podId = params.pod_id
+    def podId = presUploadToken.podId
 
     // Defaults current to false (optional upload parameter)
     def current = false
