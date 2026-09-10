@@ -4,6 +4,7 @@ import {
   colorBorder,
   colorOffWhite,
   colorText,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
@@ -31,8 +32,19 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   ${({ $jumbomoji }) => $jumbomoji && jumbomojiStyles}
 
   & img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: min(100%, 400px);
+    max-height: 300px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    /* An image with an alpha channel shows whatever is behind it, so dark artwork
+       on a transparent background is nearly unreadable on a dark surface. Give the
+       element an opaque light backdrop of its own. It is invisible under an opaque
+       image, so it never reads as a frame. Dark mode needs the companion override in
+       app/styles.js: DarkReader rewrites this declaration, and only the fix CSS it
+       injects verbatim survives. */
+    background-color: ${colorWhite};
   }
 
   & p {
@@ -78,6 +90,32 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   }
 `;
 
+const ImageLightbox = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+
+  & img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    /* The backdrop above is near-black in both themes, so enlarging a dark
+       transparent image would otherwise make it less readable than the thumbnail,
+       not more. Same opaque backdrop as the inline image. */
+    background-color: ${colorWhite};
+  }
+`;
+
 export default {
   ChatMessage,
+  ImageLightbox,
 };

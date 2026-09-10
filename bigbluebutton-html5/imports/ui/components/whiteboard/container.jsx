@@ -50,6 +50,7 @@ import MediaService from '/imports/ui/components/media/service';
 import { debounce } from '/imports/utils/debounce';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { useIsWhiteboardImagePasteEnabled } from '/imports/ui/services/features';
 
 const RECONNECT_SYNC_DELAY_MS = 750;
 const VISIBILITY_REFETCH_DELAY_MS = 500;
@@ -463,6 +464,7 @@ const WhiteboardContainer = (props) => {
     (i) => i?.output?.sidebarNavigation?.width,
   );
   const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, pointerDiameter } = WHITEBOARD_CONFIG;
+  const isImagePasteEnabled = useIsWhiteboardImagePasteEnabled();
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
@@ -509,6 +511,7 @@ const WhiteboardContainer = (props) => {
           maxNumberOfAnnotations,
           lockToolbarTools,
           pointerDiameter,
+          isImagePasteEnabled,
           fontFamily,
           colorStyle,
           dashStyle,

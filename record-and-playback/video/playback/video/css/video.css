@@ -96,6 +96,7 @@ header > h1 {
 #chat {
   padding: 0 10px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #fff;
   color: #4e5a66;
 
@@ -157,6 +158,10 @@ header > h1 {
 }
 .chat-emphasized-text {
   font-weight: bold;
+}
+.chat-text img {
+  max-width: 100%;
+  height: auto;
 }
 .chat-reactions {
   display: flex;

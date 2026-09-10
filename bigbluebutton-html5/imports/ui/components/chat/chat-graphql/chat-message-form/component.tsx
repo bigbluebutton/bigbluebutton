@@ -18,12 +18,19 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import KEYS from '/imports/utils/keys';
 import {
-  useIsEditChatMessageEnabled, useIsEmojiPickerEnabled,
+  useIsEditChatMessageEnabled, useIsEmojiPickerEnabled, useIsChatImagePasteEnabled,
 } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
+import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import Tooltip from '@mui/material/Tooltip';
+import {
+  uploadImage,
+  isAllowedImage,
+  isWithinSizeLimit,
+  UploadImageError,
+} from '/imports/ui/services/file-upload';
 
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -98,6 +105,34 @@ const messages = defineMessages({
   errorOnSendMessage: {
     id: 'app.chat.errorOnSendMessage',
   },
+  errorImageType: {
+    id: 'app.chat.imagePaste.errorType',
+    description: 'error shown when a pasted file is not an accepted image type',
+  },
+  errorImageTooLarge: {
+    id: 'app.chat.imagePaste.errorTooLarge',
+    description: 'error shown when a pasted image exceeds the size limit',
+  },
+  errorImageDimensions: {
+    id: 'app.chat.imagePaste.errorDimensions',
+    description: 'error shown when a pasted image exceeds the maximum dimensions',
+  },
+  errorImageQuota: {
+    id: 'app.chat.imagePaste.errorQuota',
+    description: 'error shown when the meeting storage quota is exceeded',
+  },
+  errorImageUpload: {
+    id: 'app.chat.imagePaste.errorUpload',
+    description: 'error shown when the image upload fails',
+  },
+  imagePreviewAlt: {
+    id: 'app.chat.imagePaste.previewAlt',
+    description: 'alt text for the pasted image preview thumbnail',
+  },
+  removeImageLabel: {
+    id: 'app.chat.imagePaste.removeLabel',
+    description: 'label for the button that removes the pasted image preview',
+  },
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
   },
@@ -151,6 +186,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
+  const [pendingImage, setPendingImage] = React.useState<{ file: File; previewUrl: string } | null>(null);
+  const [imageUploading, setImageUploading] = React.useState(false);
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -181,6 +218,48 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
+  const ENABLE_IMAGE_PASTE = useIsChatImagePasteEnabled();
+
+  const clearPendingImage = useCallback(() => {
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return null;
+    });
+  }, []);
+
+  // Validates and stages a captured image for preview. Client-side checks are
+  // for fast, friendly feedback only; the upload service enforces them for real.
+  const captureImageFile = (file: File | null): void => {
+    if (!ENABLE_IMAGE_PASTE || !file) return;
+    if (!isAllowedImage(file)) {
+      setError(intl.formatMessage(messages.errorImageType));
+      setHasErrors(true);
+      return;
+    }
+    if (!isWithinSizeLimit(file)) {
+      setError(intl.formatMessage(messages.errorImageTooLarge));
+      setHasErrors(true);
+      return;
+    }
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return { file, previewUrl: URL.createObjectURL(file) };
+    });
+    setError(null);
+    setHasErrors(false);
+  };
+
+  const getImageFromDataTransfer = (data: DataTransfer | null): File | null => {
+    if (!data) return null;
+    const files = Array.from(data.files || []);
+    return files.find((f) => f.type.startsWith('image/')) || null;
+  };
+
+  // Revoke any staged preview URL on unmount, and drop it when switching chats.
+  useEffect(() => () => clearPendingImage(), []);
+  useEffect(() => {
+    clearPendingImage();
+  }, [chatId]);
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -439,12 +518,59 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
     const hasSelectedTextInChat = useRef(false);
 
+    // Defined at renderForm level (not inside handleSubmit) so the promise
+    // callbacks below stay within the allowed function-nesting depth.
+    const sendCancelEvents = () => {
+      if (repliedMessageId) {
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+        );
+      }
+      if (editingMessage) {
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+        );
+      }
+    };
+
+    const clearAfterSend = () => {
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
+
+      // Remove the chat that user send messages from the session.
+      if (indexOf(currentClosedChats, chatId) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+      }
+
+      setMessage('');
+      updateUnsentMessages(chatId, '');
+      setError(null);
+      setHasErrors(false);
+      setShowEmojiPicker(false);
+      const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
+      window.dispatchEvent(sentMessageEvent);
+    };
+
+    const dispatchSendMessage = (markdown: string) => {
+      chatSendMessage({
+        variables: {
+          chatMessageInMarkdownFormat: markdown,
+          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+          replyToMessageId: repliedMessageId,
+        },
+      }).then(() => {
+        sendCancelEvents();
+      });
+    };
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
       const msg = message;
+      const hasImage = pendingImage != null;
 
-      if (msg.length < minMessageLength || chatSendMessageLoading) return;
+      if (chatSendMessageLoading || imageUploading) return;
+      // A staged image is enough to submit even with an empty text body.
+      if (msg.length < minMessageLength && !hasImage) return;
 
       if (disabled
         || msg.length > maxMessageLength) {
@@ -452,20 +578,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      const sendCancelEvents = () => {
-        if (repliedMessageId) {
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
-          );
-        }
-        if (editingMessage) {
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
-          );
-        }
-      };
-
       if (editingMessage.current && !chatEditMessageLoading) {
+        // Message edits are text-only: a staged image cannot be attached to an
+        // existing message, so unstage it (removing its preview) instead of
+        // silently keeping it staged for the next unrelated send.
+        clearPendingImage();
         chatEditMessage({
           variables: {
             chatId: editingMessage.current.chatId,
@@ -483,31 +600,76 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             },
           }, `Editing the message failed: ${e?.message}`);
         });
-      } else if (!chatSendMessageLoading) {
-        chatSendMessage({
-          variables: {
-            chatMessageInMarkdownFormat: msg,
-            chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-            replyToMessageId: repliedMessageId,
-          },
-        }).then(() => {
-          sendCancelEvents();
-        });
-      }
-      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
-
-      // Remove the chat that user send messages from the session.
-      if (indexOf(currentClosedChats, chatId) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+        clearAfterSend();
+        return;
       }
 
-      setMessage('');
-      updateUnsentMessages(chatId, '');
-      setError(null);
-      setHasErrors(false);
-      setShowEmojiPicker(false);
-      const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
-      window.dispatchEvent(sentMessageEvent);
+      // The image is uploaded on submit (not on paste) so that pasting and then
+      // giving up never leaves an orphan file on the server. Only after the
+      // upload resolves do we build the markdown and send the message.
+      if (hasImage) {
+        const { file } = pendingImage;
+        // The sent markdown appends `![image](<upload-url>)` to the text, and the
+        // upload URL shape is deterministic (/bigbluebutton/fileUpload/<meetingId>/
+        // <36-char uuid>.<up to 4-char ext>), so its length is known before
+        // uploading. Checking the combined length here — the msg.length check
+        // above only covers the text — keeps the server-side maxMessageLength
+        // truncation from cutting the image URL in half, which would deliver
+        // broken markdown and leave an orphan upload counting against the quota.
+        const imageMarkdownLength = '![image]()'.length
+          + '/bigbluebutton/fileUpload/'.length + String(Auth.meetingID ?? '').length + '/'.length
+          + 36 + '.webp'.length;
+        const separatorLength = msg.length > 0 ? '\n\n'.length : 0;
+        if (msg.length + separatorLength + imageMarkdownLength > maxMessageLength) {
+          setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
+          setHasErrors(true);
+          return;
+        }
+        setImageUploading(true);
+        uploadImage(file)
+          .then((url) => {
+            const imageMarkdown = `![image](${url})`;
+            const markdown = msg.length > 0 ? `${msg}\n\n${imageMarkdown}` : imageMarkdown;
+            if (markdown.length > maxMessageLength) {
+              // Unreachable while the pre-upload reserve above matches the URL
+              // shape; kept so shape drift rejects the message here instead of
+              // letting the server truncate it into broken markdown.
+              setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
+              setHasErrors(true);
+              return;
+            }
+            dispatchSendMessage(markdown);
+            clearPendingImage();
+            clearAfterSend();
+          })
+          .catch((err) => {
+            const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+            const errorByReason = {
+              'too-large': messages.errorImageTooLarge,
+              'image-too-large': messages.errorImageDimensions,
+              'quota-exceeded': messages.errorImageQuota,
+              'unsupported-type': messages.errorImageType,
+              'upload-failed': messages.errorImageUpload,
+            } as const;
+            const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+            setError(
+              reason === 'image-too-large' && dims
+                ? intl.formatMessage(messages.errorImageDimensions, dims)
+                : intl.formatMessage(errorByReason[reason] ?? messages.errorImageUpload),
+            );
+            logger.error({
+              logCode: 'chat_image_upload_error',
+              extraInfo: { reason },
+            }, `Chat image upload failed: ${err?.message}`);
+          })
+          .finally(() => {
+            setImageUploading(false);
+          });
+        return;
+      }
+
+      dispatchSendMessage(msg);
+      clearAfterSend();
     };
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -668,6 +830,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             />
           </Styled.EmojiPickerWrapper>
         ) : null}
+        {pendingImage ? (
+          <Styled.ImagePreview data-test="chatImagePreview">
+            <Styled.ImageThumb
+              src={pendingImage.previewUrl}
+              alt={intl.formatMessage(messages.imagePreviewAlt)}
+            />
+            <Tooltip title={intl.formatMessage(messages.removeImageLabel)}>
+              <Styled.RemoveImageButton
+                type="button"
+                onClick={clearPendingImage}
+                aria-label={intl.formatMessage(messages.removeImageLabel)}
+                data-test="removeChatImageButton"
+                disabled={imageUploading}
+              >
+                <CloseIcon fontSize="small" />
+              </Styled.RemoveImageButton>
+            </Tooltip>
+          </Styled.ImagePreview>
+        ) : null}
         <Styled.Wrapper>
           <Styled.InputWrapper
             onClick={(e) => {
@@ -705,7 +886,30 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               maxRows={5}
               onChange={handleMessageChange}
               onKeyDown={handleMessageKeyDown}
-              onPaste={(e) => { e.stopPropagation(); }}
+              onPaste={(e) => {
+                e.stopPropagation();
+                const image = getImageFromDataTransfer(e.clipboardData);
+                if (ENABLE_IMAGE_PASTE && image) {
+                  e.preventDefault();
+                  captureImageFile(image);
+                }
+              }}
+              onDrop={(e) => {
+                if (!ENABLE_IMAGE_PASTE) return;
+                // Always prevent the default drop: onDragOver accepts any file
+                // drag, and without this a non-image drop would navigate the tab
+                // to the file, kicking the user out of the meeting.
+                e.preventDefault();
+                const image = getImageFromDataTransfer(e.dataTransfer);
+                if (image) {
+                  captureImageFile(image);
+                }
+              }}
+              onDragOver={(e) => {
+                if (ENABLE_IMAGE_PASTE && Array.from(e.dataTransfer?.types || []).includes('Files')) {
+                  e.preventDefault();
+                }
+              }}
               onCut={(e) => { e.stopPropagation(); }}
               onCopy={(e) => { e.stopPropagation(); }}
               async
@@ -747,7 +951,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     backgroundColor: btnPrimaryBg,
                   }}
                   variant="contained"
-                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading || imageUploading}
                   type="submit"
                   data-test="sendMessageButton"
                   aria-label={intl.formatMessage(messages.submitLabel)}

@@ -1,8 +1,14 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
+import { ChatImagePaste } from './imagePaste';
 import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
 import { PrivateChatListPreview } from './privateChatListPreview';
+
+// Rendering the sent <img> needs chat.imagePaste (to stage/upload) AND
+// chat.markdownImageAllowed (the akka markdown renderer only emits <img> when this
+// is on); both settings must be enabled for the image-paste tests to pass.
+const imagePasteTags = ['@setting-required:chat.imagePaste', '@setting-required:chat.markdownImageAllowed'];
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -275,6 +281,80 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.initPages(page, testInfo);
         await message.orderReactions();
       });
+    });
+  });
+
+  test.describe('Image paste', { tag: imagePasteTags }, () => {
+    test('Paste an image, preview it and send it', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.pasteAndSendImage();
+    });
+
+    test('Remove the pasted image before sending', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.removePreviewBeforeSend();
+    });
+
+    test('Reject an image above the size limit', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsOversizeImage();
+    });
+
+    test('Reject an unsupported image type', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsUnsupportedType();
+    });
+
+    test('Reject a file whose bytes are not the image type it declares', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsSpoofedImageContent();
+    });
+
+    test('Reject an image above the dimension cap', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsImageExceedingDimensionCap();
+    });
+
+    test('Stage a single image when the clipboard carries several', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.stagesOnlyOneImageFromMultiImageClipboard();
+    });
+
+    test('Keep the image staged when the upload fails, and send it on retry', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.keepsImageStagedWhenUploadFails();
+    });
+
+    test('Strip an externally hosted image from a sent message', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropsExternalImage();
+    });
+
+    test('Strip an external image nested in the alt text of another image', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropsExternalImageNestedInAltText();
     });
   });
 });

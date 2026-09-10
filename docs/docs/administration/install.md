@@ -261,6 +261,7 @@ etherpad —————————————————————► [✔
 bbb-web ——————————————————————► [✔ - active]
 bbb-pads —————————————————————► [✔ - active]
 bbb-export-annotations ———————► [✔ - active]
+bbb-file-upload —————————————————► [✔ - active]
 bbb-rap-caption-inbox ————————► [✔ - active]
 bbb-rap-resque-worker ————————► [✔ - active]
 bbb-rap-starter ——————————————► [✔ - active]
@@ -275,6 +276,7 @@ ii  bbb-apps-akka                        2:4.0.0~beta.3+20260525T143438-git.loca
 ii  bbb-config                           2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton configuration utilities
 ii  bbb-etherpad                         2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        The EtherPad Lite components for BigBlueButton
 ii  bbb-export-annotations               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton Export Annotations
+ii  bbb-file-upload                      2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton File Upload Service
 ii  bbb-freeswitch-core                  2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton build of FreeSWITCH
 ii  bbb-freeswitch-sounds                2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        FreeSWITCH Sounds
 ii  bbb-fsesl-akka                       2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f all          BigBlueButton FS-ESL (Akka)

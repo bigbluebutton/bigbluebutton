@@ -129,6 +129,71 @@ object MarkdownUtil {
   private def autolinkUrls(root: Node): Unit = {
     root.accept(new AutoLinkVisitor)
   }
+
+  /**
+   * A pasted-image source may only reference an upload served same-origin by the
+   * file-upload service: `/bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}`.
+   * Matching the exact shape (rather than "starts with `/` but not `//`") is
+   * deliberate: a browser folds a backslash in the authority to a forward slash,
+   * so a lax rooted-path check lets `/\evil.com/pixel.png` through and the browser
+   * loads it from `https://evil.com/...`, reintroducing the tracking-pixel /
+   * IP-leak vector. The character classes forbid backslashes, control chars and
+   * dots outside the extension, which closes that bypass, and they mirror the
+   * serving contract (like the whiteboard's `uploadedImageSrcPattern`): nginx
+   * only serves lowercase-hex uuid filenames, so the filename segment is
+   * `[a-f0-9-]+`. The meeting-id segment is left generic here because the
+   * renderer is meeting-agnostic and shared across chats; cross-meeting
+   * references are blocked by the GET authorization gate
+   * (`checkFileUploadAuthorization`, by meeting family).
+   */
+  private val UploadedImagePattern: Pattern =
+    Pattern.compile("^/bigbluebutton/fileUpload/[A-Za-z0-9-]+/[a-f0-9-]+\\.(png|jpe?g|gif|webp)$")
+
+  /**
+   * Only same-origin uploads are allowed as image sources. `sanitizeUrls` already
+   * blocks dangerous schemes (javascript:, data:), but it still lets an
+   * `![](https://tracker.example/pixel.png)` through, turning chat into a
+   * tracking-pixel / IP-leak vector. So, when images are enabled, we drop every
+   * Image node whose destination is not a valid upload path. Anything with a
+   * scheme, a protocol-relative authority (`//host`), a backslash bypass
+   * (`/\host`) or any other shape is removed before rendering.
+   */
+  private def stripExternalImages(root: Node): Unit = {
+    val toRemove = new util.ArrayList[Image]()
+    root.accept(new AbstractVisitor {
+      override def visit(image: Image): Unit = {
+        // Validate every image in the AST, including those nested in another
+        // image's alt text (CommonMark allows that). A rejected image's alt
+        // content is promoted into the document below, so a nested image only
+        // validated when its parent is accepted would survive as a real <img>.
+        if (!isSameOriginUrl(image.getDestination)) {
+          toRemove.add(image)
+        }
+        visitChildren(image)
+      }
+    })
+    val it = toRemove.iterator()
+    while (it.hasNext) {
+      val image = it.next()
+      // Preserve the alt text as literal text instead of discarding the whole
+      // node: an Image's children are its alt/caption inline content, so move
+      // them out before the image and then drop only the image itself. Dropping
+      // the node wholesale silently deleted whatever the user wrote as alt text.
+      var child = image.getFirstChild
+      while (child != null) {
+        val next = child.getNext
+        image.insertBefore(child)
+        child = next
+      }
+      image.unlink()
+    }
+  }
+
+  private def isSameOriginUrl(url: String): Boolean = {
+    if (url == null) return false
+    UploadedImagePattern.matcher(url.trim).matches()
+  }
+
   private val MaxMessageLength = 5000
 
   private val MarkdownSyntaxChars: Array[Char] =
@@ -173,6 +238,7 @@ object MarkdownUtil {
 
     val doc = parser.parse(processedMd)
     autolinkUrls(doc) // extra step: create links from plain text URLs
+    if (enableImages) stripExternalImages(doc) // same-origin images only (privacy)
     val chosenRenderer = if (enableImages) rendererWithImages else rendererNoImages
     chosenRenderer.render(doc)
   }

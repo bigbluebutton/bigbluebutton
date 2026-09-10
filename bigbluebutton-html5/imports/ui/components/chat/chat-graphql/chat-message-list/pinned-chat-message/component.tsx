@@ -5,6 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
 import { CHAT_SET_PINNED_MUTATION } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/mutations';
+import { authenticateUploadedImages } from '/imports/ui/components/chat/chat-graphql/service';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
@@ -177,7 +178,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
           }
         }}
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: messageAsHtml }}
+        dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(messageAsHtml) }}
       />
       {isExpanded && (
         <Styled.Footer>

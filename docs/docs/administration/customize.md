@@ -1729,6 +1729,32 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
+#### Enable pasting images into chat, shared notes and whiteboard
+
+Image paste is controlled by HTML5 client settings. They live under `public:` in the client's `settings.yml` catalog, so they must be overridden in `/etc/bigbluebutton/bbb-html5.yml` (not in `bbb-web.properties`, where they would be silently ignored):
+
+| Setting | Description | Options | Default value |
+|---|---|---|---|
+| `public.chat.imagePaste.enabled` | Allow pasting/dropping images into the chat input. Only takes effect when `markdownImageAllowed` below is also on (the pasted image is rendered server-side as markdown) | true/false | false |
+| `public.chat.markdownImageAllowed` | Render `![](url)` markdown as sanitized `<img>` in chat messages. **Note:** since image paste was introduced, only same-origin URLs (`/bigbluebutton/fileUpload/...`) render; external URLs are stripped to prevent IP-leak / tracking-pixel attacks | true/false | false |
+| `public.app.sharedNotes.imagePaste.enabled` | Allow pasting/dropping images into the BlockNote shared notes editor (Etherpad is unaffected) | true/false | false |
+| `public.whiteboard.imagePaste.enabled` | Allow pasting/dropping images onto the whiteboard (presenter or write-access only) | true/false | false |
+| `public.fileUpload.maxFileSizeKb` | Maximum size per uploaded image (shared across all three surfaces) | Integer (KB) | 5120 |
+| `public.fileUpload.maxImageDimensionPx` | Maximum width or height per uploaded image (anti pixel-bomb) | Integer (px) | 4096 |
+| `public.fileUpload.allowedMimeTypes` | Allowed image MIME types (validated by magic bytes) | List | `['image/png','image/jpeg','image/gif','image/webp']` |
+
+For example, to enable image paste in the chat:
+
+```bash
+test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '.public.chat.imagePaste.enabled = true' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '.public.chat.markdownImageAllowed = true' /etc/bigbluebutton/bbb-html5.yml
+```
+
+Restart BigBlueButton (`sudo bbb-conf --restart`) for the change to take effect. Each surface can also be disabled per meeting through the `disabledFeatures` [`/create`](/development/api/#create) parameter (`chatImagePaste`, `sharedNotesImagePaste`, `whiteboardImagePaste`).
+
+**Note:** the client only uses the `public.fileUpload.*` limits for fast, friendly feedback; the authoritative limits are enforced by the `bbb-file-upload` service and live in its own config (override in `/etc/bigbluebutton/bbb-file-upload.yml`, defaults in `/usr/share/bbb-file-upload/config/default.yml`). When raising a limit, raise it in both places, otherwise uploads pass the client pre-check and are still rejected by the service.
+
 ### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 

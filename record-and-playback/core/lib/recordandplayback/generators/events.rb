@@ -883,6 +883,34 @@ module BigBlueButton
       html.to_html
     end
 
+    # Live images pasted into chat, shared notes or the whiteboard are served by
+    # the bbb-file-upload service at /bigbluebutton/fileUpload/{meetingId}/{file},
+    # an endpoint that only answers during the meeting (auth by live session, and
+    # the files are cleaned up afterwards). The archive copies those files into the
+    # recording package's file-uploads/ directory, so every reference to them (chat
+    # message HTML, tldraw shape data) must be rewritten to the recording-relative
+    # path before it is written to the playback files, or the images 404 on
+    # playback. The meetingId in the source URL is dropped on purpose: uploads of
+    # the whole meeting family are flattened into one file-uploads/ directory (the
+    # file names are uuids, so they never collide) - see the archive step.
+    FILE_UPLOAD_URL_REGEX = %r{/bigbluebutton/fileUpload/[A-Za-z0-9-]+/([A-Za-z0-9][A-Za-z0-9-]*\.(?:png|jpe?g|gif|webp))}i.freeze
+
+    def self.rewrite_file_upload_urls(text, record_id)
+      return text if text.nil?
+
+      # The file-uploads directory name is part of the recording format.
+      # Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+      # nginx template and the record-and-playback scripts.
+      text.gsub(FILE_UPLOAD_URL_REGEX, "/presentation/#{record_id}/file-uploads/\\1")
+    end
+
+    # The internal ids of a meeting's breakout rooms, as recorded in events.xml
+    # (empty if it had none). Used by the archive to also collect the uploads of
+    # every room in the meeting family.
+    def self.get_breakout_room_ids(events)
+      events.xpath('/recording/breakoutRooms/breakoutRoom').map { |node| node.text.strip }.reject(&:empty?)
+    end
+
     # Build a map of users name
     def self.user_name_map(events)
       map = {}

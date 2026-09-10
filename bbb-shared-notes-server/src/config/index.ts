@@ -27,7 +27,15 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
   return result;
 }
 
+// An explicit config path (BBB_SHARED_NOTES_SERVER_CONFIG) short-circuits the whole
+// lookup: no production-path preference and no /etc override merge. The tests
+// use it to stay hermetic on hosts where the deployed package config exists.
+const EXPLICIT_CONFIG_PATH = process.env.BBB_SHARED_NOTES_SERVER_CONFIG;
+
 function loadConfig(): AppSettings {
+  if (EXPLICIT_CONFIG_PATH) {
+    return load(readFileSync(EXPLICIT_CONFIG_PATH, 'utf8')) as AppSettings;
+  }
   const defaultPath = existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH;
   const config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
 

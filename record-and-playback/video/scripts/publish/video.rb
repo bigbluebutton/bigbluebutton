@@ -111,8 +111,15 @@ logger.info 'Copying files to publish directory'
 # Copy the index html file
 FileUtils.cp("#{process_dir}/index.html", "#{publish_dir}/index.html")
 
-# The chat events file
-FileUtils.cp("#{process_dir}/video.xml", "#{publish_dir}/video.xml")
+# The chat events file. Images pasted during the meeting are referenced by their
+# bbb-file-upload url, which stops answering once the meeting ends, so they are
+# pointed at the file-uploads directory copied below. The path is relative because
+# the video playback page and its files are served from the same directory
+# (/playback/video/{recordId}/), unlike presentation playback, which loads the
+# recording files by absolute path.
+video_xml = File.read("#{process_dir}/video.xml")
+                .gsub(BigBlueButton::Events::FILE_UPLOAD_URL_REGEX, 'file-uploads/\1')
+File.write("#{publish_dir}/video.xml", video_xml)
 
 # Copy over generated video files
 preset['formats'].each_with_index do |format, i|
@@ -130,6 +137,13 @@ end
 
 # Copy over metadata xml file
 FileUtils.cp("#{process_dir}/metadata.xml", "#{publish_dir}/metadata.xml")
+
+# Pasted images (chat/notes/whiteboard), if the meeting had any. The file-uploads
+# directory name is part of the recording format: it must match bbb-file-upload,
+# bbb-shared-notes-server, the bbb-file-upload nginx template and the
+# record-and-playback scripts.
+uploads_dir = "#{process_dir}/file-uploads"
+FileUtils.cp_r(uploads_dir, publish_dir) if File.directory?(uploads_dir)
 
 # Get raw size of presentation files
 raw_dir = "#{recording_dir}/raw/#{meeting_id}"

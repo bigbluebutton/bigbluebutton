@@ -385,8 +385,50 @@ const sanitizeShape = (shape) => {
   };
 };
 
+// Only the shape is persisted server-side (annotationInfo); the tldraw asset that
+// an image shape needs to render is rebuilt here from the relative src kept in
+// shape.meta.bbbImageSrc, so pasted images survive reload and reach remote users.
+
+// Same shape as the server-side ingestion gate (WhiteboardModel), minus the
+// meetingId pinning that only the server can enforce. Belt and braces: the
+// sessionToken appended below must never travel to anything but our own
+// fileUpload path, even if an invalid src ever slipped into a shape's meta.
+const UPLOADED_IMAGE_SRC_PATTERN = /^\/bigbluebutton\/fileUpload\/[A-Za-z0-9-]+\/[a-f0-9-]+\.(png|jpe?g|gif|webp)$/;
+
+// tldraw record ids are `<typeName>:<uniqueId>`, where uniqueId is a url-safe
+// nanoid. assetId reaches us from a remote shape's props (attacker-controllable),
+// and it becomes the id of the asset record we put into the store, so validate
+// its shape before trusting it - a malformed id must not be inserted as a record.
+const TLDRAW_ASSET_ID_PATTERN = /^asset:[A-Za-z0-9_-]+$/;
+
+const reconstructImageAssets = (store, shapes) => {
+  if (!store) return;
+  shapes.forEach((shape) => {
+    const src = shape?.meta?.bbbImageSrc;
+    const assetId = shape?.props?.assetId;
+    if (shape?.type !== 'image' || !src || !assetId || store.get(assetId)) return;
+    if (!TLDRAW_ASSET_ID_PATTERN.test(assetId)) return;
+    if (!UPLOADED_IMAGE_SRC_PATTERN.test(src)) return;
+    store.put([{
+      id: assetId,
+      typeName: 'asset',
+      type: 'image',
+      meta: {},
+      props: {
+        w: shape.props.w,
+        h: shape.props.h,
+        src: Auth.authenticateURL(src),
+        name: '',
+        isAnimated: false,
+        mimeType: null,
+      },
+    }]);
+  });
+};
+
 const debouncedUpdateShapes = debounce((
   shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape, currentUserId,
+  imagePasteEnabled = false,
 ) => {
   if (shapes && Object.keys(shapes).length > 0) {
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
@@ -426,7 +468,7 @@ const debouncedUpdateShapes = debounce((
         if (
           (shape.meta?.presentationId === presentationIdRef.current
           || shape?.whiteboardId?.includes(presentationIdRef.current))
-          && isValidShapeType(shape)
+          && isValidShapeType(shape, imagePasteEnabled)
         ) {
           acc.push(sanitizeShape(shapeToMerge));
         }
@@ -438,6 +480,7 @@ const debouncedUpdateShapes = debounce((
         tlEditorRef.current?.store.put(bgShape);
       }
 
+      reconstructImageAssets(tlEditorRef.current?.store, remoteShapesArray);
       tlEditorRef.current?.store.put(remoteShapesArray);
     });
   }
@@ -483,4 +526,5 @@ export {
   debouncedUpdateShapes,
   sanitizeShape,
   setupColorThemePaletteOverrides,
+  reconstructImageAssets,
 };

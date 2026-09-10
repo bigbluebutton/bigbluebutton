@@ -4,6 +4,7 @@ import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 
 case class Whiteboard(
     id:             String,
@@ -27,7 +28,10 @@ class WhiteboardApp2x(implicit val context: ActorContext)
       isModerator:  Boolean
   ): Array[AnnotationVO] = {
     //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
-    liveMeeting.wbModel.addAnnotations(whiteboardId, liveMeeting.props.meetingProp.intId, requesterId, annotations, isPresenter, isModerator)
+    val imagePasteEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+      liveMeeting.clientSettings, "public.whiteboard.imagePaste.enabled", false
+    )
+    liveMeeting.wbModel.addAnnotations(whiteboardId, liveMeeting.props.meetingProp.intId, requesterId, annotations, isPresenter, isModerator, imagePasteEnabled)
   }
 
   def getWhiteboardAnnotations(whiteboardId: String, liveMeeting: LiveMeeting): Array[AnnotationVO] = {

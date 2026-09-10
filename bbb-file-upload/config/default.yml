@@ -1,0 +1,31 @@
+expressServer:
+  host: 127.0.0.1
+  port: 8094
+
+storage:
+  # Uploads are stored at {basePath}/{meetingId}/{uploadsDirName}/{uuid}.{ext}
+  basePath: /var/bigbluebutton
+  # The file-uploads directory name is part of the recording format.
+  # Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+  # nginx template and the record-and-playback scripts.
+  uploadsDirName: file-uploads
+
+limits:
+  maxFileSizeKb: 5120
+  # Reject images whose width or height (read from the file header, without
+  # decoding the bitmap) exceeds this value. Guards downstream consumers
+  # (wkhtmltopdf, export-annotations) against decompression bombs.
+  maxImageDimensionPx: 4096
+  allowedMimeTypes:
+    - image/png
+    - image/jpeg
+    - image/gif
+    - image/webp
+  quotaPerMeetingMb: 100
+
+rateLimit:
+  windowInSeconds: 60
+  maxRequestsPerWindow: 60
+
+log:
+  level: info

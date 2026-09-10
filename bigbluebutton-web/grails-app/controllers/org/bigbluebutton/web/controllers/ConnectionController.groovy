@@ -27,11 +27,16 @@ import org.bigbluebutton.api.domain.UserSessionBasicData
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
 import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
 
 
 class ConnectionController {
   MeetingService meetingService
   ParamsProcessorUtil paramsProcessorUtil
+
+  private static final Pattern FILE_UPLOAD_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/fileUpload/([A-Za-z0-9\\-]+)/([a-f0-9\\-]+\\.(png|jpe?g|gif|webp))'
+  )
 
   def checkAuthorization = {
     try {
@@ -160,6 +165,88 @@ class ConnectionController {
         }
       }
     }
+  }
+
+  // Authorizes serving of an uploaded file (bbb-file-upload). Modeled on
+  // checkPresentationAuthorization: reads the original URI from the
+  // auth_request, resolves the session, and compares the meetingId in the path
+  // against the session's meeting. The comparison is by meeting family (Q3):
+  // an image uploaded in the main room is visible from its breakouts and vice
+  // versa, so we compare the root of each meeting, where the root of a breakout
+  // is its parent meeting.
+  def checkFileUploadAuthorization = {
+    try {
+      def uri = request.getHeader("x-original-uri")
+      if (uri == null) {
+        response.setStatus(401)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'text/plain'
+        response.outputStream << 'unauthorized'
+        return
+      }
+
+      def sessionToken = ParamsUtil.getSessionToken(uri)
+      UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+
+      if (userSession == null || isSessionTokenInvalid) {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+        return
+      }
+
+      def uriPath = uri.split('\\?')[0]
+      def matcher = FILE_UPLOAD_URI_PATTERN.matcher(uriPath)
+      if (!matcher.matches()) {
+        response.setStatus(403)
+        response.outputStream << 'forbidden'
+        return
+      }
+
+      def pathMeetingId = matcher.group(1)
+      Meeting sessionMeeting = meetingService.getMeeting(userSession.meetingID)
+      Meeting pathMeeting = meetingService.getMeeting(pathMeetingId)
+
+      if (sessionMeeting == null || pathMeeting == null) {
+        response.setStatus(403)
+        response.outputStream << 'forbidden'
+        return
+      }
+
+      String sessionRoot = rootMeetingId(sessionMeeting)
+      String pathRoot = rootMeetingId(pathMeeting)
+      if (sessionRoot == null || pathRoot == null || sessionRoot != pathRoot) {
+        response.setStatus(403)
+        response.outputStream << 'forbidden'
+        return
+      }
+
+      response.setStatus(200)
+      response.outputStream << 'authorized'
+    } catch (Exception e) {
+      log.error("Error in checkFileUploadAuthorization.\n" + e.getMessage())
+      response.setStatus(401)
+      response.contentType = 'text/plain'
+      response.outputStream << 'unauthorized'
+    }
+  }
+
+  private static String rootMeetingId(Meeting m) {
+    if (!m.isBreakout()) {
+      return m.getInternalId()
+    }
+    String parentId = m.getParentMeetingId()
+    // A breakout whose parent id is unset falls back to the "bbb-none"
+    // sentinel (Meeting's default). Two such meetings must not look like
+    // siblings, so an unusable parent id yields null and the caller denies.
+    if (parentId == null || parentId.isEmpty() || parentId == 'bbb-none') {
+      return null
+    }
+    return parentId
   }
 
   def legacyCheckAuthorization = {
