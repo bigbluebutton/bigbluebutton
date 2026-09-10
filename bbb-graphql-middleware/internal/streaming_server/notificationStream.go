@@ -13,10 +13,14 @@ import (
 func HandleNotifyAllInMeetingEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
 	jsonDataNext, _ := createGraphqlMessage(receivedMessage, false)
 
+	meetingId := receivedMessage.Core.Header.MeetingId
+
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
+		// Meeting-wide notifications carry user names (e.g. the join push alert), so a connection
+		// that is not in the meeting must not receive them.
+		if snapshotStreamingRecipient(bc).inMeeting(meetingId) {
 			browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 		}
 	}
@@ -39,10 +43,13 @@ func HandleNotifyUserInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	userId := receivedMessage.Core.Body["userId"].(string)
 	jsonDataNext, _ := createGraphqlMessage(receivedMessage, true)
 
+	meetingId := receivedMessage.Core.Header.MeetingId
+
 	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		if bc.MeetingId == receivedMessage.Core.Header.MeetingId && bc.UserId == userId {
+		recipient := snapshotStreamingRecipient(bc)
+		if recipient.inMeeting(meetingId) && recipient.UserId == userId {
 			browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
 		}
 	}
@@ -65,14 +72,18 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	role := receivedMessage.Core.Body["role"].(string)
 	jsonDataNext, _ := createGraphqlMessage(receivedMessage, false)
 
+	meetingId := receivedMessage.Core.Header.MeetingId
+
 	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		bc.RLock()
-		matchesMeeting := bc.MeetingId == receivedMessage.Core.Header.MeetingId
-		isModerator := matchesMeeting && strings.EqualFold(role, "moderator") && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId
-		isPresenter := matchesMeeting && strings.EqualFold(role, "presenter") && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId
-		bc.RUnlock()
+		recipient := snapshotStreamingRecipient(bc)
+		// X-Hasura-ModeratorInMeeting / PresenterInMeeting are derived from the RegisteredUser
+		// role, which survives ejection, so they are still populated for an ejected moderator.
+		// Membership and a settled refresh must both hold before they can be trusted.
+		matches := recipient.inMeeting(meetingId) && recipient.lockStateKnown()
+		isModerator := matches && strings.EqualFold(role, "moderator") && recipient.sessionVar("x-hasura-moderatorinmeeting") == meetingId
+		isPresenter := matches && strings.EqualFold(role, "presenter") && recipient.sessionVar("x-hasura-presenterinmeeting") == meetingId
 		if isModerator || isPresenter {
 			browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
 		}

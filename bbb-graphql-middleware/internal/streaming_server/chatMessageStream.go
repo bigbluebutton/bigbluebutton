@@ -19,13 +19,23 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 		return
 	}
 
+	meetingId := receivedMessage.Core.Header.MeetingId
+
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			if len(chatParticipants) == 0 || slices.Contains(chatParticipants, any(bc.UserId)) {
-				browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
-			}
+		recipient := snapshotStreamingRecipient(bc)
+		// Membership first. An ejected user keeps a valid session token, a populated MeetingId and
+		// their ActiveStreamings entry, so without this they carry on reading the conversation.
+		if !recipient.inMeeting(meetingId) {
+			continue
+		}
+		// An empty participant list means public chat; otherwise the message belongs to a private
+		// chat and only its participants may see it. Note the list is not pruned when a user is
+		// ejected (GroupChat.remove is never called in production), which is exactly why the
+		// membership check above cannot be skipped for private chats.
+		if len(chatParticipants) == 0 || slices.Contains(chatParticipants, any(recipient.UserId)) {
+			browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 		}
 	}
 	browserConnectionsMutex.RUnlock()

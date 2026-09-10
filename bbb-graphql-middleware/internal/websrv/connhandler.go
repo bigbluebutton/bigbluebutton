@@ -258,9 +258,20 @@ func InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate string) {
 }
 
 func invalidateHasuraConnectionForSessionToken(browserConnection *common.BrowserConnection, sessionToken string) {
-	browserConnection.RLock()
+	browserConnection.Lock()
 	hasuraConnection := browserConnection.HasuraConnection
-	browserConnection.RUnlock()
+	// The session variables held here are now known to be out of date. Mark them stale until a
+	// refresh succeeds so that checks derived from them - notably meeting membership in the
+	// streaming server - treat the state as unknown and fail closed in the meantime. This matters
+	// most on ejection, which is precisely when a connection must stop being served.
+	browserConnection.SessionVariablesStale = true
+	browserConnection.Unlock()
+
+	// Update variables for Mutations (gql-actions requests) and for the streams handled by the
+	// Middleware. This runs even when there is no Hasura connection to tear down, otherwise a
+	// reconnection request arriving while the Hasura connection is being re-established would
+	// leave the connection permanently marked stale.
+	go refreshUserSessionVariables(browserConnection)
 
 	if hasuraConnection == nil {
 		return // If there's no Hasura connection, there's nothing to invalidate.
@@ -271,9 +282,6 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 	// Stop receiving new messages from the browser.
 	browserConnection.Logger.Debug("freezing channel fromBrowserToHasuraChannel")
 	browserConnection.FromBrowserToHasuraChannel.FreezeChannel()
-
-	// Update variables for Mutations (gql-actions requests)
-	go refreshUserSessionVariables(browserConnection)
 
 	// Cancel the Hasura connection context to clean up resources.
 	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
@@ -348,6 +356,10 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 	browserConnection.Lock()
 	browserConnection.BBBWebSessionVariables = sessionVariables
 	browserConnection.CurrentlyInMeeting = hasuraRole == "bbb_client"
+	// Only a successful refresh clears the stale mark. Every error path above returns early and
+	// leaves it set, so a failed refresh keeps checks failing closed rather than continuing to
+	// trust pre-refresh session variables indefinitely.
+	browserConnection.SessionVariablesStale = false
 	browserConnection.Unlock()
 
 	return nil, ""

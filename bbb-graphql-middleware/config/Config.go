@@ -71,10 +71,17 @@ func GetConfig() *Config {
 }
 
 func (c *Config) loadConfigs() {
-	// Load default config file
-	configDefault, err := loadConfigFile(DefaultConfigPath)
+	// Load default config file. The path can be redirected with BBB_GRAPHQL_MIDDLEWARE_CONFIG so
+	// the package can be built and tested without an installed bbb-graphql-middleware - internal
+	// packages read the config at init, so otherwise no test in this module can run.
+	defaultConfigPath := DefaultConfigPath
+	if envConfigPath := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_CONFIG"); envConfigPath != "" {
+		defaultConfigPath = envConfigPath
+	}
+
+	configDefault, err := loadConfigFile(defaultConfigPath)
 	if err != nil {
-		log.Fatalf("Error while loading config file (%s): %v", DefaultConfigPath, err)
+		log.Fatalf("Error while loading config file (%s): %v", defaultConfigPath, err)
 	}
 
 	// Load override config file if exists

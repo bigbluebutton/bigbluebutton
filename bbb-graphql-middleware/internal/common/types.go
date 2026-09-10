@@ -45,6 +45,7 @@ type BrowserConnection struct {
 	UserId                             string          // auth info provided by bbb-web
 	CurrentlyInMeeting                 bool
 	BBBWebSessionVariables             map[string]string  // graphql session variables provided by akka-apps
+	SessionVariablesStale              bool               // true from a reconnection request until a refresh succeeds, so membership/lock checks fail closed
 	ClientSessionUUID                  string             // self-generated unique id for this client
 	Context                            context.Context    // browser connection context
 	ContextCancelFunc                  context.CancelFunc // function to cancel the browser context (and so, the browser connection)
