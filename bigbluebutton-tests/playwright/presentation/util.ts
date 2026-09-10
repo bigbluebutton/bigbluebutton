@@ -57,6 +57,26 @@ export async function getCurrentPresentationHeight(locator: Locator) {
   return locator.evaluate((element) => window.getComputedStyle(element).getPropertyValue('height'));
 }
 
+// The rendered slide image (a tldraw shape) keeps the aspect ratio of the source page,
+// independent of the current zoom. Reading it lets a test assert that bbb-web sized the
+// slide from the SVG's real dimensions instead of silently falling back to the 1440x1080
+// (4:3) default. Returns null while the slide image has not laid out yet.
+export async function getCurrentSlideAspectRatio(testPage: Page): Promise<number | null> {
+  await testPage.waitForSelector(e.currentSlideImg);
+  return testPage.page.evaluate(
+    ([slideImg]) => {
+      const node = document.querySelector(slideImg) as HTMLElement | null;
+      if (!node) return null;
+      const style = window.getComputedStyle(node);
+      const width = parseFloat(style.width);
+      const height = parseFloat(style.height);
+      if (!width || !height) return null;
+      return width / height;
+    },
+    [e.currentSlideImg],
+  );
+}
+
 export async function getCurrentPresentationToastLocator(testPage: Page) {
   return testPage.page.locator(e.smallToastMsg).filter({ hasText: e.defaultCurrentPresentationLabel });
 }
@@ -121,6 +141,50 @@ export async function uploadSinglePresentation(
     },
   );
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
+}
+
+// The browser sends the whole file and bbb-web refuses it on size (maxFileSizeUpload, 30 MB
+// by default) before the PDF is ever parsed, so the payload only has to be big enough, not a
+// valid document. Building it in memory keeps a file that large out of the repo.
+const OVERSIZED_PRESENTATION_BYTES = 31 * 1000 * 1000;
+
+function buildOversizedPdf(sizeInBytes: number): Buffer {
+  const header = Buffer.from(
+    '%PDF-1.4\n' +
+      '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n' +
+      '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n' +
+      '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj\n',
+  );
+  const trailer = Buffer.from('\ntrailer<</Root 1 0 R/Size 4>>\n%%EOF\n');
+  const padding = Buffer.alloc(sizeInBytes - header.length - trailer.length, 0x25); // '%' - a PDF comment
+  return Buffer.concat([header, padding, trailer]);
+}
+
+// Sibling of uploadSinglePresentation for the rejected path: that one asserts a successful
+// upload (new thumbnail and slide change), which never happens for a rejected file.
+export async function uploadOversizedPresentation(testPage: Page, fileName: string) {
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(
+    e.presentationFileUpload,
+    'should display the presentation space for uploading a new file, when the manage presentations is opened',
+  );
+  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
+
+  await testPage.page.setInputFiles(e.presentationFileUpload, {
+    name: fileName,
+    mimeType: 'application/pdf',
+    buffer: buildOversizedPdf(OVERSIZED_PRESENTATION_BYTES),
+  });
+
+  await testPage.hasText(
+    e.presentationUploadProgressToast,
+    e.presentationTooLargeLabel,
+    'should display the size rejection on the presentation upload toast',
+    UPLOAD_PDF_WAIT_TIME,
+  );
+  await testPage.press('Escape'); // close the media sharing menu
+  await testPage.waitForSelectorDetached(e.presentationFileUpload);
 }
 
 export async function uploadMultiplePresentations(

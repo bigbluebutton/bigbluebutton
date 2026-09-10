@@ -571,6 +571,9 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+      # gridEnabled: whether the camera-less avatar grid is shown when presentation
+      # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
+      gridEnabled: true
       # grid size for DESKTOP endpoints
       desktopGridSizes:
         moderator: 48
@@ -907,12 +910,17 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
-      # audioWasmProcessing: audio input processing through WASM/BBBA
-      #   enabled: whether BBBA should be exposed to users. If false, browser's
-      #            built-in audio processing will be used instead.
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, browser's built-in audio processing will be used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured below.
       audioWasmProcessing:
         enabled: false
+        provider: bbba
         constraints:
           echoCancellation: true
           autoGainControl: true
@@ -1198,6 +1206,10 @@ public:
     # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
     # slide. Latency above this bound still shows the original white flash.
     slideSwapDecodeTimeoutMs: 250
+    # Presenter mouse wheel behavior over the presentation:
+    # true  - the wheel scrolls (pans) the slide; hold Ctrl/Cmd while scrolling to zoom
+    # false - the wheel zooms directly (behavior of BBB 3.0 and earlier)
+    wheelZoomRequiresCtrl: true
     lockToolbarTools: false
     annotations:
       status:

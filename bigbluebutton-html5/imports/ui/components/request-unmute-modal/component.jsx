@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -74,20 +76,21 @@ const RequestUnmuteComponent = ({
         <FormattedMessage {...intlMessages.modalSubtitle} />
       </Styled.Subtitle>
       <Styled.RequestModalContent>
-        <Styled.RequestModalButton
+        <BBButton
           label={intl.formatMessage(intlMessages.confirmButtonLabel)}
-          data-test="confirmUnmute"
-          icon="unmute"
+          dataTest="confirmUnmute"
+          iconStart={<Icon iconName="unmute" />}
           onClick={handleConfirm}
-          color="primary"
+          variant="primary"
+          color="default"
         />
-        <Styled.RequestModalButton
+        <BBButton
           label={denyLabel}
-          data-test="denyUnmute"
-          icon="mute"
+          dataTest="denyUnmute"
+          iconStart={<Icon iconName="mute" />}
           onClick={handleDeny}
+          variant="secondary"
           color="danger"
-          ghost
         />
       </Styled.RequestModalContent>
     </Styled.RequestModal>

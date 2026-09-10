@@ -615,7 +615,7 @@ public class MeetingService implements MessageListener {
   private void handleCreateMeeting(Meeting m) {
     if (m.isBreakout()) {
       Meeting parent = meetings.get(m.getParentMeetingId());
-      parent.addBreakoutRoom(m.getExternalId());
+      parent.addBreakoutRoom(m.getExternalId(), m.getInternalId());
       if (storeEvents(parent)) {
         storeService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
       }
@@ -922,6 +922,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.AUTO_START_RECORDING, message.autoStartRecording.toString());
       params.put(ApiParams.ALLOW_START_STOP_RECORDING, message.allowStartStopRecording.toString());
+      params.put(ApiParams.MEETING_KEEP_EVENTS, parentMeeting.getMeetingKeepEvents().toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
       params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
@@ -1198,8 +1199,14 @@ public class MeetingService implements MessageListener {
       }
 
       //Remove Learning Dashboard files
-      if(!m.getDisabledFeatures().contains("learningDashboard") && m.getLearningDashboardCleanupDelayInMinutes() > 0) {
-        learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupDelayInMinutes());
+      //Breakout rooms don't get their data cleaned up on their own end: it's scheduled here, when the
+      //parent meeting ends, so moderators can still check a breakout's dashboard while the parent meeting
+      //is ongoing even after that breakout itself has closed.
+      if (!m.isBreakout() && !m.getDisabledFeatures().contains("learningDashboard") && m.getLearningDashboardCleanupDelayInMinutes() > 0) {
+        List<String> meetingIdsToClean = new ArrayList<>();
+        meetingIdsToClean.add(message.meetingId);
+        meetingIdsToClean.addAll(m.getBreakoutRoomsInternalIds());
+        learningDashboardService.removeJsonDataFiles(meetingIdsToClean, m.getLearningDashboardCleanupDelayInMinutes());
       }
 
       processRemoveEndedMeeting(message);

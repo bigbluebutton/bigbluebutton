@@ -41,7 +41,6 @@ public class ApiParams {
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
     public static final String DARK_LOGO = "darklogo";
-    public static final String LOGOUT_TIMER = "logoutTimer";
     public static final String LOGIN_URL = "loginURL";
     public static final String LOGOUT_URL = "logoutURL";
     public static final String MAX_PARTICIPANTS = "maxParticipants";

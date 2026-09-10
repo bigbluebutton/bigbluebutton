@@ -31,6 +31,7 @@ import {
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
+import { useIsWebcamGridEnabled } from '/imports/ui/services/features';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
@@ -325,7 +326,7 @@ const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
 export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
-  const isGridEnabled = useStorageKey('isGridEnabled');
+  const isGridEnabled = useIsGridEnabled();
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
@@ -537,6 +538,13 @@ export const useGridSize = () => {
   }
 
   return size;
+};
+
+export const useIsGridEnabled = () => {
+  const isGridLayout = useStorageKey('isGridEnabled');
+  const isWebcamGridEnabled = useIsWebcamGridEnabled();
+
+  return !!isGridLayout && isWebcamGridEnabled;
 };
 
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
