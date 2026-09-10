@@ -38,9 +38,11 @@ const getStorageMuteStateKey = () => {
   const meetingStaticStore = meetingStaticData.getMeetingData();
   const isBreakout = meetingStaticStore?.isBreakout;
   const parentMeetingId = meetingStaticStore?.breakoutPolicies?.parentMeetingId;
+  // Auth.meetingID is only set once in the meeting, so pre-join writers would
+  // otherwise key this off null.
   const meetingId = isBreakout && parentMeetingId
     ? parentMeetingId
-    : Auth.meetingID;
+    : Auth.meetingID ?? meetingStaticStore?.meetingId;
 
   return `${MUTED_KEY}_${meetingId}`;
 };
