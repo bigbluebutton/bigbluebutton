@@ -826,6 +826,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxHistoryStackSize: 400,
       slideSwapDecodeTimeoutMs: 250,
       lockToolbarTools: false,
+      pacing: {
+        targetAPS: 60,
+        baseMS: 60,
+        maxBatchSize: 32,
+        hardFlushMS: 5000,
+      },
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
       allowInfiniteWhiteboardPanForViewers: false,

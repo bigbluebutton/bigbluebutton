@@ -1135,6 +1135,15 @@ public:
     # slide. Latency above this bound still shows the original white flash.
     slideSwapDecodeTimeoutMs: 250
     lockToolbarTools: false
+    pacing:
+      # Target annotations per second
+      targetAPS: 60
+      # Min interval between flushes (ms)
+      baseMS: 60
+      # Max annotations per flush
+      maxBatchSize: 32
+      # Max time before forced flush (ms)
+      hardFlushMS: 5000
     annotations:
       status:
         start: DRAW_START
