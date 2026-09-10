@@ -29,6 +29,7 @@ interface RecordingIndicatorProps {
   disabled: boolean;
   time: number;
   isPhone?: boolean;
+  animations?: boolean;
 }
 
 interface RecordingStatusViewOnlyProps {
@@ -118,6 +119,12 @@ const HOVER_COLLAPSE_DELAY = '0.25s';
 // laptop is handled by how it is being used, not by what it is called.
 const HOVER_CAPABLE = '@media (hover: hover) and (pointer: fine)';
 
+// The collapse animates max-width, which cannot be `auto`, so the open state
+// needs a number. It is sized by the longest translated label rather than by
+// the English one: at 12rem the French, Occitan, Galician, Greek and Italian
+// strings were clipped, and the Malayalam stop title is longer still.
+const LABEL_MAX_WIDTH = '16rem';
+
 // The opened box, shared by hover and keyboard focus so the two cannot drift.
 const expandedMetrics = (borderWidth: string) => css`
   padding: 0 calc(1rem - ${borderWidth});
@@ -129,9 +136,8 @@ const expandedMetrics = (borderWidth: string) => css`
     transition-delay: 0s;
   }
 
-  /* Close to the longest label, so the collapse has no dead zone. */
   ${PresentationTitle} {
-    max-width: 12rem;
+    max-width: ${LABEL_MAX_WIDTH};
     opacity: 1;
     transition-delay: 0s;
   }
@@ -209,7 +215,7 @@ const labelCollapsedOnRest = css`
   }
 
   &:focus-visible ${PresentationTitle} {
-    max-width: 12rem;
+    max-width: ${LABEL_MAX_WIDTH};
     opacity: 1;
     margin-left: ${mdPadding};
     transition-delay: 0s;
@@ -222,7 +228,7 @@ const labelCollapsedOnRest = css`
 
   ${HOVER_CAPABLE} {
     &:hover ${PresentationTitle} {
-      max-width: 12rem;
+      max-width: ${LABEL_MAX_WIDTH};
       opacity: 1;
       margin-left: ${mdPadding};
       transition-delay: 0s;
@@ -232,6 +238,31 @@ const labelCollapsedOnRest = css`
       margin-right: ${mdPadding};
       margin-left: 0;
     }
+  }
+`;
+
+// A read-only pill (someone who may not record) has pointer-events disabled, so
+// its label can never be revealed by hovering and is shown at rest instead. It
+// still needs the gap after the timer that the collapsed states animate in.
+const labelStaticBesideTimer = css`
+  ${PresentationTitle} {
+    margin-left: ${mdPadding};
+  }
+
+  [dir="rtl"] & ${PresentationTitle} {
+    margin-right: ${mdPadding};
+    margin-left: 0;
+  }
+`;
+
+// Reduced motion snaps the collapse instead of sliding it. The delay is kept on
+// purpose: it is the hysteresis that breaks the hover/collapse loop described
+// above, not decoration, so zeroing it would bring the flicker back.
+const instantCollapse = css`
+  &,
+  ${RecordingIndicatorIcon},
+  ${PresentationTitle} {
+    transition-duration: 0s;
   }
 `;
 
@@ -286,7 +317,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
       box-shadow: none;
     }
 
-    ${!isPhone && !disabled && labelCollapsedOnRest}
+    ${!isPhone && (disabled ? labelStaticBesideTimer : labelCollapsedOnRest)}
   `}
 
   /* Idle: borderless, so nothing to compensate. */
@@ -331,6 +362,12 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
       align-items: center;
     }
   `}
+
+  @media (prefers-reduced-motion: reduce) {
+    ${instantCollapse}
+  }
+
+  ${({ animations }) => animations === false && instantCollapse}
 `;
 
 const { VisuallyHidden } = VisuallyHiddenStyles;

@@ -126,6 +126,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  // The label collapse honours the same setting as this component's own spinner.
+  const animations = getSettingsSingletonInstance()?.application?.animations;
 
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
@@ -204,8 +206,12 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         : intl.formatMessage(intlMessages.startTitle);
     }
 
-    return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled, isModerator, time, intl.locale]);
+    // Read-only viewers cannot stop anything, so the pill states what is
+    // happening instead of offering the moderator's action.
+    return showButton
+      ? intl.formatMessage(intlMessages.stopTitle)
+      : intl.formatMessage(intlMessages.recordingTitle);
+  }, [recording, isPhone, disabled, isModerator, showButton, time, intl.locale]);
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
@@ -242,6 +248,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       aria-describedby="recording-description"
       recording={recording}
       disabled={!showButton}
+      isPhone={isPhone}
+      animations={animations}
       time={time}
       tabIndex={0}
       key="recording-toggle"
