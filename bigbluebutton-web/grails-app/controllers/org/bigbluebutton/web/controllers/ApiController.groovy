@@ -1415,7 +1415,7 @@ class ApiController {
         queryParameters.put("sessionName", params.sessionName);
       }
 
-      List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(","));
+      List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(",")).collect { it.trim() };
 
       boolean isModerator = us.role?.equals(ROLE_MODERATOR);
       boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
@@ -1427,9 +1427,15 @@ class ApiController {
 
                 // For prefix userdata-
                 if (key.startsWith("userdata-")) {
+                  String userdataName = key - "userdata-"
+                  if (!userdataName.matches(/[A-Za-z0-9_.]+/)) {
+                    log.warn("Ignoring malformed userdata parameter in getJoinUrl request: [{}]", ParamsUtil.sanitizeString(key))
+                    return false
+                  }
+
                   if (isModerator && !meeting.isBreakout()) return true
                   if (blockAllUserdataForViewers) return false
-                  return !userdataBlocklistForViewers.contains(key - "userdata-")
+                  return !userdataBlocklistForViewers.any { it.equalsIgnoreCase(userdataName) }
                 }
 
                 return false
@@ -1439,7 +1445,7 @@ class ApiController {
 
       String httpQueryString = "";
       for(String parameterName : queryParameters.keySet()) {
-        httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
+        httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + validationService.encodeString(parameterName) + "=" + validationService.encodeString(queryParameters.get(parameterName));
       }
 
       String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
