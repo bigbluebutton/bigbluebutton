@@ -3,6 +3,7 @@ import React, { useEffect, useMemo } from 'react';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
+import { useIntl, defineMessages } from 'react-intl';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
 import {
@@ -19,6 +20,13 @@ interface UserListParticipantsProps {
   count: number;
 }
 
+const intlMessages = defineMessages({
+    searchPlaceholder: {
+        id: 'app.userList.searchPlaceholder',
+        description: 'Placeholder for the search in the user list',
+    },
+});
+
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
 }) => {
@@ -27,6 +35,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   }>({});
   const userListRef = React.useRef<HTMLUListElement | null>(null);
   const selectedUserRef = React.useRef<HTMLElement | null>(null);
+  const [search, setSearch] = React.useState("");
 
   useEffect(() => {
     const keys = Object.keys(visibleUsers);
@@ -45,6 +54,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   }, [visibleUsers]);
 
   const rove = useMemo(() => roveBuilder(selectedUserRef, 'user-index'), []);
+
+  const intl = useIntl();
 
   // --- Plugin related code ---
   useEffect(() => {
@@ -82,48 +93,57 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const amountOfPages = Math.ceil(count / 50);
   return (
     (
-      <Styled.UserListColumn
-        onKeyDown={rove}
-        tabIndex={0}
-        role="list"
-      >
-        <Styled.VirtualizedList as="ul" ref={userListRef}>
-          {
-            Array.from({ length: amountOfPages }).map((_, i) => {
-              const isLastItem = amountOfPages === (i + 1);
-              const restOfUsers = count % 50;
-              const key = i;
-              return i === 0
-                ? (
-                  <UserListParticipantsPageContainer
-                    key={key}
-                    index={i}
-                    isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : 50}
-                    setVisibleUsers={setVisibleUsers}
-                  />
-                )
-                : (
-                  <IntersectionWatcher
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={i}
-                    ParentRef={userListRef}
-                    isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : 50}
-                  >
-                    <UserListParticipantsPageContainer
-                      key={key}
-                      index={i}
-                      isLastItem={isLastItem}
-                      restOfUsers={isLastItem ? restOfUsers : 50}
-                      setVisibleUsers={setVisibleUsers}
-                    />
-                  </IntersectionWatcher>
-                );
-            })
-          }
-        </Styled.VirtualizedList>
-      </Styled.UserListColumn>
+        <Styled.UserListContainer>
+            <Styled.Search
+                value={search}
+                placeholder={intl.formatMessage(intlMessages.searchPlaceholder)}
+                onChange={(event: { target: { value: any; }; }) => { setSearch(event.target.value); }}
+            />
+            <Styled.UserListColumn
+            onKeyDown={rove}
+            tabIndex={0}
+            role="list"
+            >
+                <Styled.VirtualizedList as="ul" ref={userListRef}>
+                  {
+                    Array.from({ length: amountOfPages }).map((_, i) => {
+                      const isLastItem = amountOfPages === (i + 1);
+                      const restOfUsers = count % 50;
+                      const key = i;
+                      return i === 0
+                        ? (
+                          <UserListParticipantsPageContainer
+                            key={key}
+                            index={i}
+                            isLastItem={isLastItem}
+                            restOfUsers={isLastItem ? restOfUsers : 50}
+                            setVisibleUsers={setVisibleUsers}
+                            search={search}
+                          />
+                        )
+                        : (
+                          <IntersectionWatcher
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={i}
+                            ParentRef={userListRef}
+                            isLastItem={isLastItem}
+                            restOfUsers={isLastItem ? restOfUsers : 50}
+                          >
+                            <UserListParticipantsPageContainer
+                              key={key}
+                              index={i}
+                              isLastItem={isLastItem}
+                              restOfUsers={isLastItem ? restOfUsers : 50}
+                              setVisibleUsers={setVisibleUsers}
+                              search={search}
+                            />
+                          </IntersectionWatcher>
+                        );
+                    })
+                  }
+                </Styled.VirtualizedList>
+            </Styled.UserListColumn>
+        </Styled.UserListContainer>
     )
   );
 };
