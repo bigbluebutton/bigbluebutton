@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps
 import scala.collection.immutable.HashMap
 import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions, ConfigValueType }
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
@@ -43,8 +43,19 @@ object WhiteboardModel {
     if (!config.hasPath(AllowedAnnotationTypesPath)) {
       Set.empty
     } else {
-      Try(config.getStringList(AllowedAnnotationTypesPath).asScala.toSet) match {
-        case Success(configuredTypes) => configuredTypes.map(_.trim).filter(_.nonEmpty)
+      Try(config.getList(AllowedAnnotationTypesPath).asScala.toList) match {
+        case Success(configuredValues) =>
+          val nonStrings = configuredValues.filter(_.valueType() != ConfigValueType.STRING)
+
+          if (nonStrings.nonEmpty) {
+            logger.error(
+              "Every [{}] entry must be a quoted string; falling back to the default list. Rejected entries: [{}]",
+              AllowedAnnotationTypesPath, nonStrings.map(_.render(ConfigRenderOptions.concise())).mkString(", ")
+            )
+            Set.empty
+          } else {
+            configuredValues.map(_.unwrapped().asInstanceOf[String].trim).filter(_.nonEmpty).toSet
+          }
         case Failure(ex) =>
           logger.error(
             "Could not read [{}] as a list of strings; falling back to the default list: {}",

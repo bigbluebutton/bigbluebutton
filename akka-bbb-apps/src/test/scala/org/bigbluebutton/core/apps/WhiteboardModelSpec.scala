@@ -200,6 +200,8 @@ class WhiteboardModelSpec extends AnyFlatSpec {
 
   it should "read a well-formed list" in {
     assert(readConfiguredTypes(conf("""whiteboard { allowedAnnotationTypes = ["draw", "geo"] }""")) == Set("draw", "geo"))
+    // Unquoted entries are strings in HOCON, so they are read rather than rejected.
+    assert(readConfiguredTypes(conf("""whiteboard { allowedAnnotationTypes = [draw, geo] }""")) == Set("draw", "geo"))
   }
 
   it should "trim entries and drop blank ones" in {
@@ -207,8 +209,9 @@ class WhiteboardModelSpec extends AnyFlatSpec {
   }
 
   it should "fall back to the default for a value that is not a list" in {
-    // Every one of these throws inside the config library. The point of the test is that the
-    // fallback is reached deliberately (and logged) rather than by a swallowed exception.
+    // These reach the fallback by different routes - a config-library exception, a null value
+    // that reads as absent, or a list whose entries are not strings. The point of the test is
+    // that the fallback is reached deliberately (and logged) in each case.
     List(
       """whiteboard { allowedAnnotationTypes = "draw" }""",
       """whiteboard { allowedAnnotationTypes = "draw,geo" }""",
@@ -225,10 +228,29 @@ class WhiteboardModelSpec extends AnyFlatSpec {
     assert(readConfiguredTypes(conf("whiteboard { allowedAnnotationTypes = [] }")) == Set.empty[String])
   }
 
-  it should "coerce a list of numbers rather than throwing, as the config library does" in {
-    // Pinning a footgun rather than endorsing it: [1, 2] parses, so it yields a real - and
-    // useless - allowlist instead of falling back. The startup INFO line is what surfaces it.
-    assert(readConfiguredTypes(conf("whiteboard { allowedAnnotationTypes = [1, 2] }")) == Set("1", "2"))
+  it should "fall back to the default for entries that are not quoted strings" in {
+    // The config library coerces numbers and booleans to strings, so [1, 2] would otherwise
+    // parse into a real - and useless - allowlist that rejects every genuine annotation.
+    List(
+      """whiteboard { allowedAnnotationTypes = [1, 2] }""",
+      """whiteboard { allowedAnnotationTypes = [true] }""",
+      """whiteboard { allowedAnnotationTypes = [null] }""",
+      """whiteboard { allowedAnnotationTypes = [{ draw = true }] }"""
+    ).foreach { hocon =>
+      assert(readConfiguredTypes(conf(hocon)) == Set.empty[String], s"expected fallback for: $hocon")
+      assert(
+        effectiveAllowedTypes(readConfiguredTypes(conf(hocon))) == DefaultAllowedAnnotationTypes,
+        s"expected the default allowlist for: $hocon"
+      )
+    }
+  }
+
+  it should "reject the whole list when only some entries are strings" in {
+    // A partial read would silently drop the whiteboard tools the admin misspelled the type of.
+    val hocon = """whiteboard { allowedAnnotationTypes = ["draw", 2, "text"] }"""
+
+    assert(readConfiguredTypes(conf(hocon)) == Set.empty[String])
+    assert(effectiveAllowedTypes(readConfiguredTypes(conf(hocon))) == DefaultAllowedAnnotationTypes)
   }
 
   behavior of "the shipped default"
