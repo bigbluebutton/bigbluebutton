@@ -135,14 +135,18 @@ Updated in 4.0:
 
 - **create**
   - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
-  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
+  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage` and `webcamGrid`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
   - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
+  - **Removed parameter:** `logoutTimer` (it had no effect; the value was stored in bbb-web but never propagated to akka-apps or the HTML5 client).
   - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
+  - **Changed:** Parameter `sharedNotesEditor` now strips control characters and surrounding whitespace, accepts `etherpad` or `blockNote` case-insensitively, canonicalizes known values, and rejects unknown values.
+  - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
+  - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
@@ -561,29 +565,49 @@ For external applications that integrate to BigBlueButton using the [insertDocum
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
-#### End meeting callback URL
+#### Meeting Ended Callback URL
 
-You can ask the BigBlueButton server to make a callback to your application when the meeting ends. Upon receiving the callback your application could, for example, change the interface for the user to hide the 'join' button.
+You can ask the BigBlueButton server to make a callback to your application when the meeting ends.
+Upon receiving the callback your application could, for example, change the interface for the user to hide the 'join' button.
 
-To specify the callback to BigBlueButton, pass a URL using the meta-parameter `meta_endCallbackUrl` on the `create` command. When the BigBlueButton server ends the meeting, it will check if `meta_endCallbackUrl` is sent URL and, if so, make a HTTP GET request to the given URL.
+To specify the callback to BigBlueButton, pass a URL using the parameter `meetingEndedURL` on the `create` request.
+When the BigBlueButton server ends the meeting, it will make an HTTP GET request to the passed URL.
+
+BigBlueButton will add an additional query parameter, `recordingmarks=true|false`,
+which provides a hint as to whether a recording will be generated for the meeting.
+The value will be `true` if the meeting was set to be recorded
+(`record=true` was passed on the create API call)
+and recording was started during the live session
+(a moderator clicked the Start/Stop Record button during the meeting,
+or `autoStartRecording=true` was passed on the create call).
 
 For example, to specify the callback URL as
-
 ```
-  https://myapp.example.com/callback?meetingID=test01
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50
 ```
-
-add the following parameter to the `create` API call: `&meta_endCallbackUrl=https%3A%2F%2Fmyapp.example.com%2Fcallback%3FmeetingID%3Dtest01` (note the callback URL needs to be URLEncoded).
-
-Later, when the meeting ends, BigBlueButton will make an HTTPS GET request to this URL (HTTPS is supported and recommended) and to the URL add an additional parameter: `recordingmarks=true|false`.
-
-The value for `recordingmarks` will be `true` if (a) the meeting was set to be recorded (`record=true` was passed on the create API call), and (b) a moderator clicked the Start/Stop Record button during the meeting (which places recording marks in the events). Given the example URL above, here's the final callback if both (a) and (b) are true:
-
+add the following parameter to the `create` API call:
 ```
-https://myapp.example.com/callback?meetingID=test01&recordingmarks=true
+&meetingEndedURL=https%3A%2F%2Fmyapp.example.com%2FmeetingEndedCallback%3Ftoken%3Da817dde5-0a18-43ad-9016-2d5d4c758a50
+```
+(note the callback URL needs to be URLEncoded).
+The actual URL that the callback will be made to will look like
+```
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true
 ```
 
-Another param is the `meetingEndedURL` create param. This create param is a callback to indicate the meeting has ended. This is a duplicate of the endCallbackUrl meta param. We have this separate as we want this param to stay on the server and not propagated to client and recordings. Can be used by scalelite to be notified right away when meeting ends. The meta callback url can be used to inform third parties.
+For security reasons, the callback URL that your application generates should be authenticated in some way,
+to prevent malicious users from causing your application to think a meeting has ended while it is still running.
+The recommended way to do this is to include an unguessable parameter on the URL,
+and then verify this parameter when you receive the callback request.
+For example, you could include a randomly generated one-time-use token,
+or a signed claim in a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token).
+We strongly recommend using `https` URLs.
+
+This function was previously implemented using the parameter name `meta_endCallbackUrl`,
+which applications should no longer use.
+`meta_*` parameters may be exposed to users in the meeting,
+leaking any secret token or signed parameters that the application included in the URL.
+
 
 #### Learning Analytics Dashboard callback URL
 
@@ -1427,7 +1451,7 @@ Missing parameter error
 
 ### `GET` sendChatMessage
 
-This call enables you to send a message to the public chat of a running meeting.
+This call enables you to send a message to the public chat of a running meeting. Messages are rendered as plain text: any special characters are escaped before the message is displayed, and HTML or Markdown formatting is not applied.
 
 <i>Added:</i> 3.0
 
@@ -1454,6 +1478,25 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?meetingID=test01&mes
     <message></message>
 </response>
 ```
+
+**Errors**
+
+In addition to the standard BigBlueButton checksum error, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
+
+missingParamMeetingID
+: The required `meetingID` parameter is missing or empty.
+
+missingParamMessage
+: The required `message` parameter is missing.
+
+sizeError
+: A parameter is outside its allowed length: `message` must be between 1 and 500 characters, `meetingID` between 2 and 256 characters, and `userName` at most 255 characters.
+
+validationError
+: The `meetingID` contains invalid characters (it must not contain a comma).
+
+meetingNotFound
+: No running meeting matches the provided `meetingID`. The meeting must be running (created and not yet ended) — the message cannot be queued for a future meeting.
 
 ## Internal API calls
 

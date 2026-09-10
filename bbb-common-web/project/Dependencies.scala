@@ -20,7 +20,7 @@ object Dependencies {
     val awsSdkS3 = "1.12.779"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
-    val jsoup = "1.14.3"
+    val jsoup = "1.23.1"
     val semver = "0.10.2"
 
 

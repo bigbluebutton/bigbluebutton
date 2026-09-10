@@ -223,6 +223,14 @@ export const generateActionsPermissions = (
     && lockSettings?.hasActiveLockSetting
     && (type === 'participant' || type === 'raised-hand');
 
+  // Per-user public chat lock (as in 3.0): independent of the meeting-wide lock settings
+  const allowedToLockPublicChat = isChatEnabled
+    && amIModerator
+    && !isSubjectUserModerator
+    && !isDialInUser
+    && !isSubjectUserBot
+    && type === 'participant';
+
   const allowedToEjectCameras = amIModerator
     && !amISubjectUser
     && usersPolicies?.allowModsToEjectCameras
@@ -243,6 +251,7 @@ export const generateActionsPermissions = (
     allowedToPromote,
     allowedToDemote,
     allowedToChangeUserLockStatus,
+    allowedToLockPublicChat,
     allowedToEjectCameras,
     allowedToRemove,
     allowedToLowerHand,
@@ -330,7 +339,7 @@ export const createToolbarOptions = (
   pageId: string,
   layoutContextDispatch: DispatcherFunction,
   chatCreateWithUser: MutationFunction,
-  toggleVoice: (userId: string, muted: boolean) => Promise<void>,
+  voiceToggle: (userId: string, muted: boolean) => Promise<void>,
   userSetWhiteboardWriteAccess: MutationFunction,
   setPresenter: MutationFunction,
   setRole: MutationFunction,
@@ -338,6 +347,7 @@ export const createToolbarOptions = (
   userEjectCameras: MutationFunction,
   openConfirmationModal: () => void,
   setRaiseHand: MutationFunction,
+  setUserChatLocked: MutationFunction,
 ) => {
   const MODERATOR_ROLE = window.meetingClientSettings.public.user.role_moderator;
   const VIEWER_ROLE = window.meetingClientSettings.public.user.role_viewer;
@@ -350,6 +360,7 @@ export const createToolbarOptions = (
     allowedToPromote,
     allowedToDemote,
     allowedToChangeUserLockStatus,
+    allowedToLockPublicChat,
     allowedToEjectCameras,
     allowedToRemove,
     allowedToLowerHand,
@@ -359,6 +370,7 @@ export const createToolbarOptions = (
   const userLocked = user.locked
     && lockSettings?.hasActiveLockSetting
     && !user.isModerator;
+  const userChatLocked = !!user.userLockSettings?.disablePublicChat;
 
   const getAudioStateOption = () => {
     if (!subjectUserInAudio) return null;
@@ -387,7 +399,7 @@ export const createToolbarOptions = (
           ? intl.formatMessage(intlMessages.unmuteUserAudioLabel)
           : intl.formatMessage(intlMessages.microphoneClosed),
         onClick: hasPermissionToUnmute
-          ? () => toggleVoice(user.userId, false)
+          ? () => toggleVoice(user.userId, false, voiceToggle)
           : () => {},
         disabled: !hasPermissionToUnmute,
         dataTest: hasPermissionToUnmute ? 'unmuteUser' : 'audioStateMuted ',
@@ -401,7 +413,7 @@ export const createToolbarOptions = (
         ? intl.formatMessage(intlMessages.muteUserAudioLabel)
         : intl.formatMessage(intlMessages.microphoneOpen),
       onClick: hasPermissionToMute
-        ? () => toggleVoice(user.userId, true)
+        ? () => toggleVoice(user.userId, true, voiceToggle)
         : () => {},
       disabled: !hasPermissionToMute,
       dataTest: hasPermissionToMute ? 'muteUser' : 'audioStateUnmuted',
@@ -513,6 +525,23 @@ export const createToolbarOptions = (
         },
         icon: userLocked ? 'unlock' : 'lock',
         dataTest: 'unlockUserButton',
+      },
+      {
+        allowed: allowedToLockPublicChat,
+        key: 'lockChat',
+        label: userChatLocked
+          ? intl.formatMessage(intlMessages.unlockPublicChat)
+          : intl.formatMessage(intlMessages.lockPublicChat),
+        onClick: () => {
+          setUserChatLocked({
+            variables: {
+              userId: user.userId,
+              disablePubChat: !userChatLocked,
+            },
+          });
+        },
+        icon: userChatLocked ? 'unlock' : 'lock',
+        dataTest: 'togglePublicChat',
       },
       {
         allowed: allowedToEjectCameras,

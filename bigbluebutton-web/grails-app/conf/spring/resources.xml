@@ -247,7 +247,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="maxPresentationsPerRequest" value="${maxPresentationsPerRequest}"/>
-        <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="cameraBridge" value="${cameraBridge}"/>
         <property name="screenShareBridge" value="${screenShareBridge}"/>
@@ -269,7 +268,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="lockSettingsHideViewersAnnotation" value="${lockSettingsHideViewersAnnotation}"/>
         <property name="lockSettingsPresenterPolicy" value="${lockSettingsPresenterPolicy}"/>
-        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>

@@ -1,4 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import Button from '/imports/ui/components/common/button/component';
 import {
   Separator as BaseSeparator,
@@ -299,23 +300,6 @@ const Toggle = styled.label`
   align-items: center;
 `;
 
-// @ts-ignore - Button is a JS Component
-const StartPollBtn = styled(Button)`
-  position: relative;
-  width: 100%;
-  min-height: ${pollInputHeight};
-  margin-top: 1rem;
-  font-size: ${fontSizeBase};
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-
-  &:hover {
-    & > span {
-      opacity: 1;
-    }
-  }
-`;
-
 const NoSlidePanelContainer = styled.div`
   color: ${colorGrayDark};
   text-align: center;
@@ -590,27 +574,15 @@ const ConnectingAnimation = styled.span<ConnectingAnimationProps>`
 const ButtonsActions = styled.div`
   display: flex;
   width: 100%;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
 `;
 
-// @ts-ignore - Button is a JS Component
-const PublishButton = styled(Button)`
-  width: 48%;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-`;
+const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
 
-const CancelButton = styled(PublishButton)``;
-
-// @ts-ignore - Button is a JS Component
-const LiveResultButton = styled(Button)`
+const StartPollButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
+  margin-top: 1rem;
   width: 100%;
-  margin-top: ${smPaddingY};
-  margin-bottom: ${smPaddingY};
-  font-size: ${fontSizeBase};
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
 `;
 
 const THeading = styled.th`
@@ -833,7 +805,6 @@ export default {
   Row,
   Col,
   Toggle,
-  StartPollBtn,
   NoSlidePanelContainer,
   PollButton,
   DragAndDropPollContainer,
@@ -862,9 +833,8 @@ export default {
   Status,
   ConnectingAnimation,
   ButtonsActions,
-  PublishButton,
-  CancelButton,
-  LiveResultButton,
+  ButtonWrapper,
+  StartPollButtonWrapper,
   THeading,
   DndTextArea,
   ContentWrapper,

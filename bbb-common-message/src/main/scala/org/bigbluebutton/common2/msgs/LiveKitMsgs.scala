@@ -1,7 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-/* Sent to livekit-controller to generate a new LiveKit token
- */
+import com.fasterxml.jackson.annotation.{ JsonCreator, JsonValue }
 
 /* A LiveKitTrackSource is a Scala enum ported from LiveKit's protobuf
  * definition.
@@ -14,7 +13,7 @@ package org.bigbluebutton.common2.msgs
  * ]);
  */
 
-sealed trait TrackSource { def no: Int }
+sealed trait TrackSource { @JsonValue def no: Int }
 case object UnknownTrackSource extends TrackSource { val no = 0 }
 case object CameraTrackSource extends TrackSource { val no = 1 }
 case object MicrophoneTrackSource extends TrackSource { val no = 2 }
@@ -22,6 +21,7 @@ case object ScreenShareTrackSource extends TrackSource { val no = 3 }
 case object ScreenShareAudioTrackSource extends TrackSource { val no = 4 }
 
 object TrackSource {
+    @JsonCreator
     def fromInt(no: Int): TrackSource = no match {
         case 0 => UnknownTrackSource
         case 1 => CameraTrackSource
@@ -30,27 +30,6 @@ object TrackSource {
         case 4 => ScreenShareAudioTrackSource
     }
 }
-
-/*
- * A LiveKit token requires a grant with all of its paremeters fully specified.
- * The required parameters are:
- *
- *  agent?: boolean;
-    canPublish?: boolean;
-    canPublishData?: boolean;
-    canPublishSources?: TrackSource[];
-    canSubscribe?: boolean;
-    canUpdateOwnMetadata?: boolean;
-    hidden?: boolean;
-    ingressAdmin?: boolean;
-    recorder?: boolean;
-    room?: string;
-    roomAdmin?: boolean;
-    roomCreate?: boolean;
-    roomJoin?: boolean;
-    roomList?: boolean;
-    roomRecord?: boolean;
- */
 
 case class LiveKitGrant(
     agent:                Boolean,
@@ -75,16 +54,28 @@ case class LiveKitParticipantMetadata(
     voiceConf: String,
 )
 
+/*
+ * Identifies the membership slot a token req/resp refers to, letting one
+ * user session hold several LK rooms (e.g. breakout listen-in).
+ * `roomName` matches `LiveKitGrant.room` (the owning meeting's internal id);
+ * `purpose` is a free-form use-case tag: 'primary', 'breakout-listen', ...
+ */
+case class LiveKitRoomRef(
+    roomName: String,
+    purpose:  String,
+)
+
 object GenerateLiveKitTokenReqMsg { val NAME = "GenerateLiveKitTokenReqMsg" }
 case class GenerateLiveKitTokenReqMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   GenerateLiveKitTokenReqMsgBody
 ) extends BbbCoreMsg
 case class GenerateLiveKitTokenReqMsgBody(
-    userId:       String,
-    userName:     String,
-    grant:        LiveKitGrant,
-    metadata:     LiveKitParticipantMetadata,
+    userId:   String,
+    userName: String,
+    roomRef:  LiveKitRoomRef,
+    grant:    LiveKitGrant,
+    metadata: LiveKitParticipantMetadata,
 )
 
 object GenerateLiveKitTokenRespMsg { val NAME = "GenerateLiveKitTokenRespMsg" }
@@ -93,8 +84,11 @@ case class GenerateLiveKitTokenRespMsg(
     body:   GenerateLiveKitTokenRespMsgBody
 ) extends StandardMsg
 case class GenerateLiveKitTokenRespMsgBody(
-    token: String,
-    grant: LiveKitGrant,
+    roomRef: LiveKitRoomRef,
+    token:   String,
+    grant:   LiveKitGrant,
+    // Token TTL as configured on the controller side (bbb-webrtc-sfu),
+    ttlSec:  Int,
 )
 
 object LiveKitParticipantLeftEvtMsg { val NAME = "LiveKitParticipantLeftEvtMsg" }
@@ -103,7 +97,18 @@ case class LiveKitParticipantLeftEvtMsg(
     body:   LiveKitParticipantLeftEvtMsgBody
 ) extends StandardMsg
 case class LiveKitParticipantLeftEvtMsgBody(
-    userId: String,
+    userId:   String,
+    roomName: String,
+)
+
+object RemoveLiveKitParticipantSysMsg { val NAME = "RemoveLiveKitParticipantSysMsg" }
+case class RemoveLiveKitParticipantSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   RemoveLiveKitParticipantSysMsgBody
+) extends BbbCoreMsg
+case class RemoveLiveKitParticipantSysMsgBody(
+    roomName: String,
+    userId:   String,
 )
 
 /**
