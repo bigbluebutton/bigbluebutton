@@ -1111,6 +1111,7 @@
     "app.error.408": "Autentificación fallida",
     "app.error.409": "Conflicto",
     "app.error.410": "La sesión ha finalizado",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Ups, algo salió mal",
     "app.error.503": "Has sido desconectado",
     "app.error.disconnected.rejoin": "Puedes refrescar la página para unirte de nuevo.",

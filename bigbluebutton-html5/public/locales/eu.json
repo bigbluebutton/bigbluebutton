@@ -1111,6 +1111,7 @@
     "app.error.408": "Autentifikazioak huts egin du",
     "app.error.409": "Gatazka",
     "app.error.410": "Saioa bukatu da.",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Ups, zerbait oker joan da",
     "app.error.503": "Deskonektatu zaituzte",
     "app.error.disconnected.rejoin": "Orria freskatu dezakezu berriro sartzeko.",

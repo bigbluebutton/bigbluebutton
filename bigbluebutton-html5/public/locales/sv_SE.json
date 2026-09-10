@@ -1111,6 +1111,7 @@
     "app.error.408": "Autentiseringen misslyckades",
     "app.error.409": "Konflikt",
     "app.error.410": "Mötet är avslutat",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Hoppsan, något gick fel",
     "app.error.503": "Du har blivit frånkopplad",
     "app.error.disconnected.rejoin": "Du kan uppdatera sidan för att gå med igen.",

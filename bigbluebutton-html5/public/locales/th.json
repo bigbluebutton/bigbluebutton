@@ -1111,6 +1111,7 @@
     "app.error.408": "การตรวจสอบสิทธิ์ล้มเหลว",
     "app.error.409": "ข้อขัดแย้ง",
     "app.error.410": "เซสชันสิ้นสุดแล้ว",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "อุ๊ปส์ เกิดข้อผิดพลาดบางอย่าง",
     "app.error.503": "คุณถูกตัดการเชื่อมต่อแล้ว",
     "app.error.disconnected.rejoin": "คุณสามารถรีเฟรชหน้าเพื่อเข้าร่วมใหม่ได้",
