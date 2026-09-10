@@ -433,6 +433,9 @@ export const elements = {
   // Presentation
   currentSlideImg: '[id="whiteboard-element"] [class="tl-image"]',
   uploadPresentationFileName: 'uploadTest.png',
+  // Generated in memory by uploadOversizedPresentation - no fixture over the upload size
+  // limit is committed to the repo.
+  rejectedPresentationFileName: 'oversized.pdf',
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
   // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707), a source whose
@@ -493,6 +496,7 @@ export const elements = {
   presentationPlaceholderLabel: 'There is no currently active presentation',
   noPresentationLabel: 'There is no currently active presentation',
   presentationDownloadEnabledLabel: 'You can now download the presentation',
+  presentationTooLargeLabel: 'File is too large, exceeded the maximum of',
 
   // Settings
   settingsSidebarButton: 'div[data-test="settingsSidebarButton"]',
