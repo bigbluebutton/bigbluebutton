@@ -787,6 +787,13 @@ public:
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions']
+    reactions:
+      # e.g.: disabledEmojis: ['grin','laughing']
+      # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
+      disabledEmojis: []
+      # e.g.: enabledCategories: ['people', 'nature']
+      # categories: people, nature, foods, activity, places, objects, symbols, flags
+      enabledCategories: []
     announcePresenterChangeInChat: true
   userReaction:
     enabled: true
