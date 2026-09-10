@@ -5,10 +5,8 @@ import {
   throwErrorIfNotModerator,
   throwErrorIfStringTooLong,
 } from '../imports/validation';
+import { MAX_TRANSCRIPT_ID_LENGTH, MAX_TRANSCRIPT_LENGTH } from '../imports/captionLimits';
 import { RedisMessage } from '../types';
-
-const MAX_TRANSCRIPT_LENGTH = 8192;
-const MAX_TRANSCRIPT_ID_LENGTH = 40;
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);

@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { unique } from 'radash';
 import { useIsAudioTranscriptionEnabled } from '../service';
@@ -9,7 +10,10 @@ import Session from '/imports/ui/services/storage/in-memory';
 export const SpeechRecognitionAPI = (window as any).SpeechRecognition
 || (window as any).webkitSpeechRecognition;
 
-export const generateId = () => crypto.randomUUID();
+// Not `crypto.randomUUID()`: that needs Safari 15.4+, while
+// webkitSpeechRecognition exists from 14.1, and this runs during render for
+// every user. `uuid`'s v4 falls back to crypto.getRandomValues().
+export const generateId = () => uuid();
 
 export const hasSpeechRecognitionSupport = () => {
   const CONFIG = window.meetingClientSettings.public.app.audioCaptions;

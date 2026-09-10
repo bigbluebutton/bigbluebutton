@@ -5,10 +5,8 @@ import {
   throwErrorIfIntOutOfRange,
   throwErrorIfStringTooLong,
 } from "../imports/validation";
+import { MAX_TRANSCRIPT_ID_LENGTH, MAX_TRANSCRIPT_LENGTH } from "../imports/captionLimits";
 import { ValidationError } from "../types/ValidationError";
-
-const MAX_TRANSCRIPT_LENGTH = 8192;
-const MAX_TRANSCRIPT_ID_LENGTH = 40;
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input,
@@ -27,6 +25,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfStringTooLong('transcriptId', input.transcriptId, MAX_TRANSCRIPT_ID_LENGTH);
   throwErrorIfStringTooLong('text', input.text, MAX_TRANSCRIPT_LENGTH);
   throwErrorIfStringTooLong('transcript', input.transcript, MAX_TRANSCRIPT_LENGTH);
+  // An offset can never legitimately exceed the maximum text length, and
+  // akka-apps clamps both to the real transcript length anyway.
   throwErrorIfIntOutOfRange('start', input.start, 0, MAX_TRANSCRIPT_LENGTH);
   throwErrorIfIntOutOfRange('end', input.end, 0, MAX_TRANSCRIPT_LENGTH);
 

@@ -629,7 +629,10 @@ public:
       quickPollCorrectAnswerSuffix: "__"
   captions:
     background: '#000000'
-    # maximum number of characters accepted in a single caption submission
+    # maximum number of characters accepted in a single caption submission.
+    # Enforced by akka-apps, which is authoritative. bbb-graphql-actions applies
+    # a separate transport ceiling first (CAPTION_TEXT_CEILING in its config.ts,
+    # default 65536), so raising this above that ceiling has no effect.
     maxTextLength: 8192
     font:
       color: '#ffffff'
