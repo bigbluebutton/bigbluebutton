@@ -4,7 +4,6 @@ import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO }
-import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.running.MeetingActor
@@ -45,15 +44,9 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
-        //Refresh graphql session for all locked viewers
-        for {
-          user <- Users2x.findAll(liveMeeting.users2x)
-          if user.locked
-          if user.role == Roles.VIEWER_ROLE
-          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
-        } yield {
-          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
-        }
+        // No GraphQL reconnection is required here: the Hasura permission rules read
+        // the meeting_lockSettings row directly, so updating it below is what makes
+        // the new locks effective for every connected client.
 
         //Update database
         MeetingLockSettingsDAO.update(liveMeeting.props.meetingProp.intId, settings)
