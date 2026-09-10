@@ -687,8 +687,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings

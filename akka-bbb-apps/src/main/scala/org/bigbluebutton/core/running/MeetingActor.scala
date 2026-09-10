@@ -22,7 +22,7 @@ import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
-import org.bigbluebutton.core.apps.webcam.WebcamApp2x
+import org.bigbluebutton.core.apps.webcam.{ CameraHdlrHelpers, WebcamApp2x }
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
@@ -1172,6 +1172,10 @@ class MeetingActor(
         // Their media session might outlive them (for good reason - e.g.: smoother reconns).
         // Fence them until restored or ejected.
         liveMeeting.voiceUserReconciler.fenceRemovedUser(liveMeeting, outGW, u.intId)
+
+        Webcams.findWebcamsForUser(liveMeeting.webcams, u.intId) foreach { webcam =>
+          CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, props.meetingProp.intId, u.intId, webcam.streamId, outGW)
+        }
 
         val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
         UserDAO.update(updatedRegUser)
