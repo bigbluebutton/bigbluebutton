@@ -24,6 +24,8 @@ import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -126,8 +128,14 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  // The label collapse honours the same setting as this component's own spinner.
-  const animations = getSettingsSingletonInstance()?.application?.animations;
+  // Reactive, so flipping either toggle in the settings modal is reflected at once.
+  // The collapse honours the same animations setting as this component's own spinner.
+  const {
+    animations,
+    recordingIndicatorAutoCollapse,
+  } = useSettings(SETTINGS.APPLICATION) as {
+    animations: boolean; recordingIndicatorAutoCollapse: boolean;
+  };
 
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
@@ -250,6 +258,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       disabled={!showButton}
       isPhone={isPhone}
       animations={animations}
+      autoCollapse={recordingIndicatorAutoCollapse}
       time={time}
       tabIndex={0}
       key="recording-toggle"

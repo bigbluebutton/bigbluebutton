@@ -30,6 +30,7 @@ interface RecordingIndicatorProps {
   time: number;
   isPhone?: boolean;
   animations?: boolean;
+  autoCollapse?: boolean;
 }
 
 interface RecordingStatusViewOnlyProps {
@@ -125,6 +126,15 @@ const HOVER_CAPABLE = '@media (hover: hover) and (pointer: fine)';
 // strings were clipped, and the Malayalam stop title is longer still.
 const LABEL_MAX_WIDTH = '16rem';
 
+// The button's box when the label rides along at rest. The pinned height is what
+// makes it read as a sibling of the nav bar's plugin buttons; `borderWidth` is
+// subtracted from the padding so the bordered recording state and the borderless
+// idle one close the same box.
+const staticBox = (borderWidth: string) => css`
+  height: ${NAV_BAR_BUTTON_SIZE};
+  padding: 0 calc(1rem - ${borderWidth});
+`;
+
 // The opened box, shared by hover and keyboard focus so the two cannot drift.
 const expandedMetrics = (borderWidth: string) => css`
   padding: 0 calc(1rem - ${borderWidth});
@@ -190,13 +200,6 @@ const collapsedOnRest = (borderWidth: string) => css`
 // it never shrinks to a circle. Only the action label collapses, under the same
 // asymmetric delay as collapsedOnRest.
 const labelCollapsedOnRest = css`
-  /* Same pinned box as the idle state. border-box because this state is the
-     only one with a rendered border, and there is no global box-sizing reset -
-     without it the 1px outline would make the recording button 2px taller than
-     its idle self and than the plugin buttons beside it. */
-  box-sizing: border-box;
-  height: ${NAV_BAR_BUTTON_SIZE};
-  padding: 0 calc(1rem - ${borderSizeSmall});
   transition: padding 0.2s ease ${HOVER_COLLAPSE_DELAY};
 
   /* The timer owns the gap after the dot. */
@@ -303,8 +306,10 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
 
   /* Recording: a pill with the red outline, showing the dot and the elapsed
      time at rest. Hover only adds the stop label. */
-  ${({ recording, isPhone, disabled }) => recording && css`
-    padding: calc(0.5rem - ${borderSizeSmall}) calc(1rem - ${borderSizeSmall});
+  ${({
+    recording, isPhone, disabled, autoCollapse,
+  }) => recording && css`
+    ${staticBox(borderSizeSmall)}
     background-color: ${btnRecordingActiveBg};
     border: ${borderSizeSmall} solid ${btnRecordingActiveBorder};
     border-radius: 2em;
@@ -317,16 +322,21 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
       box-shadow: none;
     }
 
-    ${!isPhone && (disabled ? labelStaticBesideTimer : labelCollapsedOnRest)}
+    ${!isPhone && (autoCollapse && !disabled
+    ? labelCollapsedOnRest
+    : labelStaticBesideTimer)}
   `}
 
   /* Idle: borderless, so nothing to compensate. */
-  ${({ recording, isPhone, disabled }) => !recording && css`
-    padding: 0.5rem 1rem;
+  ${({
+    recording, isPhone, disabled, autoCollapse,
+  }) => !recording && css`
     border: ${borderSizeSmall};
     border-radius: 2em;
 
-    ${!isPhone && !disabled && collapsedOnRest('0px')}
+    ${!isPhone && autoCollapse && !disabled
+    ? collapsedOnRest('0px')
+    : staticBox('0px')}
   `}
 
   ${({ disabled, time }) => disabled && time === 0 && css`
