@@ -5,13 +5,17 @@ import { elements as e } from '../core/elements';
 import { InitOptionsProps } from '../core/page';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
 import { setGuestPolicyOption } from '../user/util';
-import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_INIT_OPTIONS } from './util';
+import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER, PRE_FLIGHT_INIT_OPTIONS } from './util';
 
 export class PreFlight extends MultiUsers {
   // The attendee is the one held by the pre-flight; the moderator goes through
   // the regular flow and observes the server side of the join.
   async initModPage(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await super.initModPage(page, { ...NO_PRE_FLIGHT_INIT_OPTIONS, ...options });
+    await super.initModPage(page, {
+      createParameter: PRE_FLIGHT_CREATE_PARAMETER,
+      ...NO_PRE_FLIGHT_INIT_OPTIONS,
+      ...options,
+    });
   }
 
   async initUserPageWithPreFlight(context?: BrowserContext, options: InitOptionsProps = {}) {
@@ -191,9 +195,11 @@ export class PreFlight extends MultiUsers {
       'should not display the join button while the guest waits for approval',
     ).toBeFalsy();
 
-    // The waiting queues live in the user list, which starts collapsed.
-    await this.modPage.waitAndClick(e.usersListSidebarButton);
-    await this.modPage.waitAndClick(e.allowEveryone);
+    // The attendee joins without guest=true, so they queue as authenticated.
+    // setGuestPolicyOption already left the user list open, and the queue's
+    // action buttons only render once its section is expanded.
+    await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
+    await this.modPage.waitAndClick(e.allowAllAuthenticatedWaiting);
     await this.userPage.hasElement(
       e.preFlightJoinButton,
       'should display the join button once the guest is approved',

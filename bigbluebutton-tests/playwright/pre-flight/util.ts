@@ -24,6 +24,10 @@ export const PRE_FLIGHT_INIT_OPTIONS: InitOptionsProps = {
   clientSettingsOverrides: PRE_FLIGHT_SETTINGS_OVERRIDE,
 };
 
+// Pinned: muteOnStart seeds the microphone toggle, so the server's default
+// would decide whether "joins unmuted" and "joins muted" hold.
+export const PRE_FLIGHT_CREATE_PARAMETER = 'muteOnStart=false';
+
 export const NO_PRE_FLIGHT_INIT_OPTIONS: InitOptionsProps = {
   clientSettingsOverrides: PRE_FLIGHT_DISABLED_SETTINGS_OVERRIDE,
 };
