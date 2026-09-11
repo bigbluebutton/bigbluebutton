@@ -62,6 +62,8 @@ const WhiteboardContainer = (props) => {
     refetchInitialPageAnnotations,
     annotationStreamData = [],
     restoreOnUpdate,
+    isPresentationDetached,
+    popupWindow,
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
@@ -320,6 +322,10 @@ const WhiteboardContainer = (props) => {
       }
     }, RECONNECT_SYNC_DELAY_MS);
   }, [
+    // Re-run the synchronization after the tldraw editor becomes available.
+    // This is important to fetch all tldraw drawings when popup/de-popup
+    editor,
+    //
     connectedStatus,
     isMultiUserActive,
     hasWBAccess,
@@ -467,7 +473,7 @@ const WhiteboardContainer = (props) => {
   const {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
   } = WHITEBOARD_CONFIG.styles;
-  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullScreen = (ref, isPresentationDetached, popupWindow) => FullscreenService.toggleFullScreen(ref, isPresentationDetached, popupWindow);
 
   // use -0.5 offset to avoid white borders rounding erros
   bgShape.push({
@@ -565,6 +571,8 @@ WhiteboardContainer.propTypes = {
   }).isRequired,
   zoomChanger: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
+  onPresenterViewChange: PropTypes.func,
+  onPresenterAnnotationsChange: PropTypes.func,
 };
 
 export default WhiteboardContainer;

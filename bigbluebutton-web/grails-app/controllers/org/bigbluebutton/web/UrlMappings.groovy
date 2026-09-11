@@ -52,6 +52,21 @@ class UrlMappings {
       }
     }
 
+    "/bigbluebutton/presentation-notes/upload"(controller: "presentation") {
+      action = [POST: 'uploadNotes']
+    }
+
+    "/bigbluebutton/presentation-notes/extract-existing"(controller: "presentation") {
+      action = [POST: 'extractNotesFromExistingPptx']
+    }
+
+    "/bigbluebutton/presentation/$conference/$room/$presentation_name/notes/$id"(controller: "presentation") {
+      action = [GET: 'showNote']
+      constraints {
+        id matches: /\d+/
+      }
+    }
+
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/textfiles"(controller: "presentation") {
       action = [GET: 'numberOfTextfiles']
     }
