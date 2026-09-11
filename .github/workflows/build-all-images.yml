@@ -1,0 +1,58 @@
+name: Build all docker images
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*.*.*"
+
+jobs:
+  html5-client:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-html5-client"
+      target: "html5-client"
+
+  learning-dashboard:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-learning-dashboard"
+      target: "learning-dashboard"
+
+  graphql-actions:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-graphql-actions"
+      target: "graphql-actions"
+
+  graphql-middleware:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-graphql-middleware"
+      target: "graphql-middleware"
+
+  graphql-server:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-graphql-server"
+      target: "graphql-server"
+
+  export-annotations:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-export-annotations"
+      target: "export-annotations"
+
+  etherpad:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-etherpad"
+      target: "etherpad"
+
+  akka-bbb-apps:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-apps-akka"
+      target: "apps-akka"
