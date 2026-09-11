@@ -47,7 +47,8 @@
 #set -x
 
 unset HEADER WATCH WITHDESC LIST LISTWORKFLOWS LIST WITHDESC REBUILD REBUILDALL \
-      REPUBLISH DELETE DELETEALL CHECK DEBUG CLEAN DISABLE ENABLE TOEXTERNAL TOINTERNAL
+      REPUBLISH DELETE DELETEALL CHECK DEBUG CLEAN DISABLE ENABLE TOEXTERNAL TOINTERNAL \
+      FORMAT
 
 source /etc/bigbluebutton/bigbluebutton-release
 
@@ -92,13 +93,152 @@ readonly TYPES
 
 declare -r MEETING_PATTERN="^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"
 
-mark_for_rebuild() {
-   MEETING_ID=$1
-   echo "Marking for rebuild $MEETING_ID"
-   if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
-      echo "Raw files for $MEETING_ID do not exist, can't rebuild"
+validate_format() {
+   local fmt=$1
+   # Format names are process script basenames and are substituted into paths,
+   # yq expressions and rm globs below, so reject anything else up front.
+   if ! [[ $fmt =~ ^[a-z0-9_]+$ ]]; then
+      echo "Format '$fmt' contains invalid characters"
       exit 1
    fi
+   if ! printf '%s\n' $TYPES | grep -qxF "$fmt"; then
+      echo "Unknown format '$fmt'. Valid formats: ${TYPES//$'\n'/ }"
+      exit 1
+   fi
+}
+
+# The recording formats this meeting opted out of through the
+# meta_bbb-disable-recording-formats create parameter, space separated.
+# Non-zero exit means the metadata could not be read at all.
+disabled_formats() {
+   local id=$1
+   local events=$RECORDING_DIR/raw/$id/events.xml
+   local disabled_formats
+
+   # Same parsing as BigBlueButton::Events.disabled_recording_formats, without
+   # a ruby start-up per meeting. xmlstarlet exits 1 when the XPath selects
+   # nothing, which here just means the meeting never opted out; any other
+   # failure (missing, unreadable or malformed events.xml) is reported.
+   disabled_formats=$(xmlstarlet sel -t -v /recording/metadata/@bbb-disable-recording-formats "$events" 2>/dev/null)
+   case $? in
+      0) ;;
+      1) return 0 ;;
+      *) return 1 ;;
+   esac
+
+   disabled_formats=${disabled_formats//[\[\]]} # delete [ and ]
+   disabled_formats=${disabled_formats//,/ }    # replace commas with spaces
+   disabled_formats=${disabled_formats,,}       # convert to lowercase
+   echo "$disabled_formats"
+}
+
+# May we touch this format for this meeting? Checked before anything is
+# removed: rap-enqueue refuses an opted-out format, which would otherwise leave
+# the output deleted with nothing scheduled to rebuild it. A metadata read
+# failure refuses too, rather than being taken for "not disabled".
+format_allowed() {
+   local id=$1 fmt=$2 list f
+   if ! list=$(disabled_formats "$id"); then
+      echo "Could not read the disabled recording formats for $id, refusing to touch it."
+      return 1
+   fi
+   for f in $list; do
+      if [ "$f" = "${fmt,,}" ]; then
+         echo "Format '$fmt' is disabled for $id by meta_bbb-disable-recording-formats."
+         return 1
+      fi
+   done
+}
+
+# What the steps chain runs after the given step, empty if the chain has no
+# next step for it. Like read_props, the override is merged shallowly onto
+# bigbluebutton.yml: an override that defines 'steps' replaces the whole map
+# rather than adding to it, so the last file with a 'steps' map wins.
+step_after() {
+   local step=$1
+   # check for unexpected characters - no escaping is performed in yq expression substitution
+   [[ $step =~ ^[a-z0-9_:]+$ ]] || return 1
+
+   local -a files=( "$BBB_YML" )
+   local override=/etc/bigbluebutton/recording/recording.yml
+   if [[ -e "$override" ]]; then
+      files+=("$override")
+   fi
+
+   # Take the 'steps' map from the last file that defines one, rather than
+   # merging the documents, so an override's map replaces the default one.
+   yq ea '[.steps | select(. != null)] | .[-1] | ."'"${step}"'" // ""' "${files[@]}" 2>/dev/null
+}
+
+# Remove a format's status files for the meeting, from the given $STATUS
+# subdirectories.
+#
+# Segment artifacts (<meeting id>-<break timestamp>-<format>) are deliberately
+# left alone: rap-enqueue.rb can only enqueue a bare meeting id, so a segment
+# removed here would never be rebuilt. Rebuilding segments needs the enqueue
+# side to grow a break timestamp first.
+remove_format_status() {
+   local id=$1 fmt=$2 sub
+   if [ -z "$id" ] || [ -z "$fmt" ]; then
+      echo "remove_format_status: meeting id and format are required" >&2
+      return 1
+   fi
+   for sub in "${@:3}"; do
+      [ -n "$sub" ] || continue
+      rm -vf "${STATUS:?}"/"$sub"/"$id"-"$fmt".*
+   done
+}
+
+# Remove a format's published output for the meeting. Segments are left alone,
+# for the reason given on remove_format_status above.
+remove_published_output() {
+   local id=$1 fmt=$2 dir
+   if [ -z "$id" ] || [ -z "$fmt" ]; then
+      echo "remove_published_output: meeting id and format are required" >&2
+      return 1
+   fi
+   for dir in "${PUBLISHED_DIR:?}"/"$fmt" \
+              "$RAW_PRESENTATION_SRC"/unpublished/"$fmt" \
+              "$RAW_PRESENTATION_SRC"/deleted/"$fmt"; do
+      rm -rf "$dir"/"$id"
+   done
+}
+
+mark_for_rebuild() {
+   local MEETING_ID=$1
+   local FMT=$2
+   if [ -z "$MEETING_ID" ]; then
+      echo "mark_for_rebuild: no meeting id given" >&2
+      return 1
+   fi
+   if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
+      echo "Raw files for $MEETING_ID do not exist, can't rebuild"
+      return 1
+   fi
+
+  # Single-format rebuild: re-process and re-publish only the requested format,
+  # leaving the sanity step and every other format's output untouched.
+  if [ -n "$FMT" ]; then
+     if ! format_allowed "$MEETING_ID" "$FMT"; then
+        echo "Nothing was removed for $MEETING_ID."
+        return 1
+     fi
+     echo "Marking for rebuild $MEETING_ID (format: $FMT)"
+
+     # Clear out this format's done files only
+     remove_format_status "$MEETING_ID" "$FMT" processed published
+
+     # Remove this format's published + intermediate output
+     remove_published_output "$MEETING_ID" "$FMT"
+     rm -rf "$BASE"/process/"$FMT"/"$MEETING_ID"
+
+     # Restart processing at the 'process' step for this format only; the steps
+     # workflow chains process:<format> -> publish:<format>.
+     /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "process:$FMT" "$MEETING_ID"
+     return
+  fi
+
+   echo "Marking for rebuild $MEETING_ID"
 
   # Clear out the relevant done files
   rm -vf "$STATUS"/archived/"$MEETING_ID".norecord
@@ -108,9 +248,7 @@ mark_for_rebuild() {
 
   # Remove the existing 'published' recording files
   for type in $TYPES; do
-     rm -rf "${PUBLISHED_DIR:?}"/"$type"/"$MEETING_ID"
-     rm -rf "$RAW_PRESENTATION_SRC"/unpublished/"$type"/"$MEETING_ID"
-     rm -rf "$RAW_PRESENTATION_SRC"/deleted/"$type"/"$MEETING_ID"
+     remove_published_output "$MEETING_ID" "$type"
   done
 
   # Restart processing at the 'sanity' step
@@ -118,27 +256,54 @@ mark_for_rebuild() {
 }
 
 mark_for_republish() {
-   MEETING_ID=$1
-   echo "Marking for republish $MEETING_ID"
+   local MEETING_ID=$1
+   local FMT=$2
+   local republish_types=$TYPES
+   local republished=0
+   if [ -z "$MEETING_ID" ]; then
+      echo "mark_for_republish: no meeting id given" >&2
+      return 1
+   fi
 
-   for type in $TYPES; do
+   # Restrict to a single format when --format was given
+   if [ -n "$FMT" ]; then
+      if ! format_allowed "$MEETING_ID" "$FMT"; then
+         echo "Nothing was removed for $MEETING_ID."
+         return 1
+      fi
+      republish_types=$FMT
+      echo "Marking for republish $MEETING_ID (format: $FMT)"
+   else
+      echo "Marking for republish $MEETING_ID"
+   fi
+
+   for type in $republish_types; do
       if [[ ! -d $BASE/process/$type/$MEETING_ID ]]; then
          echo "Processed files for $MEETING_ID ($type) do not exist, can't republish"
          echo "Try rebuilding the recording instead."
          continue
       fi
 
-      # Clear out the publish done files
-      rm -vf "$STATUS"/published/"$MEETING_ID"*
+      if ! format_allowed "$MEETING_ID" "$type"; then
+         continue
+      fi
+
+      # Clear out the publish done files for this format only
+      remove_format_status "$MEETING_ID" "$type" published
 
       # Remove the existing 'published' recording files
-      rm -rf "${PUBLISHED_DIR:?}"/"$type"/"$MEETING_ID"
-      rm -rf "$RAW_PRESENTATION_SRC"/unpublished/"$type"/"$MEETING_ID"
-      rm -rf "$RAW_PRESENTATION_SRC"/deleted/"$type"/"$MEETING_ID"
+      remove_published_output "$MEETING_ID" "$type"
 
       # Restart processing at the 'publish' step
       /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "publish:$type" "$MEETING_ID"
+      republished=1
    done
+
+   # An explicit single-format request that republished nothing is a failure,
+   # not a silent no-op. Sweeping every meeting stays best-effort.
+   if [ -n "$FMT" ] && [ "$republished" = 0 ]; then
+      return 1
+   fi
 }
 
 need_root() {
@@ -205,6 +370,8 @@ usage() {
    echo
    echo "Administration:"
    echo "   --rebuild <internal meetingID>     rebuild the output for the given internal meetingID"
+   echo "   --format <recording format name>   with --rebuild, --rebuildall or --republish,"
+   echo "                                      act on only one playback format (see --list-workflows)"
    echo "   --rebuildall                       rebuild every recording"
    echo "   --delete <internal meetingID>      delete one meeting and recording"
    echo "   --deleteall                        delete all meetings and recordings"
@@ -257,7 +424,7 @@ while [ $# -gt 0 ]; do
    fi
    if [ "$1" = "-rebuild" ] || [ "$1" = "--rebuild" ]; then
       need_root
-      if [ ! -z "${2}" ]; then
+      if [ -n "${2}" ] && [[ "${2}" != -* ]]; then
          MEETING_ID="${2}"
          shift
       fi
@@ -265,9 +432,19 @@ while [ $# -gt 0 ]; do
       shift
       continue
    fi
+   if [ "$1" = "-format" ] || [ "$1" = "--format" ]; then
+      if [ -z "${2}" ] || [[ "${2}" == -* ]]; then
+         echo "$1 requires a recording format name, e.g. $1 presentation"
+         echo "Run 'bbb-record --list-workflows' to see the available formats."
+         exit 1
+      fi
+      FORMAT="${2}"
+      shift 2
+      continue
+   fi
    if [ "$1" = "-rebuildall" ] || [ "$1" = "--rebuildall" ]; then
       need_root
-      if [ ! -z "${2}" ]; then
+      if [ -n "${2}" ] && [[ "${2}" != -* ]]; then
          MEETING_ID="${2}"
          shift
       fi
@@ -278,7 +455,7 @@ while [ $# -gt 0 ]; do
 
    if [ "$1" = "-republish" ] || [ "$1" = "--republish" ]; then
       need_root
-      if [ ! -z "${2}" ]; then
+      if [ -n "${2}" ] && [[ "${2}" != -* ]]; then
          MEETING_ID="${2}"
          shift
       fi
@@ -373,18 +550,35 @@ while [ $# -gt 0 ]; do
    exit 1
 done
 
+# Validate --format once, before any action touches the filesystem.
+if [ -n "$FORMAT" ]; then
+   if [ -z "$REBUILD$REBUILDALL$REPUBLISH" ]; then
+      echo "--format only applies to --rebuild, --rebuildall or --republish."
+      exit 1
+   fi
+   validate_format "$FORMAT"
+   # Processing a format the steps chain does not continue would remove the
+   # current output and never publish a replacement.
+   if [ -n "$REBUILD$REBUILDALL" ] && [ -z "$(step_after "process:$FORMAT")" ]; then
+      echo "The recording steps chain has no next step after 'process:$FORMAT',"
+      echo "so processing format '$FORMAT' would never publish a result."
+      echo "Run 'bbb-record --list-workflows' to see the enabled steps. Nothing was removed."
+      exit 1
+   fi
+fi
+
 if [ $REBUILD ]; then
    if [ -z "$MEETING_ID" ]; then
       echo "Pass an internal meeting id as parameter."
    else
-      mark_for_rebuild "$MEETING_ID"
+      mark_for_rebuild "$MEETING_ID" "$FORMAT" || exit 1
    fi
 fi
 
 if [ $REBUILDALL ]; then
    echo "Rebuilding all recordings"
    for recording in $(dir "$BASE"/raw); do
-      [[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild "$recording"
+      [[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild "$recording" "$FORMAT"
    done
 fi
 
@@ -394,12 +588,10 @@ if [ $REPUBLISH ]; then
       # Republish all meetings
       #
       for recording in $(dir "$BASE"/raw); do
-         echo "Marking for republish: $recording"
-         mark_for_republish "$recording"
+         mark_for_republish "$recording" "$FORMAT"
       done
    else
-      echo "Marking for republish: $MEETING_ID"
-      mark_for_republish "$MEETING_ID"
+      mark_for_republish "$MEETING_ID" "$FORMAT" || exit 1
    fi
 fi
 
