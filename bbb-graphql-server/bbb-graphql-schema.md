@@ -511,6 +511,7 @@ Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 - `userId`
 - `xPercent`
 - `yPercent`
+- `laserType`
 ### Relationships:
 - `user: Object` [Type User](#type-user)
 

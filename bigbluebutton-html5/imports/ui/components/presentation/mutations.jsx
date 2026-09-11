@@ -92,11 +92,12 @@ export const PRES_ANNOTATION_SUBMIT = gql`
 `;
 
 export const PRESENTATION_PUBLISH_CURSOR = gql`
-  mutation PresentationPublishCursor($whiteboardId: String!, $xPercent: Float!, $yPercent: Float!) {
+  mutation PresentationPublishCursor($whiteboardId: String!, $xPercent: Float!, $yPercent: Float!, $laserType: String!) {
     presentationPublishCursor(
       whiteboardId: $whiteboardId,
       xPercent: $xPercent,
       yPercent: $yPercent,
+      laserType: $laserType,
     )
   }
 `;
