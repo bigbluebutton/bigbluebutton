@@ -27,9 +27,10 @@ mkdir -p staging/usr/share/bigbluebutton/nginx
 cp learning-dashboard.nginx staging/usr/share/bigbluebutton/nginx
 
 
-# install dependencies, create build, copy build over to destination
-npm ci --omit=dev
-DISABLE_ESLINT_PLUGIN=true npm run build
+# install dependencies (vite is a devDependency, so no --omit=dev),
+# create build, copy build over to destination
+npm ci
+npm run build
 cp -r build/* staging/var/bigbluebutton/learning-dashboard
 
 ##

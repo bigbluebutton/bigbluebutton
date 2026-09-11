@@ -417,6 +417,27 @@ and make sure your user account has access to the presentation directory (see "D
 
 Use `journalctl -u bbb-export-annotations -e` to see recent logs.
 
+## Developing the Learning Dashboard
+
+The Learning Analytics Dashboard is a React application built with [Vite](https://vite.dev/). It is served as static files by nginx under `/learning-analytics-dashboard/`.
+
+To work on it with live reload, run (as user `bigbluebutton` on your development server):
+
+```bash
+cd ~/dev/bigbluebutton/bbb-learning-dashboard
+./run-dev.sh
+```
+
+This starts the Vite dev server on port 3100 and installs an nginx location that proxies `/learning-analytics-dashboard/` to it (including the hot-module-reload websocket, which connects back through nginx on port 443).
+
+To build the production bundle and have nginx serve the static files instead, run:
+
+```bash
+./deploy.sh
+```
+
+Environment variables for the dashboard (for example `VITE_EXTERNAL_HELP_PAGE_URL`, which adds an external help link) are read from `bbb-learning-dashboard/.env`; copy `.env.example` to `.env` to get started. Setting `VITE_STANDALONE_MODE=true` at build time produces a build that loads `learning_dashboard_data.json`, locales, and the presentation from paths relative to the exported dashboard, for serving outside of a BigBlueButton server.
+
 ## Troubleshooting
 
 ### Welcome to NGINX page
