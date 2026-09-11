@@ -3,6 +3,7 @@ import {
   borderSize,
   borderSizeSmall,
   navigationSidebarListItemsWidth,
+  navigationSidebarListItemsWidthDesktop,
   navigationSidebarIconSize,
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
@@ -33,9 +34,17 @@ export const ListItem = styled.div<ListItemProps>`
   text-decoration: none;
   color: ${colorGrayIcons};
   cursor: pointer;
-  width: ${navigationSidebarListItemsWidth};
+  /* The fixed desktop size is in rem, so it follows the user font-size setting.
+     Cap it at 100% (the scrollbox content box, which is the rail minus the
+     reserved scrollbar gutter) so a larger font scales the icon up but never
+     overflows the content box. */
+  width: min(${navigationSidebarListItemsWidthDesktop}, 100%);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
+
+  ${({ $isMobile }: ListItemProps) => $isMobile && `
+    width: ${navigationSidebarListItemsWidth};
+  `}
 
   > i {
     font-size: ${navigationSidebarIconSize};
