@@ -26,7 +26,7 @@ const LockViewersContainer = (props) => {
         disablePrivChat: lockSettings.disablePrivateChat,
         disablePubChat: lockSettings.disablePublicChat,
         disableNotes: lockSettings.disableNotes,
-        hideUserList: lockSettings.hideUserList,
+        isolateUsers: lockSettings.isolateUsers,
         lockOnJoin: lockSettings.lockOnJoin,
         lockOnJoinConfigurable: lockSettings.lockOnJoinConfigurable,
         hideViewersCursor: lockSettings.hideViewersCursor,

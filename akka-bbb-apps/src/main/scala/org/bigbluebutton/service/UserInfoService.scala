@@ -56,7 +56,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-CursorLockedUserId" -> conditionalValue("hideViewersCursor", userId, ""),
         "X-Hasura-AnnotationsNotLockedInMeeting" -> conditionalValue("hideViewersAnnotation", "", meetingID),
         "X-Hasura-AnnotationsLockedUserId" -> conditionalValue("hideViewersAnnotation", userId, ""),
-        "X-Hasura-UserListNotLockedInMeeting" -> conditionalValue("hideUserList", "", meetingID),
+        "X-Hasura-UserListNotLockedInMeeting" -> conditionalValue("isolateUsers", "", meetingID),
         "X-Hasura-WebcamsNotLockedInMeeting" -> conditionalValue("webcamsOnlyForModerator", "", meetingID),
         "X-Hasura-WebcamsLockedUserId" -> conditionalValue("webcamsOnlyForModerator", userId, "")
       )

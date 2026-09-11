@@ -71,7 +71,7 @@ case class BreakoutRoomDetail(
     disableMic:              Boolean,
     disablePubChat:          Boolean,
     disableNotes:            Boolean,
-    hideUserList:            Boolean,
+    isolateUsers:            Boolean,
     lockOnJoin:              Boolean,
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
