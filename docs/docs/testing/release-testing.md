@@ -1111,6 +1111,20 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 19. All users should be able to send public chat messages now.
 
+### Public chat for a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/user/user.spec.ts)
+
+1. Join meeting with a moderator and a viewer. Do not enable any "Lock viewers" setting.
+
+2. Moderator: open the viewer's actions menu in the user list and select "Lock public chat".
+
+3. Viewer: should see the public chat textbox and send button disabled, while other viewers keep sending public chat messages.
+
+4. Moderator: the viewer's row in the user list should show the "Locked" label. The moderator should still be able to send public chat messages.
+
+5. Moderator: open the same viewer's actions menu and select "Unlock public chat".
+
+6. Viewer: should be able to send public chat messages again and the "Locked" label should disappear.
+
 ### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join meeting with moderators and viewers.

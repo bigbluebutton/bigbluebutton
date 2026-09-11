@@ -687,8 +687,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
@@ -820,6 +822,7 @@ export interface Whiteboard {
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
   slideSwapDecodeTimeoutMs: number
+  wheelZoomRequiresCtrl: boolean
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

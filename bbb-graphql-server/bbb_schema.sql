@@ -249,9 +249,9 @@ from (
 
 create unlogged table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "groupId"    varchar(100),
+    "groupId"    text,
     "groupIndex" integer,
-    "name"       varchar(100),
+    "name"       text,
     "usersExtId" varchar[],
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );
@@ -740,8 +740,8 @@ CREATE UNLOGGED TABLE "user_voice" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
 	"voiceUserId" varchar(100),
-	"callerName" varchar(100),
-	"callerNum" varchar(100),
+	"callerName" text,
+	"callerNum" text,
 	"callingWith" varchar(100),
 	"joined" boolean,
 	"listenOnly" boolean,
@@ -1272,7 +1272,7 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
-    "senderName" varchar(255),
+    "senderName" text,
 	"senderRole" varchar(20),
 	"createdAt" timestamp with time zone not null,
 	"editedAt" timestamp with time zone,
@@ -1905,7 +1905,15 @@ LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionI
 WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
-CREATE VIEW "v_poll" AS SELECT * FROM "poll";
+CREATE VIEW "v_poll" AS
+SELECT poll.*,
+(
+    -- Secret polls keep the userId only in a separate response marker row.
+    SELECT count(DISTINCT response."userId")::integer
+    FROM poll_response response
+    WHERE response."pollId" = poll."pollId"
+) AS "numResponders"
+FROM poll;
 
 CREATE VIEW v_poll_option AS
 SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"

@@ -2,7 +2,28 @@ import { expect, Locator } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
+import { apiCall } from '../../core/helpers';
 import { Page } from '../../core/page';
+
+interface GetMeetingInfoResponse {
+  response: {
+    createTime: string[];
+  };
+}
+
+function formatMeetingCreateTime(createTime: string): string {
+  const date = new Date(Number(createTime));
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `_${pad(date.getHours())}-${pad(date.getMinutes())}`
+  );
+}
+
+export async function expectedSharedNotesFilename(meetingId: string, extension: string): Promise<string> {
+  const { data } = await apiCall<GetMeetingInfoResponse>('getMeetingInfo', { meetingID: meetingId });
+  return `${meetingId}_${formatMeetingCreateTime(data.response.createTime[0])}_Shared_Notes.${extension}`;
+}
 
 export async function startSharedNotesBlockNote(testPage: Page) {
   await testPage.waitAndClick(e.sharedNotesSidebarButton);

@@ -83,6 +83,7 @@ export {
   adoptWasmProcessor,
   createWasmProcessorStream,
   destroyWasmProcessor,
+  getActiveProviderId,
   getProviderForcedMicrophoneConstraints,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,

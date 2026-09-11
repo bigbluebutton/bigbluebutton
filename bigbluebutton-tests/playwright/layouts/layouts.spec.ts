@@ -145,38 +145,96 @@ test.describe.parallel('Device type breakpoint crossing', { tag: '@ci' }, () => 
   });
 });
 
-test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
-  let layouts: Layouts;
+test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@ci' }, () => {
+  test(
+    'Presenter shares a webcam without publishing an invalid presentation video rate',
+    { tag: '@media' },
+    async ({ browser }, testInfo) => {
+      linkIssue(25681);
+      const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+      try {
+        const layouts = new Layouts(browser, context);
+        await layouts.configurePhoneLandscapeLayoutDelay();
+        const page = await context.newPage();
+        await layouts.initModPage(page, {
+          createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+          joinParameter: 'userdata-bbb_auto_join_audio=false',
+          shouldCloseAudioModal: false,
+          clientSettingsOverrides: {
+            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
+          },
+          testInfo,
+        });
+        await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
+      } finally {
+        await context.close();
+      }
+    },
+  );
+});
 
-  test.beforeEach(async ({ browser, context }, testInfo) => {
-    linkIssue(24367);
-    layouts = new Layouts(browser, context);
-    await initializePages(layouts, browser, { isMultiUser: true, testInfo });
-    await layouts.modPage.shareWebcam();
-    await layouts.userPage.shareWebcam();
+test.describe.parallel('Unified Layout - server layout rate validation', { tag: '@ci' }, () => {
+  test('Server clamps an out-of-range presentation video rate', async ({ browser }, testInfo) => {
+    linkIssue(25681);
+    const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+    try {
+      const layouts = new Layouts(browser, context);
+      await layouts.configurePresentationVideoRateClampProbe();
+      const page = await context.newPage();
+      await layouts.initModPage(page, {
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        joinParameter: 'userdata-bbb_auto_join_audio=false',
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: {
+          public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
+        },
+        testInfo,
+      });
+      await layouts.initUserPage(context, {
+        joinParameter: 'userdata-bbb_auto_join_audio=false',
+        shouldCloseAudioModal: false,
+      });
+      await layouts.serverClampsPresentationVideoRate();
+    } finally {
+      await context.close();
+    }
   });
+});
 
-  test('Focus on presentation', async () => {
-    await layouts.focusOnPresentation();
-  });
+test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@ci' }, () => {
+  test(
+    'Viewer pages through webcams at the default page size while the moderator sees them all',
+    { tag: '@media' },
+    async ({ browser, context }, testInfo) => {
+      linkIssue(25730);
+      const layouts = new Layouts(browser, context);
+      await initializePages(layouts, browser, {
+        isMultiUser: true,
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        testInfo,
+        recordVideo: true,
+      });
 
-  test('Grid Layout', async () => {
-    await layouts.gridLayout();
-  });
+      // The scenario encodes the server-default desktop pagination config;
+      // on servers configured differently the expected tile counts would not hold.
+      const pagination = await layouts.getDesktopPaginationConfig();
+      test.skip(
+        !pagination.paginationEnabled ||
+          pagination.moderatorPageSize !== 0 ||
+          pagination.viewerPageSize !== 5 ||
+          pagination.thresholdsEnabled ||
+          !pagination.partitionPrivilegedStreams,
+        'encodes the server-default pagination config (paginationEnabled, desktopPageSizes ' +
+          'moderator 0 / viewer 5, paginationThresholds disabled, partitionPrivilegedStreams ' +
+          `enabled) - got ${JSON.stringify(pagination)}`,
+      );
 
-  test('Smart layout', async () => {
-    await layouts.smartLayout();
-  });
+      // 5 extra webcam viewers join sequentially on top of the two base users,
+      // so the timeout has to scale with the number of webcams (same rationale
+      // as webcam/gridTileCount.spec.ts).
+      test.setTimeout(7 * 25_000 + 60_000);
 
-  test('Custom layout', async () => {
-    await layouts.customLayout();
-  });
-
-  test("Update everyone's layout", async () => {
-    await layouts.updateEveryone();
-  });
-
-  test('Video Pagination', async () => {
-    await layouts.videoPagination();
-  });
+      await layouts.viewerPaginationAtServerDefaults();
+    },
+  );
 });

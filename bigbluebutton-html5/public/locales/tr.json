@@ -1111,6 +1111,7 @@
     "app.error.408": "Kimlik doğrulanamadı",
     "app.error.409": "Çatışma",
     "app.error.410": "Oturum sona erdi",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Bir sorun çıktı",
     "app.error.503": "Bağlantınız kesildi",
     "app.error.disconnected.rejoin": "Yeniden katılmak için sayfayı yenileyin.",

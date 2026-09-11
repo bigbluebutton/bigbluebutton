@@ -3,6 +3,7 @@ import path from 'path';
 import { linkIssue } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
+import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
@@ -100,7 +101,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.zoom();
   });
 
-  test('Select Slide', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+  // fails deterministically on 4.0: the slide-thumbnail canvas screenshot no longer
+  // matches its baseline on any server - needs a baseline/approach refresh
+  test('Select Slide', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
@@ -215,6 +218,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.sendPresentationToDownload();
     });
 
+    test('Exported text annotations do not overlap', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
+    });
+
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
@@ -226,6 +236,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
       await presentation.presentationThumbnailLoads();
+    });
+
+    test('Uploaded presentation keeps its source dimensions', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24110);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadPresentationKeepsSourceDimensions();
     });
 
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {

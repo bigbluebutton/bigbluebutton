@@ -30,6 +30,7 @@ import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
 } from '/imports/ui/components/audio/service';
+import { getActiveProviderId } from '/imports/ui/components/audio/audio-processor/service';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -675,10 +676,14 @@ class AudioManager {
 
     let newMuteState;
 
-    // when user leaves voice conf, set muted = false
-    // as the user might have been transfered to a breakout room
+    // On the FreeSWITCH bridge a voice-conf leave means a transfer may be under
+    // way, so the user is unmuted. Under LiveKit it can only be a reconnect or a
+    // disconnect, and the event carries no observed voice state at all: akka
+    // builds it from an empty voice user, whose mute field is a hard-coded
+    // placeholder. Neither half of it says anything about this user, so the
+    // whole event is ignored rather than just its unmute.
     if (leftVoiceConf !== undefined && leftVoiceConf) {
-      newMuteState = false;
+      if (!this.isUsingLiveKit) newMuteState = false;
     } else if (muted !== undefined && muted !== this.isMuted) {
       newMuteState = muted;
     }
@@ -791,6 +796,8 @@ class AudioManager {
             isListenOnly: this.isListenOnly,
             stats: getRTCStatsLogMetadata(stats),
             clientSessionNumber: this.bridge.clientSessionNumber,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio Joined');
       });
@@ -879,6 +886,8 @@ class AudioManager {
             outputDeviceId: this.outputDeviceId,
             outputDevices: this.outputDevicesJSON,
             isListenOnly: this.isListenOnly,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio ended without issue');
       } else if (status === FAILED) {
@@ -1393,6 +1402,21 @@ class AudioManager {
 
     await this.bridge.updateAudioConstraints(constraints);
     this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+
+    logger.info({
+      logCode: 'audio_constraints_updated',
+      extraInfo: {
+        bridge: this.bridgeName,
+        inputDeviceId: this.inputDeviceId,
+        inputDevices: this.inputDevicesJSON,
+        outputDeviceId: this.outputDeviceId,
+        outputDevices: this.outputDevicesJSON,
+        clientSessionNumber: this.bridge.clientSessionNumber,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+        wasmProcessingEnabled: isWasmProcessingEnabled(),
+        wasmProcessingProvider: getActiveProviderId(),
+      },
+    });
 
     // Bridges may re-acquire the stream when doing this. Cleanup is in order if
     // applicable (i.e.: old one is stale, compare via id).

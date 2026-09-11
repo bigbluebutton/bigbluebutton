@@ -1111,6 +1111,7 @@
     "app.error.408": "Error d'autenticació",
     "app.error.409": "Conflicte",
     "app.error.410": "La sessió ha finalitzat",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Oh oh, quelcom ha anat malament",
     "app.error.503": "T'han desconnectat",
     "app.error.disconnected.rejoin": "Pots actualitzar la pàgina per a tornar a entrar.",

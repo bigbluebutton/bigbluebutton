@@ -2281,6 +2281,14 @@ const Whiteboard = React.memo((props) => {
     let cancelled = false;
     const currentPageId = `page:${formattedPageId}`;
 
+    // A viewer mid-edit must leave select.editing_shape before anything prunes the old
+    // page's shapes. The same check inside applyPageSwap runs too late now that the swap
+    // is decode-gated: the shapes-sync removal effects are unguarded and run during the
+    // decode wait (issue 25332).
+    if (tlEditorRef.current.getEditingShape()) {
+      tlEditorRef.current.complete();
+    }
+
     // Create the new page + its camera record synchronously, before the gate. These records
     // are invisible (nothing renders until setCurrentPage runs in applyPageSwap), but remote
     // annotations for the new page arrive via debouncedUpdateShapes (service.js, 175ms)

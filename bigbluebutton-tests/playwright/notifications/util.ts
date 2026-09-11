@@ -19,7 +19,9 @@ export async function enableUserLeavePopup(testPage: Page) {
 }
 
 export async function saveSettings(testPage: Page) {
-  await testPage.waitAndClick(e.modalConfirmButton);
+  // the settings modal footer uses saveSettingsButton, not the generic
+  // modalConfirmButton (which other confirmation dialogs still use)
+  await testPage.waitAndClick(e.saveSettingsButton);
 }
 
 export async function checkNotificationText(testPage: Page, text: string) {

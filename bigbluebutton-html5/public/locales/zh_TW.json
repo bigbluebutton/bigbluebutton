@@ -1111,6 +1111,7 @@
     "app.error.408": "驗證失敗",
     "app.error.409": "衝突",
     "app.error.410": "會議已結束",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "哎呀，出現了一些問題",
     "app.error.503": "您已斷開連接",
     "app.error.disconnected.rejoin": "您可以刷新頁面重新加入。",
