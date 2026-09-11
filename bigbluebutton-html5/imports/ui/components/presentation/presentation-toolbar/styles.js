@@ -22,6 +22,8 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
 
+const COMPACT_ATTRIBUTE = 'data-compact';
+
 const PresentationToolbarWrapper = styled.div`
   position: absolute;
   align-self: center;
@@ -35,9 +37,14 @@ const PresentationToolbarWrapper = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
   min-width: fit-content;
+  box-sizing: border-box;
 
-  // Only where dropdown/content becomes a full-screen overlay - keep both in sync, or
-  // this ~40px box clips a dropdown left in flow above it.
+  &[${COMPACT_ATTRIBUTE}="true"] {
+    min-width: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
   @media ${smallOnly}, ${hasPhoneDimentions} {
     min-width: 0;
     overflow-x: auto;
@@ -189,6 +196,15 @@ const PresentationZoomControls = styled.div`
   }
 `;
 
+const ZoomToolWrapper = styled.span`
+  display: flex;
+  align-items: center;
+
+  [${COMPACT_ATTRIBUTE}="true"] & {
+    display: none;
+  }
+`;
+
 const FitToWidthButton = styled(Button)`
   border: none !important;
 
@@ -330,8 +346,11 @@ const InfiniteWhiteboardButton = styled(Button)`
   }
 `;
 
+export { COMPACT_ATTRIBUTE };
+
 export default {
   PresentationToolbarWrapper,
+  ZoomToolWrapper,
   QuickPollButton,
   QuickPollButtonWrapper,
   PresentationSlideControls,
