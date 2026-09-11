@@ -237,6 +237,10 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        # Collapse the recording button to an icon and reveal its label on hover.
+        # Off by default: the label stays put, so the button never resizes under
+        # the pointer and never shifts the nav bar around it.
+        recordingIndicatorAutoCollapse: false
         pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true

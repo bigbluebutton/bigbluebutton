@@ -680,6 +680,7 @@
     "app.submenu.application.applicationSectionTitle": "Application Settings",
     "app.submenu.application.pushToTalkLabel": "Audio push to talk",
     "app.submenu.application.animationsLabel": "Animations",
+    "app.submenu.application.recordingIndicatorAutoCollapseLabel": "Collapse recording button",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Auto Hide Whiteboard Toolbars",
     "app.submenu.application.darkThemeLabel": "Dark mode",
     "app.submenu.application.fontSizeControlLabel": "Font size",
