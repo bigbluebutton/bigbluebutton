@@ -172,7 +172,13 @@ map $remote_addr $freeswitch_addr {
 }
 ```
 
-replacing the ip addresses `192.0.2.1` with the system's external IPV4 addresses, and replace `2001:db8::1` with the system's external IPV6 address. Next, edit the file `/etc/bigbluebutton/nginx/sip.nginx` to have the following:
+replacing the ip addresses `192.0.2.1` with the system's external IPV4 addresses, and replace `2001:db8::1` with the system's external IPV6 address. :::note
+`/etc/bigbluebutton/nginx/sip.nginx` (the `/ws` endpoint) is disabled by default
+(see [Legacy FreeSWITCH SIP-over-WebSocket endpoint](../administration/customize.md#legacy-freeswitch-sip-over-websocket-endpoint-ws)).
+These steps apply only where it has been reinstated.
+:::
+
+Next, edit the file `/etc/bigbluebutton/nginx/sip.nginx` to have the following:
 
 ```nginx
 proxy_pass https://$freeswitch_addr:7443;

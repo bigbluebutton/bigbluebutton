@@ -323,6 +323,14 @@ You may see the error "Call timeout (Error 1006)" during the microphone echo tes
 `touch /etc/bigbluebutton/bbb-html5.yml`
 `yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
+:::note
+`sipjsHackViaWs` applies to the legacy FreeSWITCH SIP-over-WebSocket (`/ws`)
+bridge, which is disabled by default (see [Legacy FreeSWITCH SIP-over-WebSocket
+endpoint](../administration/customize.md#legacy-freeswitch-sip-over-websocket-endpoint-ws)). It has effect only where that
+endpoint has been deliberately reinstated; the default audio path is
+bbb-webrtc-sfu/LiveKit.
+:::
+
 ### `/private/config`
 
 All configurations are located in **/private/config/settings.yml**. Starting with BigBlueButton 3.0 this file is actually picked by `bbb-apps-akka` and the settings are passed to the clients.
