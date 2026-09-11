@@ -52,7 +52,7 @@ and
 ` BigBlueButton.logger.info("There are no recording marks for #{meeting_id}, deleting the recording.")`
 ` system('sudo', 'bbb-record', '--delete', "#{meeting_id}") || raise('Failed to delete local recording')`
 
-For a more complete version that also explicitly deletes cache files of recordings for freeswitch/kurento, please see:
+For a more complete version that also explicitly deletes cache files of recordings for freeswitch and the media (webcam/screenshare) caches, please see:
 [bbb-recording-archive-workaround](https://github.com/Kalagon/bbb-recording-archive-workaround)
 
 #### BigBlueButton stores presentations uploaded during sessions
@@ -100,12 +100,17 @@ Specifically in:
 `/var/bigbluebutton/recording/raw/`
 `/var/bigbluebutton/unpublished/`
 `/var/bigbluebutton/published/presentation/`
-`/usr/share/red5/webapps/video/streams/`
-`/usr/share/red5/webapps/screenshare/streams/`
-`/usr/share/red5/webapps/video-broadcast/streams/`
-`/var/kurento/recordings/`
-`/var/kurento/screenshare/`
+`/var/lib/bbb-webrtc-recorder/recordings/`
+`/var/lib/bbb-webrtc-recorder/screenshare/`
+`/var/lib/bbb-webrtc-recorder/audio/`
+`/var/mediasoup/recordings/`
+`/var/mediasoup/screenshare/`
 `/var/freeswitch/meetings/`
+
+Which of these locations are populated depends on the media server handling the session:
+
+- With **mediasoup** (the default), webcam and screen-sharing streams are written under `/var/mediasoup/` and/or `/var/lib/bbb-webrtc-recorder/`, and the audio conference is recorded by FreeSWITCH under `/var/freeswitch/meetings/`.
+- With **LiveKit** (experimental, introduced in BigBlueButton 3.0), webcam, screen-sharing, **and** audio are all captured by `bbb-webrtc-recorder` under `/var/lib/bbb-webrtc-recorder/{recordings,screenshare,audio}/`. LiveKit itself does not store recording files in a separate location — it delegates capture to `bbb-webrtc-recorder` — and LiveKit audio does not go through FreeSWITCH, so `/var/freeswitch/meetings/` is not populated for LiveKit sessions.
 
 ##### Resolution
 
@@ -115,24 +120,23 @@ For this, the following lines have to be added to `/etc/fstab`:
 `tmpfs /var/bigbluebutton/recording/raw/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
 `tmpfs /var/bigbluebutton/unpublished/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
 `tmpfs /var/bigbluebutton/published/presentation/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
-`tmpfs /usr/share/red5/webapps/video/streams/ tmpfs rw,nosuid,noatime,uid=999,gid=999,size=16G,mode=0755 0 0`
-`tmpfs /usr/share/red5/webapps/screenshare/streams/ tmpfs rw,nosuid,noatime,uid=999,gid=999,size=16G,mode=0755 0 0`
-`tmpfs /usr/share/red5/webapps/video-broadcast/streams/ tmpfs rw,nosuid,noatime,uid=999,gid=999,size=16G,mode=0755 0 0`
-`tmpfs /var/kurento/recordings/ tmpfs rw,nosuid,noatime,uid=996,gid=996,size=16G,mode=0755 0 0`
-`tmpfs /var/kurento/screenshare/ tmpfs rw,nosuid,noatime,uid=996,gid=996,size=16G,mode=0755 0 0`
+`tmpfs /var/lib/bbb-webrtc-recorder/recordings/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
+`tmpfs /var/lib/bbb-webrtc-recorder/screenshare/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
+`tmpfs /var/lib/bbb-webrtc-recorder/audio/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
+`tmpfs /var/mediasoup/recordings/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
+`tmpfs /var/mediasoup/screenshare/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
 `tmpfs /var/freeswitch/meetings/ tmpfs rw,nosuid,noatime,uid=997,gid=997,size=16G,mode=0755 0 0`
 
 After applying that, the server administrator has to execute `bbb-conf --stop; mount -a; bbb-conf --start`.
 
 Furthermore, the uid/gid values have to be adjusted to the local installation.
+The media caches under `/var/lib/bbb-webrtc-recorder/` and `/var/mediasoup/` are owned by the `bigbluebutton` user, while FreeSWITCH runs as its own user.
 The above example assumes:
 
-`red5:x:999:999:red5 user-daemon:/usr/share/red5:/bin/false`
 `bigbluebutton:x:998:998:bigbluebutton:/home/bigbluebutton:/bin/false`
 `freeswitch:x:997:997:freeswitch:/opt/freeswitch:/bin/bash`
-`kurento:x:996:996::/var/lib/kurento:`
 
-TODO: explain what these uid/gid values are and how to get the correct ones
+You can look up the actual uid/gid for these users on your server with, e.g., `id bigbluebutton` and `id freeswitch` (or by inspecting `/etc/passwd`).
 
 #### Deleted recordings remain on disk
 
@@ -154,7 +158,7 @@ This command will permanently erase all content in the deleted recordings direct
 
 BigBlueButton retains various cache and log files. The general retention period for these files can be configured in `/etc/cron.daily/bigbluebutton`.
 
-- `history` is the retention period for presentations, red5 caches, kurento caches, and freeswitch caches in days
+- `history` is the retention period for presentations, bbb-webrtc-recorder and mediasoup caches, and freeswitch caches in days
 - `unrecorded_days` the retention periods of recordings for meetings which have no recording markers set (user expectation: Were not recorded)
 - `published_days` the retention period of recordings' raw data, if these got published. To disable this, the line `remove_raw_of_published_recordings` has to be commented
 
