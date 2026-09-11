@@ -4,6 +4,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { AvatarContentProps, EmojiProps } from './types';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
+import { getFilteredAvatar } from '/imports/ui/components/user-list/service';
 
 const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
   <em-emoji emoji={emoji} native={native} size={size} />
@@ -44,7 +45,7 @@ const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
     return '';
   };
 
-  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = getFilteredAvatar(user);
   const avatarContent = user.lastBreakoutRoom?.isUserCurrentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();

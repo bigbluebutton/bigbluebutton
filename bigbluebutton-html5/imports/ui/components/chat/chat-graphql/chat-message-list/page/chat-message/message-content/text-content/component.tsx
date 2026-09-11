@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import Auth from '/imports/ui/services/auth';
 import Styled from './styles';
 import { isJumbomoji } from './jumbomoji';
 
@@ -17,6 +18,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
       dangerouslySetInnerHTML={{ __html: text }}
       data-test={dataTest}
       $jumbomoji={jumbomoji}
+      $currentUserId={Auth.userID as string | undefined}
     />
   );
 };

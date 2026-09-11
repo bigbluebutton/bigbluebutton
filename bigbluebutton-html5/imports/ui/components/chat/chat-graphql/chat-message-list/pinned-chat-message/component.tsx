@@ -8,6 +8,7 @@ import { CHAT_SET_PINNED_MUTATION } from '/imports/ui/components/chat/chat-graph
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
+import Auth from '/imports/ui/services/auth';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -178,6 +179,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
         }}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: messageAsHtml }}
+        $currentUserId={Auth.userID as string | undefined}
       />
       {isExpanded && (
         <Styled.Footer>

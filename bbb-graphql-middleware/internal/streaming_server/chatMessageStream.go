@@ -43,6 +43,25 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 	}
 }
 
+// The Redis event carries the metadata as an object, but chat_message."messageMetadata" is
+// a text column, so Hasura delivers it as a JSON-encoded string everywhere else.
+func encodeMessageMetadata(metadata any) any {
+	if metadata == nil {
+		return nil
+	}
+
+	if asString, ok := metadata.(string); ok {
+		return asString
+	}
+
+	encoded, err := json.Marshal(metadata)
+	if err != nil {
+		return nil
+	}
+
+	return string(encoded)
+}
+
 func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]byte, error) {
 	chatId := receivedMessage.Core.Body["chatId"].(string)
 	messageProps, ok := receivedMessage.Core.Body["msg"].(map[string]any)
@@ -52,7 +71,7 @@ func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]by
 	message := messageProps["message"].(string)
 	messageAsHtml := messageProps["messageAsHtml"].(string)
 	messageId := messageProps["id"].(string)
-	messageMetadata := messageProps["metadata"]
+	messageMetadata := encodeMessageMetadata(messageProps["metadata"])
 	messageType := messageProps["messageType"].(string)
 	senderProps, ok := messageProps["sender"].(map[string]any)
 	if !ok {

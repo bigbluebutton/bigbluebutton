@@ -1,6 +1,7 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
 import { Jumbomoji } from './jumbomoji';
+import { Mention } from './mention';
 import { MessageActions } from './messageActions';
 import { PrivateChatListPreview } from './privateChatListPreview';
 
@@ -17,6 +18,24 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.sendPrivateMessage();
+  });
+
+  test('Pick a mention from the mention picker', async ({ browser, context, page }, testInfo) => {
+    const mention = new Mention(browser, context);
+    await mention.initPages(page, testInfo);
+    await mention.pickMentionFromPicker();
+  });
+
+  test('No mention picker on a private chat', async ({ browser, context, page }, testInfo) => {
+    const mention = new Mention(browser, context);
+    await mention.initPages(page, testInfo);
+    await mention.noPickerOnPrivateChat();
+  });
+
+  test('Mention survives a message edit', async ({ browser, context, page }, testInfo) => {
+    const mention = new Mention(browser, context);
+    await mention.initPages(page, testInfo);
+    await mention.mentionSurvivesEdit();
   });
 
   test('Clear chat', async ({ browser, context, page }, testInfo) => {

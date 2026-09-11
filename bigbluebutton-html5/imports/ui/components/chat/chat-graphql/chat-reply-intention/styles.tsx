@@ -10,6 +10,7 @@ import {
   mdPadding, smPadding, smPaddingX, xlPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import EmojiButton from '../chat-message-list/page/chat-message/message-toolbar/emoji-button/component';
+import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
 const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
   border-radius: 0.375rem;
@@ -61,7 +62,7 @@ const Message = styled.div`
   min-width: 0;
 `;
 
-const HtmlContent = styled.div`
+const HtmlContent = styled.div<ChatMentionStylesProps>`
   color: ${colorText};
 
   & img {
@@ -120,6 +121,8 @@ const HtmlContent = styled.div`
   & h6 {
     margin: 0;
   }
+
+  ${chatMentionStyles}
 `;
 
 const CloseBtn = styled(EmojiButton)`

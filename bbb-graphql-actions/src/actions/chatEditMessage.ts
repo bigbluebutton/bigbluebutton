@@ -7,6 +7,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'chatId', type: 'string', required: true},
         {name: 'messageId', type: 'string', required: true},
         {name: 'chatMessageInMarkdownFormat', type: 'string', required: true},
+        {name: 'metadata', type: 'json', required: false},
       ]
   )
 
@@ -26,6 +27,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     chatId: input.chatId,
     messageId: input.messageId,
     message: input.chatMessageInMarkdownFormat,
+    metadata: input.metadata || {},
   };
 
   return { eventName, routing, header, body };

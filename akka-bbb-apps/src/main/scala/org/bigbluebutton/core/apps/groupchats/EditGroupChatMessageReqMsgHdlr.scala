@@ -68,7 +68,36 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
               if (userIsOwner) {
 
                 val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
-                val editedGCMessage = gcMessage.copy(message = msg.body.message, messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements))
+                val editedHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements)
+
+                // Same rule as sending: no mentions in private chats, and the mentions the
+                // client asks for are resolved against the participant list, never trusted.
+                // The pairs the stored message already resolved come along, so a mention the
+                // edit didn't touch survives even once a namesake makes the name ambiguous.
+                val (mentionedHtml, mentionedUserIds) = if (chatIsPrivate) {
+                  (editedHtml, List.empty[String])
+                } else {
+                  GroupChatApp.applyMentions(
+                    editedHtml,
+                    liveMeeting.users2x,
+                    GroupChatApp.mergeRequestedMentions(
+                      GroupChatApp.parseRequestedMentions(msg.body.metadata),
+                      MarkdownUtil.parseRenderedMentions(gcMessage.messageAsHtml)
+                    )
+                  )
+                }
+
+                val baseMetadata = gcMessage.metadata - "mentionedUserIds" - "mentions"
+                val updatedMetadata = if (mentionedUserIds.nonEmpty) {
+                  baseMetadata + ("mentionedUserIds" -> mentionedUserIds)
+                } else {
+                  baseMetadata
+                }
+                val editedGCMessage = gcMessage.copy(
+                  message = msg.body.message,
+                  messageAsHtml = mentionedHtml,
+                  metadata = updatedMetadata
+                )
                 val updatedGroupChat = GroupChatApp.updateGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, editedGCMessage)
 
                 val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, editedGCMessage)

@@ -877,6 +877,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             messageId,
             chatId,
             message: messageText,
+            messageAsHtml,
           },
         }),
       );
