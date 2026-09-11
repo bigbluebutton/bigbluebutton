@@ -252,7 +252,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 }, ref) => {
   const intl = useIntl();
   const chatMessageContentWrapperRef = React.useRef<HTMLDivElement>(null);
-  const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
@@ -440,17 +439,28 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   };
 
-  useEffect(() => {
-    setRenderedChatMessages((messages) => {
-      if (messageContentRef.current && !messages.some((m) => m.messageId === message.messageId)) {
-        messages.push({
-          messageId: message.messageId,
-          message: messageContentRef.current,
-        });
+  // Registering through a callback ref instead of an effect ties the element plugins receive
+  // to the node's own lifecycle: React detaches the ref before attaching the replacement, so
+  // a deletion drops the entry and a remount swaps in the node that is actually on the page
+  const registerMessageContent = useCallback((domElement: HTMLDivElement | null) => {
+    setRenderedChatMessages((renderedMessages) => {
+      const index = renderedMessages.findIndex((m) => m.messageId === message.messageId);
+
+      if (!domElement) {
+        return index === -1 ? renderedMessages : renderedMessages.filter((_, i) => i !== index);
       }
-      return messages;
+
+      if (index === -1) {
+        return [...renderedMessages, { messageId: message.messageId, message: domElement }];
+      }
+
+      if (renderedMessages[index].message === domElement) return renderedMessages;
+
+      return renderedMessages.map((renderedMessage, i) => (
+        i === index ? { messageId: message.messageId, message: domElement } : renderedMessage
+      ));
     });
-  }, [chatMessageContentWrapperRef]);
+  }, [message.messageId, setRenderedChatMessages]);
 
   const scrollEndFrameRef = React.useRef<number>();
 
@@ -1011,8 +1021,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       )}
       {!deleteTime && (
         <MessageItemWrapper
+          data-test="chatMessageContent"
           data-chat-message-id={message?.messageId}
-          ref={messageContentRef}
+          ref={registerMessageContent}
         >
           {messageContent.component}
           {messageReadFeedbackEnabled && (
@@ -1267,6 +1278,7 @@ const propsToCompare = [
   'focused',
   'message.createdAt',
   'message.message',
+  'message.deletedAt',
   'message.recipientHasSeen',
   'message.user.currentlyInMeeting',
   'message.reactions.length',
