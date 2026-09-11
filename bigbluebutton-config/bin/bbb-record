@@ -95,6 +95,12 @@ declare -r MEETING_PATTERN="^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"
 
 validate_format() {
    local fmt=$1
+   # Format names are process script basenames and are substituted into paths,
+   # yq expressions and rm globs below, so reject anything else up front.
+   if ! [[ $fmt =~ ^[a-z0-9_]+$ ]]; then
+      echo "Format '$fmt' contains invalid characters"
+      exit 1
+   fi
    if ! printf '%s\n' $TYPES | grep -qxF "$fmt"; then
       echo "Unknown format '$fmt'. Valid formats: ${TYPES//$'\n'/ }"
       exit 1
@@ -107,25 +113,23 @@ validate_format() {
 disabled_formats() {
    local id=$1
    local events=$RECORDING_DIR/raw/$id/events.xml
-   # No events.xml means there is no opt-out to honour. Anything else we cannot
-   # read is reported as a failure, so callers refuse instead of assuming.
-   [ -e "$events" ] || return 0
-   if [ ! -f "$events" ] || [ ! -r "$events" ]; then
-      return 1
-   fi
-   # Almost no meeting carries the parameter, and parsing the XML costs a ruby
-   # start-up per meeting, so only pay for it when the attribute is present.
-   grep -q 'bbb-disable-recording-formats' "$events"
+   local disabled_formats
+
+   # Same parsing as BigBlueButton::Events.disabled_recording_formats, without
+   # a ruby start-up per meeting. xmlstarlet exits 1 when the XPath selects
+   # nothing, which here just means the meeting never opted out; any other
+   # failure (missing, unreadable or malformed events.xml) is reported.
+   disabled_formats=$(xmlstarlet sel -t -v /recording/metadata/@bbb-disable-recording-formats "$events" 2>/dev/null)
    case $? in
-      0) ;;          # present: read it authoritatively below
-      1) return 0 ;; # definitely absent
-      *) return 1 ;; # could not be read
+      0) ;;
+      1) return 0 ;;
+      *) return 1 ;;
    esac
-   ruby -e '
-      $LOAD_PATH.unshift("/usr/local/bigbluebutton/core/lib")
-      require "recordandplayback"
-      puts BigBlueButton.disabled_recording_formats(ARGV[0], ARGV[1], strict: true).join(" ")
-   ' "$RECORDING_DIR" "$id"
+
+   disabled_formats=${disabled_formats//[\[\]]} # delete [ and ]
+   disabled_formats=${disabled_formats//,/ }    # replace commas with spaces
+   disabled_formats=${disabled_formats,,}       # convert to lowercase
+   echo "$disabled_formats"
 }
 
 # May we touch this format for this meeting? Checked before anything is
@@ -147,15 +151,23 @@ format_allowed() {
 }
 
 # What the steps chain runs after the given step, empty if the chain has no
-# entry for it. read_props shallow-merges the override, so an override that
-# defines 'steps' replaces the whole map rather than adding to it.
+# next step for it. Like read_props, the override is merged shallowly onto
+# bigbluebutton.yml: an override that defines 'steps' replaces the whole map
+# rather than adding to it, so the last file with a 'steps' map wins.
 step_after() {
-   local step=$1 file=$BBB_YML
+   local step=$1
+   # check for unexpected characters - no escaping is performed in yq expression substitution
+   [[ $step =~ ^[a-z0-9_:]+$ ]] || return 1
+
+   local -a files=( "$BBB_YML" )
    local override=/etc/bigbluebutton/recording/recording.yml
-   if [ -f "$override" ] && [ -n "$(yq e '.steps // ""' "$override" 2>/dev/null)" ]; then
-      file=$override
+   if [[ -e "$override" ]]; then
+      files+=("$override")
    fi
-   yq e ".steps.\"$step\" // \"\"" "$file" 2>/dev/null
+
+   # Take the 'steps' map from the last file that defines one, rather than
+   # merging the documents, so an override's map replaces the default one.
+   yq ea '[.steps | select(. != null)] | .[-1] | ."'"${step}"'" // ""' "${files[@]}" 2>/dev/null
 }
 
 # Remove a format's status files for the meeting, from the given $STATUS
@@ -167,8 +179,13 @@ step_after() {
 # side to grow a break timestamp first.
 remove_format_status() {
    local id=$1 fmt=$2 sub
+   if [ -z "$id" ] || [ -z "$fmt" ]; then
+      echo "remove_format_status: meeting id and format are required" >&2
+      return 1
+   fi
    for sub in "${@:3}"; do
-      rm -vf "$STATUS"/"$sub"/"$id"-"$fmt".*
+      [ -n "$sub" ] || continue
+      rm -vf "${STATUS:?}"/"$sub"/"$id"-"$fmt".*
    done
 }
 
@@ -176,6 +193,10 @@ remove_format_status() {
 # for the reason given on remove_format_status above.
 remove_published_output() {
    local id=$1 fmt=$2 dir
+   if [ -z "$id" ] || [ -z "$fmt" ]; then
+      echo "remove_published_output: meeting id and format are required" >&2
+      return 1
+   fi
    for dir in "${PUBLISHED_DIR:?}"/"$fmt" \
               "$RAW_PRESENTATION_SRC"/unpublished/"$fmt" \
               "$RAW_PRESENTATION_SRC"/deleted/"$fmt"; do
@@ -184,8 +205,12 @@ remove_published_output() {
 }
 
 mark_for_rebuild() {
-   MEETING_ID=$1
+   local MEETING_ID=$1
    local FMT=$2
+   if [ -z "$MEETING_ID" ]; then
+      echo "mark_for_rebuild: no meeting id given" >&2
+      return 1
+   fi
    if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
       echo "Raw files for $MEETING_ID do not exist, can't rebuild"
       return 1
@@ -231,10 +256,14 @@ mark_for_rebuild() {
 }
 
 mark_for_republish() {
-   MEETING_ID=$1
+   local MEETING_ID=$1
    local FMT=$2
    local republish_types=$TYPES
    local republished=0
+   if [ -z "$MEETING_ID" ]; then
+      echo "mark_for_republish: no meeting id given" >&2
+      return 1
+   fi
 
    # Restrict to a single format when --format was given
    if [ -n "$FMT" ]; then
@@ -531,8 +560,8 @@ if [ -n "$FORMAT" ]; then
    # Processing a format the steps chain does not continue would remove the
    # current output and never publish a replacement.
    if [ -n "$REBUILD$REBUILDALL" ] && [ -z "$(step_after "process:$FORMAT")" ]; then
-      echo "Format '$FORMAT' has no 'process:$FORMAT' entry in the recording steps chain,"
-      echo "so processing it would never publish a result."
+      echo "The recording steps chain has no next step after 'process:$FORMAT',"
+      echo "so processing format '$FORMAT' would never publish a result."
       echo "Run 'bbb-record --list-workflows' to see the enabled steps. Nothing was removed."
       exit 1
    fi
