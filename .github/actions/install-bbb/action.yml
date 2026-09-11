@@ -155,19 +155,15 @@ runs:
         sudo -i <<'EOF'
         set -e
         cd /root/
-        wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release/bbb-install.sh -O bbb-install.sh
+        # TEMPORARY (revert before merge): Node 24 bbb-install from the antobinary fork
+        # until https://github.com/bigbluebutton/bbb-install v4.0.x-release ships NODE_MAJOR=24
+        wget -nv https://raw.githubusercontent.com/antobinary/bbb-install/40-nodejs-24/bbb-install.sh -O bbb-install.sh
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
         chmod +x bbb-install.sh
 
         ./bbb-install.sh -v noble-40-dev -s bbb-ci.test -r packages.bigbluebutton.org -j -d /certs/
 
-        # Etherpad is opt-in since 4.0; install explicitly for the Etherpad e2e tests
-        apt-get install -y bbb-etherpad bbb-pads
-
         bbb-conf --salt bbbci
-        sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
-        sed -i "s/\"loglevel\": \"INFO\"/\"loglevel\": \"DEBUG\"/" /usr/share/etherpad-lite/settings.json
-        sed -i "s/\"level\": \"info\"/\"level\": \"debug\"/" /usr/local/bigbluebutton/bbb-pads/config/settings.json
         sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
         sudo yq-go e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
         echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env

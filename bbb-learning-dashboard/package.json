@@ -3,6 +3,9 @@
   "homepage": ".",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "overrides": {
     "serialize-javascript": "^7.0.5",
     "nth-check": "^2.0.1",
