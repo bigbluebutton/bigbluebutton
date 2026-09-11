@@ -3,6 +3,7 @@ import { useReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { useUserSettingsReady } from '/imports/ui/core/local-states/useUserSettings';
 import AudioModal from './component';
 import AudioError from '/imports/ui/services/audio-manager/error-codes';
 import AppService from '/imports/ui/components/app/service';
@@ -59,6 +60,8 @@ const AudioModalContainer = (props) => {
     APP_CONFIG.skipEchoTestIfPreviousDevice,
   ) && !deviceInfo.isMobile;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+  const deafenAudioUntilExplicitJoin = getFromUserSettings('bbb_deafen_audio_until_explicit_join', APP_CONFIG.deafenAudioUntilExplicitJoin);
+  const [userSettingsReady] = useUserSettingsReady();
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
@@ -120,17 +123,33 @@ const AudioModalContainer = (props) => {
     const callback = () => {
       setIsOpen(false);
 
-      // When using LiveKit, force joining audio when the modal is closed,
-      // but the user is not connected nor connecting to audio. This also means
-      // that the user will join muted as not clicking "Join Audio" signals
-      // that intention.
-      if (usingLiveKit && !isConnected && !isConnecting) {
+      if (!usingLiveKit) return;
+
+      // When deafenAudioUntilExplicitJoin is enabled, closing the modal means "no
+      // audio". Joining is not optional at the client level with LiveKit
+      // (transparent listen-only connects the user on entry), so the user was
+      // already deafened at join time (see AudioManager.onAudioJoin). Closing
+      // the modal must not force an audio join - just leave them deafened.
+      if (deafenAudioUntilExplicitJoin) return;
+
+      // Default 3.0 behavior: force joining audio when the modal is closed but
+      // the user is not connected nor connecting to audio. This also means that
+      // the user will join muted as not clicking "Join Audio" signals that
+      // intention.
+      if (!isConnected && !isConnecting) {
         joinMic({ muteOnStart: true }).catch((error) => handleJoinError(error, false));
       }
     };
 
     closeModal(callback);
-  }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
+  }, [
+    deafenAudioUntilExplicitJoin,
+    isConnected,
+    isConnecting,
+    usingLiveKit,
+    joinMic,
+    setIsOpen,
+  ]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
   if (!currentUserData) return null;
@@ -173,6 +192,7 @@ const AudioModalContainer = (props) => {
       combinedDialInNum={combinedDialInNum}
       audioLocked={userLocks.userMic}
       autoJoin={autoJoin}
+      userSettingsReady={userSettingsReady}
       skipCheck={skipCheck}
       skipCheckOnJoin={skipCheckOnJoin}
       isMobileNative={navigator.userAgent.toLowerCase().includes('bbbnative')}

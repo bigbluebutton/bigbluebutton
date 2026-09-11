@@ -25,6 +25,7 @@ import {
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -88,6 +89,7 @@ const propTypes = {
   supportsTransparentListenOnly: PropTypes.bool.isRequired,
   getAudioConstraints: PropTypes.func.isRequired,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  userSettingsReady: PropTypes.bool,
 };
 
 const intlMessages = defineMessages({
@@ -217,6 +219,7 @@ const AudioModal = ({
   isTranscriptionEnabled,
   updateInputDevices,
   updateOutputDevices,
+  userSettingsReady = true,
 }) => {
   const [content, setContent] = useState(initialContent);
   const [hasError, setHasError] = useState(false);
@@ -424,6 +427,9 @@ const AudioModal = ({
     if (inputStream) changeInputStream(inputStream);
 
     if (!isConnected) {
+      // Confirming the audio settings is an explicit opt-in to hear audio, so it
+      // must override deafenAudioUntilExplicitJoin's deafen-at-join-time behavior.
+      AudioManager.requestAudioJoin();
       handleJoinMicrophone();
       disableAwayMode();
     } else {
@@ -498,10 +504,17 @@ const AudioModal = ({
     );
   };
 
+  const handleEchoTestYes = () => {
+    // Confirming the echo test is an explicit opt-in to hear audio, so it must
+    // override deafenAudioUntilExplicitJoin's deafen-at-join-time behavior.
+    AudioManager.requestAudioJoin();
+    handleJoinMicrophone();
+  };
+
   const renderEchoTest = () => (
     <EchoTest
       handleNo={handleGoToAudioSettings}
-      handleYes={handleJoinMicrophone}
+      handleYes={handleEchoTestYes}
     />
   );
 
@@ -658,6 +671,12 @@ const AudioModal = ({
   };
 
   useEffect(() => {
+    // Wait for the per-user settings to load before triggering any automatic
+    // audio join. The deafen-at-join-time decision (see AudioManager.onAudioJoin,
+    // deafenAudioUntilExplicitJoin) reads those settings, and joining before they
+    // resolve could read a stale default and leave the user undeafened.
+    if (!userSettingsReady) return;
+
     if (!isUsingAudio) {
       if (forceListenOnlyAttendee || audioLocked) {
         handleJoinListenOnly();
@@ -685,6 +704,7 @@ const AudioModal = ({
       }
     }
   }, [
+    userSettingsReady,
     audioLocked,
     isUsingAudio,
     forceListenOnlyAttendee,

@@ -24,6 +24,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
@@ -123,6 +124,10 @@ class AudioManager {
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     this._voiceActivityObserver = null;
     this._inputStreamInactivityTrackers = new Map();
+    // Tracks whether the user explicitly opted into hearing audio. When
+    // deafenAudioUntilExplicitJoin is enabled, the forced/transparent audio join is
+    // deafened at join time unless this is set (see onAudioJoin/requestAudioJoin).
+    this.audioJoinRequestedByUser = false;
 
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
@@ -770,9 +775,23 @@ class AudioManager {
     }
   }
 
-  onAudioJoin({ deafened = false } = {}) {
+  onAudioJoin({ deafened } = {}) {
+    // When deafenAudioUntilExplicitJoin is enabled, joining audio must not make the
+    // user hear anyone until they explicitly opt in. The bridge connection
+    // itself is not optional (transparent listen-only connects the user on
+    // entry), so instead of joining and then hearing audio, we deafen at join
+    // time. An explicit "Join audio" action - see requestAudioJoin - overrides
+    // this. The default (flag off) behavior is unchanged: deafened stays false.
+    const deafenAudioUntilExplicitJoin = getFromUserSettings(
+      'bbb_deafen_audio_until_explicit_join',
+      window.meetingClientSettings.public.app.deafenAudioUntilExplicitJoin,
+    );
+    const shouldDeafen = deafened
+      ?? (deafenAudioUntilExplicitJoin
+        && this.isUsingLiveKit()
+        && !this.audioJoinRequestedByUser);
     this.isConnected = true;
-    this.isDeafened = deafened;
+    this.isDeafened = shouldDeafen;
     this.isConnecting = false;
     this.isHangingUp = false;
     const STATS = window.meetingClientSettings.public.stats;
@@ -780,7 +799,7 @@ class AudioManager {
     // If the user is deafened, we don't want to proceed any further until
     // undeafened. Callers that specify deafened = true should handle this case
     // accordingly by calling this method again when the user is undeafened.
-    if (deafened) return;
+    if (shouldDeafen) return;
 
     try {
       if (!this.isListenOnly) {
@@ -881,6 +900,7 @@ class AudioManager {
     this.isHangingUp = false;
     this.autoplayBlocked = false;
     this.isDeafened = true;
+    this.audioJoinRequestedByUser = false;
     this.failedMediaElements = [];
 
     if (this.inputStream && this.bridge?.bridgeName !== 'livekit') {
@@ -1397,6 +1417,13 @@ class AudioManager {
 
   unmute() {
     this.setSenderTrackEnabled(true);
+  }
+
+  // Records that the user explicitly asked to join/hear audio. Consumed by
+  // onAudioJoin so the deafenAudioUntilExplicitJoin deafen-at-join-time behavior is
+  // overridden once the user opts in. Reset on audio exit.
+  requestAudioJoin() {
+    this.audioJoinRequestedByUser = true;
   }
 
   playAlertSound(url) {
