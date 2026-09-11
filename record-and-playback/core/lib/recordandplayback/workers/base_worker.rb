@@ -119,8 +119,17 @@ module BigBlueButton
       end
 
       def disabled_recording_formats
-        @disabled_recording_formats ||=
-          BigBlueButton.disabled_recording_formats(@recording_dir, @meeting_id)
+        return @disabled_recording_formats unless @disabled_recording_formats.nil?
+
+        @disabled_recording_formats = []
+        events_xml = File.join(@recording_dir, 'raw', @meeting_id, 'events.xml')
+        return @disabled_recording_formats unless File.exist?(events_xml)
+
+        events = File.open(events_xml, 'r') { |io| Nokogiri::XML(io) }
+        @disabled_recording_formats = BigBlueButton::Events.disabled_recording_formats(events)
+      rescue StandardError => e
+        @logger.warn("Failed to read bbb-disable-recording-formats metadata: #{e.message}")
+        @disabled_recording_formats = []
       end
 
       def schedule_next_step

@@ -33,6 +33,20 @@ def meeting_id_valid?(meeting_id)
   /\A[0-9a-f]+-[0-9]+\z/.match?(meeting_id)
 end
 
+# Formats the meeting opted out of through meta_bbb-disable-recording-formats.
+# Like the worker pipeline, unreadable metadata is logged and treated as
+# "nothing disabled"; bbb-record refuses on its own before removing any output.
+def disabled_recording_formats(recording_dir, meeting_id)
+  events_xml = File.join(recording_dir, 'raw', meeting_id, 'events.xml')
+  return [] unless File.exist?(events_xml)
+
+  events = File.open(events_xml, 'r') { |io| Nokogiri::XML(io) }
+  BigBlueButton::Events.disabled_recording_formats(events)
+rescue StandardError => e
+  warn "Failed to read bbb-disable-recording-formats metadata for #{meeting_id}: #{e.message}"
+  []
+end
+
 begin
   if ARGV.length < 2
     warn 'Usage: rap-enqueue.rb STEP[:FORMAT] MEETING_ID [MEETING_ID ...]'
@@ -75,8 +89,7 @@ begin
     # it schedules the next step itself, so a step enqueued directly here would
     # otherwise rebuild a format the meeting explicitly disabled.
     if !step_format.nil? &&
-       BigBlueButton.disabled_recording_formats(props['recording_dir'], meeting_id)
-                    .include?(step_format.downcase)
+       disabled_recording_formats(props['recording_dir'], meeting_id).include?(step_format.downcase)
       warn "Format #{step_format} is disabled for meeting #{meeting_id} " \
            'by meta_bbb-disable-recording-formats, not enqueuing'
       next
