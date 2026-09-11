@@ -182,7 +182,7 @@ class WhiteboardModel extends SystemConfiguration {
 
     val annotationUpdatedAt = System.currentTimeMillis()
     PresAnnotationHistoryDAO.deleteAnnotations(meetingId, wb.id, userId, annotationsIdsRemoved, annotationUpdatedAt)
-    PresAnnotationDAO.deleteAnnotations(meetingId, userId, annotationsIdsRemoved, annotationUpdatedAt)
+    PresAnnotationDAO.deleteAnnotations(meetingId, wb.id, userId, annotationsIdsRemoved, annotationUpdatedAt)
 
     annotationsIdsRemoved
   }
