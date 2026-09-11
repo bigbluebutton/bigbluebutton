@@ -1217,6 +1217,40 @@ public:
 
 and restart BigBlueButton via `sudo bbb-conf --restart`
 
+#### Change which whiteboard shape types the server accepts
+
+The server checks the type of every whiteboard annotation before storing and broadcasting it, and discards annotations whose type is not on an allowlist. This includes shape types introduced by a newer or customized client. The default list is:
+
+```properties
+whiteboard {
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll"]
+}
+```
+
+To change it — for example to accept a shape type contributed by a plugin — add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`, **below** the `include` line (an entry placed above the include is overwritten by the packaged defaults):
+
+```properties
+whiteboard {
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll", "my-plugin-shape"]
+}
+```
+
+A configured list *replaces* the default rather than adding to it, so list every type you want to keep — dropping a type from the list disables that tool server-wide. Leave the list empty, or remove the key, to restore the default.
+
+If the value cannot be read as a list of strings, akka-apps logs an error naming the setting and falls back to the default list. That covers a value that is not a list at all (for example `allowedAnnotationTypes = "draw"`, which is a string), and a list holding anything other than strings (for example `["draw", 2]`) — a number or a boolean would otherwise be read as the literal type name `"2"`, leaving an allowlist that matches no real annotation. A single bad entry rejects the whole list, so the default applies rather than a partial one. On startup it logs the types it ended up with, so you can confirm your edit took effect:
+
+```
+INFO o.b.core.apps.WhiteboardModel$ - Whiteboard annotation types enabled: [arrow, draw, ...]
+```
+
+The types `embed`, `bookmark`, `image` and `video` are fixed in code and are always rejected. Adding them here has no effect, and akka-apps logs a warning naming the entries it ignored.
+
+Annotations are also rejected if they carry a link that is not an `http://` or `https://` URL. This applies to the shapes that can hold one (rectangles and other geo shapes, and sticky notes) and is not configurable.
+
+This is a server-side check only; the HTML5 client maintains its own, shorter list. A shape type the client permits but the server rejects is drawn locally for the author, never reaches anyone else, and disappears when they change slide or reload.
+
+Apply the change with `sudo systemctl restart bbb-apps-akka`, or restart everything with `sudo bbb-conf --restart`.
+
 #### Configure S3-based cache for presentation assets
 
 In BigBlueButton 3.0 we introduced a functionality to store outputs such as SVGs, PNGs, thumbnails and text generated from PDFs or document files uploaded as presentations.

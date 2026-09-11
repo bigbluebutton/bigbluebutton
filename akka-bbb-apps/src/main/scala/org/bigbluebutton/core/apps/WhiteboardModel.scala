@@ -1,29 +1,113 @@
 package org.bigbluebutton.core.apps
 
 import scala.collection.immutable.HashMap
+import scala.jdk.CollectionConverters._
+import scala.util.{ Failure, Success, Try }
+import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions, ConfigValueType }
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
+import org.slf4j.LoggerFactory
 
 object WhiteboardModel {
-  // Shape types that must never be stored or broadcast as whiteboard
-  // annotations. They render embeddable/rich content (iframes, link
-  // previews, external images) instead of being part of the drawing
-  // toolset, so they are rejected server-side regardless of any
-  // client-side checks. Mirrors the client allowlist (isValidShapeType).
-  val DisallowedAnnotationTypes: Set[String] = Set("embed", "bookmark", "image")
+  private val logger = LoggerFactory.getLogger(getClass)
 
-  def isAllowedAnnotationType(annotationInfo: Map[String, _]): Boolean = {
-    annotationInfo.get("type") match {
-      case Some(annotationType: String) => !DisallowedAnnotationTypes.contains(annotationType)
-      case _                            => true
+  val AllowedAnnotationTypesPath = "whiteboard.allowedAnnotationTypes"
+
+  // Applied when whiteboard.allowedAnnotationTypes is unset. Keep identical to the list
+  // shipped in src/universal/conf/application.conf.
+  val DefaultAllowedAnnotationTypes: Set[String] =
+    Set("draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll")
+
+  val ForbiddenAnnotationTypes: Set[String] =
+    Set("embed", "bookmark", "image", "video")
+
+  private val AllowedUrlPrefixes = Set("http://", "https://")
+
+  private val Delete = 0x7f.toChar
+
+  lazy val allowedAnnotationTypes: Set[String] = {
+    val types = effectiveAllowedTypes(readConfiguredTypes(ConfigFactory.load()))
+
+    if (types.isEmpty) {
+      logger.warn("No whiteboard annotation type is enabled; all annotations will be rejected.")
+    } else {
+      logger.info("Whiteboard annotation types enabled: [{}]", types.toList.sorted.mkString(", "))
     }
+
+    types
+  }
+
+  def readConfiguredTypes(config: Config): Set[String] = {
+    if (!config.hasPath(AllowedAnnotationTypesPath)) {
+      Set.empty
+    } else {
+      Try(config.getList(AllowedAnnotationTypesPath).asScala.toList) match {
+        case Success(configuredValues) =>
+          val nonStrings = configuredValues.filter(_.valueType() != ConfigValueType.STRING)
+
+          if (nonStrings.nonEmpty) {
+            logger.error(
+              "Every [{}] entry must be a quoted string; falling back to the default list. Rejected entries: [{}]",
+              AllowedAnnotationTypesPath, nonStrings.map(_.render(ConfigRenderOptions.concise())).mkString(", ")
+            )
+            Set.empty
+          } else {
+            configuredValues.map(_.unwrapped().asInstanceOf[String].trim).filter(_.nonEmpty).toSet
+          }
+        case Failure(ex) =>
+          logger.error(
+            "Could not read [{}] as a list of strings; falling back to the default list: {}",
+            AllowedAnnotationTypesPath, ex.getMessage
+          )
+          Set.empty
+      }
+    }
+  }
+
+  def effectiveAllowedTypes(configuredTypes: Set[String]): Set[String] = {
+    val requestedTypes = if (configuredTypes.isEmpty) DefaultAllowedAnnotationTypes else configuredTypes
+
+    val forbidden = requestedTypes.intersect(ForbiddenAnnotationTypes)
+    if (forbidden.nonEmpty) {
+      logger.warn(
+        "Ignoring [{}] entries that cannot be enabled: [{}]",
+        AllowedAnnotationTypesPath, forbidden.toList.sorted.mkString(", ")
+      )
+    }
+
+    requestedTypes -- ForbiddenAnnotationTypes
+  }
+
+  def isAllowedAnnotationType(annotationInfo: Map[String, _], allowedTypes: Set[String]): Boolean = {
+    annotationInfo.get("type") match {
+      case Some(annotationType: String) => allowedTypes.contains(annotationType)
+      case _                            => false
+    }
+  }
+
+  def hasSafeAnnotationUrl(annotationInfo: Map[String, _]): Boolean = {
+    annotationInfo.get("props") match {
+      case Some(props: Map[String, _] @unchecked) => props.get("url") match {
+        case None              => true
+        case Some(url: String) => isSafeAnnotationUrl(url)
+        case Some(_)           => false
+      }
+      case _ => true
+    }
+  }
+
+  private def isSafeAnnotationUrl(url: String): Boolean = {
+    val normalized = url.filterNot(c => c <= ' ' || c == Delete).toLowerCase
+    normalized.isEmpty || AllowedUrlPrefixes.exists(normalized.startsWith)
   }
 }
 
 class WhiteboardModel extends SystemConfiguration {
-  import WhiteboardModel.isAllowedAnnotationType
+  import WhiteboardModel.{ hasSafeAnnotationUrl, isAllowedAnnotationType }
+
+  private val allowedAnnotationTypes = WhiteboardModel.allowedAnnotationTypes
 
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
@@ -83,26 +167,30 @@ class WhiteboardModel extends SystemConfiguration {
             mergedAnnotationInfo
           }
 
-          if (isAllowedAnnotationType(finalAnnotationInfo)) {
+          if (!isAllowedAnnotationType(finalAnnotationInfo, allowedAnnotationTypes)) {
+            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+          } else if (!hasSafeAnnotationUrl(finalAnnotationInfo)) {
+            println(s"Rejected update of annotation ${annotation.id} with disallowed url on page [${wb.id}], ignoring...")
+          } else {
             val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
             newAnnotationsMap += (annotation.id -> newAnnotation)
             annotationsAdded :+= newAnnotation
             annotationsDiffAdded :+= annotation
             println(s"Updated annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
-          } else {
-            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
           }
         } else {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
         }
       } else if (annotation.annotationInfo.contains("type")) {
-        if (isAllowedAnnotationType(annotation.annotationInfo)) {
+        if (!isAllowedAnnotationType(annotation.annotationInfo, allowedAnnotationTypes)) {
+          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+        } else if (!hasSafeAnnotationUrl(annotation.annotationInfo)) {
+          println(s"Rejected annotation ${annotation.id} with disallowed url on page [${wb.id}], ignoring...")
+        } else {
           newAnnotationsMap += (annotation.id -> annotation)
           annotationsAdded :+= annotation
           annotationsDiffAdded :+= annotation
           println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
-        } else {
-          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
         }
       } else {
         println(s"New annotation [${annotation.id}] with no type, ignoring...")

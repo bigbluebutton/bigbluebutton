@@ -133,17 +133,19 @@ object Polls {
       shape = pollResultToWhiteboardShape(result, page, poll.questions(0).quiz, showAnswer)
       annot <- send(result, shape)
     } yield {
-      lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
+      val storedAnnotations = lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
       showPollResult(pollId, lm.polls, showAnswer)
       // Send annotations with the result to recordings
-      val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, lm.props.meetingProp.intId, requesterId)
-      val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
-      val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
+      if (storedAnnotations.nonEmpty) {
+        val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, lm.props.meetingProp.intId, requesterId)
+        val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
+        val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
 
-      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
-      val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
-      val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
-      bus.outGW.send(annotationMsgEvent)
+        val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, storedAnnotations)
+        val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
+        val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
+        bus.outGW.send(annotationMsgEvent)
+      }
     }
 
   }
