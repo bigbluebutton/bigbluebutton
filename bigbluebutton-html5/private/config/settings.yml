@@ -195,6 +195,15 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
+    # audioFilterStorage: where the user's pick in Settings > Audio is kept.
+    # Advanced filtering is experimental, so the default deliberately keeps the
+    # pick from following the user around. Allowed values:
+    # 'session' -> sessionStorage, under a key scoped to the meeting: the pick
+    #              survives neither a new browser session nor another meeting,
+    #              whatever userSettingsStorage says
+    # 'local'   -> the pick follows userSettingsStorage like any other setting,
+    #              so with 'local' there it persists across sessions
+    audioFilterStorage: session
     reactionsButton:
       enabled: true
     emojiRain:
@@ -216,6 +225,8 @@ public:
     # allowed values:
     # 'session' -> settings are stored in browser sessionStorage
     # 'local' -> settings are stored in browser localStorage
+    # A group with a storage flag of its own - see audioFilterStorage - only
+    # falls back to this option when that flag says 'local'.
     userSettingsStorage: session
     defaultSettings:
       layout:
@@ -268,6 +279,9 @@ public:
         # If set to 'advanced' but the browser doesn't support BBBA/WASM
         # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
         # it falls back to 'standard' (advanced -> standard).
+        # Unless audioFilterStorage is set to 'local', a user's own pick is
+        # kept for the browser session and meeting only, so every fresh join
+        # starts from this default.
         processingMode: standard
       dataSaving:
         viewParticipantsWebcams: true

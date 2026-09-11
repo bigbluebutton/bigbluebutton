@@ -112,6 +112,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,
+      audioFilterStorage: 'session',
       reactionsButton: {
         enabled: true,
       },

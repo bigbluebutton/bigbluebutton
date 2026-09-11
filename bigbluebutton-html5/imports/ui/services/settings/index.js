@@ -7,10 +7,33 @@ import {
   DEFAULT_SETTINGS,
   SETTINGS,
   MEETING_SCOPED_SETTINGS,
+  SETTINGS_STORAGE_FLAGS,
 } from './enums';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import { isSystemThemeAutoDetectEnabled, systemPrefersDarkTheme } from './system-theme';
+
+// A group named in SETTINGS_STORAGE_FLAGS answers to a public.app flag of its
+// own rather than to userSettingsStorage. 'session' - the default - keeps it
+// in sessionStorage under a meeting-scoped key, so its value follows the user
+// into neither a new browser session nor a new meeting; 'local' opts out and
+// leaves the group to the ordinary rules.
+const isSessionScoped = (settingGroup) => {
+  const flag = SETTINGS_STORAGE_FLAGS[settingGroup.replace('_', '')];
+  if (!flag) return false;
+
+  return window.meetingClientSettings.public.app[flag] !== 'local';
+};
+
+// userSettingsStorage picks the backend for every group that isn't scoped to
+// the session by a flag of its own.
+const getStorageFor = (settingGroup) => {
+  if (isSessionScoped(settingGroup)) return SessionStorage;
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+
+  return (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
+};
 
 class Settings {
   constructor(defaultValues = {}) {
@@ -67,7 +90,7 @@ class Settings {
 
   static getStorageKey({ prepend = '', value }) {
     const cleanKeyValue = value.replace('_', '');
-    if (MEETING_SCOPED_SETTINGS.includes(cleanKeyValue)) {
+    if (MEETING_SCOPED_SETTINGS.includes(cleanKeyValue) || isSessionScoped(value)) {
       return `${prepend}${value}-${Auth.meetingID}`;
     }
     return `${prepend}${value}`;
@@ -83,14 +106,11 @@ class Settings {
   }
 
   loadChanged() {
-    const APP_CONFIG = window.meetingClientSettings.public.app;
-
-    const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     const savedSettings = {};
 
     Object.values(SETTINGS).forEach((s) => {
       const storageKey = Settings.getStorageKey({ prepend: CHANGED_SETTINGS, value: `_${s}` });
-      savedSettings[s] = Storage.getItem(storageKey);
+      savedSettings[s] = getStorageFor(s).getItem(storageKey);
     });
 
     Object.keys(savedSettings).forEach((key) => {
@@ -104,9 +124,6 @@ class Settings {
   }
 
   save(mutation, settings = CHANGED_SETTINGS) {
-    const APP_CONFIG = window.meetingClientSettings.public.app;
-
-    const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
         const values = this[k].reactiveVar && this[k].reactiveVar();
@@ -120,13 +137,14 @@ class Settings {
             [item]: values[item],
           }), {});
 
+        const Storage = getStorageFor(k);
         const storageKey = Settings.getStorageKey({ prepend: settings, value: k });
         if (isEmpty(changedValues)) Storage.removeItem(storageKey);
         Storage.setItem(storageKey, changedValues);
       });
     } else {
       Object.keys(this).forEach((k) => {
-        Storage.setItem(`${settings}${k}`, this[k].value);
+        getStorageFor(k).setItem(`${settings}${k}`, this[k].value);
       });
     }
 
@@ -146,10 +164,8 @@ class Settings {
 // user-changed value (i.e. it differs from the default). Used to detect an
 // explicit user choice that should override auto-detected defaults.
 export const hasPersistedChange = (settingGroup, key) => {
-  const APP_CONFIG = window.meetingClientSettings.public.app;
-  const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
   const storageKey = Settings.getStorageKey({ prepend: CHANGED_SETTINGS, value: `_${settingGroup}` });
-  const saved = Storage.getItem(storageKey);
+  const saved = getStorageFor(settingGroup).getItem(storageKey);
   return Boolean(saved && Object.prototype.hasOwnProperty.call(saved, key));
 };
 
