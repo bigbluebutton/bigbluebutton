@@ -5,11 +5,9 @@ location /pad/p/ {
         return 401;
     }
 
-    rewrite /pad/p/(.*) /p/$1 break;
-    rewrite ^/pad/p$ /pad/p/ permanent;
-    proxy_pass http://127.0.0.1:9001/p;
+    proxy_pass http://127.0.0.1:9001/p/;
     proxy_pass_header Server;
-    proxy_redirect /p /pad/p;
+    proxy_redirect /p/ /pad/p/;
     proxy_set_header Host $host;
     proxy_buffering off;
 
