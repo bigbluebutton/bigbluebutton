@@ -37,6 +37,8 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 	install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 	install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
 	install -Dm755 assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+	install -Dm755 assets/run-pptx-fixes-in-container.sh /usr/share/bbb-libreoffice-conversion/run-pptx-fixes-in-container.sh
+	install -Dm644 assets/convert_pptx_with_bullet_and_autofit_fixes.py /usr/share/bbb-libreoffice-conversion/convert_pptx_with_bullet_and_autofit_fixes.py
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"
@@ -51,6 +53,17 @@ if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
 else
 	echo "Sudoers file already exists"
 fi;
+
+FILE_SUDOERS_PPTX_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx ] && echo 1 || echo 0`
+if [ "$FILE_SUDOERS_PPTX_CHECK" = "0" ]; then
+	echo "PPTX sudoers file doesn't exist, installing"
+	cp assets/zzz-bbb-docker-libreoffice-pptx \
+		/etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx
+	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx
+	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx
+else
+	echo "PPTX sudoers file already exists"
+fi
 
 aptInstalledList=$(apt list --installed 2>&1)
 fontInstalled=0
