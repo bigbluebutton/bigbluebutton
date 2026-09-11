@@ -17,6 +17,11 @@ public:
     # again or reloading page and joining mic again.
     # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
+    # deafenAudioUntilExplicitJoin: when true, the user hears no audio until
+    # they explicitly join audio - use when joining should be an explicit opt-in.
+    # Only applicable to the *LiveKit* audio bridge, as its audio connection
+    # is not optional. bbb-webrtc-sfu always treat audio join as optional.
+    deafenAudioUntilExplicitJoin: false
     #
     # Allow users to change microphone/speaker dynamically
     # The device is changed immediately, without the need to rejoin
