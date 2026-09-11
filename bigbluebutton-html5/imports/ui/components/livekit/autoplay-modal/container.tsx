@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRoomContext } from '@livekit/components-react';
 import logger from '/imports/startup/client/logger';
 import LKAutoplayModal from './component';
 import { useAutoplayState } from './hooks';
+import type { AutoplaySource } from './hooks';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
@@ -27,38 +28,45 @@ const LKAutoplayModalContainer: React.FC = () => {
     }
   };
 
+  // Snapshot of the latest committed shouldOpen() and its inputs, used to explain
+  // why a block did not end up drawing a prompt. Assigned in an effect (never
+  // during render) and read at log time, so it is not the stale pre-await copy
+  // captured by the .then continuation below. shouldOpen is declared further
+  // down, so a ref is also what keeps this out of openLKAutoplayModal's
+  // dependency array, where it would be a TDZ ReferenceError.
+  const blockDiagnosticsRef = useRef<() => Record<string, boolean>>(() => ({}));
+
   const openLKAutoplayModal = useCallback(() => {
-    if (LKAutoplayModalState.isOpen) return;
+    // Test the pending request, not the granted slot: while the registration is
+    // queued behind a higher priority modal, isOpen (actualOpen) is still false
+    // and this guard would let the same episode log a second block.
+    if (LKAutoplayModalState.queuedPosition !== null) return;
 
     logger.warn({
       logCode: 'livekit_audio_autoplay_blocked',
+      extraInfo: blockDiagnosticsRef.current(),
     }, 'LiveKit: audio autoplay blocked');
     setIsOpen(true);
-  }, [LKAutoplayModalState.isOpen]);
+  }, [LKAutoplayModalState.queuedPosition]);
 
-  const runAutoplayCallback = useCallback(async (indirect = false) => {
+  const runAutoplayCallback = useCallback(async (source: AutoplaySource) => {
     try {
       if (!autoplayState.canPlayAudio) {
-        await handleStartAudio(indirect);
+        await handleStartAudio(source);
       }
-      logger.info({
-        logCode: 'livekit_audio_autoplayed',
-      }, 'LiveKit: audio autoplayed');
 
       return true;
-    } catch (error) {
-      const errorMessage = (error as Error)?.message ?? 'unknown error';
-      logger.error({
-        logCode: 'livekit_audio_autoplay_handle_failed',
-        extraInfo: {
-          errorMessage,
-          errorStack: (error as Error).stack,
-        },
-      }, `LiveKit: failed to handle autoplay: ${errorMessage}`);
-
+    } catch {
+      // handleStartAudio already logged the failure with its source.
       return false;
     }
   }, [autoplayState.canPlayAudio, handleStartAudio]);
+
+  const onPromptShown = useCallback(() => {
+    logger.info({
+      logCode: 'livekit_audio_autoplay_prompt_shown',
+    }, 'LiveKit: audio autoplay prompt shown');
+  }, []);
 
   const shouldOpen = useCallback(() => {
     // Note: if the audio modal is still open, wait for it to be closed before
@@ -78,12 +86,25 @@ const LKAutoplayModalContainer: React.FC = () => {
   ]);
 
   useEffect(() => {
+    blockDiagnosticsRef.current = () => ({
+      canPlayAudio: autoplayState.canPlayAudio,
+      isConnected,
+      hasAttempted: autoplayState.hasAttempted,
+      audioModalIsOpen: Boolean(audioModalIsOpen),
+      // A prediction, not a claim that the render committed: it covers the race
+      // between logging the block and drawing the prompt, but not the modal
+      // queue, which none of the conditions above can see.
+      showable: shouldOpen(),
+    });
+  });
+
+  useEffect(() => {
     if (shouldOpen()) {
       // Try to run the autoplay callback immediately without a prompt as
       // this might save an user interaction. Since it's indirect (i.e. no user
-      // interaction), we mark it (arg true) to avoid flagging an attempt.
+      // interaction), we mark it to avoid flagging an attempt.
       // Attempts are only registered when the user interacts with the modal.
-      runAutoplayCallback(true).then((success) => {
+      runAutoplayCallback('indirect').then((success) => {
         if (!success) openLKAutoplayModal();
       });
     }
@@ -95,8 +116,9 @@ const LKAutoplayModalContainer: React.FC = () => {
     <LKAutoplayModal
       autoplayHandler={handleStartAudio}
       isOpen={LKAutoplayModalState.isOpen}
+      onPromptShown={onPromptShown}
       onRequestClose={() => {
-        runAutoplayCallback();
+        runAutoplayCallback('dismissal');
         setIsOpen(false);
       }}
       priority="medium"
