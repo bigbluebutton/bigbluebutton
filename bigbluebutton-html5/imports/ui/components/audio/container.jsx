@@ -30,6 +30,7 @@ import AudioService, {
   CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
 } from '/imports/ui/components/audio/service';
 import { useModalRegistration } from '../../core/singletons/modalController';
+import { isPreFlightCompleted, shouldPreFlightShareCamera } from '/imports/ui/components/pre-flight/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -142,6 +143,7 @@ const AudioContainer = (props) => {
   });
 
   const meetingIsBreakout = useMeetingIsBreakout();
+  const preFlightCompleted = isPreFlightCompleted();
   const { data: meeting } = useMeeting((m) => ({
     audioBridge: m.audioBridge,
     voiceSettings: {
@@ -189,6 +191,15 @@ const AudioContainer = (props) => {
       currentUser?.name,
       bridges,
     );
+
+    // The pre-flight already collected the audio/camera choices: no modal
+    // opens, the camera shares straight away and the caller joins the audio.
+    if (preFlightCompleted) {
+      if (enableVideo && shouldPreFlightShareCamera()) {
+        openVideoPreviewModal();
+      }
+      return Promise.resolve(true);
+    }
 
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
@@ -252,7 +263,9 @@ const AudioContainer = (props) => {
     if (!lockSettingsLoaded) return;
     init().then(() => {
       // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
-      if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
+      if (Service.isUsingAudio() || currentUserHasVoice) return;
+
+      if (preFlightCompleted || meetingIsBreakout) {
         joinAudio();
       }
     });
@@ -317,6 +330,7 @@ const AudioContainer = (props) => {
             priority: 'medium',
             setIsOpen: videoPreviewModal.isOpen ? videoPreviewModal.close : videoPreviewModal.open,
             isOpen: videoPreviewModal.isOpen,
+            skipPreview: preFlightCompleted && shouldPreFlightShareCamera(),
           }}
         />
       ) : null}

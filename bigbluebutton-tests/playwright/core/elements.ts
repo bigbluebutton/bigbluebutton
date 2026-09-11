@@ -209,6 +209,20 @@ export const elements = {
   allowAllAuthenticatedWaiting: 'button[data-test="allowAllAuthenticated"]',
   denyAllAuthenticatedWaiting: 'button[data-test="denyAllAuthenticated"]',
   userListSearch: 'input[aria-label="Search users"]',
+
+  // Pre-flight (setup screen shown before joining)
+  preFlight: 'div[data-test="preFlight"]',
+  layoutContainer: 'div#layout',
+  preFlightJoinButton: 'button[data-test="preFlightJoinButton"]',
+  preFlightMuteToggle: 'button[data-test="preFlightMuteToggle"]',
+  preFlightCameraToggle: 'button[data-test="preFlightCameraToggle"]',
+  preFlightCameraDevice: '[data-test="preFlightCameraDevice"]',
+  preFlightCameraQuality: '[data-test="preFlightCameraQuality"]',
+  preFlightInputDevice: '[data-test="preFlightInputDevice"]',
+  preFlightOutputDevice: '[data-test="preFlightOutputDevice"]',
+  // MUI Select renders its options as role=option; the device lists are built
+  // from enumerateDevices, so the items carry no data-test of their own.
+  selectMenuItem: 'li[role="option"]',
   welcomeMessage: 'h1[id="welcome-message"]',
   chatMessageEditedLabel: 'span[data-test="chatMessageEditedLabel"]',
   chatEditingWarningContainer: 'div[data-test="chatEditingWarningContainer"]',
