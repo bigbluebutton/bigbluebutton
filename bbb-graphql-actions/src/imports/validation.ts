@@ -12,6 +12,39 @@ export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknow
     }
 };
 
+// "caption"."locale" and "caption_locale"."locale" are varchar(15)
+const MAX_LOCALE_LENGTH = 15;
+const LOCALE_PATTERN = /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/;
+
+export const throwErrorIfInvalidLocale = (locale: unknown, allowEmpty: boolean = false) => {
+    if (typeof locale !== 'string') {
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+
+    if (locale === '') {
+        if (allowEmpty) {
+            return;
+        }
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+
+    if (locale.length > MAX_LOCALE_LENGTH || !LOCALE_PATTERN.test(locale)) {
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+};
+
+export const throwErrorIfStringTooLong = (name: string, value: unknown, maxLength: number) => {
+    if (typeof value === 'string' && value.length > maxLength) {
+        throw new ValidationError(`Parameter '${name}' exceeds the maximum length of ${maxLength}`, 400);
+    }
+};
+
+export const throwErrorIfIntOutOfRange = (name: string, value: unknown, min: number, max: number) => {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+        throw new ValidationError(`Parameter '${name}' must be an integer between ${min} and ${max}`, 400);
+    }
+};
+
 export const throwErrorIfNotPresenterNorModerator = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-presenterinmeeting'] == "" && sessionVariables['x-hasura-moderatorinmeeting'] == "") {
         throw new ValidationError('Permission Denied (not presenter or moderator).', 403);
