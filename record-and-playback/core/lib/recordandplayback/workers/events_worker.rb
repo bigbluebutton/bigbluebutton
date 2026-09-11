@@ -39,7 +39,7 @@ module BigBlueButton
         return unless File.exist?("#{target_dir}/events.xml")
 
         @logger.info("Keeping etherpad events for #{@meeting_id}")
-        events = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+        events = Nokogiri::XML(File.read("#{target_dir}/events.xml"))
         notes_id = BigBlueButton::Events.get_notes_id(events)
         notes_editor = BigBlueButton::Events.get_notes_editor(events)
         if notes_id.nil? || notes_id.empty? || notes_id == 'undefined'

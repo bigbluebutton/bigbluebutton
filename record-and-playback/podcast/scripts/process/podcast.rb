@@ -38,8 +38,8 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-podcast_props = YAML::load(File.open('podcast.yml'))
+props = YAML::safe_load(File.read('../../core/scripts/bigbluebutton.yml'))
+podcast_props = YAML::safe_load(File.read('podcast.yml'))
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
@@ -66,15 +66,13 @@ if not FileTest.directory?(target_dir)
       b.playback
       b.meta
     }
-    metadata_xml = File.new("#{target_dir}/metadata.xml","w")
-    metadata_xml.write(metaxml)
-    metadata_xml.close
+    File.write("#{target_dir}/metadata.xml", metaxml)
     BigBlueButton.logger.info("Created inital metadata.xml")
 
     BigBlueButton::AudioProcessor.process("#{raw_archive_dir}", "#{target_dir}/audio")
 
     # Get the real-time start and end timestamp
-    @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+    @doc = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
 
     meeting_start = @doc.xpath("//event")[0][:timestamp]
     meeting_end = @doc.xpath("//event").last()[:timestamp]
@@ -86,7 +84,7 @@ if not FileTest.directory?(target_dir)
 
     # Add start_time, end_time and meta to metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Add start_time and end_time
     recording = metadata.root
     ### Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
@@ -127,27 +125,21 @@ if not FileTest.directory?(target_dir)
       }
     end
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml","w")
     metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info("Created an updated metadata.xml with start_time and end_time")
 
-    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-podcast.done", "w")
-    process_done.write("Processed #{meeting_id}")
-    process_done.close
+    File.write("#{recording_dir}/status/processed/#{meeting_id}-podcast.done", "Processed #{meeting_id}")
 
     # Update state in metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Update status
     recording = metadata.root
     state = recording.at_xpath("state")
     state.content = "processed"
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml","w")
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info("Created an updated metadata.xml with state=processed")
 
   rescue Exception => e

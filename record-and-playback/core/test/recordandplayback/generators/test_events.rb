@@ -7,18 +7,10 @@ require 'recordandplayback'
 
 class TestEvents < Minitest::Test
   def setup
-    @events_legacy = File.open('resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml') do |io|
-      Nokogiri::XML(io)
-    end
-    @events_chat09 = File.open('resources/raw/chat_0_9.xml') do |io|
-      Nokogiri::XML(io)
-    end
-    @events_devcall = File.open('resources/raw/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1630430006889/events.xml') do |io|
-      Nokogiri::XML(io)
-    end
-    @events_meta_edt = File.open('resources/raw/2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684/events.xml') do |io|
-      Nokogiri::XML(io)
-    end
+    @events_legacy = Nokogiri::XML(File.read('resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'))
+    @events_chat09 = Nokogiri::XML(File.read('resources/raw/chat_0_9.xml'))
+    @events_devcall = Nokogiri::XML(File.read('resources/raw/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1630430006889/events.xml'))
+    @events_meta_edt = Nokogiri::XML(File.read('resources/raw/2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684/events.xml'))
   end
 
   def test_anonymous_user_map_legacy

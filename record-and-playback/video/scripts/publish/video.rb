@@ -38,13 +38,9 @@ end
 
 # Load parameters and set up paths
 props = BigBlueButton.read_props
-video_props = File.open(File.expand_path('../video.yml', __dir__)) do |video_props_file|
-  YAML.safe_load(video_props_file)
-end
+video_props = YAML::safe_load(File.read(File.expand_path('../video.yml', __dir__)))
 begin
-  video_props_override = File.open('/etc/bigbluebutton/recording/video.yml') do |video_props_override_file|
-    YAML.safe_load(video_props_override_file)
-  end
+  video_props_override = YAML::safe_load(File.read('/etc/bigbluebutton/recording/video.yml'))
   # Merge the presets separately, to allow someone to use the override file to add additional presets
   if video_props.include?('presets') && video_props_override.include?('presets')
     video_props['presets'].merge!(video_props_override.delete('presets'))
@@ -70,9 +66,7 @@ unless File.exist?(process_donefile)
   exit 1
 end
 
-metadata_xml = File.open("#{process_dir}/metadata.xml") do |io|
-  Nokogiri::XML(io)
-end
+metadata_xml = Nokogiri::XML(File.read("#{process_dir}/metadata.xml"))
 meta = metadata_xml.at_xpath('/recording/meta')
 unless meta
   logger.error('Recording metadata.xml is missing <meta> element')
@@ -146,6 +140,5 @@ logger.info 'Cleaning up processed files'
 FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
 
 # Create the done file
-File.open(donefile, 'w') do |done|
-  done.write("Published #{meeting_id}")
-end
+File.write(donefile, "Published #{meeting_id}")
+

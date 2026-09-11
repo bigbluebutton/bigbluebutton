@@ -40,17 +40,13 @@ end
 
 # Read configuration and set up logger
 
-props = File.open(File.expand_path('../bigbluebutton.yml', __dir__)) do |bbb_yml|
-  YAML.safe_load(bbb_yml)
-end
-presentation_props = File.open(File.expand_path('../presentation.yml', __dir__)) do |pres_yml|
-  YAML.safe_load(pres_yml)
-end
+props = YAML.safe_load(File.read(File.expand_path('../bigbluebutton.yml', __dir__)))
+presentation_props = YAML.safe_load(File.read(File.expand_path('../presentation.yml', __dir__)))
 
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 isThereOverride = File.file?(filepathPresOverride)
 if (isThereOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = YAML::safe_load(File.read(filepathPresOverride))
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 
@@ -75,16 +71,12 @@ end
 begin
   logger.info('Loading recording playback captions list')
   playback_captions_path = File.join(publish_dir, recording_id, 'captions.json')
-  playback_captions = File.open(playback_captions_path) do |json|
-    JSON.parse(json.read)
-  end
+  playback_captions = JSON.parse(File.read(playback_captions_path))
 rescue Errno::ENOENT
   logger.info("Playback doesn't have a captions.json - old playback format version?")
   logger.info('Triggering recording reprocessing.')
   archive_done_file = ''
-  File.open(archive_done_file, 'w') do |archive_done|
-    archive_done.write('Reprocessing for captions')
-  end
+  File.write(archive_done_file, 'Reprocessing for captions')
   # Treat this as success, the captions will be integrated during reprocessing
   exit(0)
 end
@@ -93,9 +85,7 @@ end
 begin
   logger.info('Loading captions index file')
   captions_path = File.join(captions_dir, recording_id, 'captions.json')
-  captions = File.open(captions_path) do |json|
-    JSON.parse(json.read)
-  end
+  captions = JSON.parse(File.read(captions_path))
 rescue Errno::ENOENT
   captions = []
 end
@@ -142,6 +132,5 @@ end
 logger.info('Saving updated playback captions list')
 # Sort the list by label so the selection menu looks nice
 playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
-File.open(playback_captions_path, 'w') do |json|
-  json.write(JSON.pretty_generate(playback_captions))
-end
+File.write(playback_captions_path, JSON.pretty_generate(playback_captions))
+
