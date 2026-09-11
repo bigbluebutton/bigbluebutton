@@ -76,6 +76,8 @@ When browser-based (WebSpeech) live captions are enabled and a user holds the au
 
 Scrolling the mouse wheel over the whiteboard now pans the presentation, and holding `Ctrl` (`Cmd` on macOS) while scrolling zooms in and out - matching the navigation model of most design tools.
 
+This is configurable: set `public.whiteboard.wheelZoomRequiresCtrl` to `false` to restore the BigBlueButton 3.0 behavior, where the wheel zooms directly and no modifier key is involved.
+
 ### Engagement
 
 #### Request to Present
@@ -213,6 +215,8 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.3)
+- [4.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.2)
 - [4.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.1)
 - [4.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.5)
 - [4.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.4)
@@ -319,6 +323,9 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.sidebarNavigation.buttons` - controls which built-in sidebar navigation buttons render, in which section (`top`/`center`/`bottom`) and in what order. It is a full replacement list (omit an id to hide that button; ids introduced by future upstream versions must be added back manually). Defaults: `top: [profile, user-list, chat, notes]`, `center: [apps-gallery, pinned-apps]`, `bottom: [audio-captions, learning-dashboard, settings]`.
 - `public.app.audioCaptions.microphoneAlert` (default `enabled: true`) - shows a warning when WebSpeech live captions are on and the user holds the floor but nothing is being transcribed (a likely wrong-microphone / noisy-environment signal). Configurable via `helpLink` (empty hides the link), `threshold` (dB), `speakingThreshold` (ms), `duration` (ms; `0` = manual dismiss) and `interval` (ms).
 - `public.plugins[].settings.pin` / `.isNew` - a plugin can default-pin the items it injects into the Apps Gallery (`pin: true` pins all injected items; `pin: ["id-a", "id-b"]` pins only those ids; user pin/unpin choices are persisted and respected), and `isNew: true` shows the "new" ribbon on the plugin's gallery item.
+- `public.whiteboard.wheelZoomRequiresCtrl` (default `true`) - whether zooming the presentation with the mouse wheel requires holding `Ctrl` (`Cmd` on macOS). With the default, a bare wheel scroll pans the slide; set to `false` for the BigBlueButton 3.0 behavior where the wheel zooms directly. See [Whiteboard: scroll to pan, Ctrl+scroll to zoom](#whiteboard-scroll-to-pan-ctrlscroll-to-zoom).
+- `public.media.livekit.sdkLogBridge` (default `true`) - forwards livekit-client's own logs through the BigBlueButton client logger, so SDK-level media errors reach the usual client log destination.
+- `public.media.livekit.negotiationProbe` (default `false`) - debug instrumentation that logs how long a subscriber offer takes to be answered, from receive to socket dispatch. Off by default; enable only when diagnosing media negotiation latency.
 
 #### Value changed
 
