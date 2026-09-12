@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "To update or invite a user, simply drag them into the desired room.",
     "app.updateBreakoutRoom.cancelLabel": "Cancel",
     "app.updateBreakoutRoom.title": "Update Breakout Rooms",
