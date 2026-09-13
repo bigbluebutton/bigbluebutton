@@ -238,6 +238,12 @@ to
 
 so that FreeSWITCH announces the external IP address when a connection is established.
 
+:::note
+The `/ws` endpoint backed by `/etc/bigbluebutton/nginx/sip.nginx` is disabled by
+default (see [Legacy FreeSWITCH SIP-over-WebSocket endpoint](./customize.md#legacy-freeswitch-sip-over-websocket-endpoint-ws));
+the check below applies only where it has been reinstated.
+:::
+
 Check `/etc/bigbluebutton/nginx/sip.nginx` to ensure its binding to the external IP address of the firewall.
 
 Check that `enableListenOnly` is set to true in `/etc/bigbluebutton/bbb-html5.yml`, as in

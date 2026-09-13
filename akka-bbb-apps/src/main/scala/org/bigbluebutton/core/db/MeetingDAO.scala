@@ -14,6 +14,11 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
+case class MeetingRecordingNotificationColumnsDbModel(
+    notifyRecordingIsOn:   Boolean,
+    notifyRecordingAppend: String,
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -25,7 +30,7 @@ case class MeetingDbModel(
     cameraBridge:                          String,
     screenShareBridge:                     String,
     audioBridge:                           String,
-    notifyRecordingIsOn:                   Boolean,
+    recordingNotificationColumns:          MeetingRecordingNotificationColumnsDbModel,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
@@ -51,7 +56,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     cameraBridge,
     screenShareBridge,
     audioBridge,
-    notifyRecordingIsOn,
+    recordingNotificationColumns,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
@@ -75,6 +80,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
+  val notifyRecordingAppend = column[String]("notifyRecordingAppend")
+  val recordingNotificationColumns = (notifyRecordingIsOn, notifyRecordingAppend) <> (MeetingRecordingNotificationColumnsDbModel.tupled, MeetingRecordingNotificationColumnsDbModel.unapply)
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
@@ -109,7 +116,10 @@ object MeetingDAO {
           cameraBridge = meetingProps.meetingProp.cameraBridge,
           screenShareBridge = meetingProps.meetingProp.screenShareBridge,
           audioBridge = meetingProps.meetingProp.audioBridge,
-          notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
+          recordingNotificationColumns = MeetingRecordingNotificationColumnsDbModel(
+            notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
+            notifyRecordingAppend = meetingProps.meetingProp.notifyRecordingAppend,
+          ),
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,

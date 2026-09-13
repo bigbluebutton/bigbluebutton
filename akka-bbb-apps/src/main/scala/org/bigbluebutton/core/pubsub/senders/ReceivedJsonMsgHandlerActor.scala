@@ -243,6 +243,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GenerateLiveKitTokenRespMsg](envelope, jsonNode)
       case LiveKitParticipantLeftEvtMsg.NAME =>
         routeGenericMsg[LiveKitParticipantLeftEvtMsg](envelope, jsonNode)
+      case UpdateLiveKitParticipantPermissionsRespMsg.NAME =>
+        routeGenericMsg[UpdateLiveKitParticipantPermissionsRespMsg](envelope, jsonNode)
+      case EjectUserFromVoiceConfRespMsg.NAME =>
+        routeGenericMsg[EjectUserFromVoiceConfRespMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>

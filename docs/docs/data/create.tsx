@@ -450,13 +450,13 @@ const createEndpointTableData = [
     "name": "sharedNotesInitialContentMarkdown",
     "required": false,
     "type": "String",
-    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module.</>)
+    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module. (added 3.0.33)</>)
   },
   {
     "name": "sharedNotesInitialContentMarkdownUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently. (added 3.0.33)</>)
   },
   {
     "name": "disabledFeatures",
@@ -639,6 +639,12 @@ const createEndpointTableData = [
     "description": (<>If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>). By default it is false. (added 2.6)</>)
   },
   {
+    "name": "notifyRecordingAppend",
+    "required": false,
+    "type": "String",
+    "description": (<>Optional plain-text message appended after the standard recording notification description. It is shown only when recording notifications are enabled with <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>. If omitted or empty, the dialog is unchanged. HTML is displayed as text. (added 3.0.36)</>)
+  },
+  {
     "name": "presentationUploadExternalUrl",
     "required": false,
     "type": "String",
@@ -667,7 +673,7 @@ const createEndpointTableData = [
     "name": "preUploadedPresentation",
     "required": false,
     "type": "String",
-    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2)</>)
+    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2). The file is downloaded and processed in the background: the create response does not wait for it, and download or conversion failures are reported to meeting clients rather than in the create response.</>)
   },
   {
     "name": "preUploadedPresentationName",

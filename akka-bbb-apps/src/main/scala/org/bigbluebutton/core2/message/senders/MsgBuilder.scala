@@ -293,6 +293,20 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildUpdateLiveKitParticipantPermissionsSysMsg(
+      meetingId: String,
+      userId:    String,
+      grant:     LiveKitGrant
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(UpdateLiveKitParticipantPermissionsSysMsg.NAME, routing)
+    val body = UpdateLiveKitParticipantPermissionsSysMsgBody(userId, grant)
+    val header = BbbCoreHeaderWithMeetingId(UpdateLiveKitParticipantPermissionsSysMsg.NAME, meetingId)
+    val event = UpdateLiveKitParticipantPermissionsSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingMutedEvtMsg(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)

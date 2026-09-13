@@ -23,7 +23,9 @@ export const constants = {
   lockSettingsDisablePublicChat: 'lockSettingsDisablePublicChat=true',
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
-  notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
+  notifyRecordingIsOn: 'notifyRecordingIsOn=true',
+  notifyRecordingAppendMessage: 'This meeting will be summarized using AI — <strong>plain text</strong>',
+  notifyRecordingAppend: 'notifyRecordingAppend=This meeting will be summarized using AI — <strong>plain text</strong>',
   preUploadedPresentation:
     'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',

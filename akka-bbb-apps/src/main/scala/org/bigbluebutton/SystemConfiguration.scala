@@ -56,11 +56,11 @@ trait SystemConfiguration {
   lazy val muteOnStartThreshold = Try(config.getInt("voiceConf.muteOnStartThreshold")).getOrElse(0)
   lazy val dialInEnforceGuestPolicy = Try(config.getBoolean("voiceConf.dialInEnforceGuestPolicy")).getOrElse(true)
   lazy val dialInEnforceMuteOnStart = Try(config.getBoolean("voiceConf.dialInEnforceMuteOnStart")).getOrElse(false)
-  lazy val floorEnabled = Try(config.getBoolean("voiceConf.floorControl.enabled")).getOrElse(false)
+  lazy val floorEnabled = Try(config.getBoolean("voiceConf.floorControl.enabled")).getOrElse(true)
   lazy val minTalkingDuration = Try(config.getDuration(
     "voiceConf.floorControl.minTalkingDuration",
     java.util.concurrent.TimeUnit.MILLISECONDS
-  )).getOrElse(2000L)
+  )).getOrElse(2500L)
   lazy val floorSwitchCooldown = Try(config.getDuration(
     "voiceConf.floorControl.floorSwitchCooldown",
     java.util.concurrent.TimeUnit.MILLISECONDS

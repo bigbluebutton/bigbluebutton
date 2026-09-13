@@ -185,7 +185,22 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
           letUserEnter(state)
         }
       } else {
-        // Regular users reach this point after being allowed to join
+        if (liveMeeting.voiceUserReconciler.isOrphanedVoiceJoin(liveMeeting, msg.body.intId)) {
+          // LiveKit/media usually reconns faster than the graphql side, so this is also how a
+          // returning user's voice session arrives. Admit it either way and let the media grants
+          // decide: a later user re-join will restore permissions, while an orphan will have none
+          // by default.
+          liveMeeting.voiceUserReconciler.fenceVoiceJoin(
+            liveMeeting,
+            outGW,
+            msg.body.intId,
+            msg.body.voiceUserId
+          )
+        } else {
+          // Guarantee that a returning voice user has the same permissions as before they left if
+          // they aren't orphaned.
+          liveMeeting.voiceUserReconciler.restorePermissions(liveMeeting, outGW, msg.body.intId)
+        }
         letUserEnter(state)
       }
     }

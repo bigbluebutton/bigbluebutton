@@ -27,6 +27,7 @@
 - `meetingCameraCap`
 - `meetingId`
 - `name`
+- `notifyRecordingAppend`
 - `notifyRecordingIsOn`
 - `presentationUploadExternalDescription`
 - `presentationUploadExternalUrl`

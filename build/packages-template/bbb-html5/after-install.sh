@@ -20,7 +20,6 @@ yq e -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_
 
 yq e -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $BBB_HTML5_SETTINGS_FILE
 
-sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /usr/share/bigbluebutton/nginx/sip.nginx
 sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
 # set full BBB version in settings.yml so it can be displayed in the client
@@ -43,6 +42,16 @@ fi
 chown root:root /usr/lib/systemd/system
 
 chmod go+r $BBB_HTML5_SETTINGS_FILE
+# The deprecated FreeSWITCH SIP-over-WS endpoint (/ws) is no longer
+# shipped by default. Remove it from servers upgrading from a release
+# that still had it, so the endpoint disappears on upgrade as well as on a
+# fresh install.
+rm -f /usr/share/bigbluebutton/nginx/sip.nginx
+if [ -e /etc/bigbluebutton/nginx/sip.nginx ]; then
+  echo "WARNING: /etc/bigbluebutton/nginx/sip.nginx is present; the removed" \
+       "/ws voice endpoint is being reinstated by a local override." >&2
+fi
+
 #
 # Restart nginx to take advantage of the updates to nginx configuration
 #

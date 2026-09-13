@@ -1,4 +1,4 @@
-# bigbluebutton-graphql
+# bbb-graphql-client-test
 
 This is a demonstration client that connects to BigBlueButton graphql API.
 

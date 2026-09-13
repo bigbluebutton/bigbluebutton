@@ -205,10 +205,6 @@ UDP port ranges
                  playback_protocol: https
                             ffmpeg: 4.4.2-0ubuntu0.22.04.1
 
-/usr/share/bigbluebutton/nginx/sip.nginx (sip.nginx)
-                        proxy_pass: 143.198.37.212
-                          protocol: http
-
 /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)
 /etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)
     mediasoup.webrtc.*.announcedIp: 143.198.37.212
@@ -231,7 +227,6 @@ UDP port ranges
                         kurentoUrl: wss://test30.bigbluebutton.org/bbb-webrtc-sfu
             defaultFullAudioBridge: fullaudio
            defaultListenOnlyBridge: fullaudio
-                    sipjsHackViaWs: true
 
 
 # Potential problems described below

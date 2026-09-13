@@ -9,6 +9,7 @@ const formatLoadedChatMessagesDataFromGraphql = (
     message: chatMessagesData.message,
     messageId: chatMessagesData.messageId,
     senderUserId: chatMessagesData.user?.userId,
+    senderRole: chatMessagesData.senderRole,
     messageMetadata: chatMessagesData.messageMetadata,
   }) as PluginSdk.LoadedChatMessage),
   loading: !(responseData),

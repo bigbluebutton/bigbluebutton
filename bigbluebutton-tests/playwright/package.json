@@ -1,5 +1,5 @@
 {
-  "name": "playwright",
+  "name": "bbb-tests-playwright",
   "version": "1.0.0",
   "description": "Tests for BigBlueButton using Playwright.",
   "main": "index.js",

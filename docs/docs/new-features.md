@@ -162,6 +162,12 @@ Integrations can also seed a session's shared notes with Markdown at creation ti
 
 <!-- TODO add screenshot of the Import from Markdown dialog (append/replace + file upload) -->
 
+#### Panopto videos can be shared as external video
+
+The **Share an external video** feature now includes a player for [Panopto](https://www.panopto.com/) recordings (available in BigBlueButton 3.0.33). Paste a Panopto viewer link of the form `https://<your-panopto-host>/Panopto/Pages/Viewer.aspx?id=<video-id>` and it plays inside the presentation area with the usual synchronization (play/pause, seek and playback rate are shared with the other participants), just like the YouTube and Vimeo players.
+
+The player is tenant-agnostic — any Panopto host works, including `*.panopto.com`, `*.panopto.eu` and self-hosted installations. Note that it loads the Panopto embed API from `https://developers.panopto.com`, so participants need to be able to reach that host, and the video must be viewable by them in Panopto (BigBlueButton does not proxy Panopto's own authentication).
+
 
 ### Engagement
 
@@ -316,16 +322,20 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
-- Grails 7.0.8
+- Grails 7.0.12
 - Gradle 8.14.3
 - Groovy 4.0.21
-- Spring 6.2.11
-- Spring Boot 3.5.14
+- Java 21
+- Spring 6.2.19
+- Spring Boot 3.5.16
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.36](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.36)
+- [3.0.35](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.35)
+- [3.0.34](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.34)
 - [3.0.33](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.33)
 - [3.0.32](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.32)
 - [3.0.31](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.31)
@@ -425,6 +435,12 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 - Client settings.yml: `public.sharedNotes.importMarkdownEnabled`. Defaults to `false`. When `true`, presenters see an **Import from Markdown** option in the BlockNote shared notes menu.
 - Client settings.yml: `public.sharedNotes.exportMarkdownEnabled`. Defaults to `false`. When `true`, an **Export notes as Markdown** option is shown in the BlockNote shared notes menu.
 
+#### Added new setting to tune the slide-change image swap
+
+- Client settings.yml: `public.whiteboard.slideSwapDecodeTimeoutMs`. Defaults to `250` (milliseconds). Added in BigBlueButton 3.0.33.
+
+On a slide change the client waits, up to this bound, for the new slide's image to finish decoding before swapping the visible page — which removes the white flash that used to appear between slides. A cached or fast-loading slide resolves well within the bound; if the image takes longer, the swap proceeds anyway (the pre-3.0.33 behaviour, including the white flash) rather than leaving the toolbar and zoom controls on a stale slide. Raise it only if your presentations are served slowly enough that the flash is still visible, and keep in mind that a larger value delays the slide change itself by the same amount.
+
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
 - Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
@@ -442,6 +458,12 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 #### Replaced all user facing instances of "meeting" with the word "session"
 
 The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
+
+#### Upgrade to Java 21
+
+Starting with BigBlueButton 3.0.36 the JVM components build and run on Java 21 (previously Java 17). The `bbb-web` package now depends on `openjdk-21-jdk`, and `bbb-apps-akka` and `bbb-fsesl-akka` require a Java 21 runtime, so upgrading the packages pulls Java 21 in automatically — the `bbb-web` post-install step also switches the system default with `update-java-alternatives -s java-1.21.0-openjdk-amd64`. Java 21 is available from the standard Ubuntu 22.04 repositories, so no additional apt source is needed.
+
+If you build from source, install `openjdk-21-jdk-headless` and point `JAVA_HOME` at `/usr/lib/jvm/java-21-openjdk-amd64`. The build tooling moved to sbt 1.10.7 at the same time; see the [Development Guide](/development/guide) for the full setup.
 
 ### Changes to events.xml
 
@@ -472,7 +494,7 @@ Modified/added events
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
 - `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
 - `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
-- `html5PluginSdkVersion` bumped to `0.0.103`
+- `html5PluginSdkVersion` bumped to `0.0.105` (in BBB 3.0.36)
 
 #### Added
 - `pluginManifestFetchTimeout` added
@@ -525,7 +547,8 @@ Modified/added events
 - `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
 - `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
 - `clientSettingsFilePath` added in BBB 3.0.30
-- `maxSharedNotesInitialContentUrlPayloadSize` added — caps the size (in KiB, default `1024`) of the response fetched by `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl`
+- `maxSharedNotesInitialContentUrlPayloadSize` added in BBB 3.0.33 — caps the size (in KiB, default `1024`) of the response fetched by `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl`
+- `numPresentationDownloadThreads` added in BBB 3.0.33 — size of the bounded pool that downloads pre-uploaded presentations in the background (default `5`). See [Tune parallel downloads of pre-uploaded presentations](/administration/customize#tune-parallel-downloads-of-pre-uploaded-presentations)
 
 ### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

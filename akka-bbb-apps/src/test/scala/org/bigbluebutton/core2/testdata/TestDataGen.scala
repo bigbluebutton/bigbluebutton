@@ -78,7 +78,15 @@ object TestDataGen {
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    WebcamStream(streamId, userId, subscribers)
+    WebcamStream(
+      streamId = streamId,
+      userId = userId,
+      userName = userId,
+      contentType = "camera",
+      hasAudio = false,
+      showAsContent = false,
+      subscribers = subscribers
+    )
   }
 
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {

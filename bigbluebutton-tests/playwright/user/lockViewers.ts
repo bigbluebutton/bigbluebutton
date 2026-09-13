@@ -331,7 +331,8 @@ export class LockViewers extends MultiUsers {
       'should not display the other viewer annotation for the viewer who just joined',
     ).toHaveScreenshot('viewer2-just-joined.png', screenshotOptions);
     // draw a rectangle and check if it is displayed
-    await this.userPage.waitAndClick(e.wbShapesButton);
+    // the rectangle lives directly on the toolbar, so it must be clicked without opening the "More"
+    // geo popup — the opened popup grid overlaps the toolbar and intercepts the click (see drawShape)
     await this.userPage.waitAndClick(e.wbRectangleShape);
     await this.userPage.waitAndClick(e.whiteboard);
     await this.modPage.page.locator(e.chatButton).hover();
