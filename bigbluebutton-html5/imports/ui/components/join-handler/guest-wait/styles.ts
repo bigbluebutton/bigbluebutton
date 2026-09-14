@@ -1,4 +1,7 @@
 import styled, { keyframes } from 'styled-components';
+import {
+  colorWhiteSurface,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const Container = styled.div`
   display: flex;
@@ -104,7 +107,7 @@ const Bounce = styled.div`
   width: 18px;
   height: 18px;
   margin: 0 5px;
-  background-color: rgb(255, 255, 255);
+  background-color: ${colorWhiteSurface};
   display: inline-block;
   border-radius: 100%;
   animation: ${sk_bouncedelay} calc(1.4s) infinite ease-in-out both;

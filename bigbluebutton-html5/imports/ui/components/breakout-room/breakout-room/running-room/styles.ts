@@ -2,14 +2,15 @@ import styled, { css } from 'styled-components';
 import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
+  colorBlueLighter,
+  colorDanger,
   colorGray,
   colorGrayLighter,
-  colorWhite,
   colorGrayUserListToolbar,
+  colorPrimary,
   colorText,
-  colorDanger,
-  colorBlueLighter,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -431,7 +432,7 @@ export const MegaphoneChatInput = styled.input`
   font-size: ${fontSizeBase};
   outline: none;
   color: ${colorText};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   transition: border-color 0.15s;
 
   &:focus {

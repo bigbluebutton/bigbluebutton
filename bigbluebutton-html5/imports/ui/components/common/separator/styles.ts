@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import OriginalIcon from '/imports/ui/components/common/icon/icon-ts/component';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorWhiteBorder } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Separator = styled.div<{ actionsBar?: boolean }>`
   width: 10px; 
@@ -8,7 +8,7 @@ const Separator = styled.div<{ actionsBar?: boolean }>`
   ${({ actionsBar }) => actionsBar && `
     height: 2.5rem;
     width: 0;
-    border: 1px solid ${colorWhite};
+    border: 1px solid ${colorWhiteBorder};
     align-self: center;
     opacity: .75;
   `}

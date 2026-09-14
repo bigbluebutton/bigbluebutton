@@ -5,12 +5,12 @@ import {
   moderatorAvatarBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
-  userListBg,
   colorSuccess,
   colorUserModerator,
-  colorUserYou,
   colorUserViewer,
+  colorUserYou,
+  colorWhite,
+  userListBgBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Content = styled.div`
@@ -125,7 +125,7 @@ const Avatar = styled.div`
     left: auto;
     bottom: ${userIndicatorsOffset};
     right: ${userIndicatorsOffset};
-    border: 1.5px solid ${userListBg};
+    border: 1.5px solid ${userListBgBorder};
     border-radius: 50%;
     background-color: ${colorSuccess};
     color: ${colorWhite};
