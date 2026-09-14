@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "กลับไปยังเซสชันหลัก",
     "app.createBreakoutRoom.listenToRoom": "ฟังในห้อง",
     "app.createBreakoutRoom.stopListeningToRoom": "หยุดฟัง",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "หากต้องการอัปเดตหรือเชิญผู้ใช้งาน เพียงลากผู้ใช้งานนั้นไปยังห้องที่ต้องการ",
     "app.updateBreakoutRoom.cancelLabel": "ยกเลิก",
     "app.updateBreakoutRoom.title": "อัปเดตห้องย่อย",
