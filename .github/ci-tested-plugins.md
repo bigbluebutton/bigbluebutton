@@ -23,7 +23,7 @@ Prefer pinning `ref` to a released tag rather than a branch: a branch moves unde
   {
     "name": "plugin-pick-random-user",
     "repo": "bigbluebutton/bbb-plugin-pick-random-user",
-    "ref": "v0.0.10",
+    "ref": "v0.1.2",
     "servePath": "assets/plugins/pick-random-user-plugin",
     "flakyTests": [
       "My Suite › should do something when button is clicked",
