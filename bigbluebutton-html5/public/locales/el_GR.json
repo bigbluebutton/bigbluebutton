@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Επιστροφή στην κύρια αίθουσα",
     "app.createBreakoutRoom.listenToRoom": "Ακούστε την τηλεδιάσκεψη",
     "app.createBreakoutRoom.stopListeningToRoom": "Διακοπή ακρόασης",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "Για ενημέρωση ή πρόσκληση χρήστη, απλώς σύρετέ τον στην επιθυμητή αίθουσα.",
     "app.updateBreakoutRoom.cancelLabel": "Άκυρο",
     "app.updateBreakoutRoom.title": "Ενημέρωση τμημάτων αίθουσας διάσκεψης",
