@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Torna alla sessione principale",
     "app.createBreakoutRoom.listenToRoom": "Ascoltare la stanza",
     "app.createBreakoutRoom.stopListeningToRoom": "Termina di ascoltare",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "Per aggiornare o invitare un utente basta trascinarlo nell'aula scelta.",
     "app.updateBreakoutRoom.cancelLabel": "Annulla",
     "app.updateBreakoutRoom.title": "Aggiorna aule separate",
