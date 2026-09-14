@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "回到主議程",
     "app.createBreakoutRoom.listenToRoom": "聆聽到房間",
     "app.createBreakoutRoom.stopListeningToRoom": "停止聆聽",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "要更新或邀請使用者，只需將其拖動到所需的房間。",
     "app.updateBreakoutRoom.cancelLabel": "取消",
     "app.updateBreakoutRoom.title": "更新分組房間",
