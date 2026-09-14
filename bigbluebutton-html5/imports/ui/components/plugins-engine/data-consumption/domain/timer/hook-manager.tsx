@@ -11,7 +11,7 @@ import useTimer from '/imports/ui/core/hooks/useTimer';
 import formatTimerResponseFromGraphql from './utils';
 
 const TimerHookContainer = (prop: GeneralHookManagerProps) => {
-  const timerData = useTimer({ enableNotifications: true, isIndicator: false });
+  const timerData = useTimer();
 
   const { version } = prop;
   const previousVersion = usePreviousValue(version);

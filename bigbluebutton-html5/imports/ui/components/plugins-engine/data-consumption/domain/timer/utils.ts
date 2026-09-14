@@ -11,7 +11,7 @@ const formatTimerResponseFromGraphql = (
     time: response.data.time,
     stopwatch: response.data.stopwatch,
     running: response.data.running,
-    startedAt: response.data.startedAt as string | null,
+    startedAt: response.data.startedAt.toString(),
     elapsed: response.data.elapsed ?? false,
     timePassed: response.data.timePassed,
   } : undefined,
