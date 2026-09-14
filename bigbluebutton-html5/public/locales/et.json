@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Naase põhisessiooni",
     "app.createBreakoutRoom.listenToRoom": "Kuula ruumi",
     "app.createBreakoutRoom.stopListeningToRoom": "Lõpeta kuulamine",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "Kasutaja muutmiseks või kutsumiseks lohista ta lihtsalt soovitud ruumi.",
     "app.updateBreakoutRoom.cancelLabel": "Tühista",
     "app.updateBreakoutRoom.title": "Uuenda eraldatud ruume",
