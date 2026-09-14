@@ -268,10 +268,9 @@ RangeLoop:
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					// Iterate the canonical list rather than naming the streams here. The
-					// hand-maintained version of this block omitted getUserVoiceStateStream, so
-					// unsubscribing from it left its query id in ActiveStreamings forever and the
-					// handlers kept sending voice state to a connection that had asked it to stop.
+					// Iterate the canonical list rather than naming the streams here, so a stream
+					// cannot be added to the list and missed in this teardown. A query id left in
+					// ActiveStreamings would keep its handler delivering after an unsubscribe.
 					browserConnection.ActiveStreamingsMutex.Lock()
 					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
 						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {

@@ -34,18 +34,15 @@ func snapshotStreamingRecipient(bc *common.BrowserConnection) streamingRecipient
 
 // inMeeting is the base rule every middleware-managed stream must satisfy before any send.
 //
-// These subscriptions are short-circuited in websrv/reader before they reach Hasura, so neither
-// the writer's AllowedSubscriptionsForNotInMeetingUsers gate nor any row-level permission ever
-// applies to them - the streaming server is their only authorization point. Hasura grants the
-// bbb_client_not_in_meeting role no access to the underlying data, so a connection that is not
-// currently in the meeting (guest lobby, ejected, left) must receive nothing.
+// These subscriptions are answered here rather than forwarded to Hasura, so the streaming server
+// is the only place their recipients are authorized; the checks that apply to forwarded
+// subscriptions do not reach them. Delivery is limited to connections currently in the meeting.
 //
-// Membership is not static: a user can be ejected while holding an open websocket, and their
-// ActiveStreamings entry survives that. So this has to be checked per send, not only at
-// subscription time.
+// Membership is evaluated per send rather than once at subscription time, because a subscription
+// outlives changes to it and the registration is not revisited.
 func (r streamingRecipient) inMeeting(meetingId string) bool {
-	// Guard the empty string explicitly: without it, a connection that has not completed
-	// connection_init would match an empty meetingId against an empty session variable.
+	// Guard the empty string explicitly, so a connection that has not completed connection_init
+	// cannot match on an empty meeting id.
 	if meetingId == "" || r.MeetingId != meetingId {
 		return false
 	}
@@ -55,10 +52,9 @@ func (r streamingRecipient) inMeeting(meetingId string) bool {
 
 // sessionVar reads a lock-derived session variable.
 //
-// Callers must treat a false result as "not permitted" rather than "not locked": for a connection
-// that is not in the meeting these variables are absent rather than false (see
-// UserInfoService.generateResponseMap, whose not-in-meeting branch omits every lock variable), so
-// a bare equality test on them fails open.
+// These variables are absent, not false, for a connection that is not in the meeting (see
+// UserInfoService.generateResponseMap). Callers must therefore treat an empty result as
+// "not permitted" rather than "not locked", and check membership before relying on one.
 func (r streamingRecipient) sessionVar(key string) string {
 	return r.SessionVars[key]
 }

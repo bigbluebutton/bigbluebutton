@@ -16,8 +16,7 @@ import (
 )
 
 // Derived from the canonical list rather than hand-maintained, so a stream cannot be added to one
-// place and forgotten in the other. That divergence is what previously left
-// getUserVoiceStateStream out of the subscription teardown in the Hasura writer.
+// place and forgotten in the other.
 var streamingHandleByMiddlewarePatterns = func() [][]byte {
 	patterns := make([][]byte, 0, len(config.StreamingSubscriptionsManagedByMiddleware))
 	for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {

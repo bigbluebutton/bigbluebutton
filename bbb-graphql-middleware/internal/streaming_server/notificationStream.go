@@ -18,8 +18,8 @@ func HandleNotifyAllInMeetingEvtMsg(receivedMessage common.RedisMessage, browser
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		// Meeting-wide notifications carry user names (e.g. the join push alert), so a connection
-		// that is not in the meeting must not receive them.
+		// Meeting-wide notifications carry user names (e.g. the join push alert), so delivery is
+		// limited to connections currently in the meeting.
 		if snapshotStreamingRecipient(bc).inMeeting(meetingId) {
 			browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 		}
@@ -79,8 +79,8 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	for _, bc := range browserConnections {
 		recipient := snapshotStreamingRecipient(bc)
 		// X-Hasura-ModeratorInMeeting / PresenterInMeeting are derived from the RegisteredUser
-		// role, which survives ejection, so they are still populated for an ejected moderator.
-		// Membership and a settled refresh must both hold before they can be trusted.
+		// role, which is independent of current meeting membership, so membership and a settled
+		// refresh must both hold before either can be trusted.
 		matches := recipient.inMeeting(meetingId) && recipient.lockStateKnown()
 		isModerator := matches && strings.EqualFold(role, "moderator") && recipient.sessionVar("x-hasura-moderatorinmeeting") == meetingId
 		isPresenter := matches && strings.EqualFold(role, "presenter") && recipient.sessionVar("x-hasura-presenterinmeeting") == meetingId

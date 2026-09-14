@@ -261,9 +261,9 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 	browserConnection.Lock()
 	hasuraConnection := browserConnection.HasuraConnection
 	// The session variables held here are now known to be out of date. Mark them stale until a
-	// refresh succeeds so that checks derived from them - notably meeting membership in the
-	// streaming server - treat the state as unknown and fail closed in the meantime. This matters
-	// most on ejection, which is precisely when a connection must stop being served.
+	// refresh succeeds, so checks derived from them - notably meeting membership in the streaming
+	// server - treat the state as unknown and fail closed in the meantime rather than acting on
+	// values that have already been superseded.
 	browserConnection.SessionVariablesStale = true
 	browserConnection.Unlock()
 

@@ -72,10 +72,9 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 // cursorVisibleTo decides whether one connection may see a cursor update.
 //
 // The "see other viewers' cursors" lock is expressed by X-Hasura-CursorLockedUserId, which the
-// not-in-meeting branch of the session-variables hook omits entirely. A bare equality test on it
-// therefore yields "" == UserId -> false -> "not locked", i.e. it fails OPEN for exactly the
-// connections that should see nothing. Membership and a settled refresh are checked first so the
-// lock comparison is only reached when its input is meaningful.
+// not-in-meeting branch of the session-variables hook omits entirely. An empty value therefore
+// means "unknown", not "unlocked". Membership and a settled refresh are checked first, so the
+// lock comparison is only reached once its input is meaningful.
 func cursorVisibleTo(r streamingRecipient, meetingId string, cursorIsFromViewer bool) bool {
 	if !r.inMeeting(meetingId) {
 		return false
@@ -102,10 +101,9 @@ func SendPreviousCursorPosition(browserConnection *common.BrowserConnection, que
 		return
 	}
 
-	// The replay is subject to the same rules as the live path, otherwise a connection is simply
-	// handed the cached cursors of everyone in the meeting the moment it subscribes. The cache
-	// does not record whether each cursor came from a viewer, so replay is withheld entirely from
-	// connections that could not receive viewer cursors live.
+	// The replay is subject to the same rules as the live path; subscribing is not a way around
+	// them. The cache does not record whether each cursor came from a viewer, so replay is
+	// withheld entirely from connections that could not receive viewer cursors live.
 	if !cursorVisibleTo(recipient, recipient.MeetingId, true) {
 		return
 	}

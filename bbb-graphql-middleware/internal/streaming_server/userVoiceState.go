@@ -92,10 +92,9 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 
 // voiceStateVisibleTo decides whether one connection may see another user's voice state.
 //
-// The payload carries the speaker's name, so a locked viewer that receives it learns who is in
-// the meeting the moment that person speaks - passively, in the stock client. This subscription
-// is served by the middleware and never reaches Hasura, so the view permissions that would
-// normally apply do not.
+// The payload carries the speaker's name, so it is subject to the hideUserList lock. This
+// subscription is answered here rather than forwarded to Hasura, so the view permissions that
+// would normally govern that name do not apply and the equivalent rule is enforced here.
 //
 // The rule mirrors the one Hasura puts on v_user, which is where the indicator's name and role
 // would otherwise come from:
@@ -124,9 +123,9 @@ func voiceStateVisibleTo(r streamingRecipient, meetingId, speakerUserId, speaker
 	}
 
 	// Holds the meeting id while the user list is unlocked and is cleared when hideUserList is
-	// on. It is absent entirely for a not-in-meeting connection, so this has to be an equality
-	// test against a non-empty meetingId rather than a check for emptiness - a bare "is it empty"
-	// test would fail open for exactly those connections. inMeeting above guarantees non-empty.
+	// on. It is absent entirely for a not-in-meeting connection, so an empty value means
+	// "unknown" and must not be read as "unlocked": compare for equality against a non-empty
+	// meetingId rather than testing for emptiness. inMeeting above guarantees non-empty.
 	return r.sessionVar("x-hasura-userlistnotlockedinmeeting") == meetingId
 }
 
