@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Återgå till huvudsessionen",
     "app.createBreakoutRoom.listenToRoom": "Lyssna på rummet",
     "app.createBreakoutRoom.stopListeningToRoom": "Sluta lyssna",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "För att uppdatera eller bjuda in en användare drar du personen till önskat rum.",
     "app.updateBreakoutRoom.cancelLabel": "Avbryt",
     "app.updateBreakoutRoom.title": "Uppdatera grupprum",
