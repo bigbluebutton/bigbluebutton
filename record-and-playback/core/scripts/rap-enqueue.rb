@@ -33,9 +33,10 @@ def meeting_id_valid?(meeting_id)
   /\A[0-9a-f]+-[0-9]+\z/.match?(meeting_id)
 end
 
-# Formats the meeting opted out of through meta_bbb-disable-recording-formats.
-# Like the worker pipeline, unreadable metadata is logged and treated as
-# "nothing disabled"; bbb-record refuses on its own before removing any output.
+# Call before enqueuing a step for a specific format: the meeting may have
+# opted that format out with meta_bbb-disable-recording-formats. Metadata that
+# cannot be read is reported and treated as "nothing disabled", as the worker
+# pipeline does.
 def disabled_recording_formats(recording_dir, meeting_id)
   events_xml = File.join(recording_dir, 'raw', meeting_id, 'events.xml')
   return [] unless File.exist?(events_xml)
