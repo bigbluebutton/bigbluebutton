@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Tilbake til hovedsesjonen",
     "app.createBreakoutRoom.listenToRoom": "Tilhører i grupperommet",
     "app.createBreakoutRoom.stopListeningToRoom": "Avslutt som tilhører",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "For å oppdatere eller invitere en bruker, dra dem ganske enkelt inn i ønsket rom.",
     "app.updateBreakoutRoom.cancelLabel": "Avbryt",
     "app.updateBreakoutRoom.title": "Oppdatèr grupperom",
