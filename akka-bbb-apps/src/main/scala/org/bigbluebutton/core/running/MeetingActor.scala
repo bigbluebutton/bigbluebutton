@@ -59,6 +59,7 @@ import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 import java.time._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object MeetingActor {
   def props(
@@ -1151,6 +1152,22 @@ class MeetingActor(
 
         val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
         UserDAO.update(updatedRegUser)
+
+        // Force reconnection with graphql to refresh permissions. This is load-bearing for
+        // authorization, not just UX: bbb-graphql-middleware caches CurrentlyInMeeting and
+        // refreshes it only on this request or at connection_init, and it is the sole
+        // authorization point for the subscriptions it serves itself. Without this, a socket
+        // that outlives the removal keeps receiving them. Off the actor thread because the
+        // request is a blocking HTTP call that throws when the middleware is unreachable -
+        // which is precisely the case that produces these removals.
+        Future {
+          try {
+            GraphqlMiddleware.requestGraphqlReconnection(ru.sessionToken, "user_left_expired")
+          } catch {
+            case e: Throwable =>
+              log.warning("Failed to request graphql reconnection for removed user {}: {}", u.intId, e.getMessage)
+          }
+        }
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
