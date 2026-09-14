@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Zurück in den Hauptraum",
     "app.createBreakoutRoom.listenToRoom": "Dem Raum zuhören",
     "app.createBreakoutRoom.stopListeningToRoom": "Zuhören stoppen",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "Um eine Person zu aktualisieren oder einzuladen, diese einfach in den gewünschten Raum ziehen.",
     "app.updateBreakoutRoom.cancelLabel": "Abbrechen",
     "app.updateBreakoutRoom.title": "Gruppenräume aktualisieren",
