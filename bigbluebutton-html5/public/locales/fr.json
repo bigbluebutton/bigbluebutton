@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "Pour informer ou inviter un utilisateur, glisser son nom d'utilisateur dans le salon souhaité",
     "app.updateBreakoutRoom.cancelLabel": "Annuler",
     "app.updateBreakoutRoom.title": "Mettre à jour les groupes de travail",
