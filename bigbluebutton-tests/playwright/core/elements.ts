@@ -158,6 +158,8 @@ export const elements = {
   callModeratorButton: 'button[data-test="callModeratorButton"]',
   returnToMainSessionButton: 'button[data-test="returnToMainSessionButton"]',
   listenToBreakoutRoomButton: 'li[data-test^="listenToBreakoutRoomButton"]',
+  listenToBreakoutRoomButton1: 'li[data-test="listenToBreakoutRoomButton1"]',
+  listenToBreakoutRoomButton2: 'li[data-test="listenToBreakoutRoomButton2"]',
   breakoutTransferReturnButton: 'button[data-test="breakoutTransferReturnButton"]',
   breakoutListenToast: 'div[data-test="breakoutListenToast"]',
 
