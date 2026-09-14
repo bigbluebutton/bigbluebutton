@@ -289,8 +289,11 @@ mark_for_republish() {
       remove_published_output "$MEETING_ID" "$type"
 
       # Restart processing at the 'publish' step
-      /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "publish:$type" "$MEETING_ID"
-      republished=1
+      if /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "publish:$type" "$MEETING_ID"; then
+         republished=1
+      else
+         echo "Could not enqueue publish:$type for $MEETING_ID, its output is already removed."
+      fi
    done
 
    # An explicit single-format request that republished nothing is a failure,
