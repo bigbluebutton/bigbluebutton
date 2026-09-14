@@ -1628,6 +1628,7 @@
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.listenAlreadyInRoom": "Can't listen: already in room",
     "app.updateBreakoutRoom.modalDesc": "Para actualizar o invitar a un/a usuario/a, simplemente arrástrelo/a a la sala deseada.",
     "app.updateBreakoutRoom.cancelLabel": "Cancelar",
     "app.updateBreakoutRoom.title": "Actualizar salas de reuniones",
