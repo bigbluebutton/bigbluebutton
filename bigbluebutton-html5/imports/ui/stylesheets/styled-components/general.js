@@ -53,6 +53,11 @@ const navigationSidebarListItemsContainerGapSmallHeight = 'calc(9rem / 14)';
 const navigationSidebarListItemsGap = 'calc(12rem / 14)';
 const navigationSidebarListItemsGapSmallHeight = 'calc(6rem / 14)';
 const navigationSidebarListItemsWidth = '65%';
+// Fixed desktop size for the rail icon buttons. On desktop the rail width is
+// constant (60px), so a fixed size decouples the icons from the scrollbar width
+// and stops the classic scrollbar from shrinking the very icons that caused it
+// (issue 25564). Mobile keeps the responsive percentage above.
+const navigationSidebarListItemsWidthDesktop = 'calc(39rem / 14)';
 const navigationSidebarIconSize = 'calc(18rem / 14)';
 const navigationSidebarIconSizeSmallHeight = '1rem';
 const navigationSidebarNotificationBadgeSize = '14px';
@@ -172,6 +177,7 @@ export {
   navigationSidebarListItemsGap,
   navigationSidebarListItemsGapSmallHeight,
   navigationSidebarListItemsWidth,
+  navigationSidebarListItemsWidthDesktop,
   navigationSidebarIconSize,
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,

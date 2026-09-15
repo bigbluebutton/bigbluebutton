@@ -115,6 +115,11 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
     gap: ${navigationSidebarListItemsContainerGapSmallHeight};
   }
 
+  ${({ isMobile }) => !isMobile && `
+    scrollbar-gutter: stable both-edges;
+    scrollbar-width: thin;
+  `}
+
   ${({ isExpanded }) => (isExpanded ? `
     max-height: 100%;
     opacity: 1;
