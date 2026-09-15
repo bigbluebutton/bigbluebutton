@@ -280,11 +280,19 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)<br /><br />The deprecated singular alias <code className="language-plaintext highlighter-rouge">lockSettingsDisableNote</code> was removed in 4.0.</>)
   },
   {
+    "name": "lockSettingsIsolateUsers",
+    "required": false,
+    "type": "Boolean",
+    "default": false,
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. (added 2.2, renamed from <code className="language-plaintext highlighter-rouge">lockSettingsHideUserList</code> in 4.0)</>)
+  },
+  {
     "name": "lockSettingsHideUserList",
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. (added 2.2)</>)
+    deprecated: true,
+    "description": (<><p>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. (added 2.2)</p><p><i>Deprecated:</i> renamed to <code className="language-plaintext highlighter-rouge">lockSettingsIsolateUsers</code> in 4.0. The old name is still accepted but will be removed in a future release.</p></>)
   },
   {
     "name": "lockSettingsLockOnJoin",

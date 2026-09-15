@@ -168,7 +168,7 @@ const propTypes = {
       disablePublicChat: PropTypes.bool,
       disablePrivateChat: PropTypes.bool,
       disableNotes: PropTypes.bool,
-      hideUserList: PropTypes.bool,
+      isolateUsers: PropTypes.bool,
       hideViewersCursor: PropTypes.bool,
       hideViewersAnnotation: PropTypes.bool,
       lockOnJoin: PropTypes.bool,
@@ -457,10 +457,10 @@ class LockViewersComponent extends Component {
 
     checkboxItems.push(
       {
-        key: 'hideUserList',
+        key: 'isolateUsers',
         label: intlMessages.userListLabel,
-        checked: !lockSettingsProps.hideUserList,
-        toggle: () => this.toggleLockSettings('hideUserList'),
+        checked: !lockSettingsProps.isolateUsers,
+        toggle: () => this.toggleLockSettings('isolateUsers'),
         dataTest: 'lockUserList',
       },
       {
