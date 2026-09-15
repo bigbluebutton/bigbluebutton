@@ -19,6 +19,7 @@ import PollsTable from './components/PollsTable';
 import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
 import { makeUserCSVData, tsToHHmmss } from './services/UserService';
+import normalizeActivitiesJson from './services/CompatibilityService';
 import QuizzesTable from './components/QuizzesTable';
 import QuizzesChart from './components/QuizzesChart';
 import {
@@ -271,25 +272,9 @@ class App extends React.Component {
       learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
     } = this.state;
 
-    // adjust user sessions to be compatible with old json
-    const convertUserUsessionsFormat = (activitiesJson) => {
-      const newActivivies = activitiesJson;
-      Object.values(newActivivies.users).forEach((user) => {
-        Object.values(user.intIds).forEach((intId) => {
-          if (!intId?.sessions && intId?.registeredOn) {
-            const newIntId = intId;
-            newIntId.sessions = [
-              { registeredOn: intId.registeredOn, leftOn: intId.leftOn },
-            ];
-          }
-        });
-      });
-      return newActivivies;
-    };
-
     const handleSuccess = (json) => {
       this.setState({
-        activitiesJson: convertUserUsessionsFormat(json),
+        activitiesJson: normalizeActivitiesJson(json),
         loading: false,
         invalidSessionCount: 0,
         lastUpdated: Date.now(),
