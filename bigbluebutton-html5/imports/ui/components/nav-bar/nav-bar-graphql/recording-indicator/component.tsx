@@ -24,6 +24,8 @@ import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -126,6 +128,14 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  // Reactive, so flipping either toggle in the settings modal is reflected at once.
+  // The collapse honours the same animations setting as this component's own spinner.
+  const {
+    animations,
+    recordingIndicatorAutoCollapse,
+  } = useSettings(SETTINGS.APPLICATION) as {
+    animations: boolean; recordingIndicatorAutoCollapse: boolean;
+  };
 
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
@@ -204,8 +214,12 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         : intl.formatMessage(intlMessages.startTitle);
     }
 
-    return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled, isModerator, time, intl.locale]);
+    // Read-only viewers cannot stop anything, so the pill states what is
+    // happening instead of offering the moderator's action.
+    return showButton
+      ? intl.formatMessage(intlMessages.stopTitle)
+      : intl.formatMessage(intlMessages.recordingTitle);
+  }, [recording, isPhone, disabled, isModerator, showButton, time, intl.locale]);
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
@@ -221,7 +235,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
-      titleMargin={!isPhone || recording}
+      // While recording, the timer sits right after the dot and owns that gap.
+      titleMargin={!isPhone && !recording}
       data-test="mainWhiteboard"
       isRTL={isRTL}
     >
@@ -241,6 +256,9 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       aria-describedby="recording-description"
       recording={recording}
       disabled={!showButton}
+      isPhone={isPhone}
+      animations={animations}
+      autoCollapse={recordingIndicatorAutoCollapse}
       time={time}
       tabIndex={0}
       key="recording-toggle"
@@ -257,21 +275,17 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       }}
     >
       {recordingIndicatorIcon}
+      {recording && (
+        <Styled.RecordingTimer aria-hidden>
+          {humanizeSeconds(time)}
+        </Styled.RecordingTimer>
+      )}
       {!isPhone && (
         <Styled.PresentationTitle>
           <Styled.VisuallyHidden id="recording-description">
             {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
           </Styled.VisuallyHidden>
-          {recording ? (
-            <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
-          ) : (
-            <span>{recordTitle}</span>
-          )}
-        </Styled.PresentationTitle>
-      )}
-      {isPhone && recording && (
-        <Styled.PresentationTitle>
-          <span aria-hidden>{humanizeSeconds(time)}</span>
+          <span aria-hidden>{recordTitle}</span>
         </Styled.PresentationTitle>
       )}
     </Styled.RecordingControl>

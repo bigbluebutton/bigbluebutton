@@ -83,6 +83,10 @@ const intlMessages = defineMessages({
   disableLabel: {
     id: 'app.videoDock.webcamDisableLabelAllCams',
   },
+  recordingIndicatorAutoCollapseLabel: {
+    id: 'app.submenu.application.recordingIndicatorAutoCollapseLabel',
+    description: 'recording button auto collapse label',
+  },
   autoCloseReactionsBarLabel: {
     id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
   },
@@ -450,6 +454,23 @@ class ApplicationMenu extends BaseMenu {
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
                     {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
+                  </Styled.Label>
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  <SubMenusStyle.MaterialSwitch
+                    icons="false"
+                    checked={settings.recordingIndicatorAutoCollapse}
+                    onChange={() => this.handleToggle('recordingIndicatorAutoCollapse')}
+                    aria-label={`${intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)} - ${displaySettingsStatus(settings.recordingIndicatorAutoCollapse, true)}`}
+                    inputProps={{ 'data-test': 'recordingIndicatorAutoCollapseToggleBtn' }}
+                  />
+                  <Styled.Label style={{ marginLeft: '0.5rem' }}>
+                    {intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)}
                   </Styled.Label>
                 </Styled.FormElementRight>
               </Styled.Col>
