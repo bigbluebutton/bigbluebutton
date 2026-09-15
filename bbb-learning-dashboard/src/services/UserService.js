@@ -44,6 +44,29 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
   return userPoints;
 }
 
+// Merges a list of [start, end] intervals into sorted, non-overlapping intervals.
+// Copies each interval so the caller's arrays are never mutated.
+function mergeIntervals(intervals) {
+  if (intervals.length === 0) return [];
+
+  // Sort intervals by start time
+  const sorted = intervals.map((i) => [i[0], i[1]]).sort((a, b) => a[0] - b[0]);
+
+  const merged = [sorted[0]];
+  for (let i = 1; i < sorted.length; i += 1) {
+    const lastMerged = merged.at(-1);
+    const current = sorted[i];
+    if (current[0] <= lastMerged[1]) {
+      // Overlapping intervals, union them
+      lastMerged[1] = Math.max(lastMerged[1], current[1]);
+    } else {
+      merged.push(current);
+    }
+  }
+
+  return merged;
+}
+
 export function getSumOfTime(eventsArr) {
   return eventsArr.reduce((prevVal, elem) => {
     if (elem?.sessions) {
@@ -59,6 +82,47 @@ export function getSumOfTime(eventsArr) {
     }
     return prevVal + (new Date().getTime() - (elem.startedOn || elem.registeredOn));
   }, 0);
+}
+
+// Sums a user's webcam time, clamped to the intervals the user was actually online.
+// Defends against inconsistent data where a webcam's stoppedOn extends past the user's
+// session (e.g. a cam-stopped event missed by the backend), which would otherwise make
+// "webcam time" exceed "online time" in the report.
+export function getWebcamSumOfTime(user) {
+  const webcams = user?.webcams || [];
+  if (webcams.length === 0) return 0;
+
+  const now = Date.now();
+
+  const onlineIntervals = mergeIntervals(
+    Object.values(user.intIds || {}).flatMap((intIdObj) => (
+      (intIdObj.sessions || []).map((session) => [
+        session.registeredOn,
+        session.leftOn > 0 ? session.leftOn : now,
+      ])
+    )),
+  );
+  if (onlineIntervals.length === 0) return 0;
+
+  const webcamIntervals = mergeIntervals(
+    webcams.map((webcam) => [
+      webcam.startedOn,
+      webcam.stoppedOn > 0 ? webcam.stoppedOn : now,
+    ]),
+  );
+
+  // Both interval sets are merged (non-overlapping), so summing the pairwise
+  // intersections counts each overlapping millisecond exactly once.
+  let total = 0;
+  webcamIntervals.forEach(([wStart, wEnd]) => {
+    onlineIntervals.forEach(([oStart, oEnd]) => {
+      const start = Math.max(wStart, oStart);
+      const end = Math.min(wEnd, oEnd);
+      if (end > start) total += end - start;
+    });
+  });
+
+  return total;
 }
 
 export function getJoinTime(eventsArr) {
@@ -141,7 +205,7 @@ export function makeUserCSVData(users, polls, intl) {
 
   for (let i = 0; i < userValues.length; i += 1) {
     const user = userValues[i];
-    const webcam = getSumOfTime(user.webcams);
+    const webcam = getWebcamSumOfTime(user);
     const duration = getSumOfTime(Object.values(user.intIds));
     const joinTime = getJoinTime(Object.values(user.intIds));
     const leaveTime = getLeaveTime(Object.values(user.intIds));

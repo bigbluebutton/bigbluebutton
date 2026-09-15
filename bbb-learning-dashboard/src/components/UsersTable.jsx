@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { getUserReactionsSummary } from '../services/ReactionService';
-import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
+import { getActivityScore, getWebcamSumOfTime, tsToHHmmss } from '../services/UserService';
 import UserAvatar from './UserAvatar';
 import { UserDetailsContext } from './UserDetails/context';
 
@@ -159,8 +159,8 @@ class UsersTable extends React.Component {
 
   webcamTimeOrder(a, b) {
     const { webcamTimeOrder } = this.state;
-    const webcamTimeA = getSumOfTime(a.webcams);
-    const webcamTimeB = getSumOfTime(b.webcams);
+    const webcamTimeA = getWebcamSumOfTime(a);
+    const webcamTimeB = getWebcamSumOfTime(b);
 
     if (webcamTimeA < webcamTimeB) {
       return webcamTimeOrder === 'desc' ? 1 : -1;
@@ -456,7 +456,7 @@ class UsersTable extends React.Component {
                         ) : null }
                     </td>
                     <td className={`px-4 py-3 text-sm text-center ${opacity}`} data-test="userWebcamTimeDashboard">
-                      { getSumOfTime(user.webcams) > 0
+                      { getWebcamSumOfTime(user) > 0
                         ? (
                           <span className="text-center">
                             <svg
@@ -474,7 +474,7 @@ class UsersTable extends React.Component {
                               />
                             </svg>
                             &nbsp;
-                            <span>{ tsToHHmmss(getSumOfTime(user.webcams)) }</span>
+                            <span>{ tsToHHmmss(getWebcamSumOfTime(user)) }</span>
                           </span>
                         ) : null }
                     </td>
