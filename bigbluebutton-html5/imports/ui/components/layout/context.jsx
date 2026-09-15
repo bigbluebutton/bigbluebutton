@@ -2,7 +2,9 @@ import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { clone } from 'ramda';
-import { getDeviceType, presentationContentHasChanges, LAYOUTS_SYNC } from './utils';
+import {
+  getDeviceType, getDeviceOrientation, presentationContentHasChanges, LAYOUTS_SYNC,
+} from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS,
   CAMERADOCK_POSITION, LAYOUT_ELEMENTS, SYNC,
@@ -58,6 +60,7 @@ const initPresentationAreaContentActions = [{
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: getDeviceType(),
+  deviceOrientation: getDeviceOrientation(),
   isRTL: DEFAULT_VALUES.isRTL,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoading: true,
@@ -164,6 +167,15 @@ const reducer = (state, action) => {
       return {
         ...state,
         deviceType: action.value,
+      };
+    }
+
+    case ACTIONS.SET_DEVICE_ORIENTATION: {
+      const { deviceOrientation } = state;
+      if (deviceOrientation === action.value) return state;
+      return {
+        ...state,
+        deviceOrientation: action.value,
       };
     }
 
@@ -1163,14 +1175,26 @@ const reducer = (state, action) => {
         resizableEdge,
         zIndex,
         focusedId,
+        isPositionEnforced = false,
+        intendedPosition = position,
+        intendedWidth = width,
+        intendedHeight = height,
       } = action.value;
       const { cameraDock } = state.output;
+      const sameResizableEdge = !!cameraDock.resizableEdge
+        && !!resizableEdge
+        && cameraDock.resizableEdge.top === resizableEdge.top
+        && cameraDock.resizableEdge.right === resizableEdge.right
+        && cameraDock.resizableEdge.bottom === resizableEdge.bottom
+        && cameraDock.resizableEdge.left === resizableEdge.left;
       if (cameraDock.display === display
         && cameraDock.position === position
         && cameraDock.width === width
+        && cameraDock.minWidth === minWidth
         && cameraDock.maxWidth === maxWidth
         && cameraDock.presenterMaxWidth === presenterMaxWidth
         && cameraDock.height === height
+        && cameraDock.minHeight === minHeight
         && cameraDock.maxHeight === maxHeight
         && cameraDock.top === top
         && cameraDock.left === left
@@ -1178,8 +1202,12 @@ const reducer = (state, action) => {
         && cameraDock.tabOrder === tabOrder
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
-        && cameraDock.resizableEdge === resizableEdge
-        && cameraDock.focusedId === focusedId) {
+        && sameResizableEdge
+        && cameraDock.focusedId === focusedId
+        && cameraDock.isPositionEnforced === isPositionEnforced
+        && cameraDock.intendedPosition === intendedPosition
+        && cameraDock.intendedWidth === intendedWidth
+        && cameraDock.intendedHeight === intendedHeight) {
         return state;
       }
       return {
@@ -1205,6 +1233,10 @@ const reducer = (state, action) => {
             resizableEdge,
             zIndex,
             focusedId,
+            isPositionEnforced,
+            intendedPosition,
+            intendedWidth,
+            intendedHeight,
           },
         },
       };

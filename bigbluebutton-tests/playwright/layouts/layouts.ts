@@ -107,6 +107,68 @@ export class Layouts extends MultiUsers {
     });
   }
 
+  async configureLayoutMutationProbe() {
+    await this.context.addInitScript(() => {
+      Object.defineProperty(navigator, 'userAgent', {
+        get: () => 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 Chrome/140.0.0.0 Mobile Safari/537.36',
+      });
+    });
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('SetLayoutProps')) {
+          const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
+          this.layoutMutationRates.push(rateMatch && rateMatch[1] !== 'null' ? Number(rateMatch[1]) : null);
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('Rate limit exceeded')) {
+          this.layoutMutationErrors.push(serializedMessage);
+        }
+        webSocket.send(message);
+      });
+    });
+  }
+
+  async phoneLandscapeRotationPropagatesRealGeometry() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.page.setViewportSize({ width: 412, height: 915 });
+    await this.modPage.shareWebcam();
+    await this.modPage.page.waitForTimeout(3000);
+    this.layoutMutationRates = [];
+
+    const ROTATIONS = 6;
+    for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
+      const landscape = rotation % 2 === 0;
+      await this.modPage.page.setViewportSize(landscape ? { width: 915, height: 412 } : { width: 412, height: 915 });
+      await this.modPage.page.waitForTimeout(1500);
+    }
+
+    console.log(
+      `[layout-mutations] ${this.layoutMutationRates.length} mutations over ${ROTATIONS} rotations ` +
+        `| rates: ${JSON.stringify(this.layoutMutationRates)}`,
+    );
+
+    expect(
+      this.layoutMutationRates.length,
+      'the presenter should republish its layout as the phone rotates',
+    ).toBeGreaterThanOrEqual(ROTATIONS);
+    expect(
+      this.layoutMutationRates.length,
+      `layout mutations should stay proportional to the ${ROTATIONS} rotations, not to the render count`,
+    ).toBeLessThan(ROTATIONS * 3);
+    expect(
+      this.layoutMutationRates.every((rate) => typeof rate === 'number' && Number.isFinite(rate) && rate > 0),
+      'every propagated presentation video rate should be a finite, non-zero measurement',
+    ).toBe(true);
+    expect(this.layoutMutationErrors, 'the presenter should never be rate limited for layout mutations').toHaveLength(
+      0,
+    );
+  }
+
   async configurePresentationVideoRateClampProbe() {
     await this.context.routeWebSocket('**/graphql**', (webSocket) => {
       const server = webSocket.connectToServer();

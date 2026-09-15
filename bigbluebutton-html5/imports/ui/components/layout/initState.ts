@@ -241,6 +241,10 @@ export const INITIAL_OUTPUT_STATE = {
     },
     zIndex: 1,
     focusedId: 'none',
+    isPositionEnforced: false,
+    intendedPosition: null,
+    intendedWidth: 0,
+    intendedHeight: 0,
   },
   dropZoneAreas: {},
   presentation: {

@@ -28,7 +28,13 @@ import {
   layoutSelectInput,
   layoutSelectOutput,
 } from '../context';
-import { calculatePresentationVideoRate, getPropagatedCameraDock } from './service';
+import {
+  calculateCameraDockSizeFromRate,
+  calculatePresentationVideoRate,
+  getPropagatedCameraDock,
+  viewportHeight,
+  viewportWidth,
+} from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
@@ -164,22 +170,20 @@ const PushLayoutEngine = (props) => {
           });
         }
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
-          let w; let h;
-          if (horizontalPosition) {
-            w = window.innerWidth * meetingLayoutVideoRate;
-            h = cameraHeight;
-          } else {
-            w = cameraWidth;
-            h = window.innerHeight * meetingLayoutVideoRate;
-          }
+          const { width: w, height: h } = calculateCameraDockSizeFromRate(
+            meetingLayoutVideoRate,
+            horizontalPosition,
+            cameraWidth,
+            cameraHeight,
+          );
 
           layoutContextDispatch({
             type: ACTIONS.SET_CAMERA_DOCK_SIZE,
             value: {
               width: w,
               height: h,
-              browserWidth: window.innerWidth,
-              browserHeight: window.innerHeight,
+              browserWidth: viewportWidth(),
+              browserHeight: viewportHeight(),
             },
           });
         }
@@ -254,14 +258,12 @@ const PushLayoutEngine = (props) => {
     const replicateCameraDockSize = () => {
       if (!equalDouble(meetingLayoutVideoRate, prevProps.meetingLayoutVideoRate)
         || isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
-        let w; let h;
-        if (horizontalPosition) {
-          w = window.innerWidth * meetingLayoutVideoRate;
-          h = cameraHeight;
-        } else {
-          w = cameraWidth;
-          h = window.innerHeight * meetingLayoutVideoRate;
-        }
+        const { width: w, height: h } = calculateCameraDockSizeFromRate(
+          meetingLayoutVideoRate,
+          horizontalPosition,
+          cameraWidth,
+          cameraHeight,
+        );
 
         if (isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
           layoutContextDispatch({
@@ -276,8 +278,8 @@ const PushLayoutEngine = (props) => {
           value: {
             width: w,
             height: h,
-            browserWidth: window.innerWidth,
-            browserHeight: window.innerHeight,
+            browserWidth: viewportWidth(),
+            browserHeight: viewportHeight(),
           },
           isLocalChange: false,
         });
@@ -389,12 +391,15 @@ const PushLayoutEngineContainer = (props) => {
     selectedLayout,
   } = layoutSettings;
 
+  // Same source for the payload and for the change detection that fires it.
+  const propagatedCameraDock = getPropagatedCameraDock(cameraDockOutput);
+
   const {
     width: cameraWidth,
     height: cameraHeight,
     position: cameraDockPosition,
     focusedId: focusedCamera,
-  } = cameraDockOutput;
+  } = propagatedCameraDock;
 
   const getKeepPushingLayout = () => {
     // check if current layout is a hidden layout
@@ -460,8 +465,6 @@ const PushLayoutEngineContainer = (props) => {
     });
   }, [enforcedLayoutLoading]);
 
-  // Same source for the payload and for the change detection that fires it.
-  const propagatedCameraDock = getPropagatedCameraDock(cameraDockOutput, cameraDockInput);
   const presentationVideoRate = calculatePresentationVideoRate(propagatedCameraDock);
 
   const setLocalSettings = useUserChangedLocalSettings();
