@@ -99,7 +99,7 @@ func StartRedisListener() {
 			reason := receivedMessage.Core.Body["reason"]
 			log.Infof("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
-			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string), fmt.Sprintf("%v", reason))
 		}
 
 		if messageName == "ForceUserGraphqlDisconnectionSysMsg" {

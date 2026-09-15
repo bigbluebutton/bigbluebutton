@@ -121,6 +121,23 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 	"Patched_userCurrentSubscription",
 }
 
+// ReconnectionReasonsPreservingMembership lists the reconnection reasons that cannot have changed
+// a user's meeting membership - they carry role, lock or presenter changes only.
+//
+// This is an allowlist, and it must stay one. Any reason not listed here, including one this list
+// has never seen, is treated as possibly membership-changing. The inverse formulation is not
+// available: the eject paths in akka-apps forward a human-readable sentence rather than a reason
+// code, so the set of reasons that DO change membership is open-ended. Entries here correspond to
+// fixed literals in akka-apps; anything dynamic belongs outside the list.
+var ReconnectionReasonsPreservingMembership = []string{
+	"role_changed",
+	"lock_user_changed",
+	"lockSettings_changed",
+	"webcamOnlyForMod_changed",
+	"assigned_presenter",
+	"assigned_presenter_automatically",
+}
+
 var StreamingSubscriptionsManagedByMiddleware = []string{
 	"getCursorCoordinatesStream",
 	"getNotificationStream",

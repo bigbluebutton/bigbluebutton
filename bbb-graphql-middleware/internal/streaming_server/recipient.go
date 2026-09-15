@@ -17,6 +17,7 @@ type streamingRecipient struct {
 	MeetingId          string
 	UserId             string
 	CurrentlyInMeeting bool
+	MembershipStale    bool
 	SessionVarsStale   bool
 	SessionVars        map[string]string
 }
@@ -29,6 +30,7 @@ func snapshotStreamingRecipient(bc *common.BrowserConnection) streamingRecipient
 		MeetingId:          bc.MeetingId,
 		UserId:             bc.UserId,
 		CurrentlyInMeeting: bc.CurrentlyInMeeting,
+		MembershipStale:    bc.MembershipStale,
 		SessionVarsStale:   bc.SessionVariablesStale,
 		SessionVars:        bc.BBBWebSessionVariables,
 	}
@@ -46,6 +48,13 @@ func (r streamingRecipient) inMeeting(meetingId string) bool {
 	// Guard the empty string explicitly, so a connection that has not completed connection_init
 	// cannot match on an empty meeting id.
 	if meetingId == "" || r.MeetingId != meetingId {
+		return false
+	}
+
+	// A reconnection request whose reason could have moved the user in or out of the meeting
+	// leaves the cached value unsettled until a refresh publishes the current one. Treat it as
+	// unknown rather than reusing it.
+	if r.MembershipStale {
 		return false
 	}
 
