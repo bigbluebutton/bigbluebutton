@@ -1,23 +1,18 @@
-import { Input, Output } from '../layoutTypes';
-import deviceInfo from '/imports/utils/deviceInfo';
+import { Output } from '../layoutTypes';
 
-// A device-enforced position is local to the output, so what a presenter propagates
-// comes off the input, geometry included - or the rate and the position disagree.
+const viewportWidth = () => window.document.documentElement.clientWidth;
+const viewportHeight = () => window.document.documentElement.clientHeight;
+
 const getPropagatedCameraDock = (
   cameraDockOutput: Output['cameraDock'],
-  cameraDockInput: Input['cameraDock'],
 ) => {
-  const isPositionEnforced = deviceInfo.isPhoneLandscape()
-    && !!cameraDockOutput.position
-    && cameraDockOutput.position !== cameraDockInput.position;
-
-  if (!isPositionEnforced) return cameraDockOutput;
+  if (!cameraDockOutput.isPositionEnforced) return cameraDockOutput;
 
   return {
     ...cameraDockOutput,
-    position: cameraDockInput.position,
-    width: cameraDockInput.width,
-    height: cameraDockInput.height,
+    position: cameraDockOutput.intendedPosition ?? cameraDockOutput.position,
+    width: cameraDockOutput.intendedWidth ?? cameraDockOutput.width,
+    height: cameraDockOutput.intendedHeight ?? cameraDockOutput.height,
   };
 };
 
@@ -30,20 +25,35 @@ const calculatePresentationVideoRate = (cameraDockOutput: Output['cameraDock']) 
   const horizontalPosition = position === 'contentLeft' || position === 'contentRight';
   let presentationVideoRate;
   if (horizontalPosition) {
-    presentationVideoRate = width / window.innerWidth;
+    presentationVideoRate = width / viewportWidth();
   } else {
-    presentationVideoRate = height / window.innerHeight;
+    presentationVideoRate = height / viewportHeight();
   }
   const rate = parseFloat(presentationVideoRate.toFixed(2));
   return Number.isFinite(rate) ? Math.min(1, Math.max(0, rate)) : 0;
 };
 
+const calculateCameraDockSizeFromRate = (
+  rate: number,
+  horizontalPosition: boolean,
+  fallbackWidth: number,
+  fallbackHeight: number,
+) => (horizontalPosition
+  ? { width: viewportWidth() * rate, height: fallbackHeight }
+  : { width: fallbackWidth, height: viewportHeight() * rate });
+
 export {
+  calculateCameraDockSizeFromRate,
   calculatePresentationVideoRate,
   getPropagatedCameraDock,
+  viewportHeight,
+  viewportWidth,
 };
 
 export default {
+  calculateCameraDockSizeFromRate,
   calculatePresentationVideoRate,
   getPropagatedCameraDock,
+  viewportHeight,
+  viewportWidth,
 };
