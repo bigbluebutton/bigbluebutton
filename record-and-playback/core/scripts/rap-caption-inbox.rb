@@ -30,9 +30,7 @@ require 'yaml'
 
 # Read configuration and set up logger
 
-props = File.open(File.expand_path('bigbluebutton.yml', __dir__)) do |bbb_yml|
-  YAML.safe_load(bbb_yml)
-end
+props = YAML::safe_load(File.read(File.expand_path('bigbluebutton.yml', __dir__)))
 
 logger = Journald::Logger.new('bbb-rap-caption-inbox')
 BigBlueButton.logger = logger
@@ -67,7 +65,7 @@ caption_file_notify = proc do |json_filename|
   # queue job (resque?) that does the actual work.
 
   captions_work_base = File.join(props['recording_dir'], 'caption', 'inbox')
-  new_caption_info = File.open(json_filename) { |file| JSON.parse(file.read) }
+  new_caption_info = JSON.parse(File.read(json_filename))
   record_id = new_caption_info['record_id']
   logger.tag(record_id: record_id) do
     begin
@@ -76,7 +74,7 @@ caption_file_notify = proc do |json_filename|
       index_filename = File.join(captions_dir, record_id, 'captions.json')
       captions_info =
         begin
-          File.open(index_filename) { |file| JSON.parse(file.read) }
+          JSON.parse(File.read(index_filename))
         rescue StandardError
           # No captions file or cannot be read, assume none present
           []
@@ -116,9 +114,9 @@ caption_file_notify = proc do |json_filename|
       # en-US need by presentation 
       new_caption_info['lang'] = new_caption_info['lang'].sub('_', '-')
         
-      file =  File.open(caption_json_file, 'w')
-      file.puts "[{\"localeName\": \"#{new_caption_info['label']}\", \"locale\": \"#{new_caption_info['lang']}\"}]"
-      file.close
+      File.open(caption_json_file, 'w') do |file|
+        file.puts "[{\"localeName\": \"#{new_caption_info['label']}\", \"locale\": \"#{new_caption_info['lang']}\"}]"
+      end
         
       # resetting en-US to en_US
       new_caption_info['lang'] = new_caption_info['lang'].sub('-', '_')
@@ -138,9 +136,7 @@ caption_file_notify = proc do |json_filename|
       FileUtils.cp(final_dest, presentation_dest_dir)
 
       # Finally, save the updated index file that references the new caption
-      File.open(index_filename, 'w') do |file|
-        file.write(JSON.pretty_generate(captions_info))
-      end
+      File.write(index_filename, JSON.pretty_generate(captions_info))
 
       Dir.glob(File.expand_path('captions/*', __dir__)) do |caption_script|
         next unless File.file?(caption_script) && File.executable?(caption_script)
