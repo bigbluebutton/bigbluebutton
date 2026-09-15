@@ -269,8 +269,7 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 					// Iterate the canonical list rather than naming the streams here, so a stream
-					// cannot be added to the list and missed in this teardown. A query id left in
-					// ActiveStreamings would keep its handler delivering after an unsubscribe.
+					// cannot be added to the list and missed in this teardown.
 					browserConnection.ActiveStreamingsMutex.Lock()
 					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
 						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {

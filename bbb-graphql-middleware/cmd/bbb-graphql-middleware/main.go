@@ -31,6 +31,8 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
+	common.RegisterMetrics()
+
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 

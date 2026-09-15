@@ -25,8 +25,8 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		recipient := snapshotStreamingRecipient(bc)
-		// Membership first: a connection can hold a valid session token and a populated MeetingId
-		// without currently being in the meeting.
+		// Membership governs delivery and is established first; the participant list below is a
+		// routing rule, not an authorization one.
 		if !recipient.inMeeting(meetingId) {
 			continue
 		}

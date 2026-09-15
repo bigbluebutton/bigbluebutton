@@ -1153,12 +1153,11 @@ class MeetingActor(
         val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
         UserDAO.update(updatedRegUser)
 
-        // Force reconnection with graphql to refresh permissions. Every path that changes a
-        // user's meeting membership has to send this: bbb-graphql-middleware caches the
-        // membership it authorizes against and only re-reads it on this request or at
-        // connection_init, so a membership change is not in effect for it until then. Sent off
-        // the actor thread because the request is a blocking HTTP call that throws when the
-        // middleware is unreachable, which is one of the conditions that produces removals here.
+        // Signal the membership change to bbb-graphql-middleware, which re-reads the user's
+        // session state on this request. Every path that ends a user's membership sends it.
+        //
+        // Off the actor thread: the request is a blocking HTTP call that throws when the
+        // middleware is unreachable, and one audit tick can remove many users.
         Future {
           try {
             GraphqlMiddleware.requestGraphqlReconnection(ru.sessionToken, "user_left_expired")

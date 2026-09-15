@@ -25,9 +25,7 @@ func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken st
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")
 
-	// Create a new HTTP client with a cookie jar. The timeout matters: without it a hung
-	// akka-apps would leave the caller's session variables stale indefinitely, and callers that
-	// fail closed on stale state would stay closed forever.
+	// The timeout is required: the caller cannot settle its session variables until this returns.
 	client := &http.Client{Timeout: 5 * time.Second}
 
 	// Check if the session_vars hook URL is set.

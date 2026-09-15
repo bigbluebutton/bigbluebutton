@@ -8,9 +8,11 @@ import (
 // handlers need in order to decide whether a connection may receive a message.
 //
 // Snapshotting under the connection lock keeps the predicates pure (and so unit-testable) and
-// avoids retaining a reference to BBBWebSessionVariables, which refreshUserSessionVariables
-// replaces wholesale under the write lock. It also removes a pre-existing data race: several
-// handlers read MeetingId/UserId with no lock at all while that refresh writes them.
+// gives one fan-out a single consistent view of a connection that refreshUserSessionVariables may
+// rewrite under the write lock at any time.
+//
+// SessionVars aliases the connection's map rather than copying it. That is sound only because
+// refreshUserSessionVariables replaces the map wholesale; it must never be mutated in place.
 type streamingRecipient struct {
 	MeetingId          string
 	UserId             string

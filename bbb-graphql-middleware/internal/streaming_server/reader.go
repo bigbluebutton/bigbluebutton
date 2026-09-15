@@ -27,15 +27,13 @@ func ReadNewStreamingSubscription(
 	if browserMessage.Type == "subscribe" && slices.Contains(config.StreamingSubscriptionsManagedByMiddleware, browserMessage.Payload.OperationName) {
 		queryId := browserMessage.ID
 
-		// Deliberately no membership check here. Registration is not a safe place to enforce it:
-		// CurrentlyInMeeting is refreshed asynchronously after userJoinMeeting, so a client that
-		// subscribes inside that window is not yet marked as in the meeting. A refusal here is
-		// permanent - the client subscribes once and does not retry - so a legitimate member
-		// subscribing immediately after joining would lose the stream for the whole session.
+		// Registration is not an authorization point. Enforcement lives in the handlers, which
+		// evaluate the recipient on every send, and in the replay helpers below - the correct place
+		// for it, since a subscription outlives changes to the state it is authorized against and
+		// this registration is never revisited.
 		//
-		// Enforcement lives in the handlers instead, which evaluate membership on every send, and
-		// in the replay helpers below. That is also the correct place for it, since membership
-		// can change at any point during a subscription's lifetime.
+		// Do not add a check here. Connection state is not necessarily settled at this moment, and a
+		// refusal at registration is permanent: the client subscribes once and does not retry.
 		browserConnection.ActiveStreamingsMutex.Lock()
 		if _, queryIdExists := browserConnection.ActiveStreamings[browserMessage.Payload.OperationName]; !queryIdExists {
 			browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = []string{queryId}

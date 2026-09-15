@@ -260,17 +260,14 @@ func InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate string) {
 func invalidateHasuraConnectionForSessionToken(browserConnection *common.BrowserConnection, sessionToken string) {
 	browserConnection.Lock()
 	hasuraConnection := browserConnection.HasuraConnection
-	// The session variables held here are now known to be out of date. Mark them stale until a
-	// refresh succeeds, so checks derived from them - notably meeting membership in the streaming
-	// server - treat the state as unknown and fail closed in the meantime rather than acting on
-	// values that have already been superseded.
+	// The session variables held here are now superseded. Mark them unsettled until a refresh
+	// succeeds, so checks derived from them treat the lock state as unknown in the meantime.
 	browserConnection.SessionVariablesStale = true
 	browserConnection.Unlock()
 
 	// Update variables for Mutations (gql-actions requests) and for the streams handled by the
-	// Middleware. This runs even when there is no Hasura connection to tear down, otherwise a
-	// reconnection request arriving while the Hasura connection is being re-established would
-	// leave the connection permanently marked stale.
+	// Middleware. This runs whether or not there is a Hasura connection to tear down, so the mark
+	// set above is always followed by a refresh that can clear it.
 	go refreshUserSessionVariables(browserConnection)
 
 	if hasuraConnection == nil {
@@ -356,9 +353,8 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 	browserConnection.Lock()
 	browserConnection.BBBWebSessionVariables = sessionVariables
 	browserConnection.CurrentlyInMeeting = hasuraRole == "bbb_client"
-	// Only a successful refresh clears the stale mark. Every error path above returns early and
-	// leaves it set, so a failed refresh keeps checks failing closed rather than continuing to
-	// trust pre-refresh session variables indefinitely.
+	// Only a successful refresh clears the unsettled mark; every error path above returns early
+	// and leaves it set.
 	browserConnection.SessionVariablesStale = false
 	browserConnection.Unlock()
 
@@ -508,9 +504,9 @@ func disconnectWithError(
 	browserConnectionContextCancel()
 }
 
-var websocketIdleTimeoutSeconds = config.GetConfig().Server.WebsocketIdleTimeoutSeconds
-
 func InvalidateIdleBrowserConnectionsRoutine() {
+	websocketIdleTimeoutSeconds := config.GetConfig().Server.WebsocketIdleTimeoutSeconds
+
 	for {
 		time.Sleep(15 * time.Second)
 
