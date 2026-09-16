@@ -7,7 +7,7 @@ import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
 
-interface InitExtraPageOptionsProps extends InitOptionsProps {
+export interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
 }
 

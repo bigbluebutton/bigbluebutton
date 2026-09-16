@@ -594,6 +594,60 @@ Requires the LiveKit audio bridge (the default). A viewer must be in a breakout 
 
    - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
 
+## Pre-flight
+
+The pre-flight (setup) screen is disabled by default. Enable it with `public.app.preFlight.enabled: true` in `/etc/bigbluebutton/bbb-html5.yml`, or per session with `userdata-bbb_pre_flight=true` on the join URL; when it is off, joining keeps the previous flow (straight into the meeting, with the audio modal on top).
+
+### Setting up before joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session
+
+    - The pre-flight screen should show up instead of the meeting: the setup panel on the left and the session's name with a "Join session" button on the right
+    - The microphone and camera toggles should be below the preview; the camera toggle starts in `autoShareWebcam`'s state and the microphone toggle in the meeting's `muteOnStart` state
+    - You should not appear in the user list for the other participants yet
+
+2. Click the camera toggle and pick a speaker, a microphone and a camera in the setup panel
+
+    - The camera preview should start once the camera is toggled on
+
+3. Click "Join session"
+
+    - You should land in the meeting with no audio modal and no video preview modal
+    - The audio should be connected with the selected microphone, in the state the microphone toggle showed
+    - The camera should be shared with the selected device
+    - The other participants should see you in the user list and see your camera
+
+    - If the join stalls, the button should come back as "Try again" with a message, instead of leaving you on the spinner
+
+### Joining muted and without camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session and, in the pre-flight screen, toggle the camera on and then off, and click the microphone toggle
+
+    - Both toggles should end up grey and the camera preview should stop
+
+2. Click "Join session"
+
+    - You should land in the meeting muted, with the "Unmute" button displayed
+    - No camera should be shared and the "Share webcam" button should be displayed
+
+### Guest lobby in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Moderator: set the guest policy to "Ask moderator"
+
+2. Guest: join the session
+
+    - The pre-flight screen should show up with the waiting message and the position in the waiting queue on the right
+    - No "Join session" button should be displayed while waiting
+    - The setup panel should remain usable while waiting
+
+3. Moderator: allow the pending guest
+
+    - Guest: the session's name and the "Join session" button should replace the waiting message
+
+4. Guest: click "Join session"
+
+    - The guest should land in the meeting and show up in the user list
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)

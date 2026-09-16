@@ -109,6 +109,8 @@ export const useVideoPreview = ({
   isCameraAsContent = false,
   isCameraShared = false,
   forceOpen,
+  skipPreview = false,
+  deferInitialization = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -558,9 +560,14 @@ export const useVideoPreview = ({
   } = {}) => {
     if (devices) VideoService.updateNumberOfDevices(devices);
     // Video preview skip is activated, short circuit via a simpler procedure
-    if (PreviewService.getSkipVideoPreview() && !forceOpen) {
-      skipVideoPreview();
-      return;
+    if ((skipPreview || PreviewService.getSkipVideoPreview()) && !forceOpen) {
+      try {
+        await skipVideoPreview();
+        return;
+      } catch {
+        // The skip already flagged itself as failed and cleaned up: carry on
+        // through the regular initialization so the UI is usable again.
+      }
     }
     // Late enumerateDevices resolution, stop.
     if (!isMounted.current) return;
@@ -609,6 +616,7 @@ export const useVideoPreview = ({
     isMounted,
     webcamDeviceId.current,
     isCameraAsContent,
+    skipPreview,
     getCameraStream,
     handleDeviceError,
     setAvailableWebcams,
@@ -656,7 +664,8 @@ export const useVideoPreview = ({
   useEffect(() => {
     isMounted.current = true;
 
-    initializeCameras();
+    // Read once on purpose: an entry-state decision, not a reactive one.
+    if (!deferInitialization) initializeCameras();
 
     return () => {
       isMounted.current = false;
@@ -735,7 +744,7 @@ export const useVideoPreview = ({
   ]);
 
   const skipVideoPreview = useCallback(() => {
-    getInitialCameraStream(webcamDeviceId.current)
+    return getInitialCameraStream(webcamDeviceId.current)
       .then((newDeviceId) => {
         if (isMounted.current && newDeviceId) {
           handleStartSharing(newDeviceId);
@@ -758,8 +767,9 @@ export const useVideoPreview = ({
   }, [getInitialCameraStream, handleStartSharing, cleanupStreamAndVideo]);
 
   const shouldSkipVideoPreview = useCallback(() => {
-    return PreviewService.getSkipVideoPreview() && !forceOpen && !skipPreviewFailed && !isCameraShared;
-  }, [forceOpen, skipPreviewFailed, isCameraShared]);
+    return (skipPreview || PreviewService.getSkipVideoPreview())
+      && !forceOpen && !skipPreviewFailed && !isCameraShared;
+  }, [skipPreview, forceOpen, skipPreviewFailed, isCameraShared]);
 
   return {
     // state

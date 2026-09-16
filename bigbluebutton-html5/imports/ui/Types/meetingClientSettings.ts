@@ -37,10 +37,14 @@ export interface Locales {
   locale: string
   name: string
 }
+export interface PreFlight {
+  enabled: boolean
+}
 export interface App {
   mobileFontSize: string
   desktopFontSize: string
   autoJoin: boolean
+  preFlight: PreFlight
   listenOnlyMode: boolean
   forceListenOnly: boolean
   skipCheck: boolean
