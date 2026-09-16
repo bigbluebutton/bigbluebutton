@@ -200,8 +200,9 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     }
   }, [shouldNotify, recordingNotificationEnabled, recording]);
 
+  // Also the button's aria-label, so it is computed on phones too even though
+  // no visible label is rendered there.
   const recordTitle = useMemo(() => {
-    if (isPhone) return '';
     if (disabled) return intl.formatMessage(intlMessages.unavailableTitle);
 
     if (!recording) {
@@ -219,19 +220,21 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     return showButton
       ? intl.formatMessage(intlMessages.stopTitle)
       : intl.formatMessage(intlMessages.recordingTitle);
-  }, [recording, isPhone, disabled, isModerator, showButton, time, intl.locale]);
+  }, [recording, disabled, isModerator, showButton, time, intl.locale]);
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
+      // Phones keep their empty idle tooltip; only a custom one shows there.
+      const idleTitle = isPhone ? '' : recordTitle;
       return !showButton
-        ? Service.getCustomRecordTooltip(recordTitle)
-        : recordTitle;
+        ? Service.getCustomRecordTooltip(idleTitle)
+        : idleTitle;
     }
 
     return showButton
       ? intl.formatMessage(intlMessages.stopTitle)
       : intl.formatMessage(intlMessages.recordingTitle);
-  }, [recording, isModerator, recordTitle]);
+  }, [recording, isPhone, isModerator, recordTitle]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
@@ -280,11 +283,12 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
           {humanizeSeconds(time)}
         </Styled.RecordingTimer>
       )}
+      {/* Outside the phone guard: aria-describedby above points at it. */}
+      <Styled.VisuallyHidden id="recording-description">
+        {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
+      </Styled.VisuallyHidden>
       {!isPhone && (
         <Styled.PresentationTitle>
-          <Styled.VisuallyHidden id="recording-description">
-            {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
-          </Styled.VisuallyHidden>
           <span aria-hidden>{recordTitle}</span>
         </Styled.PresentationTitle>
       )}
