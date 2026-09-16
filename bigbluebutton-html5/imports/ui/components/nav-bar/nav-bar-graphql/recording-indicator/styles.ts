@@ -200,8 +200,6 @@ const collapsedOnRest = (borderWidth: string) => css`
 // it never shrinks to a circle. Only the action label collapses, under the same
 // asymmetric delay as collapsedOnRest.
 const labelCollapsedOnRest = css`
-  transition: padding 0.2s ease ${HOVER_COLLAPSE_DELAY};
-
   /* The timer owns the gap after the dot. */
   ${RecordingIndicatorIcon} {
     margin: 0;
