@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from '../styles';
 import { usePreFlight } from '../context';
 
@@ -73,14 +74,15 @@ const JoiningRoom: React.FC<JoiningRoomProps> = ({
           {intl.formatMessage(intlMessages.joinFailed)}
         </Styled.ErrorMessage>
       )}
-      <Styled.JoinButton
-        color="primary"
-        autoFocus
-        disabled={isJoining}
-        label={intl.formatMessage(joinButtonLabel)}
-        onClick={handleJoin}
-        dataTest="preFlightJoinButton"
-      />
+      <Styled.JoinButtonWrapper>
+        <BBButton
+          variant="primary"
+          disabled={isJoining}
+          label={intl.formatMessage(joinButtonLabel)}
+          onClick={handleJoin}
+          dataTest="preFlightJoinButton"
+        />
+      </Styled.JoinButtonWrapper>
     </>
   );
 };

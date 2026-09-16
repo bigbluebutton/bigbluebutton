@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MenuItem from '@mui/material/MenuItem';
@@ -44,13 +44,14 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   },
 });
 
-const BRIGHTNESS_DESC_ID = 'camera-brightness-desc';
-
 interface CameraDeviceSelectorProps {
   devices: WebcamDevice[];
   value: string;
   onChange: (deviceId: string) => void;
   disabled?: boolean;
+  // Shown in place of the selector when there is no device to list. Defaults to
+  // "webcam not found", which only fits when enumeration has actually run.
+  emptyLabel?: string;
   dataTest?: string;
 }
 
@@ -59,12 +60,13 @@ export const CameraDeviceSelector: React.FC<CameraDeviceSelectorProps> = ({
   value,
   onChange,
   disabled = false,
+  emptyLabel,
   dataTest,
 }) => {
   const { formatMessage } = useIntl();
 
   if (!devices || devices.length === 0) {
-    return <span>{formatMessage(intlMessages.webcamNotFoundLabel)}</span>;
+    return <span>{emptyLabel ?? formatMessage(intlMessages.webcamNotFoundLabel)}</span>;
   }
 
   return (
@@ -98,6 +100,8 @@ export const CameraBrightnessInput: React.FC<CameraBrightnessInputProps> = ({
   disabled = false,
 }) => {
   const { formatMessage } = useIntl();
+  // There can be a slider per camera, so the description cannot carry a fixed id.
+  const brightnessDescId = useId();
   const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
   if (!ENABLE_CAMERA_BRIGHTNESS) return null;
@@ -114,11 +118,11 @@ export const CameraBrightnessInput: React.FC<CameraBrightnessInputProps> = ({
         aria-label={formatMessage(intlMessages.brightnessLabel)}
         // MUI puts aria-label on the range input but aria-describedby on the
         // root, so the description has to be routed to the input explicitly.
-        slotProps={{ input: { 'aria-describedby': BRIGHTNESS_DESC_ID } }}
+        slotProps={{ input: { 'aria-describedby': brightnessDescId } }}
         valueLabelDisplay="auto"
         disabled={disabled || !isVirtualBackgroundSupported()}
       />
-      <div style={{ display: 'none' }} id={BRIGHTNESS_DESC_ID}>
+      <div style={{ display: 'none' }} id={brightnessDescId}>
         {formatMessage(intlMessages.brightnessDesc)}
       </div>
     </>
@@ -181,7 +185,7 @@ export const CameraQualitySelector: React.FC<CameraQualitySelectorProps> = ({
 interface CameraVirtualBackgroundProps {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-  onSelected: (type: string, name: string, customParams?: CustomBgParams) => void;
+  onSelected: (type: string, name: string, customParams?: CustomBgParams) => Promise<boolean>;
   initialState: { type: string; name: string };
   isCustomVirtualBackgroundsEnabled: boolean;
   locked?: boolean;

@@ -2,14 +2,17 @@ import styled, { keyframes } from 'styled-components';
 import {
   colorWhite,
   colorOffWhite,
+  colorBackground,
+  colorOverlay,
   colorGrayDark,
   colorGrayLabel,
-  colorOverlay,
   colorPrimary,
   colorBorder,
   colorText,
   colorDanger,
   itemFocusBorder,
+  previewControlBg,
+  webcamBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lgBorderRadius,
@@ -27,7 +30,7 @@ import {
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
+import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 
 const Page = styled.div`
   display: flex;
@@ -36,13 +39,12 @@ const Page = styled.div`
   width: 100%;
   height: 100vh;
   padding: ${lgPaddingX};
-  background-color: ${colorOffWhite};
+  background-color: ${colorBackground};
   overflow: auto;
 
   @media ${smallOnly} {
     flex-direction: column;
-    height: auto;
-    min-height: 100vh;
+    height: 100%;
   }
 `;
 
@@ -73,6 +75,24 @@ const SetupColumn = styled(Card)`
 
   @media ${smallOnly} {
     flex: 0 0 auto;
+
+    /* The panel's own scrollbox nested inside the page's scroll leaves its
+       lower sections (virtual background) out of reach: on phones the card
+       grows and the page is the only thing that scrolls. */
+    & > *:last-child {
+      flex: 0 0 auto;
+    }
+
+    ${ProfileStyled.RootContainer} {
+      height: auto;
+    }
+
+    ${ProfileStyled.ProfileSettings} {
+      flex: 0 0 auto;
+      /* Both axes: a lone overflow-y: visible computes back to auto while
+         overflow-x stays hidden, keeping the nested scrollbox alive. */
+      overflow: visible;
+    }
   }
 `;
 
@@ -128,6 +148,8 @@ const Spinner = styled.div`
 
 const Heading = styled.h1`
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   color: ${colorGrayDark};
   font-size: ${fontSizeXL};
   font-weight: ${titlesFontWeight};
@@ -180,11 +202,33 @@ const ErrorMessage = styled.p`
   line-height: 1.4;
 `;
 
-// @ts-ignore - JS component
-const JoinButton = styled(Button)`
-  border-radius: ${lgBorderRadius};
-  min-width: 14rem;
-  height: 3rem;
+const JoinButtonWrapper = styled.div`
+  & > button {
+    min-width: 14rem;
+    height: 3rem;
+  }
+`;
+
+const PreviewPlaceholder = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${smPadding};
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 14rem;
+  padding: ${lgPaddingX};
+  border-radius: 0.5rem;
+  color: ${colorWhite};
+  background-color: ${webcamBackgroundColor};
+  font-size: ${fontSizeBase};
+  text-align: center;
+  overflow-wrap: anywhere;
+
+  @media ${smallOnly} {
+    min-height: 10rem;
+  }
 `;
 
 // Positioned against ProfileStyled.VideoPreviewWrapper, the preview's ancestor.
@@ -209,7 +253,12 @@ const PreviewControlsRow = styled.div`
   padding: ${mdPaddingX} 0;
 `;
 
-const PreviewControlButton = styled.button.attrs({ type: 'button' })<{ $active: boolean }>`
+const PreviewControlButton = styled.button.attrs({ type: 'button' })<{
+  $active: boolean;
+  // Laid over the camera preview, where a translucent white reads well. Off the
+  // preview it would blend into the panel, so it falls back to the dark overlay.
+  $overMedia?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -220,7 +269,10 @@ const PreviewControlButton = styled.button.attrs({ type: 'button' })<{ $active: 
   border-radius: 50%;
   cursor: pointer;
   color: ${colorWhite};
-  background-color: ${({ $active }) => ($active ? colorPrimary : colorOverlay)};
+  background-color: ${({ $active, $overMedia = true }) => {
+    if ($active) return colorPrimary;
+    return $overMedia ? previewControlBg : colorOverlay;
+  }};
 
   &:hover {
     filter: brightness(90%);
@@ -263,7 +315,8 @@ export default {
   MessageLabel,
   MessageText,
   ErrorMessage,
-  JoinButton,
+  PreviewPlaceholder,
+  JoinButtonWrapper,
   PreviewControls,
   PreviewControlsRow,
   PreviewControlButton,

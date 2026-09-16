@@ -227,7 +227,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         showPreFlight
           ? (
             <PreFlight
-              showSetupPanel={isGuestAllowed || guestStatus === GUEST_STATUSES.WAIT}
+              showSetupPanel={guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT}
             >
               {
                 isGuestAllowed

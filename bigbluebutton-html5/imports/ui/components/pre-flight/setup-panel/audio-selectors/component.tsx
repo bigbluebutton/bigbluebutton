@@ -96,6 +96,29 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
 
           return fallbackDeviceId;
         });
+
+        const currentOutputDeviceId = AudioManager.outputDeviceId;
+        const outputDeviceGone = currentOutputDeviceId
+          && !audioOutputDevices.some((d) => d.deviceId === currentOutputDeviceId);
+
+        if (outputDeviceGone && audioOutputDevices[0]?.deviceId) {
+          const fallbackDeviceId = audioOutputDevices[0].deviceId;
+          logger.warn({
+            logCode: 'preflight_audio_output_device_removed',
+            extraInfo: { previousDeviceId: currentOutputDeviceId, fallbackDeviceId },
+          }, 'Selected output device is gone. Falling back to the first available one');
+          // No ToastContainer before the join: a failure is logged, not notified.
+          liveChangeOutputDevice(fallbackDeviceId, true).catch((error) => {
+            logger.error({
+              logCode: 'preflight_audio_output_device_fallback_failed',
+              extraInfo: {
+                fallbackDeviceId,
+                errorMessage: error.message,
+                errorName: error.name,
+              },
+            }, `Failed to fall back to the first available output device: ${error.message}`);
+          });
+        }
       })
       .catch((error) => {
         logger.warn({
@@ -106,7 +129,7 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
           },
         }, `Error enumerating audio devices: ${error.message}`);
       });
-  }, []);
+  }, [intl]);
 
   useEffect(() => {
     if (!enableDynamicAudioDeviceSelection) return undefined;
@@ -123,11 +146,16 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
   }, [enableDynamicAudioDeviceSelection, permissionStatus]);
 
   useEffect(() => {
+    if (listenOnly) {
+      updateDevices();
+      return;
+    }
+
     // Without microphone permission the browser obfuscates the device labels.
     AudioService.hasMicrophonePermission({ gumOnPrompt: true, permissionStatus })
       .then(() => updateDevices())
       .catch(() => null);
-  }, []);
+  }, [listenOnly, permissionStatus, updateDevices]);
 
   const getFallbackLabel = (device: MediaDeviceInfo, index: number) => {
     const baseLabel = device?.kind === AUDIO_OUTPUT

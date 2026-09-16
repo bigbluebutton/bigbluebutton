@@ -561,8 +561,13 @@ export const useVideoPreview = ({
     if (devices) VideoService.updateNumberOfDevices(devices);
     // Video preview skip is activated, short circuit via a simpler procedure
     if ((skipPreview || PreviewService.getSkipVideoPreview()) && !forceOpen) {
-      skipVideoPreview();
-      return;
+      try {
+        await skipVideoPreview();
+        return;
+      } catch {
+        // The skip already flagged itself as failed and cleaned up: carry on
+        // through the regular initialization so the UI is usable again.
+      }
     }
     // Late enumerateDevices resolution, stop.
     if (!isMounted.current) return;
@@ -739,7 +744,7 @@ export const useVideoPreview = ({
   ]);
 
   const skipVideoPreview = useCallback(() => {
-    getInitialCameraStream(webcamDeviceId.current)
+    return getInitialCameraStream(webcamDeviceId.current)
       .then((newDeviceId) => {
         if (isMounted.current && newDeviceId) {
           handleStartSharing(newDeviceId);

@@ -54,21 +54,9 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.profileSettings.usernameTitle',
     description: 'Label for the username title in profile settings',
   },
-  webcamVirtualBackgroundTitle: {
-    id: 'app.videoPreview.webcamVirtualBackgroundLabel',
-    description: 'Title for the virtual background modal',
-  },
-  webcamVirtualBackgroundDisabledLabel: {
-    id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
-    description: 'Label for the virtual background toggle when not supported on this device',
-  },
   cameraLabel: {
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
-  },
-  qualityLabel: {
-    id: 'app.videoPreview.profileLabel',
-    description: 'Quality dropdown label',
   },
   sharedCameraLabel: {
     id: 'app.videoPreview.sharedCameraLabel',
@@ -77,14 +65,6 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   findingWebcamsLabel: {
     id: 'app.videoPreview.findingWebcamsLabel',
     description: 'Finding webcams label',
-  },
-  webcamNotFoundLabel: {
-    id: 'app.videoPreview.webcamNotFoundLabel',
-    description: 'Webcam not found label',
-  },
-  profileNotFoundLabel: {
-    id: 'app.videoPreview.profileNotFoundLabel',
-    description: 'Profile not found label',
   },
   awayLabel: {
     id: 'app.actionsBar.reactions.away',
@@ -414,9 +394,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     section.virtualBackground = { type, name, ...customParams };
     setCameraSections(newSections);
 
-    return setPreviewToIndex(index, section.deviceId as string).then(async () => {
-      handleVirtualBgSelected(type, name, customParams, section?.deviceId);
-    });
+    return setPreviewToIndex(index, section.deviceId as string).then(
+      () => handleVirtualBgSelected(type, name, customParams, section?.deviceId),
+    );
   }, [cameraSections, setPreviewToIndex, handleVirtualBgSelected]);
 
   const handleShareWebcams = useCallback(() => {

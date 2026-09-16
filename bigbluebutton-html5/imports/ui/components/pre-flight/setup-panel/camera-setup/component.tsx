@@ -51,7 +51,9 @@ interface CameraSetupProps {
 
 const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
   const { formatMessage } = useIntl();
-  const { shareCamera, setShareCamera, commitCameraRef } = usePreFlight();
+  const {
+    shareCamera, setShareCamera, cameraFailed, setCameraFailed, commitCameraRef,
+  } = usePreFlight();
 
   const { isVirtualBackgroundsEnabled, isCustomVirtualBackgroundsEnabled } = getVirtualBackgroundAvailability();
 
@@ -60,6 +62,9 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
 
   // Enumerating on mount would light up the camera behind a toggle reading "off".
   const camerasInitialized = useRef(shareCamera);
+  // Bumped whenever the camera is switched off, so a stream still being
+  // acquired at that point is dropped instead of displayed.
+  const acquisitionId = useRef(0);
 
   const {
     webcamDeviceId,
@@ -122,6 +127,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
 
   const handleToggleCamera = useCallback(() => {
     if (shareCamera) {
+      acquisitionId.current += 1;
       terminateCameraStream(currentVideoStream.current, webcamDeviceId);
       cleanupStreamAndVideo();
       setShareCamera(false);
@@ -138,7 +144,12 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
       return;
     }
 
-    getInitialCameraStream(webcamDeviceId).then(() => displayPreview());
+    const requestId = acquisitionId.current;
+
+    getInitialCameraStream(webcamDeviceId).then(() => {
+      if (requestId !== acquisitionId.current) return;
+      displayPreview();
+    });
   }, [
     shareCamera,
     webcamDeviceId,
@@ -149,6 +160,30 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     displayPreview,
     setShareCamera,
   ]);
+
+  useEffect(() => {
+    if (shareCamera || isCameraLoading || !currentVideoStream.current) return;
+    terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+    cleanupStreamAndVideo();
+  }, [
+    shareCamera,
+    isCameraLoading,
+    viewState,
+    webcamDeviceId,
+    terminateCameraStream,
+    cleanupStreamAndVideo,
+  ]);
+
+  const hasCameraError = shareCamera && (viewState === VIEW_STATES.error || !!previewError);
+
+  // An empty device list only means "no webcam" once the enumeration has run.
+  let emptyDeviceLabel;
+  if (!shareCamera) emptyDeviceLabel = formatMessage(intlMessages.cameraDisabledLabel);
+  else if (viewState === VIEW_STATES.finding) emptyDeviceLabel = formatMessage(intlMessages.findingWebcamsLabel);
+
+  useEffect(() => {
+    setCameraFailed(hasCameraError);
+  }, [hasCameraError]);
 
   const handleVirtualBgChange = useCallback((checked: boolean) => {
     setVirtualBackgroundChecked(checked);
@@ -165,66 +200,46 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
-    const containerStyle = {
-      width: '60%',
-      height: '25vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    };
-
     return (
       <ProfileStyled.VideoPreviewContainer>
         <ProfileStyled.VideoPreviewWrapper>
           {(() => {
             if (!shareCamera) {
               return (
-                <ProfileStyled.VideoPreviewContent>
-                  <ProfileStyled.VideoCol>
-                    <div style={containerStyle}>
-                      <span>{formatMessage(intlMessages.cameraDisabledLabel)}</span>
-                    </div>
-                  </ProfileStyled.VideoCol>
-                </ProfileStyled.VideoPreviewContent>
+                <Styled.PreviewPlaceholder>
+                  {formatMessage(intlMessages.cameraDisabledLabel)}
+                </Styled.PreviewPlaceholder>
               );
             }
 
             switch (viewState) {
               case VIEW_STATES.finding:
                 return (
-                  <ProfileStyled.VideoPreviewContent>
-                    <ProfileStyled.VideoCol>
-                      <div style={containerStyle}>
-                        <span>{formatMessage(intlMessages.findingWebcamsLabel)}</span>
-                        <ProfileStyled.FetchingAnimation animations={animations} />
-                      </div>
-                    </ProfileStyled.VideoCol>
-                  </ProfileStyled.VideoPreviewContent>
+                  <Styled.PreviewPlaceholder>
+                    <span>{formatMessage(intlMessages.findingWebcamsLabel)}</span>
+                    <ProfileStyled.FetchingAnimation animations={animations} />
+                  </Styled.PreviewPlaceholder>
                 );
               case VIEW_STATES.error:
-                return (
-                  <ProfileStyled.VideoPreviewContent>
-                    <ProfileStyled.VideoCol><div>{deviceError}</div></ProfileStyled.VideoCol>
-                  </ProfileStyled.VideoPreviewContent>
-                );
+                return <Styled.PreviewPlaceholder>{deviceError}</Styled.PreviewPlaceholder>;
               case VIEW_STATES.found:
               default:
+                if (previewError) {
+                  return <Styled.PreviewPlaceholder>{previewError}</Styled.PreviewPlaceholder>;
+                }
+
                 return (
                   <ProfileStyled.VideoPreviewContent>
                     <ProfileStyled.VideoCol>
-                      {previewError
-                        ? <div style={containerStyle}>{previewError}</div>
-                        : (
-                          <ProfileStyled.VideoPreview
-                            mirroredVideo={VideoService.mirrorOwnWebcam()}
-                            id="preview"
-                            data-test={VideoService.mirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
-                            ref={videoRef}
-                            autoPlay
-                            playsInline
-                            muted
-                          />
-                        )}
+                      <ProfileStyled.VideoPreview
+                        mirroredVideo={VideoService.mirrorOwnWebcam()}
+                        id="preview"
+                        data-test={VideoService.mirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                      />
                     </ProfileStyled.VideoCol>
                   </ProfileStyled.VideoPreviewContent>
                 );
@@ -233,14 +248,14 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
           <Styled.PreviewControls>
             {micControl}
             <Styled.PreviewControlButton
-              $active={shareCamera}
+              $active={shareCamera && !cameraFailed}
               onClick={handleToggleCamera}
-              aria-label={formatMessage(shareCamera
+              aria-label={formatMessage(shareCamera && !cameraFailed
                 ? intlMessages.disableCameraLabel
                 : intlMessages.enableCameraLabel)}
               data-test="preFlightCameraToggle"
             >
-              {shareCamera ? <VideocamIcon /> : <VideocamOffIcon />}
+              {shareCamera && !cameraFailed ? <VideocamIcon /> : <VideocamOffIcon />}
             </Styled.PreviewControlButton>
           </Styled.PreviewControls>
         </ProfileStyled.VideoPreviewWrapper>
@@ -264,6 +279,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
                 target: { value: deviceId },
               } as React.ChangeEvent<HTMLSelectElement>)}
               disabled={!shareCamera}
+              emptyLabel={emptyDeviceLabel}
               dataTest="preFlightCameraDevice"
             />
           </ProfileStyled.DeviceContainer>

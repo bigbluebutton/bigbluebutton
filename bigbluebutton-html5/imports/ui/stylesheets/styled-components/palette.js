@@ -140,6 +140,7 @@ const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 
 const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
 const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
+const previewControlBg = 'var(--preview-control-bg, rgba(255, 255, 255, 0.4))'; // colorWhite, 40%
 
 // rgba version of colorPrimary (0F70D7) with 15% opacity for talking indicator background
 const webcamTalkingBackgroundColor = 'var(--webcam-talking-background-color, rgba(13, 109, 252, 0.15))';
@@ -287,6 +288,7 @@ export {
   defaultBorder,
   webcamBackgroundColor,
   webcamPlaceholderBorder,
+  previewControlBg,
   colorBackgroundDarkTheme,
   colorOverlaysDarkTheme,
   colorToggleBgDisabledDarkTheme,

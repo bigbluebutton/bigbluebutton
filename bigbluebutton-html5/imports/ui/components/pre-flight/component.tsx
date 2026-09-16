@@ -52,6 +52,7 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
     const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
     return !!enableVideo && !!autoShareWebcam;
   });
+  const [cameraFailed, setCameraFailed] = useState(false);
   const commitCameraRef = useRef<(() => void) | null>(null);
   const audioModeTouched = useRef(false);
 
@@ -98,11 +99,13 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
       Storage.setItem(AudioService.getStorageMuteStateKey(), joinMuted);
     }
 
-    setPreFlightShareCamera(shareCamera);
-    if (shareCamera) commitCameraRef.current?.();
+    const willShareCamera = shareCamera && !cameraFailed;
+
+    setPreFlightShareCamera(willShareCamera);
+    if (willShareCamera) commitCameraRef.current?.();
 
     setPreFlightCompleted(true);
-  }, [audioMode, joinMuted, shareCamera]);
+  }, [audioMode, joinMuted, shareCamera, cameraFailed]);
 
   const contextValue = useMemo(() => ({
     audioMode,
@@ -111,9 +114,11 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
     setJoinMuted,
     shareCamera,
     setShareCamera,
+    cameraFailed,
+    setCameraFailed,
     commitCameraRef,
     commit,
-  }), [audioMode, setAudioMode, joinMuted, setJoinMuted, shareCamera, commit]);
+  }), [audioMode, setAudioMode, joinMuted, setJoinMuted, shareCamera, cameraFailed, commit]);
 
   return (
     <PreFlightContext.Provider value={contextValue}>
