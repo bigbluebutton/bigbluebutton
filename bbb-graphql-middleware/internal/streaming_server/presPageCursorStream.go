@@ -6,6 +6,7 @@ import (
 	"maps"
 	"sync"
 
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 )
 
@@ -52,7 +53,7 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 
 	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsCursorStream := bc.ActiveStreamings["getCursorCoordinatesStream"]
+		queryIds, existsCursorStream := bc.ActiveStreamings[config.OpCursorCoordinatesStream]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsCursorStream {
 			for i := range queryIds {

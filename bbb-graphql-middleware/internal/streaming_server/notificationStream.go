@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 )
 
@@ -28,9 +29,9 @@ func HandleNotifyAllInMeetingEvtMsg(receivedMessage common.RedisMessage, browser
 
 	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
+		queryIds, existsNotificationStream := bc.ActiveStreamings[config.OpNotificationStream]
 		bc.ActiveStreamingsMutex.RUnlock()
-		if existsCursorStream {
+		if existsNotificationStream {
 			for i := range queryIds {
 				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
 				bc.FromHasuraToBrowserChannel.TrySend(payload)
@@ -57,9 +58,9 @@ func HandleNotifyUserInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 
 	for _, bc := range browserConnectionsToSendCursor {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
+		queryIds, existsNotificationStream := bc.ActiveStreamings[config.OpNotificationStream]
 		bc.ActiveStreamingsMutex.RUnlock()
-		if existsCursorStream {
+		if existsNotificationStream {
 			for i := range queryIds {
 				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
 				bc.FromHasuraToBrowserChannel.TrySend(payload)
@@ -97,9 +98,9 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 
 	for _, bc := range browserConnectionsToSendCursor {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
+		queryIds, existsNotificationStream := bc.ActiveStreamings[config.OpNotificationStream]
 		bc.ActiveStreamingsMutex.RUnlock()
-		if existsCursorStream {
+		if existsNotificationStream {
 			for i := range queryIds {
 				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
 				bc.FromHasuraToBrowserChannel.TrySend(payload)

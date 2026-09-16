@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 )
 
@@ -65,7 +66,7 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 
 	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsUserVoiceStatestream := bc.ActiveStreamings["getUserVoiceStateStream"]
+		queryIds, existsUserVoiceStatestream := bc.ActiveStreamings[config.OpUserVoiceStateStream]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsUserVoiceStatestream {
 			for i := range queryIds {

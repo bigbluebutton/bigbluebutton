@@ -1,6 +1,7 @@
 package streamingserver
 
 import (
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 )
 
@@ -8,9 +9,9 @@ import (
 // frame was sent. Streams that have no replay report true: there is nothing to retry for them.
 func sendStreamReplay(browserConnection *common.BrowserConnection, operationName string, queryId string) bool {
 	switch operationName {
-	case "getCursorCoordinatesStream":
+	case config.OpCursorCoordinatesStream:
 		return SendPreviousCursorPosition(browserConnection, queryId)
-	case "getUserVoiceStateStream":
+	case config.OpUserVoiceStateStream:
 		return SendPreviousUserVoiceState(browserConnection, queryId)
 	}
 

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 )
 
@@ -41,9 +42,9 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 
 	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsCursorStream := bc.ActiveStreamings["getChatMessageStream"]
+		queryIds, existsChatStream := bc.ActiveStreamings[config.OpChatMessageStream]
 		bc.ActiveStreamingsMutex.RUnlock()
-		if existsCursorStream {
+		if existsChatStream {
 			for i := range queryIds {
 				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
 				bc.FromHasuraToBrowserChannel.TrySend(payload)
