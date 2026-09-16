@@ -7,7 +7,6 @@ import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PreviewService from '../service';
 import VideoService from '/imports/ui/components/video-provider/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notify } from '/imports/ui/services/notification';
 import {
   EFFECT_TYPES,
@@ -133,6 +132,8 @@ export const useVideoPreview = ({
   const webcamDeviceId = useRef<string | null>(initialDeviceId);
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentVideoStream = useRef<BBBVideoStream | null>(null);
+  // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
+  const cameraStreamRequestId = useRef(0);
 
   const handleGUMError = useCallback((error: Error & { name: string }) => {
     logger.error({
@@ -370,13 +371,8 @@ export const useVideoPreview = ({
   ]);
 
   const updateDeviceId = useCallback((deviceId: string | null) => {
-    let actualDeviceId = deviceId;
-    if (!actualDeviceId && currentVideoStream.current) {
-      actualDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
-        currentVideoStream.current.mediaStream,
-        'video',
-      );
-    }
+    // Trust the stream over the request: the browser may have handed over another camera
+    const actualDeviceId = PreviewService.getVideoStreamDeviceId(currentVideoStream.current) || deviceId;
     webcamDeviceId.current = actualDeviceId;
     return actualDeviceId;
   }, []);
@@ -471,6 +467,12 @@ export const useVideoPreview = ({
     deviceId: string | null,
     profile: CameraProfileProps,
   ) => {
+    cameraStreamRequestId.current += 1;
+    const requestId = cameraStreamRequestId.current;
+    // A newer call terminates this call's stream when it starts, so once superseded
+    // this call must not touch the preview state nor report back a device
+    const isSuperseded = () => requestId !== cameraStreamRequestId.current;
+
     setSelectedProfile(profile.id);
     setPreviewError(null);
     setIsCameraLoading(true);
@@ -483,15 +485,22 @@ export const useVideoPreview = ({
     try {
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
       bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
+      if (isSuperseded()) {
+        terminateCameraStream(bbbVideoStream, deviceId);
+        return null;
+      }
       setCurrentVideoStream(bbbVideoStream);
       const updatedDevice = updateDeviceId(deviceId);
 
-      if (updatedDevice !== deviceId) {
-        bbbVideoStream = await PreviewService.doGUM(updatedDevice, profile);
+      // The camera we got is already shared: reuse its stream instead of capturing it twice
+      if (updatedDevice !== deviceId && updatedDevice && PreviewService.hasStream(updatedDevice)) {
+        terminateCameraStream(bbbVideoStream, deviceId);
+        bbbVideoStream = PreviewService.getStream(updatedDevice);
         setCurrentVideoStream(bbbVideoStream);
       }
       finalDeviceId = updatedDevice;
     } catch (error) {
+      if (isSuperseded()) return null;
       // When video preview is set to skip, we need some way to bubble errors
       // up to users; so re-throw the error
       if (!shouldSkipVideoPreview()) {
@@ -505,16 +514,20 @@ export const useVideoPreview = ({
     try {
       if (!isCameraAsContent) {
         await applyStoredVirtualBg(finalDeviceId);
+        // Brightness is applied to the current stream, which now belongs to the newer call
+        if (isSuperseded()) return null;
         await applyStoredBrightness(finalDeviceId);
       }
     } catch (error) {
       // Only bubble up errors in this case if we're skipping the video preview
       // This is because virtual background failures are deemed critical when
       // skipping the video preview, but not otherwise
-      if (shouldSkipVideoPreview()) {
+      if (shouldSkipVideoPreview() && !isSuperseded()) {
         throw error;
       }
     }
+
+    if (isSuperseded()) return null;
 
     // Late VBG resolve, clean up tracks, stop.
     if (!isMounted.current) {

@@ -254,6 +254,16 @@ const doGUM = (deviceId, profile) => {
   return promiseTimeout(GUM_TIMEOUT, postProcessedgUM(constraints));
 };
 
+// Returns the deviceId of the camera a BBBVideoStream really captures, which may
+// differ from the requested one (see the OverconstrainedError fallback in doGUM).
+// Reads the original stream because a virtual background swaps mediaStream for
+// the effect's canvas capture, which has no device behind it.
+const getVideoStreamDeviceId = (bbbVideoStream) => {
+  const stream = bbbVideoStream?.originalStream || bbbVideoStream?.mediaStream;
+  if (!stream) return null;
+  return MediaStreamUtils.extractDeviceIdFromStream(stream, 'video') || null;
+};
+
 const terminateCameraStream = (bbbVideoStream, deviceId) => {
   // Cleanup current stream if it wasn't shared/stored
   if (bbbVideoStream && !hasStream(deviceId)) {
@@ -307,6 +317,7 @@ export default {
   getCameraAsContentProfile,
   getCameraProfile,
   doGUM,
+  getVideoStreamDeviceId,
   terminateCameraStream,
   doEnumerateDevices,
 };

@@ -247,6 +247,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   });
 
   const prevWebcamDeviceId = usePreviousValue(webcamDeviceId);
+  // Switching cameras while the preview loads would race two getUserMedia calls.
+  // A preview error leaves the loading flag on, so keep switching open to recover.
+  const isCameraSwitchLocked = isCameraLoading && !previewError;
 
   useEffect(() => {
     // fill section deviceId if empty or if only one section exists and it's different than current webcam
@@ -422,8 +425,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
     if (currentVideoStream.current && activeSection.deviceId) {
       const { type } = activeSection.virtualBackground;
+      // Key the shared stream by the camera it really captures: VideoService and doGUM
+      // look streams up by deviceId, so a mismatch would label this video as another camera
+      const deviceId = PreviewService.getVideoStreamDeviceId(currentVideoStream.current)
+        || activeSection.deviceId;
 
-      PreviewService.changeWebcam(activeSection.deviceId);
+      PreviewService.changeWebcam(deviceId);
       PreviewService.changeProfile(selectedProfile);
 
       if (
@@ -435,9 +442,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       }
 
       // Store the stream so VideoService can find it.
-      PreviewService.storeStream(activeSection.deviceId, currentVideoStream.current);
+      PreviewService.storeStream(deviceId, currentVideoStream.current);
       // Share the video.
-      VideoService.joinVideo(activeSection.deviceId, isCamLocked);
+      VideoService.joinVideo(deviceId, isCamLocked);
     }
   }, [
     cameraSections,
@@ -596,6 +603,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
               aria-label="Previous camera"
               onClick={() => changePreview(-1)}
               position="left"
+              disabled={isCameraSwitchLocked}
             >
               <Styled.ArrowLeftIcon />
             </Styled.PreviewArrowButton>
@@ -603,6 +611,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
               aria-label="Next camera"
               onClick={() => changePreview(1)}
               position="right"
+              disabled={isCameraSwitchLocked}
             >
               <Styled.ArrowRightIcon />
             </Styled.PreviewArrowButton>
@@ -627,7 +636,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         value={selectedProfile || ''}
         onChange={(e) => handleSelectProfile(e as unknown as React.ChangeEvent<HTMLSelectElement>)}
         IconComponent={ExpandMoreIcon}
-        disabled={isAlreadyShared(cameraSections[sectionIndex].deviceId as string)}
+        disabled={isAlreadyShared(cameraSections[sectionIndex].deviceId as string) || isCameraSwitchLocked}
       >
         {PREVIEW_CAMERA_PROFILES.map((profile: CameraProfileProps) => {
           const label = intlMessages[`${profile.id}`]
@@ -822,6 +831,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                         value={!previewError ? section.deviceId || webcamDeviceId : ''}
                         onChange={(e) => handleCameraSectionChange(sectionIndex, e.target.value as string)}
                         IconComponent={ExpandMoreIcon}
+                        disabled={isCameraSwitchLocked}
                       >
                         {availableDevicesForSection.map((webcam, index) => (
                           <MenuItem key={webcam.deviceId} value={webcam.deviceId}>
@@ -862,7 +872,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.AddCameraContainer>
           <Styled.AddCameraButtonAndText
             onClick={handleAddCamera}
-            disabled={cameraSections.length >= availableWebcams.length}
+            disabled={cameraSections.length >= availableWebcams.length || isCameraSwitchLocked}
           >
             <Styled.AddCameraIcon />
             {formatMessage(intlMessages.addExtraCameraLabel)}
