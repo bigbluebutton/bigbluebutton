@@ -27,7 +27,7 @@ const getCameraAsContentProfile = () => {
   // Unfiltered, includes hidden profiles
   const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
 
-  return CAMERA_PROFILES.find((profile) => profile.id == CAMERA_AS_CONTENT_PROFILE_ID)
+  return CAMERA_PROFILES.find((profile) => profile.id === CAMERA_AS_CONTENT_PROFILE_ID)
     || CAMERA_PROFILES.find((profile) => profile.default);
 };
 
@@ -41,6 +41,17 @@ const getCameraProfile = (id) => {
 // Easier to keep track of them. Easier to centralize their referencing.
 // Easier to shuffle them around.
 const VIDEO_STREAM_STORAGE = new Map();
+
+const getStream = (deviceId) => VIDEO_STREAM_STORAGE.get(deviceId);
+
+const hasStream = (deviceId) => VIDEO_STREAM_STORAGE.has(deviceId);
+
+const deleteStream = (deviceId) => {
+  const stream = getStream(deviceId);
+  if (stream == null) return false;
+  MediaStreamUtils.stopMediaStreamTracks(stream);
+  return VIDEO_STREAM_STORAGE.delete(deviceId);
+};
 
 const storeStream = (deviceId, stream) => {
   if (!stream) return false;
@@ -62,17 +73,6 @@ const storeStream = (deviceId, stream) => {
   });
 
   return true;
-};
-
-const getStream = (deviceId) => VIDEO_STREAM_STORAGE.get(deviceId);
-
-const hasStream = (deviceId) => VIDEO_STREAM_STORAGE.has(deviceId);
-
-const deleteStream = (deviceId) => {
-  const stream = getStream(deviceId);
-  if (stream == null) return false;
-  MediaStreamUtils.stopMediaStreamTracks(stream);
-  return VIDEO_STREAM_STORAGE.delete(deviceId);
 };
 
 const clearStreams = () => VIDEO_STREAM_STORAGE.clear();
@@ -125,7 +125,8 @@ const getSkipVideoPreview = () => {
 // Takes a raw list of media devices of any media type coming enumerateDevices
 // and a deviceId to be prioritized
 // Outputs an object containing:
-//  webcams: videoinput media devices, priorityDevice being the first member of the array (if it exists)
+//  webcams: videoinput media devices, priorityDevice being the first member
+//    of the array (if it exists)
 //  areLabelled: whether all videoinput devices are labelled
 //  areIdentified: whether all videoinput devices have deviceIds
 const digestVideoDevices = (devices, priorityDevice) => {
