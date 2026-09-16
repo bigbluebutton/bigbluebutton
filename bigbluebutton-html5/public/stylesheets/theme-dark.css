@@ -31,18 +31,26 @@
  * never emitted here -- that absence is the contract plugins and per-client CSS
  * rely on, so a client's branding keeps reaching every role in the dark theme.
  *
- * color-scheme: dark is NOT set here. It changes native widgets and the system
- * colours already used by the quiz checkbox (Field, CanvasText, GrayText), so it
- * gets its own step and its own baseline (phase 2b).
+ * color-scheme: dark is set below. An element that declares no background of its
+ * own paints the user agent's `field`, and the CSS system colours the quiz radio
+ * uses (Field, CanvasText, GrayText) resolve for the light scheme. Neither is
+ * reachable from a custom property, so the scheme is what fixes them.
  */
 
 :root[data-theme='dark'] {
-  /* superfícies — todo alias de colorWhite/colorOffWhite colapsa no valor travado */
+  color-scheme: dark;
+
+  /* surfaces -- every colorWhite/colorOffWhite alias collapses to the value its
+     chain actually reaches */
   --color-background: var(--color-background-dark-theme, #181A23);
   --list-item-bg-hover: var(--list-item-bg-hover-dark-theme, var(--color-hover-bg-dark, #393C48));
   --dropdown-bg: var(--dropdown-bg-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
-  --color-gray-user-list-toolbar: var(--color-gray-user-list-toolbar-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
-  --color-blue-aux: var(--color-blue-aux-dark-theme, #2a2c2e);
+  /* A raised chip on a panel, not the panel itself: 1.10:1 over white in the
+     light theme, 1.13:1 over #2D2F38 here. */
+  --color-gray-user-list-toolbar: var(--color-gray-user-list-toolbar-dark-theme, #343741);
+  /* Same chain as --list-item-bg-hover, which falls back to this token in the
+     light theme, so a hover drawn with either is the same colour. */
+  --color-blue-aux: var(--color-blue-aux-dark-theme, var(--color-hover-bg-dark, #393C48));
   --color-content-background: var(--color-content-background-dark-theme, #212b36);
   --emphasized-message-background-color: var(--emphasized-message-background-color-dark-theme, #2a2c2d);
   --settings-modal-tab-selected: var(--settings-modal-tab-selected-dark-theme, #292a2c);
@@ -60,7 +68,7 @@
   --loader-bg: var(--loader-bg-dark-theme, #111d2b);
   --color-overlay: var(--color-overlay-dark-theme, rgba(17, 29, 43, 0.75));
 
-  /* texto e ícones */
+  /* text and icons */
   --color-neutral-2: var(--color-neutral-2-dark-theme, #968e82);
   --color-gray-icons: var(--color-gray-icons-dark-theme, #a8a097);
   --color-gray-label: var(--color-gray-label-dark-theme, #FFFFFF);
@@ -77,19 +85,19 @@
   --audio-modal-icon-secondary-color: var(--audio-modal-icon-secondary-color-dark-theme, #97afbb);
   --media-sharing-chip-bg: var(--media-sharing-chip-bg-dark-theme, #323537);
 
-  /* bordas */
+  /* borders */
   --user-thumbnail-border: var(--user-thumbnail-border-dark-theme, #384b5b);
   --system-message-border-color: var(--system-message-border-color-dark-theme, #384b5b);
   --highlighted-message-border-color: var(--highlighted-message-border-color-dark-theme, #384b5b);
   --poll-stats-border-color: var(--poll-stats-border-color-dark-theme, #384b5b);
   --default-border: var(--default-border-dark-theme, #494e50);
-  /* Mesma regra do grupo ghost: o fundo do tile de webcam é escuro nos dois temas,
-     então o branco translúcido mantém o valor claro. */
+  /* Same rule as the ghost group: the webcam tile ground is dark in both themes,
+     so the translucent white keeps its light value. */
   --webcam-placeholder-border: var(--webcam-placeholder-border-dark-theme, rgba(255, 255, 255, 0.5));
 
-  /* toasts — as cores de texto, mais --toast-default-bg: o valor claro dele é #4E5A66
-     (colorGray), que é estrutura, não marca. Os fundos info/success/error/warning é que
-     são grupo marca e não são emitidos. */
+  /* toasts -- the text colours, plus --toast-default-bg: its light value is
+     #4E5A66 (colorGray), which is structure, not brand. The info/success/error/
+     warning backgrounds are the brand-group ones and are not emitted. */
   --toast-surface: var(--toast-surface-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
   --toast-text-color: var(--toast-text-color-dark-theme, #FFFFFF);
   --toast-default-color: var(--toast-default-color-dark-theme, #FFFFFF);
@@ -99,7 +107,7 @@
   --toast-error-color: var(--toast-error-color-dark-theme, #FFFFFF);
   --toast-warning-color: var(--toast-warning-color-dark-theme, #FFFFFF);
 
-  /* quiz / enquete — semântica de acerto e erro */
+  /* quiz / poll -- right and wrong answer semantics */
   --color-info-box-quiz-bg: var(--color-info-box-quiz-bg-dark-theme, #133d28);
   --color-selected-correct-answer-bg: var(--color-selected-correct-answer-bg-dark-theme, #47420e);
   --color-selected-correct-answer-bg-active: var(--color-selected-correct-answer-bg-active-dark-theme, #124a2e);
@@ -117,21 +125,22 @@
   --scrollbar-thumb: var(--scrollbar-thumb-dark-theme, rgba(255, 255, 255, 0.25));
   --scrollbar-thumb-hover: var(--scrollbar-thumb-hover-dark-theme, rgba(255, 255, 255, 0.45));
 
-  /* Info/notice surface. Same light-value class as --color-blue-aux (#E5EFFB ->
-     #2a2c2e), so it takes the value the DarkReader mapping computed for that input. */
+  /* Info/notice surface: a resting ground, not a hover, so it keeps the value
+     the DarkReader mapping computed for its own light input (#e8f0fe). */
   --color-info-banner-bg: var(--color-info-banner-bg-dark-theme, #2a2c2e);
 
   /* Same light-value class as --color-gray-label (#4E5A66 -> #aaa49b): same input
      through the same DarkReader text function. */
   --slate-600: var(--slate-600-dark-theme, #aaa49b);
 
-  /* fase 3 — tokens de papel único que faltavam */
+  /* phase 3 -- the single-role tokens that were missing */
   --toolbar-button-color: var(--toolbar-button-color-dark-theme, #FFFFFF);
-  /* Não é #FFFFFF: no claro o par é #4E5A66 (ativo) / #8B9AA8 (desabilitado). O branco
-     nos dois que o DarkReader mostrava — e que a rodada 1 tomou como paridade — era
-     produto do bug que esta mudança corrigiu (palette.js lia --toolbar-button-color no
-     lugar de --toolbar-button-color-disabled). #a49d92 é o mesmo secundário de
-     --color-text-secondary, 4,96:1 sobre #2D2F38: legível e visivelmente demovido. */
+  /* Not #FFFFFF: in the light theme the pair is #4E5A66 (active) / #8B9AA8
+     (disabled). The white-for-both that DarkReader rendered -- and that round 1
+     took for parity -- was a product of the bug this change fixed (palette.js
+     read --toolbar-button-color in place of --toolbar-button-color-disabled).
+     #a49d92 is the same secondary as --color-text-secondary, 4.96:1 over
+     #2D2F38: legible and visibly demoted. */
   --toolbar-button-color-disabled: var(--toolbar-button-color-disabled-dark-theme, #a49d92);
   /* #FFFFFF, not the #dedcd9 the DarkReader mapping computes. Reason: before the
      collision fix the ghost button shared --btn-default-color with the solid one,
@@ -169,9 +178,10 @@
      and keeps rgba(255,255,255,.5), the light value, for the same reason. */
   --btn-default-ghost-border: var(--btn-default-ghost-border-dark-theme, rgba(255, 255, 255, 0.5));
 
-  /* Mesma regra: --loader-bg é colorGrayDark (#06172A) no claro e #111d2b no escuro,
-     então a tela de carregamento é escura nos dois temas e os bullets mantêm o branco.
-     A paridade DarkReader dava #2D2F38, 1,26:1 sobre #111d2b — invisível. */
+  /* Same rule: --loader-bg is colorGrayDark (#06172A) in the light theme and
+     #111d2b in the dark one, so the loading screen is dark in both and the
+     bullets keep their white. DarkReader parity gave #2D2F38, 1.26:1 over
+     #111d2b -- invisible. */
   --loader-bullet: var(--loader-bullet-dark-theme, #FFFFFF);
   --btn-dark-border: var(--btn-dark-border-dark-theme, #992521);
   --btn-muted-border: var(--btn-muted-border-dark-theme, #2d3d4e);
@@ -185,7 +195,7 @@
      surfaces. Caught by the live A/B against
      DarkReader on the leave-meeting button (color="danger"). */
 
-  /* fase 3 — tokens multi-papel desdobrados */
+  /* phase 3 -- multi-role tokens split per role */
   --color-selected-correct-answer-text: var(--color-selected-correct-answer-text-dark-theme, #ecb360);
   --color-selected-correct-answer-text-border: var(--color-selected-correct-answer-text-border-dark-theme, #bd7815);
   --user-list-bg: var(--user-list-bg-dark-theme, #272a2a);
@@ -247,18 +257,33 @@
   --color-white: var(--color-white-dark-theme, #FFFFFF);
   --color-white-border: var(--color-white-border-dark-theme, #383c3d);
   --color-white-surface: var(--color-white-surface-dark-theme, #2D2F38);
-  /* Contorno de caixa de texto. A paridade DarkReader dava #384b5b, 1,51:1 sobre
-     #2D2F38 -- reprova o mínimo de 3:1 da WCAG 1.4.11 para limite de componente, e é
-     o que deixava as caixas de texto ilegíveis (enquete, busca, breakout). #6d7d8d
-     mantém o matiz e mede 3,15:1 sobre #2D2F38 e 4,10:1 sobre #181A23.
-     --color-border-surface é o halo de foco (não é limite), sobe menos. */
+  /* Text-box outline. DarkReader parity gave #384b5b, 1.51:1 over #2D2F38 --
+     it fails WCAG 1.4.11's 3:1 minimum for a component boundary, and it is what
+     left the text boxes unreadable (poll, search, breakout). #6d7d8d keeps the
+     hue and measures 3.15:1 over #2D2F38 and 4.10:1 over #181A23.
+     --color-border-surface is the focus halo (not a boundary), so it rises
+     less. */
   --color-border: var(--color-border-dark-theme, #6d7d8d);
   --color-border-surface: var(--color-border-surface-dark-theme, #4c5d6d);
 
-  /* Placeholder: #787675, o valor claro, mede 3,10:1 sobre #2D2F38. #a49d92 é o mesmo
-     valor escuro de --color-text-secondary e mede 4,96:1, mantendo a hierarquia. */
+  /* Placeholder: #787675, the light value, measures 3.10:1 over #2D2F38. #a49d92
+     is the same dark value as --color-text-secondary and measures 4.96:1, which
+     keeps the hierarchy. */
   --palette-placeholder-text: var(--palette-placeholder-text-dark-theme, #a49d92);
 
+  /* @bigbluebutton/bbb-ui-components-react (BBButton) reads a token namespace of
+     its own, which the client palette never declares. Only its structure-role
+     tokens are emitted; the brand ones (--color-primary, --color-danger,
+     --color-brand-*, --color-hover-dark) stay absent like the client's own.
+     --color-neutral-white is NOT emitted: the library uses it as a surface AND
+     as the label colour over a brand background. --color-background-white is
+     its surface alias, so emitting that one separates the roles. */
+  --color-background-white: var(--color-background-white-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
+  --color-light-gray: var(--color-light-gray-dark-theme, var(--color-hover-bg-dark, #393C48));
+  --color-text-default: var(--color-text-default-dark-theme, #FFFFFF);
+  /* Disabled label: 1.99:1 over the light disabled ground, 2.07:1 over #393C48
+     here -- the low contrast is the affordance, so the ratio is what carries. */
+  --color-neutral-3: var(--color-neutral-3-dark-theme, #666D79);
 }
 
 /*
@@ -315,24 +340,6 @@
  * background-image re-assertions, the generated .bnjzQC class) or is now a token
  * (container backgrounds, scroll gradients, font-size buttons) and was dropped.
  */
-
-/* <select>: DarkReader-era look was a single light bottom border. Kept until
-   color-scheme: dark is adopted (phase 2b), which restyles native controls.
-   Scoped to :not([class]) on purpose. At element level the selector is (0,2,1) and a
-   styled-components class is (0,1,0), so an unscoped rule here beats every component's
-   own select styling regardless of source order — it was overriding the --color-border
-   value phase 5 set to clear WCAG 1.4.11, and reducing the breakout validation border to
-   a bottom-only red line. Styled selects now keep their own treatment; bare ones, which
-   have no styling of their own, still get the legacy look. */
-:root[data-theme='dark'] select:not([class]) {
-  border: 0.1rem solid var(--color-white, #FFFFFF);
-  border-top: unset;
-  border-right: unset;
-  border-left: unset;
-}
-:root[data-theme='dark'] select[data-test="skipSlide"]:not([class]) {
-  border: unset;
-}
 
 /* Caret follows the text colour; the UA default would be black on dark. */
 :root[data-theme='dark'] textarea,

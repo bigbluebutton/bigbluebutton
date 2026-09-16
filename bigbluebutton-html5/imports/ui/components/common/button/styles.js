@@ -68,12 +68,14 @@ import {
   btnWarningBorder,
   btnWarningColor,
   btnWarningColorSurface,
+  colorBlueLighter,
   colorControlActiveSurface,
   colorControlActiveText,
   colorControlBorder,
   colorGray,
   colorWhite,
   colorWhiteBorder,
+  listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import BaseButton from './base/component';
@@ -1088,34 +1090,34 @@ const Button = styled(BaseButton)`
   
 
     &:focus {
-      background: hsl(210, 30%, 95%);
+      background: ${listItemBgHover};
       color: ${colorControlActiveText};
-      box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+      box-shadow: 0 0 0 ${borderSize} ${colorBlueLighter};
     }
 
     &:hover {
-      background: hsl(210, 30%, 95%);
-      color: hsl(210, 13%, 35%);
+      background: ${listItemBgHover};
+      color: ${colorGray};
     }
 
     &:active {
-      background: hsl(210, 30%, 89%);
-      color: hsl(210, 13%, 30%);
+      background: ${colorControlActiveSurface};
+      color: ${colorControlActiveText};
     }
 
     &:hover {
       &:focus {
-        background: hsl(210, 30%, 95%);
-        color: hsl(210, 13%, 30%);
-        box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+        background: ${listItemBgHover};
+        color: ${colorControlActiveText};
+        box-shadow: 0 0 0 ${borderSize} ${colorBlueLighter};
       }
     }
 
     &:focus {
       &:active {
-        background: hsl(210, 30%, 89%);
-        color: hsl(210, 13%, 30%);
-        box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+        background: ${colorControlActiveSurface};
+        color: ${colorControlActiveText};
+        box-shadow: 0 0 0 ${borderSize} ${colorBlueLighter};
       }
     }
   `}
