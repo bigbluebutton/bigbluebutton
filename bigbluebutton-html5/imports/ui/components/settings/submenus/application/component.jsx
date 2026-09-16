@@ -464,7 +464,7 @@ class ApplicationMenu extends BaseMenu {
                 <Styled.FormElementRight>
                   <SubMenusStyle.MaterialSwitch
                     icons="false"
-                    checked={settings.recordingIndicatorAutoCollapse}
+                    checked={!!settings.recordingIndicatorAutoCollapse}
                     onChange={() => this.handleToggle('recordingIndicatorAutoCollapse')}
                     aria-label={`${intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)} - ${displaySettingsStatus(settings.recordingIndicatorAutoCollapse, true)}`}
                     inputProps={{ 'data-test': 'recordingIndicatorAutoCollapseToggleBtn' }}
