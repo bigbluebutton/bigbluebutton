@@ -23,10 +23,11 @@ export class SystemTheme extends MultiUsers {
   // The attribute alone is not enough: it only proves JS ran. The dark palette
   // lives in public/stylesheets/theme-dark.css, a file nothing else in the suite
   // verifies, so if it ever failed to ship these tests would stay green over a
-  // fully light UI. --color-background is declared only by that sheet and only
-  // under [data-theme='dark'], so resolving to a non-empty value is proof the
-  // sheet shipped and applied. Asserted non-empty rather than equal to #181A23
-  // because a branded client may override --color-background-dark-theme.
+  // fully light UI. color-scheme is set by that sheet and only under
+  // [data-theme='dark'], so resolving to 'dark' is proof the sheet shipped and
+  // applied. Asserted on color-scheme rather than on a palette custom property
+  // because a branded client declares those in its own :root block, which would
+  // make them resolve non-empty in the light theme too.
   async expectDarkTheme(shouldBeDark: boolean, description: string): Promise<void> {
     await expect
       .poll(() => this.modPage.page.evaluate(() => document.documentElement.getAttribute('data-theme') === 'dark'), {
@@ -36,7 +37,7 @@ export class SystemTheme extends MultiUsers {
       .toBe(shouldBeDark);
 
     const paletteApplied = await this.modPage.page.evaluate(
-      () => getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim().length > 0,
+      () => getComputedStyle(document.documentElement).colorScheme === 'dark',
     );
     await expect(paletteApplied, `${description} (dark palette sheet applied)`).toBe(shouldBeDark);
   }

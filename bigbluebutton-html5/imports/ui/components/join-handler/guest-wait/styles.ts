@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import {
-  colorWhiteSurface,
+  loaderBullet,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Container = styled.div`
@@ -107,7 +107,7 @@ const Bounce = styled.div`
   width: 18px;
   height: 18px;
   margin: 0 5px;
-  background-color: ${colorWhiteSurface};
+  background-color: ${loaderBullet};
   display: inline-block;
   border-radius: 100%;
   animation: ${sk_bouncedelay} calc(1.4s) infinite ease-in-out both;

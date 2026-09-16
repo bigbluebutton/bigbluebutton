@@ -105,7 +105,7 @@ const SendButton = styled(Button)`
     height: 100%;
     display: flex;
     align-items: center;
-    border-radius: 0.75rem;
+    border-radius: 0 0.75rem 0.75rem 0;
   }
 
   [dir="rtl"]  & {
