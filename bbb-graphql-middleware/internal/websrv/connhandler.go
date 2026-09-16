@@ -18,6 +18,7 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/gql_actions"
 	"bbb-graphql-middleware/internal/hasura"
+	streamingserver "bbb-graphql-middleware/internal/streaming_server"
 	"bbb-graphql-middleware/internal/websrv/reader"
 	"bbb-graphql-middleware/internal/websrv/writer"
 
@@ -393,6 +394,10 @@ func refreshSessionVariablesUntilSettled(browserConnection *common.BrowserConnec
 			// otherwise a request that arrived while this attempt was finishing would have found
 			// the slot taken and started nothing.
 			if browserConnection.ReleaseSessionVariablesRefreshIfSettled() {
+				// Membership may have only just arrived, so deliver any replay that was withheld
+				// while it had not.
+				streamingserver.ReplayPendingStreams(browserConnection)
+
 				return
 			}
 

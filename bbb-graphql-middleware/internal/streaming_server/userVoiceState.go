@@ -118,7 +118,7 @@ func voiceStateVisibleTo(r streamingRecipient, meetingId, speakerUserId, speaker
 		return true
 	}
 
-	if !r.lockStateKnown() {
+	if !r.sessionVarsSettled() {
 		return false
 	}
 
@@ -143,40 +143,44 @@ func cachedVoiceStateSpeaker(row map[string]any) (string, string) {
 	return userId, role
 }
 
-func SendPreviousUserVoiceState(browserConnection *common.BrowserConnection, queryId string) {
+// SendPreviousUserVoiceState replays the cached voice state of each user to a new subscriber, and
+// reports whether a frame was sent.
+//
+// False means the recipient is not currently a member of the meeting, which is the caller's signal
+// to try again once membership arrives. A permitted recipient always receives a frame, empty if
+// nothing survives filtering: the client clears its loading state on the first frame and suppresses
+// the talking indicator until then, so withholding one disables the feature rather than scoping it.
+func SendPreviousUserVoiceState(browserConnection *common.BrowserConnection, queryId string) bool {
 	recipient := snapshotStreamingRecipient(browserConnection)
 	if !recipient.inMeeting(recipient.MeetingId) {
-		return
+		return false
 	}
 
-	previousMessages, existsPreviousMessages := GetUserVoiceStatesCache(recipient.MeetingId)
-	if existsPreviousMessages {
-		// Filtered per row rather than all-or-nothing: unlike the cursor cache, each row here
-		// records whose voice state it is, so the live gate can be applied to it exactly.
-		items := make([]any, 0, len(previousMessages))
-		for _, message := range previousMessages {
-			speakerUserId, speakerRole := cachedVoiceStateSpeaker(message)
-			if !voiceStateVisibleTo(recipient, recipient.MeetingId, speakerUserId, speakerRole) {
-				continue
-			}
-			items = append(items, message)
+	// Filtered per row: each row records whose voice state it is, so the live gate applies to it
+	// exactly.
+	previousMessages, _ := GetUserVoiceStatesCache(recipient.MeetingId)
+	items := make([]any, 0, len(previousMessages))
+	for _, message := range previousMessages {
+		speakerUserId, speakerRole := cachedVoiceStateSpeaker(message)
+		if !voiceStateVisibleTo(recipient, recipient.MeetingId, speakerUserId, speakerRole) {
+			continue
 		}
-		if len(items) == 0 {
-			return
-		}
+		items = append(items, message)
+	}
 
-		browserResponseData := map[string]any{
-			"id":   queryId,
-			"type": "next",
-			"payload": map[string]any{
-				"data": map[string]any{
-					"user_voice_activity_stream": items,
-				},
+	browserResponseData := map[string]any{
+		"id":   queryId,
+		"type": "next",
+		"payload": map[string]any{
+			"data": map[string]any{
+				"user_voice_activity_stream": items,
 			},
-		}
-		jsonDataNext, _ := json.Marshal(browserResponseData)
-		browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataNext)
+		},
 	}
+	jsonDataNext, _ := json.Marshal(browserResponseData)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataNext)
+
+	return true
 }
 
 // the cache will use meetingId + userId as keys, as it needs to store only the last for each user

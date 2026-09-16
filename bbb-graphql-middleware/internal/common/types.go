@@ -56,7 +56,8 @@ type BrowserConnection struct {
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
-	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control the map usage
+	PendingStreamReplays               map[string][]string            // replays withheld until the connection is a meeting member
+	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control both maps above
 	ConnectionInitMessage              []byte                         // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection                   *HasuraConnection              // associated hasura connection
 	Disconnected                       bool                           // indicate if the connection is gone

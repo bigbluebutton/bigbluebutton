@@ -70,8 +70,11 @@ func (r streamingRecipient) sessionVar(key string) string {
 	return r.SessionVars[key]
 }
 
-// lockStateKnown reports whether lock-derived session variables can be trusted right now. A
+// sessionVarsSettled reports whether the cached session variables can be trusted right now. A
 // refresh in flight, or one that failed, leaves the previous values in place.
-func (r streamingRecipient) lockStateKnown() bool {
+//
+// Not only the lock-derived variables: the moderator and presenter variables are cached here too,
+// and they are not lock-derived.
+func (r streamingRecipient) sessionVarsSettled() bool {
 	return !r.SessionVarsStale
 }

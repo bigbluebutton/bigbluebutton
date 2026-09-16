@@ -42,12 +42,10 @@ func ReadNewStreamingSubscription(
 		}
 		browserConnection.ActiveStreamingsMutex.Unlock()
 
-		if browserMessage.Payload.OperationName == "getCursorCoordinatesStream" {
-			SendPreviousCursorPosition(browserConnection, queryId)
-		}
-
-		if browserMessage.Payload.OperationName == "getUserVoiceStateStream" {
-			SendPreviousUserVoiceState(browserConnection, queryId)
+		// A replay withheld here is not lost: it is re-attempted when membership arrives.
+		if !sendStreamReplay(browserConnection, browserMessage.Payload.OperationName, queryId) {
+			browserConnection.MarkStreamReplayPending(browserMessage.Payload.OperationName, queryId)
+			browserConnection.Logger.Debugf("Deferred %s replay: connection is not in the meeting yet", browserMessage.Payload.OperationName)
 		}
 	}
 

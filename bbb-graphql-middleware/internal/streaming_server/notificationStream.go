@@ -79,9 +79,14 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	for _, bc := range browserConnections {
 		recipient := snapshotStreamingRecipient(bc)
 		// X-Hasura-ModeratorInMeeting / PresenterInMeeting are derived from the RegisteredUser
-		// role, which is independent of current meeting membership, so membership and a settled
-		// refresh must both hold before either can be trusted.
-		matches := recipient.inMeeting(meetingId) && recipient.lockStateKnown()
+		// role, independently of current meeting membership, so membership alone does not make
+		// them meaningful - they must also have been refreshed since whatever last changed them.
+		//
+		// The presenter branch is not reachable from any current producer, which only ever targets
+		// moderators. It is kept because the settled check is doing real work there: presenter is
+		// orthogonal to role, so a locked viewer-presenter is inside the fan-out of a lock-settings
+		// change, unlike a moderator.
+		matches := recipient.inMeeting(meetingId) && recipient.sessionVarsSettled()
 		isModerator := matches && strings.EqualFold(role, "moderator") && recipient.sessionVar("x-hasura-moderatorinmeeting") == meetingId
 		isPresenter := matches && strings.EqualFold(role, "presenter") && recipient.sessionVar("x-hasura-presenterinmeeting") == meetingId
 		if isModerator || isPresenter {
