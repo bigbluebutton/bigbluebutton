@@ -64,6 +64,14 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
   },
+  previousCameraLabel: {
+    id: 'app.videoPreview.previousCameraLabel',
+    description: 'Previous camera arrow button label',
+  },
+  nextCameraLabel: {
+    id: 'app.videoPreview.nextCameraLabel',
+    description: 'Next camera arrow button label',
+  },
   qualityLabel: {
     id: 'app.videoPreview.profileLabel',
     description: 'Quality dropdown label',
@@ -600,7 +608,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           {cameraSections.length > 1 && (
           <>
             <Styled.PreviewArrowButton
-              aria-label="Previous camera"
+              aria-label={formatMessage(intlMessages.previousCameraLabel)}
+              data-test="previousCameraButton"
               onClick={() => changePreview(-1)}
               position="left"
               disabled={isCameraSwitchLocked}
@@ -608,7 +617,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
               <Styled.ArrowLeftIcon />
             </Styled.PreviewArrowButton>
             <Styled.PreviewArrowButton
-              aria-label="Next camera"
+              aria-label={formatMessage(intlMessages.nextCameraLabel)}
+              data-test="nextCameraButton"
               onClick={() => changePreview(1)}
               position="right"
               disabled={isCameraSwitchLocked}
@@ -637,6 +647,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         onChange={(e) => handleSelectProfile(e as unknown as React.ChangeEvent<HTMLSelectElement>)}
         IconComponent={ExpandMoreIcon}
         disabled={isAlreadyShared(cameraSections[sectionIndex].deviceId as string) || isCameraSwitchLocked}
+        inputProps={{ 'data-test': `cameraQualitySelector-${sectionIndex}` } as React.InputHTMLAttributes<HTMLInputElement>}
       >
         {PREVIEW_CAMERA_PROFILES.map((profile: CameraProfileProps) => {
           const label = intlMessages[`${profile.id}`]
@@ -832,6 +843,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                         onChange={(e) => handleCameraSectionChange(sectionIndex, e.target.value as string)}
                         IconComponent={ExpandMoreIcon}
                         disabled={isCameraSwitchLocked}
+                        inputProps={{ 'data-test': `cameraDeviceSelector-${sectionIndex}` } as React.InputHTMLAttributes<HTMLInputElement>}
                       >
                         {availableDevicesForSection.map((webcam, index) => (
                           <MenuItem key={webcam.deviceId} value={webcam.deviceId}>
@@ -873,6 +885,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           <Styled.AddCameraButtonAndText
             onClick={handleAddCamera}
             disabled={cameraSections.length >= availableWebcams.length || isCameraSwitchLocked}
+            data-test="addExtraCameraButton"
           >
             <Styled.AddCameraIcon />
             {formatMessage(intlMessages.addExtraCameraLabel)}
