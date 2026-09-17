@@ -152,6 +152,11 @@ bbb-playback-presentation-build:
   script:
     - build/setup-inside-docker.sh bbb-playback-presentation
 
+bbb-playback-presentation-legacy-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback-presentation-legacy
+
 bbb-playback-screenshare-build:
   extends: .build_job
   script:
