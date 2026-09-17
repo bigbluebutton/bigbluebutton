@@ -46,6 +46,12 @@ const getStream = (deviceId) => VIDEO_STREAM_STORAGE.get(deviceId);
 
 const hasStream = (deviceId) => VIDEO_STREAM_STORAGE.has(deviceId);
 
+// Whether this exact stream is stored, under whichever device it ended up keyed by
+const isStreamStored = (stream) => {
+  if (!stream) return false;
+  return Array.from(VIDEO_STREAM_STORAGE.values()).some((stored) => stored === stream);
+};
+
 const deleteStream = (deviceId) => {
   const stream = getStream(deviceId);
   if (stream == null) return false;
@@ -264,9 +270,11 @@ const getVideoStreamDeviceId = (bbbVideoStream) => {
   return MediaStreamUtils.extractDeviceIdFromStream(stream, 'video') || null;
 };
 
-const terminateCameraStream = (bbbVideoStream, deviceId) => {
-  // Cleanup current stream if it wasn't shared/stored
-  if (bbbVideoStream && !hasStream(deviceId)) {
+const terminateCameraStream = (bbbVideoStream) => {
+  // Cleanup current stream if it wasn't shared/stored. Checked by stream identity:
+  // going by deviceId leaks a fresh capture whenever another stream got stored under
+  // that same key, and stops a shared stream whenever it was stored under another one
+  if (bbbVideoStream && !isStreamStored(bbbVideoStream)) {
     bbbVideoStream.stop();
   }
 };

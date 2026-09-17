@@ -376,13 +376,29 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     }
     if (newDeviceId !== webcamDeviceId) {
       const fakeEvent = { target: { value: newDeviceId } } as unknown as React.ChangeEvent<HTMLSelectElement>;
-      await handleSelectWebcam(fakeEvent);
+      const resolvedDeviceId = await handleSelectWebcam(fakeEvent);
+      const streamingDeviceId = resolvedDeviceId || newDeviceId;
+
+      // The browser may hand over a different camera than the one asked for, so point the
+      // section at what is really streaming, otherwise its label names the wrong camera.
+      // Sections hold one camera each: leave it be if another section already owns this one
+      if (streamingDeviceId !== newDeviceId) {
+        setCameraSections((prevSections) => (
+          prevSections.some((s, i) => i !== index && s.deviceId === streamingDeviceId)
+            ? prevSections
+            : prevSections.map((s, i) => (i === index ? { ...s, deviceId: streamingDeviceId } : s))
+        ));
+      }
+
       // only set brightness if camera is not shared
-      if (!isAlreadyShared(newDeviceId) && cameraSections[index]) {
-        setCameraBrightness(cameraSections[index].brightness, newDeviceId);
+      if (!isAlreadyShared(streamingDeviceId) && cameraSections[index]) {
+        setCameraBrightness(cameraSections[index].brightness, streamingDeviceId);
       }
     }
-  }, [cameraSections, activePreviewIndex, webcamDeviceId, handleSelectWebcam, setCameraBrightness]);
+  }, [
+    cameraSections, activePreviewIndex, webcamDeviceId, handleSelectWebcam,
+    setCameraBrightness, isAlreadyShared,
+  ]);
 
   const handleCameraSectionChange = useCallback((index: number, newDeviceId: string) => {
     const newSections = [...cameraSections];
