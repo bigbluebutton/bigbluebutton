@@ -25,8 +25,6 @@ sudo cp -r core/lib /usr/local/bigbluebutton/core/
 sudo rm -rf /usr/local/bigbluebutton/core/scripts
 sudo rm -rf /usr/local/bigbluebutton/core/playback
 sudo cp -r core/scripts /usr/local/bigbluebutton/core/
-sudo rm -rf /var/bigbluebutton/playback/presentation/0.81/
-sudo rm -rf /var/bigbluebutton/playback/presentation/0.9.0/
 sudo rm -rf /var/bigbluebutton/playback/presentation/2.0/
 
 function deploy_format() {
@@ -40,7 +38,6 @@ function deploy_format() {
 		scripts_dir="$format/scripts"
 		nginx_file="$format/scripts/*.nginx"
 		if [ -d $playback_dir ]; then
-			if [ "$format" == "presentation" ]; then sudo cp -r $playback_dir /var/bigbluebutton/playback/; fi
 			if [ "$format" == "screenshare" ]; then sudo mkdir -p /usr/local/bigbluebutton/core/playback/$format; sudo cp -r $playback_dir/* /usr/local/bigbluebutton/core/playback/screenshare/; fi
 			if ([ "$format" != "presentation" ] && [ "$format" != "screenshare" ]); then sudo mkdir -p /usr/local/bigbluebutton/core/playback/$format; sudo cp -r $playback_dir /usr/local/bigbluebutton/core/playback/; fi
 		fi
