@@ -663,7 +663,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         onChange={(e) => handleSelectProfile(e as unknown as React.ChangeEvent<HTMLSelectElement>)}
         IconComponent={ExpandMoreIcon}
         disabled={isAlreadyShared(cameraSections[sectionIndex].deviceId as string) || isCameraSwitchLocked}
-        inputProps={{ 'data-test': `cameraQualitySelector-${sectionIndex}` } as React.InputHTMLAttributes<HTMLInputElement>}
+        SelectDisplayProps={{ 'data-test': `cameraQualitySelector-${sectionIndex}` } as React.HTMLAttributes<HTMLDivElement>}
       >
         {PREVIEW_CAMERA_PROFILES.map((profile: CameraProfileProps) => {
           const label = intlMessages[`${profile.id}`]
@@ -859,7 +859,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                         onChange={(e) => handleCameraSectionChange(sectionIndex, e.target.value as string)}
                         IconComponent={ExpandMoreIcon}
                         disabled={isCameraSwitchLocked}
-                        inputProps={{ 'data-test': `cameraDeviceSelector-${sectionIndex}` } as React.InputHTMLAttributes<HTMLInputElement>}
+                        SelectDisplayProps={{ 'data-test': `cameraDeviceSelector-${sectionIndex}` } as React.HTMLAttributes<HTMLDivElement>}
                       >
                         {availableDevicesForSection.map((webcam, index) => (
                           <MenuItem key={webcam.deviceId} value={webcam.deviceId}>
