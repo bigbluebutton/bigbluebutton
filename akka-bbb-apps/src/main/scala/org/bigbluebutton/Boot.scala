@@ -6,6 +6,7 @@ import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.stream.ActorMaterializer
 import org.bigbluebutton.common2.redis.{MessageSender, RedisConfig, RedisPublisher}
 import org.bigbluebutton.core._
+import org.bigbluebutton.core.apps.WhiteboardModel
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.AnalyticsActor
@@ -71,6 +72,7 @@ object Boot extends App with SystemConfiguration {
   )
 
   ClientSettings.loadClientSettingsFromFile()
+  WhiteboardModel.allowedAnnotationTypes
   recordingEventBus.subscribe(redisRecorderActor, outMessageChannel)
   val incomingJsonMessageBus = new IncomingJsonMessageBus
 
