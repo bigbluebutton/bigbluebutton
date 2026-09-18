@@ -106,6 +106,10 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
 
+#### Disable lock settings per meeting
+
+Lock settings can now be turned off for a meeting with the new `lockSettings` value of `disabledFeatures`. When listed, the "Lock viewers" control is removed from the moderator's user-list options and lock enforcement is turned off server-side, so all viewer restrictions stay unlocked for that meeting even if lock create parameters or server defaults are set.
+
 #### Larger emoji-only chat messages (jumbomoji)
 
 A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
@@ -291,6 +295,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
 - `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.26`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
+- `disabledFeatures` accepts a new value: `lockSettings` (removes the "Lock viewers" moderator control and disables lock enforcement, leaving all viewer restrictions unlocked).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 

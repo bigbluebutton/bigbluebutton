@@ -52,6 +52,10 @@ export function useIsBreakoutRoomsEnabled() {
   return useDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
 
+export function useIsLockSettingsEnabled() {
+  return useDisabledFeatures().indexOf('lockSettings') === -1;
+}
+
 export function useIsVirtualBackgroundsEnabled() {
   return useDisabledFeatures().indexOf('virtualBackgrounds') === -1 && window.meetingClientSettings.public.virtualBackgrounds.enabled;
 }
@@ -165,7 +169,6 @@ export function useIsEmojiPickerEnabled() {
   return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
     && EMOJI_PICKER_ENABLED;
 }
-
 export function useIsWebcamGridEnabled() {
   const GRID_ENABLED = window.meetingClientSettings.public.kurento.pagination.gridEnabled ?? true;
   return useDisabledFeatures().indexOf('webcamGrid') === -1 && GRID_ENABLED;
