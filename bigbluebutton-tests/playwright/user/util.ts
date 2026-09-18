@@ -179,7 +179,8 @@ export async function openUserListIfClosed(testPage: Page) {
   // Open the user list panel if it is collapsed, so the moderator crowd-action area is reachable.
   // Note: locator.isVisible() ignores its `timeout` option and returns the current snapshot, which
   // is racy right after join; wait for the panel state instead of probing it synchronously.
-  const isPanelOpen = await testPage.page.locator(e.userListPanel)
+  const isPanelOpen = await testPage.page
+    .locator(e.userListPanel)
     .waitFor({ state: 'visible', timeout: ELEMENT_WAIT_TIME })
     .then(() => true)
     .catch(() => false);
