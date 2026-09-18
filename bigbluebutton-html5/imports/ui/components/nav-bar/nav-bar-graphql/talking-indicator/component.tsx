@@ -39,6 +39,10 @@ const intlMessages = defineMessages({
     id: 'app.talkingIndicator.ariaMuteDesc',
     description: 'Desc for mute action',
   },
+  hiddenUser: {
+    id: 'app.talkingIndicator.hiddenUser',
+    description: 'stands in for the name of a speaker this viewer may not identify',
+  },
 });
 
 interface TalkingIndicatorProps {
@@ -77,6 +81,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         speechLocale,
         name,
         role,
+        hidden,
       },
       userId,
     } = talkingUser;
@@ -85,7 +90,10 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       muted,
       color,
       speechLocale,
-      name,
+      // A hidden user is one whose identity this viewer is not entitled to. The indicator
+      // still shows that someone is speaking - they are audible either way - under a
+      // placeholder that stands in for the name everywhere it would have been rendered.
+      name: hidden ? intl.formatMessage(intlMessages.hiddenUser) : name,
       role,
       userId,
     };

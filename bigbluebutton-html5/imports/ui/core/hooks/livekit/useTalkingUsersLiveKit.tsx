@@ -8,8 +8,7 @@ import { ConnectionState, RemoteParticipant, RoomEvent } from 'livekit-client';
 import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import { getBbbUserIdForParticipant } from '/imports/ui/components/livekit/selective-subscription/service';
 import Auth from '/imports/ui/services/auth';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useHideUserList from '/imports/ui/core/hooks/useHideUserList';
 import useWhoIsUnmutedLiveKit from './useWhoIsUnmutedLiveKit';
 import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
@@ -87,17 +86,7 @@ const createUseTalkingUsersLiveKit = () => {
     // so mute state is correct whenever LiveKit is the bridge - see isLiveKitActive.
     const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
     const { data: userMetadataMap, loading } = useData();
-    const { data: currentUserData } = useCurrentUser((user) => ({
-      locked: user.locked,
-    }));
-    const { data: currentMeeting } = useMeeting((m) => ({
-      lockSettings: m.lockSettings,
-    }));
-    // v_user.locked is already false for moderators, so this is the same two-term check the
-    // user list and video tiles use.
-    const hideUserList = Boolean(
-      currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList,
-    );
+    const hideUserList = useHideUserList();
     const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
     const isConnected = connectionState === ConnectionState.Connected;
     const participantsByUserId = useMemo(() => {
@@ -151,18 +140,16 @@ const createUseTalkingUsersLiveKit = () => {
         }
 
         let userMetadata = userMetadataMap[userId];
+        // Under "Hide user list" only the server's voice-activity stream vouches for a
+        // user's identity: it carries exactly the users we are entitled to see. Ourselves
+        // and moderators are never hidden by this lock.
+        const entitledToIdentity = !hideUserList
+          || isLocalUser
+          || userMetadata?.role === ROLE_MODERATOR;
 
-        // With "Hide user list" active, a locked viewer must not be shown a talking
-        // indicator for anyone but themselves and moderators. This mirrors the server-side
-        // gate on the voice-activity stream, and has to run BEFORE the fallback below:
-        // LiveKit participant names are the users' real display names, so falling back to
-        // them would reconstruct exactly the names the lock is meant to hide. It also drops
-        // entries captured before the lock was applied, since the metadata map never evicts.
-        if (hideUserList
-          && !isLocalUser
-          && userMetadata?.role !== ROLE_MODERATOR) {
-          return;
-        }
+        // The metadata map merges and never evicts, so an entry may predate the lock. A
+        // user the stream has vouched for as a viewer is dropped outright.
+        if (!entitledToIdentity && userMetadata) return;
 
         if (!userMetadata) {
           const participant = isLocalUser
@@ -174,9 +161,14 @@ const createUseTalkingUsersLiveKit = () => {
           // Baseline user metadata for users that are not in the metadata map
           // This is not 100% accurate, but it's better than not having a working
           // talking indicator while the user can be heard by others - prlanzarin Jan 05 2026
-          userMetadata = {
-            name: participant.name ?? participant.identity,
-          };
+          //
+          // A LiveKit participant is not a server-vouched source of identity. Absence from
+          // the stream does not imply the user is hidden from us - a moderator listening
+          // into a breakout has no server voice record either - so the entry is kept and
+          // its name marked unusable rather than dropped. The user is audible regardless.
+          userMetadata = entitledToIdentity
+            ? { name: participant.name ?? participant.identity }
+            : { name: '', hidden: true };
         }
 
         voiceActivityItems.push({
