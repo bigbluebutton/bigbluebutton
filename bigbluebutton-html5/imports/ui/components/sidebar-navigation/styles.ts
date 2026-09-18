@@ -184,7 +184,8 @@ const BadgeCircle = styled.div`
 `;
 
 const Separator = styled(BaseSeparator)`
-    width: 50%;
+  width: 50%;
+  margin: 0 auto;
 `;
 
 export default {
