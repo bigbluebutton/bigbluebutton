@@ -29,7 +29,6 @@
 
 require '../../core/lib/recordandplayback'
 require 'bbbevents'
-require "java_properties"
 require "jwt"
 require 'net/http'
 require 'optparse'
@@ -155,16 +154,8 @@ begin
     filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
     hasOverride = File.file?(filepathOverride)
 
-    bbb_props = JavaProperties::Properties.new("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
-    
-    # If the file does exists: 
-    if (hasOverride)
-      bbbOverrideProps = JavaProperties::Properties.new(filepathOverride)
-      # Override the props
-      bbbOverrideProps.each do |key, prop|
-        bbb_props[key]=prop
-      end
-    end
+    bbb_props = BigBlueButton.read_java_props("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
+    bbb_props.merge!(BigBlueButton.read_java_props(filepathOverride)) if hasOverride
 
     secret = bbb_props[:securitySalt]
     external_meeting_id = metadata.attributes['meetingId']&.content
@@ -204,7 +195,7 @@ begin
 
 rescue => e
     BigBlueButton.logger.info("Rescued")
-    BigBlueButton.logger.info(e.to_s)
+    BigBlueButton.logger.info(e.full_message(highlight: false, order: :top).chomp)
 end
 
 BigBlueButton.logger.info("Analytics Post Events for [#{meeting_id}] ends")
