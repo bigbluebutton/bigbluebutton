@@ -4,9 +4,10 @@ import {
   colorBorder,
   colorGrayLight,
   colorGrayLightest,
+  colorGrayLightestBorder,
   colorOffWhite,
   colorText,
-  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -19,7 +20,7 @@ const PickerContainer = styled.div`
   bottom: calc(100% + 0.5rem);
   left: 0;
   right: 0;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -37,7 +38,7 @@ const PickerHeader = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: ${colorGrayLight};
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorGrayLightestBorder};
   background: ${colorOffWhite};
   flex-shrink: 0;
 `;
@@ -89,7 +90,7 @@ const PickerHint = styled.div`
   padding: .3rem .75rem;
   font-size: ${fontSizeSmaller};
   color: ${colorGrayLight};
-  border-top: 1px solid ${colorGrayLightest};
+  border-top: 1px solid ${colorGrayLightestBorder};
   background: ${colorOffWhite};
   flex-shrink: 0;
 `;

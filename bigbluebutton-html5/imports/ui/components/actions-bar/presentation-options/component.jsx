@@ -43,7 +43,6 @@ const PresentationOptionsContainer = ({
   hasPinnedSharedNotes,
   hasGenericContent,
   hasCameraAsContent,
-  isDarkThemeEnabled,
 }) => {
   let buttonType = 'presentation';
   if (hasExternalVideo) {
@@ -87,7 +86,6 @@ const PresentationOptionsContainer = ({
       id="restore-presentation"
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
-      $isDarkThemeEnabled={isDarkThemeEnabled}
       hoverColor={listItemBgHover}
     />
   );

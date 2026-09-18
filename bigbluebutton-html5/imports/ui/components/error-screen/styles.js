@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import {
-  colorWhite,
-  colorGrayDark,
+  colorGrayDarkSurface,
   colorGrayLighter,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Background = styled.div`
@@ -12,7 +12,7 @@ const Background = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: ${colorGrayDark};
+  background-color: ${colorGrayDarkSurface};
   color: ${colorWhite};
   text-align: center;
 `;

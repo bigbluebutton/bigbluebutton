@@ -444,6 +444,13 @@ const debouncedUpdateShapes = debounce((
 }, 175);
 
 const setupColorThemePaletteOverrides = () => {
+  // The slide canvas stays light in the dark theme, so the shape palette stays
+  // light with it: tldraw's dark `black` is #e1e1e1, a grey default swatch that
+  // draws every annotation in near-white ink on a white slide. Cloned, not
+  // aliased, so the per-colour overrides below cannot reach lightMode.
+  DefaultColorThemePalette.darkMode = JSON.parse(
+    JSON.stringify(DefaultColorThemePalette.lightMode),
+  );
   // Override the default color theme to use our custom palette with more vibrant yellow highlights
   DefaultColorThemePalette.lightMode.black.highlight = {
     srgb: '#FFFF00',

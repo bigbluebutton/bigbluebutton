@@ -13,13 +13,14 @@ import {
   contentSidebarPadding,
 } from '../../../stylesheets/styled-components/general';
 import {
-  colorGrayDark,
-  colorBorder,
-  colorWhite,
-  colorPrimary,
   colorBlueLighter,
-  colorText,
+  colorBlueLighterBorder,
+  colorBorder,
   colorGray,
+  colorGrayDark,
+  colorPrimary,
+  colorText,
+  colorWhiteSurface,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -45,7 +46,7 @@ const TimerTitle = styled.div`
 // @ts-ignore - JS code
 const TimerMinimizeButton = styled(Button)`
   position: relative;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   display: block;
   margin: ${borderSizeLarge};
   margin-bottom: ${borderSize};
@@ -71,7 +72,7 @@ const TimerMinimizeButton = styled(Button)`
   }
 
   &:hover {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
   }
 `;
 
@@ -145,7 +146,7 @@ const TimerSongsWrapper = styled.div`
   margin-top: 2rem;
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid color-mix(in srgb, ${colorBlueLighter} 50%, transparent);
+  border: 1px solid color-mix(in srgb, ${colorBlueLighterBorder} 50%, transparent);
   border-radius: 0.5rem;
 `;
 

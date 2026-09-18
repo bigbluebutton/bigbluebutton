@@ -1,0 +1,354 @@
+/*
+ * BigBlueButton native dark theme - structure group.
+ *
+ * Every value here was derived from what DarkReader rendered for the same token and
+ * reviewed as a set, so the dark theme starts at parity with the engine it replaces.
+ * Deliberate departures from that parity carry their reason inline, below.
+ *
+ * Loaded unconditionally from client/main.html so the palette exists before the
+ * first paint; every rule is scoped to :root[data-theme='dark'] and therefore
+ * inert until the boot script (persisted user choice) or the settings service
+ * (app/service.js setDarkTheme) sets that attribute. This is the only dark theme
+ * engine: the darkreader dependency was removed.
+ *
+ * Two override paths, both order- and specificity-independent because they are
+ * var() fallback chains rather than cascade conflicts:
+ *
+ *   --<token>-dark-theme         per-token, the documented brand contract
+ *   --color-overlays-dark-theme  every raised surface at once (pre-existing)
+ *   --color-background-dark-theme, --color-hover-bg-dark  (pre-existing)
+ *
+ * Brand-group tokens (primary, danger/success/warning, user roles, badges,
+ * links, toast backgrounds) are deliberately absent: they must fall through to
+ * whatever the brand declared, which is today's behaviour.
+ *
+ * Multi-role tokens are split per role in phase 3: the dominant role keeps the
+ * original var name and the minority roles get their own (--color-white-surface,
+ * --color-white-border, ...). In the light theme every split token chains back to
+ * the original, so light rendering is unchanged by construction.
+ *
+ * Coverage: every structure-group token the client reads. Brand-group tokens are
+ * never emitted here -- that absence is the contract plugins and per-client CSS
+ * rely on, so a client's branding keeps reaching every role in the dark theme.
+ *
+ * color-scheme: dark is set below. An element that declares no background of its
+ * own paints the user agent's `field`, and the CSS system colours the quiz radio
+ * uses (Field, CanvasText, GrayText) resolve for the light scheme. Neither is
+ * reachable from a custom property, so the scheme is what fixes them.
+ */
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* surfaces -- every colorWhite/colorOffWhite alias collapses to the value its
+     chain actually reaches */
+  --color-background: var(--color-background-dark-theme, #181A23);
+  --list-item-bg-hover: var(--list-item-bg-hover-dark-theme, var(--color-hover-bg-dark, #393C48));
+  --dropdown-bg: var(--dropdown-bg-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
+  /* A raised chip on a panel, not the panel itself: 1.10:1 over white in the
+     light theme, 1.13:1 over #2D2F38 here. */
+  --color-gray-user-list-toolbar: var(--color-gray-user-list-toolbar-dark-theme, #343741);
+  /* Same chain as --list-item-bg-hover, which falls back to this token in the
+     light theme, so a hover drawn with either is the same colour. */
+  --color-blue-aux: var(--color-blue-aux-dark-theme, var(--color-hover-bg-dark, #393C48));
+  --color-content-background: var(--color-content-background-dark-theme, #212b36);
+  --emphasized-message-background-color: var(--emphasized-message-background-color-dark-theme, #2a2c2d);
+  --settings-modal-tab-selected: var(--settings-modal-tab-selected-dark-theme, #292a2c);
+  --color-tip-bg: var(--color-tip-bg-dark-theme, #2f3333);
+  --color-control-border: var(--color-control-border-dark-theme, #373a3c);
+  --color-control-active-surface: var(--color-control-active-surface-dark-theme, #2b3f53);
+  --color-control-active-text: var(--color-control-active-text-dark-theme, #FFFFFF);
+  --color-surface-muted: var(--color-surface-muted-dark-theme, #282a2b);
+  --color-surface-neutral: var(--color-surface-neutral-dark-theme, #2b2e2f);
+  --color-switch-thumb: var(--color-switch-thumb-dark-theme, #252728);
+  --color-info-surface: var(--color-info-surface-dark-theme, #2a2c2e);
+  --color-info-surface-alt: var(--color-info-surface-alt-dark-theme, #282a2b);
+  --color-disabled-surface: var(--color-disabled-surface-dark-theme, #4e5356);
+  --color-border-muted: var(--color-border-muted-dark-theme, #3c4042);
+  --loader-bg: var(--loader-bg-dark-theme, #111d2b);
+  --color-overlay: var(--color-overlay-dark-theme, rgba(17, 29, 43, 0.75));
+
+  /* text and icons */
+  --color-neutral-2: var(--color-neutral-2-dark-theme, #968e82);
+  --color-gray-icons: var(--color-gray-icons-dark-theme, #a8a097);
+  --color-gray-label: var(--color-gray-label-dark-theme, #FFFFFF);
+  --user-list-text: var(--user-list-text-dark-theme, #FFFFFF);
+  --color-heading: var(--color-heading-dark-theme, #FFFFFF);
+  --apps-unpinned-icon-color: var(--apps-unpinned-icon-color-dark-theme, #b4afa7);
+  --apps-panel-text-color: var(--apps-panel-text-color-dark-theme, #b9b4ac);
+  --slate-900: var(--slate-900-dark-theme, #cdcbc5);
+  --color-text-strong: var(--color-text-strong-dark-theme, #FFFFFF);
+  --color-text-emphasis: var(--color-text-emphasis-dark-theme, #FFFFFF);
+  --color-text-secondary: var(--color-text-secondary-dark-theme, #a49d92);
+  --audio-modal-icon-bg: var(--audio-modal-icon-bg-dark-theme, #262829);
+  --audio-modal-icon-color: var(--audio-modal-icon-color-dark-theme, #a1c5d5);
+  --audio-modal-icon-secondary-color: var(--audio-modal-icon-secondary-color-dark-theme, #97afbb);
+  --media-sharing-chip-bg: var(--media-sharing-chip-bg-dark-theme, #323537);
+
+  /* borders */
+  --user-thumbnail-border: var(--user-thumbnail-border-dark-theme, #384b5b);
+  --system-message-border-color: var(--system-message-border-color-dark-theme, #384b5b);
+  --highlighted-message-border-color: var(--highlighted-message-border-color-dark-theme, #384b5b);
+  --poll-stats-border-color: var(--poll-stats-border-color-dark-theme, #384b5b);
+  --default-border: var(--default-border-dark-theme, #494e50);
+  /* Same rule as the ghost group: the webcam tile ground is dark in both themes,
+     so the translucent white keeps its light value. */
+  --webcam-placeholder-border: var(--webcam-placeholder-border-dark-theme, rgba(255, 255, 255, 0.5));
+
+  /* toasts -- the text colours, plus --toast-default-bg: its light value is
+     #4E5A66 (colorGray), which is structure, not brand. The info/success/error/
+     warning backgrounds are the brand-group ones and are not emitted. */
+  --toast-surface: var(--toast-surface-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
+  --toast-text-color: var(--toast-text-color-dark-theme, #FFFFFF);
+  --toast-default-color: var(--toast-default-color-dark-theme, #FFFFFF);
+  --toast-default-bg: var(--toast-default-bg-dark-theme, #454e57);
+  --toast-info-color: var(--toast-info-color-dark-theme, #FFFFFF);
+  --toast-success-color: var(--toast-success-color-dark-theme, #FFFFFF);
+  --toast-error-color: var(--toast-error-color-dark-theme, #FFFFFF);
+  --toast-warning-color: var(--toast-warning-color-dark-theme, #FFFFFF);
+
+  /* quiz / poll -- right and wrong answer semantics */
+  --color-info-box-quiz-bg: var(--color-info-box-quiz-bg-dark-theme, #133d28);
+  --color-selected-correct-answer-bg: var(--color-selected-correct-answer-bg-dark-theme, #47420e);
+  --color-selected-correct-answer-bg-active: var(--color-selected-correct-answer-bg-active-dark-theme, #124a2e);
+  --color-green-100: var(--color-green-100-dark-theme, #124a2e);
+
+  /* webcam */
+  --webcam-talking-background-color: var(--webcam-talking-background-color-dark-theme, rgba(15, 85, 189, 0.15));
+
+  /* Scroll affordances (scrollable.js). Deliberate deviation from DarkReader parity:
+     its own output here was a defect, not a design -- it mapped the fade gradients to
+     fully transparent (disabling the effect) and left the thumb near-black on a dark
+     panel. A translucent light thumb and a fade to the panel surface are what the
+     original intent asks for. */
+  --scroll-fade-color: var(--scroll-fade-color-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
+  --scrollbar-thumb: var(--scrollbar-thumb-dark-theme, rgba(255, 255, 255, 0.25));
+  --scrollbar-thumb-hover: var(--scrollbar-thumb-hover-dark-theme, rgba(255, 255, 255, 0.45));
+
+  /* Info/notice surface: a resting ground, not a hover, so it keeps the value
+     the DarkReader mapping computed for its own light input (#e8f0fe). */
+  --color-info-banner-bg: var(--color-info-banner-bg-dark-theme, #2a2c2e);
+
+  /* Same light-value class as --color-gray-label (#4E5A66 -> #aaa49b): same input
+     through the same DarkReader text function. */
+  --slate-600: var(--slate-600-dark-theme, #aaa49b);
+
+  /* phase 3 -- the single-role tokens that were missing */
+  --toolbar-button-color: var(--toolbar-button-color-dark-theme, #FFFFFF);
+  /* Not #FFFFFF: in the light theme the pair is #4E5A66 (active) / #8B9AA8
+     (disabled). The white-for-both that DarkReader rendered -- and that round 1
+     took for parity -- was a product of the bug this change fixed (palette.js
+     read --toolbar-button-color in place of --toolbar-button-color-disabled).
+     #a49d92 is the same secondary as --color-text-secondary, 4.96:1 over
+     #2D2F38: legible and visibly demoted. */
+  --toolbar-button-color-disabled: var(--toolbar-button-color-disabled-dark-theme, #a49d92);
+  /* #FFFFFF, not the #dedcd9 the DarkReader mapping computes. Reason: before the
+     collision fix the ghost button shared --btn-default-color with the solid one,
+     so DtfInvert's forced --darkreader-text--btn-default-color: #FFF applied to it
+     too. Giving the ghost its own var would have silently changed its dark colour.
+     Caught by the live A/B against DarkReader, which rendered
+     rgb(255,255,255) where the native theme rendered rgb(222,220,217).
+     The rest of the ghost group keeps its LIGHT value on purpose, and this is a
+     deliberate break with DarkReader parity. Every ghost button sits on
+     --color-background (nav bar, actions bar) or over video, and those grounds are
+     dark in BOTH themes, so the translucent white must not be inverted: darkening it
+     erased the recording button's background and its focus ring. DarkReader had the
+     same defect -- it inverted the overlay without inverting the bar underneath --
+     so parity was the wrong target here.
+     --btn-default-active-bg is read only by btnDefaultGhostActiveBg, so it belongs
+     to this group. */
+  --btn-default-ghost-color: var(--btn-default-ghost-color-dark-theme, #FFFFFF);
+  --btn-default-ghost-color-border: var(--btn-default-ghost-color-border-dark-theme, #FFFFFF);
+  --btn-default-ghost-bg: var(--btn-default-ghost-bg-dark-theme, rgba(255, 255, 255, 0.1));
+  --btn-default-active-bg: var(--btn-default-active-bg-dark-theme, rgba(255, 255, 255, 0.2));
+  --color-green-600: var(--color-green-600-dark-theme, #63df91);
+  --color-info-box-quiz-text: var(--color-info-box-quiz-text-dark-theme, #7bde9f);
+  --color-info-box-quiz-border: var(--color-info-box-quiz-border-dark-theme, #0dcecf);
+  --color-selected-correct-answer-text-active: var(--color-selected-correct-answer-text-active-dark-theme, #7bde9f);
+
+  /* Focus rings drawn with box-shadow. The DarkReader mapping marks these tokens as
+     unused and so carries no dark value for them; each one takes the value that
+     mapping computed for the token sharing its light colour, which is the same input
+     through the
+     same DarkReader border function:
+       --btn-dark-border           #DF2721              -> colorDanger (border)
+       --btn-muted-border          #F3F6F9              -> colorOffWhite (border)
+       --btn-offline-border        #8B9AA8              -> colorGrayLight (border)
+     --btn-default-ghost-border is the exception: it belongs to the ghost group above
+     and keeps rgba(255,255,255,.5), the light value, for the same reason. */
+  --btn-default-ghost-border: var(--btn-default-ghost-border-dark-theme, rgba(255, 255, 255, 0.5));
+
+  /* Same rule: --loader-bg is colorGrayDark (#06172A) in the light theme and
+     #111d2b in the dark one, so the loading screen is dark in both and the
+     bullets keep their white. DarkReader parity gave #2D2F38, 1.26:1 over
+     #111d2b -- invisible. */
+  --loader-bullet: var(--loader-bullet-dark-theme, #FFFFFF);
+  --btn-dark-border: var(--btn-dark-border-dark-theme, #992521);
+  --btn-muted-border: var(--btn-muted-border-dark-theme, #2d3d4e);
+  --btn-offline-border: var(--btn-offline-border-dark-theme, #52575a);
+
+  /* The block above sets these to #FFFFFF rather than the #dedcd9 the DarkReader
+     mapping computes for their light value. Reason: none of these vars is forced by
+     DtfInvert, so their fallback chain reaches --color-white, which IS forced to
+     #FFF -- so #FFF is what renders today. It is the rule that an alias must collapse
+     to the value its chain actually reaches, applied to the text role rather than to
+     surfaces. Caught by the live A/B against
+     DarkReader on the leave-meeting button (color="danger"). */
+
+  /* phase 3 -- multi-role tokens split per role */
+  --color-selected-correct-answer-text: var(--color-selected-correct-answer-text-dark-theme, #ecb360);
+  --color-selected-correct-answer-text-border: var(--color-selected-correct-answer-text-border-dark-theme, #bd7815);
+  --user-list-bg: var(--user-list-bg-dark-theme, #272a2a);
+  --user-list-bg-border: var(--user-list-bg-border-dark-theme, #2d3d4e);
+  --webcam-background-color: var(--webcam-background-color-dark-theme, #0d1b2a);
+  --webcam-background-color-border: var(--webcam-background-color-border-dark-theme, #847c70);
+  --color-blue-lightest: var(--color-blue-lightest-dark-theme, #2c2f31);
+  --color-blue-lightest-border: var(--color-blue-lightest-border-dark-theme, #2e4352);
+  --color-black: var(--color-black-dark-theme, #FFFFFF);
+  --color-black-border: var(--color-black-border-dark-theme, #8b8274);
+  --color-black-surface: var(--color-black-surface-dark-theme, #0d0d0d);
+  --apps-gallery-outline: var(--apps-gallery-outline-dark-theme, #334252);
+  --apps-gallery-outline-surface: var(--apps-gallery-outline-surface-dark-theme, #303334);
+  --color-blue-lighter: var(--color-blue-lighter-dark-theme, #20456e);
+  --color-blue-lighter-border: var(--color-blue-lighter-border-dark-theme, #214a77);
+  --btn-warning-color: var(--btn-warning-color-dark-theme, #FFFFFF);
+  --btn-warning-color-surface: var(--btn-warning-color-surface-dark-theme, #222425);
+  --btn-success-color: var(--btn-success-color-dark-theme, #FFFFFF);
+  --btn-success-color-surface: var(--btn-success-color-surface-dark-theme, #222425);
+  --btn-offline-color: var(--btn-offline-color-dark-theme, #FFFFFF);
+  --btn-offline-color-surface: var(--btn-offline-color-surface-dark-theme, #222425);
+  --btn-muted-color: var(--btn-muted-color-dark-theme, #a59e94);
+  --btn-muted-color-surface: var(--btn-muted-color-surface-dark-theme, #4c565e);
+  --btn-dark-color: var(--btn-dark-color-dark-theme, #FFFFFF);
+  --btn-dark-color-surface: var(--btn-dark-color-surface-dark-theme, #222425);
+  --btn-danger-color: var(--btn-danger-color-dark-theme, #FFFFFF);
+  --btn-danger-color-surface: var(--btn-danger-color-surface-dark-theme, #222425);
+  --btn-offline-bg: var(--btn-offline-bg-dark-theme, #4f5b66);
+  --btn-offline-bg-text: var(--btn-offline-bg-text-dark-theme, #a49d93);
+  --btn-dark-bg: var(--btn-dark-bg-dark-theme, #111d2b);
+  --btn-dark-bg-text: var(--btn-dark-bg-text-dark-theme, #d0cdc9);
+  --btn-muted-bg: var(--btn-muted-bg-dark-theme, #272a2a);
+  --btn-muted-bg-text: var(--btn-muted-bg-text-dark-theme, #ccd6df);
+  --btn-default-bg: var(--btn-default-bg-dark-theme, #2D2F38);
+  --btn-default-bg-text: var(--btn-default-bg-text-dark-theme, #FFFFFF);
+  --btn-default-color: var(--btn-default-color-dark-theme, #FFFFFF);
+  --btn-default-color-surface: var(--btn-default-color-surface-dark-theme, #454e57);
+  --btn-primary-color: var(--btn-primary-color-dark-theme, #FFFFFF);
+  --btn-primary-color-surface: var(--btn-primary-color-surface-dark-theme, #222425);
+  --color-off-white: var(--color-off-white-dark-theme, #272a2a);
+  --color-off-white-border: var(--color-off-white-border-dark-theme, #2d3d4e);
+  --color-off-white-text: var(--color-off-white-text-dark-theme, #ccd6df);
+  --color-gray-lightest: var(--color-gray-lightest-dark-theme, #35393b);
+  --color-gray-lightest-border: var(--color-gray-lightest-border-dark-theme, #424548);
+  --color-gray-lightest-text: var(--color-gray-lightest-text-dark-theme, #c8c4bf);
+  --color-gray-lighter: var(--color-gray-lighter-dark-theme, #4c5153);
+  --color-gray-lighter-surface: var(--color-gray-lighter-surface-dark-theme, #444e57);
+  --color-gray-lighter-text: var(--color-gray-lighter-text-dark-theme, #b1aca4);
+  --color-gray-light: var(--color-gray-light-dark-theme, #FFFFFF);
+  --color-gray-light-border: var(--color-gray-light-border-dark-theme, #52575a);
+  --color-gray-light-surface: var(--color-gray-light-surface-dark-theme, #4f5b66);
+  --color-gray: var(--color-gray-dark-theme, #FFFFFF);
+  --color-gray-border: var(--color-gray-border-dark-theme, #70695f);
+  --color-gray-dark: var(--color-gray-dark-dark-theme, #FFFFFF);
+  --color-gray-dark-border: var(--color-gray-dark-border-dark-theme, #847b6f);
+  --color-gray-dark-surface: var(--color-gray-dark-surface-dark-theme, #111d2b);
+  --color-text: var(--color-text-dark-theme, #FFFFFF);
+  --color-text-border: var(--color-text-border-dark-theme, #70695f);
+  --color-white: var(--color-white-dark-theme, #FFFFFF);
+  --color-white-border: var(--color-white-border-dark-theme, #383c3d);
+  --color-white-surface: var(--color-white-surface-dark-theme, #2D2F38);
+  /* Text-box outline. DarkReader parity gave #384b5b, 1.51:1 over #2D2F38 --
+     it fails WCAG 1.4.11's 3:1 minimum for a component boundary, and it is what
+     left the text boxes unreadable (poll, search, breakout). #6d7d8d keeps the
+     hue and measures 3.15:1 over #2D2F38 and 4.10:1 over #181A23.
+     --color-border-surface is the focus halo (not a boundary), so it rises
+     less. */
+  --color-border: var(--color-border-dark-theme, #6d7d8d);
+  --color-border-surface: var(--color-border-surface-dark-theme, #4c5d6d);
+
+  /* Placeholder: #787675, the light value, measures 3.10:1 over #2D2F38. #a49d92
+     is the same dark value as --color-text-secondary and measures 4.96:1, which
+     keeps the hierarchy. */
+  --palette-placeholder-text: var(--palette-placeholder-text-dark-theme, #a49d92);
+
+  /* @bigbluebutton/bbb-ui-components-react (BBButton) reads a token namespace of
+     its own, which the client palette never declares. Only its structure-role
+     tokens are emitted; the brand ones (--color-primary, --color-danger,
+     --color-brand-*, --color-hover-dark) stay absent like the client's own.
+     --color-neutral-white is NOT emitted: the library uses it as a surface AND
+     as the label colour over a brand background. --color-background-white is
+     its surface alias, so emitting that one separates the roles. */
+  --color-background-white: var(--color-background-white-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
+  --color-light-gray: var(--color-light-gray-dark-theme, var(--color-hover-bg-dark, #393C48));
+  --color-text-default: var(--color-text-default-dark-theme, #FFFFFF);
+  /* Disabled label: 1.99:1 over the light disabled ground, 2.07:1 over #393C48
+     here -- the low contrast is the affordance, so the ratio is what carries. */
+  --color-neutral-3: var(--color-neutral-3-dark-theme, #666D79);
+}
+
+/*
+ * Light-by-design surfaces.
+ *
+ * The presentation canvas and slide images must stay LIGHT in the dark theme --
+ * an inverted slide is a regression, and DtfInvert forces exactly this for the
+ * legacy engine.
+ *
+ * Right now they stay light only because tldraw still applies its own
+ * .tl-theme__light to the container. Phase 4 switches that class to
+ * .tl-theme__dark, which sets --color-background: #212529 and would darken the
+ * slide. These rules make the guarantee explicit and independent of that class.
+ * Specificity (0,4,0) beats tldraw's (0,1,0) with no !important needed.
+ *
+ * Everything else in that class needs no rule here: user avatars take their
+ * colour from an inline style, the colour picker and tldraw shapes from their own
+ * attributes, and virtual-background thumbnails are images -- the native theme
+ * never inverts or filters anything, so all of them are untouched by definition.
+ * That is the whole point of dropping the runtime inversion.
+ *
+ * DtfInvert also forces `.tl-image { background-color: white }`. That one is NOT
+ * ported: .tl-image carries no background and no theme token of its own, so the
+ * rule only ever existed to undo DarkReader's image analysis. Porting it would
+ * paint a white box in the dark theme that the light theme does not have -- a
+ * light/dark difference invented by the migration. Verified against a live
+ * client: with the rule present .tl-image went transparent -> white; without it
+ * both themes agree.
+ */
+:root[data-theme='dark'] .tl-container .tl-background {
+  background-color: var(--color-tldraw-background, #F9FAFB);
+}
+
+/*
+ * Base text colour, dark theme only.
+ *
+ * Nothing in the client sets a text colour on <body> or #app, so any element that
+ * never declares `color` inherits the user-agent default -- black. DarkReader used
+ * to rewrite that; the native theme has to state it. Scoped to the dark theme on
+ * purpose: setting it unconditionally would repaint every such element in the
+ * LIGHT theme too, which the migration must not do.
+ *
+ * This only reaches elements with no colour of their own. Components that hardcode
+ * a dark literal (#333, #666, black) still render dark and are tracked separately.
+ */
+:root[data-theme='dark'] body {
+  color: var(--color-text, #FFFFFF);
+}
+
+/*
+ * Rules ported from the legacy DtfInvert block (removed together with the
+ * darkreader dependency). Everything else that block contained was either a
+ * workaround for DarkReader's own output (tldraw toolbar hints, note scrims,
+ * background-image re-assertions, the generated .bnjzQC class) or is now a token
+ * (container backgrounds, scroll gradients, font-size buttons) and was dropped.
+ */
+
+/* Caret follows the text colour; the UA default would be black on dark. */
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] input {
+  caret-color: var(--color-text, #FFFFFF);
+}
+
+/* MUI switch track when off. MUI's dark palette picks its own grey; this keeps
+   the value the legacy theme used, overridable like any other token. */
+:root[data-theme='dark'] .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track {
+  background-color: var(--toggle-bg-disabled-dark-theme, #909CAF);
+}

@@ -13,9 +13,9 @@ import {
   lineHeightComputed,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  colorWhite,
-  colorText,
   colorBackground,
+  colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Parent = styled.div`
@@ -30,7 +30,7 @@ const Parent = styled.div`
 const Modal = styled.div`
   display: flex;
   padding: ${lgPaddingX};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   flex-direction: column;
   border-radius: ${borderRadius};
   max-width: 95vw;

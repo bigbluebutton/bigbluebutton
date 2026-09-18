@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorBorder, colorGrayLight, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBorderSurface, colorGrayLight, colorWhiteSurface } from '/imports/ui/stylesheets/styled-components/palette';
 import { xlPadding, xsPadding } from '/imports/ui/stylesheets/styled-components/general';
 
 export const Root = styled.div`
@@ -13,7 +13,7 @@ export const Container = styled.div`
   flex-wrap: nowrap;
   color: ${colorGrayLight};
   z-index: 10;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
 
   [dir='ltr'] & {
     margin-right: ${xlPadding};
@@ -49,7 +49,7 @@ export const Cancel = styled.button`
   }
 
   &:focus {
-    box-shadow: inset 0 0 0.125rem ${colorBorder};
+    box-shadow: inset 0 0 0.125rem ${colorBorderSurface};
   }
 `;
 
