@@ -316,10 +316,6 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
       box-shadow: 0 0 0 ${borderSize} ${btnRecordingActiveBorder};
     }
 
-    &:focus:not(:focus-visible) {
-      box-shadow: none;
-    }
-
     ${!isPhone && (autoCollapse && !disabled
     ? labelCollapsedOnRest
     : labelStaticBesideTimer)}
