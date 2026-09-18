@@ -568,6 +568,9 @@ Requires the LiveKit audio bridge (the default). A viewer must be in a breakout 
 3. Click "Return to main room".
 
    - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
+4. Pick "Join room" for a running room (it opens in a new tab), then reopen that room's options menu in the main room.
+
+   - the listen option should be disabled and read "Can't listen: already in room"; other rooms' listen options stay enabled
 
 ## Audio
 

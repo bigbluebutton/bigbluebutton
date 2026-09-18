@@ -895,8 +895,12 @@ def process_presentation(package_dir)
   cursor_x = cursor_y = -1.0
   cursor_visible = false
   presenter = nil
-  # Current deskshare state (affects presentation and pan/zoom)
+  # Current deskshare state (affects presentation and pan/zoom). The screenshare takes over the
+  # presentation area only while one is being shared *and* it is configured as content; assume the
+  # latter for recordings that predate SetScreenshareAsContentEvent.
   deskshare = false
+  screenshare_active = false
+  screenshare_as_content = true
   slides = []
   panzooms = []
   cursors = []
@@ -938,23 +942,28 @@ def process_presentation(package_dir)
       panzoom_changed = true
 
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
-      deskshare = slide_changed = true if @presentation_props['include_deskshare']
+      if @presentation_props['include_deskshare']
+        screenshare_active = true
+        deskshare = screenshare_active && screenshare_as_content
+        slide_changed = true
+      end
 
     when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
       if @presentation_props['include_deskshare']
+        screenshare_active = false
         deskshare = false
         slide_changed = true
       end
 
     when 'SetScreenshareAsContentEvent'
       next unless @presentation_props['include_deskshare']
-      screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
-      if screenshare_as_content
-        deskshare = slide_changed = true
-      else
-        deskshare = false
-        slide_changed = true
-      end
+
+      # This carries the layout preference - if the screenshareAsContent flag is false, then
+      # screenshare is not visible (the content area shows the presentation instead).
+      sac_el = event.at_xpath('screenshareAsContent')
+      screenshare_as_content = sac_el.text == 'true' if sac_el
+      deskshare = screenshare_active && screenshare_as_content
+      slide_changed = true
 
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)

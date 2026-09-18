@@ -158,12 +158,16 @@ export const elements = {
   callModeratorButton: 'button[data-test="callModeratorButton"]',
   returnToMainSessionButton: 'button[data-test="returnToMainSessionButton"]',
   listenToBreakoutRoomButton: 'li[data-test^="listenToBreakoutRoomButton"]',
+  listenToBreakoutRoomButton1: 'li[data-test="listenToBreakoutRoomButton1"]',
+  listenToBreakoutRoomButton2: 'li[data-test="listenToBreakoutRoomButton2"]',
   breakoutTransferReturnButton: 'button[data-test="breakoutTransferReturnButton"]',
   breakoutListenToast: 'div[data-test="breakoutListenToast"]',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',
   chatMessageItem: 'div[data-test="chatMessageItem"]',
+  chatMessageContent: 'div[data-test="chatMessageContent"]',
+  chatMessageItemKeyboardFocused: 'div[data-test="chatMessageItem"].chat-message-container-keyboard-focused',
   partnerDisconnectedMessage: 'span[data-test="partnerDisconnected"]',
   chatButton: 'button[data-test*="ChatButton"]',
   messagesSidebarButton: 'div[data-test="messagesSidebarButton"]',
