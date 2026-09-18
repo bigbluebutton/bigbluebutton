@@ -114,10 +114,7 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
         isModerator: { _in: $moderatorValues },
         lastFloorTime: { _neq: "0" },
       },
-      order_by: {
-        lastFloorTime: desc,
-        userId: asc,
-      },
+      order_by: [{ lastFloorTime: desc }, { userId: asc }],
     ) {
       meetingId
       name
