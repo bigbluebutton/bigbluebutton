@@ -348,7 +348,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
 
   /* Small viewports keep the nav bar's own circular button box, so these come
      last and win over the collapsed metrics above. */
-  ${({ recording }) => !recording && `
+  ${({ recording }) => !recording && css`
     @media ${smallOnly} {
       width: ${mobileNavbarButtonSize};
       height: ${mobileNavbarButtonSize};
@@ -356,6 +356,18 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
       padding: 0 !important;
       border-radius: 50% !important;
       justify-content: center;
+
+      /* The circle has no room for the label: left in, a sliver of its first
+         letter paints outside the circle - at rest with the collapse off, on
+         hover with it on. The icon's label gap goes with it, or the icon sits
+         off centre. */
+      ${RecordingIndicatorIcon} {
+        margin: 0 !important;
+      }
+
+      ${PresentationTitle} {
+        display: none;
+      }
     }
   `}
 
