@@ -220,7 +220,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     return showButton
       ? intl.formatMessage(intlMessages.stopTitle)
       : intl.formatMessage(intlMessages.recordingTitle);
-  }, [recording, disabled, isModerator, showButton, time, intl.locale]);
+  }, [recording, disabled, showButton, time, intl.locale]);
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
