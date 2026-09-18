@@ -46,7 +46,9 @@ interface RoomManagmentStateProps {
   groups: getMeetingGroupResponse['meeting_group'];
   freeJoin: boolean;
   randomlyAssignFunction: (fn: () => void) => void;
+  randomlyAssignModeratorsFunction: (fn: () => void) => void;
   resetAssignmentsFunction: (fn: () => void) => void;
+  onAssignmentStateChange: (state: 'hasViewers' | 'onlyModerators' | 'allAssigned') => void;
   isMobile: boolean;
 }
 
@@ -69,7 +71,9 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   groups,
   freeJoin,
   randomlyAssignFunction,
+  randomlyAssignModeratorsFunction,
   resetAssignmentsFunction,
+  onAssignmentStateChange,
   isMobile,
 }) => {
   const intl = useIntl();
@@ -178,6 +182,50 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     setUserAssignedRooms(updatedUserAssignedRooms);
   };
 
+  const randomlyAssignModerators = () => {
+    const updatedUserAssignedRooms = { ...userAssignedRooms };
+    const unassignedModerators = users.filter((user) => user.isModerator && (
+      (updatedUserAssignedRooms[user.userId] ?? []).length === 0
+      || (updatedUserAssignedRooms[user.userId] ?? []).includes(0)
+    ));
+    const userIds = unassignedModerators.sort(() => Math.random() - 0.5).map((user) => user.userId);
+    const numberOfUsers = userIds.length;
+    const assignments = new Array(numberOfUsers);
+
+    const roomSizes: { [key: number]: number } = {};
+    for (let r = 1; r <= numberOfRooms; r += 1) {
+      roomSizes[r] = Object.values(updatedUserAssignedRooms).filter(
+        (assignedRooms) => assignedRooms.includes(r),
+      ).length;
+    }
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < numberOfUsers; i++) {
+      let minRoom = 1;
+      for (let r = 2; r <= numberOfRooms; r += 1) {
+        if (roomSizes[r] < roomSizes[minRoom]) minRoom = r;
+      }
+      assignments[i] = minRoom;
+      roomSizes[minRoom] += 1;
+    }
+
+    const updatedMovementRegistered = { ...movementRegistered };
+    userIds.forEach((userId, index) => {
+      const roomNumber = assignments[index];
+      const runningRoom = runningRooms?.find((r) => r.participants.some((p) => p.user.userId === userId));
+      updatedUserAssignedRooms[userId] = [roomNumber];
+      updatedMovementRegistered[userId] = {
+        fromSequence: runningRoom?.sequence ?? 0,
+        toSequence: roomNumber,
+        fromRoomId: runningRoom?.breakoutRoomMeetingId,
+        toRoomId: runningRooms?.find((r) => r.sequence === roomNumber)?.breakoutRoomMeetingId,
+      };
+    });
+    setMovementRegistered(updatedMovementRegistered);
+    setMoveRegisterRef(updatedMovementRegistered);
+    setUserAssignedRooms(updatedUserAssignedRooms);
+  };
+
   const getUserIdsByNumber = (n: number) => {
     if (n === 0) {
       // Return keys with empty arrays
@@ -230,6 +278,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   }, [users]);
 
   randomlyAssignFunction(randomlyAssign);
+  randomlyAssignModeratorsFunction(randomlyAssignModerators);
   resetAssignmentsFunction(() => { resetRooms(0); });
 
   // Manage a running room
@@ -396,6 +445,17 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   useEffect(() => {
     setRoomsRef(rooms);
   }, [rooms, setRoomsRef]);
+
+  useEffect(() => {
+    const unassigned = rooms[0]?.users ?? [];
+    if (unassigned.length === 0) {
+      onAssignmentStateChange('allAssigned');
+    } else if (unassigned.every((u) => u.isModerator)) {
+      onAssignmentStateChange('onlyModerators');
+    } else {
+      onAssignmentStateChange('hasViewers');
+    }
+  }, [rooms]);
 
   return (
     <>

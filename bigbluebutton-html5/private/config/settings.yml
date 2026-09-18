@@ -53,6 +53,12 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
+      # When true, the client follows the operating system's light/dark
+      # preference (prefers-color-scheme) as the initial theme, and keeps
+      # following it while the user has not chosen a theme manually. The
+      # per-user "Dark mode" toggle and the bbb_prefer_dark_theme parameter
+      # always take precedence over the detected system theme.
+      autoDetectFromSystem: true
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
@@ -62,6 +68,9 @@ public:
     skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
+    showGuestLobbyWaitingQueuePosition: true
     guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
@@ -98,6 +107,23 @@ public:
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
+      # Alert shown when WebSpeech is enabled and the user is on floor but nothing is being
+      # transcribed, suggesting a wrong microphone device or noisy environment.
+      microphoneAlert:
+        enabled: true
+        # URL to a knowledge base article about microphone settings (empty = no link shown)
+        helpLink: ''
+        # Audio energy threshold (dB) used to detect that the user is speaking.
+        # More negative values are more sensitive (e.g. -60 picks up quieter audio).
+        threshold: -50
+        # How long (ms) the user must be speaking with no transcription result
+        # before the alert is triggered.
+        speakingThreshold: 5000
+        # How long (ms) the alert toast stays on screen before auto-dismissing.
+        # Set to 0 to require manual dismissal.
+        duration: 10000
+        # How often (ms) the audio energy is checked to determine if the user is speaking.
+        interval: 200
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -211,7 +237,7 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
-        pushToTalkEnabled: false
+        pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
@@ -228,30 +254,21 @@ public:
         # but on first page load overrideLocale will trump the browser's
         # preferred locale
         overrideLocale: null
-        #Audio constraints for microphone. Use this to control browser's
-        #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Suppression, etc.
-        #For more deails, see:
-        # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
-        #Currently, google chrome sets {ideal: true} for autoGainControl,
-        #echoCancellation and noiseSuppression, if not set.
-        #The accepted value for each constraint is an object of type
-        #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
-        #These values are used as initial constraints for every new participant,
-        #and can be changed by user in: Settings > Application > Microphone
-        #Audio Filters.
-        # microphoneConstraints:
-        #   autoGainControl:
-        #     ideal: true
-        #   echoCancellation:
-        #     ideal: true
-        #   noiseSuppression:
-        #     ideal: true
-        # Audio input processing through WASM/BBBA: initial state (enabled/disabled)
-        audioWasmProcessing: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
+        # processingMode: which of the 3 audio-processing options in
+        # Settings > Audio comes selected by default for a new user.
+        # Accepted values:
+        #   advanced: process the microphone through BBBA/WASM (audioWasmProcessing)
+        #   standard: process it with the browser's own filters, i.e. the
+        #             AGC/echo-cancellation/noise-suppression constraints in
+        #             media.audio.microphoneConstraints
+        #   original: no processing at all, transmit the raw microphone signal
+        # If set to 'advanced' but the browser doesn't support BBBA/WASM
+        # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
+        # it falls back to 'standard' (advanced -> standard).
+        processingMode: standard
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
@@ -315,6 +332,10 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  #     settings:
+  #       isNew: true to display the new ribbon on the app gallery item of the plugin
+  #       pin: true # pin all plugin-injected items
+  #       # or: pin: ["generic-content-id", "app-gallery-item-id"] # pin only specific IDs
   # Allowed errors to be shown on notifications bar
     showConnectionErrors:
       # - 3001
@@ -550,14 +571,17 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+      # gridEnabled: whether the camera-less avatar grid is shown when presentation
+      # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
+      gridEnabled: true
       # grid size for DESKTOP endpoints
       desktopGridSizes:
         moderator: 48
         viewer: 48
       # grid size for MOBILE endpoints
       mobileGridSizes:
-        moderator: 14
-        viewer: 14
+        moderator: 6
+        viewer: 6
     paginationThresholds:
       enabled: false
       thresholds:
@@ -817,12 +841,30 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: false
-    showSessionDetailsOnJoin: true
+    showSessionDetailsOnJoin: false
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
   sidebarNavigation:
+    # Controls which built-in sidebar navigation buttons are rendered, in
+    # which section (top/center/bottom) and in what order. Omitting an id
+    # hides that button. This is a full replacement list, not an allow/deny
+    # list over a hidden default - if you customize it, remember to add any
+    # new ids introduced by future upstream versions.
+    buttons:
+      top:
+        - profile
+        - user-list
+        - chat
+        - notes
+      center:
+        - apps-gallery
+        - pinned-apps
+      bottom:
+        - audio-captions
+        - learning-dashboard
+        - settings
     # Controls which apps should have the "new" label in the apps gallery.
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
@@ -839,11 +881,17 @@ public:
     # editor and always visible. When disabled, BlockNote's default floating
     # toolbar appears only when text is selected.
     staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content.
+    importMarkdownEnabled: true
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu.
+    exportMarkdownEnabled: true
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
       # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
-      defaultFullAudioBridge: fullaudio
+      defaultFullAudioBridge: livekit
       # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
       # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -852,7 +900,7 @@ public:
       #
       # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
       # Deprecated, no alternative as this audio mode will be removed.
-      defaultListenOnlyBridge: fullaudio
+      defaultListenOnlyBridge: livekit
       # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
       # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
@@ -860,16 +908,38 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
-      # audioWasmProcessing: audio input processing through WASM/BBBA
-      #   enabled: whether BBBA should be exposed to users. If false, browser's
-      #            built-in audio processing will be used instead.
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, browser's built-in audio processing will be used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured below.
       audioWasmProcessing:
         enabled: false
+        provider: bbba
         constraints:
           echoCancellation: true
           autoGainControl: true
           noiseSuppression: true
+      # microphoneConstraints: browser-level audio constraints (AGC/echo
+      # cancellation/noise suppression) applied when the user selects the
+      # 'standard' audio processing mode in Settings > Audio.
+      # For more details, see:
+      # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      # Currently, google chrome sets {ideal: true} for autoGainControl,
+      # echoCancellation and noiseSuppression, if not set.
+      # The accepted value for each constraint is an object of type
+      # https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+      # If not set (commented out), the browser's own default is used.
+      #microphoneConstraints:
+      #  autoGainControl:
+      #    ideal: true
+      #  echoCancellation:
+      #    ideal: true
+      #  noiseSuppression:
+      #    ideal: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -953,9 +1023,15 @@ public:
         # transitions that would trigger unsubscribe operations.
         muteDebounceMs: 2500
       logLevel: 3
+      # livekit.sdkLogBridge: forward livekit-client's own logs to the client logger.
+      sdkLogBridge: true
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts).
       reconnectOnFatalFailures: true
+      # livekit.negotiationProbe: tracks the time, via logs, that it takes
+      # for a subscriber offer to be answered, from receive to socket dispatch.
+      # Debug instrumentation, off by default
+      negotiationProbe: false
       # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
       forceRelay: false
       # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
@@ -1128,6 +1204,16 @@ public:
     # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
     # default value is 400, adjusted for maxNumberOfAnnotations being 300
     maxHistoryStackSize: 400
+    # Upper bound (ms) for waiting on a new slide's background image to decode before
+    # swapping the visible page (issue 25397). Kept short: a warm/near cache resolves in
+    # sub-frame time and gates the swap, while a cold/slow asset falls through fast to the
+    # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
+    # slide. Latency above this bound still shows the original white flash.
+    slideSwapDecodeTimeoutMs: 250
+    # Presenter mouse wheel behavior over the presentation:
+    # true  - the wheel scrolls (pans) the slide; hold Ctrl/Cmd while scrolling to zoom
+    # false - the wheel zooms directly (behavior of BBB 3.0 and earlier)
+    wheelZoomRequiresCtrl: true
     lockToolbarTools: false
     annotations:
       status:

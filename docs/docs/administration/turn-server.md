@@ -50,6 +50,44 @@ $ sudo apt-get install coturn
 
 Note: coturn will not automatically start until configuration is applied (see below).
 
+#### Using the bbb-coturn package (BigBlueButton 4.0 and later)
+
+Ubuntu 24.04 ships coturn 4.6.1. Starting with BigBlueButton 4.0, an optional `bbb-coturn` package provides a newer coturn (4.16.0) built by the BigBlueButton project. It is not installed by default.
+
+`bbb-coturn` is a drop-in replacement for the distro `coturn` package — it declares `Provides`/`Conflicts`/`Replaces` on `coturn`, so apt removes the distro package when you install it, and it keeps the same `/usr/bin/turnserver` binary, `/etc/turnserver.conf` config file, and `coturn.service` unit name. Everything else on this page applies unchanged, including the systemd override and log rotation sections below.
+
+To install it, add the BigBlueButton package repository for the release you are running, then install the package. Replace `<version>` with your BigBlueButton release (for example `noble-400`):
+
+```bash
+$ sudo mkdir -p /etc/apt/keyrings
+$ sudo wget https://ubuntu.bigbluebutton.org/repo/bigbluebutton.asc -O /etc/apt/keyrings/bigbluebutton.asc
+$ echo "deb [signed-by=/etc/apt/keyrings/bigbluebutton.asc] https://ubuntu.bigbluebutton.org/<version> bigbluebutton-noble main" | sudo tee /etc/apt/sources.list.d/bigbluebutton.list
+$ sudo apt-get update
+$ sudo apt-get install bbb-coturn
+```
+
+Note: like the distro package on a fresh install, `bbb-coturn` does not start coturn for you — and it does not enable the service either. The `/etc/turnserver.conf` it ships is the stock upstream example with every option commented out, and coturn defaults to anonymous access in that state, which would be an open relay. Configure `/etc/turnserver.conf` as described below, then enable and start it:
+
+```bash
+$ sudo systemctl enable --now coturn
+```
+
+##### Upgrading a server that already runs a configured coturn
+
+Installing `bbb-coturn` on a server whose `/etc/turnserver.conf` is already configured (by `bbb-install.sh` or by hand) triggers a dpkg configuration file prompt, because the package ships a different (pristine) copy of that file. Answer `N` (the default) to keep your working configuration; the packaged copy is saved alongside as `/etc/turnserver.conf.dpkg-dist` for reference.
+
+Replacing the distro package also leaves the service stopped — apt stops coturn while removing the old package, and `bbb-coturn` does not start services on install. Start it again with:
+
+```bash
+$ sudo systemctl enable --now coturn
+```
+
+coturn 4.16.0 no longer recognizes some options that 4.6.1-era configurations carry, and it logs a warning for each of them on every start. The following lines are safe to delete from `/etc/turnserver.conf`:
+
+- `no-tlsv1` and `no-tlsv1_1` — TLS 1.0/1.1 support was removed entirely
+- `no-loopback-peers` — loopback peers are now denied by default (the opposite opt-in is `allow-loopback-peers`)
+- `no-cli` — deprecated in favour of the `cli` option; coturn logs an error for it on start
+
 ### Required DNS Entry
 
 You need to set up a fully qualified domain name that resolves to the external IP address of your turn server. You'll use this domain name to generate a TLS certificate using Let's Encrypt (next section).

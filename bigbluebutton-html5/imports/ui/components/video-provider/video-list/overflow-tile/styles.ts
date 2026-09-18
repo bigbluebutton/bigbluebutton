@@ -4,6 +4,10 @@ import {
   webcamBackgroundColor,
   webcamPlaceholderBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  avatarBorderRadius,
+  moderatorAvatarBorderRadius,
+} from '/imports/ui/stylesheets/styled-components/general';
 
 const OverflowTileContainer = styled.div<{ isClickable: boolean }>`
   position: relative;
@@ -67,16 +71,24 @@ const AvatarWrapper = styled.div<{ $index: number }>`
   z-index: ${({ $index }) => 3 - $index};
 `;
 
-const Avatar = styled.div<{ $color: string }>`
+const Avatar = styled.div<{ $color: string; $avatar?: string; $moderator?: boolean }>`
   width: 50px;
   height: 50px;
-  border-radius: 50%;
+  border-radius: ${({ $moderator }) => ($moderator ? moderatorAvatarBorderRadius : avatarBorderRadius)};
   background-color: ${({ $color }) => $color};
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid ${webcamBackgroundColor};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+
+  ${({ $avatar }) => $avatar && `
+    background-image: url(${$avatar});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  `}
 `;
 
 const AvatarInitials = styled.span`
@@ -84,6 +96,7 @@ const AvatarInitials = styled.span`
   font-weight: 600;
   color: ${colorWhite};
   user-select: none;
+  text-transform: capitalize;
 `;
 
 const OverflowText = styled.div`

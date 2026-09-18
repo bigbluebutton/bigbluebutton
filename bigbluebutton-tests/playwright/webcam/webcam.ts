@@ -3,7 +3,12 @@ import { BrowserContext, expect } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
-import { checkVideoUploadData, uploadBackgroundVideoImage, webcamContentCheck } from './util';
+import {
+  checkBackgroundThumbnailColumns,
+  checkVideoUploadData,
+  uploadBackgroundVideoImage,
+  webcamContentCheck,
+} from './util';
 
 export class Webcam extends Page {
   async share() {
@@ -109,6 +114,10 @@ export class Webcam extends Page {
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     };
 
+    // "low" is the lowest visible profile, so it publishes a single encoding
+    // instead of simulcast layers, and that encoding reaches the browser
+    // untouched - in #25587 it carried an undefined framerate, which Firefox
+    // refuses outright. Keep this step on the lowest quality.
     await joinWebcamSettingQuality('low');
     await this.waitAndClick(e.connectionStatusBtn);
     const lowValue = await checkVideoUploadData(this, 0);
@@ -123,12 +132,18 @@ export class Webcam extends Page {
     await this.waitAndClick(e.joinVideo);
     await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitForSelector(e.noneBackgroundButton);
+    await checkBackgroundThumbnailColumns(this, 3);
     await this.waitAndClick(`${e.selectDefaultBackground}[aria-label="Home"]`);
     await this.page.waitForTimeout(1000);
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
+    // Mask the dropdown and user-status overlays: depending on the media bridge,
+    // audio may auto-connect and change those camera-container items, which would
+    // otherwise cause cross-bridge screenshot flakiness unrelated to this test.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
   }
 
   async webcamFullscreen() {
@@ -181,7 +196,11 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
+    // Mask the dropdown and user-status overlays (see applyBackground) to avoid
+    // cross-bridge screenshot flakiness from audio-connection state changes.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
 
     // Remove
     await this.waitAndClick(e.videoDropdownMenu);
@@ -351,5 +370,17 @@ export class Webcam extends Page {
     await expect(this.page).toHaveScreenshot('drag-drop-sidebar-bottom.png', {
       mask: [this.page.locator(e.currentUserLocalStreamVideo)],
     });
+  }
+
+  async virtualBackgroundToggleDisabledOnUnsupportedDevice() {
+    // On mobile viewports the sidebar navigation is collapsed — open it first
+    await this.page.locator(e.toggleSidebarNavigation).click({ force: true });
+    await this.waitAndClick(e.profileSidebarButton);
+    await this.hasElement(
+      e.virtualBackgroundToggle,
+      'should display the virtual background toggle in profile settings',
+    );
+    const toggle = this.page.locator(e.virtualBackgroundToggle);
+    await expect(toggle, 'virtual background toggle should be disabled on unsupported device').toBeDisabled();
   }
 }

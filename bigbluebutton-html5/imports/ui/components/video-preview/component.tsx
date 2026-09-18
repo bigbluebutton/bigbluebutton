@@ -7,6 +7,7 @@ import {
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
 import browserInfo from '/imports/utils/browserInfo';
 import { MutationFunction } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
@@ -571,43 +572,53 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           <Styled.FooterContainer showStopAllButton={showStopAllButton}>
             {showStopAllButton && (
               <Styled.ExtraActions>
-                <Styled.StopAllButton
-                  color="danger"
-                  label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
-                  onClick={handleStopSharingAll}
-                  disabled={shouldDisableButtons}
-                />
+                <Styled.ButtonWrapper>
+                  <BBButton
+                    variant="primary"
+                    color="danger"
+                    dataTest="stopSharingAllWebcams"
+                    label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
+                    onClick={handleStopSharingAll}
+                    disabled={shouldDisableButtons}
+                  />
+                </Styled.ButtonWrapper>
               </Styled.ExtraActions>
             )}
             {!shared && camCapReached ? (
               <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
             ) : (
               <div style={{ display: 'flex' }}>
-                <Styled.CancelButton
-                  data-test="cancelSharingWebcam"
-                  label={intl.formatMessage(intlMessages.cancelLabel)}
-                  onClick={closeModal}
-                />
-                <Styled.SharingButton
-                  data-test="startSharingWebcam"
-                  color={shared ? 'danger' : 'primary'}
-                  label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
-                  onClick={() => {
-                    if (shared) {
-                      handleStopSharing();
-                    } else {
-                      handleStartSharing(webcamDeviceId as string);
-                      if (isAway) {
-                        setAway({
-                          variables: {
-                            away: false,
-                          },
-                        });
+                <Styled.ButtonWrapper>
+                  <BBButton
+                    variant="secondary"
+                    dataTest="cancelSharingWebcam"
+                    label={intl.formatMessage(intlMessages.cancelLabel)}
+                    onClick={closeModal}
+                  />
+                </Styled.ButtonWrapper>
+                <Styled.ButtonWrapper>
+                  <BBButton
+                    variant="primary"
+                    color={shared ? 'danger' : 'default'}
+                    dataTest="startSharingWebcam"
+                    label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+                    onClick={() => {
+                      if (shared) {
+                        handleStopSharing();
+                      } else {
+                        handleStartSharing(webcamDeviceId as string);
+                        if (isAway) {
+                          setAway({
+                            variables: {
+                              away: false,
+                            },
+                          });
+                        }
                       }
-                    }
-                  }}
-                  disabled={isCameraLoading || shouldDisableButtons}
-                />
+                    }}
+                    disabled={isCameraLoading || shouldDisableButtons}
+                  />
+                </Styled.ButtonWrapper>
               </div>
             )}
           </Styled.FooterContainer>

@@ -6,6 +6,27 @@ import org.bigbluebutton.core.running.OutMsgRouter
 
 object PollHdlrHelpers {
 
+  // Selects the answer ids that will actually be recorded for a poll vote.
+  //
+  // - A single-response question keeps at most the first requested id; a
+  //   multi-response question keeps every distinct requested id.
+  // - Out-of-range ids (negative, or >= the number of options) are dropped so a
+  //   malformed vote can neither crash the meeting actor via the indexed answer
+  //   access that follows nor violate the poll_response foreign key on
+  //   persistence. Invalid votes are silently ignored.
+  //
+  // validAnswerIds is the range of option indices for the question (empty when
+  // the question has no answers), so an empty range drops every requested id.
+  def selectValidAnswerIds(requestedAnswerIds: Seq[Int], multiResponse: Boolean, validAnswerIds: Range): Seq[Int] = {
+    val deduped =
+      if (!multiResponse && requestedAnswerIds.length > 1) {
+        Seq(requestedAnswerIds.head)
+      } else {
+        requestedAnswerIds.distinct
+      }
+    deduped.filter(validAnswerIds.contains)
+  }
+
   def broadcastPollUpdatedEvent(outGW: OutMsgRouter, meetingId: String, userId: String, pollId: String, poll: SimplePollResultOutVO): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(PollUpdatedEvtMsg.NAME, routing)

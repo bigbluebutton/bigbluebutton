@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 
 import {
+  colorBorder,
   colorWhite,
   colorGrayDark,
-  colorGrayLightest,
   btnPrimaryColor,
   btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -69,7 +69,7 @@ const ReactionsButtonWrapper = styled(ButtonWrapper)`
 
 
   ${({ isMobile }) => !isMobile && `
-    border: 1px solid ${colorGrayLightest};
+    border: 1px solid ${colorBorder};
     padding: 1rem 0.5rem;
     width: auto;
   `}

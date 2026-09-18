@@ -32,6 +32,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private long imageTagThreshold;
     private long useTagThreshold;
     private long pathsThreshold;
+    private long maskTagThreshold = 0;
     private int convPdfToSvgTimeout = 60;
     private int pdfFontsTimeout = 3;
     private int svgResolutionPpi = 300;
@@ -226,6 +227,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
                 pHandler.numberOfUseTags() > useTagThreshold ||
+                (maskTagThreshold > 0 && pHandler.numberOfMaskTags() >= maskTagThreshold) ||
                 rasterizeCurrSlide) {
 
             // We need t delete the destination file as we are starting a
@@ -246,6 +248,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 logData.put("fileExists", destsvg.exists());
                 logData.put("numberOfImages", pHandler.numberOfImageTags());
                 logData.put("numberOfPaths", pHandler.numberOfPaths());
+                logData.put("numberOfUseTags", pHandler.numberOfUseTags());
+                logData.put("numberOfMasks", pHandler.numberOfMaskTags());
                 logData.put("logCode", "potential_problem_with_svg");
                 logData.put("message", "Potential problem with generated SVG");
                 Gson gson = new Gson();
@@ -412,7 +416,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         rawCommand  += " -q -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFile;
         if (analyze) {
-            rawCommand += " && grep -oE '<image|<path|<use' "+destFile+" | sort | uniq -c ";
+            rawCommand += " && grep -oE '<image|<path|<use|<mask' "+destFile+" | sort | uniq -c ";
         }
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
@@ -493,6 +497,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setPathsThreshold(long threshold) {
         pathsThreshold = threshold;
+    }
+
+    public void setMaskTagThreshold(long threshold) {
+        maskTagThreshold = threshold;
     }
     
     public void setSlidesGenerationProgressNotifier(

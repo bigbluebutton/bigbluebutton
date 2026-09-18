@@ -8,16 +8,13 @@ import Styled from './styles';
 import PrivateChatListHeader from '../private-chats-header/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Chat } from '/imports/ui/Types/chat';
-import { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
-import { Message } from '/imports/ui/Types/message';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
-import {
-  CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
-} from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/queries';
 
 const intlMessages = defineMessages({
   privateChatUnkownUser: {
     id: 'app.userList.chatListItem.unknownParticipant',
+  },
+  privateChatDeletedMessage: {
+    id: 'app.chat.deleteMessage',
   },
   privateChatAriaLabelNoUnread: {
     id: 'app.userList.chatListItem.noUnread',
@@ -63,22 +60,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-
-  const chatQuery = CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;
-  const totalMessages = chat.totalMessages || 0;
-  // Ensure offset is never negative (happens when chat is empty)
-  const offset = totalMessages > 0 ? totalMessages - 1 : 0;
-  const defaultVariables = {
-    offset,
-    limit: 1,
-  }; // to get only the last message from private chat
-  const variables = { ...defaultVariables, requestedChatId: chat.chatId };
-  // Skip subscription if chat has no messages
-  const skipSubscription = totalMessages === 0;
-  const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
-  const {
-    data: chatMessageData,
-  } = useChatMessageSubscription((msg) => msg, skipSubscription) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
   useEffect(() => {
     // Clear any previous timeout to prevent multiple executions
@@ -136,10 +117,17 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   );
   const ariaLabel = unreadCount > 0 ? unreadMessagesLabel : noUnreadMessagesLabel;
 
-  // Handle empty chats (no messages yet)
-  const hasMessages = chatMessageData && chatMessageData.length > 0;
-  const lastMessage = hasMessages ? chatMessageData[0]?.message : '';
-  const lastMessageTime = hasMessages ? new Date(chatMessageData[0]?.createdAt) : null;
+  // The last message preview now comes from the chats subscription itself (issue 25416),
+  // so it renders with the item on the first paint instead of after a separate per-item
+  // subscription that mounted the row a moment later and shifted the list.
+  const hasLastMessage = chat.lastMessageAt != null;
+  // A soft-deleted last message keeps its row with message=NULL and deletedByUserId set;
+  // reuse the existing localized "deleted by {userName}" label shown in the message list.
+  const isLastMessageDeleted = hasLastMessage && chat.lastMessage == null;
+  const lastMessage = isLastMessageDeleted
+    ? intl.formatMessage(intlMessages.privateChatDeletedMessage, { userName: chat.lastMessageDeletedByName ?? '' })
+    : (chat.lastMessage ?? '');
+  const lastMessageTime = chat.lastMessageAt ? new Date(chat.lastMessageAt) : null;
 
   return (
     <Styled.ChatListItem
@@ -171,7 +159,7 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
               />
             </Styled.ChatHeading>
           )}
-          {(hasMessages || unreadMessagesToDisplay > 0) && (
+          {(hasLastMessage || unreadMessagesToDisplay > 0) && (
             <Styled.ChatContent data-test="private-user-list-content">
               <Styled.MessageItemWrapper>
                 {lastMessage}

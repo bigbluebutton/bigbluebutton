@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { styled as materialStyled } from '@mui/material/styles';
@@ -102,6 +103,7 @@ const TimerSwitchButton = styled(Button)`
   height: 3rem;
   border-radius: ${lgBorderRadius};
   margin: 0 .5rem;
+  font-size: ${fontSizeBase};
 `;
 
 const TimeInputWrapper = styled.div`
@@ -132,7 +134,7 @@ const IncrementDecrementButton = styled(Button)`
   height: 1.2rem;
   min-width: 0;
   padding: 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   line-height: 0.9;
 `;
 
@@ -251,7 +253,7 @@ const TimeUnitContainer = styled.div`
 `;
 
 const TimeUnitLabel = styled.span`
-  font-size: 0.80rem;
+  font-size: ${fontSizeBase};
   color: ${colorGray};
   text-transform: capitalize;
 `;
@@ -421,7 +423,7 @@ const TimerPresetsRow = styled.div`
 const TimerPresetButton = styled.button<{disabled?: boolean; isActive?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.95rem;
+  font-size: ${fontSizeBase};
   line-height: 1;
   color: ${colorGrayDark};
   opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
@@ -470,7 +472,7 @@ const PresetArrowButton = styled(Button)`
   
   i {
     margin: 0;
-    font-size: 1rem;
+    font-size: ${fontSizeBase};
   }
 
   [dir="rtl"] & i {
@@ -494,7 +496,7 @@ const TimerAddsRow = styled.div`
 const TimerAddButton = styled.button<{disabled?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
   line-height: 1.5;
   color: ${colorPrimary};
   background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
@@ -510,9 +512,10 @@ const TimerAddButton = styled.button<{disabled?: boolean}>`
 const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
   padding-top: 1rem;
+  gap: 0.75rem;
 `;
 
 const ButtonRow = styled.div`
@@ -521,27 +524,7 @@ const ButtonRow = styled.div`
   gap: 1rem;
 `;
 
-// @ts-ignore - JS code
-const ControlButton = styled(Button)`
-  flex-grow: 1;
-  border-radius: ${lgBorderRadius};
-  height: 3rem;
-  width: 100%;
-`;
-
-const ResetButton = styled(ControlButton)`
-  border: ${borderSize} solid ${colorPrimary};
-`;
-
-const DeactivateButton = styled(ControlButton)`
-  background: transparent;
-  color: ${colorGrayDark};
-
-  &:hover, &:focus {
-    background: transparent;
-    border-color: transparent !important;
-  }
-`;
+const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
 
 const FooterSeparator = styled(BaseSeparator)`
   margin-top: auto;
@@ -573,9 +556,7 @@ export default {
   MaterialSwitch,
   ControlsContainer,
   ButtonRow,
-  ControlButton,
-  ResetButton,
-  DeactivateButton,
+  ButtonWrapper,
   FooterSeparator,
   TimerPresetsRow,
   TimerPresetButton,

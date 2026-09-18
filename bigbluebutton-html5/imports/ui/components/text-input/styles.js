@@ -7,8 +7,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
-  colorGrayLighter,
-  colorBlueLight,
+  colorBorder,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
@@ -34,8 +33,8 @@ const TextArea = styled(TextareaAutosize)`
   font-size: ${fontSizeBase};
   min-height: 2.5rem;
   max-height: 10rem;
-  border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorder};
 
   &:hover {
     outline: transparent;
@@ -53,7 +52,7 @@ const TextArea = styled(TextareaAutosize)`
   &:focus {
     outline: none;
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
   }
 `;
 

@@ -2,6 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
+import {
+  createDocumentTitleViewId,
+  registerDocumentTitleView,
+  unregisterDocumentTitleView,
+} from '/imports/ui/components/app/document-title-manager/service';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -38,6 +43,10 @@ const propTypes = {
   }),
   preventClosing: PropTypes.bool,
   shouldCloseOnOverlayClick: PropTypes.bool,
+  documentTitle: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.string,
+  ]),
 };
 
 const defaultProps = {
@@ -50,13 +59,19 @@ const defaultProps = {
     disabled: false,
   },
   preventClosing: false,
+  documentTitle: false,
 };
 
 class ModalFullscreen extends PureComponent {
   constructor(props) {
     super(props);
     this.previousFocus = null;
+    this.documentTitleViewId = createDocumentTitleViewId('fullscreen-modal');
     this.handleAction = this.handleAction.bind(this);
+  }
+
+  componentDidMount() {
+    this.updateDocumentTitleView();
   }
 
   componentDidUpdate(prevProps) {
@@ -64,6 +79,11 @@ class ModalFullscreen extends PureComponent {
     if (!prevProps.isOpen && isOpen) {
       this.previousFocus = document.activeElement;
     }
+    this.updateDocumentTitleView();
+  }
+
+  componentWillUnmount() {
+    unregisterDocumentTitleView(this.documentTitleViewId);
   }
 
   handleAction(name) {
@@ -95,6 +115,32 @@ class ModalFullscreen extends PureComponent {
     }, 0);
   }
 
+  getDocumentTitle() {
+    const {
+      documentTitle,
+      title,
+    } = this.props;
+
+    if (!documentTitle) return null;
+    if (typeof documentTitle === 'string') return documentTitle;
+    return title;
+  }
+
+  updateDocumentTitleView() {
+    const {
+      isOpen,
+      preventClosing,
+    } = this.props;
+    const documentTitle = this.getDocumentTitle();
+
+    if ((isOpen || preventClosing) && documentTitle) {
+      registerDocumentTitleView(this.documentTitleViewId, documentTitle);
+      return;
+    }
+
+    unregisterDocumentTitleView(this.documentTitleViewId);
+  }
+
   render() {
     const {
       intl,
@@ -103,6 +149,7 @@ class ModalFullscreen extends PureComponent {
       dismiss,
       className,
       children,
+      documentTitle,
       isOpen,
       preventClosing,
       ...otherProps
@@ -119,7 +166,7 @@ class ModalFullscreen extends PureComponent {
         id="fsmodal"
         isOpen={isOpen || preventClosing}
         contentLabel={title}
-        overlayClassName={"fullscreenModalOverlay"}
+        overlayClassName="fullscreenModalOverlay"
         {...otherProps}
       >
         <Styled.Header>

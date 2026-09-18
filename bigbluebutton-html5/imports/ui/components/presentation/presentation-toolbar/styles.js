@@ -1,12 +1,13 @@
 import styled from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
+import { smallOnly, hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorPrimary,
   colorOffWhite,
-  colorBlueLightest,
   toolbarButtonColor,
   colorWhite,
   colorGrayDark,
+  colorBlueLightest,
   toolbarButtonColorDisabled,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -33,10 +34,19 @@ const PresentationToolbarWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
-  ${({ isMobile }) => (isMobile
-    ? 'overflow: auto;'
-    : 'min-width: fit-content;'
-  )};
+  min-width: fit-content;
+
+  // Only where dropdown/content becomes a full-screen overlay - keep both in sync, or
+  // this ~40px box clips a dropdown left in flow above it.
+  @media ${smallOnly}, ${hasPhoneDimentions} {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
   select {
     &:-moz-focusring {
@@ -68,31 +78,6 @@ const PresentationToolbarWrapper = styled.div`
     justify-content: center;
     align-items: center;
   }
-
-  // Fancy scroll
-  &::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  &::-webkit-scrollbar-button {
-    width: 0;
-    height: 0;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.25);
-    border: none;
-    border-radius: 50px;
-  }
-  &::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.5); }
-  &::-webkit-scrollbar-thumb:active { background: rgba(0,0,0,.25); }
-  &::-webkit-scrollbar-track {
-    background: rgba(0,0,0,.25);
-    border: none;
-    border-radius: 50px;
-  }
-  &::-webkit-scrollbar-track:hover { background: rgba(0,0,0,.25); }
-  &::-webkit-scrollbar-track:active { background: rgba(0,0,0,.25); }
-  &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 
 const QuickPollButton = styled(QuickPollDropdownContainer)`

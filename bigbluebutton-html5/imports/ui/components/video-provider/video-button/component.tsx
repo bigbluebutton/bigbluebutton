@@ -241,7 +241,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           hideLabel
           color={hasVideoStream ? 'primary' : 'default'}
           icon={hasVideoStream ? 'video' : 'video_off'}
-          size="lg"
+          size={deviceInfo.isMobile ? 'md' : 'lg'}
           circle
           disabled={!!disableReason}
           loading={videoConnecting}

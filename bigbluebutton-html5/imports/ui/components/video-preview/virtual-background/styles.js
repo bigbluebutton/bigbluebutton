@@ -3,43 +3,40 @@ import {
   borderSize,
   borderSizeLarge,
   borderSizeSmall,
+  lgPadding,
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBorder,
   userThumbnailBorder,
   btnPrimaryBorder,
   btnDefaultColor,
   colorGrayLabel,
-  colorGrayLighter,
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 
-const VirtualBackgroundRowThumbnail = styled.div`
-  margin: 0.4rem;
-`;
+const minThumbnailSize = '80px';
 
+// Thumbnails are laid out as a grid that fits as many columns as the container
+// allows, so the same selector adapts to both the video preview modal and the
+// (narrower) profile settings sidebar panel. The thumbnails take up the leftover
+// width themselves, which keeps a single spacing value between them and around
+// them -- padding and gap must stay equal for the spacing to read as uniform.
 const BgWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  padding: ${borderSizeLarge};
-
-  @media ${smallOnly}, ${mediumOnly} {
-    justify-content: center;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(${minThumbnailSize}, 1fr));
+  gap: ${lgPadding};
+  padding: ${lgPadding};
 `;
 
 const BgNoneButton = styled(Button)`
   border-radius: ${borderSizeLarge};
-  height: 80px;
-  width: 80px;
+  width: 100%;
+  aspect-ratio: 1;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  margin: 0.5rem 0.5rem;
-  flex-shrink: 0;
   padding: unset;
 `;
 
@@ -51,12 +48,11 @@ const ThumbnailButton = styled(Button)`
   align-items: center;
   border-radius: ${borderSizeLarge};
   cursor: pointer;
-  height: 80px;
-  width: 80px;
+  width: 100%;
+  aspect-ratio: 1;
   z-index: 1;
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  flex-shrink: 0;
 
   & + img {
     border-radius: ${borderSizeLarge};
@@ -93,7 +89,7 @@ const Select = styled.select`
   background-color: ${colorWhite};
   border: ${borderSize} solid ${colorWhite};
   border-radius: ${borderSize};
-  border-bottom: 0.1rem solid ${colorGrayLighter};
+  border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};
   width: 100%;
   height: 1.75rem;
@@ -122,7 +118,6 @@ const Label = styled.label`
 
 const ThumbnailButtonWrapper = styled.div`
   position: relative;
-  margin: 0.5rem 0.5rem;
 `;
 
 const ButtonWrapper = styled.div`
@@ -144,18 +139,16 @@ const BgCustomButton = styled(BgNoneButton)`
 `;
 
 const SkeletonWrapper = styled.div`
-  flex-basis: 0 0 48px;
-  margin: 0 0.15rem;
-  height: 48px;
+  aspect-ratio: 1;
 
-  & .react-loading-skeleton {    
-    height: 48px;
-    width: 48px;
+  & .react-loading-skeleton {
+    display: block;
+    height: 100%;
+    width: 100%;
   }
 `;
 
 export default {
-  VirtualBackgroundRowThumbnail,
   BgWrapper,
   BgNoneButton,
   ThumbnailButton,

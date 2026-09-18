@@ -19,13 +19,15 @@ trait RespondToPollReqMsgHdlr {
         if (poll.stopped) {
           log.info("Ignoring vote from user {} because poll {} is already finished in meeting {}", msg.header.userId, msg.body.pollId, msg.header.meetingId)
         } else {
-          val answers = {
-            if (!poll.questions(0).multiResponse && msg.body.answerIds.length > 1) {
-              Seq(msg.body.answerIds.head)
-            } else {
-              msg.body.answerIds.distinct
-            }
-          }
+          val question = poll.questions.headOption
+          val answerList = question.flatMap(_.answers)
+          // Valid answer ids are the option indices of the poll's question. Any id
+          // outside this range is a malformed/out-of-range vote.
+          val validAnswerIds = answerList.map(_.indices).getOrElse(0 until 0)
+
+          val answers = PollHdlrHelpers.selectValidAnswerIds(
+            msg.body.answerIds, question.exists(_.multiResponse), validAnswerIds
+          )
 
           for {
             (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, poll.id,
@@ -34,8 +36,9 @@ trait RespondToPollReqMsgHdlr {
             PollHdlrHelpers.broadcastPollUpdatedEvent(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, updatedPoll)
             for {
               answerId <- answers
+              options <- answerList
             } yield {
-              val answerText = poll.questions(0).answers.get(answerId).key
+              val answerText = options(answerId).key
               PollHdlrHelpers.broadcastUserRespondedToPollRecordMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, answerId, answerText, poll.isSecret)
             }
 

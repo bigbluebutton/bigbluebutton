@@ -19,15 +19,13 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import SessionStorage from '../../services/storage/session';
 import { ModalRegistration } from '../../core/singletons/modalController';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   defaultBreakoutName: {
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
-  },
-  leaveMeetingLabel: {
-    id: 'app.navBar.leaveMeetingBtnLabel',
-    description: 'Leave meeting button label',
   },
   openDetailsTooltip: {
     id: 'app.navBar.openDetailsTooltip',
@@ -48,6 +46,7 @@ const propTypes = {
   breakoutNum: PropTypes.number,
   breakoutName: PropTypes.string,
   meetingName: PropTypes.string,
+  shortcuts: PropTypes.string,
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
@@ -84,8 +83,12 @@ const renderPluginItems = (pluginItems) => {
                       disabled={pluginItem.disabled}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
-                      color="primary"
-                      tooltip={pluginItem.tooltip}
+                      color={pluginItem.color || 'primary'}
+                      circle={pluginItem.circle === true}
+                      hideLabel={pluginItem.hideLabel === true}
+                      size={pluginItem.size || 'md'}
+                      style={pluginItem.style}
+                      tooltipLabel={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
                       dataTest={pluginItem.dataTest}
                       {...navBarIconProps}
@@ -157,6 +160,7 @@ class NavBar extends Component {
       breakoutNum,
       breakoutName,
       meetingName,
+      shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
 
     if (breakoutNum && breakoutNum > 0) {
@@ -171,6 +175,21 @@ class NavBar extends Component {
           document.title = `${breakoutName} - ${meetingName}`;
         }
       }
+    }
+
+    const { isFirefox } = browserInfo;
+    const { isMacos } = deviceInfo;
+
+    // accessKey U does not work on firefox for macOS for some unknown reason
+    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
+      document.addEventListener('keyup', (event) => {
+        const { key, code } = event;
+        const eventKey = key?.toUpperCase();
+        const eventCode = code;
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+          this.handleToggleUserList();
+        }
+      });
     }
   }
 
@@ -280,7 +299,7 @@ class NavBar extends Component {
                     aria-haspopup="dialog"
                     onClick={() => this.setModalIsOpen(true)}
                   >
-                    {presentationTitle}
+                    <Styled.TitleText>{presentationTitle}</Styled.TitleText>
                     <Icon iconName="device_list_selector" rotate />
                   </Styled.TitleButton>
                 </Tooltip>

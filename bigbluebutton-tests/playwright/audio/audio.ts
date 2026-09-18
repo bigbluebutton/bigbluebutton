@@ -105,7 +105,7 @@ export class Audio extends MultiUsers {
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
     await this.modPage.waitAndClick(e.joinAudio);
-    if (listenOnlyMode) await this.modPage.waitAndClick(e.microphoneButton);
+    if (listenOnlyMode) await this.modPage.clickMicrophoneButton();
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'Audio should be established', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.unmuteMicButton, 'should be muted');

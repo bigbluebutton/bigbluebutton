@@ -13,6 +13,7 @@ import {
   lgBorderRadius,
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const SearchContainer = styled.div`
   display: flex;
@@ -25,6 +26,7 @@ const SearchContainer = styled.div`
   padding: ${smPaddingY} ${smPaddingX};
   width: auto;
   height: 40px;
+  flex-shrink: 0;
   overflow: hidden;
   box-shadow: none;
   cursor: text;
@@ -41,7 +43,7 @@ const SearchInput = styled.input`
   outline: none;
   background: transparent;
   color: ${colorText};
-  font-size: 0.875rem;
+  font-size: ${fontSizeBase};
   padding: 0;
   margin-left: ${smPaddingX};
 

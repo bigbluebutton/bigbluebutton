@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import * as helpers from '../helpers';
+import { MEDIA_BRIDGE } from '../livekit';
 import { parameters } from '../parameters';
 
 const { server, secret } = parameters;
@@ -58,6 +59,7 @@ async function validateEnvironmentAndAPI(): Promise<void> {
 }
 
 setup('Initialize logs folder and validate environment variables', async () => {
+  console.log(`Media bridge: ${MEDIA_BRIDGE}`);
   initializeLogsFolder();
   await validateEnvironmentAndAPI();
 });

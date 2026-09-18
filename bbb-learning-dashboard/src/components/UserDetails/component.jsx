@@ -1,13 +1,17 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import {
-  FormattedMessage, FormattedNumber, FormattedTime, injectIntl,
-} from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
 import { getSumOfTime, tsToHHmmss, getActivityScore } from '../../services/UserService';
 import { usePreviousValue } from '../../utils/hooks';
 import { toCamelCase } from '../../utils/string';
+
+const SCORE_FORMAT = { minimumFractionDigits: 0, maximumFractionDigits: 1 };
+const NOT_AVAILABLE_MESSAGE = {
+  id: 'app.learningDashboard.usersTable.notAvailable',
+  defaultMessage: 'N/A',
+};
 
 const UserDatailsComponent = (props) => {
   const {
@@ -198,7 +202,7 @@ const UserDatailsComponent = (props) => {
     'Poll Votes': pollsAverage,
   };
 
-  function renderPollItem(poll, answers) {
+  function renderPollItem(poll, answers, itemKey) {
     const { anonymous: isAnonymous, question, pollId } = poll;
     const answersSorted = Object
       .entries(pollVotesCount[pollId])
@@ -217,7 +221,7 @@ const UserDatailsComponent = (props) => {
     );
 
     return (
-      <tr className="p-6 flex flex-row justify-between items-center">
+      <tr className="p-6 flex flex-row justify-between items-center" key={itemKey}>
         <td className="min-w-[40%] text-ellipsis">{question}</td>
         { isAnonymous ? (
           <td
@@ -246,7 +250,7 @@ const UserDatailsComponent = (props) => {
             </span>
           </td>
         ) : (
-          <td className="min-w-[20%] grow text-center mx-3">{answers.map((answer) => <p title={answer} className="overflow-hidden text-ellipsis">{answer}</p>)}</td>
+          <td className="min-w-[20%] grow text-center mx-3">{answers.map((answer) => <p title={answer} className="overflow-hidden text-ellipsis" key={answer}>{answer}</p>)}</td>
         ) }
         <td
           className="min-w-[40%] text-ellipsis text-center overflow-hidden"
@@ -265,7 +269,7 @@ const UserDatailsComponent = (props) => {
     );
   }
 
-  function renderQuizItem(quiz, data) {
+  function renderQuizItem(quiz, data, itemKey) {
     const { isCorrect, response } = data;
     const { anonymous: isAnonymous, question } = quiz;
     let variant;
@@ -290,7 +294,7 @@ const UserDatailsComponent = (props) => {
     };
 
     return (
-      <tr>
+      <tr key={itemKey}>
         <td className="min-w-[40%] text-ellipsis p-6 py-2">{question}</td>
         { isAnonymous ? (
           <td
@@ -321,9 +325,9 @@ const UserDatailsComponent = (props) => {
         ) : (
           <td className="min-w-[20%] grow text-center mx-3 p-6 py-2">
             <span className={`overflow-hidden text-ellipsis w-full ${variants[variant]}`}>
-              {variant === 'success' && <>&#9989;&nbsp;</>}
-              {variant === 'error' && <>&#10060;&nbsp;</>}
-              {label}
+              {variant === 'success' && <span>&#9989;&nbsp;</span>}
+              {variant === 'error' && <span>&#10060;&nbsp;</span>}
+              <span>{label}</span>
             </span>
           </td>
         ) }
@@ -335,7 +339,7 @@ const UserDatailsComponent = (props) => {
     category, average, activityPoints, totalOfActivity,
   ) {
     return (
-      <tr className="p-6 flex flex-row justify-between items-end">
+      <tr className="p-6 flex flex-row justify-between items-end" key={category}>
         <td className="min-w-[20%] text-ellipsis overflow-hidden">
           <FormattedMessage
             id={`app.learningDashboard.userDetails.${toCamelCase(category)}`}
@@ -346,8 +350,8 @@ const UserDatailsComponent = (props) => {
           <div className="mb-2">
             { (function getAverage() {
               if (average >= 0 && category === 'Talk Time') return tsToHHmmss(average);
-              if (average >= 0 && category !== 'Talk Time') return <FormattedNumber value={average} minimumFractionDigits="0" maximumFractionDigits="1" />;
-              return <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />;
+              if (average >= 0 && category !== 'Talk Time') return intl.formatNumber(average, SCORE_FORMAT);
+              return intl.formatMessage(NOT_AVAILABLE_MESSAGE);
             }()) }
           </div>
           <div className="rounded-2xl bg-gray-200 before:bg-gray-500 h-4 relative before:absolute before:top-[-50%] before:bottom-[-50%] before:w-[2px] before:left-[calc(50%-1px)] before:z-10">
@@ -365,8 +369,8 @@ const UserDatailsComponent = (props) => {
         </td>
         <td className="min-w-[20%] text-sm text-ellipsis overflow-hidden text-right rtl:text-left">
           { activityPoints >= 0
-            ? <FormattedNumber value={activityPoints} minimumFractionDigits="0" maximumFractionDigits="1" />
-            : <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" /> }
+            ? intl.formatNumber(activityPoints, SCORE_FORMAT)
+            : intl.formatMessage(NOT_AVAILABLE_MESSAGE) }
         </td>
       </tr>
     );
@@ -456,7 +460,7 @@ const UserDatailsComponent = (props) => {
               <div aria-label={`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.startTime', defaultMessage: 'Joined' })} ${new Date(createdOn).toISOString().substring(11, 19)}`}>
                 <div aria-hidden="true"><FormattedMessage id="app.learningDashboard.userDetails.startTime" defaultMessage="Start Time" /></div>
                 <div aria-hidden="true">
-                  <FormattedTime value={createdOn} />
+                  {intl.formatTime(createdOn)}
                 </div>
               </div>
               <div className="ltr:text-right rtl:text-left">
@@ -467,7 +471,7 @@ const UserDatailsComponent = (props) => {
                       <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
                     </span>
                   ) : (
-                    <FormattedTime value={endedOn} />
+                    intl.formatTime(endedOn)
                   ) }
                 </div>
               </div>
@@ -482,7 +486,7 @@ const UserDatailsComponent = (props) => {
             </div>
             <div aria-label={`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.joined', defaultMessage: 'Joined' })} ${new Date(joinTime).toISOString().substring(11, 19)}`}>
               <div aria-hidden="true" className="font-medium">
-                <FormattedTime value={joinTime} />
+                {intl.formatTime(joinTime)}
               </div>
               <div aria-hidden="true"><FormattedMessage id="app.learningDashboard.userDetails.joined" defaultMessage="Joined" /></div>
             </div>
@@ -493,7 +497,7 @@ const UserDatailsComponent = (props) => {
                     <FormattedMessage id="app.learningDashboard.indicators.userStatusOnline" defaultMessage="Online" />
                   </span>
                 ) : (
-                  <FormattedTime value={leftTime} />
+                  intl.formatTime(leftTime)
                 ) }
               </div>
               <div className="px-2"><FormattedMessage id="app.learningDashboard.usersTable.left" defaultMessage="Left" /></div>
@@ -514,7 +518,7 @@ const UserDatailsComponent = (props) => {
                   <FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" />
                   :&nbsp;
                   <span className="font-bold">
-                    <FormattedNumber value={getActivityScore(user, users, totalPolls)} minimumFractionDigits="0" maximumFractionDigits="1" />
+                    {intl.formatNumber(getActivityScore(user, users, totalPolls), SCORE_FORMAT)}
                   </span>
                 </h3>
               </div>
@@ -570,10 +574,11 @@ const UserDatailsComponent = (props) => {
                   <th aria-label="Response" className="grow text-center font-normal"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></th>
                   <th aria-label="Most Common Answer" className="min-w-[40%] text-ellipsis text-center font-normal"><FormattedMessage id="app.learningDashboard.userDetails.mostCommonAnswer" defaultMessage="Most Common Answer" /></th>
                 </tr>
-                { Object.values(polls || {})
-                  .map((poll) => renderPollItem(
+                { Object.entries(polls || {})
+                  .map(([pollKey, poll]) => renderPollItem(
                     poll,
                     getUserPollAnswer(poll),
+                    pollKey,
                   )) }
               </table>
             </div>
@@ -591,10 +596,11 @@ const UserDatailsComponent = (props) => {
                   <th aria-label="Quiz" className="min-w-[40%] text-ellipsis font-normal text-left p-6 py-2"><FormattedMessage id="app.learningDashboard.userDetails.quiz" defaultMessage="Quiz" /></th>
                   <th aria-label="Response" className="grow text-center font-normal p-6 py-2"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></th>
                 </tr>
-                { Object.values(quizzes || {})
-                  .map((quiz) => renderQuizItem(
+                { Object.entries(quizzes || {})
+                  .map(([quizKey, quiz]) => renderQuizItem(
                     quiz,
                     getUserQuizAnswer(quiz),
+                    quizKey,
                   )) }
               </table>
             </div>

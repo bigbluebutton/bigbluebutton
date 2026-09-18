@@ -30,16 +30,17 @@ object PadslHdlrHelpers {
   }
 
   def broadcastBNSharedNotesCreateCmdMsg(
-      outGW:                         OutMsgRouter,
-      meetingId:                     String,
-      externalId:                    String,
-      model:                         String,
-      sharedNotesInitialContentJson: Vector[AnyRef]
+      outGW:                             OutMsgRouter,
+      meetingId:                         String,
+      externalId:                        String,
+      model:                             String,
+      sharedNotesInitialContentJson:     Vector[AnyRef],
+      sharedNotesInitialContentMarkdown: String
   ): Unit = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(BNSharedNotesCreateCmdMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(BNSharedNotesCreateCmdMsg.NAME, meetingId)
-    val body = BNSharedNotesCreateCmdMsgBody(externalId, model, sharedNotesInitialContentJson)
+    val body = BNSharedNotesCreateCmdMsgBody(externalId, model, sharedNotesInitialContentJson, sharedNotesInitialContentMarkdown)
     val event = BNSharedNotesCreateCmdMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

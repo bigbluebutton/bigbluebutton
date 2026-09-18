@@ -6,8 +6,7 @@ import {
   colorGray,
   colorWhite,
   colorDanger,
-  colorGrayLighter,
-  colorGrayLightest,
+  colorSuccess,
   colorText,
   colorGrayDark,
   colorOffWhite,
@@ -15,10 +14,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
-  xsPadding,
-  smPaddingY,
-  borderRadius,
-  smPaddingX,
   contentSidebarBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -28,8 +23,6 @@ import {
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { FormControlLabel, Switch, ButtonBase } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
-import TextareaAutosize from 'react-autosize-textarea';
-import Button from '@mui/material/Button';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 type ListItemProps = {
@@ -175,32 +168,36 @@ export const AcceptDenyButtonsContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0px 0.5rem 0.5rem;
+
+  @media ${smallOnly} {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
 `;
 
-const AcceptDenyButtonText = styled.div`
+const AcceptDenyButtonText = styled.span`
   font-size: ${fontSizeSmall};
   font-weight: ${textFontWeight};
   line-height: 120%;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-skip-ink: none;
-  text-decoration-thickness: auto;
-  text-underline-offset: auto;
-  text-underline-position: from-font;
 `;
 
-const AcceptAllButton = styled.div`
+const AcceptAllButton = styled(ButtonBase)`
   display: flex;
-  color: ${colorPrimary};
+  && {
+    color: ${colorSuccess};
+  }
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
   cursor: pointer;
 `;
 
-const DenyAllButton = styled.div`
+const DenyAllButton = styled(ButtonBase)`
   display: flex;
-  color: ${colorDanger};
+  && {
+    color: ${colorDanger};
+  }
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
@@ -271,76 +268,6 @@ const MessageSwitch = materialStyled(Switch)(({ theme }) => ({
     }),
   },
 }));
-
-const SendButton = styled(Button)`
-  align-self: center;
-  font-size: 0.9rem;
-  height: 100%;
-  background-color: ${colorPrimary} !important;
-
-  & > span {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    border-radius: 0 0.75rem 0.75rem 0;
-  }
-
-  [dir="rtl"] & {
-    transform: scale(-1, 1);
-  }
-`;
-
-const Input = styled(TextareaAutosize)`
-  flex: 1;
-  background: #fff;
-  background-clip: padding-box;
-  margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
-  color: ${colorGrayLighter};
-  -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) 0 calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
-  resize: none;
-  transition: color 0.3s ease;
-  border-radius: ${borderRadius};
-  font-size: ${fontSizeBase};
-  line-height: 1;
-  min-height: 2.5rem;
-  max-height: 3.5rem;
-  overflow-y: auto;
-  box-shadow: none;
-  outline: none;
-
-  border: 1px solid ${colorGrayLightest};
-
-  [dir='ltr'] & {
-    border-radius: 0.75rem 0 0 0.75rem;
-  }
-
-  [dir='rtl'] & {
-    border-radius: 0 0.75rem 0.75rem 0;
-  }
-
-  &:focus {
-    color: ${colorText};
-  }
-
-  &:disabled,
-  &[disabled] {
-    cursor: not-allowed;
-    opacity: .75;
-    background-color: rgba(167,179,189,0.25);
-  }
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-  min-width: 0;
-  width: 100%;
-  z-index: 0;
-  border-radius: 0.75rem;
-  height: 3.5rem;
-`;
 
 const NoMessageText = styled.div`
   padding-left: 2.5rem;
@@ -420,7 +347,16 @@ export const RememberChoiceContainer = styled.div`
 export const ActionButtonsWrapper = styled.div`
   display: inline-flex;
   align-items: center;
+  margin-left: auto;
   gap: 1.5rem;
+
+  @media ${smallOnly} {
+    display: flex;
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
 `;
 
 export default {
@@ -448,9 +384,6 @@ export default {
   GuestLobbyMessageContainer,
   SwitchTitle,
   MessageSwitch,
-  SendButton,
-  Input,
-  InputWrapper,
   NoMessageText,
   GuestLobbyMessage,
   WaitingUsersContainer,

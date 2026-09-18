@@ -8,6 +8,7 @@ import {
   colorGrayDark,
   colorBorder,
   colorWhite,
+  colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -22,10 +23,6 @@ import Button from '@mui/material/Button';
 
 interface FormProps {
   isRTL: boolean;
-}
-
-interface InputProps {
-  $hasContent?: boolean;
 }
 
 const Form = styled.form<FormProps>`
@@ -43,7 +40,7 @@ const Wrapper = styled.div`
   border-radius: 0.75rem;
 `;
 
-const Input = styled(TextareaAutosize)<InputProps>`
+const Input = styled(TextareaAutosize)`
   flex: 1;
   background: transparent;
   background-clip: padding-box;
@@ -56,11 +53,16 @@ const Input = styled(TextareaAutosize)<InputProps>`
   transition: color 0.3s ease, margin-right 0.3s ease;
   font-size: ${fontSizeBase};
   line-height: 1;
-  overflow-y: ${({ $hasContent }) => ($hasContent ? 'auto' : 'hidden')};
-  white-space: ${({ $hasContent }) => ($hasContent ? 'normal' : 'nowrap')};
+  overflow-y: auto;
+  white-space: pre-wrap;
   border: ${colorBorder};
   box-shadow: none;
   outline: none;
+
+  &:placeholder-shown {
+    overflow-y: hidden;
+    white-space: nowrap;
+  }
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -191,6 +193,7 @@ const InputWrapper = styled.div`
   cursor: text;
 
   &:focus-within {
+    border-color: ${colorPrimary};
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
   }
 

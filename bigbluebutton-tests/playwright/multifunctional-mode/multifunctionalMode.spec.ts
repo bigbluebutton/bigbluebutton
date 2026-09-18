@@ -2,34 +2,34 @@ import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { MultifunctionalMode } from './multifunctionalMode';
 
-test.describe.parallel('Multifunctional Mode', () => {
+test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
   test('Open a panel in the auxiliary sidebar', async ({ browser, context, page }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
     await mfm.initModPage(page, { testInfo });
     await mfm.openPanelInAuxiliarySidebar();
   });
 
-  test('Opening auxiliary sidebar resets camera from sidebar-bottom position', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
-    await mfm.modPage.shareWebcam();
-    await mfm.openAuxiliarySidebarResetsCameraFromSidebarBottom();
-  });
+  test(
+    'Opening auxiliary sidebar resets camera from sidebar-bottom position',
+    { tag: '@media' },
+    async ({ browser, context, page }, testInfo) => {
+      const mfm = new MultifunctionalMode(browser, context);
+      await mfm.initModPage(page, { testInfo });
+      await mfm.modPage.shareWebcam();
+      await mfm.openAuxiliarySidebarResetsCameraFromSidebarBottom();
+    },
+  );
 
-  test('Should not allow dragging camera below sidebars while auxiliary sidebar is open', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
-    await mfm.modPage.shareWebcam();
-    await mfm.cannotDragCameraToSidebarBottomWithAuxiliaryOpen();
-  });
+  test(
+    'Should not allow dragging camera below sidebars while auxiliary sidebar is open',
+    { tag: '@media' },
+    async ({ browser, context, page }, testInfo) => {
+      const mfm = new MultifunctionalMode(browser, context);
+      await mfm.initModPage(page, { testInfo });
+      await mfm.modPage.shareWebcam();
+      await mfm.cannotDragCameraToSidebarBottomWithAuxiliaryOpen();
+    },
+  );
 
   test('The auxiliary sidebar should remember the last open panel', async ({ browser, context, page }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);

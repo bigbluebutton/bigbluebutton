@@ -8,10 +8,10 @@ import HoldButton from '/imports/ui/components/presentation/presentation-toolbar
 import Button from '/imports/ui/components/common/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
+  colorBorder,
   colorDanger,
   colorGray,
   colorGrayLight,
-  colorGrayLighter,
   colorWhite,
   colorPrimary,
   colorBlueLight,
@@ -236,7 +236,7 @@ const InputRoomsLabel = styled.label<withValidProp>`
 const GeneralSelect = `
   background-color: ${colorWhite};
   color: ${colorGray};
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   width: 100%;
   padding-top: .25rem;
@@ -292,7 +292,7 @@ const LabelText = styled.p<LabelTextProps>`
 const DurationInput = styled.input`
   background-color: ${colorWhite};
   color: ${colorGray};
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   width: 100%;
   text-align: left;

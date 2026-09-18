@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 
 const propTypes = {
-  children: PropTypes.shape({}).isRequired,
+  children: PropTypes.node.isRequired,
 };
 function PresentationDownloadDropdownWrapper({ children }) {
   return (

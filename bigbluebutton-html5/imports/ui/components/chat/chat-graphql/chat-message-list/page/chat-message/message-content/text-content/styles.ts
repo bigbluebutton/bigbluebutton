@@ -1,14 +1,24 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   colorDangerDark,
-  colorGrayLightest,
+  colorBorder,
   colorOffWhite,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
   systemMsg?: boolean;
+  $jumbomoji?: boolean;
 }
+
+const jumbomojiStyles = css`
+  font-size: 2.5em;
+  line-height: 1.2;
+
+  & p {
+    line-height: 1.2;
+  }
+`;
 
 export const ChatMessage = styled.div<ChatMessageProps>`
   flex: 1;
@@ -17,6 +27,8 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   flex-direction: column;
   color: ${colorText};
   word-break: break-word;
+
+  ${({ $jumbomoji }) => $jumbomoji && jumbomojiStyles}
 
   & img {
     max-width: 100%;
@@ -28,9 +40,10 @@ export const ChatMessage = styled.div<ChatMessageProps>`
     white-space: pre-wrap;
   }
 
-  & pre:has(code), p code:not(pre > code) {
+  & pre:has(code),
+  p code:not(pre > code) {
     background-color: ${colorOffWhite};
-    border: solid 1px ${colorGrayLightest};
+    border: solid 1px ${colorBorder};
     border-radius: 4px;
     padding: 2px;
     margin: 0;

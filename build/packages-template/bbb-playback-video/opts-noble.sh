@@ -2,4 +2,4 @@
 
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d bbb-record-core -d bbb-presentation-video,yq"
+OPTS="$OPTS -t deb -d bbb-record-core -d bbb-presentation-video,bbb-yq-go"

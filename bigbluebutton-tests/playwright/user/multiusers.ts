@@ -2,9 +2,10 @@ import { Browser, BrowserContext, expect, Page as PlaywrightPage, test, TestInfo
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
-import { checkAvatarIcon, checkMutedUser } from './util';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
@@ -230,9 +231,7 @@ export class MultiUsers {
     await this.userPage.joinMicrophone();
 
     // The presenter's grid must contain the audio-only tile (placeholder with avatar).
-    const audioOnlyTiles = this.modPage.page
-      .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
-      .filter({ has: this.modPage.page.locator(e.webcamConnecting) });
+    const audioOnlyTiles = audioOnlyTilesLocator(this.modPage);
     await expect(audioOnlyTiles, 'should display the audio-only tile in the presenter grid').not.toHaveCount(0);
 
     // The audio-only attendee raises hand.
@@ -246,6 +245,49 @@ export class MultiUsers {
     ).toHaveCount(1);
   }
 
+  async audioOnlyTileVisibleForAttendee() {
+    // Regression test for issue 25242: audio-only tiles (camera-less users that hold the
+    // floor) must be shown to attendees, not only moderators. Moderators are unpaginated
+    // by default (pagination.desktopPageSizes.moderator = 0) and always add audio-only
+    // tiles; attendees are paginated (viewer = 5).
+    //
+    // The original bug lived in the `partitionPrivilegedStreams = false` pagination branch,
+    // which dropped audio-only tiles for paginated viewers. Both that and
+    // `showAudioOnlyOnFirstPage` are config-only (no per-meeting/userdata override), so both
+    // pages are launched with AUDIO_ONLY_TILE_SETTINGS_OVERRIDE (applied via
+    // initModPage in the spec and initUserPage below) to deterministically reproduce the
+    // regression rather than relying on the shipped default.
+    linkIssue(25242);
+
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    // Moderator shares a webcam so the camera dock is visible over the presentation.
+    // Audio-only tiles are only surfaced in the unified layout, which is the default.
+    await this.modPage.shareWebcam();
+
+    // An attendee joins with microphone and unmutes. Speaking takes the audio floor,
+    // which qualifies the attendee as an audio-only user.
+    await this.initUserPage(undefined, { clientSettingsOverrides: AUDIO_ONLY_TILE_SETTINGS_OVERRIDE });
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitAndClick(e.joinAudio);
+    await this.userPage.joinMicrophone();
+
+    // Wait for the moderator webcam to be fully rendered in the attendee grid first, so
+    // the only remaining placeholder (avatar) tile to match is the audio-only one.
+    await this.userPage.hasElement(e.webcamContainer, 'attendee should receive the moderator webcam');
+
+    // Control: the moderator (unpaginated) already shows the audio-only tile.
+    await expect(audioOnlyTilesLocator(this.modPage), 'moderator should display the audio-only tile').not.toHaveCount(
+      0,
+    );
+
+    // Regression assertion: the attendee (paginated viewer) must also show it (issue 25242).
+    await expect(
+      audioOnlyTilesLocator(this.userPage),
+      'attendee should also display the audio-only tile (issue 25242)',
+    ).not.toHaveCount(0);
+  }
+
   async toggleUserList() {
     await this.modPage.hasElement(e.chatBox, 'should display the public chat box for the moderator');
     await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button for the moderator');
@@ -257,7 +299,9 @@ export class MultiUsers {
   }
 
   async saveUserNames() {
-    await this.modPage.waitAndClick(e.manageUsers);
+    // downloadUserNamesList is a direct header button of the participants
+    // panel now (the manageUsers gear dropdown is gone)
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     const downloadUserNamesListLocator = this.modPage.page.locator(e.downloadUserNamesList);
     const { content } = await this.modPage.handleDownload(downloadUserNamesListLocator);
 
@@ -450,7 +494,7 @@ export class MultiUsers {
     await this.initUserPage(this.modPage.context, {
       shouldCloseAudioModal: false,
     });
-    await this.userPage.waitAndClick(e.microphoneButton);
+    await this.userPage.clickMicrophoneButton();
     await this.userPage.waitAndClick(e.joinEchoTestButton);
     await this.userPage.wasRemoved(
       e.establishingAudioLabel,
@@ -467,7 +511,7 @@ export class MultiUsers {
     await this.initUserPage2(this.modPage.context, {
       shouldCloseAudioModal: false,
     });
-    await this.userPage2.waitAndClick(e.microphoneButton);
+    await this.userPage2.clickMicrophoneButton();
     await this.userPage2.waitAndClick(e.joinEchoTestButton);
     await this.userPage2.wasRemoved(
       e.establishingAudioLabel,
@@ -488,9 +532,10 @@ export class MultiUsers {
     await this.modPage.joinMicrophone();
     await this.modPage2.joinMicrophone();
     await this.userPage.joinMicrophone();
-    // mute all users except the presenter
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.muteAllExceptPresenter);
+    // mute all users except the presenter: a direct crowd-action button in the
+    // participants panel now (the manageUsers gear dropdown is gone)
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.muteAllUsers);
     // check if presenter is not muted
     await this.modPage.checkUserTalkingIndicator();
     // check number of talking indicator's element

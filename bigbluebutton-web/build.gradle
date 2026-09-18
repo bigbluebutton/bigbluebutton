@@ -17,13 +17,28 @@ buildscript {
     // Asset Pipeline plugin classpath is optional if you use plugins DSL; keeping here is fine:
     classpath "com.bertramlabs.plugins:asset-pipeline-gradle:5.0.9"
   }
+  configurations.classpath {
+    resolutionStrategy {
+      force 'com.google.protobuf:protobuf-java:3.25.5'
+    }
+  }
 }
 
 version "0.10.0"
 group "org.bigbluebutton.web"
 
-ext['tomcat.version'] = '10.1.55'
-ext['netty.version'] = '4.1.132.Final'
+ext['tomcat.version'] = '10.1.56'
+ext['netty.version'] = '4.2.17.Final'
+ext['lettuce.version'] = '7.7.0.RELEASE'
+ext['postgresql.version'] = '42.7.13'
+ext['spring-framework.version'] = '6.2.19'
+ext['jackson-bom.version'] = '2.22.1'
+ext['logback.version'] = '1.5.38'
+ext['spring-data-bom.version'] = '2025.0.13'
+ext['httpclient5.version'] = '5.6.3'
+ext['httpcore5.version'] = '5.4.3'
+ext['selenium.version'] = '4.45.0'
+ext['opentelemetry.version'] = '1.63.0'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -55,6 +70,16 @@ repositories {
 }
 
 dependencies {
+  constraints {
+    // Grails CLI profile artifacts (build-time only, not packaged in the WAR)
+    profile("org.codehaus.plexus:plexus-utils") {
+      version { strictly "3.6.1" }
+    }
+    // asset-pipeline -> closure-compiler, on the asset/dev and test classpaths only
+    assetDevelopmentRuntime "com.google.protobuf:protobuf-java:3.25.5"
+    testRuntimeOnly "com.google.protobuf:protobuf-java:3.25.5"
+  }
+
   // Spring Boot managed libs – version comes from `springVersion` property
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
@@ -63,10 +88,10 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
   // Override transitive tomcat-embed from spring-boot-starter-tomcat.
-  // TODO: remove once springVersion >= 3.5.15 (which will manage a fixed tomcat-embed).
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.55"
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.55"
-  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.55"
+  // TODO: remove once springVersion >= 3.5.17 (which will manage a fixed tomcat-embed).
+  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.56"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
@@ -94,7 +119,7 @@ dependencies {
   implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
 
   implementation "io.lettuce:lettuce-core"
-  implementation "io.projectreactor:reactor-core:3.6.0"
+  implementation "io.projectreactor:reactor-core:3.8.7"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
   implementation "org.freemarker:freemarker:2.3.34"
@@ -109,7 +134,7 @@ dependencies {
   testImplementation "org.apache.grails:grails-testing-support-datamapping"
   testImplementation "org.apache.grails:grails-geb"
   testImplementation "org.apache.grails:grails-testing-support-web"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.20.0"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.45.0"
   //testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:3.10.0"
   testImplementation ("com.github.javafaker:javafaker:1.0.2") {
     exclude group: "org.yaml"
@@ -162,6 +187,39 @@ assets {
 }
 
 test {
+  // Spock 2.x runs on the JUnit Platform only. Without this the JUnit 4 runner
+  // discovers zero specs and the task passes vacuously.
+  useJUnitPlatform()
+
+  // Guard against that regressing. Before useJUnitPlatform() was added, this
+  // task reported success while executing zero tests, which hid every failure in
+  // ApiControllerSpec for as long as it existed. A green build that ran nothing
+  // must be a failure, not a pass.
+  //
+  // Bump MIN_EXPECTED_TESTS when adding specs; it is a floor, not an exact count,
+  // so it does not need to track every new test case.
+  ext.MIN_EXPECTED_TESTS = 40
+  ext.executedTestCount = 0
+
+  afterSuite { desc, result ->
+    if (desc.parent == null) {
+      // Root suite: `result` aggregates the whole run.
+      test.ext.executedTestCount = result.testCount
+    }
+  }
+
+  doLast {
+    int executed = test.ext.executedTestCount
+    if (executed < test.ext.MIN_EXPECTED_TESTS) {
+      throw new GradleException(
+          "Test discovery looks broken: executed ${executed} tests, expected at least " +
+          "${test.ext.MIN_EXPECTED_TESTS}. Either specs stopped being discovered (check " +
+          "useJUnitPlatform() above) or specs were removed — if the removal was intended, " +
+          "lower MIN_EXPECTED_TESTS in bigbluebutton-web/build.gradle.")
+    }
+    logger.lifecycle("Test discovery check: executed ${executed} tests (floor ${test.ext.MIN_EXPECTED_TESTS}).")
+  }
+
   testLogging {
     events "passed", "failed", "skipped"
     showStandardStreams = true

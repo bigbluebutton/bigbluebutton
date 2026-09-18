@@ -43,7 +43,11 @@ When BigBlueButton is protected behind a firewall, you need to configure the fir
 
 - TCP/IP port 22 (for SSH)
 - TCP/IP ports 80/443 (for HTTP/HTTPS)
-- UDP ports in the range 16384 - 32768 (for FreeSWITCH/HTML5 RTP streams)
+- UDP ports in the range 16384 - 32768 (for LiveKit/FreeSWITCH/HTML5 RTP streams)
+
+LiveKit reuses the UDP range above for its media (RTP) streams; its signaling is
+proxied through the existing nginx HTTPS endpoint (TCP 443), so no extra ports are
+required for it.
 
 ### EC2
 

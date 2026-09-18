@@ -1,9 +1,17 @@
 import styled from 'styled-components';
 import {
   borderSize,
+  borderSizeSmall,
+  mobileNavbarButtonSize,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarBorderRadius,
   navigationSidebarListItemsContainerGap,
+  navigationSidebarListItemsContainerGapSmallHeight,
   navigationSidebarListItemsGap,
+  navigationSidebarListItemsGapSmallHeight,
+  navigationSidebarNotificationBadgeSize,
+  navigationSidebarNotificationBadgeBottom,
+  navigationSidebarNotificationBadgeRight,
   navigationSidebarPaddingY,
   navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -11,11 +19,13 @@ import {
   colorGrayDark,
   colorWhite,
   colorDanger,
+  notificationBadgeBg,
   colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { Separator as BaseSeparator } from '/imports/ui/components/sidebar-content/styles';
 import Button from '/imports/ui/components/common/button/component';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const smallHeight = '(max-height: 40em)';
 
@@ -55,6 +65,22 @@ const NavigationToggleButton = styled(Button)`
   margin: 0;
   z-index: 3;
   align-self: center;
+
+  @media ${smallOnly} {
+    margin-top: calc((${mobileNavbarButtonSize} - ${mobileNavigationSidebarToggleButtonSize}) / 2);
+
+    & > span:first-of-type {
+      width: ${mobileNavigationSidebarToggleButtonSize};
+      height: ${mobileNavigationSidebarToggleButtonSize};
+      min-width: ${mobileNavigationSidebarToggleButtonSize};
+      padding: 0 !important;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   ${({ hasNotification }) => hasNotification && `
     position: relative;
 
@@ -62,12 +88,12 @@ const NavigationToggleButton = styled(Button)`
       content: '';
       position: absolute;
       border-radius: 50%;
-      width: 12px;
-      height: 12px;
-      bottom: ${borderSize};
-      right: 3px;
-      background-color: ${colorDanger};
-      border: ${borderSize} solid ${colorGrayDark};
+      width: ${navigationSidebarNotificationBadgeSize};
+      height: ${navigationSidebarNotificationBadgeSize};
+      bottom: ${navigationSidebarNotificationBadgeBottom};
+      right: ${navigationSidebarNotificationBadgeRight};
+      background-color: ${notificationBadgeBg};
+      border: ${borderSizeSmall} solid ${colorWhite};
     }
   `}
 `;
@@ -86,7 +112,7 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
   border-radius: ${navigationSidebarBorderRadius};
   gap: ${navigationSidebarListItemsContainerGap};
   @media ${smallHeight} {
-    gap: 1.25rem;
+    gap: ${navigationSidebarListItemsContainerGapSmallHeight};
   }
 
   ${({ isExpanded }) => (isExpanded ? `
@@ -120,7 +146,7 @@ const PositionedDiv = styled.div`
   gap: ${navigationSidebarListItemsGap};
 
   @media ${smallHeight} {
-    gap: 0.4rem;
+    gap: ${navigationSidebarListItemsGapSmallHeight};
   }
 `;
 

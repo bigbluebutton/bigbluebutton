@@ -63,7 +63,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
   });
 
   // sometimes fails in 3.1
-  test.describe('Smart Slides', { tag: '@flaky-3.1' }, () => {
+  test.describe('Smart Slides', { tag: '@flaky' }, () => {
     test('A/B/C/D/E - One option answer', async () => {
       await polling.oneOptionAnswer();
     });
@@ -82,6 +82,14 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
 
     test('Type Response', async () => {
       await polling.typeResponse();
+    });
+
+    test('Parenthetical question preserved - lettered poll - issue 25320', async () => {
+      await polling.parentheticalQuestionLetterPoll();
+    });
+
+    test('Parenthetical question preserved - typed response - issue 25320', async () => {
+      await polling.parentheticalQuestionTypedResponse();
     });
 
     test('Hiding pools - Poll anywhere in the slide', async () => {

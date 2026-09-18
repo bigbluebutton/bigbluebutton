@@ -16,6 +16,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     throw new ValidationError('Parameter `answerIds` exceeds the maximum allowed limit of 100 options', 400);
   }
 
+  if(Array.isArray(input.answerIds) && input.answerIds.some(id => !Number.isInteger(id) || id < 0)) {
+    throw new ValidationError('Parameter answerIds must contain only non-negative integers', 400);
+  }
+
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
     userId: sessionVariables['x-hasura-userid'] as String

@@ -5,6 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import {
   Rooms,
@@ -55,6 +56,10 @@ const intlMessages = defineMessages({
   randomlyAssignDesc: {
     id: 'app.createBreakoutRoom.randomlyAssignDesc',
     description: 'randomly assign label description',
+  },
+  assignModeratorsRandomlyDesc: {
+    id: 'app.createBreakoutRoom.assignModeratorsRandomlyDesc',
+    description: 'assign moderators randomly label description',
   },
   resetAssignmentsDesc: {
     id: 'app.createBreakoutRoom.resetAssignmentsDesc',
@@ -337,7 +342,9 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
-  const [randomlyAssigned, setRandomlyAssigned] = useState(false);
+  const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>(
+    () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
+  );
   const [inheritLockSettings, setInheritLockSettings] = useState(false);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
@@ -345,6 +352,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const roomsRef = useRef<Rooms>({});
   const moveRegisterRef = useRef<moveUserRegistery>({});
   const randomlyAssignFunction = useRef<() => void>(() => {});
+  const randomlyAssignModeratorsFunction = useRef<() => void>(() => {});
   const resetAssignmentsFunction = useRef<() => void>(() => {});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const breakoutDurationRef = useRef<number>(DEFAULT_SIDEBAR_BREAKOUT_TIME * 60);
@@ -472,6 +480,38 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
   const canStart = isDurationValid && (freeJoin || leastOneUserIsValid);
 
+  const assignBtnProps = useMemo(() => {
+    if (assignmentState === 'allAssigned') {
+      return {
+        label: intl.formatMessage(intlMessages.resetAssignmentsDesc),
+        tooltip: intl.formatMessage(intlMessages.resetAssignmentsDesc),
+        dataTest: 'resetAssignments',
+      };
+    }
+    if (assignmentState === 'onlyModerators') {
+      return {
+        label: intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc),
+        tooltip: intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc),
+        dataTest: 'assignModeratorsRandomly',
+      };
+    }
+    return {
+      label: intl.formatMessage(intlMessages.randomlyAssignDesc),
+      tooltip: intl.formatMessage(intlMessages.randomlyAssignDesc),
+      dataTest: 'randomlyAssign',
+    };
+  }, [assignmentState, intl]);
+
+  const handleRandomAssign = useCallback(() => {
+    if (assignmentState === 'allAssigned') {
+      resetAssignmentsFunction.current();
+    } else if (assignmentState === 'onlyModerators') {
+      randomlyAssignModeratorsFunction.current();
+    } else {
+      randomlyAssignFunction.current();
+    }
+  }, [assignmentState]);
+
   const tooltipText = (() => {
     if (!isDurationValid) {
       return intl.formatMessage(
@@ -578,24 +618,12 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         {/* @ts-ignore */}
         <Styled.RandomAssignBtn
           color="primary"
-          icon={randomlyAssigned ? 'undo' : 'random'}
-          label={randomlyAssigned
-            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
-            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
+          icon={assignmentState === 'allAssigned' ? 'undo' : 'random'}
+          label={assignBtnProps.label}
           hideLabel
-          tooltipLabel={randomlyAssigned
-            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
-            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
-          onClick={() => {
-            if (randomlyAssigned) {
-              resetAssignmentsFunction.current();
-              setRandomlyAssigned(false);
-            } else {
-              randomlyAssignFunction.current();
-              setRandomlyAssigned(true);
-            }
-          }}
-          data-test="randomlyAssign"
+          tooltipLabel={assignBtnProps.tooltip}
+          onClick={handleRandomAssign}
+          data-test={assignBtnProps.dataTest}
         />
       </Styled.ControlsRow>
 
@@ -671,36 +699,31 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           groups={groups}
           freeJoin={freeJoin}
           randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
+          randomlyAssignModeratorsFunction={(fn: () => void) => { randomlyAssignModeratorsFunction.current = fn; }}
           resetAssignmentsFunction={(fn: () => void) => { resetAssignmentsFunction.current = fn; }}
+          onAssignmentStateChange={setAssignmentState}
           isMobile={false}
         />
       </Styled.ScrollContent>
 
-      {tooltipText ? (
-        <TooltipContainer title={tooltipText}>
+      {(() => {
+        const startButton = (
           <Styled.StartButtonWrapper>
-            <Styled.StartButton
+            <BBButton
+              variant="primary"
               disabled={!canStart}
               onClick={handleCreateRoom}
-              aria-label={intl.formatMessage(intlMessages.startLabel)}
-              data-test="createBreakoutRoomsButton"
-            >
-              {intl.formatMessage(intlMessages.startLabel)}
-            </Styled.StartButton>
+              label={intl.formatMessage(intlMessages.startLabel)}
+              dataTest="createBreakoutRoomsButton"
+            />
           </Styled.StartButtonWrapper>
-        </TooltipContainer>
-      ) : (
-        <Styled.StartButtonWrapper>
-          <Styled.StartButton
-            disabled={!canStart}
-            onClick={handleCreateRoom}
-            aria-label={intl.formatMessage(intlMessages.startLabel)}
-            data-test="createBreakoutRoomsButton"
-          >
-            {intl.formatMessage(intlMessages.startLabel)}
-          </Styled.StartButton>
-        </Styled.StartButtonWrapper>
-      )}
+        );
+        return tooltipText ? (
+          <TooltipContainer title={tooltipText}>
+            {startButton}
+          </TooltipContainer>
+        ) : startButton;
+      })()}
     </Styled.PanelContent>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { GenericContentItemProps } from './types';
-import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
 const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const {
@@ -28,7 +27,6 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const style: React.CSSProperties = {
     height: '100%',
     overflow: 'hidden',
-    borderRadius: lgBorderRadius,
   };
   if (width) {
     style.width = width;

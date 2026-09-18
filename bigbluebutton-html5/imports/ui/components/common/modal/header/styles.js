@@ -3,8 +3,8 @@ import Button from '/imports/ui/components/common/button/component';
 import { TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
+  colorBorder,
   colorGrayDark,
-  colorGrayLighter,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -36,7 +36,7 @@ const Header = styled.header`
 
   ${({ $hideBorder }) => !$hideBorder && `
     padding: calc(${lineHeightComputed} / 2) 0;
-    border-bottom: ${borderSize} solid ${colorGrayLighter};
+    border-bottom: ${borderSize} solid ${colorBorder};
   `}
 `;
 

@@ -2,7 +2,7 @@ import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ScreenShare } from './screenshare';
 
-test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
+test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
   test('Start and Stop Share screen', async ({ browser, context, browserName, page }, testInfo) => {
     test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');

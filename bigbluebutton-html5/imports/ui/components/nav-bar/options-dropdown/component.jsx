@@ -322,6 +322,7 @@ class OptionsDropdown extends PureComponent {
             />
           )}
           actions={this.renderMenuItems()}
+          overrideMobileStyles
           opts={{
             id: 'app-settings-dropdown-menu',
             keepMounted: true,

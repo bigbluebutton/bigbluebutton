@@ -31,6 +31,7 @@ create unlogged table "meeting" (
 	"screenShareBridge" varchar(30),
 	"audioBridge" varchar(30),
 	"notifyRecordingIsOn" boolean,
+	"notifyRecordingAppend" text,
 	"presentationUploadExternalDescription" text,
 	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),
@@ -248,9 +249,9 @@ from (
 
 create unlogged table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "groupId"    varchar(100),
+    "groupId"    text,
     "groupIndex" integer,
-    "name"       varchar(100),
+    "name"       text,
     "usersExtId" varchar[],
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );
@@ -739,8 +740,8 @@ CREATE UNLOGGED TABLE "user_voice" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
 	"voiceUserId" varchar(100),
-	"callerName" varchar(100),
-	"callerNum" varchar(100),
+	"callerName" text,
+	"callerNum" text,
 	"callingWith" varchar(100),
 	"joined" boolean,
 	"listenOnly" boolean,
@@ -1271,7 +1272,7 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
-    "senderName" varchar(255),
+    "senderName" text,
 	"senderRole" varchar(20),
 	"createdAt" timestamp with time zone not null,
 	"editedAt" timestamp with time zone,
@@ -1477,7 +1478,10 @@ SELECT 	"user"."meetingId",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
         "chat"."pinnedMessageId",
         "chat"."pinnedByUserId",
-        "chat"."pinnedAt"
+        "chat"."pinnedAt",
+        last_msg."lastMessage",
+        last_msg."lastMessageAt",
+        deleted_by."name" AS "lastMessageDeletedByName"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin
@@ -1487,6 +1491,24 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND
                                     chat_with."chatId" = chat."chatId" AND
                                     chat_with."userId" != cu."userId"  AND
                                     chat_with."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+--last message preview for the chats list (issue 25416): resolved here so the private
+--chat list renders the preview from the chats subscription itself, instead of gating it
+--behind a per-item subscription that mounts the row a moment later and shifts the list.
+--Index Scan Backward on idx_v_chat_message_unread ("meetingId","chatId","createdAt") -> rows=1.
+LEFT JOIN LATERAL (
+    SELECT cm."message"         AS "lastMessage",
+           cm."createdAt"       AS "lastMessageAt",
+           cm."deletedByUserId" AS "lastMessageDeletedByUserId"
+    FROM "chat_message" cm
+    WHERE cm."meetingId" = "user"."meetingId"
+      AND cm."chatId"    = cu."chatId"
+    ORDER BY cm."createdAt" DESC
+    LIMIT 1
+) last_msg ON true
+--resolve the deleter's display name so a soft-deleted last message (message=NULL,
+--deletedByUserId set) can reuse the existing "deleted by {userName}" preview label.
+LEFT JOIN "user" deleted_by ON deleted_by."meetingId" = "user"."meetingId"
+                           AND deleted_by."userId"    = last_msg."lastMessageDeletedByUserId"
 WHERE cu."visible" is true;
 
 CREATE INDEX "idx_v_chat_with" on chat_user("meetingId","chatId","userId") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
@@ -1883,7 +1905,15 @@ LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionI
 WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
-CREATE VIEW "v_poll" AS SELECT * FROM "poll";
+CREATE VIEW "v_poll" AS
+SELECT poll.*,
+(
+    -- Secret polls keep the userId only in a separate response marker row.
+    SELECT count(DISTINCT response."userId")::integer
+    FROM poll_response response
+    WHERE response."pollId" = poll."pollId"
+) AS "numResponders"
+FROM poll;
 
 CREATE VIEW v_poll_option AS
 SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"
@@ -2605,16 +2635,20 @@ from "meeting";
 
 ------------------------
 ----LiveKit
-CREATE UNLOGGED TABLE "user_livekit"(
-	"meetingId" varchar(100),
-	"userId" varchar(50),
-	"livekitToken" TEXT,
-	CONSTRAINT "user_livekit_pkey" PRIMARY KEY ("meetingId", "userId"),
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+-- Note: in LK, roomName is the unique identifier for a room. In our case, it is
+-- the BBB meeting ID for the meeting that owns this LK room.
+CREATE UNLOGGED TABLE "user_livekit_room" (
+    "meetingId"   varchar(100) NOT NULL,
+    "userId"      varchar(50)  NOT NULL,
+    "roomName"    varchar(255) NOT NULL,
+    "purpose"     varchar(64)  NOT NULL,
+    "token"       TEXT,
+    CONSTRAINT "user_livekit_room_pkey" PRIMARY KEY ("meetingId", "userId", "roomName"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
-CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
-CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
+-- No secondary index: the PK btree serves (meetingId) and
+-- (meetingId, userId) prefix lookups (Hasura per-user filter, sweeps).
+CREATE VIEW  "v_user_livekit_room" AS SELECT * FROM "user_livekit_room";
 
 CREATE UNLOGGED TABLE "mediaGroup" (
 	"meetingId" 			varchar(100),

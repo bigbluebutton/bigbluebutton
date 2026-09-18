@@ -3,12 +3,12 @@ import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { SET_MUTED } from './mutations';
-import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { useIsLockSettingsEnabled } from '/imports/ui/services/features';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -29,9 +29,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
-  isBreakout,
-}) => {
+const CrowdActionButtons: React.FC = () => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
@@ -42,6 +40,9 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
     sidebarContent?.width && sidebarContent?.minWidth
     && sidebarContent.width <= sidebarContent.minWidth + 1,
   );
+  const { isMobile } = deviceInfo;
+  // On mobile, keep the footer buttons side by side instead of stacked.
+  const isMinWidthLayout = isAtMinWidth && !isMobile;
 
   const muteAll = () => {
     setMuted({
@@ -73,7 +74,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
           setIsOpen={lockViewersModal.close}
         />
       )}
-      <Styled.ActionButtonsWrapper $isMinWidth={isAtMinWidth}>
+      <Styled.ActionButtonsWrapper $isMinWidth={isMinWidthLayout}>
         <Styled.ActionButtonWrapper>
           <Styled.ActionButtonLabel>
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
@@ -89,7 +90,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        {!isBreakout && isLockSettingsEnabled && (
+        {isLockSettingsEnabled && (
           <Styled.ActionButtonWrapper>
             <Styled.ActionButtonLabel>
               {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}

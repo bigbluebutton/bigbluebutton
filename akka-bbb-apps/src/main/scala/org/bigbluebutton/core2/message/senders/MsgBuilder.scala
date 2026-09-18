@@ -299,6 +299,20 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildUpdateLiveKitParticipantPermissionsSysMsg(
+      meetingId: String,
+      userId:    String,
+      grant:     LiveKitGrant
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(UpdateLiveKitParticipantPermissionsSysMsg.NAME, routing)
+    val body = UpdateLiveKitParticipantPermissionsSysMsgBody(userId, grant)
+    val header = BbbCoreHeaderWithMeetingId(UpdateLiveKitParticipantPermissionsSysMsg.NAME, meetingId)
+    val event = UpdateLiveKitParticipantPermissionsSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildMeetingMutedEvtMsg(meetingId: String, userId: String, muted: Boolean, mutedBy: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(MeetingMutedEvtMsg.NAME, routing)
@@ -645,16 +659,31 @@ object MsgBuilder {
 
   def buildGenerateLiveKitTokenReqMsg(
     meetingId: String,
-    userId: String,
-    userName: String,
-    grant: LiveKitGrant,
-    metadata: LiveKitParticipantMetadata,
+    userId:    String,
+    userName:  String,
+    roomRef:   LiveKitRoomRef,
+    grant:     LiveKitGrant,
+    metadata:  LiveKitParticipantMetadata,
   ): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing  = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(GenerateLiveKitTokenReqMsg.NAME, routing)
-    val body = GenerateLiveKitTokenReqMsgBody(userId, userName, grant, metadata)
-    val header = BbbCoreHeaderWithMeetingId(GenerateLiveKitTokenReqMsg.NAME, meetingId)
-    val event = GenerateLiveKitTokenReqMsg(header, body)
+    val body     = GenerateLiveKitTokenReqMsgBody(userId, userName, roomRef, grant, metadata)
+    val header   = BbbCoreHeaderWithMeetingId(GenerateLiveKitTokenReqMsg.NAME, meetingId)
+    val event    = GenerateLiveKitTokenReqMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRemoveLiveKitParticipantSysMsg(
+    meetingId: String,
+    roomName:  String,
+    userId:    String,
+  ): BbbCommonEnvCoreMsg = {
+    val routing  = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RemoveLiveKitParticipantSysMsg.NAME, routing)
+    val body     = RemoveLiveKitParticipantSysMsgBody(roomName, userId)
+    val header   = BbbCoreHeaderWithMeetingId(RemoveLiveKitParticipantSysMsg.NAME, meetingId)
+    val event    = RemoveLiveKitParticipantSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

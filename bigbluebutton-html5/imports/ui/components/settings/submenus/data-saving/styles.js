@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Styled from '/imports/ui/components/settings/submenus/styles';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Title = styled(Styled.Title)``;
 
@@ -36,7 +37,7 @@ const FormElementRight = styled(Styled.FormElementRight)`
 
 const Label = styled(Styled.Label)`
   margin-left: 0.5rem;
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
 `;
 
 export default {

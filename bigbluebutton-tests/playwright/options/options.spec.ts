@@ -30,7 +30,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.fontSizeTest();
   });
 
-  test('Auto hide whiteboard toolbar', { tag: '@flaky-3.1' }, async () => {
+  test('Auto hide whiteboard toolbar', { tag: '@known-issue' }, async () => {
     linkIssue(24367);
     await options.autoHideWhiteboardToolbar();
   });
@@ -40,12 +40,12 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
   });
 
   test.describe('Data savings', () => {
-    test('Webcam sharing settings', async () => {
+    test('Webcam sharing settings', { tag: '@media' }, async () => {
       await options.initUserPage(options.modPage.context);
       await options.enableOtherParticipantsWebcams();
     });
 
-    test('Desktop sharing settings', async () => {
+    test('Desktop sharing settings', { tag: '@media' }, async () => {
       await options.initUserPage(options.modPage.context);
       await options.enableOtherParticipantsDesktopSharing();
     });

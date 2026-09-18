@@ -382,18 +382,26 @@ const QuizzesTable = (props) => {
           {['success', 'error', 'unknown', 'locked'].includes(type) && (
             <>
               {symbols[type]}
-              &nbsp;
-              {responses}
+              <span>&nbsp;</span>
+              <span>{responses}</span>
             </>
           )}
-          {type === 'default' && intl.formatMessage({
-            id: 'app.learningDashboard.quizzes.noResponse',
-            defaultMessage: 'No response',
-          })}
-          {type === 'waiting' && intl.formatMessage({
-            id: 'app.learningDashboard.quizzes.waitingResponse',
-            defaultMessage: 'Waiting user response',
-          })}
+          {type === 'default' && (
+            <span>
+              {intl.formatMessage({
+                id: 'app.learningDashboard.quizzes.noResponse',
+                defaultMessage: 'No response',
+              })}
+            </span>
+          )}
+          {type === 'waiting' && (
+            <span>
+              {intl.formatMessage({
+                id: 'app.learningDashboard.quizzes.waitingResponse',
+                defaultMessage: 'Waiting user response',
+              })}
+            </span>
+          )}
         </Box>
         {showPopper && (
           <Popper
@@ -487,7 +495,7 @@ const QuizzesTable = (props) => {
     return v;
   });
 
-  Object.values(allUsers).forEach((u, i) => {
+  Object.values(allUsers).forEach((u) => {
     if (u?.isModerator && Object.keys(u?.answers)?.length === 0) return;
 
     const result = Object
@@ -505,7 +513,7 @@ const QuizzesTable = (props) => {
       });
 
     gridRows.push({
-      id: i + 1,
+      id: u.userKey,
       user: u,
       ...{
         ...initQuizData,

@@ -13,7 +13,7 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import useMeeting from '../../core/hooks/useMeeting';
 import { liveKitScreenshareHasAudioVar } from './livekit-screenshare-state';
 
-let screenShareBridge = sfuScreenShareBridge;
+let screenShareBridge = liveKitScreenShareBridge;
 
 export const setBridge = (bridgeName) => {
   switch (bridgeName) {
@@ -30,8 +30,8 @@ export const setBridge = (bridgeName) => {
           targetBridge: bridgeName,
         },
       }, `Unknown screenshare bridge: ${bridgeName}`);
-      // Hardcoded default is bbb-webrtc-sfu
-      screenShareBridge = sfuScreenShareBridge;
+      // Hardcoded default is livekit
+      screenShareBridge = liveKitScreenShareBridge;
       break;
   }
 

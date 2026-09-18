@@ -4,6 +4,7 @@ declare -A DEBNAME_TO_SOURCEDIR
 
 DEBNAME_TO_SOURCEDIR[bbb-apps-akka]="akka-bbb-apps bbb-common-message"
 DEBNAME_TO_SOURCEDIR[bbb-config]="bigbluebutton-config"
+DEBNAME_TO_SOURCEDIR[bbb-coturn]="do_not_copy_anything"
 DEBNAME_TO_SOURCEDIR[bbb-etherpad]="bbb-etherpad"
 DEBNAME_TO_SOURCEDIR[bbb-export-annotations]="bbb-export-annotations"
 DEBNAME_TO_SOURCEDIR[bbb-freeswitch-core]="freeswitch bbb-voice-conference"
@@ -31,6 +32,7 @@ DEBNAME_TO_SOURCEDIR[bbb-webhooks]="bbb-webhooks"
 DEBNAME_TO_SOURCEDIR[bbb-webrtc-sfu]="bbb-webrtc-sfu"
 DEBNAME_TO_SOURCEDIR[bbb-webrtc-recorder]="bbb-webrtc-recorder"
 DEBNAME_TO_SOURCEDIR[bbb-transcription-controller]="bbb-transcription-controller"
+DEBNAME_TO_SOURCEDIR[bbb-yq-go]="do_not_copy_anything"
 DEBNAME_TO_SOURCEDIR[bigbluebutton]="do_not_copy_anything"
 
 export DEBNAME_TO_SOURCEDIR

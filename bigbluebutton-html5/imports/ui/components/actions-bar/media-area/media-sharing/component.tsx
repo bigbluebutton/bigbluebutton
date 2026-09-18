@@ -11,6 +11,7 @@ import { defineMessages, IntlShape } from 'react-intl';
 import { MediaAreaItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/media-area-item/enums';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { MediaButton } from '/imports/ui/components/actions-bar/media-area/media-sharing/media-button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/media-area/media-sharing/screenshare/container';
 import PresentationUploaderContainer from './presentation/container';
@@ -20,6 +21,7 @@ import { MediaButtonPluginItem } from '../types';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import InMemoryStorage from '/imports/ui/services/storage/in-memory';
 
 interface MediaSharingModalProps {
   open: boolean;
@@ -166,6 +168,15 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
   const [localRequestingPresenter, setLocalRequestingPresenter] = useState(false);
+
+  // Mirror the presentation-upload view into in-memory storage so the document-title manager can
+  // surface the "Upload Presentation" view name. The 3.0 setter (actions-dropdown) did not survive
+  // the merge into the 4.0 media-area, so the key was read but never written.
+  useEffect(() => {
+    const uploadViewOpen = open && currentView === 'presentation';
+    InMemoryStorage.setItem('showUploadPresentationView', uploadViewOpen ? 'true' : '');
+    return () => InMemoryStorage.setItem('showUploadPresentationView', '');
+  }, [open, currentView]);
 
   useEffect(() => {
     setLocalRequestingPresenter(isRequestingPresenter);
@@ -370,13 +381,16 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
-          <Styled.ConfirmationButton
-            data-test="takePresenterButton"
-            label={intl.formatMessage(intlMessages.takePresenter)}
-            color="primary"
-            onClick={handleTakePresenter}
-            customIcon={<CoPresentIcon />}
-          />
+          <Styled.BecomePresenterButtonWrapper>
+            <BBButton
+              dataTest="takePresenterButton"
+              label={intl.formatMessage(intlMessages.takePresenter)}
+              variant="primary"
+              size="sm"
+              onClick={handleTakePresenter}
+              iconStart={<CoPresentIcon />}
+            />
+          </Styled.BecomePresenterButtonWrapper>
         </Styled.BecomePresenterViewContainer>
       );
     }
@@ -397,13 +411,16 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
-          <Styled.ConfirmationButton
-            data-test="takePresenterButton"
-            label={intl.formatMessage(intlMessages.takePresenter)}
-            color="primary"
-            onClick={handleRequestPresenterWithFeedback}
-            customIcon={<CoPresentIcon />}
-          />
+          <Styled.BecomePresenterButtonWrapper>
+            <BBButton
+              dataTest="takePresenterButton"
+              label={intl.formatMessage(intlMessages.takePresenter)}
+              variant="primary"
+              size="sm"
+              onClick={handleRequestPresenterWithFeedback}
+              iconStart={<CoPresentIcon />}
+            />
+          </Styled.BecomePresenterButtonWrapper>
         </Styled.BecomePresenterViewContainer>
       );
     }
@@ -413,12 +430,12 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
-        <Styled.ConfirmationButton
-          data-test="requestPresenterButton"
+        <BBButton
+          dataTest="requestPresenterButton"
           label={intl.formatMessage(intlMessages.requestPresenter)}
-          color="primary"
+          variant="primary"
           onClick={handleRequestPresenterWithFeedback}
-          customIcon={<CoPresentIcon />}
+          iconStart={<CoPresentIcon />}
         />
       </Styled.BecomePresenterViewContainer>
     );
@@ -451,6 +468,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         isRTL={isRTL}
         actionsBarHeight={actionsBarStyle.height}
         reducedWidth={!amIPresenter && amIModerator}
+        id="mediaAreaDropUp"
       >
         {!amIPresenter
           ? renderTakePresenterView()
@@ -469,13 +487,14 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
 
               {currentView === 'main' && isSharing && (
                 <Styled.FooterContainer>
-                  <Styled.ConfirmationButton
-                    data-test="StopSharing"
+                  <BBButton
+                    dataTest="StopSharing"
                     label={`${intl.formatMessage(intlMessages.stopSharingLabel)}`}
+                    variant="primary"
                     color="danger"
                     disabled={!isSharingVideo && !hasCameraAsContent && !isScreenGloballyBroadcasting}
-                    onClick={stopSharingAction}
-                    icon={stopSharingIcon}
+                    onClick={() => stopSharingAction?.()}
+                    iconStart={<Icon iconName={stopSharingIcon} />}
                   />
                 </Styled.FooterContainer>
               )}

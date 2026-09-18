@@ -1,6 +1,7 @@
 const lineHeightComputed = '1rem';
 const lineHeightBase = '1.25';
 const fontSizeBase = '1rem';
+const fontSizeMedium = '1.125rem';
 const fontSizeSmall = '0.875rem';
 const fontSizeSmaller = '.75rem';
 const fontSizeSmallest = '.35rem';
@@ -23,6 +24,7 @@ export {
   lineHeightComputed,
   lineHeightBase,
   fontSizeBase,
+  fontSizeMedium,
   fontSizeSmall,
   fontSizeSmaller,
   fontSizeSmallest,

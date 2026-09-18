@@ -33,6 +33,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customStyleUrl: null,
       darkTheme: {
         enabled: true,
+        autoDetectFromSystem: true,
       },
       askForConfirmationOnLeave: false,
       wakeLock: {
@@ -42,6 +43,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
@@ -62,6 +64,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         mobile: false,
         provider: 'webspeech',
         showInSidebarNavigation: false,
+        microphoneAlert: {
+          enabled: true,
+          helpLink: '',
+          threshold: -50,
+          speakingThreshold: 5000,
+          duration: 10000,
+          interval: 200,
+        },
         language: {
           available: [
             'en-US',
@@ -143,6 +153,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audio: {
           inputDeviceId: 'undefined',
           outputDeviceId: 'undefined',
+          processingMode: 'advanced',
         },
         dataSaving: {
           viewParticipantsWebcams: true,
@@ -218,6 +229,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
       staticFormattingToolbar: true,
+      importMarkdownEnabled: false,
+      exportMarkdownEnabled: false,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -408,6 +421,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           moderator: 2,
           viewer: 2,
         },
+        gridEnabled: true,
         desktopGridSizes: {
           moderator: 48,
           viewer: 48,
@@ -609,18 +623,24 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     sidebarNavigation: {
       appsToLabelAsNew: [],
+      buttons: {
+        top: ['profile', 'user-list', 'chat', 'notes'],
+        center: ['apps-gallery', 'pinned-apps'],
+        bottom: ['audio-captions', 'learning-dashboard', 'settings'],
+      },
     },
     pads: {
       url: 'ETHERPAD_HOST',
     },
     media: {
       audio: {
-        defaultFullAudioBridge: 'fullaudio',
-        defaultListenOnlyBridge: 'fullaudio',
+        defaultFullAudioBridge: 'livekit',
+        defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
           enabled: false,
+          provider: 'bbba',
           constraints: {
             echoCancellation: true,
             autoGainControl: true,
@@ -847,6 +867,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
+      slideSwapDecodeTimeoutMs: 250,
+      wheelZoomRequiresCtrl: true,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

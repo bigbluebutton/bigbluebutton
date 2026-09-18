@@ -21,17 +21,28 @@ import {
 } from './constants';
 import { elements as e } from './elements';
 import * as helpers from './helpers';
+import { getMediaBridgeCreateParam, isLiveKit } from './livekit';
 import Logger from './logger';
 import { parameters } from './parameters';
 import { generateSettingsData, Settings } from './settings';
 
 dotenv.config();
 
+/**
+ * A deep-partial of `window.meetingClientSettings`, deep-merged into the live client
+ * settings before the app reads them. Lets tests exercise config-only settings that have
+ * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
+ */
+export interface ClientSettingsOverrides {
+  [key: string]: string | number | boolean | null | ClientSettingsOverrides;
+}
+
 export interface InitOptionsProps {
   shouldCloseAudioModal?: boolean;
   fullName?: string;
   meetingId?: string;
   createParameter?: string;
+  createModules?: string;
   joinParameter?: string;
   customMeetingId?: string;
   isRecording?: boolean;
@@ -39,6 +50,7 @@ export interface InitOptionsProps {
   shouldCheckAllInitialSteps?: boolean;
   shouldAvoidLayoutCheck?: boolean;
   forceErrorLogFailure?: boolean;
+  clientSettingsOverrides?: ClientSettingsOverrides;
   testInfo?: TestInfo | null;
 }
 
@@ -103,15 +115,26 @@ export class Page {
       shouldCloseAudioModal = true,
       fullName,
       meetingId,
-      createParameter,
+      createParameter: callerCreateParameter,
+      createModules,
       joinParameter,
       customMeetingId,
       skipSessionDetailsModal = true,
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
       forceErrorLogFailure,
+      clientSettingsOverrides,
       testInfo,
     } = initOptions || {};
+
+    // Route meeting creation through the configured media bridge. On the default
+    // (LiveKit) run no extra params are needed - LiveKit is the server default.
+    // The legacy run appends explicit bbb-webrtc-sfu bridge params to override it.
+    const bridgeParam = getMediaBridgeCreateParam();
+    const createParameter =
+      callerCreateParameter && bridgeParam
+        ? `${callerCreateParameter}&${bridgeParam}`
+        : (callerCreateParameter ?? bridgeParam);
 
     if (!this.testInfo && testInfo) this.testInfo = testInfo;
 
@@ -120,12 +143,13 @@ export class Page {
 
     await helpers.setBrowserLogs(this, forceErrorLogFailure);
 
-    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId));
+    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId, createModules));
     const joinUrl = helpers.getJoinURL({
       meetingID: this.meetingId,
       fullName: this.username,
       options: { isModerator, joinParameter, skipSessionDetailsModal },
     });
+    if (clientSettingsOverrides) await this.applyClientSettingsOverrides(clientSettingsOverrides);
     const response = await this.page.goto(joinUrl);
     await expect(response!.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
@@ -146,6 +170,41 @@ export class Page {
           font-family: 'Liberation Sans', Arial, sans-serif;
         }`,
     });
+  }
+
+  /**
+   * Patches `window.meetingClientSettings` before the client reads it, so tests can drive
+   * config-only settings that have no per-meeting/userdata override. The client assigns
+   * `window.meetingClientSettings` exactly once (settings-loader/component.tsx); we install
+   * an accessor ahead of that assignment and deep-merge the overrides into the value.
+   * Must run before `page.goto()`.
+   */
+  async applyClientSettingsOverrides(overrides: ClientSettingsOverrides): Promise<void> {
+    await this.page.addInitScript((settingsOverrides) => {
+      const isPlainObject = (val: unknown): val is Record<string, unknown> =>
+        typeof val === 'object' && val !== null && !Array.isArray(val);
+      const deepMerge = (base: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+        const merged: Record<string, unknown> = { ...base };
+        Object.keys(source).forEach((key) => {
+          const sourceValue = source[key];
+          const baseValue = merged[key];
+          merged[key] =
+            isPlainObject(sourceValue) && isPlainObject(baseValue) ? deepMerge(baseValue, sourceValue) : sourceValue;
+        });
+        return merged;
+      };
+
+      let storedSettings: unknown;
+      Object.defineProperty(window, 'meetingClientSettings', {
+        configurable: true,
+        get() {
+          return storedSettings;
+        },
+        set(value: unknown) {
+          storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
+        },
+      });
+    }, overrides);
   }
 
   async handleDownload(
@@ -174,10 +233,16 @@ export class Page {
     return newPage;
   }
 
+  async clickMicrophoneButton(): Promise<void> {
+    // LiveKit meetings do not expose the Microphone/Listen Only phase of the
+    // audio modal, so clicking the microphone button is a no-op there.
+    if (!isLiveKit) await this.waitAndClick(e.microphoneButton);
+  }
+
   async joinMicrophone(options: JoinMicrophoneOptions = {}): Promise<void> {
     const { shouldUnmute = true } = options;
     await this.waitForSelector(e.audioModal);
-    await this.waitAndClick(e.microphoneButton);
+    await this.clickMicrophoneButton();
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.wasRemoved(
@@ -265,6 +330,18 @@ export class Page {
   async closeAudioModal(): Promise<void> {
     await this.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
+    // Under LiveKit, closing the audio modal auto-joins audio muted. Leave it so
+    // closeAudioModal consistently ends with the user not in audio, matching the
+    // legacy bridge behavior the tests rely on.
+    if (isLiveKit) {
+      // The actions bar (and its audio controls) can be hidden by some create
+      // params (e.g. hideActionsBar); only leave audio when the dropdown is
+      // actually reachable, otherwise the muted auto-join is harmless and left.
+      if (await this.checkElement(e.actionsBarBackground)) {
+        await this.waitForSelector(e.audioDropdownMenu, ELEMENT_WAIT_LONGER_TIME);
+        await this.leaveAudio();
+      }
+    }
   }
 
   async waitForSelector(selector: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
@@ -456,14 +533,6 @@ export class Page {
 
   async hoverElement(selector: string): Promise<void> {
     await this.page.locator(selector).hover();
-  }
-
-  async dragAndDropWebcams(position: string): Promise<void> {
-    await this.page.locator(e.webcamContainer).first().hover({ timeout: 5000 });
-    await this.page.mouse.down();
-    await this.page.locator(e.whiteboard).hover({ timeout: 5000 }); // action for dispatching isDragging event
-    await this.page.locator(position).hover({ timeout: 5000 });
-    await this.page.mouse.up();
   }
 
   async dragWebcam(

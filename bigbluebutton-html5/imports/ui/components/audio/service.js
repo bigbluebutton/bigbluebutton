@@ -224,6 +224,7 @@ export default {
     return AudioManager.isAudioConnected();
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
+  isUsingLiveKit: () => AudioManager.isBridgeLiveKit(),
   isConnecting: () => AudioManager.isConnecting,
   isReconnecting: () => AudioManager.isReconnecting,
   isListenOnly: () => AudioManager.isListenOnly,

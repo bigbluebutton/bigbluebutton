@@ -72,7 +72,6 @@ case "$1" in
     cd /usr/share/bbb-graphql-server
     timeout 15s /usr/bin/hasura metadata apply --skip-update-check
     cd ..
-    rm -rf /usr/share/bbb-graphql-server/metadata
   fi
 
   echo "Graphql-server after-install finished"

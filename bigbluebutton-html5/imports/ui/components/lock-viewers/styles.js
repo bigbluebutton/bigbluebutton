@@ -18,7 +18,11 @@ import {
   colorBorder,
   settingsModalTabSelected,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase, fontSizeLarger } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeBase,
+  fontSizeLarger,
+  fontSizeMedium,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -90,7 +94,7 @@ const SettingsTabSelector = styled(Tab)`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: ${fontSizeMedium};
   flex: none;
   padding: 0.85rem;
   color: ${colorGrayDark};
@@ -187,7 +191,7 @@ const TabContent = styled.div`
 const SectionTitle = styled.h3`
   color: ${colorGrayDark};
   margin: 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   font-weight: 600;
 `;
 
@@ -218,7 +222,7 @@ const ActionButton = styled.button`
   border: none;
   border-radius: 1rem;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   background-color: transparent;
   color: ${colorGrayLabel};
 
@@ -305,45 +309,6 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
   },
 }));
 
-const LobbyInputWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  border: 1px solid ${colorBorder};
-`;
-
-const LobbyInput = styled.input`
-  flex: 1;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-size: ${fontSizeBase};
-  outline: none;
-  background: ${colorWhite};
-  color: ${colorText};
-
-  &::placeholder {
-    color: ${colorGrayLabel};
-  }
-`;
-
-const LobbyInputSendButton = styled.button`
-  background: ${colorPrimary};
-  color: ${colorWhite};
-  border: none;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
 const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
@@ -420,9 +385,6 @@ export default {
   SwitchRow,
   SwitchLabel,
   MaterialSwitch,
-  LobbyInputWrapper,
-  LobbyInput,
-  LobbyInputSendButton,
   CheckboxList,
   CheckboxRow,
   CheckboxLabel,

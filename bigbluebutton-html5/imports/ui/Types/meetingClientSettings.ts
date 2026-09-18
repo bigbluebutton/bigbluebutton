@@ -66,6 +66,7 @@ export interface App {
   skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
+  showGuestLobbyWaitingQueuePosition: boolean
   guestPolicyExtraAllowOptions: boolean
   alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
@@ -114,6 +115,7 @@ export interface BbbTabletApp {
 
 export interface DarkTheme {
   enabled: boolean
+  autoDetectFromSystem: boolean
 }
 
 export interface WakeLock {
@@ -126,7 +128,17 @@ export interface AudioCaptions {
   mobile: boolean
   provider: string
   showInSidebarNavigation: boolean
+  microphoneAlert: MicrophoneAlert
   language: Language
+}
+
+export interface MicrophoneAlert {
+  enabled: boolean
+  helpLink: string
+  threshold: number
+  speakingThreshold: number
+  duration: number
+  interval: number
 }
 
 export interface Language {
@@ -218,6 +230,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
+  processingMode: 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -430,6 +443,7 @@ export interface Pagination {
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
+  gridEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }
@@ -592,8 +606,15 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigationButtons {
+  top: string[]
+  center: string[]
+  bottom: string[]
+}
+
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
+  buttons: SidebarNavigationButtons
 }
 
 export interface Pads {
@@ -605,6 +626,8 @@ export interface SharedNotes {
   maxDocumentChars: number
   maxLengthForContentUpdate: number
   staticFormattingToolbar: boolean
+  importMarkdownEnabled: boolean
+  exportMarkdownEnabled: boolean
 }
 
 export interface Media {
@@ -664,8 +687,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
@@ -675,6 +700,7 @@ export interface LiveKitSettings {
 
 export interface AudioWasmProcessingSettings {
   enabled: boolean
+  provider?: 'bbba' | 'workadventureDtln'
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -685,6 +711,8 @@ export interface Audio2 {
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
   audioWasmProcessing?: AudioWasmProcessingSettings
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  microphoneConstraints?: Record<string, unknown>
 }
 
 export interface Screenshare2 {
@@ -793,6 +821,8 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
+  slideSwapDecodeTimeoutMs: number
+  wheelZoomRequiresCtrl: boolean
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

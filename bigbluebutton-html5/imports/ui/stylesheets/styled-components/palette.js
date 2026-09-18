@@ -43,13 +43,14 @@ const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
 const userListText = `var(--user-list-text, ${colorGray})`;
 const unreadMessagesBg = `var(--unread-messages-bg, ${colorDanger})`;
+const notificationBadgeBg = 'var(--notification-badge-bg, #FF3939)';
 const colorGrayLabel = `var(--color-gray-label, ${colorGray})`;
 const colorText = `var(--color-text, ${colorGray})`;
 const colorLink = `var(--color-link, ${colorPrimary})`;
 
 const listItemBgHover = `var(--list-item-bg-hover, ${colorBlueAux})`;
 const colorTipBg = 'var(--color-tip-bg, #333333)';
-const itemFocusBorder = `var(--item-focus-border, ${colorBlueLighter})`;
+const itemFocusBorder = `var(--item-focus-border, ${colorPrimary})`;
 
 const btnDefaultColor = `var(--btn-default-color, ${colorGray})`;
 const btnDefaultBg = `var(--btn-default-bg, ${colorWhite})`;
@@ -93,15 +94,15 @@ const btnMutedBg = `var(--btn-muted-bg, ${colorMutedBackground})`;
 
 const toolbarButtonColor = `var(--toolbar-button-color, ${btnDefaultColor})`;
 const toolbarButtonColorDisabled = `var(--toolbar-button-color, ${colorGrayLight})`;
-const userThumbnailBorder = `var(--user-thumbnail-border, ${colorGrayLight})`;
+const userThumbnailBorder = `var(--user-thumbnail-border, ${colorBorder})`;
 const loaderBg = `var(--loader-bg, ${colorGrayDark})`;
 const loaderBullet = `var(--loader-bullet, ${colorWhite})`;
 
 const systemMessageBackgroundColor = 'var(--system-message-background-color, #F9FBFC)';
-const systemMessageBorderColor = 'var(--system-message-border-color, #C5CDD4)';
+const systemMessageBorderColor = `var(--system-message-border-color, ${colorBorder})`;
 const systemMessageFontColor = `var(--system-message-font-color, ${colorGrayDark})`;
 const highlightedMessageBackgroundColor = 'var(--system-message-background-color, #fef9f1)';
-const highlightedMessageBorderColor = 'var(--system-message-border-color, #B5D3F7)';
+const highlightedMessageBorderColor = `var(--highlighted-message-border-color, ${colorBorder})`;
 const emphasizedMessageBackgroundColor = 'var(--emphasized-message-background-color, #E9F1F9)';
 const colorHeading = `var(--color-heading, ${colorGrayDark})`;
 const palettePlaceholderText = 'var(--palette-placeholder-text, #787675)';
@@ -122,7 +123,7 @@ const colorContentBackground = 'var(--color-content-background, #1B2A3A)';
 
 const dropdownBg = `var(--dropdown-bg, ${colorWhite})`;
 
-const pollStatsBorderColor = 'var(--poll-stats-border-color, #D4D9DF)';
+const pollStatsBorderColor = `var(--poll-stats-border-color, ${colorBorder})`;
 const pollBlue = `var(--poll-blue, ${colorPrimary})`;
 
 const toastDefaultColor = `var(--toast-default-color, ${colorWhite})`;
@@ -163,7 +164,7 @@ const colorToggleBgDisabledDarkTheme = 'var(--toggle-bg-disabled-dark-theme, #90
 
 const colorInfoBoxQuizText = 'var(--color-info-box-quiz-text, #15803D)';
 const colorInfoBoxQuizBg = 'var(--color-info-box-quiz-bg, #F0FDF4)';
-const colorInfoBoxQuizBorder = 'var(--color-info-box-quiz-border, #BBF7D0)';
+const colorInfoBoxQuizBorder = `var(--color-info-box-quiz-border, ${colorSuccess})`;
 
 const colorSelectedCorrectAnswerText = 'var(--color-selected-correct-answer-text, #A16207)';
 const colorSelectedCorrectAnswerBg = 'var(--color-selected-correct-answer-bg, #FEF9C3)';
@@ -208,6 +209,7 @@ export {
   userListBg,
   userListText,
   unreadMessagesBg,
+  notificationBadgeBg,
   colorGrayLabel,
   colorText,
   colorLink,

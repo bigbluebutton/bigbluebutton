@@ -23,6 +23,7 @@ import {
   setVideoState,
   useConnectingStream,
   getVideoState,
+  expectStreamStop,
 } from '/imports/ui/components/video-provider/state';
 import {
   GRID_USERS_SUBSCRIPTION,
@@ -31,6 +32,7 @@ import {
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
+import { useIsWebcamGridEnabled } from '/imports/ui/services/features';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
@@ -320,13 +322,16 @@ export const useIsPaginationEnabled = () => {
   return myPageSize > 0 && paginationEnabled;
 };
 
-export const useGridUsers = (visibleStreamCount: number) => {
+const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
+
+export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
-  const isGridEnabled = useStorageKey('isGridEnabled');
+  const isGridEnabled = useIsGridEnabled();
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
+  const overflowUsers = useRef<GridItem[]>([]);
 
   const { data: meeting } = useMeeting((m) => ({
     meetingId: m.meetingId,
@@ -352,6 +357,9 @@ export const useGridUsers = (visibleStreamCount: number) => {
     voice: u.voice,
   }));
 
+  const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
+  const hasOverflow = userCount > gridSize;
+
   const {
     data: gridData,
     error: gridError,
@@ -363,7 +371,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
       // otherwise keep everyone ([true, false]). The current user is re-added client-side
       // below (the query can't reference it without breaking Hasura multiplexing).
       variables: {
-        limit: Math.max(gridSize - visibleStreamCount, 0),
+        limit: hasOverflow ? baseGridUserLimit + OVERFLOW_TILE_PREVIEW_LIMIT : baseGridUserLimit,
         moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false],
       },
       skip: !isGridEnabled,
@@ -371,7 +379,24 @@ export const useGridUsers = (visibleStreamCount: number) => {
     true,
   );
 
-  if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
+  if (!isGridEnabled) {
+    gridItems.current = [];
+    overflowCount.current = 0;
+    overflowUsers.current = [];
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
+
+  if (gridLoading) {
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
 
   if (gridError) {
     logger.error({
@@ -442,19 +467,33 @@ export const useGridUsers = (visibleStreamCount: number) => {
       }
     }
 
-    gridItems.current = newGridUsers;
+    // The grid page shows at most baseGridUserLimit avatar users. When there is
+    // overflow we over-fetch a few extra users (OVERFLOW_TILE_PREVIEW_LIMIT) purely
+    // to preview their avatars inside the overflow tile — those extras must not
+    // land in the grid itself, so keep the grid slice and the preview slice apart.
+    gridItems.current = newGridUsers.slice(0, baseGridUserLimit);
+    // The tile replaces the last grid avatar, so preview that user too
+    overflowUsers.current = newGridUsers.slice(Math.max(gridItems.current.length - 1, 0));
 
-    const overflow = Math.max(userCount - gridSize, 0);
-
-    // if there's overflow, we replace the last grid user with the overflow tile,
-    // so we need to add 1 to the overflow count to account for the replaced user
-    overflowCount.current = overflow > 0 ? overflow + 1 : 0;
+    // Hidden users = everyone not visible on this page. Count in USERS, not
+    // stream tiles as a user with several cameras holds several tiles. The
+    // overflow tile replaces the last avatar when avatars exist (+1: the
+    // replaced user joins the count); on a full-camera page it takes a new
+    // slot instead and replaces no one.
+    const hidden = Math.max(userCount - visibleUserCount - gridItems.current.length, 0);
+    const replacedAvatar = gridItems.current.length > 0 ? 1 : 0;
+    overflowCount.current = hidden > 0 ? hidden + replacedAvatar : 0;
   } else {
     gridItems.current = [];
+    overflowUsers.current = [];
     overflowCount.current = 0;
   }
 
-  return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
+  return {
+    gridUsers: gridItems.current,
+    overflowCount: overflowCount.current,
+    overflowUsers: overflowUsers.current,
+  };
 };
 
 export const useSharedDevices = () => {
@@ -502,6 +541,13 @@ export const useGridSize = () => {
   return size;
 };
 
+export const useIsGridEnabled = () => {
+  const isGridLayout = useStorageKey('isGridEnabled');
+  const isWebcamGridEnabled = useIsWebcamGridEnabled();
+
+  return !!isGridLayout && isWebcamGridEnabled;
+};
+
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
@@ -520,6 +566,8 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
 
   const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
+  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
+  // webcam over an open presentation in the unified layout (issues #25235/#25359).
   if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
   if (loading) return [];
 
@@ -615,6 +663,81 @@ const useVideoSenders = () => {
   return { senderIds, senderIdsInGroups: null, inAnyGroup: true };
 };
 
+// Paginates `others` (camera streams) and reserves first-page slots for audio-only
+// tiles (camera-less users that hold the audio floor). Shared by both pagination modes
+// so attendees and moderators surface audio-only tiles consistently (issue 25242).
+// `reservedCount` is the number of always-on-page privileged streams (pinned + local
+// cameras), which is 0 when streams are paginated equally (!partitionPrivilegedStreams).
+const reserveAudioOnlyTiles = ({
+  others,
+  sortingMethod,
+  moderatorFirst,
+  audioOnlyUsers,
+  excludeStreams,
+  pageSize,
+  currentVideoPageIndex,
+  chunkIndex,
+  maxAudioOnlyUsers,
+  showAudioOnlyOnFirstPage,
+  reservedCount,
+}: {
+  others: StreamItem[];
+  sortingMethod: string;
+  moderatorFirst: boolean;
+  audioOnlyUsers: AudioOnlyStream[];
+  excludeStreams: StreamItem[];
+  pageSize: number;
+  currentVideoPageIndex: number;
+  chunkIndex: number;
+  maxAudioOnlyUsers: number;
+  showAudioOnlyOnFirstPage: boolean;
+  reservedCount: number;
+}): { paginatedStreams: StreamItem[]; audioOnlyStreams: StreamItem[]; totalNumberOfOtherStreams: number } => {
+  const availableSlots = Math.max(0, pageSize - reservedCount);
+  const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
+    ? audioOnlyUsers.filter((audioUser) => !excludeStreams.find((s) => s.userId === audioUser.userId))
+    : [];
+  // Caps maxAudioOnlyUsers below its configured value on a small page: the two slots
+  // of a mobile page hold one audio-only tile, not two.
+  const cameraSlotFloor = reservedCount === 0 && others.length > 0 ? 1 : 0;
+  const audioOnlySlots = Math.max(0, Math.min(availableSlots - cameraSlotFloor, maxAudioOnlyUsers));
+  const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
+    ? Math.min(uniqueAudioOnly.length, audioOnlySlots)
+    : 0;
+
+  let totalNumberOfOtherStreams: number;
+  if (audioOnlySlotsUsedOnPage1 > 0 && reservedCount > 0) {
+    // Privileged streams occupy slots on every page, so audio-only tiles on page 1 push
+    // remote cameras to later pages — size the page count accordingly.
+    const othersOnPage0 = Math.max(0, pageSize - reservedCount - audioOnlySlotsUsedOnPage1);
+    const remainingOthers = Math.max(0, others.length - othersOnPage0);
+    const additionalPages = remainingOthers > 0 ? Math.ceil(remainingOthers / pageSize) : 0;
+    totalNumberOfOtherStreams = (1 + additionalPages) * pageSize;
+  } else {
+    totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+  }
+
+  // Page 1 reserves slots for the audio-only tiles, so later pages start after the
+  // remote cameras already shown on the first page.
+  const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
+    ? Math.max(0, pageSize - reservedCount - audioOnlySlotsUsedOnPage1) + (currentVideoPageIndex - 1) * pageSize
+    : chunkIndex;
+
+  let paginatedStreams = sortVideoStreams(others, sortingMethod, moderatorFirst)
+    .slice(effectiveChunkIndex, effectiveChunkIndex + pageSize);
+
+  let audioOnlyStreams: StreamItem[] = [];
+  if (currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
+    const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
+    if (paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
+      paginatedStreams = paginatedStreams.slice(0, Math.max(0, availableSlots - audioOnlyToAdd.length));
+    }
+    audioOnlyStreams = audioOnlyToAdd;
+  }
+
+  return { paginatedStreams, audioOnlyStreams, totalNumberOfOtherStreams };
+};
+
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
@@ -656,34 +779,41 @@ export const useVideoStreams = () => {
       || !senderIdsInGroups.has(vs.userId));
   }
 
+  // Snapshot of all streams the viewer may see, before pagination trims to the current
+  // page — used to recover off-page webcam users for the overflow preview below.
+  const allowedStreams = [...streams];
+
   if (isPaginationEnabled) {
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
     const sortingConfig = getSortingMethod(sortingMethod);
 
-    // Check if this sorting method uses custom pagination logic
     if (!partitionPrivilegedStreams) {
-      // When partitionPrivilegedStreams is false, paginate all streams equally
-      // This means local/pinned cameras will only appear on their page (where they belong in sort order)
-      const sortedStreams = sortVideoStreams(streams, sortingMethod, moderatorFirst);
+      // Paginate all streams equally — local/pinned cameras only appear on their own page.
+      const { paginatedStreams, audioOnlyStreams, totalNumberOfOtherStreams: total } = reserveAudioOnlyTiles({
+        others: streams,
+        sortingMethod,
+        moderatorFirst,
+        audioOnlyUsers,
+        excludeStreams: streams,
+        pageSize: myPageSize,
+        currentVideoPageIndex,
+        chunkIndex,
+        maxAudioOnlyUsers,
+        showAudioOnlyOnFirstPage,
+        reservedCount: 0,
+      });
+      totalNumberOfOtherStreams = total;
 
-      totalNumberOfOtherStreams = sortedStreams.length;
-      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
+      // Keep local cameras that fell off the current page publishing (render: false).
+      const localStreamsWithRenderFlag = streams
+        .filter((vs) => videoService.isLocalStream(vs.stream)
+          && !paginatedStreams.find((ps) => ps.stream === vs.stream))
+        .map((stream) => ({ ...stream, render: false }));
 
-      const localStreamsNotInPage = sortedStreams.filter(
-        (vs, index) => videoService.isLocalStream(vs.stream)
-        && (index < chunkIndex || index >= chunkIndex + myPageSize),
-      );
-
-      // Mark local cameras not in current page with render: false
-      const localStreamsWithRenderFlag = localStreamsNotInPage.map((stream) => ({
-        ...stream,
-        render: false,
-      }));
-
-      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
+      streams = [...paginatedStreams, ...audioOnlyStreams, ...localStreamsWithRenderFlag];
     } else {
-      // Original pagination logic (show pinned/local cameras on every page)
+      // Show pinned/local cameras on every page; paginate the remaining (other) streams.
       const [filtered, others] = partition(
         streams,
         (vs: StreamItem) => videoService.isLocalStream(vs.stream)
@@ -697,54 +827,20 @@ export const useVideoStreams = () => {
       // for viewers, then most recently pinned).
       pin.sort((a, b) => sortPin(a, b, moderatorFirst));
 
-      // This is needed to adjust pagination for displaced video streams
-      const pinnedAndLocalCount = pin.length + mine.length;
-      let audioOnlySlotsUsedOnPage1 = 0;
-      if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
-        const uniqueAudioOnly = audioOnlyUsers.filter(
-          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
-        );
-
-        if (uniqueAudioOnly.length > 0) {
-          const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
-          const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
-          audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
-        }
-      }
-      if (audioOnlySlotsUsedOnPage1 > 0 && pinnedAndLocalCount > 0) {
-        const othersOnPage0 = Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1);
-        const remainingOthers = Math.max(0, others.length - othersOnPage0);
-        const additionalPages = remainingOthers > 0 ? Math.ceil(remainingOthers / myPageSize) : 0;
-        totalNumberOfOtherStreams = (1 + additionalPages) * myPageSize;
-      } else {
-        totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
-      }
-
-      const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
-        ? Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1)
-          + (currentVideoPageIndex - 1) * myPageSize
-        : chunkIndex;
-
-      let paginatedStreams = sortVideoStreams(others, sortingMethod, moderatorFirst)
-        .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
-
-      // Add audio-only users only on page 1
-      let audioOnlyStreams: StreamItem[] = [];
-      if (showAudioOnlyOnFirstPage && currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
-        const uniqueAudioOnly = audioOnlyUsers.filter(
-          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
-        );
-
-        const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
-        const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
-
-        if (audioOnlyToAdd.length > 0 && paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
-          const remoteStreamsToKeep = availableSlots - audioOnlyToAdd.length;
-          paginatedStreams = paginatedStreams.slice(0, Math.max(0, remoteStreamsToKeep));
-        }
-
-        audioOnlyStreams = audioOnlyToAdd;
-      }
+      const { paginatedStreams, audioOnlyStreams, totalNumberOfOtherStreams: total } = reserveAudioOnlyTiles({
+        others,
+        sortingMethod,
+        moderatorFirst,
+        audioOnlyUsers,
+        excludeStreams: streams,
+        pageSize: myPageSize,
+        currentVideoPageIndex,
+        chunkIndex,
+        maxAudioOnlyUsers,
+        showAudioOnlyOnFirstPage,
+        reservedCount: pin.length + mine.length,
+      });
+      totalNumberOfOtherStreams = total;
 
       if (sortingConfig.localFirst) {
         streams = [...pin, ...mine, ...paginatedStreams, ...audioOnlyStreams];
@@ -768,12 +864,52 @@ export const useVideoStreams = () => {
     }
   }
 
-  const { gridUsers, overflowCount } = useGridUsers(streams.length);
+  // Off-page local cameras stay in the array with render: false. Count only
+  // what actually renders on this page. Slots are tiles (stream count); the
+  // hidden math is per-user (distinct userIds).
+  const renderedStreams = streams.filter((s) => !('render' in s) || s.render !== false);
+  const renderedUserIds = new Set(renderedStreams.map((s) => s.userId));
+  const { gridUsers, overflowCount, overflowUsers } = useGridUsers(
+    renderedStreams.length,
+    renderedUserIds.size,
+  );
+
+  // GRID_USERS_SUBSCRIPTION excludes camera-sharers, so hidden webcam users never reach
+  // `overflowUsers`. Recover them from allowedStreams (deduped by userId) as grid-shaped items.
+  const seenPreviewUserId = new Set<string>();
+  const hiddenCameraUsers: GridItem[] = [];
+  allowedStreams.forEach((s) => {
+    if (
+      s.type !== VIDEO_TYPES.STREAM
+      || renderedUserIds.has(s.userId)
+      || seenPreviewUserId.has(s.userId)
+    ) return;
+    seenPreviewUserId.add(s.userId);
+    hiddenCameraUsers.push({
+      ...s.user,
+      voice: {
+        joined: s.voice?.joined ?? false,
+        listenOnly: s.voice?.listenOnly ?? false,
+        userId: s.userId,
+      },
+      type: VIDEO_TYPES.GRID,
+    });
+  });
+
+  // Preview the first few hidden users' avatars: merge hidden grid + webcam users, order
+  // them like the grid subscription (nameSortable, userId), and drop anyone already on-page.
+  const overflowPreviewUsers = [...overflowUsers, ...hiddenCameraUsers]
+    .filter((u) => !renderedUserIds.has(u.userId))
+    .sort((a, b) => (
+      a.nameSortable.localeCompare(b.nameSortable) || a.userId.localeCompare(b.userId)
+    ))
+    .slice(0, Math.min(overflowCount, OVERFLOW_TILE_PREVIEW_LIMIT));
 
   return {
     streams,
     gridUsers: gridUsers.filter((u) => !streams.find((s) => s.userId === u.userId)),
     overflowCount,
+    overflowUsers: overflowPreviewUsers,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
   };
@@ -803,7 +939,7 @@ export const useExitVideo = (forceExit = false) => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  const exitVideo = useCallback(async () => {
+  const exitVideo = useCallback(async (expected = true) => {
     const { isConnected } = getVideoState();
 
     if (isConnected || forceExit) {
@@ -811,7 +947,11 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      const results = ownStreamsRef.current.map((streamId) => sendUserUnshareWebcam(streamId));
+      const results = ownStreamsRef.current.map((streamId) => {
+        if (expected) expectStreamStop(streamId);
+
+        return sendUserUnshareWebcam(streamId);
+      });
 
       return Promise.all(results).then(() => {
         videoService.exitedVideo();
@@ -858,13 +998,14 @@ export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  return useCallback(async (cameraId?: string) => {
+  return useCallback(async (cameraId?: string, expected = true) => {
     const streams = ownStreamsRef.current;
     const connectingStream = getConnectingStream();
     const hasTargetStream = streams.some((streamId) => streamId === cameraId);
     const hasOtherStream = streams.some((streamId) => streamId !== cameraId);
 
-    if (hasTargetStream) {
+    if (hasTargetStream && cameraId) {
+      if (expected) expectStreamStop(cameraId);
       cameraBroadcastStop({ variables: { cameraId } });
     }
 

@@ -57,16 +57,6 @@ object_relationships:
         remote_table:
           name: v_user_current_breakoutRoom_lastAssignedRoom
           schema: public
-  - name: livekit
-    using:
-      manual_configuration:
-        column_mapping:
-          meetingId: meetingId
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_livekit
-          schema: public
   - name: meeting
     using:
       manual_configuration:
@@ -185,6 +175,16 @@ array_relationships:
         insertion_order: null
         remote_table:
           name: v_chat
+          schema: public
+  - name: livekitRooms
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_livekit_room
           schema: public
 select_permissions:
   - role: bbb_client

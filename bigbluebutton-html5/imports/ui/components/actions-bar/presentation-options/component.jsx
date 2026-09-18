@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -75,7 +76,7 @@ const PresentationOptionsContainer = ({
         : intlMessages.minimizePresentationDesc)}
       hideLabel
       circle
-      size="lg"
+      size={deviceInfo.isMobile ? 'md' : 'lg'}
       onClick={(e) => {
         e.currentTarget.blur();
         setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);

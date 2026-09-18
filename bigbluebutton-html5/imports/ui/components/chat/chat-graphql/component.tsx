@@ -293,6 +293,9 @@ const ChatContainer: React.FC = () => {
       totalUnread: chat.totalUnread,
       public: chat.public,
       totalMessages: chat.totalMessages,
+      lastMessage: chat.lastMessage,
+      lastMessageAt: chat.lastMessageAt,
+      lastMessageDeletedByName: chat.lastMessageDeletedByName,
     };
   }) as GraphqlDataHookSubscriptionResponse<Partial<ChatType>[]>;
 

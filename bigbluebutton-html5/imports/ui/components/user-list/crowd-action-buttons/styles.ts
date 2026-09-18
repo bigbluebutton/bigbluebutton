@@ -6,7 +6,7 @@ import {
   colorGrayUserListToolbar,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  fontSizeSmall,
+  fontSizeBase,
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ActionButtonProps } from './types';
@@ -31,7 +31,7 @@ const ActionButtonWrapper = styled.div`
 
 const ActionButtonLabel = styled.span`
   color: ${colorGrayDark};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: ${textFontWeight};
   text-align: center;
   line-height: normal;

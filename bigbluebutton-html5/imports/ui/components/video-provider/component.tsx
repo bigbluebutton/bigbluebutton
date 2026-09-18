@@ -16,7 +16,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
-import { VideoItem } from './types';
+import { GridItem, VideoItem } from './types';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from './enums';
 
@@ -98,6 +98,7 @@ interface VideoProviderProps {
   isClientConnected: boolean;
   totalNumberOfStreams: number;
   overflowCount: number;
+  overflowUsers: GridItem[];
   isUserLocked: boolean;
   currentVideoPageIndex: number;
   streams: VideoItem[];
@@ -1374,6 +1375,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       handleVideoFocus,
       isGridEnabled,
       overflowCount,
+      overflowUsers,
     } = this.props;
 
     return (
@@ -1386,6 +1388,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           handleVideoFocus,
           isGridEnabled,
           overflowCount,
+          overflowUsers,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

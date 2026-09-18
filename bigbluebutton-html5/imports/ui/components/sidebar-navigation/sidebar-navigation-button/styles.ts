@@ -3,13 +3,16 @@ import {
   borderSize,
   borderSizeSmall,
   navigationSidebarListItemsWidth,
+  navigationSidebarIconSize,
+  navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
-  navigationSidebarNotificationBadgePosition,
+  navigationSidebarNotificationBadgeFontSize,
+  navigationSidebarNotificationBadgeBottom,
+  navigationSidebarNotificationBadgeRight,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorGrayLight,
   colorWhite,
-  colorDanger,
+  notificationBadgeBg,
   colorPrimary,
   listItemBgHover,
   itemFocusBorder,
@@ -35,11 +38,11 @@ export const ListItem = styled.div<ListItemProps>`
   border-radius: 50%;
 
   > i {
-    font-size: 140%;
-    color: ${colorGrayLight};
+    font-size: ${navigationSidebarIconSize};
+    color: ${colorGrayIcons};
 
     @media ${smallHeight} {
-      font-size: 110%;
+      font-size: ${navigationSidebarIconSizeSmallHeight};
     }
   }
 
@@ -77,9 +80,9 @@ export const ListItem = styled.div<ListItemProps>`
       border-radius: 50%;
       width: ${navigationSidebarNotificationBadgeSize};
       height: ${navigationSidebarNotificationBadgeSize};
-      bottom: ${navigationSidebarNotificationBadgePosition};
-      right: ${navigationSidebarNotificationBadgePosition};
-      background-color: ${colorDanger};
+      bottom: ${navigationSidebarNotificationBadgeBottom};
+      right: ${navigationSidebarNotificationBadgeRight};
+      background-color: ${notificationBadgeBg};
       border: ${borderSizeSmall} solid ${colorWhite};
     }
   `}
@@ -91,12 +94,12 @@ export const ListItem = styled.div<ListItemProps>`
       border-radius: 50%;
       width: ${navigationSidebarNotificationBadgeSize};
       height: ${navigationSidebarNotificationBadgeSize};
-      bottom: ${navigationSidebarNotificationBadgePosition};
-      right: ${navigationSidebarNotificationBadgePosition};
-      background-color: ${colorDanger};
+      bottom: ${navigationSidebarNotificationBadgeBottom};
+      right: ${navigationSidebarNotificationBadgeRight};
+      background-color: ${notificationBadgeBg};
       border: ${borderSizeSmall} solid ${colorWhite};
       color: ${colorWhite};
-      font-size: 10px;
+      font-size: ${navigationSidebarNotificationBadgeFontSize};
       font-weight: bold;
       display: flex;
       align-items: center;

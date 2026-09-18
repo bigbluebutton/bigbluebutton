@@ -193,5 +193,8 @@ export class LearningDashboard extends MultiUsers {
     ];
 
     await checkTextContent(dataCSV.content, dataToCheck);
+    expect(dataCSV.content, 'should not include an anonymous row when no anonymous polls were created').not.toMatch(
+      /^"Anonymous"(?:,|$)/m,
+    );
   }
 }

@@ -25,12 +25,13 @@ public class SendChatMessage extends RequestWithChecksum<SendChatMessage.Params>
         public String getValue() { return value; }
     }
 
+    @NotNull(key = "missingParamMeetingID", message = "You must provide a meeting ID")
     @MeetingIDConstraint
     private String meetingID;
 
     private String userName;
 
-    @NotNull(message = "You must provide the param message")
+    @NotNull(key = "missingParamMessage", message = "You must provide the param message")
     @Size(min = 1, max = 500, message = "Param message must be between 1 and 500 characters")
     private String message;
 

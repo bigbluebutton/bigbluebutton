@@ -1,10 +1,163 @@
 import { expect, Response } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
+import {
+  enableMarkdownNotesOptions,
+  expectedSharedNotesFilename,
+  getBlockNoteEditorLocator,
+  getBlockNoteReadOnlyLocator,
+  hasNoUnreadNotesIndicator,
+  startSharedNotesBlockNote,
+  unreadNotesIndicatorStaysHidden,
+} from './util';
 
 export class BlockNoteSharedNotes extends MultiUsers {
+  async openSharedNotes() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    await expect(editorLocator, 'should display the BlockNote editor in editable mode').toBeVisible({
+      timeout: ELEMENT_WAIT_TIME,
+    });
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
+  async typeInSharedNotes() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    await editorLocator.click();
+    await editorLocator.pressSequentially(e.message);
+    await expect(editorLocator, 'should contain the typed text on shared notes').toContainText(e.message, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
+
+    await editorLocator.press('Control+Z');
+    await editorLocator.press('Control+Z');
+    await editorLocator.press('Control+Z');
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
+  async typeFractionsWithoutOpeningSlashMenu() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    const equation = '1/4 + 1/4 = 1/2';
+    await editorLocator.click();
+    await editorLocator.pressSequentially(equation);
+
+    await expect(
+      this.modPage.page.locator(e.blockNoteSlashMenuItem),
+      'a slash inside a fraction should not open the slash menu',
+    ).toHaveCount(0);
+
+    await editorLocator.press('Enter');
+    await expect(editorLocator, 'pressing Enter should keep the complete equation').toContainText(equation);
+
+    await editorLocator.pressSequentially('/');
+    await expect(
+      this.modPage.page.locator(e.blockNoteSlashMenuItem).first(),
+      'a slash at the start of a block should open the slash menu',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
+  async formatTextInSharedNotes() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    await editorLocator.click();
+    await editorLocator.pressSequentially(e.message);
+
+    await editorLocator.press('Control+Z');
+    await expect(editorLocator, 'should not contain any text after undoing').not.toContainText(e.message, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
+    // Re-type so we have content to format (Y.js collaborative redo is not reliable in tests)
+    await editorLocator.pressSequentially(e.message);
+    await expect(editorLocator, 'should contain the message again after re-typing').toContainText(e.message, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
+
+    await this.formatBlockNoteMessage();
+    const html = await editorLocator.innerHTML();
+
+    await expect(html.includes('<u>'), 'should include underline formatting').toBeTruthy();
+    await expect(html.includes('<strong>'), 'should include bold formatting').toBeTruthy();
+    await expect(html.includes('<em>'), 'should include italic formatting').toBeTruthy();
+
+    await editorLocator.press('Control+Z');
+    await editorLocator.press('Control+Z');
+    await editorLocator.press('Control+Z');
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
+  async exportSharedNotesAsPDF() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    await editorLocator.click();
+    await editorLocator.pressSequentially(e.message);
+
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.hasElement(e.exportNotesAsPDF, 'should display the export as PDF option');
+
+    // Intercept the outgoing request — the server responds with Content-Disposition: attachment
+    // so the popup tab never navigates; checking the request URL is the reliable approach.
+    const [request] = await Promise.all([
+      this.modPage.page.context().waitForEvent('request', {
+        predicate: (req) => req.url().includes('/hocuspocus/api/documents/') && req.url().includes('/export/pdf'),
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      }),
+      this.modPage.waitAndClick(e.exportNotesAsPDF),
+    ]);
+    await expect(request.url(), 'should request the PDF export endpoint').toContain('/export/pdf');
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
   // Regression for https://github.com/bigbluebutton/bigbluebutton/issues/25122:
   // exporting an empty BlockNote shared note must return a file, not an error
   // page ("Export failed: Document is empty...").
@@ -12,8 +165,8 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const { sharedNotesEnabled } = this.modPage.settings || {};
 
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
       return;
     }
 
@@ -47,6 +200,15 @@ export class BlockNoteSharedNotes extends MultiUsers {
       'empty shared notes PDF export should return a PDF document',
     ).toContain('application/pdf');
 
+    // The filename uses the server-local rendering of createTime. Tests must run
+    // in the same timezone as the BBB server for this deterministic comparison.
+    const expectedContentDisposition = async (ext: string) =>
+      `attachment; filename="${await expectedSharedNotesFilename(this.modPage.meetingId, ext)}"`;
+    expect(
+      pdfResponse.headers()['content-disposition'] || '',
+      'the empty PDF export filename should identify the meeting and use its create time',
+    ).toBe(await expectedContentDisposition('pdf'));
+
     // Issue #25122 is general ("empty page should not be an error"), so every
     // export format must treat an empty document as a valid empty file. Reuse
     // the authenticated export URL and assert via API requests, which are
@@ -72,8 +234,379 @@ export class BlockNoteSharedNotes extends MultiUsers {
         response.headers()['content-type'] || '',
         `empty shared notes ${format} export should return ${contentType}`,
       ).toContain(contentType);
+      expect(
+        response.headers()['content-disposition'] || '',
+        `empty shared notes ${format} export filename should identify the meeting`,
+      ).toBe(await expectedContentDisposition(format));
       // eslint-disable-next-line no-await-in-loop
       if (body) body(await response.text());
     }
+  }
+
+  async convertNotesToWhiteboard() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    await editorLocator.click();
+    await editorLocator.pressSequentially('test');
+    await expect(editorLocator, 'should register the typed text before converting to whiteboard').toContainText(
+      'test',
+      { timeout: ELEMENT_WAIT_TIME },
+    );
+
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
+
+    await this.modPage.hasText(
+      e.currentSlideText,
+      /test/,
+      'should the slide contain the text "test" for the moderator',
+      30000,
+    );
+    await this.userPage.hasText(
+      e.currentSlideText,
+      /test/,
+      'should the slide contain the text "test" for the attendee',
+      20000,
+    );
+
+    await editorLocator.press('Control+Z');
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label button');
+  }
+
+  async editSharedNotesWithMoreThanOneUser() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    // Open notes for both users before any typing so Hocuspocus registers both sessions
+    await startSharedNotesBlockNote(this.userPage);
+    const userEditorLocator = getBlockNoteEditorLocator(this.userPage);
+
+    await startSharedNotesBlockNote(this.modPage);
+    const modEditorLocator = getBlockNoteEditorLocator(this.modPage);
+    await modEditorLocator.click();
+    await modEditorLocator.pressSequentially('Hello');
+
+    // user waits for mod's text to sync, then selects all and replaces
+    await expect(userEditorLocator, 'should sync mod content to user before editing').toContainText('Hello', {
+      timeout: ELEMENT_WAIT_TIME,
+    });
+    await userEditorLocator.click();
+    await userEditorLocator.press('Control+A');
+    await userEditorLocator.pressSequentially('Jello');
+
+    await expect(modEditorLocator, 'should the shared notes contain the text "Jello" for the moderator').toContainText(
+      /Jello/,
+      { timeout: ELEMENT_WAIT_TIME },
+    );
+    await expect(userEditorLocator, 'should the shared notes contain the text "Jello" for the attendee').toContainText(
+      /Jello/,
+      { timeout: ELEMENT_WAIT_TIME },
+    );
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes button for the moderator');
+    await this.userPage.waitAndClick(e.hideNotesLabel);
+    await this.userPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes button for the attendee');
+  }
+
+  async seeNotesWithoutEditPermission() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    // type on shared notes as moderator
+    await startSharedNotesBlockNote(this.modPage);
+    const modEditorLocator = getBlockNoteEditorLocator(this.modPage);
+    await modEditorLocator.click();
+    await modEditorLocator.pressSequentially('Hello');
+
+    // open user notes to join the Hocuspocus session
+    await startSharedNotesBlockNote(this.userPage);
+
+    // lock shared notes editing for viewers
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.lockViewersButton);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // attendee's editor should become read-only and still show content
+    const userReadOnlyLocator = getBlockNoteReadOnlyLocator(this.userPage);
+    await expect(
+      userReadOnlyLocator,
+      'should display the text "Hello" in read-only mode for the attendee',
+    ).toContainText(/Hello/, { timeout: 20000 });
+    await this.userPage.wasRemoved(
+      e.blockNoteToolbar,
+      'should not display the BlockNote toolbar when shared notes are locked for editing',
+    );
+  }
+
+  async pinAndUnpinNotesOntoWhiteboard() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    // user minimize presentation
+    await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.hasElement(
+      e.restorePresentation,
+      'should display the restore presentation button for the attendee',
+    );
+    // type on shared notes as moderator
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    await editorLocator.click();
+    await editorLocator.pressSequentially('Hello');
+    await expect(editorLocator, 'should register the typed text before pinning').toContainText(/Hello/, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
+    // pin notes
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button');
+    await this.userPage.hasElement(
+      e.minimizePresentation,
+      'should display the minimize presentation button for the attendee',
+    );
+    // check text content on pinned shared notes
+    const userEditorLocator = getBlockNoteEditorLocator(this.userPage);
+    await expect(editorLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(
+      /Hello/,
+      { timeout: 20000 },
+    );
+    await expect(
+      userEditorLocator,
+      'should display the text "Hello" on the shared notes for the attendee',
+    ).toContainText(/Hello/);
+    // unpin notes
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.unpinNotes);
+    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
+    await this.userPage.hasElement(
+      e.whiteboard,
+      'should restore the presentation for the attendee as it syncs to presenter state',
+    );
+    // pin notes again as moderator
+    await startSharedNotesBlockNote(this.modPage);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+    await this.modPage.hasElement(
+      e.unpinNotes,
+      'should display the unpin notes button for the moderator after pinning the notes again',
+    );
+    // make viewer as presenter and unpin notes
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+    await this.userPage.waitAndClick(e.unpinNotes);
+    await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the attendee (previous state)');
+    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
+  }
+
+  async pinnedHeaderActions() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await enableMarkdownNotesOptions(this.modPage);
+    await enableMarkdownNotesOptions(this.userPage);
+    await startSharedNotesBlockNote(this.modPage);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+
+    const assertPinnedHeaderControlsFit = async (width: number, height: number) => {
+      await this.modPage.setHeightWidthViewPortSize({ width, height });
+      const header = this.modPage.page.locator(e.pinnedNotesHeader);
+      const options = this.modPage.page.locator(e.notesOptions);
+      const unpin = this.modPage.page.locator(e.unpinNotes);
+      await expect(header, `should display the pinned header at ${width}x${height}`).toBeVisible();
+      await expect(options, `should display notes options at ${width}x${height}`).toBeVisible();
+      await expect(unpin, `should display unpin at ${width}x${height}`).toBeVisible();
+
+      const [headerBox, optionsBox, unpinBox] = await Promise.all([
+        header.boundingBox(),
+        options.boundingBox(),
+        unpin.boundingBox(),
+      ]);
+      expect(headerBox, 'the pinned header should have layout dimensions').not.toBeNull();
+      expect(optionsBox, 'the notes options control should have layout dimensions').not.toBeNull();
+      expect(unpinBox, 'the unpin control should have layout dimensions').not.toBeNull();
+      if (!headerBox || !optionsBox || !unpinBox) return;
+      expect(optionsBox.x, 'notes options should stay inside the pinned header').toBeGreaterThanOrEqual(headerBox.x);
+      expect(unpinBox.x + unpinBox.width, 'unpin should stay inside the pinned header').toBeLessThanOrEqual(
+        headerBox.x + headerBox.width + 1,
+      );
+      expect(optionsBox.x + optionsBox.width, 'the pinned header controls should not overlap').toBeLessThanOrEqual(
+        unpinBox.x,
+      );
+    };
+
+    await assertPinnedHeaderControlsFit(390, 844);
+    await assertPinnedHeaderControlsFit(1366, 768);
+
+    const modOptions = this.modPage.page.locator(e.notesOptions);
+    await modOptions.focus();
+    await modOptions.press('Enter');
+    await expect(this.modPage.page.locator(e.importNotesFromMarkdown)).toBeVisible();
+    await expect(this.modPage.page.locator(e.sendNotesToWhiteboard)).toBeVisible();
+    await expect(this.modPage.page.locator(e.exportNotesAsPDF)).toBeVisible();
+    await expect(this.modPage.page.locator(e.exportNotesAsMarkdown)).toBeVisible();
+    await expect(this.modPage.page.locator(e.pinNotes), 'should not offer to pin notes that are pinned').toHaveCount(0);
+    await this.modPage.page.keyboard.press('Escape');
+    await expect(this.modPage.page.locator(e.exportNotesAsPDF)).toBeHidden();
+    await expect(modOptions, 'keyboard focus should return to the notes options control').toBeFocused();
+
+    await expect(this.userPage.page.locator(e.pinnedNotesHeader)).toBeVisible();
+    await expect(this.userPage.page.locator(e.unpinNotes), 'a viewer should not be able to unpin notes').toHaveCount(0);
+    const userOptions = this.userPage.page.locator(e.notesOptions);
+    await userOptions.focus();
+    await userOptions.press('Enter');
+    await expect(this.userPage.page.locator(e.exportNotesAsPDF)).toBeVisible();
+    await expect(this.userPage.page.locator(e.exportNotesAsMarkdown)).toBeVisible();
+    await expect(
+      this.userPage.page.locator(e.importNotesFromMarkdown),
+      'a viewer should not be able to import notes',
+    ).toHaveCount(0);
+    await expect(
+      this.userPage.page.locator(e.sendNotesToWhiteboard),
+      'a viewer should not be able to convert notes',
+    ).toHaveCount(0);
+    await expect(this.userPage.page.locator(e.pinNotes)).toHaveCount(0);
+    await this.userPage.page.keyboard.press('Escape');
+
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.makePresenter);
+    await expect(
+      this.userPage.page.locator(e.unpinNotes),
+      'the new presenter should be able to unpin notes',
+    ).toBeVisible();
+    await expect(
+      this.modPage.page.locator(e.unpinNotes),
+      'a moderator who is not the presenter should not be able to unpin notes',
+    ).toHaveCount(0);
+
+    await userOptions.focus();
+    await userOptions.press('Enter');
+    await expect(this.userPage.page.locator(e.importNotesFromMarkdown)).toBeVisible();
+    await expect(this.userPage.page.locator(e.sendNotesToWhiteboard)).toBeVisible();
+    await this.userPage.page.keyboard.press('Escape');
+
+    await this.userPage.closeAllToastNotifications();
+    const userUnpin = this.userPage.page.locator(e.unpinNotes);
+    await userUnpin.focus();
+    await userUnpin.press('Enter');
+    await expect(this.userPage.page.locator(e.pinnedNotesHeader)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.pinnedNotesHeader)).toHaveCount(0);
+    await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the presenter');
+    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator');
+  }
+
+  async formatBlockNoteMessage() {
+    // U for '!' — BlockNote has no Ctrl+U shortcut; click the toolbar button instead.
+    // The static toolbar uses e.preventDefault() on mousedown to preserve selection.
+    await this.modPage.down('Shift');
+    await this.modPage.press('ArrowLeft');
+    await this.modPage.up('Shift');
+    await this.modPage.page.locator(e.blockNoteUnderlineButton).click();
+    await this.modPage.press('ArrowLeft');
+
+    // B for 'World'
+    await this.modPage.down('Shift');
+    let i = 5;
+    while (i > 0) {
+      await this.modPage.press('ArrowLeft');
+      i--;
+    }
+    await this.modPage.up('Shift');
+    await this.modPage.press('Control+B');
+    await this.modPage.press('ArrowLeft');
+
+    await this.modPage.press('ArrowLeft');
+
+    // I for 'Hello'
+    await this.modPage.down('Shift');
+    i = 5;
+    while (i > 0) {
+      await this.modPage.press('ArrowLeft');
+      i--;
+    }
+    await this.modPage.up('Shift');
+    await this.modPage.press('Control+I');
+    await this.modPage.press('ArrowLeft');
+  }
+
+  async unreadNotesIndicator() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    // viewer starts without the unread indicator
+    await this.userPage.hasElement(e.sharedNotesSidebarButton, 'should display the shared notes button');
+    await hasNoUnreadNotesIndicator(this.userPage, 'should not display the unread indicator before any edit');
+
+    // moderator opens the notes and types
+    await startSharedNotesBlockNote(this.modPage);
+    const notesEditor = getBlockNoteEditorLocator(this.modPage);
+    await notesEditor.click();
+    await this.modPage.page.keyboard.type('Hello attendees');
+
+    // viewer (notes panel closed) must see the unread indicator
+    await this.userPage.hasNotificationIcon(
+      e.sharedNotesSidebarButton,
+      'should display the unread indicator for the viewer',
+    );
+
+    // opening the notes clears the indicator
+    await startSharedNotesBlockNote(this.userPage);
+    await hasNoUnreadNotesIndicator(this.userPage, 'should clear the unread indicator when the notes panel is open');
+
+    // closing the panel must not bring the indicator back (notes were read)
+    await this.userPage.waitAndClick(e.hideNotesLabel);
+    await this.userPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+    await unreadNotesIndicatorStaysHidden(this.userPage, 'should keep the indicator hidden after reading the notes');
+
+    // new edits after the viewer read the notes must light the indicator again
+    const modNotesEditor = getBlockNoteEditorLocator(this.modPage);
+    await modNotesEditor.click();
+    await this.modPage.page.keyboard.type('New content');
+    await this.userPage.hasNotificationIcon(
+      e.sharedNotesSidebarButton,
+      'should display the unread indicator again after new edits',
+    );
   }
 }

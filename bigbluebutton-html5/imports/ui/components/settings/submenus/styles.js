@@ -1,25 +1,26 @@
 import styled from 'styled-components';
 import {
+  colorBorder,
   colorGrayDark,
   colorGrayLabel,
   colorPrimary,
   colorWhite,
-  colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { Switch } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Title = styled.h3`
   color: ${colorGrayDark};
   margin: 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   font-weight: 600;
   margin-bottom: 0;
 `;
 
 const SubTitle = styled.h4`
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
   margin-bottom: 1rem;
 `;
 
@@ -70,7 +71,7 @@ const FormElementRight = styled.div`
 
 const Label = styled.span`
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
 `;
 
 const Select = styled.select`
@@ -82,7 +83,7 @@ const Select = styled.select`
   background-color: ${colorWhite};
   border: ${borderSize} solid ${colorWhite};
   border-radius: ${borderSize};
-  border-bottom: 0.1rem solid ${colorGrayLighter};
+  border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};
   width: 100%;
   height: 1.75rem;

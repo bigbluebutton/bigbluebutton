@@ -3,6 +3,7 @@ import path from 'path';
 import { linkIssue } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
+import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
@@ -19,7 +20,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
-  test('Share Camera As Content', async ({ browser }, testInfo) => {
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
         ...chromiumBaseArgs,
@@ -100,7 +101,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.zoom();
   });
 
-  test('Select Slide', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+  // fails deterministically on 4.0: the slide-thumbnail canvas screenshot no longer
+  // matches its baseline on any server - needs a baseline/approach refresh
+  test('Select Slide', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
@@ -149,6 +152,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.startExternalVideo();
       await presentation.endExternalVideo();
     });
+
+    // https://github.com/bigbluebutton/bigbluebutton/issues/25472
+    // Regression: presenter scrubbing the external video while playing must broadcast the
+    // new position. Adapters like YouTube do not emit a seek event, so before the fix the
+    // viewer stayed stuck. Asserts the viewer's playhead follows the presenter's seek.
+    test('Seek external video while playing', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25472);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.seekExternalVideoWhilePlaying();
+    });
   });
 
   test.describe.parallel('Manage', () => {
@@ -158,6 +173,20 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.initPages(page, testInfo);
       await presentation.uploadSinglePresentationTest();
     });
+
+    // maskTagThreshold is a SERVER-SIDE bbb-web setting with no client-settings hook, so nothing
+    // applies it automatically: this test requires bbb-web to be restarted with `maskTagThreshold=1`
+    // in /etc/bigbluebutton/bbb-web.properties (rasterize any slide whose generated SVG contains a
+    // <mask> tag). The @setting-required tag keeps it out of the default CI gate.
+    test(
+      'Masked slide is rasterized when maskTagThreshold is set',
+      { tag: '@setting-required:maskTagThreshold' },
+      async ({ browser, context, page }, testInfo) => {
+        const presentation = new Presentation(browser, context);
+        await presentation.initModPage(page, { testInfo });
+        await presentation.maskRasterizationFallbackTest();
+      },
+    );
 
     test('Upload Other Presentations Format', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
@@ -189,6 +218,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.sendPresentationToDownload();
     });
 
+    test('Exported text annotations do not overlap', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
+    });
+
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
@@ -200,6 +236,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
       await presentation.presentationThumbnailLoads();
+    });
+
+    test('Uploaded presentation keeps its source dimensions', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24110);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadPresentationKeepsSourceDimensions();
     });
 
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -26,6 +27,7 @@ import { setBreakoutWindowRef } from '../service';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import { useUserLiveKitMemberships } from '/imports/ui/components/livekit/memberships-manager/hooks';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -92,6 +94,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.stopListeningToRoom',
     description: 'Stop listening to breakout room audio',
   },
+  listenAlreadyInRoom: {
+    id: 'app.createBreakoutRoom.listenAlreadyInRoom',
+    description: 'Listen option label while the user is joined in that breakout room',
+  },
   sendMessage: {
     id: 'app.chat.submitLabel',
     description: 'Send message button label',
@@ -124,7 +130,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   const [localRoomNames, setLocalRoomNames] = useState<Record<string, string>>({});
   const [requestingJoinForRoomId, setRequestingJoinForRoomId] = useState<string | null>(null);
-  const [listeningToRoomId, setListeningToRoomId] = useState<string | null>(null);
+  const [localListeningToRoomId, setLocalListeningToRoomId] = useState<string | null>(null);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
@@ -146,11 +152,20 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }));
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
-  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
   const sendInvitationToModerators = breakoutProps?.sendInvitationToModerators ?? false;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
   const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
   const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
+
+  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
+  const memberships = useUserLiveKitMemberships();
+  // FreeSWITCH listen-in has no actual gql info to guide it, so its target room is tracked
+  // optimistically here.
+  // On LiveKit the membership data is the source of truth: the breakout-listen
+  // membership's roomName is the breakout meeting id being listened to.
+  const listeningToRoomId = isUsingLiveKit
+    ? (memberships.find((m) => m.purpose === 'breakout-listen')?.roomName ?? null)
+    : localListeningToRoomId;
 
   const assignedUserIds = useMemo(() => {
     const ids = new Set<string>();
@@ -185,7 +200,21 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     }
   }, [breakouts, requestingJoinForRoomId, stopMediaOnMainRoom, isPresenter]);
 
+  // The FS/mediasoup path tracks listen state locally (LK derives it from
+  // memberships); keep it in sync or the menu keeps a stale "Stop listening".
+  const setLocalListenTarget = useCallback((roomId: string | null) => {
+    if (!isUsingLiveKit) setLocalListeningToRoomId(roomId);
+  }, [isUsingLiveKit]);
+
   const handleEnterRoom = useCallback((breakout: BreakoutRoomType) => {
+    // If listening-in to a breakout, return audio to main before _fully joining_
+    // a breakout.
+    if (listeningToRoomId) {
+      breakoutRoomTransfer({
+        variables: { fromMeetingId: listeningToRoomId, toMeetingId: meetingId },
+      });
+      setLocalListenTarget(null);
+    }
     if (breakout.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
       if (win) {
@@ -196,9 +225,17 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       requestJoinUrl({ variables: { breakoutRoomMeetingId: breakout.breakoutRoomMeetingId } });
       setRequestingJoinForRoomId(breakout.breakoutRoomMeetingId);
     }
-  }, [requestJoinUrl, stopMediaOnMainRoom, isPresenter]);
+  }, [
+    requestJoinUrl, stopMediaOnMainRoom, isPresenter,
+    listeningToRoomId,
+    breakoutRoomTransfer,
+    meetingId,
+    setLocalListenTarget,
+  ]);
 
   const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
+    if (breakout.isUserCurrentlyInRoom) return;
+
     if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
       breakoutRoomTransfer({
         variables: {
@@ -206,7 +243,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           toMeetingId: meetingId,
         },
       });
-      setListeningToRoomId(null);
+      setLocalListenTarget(null);
     } else {
       breakoutRoomTransfer({
         variables: {
@@ -214,9 +251,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           toMeetingId: breakout.breakoutRoomMeetingId,
         },
       });
-      setListeningToRoomId(breakout.breakoutRoomMeetingId);
+      setLocalListenTarget(breakout.breakoutRoomMeetingId);
     }
-  }, [listeningToRoomId, breakoutRoomTransfer, meetingId]);
+  }, [listeningToRoomId, setLocalListenTarget, breakoutRoomTransfer, meetingId]);
 
   const padNum = (n: number) => n.toString().padStart(2, '0');
 
@@ -453,14 +490,19 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
                           onClick: () => handleEnterRoom(breakout),
                         },
-                        ...(!isUsingLiveKit ? [{
+                        {
                           key: `listen-${breakout.breakoutRoomMeetingId}`,
-                          label: isListening
-                            ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                            : intl.formatMessage(intlMessages.listenToRoom),
-                          dataTest: 'listenToBreakoutRoomButton',
+                          // A live full join in this room (another tab) would play the
+                          // listen-in mic back to the user through that session.
+                          label: breakout.isUserCurrentlyInRoom
+                            ? intl.formatMessage(intlMessages.listenAlreadyInRoom)
+                            : intl.formatMessage(
+                              isListening ? intlMessages.stopListeningToRoom : intlMessages.listenToRoom,
+                            ),
+                          disabled: breakout.isUserCurrentlyInRoom,
+                          dataTest: `listenToBreakoutRoomButton${breakout.sequence}`,
                           onClick: () => handleListenToRoom(breakout),
-                        }] : []),
+                        },
                       ]}
                       opts={{
                         id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,
@@ -549,19 +591,24 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         </Styled.MegaphoneChatArea>
       )}
       <Styled.BottomBar>
-        {/* @ts-ignore */}
-        <Styled.MegaphoneBtn
-          label={intl.formatMessage(intlMessages.megaphoneLabel)}
-          onClick={() => setMegaphoneOpen(!megaphoneOpen)}
-          title={intl.formatMessage(intlMessages.megaphoneTooltip)}
-          data-test="megaphoneButton"
-        />
-        {/* @ts-ignore */}
-        <Styled.FinishBtn
-          label={intl.formatMessage(intlMessages.finishLabel)}
-          onClick={handleFinish}
-          data-test="finishBreakoutButton"
-        />
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="secondary"
+            label={intl.formatMessage(intlMessages.megaphoneLabel)}
+            tooltipLabel={intl.formatMessage(intlMessages.megaphoneTooltip)}
+            onClick={() => setMegaphoneOpen(!megaphoneOpen)}
+            dataTest="megaphoneButton"
+          />
+        </Styled.ButtonWrapper>
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            color="danger"
+            label={intl.formatMessage(intlMessages.finishLabel)}
+            onClick={handleFinish}
+            dataTest="finishBreakoutButton"
+          />
+        </Styled.ButtonWrapper>
       </Styled.BottomBar>
     </Styled.PanelContent>
   );

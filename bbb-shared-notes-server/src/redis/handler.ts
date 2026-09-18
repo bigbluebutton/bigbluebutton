@@ -1,4 +1,5 @@
 import { Logger } from '../common/logger';
+import { sanitizeFilenameSegment } from '../common/filename';
 import { connectionsMap } from '../common/singleton';
 import { sender } from './sender';
 import config from '../config';
@@ -104,17 +105,19 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
     externalId,
     model,
     initialContentJson,
+    initialContentMarkdown,
   } = body;
 
   const padId = `${documentNamePrefix}${meetingId}`;
 
-  const validateInitialContentNotEmpty = (): boolean => {
-    return initialContentJson !== undefined
-      && initialContentJson !== null
-      && typeof initialContentJson === "object"
-      && Object.keys(initialContentJson).length > 0
-  }
-  if (validateInitialContentNotEmpty()) {
+  const hasInitialContentJson = initialContentJson !== undefined
+    && initialContentJson !== null
+    && typeof initialContentJson === "object"
+    && Object.keys(initialContentJson).length > 0;
+  const hasInitialContentMarkdown = typeof initialContentMarkdown === "string"
+    && initialContentMarkdown.length > 0;
+
+  if (hasInitialContentMarkdown || hasInitialContentJson) {
     logger.debug(
       'Received initial content', {
         padId,
@@ -122,7 +125,10 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
       }
     );
     try {
-      const statusReturn = await pushInitialContent(padId, initialContentJson);
+      const statusReturn = await pushInitialContent(padId, {
+        initialContentJson: hasInitialContentJson ? initialContentJson : undefined,
+        initialContentMarkdown: hasInitialContentMarkdown ? initialContentMarkdown : undefined,
+      });
       if (statusReturn.error) {
         logger.error('Error found, see details', {
           logCode: statusReturn.statusCode,
@@ -199,8 +205,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     // Export the document
     const documentName = presId;
     const notesFormat = 'pdf';
-    const underscoredFilename = serverSideFilename.replace(/\s/g, '_');
-    const sanitizedFilename = underscoredFilename.replace(/[^a-z0-9_.-]/gi, '_');
+    const sanitizedFilename = sanitizeFilenameSegment(serverSideFilename);
     const outputFilename = `${sanitizedFilename}.${notesFormat}`;
     const filePath = path.join(temporarySavingDir, outputFilename);
 

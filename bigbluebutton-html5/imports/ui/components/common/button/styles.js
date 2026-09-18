@@ -57,6 +57,7 @@ import {
   colorWhite,
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import BaseButton from './base/component';
 
 const ButtonIcon = styled(Icon)`
@@ -144,7 +145,9 @@ const ButtonWrapper = styled(BaseButton)`
   border: none;
   overflow: visible !important;
   display: inline-block;
+  position: relative;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
   &:focus,
   &:hover {
@@ -340,22 +343,6 @@ const ButtonWrapper = styled(BaseButton)`
     animation: spin 1.5s ease infinite;
   }
 
-  @media screen and (max-width: 480px) {
-
-    &::after {
-      height: 50px;
-      border-radius: 50%;
-      position: absolute;
-      line-height: 90px;
-      text-align: center;
-      bottom: 0;
-      top: 0;
-      left: -0.5px;
-      right: 0;
-      width: 49px;
-    }
-  }
-
   @keyframes spin {
     0% {
         opacity: 0;
@@ -440,6 +427,16 @@ const ButtonSpan = styled.span`
     display: flex !important;
     align-items: center;
     justify-content: center;
+  `}
+
+  ${({ size, circle }) => size === 'md' && circle && `
+    @media ${smallOnly} {
+      height: 2.5rem;
+      width: 2.5rem;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
   `}
 
   ${({ size }) => size === 'jumbo' && `
