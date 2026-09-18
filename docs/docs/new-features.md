@@ -253,6 +253,17 @@ Unlike the distro package, `bbb-coturn` does **not** enable or start the service
 See [Turn Server Configuration](/administration/turn-server) for the full configuration.
 
 
+#### New optional package: bbb-playback-presentation-legacy
+
+The players for recordings made with BigBlueButton 0.81 and 0.9 (served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`) moved out of `bbb-playback-presentation` into the new `bbb-playback-presentation-legacy` package, together with the redirect from the unversioned `/playback/presentation/playback.html` link. Recordings made by any current version use the 2.3 player from `bbb-playback`, so a default install no longer ships the old players, and links to them answer 404.
+
+It is an **optional** package, not a dependency of the `bigbluebutton` meta-package. If you migrated recordings from those versions and still need to play them, install it with
+
+`$ sudo apt install bbb-playback-presentation-legacy`
+
+See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09) for details.
+
+
 #### New administration tool: bbbctl
 
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
