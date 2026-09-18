@@ -466,7 +466,7 @@ class ApplicationMenu extends BaseMenu {
                     icons="false"
                     checked={!!settings.recordingIndicatorAutoCollapse}
                     onChange={() => this.handleToggle('recordingIndicatorAutoCollapse')}
-                    aria-label={`${intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)} - ${displaySettingsStatus(settings.recordingIndicatorAutoCollapse, true)}`}
+                    aria-label={`${intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)} - ${displaySettingsStatus(!!settings.recordingIndicatorAutoCollapse, true)}`}
                     inputProps={{ 'data-test': 'recordingIndicatorAutoCollapseToggleBtn' }}
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
