@@ -50,6 +50,7 @@ interface CameraDock {
     focusedId: string;
     isDragging?: boolean;
     isResizing?: boolean;
+    isLocalChange?: boolean;
     numCameras?: number;
     position: string;
     width: number;
@@ -68,6 +69,13 @@ interface CameraDock {
     top: number;
     right: number;
     zIndex: number;
+}
+
+interface CameraDockOutput extends CameraDock {
+    isPositionEnforced?: boolean;
+    intendedPosition?: string;
+    intendedWidth?: number;
+    intendedHeight?: number;
 }
 
 export interface ExternalVideo {
@@ -286,7 +294,7 @@ interface Input {
 
 interface Output {
     actionBar: ActionBar;
-    cameraDock: CameraDock;
+    cameraDock: CameraDockOutput;
     captions: Captions;
     dropZoneAreas: DropzoneAreas;
     externalVideo: ExternalVideo;
@@ -304,6 +312,7 @@ interface Output {
 interface Layout {
     presentationAreaContentActions: PresentationAreaContentActions[];
     deviceType: string;
+    deviceOrientation: string;
     fontSize: number;
     fullscreen: Fullscreen;
     idChatOpen: string;

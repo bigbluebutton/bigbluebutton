@@ -1,5 +1,6 @@
 import { equals } from 'ramda';
 import {
+  DEVICE_ORIENTATION,
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
@@ -209,8 +210,14 @@ const getDeviceType = () => {
   return deviceType;
 };
 
+const getDeviceOrientation = () => (
+  window.document.documentElement.clientHeight > window.document.documentElement.clientWidth
+    ? DEVICE_ORIENTATION.PORTRAIT
+    : DEVICE_ORIENTATION.LANDSCAPE
+);
+
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
-  getWaitLayout, getDeviceType, getInitialSidebarContentPanel,
+  getWaitLayout, getDeviceType, getDeviceOrientation, getInitialSidebarContentPanel,
   isValidSynchronizationLayout,
 };

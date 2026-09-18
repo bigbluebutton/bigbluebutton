@@ -6,6 +6,7 @@ import {
 import {
   isMobile,
   getDeviceType,
+  getDeviceOrientation,
   getInitialSidebarContentPanel,
 } from './utils';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -141,8 +142,18 @@ const LayoutObserver: React.FC = () => {
     });
   };
 
+  const setDeviceOrientation = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_DEVICE_ORIENTATION,
+      value: getDeviceOrientation(),
+    });
+  };
+
   const throttledDeviceType = throttle(
-    () => setDeviceType(),
+    () => {
+      setDeviceType();
+      setDeviceOrientation();
+    },
     50, { trailing: true, leading: true },
   );
 
