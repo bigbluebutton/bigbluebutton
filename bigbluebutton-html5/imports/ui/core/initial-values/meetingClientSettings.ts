@@ -144,6 +144,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          recordingIndicatorAutoCollapse: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
