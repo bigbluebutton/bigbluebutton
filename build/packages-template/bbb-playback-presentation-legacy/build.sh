@@ -55,6 +55,7 @@ fi
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
+    --after-remove after-remove.sh \
     --description "Legacy BigBlueButton presentation recording players (0.81 and 0.9.0)" \
     --depends "bbb-playback-presentation (>= $PRESENTATION_VERSION)" \
     --replaces "bbb-playback-presentation (<< $PRESENTATION_VERSION)" \
