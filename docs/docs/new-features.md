@@ -465,6 +465,16 @@ Starting with BigBlueButton 3.0.36 the JVM components build and run on Java 21 (
 
 If you build from source, install `openjdk-21-jdk-headless` and point `JAVA_HOME` at `/usr/lib/jvm/java-21-openjdk-amd64`. The build tooling moved to sbt 1.10.7 at the same time; see the [Development Guide](/development/guide) for the full setup.
 
+#### New optional package: bbb-playback-presentation-legacy
+
+The players for recordings made with BigBlueButton 0.81 and 0.9 (served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`) moved out of `bbb-playback-presentation` into the new `bbb-playback-presentation-legacy` package, together with the redirect from the unversioned `/playback/presentation/playback.html` link. Recordings made by any current version use the 2.3 player from `bbb-playback`, so a default install no longer ships the old players, and links to them answer 404.
+
+It is an **optional** package, not a dependency of the `bigbluebutton` meta-package. If you migrated recordings from those versions and still need to play them, install it with
+
+`$ sudo apt install bbb-playback-presentation-legacy`
+
+See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09) for details.
+
 ### Changes to events.xml
 
 Retired events
