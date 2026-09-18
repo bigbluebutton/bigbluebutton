@@ -1323,7 +1323,9 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       // segmentation worker never receives its onloadeddata kick, for a camera that
       // is already gone.
       if (this.webRtcPeers[stream]?.bbbVideoStream !== bbbVideoStream
-        || bbbVideoStream.mediaStream == null) return;
+        || bbbVideoStream.mediaStream == null
+        || !bbbVideoStream.mediaStream.getVideoTracks()
+          .some((track) => track.readyState === 'live')) return;
 
       await bbbVideoStream.startVirtualBackground(type, name, customParams);
 
