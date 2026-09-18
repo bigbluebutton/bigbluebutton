@@ -19,6 +19,7 @@ const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
 const colorBlueAux = 'var(--color-blue-aux, #E5EFFB)';
+const colorBlueDark = 'var(--color-blue-dark, #0F4D9D)';
 const colorBlueLightestChannel = '228 236 242';
 const colorBlueLighterChannel = '146 188 234';
 
@@ -199,6 +200,7 @@ export {
   colorBlueLightestChannel,
   colorBlueLighterChannel,
   colorBlueAux,
+  colorBlueDark,
   colorPrimary,
   colorDanger,
   colorDangerDark,
