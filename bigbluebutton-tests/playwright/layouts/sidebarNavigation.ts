@@ -10,7 +10,7 @@ import { MultiUsers } from '../user/multiusers';
 // with zero real overflow and shrank the icons that caused it (issue 25564).
 // OVERFLOW is genuinely too short, so a real scrollbar is expected there.
 const REGIME_A = { width: 1280, height: 616 };
-const GHOST_BAND = { width: 1280, height: 550 };
+const GHOST_BAND = { width: 1280, height: 560 };
 const OVERFLOW = { width: 1280, height: 460 };
 
 interface RailMetrics {
@@ -103,13 +103,8 @@ export class SidebarNavigation extends MultiUsers {
       band.buttonWidth,
       'icon buttons must not shrink when the rail height enters the old ghost-scrollbar band',
     ).toBe(tall.buttonWidth);
-    // Honest bar: if the content fits, there is no scroll; if it does not, the bar
-    // is backed by real overflow. Either way a zero-overflow reserved bar is gone.
-    if (band.scrollHeight <= band.clientHeight) {
-      expect(band.lastButtonReachable, 'every icon should be visible when the content fits').toBeTruthy();
-    } else {
-      expect(band.lastButtonReachable, 'the last icon should be reachable by scrolling when it overflows').toBeTruthy();
-    }
+    expect(band.scrollHeight, 'all rail content should fit at 1280x560').toBeLessThanOrEqual(band.clientHeight);
+    expect(band.lastButtonReachable, 'every icon should be visible at 1280x560').toBeTruthy();
   }
 
   // Spec C - dynamic viewport resizes (the real field trigger). The icon size must
@@ -120,10 +115,19 @@ export class SidebarNavigation extends MultiUsers {
     const base = await measureAt(this.modPage, REGIME_A);
     const reference = base.buttonWidth;
 
-    for (const height of [590, 560, 550, 520, 490, 460]) {
+    for (let height = 480; height <= 760; height += 4) {
       // eslint-disable-next-line no-await-in-loop
       const metrics = await measureAt(this.modPage, { width: 1280, height });
       expect(metrics.buttonWidth, `icon size must stay constant at 1280x${height}`).toBe(reference);
+      if (height >= 536) {
+        expect(metrics.scrollHeight, `rail content should fit at 1280x${height}`).toBeLessThanOrEqual(
+          metrics.clientHeight,
+        );
+      } else {
+        expect(metrics.scrollHeight, `rail content should overflow below 536px at 1280x${height}`).toBeGreaterThan(
+          metrics.clientHeight,
+        );
+      }
     }
 
     const overflow = await measureAt(this.modPage, OVERFLOW);
