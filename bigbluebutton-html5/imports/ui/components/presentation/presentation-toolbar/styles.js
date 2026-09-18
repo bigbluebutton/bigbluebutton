@@ -23,35 +23,41 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 const COMPACT_ATTRIBUTE = 'data-compact';
+const OVERFLOWING_ATTRIBUTE = 'data-overflowing';
+const OUT_OF_ROOM_ATTRIBUTE = 'data-out-of-room';
 
 const PresentationToolbarWrapper = styled.div`
-  position: absolute;
-  align-self: center;
+  position: relative;
   z-index: 1;
+  pointer-events: auto;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
-  width: 100%;
-  bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
-  min-width: fit-content;
   box-sizing: border-box;
 
-  &[${COMPACT_ATTRIBUTE}="true"] {
-    min-width: 0;
+  width: var(--slide-width, 100%);
+  max-width: 100%;
+
+  &[${OVERFLOWING_ATTRIBUTE}="true"] {
+    width: min-content;
+  }
+
+  &[${OUT_OF_ROOM_ATTRIBUTE}="true"] {
     overflow-x: clip;
     overflow-y: visible;
   }
 
   @media ${smallOnly}, ${hasPhoneDimentions} {
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
+    &[${OUT_OF_ROOM_ATTRIBUTE}="true"] {
+      overflow-x: auto;
+      scrollbar-width: none;
 
-    &::-webkit-scrollbar {
-      display: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 
@@ -346,7 +352,7 @@ const InfiniteWhiteboardButton = styled(Button)`
   }
 `;
 
-export { COMPACT_ATTRIBUTE };
+export { COMPACT_ATTRIBUTE, OVERFLOWING_ATTRIBUTE, OUT_OF_ROOM_ATTRIBUTE };
 
 export default {
   PresentationToolbarWrapper,
