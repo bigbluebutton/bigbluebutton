@@ -40,8 +40,8 @@ begin
 end
 
 # Load parameters and set up paths
-props = YAML::safe_load(File.read(File.expand_path('../../bigbluebutton.yml', __FILE__)))
-screenshare_props = YAML::safe_load(File.read(File.expand_path('../../screenshare.yml', __FILE__)))
+props = BigBlueButton.load_yaml(File.expand_path('../../bigbluebutton.yml', __FILE__))
+screenshare_props = BigBlueButton.load_yaml(File.expand_path('../../screenshare.yml', __FILE__))
 
 recording_dir = props['recording_dir']
 playback_dir = screenshare_props['playback_dir']

@@ -21,6 +21,8 @@
 require 'rubygems'
 require 'bundler/setup'
 
+require File.expand_path('../../../core/lib/boot', __dir__)
+
 require 'optparse'
 require 'journald/logger'
 
@@ -40,13 +42,13 @@ end
 
 # Read configuration and set up logger
 
-props = YAML.safe_load(File.read(File.expand_path('../bigbluebutton.yml', __dir__)))
-presentation_props = YAML.safe_load(File.read(File.expand_path('../presentation.yml', __dir__)))
+props = BigBlueButton.load_yaml(File.expand_path('../bigbluebutton.yml', __dir__))
+presentation_props = BigBlueButton.load_yaml(File.expand_path('../presentation.yml', __dir__))
 
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 isThereOverride = File.file?(filepathPresOverride)
 if (isThereOverride)
-  presOverrideProps = YAML::safe_load(File.read(filepathPresOverride))
+  presOverrideProps = BigBlueButton.load_yaml(filepathPresOverride, fallback: {})
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 
@@ -133,4 +135,3 @@ logger.info('Saving updated playback captions list')
 # Sort the list by label so the selection menu looks nice
 playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
 File.write(playback_captions_path, JSON.pretty_generate(playback_captions))
-
