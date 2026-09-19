@@ -37,8 +37,8 @@ if playback != 'screenshare'
 end
 
 # Load parameters and set up paths
-props = YAML::safe_load(File.read(File.expand_path('../../bigbluebutton.yml', __FILE__)))
-screenshare_props = YAML::safe_load(File.read(File.expand_path('../../screenshare.yml', __FILE__)))
+props = BigBlueButton.load_yaml(File.expand_path('../../bigbluebutton.yml', __FILE__))
+screenshare_props = BigBlueButton.load_yaml(File.expand_path('../../screenshare.yml', __FILE__))
 
 process_dir = "#{props['recording_dir']}/process/screenshare/#{meeting_id}"
 publish_dir = "#{screenshare_props['publish_dir']}/#{meeting_id}"
@@ -69,8 +69,8 @@ FileUtils.cp("#{process_dir}/index.html", "#{publish_dir}/index.html")
 
 # Copy over generated video files
 screenshare_props['formats'].each_with_index do |format, i|
-  FileUtils.cp("#{process_dir}/screenshare-#{i}.#{format['extension']}",
-               "#{publish_dir}/screenshare-#{i}.#{format['extension']}")
+  FileUtils.cp("#{process_dir}/screenshare-#{i}.#{format[:extension]}",
+               "#{publish_dir}/screenshare-#{i}.#{format[:extension]}")
 end
 
 # Captions files
