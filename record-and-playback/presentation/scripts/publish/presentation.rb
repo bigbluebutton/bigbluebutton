@@ -35,11 +35,11 @@ require "active_support"
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
-@presentation_props = YAML.safe_load(File.read('presentation.yml'))
+@presentation_props = BigBlueButton.load_yaml('presentation.yml')
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::safe_load(File.read(filepathPresOverride))
+  presOverrideProps = BigBlueButton.load_yaml(filepathPresOverride, fallback: {})
   @presentation_props = @presentation_props.merge(presOverrideProps)
 end
 
@@ -1296,7 +1296,7 @@ end
 
 def generate_done_or_fail_file(success)
   File.write(
-    "#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}", 
+    "#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}",
     "#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}"
   )
 end

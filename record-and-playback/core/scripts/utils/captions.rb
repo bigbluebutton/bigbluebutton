@@ -38,7 +38,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::safe_load(File.read('../../core/scripts/bigbluebutton.yml'))
+props = BigBlueButton.load_yaml('../../core/scripts/bigbluebutton.yml')
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"

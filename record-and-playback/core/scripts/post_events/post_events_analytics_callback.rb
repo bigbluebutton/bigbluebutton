@@ -59,7 +59,7 @@ meeting_id = options[:meeting_id]
 
 # This script lives in scripts/post_events
 # while properties.yaml lives in scripts/
-props = YAML.safe_load(File.read('../../core/scripts/bigbluebutton.yml'))
+props = BigBlueButton.load_yaml('../../core/scripts/bigbluebutton.yml')
 
 recording_dir = props['recording_dir']
 events_dir = props['events_dir']
