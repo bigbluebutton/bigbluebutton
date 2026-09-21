@@ -121,10 +121,11 @@ const HOVER_COLLAPSE_DELAY = '0.25s';
 const HOVER_CAPABLE = '@media (hover: hover) and (pointer: fine)';
 
 // The collapse animates max-width, which cannot be `auto`, so the open state
-// needs a number. It is sized by the longest translated label rather than by
-// the English one: at 12rem the French, Occitan, Galician, Greek and Italian
-// strings were clipped, and the Malayalam stop title is longer still.
-const LABEL_MAX_WIDTH = '16rem';
+// needs a length. It is the same 30vw cap the label has when it does not
+// collapse: a rem value is sized against one font, and scripts drawn in a
+// fallback font come out wider elsewhere - the Malayalam stop title outgrew
+// 16rem that way.
+const LABEL_MAX_WIDTH = '30vw';
 
 // The button's box when the label rides along at rest. The pinned height is what
 // makes it read as a sibling of the nav bar's plugin buttons; `borderWidth` is
