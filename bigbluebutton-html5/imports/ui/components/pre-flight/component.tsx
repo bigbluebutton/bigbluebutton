@@ -2,6 +2,7 @@ import React, {
   useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { ThemeProvider } from '@mui/material/styles';
 import Styled from './styles';
 import SetupPanel from './setup-panel/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
@@ -17,6 +18,10 @@ import { CustomBackgroundsProvider } from '/imports/ui/components/video-preview/
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
+import { setDarkTheme } from '/imports/ui/components/app/service';
+import muiThemes from '/imports/ui/services/theme/mui';
 import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -46,6 +51,10 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
   }));
   const isRoleLoaded = !currentUserLoading && !!currentUserData;
   const { canUseMicrophone, canListenOnly } = getAudioModeAvailability(!!currentUserData?.isModerator);
+  // The screen mounts outside App, so nothing has resolved the theme yet: the
+  // boot script only knows what was persisted, while the setting also carries
+  // bbb_prefer_dark_theme and the system preference.
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
   const isPhoneWidth = useMediaQuery(smallOnly);
 
   const [audioMode, setAudioModeState] = useState<AudioMode>(
@@ -63,6 +72,10 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
   const [cameraFailed, setCameraFailed] = useState(false);
   const commitCameraRef = useRef<(() => void) | null>(null);
   const audioModeTouched = useRef(false);
+
+  useEffect(() => {
+    setDarkTheme(darkTheme);
+  }, [darkTheme]);
 
   useEffect(() => {
     if (loadingContextInfo.isLoading) {
@@ -130,21 +143,25 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
 
   return (
     <PreFlightContext.Provider value={contextValue}>
-      <Styled.Page data-test="preFlight">
-        {isPhoneWidth && <Styled.HeaderColumn>{header}</Styled.HeaderColumn>}
-        {showSetupPanel && (
-          <Styled.SetupColumn>
-            <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
-            <CustomBackgroundsProvider>
-              <SetupPanel />
-            </CustomBackgroundsProvider>
-          </Styled.SetupColumn>
-        )}
-        <Styled.ContentColumn>
-          {!isPhoneWidth && header}
-          {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
-        </Styled.ContentColumn>
-      </Styled.Page>
+      {/* The device selectors and the virtual background controls are MUI, whose
+          surfaces come from its own theme rather than the palette's variables. */}
+      <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
+        <Styled.Page data-test="preFlight">
+          {isPhoneWidth && <Styled.HeaderColumn>{header}</Styled.HeaderColumn>}
+          {showSetupPanel && (
+            <Styled.SetupColumn>
+              <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
+              <CustomBackgroundsProvider>
+                <SetupPanel />
+              </CustomBackgroundsProvider>
+            </Styled.SetupColumn>
+          )}
+          <Styled.ContentColumn>
+            {!isPhoneWidth && header}
+            {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+          </Styled.ContentColumn>
+        </Styled.Page>
+      </ThemeProvider>
     </PreFlightContext.Provider>
   );
 };

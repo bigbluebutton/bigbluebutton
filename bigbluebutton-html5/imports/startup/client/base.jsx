@@ -7,31 +7,8 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import logger from '/imports/startup/client/logger';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-const typography = {
-  fontFamily: 'Source Sans Pro, Arial, sans-serif',
-};
-
-const muiBrand = {
-  primary: { main: '#1976d2' },
-  secondary: { main: '#9c27b0' },
-};
-
-const themes = {
-  light: createTheme({ typography, palette: { ...muiBrand } }),
-  dark: createTheme({
-    typography,
-    palette: {
-      ...muiBrand,
-      mode: 'dark',
-      background: {
-        default: '#181A23',
-        paper: '#2D2F38',
-      },
-    },
-  }),
-};
+import { ThemeProvider } from '@mui/material/styles';
+import muiThemes from '/imports/ui/services/theme/mui';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -116,7 +93,7 @@ class Base extends Component {
     return (
       <>
         <DebugWindow />
-        <ThemeProvider theme={darkTheme ? themes.dark : themes.light}>
+        <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
           <AppContainer {...this.props} />
         </ThemeProvider>
       </>
