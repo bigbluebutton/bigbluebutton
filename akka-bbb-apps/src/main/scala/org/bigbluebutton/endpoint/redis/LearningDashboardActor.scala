@@ -3,6 +3,7 @@ package org.bigbluebutton.endpoint.redis
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
@@ -11,6 +12,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import java.security.MessageDigest
+import scala.annotation.meta.field
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -106,6 +108,10 @@ case class Away(
                )
 
 case class Webcam(
+                   // Server-side correlation key only: it matches a cam-stopped event to the entry
+                   // it closes. No dashboard consumer reads it, and it carries the publisher's
+                   // client session id and browser device id, so keep it out of the published report.
+                   @(JsonIgnore @field) stream: String = null,
                    startedOn: Long = System.currentTimeMillis(),
                    stoppedOn: Long = 0,
                  )
@@ -397,6 +403,14 @@ class LearningDashboardActor(
     }
   }
 
+  // The open entry for the stream that stopped. Every entry has one: the dashboard keeps its
+  // meetings in memory only, so none of them predates this process.
+  private def findOpenWebcamIndex(user: User, stream: String): Option[Int] = {
+    val index = user.webcams.lastIndexWhere(w => w.stoppedOn == 0 && w.stream == stream)
+
+    if (index >= 0) Some(index) else None
+  }
+
   private def replaceLastItem[T](items: Vector[T], replacement: T): Vector[T] = {
     if (items.nonEmpty) items.updated(items.size - 1, replacement)
     else items
@@ -649,7 +663,7 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
 
-      val updatedUser = user.copy(webcams = user.webcams :+ Webcam())
+      val updatedUser = user.copy(webcams = user.webcams :+ Webcam(stream = msg.body.stream))
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
 
@@ -667,13 +681,13 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
         .orElse(findUserByAnyIntId(meeting, msg.body.userId))
     } yield {
-      user.webcams.lastOption match {
-        case Some(webcam) if webcam.stoppedOn == 0 =>
-          val stoppedWebcam: Webcam = webcam.copy(stoppedOn = System.currentTimeMillis())
-          val updatedUser = user.copy(webcams = replaceLastItem(user.webcams, stoppedWebcam))
+      findOpenWebcamIndex(user, msg.body.stream) match {
+        case Some(index) =>
+          val stoppedWebcam: Webcam = user.webcams(index).copy(stoppedOn = System.currentTimeMillis())
+          val updatedUser = user.copy(webcams = user.webcams.updated(index, stoppedWebcam))
           val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
           meetings += (updatedMeeting.intId -> updatedMeeting)
-        case _ => // No active webcam to stop.
+        case None => // No active webcam to stop.
       }
     }
   }
