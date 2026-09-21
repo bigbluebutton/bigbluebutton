@@ -769,7 +769,7 @@ export const elements = {
 
   // About modal
   aboutTabButton: 'li[data-test="aboutTabButton"]',
-  aboutModal: 'div[data-test="aboutModalTitleLabel"]',
+  aboutModal: 'div[data-testid="aboutModalTitleLabel"]',
 
   // Help button
   helpLinkButton: 'a[data-test="helpLinkButton"]',
