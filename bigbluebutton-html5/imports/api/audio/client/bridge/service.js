@@ -69,6 +69,8 @@ const getStoredAudioOutputDeviceId = () => getStorageSingletonInstance()
   .getItem(OUTPUT_DEVICE_ID_KEY);
 const storeAudioOutputDeviceId = (deviceId) => getStorageSingletonInstance()
   .setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const removeStoredAudioOutputDeviceId = () => getStorageSingletonInstance()
+  .removeItem(OUTPUT_DEVICE_ID_KEY);
 const getStoredAudioInputDeviceId = () => getStorageSingletonInstance()
   .getItem(INPUT_DEVICE_ID_KEY);
 const storeAudioInputDeviceId = (deviceId) => {
@@ -531,6 +533,7 @@ export {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  removeStoredAudioOutputDeviceId,
   doGUM,
   destroyWasmProcessor,
   stereoUnsupported,

@@ -106,8 +106,10 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   const mp = parameters.moderatorPW;
   const ap = parameters.attendeePW;
   const baseQuery =
-    `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}` +
-    `&allowStartStopRecording=true&autoStartRecording=false&welcome=${parameters.welcome}`;
+    `name=${encodeURIComponent(meetingID)}&meetingID=${encodeURIComponent(meetingID)}` +
+    `&attendeePW=${ap}&moderatorPW=${mp}` +
+    `&allowStartStopRecording=true&autoStartRecording=false` +
+    `&welcome=${parameters.welcome}`;
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
@@ -169,7 +171,9 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
-  const baseQuery = `fullName=${fullName}&meetingID=${meetingID}`
+  // The checksum covers the query string as the server receives it, so values
+  // have to be encoded here - a fullName with a space yields a checksumError.
+  const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${encodeURIComponent(meetingID)}`
     + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;

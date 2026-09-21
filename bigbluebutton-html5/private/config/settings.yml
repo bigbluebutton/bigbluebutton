@@ -6,6 +6,13 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
+    # Setup screen shown before the user joins
+    # While enabled it supersedes skipCheck, skipCheckOnJoin (no echo test to
+    # skip) and autoJoin (the audio always connects with the selection made
+    # here). autoShareWebcam still sets the camera toggle's initial state.
+    # Per session: userdata-bbb_pre_flight.
+    preFlight:
+      enabled: false
     # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
@@ -173,7 +180,7 @@ public:
       offerRecordingForBreakouts: false
       # Pre-check the "record breakout room" option
       recordRoomByDefault: false
-      # Pre-check the "capture whiteboard when ending breakouts" option 
+      # Pre-check the "capture whiteboard when ending breakouts" option
       captureWhiteboardByDefault: false
       # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false

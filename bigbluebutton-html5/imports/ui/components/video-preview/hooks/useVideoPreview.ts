@@ -109,6 +109,8 @@ export const useVideoPreview = ({
   isCameraAsContent = false,
   isCameraShared = false,
   forceOpen,
+  skipPreview = false,
+  deferInitialization = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -129,10 +131,25 @@ export const useVideoPreview = ({
   const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(
     DEFAULT_BRIGHTNESS_STATE.wholeImageBrightness,
   );
+  // The brightness callbacks are captured by the sharing path before the user
+  // touches the slider: read the current state through a ref so the chosen
+  // brightness is the one carried into the session.
+  const brightnessState = useRef(DEFAULT_BRIGHTNESS_STATE);
+
+  useEffect(() => {
+    brightnessState.current = { brightness, wholeImageBrightness };
+  }, [brightness, wholeImageBrightness]);
 
   const webcamDeviceId = useRef<string | null>(initialDeviceId);
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentVideoStream = useRef<BBBVideoStream | null>(null);
+  // Bumped whenever the caller gives up on the camera, so a stream still being
+  // acquired at that point is stopped instead of installed and displayed.
+  const acquisitionId = useRef(0);
+
+  const invalidateCameraAcquisition = useCallback(() => {
+    acquisitionId.current += 1;
+  }, []);
 
   const handleGUMError = useCallback((error: Error & { name: string }) => {
     logger.error({
@@ -383,9 +400,13 @@ export const useVideoPreview = ({
 
   const updateCameraBrightnessInfo = useCallback(() => {
     if (currentVideoStream.current) {
-      setCameraBrightnessInfo(webcamDeviceId.current, brightness, wholeImageBrightness);
+      setCameraBrightnessInfo(
+        webcamDeviceId.current,
+        brightnessState.current.brightness,
+        brightnessState.current.wholeImageBrightness,
+      );
     }
-  }, [webcamDeviceId.current, brightness, wholeImageBrightness]);
+  }, [webcamDeviceId.current]);
 
   const startCameraBrightness = useCallback(async (initialState = DEFAULT_BRIGHTNESS_STATE) => {
     // @ts-ignore
@@ -478,16 +499,28 @@ export const useVideoPreview = ({
     terminateCameraStream(currentVideoStream.current, webcamDeviceId.current);
     cleanupStreamAndVideo();
 
+    const requestId = acquisitionId.current;
+    const isStale = () => requestId !== acquisitionId.current;
+
     let bbbVideoStream;
     let finalDeviceId: string | null = null;
     try {
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
       bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
+      if (isStale()) {
+        terminateCameraStream(bbbVideoStream, deviceId);
+        return null;
+      }
       setCurrentVideoStream(bbbVideoStream);
       const updatedDevice = updateDeviceId(deviceId);
 
       if (updatedDevice !== deviceId) {
         bbbVideoStream = await PreviewService.doGUM(updatedDevice, profile);
+        if (isStale()) {
+          terminateCameraStream(bbbVideoStream, updatedDevice);
+          cleanupStreamAndVideo();
+          return null;
+        }
         setCurrentVideoStream(bbbVideoStream);
       }
       finalDeviceId = updatedDevice;
@@ -516,8 +549,9 @@ export const useVideoPreview = ({
       }
     }
 
-    // Late VBG resolve, clean up tracks, stop.
-    if (!isMounted.current) {
+    // Late VBG resolve, or the camera was given up on meanwhile: clean up
+    // tracks, stop.
+    if (!isMounted.current || isStale()) {
       terminateCameraStream(bbbVideoStream, finalDeviceId);
       cleanupStreamAndVideo();
       return null;
@@ -558,9 +592,14 @@ export const useVideoPreview = ({
   } = {}) => {
     if (devices) VideoService.updateNumberOfDevices(devices);
     // Video preview skip is activated, short circuit via a simpler procedure
-    if (PreviewService.getSkipVideoPreview() && !forceOpen) {
-      skipVideoPreview();
-      return;
+    if ((skipPreview || PreviewService.getSkipVideoPreview()) && !forceOpen) {
+      try {
+        await skipVideoPreview();
+        return;
+      } catch {
+        // The skip already flagged itself as failed and cleaned up: carry on
+        // through the regular initialization so the UI is usable again.
+      }
     }
     // Late enumerateDevices resolution, stop.
     if (!isMounted.current) return;
@@ -609,6 +648,7 @@ export const useVideoPreview = ({
     isMounted,
     webcamDeviceId.current,
     isCameraAsContent,
+    skipPreview,
     getCameraStream,
     handleDeviceError,
     setAvailableWebcams,
@@ -656,7 +696,8 @@ export const useVideoPreview = ({
   useEffect(() => {
     isMounted.current = true;
 
-    initializeCameras();
+    // Read once on purpose: an entry-state decision, not a reactive one.
+    if (!deferInitialization) initializeCameras();
 
     return () => {
       isMounted.current = false;
@@ -703,7 +744,7 @@ export const useVideoPreview = ({
 
     if (
       currentVideoStream.current?.virtualBgService
-        && brightness === 100
+        && brightnessState.current.brightness === 100
         && currentVideoStream.current?.virtualBgType === EFFECT_TYPES.NONE_TYPE
     ) {
       stopVirtualBackground(currentVideoStream.current);
@@ -723,7 +764,6 @@ export const useVideoPreview = ({
     }
   }, [
     currentVideoStream,
-    brightness,
     isCameraAsContent,
     selectedProfile,
     stopVirtualBackground,
@@ -735,7 +775,7 @@ export const useVideoPreview = ({
   ]);
 
   const skipVideoPreview = useCallback(() => {
-    getInitialCameraStream(webcamDeviceId.current)
+    return getInitialCameraStream(webcamDeviceId.current)
       .then((newDeviceId) => {
         if (isMounted.current && newDeviceId) {
           handleStartSharing(newDeviceId);
@@ -758,8 +798,9 @@ export const useVideoPreview = ({
   }, [getInitialCameraStream, handleStartSharing, cleanupStreamAndVideo]);
 
   const shouldSkipVideoPreview = useCallback(() => {
-    return PreviewService.getSkipVideoPreview() && !forceOpen && !skipPreviewFailed && !isCameraShared;
-  }, [forceOpen, skipPreviewFailed, isCameraShared]);
+    return (skipPreview || PreviewService.getSkipVideoPreview())
+      && !forceOpen && !skipPreviewFailed && !isCameraShared;
+  }, [skipPreview, forceOpen, skipPreviewFailed, isCameraShared]);
 
   return {
     // state
@@ -790,6 +831,7 @@ export const useVideoPreview = ({
     cleanupStreamAndVideo,
     setCurrentVideoStream,
     getInitialCameraStream,
+    invalidateCameraAcquisition,
     shouldSkipVideoPreview,
     handleStartSharing,
     applyStoredVirtualBg,
