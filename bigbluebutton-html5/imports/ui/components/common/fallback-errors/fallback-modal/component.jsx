@@ -10,17 +10,17 @@ const intlMessages = defineMessages({
   },
 });
 
-const FallbackModal = ({ error, intl }) => {
-  return (
+const FallbackModal = ({ error, intl }) => (
   <ModalSimple
-    hideBorder
     priority="medium"
-    shouldShowCloseButton={false}
+    shouldCloseOnEsc={false}
+    shouldCloseOnOverlayClick={false}
+    onRequestClose={() => {}}
     contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
     isOpen={!!error}
   >
     <FallbackView {...{ error }} />
   </ModalSimple>
-)};
+);
 
 export default injectIntl(FallbackModal);
