@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -96,7 +96,7 @@ const intlMessages = defineMessages({
   toastHelpLabel: {
     id: 'app.screenshare.screenshareToastHelpLabel',
     description: 'Label of the help button in toast notifications that opens external link',
-  }
+  },
 });
 
 const getErrorLocale = (errorCode) => {
@@ -150,6 +150,7 @@ const ScreenshareButton = ({
   isConnected,
   screenshareDataSavingSetting,
 }) => {
+  // eslint-disable-next-line max-len
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
@@ -182,10 +183,11 @@ const ScreenshareButton = ({
     } = error;
 
     const localizedError = getErrorLocale(errorCode);
-    const helpInfo =  getHelpInfoForError(errorCode);
+    const helpInfo = getHelpInfoForError(errorCode);
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
+      // eslint-disable-next-line max-len
       notify(intl.formatMessage(localizedError, { errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
@@ -198,13 +200,10 @@ const ScreenshareButton = ({
 
   const RenderScreenshareUnavailableModal = (otherProps) => (
     <Styled.ScreenShareModal
-      hideBorder
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+      title={intl.formatMessage(intlMessages.screenShareUnavailable)}
       {...otherProps}
     >
-      <Styled.Title>
-        {intl.formatMessage(intlMessages.screenShareUnavailable)}
-      </Styled.Title>
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
     </Styled.ScreenShareModal>
   );
@@ -237,6 +236,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
+                // eslint-disable-next-line max-len
                 disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
@@ -267,8 +267,6 @@ const ScreenshareButton = ({
         <RenderScreenshareUnavailableModal
           onRequestClose={closeScreenshareUnavailableModal}
           priority="low"
-          setIsOpen={isScreenshareUnavailableModalOpen
-            ? closeScreenshareUnavailableModal : openScreenshareUnavailableModal}
           isOpen={isScreenshareUnavailableModalOpen}
         />
       )}
