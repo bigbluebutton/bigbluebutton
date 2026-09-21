@@ -10,6 +10,7 @@ import { MutationFunction } from '@apollo/client';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import {
@@ -40,7 +41,7 @@ interface VideoPreviewProps {
   isCamLocked?: boolean;
   forceOpen?: boolean;
   isOpen: boolean;
-  priority?: number;
+  priority?: ModalPriority;
   isVirtualBackgroundsEnabled: boolean;
   isCustomVirtualBackgroundsEnabled: boolean;
   hideNotificationToasts?: boolean;
@@ -658,11 +659,11 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     <Styled.VideoPreviewModal
       onRequestClose={handleProceed}
       contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-      shouldShowCloseButton={allowCloseModal}
+      title={getModalTitle()}
       shouldCloseOnOverlayClick={allowCloseModal}
-      isPhone={deviceInfo.isPhone}
-      data-test="webcamSettingsModal"
-      {...{ isOpen, priority }}
+      dataTest="webcamSettingsModal"
+      isOpen={isOpen}
+      priority={priority}
     >
       <Styled.Container>
         <Styled.Header>
