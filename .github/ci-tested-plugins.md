@@ -8,7 +8,7 @@ Each entry has the following fields:
 |---|---|
 | `name` | Plugin identifier, used to name build artifacts, test directories and per-plugin log files. Keep it a plain slug (`[a-z0-9-]`): it is interpolated into file paths, so spaces or slashes break the run |
 | `repo` | GitHub repository (`owner/repo`) to clone the plugin from |
-| `ref` | Git ref to download. Must be a **concrete** ref — a released tag (`v0.0.10`) or a commit SHA. It is passed straight to `https://github.com/<repo>/archive/<ref>.tar.gz`, so a ref that does not literally exist makes CI fail with a 404 |
+| `ref` | Git ref to download. Must be a **concrete** ref - a released tag (`v0.0.10`) or a commit SHA. It is passed straight to `https://github.com/<repo>/archive/<ref>.tar.gz`, so a ref that does not literally exist makes CI fail with a 404 |
 | `servePath` | Path under `/var/www/bigbluebutton-default/` where built assets are deployed. Must be relative and free of `..`; CI rejects anything else, since the value is interpolated into a `sudo mkdir`/`sudo cp`. Note: nginx maps `/plugins/` URLs to `/var/www/bigbluebutton-default/assets/`, so use `assets/plugins/<pluginName>` to serve at `/plugins/<pluginName>/` (see "Choosing servePath" below) |
 | `flakyTests` | Optional list of test names to skip in CI (merged with the plugin repo's own `flaky-tests.txt`) |
 
@@ -43,7 +43,7 @@ A mismatch used to be invisible: the shared fixture calls `testInfo.skip()` when
 
 ## How the plugins are run
 
-Plugins are independent of one another — each suite injects only its own manifest URL and creates meetings with random IDs — so each one's full pipeline (download → `npm ci` → `build-bundle` → deploy → Playwright run) is treated as a single unit, and several units run concurrently in one job. Adding a plugin to the JSON is therefore the only thing needed; nothing else has to be touched.
+Plugins are independent of one another - each suite injects only its own manifest URL and creates meetings with random IDs - so each one's full pipeline (download → `npm ci` → `build-bundle` → deploy → Playwright run) is treated as a single unit, and several units run concurrently in one job. Adding a plugin to the JSON is therefore the only thing needed; nothing else has to be touched.
 
 The behaviour is tuned through job-level env vars in `workflows/automated-tests.yml`:
 
@@ -60,6 +60,6 @@ waves   = ceil(plugin_count / PLUGIN_PARALLELISM)
 timeout = PLUGIN_BUDGET_BASE_MINUTES + waves * PLUGIN_TIMEOUT_MINUTES
 ```
 
-Budgeting a full `PLUGIN_TIMEOUT_MINUTES` per wave guarantees the step can never be killed before every plugin has had its own cap — so a red build always points at a specific plugin instead of at the step timeout. With the defaults: 1 plugin → 25 min, 3 plugins → 40 min, 10 plugins → 85 min. These are ceilings, not expected runtimes; a healthy plugin pipeline takes a few minutes.
+Budgeting a full `PLUGIN_TIMEOUT_MINUTES` per wave guarantees the step can never be killed before every plugin has had its own cap - so a red build always points at a specific plugin instead of at the step timeout. With the defaults: 1 plugin → 25 min, 3 plugins → 40 min, 10 plugins → 85 min. These are ceilings, not expected runtimes; a healthy plugin pipeline takes a few minutes.
 
 Per-plugin output is buffered and replayed as a collapsible group at the end of the step, so concurrent runs don't interleave in the CI log.
