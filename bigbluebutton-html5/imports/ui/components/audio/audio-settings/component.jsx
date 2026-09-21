@@ -46,6 +46,8 @@ const propTypes = {
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
   skipAudioOptions: PropTypes.func.isRequired,
+  hideFooter: PropTypes.bool,
+  onConfirmDisabledChange: PropTypes.func,
 };
 
 const defaultProps = {
@@ -54,6 +56,8 @@ const defaultProps = {
   withEcho: false,
   unmuteOnExit: false,
   permissionStatus: null,
+  hideFooter: false,
+  onConfirmDisabledChange: null,
 };
 
 const intlMessages = defineMessages({
@@ -158,12 +162,19 @@ class AudioSettings extends React.Component {
       checkMicrophonePermission,
       toggleVoice,
       permissionStatus,
+      isConnecting,
+      onConfirmDisabledChange,
     } = this.props;
 
     Session.setItem('inEchoTest', true);
     this._isMounted = true;
     // Guarantee initial in/out devices are initialized on all ends
     AudioManager.isEchoTest = true;
+
+    if (onConfirmDisabledChange) {
+      const { producingStreams } = this.state;
+      onConfirmDisabledChange(isConnecting || producingStreams);
+    }
     checkMicrophonePermission({ gumOnPrompt: true, permissionStatus })
       .then(this.updateDeviceList)
       .then(() => {
@@ -189,11 +200,20 @@ class AudioSettings extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    const { permissionStatus } = this.props;
+  componentDidUpdate(prevProps, prevState) {
+    const { permissionStatus, isConnecting, onConfirmDisabledChange } = this.props;
+    const { producingStreams } = this.state;
 
     if (prevProps.permissionStatus !== permissionStatus) {
       this.updateDeviceList();
+    }
+
+    if (onConfirmDisabledChange) {
+      const prevDisabled = prevProps.isConnecting || prevState.producingStreams;
+      const currDisabled = isConnecting || producingStreams;
+      if (prevDisabled !== currDisabled) {
+        onConfirmDisabledChange(currDisabled);
+      }
     }
   }
 
@@ -639,33 +659,39 @@ class AudioSettings extends React.Component {
       intl,
     } = this.props;
 
+    const { hideFooter } = this.props;
+
     return (
       <Styled.FormWrapper data-test="audioSettingsModal">
         {this.renderAudioNote()}
         <Styled.Form>
           {this.renderDeviceSelectors()}
         </Styled.Form>
-        <Styled.BottomSeparator />
-        <Styled.EnterAudio>
-          <Styled.BackButton
-            label={(isConnected || skipAudioOptions())
-              ? intl.formatMessage(intlMessages.cancelLabel)
-              : intl.formatMessage(intlMessages.backLabel)}
-            color="secondary"
-            onClick={this.handleCancelClick}
-            disabled={isConnecting}
-          />
-          <Button
-            data-test="joinEchoTestButton"
-            size="md"
-            color="primary"
-            label={isConnected
-              ? intl.formatMessage(intlMessages.confirmLabel)
-              : intl.formatMessage(intlMessages.retryLabel)}
-            onClick={this.handleConfirmationClick}
-            disabled={isConnecting || producingStreams}
-          />
-        </Styled.EnterAudio>
+        {!hideFooter && (
+          <>
+            <Styled.BottomSeparator />
+            <Styled.EnterAudio>
+              <Styled.BackButton
+                label={(isConnected || skipAudioOptions())
+                  ? intl.formatMessage(intlMessages.cancelLabel)
+                  : intl.formatMessage(intlMessages.backLabel)}
+                color="secondary"
+                onClick={this.handleCancelClick}
+                disabled={isConnecting}
+              />
+              <Button
+                data-test="joinEchoTestButton"
+                size="md"
+                color="primary"
+                label={isConnected
+                  ? intl.formatMessage(intlMessages.confirmLabel)
+                  : intl.formatMessage(intlMessages.retryLabel)}
+                onClick={this.handleConfirmationClick}
+                disabled={isConnecting || producingStreams}
+              />
+            </Styled.EnterAudio>
+          </>
+        )}
       </Styled.FormWrapper>
     );
   }
