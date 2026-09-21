@@ -3,7 +3,11 @@
 case "$1" in
   remove)
 
-    reloadService nginx
+    # A failing reload must not abort the removal and leave the package
+    # half-installed, so skip it when the nginx configuration is not valid.
+    if nginx -t >/dev/null 2>&1; then
+      reloadService nginx || true
+    fi
 
   ;;
 
