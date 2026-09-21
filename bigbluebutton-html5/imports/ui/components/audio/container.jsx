@@ -49,6 +49,10 @@ const intlMessages = defineMessages({
     id: 'app.audioManager.reconnectingAudio',
     description: 'Reconnecting audio toast message',
   },
+  preFlightCameraLocked: {
+    id: 'app.preFlight.cameraLockedOnJoin',
+    description: 'Told on join when the lock refused the camera picked in the pre-flight',
+  },
   genericError: {
     id: 'app.audioManager.genericError',
     description: 'Generic error message',
@@ -196,7 +200,14 @@ const AudioContainer = (props) => {
     // opens, the camera shares straight away and the caller joins the audio.
     if (preFlightCompleted) {
       if (enableVideo && shouldPreFlightShareCamera()) {
-        openVideoPreviewModal();
+        // The webcam lock is not readable before the join, so the pre-flight
+        // lets the camera be picked and the refusal only lands here. Say so
+        // rather than dropping the choice without a word.
+        if (userWebcam) {
+          notify(intl.formatMessage(intlMessages.preFlightCameraLocked), 'info', 'video_off');
+        } else {
+          openVideoPreviewModal();
+        }
       }
       return Promise.resolve(true);
     }

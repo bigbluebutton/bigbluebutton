@@ -225,6 +225,9 @@ export const elements = {
   preFlightCameraQuality: '[data-test="preFlightCameraQuality"]',
   preFlightInputDevice: '[data-test="preFlightInputDevice"]',
   preFlightOutputDevice: '[data-test="preFlightOutputDevice"]',
+  // Same selectors in the profile panel, which shares the component.
+  profileInputDevice: '[data-test="profileInputDevice"]',
+  profileOutputDevice: '[data-test="profileOutputDevice"]',
   // MUI Select renders its options as role=option; the device lists are built
   // from enumerateDevices, so the items carry no data-test of their own.
   selectMenuItem: 'li[role="option"]',

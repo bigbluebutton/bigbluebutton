@@ -63,9 +63,10 @@ const SetupPanel: React.FC = () => {
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
   const enableVideo = !!getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 
-  const micControl = (
+  const renderMicControl = (overMedia: boolean) => (
     <Styled.PreviewControlButton
       $active={!joinMuted && !isListenOnly}
+      $overMedia={overMedia}
       disabled={isListenOnly}
       onClick={() => setJoinMuted(!joinMuted)}
       aria-label={formatMessage(joinMuted ? intlMessages.unmuteLabel : intlMessages.muteLabel)}
@@ -120,14 +121,14 @@ const SetupPanel: React.FC = () => {
       <ProfileStyled.Separator />
       {enableVideo
         ? (
-          <CameraSetup micControl={micControl}>
+          <CameraSetup micControl={renderMicControl(true)}>
             {commonSections}
           </CameraSetup>
         )
         : (
           <>
             <Styled.PreviewControlsRow>
-              {micControl}
+              {renderMicControl(false)}
             </Styled.PreviewControlsRow>
             <ProfileStyled.ProfileSettings>
               {commonSections}

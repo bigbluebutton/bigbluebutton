@@ -73,6 +73,8 @@ export interface UseVideoPreviewReturn {
   videoRef: React.RefObject<HTMLVideoElement>;
   currentVideoStream: React.MutableRefObject<BBBVideoStream | null>;
   getInitialCameraStream: (deviceId: string | null) => Promise<string | null>;
+  // Drops whatever camera acquisition is in flight.
+  invalidateCameraAcquisition: () => void;
   initializeCameras: () => void;
   displayPreview: () => void;
   handleSelectWebcam: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;

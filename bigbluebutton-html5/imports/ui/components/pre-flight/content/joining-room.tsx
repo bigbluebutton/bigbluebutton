@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from '../styles';
 import { usePreFlight } from '../context';
 
@@ -26,36 +27,29 @@ const intlMessages = defineMessages({
   },
 });
 
-interface JoiningRoomProps {
+interface JoiningRoomHeaderProps {
   meetingName: string;
   clientTitle: string;
   isJoining: boolean;
   hasFailed?: boolean;
-  onJoin: () => void;
 }
 
-const JoiningRoom: React.FC<JoiningRoomProps> = ({
+/**
+ * Names the session and reports the join. Kept apart from the button so the
+ * heading can precede the setup panel on a phone while the button still
+ * follows it - see the `header` and `actions` slots of the pre-flight.
+ */
+export const JoiningRoomHeader: React.FC<JoiningRoomHeaderProps> = ({
   meetingName,
   clientTitle,
   isJoining,
   hasFailed = false,
-  onJoin,
 }) => {
   const intl = useIntl();
-  const { commit } = usePreFlight();
 
   useEffect(() => {
     document.title = meetingName || clientTitle;
   }, [meetingName, clientTitle]);
-
-  const handleJoin = useCallback(() => {
-    commit();
-    onJoin();
-  }, [commit, onJoin]);
-
-  let joinButtonLabel = intlMessages.joinLabel;
-  if (isJoining) joinButtonLabel = intlMessages.joiningLabel;
-  else if (hasFailed) joinButtonLabel = intlMessages.retryLabel;
 
   return (
     <>
@@ -73,16 +67,42 @@ const JoiningRoom: React.FC<JoiningRoomProps> = ({
           {intl.formatMessage(intlMessages.joinFailed)}
         </Styled.ErrorMessage>
       )}
-      <Styled.JoinButton
-        color="primary"
-        autoFocus
+    </>
+  );
+};
+
+interface JoiningRoomActionsProps {
+  isJoining: boolean;
+  hasFailed?: boolean;
+  onJoin: () => void;
+}
+
+export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
+  isJoining,
+  hasFailed = false,
+  onJoin,
+}) => {
+  const intl = useIntl();
+  const { commit } = usePreFlight();
+
+  const handleJoin = useCallback(() => {
+    commit();
+    onJoin();
+  }, [commit, onJoin]);
+
+  let joinButtonLabel = intlMessages.joinLabel;
+  if (isJoining) joinButtonLabel = intlMessages.joiningLabel;
+  else if (hasFailed) joinButtonLabel = intlMessages.retryLabel;
+
+  return (
+    <Styled.JoinButtonWrapper>
+      <BBButton
+        variant="primary"
         disabled={isJoining}
         label={intl.formatMessage(joinButtonLabel)}
         onClick={handleJoin}
         dataTest="preFlightJoinButton"
       />
-    </>
+    </Styled.JoinButtonWrapper>
   );
 };
-
-export default JoiningRoom;

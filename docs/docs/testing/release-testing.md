@@ -630,6 +630,19 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
     - You should land in the meeting muted, with the "Unmute" button displayed
     - No camera should be shared and the "Share webcam" button should be displayed
 
+### Reloading after joining
+
+1. Join a session through the pre-flight screen, then unmute yourself
+
+2. Reload the page
+
+    - The pre-flight screen should show up again instead of rejoining straight away
+    - The microphone toggle reflects the session's "mute on start" setting, not the state you left: check it before joining again, because that is the state that will apply
+
+3. Click "Join session"
+
+    - You should land back in the meeting with the audio and camera the screen showed
+
 ### Guest lobby in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
 
 1. Moderator: set the guest policy to "Ask moderator"

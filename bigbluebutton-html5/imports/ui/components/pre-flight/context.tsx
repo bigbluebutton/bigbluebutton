@@ -14,6 +14,10 @@ export interface PreFlightContextValue {
   setJoinMuted: (muted: boolean) => void;
   shareCamera: boolean;
   setShareCamera: (share: boolean) => void;
+  // Set by the camera setup when the preview degrades to an error state: the
+  // camera toggle then reads as off and the join does not try to share it.
+  cameraFailed: boolean;
+  setCameraFailed: (failed: boolean) => void;
   // Set by the setup panel so the join can persist the camera selections
   // (device, profile, virtual background) right before joining.
   commitCameraRef: React.MutableRefObject<(() => void) | null>;

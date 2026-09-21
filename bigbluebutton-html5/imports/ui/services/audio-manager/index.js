@@ -15,6 +15,7 @@ import {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  removeStoredAudioOutputDeviceId,
   getAudioConstraints,
   doGUM,
   destroyWasmProcessor,
@@ -56,6 +57,18 @@ const checkMediaDevicesTarget = () => {
       },
     }, 'navigator.mediaDevices EventTarget unavailable');
   }
+};
+
+const isOutputDeviceGone = async (deviceId) => {
+  if (typeof navigator.mediaDevices?.enumerateDevices !== 'function') return false;
+
+  const devices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+  const outputDevices = devices.filter((device) => device.kind === 'audiooutput');
+
+  // Anonymised device lists (no permission granted yet) carry empty IDs: they
+  // cannot be used to judge a stored device.
+  return outputDevices.some((device) => device.deviceId)
+    && !outputDevices.some((device) => device.deviceId === deviceId);
 };
 
 class AudioManager {
@@ -199,26 +212,37 @@ class AudioManager {
     }
   }
 
-  _applyCachedOutputDeviceId() {
+  async _applyCachedOutputDeviceId() {
     const cachedId = getStoredAudioOutputDeviceId();
 
-    if (typeof cachedId === 'string') {
-      this.changeOutputDevice(cachedId, false)
-        .then(() => {
-          this.outputDeviceId = cachedId;
-        })
-        .catch((error) => {
-          logger.warn({
-            logCode: 'audiomanager_output_device_storage_failed',
-            extraInfo: {
-              bridge: this.bridgeName,
-              deviceId: cachedId,
-              errorMessage: error.message,
-              errorName: error.name,
-              errorStack: error?.stack,
-            },
-          }, `Failed to apply output audio device from storage: ${error.message}`);
-        });
+    if (typeof cachedId !== 'string') return;
+
+    try {
+      if (await isOutputDeviceGone(cachedId)) {
+        logger.warn({
+          logCode: 'audiomanager_stored_output_device_gone',
+          extraInfo: { bridge: this.bridgeName, deviceId: cachedId },
+        }, 'Stored output audio device is gone, keeping the default one');
+        removeStoredAudioOutputDeviceId();
+        return;
+      }
+
+      // The equality check is bypassed: the media element's sinkId may already
+      // carry the stored device - the pre-flight speaker selector sets it
+      // before any bridge exists - while the bridge never got it.
+      await this.changeOutputDevice(cachedId, false, true);
+      this.outputDeviceId = cachedId;
+    } catch (error) {
+      logger.warn({
+        logCode: 'audiomanager_output_device_storage_failed',
+        extraInfo: {
+          bridge: this.bridgeName,
+          deviceId: cachedId,
+          errorMessage: error.message,
+          errorName: error.name,
+          errorStack: error?.stack,
+        },
+      }, `Failed to apply output audio device from storage: ${error.message}`);
     }
   }
 
@@ -1138,7 +1162,7 @@ class AudioManager {
       });
   }
 
-  async changeOutputDevice(deviceId, isLive) {
+  async changeOutputDevice(deviceId, isLive, force = false) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
 
@@ -1147,7 +1171,7 @@ class AudioManager {
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 
-    if (typeof deviceId === 'string' && sinkIdSupported && currentDeviceId !== targetDeviceId) {
+    if (typeof deviceId === 'string' && sinkIdSupported && (force || currentDeviceId !== targetDeviceId)) {
       try {
         if (typeof this.bridge?.changeOutputDevice === 'function') {
           // If the bridge supports changing the output device, use it

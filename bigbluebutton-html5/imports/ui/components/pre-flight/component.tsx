@@ -17,6 +17,8 @@ import { CustomBackgroundsProvider } from '/imports/ui/components/video-preview/
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
+import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const intlMessages = defineMessages({
   title: {
@@ -26,12 +28,17 @@ const intlMessages = defineMessages({
 });
 
 interface PreFlightProps {
-  children: React.ReactNode;
+  // The session heading and whatever states it: above the panel on a phone,
+  // beside it otherwise.
+  header: React.ReactNode;
+  // What commits the setup - the join button. Rendered after the panel in both
+  // layouts, so it never precedes the controls it commits.
+  actions?: React.ReactNode;
   // A denied or invalid guest gets no camera stream and no microphone prompt.
   showSetupPanel?: boolean;
 }
 
-const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }) => {
+const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetupPanel = true }) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
@@ -39,6 +46,7 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
   }));
   const isRoleLoaded = !currentUserLoading && !!currentUserData;
   const { canUseMicrophone, canListenOnly } = getAudioModeAvailability(!!currentUserData?.isModerator);
+  const isPhoneWidth = useMediaQuery(smallOnly);
 
   const [audioMode, setAudioModeState] = useState<AudioMode>(
     canUseMicrophone ? AUDIO_MODES.MICROPHONE : AUDIO_MODES.LISTEN_ONLY,
@@ -52,6 +60,7 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
     const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
     return !!enableVideo && !!autoShareWebcam;
   });
+  const [cameraFailed, setCameraFailed] = useState(false);
   const commitCameraRef = useRef<(() => void) | null>(null);
   const audioModeTouched = useRef(false);
 
@@ -98,11 +107,13 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
       Storage.setItem(AudioService.getStorageMuteStateKey(), joinMuted);
     }
 
-    setPreFlightShareCamera(shareCamera);
-    if (shareCamera) commitCameraRef.current?.();
+    const willShareCamera = shareCamera && !cameraFailed;
+
+    setPreFlightShareCamera(willShareCamera);
+    if (willShareCamera) commitCameraRef.current?.();
 
     setPreFlightCompleted(true);
-  }, [audioMode, joinMuted, shareCamera]);
+  }, [audioMode, joinMuted, shareCamera, cameraFailed]);
 
   const contextValue = useMemo(() => ({
     audioMode,
@@ -111,13 +122,16 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
     setJoinMuted,
     shareCamera,
     setShareCamera,
+    cameraFailed,
+    setCameraFailed,
     commitCameraRef,
     commit,
-  }), [audioMode, setAudioMode, joinMuted, setJoinMuted, shareCamera, commit]);
+  }), [audioMode, setAudioMode, joinMuted, setJoinMuted, shareCamera, cameraFailed, commit]);
 
   return (
     <PreFlightContext.Provider value={contextValue}>
       <Styled.Page data-test="preFlight">
+        {isPhoneWidth && <Styled.HeaderColumn>{header}</Styled.HeaderColumn>}
         {showSetupPanel && (
           <Styled.SetupColumn>
             <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
@@ -127,7 +141,8 @@ const PreFlight: React.FC<PreFlightProps> = ({ children, showSetupPanel = true }
           </Styled.SetupColumn>
         )}
         <Styled.ContentColumn>
-          {children}
+          {!isPhoneWidth && header}
+          {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
         </Styled.ContentColumn>
       </Styled.Page>
     </PreFlightContext.Provider>

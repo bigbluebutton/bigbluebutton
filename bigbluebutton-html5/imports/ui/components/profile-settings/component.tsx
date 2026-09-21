@@ -40,6 +40,7 @@ import { CustomBgParams } from '/imports/ui/components/video-preview/hooks/types
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import getFromUserSettings from '../../services/users-settings';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import CameraPreview from '/imports/ui/components/media-setup/camera-preview/component';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
   title: {
@@ -54,21 +55,9 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.profileSettings.usernameTitle',
     description: 'Label for the username title in profile settings',
   },
-  webcamVirtualBackgroundTitle: {
-    id: 'app.videoPreview.webcamVirtualBackgroundLabel',
-    description: 'Title for the virtual background modal',
-  },
-  webcamVirtualBackgroundDisabledLabel: {
-    id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
-    description: 'Label for the virtual background toggle when not supported on this device',
-  },
   cameraLabel: {
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
-  },
-  qualityLabel: {
-    id: 'app.videoPreview.profileLabel',
-    description: 'Quality dropdown label',
   },
   sharedCameraLabel: {
     id: 'app.videoPreview.sharedCameraLabel',
@@ -77,14 +66,6 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   findingWebcamsLabel: {
     id: 'app.videoPreview.findingWebcamsLabel',
     description: 'Finding webcams label',
-  },
-  webcamNotFoundLabel: {
-    id: 'app.videoPreview.webcamNotFoundLabel',
-    description: 'Webcam not found label',
-  },
-  profileNotFoundLabel: {
-    id: 'app.videoPreview.profileNotFoundLabel',
-    description: 'Profile not found label',
   },
   awayLabel: {
     id: 'app.actionsBar.reactions.away',
@@ -111,6 +92,23 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     description: 'Add Extra Camera Button Label',
   },
 });
+
+// The states with no stream to show keep the preview box's footprint.
+const PREVIEW_STATUS_STYLE: React.CSSProperties = {
+  width: '60%',
+  height: '25vh',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+const PreviewStatus: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+  <Styled.VideoPreviewContent>
+    <Styled.VideoCol>
+      <div style={PREVIEW_STATUS_STYLE}>{children}</div>
+    </Styled.VideoCol>
+  </Styled.VideoPreviewContent>
+);
 
 interface CameraSection {
   deviceId: string | null;
@@ -234,7 +232,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     isCameraLoading,
     videoRef,
     currentVideoStream,
-    VIEW_STATES,
     handleSelectWebcam,
     handleSelectProfile,
     handleVirtualBgSelected,
@@ -414,9 +411,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     section.virtualBackground = { type, name, ...customParams };
     setCameraSections(newSections);
 
-    return setPreviewToIndex(index, section.deviceId as string).then(async () => {
-      handleVirtualBgSelected(type, name, customParams, section?.deviceId);
-    });
+    return setPreviewToIndex(index, section.deviceId as string).then(
+      () => handleVirtualBgSelected(type, name, customParams, section?.deviceId),
+    );
   }, [cameraSections, setPreviewToIndex, handleVirtualBgSelected]);
 
   const handleShareWebcams = useCallback(() => {
@@ -528,14 +525,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
-    const containerStyle = {
-      width: '60%',
-      height: '25vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    };
-
     const activeSection = cameraSections[activePreviewIndex];
 
     if (!activeSection) return null;
@@ -544,77 +533,37 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     const cameraName = currentDevice?.label || `${formatMessage(intlMessages.cameraLabel)} ${activePreviewIndex + 1}`;
 
     return (
-      <Styled.VideoPreviewContainer>
-        <Styled.VideoPreviewWrapper>
-          {(() => {
-            switch (viewState) {
-              case VIEW_STATES.finding:
-                return (
-                  <Styled.VideoPreviewContent>
-                    <Styled.VideoCol>
-                      <div style={containerStyle}>
-                        <span>{formatMessage(intlMessages.findingWebcamsLabel)}</span>
-                        <Styled.FetchingAnimation animations={animations} />
-                      </div>
-                    </Styled.VideoCol>
-                  </Styled.VideoPreviewContent>
-                );
-              case VIEW_STATES.error:
-                return (
-                  <Styled.VideoPreviewContent>
-                    <Styled.VideoCol><div>{deviceError}</div></Styled.VideoCol>
-                  </Styled.VideoPreviewContent>
-                );
-              case VIEW_STATES.found:
-              default:
-                return (
-                  <Styled.VideoPreviewContent>
-                    <Styled.VideoCol>
-                      {
-                        previewError
-                          ? (
-                            <div style={containerStyle}>{previewError}</div>
-                          )
-                          : (
-                            <Styled.VideoPreview
-                              mirroredVideo={VideoService.mirrorOwnWebcam()}
-                              id="preview"
-                              data-test={VideoService.mirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
-                              ref={videoRef}
-                              autoPlay
-                              playsInline
-                              muted
-                            />
-                          )
-                      }
-                    </Styled.VideoCol>
-                  </Styled.VideoPreviewContent>
-                );
-            }
-          })()}
-          {cameraSections.length > 1 && (
-          <>
-            <Styled.PreviewArrowButton
-              aria-label="Previous camera"
-              onClick={() => changePreview(-1)}
-              position="left"
-            >
-              <Styled.ArrowLeftIcon />
-            </Styled.PreviewArrowButton>
-            <Styled.PreviewArrowButton
-              aria-label="Next camera"
-              onClick={() => changePreview(1)}
-              position="right"
-            >
-              <Styled.ArrowRightIcon />
-            </Styled.PreviewArrowButton>
-            <Styled.CameraNameLabel>
-              {cameraName}
-            </Styled.CameraNameLabel>
-          </>
-          )}
-        </Styled.VideoPreviewWrapper>
-      </Styled.VideoPreviewContainer>
+      <CameraPreview
+        viewState={viewState}
+        videoRef={videoRef}
+        findingLabel={formatMessage(intlMessages.findingWebcamsLabel)}
+        animations={animations}
+        statusContainer={PreviewStatus}
+        deviceError={deviceError}
+        previewError={previewError}
+      >
+        {cameraSections.length > 1 && (
+        <>
+          <Styled.PreviewArrowButton
+            aria-label="Previous camera"
+            onClick={() => changePreview(-1)}
+            position="left"
+          >
+            <Styled.ArrowLeftIcon />
+          </Styled.PreviewArrowButton>
+          <Styled.PreviewArrowButton
+            aria-label="Next camera"
+            onClick={() => changePreview(1)}
+            position="right"
+          >
+            <Styled.ArrowRightIcon />
+          </Styled.PreviewArrowButton>
+          <Styled.CameraNameLabel>
+            {cameraName}
+          </Styled.CameraNameLabel>
+        </>
+        )}
+      </CameraPreview>
     );
   }
 

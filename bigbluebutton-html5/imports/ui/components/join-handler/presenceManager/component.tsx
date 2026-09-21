@@ -16,7 +16,10 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import PreFlight from '/imports/ui/components/pre-flight/component';
 import GuestLobby from '/imports/ui/components/pre-flight/content/guest-lobby';
-import JoiningRoom from '/imports/ui/components/pre-flight/content/joining-room';
+import {
+  JoiningRoomActions,
+  JoiningRoomHeader,
+} from '/imports/ui/components/pre-flight/content/joining-room';
 import { isPreFlightEnabled } from '/imports/ui/components/pre-flight/service';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
@@ -227,20 +230,15 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         showPreFlight
           ? (
             <PreFlight
-              showSetupPanel={isGuestAllowed || guestStatus === GUEST_STATUSES.WAIT}
-            >
-              {
+              showSetupPanel={guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT}
+              header={
                 isGuestAllowed
                   ? (
-                    <JoiningRoom
+                    <JoiningRoomHeader
                       meetingName={meetingName}
                       clientTitle={CLIENT_TITLE}
                       isJoining={joinRequested}
                       hasFailed={joinFailed}
-                      onJoin={() => {
-                        setJoinFailed(false);
-                        setJoinRequested(true);
-                      }}
                     />
                   )
                   : (
@@ -254,7 +252,21 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
                     />
                   )
               }
-            </PreFlight>
+              actions={
+                isGuestAllowed
+                  ? (
+                    <JoiningRoomActions
+                      isJoining={joinRequested}
+                      hasFailed={joinFailed}
+                      onJoin={() => {
+                        setJoinFailed(false);
+                        setJoinRequested(true);
+                      }}
+                    />
+                  )
+                  : null
+              }
+            />
           )
           : null
       }

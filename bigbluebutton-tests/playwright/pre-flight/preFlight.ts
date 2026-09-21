@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_W
 import { elements as e } from '../core/elements';
 import { InitOptionsProps } from '../core/page';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
-import { setGuestPolicyOption } from '../user/util';
+import { openLockViewers, setGuestPolicyOption } from '../user/util';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER, PRE_FLIGHT_INIT_OPTIONS } from './util';
 
 export class PreFlight extends MultiUsers {
@@ -176,8 +176,17 @@ export class PreFlight extends MultiUsers {
 
   async guestLobbyWithinPreFlight() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    // The policy has to reach the server before the guest joins, or they walk in.
-    await this.modPage.page.waitForTimeout(500);
+    // The policy has to reach the server before the guest joins, or they walk
+    // in. The selector is seeded from the meeting data, so reading it back is
+    // the confirmation that the mutation landed.
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.guestPolicyTab);
+    await this.modPage.hasText(
+      e.guestPolicySelector,
+      /Ask moderator/,
+      'should have the ask-moderator guest policy applied before the guest joins',
+    );
+    await this.modPage.waitAndClick(e.closeModal);
     await this.initUserPageWithPreFlight();
 
     await this.userPage.hasText(

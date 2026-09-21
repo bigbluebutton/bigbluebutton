@@ -2,8 +2,6 @@
 import { useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { MenuItem, SelectChangeEvent } from '@mui/material';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import {
@@ -11,34 +9,18 @@ import {
   storeAudioInputDeviceId,
 } from '/imports/api/audio/client/bridge/service';
 import {
-  liveChangeOutputDevice, notify, truncateDeviceName,
+  liveChangeOutputDevice, notify,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import AudioService from '/imports/ui/components/audio/service';
-import ProfileStyled from '/imports/ui/components/profile-settings/styles';
-
-const AUDIO_INPUT = 'audioinput';
-const AUDIO_OUTPUT = 'audiooutput';
+import AudioDeviceSelectors, {
+  AUDIO_INPUT,
+  AUDIO_OUTPUT,
+} from '/imports/ui/components/media-setup/audio-selectors/component';
 
 const intlMessages = defineMessages({
   deviceChangeFailed: {
     id: 'app.audioNotification.deviceChangeFailed',
     description: 'Device change failed',
-  },
-  noDeviceFound: {
-    id: 'app.audio.noDeviceFound',
-    description: 'No device found',
-  },
-  fallbackInputLabel: {
-    id: 'app.audio.audioSettings.fallbackInputLabel',
-    description: 'Audio input device label',
-  },
-  fallbackOutputLabel: {
-    id: 'app.audio.audioSettings.fallbackOutputLabel',
-    description: 'Audio output device label',
-  },
-  fallbackNoPermissionLabel: {
-    id: 'app.audio.audioSettings.fallbackNoPermission',
-    description: 'No permission to access audio devices label',
   },
   microphoneSourceLabel: {
     id: 'app.audio.audioSettings.microphoneSourceLabel',
@@ -96,6 +78,29 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
 
           return fallbackDeviceId;
         });
+
+        const currentOutputDeviceId = AudioManager.outputDeviceId;
+        const outputDeviceGone = currentOutputDeviceId
+          && !audioOutputDevices.some((d) => d.deviceId === currentOutputDeviceId);
+
+        if (outputDeviceGone && audioOutputDevices[0]?.deviceId) {
+          const fallbackDeviceId = audioOutputDevices[0].deviceId;
+          logger.warn({
+            logCode: 'preflight_audio_output_device_removed',
+            extraInfo: { previousDeviceId: currentOutputDeviceId, fallbackDeviceId },
+          }, 'Selected output device is gone. Falling back to the first available one');
+          // No ToastContainer before the join: a failure is logged, not notified.
+          liveChangeOutputDevice(fallbackDeviceId, true).catch((error) => {
+            logger.error({
+              logCode: 'preflight_audio_output_device_fallback_failed',
+              extraInfo: {
+                fallbackDeviceId,
+                errorMessage: error.message,
+                errorName: error.name,
+              },
+            }, `Failed to fall back to the first available output device: ${error.message}`);
+          });
+        }
       })
       .catch((error) => {
         logger.warn({
@@ -123,24 +128,16 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
   }, [enableDynamicAudioDeviceSelection, permissionStatus]);
 
   useEffect(() => {
+    if (listenOnly) {
+      updateDevices();
+      return;
+    }
+
     // Without microphone permission the browser obfuscates the device labels.
     AudioService.hasMicrophonePermission({ gumOnPrompt: true, permissionStatus })
       .then(() => updateDevices())
       .catch(() => null);
-  }, []);
-
-  const getFallbackLabel = (device: MediaDeviceInfo, index: number) => {
-    const baseLabel = device?.kind === AUDIO_OUTPUT
-      ? intlMessages.fallbackOutputLabel
-      : intlMessages.fallbackInputLabel;
-    let label = intl.formatMessage(baseLabel, { index });
-
-    if (!device?.deviceId) {
-      label = `${label} ${intl.formatMessage(intlMessages.fallbackNoPermissionLabel)}`;
-    }
-
-    return label;
-  };
+  }, [listenOnly, permissionStatus, updateDevices]);
 
   const handleSelectInputDevice = useCallback((deviceId: string) => {
     if (!deviceId) return;
@@ -163,53 +160,19 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
     : inputDevices[0]?.deviceId ?? '';
 
   return (
-    <>
-      <ProfileStyled.DeviceContainer>
-        <ProfileStyled.HeadphonesIcon />
-        {outputDevices.length > 0
-          ? (
-            <ProfileStyled.DeviceSelector
-              value={selectedOutputDeviceId}
-              IconComponent={ExpandMoreIcon}
-              onChange={(event: SelectChangeEvent<unknown>) => {
-                handleSelectOutputDevice(event.target.value as string);
-              }}
-              inputProps={{ 'aria-label': intl.formatMessage(intlMessages.speakerSourceLabel) }}
-              data-test="preFlightOutputDevice"
-            >
-              {outputDevices.map((device, index) => (
-                <MenuItem key={device.deviceId} value={device.deviceId}>
-                  {truncateDeviceName(device.label || getFallbackLabel(device, index + 1))}
-                </MenuItem>
-              ))}
-            </ProfileStyled.DeviceSelector>
-          )
-          : <span>{intl.formatMessage(intlMessages.noDeviceFound)}</span>}
-      </ProfileStyled.DeviceContainer>
-      <ProfileStyled.DeviceContainer>
-        <ProfileStyled.MicIcon />
-        {inputDevices.length > 0
-          ? (
-            <ProfileStyled.DeviceSelector
-              value={selectedInputDeviceId}
-              IconComponent={ExpandMoreIcon}
-              disabled={listenOnly}
-              onChange={(event: SelectChangeEvent<unknown>) => {
-                handleSelectInputDevice(event.target.value as string);
-              }}
-              inputProps={{ 'aria-label': intl.formatMessage(intlMessages.microphoneSourceLabel) }}
-              data-test="preFlightInputDevice"
-            >
-              {inputDevices.map((device, index) => (
-                <MenuItem key={device.deviceId} value={device.deviceId}>
-                  {truncateDeviceName(device.label || getFallbackLabel(device, index + 1))}
-                </MenuItem>
-              ))}
-            </ProfileStyled.DeviceSelector>
-          )
-          : <span>{intl.formatMessage(intlMessages.noDeviceFound)}</span>}
-      </ProfileStyled.DeviceContainer>
-    </>
+    <AudioDeviceSelectors
+      inputDevices={inputDevices}
+      outputDevices={outputDevices}
+      selectedInputDeviceId={selectedInputDeviceId}
+      selectedOutputDeviceId={selectedOutputDeviceId}
+      onSelectInputDevice={handleSelectInputDevice}
+      onSelectOutputDevice={handleSelectOutputDevice}
+      inputDisabled={listenOnly}
+      inputAriaLabel={intl.formatMessage(intlMessages.microphoneSourceLabel)}
+      outputAriaLabel={intl.formatMessage(intlMessages.speakerSourceLabel)}
+      inputDataTest="preFlightInputDevice"
+      outputDataTest="preFlightOutputDevice"
+    />
   );
 };
 
