@@ -67,6 +67,22 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.inheritLockSettingsCheckboxIsVisible();
     });
 
+    test('Inherit lock settings checkbox is pre-checked when inheritLockSettingsByDefault is true', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(25804);
+      const create = new Create(browser, context);
+      await create.initModPage(page, {
+        testInfo,
+        clientSettingsOverrides: {
+          public: { app: { breakouts: { inheritLockSettingsByDefault: true } } },
+        },
+      });
+      await create.inheritLockSettingsCheckboxIsChecked();
+    });
+
     test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
