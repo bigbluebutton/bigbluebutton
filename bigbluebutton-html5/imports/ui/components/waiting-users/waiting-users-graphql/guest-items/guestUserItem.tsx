@@ -60,7 +60,7 @@ const renderGuestUserItem = (
               {getNameInitials(name)}
             </Styled.Avatar>
           </Styled.UserAvatarContainer>
-          <Styled.UserName key={`user-name-${userId}`}>
+          <Styled.UserName key={`user-name-${userId}`} data-test="waitingUserName">
             {`[${sequence}] ${name}`}
           </Styled.UserName>
         </Styled.UserContentContainer>
