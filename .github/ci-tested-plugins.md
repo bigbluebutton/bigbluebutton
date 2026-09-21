@@ -6,15 +6,23 @@ Each entry has the following fields:
 
 | Field | Description |
 |---|---|
-| `name` | Plugin identifier, used to name build artifacts and test directories |
+| `name` | Plugin identifier, used to name build artifacts, test directories and per-plugin log files. Keep it a plain slug (`[a-z0-9-]`): it is interpolated into file paths, so spaces or slashes break the run |
 | `repo` | GitHub repository (`owner/repo`) to clone the plugin from |
 | `ref` | Git ref to download. Must be a **concrete** ref — a released tag (`v0.0.10`) or a commit SHA. It is passed straight to `https://github.com/<repo>/archive/<ref>.tar.gz`, so a ref that does not literally exist makes CI fail with a 404 |
-| `servePath` | Path under `/var/www/bigbluebutton-default/` where built assets are deployed. Note: nginx maps `/plugins/` URLs to `/var/www/bigbluebutton-default/assets/`, so use `assets/plugins/<name>` to serve at `/plugins/<name>/` |
+| `servePath` | Path under `/var/www/bigbluebutton-default/` where built assets are deployed. Must be relative and free of `..`; CI rejects anything else, since the value is interpolated into a `sudo mkdir`/`sudo cp`. Note: nginx maps `/plugins/` URLs to `/var/www/bigbluebutton-default/assets/`, so use `assets/plugins/<pluginName>` to serve at `/plugins/<pluginName>/` (see "Choosing servePath" below) |
 | `flakyTests` | Optional list of test names to skip in CI (merged with the plugin repo's own `flaky-tests.txt`) |
 
 To add a new official plugin to CI testing, add an entry to this file following the same structure. To mark a test as flaky without touching the plugin repo, add it to that plugin's `flakyTests` list using the format `Test Suite › Test Spec` (the separator is U+203A `›`, the same one Playwright uses in its test titles).
 
 Prefer pinning `ref` to a released tag rather than a branch: a branch moves under CI, so a green run on one commit says nothing about the next one, and a failure can no longer be reproduced from the config alone. Bump the tag deliberately when a new plugin release is out.
+
+### Choosing `servePath`
+
+The last segment of `servePath` is not free-form: it has to match the `pluginName` that the plugin's own Playwright suite uses. Those suites resolve their manifest to `https://<domain>/plugins/${pluginName}/dist/manifest.json`, so that is exactly where the deploy has to land.
+
+For `bbb-plugin-pick-random-user` the suite declares `const PLUGIN_NAME = 'pick-random-user-plugin'`, hence `"servePath": "assets/plugins/pick-random-user-plugin"`. That value is independent of the `name` field in this file (`plugin-pick-random-user`) and of the `name` in the plugin's own `manifest.json` (`BbbPluginPickRandomUser`); the only one that has to line up is the one the tests pass as `pluginName`. Grep the plugin's `tests/` for it before filling the field in.
+
+A mismatch used to be invisible: the shared fixture calls `testInfo.skip()` when the manifest cannot be fetched, so the suite reported green while having tested nothing. CI now requests the manifest right after deploying and fails that plugin when it is not reachable, so a wrong `servePath` surfaces as a red build naming the URL it tried.
 
 ### Example
 

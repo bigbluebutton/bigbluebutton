@@ -714,10 +714,22 @@ jobs:
           # stops at the first failing command and the caller records the status.
           test_plugin() {
             local NAME="$1"
-            local REPO REF SERVE_PATH FLAKY_PATTERN
+            local REPO REF SERVE_PATH MANIFEST_URL FLAKY_PATTERN
             REPO="$(plugin_field "$NAME" repo)"
             REF="$(plugin_field "$NAME" ref)"
             SERVE_PATH="$(plugin_field "$NAME" servePath)"
+
+            # servePath comes straight from ci-tested-plugins.json and is
+            # interpolated into `sudo mkdir -p` and `sudo cp` below, so a leading
+            # slash or a `..` would write outside the web root. Reject it before
+            # anything touches the filesystem.
+            case "$SERVE_PATH" in
+              "" | /* | *..*)
+                echo "Invalid servePath for $NAME: '$SERVE_PATH'" \
+                  "(must be relative to /var/www/bigbluebutton-default/ and contain no '..')"
+                exit 1
+                ;;
+            esac
 
             echo "Downloading $NAME from $REPO at ref $REF"
             mkdir -p "bigbluebutton-tests/official-plugins/$NAME"
@@ -731,6 +743,19 @@ jobs:
             npm run build-bundle
             sudo mkdir -p "/var/www/bigbluebutton-default/${SERVE_PATH}"
             sudo cp -r dist "/var/www/bigbluebutton-default/${SERVE_PATH}/"
+
+            # A plugin suite that cannot fetch its manifest *skips* instead of
+            # failing, so a wrong servePath would produce a green run that tested
+            # nothing. Fetch the manifest exactly where the suites look for it
+            # (origin + /plugins/<name>/dist/manifest.json, nginx serves /plugins/
+            # from /var/www/bigbluebutton-default/assets/) and fail loudly here.
+            MANIFEST_URL="${BBB_URL%/bigbluebutton/}/${SERVE_PATH#assets/}/dist/manifest.json"
+            echo "Checking deployed manifest for $NAME at $MANIFEST_URL"
+            curl --cacert "$NODE_EXTRA_CA_CERTS" -fsS -o /dev/null "$MANIFEST_URL" || {
+              echo "Deployed manifest not reachable at $MANIFEST_URL" \
+                "- check servePath for $NAME in .github/ci-tested-plugins.json"
+              exit 1
+            }
 
             # Every plugin writes to the same ~/.cache/ms-playwright, so the browser
             # installs are serialised to avoid concurrent writes to one cache entry.
