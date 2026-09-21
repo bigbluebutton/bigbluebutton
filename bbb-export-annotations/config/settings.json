@@ -6,7 +6,8 @@
   "shared": {
     "presAnnDropboxDir": "/tmp/pres-ann-dropbox",
     "cairosvg": "/usr/bin/cairosvg",
-    "ghostscript": "/usr/bin/gs"
+    "ghostscript": "/usr/bin/gs",
+    "pdftocairo": "/usr/bin/pdftocairo"
   },
   "process": {
     "maxImageWidth": 1440,
