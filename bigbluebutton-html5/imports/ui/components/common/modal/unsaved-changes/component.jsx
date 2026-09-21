@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -30,19 +31,12 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
   const intl = useIntl();
 
   return (
-    <Styled.Modal
+    <ModalSimple
       title={intl.formatMessage(intlMessages.title)}
-      modalIsOpen={isOpen}
-      dismiss={{ callback: onCancel }}
+      isOpen={isOpen}
       onRequestClose={onCancel}
-    >
-      <Styled.Content>
-        <Styled.Text>
-          {intl.formatMessage(intlMessages.message)}
-        </Styled.Text>
-        <Styled.IgnoreText>
-          {intl.formatMessage(intlMessages.ignoreMessage)}
-        </Styled.IgnoreText>
+      noFooter={false}
+      footerContent={(
         <Styled.ActionsContainer>
           <Styled.ActionButton onClick={onCancel} data-test="unsavedChangesCancel">
             {intl.formatMessage(intlMessages.cancelLabel)}
@@ -51,8 +45,17 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
             {intl.formatMessage(intlMessages.ignoreButtonLabel)}
           </Styled.ActionButton>
         </Styled.ActionsContainer>
+      )}
+    >
+      <Styled.Content>
+        <Styled.Text>
+          {intl.formatMessage(intlMessages.message)}
+        </Styled.Text>
+        <Styled.IgnoreText>
+          {intl.formatMessage(intlMessages.ignoreMessage)}
+        </Styled.IgnoreText>
       </Styled.Content>
-    </Styled.Modal>
+    </ModalSimple>
   );
 };
 
