@@ -85,10 +85,36 @@ class ConfirmationModal extends Component {
         onRequestClose={handleClose}
         contentLabel={title}
         title={title}
-        {...{
-          isOpen,
-          priority,
-        }}
+        isOpen={isOpen}
+        priority={priority}
+        noFooter={false}
+        footerContent={(
+          <Styled.Footer>
+            {!hideCancelButton && (
+              <div ref={this.cancelButtonRef}>
+                <BBButton
+                  variant="secondary"
+                  dataTest="confirmationModalCancel"
+                  label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
+                  onClick={handleClose}
+                />
+              </div>
+            )}
+            {!hideConfirmButton && (
+              <BBButton
+                variant="primary"
+                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
+                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
+                disabled={disableConfirmButton}
+                dataTest={confirmButtonDataTest}
+                onClick={() => {
+                  onConfirm(confirmParam, checked);
+                  setIsOpen(false);
+                }}
+              />
+            )}
+          </Styled.Footer>
+        )}
       >
         <Styled.Container>
           <Styled.Description>
@@ -108,32 +134,6 @@ class ConfirmationModal extends Component {
               </Styled.Label>
             ) : null }
           </Styled.Description>
-
-          <Styled.Footer>
-            {!hideConfirmButton && (
-              <BBButton
-                variant="primary"
-                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
-                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
-                disabled={disableConfirmButton}
-                dataTest={confirmButtonDataTest}
-                onClick={() => {
-                  onConfirm(confirmParam, checked);
-                  setIsOpen(false);
-                }}
-              />
-            )}
-            {!hideCancelButton && (
-              <div ref={this.cancelButtonRef}>
-                <BBButton
-                  variant="secondary"
-                  dataTest="confirmationModalCancel"
-                  label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
-                  onClick={handleClose}
-                />
-              </div>
-            )}
-          </Styled.Footer>
         </Styled.Container>
       </Styled.ConfirmationModal>
     );
