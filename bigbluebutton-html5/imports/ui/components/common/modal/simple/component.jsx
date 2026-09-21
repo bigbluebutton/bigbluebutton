@@ -15,6 +15,7 @@ const propTypes = {
   isOpen: PropTypes.bool,
   onRequestClose: PropTypes.func,
   priority: PropTypes.string,
+  dataTest: PropTypes.string,
   children: PropTypes.node,
   documentTitle: PropTypes.oneOfType([
     PropTypes.bool,
@@ -33,6 +34,7 @@ const defaultProps = {
   isOpen: false,
   onRequestClose: null,
   priority: undefined,
+  dataTest: undefined,
   children: null,
   documentTitle: false,
 };

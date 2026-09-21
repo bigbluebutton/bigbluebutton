@@ -43,9 +43,9 @@ export interface GenericModalProps {
   priority?: ModalPriority;
   /** Custom inline styles applied directly to the modal content element. */
   contentStyle?: React.CSSProperties;
-  /** Test identifier propagated to the modal wrapper for automated testing. */
+  /** Test identifier rendered as `data-testid` on the modal content element. */
   dataTest?: string;
-  /** Test identifier propagated to the modal close button for automated testing. */
+  /** Test identifier of the close button. Defaults to `closeModal`, the id every legacy modal header used. */
   closeButtonDataTest?: string;
   /**
    * Document title shown while the modal is open. `true` reuses `title`
@@ -64,7 +64,7 @@ export interface GenericModalProps {
  * GenericModal — the single, unified modal primitive for BigBlueButton HTML5.
  *
  * Built on top of `BBBModal` from `@bigbluebutton/bbb-ui-components-react`, it adds
- * BBB-specific concerns (priority-based z-index, `data-test` attribute, document title) while
+ * BBB-specific concerns (priority-based z-index, test ids, document title) while
  * keeping the same clean API surface as the library component.
  *
  * Use this component for all new modals. Prefer migrating existing modals that
@@ -99,7 +99,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
   contentStyle,
   anchorElement,
   dataTest,
-  closeButtonDataTest,
+  closeButtonDataTest = 'closeModal',
   documentTitle = false,
 }) => {
   const [documentTitleViewId] = useState(() => createDocumentTitleViewId('generic-modal'));
@@ -117,8 +117,8 @@ const GenericModal: React.FC<GenericModalProps> = ({
 
   useEffect(() => () => unregisterDocumentTitleView(documentTitleViewId), [documentTitleViewId]);
 
-  // contentRef: applied directly to the ReactModal content element via the
-  // BBBModal v2.1.0 API (ModalProps now extends ReactModal.Props).
+  // contentRef: applied directly to the ReactModal content element, since
+  // BBBModal's props extend ReactModal.Props.
   const contentRefCallback = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
 
@@ -148,7 +148,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
         overflow: 'visible',
       });
     }
-  }, [anchorElement, contentStyle, dataTest]);
+  }, [anchorElement, contentStyle]);
 
   return (
     <BBBModal

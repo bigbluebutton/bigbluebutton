@@ -13,6 +13,7 @@ export interface ModalSimpleProps {
   isOpen?: boolean;
   onRequestClose?: (() => void) | null;
   priority?: ModalPriority | string;
+  dataTest?: string;
   documentTitle?: boolean | string;
   children?: React.ReactNode;
   /** Legacy props — accepted and ignored */
