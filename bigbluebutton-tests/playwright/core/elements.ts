@@ -257,6 +257,7 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
+  recordingIndicatorAutoCollapseToggleBtn: 'input[data-test="recordingIndicatorAutoCollapseToggleBtn"]',
   recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
   recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
   recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
