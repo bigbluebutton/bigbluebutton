@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 import { useQuery } from '@apollo/client';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
 import Styled from './styles';
@@ -13,33 +14,25 @@ const intlMessages = defineMessages({
     id: 'app.sessionDetails.title',
     description: 'Session details title',
   },
-  dismissLabel: {
-    id: 'app.sessionDetails.dismissLabel',
-    description: 'Dismiss button label',
-  },
-  dismissDesc: {
-    id: 'app.sessionDetails.dismissDesc',
-    description: 'adds descriptive context to dissmissLabel',
-  },
   joinByUrlLabel: {
     id: 'app.sessionDetails.joinByUrl',
-    description: 'adds descriptive context to dissmissLabel',
+    description: 'Label for the join by URL option',
   },
   joinByPhoneLabel: {
     id: 'app.sessionDetails.joinByPhone',
-    description: 'adds descriptive context to dissmissLabel',
+    description: 'Label for the join by phone option',
   },
   copyUrlTooltip: {
     id: 'app.sessionDetails.copyUrlTooltip',
-    description: 'adds descriptive context to dissmissLabel',
+    description: 'Tooltip for copy URL button',
   },
   copyPhoneTooltip: {
     id: 'app.sessionDetails.copyPhoneTooltip',
-    description: 'adds descriptive context to dissmissLabel',
+    description: 'Tooltip for copy phone number button',
   },
   phonePinLabel: {
     id: 'app.sessionDetails.phonePin',
-    description: 'adds descriptive context to dissmissLabel',
+    description: 'Label for the phone PIN field',
   },
   copied: {
     id: 'app.sessionDetails.copied',
@@ -50,7 +43,7 @@ const intlMessages = defineMessages({
 interface SessionDetailsContainerProps {
   isOpen: boolean,
   onRequestClose: () => void,
-  priority: string,
+  priority: ModalPriority,
 }
 
 interface SessionDetailsProps extends SessionDetailsContainerProps {
@@ -99,17 +92,11 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
   return (
     <ModalSimple
       title={intl.formatMessage(intlMessages.title)}
-      dismiss={{
-        label: intl.formatMessage(intlMessages.dismissLabel),
-        description: intl.formatMessage(intlMessages.dismissDesc),
-      }}
-      data-test="sessionDetailsModal"
-      {...{
-        isOpen,
-        onRequestClose,
-        priority,
-        anchorElement,
-      }}
+      dataTest="sessionDetailsModal"
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      priority={priority}
+      anchorElement={anchorElement}
     >
       <Styled.Chevron />
       <Styled.Container
@@ -216,8 +203,6 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
     }
   }
 
-  const anchorElement = document.getElementById('presentationTitle') as HTMLElement;
-
   // login url should only be displayed for moderators
   let loginUrl = currentMeeting.loginUrl ?? '';
   const isModerator = currentUserData?.isModerator;
@@ -225,6 +210,11 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
   if (!isModerator) {
     loginUrl = '';
   }
+
+  // On mobile the modal stays centred; on desktop anchor it below the session title.
+  const anchorElement = deviceInfo.isMobile
+    ? null
+    : document.getElementById('presentationTitle') as HTMLElement | null;
 
   return (
     <SessionDetails

@@ -5,8 +5,7 @@ export interface ModalSimpleProps {
   id?: string;
   title?: string;
   contentLabel?: string;
-  /** `label` and `description` are legacy and ignored. */
-  dismiss?: { callback?: (() => void) | null; label?: string; description?: string };
+  dismiss?: { callback?: (() => void) | null };
   shouldCloseOnOverlayClick?: boolean;
   shouldCloseOnEsc?: boolean;
   modalIsOpen?: boolean;
