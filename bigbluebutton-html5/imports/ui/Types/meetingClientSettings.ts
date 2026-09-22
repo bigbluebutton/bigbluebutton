@@ -81,6 +81,7 @@ export interface App {
   warnAboutUnsavedContentOnMeetingEnd: boolean
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
+  remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
