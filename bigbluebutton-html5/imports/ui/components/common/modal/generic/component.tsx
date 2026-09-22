@@ -43,7 +43,7 @@ export interface GenericModalProps {
   priority?: ModalPriority;
   /** Custom inline styles applied directly to the modal content element. */
   contentStyle?: React.CSSProperties;
-  /** Test identifier rendered as `data-testid` on the modal content element. */
+  /** Test identifier rendered as `data-testid` and the legacy `data-test` on the modal content element. */
   dataTest?: string;
   /** Test identifier of the close button. Defaults to `closeModal`, the id every legacy modal header used. */
   closeButtonDataTest?: string;
@@ -168,6 +168,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
       parentSelector={() => document.querySelector<HTMLElement>('#modals-container') ?? document.body}
       portalClassName={priority ? `modal-${priority}` : undefined}
       testId={dataTest}
+      data={dataTest ? { test: dataTest } : undefined}
       closeButtonDataTest={closeButtonDataTest}
     >
       {children}

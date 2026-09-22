@@ -400,9 +400,6 @@ const AudioModal = ({
     return joinListenOnly().then(() => {
       setDisableActions(false);
       disableAwayMode();
-      if (!autoplayBlocked) {
-        closeModal();
-      }
     }).catch((err) => {
       handleJoinAudioError(err);
     });
@@ -417,7 +414,6 @@ const AudioModal = ({
 
     joinMicrophone().then(() => {
       setDisableActions(false);
-      closeModal();
     }).catch((err) => {
       handleJoinAudioError(err);
     });

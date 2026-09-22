@@ -15,6 +15,9 @@ export interface ModalSimpleProps {
   dataTest?: string;
   documentTitle?: boolean | string;
   children?: React.ReactNode;
+  /** Closes the modal (via `setIsOpen(false)`) on a `CLOSE_MODAL_<NAME>` document event. */
+  modalName?: string;
+  setIsOpen?: (open: boolean) => void;
   /** Legacy props — accepted and ignored */
   shouldShowCloseButton?: boolean;
   hideBorder?: boolean;
@@ -23,7 +26,6 @@ export interface ModalSimpleProps {
   height?: string | number;
   padding?: string | number;
   anchorElement?: Element | null;
-  setIsOpen?: (open: boolean) => void;
   /** Extra props forwarded to GenericModal */
   [key: string]: unknown;
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import GenericModal from '/imports/ui/components/common/modal/generic/component';
 
@@ -21,6 +21,8 @@ const propTypes = {
     PropTypes.bool,
     PropTypes.string,
   ]),
+  modalName: PropTypes.string,
+  setIsOpen: PropTypes.func,
 };
 
 const defaultProps = {
@@ -37,6 +39,8 @@ const defaultProps = {
   dataTest: undefined,
   children: null,
   documentTitle: false,
+  modalName: undefined,
+  setIsOpen: undefined,
 };
 
 const ModalSimple = ({
@@ -65,10 +69,22 @@ const ModalSimple = ({
   // eslint-disable-next-line no-unused-vars
   padding,
   anchorElement,
-  // eslint-disable-next-line no-unused-vars
+  modalName,
   setIsOpen,
   ...otherProps
 }) => {
+  // Legacy BaseModal contract: a `CLOSE_MODAL_<NAME>` event on document closes
+  // the modal (e.g. the audio service dispatches CLOSE_MODAL_AUDIO once joined).
+  useEffect(() => {
+    if (!modalName || !setIsOpen) return undefined;
+
+    const closeEventName = `CLOSE_MODAL_${modalName.toUpperCase()}`;
+    const handleCloseEvent = () => setIsOpen(false);
+
+    document.addEventListener(closeEventName, handleCloseEvent);
+    return () => document.removeEventListener(closeEventName, handleCloseEvent);
+  }, [modalName, setIsOpen]);
+
   const open = modalIsOpen || isOpen || false;
   const handleClose = onRequestClose || dismiss?.callback || (() => {});
 
