@@ -3,7 +3,7 @@
   "description": "BigBlueButton HTML5 Client",
   "license": "LGPL-3.0",
   "scripts": {
-    "postinstall": "grep -q '\"bigbluebutton-html-plugin-sdk\" *: *\"https://codeload' package.json || exit 0 && echo executing postInstall... && cd node_modules/bigbluebutton-html-plugin-sdk && npm install && npm run build && rm -rf node_modules",
+    "postinstall": "grep -q '\"bigbluebutton-html-plugin-sdk\" *: *\"https://codeload' package.json || exit 0 && echo executing postInstall... && cd node_modules/bigbluebutton-html-plugin-sdk && npm ci && npm run build && rm -rf node_modules",
     "start": "NODE_ENV=development DETAILED_LOGS=true HOT_RELOAD=true webpack serve --open --config webpack.config.js",
     "build": "NODE_ENV=production TARGET=default webpack --config webpack.config.js --mode production",
     "build-safari": "NODE_ENV=production TARGET=safari webpack --config webpack.config.js --mode production",
@@ -82,7 +82,7 @@
     "@workadventure/noise-suppression": "0.1.1",
     "autoprefixer": "^10.4.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/imdt-claudiop/bigbluebutton-html-plugin-sdk/tar.gz/64fb62cc0bcb1ec775e97abdc24336a4c6ed35f4",
+    "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/imdt-claudiop/bigbluebutton-html-plugin-sdk/tar.gz/f60c9f363a700871631c8be2bb010afb9493c3e0",
     "bowser": "^2.12.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
