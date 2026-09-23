@@ -179,6 +179,8 @@ public:
       captureSharedNotesByDefault: false
       # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Pre-check the "Propagate the current lock settings" option
+      inheritLockSettingsByDefault: false
       # Minimum number of breakout rooms that can be created
       breakoutRoomMinimum: 2
       # Maximum number of breakout rooms that can be created
@@ -237,6 +239,10 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        # Collapse the recording button to an icon and reveal its label on hover.
+        # Off by default: the label stays put, so the button never resizes under
+        # the pointer and never shifts the nav bar around it.
+        recordingIndicatorAutoCollapse: false
         pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true
@@ -908,12 +914,17 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
-      # audioWasmProcessing: audio input processing through WASM/BBBA
-      #   enabled: whether BBBA should be exposed to users. If false, browser's
-      #            built-in audio processing will be used instead.
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, browser's built-in audio processing will be used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured below.
       audioWasmProcessing:
         enabled: false
+        provider: bbba
         constraints:
           echoCancellation: true
           autoGainControl: true
@@ -1018,9 +1029,15 @@ public:
         # transitions that would trigger unsubscribe operations.
         muteDebounceMs: 2500
       logLevel: 3
+      # livekit.sdkLogBridge: forward livekit-client's own logs to the client logger.
+      sdkLogBridge: true
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts).
       reconnectOnFatalFailures: true
+      # livekit.negotiationProbe: tracks the time, via logs, that it takes
+      # for a subscriber offer to be answered, from receive to socket dispatch.
+      # Debug instrumentation, off by default
+      negotiationProbe: false
       # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
       forceRelay: false
       # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
@@ -1199,6 +1216,10 @@ public:
     # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
     # slide. Latency above this bound still shows the original white flash.
     slideSwapDecodeTimeoutMs: 250
+    # Presenter mouse wheel behavior over the presentation:
+    # true  - the wheel scrolls (pans) the slide; hold Ctrl/Cmd while scrolling to zoom
+    # false - the wheel zooms directly (behavior of BBB 3.0 and earlier)
+    wheelZoomRequiresCtrl: true
     lockToolbarTools: false
     annotations:
       status:

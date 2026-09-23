@@ -2,6 +2,7 @@ import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
 import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
+import { ChatPluginDomElements } from './pluginDomElements';
 import { PrivateChatListPreview } from './privateChatListPreview';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
@@ -222,7 +223,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
 
       test(
         'User can delete only his own messages in breakout rooms',
-        { tag: '@flaky-3.1' },
+        { tag: '@flaky' },
         async ({ browser, context, page }, testInfo) => {
           const message = new MessageActions(browser, context);
           await message.initPages(page, testInfo);
@@ -276,5 +277,25 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.orderReactions();
       });
     });
+  });
+});
+
+test.describe.parallel('Chat plugin dom elements', { tag: '@ci' }, () => {
+  test('Keeps delivering dom elements after a message is deleted', async ({ browser, context, page }, testInfo) => {
+    const domElements = new ChatPluginDomElements(browser, context);
+    // Single-user scenarios: the probe, the deletion and the focus trap are all moderator-side
+    await domElements.initModPage(page, { testInfo });
+    await domElements.keepsDeliveringAfterMessageDeletion();
+  });
+
+  test('Keeps delivering dom elements after the keyboard focus re-mounts a message', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const domElements = new ChatPluginDomElements(browser, context);
+    // Single-user scenarios: the probe, the deletion and the focus trap are all moderator-side
+    await domElements.initModPage(page, { testInfo });
+    await domElements.keepsDeliveringAfterKeyboardFocus();
   });
 });

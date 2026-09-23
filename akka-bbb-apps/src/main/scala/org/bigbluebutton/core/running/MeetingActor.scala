@@ -22,7 +22,7 @@ import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.timer.TimerApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
-import org.bigbluebutton.core.apps.webcam.WebcamApp2x
+import org.bigbluebutton.core.apps.webcam.{ CameraHdlrHelpers, WebcamApp2x }
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers, _ }
@@ -50,6 +50,7 @@ import org.bigbluebutton.core.db.{
   UserDAO,
   UserStateDAO
 }
+import org.bigbluebutton.core.models.LiveKitMemberships
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
@@ -310,6 +311,8 @@ class MeetingActor(
     case msg: MonitorNumberOfUsersInternalMsg     => handleMonitorNumberOfUsers(msg)
     case msg: MonitorGuestWaitPresenceInternalMsg => handleMonitorGuestWaitPresenceInternalMsg(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
+    case msg: LiveKitTokenRefreshInternalMsg      => handleLiveKitTokenRefreshInternalMsg(msg)
+    case msg: LiveKitMintTimeoutInternalMsg       => handleLiveKitMintTimeoutInternalMsg(msg)
     case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
       state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
       updateModeratorsPresence()
@@ -535,10 +538,10 @@ class MeetingActor(
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: DeleteWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: SendWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
 
@@ -649,12 +652,12 @@ class MeetingActor(
       case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: BNSharedNotesUpdatedEvtMsg    =>
+      case m: BNSharedNotesUpdatedEvtMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.intUserId)
-      case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateSessionReqMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionCreatedEvtMsg => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatedSysMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.userId)
@@ -764,11 +767,15 @@ class MeetingActor(
         updateUserLastActivity(m.header.userId)
 
       // Screenshare
-      case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
-      case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
+      case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg =>
+        screenshareApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.userId)
+      case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg =>
+        screenshareApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.body.userId)
+      case m: GetScreenshareStatusReqMsg         => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: GetScreenBroadcastPermissionReqMsg => handleGetScreenBroadcastPermissionReqMsg(m)
+      case m: GetScreenSubscribePermissionReqMsg => handleGetScreenSubscribePermissionReqMsg(m)
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg =>
@@ -1166,6 +1173,10 @@ class MeetingActor(
         // Fence them until restored or ejected.
         liveMeeting.voiceUserReconciler.fenceRemovedUser(liveMeeting, outGW, u.intId)
 
+        Webcams.findWebcamsForUser(liveMeeting.webcams, u.intId) foreach { webcam =>
+          CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, props.meetingProp.intId, u.intId, webcam.streamId, outGW)
+        }
+
         val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
         UserDAO.update(updatedRegUser)
 
@@ -1212,6 +1223,7 @@ class MeetingActor(
         }
 
         UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
+        UsersApp.removeUserLiveKitMemberships(liveMeeting, liveMeeting.props.meetingProp.intId, u.intId, outGW)
       }
     }
 

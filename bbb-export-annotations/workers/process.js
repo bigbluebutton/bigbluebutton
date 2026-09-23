@@ -4,7 +4,9 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
-import {rasterizeSlideBackground} from '../lib/utils/slide-background.js';
+import {isBlankSlide, rasterizeSlideBackground,
+  rasterizeSlideBackgroundFromPdf,
+  slideRasterSize} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
 import sanitize from 'sanitize-filename';
@@ -430,23 +432,74 @@ async function processPresentationAnnotations() {
     let backgroundSlideFormat = backgroundFormat;
 
     if (backgroundFormat === 'svg') {
-      try {
-        // Rasterize the same SVG we validated above (svgBackgroundSlide), not
-        // the dropbox copy, so it is clear which file feeds the raster.
-        backgroundSlide = rasterizeSlideBackground(
-            svgBackgroundSlide,
-            `${bgImagePath}-bg.png`,
-            {
-              width: toPx(slideWidth),
-              height: toPx(slideHeight),
-              cairosvg: config.shared.cairosvg,
-              unsafe: config.process.cairoSVGUnsafeFlag,
-            });
-        backgroundSlideFormat = 'png';
-      } catch (error) {
-        logger.error(`Rasterizing slide ${currentSlide.page} ` +
-          `failed for job ${jobId}: ${error.message}`);
-        statusUpdate.setError();
+      const backgroundPng = `${bgImagePath}-bg.png`;
+      const sourcePdf = path.join(
+          exportJob.presLocation, `${exportJob.presId}.pdf`);
+      const rasterizeTimeoutMs =
+        (config.process.rasterizeTimeoutSeconds || 60) * 1000;
+      let rasterized = false;
+
+      // Render the page from the presentation PDF. CairoSVG cannot reproduce
+      // the soft masks the slide SVG carries and exports masked text as solid
+      // bars; poppler composites them natively. See
+      // rasterizeSlideBackgroundFromPdf for the mechanism.
+      //
+      // The collector only collects svg backgrounds for presentations that
+      // have this PDF (it aborts the job otherwise), so this is the normal
+      // path. The check keeps the SVG renderer as a fallback should the file
+      // disappear between collection and processing.
+      //
+      // Slides bbb-web blanked out are rendered from the (blank) SVG instead,
+      // so the export keeps showing what the meeting showed.
+      const blankSlide = isBlankSlide(
+          svgBackgroundSlide, config.shared.blankSvg);
+
+      if (!blankSlide && fs.existsSync(sourcePdf)) {
+        try {
+          // Sizing reads the slide SVG, so it belongs inside the guarded
+          // block: an unreadable slide degrades to the fallback rather than
+          // failing the whole job.
+          const rasterSize = slideRasterSize(
+              svgBackgroundSlide, toPx(slideWidth), toPx(slideHeight));
+
+          backgroundSlide = rasterizeSlideBackgroundFromPdf(
+              sourcePdf,
+              currentSlide.page,
+              backgroundPng,
+              {...rasterSize,
+                pdftocairo: config.shared.pdftocairo,
+                timeout: rasterizeTimeoutMs});
+          backgroundSlideFormat = 'png';
+          rasterized = true;
+        } catch (error) {
+          // logger.warn only prints at debug/trace, and this means the
+          // export falls back to a renderer that loses soft masks - the
+          // operator needs to see it at the default level.
+          logger.error(`Rasterizing slide ${currentSlide.page} from the ` +
+            `PDF failed for job ${jobId}, falling back to the slide SVG; ` +
+            `soft-masked content may be corrupted: ${error.message}`);
+        }
+      }
+
+      if (!rasterized) {
+        try {
+          // Rasterize the same SVG we validated above (svgBackgroundSlide),
+          // not the dropbox copy, so it is clear which file feeds the raster.
+          backgroundSlide = rasterizeSlideBackground(
+              svgBackgroundSlide,
+              backgroundPng,
+              {
+                width: toPx(slideWidth),
+                height: toPx(slideHeight),
+                cairosvg: config.shared.cairosvg,
+                unsafe: config.process.cairoSVGUnsafeFlag,
+              });
+          backgroundSlideFormat = 'png';
+        } catch (error) {
+          logger.error(`Rasterizing slide ${currentSlide.page} ` +
+            `failed for job ${jobId}: ${error.message}`);
+          statusUpdate.setError();
+        }
       }
     }
 

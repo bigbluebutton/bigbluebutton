@@ -6,9 +6,9 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState, RoomEvent, Track } from 'livekit-client';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import Auth from '/imports/ui/services/auth';
-import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
+import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useWhoIsUnmutedGraphql from '../useWhoIsUnmutedGraphql';
 import createReactiveRecordStateHook from '../createReactiveRecordStateHook';
 import { UnmutedUsersState, UnmutedUserState } from '../useWhoIsUnmuted';
@@ -48,10 +48,17 @@ const createUseWhoIsUnmutedLiveKit = () => {
   function useWhoIsUnmuted(): UnmutedUsersState;
   function useWhoIsUnmuted(userId: string): UnmutedUserState;
   function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
-    const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+    // Derive unmuted state from LiveKit whenever LiveKit is the audio bridge,
+    // independent of the `useLiveKitAudioState` opt-in. The router
+    // (useWhoIsUnmuted) still decides which source it exposes by the opt-in, but
+    // the talking-indicator hook consumes this directly so it can reflect the
+    // mute state of audible participants with no server voice record (e.g. a
+    // moderator transferred into a breakout to listen).
+    const isLiveKitActive = useIsUsingLiveKitAudio();
     const whoIsUnmutedData = useData(userId);
+    const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
-      room: liveKitRoom,
+      room,
       updateOnlyOn: [
         RoomEvent.ParticipantConnected,
         RoomEvent.ParticipantDisconnected,
@@ -62,8 +69,8 @@ const createUseWhoIsUnmutedLiveKit = () => {
         RoomEvent.Connected,
       ],
     });
-    const { localParticipant, microphoneTrack } = useLocalParticipant({ room: liveKitRoom });
-    const connectionState = useConnectionState(liveKitRoom);
+    const { localParticipant, microphoneTrack } = useLocalParticipant({ room });
+    const connectionState = useConnectionState(room);
     // Always read the full BBB record: the effect below writes the shared state,
     // so narrowing it to userId would blank every other user for every consumer.
     // userId filters on the read side only, through useData above.
@@ -71,7 +78,7 @@ const createUseWhoIsUnmutedLiveKit = () => {
 
     // Derive unmuted state from LiveKit participants
     useEffect(() => {
-      if (!shouldUseLiveKit) return;
+      if (!isLiveKitActive) return;
 
       const isConnected = connectionState === ConnectionState.Connected;
       setLoading(!isConnected);
@@ -119,11 +126,11 @@ const createUseWhoIsUnmutedLiveKit = () => {
       localParticipant,
       connectionState,
       microphoneTrack,
-      shouldUseLiveKit,
+      isLiveKitActive,
       bbbUnmutedUsers,
     ]);
 
-    if (!shouldUseLiveKit) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
+    if (!isLiveKitActive) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
 
     return whoIsUnmutedData as UnmutedUsersState | UnmutedUserState;
   }

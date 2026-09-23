@@ -23,6 +23,7 @@ import {
   setVideoState,
   useConnectingStream,
   getVideoState,
+  expectStreamStop,
 } from '/imports/ui/components/video-provider/state';
 import {
   GRID_USERS_SUBSCRIPTION,
@@ -938,7 +939,7 @@ export const useExitVideo = (forceExit = false) => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  const exitVideo = useCallback(async () => {
+  const exitVideo = useCallback(async (expected = true) => {
     const { isConnected } = getVideoState();
 
     if (isConnected || forceExit) {
@@ -946,7 +947,11 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      const results = ownStreamsRef.current.map((streamId) => sendUserUnshareWebcam(streamId));
+      const results = ownStreamsRef.current.map((streamId) => {
+        if (expected) expectStreamStop(streamId);
+
+        return sendUserUnshareWebcam(streamId);
+      });
 
       return Promise.all(results).then(() => {
         videoService.exitedVideo();
@@ -993,13 +998,14 @@ export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  return useCallback(async (cameraId?: string) => {
+  return useCallback(async (cameraId?: string, expected = true) => {
     const streams = ownStreamsRef.current;
     const connectingStream = getConnectingStream();
     const hasTargetStream = streams.some((streamId) => streamId === cameraId);
     const hasOtherStream = streams.some((streamId) => streamId !== cameraId);
 
-    if (hasTargetStream) {
+    if (hasTargetStream && cameraId) {
+      if (expected) expectStreamStop(cameraId);
       cameraBroadcastStop({ variables: { cameraId } });
     }
 

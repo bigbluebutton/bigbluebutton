@@ -5,11 +5,11 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState, RemoteParticipant, RoomEvent } from 'livekit-client';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import { getBbbUserIdForParticipant } from '/imports/ui/components/livekit/selective-subscription/service';
 import Auth from '/imports/ui/services/auth';
-import useWhoIsUnmuted from '../useWhoIsUnmuted';
-import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
+import useWhoIsUnmutedLiveKit from './useWhoIsUnmutedLiveKit';
+import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
 import useTalkingUsersGraphql from '../useTalkingUsersGraphql';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
@@ -34,6 +34,8 @@ const createUseTalkingUsersLiveKit = () => {
     dispatch,
   } = createReactiveStateHook<Record<string, VoiceUserMetadata>>({});
 
+  // Merges, never evicts: the talking indicator treats absence from a LiveKit pass as
+  // a departure, so every user this has ever seen has to keep being offered to it.
   const dispatchTalkingUserUpdate = (
     data?: VoiceActivityResponse['user_voice_activity_stream'],
   ) => {
@@ -57,9 +59,14 @@ const createUseTalkingUsersLiveKit = () => {
   };
 
   const useTalkingUsers = () => {
-    const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+    // Activation of this hook is based on LK usage, not an opt-in config. The
+    // hook router overlays these entries onto server voice-activity so LiveKit-audible
+    // users without a server voice record (e.g. a transferred moderator in a
+    // breakout) still get a talking indicator.
+    const isLiveKitActive = useIsUsingLiveKitAudio();
+    const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
-      room: liveKitRoom,
+      room,
       updateOnlyOn: [
         RoomEvent.ParticipantConnected,
         RoomEvent.ParticipantDisconnected,
@@ -67,11 +74,13 @@ const createUseTalkingUsersLiveKit = () => {
         RoomEvent.Connected,
       ],
     });
-    const { localParticipant } = useLocalParticipant({ room: liveKitRoom });
-    const connectionState = useConnectionState(liveKitRoom);
+    const { localParticipant } = useLocalParticipant({ room });
+    const connectionState = useConnectionState(room);
     const subscribedAudioUsers = useSubscribedAudioUsers();
     const { data: bbbTalkingUsers } = useTalkingUsersGraphql();
-    const { data: unmutedUsers } = useWhoIsUnmuted();
+    // Consume the LiveKit unmuted source directly (not the opt-in router)
+    // so mute state is correct whenever LiveKit is the bridge - see isLiveKitActive.
+    const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
     const { data: userMetadataMap, loading } = useData();
     const isConnected = connectionState === ConnectionState.Connected;
     const participantsByUserId = useMemo(() => {
@@ -89,7 +98,7 @@ const createUseTalkingUsersLiveKit = () => {
 
     // Build raw voice activity from LiveKit state
     const rawVoiceActivity = useMemo<RawVoiceActivityItem[] | undefined>(() => {
-      if (!shouldUseLiveKit || !isConnected) return undefined;
+      if (!isLiveKitActive || !isConnected) return undefined;
 
       const voiceActivityItems: RawVoiceActivityItem[] = [];
       const allUserIds = new Set<string>();
@@ -151,7 +160,7 @@ const createUseTalkingUsersLiveKit = () => {
 
       return voiceActivityItems;
     }, [
-      shouldUseLiveKit,
+      isLiveKitActive,
       isConnected,
       localParticipant,
       remoteParticipants,
@@ -162,13 +171,17 @@ const createUseTalkingUsersLiveKit = () => {
       userMetadataMap,
     ]);
 
-    // Apply timing logic to the voice activity state
+    // Apply timing logic to the voice activity state. Every pass rebuilds the full
+    // user set from room state, so it doubles as the snapshot the indicator reconciles
+    // departures against - participants with no server voice record (a moderator
+    // listening into a breakout, dial-in participants) have nothing else to retire them.
     const processedData = useTimedTalkingIndicator(
       rawVoiceActivity,
-      shouldUseLiveKit && isConnected,
+      isLiveKitActive && isConnected,
+      true,
     );
 
-    if (!shouldUseLiveKit) return BASELINE_DATA;
+    if (!isLiveKitActive) return BASELINE_DATA;
 
     return {
       error: undefined,

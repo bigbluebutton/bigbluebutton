@@ -225,8 +225,11 @@ const useMouseEvents = ({
     // Get the current camera position and zoom level
     const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
 
-    // Check if user wants to zoom (Ctrl/Cmd key pressed)
-    if (event.ctrlKey || event.metaKey) {
+    const wheelZoomRequiresCtrl = window.meetingClientSettings.public.whiteboard
+      .wheelZoomRequiresCtrl ?? true;
+
+    // Check if user wants to zoom (Ctrl/Cmd key pressed, or wheel zooms directly)
+    if (!wheelZoomRequiresCtrl || event.ctrlKey || event.metaKey) {
       let currentZoomLevel = cz / initialZoomRef.current;
       if (event.deltaY < 0) {
         currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);

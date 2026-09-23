@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { visuallyHidden } from '/imports/ui/components/common/visually-hidden/styles';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import { colorDanger, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -150,14 +151,7 @@ const ToggleThumb = styled.div`
 `;
 
 const ScreenreaderInput = styled.input`
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
+  ${visuallyHidden}
 `;
 
 export default {

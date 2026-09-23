@@ -554,6 +554,24 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - you should see the correct presentation selected displayed for each user/room
 
+### Moderator listens to a breakout room audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/listenToRoom.spec.ts)
+
+Requires the LiveKit audio bridge (the default). A viewer must be in a breakout room with audio.
+
+1. As a moderator in the main room, join audio, open the breakout rooms panel and pick "Listen to this room's audio" from a running room's options menu.
+
+   - a persistent notification should appear naming the room, with a "Return to main room" button
+   - you should hear the breakout room's audio; the main room's audio should go silent
+   - unmuting should make you audible in the breakout (its members see your talking indicator); main-room users should see you as muted
+2. Mute and unmute using the main room's audio controls: the breakout side should reflect it.
+
+3. Click "Return to main room".
+
+   - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
+4. Pick "Join room" for a running room (it opens in a new tab), then reopen that room's options menu in the main room.
+
+   - the listen option should be disabled and read "Can't listen: already in room"; other rooms' listen options stay enabled
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
@@ -1095,6 +1113,20 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 18. All users should see "Public chat is enabled" notification.
 
 19. All users should be able to send public chat messages now.
+
+### Public chat for a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/user/user.spec.ts)
+
+1. Join meeting with a moderator and a viewer. Do not enable any "Lock viewers" setting.
+
+2. Moderator: open the viewer's actions menu in the user list and select "Lock public chat".
+
+3. Viewer: should see the public chat textbox and send button disabled, while other viewers keep sending public chat messages.
+
+4. Moderator: the viewer's row in the user list should show the "Locked" label. The moderator should still be able to send public chat messages.
+
+5. Moderator: open the same viewer's actions menu and select "Unlock public chat".
+
+6. Viewer: should be able to send public chat messages again and the "Locked" label should disappear.
 
 ### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 

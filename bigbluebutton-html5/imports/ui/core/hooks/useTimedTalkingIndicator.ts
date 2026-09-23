@@ -13,16 +13,21 @@ export type VoiceItem = {
 
 const TALKING_INDICATOR_TIMEOUT = 6000;
 
-const clearRegistryTimeouts = (registry: Record<string, ReturnType<typeof setTimeout> | null>) => {
-  Object.keys(registry).forEach((userId) => {
-    const timeout = registry[userId];
+const clearRegistryTimeout = (
+  registry: Record<string, ReturnType<typeof setTimeout> | null>,
+  userId: string,
+) => {
+  const timeout = registry[userId];
 
-    if (timeout) {
-      clearTimeout(timeout);
-      // eslint-disable-next-line no-param-reassign
-      registry[userId] = null;
-    }
-  });
+  if (timeout) {
+    clearTimeout(timeout);
+    // eslint-disable-next-line no-param-reassign
+    registry[userId] = null;
+  }
+};
+
+const clearRegistryTimeouts = (registry: Record<string, ReturnType<typeof setTimeout> | null>) => {
+  Object.keys(registry).forEach((userId) => clearRegistryTimeout(registry, userId));
 };
 
 export type RawVoiceActivityItem = {
@@ -39,12 +44,16 @@ export type RawVoiceActivityItem = {
  *
  * @param rawVoiceActivity - Array of raw voice activity items from the data source
  * @param enabled - Whether the hook should process data (set to false when loading or disabled)
+ * @param isSnapshot - Whether each pass carries every user the source knows about. Sources
+ *   that emit deltas (the server voice activity stream) must leave this off: there, an absent
+ *   user is only one with no news.
  * @returns Processed record of VoiceItem objects keyed by userId
  *
  */
 const useTimedTalkingIndicator = (
   rawVoiceActivity: RawVoiceActivityItem[] | undefined,
   enabled: boolean,
+  isSnapshot = false,
 ): Record<string, VoiceItem> => {
   const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
   const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
@@ -98,14 +107,8 @@ const useTimedTalkingIndicator = (
 
           // Cancel any deletion if user has started talking
           if (talking) {
-            if (currentSpokeTimeout) {
-              clearTimeout(currentSpokeTimeout);
-              spokeTimeoutRegistry.current[userId] = null;
-            }
-            if (currentMutedTimeout) {
-              clearTimeout(currentMutedTimeout);
-              mutedTimeoutRegistry.current[userId] = null;
-            }
+            clearRegistryTimeout(spokeTimeoutRegistry.current, userId);
+            clearRegistryTimeout(mutedTimeoutRegistry.current, userId);
           }
 
           // User has stopped talking - schedule removal
@@ -145,6 +148,8 @@ const useTimedTalkingIndicator = (
           // voiceUserId check is for GraphQL compatibility - when user exits audio,
           // voiceUserId becomes empty
           if (!(endTime || startTime) || (voiceUserId !== undefined && !voiceUserId)) {
+            clearRegistryTimeout(spokeTimeoutRegistry.current, userId);
+            clearRegistryTimeout(mutedTimeoutRegistry.current, userId);
             delete nextRecord[userId];
             changed = true;
 
@@ -182,9 +187,25 @@ const useTimedTalkingIndicator = (
         changed = true;
       });
 
+      // A user missing from a snapshot has left audio for good, and nothing else can
+      // retire their entry: removal is only ever scheduled off a pass that carries them,
+      // so one that vanishes mid-talk keeps talking = true forever.
+      if (isSnapshot) {
+        const reported = new Set(rawVoiceActivity.map((voiceActivityItem) => voiceActivityItem.userId));
+
+        Object.keys(nextRecord).forEach((userId) => {
+          if (reported.has(userId)) return;
+
+          clearRegistryTimeout(spokeTimeoutRegistry.current, userId);
+          clearRegistryTimeout(mutedTimeoutRegistry.current, userId);
+          delete nextRecord[userId];
+          changed = true;
+        });
+      }
+
       return changed ? nextRecord : previousRecord;
     });
-  }, [rawVoiceActivity, enabled]);
+  }, [rawVoiceActivity, enabled, isSnapshot]);
 
   useEffect(() => {
     return () => {

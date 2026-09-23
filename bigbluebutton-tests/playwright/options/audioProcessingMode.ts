@@ -53,11 +53,14 @@ export type AudioProcessingModeValue = 'advanced' | 'standard' | 'original';
 // 'standard' mode browser-level filters (media.audio.microphoneConstraints)
 // and the 'advanced'/WASM ones (media.audio.audioWasmProcessing.constraints),
 // regardless of what the server under test actually ships.
+export type AudioWasmProvider = 'bbba' | 'workadventureDtln';
+
 export function audioProcessingModeOverrides(
   wasmEnabled: boolean,
   processingMode: AudioProcessingModeValue,
   microphoneConstraints?: ClientSettingsOverrides,
   wasmConstraints?: ClientSettingsOverrides,
+  provider?: AudioWasmProvider,
 ): ClientSettingsOverrides {
   return {
     public: {
@@ -65,6 +68,7 @@ export function audioProcessingModeOverrides(
         audio: {
           audioWasmProcessing: {
             enabled: wasmEnabled,
+            ...(provider ? { provider } : {}),
             ...(wasmConstraints ? { constraints: wasmConstraints } : {}),
           },
           ...(microphoneConstraints ? { microphoneConstraints } : {}),
@@ -113,6 +117,10 @@ export class AudioProcessingMode extends MultiUsers {
     return this.wasmRequestUrls.length > 0;
   }
 
+  getWasmRequestUrls(): string[] {
+    return [...this.wasmRequestUrls];
+  }
+
   async openSettings(): Promise<void> {
     await this.modPage.waitAndClick(e.settingsSidebarButton);
   }
@@ -120,6 +128,18 @@ export class AudioProcessingMode extends MultiUsers {
   async openAudioSettings(): Promise<void> {
     await this.openSettings();
     await this.modPage.waitAndClick(e.audioTab);
+  }
+
+  async selectProcessingMode(mode: AudioProcessingModeValue): Promise<void> {
+    const radio = {
+      advanced: e.advancedFilteringRadio,
+      standard: e.standardFilteringRadio,
+      original: e.originalAudioRadio,
+    }[mode];
+
+    await this.openAudioSettings();
+    await this.modPage.waitAndClick(radio);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
   }
 
   async joinWithMicrophone(): Promise<void> {

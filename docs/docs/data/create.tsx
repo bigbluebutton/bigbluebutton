@@ -80,7 +80,7 @@ const createEndpointTableData = [
     "name": "meetingEndedURL",
     "required": false,
     "type": "String",
-    "description": (<>Server-to-server callback URL that BigBlueButton will invoke when the meeting ends. Useful for third-party integrations that need to react to meeting termination. (added 2.2)</>)
+    "description": (<>Server-to-server callback URL that BigBlueButton will invoke when the meeting ends. Useful for third-party integrations that need to react to meeting termination. (added 2.2).<br></br>See <a href="#meeting-ended-callback-url">Meeting Ended Callback URL</a> for usage instructions.</>)
   },
   {
     "name": "record",
@@ -333,7 +333,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)</>)
+    "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)<p><i>Updated in 4.0:</i> breakout rooms always use the parent meeting's effective <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> value; an explicit parameter and the <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code> fallback only apply to top-level meetings.</p></>)
   },
   {
     "name": "endWhenNoModerator",

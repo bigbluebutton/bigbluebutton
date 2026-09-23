@@ -105,6 +105,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureWhiteboardByDefault: false,
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
+        inheritLockSettingsByDefault: false,
         breakoutRoomMinimum: 2,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
@@ -144,6 +145,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          recordingIndicatorAutoCollapse: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
@@ -640,6 +642,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
           enabled: false,
+          provider: 'bbba',
           constraints: {
             echoCancellation: true,
             autoGainControl: true,
@@ -867,6 +870,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
       slideSwapDecodeTimeoutMs: 250,
+      wheelZoomRequiresCtrl: true,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

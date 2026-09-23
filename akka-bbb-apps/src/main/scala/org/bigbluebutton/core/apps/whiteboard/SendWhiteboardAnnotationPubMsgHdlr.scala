@@ -4,12 +4,13 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 
 trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
 
-  def handle(msg: SendWhiteboardAnnotationsPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: SendWhiteboardAnnotationsPubMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: SendWhiteboardAnnotationsPubMsg, whiteboardId: String, annotations: Array[AnnotationVO]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -49,8 +50,10 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
         //   printAnnotationInfo(annotation)
         // }
         // println("============= Printed Sanitized annotations  ============")
-        val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting, userState.presenter, userState.role == Roles.MODERATOR_ROLE)
-        broadcastEvent(msg, msg.body.whiteboardId, annotations)
+        val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, state, liveMeeting, userState.presenter, userState.role == Roles.MODERATOR_ROLE)
+        if (annotations.nonEmpty) {
+          broadcastEvent(msg, msg.body.whiteboardId, annotations)
+        }
       } else {
         //val meetingId = liveMeeting.props.meetingProp.intId
         //val reason = "No permission to send a whiteboard annotation."

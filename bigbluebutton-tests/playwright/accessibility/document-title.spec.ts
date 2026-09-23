@@ -19,7 +19,7 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     if (modPage.settings?.chatEnabled) {
       if (!(await modPage.page.locator(e.hidePublicChat).isVisible())) {
         if (!(await modPage.page.locator(e.chatButton).first().isVisible())) {
-          await modPage.waitAndClick(e.userListToggleBtn);
+          await modPage.waitAndClick(e.userListButton);
         }
 
         if (!(await modPage.page.locator(e.hidePublicChat).isVisible())) {

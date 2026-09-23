@@ -6,7 +6,11 @@ import { elements as e } from '../core/elements';
 import { linkIssue } from '../core/helpers';
 import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../notifications/util';
 import { openSettings } from '../options/util';
-import { getNotesLocator } from '../sharednotes/etherpad/util';
+import {
+  getBlockNoteEditorLocator,
+  getBlockNoteReadOnlyLocator,
+  startSharedNotesBlockNote,
+} from '../sharednotes/blocknote/util';
 import { MultiUsers } from './multiusers';
 import { drawArrow, openLockViewers, setPresentationPermission } from './util';
 
@@ -120,6 +124,34 @@ export class LockViewers extends MultiUsers {
     await this.userPage2.waitAndClick(e.joinEchoTestButton);
     await this.userPage2.hasElement(e.muteMicButton, 'should connect with the mic unmuted');
     await this.userPage2.hasElement(e.isTalking, 'should display the is talking element for the second attendee');
+  }
+
+  async lockPublicChatForSpecificUser() {
+    // no meeting-wide lock is active: the per-user action must be available anyway
+    const attendeeRow = this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username });
+    const isAttendeeRowVisible = await attendeeRow.isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+    if (!isAttendeeRowVisible) {
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+    }
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page.locator(`${e.togglePublicChat}:visible`).first().click();
+    await this.userPage.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the locked attendee');
+    await this.userPage.hasElementDisabled(
+      e.sendButton,
+      'should have the send button on the public chat disabled for the locked attendee',
+    );
+    await expect(attendeeRow, 'should display the locked label on the attendee row for the moderator').toContainText(
+      /locked/i,
+    );
+    // unlock the same user
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page.locator(`${e.togglePublicChat}:visible`).first().click();
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should have the public chat enabled again for the unlocked attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(attendeeRow, 'should remove the locked label from the attendee row').not.toContainText(/locked/i);
   }
 
   async lockSendPublicChatMessages() {
@@ -293,9 +325,11 @@ export class LockViewers extends MultiUsers {
   }
 
   async lockEditSharedNotes() {
-    await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
-    await this.userPage.waitForSelector(e.hideNotesLabel);
-    const sharedNotesLocator = getNotesLocator(this.userPage);
+    // shared notes are BlockNote on 4.0 (Etherpad is an optional add-on
+    // exercised by its own suite), so assert the lock via the BlockNote editor
+    await startSharedNotesBlockNote(this.userPage);
+    const sharedNotesLocator = getBlockNoteEditorLocator(this.userPage);
+    await sharedNotesLocator.click();
     await sharedNotesLocator.pressSequentially(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
     await expect(
       sharedNotesLocator,
@@ -309,14 +343,30 @@ export class LockViewers extends MultiUsers {
 
     await this.initUserPage2();
     await this.userPage2.waitAndClick(e.sharedNotesSidebarButton);
-    await this.userPage2.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the second attendee');
+    await this.userPage2.hasElement(
+      e.blockNoteReadOnly,
+      'should display the shared notes read-only for the second attendee',
+    );
 
-    await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
-    await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the first attendee');
+    await this.userPage.hasElement(
+      e.blockNoteReadOnly,
+      'should display the shared notes read-only for the first attendee',
+    );
 
-    const attendeeRow = await this.modPage.page.locator(e.userListItem).first();
+    // target the locked attendee's row by exact name - .first() can grab the
+    // moderator's own row, and a bare hasText would also match "<name>2"
+    const attendeeRow = await this.modPage.page
+      .locator(e.userListItem)
+      .filter({ has: this.modPage.page.getByText(this.userPage.username, { exact: true }) })
+      .first();
+    await attendeeRow.hover();
     await attendeeRow.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.waitAndClick(e.unlockUserButton);
+    // :visible - previously-closed menus leave hidden duplicate menuitems in the DOM
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
+    await this.userPage.hasElement(
+      e.blockNoteEditable,
+      'should display the shared notes editable again for the unlocked first attendee',
+    );
   }
 
   async lockSeeOtherViewersUserList() {
@@ -339,9 +389,15 @@ export class LockViewers extends MultiUsers {
       'should contain one user on the user list for the first attendee',
     );
 
-    const attendeeRow = await this.modPage.page.locator(e.userListItem).first();
+    // unlock the SECOND attendee specifically - .first() used to grab whichever
+    // row sorted first and could unlock the wrong user, leaving this count at 1
+    const attendeeRow = await this.modPage.page
+      .locator(e.userListItem)
+      .filter({ hasText: this.userPage2.username })
+      .first();
     await attendeeRow.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.waitAndClick(e.unlockUserButton);
+    // :visible - previously-closed menus leave hidden duplicate menuitems in the DOM
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     await this.userPage2.hasElementCount(
       e.userListItem,
       2,
@@ -389,8 +445,10 @@ export class LockViewers extends MultiUsers {
       e.wbDrawnArrow,
       'should not display the other viewer annotation for the viewer who just joined',
     );
-    await this.modPage.page.locator(e.chatButton).hover();
-    await this.userPage.page.locator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    // park the cursor on a neutral element (chatButton is gone from 4.0)
+    await this.modPage.page.locator(e.messagesSidebarButton).hover();
+    // ensure userPage cursor won't be visible on the screenshot (chatButton is gone from 4.0)
+    await this.userPage.page.locator(e.messagesSidebarButton).hover();
     await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
     await expect(
       user2WbLocator,
@@ -411,7 +469,7 @@ export class LockViewers extends MultiUsers {
     // unlock user2
     const attendee2Row = await this.modPage.page.locator(e.userListItem).last();
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.page.locator(e.unlockUserButton).last().click();
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     // check if previous annotations is displayed after unlocking user
     await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
     await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
@@ -461,7 +519,7 @@ export class LockViewers extends MultiUsers {
     // Unlock user2
     const attendee2Row = await this.modPage.page.locator(e.userListItem).last();
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.page.locator(e.unlockUserButton).last().click();
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     await this.modPage.page.waitForTimeout(1000); // ensure the unlock settings are applied
     await this.modPage.page.locator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
     await this.modPage.page.locator(e.messagesSidebarButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
@@ -712,8 +770,9 @@ export class LockViewers extends MultiUsers {
     await this.initUserPage2();
 
     const unlockedViewerName = this.userPage2.username;
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).click();
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).locator(e.moreOptionsUserItemButton).click();
+    // :visible - stale unmounted menus leave hidden duplicate menuitems; nth=1 can land on one
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     const unlockedViewer = this.userPage2;
 
     await openSettings(this.modPage);
@@ -783,8 +842,9 @@ export class LockViewers extends MultiUsers {
     // Viewer2 joins locked, then is explicitly unlocked.
     await this.initUserPage2();
     const unlockedViewerName = this.userPage2.username;
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).click();
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).locator(e.moreOptionsUserItemButton).click();
+    // :visible - stale unmounted menus leave hidden duplicate menuitems; nth=1 can land on one
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     const unlockedViewer = this.userPage2;
 
     // Viewer3 stays locked and will leave.

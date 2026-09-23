@@ -44,10 +44,10 @@ object PresentationInPod {
   }
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
-    PresPageDAO.setCurrentPage(pres, pageId)
-
     pres.pages.get(pageId) match {
       case Some(newCurPage) =>
+        PresPageDAO.setCurrentPage(pres, pageId)
+
         val page = newCurPage.copy(current = true)
         val newPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages = newPages)

@@ -1,3 +1,4 @@
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
@@ -578,31 +579,9 @@ export const PresentationSelect = styled(Select)`
   }
 `;
 
-export const StartButtonWrapper = styled.div`
+export const StartButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
   padding: 0.75rem 1rem;
   margin-top: auto;
-`;
-
-export const StartButton = styled.button<{ disabled?: boolean }>`
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: ${colorWhite};
-  background: ${colorPrimary};
-  border: 2px solid ${colorPrimary};
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    opacity: 0.85;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 `;
 
 export const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
@@ -694,6 +673,5 @@ export default {
   UserRemoveBtn,
   PresentationSelect,
   StartButtonWrapper,
-  StartButton,
   MaterialSwitch,
 };

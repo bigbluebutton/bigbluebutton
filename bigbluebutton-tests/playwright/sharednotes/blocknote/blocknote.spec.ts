@@ -20,6 +20,10 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     await blockNoteSharedNotes.collaborationCursorMustNotEmbedInLink();
   });
 
+  test('Side menu must hide outside the editor', async () => {
+    await blockNoteSharedNotes.sideMenuMustHideOutsideEditor();
+  });
+
   test('Link URL and text can be edited', async () => {
     await blockNoteSharedNotes.linkUrlAndTextCanBeEdited();
   });

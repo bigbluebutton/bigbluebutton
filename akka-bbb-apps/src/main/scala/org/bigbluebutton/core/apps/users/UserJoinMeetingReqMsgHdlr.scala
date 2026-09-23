@@ -3,7 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.apps.mediagroups.{ MediaGroupApp }
+import org.bigbluebutton.common2.msgs.LiveKitRoomRef
 import org.bigbluebutton.core.db.{BreakoutRoomDAO, NotificationDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core.models.{ LiveKitMembership, LiveKitMemberships }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
@@ -164,19 +166,33 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def generateLivekitToken(regUser: RegisteredUser, liveMeeting: LiveMeeting) = {
     if (isUsingLiveKit(liveMeeting)) {
-      val grant = HandlerHelpers.buildLiveKitTokenGrant(
-        room = liveMeeting.props.meetingProp.intId,
-        canPublish = true,
+      val roomName = liveMeeting.props.meetingProp.intId
+      val purpose  = "primary"
+      val grant    = HandlerHelpers.buildLiveKitTokenGrant(
+        room         = roomName,
+        canPublish   = true,
         canSubscribe = true,
-        )
+      )
       val metadata = buildLiveKitParticipantMetadata(liveMeeting)
+      val roomRef  = LiveKitRoomRef(roomName, purpose)
+
+      val membership = LiveKitMembership(
+        userId   = regUser.id,
+        roomName = roomName,
+        purpose  = purpose,
+        grant    = grant,
+        metadata = metadata,
+        token    = None,
+      )
+      LiveKitMemberships.add(liveMeeting.liveKitMemberships, membership)
 
       val generateLiveKitTokenReqMsg = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
-        liveMeeting.props.meetingProp.intId,
+        roomName,
         regUser.id,
         regUser.name,
+        roomRef,
         grant,
-        metadata
+        metadata,
       )
       outGW.send(generateLiveKitTokenReqMsg)
     }

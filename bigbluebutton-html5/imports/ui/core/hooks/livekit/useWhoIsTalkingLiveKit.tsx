@@ -6,7 +6,7 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState, RoomEvent } from 'livekit-client';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import Auth from '/imports/ui/services/auth';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
@@ -51,8 +51,9 @@ const createUseWhoIsTalkingLiveKit = () => {
   function useWhoIsTalking(userId?: string): TalkingUsersState | TalkingUserState {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
     const whoIsTalkingData = useData(userId);
+    const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
-      room: liveKitRoom,
+      room,
       updateOnlyOn: [
         RoomEvent.ParticipantConnected,
         RoomEvent.ParticipantDisconnected,
@@ -60,8 +61,8 @@ const createUseWhoIsTalkingLiveKit = () => {
         RoomEvent.Connected,
       ],
     });
-    const { localParticipant } = useLocalParticipant({ room: liveKitRoom });
-    const connectionState = useConnectionState(liveKitRoom);
+    const { localParticipant } = useLocalParticipant({ room });
+    const connectionState = useConnectionState(room);
     const subscribedAudioUsers = useSubscribedAudioUsers();
     // Always read the full BBB record: the effect below writes the shared state,
     // so narrowing it to userId would blank every other user for every consumer.

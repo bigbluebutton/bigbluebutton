@@ -166,6 +166,7 @@ export interface Breakouts {
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
+  inheritLockSettingsByDefault: boolean
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
@@ -220,6 +221,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  recordingIndicatorAutoCollapse: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
@@ -687,8 +689,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
@@ -698,6 +702,7 @@ export interface LiveKitSettings {
 
 export interface AudioWasmProcessingSettings {
   enabled: boolean
+  provider?: 'bbba' | 'workadventureDtln'
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -819,6 +824,7 @@ export interface Whiteboard {
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
   slideSwapDecodeTimeoutMs: number
+  wheelZoomRequiresCtrl: boolean
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
