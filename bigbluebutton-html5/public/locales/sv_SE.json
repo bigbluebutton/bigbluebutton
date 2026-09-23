@@ -680,6 +680,7 @@
     "app.submenu.application.applicationSectionTitle": "Programinställningar",
     "app.submenu.application.pushToTalkLabel": "Håll ned för att prata",
     "app.submenu.application.animationsLabel": "Animeringar",
+    "app.submenu.application.recordingIndicatorAutoCollapseLabel": "Collapse recording button",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Dölj skrivtavlans verktygsfält automatiskt",
     "app.submenu.application.darkThemeLabel": "Mörkt läge",
     "app.submenu.application.fontSizeControlLabel": "Typsnittstorlek",
