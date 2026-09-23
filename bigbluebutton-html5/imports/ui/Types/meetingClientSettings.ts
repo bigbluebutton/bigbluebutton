@@ -166,6 +166,7 @@ export interface Breakouts {
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
+  inheritLockSettingsByDefault: boolean
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
