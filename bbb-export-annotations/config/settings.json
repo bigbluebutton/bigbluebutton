@@ -7,7 +7,8 @@
     "presAnnDropboxDir": "/tmp/pres-ann-dropbox",
     "cairosvg": "/usr/bin/cairosvg",
     "ghostscript": "/usr/bin/gs",
-    "pdftocairo": "/usr/bin/pdftocairo"
+    "pdftocairo": "/usr/bin/pdftocairo",
+    "blankSvg": "/usr/share/bigbluebutton/blank/blank-svg.svg"
   },
   "process": {
     "maxImageWidth": 1440,

@@ -4,7 +4,8 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
-import {rasterizeSlideBackground, rasterizeSlideBackgroundFromPdf,
+import {isBlankSlide, rasterizeSlideBackground,
+  rasterizeSlideBackgroundFromPdf,
   slideRasterSize} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
@@ -408,7 +409,13 @@ async function processPresentationAnnotations() {
       // have this PDF (it aborts the job otherwise), so this is the normal
       // path. The check keeps the SVG renderer as a fallback should the file
       // disappear between collection and processing.
-      if (fs.existsSync(sourcePdf)) {
+      //
+      // Slides bbb-web blanked out are rendered from the (blank) SVG instead,
+      // so the export keeps showing what the meeting showed.
+      const blankSlide = isBlankSlide(
+          svgBackgroundSlide, config.shared.blankSvg);
+
+      if (!blankSlide && fs.existsSync(sourcePdf)) {
         try {
           backgroundSlide = rasterizeSlideBackgroundFromPdf(
               sourcePdf,
