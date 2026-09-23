@@ -1,11 +1,21 @@
 import { BrowserContext, expect, Page as PlaywrightPage } from '@playwright/test';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
+import {
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  VIDEO_LOADING_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { InitOptionsProps } from '../core/page';
+import { getLocaleValues } from '../options/util';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
 import { openLockViewers, setGuestPolicyOption } from '../user/util';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER, PRE_FLIGHT_INIT_OPTIONS } from './util';
+
+const GUEST_DENY_REDIRECT_TIMEOUT = 15000;
+
+const GUEST_DENIED_LOGOUT_URL = /reasonCode=guest_deny_reason/;
 
 export class PreFlight extends MultiUsers {
   // The attendee is the one held by the pre-flight; the moderator goes through
@@ -174,19 +184,73 @@ export class PreFlight extends MultiUsers {
     );
   }
 
-  async guestLobbyWithinPreFlight() {
+  async changesSettingsBeforeJoining() {
+    const locale = 'pt-BR';
+    const translated = await getLocaleValues(
+      {
+        [e.preFlightSettingsButton]: 'app.userList.settingsTitle',
+        [e.chatTitle]: 'app.userList.messagesTitle',
+      },
+      locale,
+    );
+    const htmlFontSize = () => this.userPage.page.evaluate(() => document.documentElement.style.fontSize);
+    const htmlTheme = () => this.userPage.page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+
+    await this.initUserPageWithPreFlight();
+    const initialFontSize = await htmlFontSize();
+    expect(initialFontSize, 'should size the document before the join').not.toBe('');
+
+    await this.userPage.waitAndClick(e.preFlightSettingsButton);
+    await this.userPage.waitForSelector(e.languageSelector, ELEMENT_WAIT_TIME);
+    expect(
+      await this.userPage.page.locator(e.languageSelector).inputValue(),
+      'should open the language dropdown on the language the pre-flight is in',
+    ).toMatch(/^en/);
+    await this.userPage.page.locator(e.languageSelector).selectOption({ value: locale });
+    await this.userPage.waitAndClick(e.increaseFontSize);
+    await this.userPage.waitAndClick(e.darkModeToggleBtn);
+    await this.userPage.waitAndClick(e.saveSettingsButton);
+    await this.userPage.wasRemoved(e.saveSettingsButton, 'should close the settings modal on save');
+
+    await this.userPage.hasText(
+      e.preFlightSettingsButton,
+      translated[e.preFlightSettingsButton],
+      'should translate the pre-flight into the language picked in its settings',
+    );
+    const pickedFontSize = await htmlFontSize();
+    expect(pickedFontSize, 'should apply the font size picked in the pre-flight').not.toBe(initialFontSize);
+    expect(await htmlTheme(), 'should apply the dark theme picked in the pre-flight').toBe('dark');
+    expect(
+      await this.userPage.page.evaluate(() => document.documentElement.lang),
+      'should set the document language to the one picked in the pre-flight',
+    ).toBe(locale);
+
+    await this.confirmJoin();
+    await this.userPage.hasText(
+      e.chatTitle,
+      translated[e.chatTitle],
+      'should keep the language picked in the pre-flight after joining',
+    );
+    expect(await htmlFontSize(), 'should keep the font size picked in the pre-flight after joining').toBe(
+      pickedFontSize,
+    );
+    expect(await htmlTheme(), 'should keep the dark theme picked in the pre-flight after joining').toBe('dark');
+  }
+
+  async holdAttendeeInGuestLobby() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     // The policy has to reach the server before the guest joins, or they walk
-    // in. The selector is seeded from the meeting data, so reading it back is
-    // the confirmation that the mutation landed.
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClick(e.guestPolicyTab);
-    await this.modPage.hasText(
-      e.guestPolicySelector,
-      /Ask moderator/,
-      'should have the ask-moderator guest policy applied before the guest joins',
-    );
-    await this.modPage.waitAndClick(e.closeModal);
+    // in. The modal seeds its selector once, on open, so it is reopened until
+    // the new policy shows.
+    await expect(async () => {
+      await openLockViewers(this.modPage);
+      await this.modPage.waitAndClick(e.guestPolicyTab);
+      const policy = await this.modPage.page.locator(e.guestPolicySelector).first().textContent();
+      await this.modPage.waitAndClick(e.closeModal);
+      expect(policy).toMatch(/Ask moderator/);
+    }, 'should have the ask-moderator guest policy applied before the guest joins').toPass({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     await this.initUserPageWithPreFlight();
 
     await this.userPage.hasText(
@@ -194,6 +258,11 @@ export class PreFlight extends MultiUsers {
       /wait/,
       'should display the waiting message in the pre-flight guest lobby',
     );
+  }
+
+  async guestLobbyWithinPreFlight() {
+    await this.holdAttendeeInGuestLobby();
+
     await this.userPage.hasText(
       e.positionInWaitingQueue,
       /first/,
@@ -220,6 +289,64 @@ export class PreFlight extends MultiUsers {
       e.viewerAvatar,
       'should display the approved guest in the user list after they join',
       ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async guestDenialWithinPreFlight() {
+    await this.holdAttendeeInGuestLobby();
+
+    await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
+    await this.modPage.waitAndClick(e.denyAllAuthenticatedWaiting);
+
+    await this.userPage.hasElement(
+      e.preFlightGuestDenied,
+      'should display the denial screen once the guest is denied',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasElement(
+      e.preFlightSessionInfo,
+      'should name the session the denial is about, which the heading no longer carries',
+    );
+    await this.userPage.hasElement(e.preFlightLeaveButton, 'should offer the denied guest a way out of the session');
+    await this.userPage.hasElement(
+      e.preFlightCameraToggle,
+      'should keep the setup panel the guest was already looking at',
+    );
+    expect(
+      await this.userPage.checkElement(e.preFlightJoinButton),
+      'should not display the join button to a denied guest',
+    ).toBeFalsy();
+
+    await this.userPage.hasElement(
+      e.preFlightErrorNotice,
+      'should say the screen is about to take the guest out, rather than doing it unannounced',
+    );
+
+    const secondsLeft = async () =>
+      Number((await this.userPage.page.locator(e.preFlightErrorNotice).textContent())?.match(/\d+/)?.[0]);
+    const before = await secondsLeft();
+    const viewport = this.userPage.page.viewportSize();
+    await this.userPage.page.setViewportSize({ width: 400, height: 800 });
+    await this.userPage.hasElement(e.preFlightErrorNotice, 'should keep the countdown on the phone layout');
+    expect(await secondsLeft(), 'should not restart the countdown on a layout change').toBeLessThanOrEqual(before);
+    if (viewport) await this.userPage.page.setViewportSize(viewport);
+
+    await expect(this.userPage.page, 'should take the denied guest to the logout URL on its own').toHaveURL(
+      GUEST_DENIED_LOGOUT_URL,
+      { timeout: GUEST_DENY_REDIRECT_TIMEOUT + ELEMENT_WAIT_TIME },
+    );
+  }
+
+  async guestDenialLeaveButton() {
+    await this.holdAttendeeInGuestLobby();
+
+    await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
+    await this.modPage.waitAndClick(e.denyAllAuthenticatedWaiting);
+    await this.userPage.waitAndClick(e.preFlightLeaveButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await expect(this.userPage.page, 'should take the denied guest to the logout URL when they ask').toHaveURL(
+      GUEST_DENIED_LOGOUT_URL,
+      { timeout: ELEMENT_WAIT_TIME },
     );
   }
 

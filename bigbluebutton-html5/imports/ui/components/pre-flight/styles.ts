@@ -69,7 +69,7 @@ const SetupColumn = styled(Card)`
 
   /* Without min-height: 0 the panel's scrollbox overflows the card, which then
      clips its bottom sections. */
-  & > *:last-child {
+  & > ${ProfileStyled.RootContainer} {
     flex: 1;
     min-height: 0;
   }
@@ -91,7 +91,7 @@ const SetupColumn = styled(Card)`
     /* The panel's own scrollbox nested inside the page's scroll leaves its
        lower sections (virtual background) out of reach: on phones the card
        grows and the page is the only thing that scrolls. */
-    & > *:last-child {
+    & > ${ProfileStyled.RootContainer} {
       flex: 0 0 auto;
     }
 
@@ -114,8 +114,6 @@ const ContentColumn = styled(Card)`
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: ${mdPaddingX};
   padding: ${lgPaddingX};
   text-align: center;
 
@@ -126,6 +124,15 @@ const ContentColumn = styled(Card)`
     border-width: 0;
     border-radius: 0;
   }
+`;
+
+const CenterStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${mdPaddingX};
+  margin: auto 0;
+  max-width: 100%;
 `;
 
 // Phone only: the session heading belongs above the setup panel, so it is
@@ -249,7 +256,12 @@ const ErrorMessage = styled.p`
   line-height: 1.4;
 `;
 
-const JoinButtonWrapper = styled.div`
+const ActionsWrapper = styled.div`
+  display: flex;
+  gap: ${mdPaddingX};
+  align-items: center;
+  justify-content: center;
+
   & > button {
     min-width: 8.5rem;
     height: 3.375rem;
@@ -383,6 +395,7 @@ export default {
   Page,
   SetupColumn,
   ContentColumn,
+  CenterStack,
   PanelTitle,
   Spinner,
   Heading,
@@ -395,7 +408,7 @@ export default {
   PreviewPlaceholder,
   HeaderColumn,
   ActionBar,
-  JoinButtonWrapper,
+  ActionsWrapper,
   PreviewControls,
   PreviewControlsRow,
   PreviewControlButton,

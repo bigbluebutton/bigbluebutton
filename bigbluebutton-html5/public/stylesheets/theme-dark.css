@@ -22,14 +22,19 @@
  * links, toast backgrounds) are deliberately absent: they must fall through to
  * whatever the brand declared, which is today's behaviour.
  *
+ * Carve-out: a state/notice chip's set (--notice-warning-*) is structure and IS
+ * emitted. It carries its own ground, so falling through would hand the dark
+ * theme an unreadable chip rather than hand the brand a choice.
+ *
  * Multi-role tokens are split per role in phase 3: the dominant role keeps the
  * original var name and the minority roles get their own (--color-white-surface,
  * --color-white-border, ...). In the light theme every split token chains back to
  * the original, so light rendering is unchanged by construction.
  *
- * Coverage: every structure-group token the client reads. Brand-group tokens are
- * never emitted here -- that absence is the contract plugins and per-client CSS
- * rely on, so a client's branding keeps reaching every role in the dark theme.
+ * Coverage: every structure-group token the client reads, the carve-out above
+ * included. Brand-group tokens are never emitted here -- that absence is the
+ * contract plugins and per-client CSS rely on, so a client's branding keeps
+ * reaching every role in the dark theme.
  *
  * color-scheme: dark is set below. An element that declares no background of its
  * own paints the user agent's `field`, and the CSS system colours the quiz radio
@@ -270,6 +275,14 @@
      is the same dark value as --color-text-secondary and measures 4.96:1, which
      keeps the hierarchy. */
   --palette-placeholder-text: var(--palette-placeholder-text-dark-theme, #a49d92);
+
+  /* The light text #936800 measures 1.83:1 over the pill here, so label and icon
+     rise to the accent itself, 5.9:1. Light theme: 4.55:1 and 3.96:1 -- thin, so
+     darkening the tint needs re-measuring. */
+  --notice-warning-bg: var(--notice-warning-bg-dark-theme, rgba(255, 200, 69, 0.16));
+  --notice-warning-border: var(--notice-warning-border-dark-theme, #FFC845);
+  --notice-warning-text: var(--notice-warning-text-dark-theme, #FFC845);
+  --notice-warning-icon: var(--notice-warning-icon-dark-theme, #FFC845);
 
   /* @bigbluebutton/bbb-ui-components-react (BBButton) reads a token namespace of
      its own, which the client palette never declares. Only its structure-role

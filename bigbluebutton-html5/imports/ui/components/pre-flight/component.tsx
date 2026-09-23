@@ -3,8 +3,10 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { ThemeProvider } from '@mui/material/styles';
+import ReactModal from 'react-modal';
 import Styled from './styles';
 import SetupPanel from './setup-panel/component';
+import PreFlightSettings from './settings/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
 import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
@@ -21,6 +23,10 @@ import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { setDarkTheme } from '/imports/ui/components/app/service';
+import { getInitialFontSize } from '/imports/ui/components/settings/service';
+import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
+import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import { applyLocaleToDocument } from '/imports/startup/client/intlAdapter';
 import muiThemes from '/imports/ui/services/theme/mui';
 import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -36,6 +42,7 @@ interface PreFlightProps {
   // The session heading and whatever states it: above the panel on a phone,
   // beside it otherwise.
   header: React.ReactNode;
+  topInfo?: React.ReactNode;
   // What commits the setup - the join button. Rendered after the panel in both
   // layouts, so it never precedes the controls it commits.
   actions?: React.ReactNode;
@@ -43,7 +50,12 @@ interface PreFlightProps {
   showSetupPanel?: boolean;
 }
 
-const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetupPanel = true }) => {
+const PreFlight: React.FC<PreFlightProps> = ({
+  header,
+  topInfo = null,
+  actions = null,
+  showSetupPanel = true,
+}) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
@@ -76,6 +88,17 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
   useEffect(() => {
     setDarkTheme(darkTheme);
   }, [darkTheme]);
+
+  const [currentLocale] = useCurrentLocale();
+  useEffect(() => {
+    if (currentLocale) applyLocaleToDocument(currentLocale);
+  }, [currentLocale]);
+
+  // Done by App after the join.
+  useEffect(() => {
+    document.getElementsByTagName('html')[0].style.fontSize = getInitialFontSize();
+    ReactModal.setAppElement('#app');
+  }, []);
 
   useEffect(() => {
     if (loadingContextInfo.isLoading) {
@@ -146,19 +169,30 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
       {/* The device selectors and the virtual background controls are MUI, whose
           surfaces come from its own theme rather than the palette's variables. */}
       <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
+        {/* Carries the modal overlay, otherwise mounted by App. */}
+        <GlobalStyles />
         <Styled.Page data-test="preFlight">
-          {isPhoneWidth && <Styled.HeaderColumn>{header}</Styled.HeaderColumn>}
+          {isPhoneWidth && (
+            <Styled.HeaderColumn>
+              {topInfo}
+              {header}
+            </Styled.HeaderColumn>
+          )}
           {showSetupPanel && (
             <Styled.SetupColumn>
               <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
               <CustomBackgroundsProvider>
                 <SetupPanel />
               </CustomBackgroundsProvider>
+              <PreFlightSettings />
             </Styled.SetupColumn>
           )}
           <Styled.ContentColumn>
-            {!isPhoneWidth && header}
-            {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+            {!isPhoneWidth && topInfo}
+            <Styled.CenterStack>
+              {!isPhoneWidth && header}
+              {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+            </Styled.CenterStack>
           </Styled.ContentColumn>
         </Styled.Page>
       </ThemeProvider>

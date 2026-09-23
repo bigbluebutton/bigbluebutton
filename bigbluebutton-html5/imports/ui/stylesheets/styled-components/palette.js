@@ -54,6 +54,10 @@ const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
 const colorWarning = 'var(--color-warning, purple)';
+const noticeWarningBg = 'var(--notice-warning-bg, rgba(255, 200, 69, 0.2))';
+const noticeWarningBorder = 'var(--notice-warning-border, #FFC845)';
+const noticeWarningText = 'var(--notice-warning-text, #936800)';
+const noticeWarningIcon = 'var(--notice-warning-icon, #A17100)';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
@@ -304,6 +308,10 @@ export {
   colorDangerDark,
   colorSuccess,
   colorWarning,
+  noticeWarningBg,
+  noticeWarningBorder,
+  noticeWarningText,
+  noticeWarningIcon,
   colorBackground,
   colorOverlay,
   userListBg,
