@@ -2,8 +2,8 @@ repositories {
   mavenCentral()
   mavenLocal()
   maven { url = "https://repo.grails.org/grails/core" }
-  // TEMP: Grails 8.0.0-M6 is not on Maven Central yet (ASF release vote in
-  // progress); remove the staging repo once the M6 artifacts are promoted.
+  // TEMP: Grails 8.0.0-RC1 is not on Maven Central yet (ASF release vote in
+  // progress); remove the staging repo once the RC1 artifacts are promoted.
   maven { url = "https://repository.apache.org/content/groups/staging" }
 }
 
@@ -12,7 +12,7 @@ buildscript {
     mavenCentral()
     mavenLocal()
     maven { url = "https://repo.grails.org/grails/core" }
-    // TEMP: see note above — remove once Grails 8.0.0-M6 reaches Maven Central.
+    // TEMP: see note above — remove once Grails 8.0.0-RC1 reaches Maven Central.
     maven { url = "https://repository.apache.org/content/groups/staging" }
   }
   dependencies {
@@ -20,7 +20,7 @@ buildscript {
     classpath "org.apache.grails:grails-gradle-plugins"
     classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
     // Asset Pipeline moved from com.bertramlabs.plugins to cloud.wondrify for Grails 8
-    classpath "cloud.wondrify:asset-pipeline-gradle:5.2.0-M3"
+    classpath "cloud.wondrify:asset-pipeline-gradle:5.2.0-RC1"
   }
   configurations.classpath {
     resolutionStrategy {
@@ -59,8 +59,8 @@ repositories {
   mavenCentral()
   mavenLocal()
   maven { url = "https://repo.grails.org/grails/core" }
-  // TEMP: Grails 8.0.0-M6 is not on Maven Central yet (ASF release vote in
-  // progress); remove the staging repo once the M6 artifacts are promoted.
+  // TEMP: Grails 8.0.0-RC1 is not on Maven Central yet (ASF release vote in
+  // progress); remove the staging repo once the RC1 artifacts are promoted.
   maven { url = "https://repository.apache.org/content/groups/staging" }
 }
 

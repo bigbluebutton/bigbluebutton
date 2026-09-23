@@ -163,7 +163,7 @@ In the next step, you need to install a number of tools using sdkman.
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-sdk install gradle 9.6.0
+sdk install gradle 9.7.1
 sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
