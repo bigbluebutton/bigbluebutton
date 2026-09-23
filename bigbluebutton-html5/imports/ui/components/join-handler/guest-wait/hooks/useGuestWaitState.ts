@@ -67,6 +67,58 @@ export const intlMessages = defineMessages({
   },
 });
 
+const GUEST_DENIED_REASON_CODE = JoinErrorCodeTable.GUEST_DENY;
+
+const buildGuestDeniedLogoutUrl = (logoutUrl: string, reason: string): string => {
+  const destination = logoutUrl || window.location.origin;
+  const separator = destination.includes('?') ? '&' : '?';
+  return `${destination}${separator}reason=${encodeURIComponent(reason)}`
+    + `&reasonCode=${encodeURIComponent(GUEST_DENIED_REASON_CODE)}`;
+};
+
+export interface GuestDeniedRedirect {
+  redirect: () => void;
+  secondsLeft: number | null;
+}
+
+export const useGuestDeniedRedirect = (
+  logoutUrl: string,
+  enabled: boolean,
+  { countdown = false }: { countdown?: boolean } = {},
+): GuestDeniedRedirect => {
+  const intl = useIntl();
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  const redirect = useCallback(() => {
+    const reason = intl.formatMessage(intlMessages[GUEST_DENIED_REASON_CODE]);
+    window.location.assign(buildGuestDeniedLogoutUrl(logoutUrl, reason));
+  }, [intl, logoutUrl]);
+
+  useEffect(() => {
+    if (!enabled) {
+      setSecondsLeft(null);
+      return undefined;
+    }
+
+    const timeout = setTimeout(redirect, REDIRECT_TIMEOUT);
+    if (!countdown) return () => clearTimeout(timeout);
+
+    const deadline = Date.now() + REDIRECT_TIMEOUT;
+    setSecondsLeft(Math.ceil(REDIRECT_TIMEOUT / 1000));
+
+    const tick = setInterval(() => {
+      setSecondsLeft(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
+    }, 1000);
+
+    return () => {
+      clearInterval(tick);
+      clearTimeout(timeout);
+    };
+  }, [enabled, countdown, redirect]);
+
+  return { redirect, secondsLeft };
+};
+
 export interface GuestWaitStateProps {
   guestStatus: string | null;
   guestLobbyMessage: string | null;
@@ -107,6 +159,8 @@ const useGuestWaitState = (props: GuestWaitStateProps): GuestWaitState => {
   const loadingContextInfo = useContext(LoadingContext);
   const showPositionInWaitingQueue = window.meetingClientSettings
     .public.app.showGuestLobbyWaitingQueuePosition !== false;
+
+  useGuestDeniedRedirect(logoutUrl, guestStatus === GUEST_STATUSES.DENY);
 
   const updateLobbyMessage = useCallback((newMessage: string | null) => {
     if (!newMessage) {
@@ -173,13 +227,7 @@ const useGuestWaitState = (props: GuestWaitStateProps): GuestWaitState => {
     if (guestStatus === GUEST_STATUSES.DENY) {
       setAnimate(false);
       setPositionMessage('');
-      const reasonCode = JoinErrorCodeTable.GUEST_DENY;
-      const reason = intl.formatMessage(intlMessages[reasonCode]);
-      setMessage(reason);
-      setTimeout(() => {
-        const url = `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(reasonCode)}`;
-        window.location.assign(url);
-      }, REDIRECT_TIMEOUT);
+      setMessage(intl.formatMessage(intlMessages[GUEST_DENIED_REASON_CODE]));
       return;
     }
 

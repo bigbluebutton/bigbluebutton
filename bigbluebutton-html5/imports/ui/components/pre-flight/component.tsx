@@ -36,6 +36,7 @@ interface PreFlightProps {
   // The session heading and whatever states it: above the panel on a phone,
   // beside it otherwise.
   header: React.ReactNode;
+  topInfo?: React.ReactNode;
   // What commits the setup - the join button. Rendered after the panel in both
   // layouts, so it never precedes the controls it commits.
   actions?: React.ReactNode;
@@ -43,7 +44,12 @@ interface PreFlightProps {
   showSetupPanel?: boolean;
 }
 
-const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetupPanel = true }) => {
+const PreFlight: React.FC<PreFlightProps> = ({
+  header,
+  topInfo = null,
+  actions = null,
+  showSetupPanel = true,
+}) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
@@ -147,7 +153,12 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
           surfaces come from its own theme rather than the palette's variables. */}
       <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
         <Styled.Page data-test="preFlight">
-          {isPhoneWidth && <Styled.HeaderColumn>{header}</Styled.HeaderColumn>}
+          {isPhoneWidth && (
+            <Styled.HeaderColumn>
+              {topInfo}
+              {header}
+            </Styled.HeaderColumn>
+          )}
           {showSetupPanel && (
             <Styled.SetupColumn>
               <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
@@ -157,8 +168,11 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
             </Styled.SetupColumn>
           )}
           <Styled.ContentColumn>
-            {!isPhoneWidth && header}
-            {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+            {!isPhoneWidth && topInfo}
+            <Styled.CenterStack>
+              {!isPhoneWidth && header}
+              {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+            </Styled.CenterStack>
           </Styled.ContentColumn>
         </Styled.Page>
       </ThemeProvider>

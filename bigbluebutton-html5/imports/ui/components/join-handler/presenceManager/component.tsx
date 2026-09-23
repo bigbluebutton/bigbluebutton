@@ -14,12 +14,18 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
+import { useGuestDeniedRedirect } from '../guest-wait/hooks/useGuestWaitState';
 import PreFlight from '/imports/ui/components/pre-flight/component';
-import GuestLobby from '/imports/ui/components/pre-flight/content/guest-lobby';
+import GuestLobby from '/imports/ui/components/pre-flight/guest-lobby/component';
+import {
+  GuestDeniedActions,
+  GuestDeniedHeader,
+} from '/imports/ui/components/pre-flight/error-screen/guest-denied/component';
+import SessionInfo from '/imports/ui/components/pre-flight/session-info/component';
 import {
   JoiningRoomActions,
   JoiningRoomHeader,
-} from '/imports/ui/components/pre-flight/content/joining-room';
+} from '/imports/ui/components/pre-flight/joining-room/component';
 import { isPreFlightEnabled } from '/imports/ui/components/pre-flight/service';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
@@ -207,6 +213,48 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const hasLeftMeeting = meetingEnded || !!joinErrorCode || !!ejectReasonCode || loggedOut;
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
+  const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
+  const guestDeniedRedirect = useGuestDeniedRedirect(
+    logoutUrl,
+    showPreFlight && isGuestDenied,
+    { countdown: true },
+  );
+
+  let preFlightHeader: React.ReactNode = (
+    <GuestLobby
+      meetingName={meetingName}
+      clientTitle={CLIENT_TITLE}
+      guestLobbyMessage={guestLobbyMessage}
+      guestStatus={guestStatus}
+      logoutUrl={logoutUrl}
+      positionInWaitingQueue={positionInWaitingQueue}
+    />
+  );
+  let preFlightActions: React.ReactNode = null;
+
+  if (isGuestDenied) {
+    preFlightHeader = <GuestDeniedHeader secondsLeft={guestDeniedRedirect.secondsLeft} />;
+    preFlightActions = <GuestDeniedActions onLeave={guestDeniedRedirect.redirect} />;
+  } else if (isGuestAllowed) {
+    preFlightHeader = (
+      <JoiningRoomHeader
+        meetingName={meetingName}
+        clientTitle={CLIENT_TITLE}
+        isJoining={joinRequested}
+        hasFailed={joinFailed}
+      />
+    );
+    preFlightActions = (
+      <JoiningRoomActions
+        isJoining={joinRequested}
+        hasFailed={joinFailed}
+        onJoin={() => {
+          setJoinFailed(false);
+          setJoinRequested(true);
+        }}
+      />
+    );
+  }
 
   return (
     <>
@@ -230,42 +278,10 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         showPreFlight
           ? (
             <PreFlight
-              showSetupPanel={guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT}
-              header={
-                isGuestAllowed
-                  ? (
-                    <JoiningRoomHeader
-                      meetingName={meetingName}
-                      clientTitle={CLIENT_TITLE}
-                      isJoining={joinRequested}
-                      hasFailed={joinFailed}
-                    />
-                  )
-                  : (
-                    <GuestLobby
-                      meetingName={meetingName}
-                      clientTitle={CLIENT_TITLE}
-                      guestLobbyMessage={guestLobbyMessage}
-                      guestStatus={guestStatus}
-                      logoutUrl={logoutUrl}
-                      positionInWaitingQueue={positionInWaitingQueue}
-                    />
-                  )
-              }
-              actions={
-                isGuestAllowed
-                  ? (
-                    <JoiningRoomActions
-                      isJoining={joinRequested}
-                      hasFailed={joinFailed}
-                      onJoin={() => {
-                        setJoinFailed(false);
-                        setJoinRequested(true);
-                      }}
-                    />
-                  )
-                  : null
-              }
+              showSetupPanel={!!guestStatus}
+              header={preFlightHeader}
+              topInfo={isGuestDenied ? <SessionInfo meetingName={meetingName} /> : null}
+              actions={preFlightActions}
             />
           )
           : null
