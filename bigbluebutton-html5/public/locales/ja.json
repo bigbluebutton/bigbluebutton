@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "録画を認めて続ける",
     "app.recording.notify.leaveLabel": "録画を受け入れず会議を退出",
     "app.videoPreview.cameraLabel": "カメラ",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "画像品質",
     "app.videoPreview.quality.low": "低",
     "app.videoPreview.quality.medium": "中",
