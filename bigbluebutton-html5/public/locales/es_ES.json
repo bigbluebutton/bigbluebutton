@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Aceptar la grabación y continuar",
     "app.recording.notify.leaveLabel": "No aceptar la grabación y salir de la sesión",
     "app.videoPreview.cameraLabel": "Cámara",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Calidad",
     "app.videoPreview.quality.low": "Bajo",
     "app.videoPreview.quality.medium": "Medio",
