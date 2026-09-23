@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Acceptera inspelningen och fortsätt",
     "app.recording.notify.leaveLabel": "Acceptera inte inspelningen och lämna sessionen",
     "app.videoPreview.cameraLabel": "Kamera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Kvalitet",
     "app.videoPreview.quality.low": "Låg",
     "app.videoPreview.quality.medium": "Medel",
