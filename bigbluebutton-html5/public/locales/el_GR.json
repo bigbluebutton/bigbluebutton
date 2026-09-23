@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Αποδοχή καταγραφής και συνέχεια",
     "app.recording.notify.leaveLabel": "Μη αποδοχή καταγραφής και αποχώρηση από την τηλεδιάσκεψη",
     "app.videoPreview.cameraLabel": "Κάμερα",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Ποιότητα",
     "app.videoPreview.quality.low": "Χαμηλό",
     "app.videoPreview.quality.medium": "Μεσαίο",
