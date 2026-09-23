@@ -128,7 +128,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     // instead of turning off a camera the user cannot see.
     if (shareCamera && !cameraFailed) {
       invalidateCameraAcquisition();
-      terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+      terminateCameraStream(currentVideoStream.current);
       cleanupStreamAndVideo();
       setShareCamera(false);
       return;
@@ -163,7 +163,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
 
   useEffect(() => {
     if (shareCamera || isCameraLoading || !currentVideoStream.current) return;
-    terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+    terminateCameraStream(currentVideoStream.current);
     cleanupStreamAndVideo();
   }, [
     shareCamera,
