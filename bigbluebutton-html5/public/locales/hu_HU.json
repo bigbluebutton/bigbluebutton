@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Felvétel elfogadása és folytatás",
     "app.recording.notify.leaveLabel": "Felvétel elutasítása és kilépés a munkamenetből",
     "app.videoPreview.cameraLabel": "Kamera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Minőség",
     "app.videoPreview.quality.low": "Alacsony",
     "app.videoPreview.quality.medium": "Közepes",
