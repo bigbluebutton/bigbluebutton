@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Onartu grabaketa eta jarraitu",
     "app.recording.notify.leaveLabel": "Ez onartu grabatzea eta irten saiotik",
     "app.videoPreview.cameraLabel": "Kamera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Kalitatea",
     "app.videoPreview.quality.low": "Txikia",
     "app.videoPreview.quality.medium": "Tartekoa",
