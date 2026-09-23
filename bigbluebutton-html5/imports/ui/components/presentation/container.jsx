@@ -9,6 +9,7 @@ import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import logger from '/imports/startup/client/logger';
 import {
   useMutation, useSubscription, useQuery,
 } from '@apollo/client';
@@ -123,6 +124,10 @@ const PresentationContainer = ({
   const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
   const setMultiUserWhiteboardEnabled = () => {
+    logger.info({
+      logCode: 'whiteboard_multi_user_toggle',
+      extraInfo: { logType: 'presenter_action', enabled: true },
+    }, 'presenter enabled multi-user whiteboard for the meeting');
     userSetWhiteboardWriteAccess({
       variables: {
         userIds: [],
@@ -133,6 +138,10 @@ const PresentationContainer = ({
   };
 
   const setMultiUserWhiteboardDisabled = () => {
+    logger.info({
+      logCode: 'whiteboard_multi_user_toggle',
+      extraInfo: { logType: 'presenter_action', enabled: false },
+    }, 'presenter disabled multi-user whiteboard for the meeting');
     userSetWhiteboardWriteAccess({
       variables: {
         userIds: [],
