@@ -221,6 +221,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  recordingIndicatorAutoCollapse: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
