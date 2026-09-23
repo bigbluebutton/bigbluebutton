@@ -435,8 +435,6 @@ async function processPresentationAnnotations() {
       const backgroundPng = `${bgImagePath}-bg.png`;
       const sourcePdf = path.join(
           exportJob.presLocation, `${exportJob.presId}.pdf`);
-      const rasterSize = slideRasterSize(
-          svgBackgroundSlide, toPx(slideWidth), toPx(slideHeight));
       const rasterizeTimeoutMs =
         (config.process.rasterizeTimeoutSeconds || 60) * 1000;
       let rasterized = false;
@@ -458,6 +456,12 @@ async function processPresentationAnnotations() {
 
       if (!blankSlide && fs.existsSync(sourcePdf)) {
         try {
+          // Sizing reads the slide SVG, so it belongs inside the guarded
+          // block: an unreadable slide degrades to the fallback rather than
+          // failing the whole job.
+          const rasterSize = slideRasterSize(
+              svgBackgroundSlide, toPx(slideWidth), toPx(slideHeight));
+
           backgroundSlide = rasterizeSlideBackgroundFromPdf(
               sourcePdf,
               currentSlide.page,
