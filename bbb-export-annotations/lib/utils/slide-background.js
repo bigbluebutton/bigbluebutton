@@ -82,6 +82,34 @@ export function slideRasterSize(svgPath, width, height) {
 }
 
 /**
+ * Report whether a slide SVG is BigBlueButton's blank placeholder.
+ *
+ * bbb-web substitutes `blank-svg.svg` for a slide whenever its conversion
+ * failed, the slide did not materialise, or the generated SVG exceeded
+ * `maxBigSvgSize` (SvgImageCreatorImp). In each case participants are shown a
+ * blank slide and annotations were drawn against it, so the export has to stay
+ * blank too - rendering the page from the PDF would put the real content back,
+ * and would undo a deliberate size-protection decision.
+ *
+ * The substitution is a byte-for-byte copy, so comparing the two files
+ * identifies it exactly.
+ *
+ * @param {string} svgPath Path of the slide background SVG.
+ * @param {string} [blankSvgPath] Path of bbb-web's blank slide SVG. When unset
+ *   or unreadable the slide is treated as ordinary content.
+ * @return {boolean} True when the slide is the blank placeholder.
+ */
+export function isBlankSlide(svgPath, blankSvgPath) {
+  if (!blankSvgPath) return false;
+
+  try {
+    return fs.readFileSync(svgPath).equals(fs.readFileSync(blankSvgPath));
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
  * Rasterize a slide background from the source PDF page with poppler.
  *
  * Preferred over rendering the derived slide SVG, because CairoSVG cannot
