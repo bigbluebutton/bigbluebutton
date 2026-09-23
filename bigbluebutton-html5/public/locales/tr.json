@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Kayıt alınacağını kabul edin ve ilerleyin",
     "app.recording.notify.leaveLabel": "Kayıt alınmasını reddedin ve oturumdan ayrılın",
     "app.videoPreview.cameraLabel": "Kamera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Kalite",
     "app.videoPreview.quality.low": "Düşük",
     "app.videoPreview.quality.medium": "Orta",
