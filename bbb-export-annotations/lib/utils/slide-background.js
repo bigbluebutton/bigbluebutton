@@ -149,7 +149,9 @@ export function rasterizeSlideBackgroundFromPdf(pdfPath, page, pngPath, {
   const outputRoot = pngPath.replace(/\.png$/, '');
 
   const args = [
-    '-png', '-singlefile',
+    // -transp keeps the unpainted page transparent, matching what CairoSVG
+    // produced; without it poppler fills the background opaque white.
+    '-png', '-singlefile', '-transp',
     '-f', String(page), '-l', String(page),
     '-scale-to-x', String(Math.round(width)),
     '-scale-to-y', String(Math.round(height)),
