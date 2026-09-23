@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Godta opptak og fortsett",
     "app.recording.notify.leaveLabel": "Ikke godta opptak og forlat økten ",
     "app.videoPreview.cameraLabel": "Kamera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Kvalitet",
     "app.videoPreview.quality.low": "Lav",
     "app.videoPreview.quality.medium": "Middels",
