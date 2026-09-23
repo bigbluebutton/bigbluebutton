@@ -680,6 +680,7 @@
     "app.submenu.application.applicationSectionTitle": "アプリケーション",
     "app.submenu.application.pushToTalkLabel": "割り込んで話す",
     "app.submenu.application.animationsLabel": "アニメーション効果",
+    "app.submenu.application.recordingIndicatorAutoCollapseLabel": "Collapse recording button",
     "app.submenu.application.wbToolbarsAutoHideLabel": "ホワイトボードのツールバーを自動で隠す",
     "app.submenu.application.darkThemeLabel": "ダークモード",
     "app.submenu.application.fontSizeControlLabel": "フォントサイズ",
