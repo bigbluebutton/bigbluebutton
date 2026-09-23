@@ -227,6 +227,7 @@ export const elements = {
   preFlight: 'div[data-test="preFlight"]',
   layoutContainer: 'div#layout',
   preFlightJoinButton: 'button[data-test="preFlightJoinButton"]',
+  preFlightSettingsButton: 'button[data-test="preFlightSettingsButton"]',
   preFlightSessionInfo: '[data-test="preFlightSessionInfo"]',
   preFlightSessionAge: '[data-test="preFlightSessionAge"]',
   preFlightErrorDialog: '[data-test="preFlightErrorDialog"]',

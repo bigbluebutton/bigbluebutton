@@ -1,6 +1,7 @@
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import intlHolder from '../../core/singletons/intlHolder';
+import { isMobile } from '/imports/ui/components/layout/utils';
 
 export const updateSettings = (obj, msgDescriptor, mutation) => {
   const Settings = getSettingsSingletonInstance();
@@ -16,6 +17,14 @@ export const updateSettings = (obj, msgDescriptor, mutation) => {
       'settings',
     );
   }
+};
+
+export const getInitialFontSize = () => {
+  const { fontSize } = getSettingsSingletonInstance().application;
+  if (fontSize) return fontSize;
+
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  return isMobile() ? APP_CONFIG.mobileFontSize : APP_CONFIG.desktopFontSize;
 };
 
 export const getAvailableLocales = () => fetch('./locales/')
@@ -57,6 +66,7 @@ export const FALLBACK_LOCALES = {
 
 export default {
   updateSettings,
+  getInitialFontSize,
   getAvailableLocales,
   FALLBACK_LOCALES,
 };

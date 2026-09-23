@@ -69,7 +69,7 @@ const SetupColumn = styled(Card)`
 
   /* Without min-height: 0 the panel's scrollbox overflows the card, which then
      clips its bottom sections. */
-  & > *:last-child {
+  & > ${ProfileStyled.RootContainer} {
     flex: 1;
     min-height: 0;
   }
@@ -91,7 +91,7 @@ const SetupColumn = styled(Card)`
     /* The panel's own scrollbox nested inside the page's scroll leaves its
        lower sections (virtual background) out of reach: on phones the card
        grows and the page is the only thing that scrolls. */
-    & > *:last-child {
+    & > ${ProfileStyled.RootContainer} {
       flex: 0 0 auto;
     }
 
