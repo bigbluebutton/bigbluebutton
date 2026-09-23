@@ -3,6 +3,7 @@ import {
   useState,
   useContext,
   useCallback,
+  useRef,
 } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
@@ -37,14 +38,6 @@ const GenericContentPluginStateContainer = ((
 
   const { pluginName } = pluginApi;
 
-  const excludeById = useCallback(
-    (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
-      const idsSet = new Set(arr2.map((item) => item.id));
-      return arr1.filter((item) => !idsSet.has(item.id));
-    },
-    [],
-  );
-
   const genericContentSidekickId = useCallback(
     (id: string) => (
       PANELS.GENERIC_CONTENT_SIDEKICK + id
@@ -59,27 +52,8 @@ const GenericContentPluginStateContainer = ((
     [],
   );
 
-  const unregisterExcludedSidekickContentsFromApps = useCallback(
-    (
-      currentGenericContentItems: PluginSdk.GenericContentInterface[],
-      newGenericContentItems: PluginSdk.GenericContentInterface[],
-    ) => {
-      const currentGenericSidekickContentItems = filterSidekick(currentGenericContentItems);
-      const newGenericSidekickContentItems = filterSidekick(newGenericContentItems);
-      if (currentGenericSidekickContentItems.length === 0) return;
-      const excluded = excludeById(
-        currentGenericSidekickContentItems,
-        newGenericSidekickContentItems,
-      );
-      excluded.forEach((gs) => {
-        layoutContextDispatch({
-          type: ACTIONS.UNREGISTER_SIDEBAR_APP,
-          id: genericContentSidekickId(gs.id),
-        });
-      });
-    },
-    [],
-  );
+  // Sidebar apps this plugin currently has registered in the layout context.
+  const registeredSidekickAppIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (pluginName === undefined) return;
@@ -98,6 +72,17 @@ const GenericContentPluginStateContainer = ((
         genericContentItems: aggregatedGenericContentItems,
       }));
     const genericContentSidekickArea = filterSidekick(genericContentItems) as PluginSdk.GenericContentSidekickArea[];
+
+    // Unregister only the sidekick apps that went away: unregistering one drops it from
+    // the pinned apps, and registering it again would send it to the end of that list.
+    const sidekickAppIds = new Set(
+      genericContentSidekickArea.map((gci) => genericContentSidekickId(gci.id)),
+    );
+    registeredSidekickAppIdsRef.current.forEach((id) => {
+      if (sidekickAppIds.has(id)) return;
+      layoutContextDispatch({ type: ACTIONS.UNREGISTER_SIDEBAR_APP, id });
+    });
+    registeredSidekickAppIdsRef.current = sidekickAppIds;
 
     genericContentSidekickArea.forEach((genericContentItem) => {
       layoutContextDispatch({
@@ -136,10 +121,7 @@ const GenericContentPluginStateContainer = ((
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];
-    setGenericContentItems((currentGenericContentItems) => {
-      unregisterExcludedSidekickContentsFromApps(currentGenericContentItems, items);
-      return itemsWithId;
-    });
+    setGenericContentItems(itemsWithId);
     return itemsWithId.map((i) => i.id);
   };
   return null;
