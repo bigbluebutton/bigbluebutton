@@ -186,16 +186,17 @@ export class PreFlight extends MultiUsers {
   async holdAttendeeInGuestLobby() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     // The policy has to reach the server before the guest joins, or they walk
-    // in. The selector is seeded from the meeting data, so reading it back is
-    // the confirmation that the mutation landed.
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClick(e.guestPolicyTab);
-    await this.modPage.hasText(
-      e.guestPolicySelector,
-      /Ask moderator/,
-      'should have the ask-moderator guest policy applied before the guest joins',
-    );
-    await this.modPage.waitAndClick(e.closeModal);
+    // in. The modal seeds its selector once, on open, so it is reopened until
+    // the new policy shows.
+    await expect(async () => {
+      await openLockViewers(this.modPage);
+      await this.modPage.waitAndClick(e.guestPolicyTab);
+      const policy = await this.modPage.page.locator(e.guestPolicySelector).first().textContent();
+      await this.modPage.waitAndClick(e.closeModal);
+      expect(policy).toMatch(/Ask moderator/);
+    }, 'should have the ask-moderator guest policy applied before the guest joins').toPass({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     await this.initUserPageWithPreFlight();
 
     await this.userPage.hasText(
