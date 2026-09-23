@@ -424,9 +424,12 @@ async function processPresentationAnnotations() {
               {...rasterSize, pdftocairo: config.shared.pdftocairo});
           rasterized = true;
         } catch (error) {
-          logger.warn(`Rasterizing slide ${currentSlide.page} from the PDF ` +
-            `failed for job ${jobId}, falling back to the slide SVG: ` +
-            `${error.message}`);
+          // logger.warn only prints at debug/trace, and this means the
+          // export falls back to a renderer that loses soft masks - the
+          // operator needs to see it at the default level.
+          logger.error(`Rasterizing slide ${currentSlide.page} from the ` +
+            `PDF failed for job ${jobId}, falling back to the slide SVG; ` +
+            `soft-masked content may be corrupted: ${error.message}`);
         }
       }
 
