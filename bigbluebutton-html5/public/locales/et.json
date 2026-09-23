@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Nõustu salvestamisega ja jätka",
     "app.recording.notify.leaveLabel": "Ära nõustu salvestamisega ja lahku sessioonilt",
     "app.videoPreview.cameraLabel": "Kaamera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Kvaliteet",
     "app.videoPreview.quality.low": "Madal",
     "app.videoPreview.quality.medium": "Keskmine",
