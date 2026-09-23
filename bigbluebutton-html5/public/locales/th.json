@@ -680,6 +680,7 @@
     "app.submenu.application.applicationSectionTitle": "การตั้งค่าแอปพลิเคชัน",
     "app.submenu.application.pushToTalkLabel": "กดเพื่อพูดด้วยเสียง",
     "app.submenu.application.animationsLabel": "ภาพเคลื่อนไหว",
+    "app.submenu.application.recordingIndicatorAutoCollapseLabel": "Collapse recording button",
     "app.submenu.application.wbToolbarsAutoHideLabel": "ซ่อนแถบเครื่องมือกระดานไวท์บอร์ดอัตโนมัติ",
     "app.submenu.application.darkThemeLabel": "โหมดมืด",
     "app.submenu.application.fontSizeControlLabel": "ขนาดตัวอักษร",
