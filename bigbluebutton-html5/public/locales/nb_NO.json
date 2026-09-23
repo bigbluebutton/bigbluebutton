@@ -680,6 +680,7 @@
     "app.submenu.application.applicationSectionTitle": "Applikasjon",
     "app.submenu.application.pushToTalkLabel": "Trykk for å snakke med lyd",
     "app.submenu.application.animationsLabel": "Animasjoner",
+    "app.submenu.application.recordingIndicatorAutoCollapseLabel": "Collapse recording button",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Skjul Whiteboard-verktøylinjer automatisk",
     "app.submenu.application.darkThemeLabel": "Mørkt modus",
     "app.submenu.application.fontSizeControlLabel": "Tekststørrelse",
