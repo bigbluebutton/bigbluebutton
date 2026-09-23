@@ -680,6 +680,7 @@
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.pushToTalkLabel": "Fonction appuyez pour parler",
     "app.submenu.application.animationsLabel": "Animations",
+    "app.submenu.application.recordingIndicatorAutoCollapseLabel": "Collapse recording button",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Masquer les barres d'outils du tableau blanc automatiquement",
     "app.submenu.application.darkThemeLabel": "Mode sombre",
     "app.submenu.application.fontSizeControlLabel": "Taille des caractères",
