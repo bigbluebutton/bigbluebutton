@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "ยอมรับการบันทึกและดำเนินการต่อ",
     "app.recording.notify.leaveLabel": "ไม่ยอมรับการบันทึกและออกจากเซสชัน",
     "app.videoPreview.cameraLabel": "กล้อง",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "คุณภาพ",
     "app.videoPreview.quality.low": "ต่ำ",
     "app.videoPreview.quality.medium": "ปานกลาง",
