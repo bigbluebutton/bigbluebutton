@@ -398,6 +398,8 @@ async function processPresentationAnnotations() {
           exportJob.presLocation, `${exportJob.presId}.pdf`);
       const rasterSize = slideRasterSize(
           svgBackgroundSlide, toPx(slideWidth), toPx(slideHeight));
+      const rasterizeTimeoutMs =
+        (config.process.rasterizeTimeoutSeconds || 60) * 1000;
       let rasterized = false;
 
       // Render the page from the presentation PDF. CairoSVG cannot reproduce
@@ -421,7 +423,9 @@ async function processPresentationAnnotations() {
               sourcePdf,
               currentSlide.page,
               backgroundPng,
-              {...rasterSize, pdftocairo: config.shared.pdftocairo});
+              {...rasterSize,
+                pdftocairo: config.shared.pdftocairo,
+                timeout: rasterizeTimeoutMs});
           rasterized = true;
         } catch (error) {
           // logger.warn only prints at debug/trace, and this means the

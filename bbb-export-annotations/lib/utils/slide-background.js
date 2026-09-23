@@ -136,11 +136,14 @@ export function isBlankSlide(svgPath, blankSvgPath) {
  * @param {string} [options.pdftocairo='pdftocairo'] Path to the pdftocairo
  *   executable. Defaults to resolving it on PATH, as bbb-web does, so a
  *   deployment whose settings.json predates this setting still works.
+ * @param {number} [options.timeout=60000] Milliseconds before the conversion
+ *   is killed. A stalled poppler would otherwise hold the worker open and
+ *   never let the caller reach its fallback.
  * @return {string} Path of the rasterized PNG.
  * @throws {Error} If pdftocairo cannot be spawned or exits non-zero.
  */
 export function rasterizeSlideBackgroundFromPdf(pdfPath, page, pngPath, {
-  width, height, pdftocairo = 'pdftocairo',
+  width, height, pdftocairo = 'pdftocairo', timeout = 60000,
 }) {
   // -singlefile appends the extension to the output root itself.
   const outputRoot = pngPath.replace(/\.png$/, '');
@@ -153,9 +156,14 @@ export function rasterizeSlideBackgroundFromPdf(pdfPath, page, pngPath, {
     pdfPath, outputRoot,
   ];
 
-  const result = cp.spawnSync(pdftocairo, args, {shell: false});
+  const result = cp.spawnSync(pdftocairo, args, {shell: false, timeout});
 
   if (result.error) throw result.error;
+
+  if (result.signal) {
+    throw new Error(
+        `pdftocairo was killed by ${result.signal} after ${timeout}ms`);
+  }
 
   if (result.status !== 0) {
     const stderr = result.stderr?.toString().trim();
