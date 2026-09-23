@@ -16,6 +16,14 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
 
+export const applyLocaleToDocument = (locale: string) => {
+  const isRTL = RTL_LANGUAGES.includes(locale.substring(0, 2));
+  const { formattedLocale } = formatLocaleCode(locale);
+  document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+  document.documentElement.lang = formattedLocale;
+  return isRTL;
+};
+
 interface IntlAdapterProps {
   children: React.ReactNode;
 }
@@ -46,30 +54,17 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
   };
   const setUp = () => {
     if (currentLocale) {
-      const { language, formattedLocale } = formatLocaleCode(currentLocale);
+      const { language } = formatLocaleCode(currentLocale);
       // @ts-ignore - JS code
       Settings.application.locale = currentLocale;
-      if (RTL_LANGUAGES.includes(currentLocale.substring(0, 2))) {
-        // @ts-ignore - JS code
-        document.body.parentNode.setAttribute('dir', 'rtl');
-        // @ts-ignore - JS code
-        Settings.application.isRTL = true;
-        layoutContextDispatch({
-          type: ACTIONS.SET_IS_RTL,
-          value: true,
-        });
-      } else {
-        // @ts-ignore - JS code
-        document.body.parentNode.setAttribute('dir', 'ltr');
-        // @ts-ignore - JS code
-        Settings.application.isRTL = false;
-        layoutContextDispatch({
-          type: ACTIONS.SET_IS_RTL,
-          value: false,
-        });
-      }
+      const isRTL = applyLocaleToDocument(currentLocale);
+      // @ts-ignore - JS code
+      Settings.application.isRTL = isRTL;
+      layoutContextDispatch({
+        type: ACTIONS.SET_IS_RTL,
+        value: isRTL,
+      });
       Session.setItem('isLargeFont', LARGE_FONT_LANGUAGES.includes(currentLocale.substring(0, 2)));
-      document.getElementsByTagName('html')[0].lang = formattedLocale;
       document.body.classList.add(`lang-${language}`);
       Settings.save(setLocalSettings);
     }

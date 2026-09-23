@@ -8,6 +8,7 @@ import {
 } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { InitOptionsProps } from '../core/page';
+import { getLocaleValues } from '../options/util';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
 import { openLockViewers, setGuestPolicyOption } from '../user/util';
 import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER, PRE_FLIGHT_INIT_OPTIONS } from './util';
@@ -181,6 +182,59 @@ export class PreFlight extends MultiUsers {
       'should connect the audio with the device picked in the pre-flight',
       ELEMENT_WAIT_LONGER_TIME,
     );
+  }
+
+  async changesSettingsBeforeJoining() {
+    const locale = 'pt-BR';
+    const translated = await getLocaleValues(
+      {
+        [e.preFlightSettingsButton]: 'app.userList.settingsTitle',
+        [e.chatTitle]: 'app.userList.messagesTitle',
+      },
+      locale,
+    );
+    const htmlFontSize = () => this.userPage.page.evaluate(() => document.documentElement.style.fontSize);
+    const htmlTheme = () => this.userPage.page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+
+    await this.initUserPageWithPreFlight();
+    const initialFontSize = await htmlFontSize();
+    expect(initialFontSize, 'should size the document before the join').not.toBe('');
+
+    await this.userPage.waitAndClick(e.preFlightSettingsButton);
+    await this.userPage.waitForSelector(e.languageSelector, ELEMENT_WAIT_TIME);
+    expect(
+      await this.userPage.page.locator(e.languageSelector).inputValue(),
+      'should open the language dropdown on the language the pre-flight is in',
+    ).toMatch(/^en/);
+    await this.userPage.page.locator(e.languageSelector).selectOption({ value: locale });
+    await this.userPage.waitAndClick(e.increaseFontSize);
+    await this.userPage.waitAndClick(e.darkModeToggleBtn);
+    await this.userPage.waitAndClick(e.saveSettingsButton);
+    await this.userPage.wasRemoved(e.saveSettingsButton, 'should close the settings modal on save');
+
+    await this.userPage.hasText(
+      e.preFlightSettingsButton,
+      translated[e.preFlightSettingsButton],
+      'should translate the pre-flight into the language picked in its settings',
+    );
+    const pickedFontSize = await htmlFontSize();
+    expect(pickedFontSize, 'should apply the font size picked in the pre-flight').not.toBe(initialFontSize);
+    expect(await htmlTheme(), 'should apply the dark theme picked in the pre-flight').toBe('dark');
+    expect(
+      await this.userPage.page.evaluate(() => document.documentElement.lang),
+      'should set the document language to the one picked in the pre-flight',
+    ).toBe(locale);
+
+    await this.confirmJoin();
+    await this.userPage.hasText(
+      e.chatTitle,
+      translated[e.chatTitle],
+      'should keep the language picked in the pre-flight after joining',
+    );
+    expect(await htmlFontSize(), 'should keep the font size picked in the pre-flight after joining').toBe(
+      pickedFontSize,
+    );
+    expect(await htmlTheme(), 'should keep the dark theme picked in the pre-flight after joining').toBe('dark');
   }
 
   async holdAttendeeInGuestLobby() {

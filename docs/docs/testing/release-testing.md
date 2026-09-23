@@ -630,6 +630,21 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
     - You should land in the meeting muted, with the "Unmute" button displayed
     - No camera should be shared and the "Share webcam" button should be displayed
 
+### Changing settings before joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session and, in the pre-flight screen, click "Settings" at the bottom of the setup panel
+
+    - The same settings modal as in the meeting should open over the pre-flight, with the language dropdown on the current language
+
+2. Pick another language, increase the font size, turn on the dark mode and click "Save"
+
+    - The pre-flight should switch to the new language, font size and theme
+
+3. Click "Join session"
+
+    - The meeting should keep the language, font size and theme picked in the pre-flight
+    - The "Settings" button should not be in the meeting's profile panel
+
 ### Reloading after joining
 
 1. Join a session through the pre-flight screen, then unmute yourself
