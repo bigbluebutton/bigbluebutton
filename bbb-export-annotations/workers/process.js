@@ -4,7 +4,8 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
-import {rasterizeSlideBackground, rasterizeSlideBackgroundFromPdf,
+import {isBlankSlide, rasterizeSlideBackground,
+  rasterizeSlideBackgroundFromPdf,
   slideRasterSize} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
@@ -395,8 +396,8 @@ async function processPresentationAnnotations() {
       const backgroundPng = `${bgImagePath}-bg.png`;
       const sourcePdf = path.join(
           exportJob.presLocation, `${exportJob.presId}.pdf`);
-      const rasterSize = slideRasterSize(
-          svgBackgroundSlide, toPx(slideWidth), toPx(slideHeight));
+      const rasterizeTimeoutMs =
+        (config.process.rasterizeTimeoutSeconds || 60) * 1000;
       let rasterized = false;
 
       // Render the page from the presentation PDF. CairoSVG cannot reproduce
@@ -408,18 +409,35 @@ async function processPresentationAnnotations() {
       // have this PDF (it aborts the job otherwise), so this is the normal
       // path. The check keeps the SVG renderer as a fallback should the file
       // disappear between collection and processing.
-      if (fs.existsSync(sourcePdf)) {
+      //
+      // Slides bbb-web blanked out are rendered from the (blank) SVG instead,
+      // so the export keeps showing what the meeting showed.
+      const blankSlide = isBlankSlide(
+          svgBackgroundSlide, config.shared.blankSvg);
+
+      if (!blankSlide && fs.existsSync(sourcePdf)) {
         try {
+          // Sizing reads the slide SVG, so it belongs inside the guarded
+          // block: an unreadable slide degrades to the fallback rather than
+          // failing the whole job.
+          const rasterSize = slideRasterSize(
+              svgBackgroundSlide, toPx(slideWidth), toPx(slideHeight));
+
           backgroundSlide = rasterizeSlideBackgroundFromPdf(
               sourcePdf,
               currentSlide.page,
               backgroundPng,
-              {...rasterSize, pdftocairo: config.shared.pdftocairo});
+              {...rasterSize,
+                pdftocairo: config.shared.pdftocairo,
+                timeout: rasterizeTimeoutMs});
           rasterized = true;
         } catch (error) {
-          logger.warn(`Rasterizing slide ${currentSlide.page} from the PDF ` +
-            `failed for job ${jobId}, falling back to the slide SVG: ` +
-            `${error.message}`);
+          // logger.warn only prints at debug/trace, and this means the
+          // export falls back to a renderer that loses soft masks - the
+          // operator needs to see it at the default level.
+          logger.error(`Rasterizing slide ${currentSlide.page} from the ` +
+            `PDF failed for job ${jobId}, falling back to the slide SVG; ` +
+            `soft-masked content may be corrupted: ${error.message}`);
         }
       }
 
