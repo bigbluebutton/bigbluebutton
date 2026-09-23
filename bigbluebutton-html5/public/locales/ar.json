@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "قبول التسجيل والاستمرار",
     "app.recording.notify.leaveLabel": "لا تقبل التسجيل وتغادر الجلسة",
     "app.videoPreview.cameraLabel": "الكاميرا",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "الجودة",
     "app.videoPreview.quality.low": "منخفض",
     "app.videoPreview.quality.medium": "متوسط",
