@@ -1373,6 +1373,8 @@
     "app.recording.notify.continueLabel": "Acceptar enregistrament i continuar",
     "app.recording.notify.leaveLabel": "No acceptar la gravació i abandonar la sessió",
     "app.videoPreview.cameraLabel": "Càmera",
+    "app.videoPreview.previousCameraLabel": "Previous camera",
+    "app.videoPreview.nextCameraLabel": "Next camera",
     "app.videoPreview.profileLabel": "Qualitat",
     "app.videoPreview.quality.low": "Baixa",
     "app.videoPreview.quality.medium": "Mitjana",
