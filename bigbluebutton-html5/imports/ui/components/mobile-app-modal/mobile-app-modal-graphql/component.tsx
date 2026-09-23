@@ -34,14 +34,6 @@ const intlMessages = defineMessages({
     id: 'app.mobileAppModal.obtainUrlErrorMsg',
     description: 'Obtain URL error message',
   },
-  dismissLabel: {
-    id: 'app.mobileAppModal.dismissLabel',
-    description: 'Dismiss button label',
-  },
-  dismissDesc: {
-    id: 'app.mobileAppModal.dismissDesc',
-    description: 'adds descriptive context to dissmissLabel',
-  },
 });
 
 interface MobileAppModalGraphqlContainerProps {
@@ -97,15 +89,9 @@ const MobileAppModalGraphql: React.FC<MobileAppModalGraphqlProps> = (props) => {
   return (
     <ModalSimple
       title={intl.formatMessage(intlMessages.title)}
-      dismiss={{
-        label: intl.formatMessage(intlMessages.dismissLabel),
-        description: intl.formatMessage(intlMessages.dismissDesc),
-      }}
-      {...{
-        isOpen,
-        onRequestClose,
-        priority,
-      }}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      priority={priority as 'low' | 'medium' | 'high'}
     >
       <Styled.Center>
         {`${intl.formatMessage(intlMessages.description)}`}

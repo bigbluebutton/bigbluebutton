@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 
@@ -617,6 +618,24 @@ class LockViewersComponent extends Component {
       <Styled.LockViewersModal
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
+        contentStyle={deviceInfo.isMobile ? { height: '90vh' } : { minWidth: '55rem' }}
+        showDividers
+        footerContent={(
+          <Styled.ActionsContainer>
+            <Styled.ActionButton
+              onClick={closeModal}
+              data-test="cancelLockSettings"
+            >
+              {intl.formatMessage(intlMessages.buttonCancel)}
+            </Styled.ActionButton>
+            <Styled.ActionButtonPrimary
+              onClick={() => this.handleSave()}
+              data-test="applyLockSettings"
+            >
+              {intl.formatMessage(intlMessages.buttonApply)}
+            </Styled.ActionButtonPrimary>
+          </Styled.ActionsContainer>
+        )}
         {...{
           isOpen,
           onRequestClose: this.handleClose,
@@ -650,20 +669,6 @@ class LockViewersComponent extends Component {
             {this.renderPresentationPermissionsTab()}
           </Styled.SettingsTabPanel>
         </Styled.SettingsTabs>
-        <Styled.ActionsContainer>
-          <Styled.ActionButton
-            onClick={closeModal}
-            data-test="cancelLockSettings"
-          >
-            {intl.formatMessage(intlMessages.buttonCancel)}
-          </Styled.ActionButton>
-          <Styled.ActionButtonPrimary
-            onClick={() => this.handleSave()}
-            data-test="applyLockSettings"
-          >
-            {intl.formatMessage(intlMessages.buttonApply)}
-          </Styled.ActionButtonPrimary>
-        </Styled.ActionsContainer>
       </Styled.LockViewersModal>
     );
   }

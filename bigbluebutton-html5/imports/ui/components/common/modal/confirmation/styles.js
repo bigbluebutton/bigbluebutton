@@ -1,28 +1,24 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
-  mdPaddingX,
   lgPaddingY,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
-const ConfirmationModal = styled(ModalSimple)`
-  padding: ${mdPaddingX};
-`;
+const ConfirmationModal = styled(ModalSimple)``;
 
 const Container = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-direction: column;
   padding: 0;
-  margin-top: 0;
-  margin: auto;
+  margin: 0;
 `;
 
 const Description = styled.div`
-  text-align: center;
+  text-align: left;
   line-height: ${lineHeightBase};
   color: ${colorGray};
   margin-bottom: ${jumboPaddingY};

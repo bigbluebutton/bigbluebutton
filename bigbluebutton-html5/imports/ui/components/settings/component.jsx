@@ -115,7 +115,7 @@ const propTypes = {
     processingMode: PropTypes.oneOf(['advanced', 'standard', 'original']),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
-  availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
+  availableLocales: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.shape({}))).isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
   transcription: PropTypes.shape({
     partialUtterances: PropTypes.bool,
@@ -462,28 +462,32 @@ class Settings extends Component {
           callback: this.handleClose,
         }}
         onRequestClose={this.handleClose}
+        contentStyle={{ width: modalWidth, height: modalHeight, maxWidth: modalWidth }}
+        showDividers
+        footerContent={(
+          <Styled.ActionsContainer>
+            <Styled.ActionButton onClick={this.performClose}>
+              {intl.formatMessage(intlMessages.CancelLabel)}
+            </Styled.ActionButton>
+            <Styled.ActionButton
+              data-test="saveSettingsButton"
+              onClick={() => {
+                this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
+                if (saved.application.locale !== current.application.locale) {
+                  const { language } = formatLocaleCode(saved.application.locale);
+                  const newLanguage = current.application.locale;
+                  setUseCurrentLocale(newLanguage);
+                  document.body.classList.remove(`lang-${language}`);
+                }
+                setIsOpen(false);
+              }}
+            >
+              {intl.formatMessage(intlMessages.SaveLabel)}
+            </Styled.ActionButton>
+          </Styled.ActionsContainer>
+        )}
       >
         {this.renderModalContent()}
-        <Styled.ActionsContainer>
-          <Styled.ActionButton onClick={this.performClose}>
-            {intl.formatMessage(intlMessages.CancelLabel)}
-          </Styled.ActionButton>
-          <Styled.ActionButton
-            data-test="saveSettingsButton"
-            onClick={() => {
-              this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-              if (saved.application.locale !== current.application.locale) {
-                const { language } = formatLocaleCode(saved.application.locale);
-                const newLanguage = current.application.locale;
-                setUseCurrentLocale(newLanguage);
-                document.body.classList.remove(`lang-${language}`);
-              }
-              setIsOpen(false);
-            }}
-          >
-            {intl.formatMessage(intlMessages.SaveLabel)}
-          </Styled.ActionButton>
-        </Styled.ActionsContainer>
       </Styled.Modal>
     );
   }

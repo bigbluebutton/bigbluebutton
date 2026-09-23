@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import { ModalScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import { appsButtonsBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const BaseModal = styled(ModalScrollboxVertical)`
   max-width: 60vw;
   max-height: 100%;
-  border-radius: ${borderRadius};
+  border-radius: ${appsButtonsBorderRadius};
   background: ${colorWhite};
   overflow: auto;
 

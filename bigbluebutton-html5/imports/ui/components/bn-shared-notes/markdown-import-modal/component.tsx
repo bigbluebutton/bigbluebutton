@@ -261,7 +261,7 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
       modalIsOpen
       onRequestClose={onClose}
       hideBorder
-      data-test="notesImportMarkdownModal"
+      dataTest="notesImportMarkdownModal"
     >
       <Styled.Container>
         <Styled.Dropzone

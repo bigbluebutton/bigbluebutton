@@ -21,7 +21,7 @@ export const elements = {
   screenshareConnecting: 'div[data-test="screenshareConnecting"]',
   screenShareVideo: 'video[id="screenshareVideo"]',
   simpleModal: 'div[id="simpleModal"]',
-  sessionDetailsModal: 'div[data-test="sessionDetailsModal"]',
+  sessionDetailsModal: 'div[data-testid="sessionDetailsModal"]',
   modalDismissButton: 'button[data-test="modalDismissButton"]',
   closeModal: 'button[data-test="closeModal"]',
   isSharingScreen: 'div[data-test="isSharingScreen"]',
@@ -61,7 +61,7 @@ export const elements = {
 
   // Audio
   joinAudio: 'button[data-test="joinAudio"]',
-  audioModal: 'div[data-test="audioModal"]',
+  audioModal: 'div[data-testid="audioModal"]',
   audioSettingsModal: 'div[data-test="audioSettingsModal"]',
   listenOnlyButton: 'button[data-test="listenOnlyBtn"]',
   testSpeakerButton: 'button[data-test="testSpeakerButton"]',
@@ -265,7 +265,7 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
-  recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
+  recordingNotifyModal: 'div[data-testid="recordingNotifyModal"]',
   recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
   recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
   recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
@@ -310,7 +310,7 @@ export const elements = {
   notesImportMarkdownTextarea: 'textarea[data-test="notesImportMarkdownTextarea"]',
   notesImportMarkdownConfirm: 'button[data-test="notesImportMarkdownConfirm"]',
   notesImportMarkdownCancel: 'button[data-test="notesImportMarkdownCancel"]',
-  notesImportMarkdownModal: '[data-test="notesImportMarkdownModal"]',
+  notesImportMarkdownModal: '[data-testid="notesImportMarkdownModal"]',
   notesImportMarkdownModeGroup: '[data-test="notesImportMarkdownModeGroup"]',
   notesImportMarkdownAppendMode: 'input[data-test="notesImportMarkdownAppendMode"]',
   notesImportMarkdownReplaceMode: 'input[data-test="notesImportMarkdownReplaceMode"]',
@@ -531,7 +531,7 @@ export const elements = {
   mobileUser: 'span[data-test="mobileUser"]',
   userNameSubs: 'span[data-test="userNameSubs"]',
   connectionStatusBtn: 'button[data-test="connectionStatusButton"]',
-  connectionStatusModal: 'div[data-test="connectionStatusModal"]',
+  connectionStatusModal: 'div[data-testid="connectionStatusModal"]',
   copyStats: 'span[data-test="copyStats"]',
   dataSavingScreenshare: 'input[data-test="dataSavingScreenshare"]',
   screenshareLocked: 'button[data-test="screenshareLocked"]',
@@ -712,7 +712,7 @@ export const elements = {
   webcamItem: 'div[data-test="webcamItem"]',
   webcamItemTalkingUser: 'div[data-test="webcamItemTalkingUser"]',
   webcamItemRaisedHand: 'div[data-test="webcamItemRaisedHand"]',
-  webcamSettingsModal: 'div[data-test="webcamSettingsModal"]',
+  webcamSettingsModal: 'div[data-testid="webcamSettingsModal"]',
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
   webcamUserStatus: 'div[data-test="webcamUserStatus"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
@@ -771,7 +771,7 @@ export const elements = {
 
   // About modal
   aboutTabButton: 'li[data-test="aboutTabButton"]',
-  aboutModal: 'div[data-test="aboutModalTitleLabel"]',
+  aboutModal: 'div[data-testid="aboutModalTitleLabel"]',
 
   // Help button
   helpLinkButton: 'a[data-test="helpLinkButton"]',

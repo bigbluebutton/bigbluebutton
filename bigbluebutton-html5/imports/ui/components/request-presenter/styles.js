@@ -1,33 +1,13 @@
 import styled from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
-  colorWhite,
   colorText,
   btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   $2xlPadding,
-  appsButtonsBorderRadius,
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
-
-const RequestModal = styled(ModalSimple)`
-  padding: ${$2xlPadding};
-
-  border-radius: ${appsButtonsBorderRadius};
-  background-color: ${colorWhite};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
-  button[class*="close"] {
-    top: ${$2xlPadding};
-    right: ${$2xlPadding};
-
-    i {
-      font-size: 1.5rem !important;
-    }
-  }
-`;
 
 const Subtitle = styled.p`
   display: block;
@@ -139,7 +119,6 @@ const PresenterIcon = styled(Icon)`
 `;
 
 export default {
-  RequestModal,
   Subtitle,
   UserInfo,
   UserName,

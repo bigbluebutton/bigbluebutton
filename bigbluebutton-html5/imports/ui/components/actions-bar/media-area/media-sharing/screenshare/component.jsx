@@ -164,13 +164,10 @@ const ScreenshareButton = ({
 
   const RenderScreenshareUnavailableModal = (otherProps) => (
     <Styled.ScreenShareModal
-      hideBorder
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+      title={intl.formatMessage(intlMessages.screenShareUnavailable)}
       {...otherProps}
     >
-      <Styled.Title>
-        {intl.formatMessage(intlMessages.screenShareUnavailable)}
-      </Styled.Title>
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
     </Styled.ScreenShareModal>
   );

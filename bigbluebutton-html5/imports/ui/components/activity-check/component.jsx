@@ -88,16 +88,14 @@ class ActivityCheck extends Component {
 
     return (
       <ModalSimple
-        hideBorder
+        title={intl.formatMessage(intlMessages.activityCheckTitle)}
         onRequestClose={() => userActivitySign()}
         shouldCloseOnOverlayClick={false}
-        shouldShowCloseButton={false}
+        shouldCloseOnEsc={false}
         priority="high"
         isOpen
-      >
-        <Styled.ActivityModalContent>
-          <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
-          <p>{intl.formatMessage(intlMessages.activityCheckLabel, { responseDelay })}</p>
+        noFooter={false}
+        footerContent={(
           <Button
             color="primary"
             disabled={responseDelay <= 0}
@@ -106,6 +104,10 @@ class ActivityCheck extends Component {
             role="button"
             size="lg"
           />
+        )}
+      >
+        <Styled.ActivityModalContent>
+          <p>{intl.formatMessage(intlMessages.activityCheckLabel, { responseDelay })}</p>
         </Styled.ActivityModalContent>
       </ModalSimple>
     );

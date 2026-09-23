@@ -67,8 +67,12 @@ const AudioDial = styled(Button)`
 `;
 
 const Connecting = styled.div`
-  margin-top: auto;
-  margin-bottom: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 3rem;
   font-size: 2rem;
   text-align: center;
 `;
@@ -105,10 +109,7 @@ const ConnectingAnimation = styled.span`
   }
 `;
 
-const AudioModal = styled(ModalSimple)`
-  padding: 1rem;
-  min-height: 20rem;
-`;
+const AudioModal = styled(ModalSimple)``;
 
 const BrowserWarning = styled.p`
   margin: ${lineHeightComputed};
