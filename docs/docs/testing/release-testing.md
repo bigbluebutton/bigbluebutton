@@ -669,7 +669,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
 3. Moderator: deny the pending guest
 
-    - Guest: the waiting message should be replaced by the denial screen: an "Entry denied by the moderator" badge, the message explaining it, the session's name above it and a "Leave session" button
+    - Guest: the waiting message should be replaced by the denial screen: an "Entry denied by the moderator" badge, the message explaining it, the session's name and how long ago it started above it, and a "Leave session" button
     - The setup panel should stay where it was, with the camera preview still running if it was on
     - A line below the message should count down to the automatic exit
 
@@ -677,7 +677,11 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - After 15 seconds the guest should be taken to the session's logout URL, which carries `reasonCode=guest_deny_reason`
 
-5. Repeat steps 1-3 and, this time, click "Leave session" before the countdown runs out
+5. Repeat steps 1-3 and reload the guest's page before the countdown runs out
+
+    - The denial screen should come back without the setup panel, and the browser should not ask for the microphone or camera
+
+6. Guest: click "Leave session" before the countdown runs out
 
     - The guest should be taken to the same logout URL straight away
 

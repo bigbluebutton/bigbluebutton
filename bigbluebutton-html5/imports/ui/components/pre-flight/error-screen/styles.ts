@@ -64,6 +64,8 @@ const ErrorHeading = styled(PreFlightStyled.Heading)`
   }
 `;
 
+// The description and the notice keep the palette's text colour: the design's
+// #717C91 is 4.2:1 on white, under WCAG AA at these sizes.
 const ErrorDescription = styled(PreFlightStyled.Description)`
   max-width: 25rem;
   font-size: ${fontSizeMedium};

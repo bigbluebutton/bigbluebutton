@@ -40,7 +40,8 @@ interface PreFlightProps {
   // What commits the setup - the join button. Rendered after the panel in both
   // layouts, so it never precedes the controls it commits.
   actions?: React.ReactNode;
-  // A denied or invalid guest gets no camera stream and no microphone prompt.
+  // Off for an invalid guest and for one denied before the panel came up: no
+  // camera stream and no microphone prompt.
   showSetupPanel?: boolean;
 }
 
@@ -168,7 +169,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
             </Styled.SetupColumn>
           )}
           <Styled.ContentColumn>
-            {!isPhoneWidth && topInfo}
+            {!isPhoneWidth && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
             <Styled.CenterStack>
               {!isPhoneWidth && header}
               {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}

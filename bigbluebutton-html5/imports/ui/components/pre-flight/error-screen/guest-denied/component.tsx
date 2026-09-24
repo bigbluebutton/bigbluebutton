@@ -42,9 +42,10 @@ const intlMessages = defineMessages({
 
 interface GuestDeniedHeaderProps {
   secondsLeft: number | null;
+  meetingName: string;
 }
 
-export const GuestDeniedHeader: React.FC<GuestDeniedHeaderProps> = ({ secondsLeft }) => {
+export const GuestDeniedHeader: React.FC<GuestDeniedHeaderProps> = ({ secondsLeft, meetingName }) => {
   const intl = useIntl();
 
   let notice;
@@ -54,6 +55,11 @@ export const GuestDeniedHeader: React.FC<GuestDeniedHeaderProps> = ({ secondsLef
       : intl.formatMessage(intlMessages.countdownPlural, { seconds: secondsLeft });
   }
 
+  // Named after the session, as the lobby's title is, so the tab stays
+  // identifiable among others.
+  const deniedTitle = intl.formatMessage(intlMessages.windowTitle);
+  const windowTitle = meetingName ? `${deniedTitle} - ${meetingName}` : deniedTitle;
+
   return (
     <PreFlightErrorHeader
       badge={intl.formatMessage(intlMessages.badge)}
@@ -61,7 +67,7 @@ export const GuestDeniedHeader: React.FC<GuestDeniedHeaderProps> = ({ secondsLef
       description={intl.formatMessage(intlMessages.description)}
       announcement={intl.formatMessage(intlMessages.autoLeave)}
       notice={notice}
-      windowTitle={intl.formatMessage(intlMessages.windowTitle)}
+      windowTitle={windowTitle}
       dataTest="preFlightGuestDenied"
     />
   );

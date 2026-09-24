@@ -47,6 +47,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     logoutUrl: string;
     meetingId: string;
     meetingName: string;
+    meetingCreatedTime: number;
     userName: string;
     extId: string;
     userId: string;
@@ -74,6 +75,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   logoutUrl,
   meetingId,
   meetingName,
+  meetingCreatedTime,
   userName,
   extId,
   userId,
@@ -214,6 +216,11 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
   const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
+  const isSettingUp = guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT;
+  // The panel stays up behind a denial only for the guest who was already
+  // using it: a tab that loads into the denial asks for no devices.
+  const [setupPanelShown, setSetupPanelShown] = useState(isSettingUp);
+  if (isSettingUp && !setupPanelShown) setSetupPanelShown(true);
   const guestDeniedRedirect = useGuestDeniedRedirect(
     logoutUrl,
     showPreFlight && isGuestDenied,
@@ -233,7 +240,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   let preFlightActions: React.ReactNode = null;
 
   if (isGuestDenied) {
-    preFlightHeader = <GuestDeniedHeader secondsLeft={guestDeniedRedirect.secondsLeft} />;
+    preFlightHeader = (
+      <GuestDeniedHeader
+        secondsLeft={guestDeniedRedirect.secondsLeft}
+        meetingName={meetingName}
+      />
+    );
     preFlightActions = <GuestDeniedActions onLeave={guestDeniedRedirect.redirect} />;
   } else if (isGuestAllowed) {
     preFlightHeader = (
@@ -278,9 +290,11 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         showPreFlight
           ? (
             <PreFlight
-              showSetupPanel={!!guestStatus}
+              showSetupPanel={isSettingUp || (isGuestDenied && setupPanelShown)}
               header={preFlightHeader}
-              topInfo={isGuestDenied ? <SessionInfo meetingName={meetingName} /> : null}
+              topInfo={isGuestDenied ? (
+                <SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />
+              ) : null}
               actions={preFlightActions}
             />
           )
@@ -359,6 +373,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   const {
     meetingId,
     name: meetingName,
+    createdTime: meetingCreatedTime,
     bannerColor,
     bannerText,
     customLogoUrl,
@@ -371,6 +386,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       logoutUrl={logoutUrl ?? ''}
       meetingId={meetingId ?? ''}
       meetingName={meetingName ?? ''}
+      meetingCreatedTime={meetingCreatedTime ?? 0}
       userName={name ?? ''}
       extId={extId ?? ''}
       userId={userId ?? ''}

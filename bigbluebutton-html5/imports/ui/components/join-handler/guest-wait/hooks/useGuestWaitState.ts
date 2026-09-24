@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
-import { JoinErrorCodeTable } from '/imports/ui/components/meeting-ended/service';
+import { JoinErrorCodeTable, appendLogoutReason } from '/imports/ui/components/meeting-ended/service';
 import Auth from '/imports/ui/services/auth';
 
 const REDIRECT_TIMEOUT = 15000;
@@ -69,12 +69,9 @@ export const intlMessages = defineMessages({
 
 const GUEST_DENIED_REASON_CODE = JoinErrorCodeTable.GUEST_DENY;
 
-const buildGuestDeniedLogoutUrl = (logoutUrl: string, reason: string): string => {
-  const destination = logoutUrl || window.location.origin;
-  const separator = destination.includes('?') ? '&' : '?';
-  return `${destination}${separator}reason=${encodeURIComponent(reason)}`
-    + `&reasonCode=${encodeURIComponent(GUEST_DENIED_REASON_CODE)}`;
-};
+const buildGuestDeniedLogoutUrl = (logoutUrl: string, reason: string): string => (
+  appendLogoutReason(logoutUrl || window.location.origin, reason, GUEST_DENIED_REASON_CODE)
+);
 
 export interface GuestDeniedRedirect {
   redirect: () => void;
@@ -239,7 +236,6 @@ const useGuestWaitState = (props: GuestWaitStateProps): GuestWaitState => {
   }, [
     guestLobbyMessage,
     guestStatus,
-    logoutUrl,
     positionInWaitingQueue,
     intl,
     showPositionInWaitingQueue,

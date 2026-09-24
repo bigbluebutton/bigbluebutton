@@ -253,6 +253,11 @@ export class PreFlight extends MultiUsers {
       e.preFlightSessionInfo,
       'should name the session the denial is about, which the heading no longer carries',
     );
+    await this.userPage.hasText(
+      e.preFlightSessionAge,
+      /Session started/,
+      'should say how long ago the session started',
+    );
     await this.userPage.hasElement(e.preFlightLeaveButton, 'should offer the denied guest a way out of the session');
     await this.userPage.hasElement(
       e.preFlightCameraToggle,
@@ -270,6 +275,10 @@ export class PreFlight extends MultiUsers {
 
     const secondsLeft = async () =>
       Number((await this.userPage.page.locator(e.preFlightErrorNotice).textContent())?.match(/\d+/)?.[0]);
+    // A restarted countdown reads the full count again, so the reading taken
+    // before the layout change has to be below it for the check to catch one.
+    const fullCount = GUEST_DENY_REDIRECT_TIMEOUT / 1000;
+    await expect.poll(secondsLeft, { timeout: ELEMENT_WAIT_TIME }).toBeLessThan(fullCount - 1);
     const before = await secondsLeft();
     const viewport = this.userPage.page.viewportSize();
     await this.userPage.page.setViewportSize({ width: 400, height: 800 });
@@ -288,7 +297,26 @@ export class PreFlight extends MultiUsers {
 
     await this.modPage.waitAndClick(e.authenticatedWaitingUsers);
     await this.modPage.waitAndClick(e.denyAllAuthenticatedWaiting);
-    await this.userPage.waitAndClick(e.preFlightLeaveButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(
+      e.preFlightGuestDenied,
+      'should display the denial screen once the guest is denied',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    // A tab that loads into the denial never had the setup panel, so it gets
+    // none, and no device prompt with it.
+    await this.userPage.page.reload();
+    await this.userPage.hasElement(
+      e.preFlightGuestDenied,
+      'should display the denial screen again after a reload',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    expect(
+      await this.userPage.checkElement(e.preFlightCameraToggle),
+      'should not display the setup panel to a guest who loads into the denial',
+    ).toBeFalsy();
+
+    await this.userPage.waitAndClick(e.preFlightLeaveButton);
 
     await expect(this.userPage.page, 'should take the denied guest to the logout URL when they ask').toHaveURL(
       GUEST_DENIED_LOGOUT_URL,

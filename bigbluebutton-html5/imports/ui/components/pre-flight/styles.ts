@@ -1,11 +1,11 @@
 import styled, { keyframes } from 'styled-components';
+import { colorTextDefault } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite,
   colorWhiteSurface,
   colorOffWhite,
   colorBackground,
   colorOverlay,
-  colorGrayDark,
   colorGrayLabel,
   colorPrimary,
   colorBorder,
@@ -109,11 +109,13 @@ const SetupColumn = styled(Card)`
 `;
 
 // Not a <main>: client/main.html already wraps the client in one.
+// Two equal rows around the stack keep it centred on the card whatever the
+// top slot holds; a tall slot grows both rows rather than overlapping it.
 const ContentColumn = styled(Card)`
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-direction: column;
-  align-items: center;
+  grid-template-rows: 1fr auto 1fr;
+  justify-items: center;
   padding: ${lgPaddingX};
   text-align: center;
 
@@ -130,9 +132,20 @@ const CenterStack = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  grid-row: 2;
   gap: ${mdPaddingX};
-  margin: auto 0;
   max-width: 100%;
+`;
+
+// The session info sits 4rem below the card's top edge, off the centred stack.
+const TopInfo = styled.div`
+  grid-row: 1;
+  align-self: start;
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  margin-top: calc(4rem - ${lgPaddingX});
+  padding-bottom: ${lgPaddingX};
 `;
 
 // Phone only: the session heading belongs above the setup panel, so it is
@@ -193,7 +206,7 @@ const Heading = styled.h1`
   margin: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
-  color: ${colorGrayDark};
+  color: ${colorTextDefault};
   /* 32px: the design sits between the XL and XXL type tokens. */
   font-size: 2rem;
   font-weight: ${textFontWeight};
@@ -396,6 +409,7 @@ export default {
   SetupColumn,
   ContentColumn,
   CenterStack,
+  TopInfo,
   PanelTitle,
   Spinner,
   Heading,

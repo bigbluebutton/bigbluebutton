@@ -220,6 +220,7 @@ export const elements = {
   layoutContainer: 'div#layout',
   preFlightJoinButton: 'button[data-test="preFlightJoinButton"]',
   preFlightSessionInfo: '[data-test="preFlightSessionInfo"]',
+  preFlightSessionAge: '[data-test="preFlightSessionAge"]',
   preFlightGuestDenied: '[data-test="preFlightGuestDenied"]',
   preFlightErrorNotice: '[data-test="preFlightErrorNotice"]',
   preFlightLeaveButton: 'button[data-test="preFlightLeaveButton"]',

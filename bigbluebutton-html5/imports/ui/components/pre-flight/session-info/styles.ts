@@ -1,25 +1,34 @@
 import styled from 'styled-components';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
-import { smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import { colorTextDefault } from '@bigbluebutton/bbb-ui-components-react';
+import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
 import {
+  fontSizeBase,
   fontSizeLarger,
   headingsFontWeight,
+  textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
-// The spec's text colours are not implemented: the name follows the heading of
-// the screens it sits above, and the pre-flight family moves together.
 const SessionInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${smPadding};
+  gap: 0.5rem;
   max-width: 19.75rem;
+`;
+
+// The design's #717C91 is 4.2:1 on white, under WCAG AA at 16px, so the age
+// takes the description's colour instead.
+const SessionAge = styled.div`
+  color: ${colorText};
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  line-height: 1.375rem;
 `;
 
 const SessionName = styled.div`
   max-width: 100%;
   overflow-wrap: anywhere;
-  color: ${colorGrayDark};
+  color: ${colorTextDefault};
   font-size: ${fontSizeLarger};
   font-weight: ${headingsFontWeight};
   line-height: 2.0625rem;
@@ -27,5 +36,6 @@ const SessionName = styled.div`
 
 export default {
   SessionInfo,
+  SessionAge,
   SessionName,
 };

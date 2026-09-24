@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import WarningIcon from '@mui/icons-material/Warning';
+import WarningIcon from '@mui/icons-material/WarningAmberRounded';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import PreFlightStyled from '../styles';
