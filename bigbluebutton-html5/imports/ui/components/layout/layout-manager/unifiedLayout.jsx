@@ -87,7 +87,7 @@ const UnifiedLayout = (props) => {
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
+  }, [input, deviceType, deviceOrientation, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { sidebarContentAuxiliary } = input;
@@ -335,33 +335,7 @@ const UnifiedLayout = (props) => {
     };
   };
 
-  const persistCameraDockSizeOnResizeStop = (cameraPosition) => {
-    const stoppedResizing = prevIsResizing && !isResizing;
-    if (!stoppedResizing) return;
-
-    const isCameraTopOrBottom = cameraPosition === CAMERADOCK_POSITION.CONTENT_TOP
-      || cameraPosition === CAMERADOCK_POSITION.CONTENT_BOTTOM;
-    const isCameraSidebar = cameraPosition === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
-    const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
-    const { width: lastWidth, height: lastHeight } = lastSize;
-    const sidebarContentMarginToMedia = windowWidth()
-      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
-
-    Storage.setItem('webcamSize', {
-      width: (isCameraTopOrBottom || isCameraSidebar)
-        ? lastWidth
-        : cameraDockInput.width - sidebarContentMarginToMedia,
-      height: isCameraTopOrBottom || isCameraSidebar ? cameraDockInput.height : lastHeight,
-    });
-  };
-
-  const calculatesCameraDockBounds = (
-    sidebarNavWidth,
-    sidebarContentWidth,
-    mediaAreaBounds,
-    cameraPosition,
-    isEnforcedSideBySide,
-  ) => {
+  const calculatesCameraDockBounds = (sidebarNavWidth, sidebarContentWidth, mediaAreaBounds) => {
     const { baseCameraDockBounds } = props;
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
@@ -389,16 +363,37 @@ const UnifiedLayout = (props) => {
     let cameraDockWidth = 0;
 
     const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
-    const { width: lastWidth, height: lastHeight } = lastSize;
+    let { width: lastWidth, height: lastHeight } = lastSize;
 
     if (cameraDockInput.isDragging) cameraDockBounds.zIndex = 99;
     else cameraDockBounds.zIndex = 1;
+
+    const cameraPosition = getCameraDockPosition();
+    const isEnforcedSideBySide = isSideBySideCamerasEnforced();
 
     const isCameraTop = cameraPosition === CAMERADOCK_POSITION.CONTENT_TOP;
     const isCameraBottom = cameraPosition === CAMERADOCK_POSITION.CONTENT_BOTTOM;
     const isCameraLeft = cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT;
     const isCameraRight = cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT;
     const isCameraSidebar = cameraPosition === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
+
+    const stoppedResizing = prevIsResizing && !isResizing;
+    if (stoppedResizing) {
+      const isCameraTopOrBottom = isCameraTop || isCameraBottom;
+      const sidebarContentMarginToMedia = windowWidth()
+        * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+
+      Storage.setItem('webcamSize', {
+        width: (isCameraTopOrBottom || isCameraSidebar)
+          ? lastWidth
+          : cameraDockInput.width - sidebarContentMarginToMedia,
+        height: isCameraTopOrBottom || isCameraSidebar ? cameraDockInput.height : lastHeight,
+      });
+
+      const updatedLastSize = Storage.getItem('webcamSize');
+      lastWidth = updatedLastSize.width;
+      lastHeight = updatedLastSize.height;
+    }
 
     if (isCameraTop || isCameraBottom) {
       if ((lastHeight === 0 && !isResizing) || (isCameraTop && isMobile)) {
@@ -637,11 +632,9 @@ const UnifiedLayout = (props) => {
       calculatesMediaAreaBounds,
       isTablet,
     } = props;
-    const isCameraDockLocked = isSideBySideCamerasEnforced();
     const cameraPosition = getCameraDockPosition();
+    const isCameraDockLocked = isSideBySideCamerasEnforced();
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
-
-    persistCameraDockSizeOnResizeStop(cameraPosition);
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
@@ -661,18 +654,7 @@ const UnifiedLayout = (props) => {
       sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
       mediaAreaBounds,
-      cameraPosition,
-      isCameraDockLocked,
     );
-    const intendedCameraDockBounds = isCameraDockLocked
-      ? calculatesCameraDockBounds(
-        sidebarNavWidth.horizontalSpaceOccupied,
-        sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
-        mediaAreaBounds,
-        cameraDockInput.position,
-        false,
-      )
-      : cameraDockBounds;
     const dropZoneAreas = calculatesDropAreas(
       sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
@@ -850,26 +832,22 @@ const UnifiedLayout = (props) => {
         resizableEdge: {
           top:
           canResizeCameraDock
-            && (cameraPosition === CAMERADOCK_POSITION.CONTENT_BOTTOM
-            || (cameraPosition === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+            && (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
+            || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
             && input.sidebarContent.isOpen)),
           right:
             canResizeCameraDock
-            && ((!isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT)
-            || (isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT)),
+            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)),
           bottom: canResizeCameraDock
-            && cameraPosition === CAMERADOCK_POSITION.CONTENT_TOP,
+            && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
           left:
           canResizeCameraDock
-            && ((!isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT)
-            || (isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT)),
+            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)),
         },
         zIndex: cameraDockBounds.zIndex,
         focusedId: input.cameraDock.focusedId,
-        isPositionEnforced: isCameraDockLocked,
-        intendedPosition: cameraDockInput.position,
-        intendedWidth: intendedCameraDockBounds.width,
-        intendedHeight: intendedCameraDockBounds.height,
       },
     });
 

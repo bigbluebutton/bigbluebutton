@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { clone } from 'ramda';
 import {
   getDeviceType, getDeviceOrientation, presentationContentHasChanges, LAYOUTS_SYNC,
+  suppressesCameraDockPropagation,
 } from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS,
@@ -57,10 +58,16 @@ const initPresentationAreaContentActions = [{
   },
 }];
 
+const initialDeviceOrientation = getDeviceOrientation({
+  width: window.document.documentElement.clientWidth,
+  height: window.document.documentElement.clientHeight,
+});
+
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
   deviceType: getDeviceType(),
-  deviceOrientation: getDeviceOrientation(),
+  deviceOrientation: initialDeviceOrientation,
+  isCameraDockPropagationSuppressed: suppressesCameraDockPropagation(initialDeviceOrientation),
   isRTL: DEFAULT_VALUES.isRTL,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoading: true,
@@ -170,15 +177,6 @@ const reducer = (state, action) => {
       };
     }
 
-    case ACTIONS.SET_DEVICE_ORIENTATION: {
-      const { deviceOrientation } = state;
-      if (deviceOrientation === action.value) return state;
-      return {
-        ...state,
-        deviceOrientation: action.value,
-      };
-    }
-
     // BROWSER
     case ACTIONS.SET_BROWSER_SIZE: {
       const { width, height } = action.value;
@@ -187,8 +185,14 @@ const reducer = (state, action) => {
         && browser.height === height) {
         return state;
       }
+      const deviceOrientation = getDeviceOrientation({ width, height });
       return {
         ...state,
+        deviceOrientation,
+        // Released by SET_CAMERA_DOCK_OUTPUT instead: until the dock is laid out
+        // again, the output still holds the arrangement this device enforced.
+        isCameraDockPropagationSuppressed: state.isCameraDockPropagationSuppressed
+          || suppressesCameraDockPropagation(deviceOrientation),
         input: {
           ...state.input,
           browser: {
@@ -1175,26 +1179,18 @@ const reducer = (state, action) => {
         resizableEdge,
         zIndex,
         focusedId,
-        isPositionEnforced = false,
-        intendedPosition = position,
-        intendedWidth = width,
-        intendedHeight = height,
       } = action.value;
       const { cameraDock } = state.output;
-      const sameResizableEdge = !!cameraDock.resizableEdge
-        && !!resizableEdge
-        && cameraDock.resizableEdge.top === resizableEdge.top
-        && cameraDock.resizableEdge.right === resizableEdge.right
-        && cameraDock.resizableEdge.bottom === resizableEdge.bottom
-        && cameraDock.resizableEdge.left === resizableEdge.left;
+      const isSuppressed = suppressesCameraDockPropagation(state.deviceOrientation);
+      const baseState = state.isCameraDockPropagationSuppressed === isSuppressed
+        ? state
+        : { ...state, isCameraDockPropagationSuppressed: isSuppressed };
       if (cameraDock.display === display
         && cameraDock.position === position
         && cameraDock.width === width
-        && cameraDock.minWidth === minWidth
         && cameraDock.maxWidth === maxWidth
         && cameraDock.presenterMaxWidth === presenterMaxWidth
         && cameraDock.height === height
-        && cameraDock.minHeight === minHeight
         && cameraDock.maxHeight === maxHeight
         && cameraDock.top === top
         && cameraDock.left === left
@@ -1202,16 +1198,12 @@ const reducer = (state, action) => {
         && cameraDock.tabOrder === tabOrder
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
-        && sameResizableEdge
-        && cameraDock.focusedId === focusedId
-        && cameraDock.isPositionEnforced === isPositionEnforced
-        && cameraDock.intendedPosition === intendedPosition
-        && cameraDock.intendedWidth === intendedWidth
-        && cameraDock.intendedHeight === intendedHeight) {
-        return state;
+        && cameraDock.resizableEdge === resizableEdge
+        && cameraDock.focusedId === focusedId) {
+        return baseState;
       }
       return {
-        ...state,
+        ...baseState,
         output: {
           ...state.output,
           cameraDock: {
@@ -1233,10 +1225,6 @@ const reducer = (state, action) => {
             resizableEdge,
             zIndex,
             focusedId,
-            isPositionEnforced,
-            intendedPosition,
-            intendedWidth,
-            intendedHeight,
           },
         },
       };

@@ -32,29 +32,43 @@ const usePushLayoutUpdater = (pushLayout: boolean) => {
 };
 
 const useMeetingLayoutUpdater = (
-  // Never the raw output: see getPropagatedCameraDock.
-  propagatedCameraDock: Output['cameraDock'],
+  cameraDockOutput: Output['cameraDock'],
   cameraDockInput: Input['cameraDock'],
   presentationInput: Input['presentation'],
   layoutSettings: { pushLayout: boolean, selectedLayout: boolean },
+  isCameraDockPropagationSuppressed: boolean,
+  meetingCameraDock: { position?: string, videoRate?: number | string },
 ) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
-  const { focusedId, position } = propagatedCameraDock;
+  const { focusedId, position } = cameraDockOutput;
   const { isResizing } = cameraDockInput;
   const { isOpen: presentationIsOpen } = presentationInput;
   const { selectedLayout } = layoutSettings;
 
   const setMeetingLayout = (pushLayout: boolean) => {
+    // The meeting keeps the dock it already has: the device-local arrangement is not
+    // propagated. The raw position goes back as is, since a fallback would read as a
+    // change and notify everyone, and the rate arrives as a numeric string.
+    const cameraDock = isCameraDockPropagationSuppressed
+      ? {
+        isResizing: false,
+        cameraPosition: meetingCameraDock.position ?? '',
+        presentationVideoRate: Number(meetingCameraDock.videoRate) || 0,
+      }
+      : {
+        isResizing,
+        cameraPosition: position || 'contentTop',
+        presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+      };
+
     setMeetingLayoutProps({
       variables: {
         layout: selectedLayout,
         syncWithPresenterLayout: pushLayout,
         presentationIsOpen,
-        isResizing,
-        cameraPosition: position || 'contentTop',
         focusedCamera: focusedId || 'none',
-        presentationVideoRate: calculatePresentationVideoRate(propagatedCameraDock),
+        ...cameraDock,
       },
     }).catch((error) => {
       logger.error({

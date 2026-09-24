@@ -67,10 +67,18 @@ async function assertDesktopLayoutActive(page: Page) {
     .toBeLessThan(0.6);
 }
 
+type LayoutMutation = {
+  presentationIsOpen: boolean;
+  cameraPosition: string;
+  presentationVideoRate: number;
+};
+
 export class Layouts extends MultiUsers {
   private layoutMutationRates: unknown[] = [];
 
   private layoutMutationErrors: string[] = [];
+
+  private layoutMutations: LayoutMutation[] = [];
 
   private injectedPresentationVideoRate = false;
 
@@ -118,8 +126,12 @@ export class Layouts extends MultiUsers {
       webSocket.onMessage((message) => {
         const serializedMessage = message.toString();
         if (serializedMessage.includes('SetLayoutProps')) {
-          const rateMatch = serializedMessage.match(/"presentationVideoRate":(null|-?\d+(?:\.\d+)?)/);
-          this.layoutMutationRates.push(rateMatch && rateMatch[1] !== 'null' ? Number(rateMatch[1]) : null);
+          const { variables } = JSON.parse(serializedMessage).payload;
+          this.layoutMutations.push({
+            presentationIsOpen: variables.presentationIsOpen,
+            cameraPosition: variables.cameraPosition,
+            presentationVideoRate: variables.presentationVideoRate,
+          });
         }
         server.send(message);
       });
@@ -133,37 +145,66 @@ export class Layouts extends MultiUsers {
     });
   }
 
-  async phoneLandscapeRotationPropagatesRealGeometry() {
+  async phoneLandscapeKeepsTheMeetingCameraDock() {
+    const PORTRAIT = { width: 412, height: 915 };
+    const LANDSCAPE = { width: 915, height: 412 };
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.page.setViewportSize({ width: 412, height: 915 });
+    await this.modPage.page.setViewportSize(PORTRAIT);
     await this.modPage.shareWebcam();
     await this.modPage.page.waitForTimeout(3000);
-    this.layoutMutationRates = [];
+
+    // What the meeting holds before the phone ever rotates.
+    const baseline = this.layoutMutations[this.layoutMutations.length - 1];
+    expect(baseline, 'the presenter should publish its portrait layout').toBeDefined();
+    expect(baseline!.presentationVideoRate, 'the portrait dock should publish a real rate').toBeGreaterThan(0);
+    this.layoutMutations = [];
 
     const ROTATIONS = 6;
     for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
-      const landscape = rotation % 2 === 0;
-      await this.modPage.page.setViewportSize(landscape ? { width: 915, height: 412 } : { width: 412, height: 915 });
+      await this.modPage.page.setViewportSize(rotation % 2 === 0 ? LANDSCAPE : PORTRAIT);
       await this.modPage.page.waitForTimeout(1500);
+      if (rotation === 0) {
+        // The arrangement held back from the meeting is really rendered here.
+        const dock = await this.modPage.page.locator(e.cameraDock).boundingBox();
+        expect(dock, 'the camera dock should render in landscape').not.toBeNull();
+        expect(dock!.x, 'landscape should lay the cameras beside the presentation').toBeGreaterThan(
+          LANDSCAPE.width / 2,
+        );
+      }
     }
+    const rotationMutations = this.layoutMutations.length;
+
+    // The presentation state still propagates while the dock geometry is held back.
+    await this.modPage.page.setViewportSize(LANDSCAPE);
+    await this.modPage.page.waitForTimeout(1500);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.page.waitForTimeout(1500);
 
     console.log(
-      `[layout-mutations] ${this.layoutMutationRates.length} mutations over ${ROTATIONS} rotations ` +
-        `| rates: ${JSON.stringify(this.layoutMutationRates)}`,
+      `[layout-mutations] ${rotationMutations} mutations over ${ROTATIONS} rotations ` +
+        `| baseline: ${JSON.stringify(baseline)} | mutations: ${JSON.stringify(this.layoutMutations)}`,
     );
 
     expect(
-      this.layoutMutationRates.length,
-      'the presenter should republish its layout as the phone rotates',
-    ).toBeGreaterThanOrEqual(ROTATIONS);
+      rotationMutations,
+      'every return to portrait should lift the suppression and push the real dock',
+    ).toBeGreaterThanOrEqual(ROTATIONS / 2);
     expect(
-      this.layoutMutationRates.length,
-      `layout mutations should stay proportional to the ${ROTATIONS} rotations, not to the render count`,
-    ).toBeLessThan(ROTATIONS * 3);
+      rotationMutations,
+      'entering landscape should push nothing, and a push should never repeat per layout pass',
+    ).toBeLessThanOrEqual(ROTATIONS);
     expect(
-      this.layoutMutationRates.every((rate) => typeof rate === 'number' && Number.isFinite(rate) && rate > 0),
-      'every propagated presentation video rate should be a finite, non-zero measurement',
+      this.layoutMutations.every(
+        ({ cameraPosition, presentationVideoRate }) =>
+          cameraPosition === baseline!.cameraPosition &&
+          Math.abs(presentationVideoRate - baseline!.presentationVideoRate) <= 0.01,
+      ),
+      'the landscape arrangement should never reach the meeting: every push keeps the portrait dock',
     ).toBe(true);
+    expect(
+      this.layoutMutations[this.layoutMutations.length - 1]?.presentationIsOpen,
+      'minimizing the presentation in landscape should still be propagated',
+    ).toBe(false);
     expect(this.layoutMutationErrors, 'the presenter should never be rate limited for layout mutations').toHaveLength(
       0,
     );
@@ -229,7 +270,12 @@ export class Layouts extends MultiUsers {
     await this.modPage.page.setViewportSize({ width: 915, height: 412 });
     await this.modPage.shareWebcam();
     // Five seconds covers the delayed update and leaves time for the resulting layout mutations to settle.
+    // Any push in landscape sends back the meeting's rate, which the delay leaves undefined.
     await this.modPage.page.waitForTimeout(5000);
+    // Portrait lifts the suppression: the rate is measured again, off a dock that has
+    // just left the enforced arrangement.
+    await this.modPage.page.setViewportSize({ width: 412, height: 915 });
+    await this.modPage.page.waitForTimeout(3000);
 
     // Fewer than 20 mutations catches a feedback loop while allowing the expected responsive layout updates.
     expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);

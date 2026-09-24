@@ -173,7 +173,7 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
   );
 
   test(
-    'Rotating a presenting phone keeps propagating real camera dock geometry',
+    'Rotating a presenting phone keeps its landscape camera dock to itself',
     { tag: '@media' },
     async ({ browser }, testInfo) => {
       linkIssue(25681);
@@ -191,7 +191,7 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           },
           testInfo,
         });
-        await layouts.phoneLandscapeRotationPropagatesRealGeometry();
+        await layouts.phoneLandscapeKeepsTheMeetingCameraDock();
       } finally {
         await context.close();
       }

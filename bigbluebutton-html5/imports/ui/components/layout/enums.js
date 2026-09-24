@@ -61,7 +61,6 @@ export const ACTIONS = {
   SET_IS_RTL: 'setIsRTL',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
-  SET_DEVICE_ORIENTATION: 'setDeviceOrientation',
   SET_FONT_SIZE: 'setFontSize',
 
   SET_FOCUSED_CAMERA_ID: 'focusedId',
