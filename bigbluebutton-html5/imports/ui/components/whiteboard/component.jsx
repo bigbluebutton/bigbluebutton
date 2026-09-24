@@ -1927,6 +1927,7 @@ const Whiteboard = React.memo((props) => {
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.store.put([updatedCurrentCam]);
       });
+      lastRatioCameraRef.current = { pageKey, z: adjustedZoom };
 
       // Remote camera updates do not trigger the user-source listener,
       // so publish the final settled presenter view explicitly.
