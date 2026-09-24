@@ -284,6 +284,10 @@
   --notice-warning-text: var(--notice-warning-text-dark-theme, #FFC845);
   --notice-warning-icon: var(--notice-warning-icon-dark-theme, #FFC845);
 
+  /* The light scrim is a grey that barely darkens a dark screen, so the dialog
+     would not stand apart from it. */
+  --color-scrim: var(--color-scrim-dark-theme, rgba(0, 0, 0, 0.5));
+
   /* @bigbluebutton/bbb-ui-components-react (BBButton) reads a token namespace of
      its own, which the client palette never declares. Only its structure-role
      tokens are emitted; the brand ones (--color-primary, --color-danger,

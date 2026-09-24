@@ -672,6 +672,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
     - Guest: the waiting message should be replaced by the denial screen: an "Entry denied by the moderator" badge, the message explaining it, the session's name and how long ago it started above it, and a "Leave session" button
     - The setup panel should stay where it was, with the camera preview still running if it was on
     - A line below the message should count down to the automatic exit
+    - On a phone-width window, the denial should open as a dialog over the guest lobby, which stays visible behind a scrim, with the countdown and "Leave session" inside it
 
 4. Guest: wait without clicking anything
 

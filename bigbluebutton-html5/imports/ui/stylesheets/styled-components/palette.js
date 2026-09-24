@@ -58,6 +58,8 @@ const noticeWarningBg = 'var(--notice-warning-bg, rgba(255, 200, 69, 0.2))';
 const noticeWarningBorder = 'var(--notice-warning-border, #FFC845)';
 const noticeWarningText = 'var(--notice-warning-text, #936800)';
 const noticeWarningIcon = 'var(--notice-warning-icon, #A17100)';
+// Lighter than colorOverlay: the screen behind a scrimmed dialog stays readable.
+const colorScrim = 'var(--color-scrim, rgba(57, 60, 72, 0.32))';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
@@ -312,6 +314,7 @@ export {
   noticeWarningBorder,
   noticeWarningText,
   noticeWarningIcon,
+  colorScrim,
   colorBackground,
   colorOverlay,
   userListBg,

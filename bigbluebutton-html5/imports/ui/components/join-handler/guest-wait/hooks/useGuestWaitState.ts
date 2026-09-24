@@ -123,6 +123,8 @@ export interface GuestWaitStateProps {
   logoutUrl: string;
   meetingName: string;
   clientTitle: string;
+  // Off where the caller runs the denial redirect itself.
+  redirectOnDeny?: boolean;
 }
 
 export interface GuestWaitState {
@@ -145,6 +147,7 @@ const useGuestWaitState = (props: GuestWaitStateProps): GuestWaitState => {
     positionInWaitingQueue,
     meetingName,
     clientTitle,
+    redirectOnDeny = true,
   } = props;
 
   const intl = useIntl();
@@ -157,7 +160,7 @@ const useGuestWaitState = (props: GuestWaitStateProps): GuestWaitState => {
   const showPositionInWaitingQueue = window.meetingClientSettings
     .public.app.showGuestLobbyWaitingQueuePosition !== false;
 
-  useGuestDeniedRedirect(logoutUrl, guestStatus === GUEST_STATUSES.DENY);
+  useGuestDeniedRedirect(logoutUrl, redirectOnDeny && guestStatus === GUEST_STATUSES.DENY);
 
   const updateLobbyMessage = useCallback((newMessage: string | null) => {
     if (!newMessage) {

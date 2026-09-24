@@ -15,7 +15,7 @@ import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import { useGuestDeniedRedirect } from '../guest-wait/hooks/useGuestWaitState';
-import PreFlight from '/imports/ui/components/pre-flight/component';
+import PreFlight, { PreFlightError } from '/imports/ui/components/pre-flight/component';
 import GuestLobby from '/imports/ui/components/pre-flight/guest-lobby/component';
 import {
   GuestDeniedActions,
@@ -227,6 +227,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     { countdown: true },
   );
 
+  // The lobby leaves the denial redirect to this component, which shows its
+  // countdown.
   let preFlightHeader: React.ReactNode = (
     <GuestLobby
       meetingName={meetingName}
@@ -235,18 +237,24 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       guestStatus={guestStatus}
       logoutUrl={logoutUrl}
       positionInWaitingQueue={positionInWaitingQueue}
+      redirectOnDeny={false}
     />
   );
   let preFlightActions: React.ReactNode = null;
+  let preFlightError: PreFlightError | null = null;
 
   if (isGuestDenied) {
-    preFlightHeader = (
-      <GuestDeniedHeader
-        secondsLeft={guestDeniedRedirect.secondsLeft}
-        meetingName={meetingName}
-      />
-    );
-    preFlightActions = <GuestDeniedActions onLeave={guestDeniedRedirect.redirect} />;
+    // The lobby stays as the header: a phone keeps it behind the dialog.
+    preFlightError = {
+      header: (
+        <GuestDeniedHeader
+          secondsLeft={guestDeniedRedirect.secondsLeft}
+          meetingName={meetingName}
+        />
+      ),
+      actions: <GuestDeniedActions onLeave={guestDeniedRedirect.redirect} />,
+      onClose: guestDeniedRedirect.redirect,
+    };
   } else if (isGuestAllowed) {
     preFlightHeader = (
       <JoiningRoomHeader
@@ -296,6 +304,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
                 <SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />
               ) : null}
               actions={preFlightActions}
+              error={preFlightError}
             />
           )
           : null

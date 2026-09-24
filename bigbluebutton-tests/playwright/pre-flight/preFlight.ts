@@ -282,6 +282,11 @@ export class PreFlight extends MultiUsers {
     const before = await secondsLeft();
     const viewport = this.userPage.page.viewportSize();
     await this.userPage.page.setViewportSize({ width: 400, height: 800 });
+    await this.userPage.hasElement(
+      e.preFlightErrorDialog,
+      'should open the denial as a dialog over the guest lobby on the phone layout',
+    );
+    await this.userPage.hasElement(e.guestMessage, 'should keep the guest lobby behind the dialog');
     await this.userPage.hasElement(e.preFlightErrorNotice, 'should keep the countdown on the phone layout');
     expect(await secondsLeft(), 'should not restart the countdown on a layout change').toBeLessThanOrEqual(before);
     if (viewport) await this.userPage.page.setViewportSize(viewport);
