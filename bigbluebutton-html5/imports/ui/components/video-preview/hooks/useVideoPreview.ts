@@ -18,7 +18,7 @@ import {
   getCameraBrightnessInfo,
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
-import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
+import VBGSelectorService from '/imports/ui/services/virtual-background/custom-backgrounds';
 import {
   BBBVideoStream,
   CustomBgParams,
