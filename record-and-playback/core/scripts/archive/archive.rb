@@ -67,11 +67,16 @@ def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_
   FileUtils.mkdir_p(notes_dir)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
-  # Not try_download: the pad exists, so a failure here means the notes
-  # service is unreachable, not that there were no notes.
-  BigBlueButton.download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
-  # An empty pad is a valid state that exports successfully as empty content,
-  # so it is safe to tell it apart from a failed export.
+  export_failed = "#{notes_dir}/export_failed"
+  BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
+  unless File.exist? tmp_note
+    # A pad exists, so the notes service failed rather than the notes going
+    # unused. Archive without them: nothing retries a failed archive.
+    BigBlueButton.logger.warn("Failed to archive notes for #{meeting_id}, the recording will not have them")
+    FileUtils.touch(export_failed)
+    return
+  end
+  FileUtils.rm_f(export_failed)
   content = File.read(tmp_note)
   FileUtils.rm_f(tmp_note)
   if content.strip.empty?
