@@ -226,6 +226,7 @@ const Whiteboard = React.memo((props) => {
   const isPresenterRef = useRef(isPresenter);
   const viewerCanPanRef = useRef(viewerCanPan);
   const pageActualZoomRatioRef = useRef(_pageZoomRatioCache);
+  const lastRatioCameraRef = useRef({ pageKey: null, z: null });
   const calculateZoomValueRef = useRef(null);
   const calculateZoomWithGapValueRef = useRef(null);
   const fitToWidthRef = useRef(fitToWidth);
@@ -1450,7 +1451,18 @@ const Whiteboard = React.memo((props) => {
             );
             if (baseZ > 0) {
               const pageKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
-              pageActualZoomRatioRef.current[pageKey] = nextCam.z / baseZ;
+              const previousRatio = pageActualZoomRatioRef.current[pageKey];
+              const lastRatioCamera = lastRatioCameraRef.current;
+              // Use the camera delta only when the cached ratio belongs to prevCam.
+              const cameraMatchesCache = lastRatioCamera.pageKey === pageKey
+                && Number.isFinite(previousRatio) && previousRatio > 0
+                && Number.isFinite(prevCam.z) && prevCam.z > 0
+                && Math.abs(lastRatioCamera.z - prevCam.z) < 1e-6;
+              const nextRatio = cameraMatchesCache
+                ? previousRatio * (nextCam.z / prevCam.z)
+                : nextCam.z / baseZ;
+              pageActualZoomRatioRef.current[pageKey] = nextRatio;
+              lastRatioCameraRef.current = { pageKey, z: nextCam.z };
             }
           }
 
@@ -1541,6 +1553,7 @@ const Whiteboard = React.memo((props) => {
             if (baseZ > 0) {
               const pKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
               pageActualZoomRatioRef.current[pKey] = nextCam.z / baseZ;
+              lastRatioCameraRef.current = { pageKey: pKey, z: nextCam.z };
             }
           }
           updateCursorZoomRef.current?.();
