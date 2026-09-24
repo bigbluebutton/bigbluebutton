@@ -106,6 +106,11 @@ export const GRID_USERS_SUBSCRIPTION = gql`
 
 // Audio-only shows users with floor time who aren't displayed as a video tile for the current user.
 // Same camera-sharer/role filtering as GRID_USERS_SUBSCRIPTION (see note there).
+
+// Keep the order_by as a list of single-key objects: Hasura does not preserve key
+// order within a single order_by object, so a multi-key object form
+// ({ lastFloorTime: desc, userId: asc }) can drop the lastFloorTime sort
+// and fall back to userId (issue #25703).
 export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
   subscription AudioOnlyUsers($moderatorValues: [Boolean!]) {
     user(
@@ -114,10 +119,6 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
         isModerator: { _in: $moderatorValues },
         lastFloorTime: { _neq: "0" },
       },
-      // Keep this as a list of single-key objects: Hasura does not preserve key
-      // order within a single order_by object, so a multi-key object form
-      // ({ lastFloorTime: desc, userId: asc }) can drop the lastFloorTime sort
-      // and fall back to userId (issue #25703).
       order_by: [{ lastFloorTime: desc }, { userId: asc }],
     ) {
       meetingId
