@@ -67,8 +67,8 @@ const Name = styled.div`
 `;
 
 const UserConnectionMetricsContainer = styled.div`
-   border-right: 1px solid ${colorGrayLightest};
-  border-left: 1px solid ${colorGrayLightest};
+   border-right: 1px solid ${colorBorder};
+  border-left: 1px solid ${colorBorder};
 `;
 
 const ListOccurrenceContainer = styled.div`
@@ -84,7 +84,7 @@ const TimelineChartContainer = styled.div`
   height: 10rem;
   min-height: 10rem;
   padding: 0.5rem 0.75rem 1.25rem 0;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 `;
 
 const TimelineChartTitle = styled.div`
@@ -100,7 +100,7 @@ const OccurrenceListItem = styled.div`
   flex-direction: row;
   gap: 0.5rem;
   padding: 0.25rem;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 `;
 
 const OccurrenceListHeader = styled(OccurrenceListItem)`
@@ -167,8 +167,8 @@ const MetricsContainer = styled.div`
 `;
 
 const MetricsTable = styled.table`
-  border-top: 1px solid ${colorGrayLightest};
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-top: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   border-collapse: collapse;
 `;
 
@@ -177,8 +177,8 @@ type MetricsTableProps = {
 }
 
 const MetricsTableHeader = styled.th<MetricsTableProps>`
-  border-bottom: 1px solid ${colorGrayLightest};
-  border-right: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
+  border-right: 1px solid ${colorBorder};
   padding: 0.5rem;
   text-align: center;
    ${({ last }) => last && `
@@ -187,8 +187,8 @@ const MetricsTableHeader = styled.th<MetricsTableProps>`
 `;
 
 const MetricsTableData = styled.td<MetricsTableProps>`
-  border-bottom: 1px solid ${colorGrayLightest};
-  border-right: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
+  border-right: 1px solid ${colorBorder};
   padding: 0.5rem;
   text-align: center;
 
