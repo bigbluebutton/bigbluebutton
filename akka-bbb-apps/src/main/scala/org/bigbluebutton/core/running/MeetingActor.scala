@@ -642,22 +642,23 @@ class MeetingActor(
         handleListenOnlyModeToggledInSfuEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg        => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg            => handleBroadcastLayoutMsg(m)
-      case m: BroadcastPushLayoutMsg        => handleBroadcastPushLayoutMsg(m)
-      case m: SetScreenshareAsContentReqMsg => handleSetScreenshareAsContentReqMsg(m)
+      case m: GetCurrentLayoutReqMsg          => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg              => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg          => handleBroadcastPushLayoutMsg(m)
+      case m: SetScreenshareAsContentReqMsg   => handleSetScreenshareAsContentReqMsg(m)
+      case m: SetHideUsersWithoutCameraReqMsg => handleSetHideUsersWithoutCameraReqMsg(m)
 
       // Pads
-      case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: BNSharedNotesUpdatedEvtMsg    =>
+      case m: PadGroupCreatedEvtMsg           => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateReqMsg                 => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreatedEvtMsg                => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesCreatedEvtMsg      => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesUpdatedEvtMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.intUserId)
-      case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateSessionReqMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionCreatedEvtMsg => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatedSysMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.userId)
