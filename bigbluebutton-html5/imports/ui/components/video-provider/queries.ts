@@ -114,6 +114,10 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
         isModerator: { _in: $moderatorValues },
         lastFloorTime: { _neq: "0" },
       },
+      // Keep this as a list of single-key objects: Hasura does not preserve key
+      // order within a single order_by object, so a multi-key object form
+      // ({ lastFloorTime: desc, userId: asc }) can drop the lastFloorTime sort
+      // and fall back to userId (issue #25703).
       order_by: [{ lastFloorTime: desc }, { userId: asc }],
     ) {
       meetingId
