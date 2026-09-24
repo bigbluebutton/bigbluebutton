@@ -325,6 +325,13 @@ export const handleWhiteboardAccessChange = async (
     const { userId, whiteboardWriteAccess } = user;
 
     if (newWhiteboardWriteAccess !== whiteboardWriteAccess) {
+      logger.info({
+        logCode: 'usermenu_option_whiteboard_access_toggle',
+        extraInfo: { logType: 'moderator_action', userId, granted: newWhiteboardWriteAccess },
+      }, newWhiteboardWriteAccess
+        ? 'moderator granted whiteboard access to user'
+        : 'moderator removed whiteboard access from user');
+
       // Update user whiteboardWriteAccess
       await userSetWhiteboardWriteAccess({
         variables: {

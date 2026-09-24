@@ -5,6 +5,7 @@ import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import {
   enableMarkdownNotesOptions,
+  expectedSharedNotesFilename,
   getBlockNoteEditorLocator,
   getBlockNoteReadOnlyLocator,
   hasNoUnreadNotesIndicator,
@@ -199,6 +200,15 @@ export class BlockNoteSharedNotes extends MultiUsers {
       'empty shared notes PDF export should return a PDF document',
     ).toContain('application/pdf');
 
+    // The filename uses the server-local rendering of createTime. Tests must run
+    // in the same timezone as the BBB server for this deterministic comparison.
+    const expectedContentDisposition = async (ext: string) =>
+      `attachment; filename="${await expectedSharedNotesFilename(this.modPage.meetingId, ext)}"`;
+    expect(
+      pdfResponse.headers()['content-disposition'] || '',
+      'the empty PDF export filename should identify the meeting and use its create time',
+    ).toBe(await expectedContentDisposition('pdf'));
+
     // Issue #25122 is general ("empty page should not be an error"), so every
     // export format must treat an empty document as a valid empty file. Reuse
     // the authenticated export URL and assert via API requests, which are
@@ -224,6 +234,10 @@ export class BlockNoteSharedNotes extends MultiUsers {
         response.headers()['content-type'] || '',
         `empty shared notes ${format} export should return ${contentType}`,
       ).toContain(contentType);
+      expect(
+        response.headers()['content-disposition'] || '',
+        `empty shared notes ${format} export filename should identify the meeting`,
+      ).toBe(await expectedContentDisposition(format));
       // eslint-disable-next-line no-await-in-loop
       if (body) body(await response.text());
     }

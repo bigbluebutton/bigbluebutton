@@ -24,6 +24,11 @@ export class Polling extends MultiUsers {
     );
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer, 'should not display the received answer for the attendee');
+    await this.modPage.hasText(
+      e.pollStatus,
+      'Done',
+      'should display the anonymous poll as done after each attendee has answered',
+    );
   }
 
   async quickPoll() {
@@ -221,6 +226,11 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
+    await this.modPage.hasText(
+      e.pollStatus,
+      'Done',
+      'should display the poll as done after each attendee has submitted multiple answers',
+    );
     await this.modPage.hasText(
       e.userVoteLiveResult,
       '1',

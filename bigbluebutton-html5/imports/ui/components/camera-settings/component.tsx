@@ -76,7 +76,7 @@ export const CameraDeviceSelector: React.FC<CameraDeviceSelectorProps> = ({
       IconComponent={ExpandMoreIcon}
       disabled={disabled}
       inputProps={{ 'aria-label': formatMessage(intlMessages.cameraLabel) }}
-      data-test={dataTest}
+      SelectDisplayProps={{ 'data-test': dataTest } as React.HTMLAttributes<HTMLDivElement>}
     >
       {devices.map((webcam, index) => (
         <MenuItem key={webcam.deviceId} value={webcam.deviceId}>
@@ -157,7 +157,7 @@ export const CameraQualitySelector: React.FC<CameraQualitySelectorProps> = ({
       IconComponent={ExpandMoreIcon}
       disabled={disabled}
       inputProps={{ 'aria-label': formatMessage(intlMessages.qualityLabel) }}
-      data-test={dataTest}
+      SelectDisplayProps={{ 'data-test': dataTest } as React.HTMLAttributes<HTMLDivElement>}
     >
       {profiles.map((profile) => (
         <MenuItem key={profile.id} value={profile.id}>

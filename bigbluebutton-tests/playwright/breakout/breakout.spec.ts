@@ -42,10 +42,45 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.dragDropUserInRoom();
     });
 
+    test('Rejected presentation does not enable the slide selection', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25704);
+      const create = new Create(browser, context);
+      await create.initModPage(page, { testInfo });
+      await create.rejectedPresentationDoesNotEnableSlideSelection();
+    });
+
+    // Assumes default.pdf exists and maxFileSizeUpload is the 30 MB default; overriding either fails this confusingly.
+    test('Rejected presentation is not offered as a breakout room slide', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(25704);
+      const create = new Create(browser, context);
+      await create.initModPage(page, { testInfo });
+      await create.rejectedPresentationIsNotOfferedAsBreakoutSlide();
+    });
+
     test('Inherit lock settings checkbox is visible and unchecked by default', async ({ browser, context, page }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.inheritLockSettingsCheckboxIsVisible();
+    });
+
+    test('Inherit lock settings checkbox is pre-checked when inheritLockSettingsByDefault is true', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(25804);
+      const create = new Create(browser, context);
+      await create.initModPage(page, {
+        testInfo,
+        clientSettingsOverrides: {
+          public: { app: { breakouts: { inheritLockSettingsByDefault: true } } },
+        },
+      });
+      await create.inheritLockSettingsCheckboxIsChecked();
     });
 
     test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {

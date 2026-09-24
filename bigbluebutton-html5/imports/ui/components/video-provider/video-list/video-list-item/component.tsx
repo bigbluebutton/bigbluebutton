@@ -218,7 +218,15 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     const newHealthState = !isStreamStateUnhealthy(streamState);
     e.stopPropagation();
     setIsStreamHealthy(newHealthState);
+    // A healthy report may be a fresh attach with nothing decoded yet (a new
+    // srcObject resets readyState); the element's events set the flag back
+    // when a frame lands.
+    if (newHealthState && videoTag.current) {
+      setVideoDataLoaded(videoTag.current.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA);
+    }
   };
+
+  const onCanPlay = () => setVideoDataLoaded(true);
 
   const onLoadedData = () => {
     setVideoDataLoaded(true);
@@ -239,6 +247,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       subscribeToStreamStateChange(cameraId, onStreamStateChange);
       onVideoItemMount(videoTag.current!);
       videoTag?.current?.addEventListener('loadeddata', onLoadedData);
+      videoTag?.current?.addEventListener('canplay', onCanPlay);
     }
 
     if (videoContainer.current) {
@@ -249,6 +258,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     return () => {
       if (!isAudioOnly) {
         videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
+        videoTag?.current?.removeEventListener('canplay', onCanPlay);
       }
       pluginSqueezedResizeObserver.disconnect();
       resizeObserver.disconnect();

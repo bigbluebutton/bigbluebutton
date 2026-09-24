@@ -47,6 +47,8 @@ export const elements = {
   sendFeedbackButton: 'button[data-test="sendFeedbackButton"]',
   feedbackCommentInput: 'textarea#feedbackComment',
   errorScreenMessage: 'h1[data-test="errorScreenMessage"]',
+  errorScreenDescription: 'div[data-test="errorScreenDescription"]',
+  errorScreenCode: 'div[data-test="errorScreenCode"]',
   errorMessageLabel: 'span[id="error-message"]',
   shareCameraAsContent: 'div[data-test="cameraAsContent"]',
   closePopup: 'button[data-test="closePopup"]',
@@ -156,12 +158,16 @@ export const elements = {
   callModeratorButton: 'button[data-test="callModeratorButton"]',
   returnToMainSessionButton: 'button[data-test="returnToMainSessionButton"]',
   listenToBreakoutRoomButton: 'li[data-test^="listenToBreakoutRoomButton"]',
+  listenToBreakoutRoomButton1: 'li[data-test="listenToBreakoutRoomButton1"]',
+  listenToBreakoutRoomButton2: 'li[data-test="listenToBreakoutRoomButton2"]',
   breakoutTransferReturnButton: 'button[data-test="breakoutTransferReturnButton"]',
   breakoutListenToast: 'div[data-test="breakoutListenToast"]',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',
   chatMessageItem: 'div[data-test="chatMessageItem"]',
+  chatMessageContent: 'div[data-test="chatMessageContent"]',
+  chatMessageItemKeyboardFocused: 'div[data-test="chatMessageItem"].chat-message-container-keyboard-focused',
   partnerDisconnectedMessage: 'span[data-test="partnerDisconnected"]',
   chatButton: 'button[data-test*="ChatButton"]',
   messagesSidebarButton: 'div[data-test="messagesSidebarButton"]',
@@ -203,11 +209,13 @@ export const elements = {
   allowEveryone: 'button[data-test="allowEveryone"]',
   denyEveryone: 'button[data-test="denyEveryone"]',
   guestMessage: 'p[data-test="guestMessage"]',
+  waitingUserName: 'div[data-test="waitingUserName"]',
   privateMessageGuest: 'button[data-test="privateMessageGuest"]',
   acceptGuest: 'button[data-test="acceptGuest"]',
   denyGuest: 'button[data-test="denyGuest"]',
   inputPrivateLobbyMessage: 'input[data-test="privateLobbyMessage"]',
   sendPrivateLobbyMessage: 'button[data-test="sendMessageButton"]',
+  privateLobbyMessageEcho: 'div[data-test="privateLobbyMessageEcho"]',
   rememberChoice: '[data-test="rememberChoice"]',
   authenticatedWaitingUsers: '[data-test="authenticatedWaitingUsers"]',
   guestWaitingUsers: '[data-test="guestWaitingUsers"]',
@@ -279,6 +287,7 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
+  recordingIndicatorAutoCollapseToggleBtn: 'input[data-test="recordingIndicatorAutoCollapseToggleBtn"]',
   recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
   recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
   recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
@@ -432,6 +441,7 @@ export const elements = {
   noPresentation: 'h4[data-test="noPresentation"]',
   autoOptioningPollBtn: 'input[data-test="autoOptioningPollBtn"]',
   currentPollQuestion: 'span[data-test="currentPollQuestion"]',
+  pollStatus: 'div[data-test="pollStatus"]',
   allowMultiple: 'div[data-test="allowMultiple"] input[type="checkbox"]',
   firstPollAnswerDescOption: `${pollAnswerOptionDesc} input:nth-child(1)`,
   secondPollAnswerDescOption: `${pollAnswerOptionDesc}>>nth=1`,
@@ -453,6 +463,9 @@ export const elements = {
   // Presentation
   currentSlideImg: '[id="whiteboard-element"] [class="tl-image"]',
   uploadPresentationFileName: 'uploadTest.png',
+  // Generated in memory by uploadOversizedPresentation - no fixture over the upload size
+  // limit is committed to the repo.
+  rejectedPresentationFileName: 'oversized.pdf',
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
   // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707), a source whose
@@ -513,6 +526,7 @@ export const elements = {
   presentationPlaceholderLabel: 'There is no currently active presentation',
   noPresentationLabel: 'There is no currently active presentation',
   presentationDownloadEnabledLabel: 'You can now download the presentation',
+  presentationTooLargeLabel: 'File is too large, exceeded the maximum of',
 
   // Settings
   settingsSidebarButton: 'div[data-test="settingsSidebarButton"]',
@@ -798,14 +812,7 @@ export const elements = {
   fullscreenModal: 'div[id="fsmodal"]',
   sharedNotesBackground: 'div[data-test="notes"]',
 
-  // Layout management
-  manageLayoutBtn: 'li[data-test="manageLayoutBtn"]',
-  focusOnPresentation: 'button[data-test="presentationFocusLayout"]',
-  focusOnVideo: 'button[data-test="videoFocusLayout"]',
-  smartLayout: 'button[data-test="smartLayout"]',
-  customLayout: 'button[data-test="customLayout"]',
-  updateLayoutBtn: 'button[data-test="updateLayoutBtn"]',
-  updateEveryoneLayoutToggle: 'input[data-test="updateEveryoneLayoutToggle"]',
+  // Layout
   cameraDock: 'div#cameraDock',
 
   // Font size
