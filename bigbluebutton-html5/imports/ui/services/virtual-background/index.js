@@ -19,6 +19,7 @@ import logger from '/imports/startup/client/logger';
 import { simd } from 'wasm-feature-detect';
 
 const blurValue = '25px';
+const inputVideoLoadTimeout = 10000;
 
 function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
     if (arguments.length === 2) {
@@ -291,9 +292,9 @@ class VirtualBackgroundService {
      * Starts loop to capture video frame and render the segmentation mask.
      *
      * @param {MediaStream} stream - Stream to be used for processing.
-     * @returns {MediaStream} - The stream with the applied effect.
+     * @returns {Promise<MediaStream>} - The stream with the applied effect.
      */
-    startEffect(stream) {
+    async startEffect(stream) {
         this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Blur effect worker' });
         this._maskFrameTimerWorker.onmessage = this._onMaskFrameTimer;
 
@@ -317,14 +318,49 @@ class VirtualBackgroundService {
         this._inputVideoElement.width = parseInt(width, 10);
         this._inputVideoElement.height = parseInt(height, 10);
         this._inputVideoElement.autoplay = true;
-        this._inputVideoElement.srcObject = stream;
-        this._inputVideoElement.onloadeddata = () => {
-            this._maskFrameTimerWorker.postMessage({
-                id: SET_TIMEOUT,
-                timeMs: 1000 / 30
-            });
-        };
+        this._inputVideoElement.muted = true;
+        this._inputVideoElement.playsInline = true;
 
+        await new Promise((resolve, reject) => {
+            let timeoutId;
+            const cleanup = () => {
+                clearTimeout(timeoutId);
+                this._inputVideoElement.onloadeddata = null;
+                this._inputVideoElement.onerror = null;
+            };
+            const handleLoadedData = () => {
+                cleanup();
+                resolve();
+            };
+            const handleError = error => {
+                cleanup();
+                reject(error);
+            };
+
+            this._inputVideoElement.onloadeddata = handleLoadedData;
+            this._inputVideoElement.onerror = handleError;
+            timeoutId = setTimeout(() => {
+                cleanup();
+                const error = new Error('Timed out waiting for the virtual background input video');
+
+                error.name = 'TimeoutError';
+                reject(error);
+            }, inputVideoLoadTimeout);
+            this._inputVideoElement.srcObject = stream;
+            if (this._inputVideoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                handleLoadedData();
+            }
+        });
+
+        try {
+            await this._inputVideoElement.play();
+        } catch (error) {
+            logger.warn({
+                logCode: 'virtualbg_inputVideo_play_failure',
+                extraInfo: { errorName: error.name }
+            }, 'Virtual background input video playback did not start automatically');
+        }
+        this._renderMask();
         return this._outputCanvasElement.captureStream(parseInt(frameRate, 15));
     }
 

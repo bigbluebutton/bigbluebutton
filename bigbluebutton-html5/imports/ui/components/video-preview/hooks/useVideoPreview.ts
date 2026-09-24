@@ -15,10 +15,9 @@ import {
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
   setCameraBrightnessInfo,
-  getCameraBrightnessInfo,
+  applyStoredEffects,
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
-import VBGSelectorService from '/imports/ui/services/virtual-background/custom-backgrounds';
 import {
   BBBVideoStream,
   CustomBgParams,
@@ -28,7 +27,6 @@ import {
   WebcamDevice,
   DEFAULT_BRIGHTNESS_STATE,
   CameraProfileProps,
-  CustomBackground,
 } from './types';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -319,47 +317,13 @@ export const useVideoPreview = ({
     return true;
   }, [brightness, startVirtualBackground, stopVirtualBackground, updateVirtualBackgroundInfo]);
 
-  const applyCustomVirtualBg = useCallback(async (
-    type: string,
-    name: string,
-    uniqueId: string,
-    webcamDeviceIdToUse: string | null,
-    stream?: BBBVideoStream | null,
-  ) => {
-    const { backgrounds, loaded } = customVirtualBackgroundsContext;
-    let customParams: CustomBgParams | undefined;
-
-    const getCustomParams = (bgs: { [key: string]: CustomBackground }): CustomBgParams => {
-      const background = bgs[uniqueId] || Object.values(bgs).find((bg) => bg.uniqueId === uniqueId);
-      if (background?.data) {
-        return { uniqueId, file: background.data };
-      }
-      throw new Error('Missing virtual background data');
-    };
-
-    if (backgrounds[uniqueId]) {
-      customParams = getCustomParams(backgrounds as { [key: string]: CustomBackground });
-    } else if (!loaded) {
-      // Virtual BG context might not be loaded yet (in case this is
-      // skipping the video preview). Load it manually.
-      customParams = await new Promise<CustomBgParams>((resolve, reject) => {
-        VBGSelectorService.load(
-          reject,
-          (loadedBgs: { [key: string]: CustomBackground }) => resolve(getCustomParams(loadedBgs)),
-        );
-      });
-    } else {
-      throw new Error('Missing virtual background');
-    }
-
-    await handleVirtualBgSelected(type, name, customParams, webcamDeviceIdToUse, stream);
-  }, [customVirtualBackgroundsContext, handleVirtualBgSelected]);
-
   const applyStoredVirtualBg = useCallback(async (
     deviceId: string | null = null,
     stream: BBBVideoStream | null = null,
   ) => {
     const webcamDeviceIdToUse = deviceId || webcamDeviceId.current;
+    const targetStream = stream || currentVideoStream.current;
+    if (!targetStream || (stream && stream !== currentVideoStream.current)) return;
 
     // Apply the virtual background stored in Local/Session Storage, if any
     // If it fails, remove the stored background.
@@ -368,29 +332,20 @@ export const useVideoPreview = ({
     };
 
     try {
-      if (virtualBackground) {
-        const { type, name, uniqueId } = virtualBackground;
-        // If uniqueId is defined, this is a custom background. Fetch the custom
-        // params from the context and apply them
-        if (uniqueId) {
-          await applyCustomVirtualBg(type, name, uniqueId, webcamDeviceIdToUse, stream);
-        } else {
-          // Built-in background, just apply it.
-          await handleVirtualBgSelected(type, name, undefined, webcamDeviceIdToUse, stream);
-        }
-        return;
+      const restored = await applyStoredEffects(targetStream, webcamDeviceIdToUse, {
+        customBackgrounds: customVirtualBackgroundsContext.backgrounds,
+      });
+      if (restored.virtualBackground) {
+        updateVirtualBackgroundInfo(webcamDeviceIdToUse, targetStream);
+        setVirtualBackgroundActive(true);
+        displayPreview();
       }
-
-      const { webcamBackgroundURL } = customVirtualBackgroundsContext.backgrounds;
-      if (webcamBackgroundURL) {
-        // Apply custom background from JOIN URL parameter automatically
-        // only if there's not any session background yet.
-        const {
-          filename, data, type, uniqueId,
-        } = webcamBackgroundURL;
-        const customParams = { file: data, uniqueId };
-        await handleVirtualBgSelected(type, filename, customParams, webcamDeviceIdToUse, stream);
-      }
+      const cameraBrightness = (restored.cameraBrightness || DEFAULT_BRIGHTNESS_STATE) as {
+        brightness: number;
+        wholeImageBrightness: boolean;
+      };
+      setBrightness(cameraBrightness.brightness);
+      setWholeImageBrightness(cameraBrightness.wholeImageBrightness);
     } catch (error) {
       const { type, name } = virtualBackground || customVirtualBackgroundsContext.backgrounds.webcamBackgroundURL || {};
       handleVirtualBgError(error as Error, type, name);
@@ -400,9 +355,9 @@ export const useVideoPreview = ({
   }, [
     webcamDeviceId.current,
     customVirtualBackgroundsContext,
-    handleVirtualBgSelected,
     handleVirtualBgError,
-    applyCustomVirtualBg,
+    updateVirtualBackgroundInfo,
+    displayPreview,
   ]);
 
   const updateDeviceId = useCallback((deviceId: string | null) => {
@@ -484,20 +439,6 @@ export const useVideoPreview = ({
     }
   }, [startCameraBrightness, brightness, isCameraShared, webcamDeviceId.current]);
 
-  const applyStoredBrightness = useCallback(async (deviceId: string | null = null) => {
-    const webcamDeviceIdToUse = deviceId || webcamDeviceId.current;
-    const cameraBrightness = getCameraBrightnessInfo(webcamDeviceIdToUse) as {
-      brightness: number, wholeImageBrightness: boolean
-    };
-    const stateToApply = (cameraBrightness && !isEqual(cameraBrightness, DEFAULT_BRIGHTNESS_STATE))
-      ? cameraBrightness
-      : DEFAULT_BRIGHTNESS_STATE;
-
-    setBrightness(stateToApply.brightness);
-    setWholeImageBrightness(stateToApply.wholeImageBrightness);
-    await startCameraBrightness(stateToApply);
-  }, [startCameraBrightness]);
-
   const getCameraStream = useCallback(async (
     deviceId: string | null,
     profile: CameraProfileProps,
@@ -553,12 +494,10 @@ export const useVideoPreview = ({
     try {
       if (!isCameraAsContent) {
         await applyStoredVirtualBg(finalDeviceId, bbbVideoStream);
-        // Brightness is applied to the current stream, which now belongs to the newer call
         if (isSuperseded()) {
           endCameraLoad();
           return null;
         }
-        await applyStoredBrightness(finalDeviceId);
       }
     } catch (error) {
       // Only bubble up errors in this case if we're skipping the video preview
@@ -587,7 +526,7 @@ export const useVideoPreview = ({
   }, [
     isCameraAsContent,
     terminateCameraStream, cleanupStreamAndVideo, setCurrentVideoStream,
-    updateDeviceId, handlePreviewError, applyStoredVirtualBg, applyStoredBrightness,
+    updateDeviceId, handlePreviewError, applyStoredVirtualBg,
     beginCameraLoad, endCameraLoad,
   ]);
 
