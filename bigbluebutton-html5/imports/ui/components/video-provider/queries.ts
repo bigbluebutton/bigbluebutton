@@ -52,6 +52,23 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   }
 `;
 
+// Bots without cameras do not have grid avatars. Count camera users once, even
+// when they share several cameras, using the permitted camera relationship.
+export const GRID_USERS_COUNT_SUBSCRIPTION = gql`
+  subscription GridUsersCount {
+    user_aggregate(where: {
+      _or: [
+        { bot: { _eq: false } },
+        { cameras_aggregate: { count: { predicate: { _gt: 0 } } } },
+      ],
+    }) {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
 // Grid shows users who aren't displayed as a video tile for the current user.
 // Camera-sharers are excluded (isSharingCamera = camerasCount > 0). When the user can
 // only see moderator cameras (webcamsOnlyForModerator + locked), non-moderators are
@@ -110,6 +127,7 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
   subscription AudioOnlyUsers($moderatorValues: [Boolean!]) {
     user(
       where: {
+        bot: { _eq: false },
         isSharingCamera: { _eq: false },
         isModerator: { _in: $moderatorValues },
         lastFloorTime: { _neq: "0" },
@@ -149,6 +167,7 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
 
 export default {
   VIDEO_STREAMS_SUBSCRIPTION,
+  GRID_USERS_COUNT_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
 };
