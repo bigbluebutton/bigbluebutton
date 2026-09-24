@@ -8,7 +8,9 @@
         <action application="set" data="rtp_manual_rtp_bugs=ACCEPT_ANY_PACKETS"/>
         <action application="set" data="jb_use_timestamps=true"/>
         <action application="set" data="conference_member_flags=mute"/>
-        <action application="transfer" data="${destination_number} XML default"/>
+        <condition field="destination_number" expression="^(\d{5,11})$" break="on-false">
+          <action application="transfer" data="$1 XML default"/>
+        </condition>
       </condition>
     </extension>
 </include>
