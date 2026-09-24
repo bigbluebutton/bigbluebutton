@@ -78,7 +78,7 @@ test.describe.parallel('Connection Status', { tag: '@ci' }, () => {
 
     // Degrade this client's RTT so it reaches an unstable status and gets listed in
     // Session Logs; without it the list stays empty under the shipped thresholds.
-    await context.route('**/rtt-check', async (route) => {
+    await context.route('**/rtt-check**', async (route) => {
       await new Promise((resolve) => { setTimeout(resolve, 900); });
       await route.continue();
     });
@@ -96,7 +96,8 @@ test.describe.parallel('Connection Status', { tag: '@ci' }, () => {
     await page.getByRole('button', { name: 'Close' }).click();
     await expect(page.locator(e.connectionStatusModal)).toBeHidden();
 
-    await expect(page.locator(e.notificationBannerBar)).toContainText('code 3006');
+    // 4.0 surfaces this as a toast (role="alert"), not the 3.0 banner bar.
+    await expect(page.locator('#connection-error-notification')).toContainText('code 3006');
     await expect(page.locator(e.notificationBannerReloadButton)).toBeVisible();
   });
 
