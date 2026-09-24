@@ -1689,8 +1689,10 @@ const Whiteboard = React.memo((props) => {
         const presentationHeightLocal = currentPresentationPageRef.current?.scaledHeight || 0;
 
         // Adjust camera position to ensure it stays within bounds
+        // (but skip the check when presenter's camera is being initialized)
         const panned = next?.id?.includes('camera') && (prev.x !== next.x || prev.y !== next.y);
-        if (panned && !currentPresentationPageRef.current?.infiniteWhiteboard) {
+        if (panned && (!isPresenterRef.current || isMountedRef.current)
+            && !currentPresentationPageRef.current?.infiniteWhiteboard) {
           // Horizontal bounds check
           if (next.x > 0) {
             newNext.x = 0;
