@@ -5,6 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { ThemeProvider } from '@mui/material/styles';
 import Styled from './styles';
 import SetupPanel from './setup-panel/component';
+import { PreFlightErrorDialog } from './error-screen/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
 import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
@@ -32,18 +33,37 @@ const intlMessages = defineMessages({
   },
 });
 
+export interface PreFlightError {
+  header: React.ReactNode;
+  actions: React.ReactNode;
+  // Closing the phone dialog.
+  onClose: () => void;
+}
+
 interface PreFlightProps {
   // The session heading and whatever states it: above the panel on a phone,
   // beside it otherwise.
   header: React.ReactNode;
+  topInfo?: React.ReactNode;
   // What commits the setup - the join button. Rendered after the panel in both
   // layouts, so it never precedes the controls it commits.
   actions?: React.ReactNode;
-  // A denied or invalid guest gets no camera stream and no microphone prompt.
+  // Off for an invalid guest and for one denied before the panel came up: no
+  // camera stream and no microphone prompt.
   showSetupPanel?: boolean;
+  // An error that interrupts the screen: it takes the header's and the
+  // actions' place beside the panel, and opens as a dialog over the unchanged
+  // screen on a phone.
+  error?: PreFlightError | null;
 }
 
-const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetupPanel = true }) => {
+const PreFlight: React.FC<PreFlightProps> = ({
+  header,
+  topInfo = null,
+  actions = null,
+  showSetupPanel = true,
+  error = null,
+}) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
@@ -147,7 +167,12 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
           surfaces come from its own theme rather than the palette's variables. */}
       <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
         <Styled.Page data-test="preFlight">
-          {isPhoneWidth && <Styled.HeaderColumn>{header}</Styled.HeaderColumn>}
+          {isPhoneWidth && (
+            <Styled.HeaderColumn>
+              {topInfo}
+              {header}
+            </Styled.HeaderColumn>
+          )}
           {showSetupPanel && (
             <Styled.SetupColumn>
               <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
@@ -157,10 +182,26 @@ const PreFlight: React.FC<PreFlightProps> = ({ header, actions = null, showSetup
             </Styled.SetupColumn>
           )}
           <Styled.ContentColumn>
-            {!isPhoneWidth && header}
-            {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+            {!isPhoneWidth && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
+            {!isPhoneWidth && error ? (
+              <Styled.CenterStack>
+                {error.header}
+                <Styled.ActionBar>{error.actions}</Styled.ActionBar>
+              </Styled.CenterStack>
+            ) : (
+              <Styled.CenterStack>
+                {!isPhoneWidth && header}
+                {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+              </Styled.CenterStack>
+            )}
           </Styled.ContentColumn>
         </Styled.Page>
+        {isPhoneWidth && error && (
+          <PreFlightErrorDialog onClose={error.onClose}>
+            {error.header}
+            {error.actions}
+          </PreFlightErrorDialog>
+        )}
       </ThemeProvider>
     </PreFlightContext.Provider>
   );
