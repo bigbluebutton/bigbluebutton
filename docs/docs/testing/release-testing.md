@@ -354,6 +354,41 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - You should be able to see you again after enabling it
 
+### Hide participants without camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/hideUsersWithoutCamera.spec.ts)
+
+1. Join a meeting with a moderator and a viewer. Only the moderator shares a webcam.
+
+    - The viewer shouldn't see the "Layout view" button in the actions bar.
+
+2. Moderator: minimize the presentation.
+
+    - Everyone should see the grid: the moderator's webcam plus the viewer's avatar tile.
+
+3. Moderator: click "Layout view" in the actions bar and turn on "Hide participants without camera".
+
+    - Avatar tiles should disappear for everyone, moderators included. Only the moderator's webcam remains.
+
+4. Moderator: turn the toggle off and close the panel.
+
+    - The avatar tiles should come back for everyone.
+
+### Hide participants without camera: late join, presenter and audio-only tiles
+
+1. Join a meeting with a moderator and 2 viewers, nobody sharing a webcam. Minimize the presentation.
+
+2. Moderator: turn on "Hide participants without camera".
+
+    - A viewer who joins now, or reloads, should also see no avatar tiles.
+    - A viewer speaking without a webcam shouldn't get an audio-only tile.
+
+3. Make a viewer presenter. As that viewer, open "Layout view" and turn the toggle off.
+
+    - The avatar tiles should come back for everyone.
+
+4. Create a meeting with `disabledFeatures=webcamGrid` and join as moderator.
+
+    - The "Layout view" button shouldn't be shown.
+
 ### Share camera as content [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
 1. Join in a meeting with 2 users.
