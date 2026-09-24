@@ -87,7 +87,7 @@ export class ConnectionStatus extends MultiUsers {
     // unstable status under the shipped public.stats.rtt thresholds.
     const delays = [900, 500, 100];
     let requestIndex = 0;
-    await this.userPage!.page.route('**/rtt-check', async (route) => {
+    await this.userPage!.page.route('**/rtt-check**', async (route) => {
       const delay = delays[Math.min(requestIndex, delays.length - 1)];
       requestIndex += 1;
       await new Promise((resolve) => { setTimeout(resolve, delay); });
@@ -102,7 +102,8 @@ export class ConnectionStatus extends MultiUsers {
       return count;
     }, {
       message: 'connection status history should be populated by RTT reports',
-      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      // 4.0 pings every public.stats.interval (10s), so allow several rounds.
+      timeout: 90000,
       intervals: [10000],
     }).toBeGreaterThan(0);
 
@@ -131,7 +132,7 @@ export class ConnectionStatus extends MultiUsers {
     await expect(reportsToggle).toHaveAttribute('aria-expanded', 'true');
     await expect.poll(async () => historyEntries.count(), {
       message: 'the expanded connection history should include multiple reports',
-      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      timeout: 30000,
     }).toBeGreaterThan(1);
 
     const reports = await historyEntries.evaluateAll((items) => (
