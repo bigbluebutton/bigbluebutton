@@ -221,6 +221,7 @@ const Whiteboard = React.memo((props) => {
   const isMouseDownRef = useRef(false);
   const shapeBatchRef = useRef({});
   const isMountedRef = useRef(false);
+  const isRestoringPresenterCameraRef = useRef(false);
   const isWheelZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
@@ -1131,12 +1132,17 @@ const Whiteboard = React.memo((props) => {
             baseZoom = zoomWithGap;
           }
 
-          coreCameraLogic({
-            baseZoom,
-            xOffset,
-            yOffset,
-            description: '(presenter)',
-          });
+          isRestoringPresenterCameraRef.current = true;
+          try {
+            coreCameraLogic({
+              baseZoom,
+              xOffset,
+              yOffset,
+              description: '(presenter)',
+            });
+          } finally {
+            isRestoringPresenterCameraRef.current = false;
+          }
         } else if (includeViewerLogic) {
           // Viewer logic
           baseZoom = calculateZoomValueRef.current(scaledViewBoxWidth, scaledViewBoxHeight);
@@ -1689,8 +1695,9 @@ const Whiteboard = React.memo((props) => {
         const presentationHeightLocal = currentPresentationPageRef.current?.scaledHeight || 0;
 
         // Adjust camera position to ensure it stays within bounds
+        // Skip the check during presenter's camera is being restored
         const panned = next?.id?.includes('camera') && (prev.x !== next.x || prev.y !== next.y);
-        if (panned && !currentPresentationPageRef.current?.infiniteWhiteboard) {
+        if (panned && !isRestoringPresenterCameraRef.current && !currentPresentationPageRef.current?.infiniteWhiteboard) {
           // Horizontal bounds check
           if (next.x > 0) {
             newNext.x = 0;
