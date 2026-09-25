@@ -46,8 +46,14 @@ const VideoPreviewContainer = (props) => {
   const hideNotifications = hideNotificationToasts
     || getFromUserSettings('bbb_hide_notifications', false);
   const stopSharing = (deviceId) => {
-    callbackToClose();
-    setIsOpen(false);
+    const shouldKeepModalOpen = deviceId
+      && VideoService.isMultipleCamerasEnabled();
+
+    if (!shouldKeepModalOpen) {
+      callbackToClose();
+      setIsOpen(false);
+    }
+
     if (deviceId) {
       const streamId = VideoService.getMyStreamId(deviceId, streams);
       if (streamId) stopVideo(streamId);
@@ -81,8 +87,10 @@ const VideoPreviewContainer = (props) => {
   };
 
   const startSharing = (deviceId) => {
-    callbackToClose();
-    setIsOpen(false);
+    if (!VideoService.isMultipleCamerasEnabled()) {
+      callbackToClose();
+      setIsOpen(false);
+    }
     VideoService.joinVideo(deviceId, isCamLocked);
   };
 
