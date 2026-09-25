@@ -132,6 +132,132 @@ const intlMessages = defineMessages({
 // any individual component instance without serialization overhead.
 const _pageZoomRatioCache = {};
 
+const PRESENTER_ANNOTATIONS_UPDATE_INTERVAL = 200;
+
+const isAnnotationShapeRecord = (record) => (
+  record?.typeName === 'shape'
+  && !record.id?.startsWith('shape:BG-')
+);
+
+const hasAnnotationShapeChanges = (changes) => {
+  if (!changes) return false;
+
+  const {
+    added = {},
+    updated = {},
+    removed = {},
+  } = changes;
+
+  return (
+    Object.values(added).some(isAnnotationShapeRecord)
+    || Object.values(updated).some(([previousRecord, nextRecord]) => (
+      isAnnotationShapeRecord(previousRecord)
+      || isAnnotationShapeRecord(nextRecord)
+    ))
+    || Object.values(removed).some(isAnnotationShapeRecord)
+  );
+};
+
+const exportPresenterAnnotations = async (
+  currentEditor,
+  currentPageId,
+) => {
+  if (
+    !currentEditor
+    || typeof currentEditor.getSvg !== 'function'
+    || typeof currentEditor.getShapePageBounds !== 'function'
+  ) {
+    logger.error(
+      { logCode: 'PresenterAnnotationsExport' },
+      'Required tldraw export APIs are unavailable',
+    );
+
+    return {
+      status: 'error',
+    };
+  }
+
+  const expectedTldrawPageId = `page:${currentPageId}`;
+
+  // A slide change may still be updating the tldraw store.
+  if (currentEditor.getCurrentPageId() !== expectedTldrawPageId) {
+    return {
+      status: 'not-ready',
+    };
+  }
+
+  const currentPageShapes =
+    currentEditor.getCurrentPageShapes();
+
+  const backgroundShape = (
+    currentEditor.getShape(`shape:BG-${currentPageId}`)
+    || currentPageShapes.find(
+      (shape) => shape.id.startsWith('shape:BG-'),
+    )
+  );
+
+  if (!backgroundShape) {
+    return {
+      status: 'not-ready',
+    };
+  }
+
+  const annotationShapes = currentPageShapes.filter(
+    isAnnotationShapeRecord,
+  );
+
+  if (annotationShapes.length === 0) {
+    return {
+      status: 'empty',
+    };
+  }
+
+  const slideBounds =
+    currentEditor.getShapePageBounds(backgroundShape);
+
+  if (!slideBounds) {
+    return {
+      status: 'not-ready',
+    };
+  }
+
+  try {
+    const svgElement = await currentEditor.getSvg(
+      annotationShapes,
+      {
+        bounds: slideBounds.clone(),
+        background: false,
+        padding: 0,
+        preserveAspectRatio: 'xMidYMid meet',
+      },
+    );
+
+    if (!svgElement) {
+      return {
+        status: 'error',
+      };
+    }
+
+    const svgMarkup = new XMLSerializer().serializeToString(
+      svgElement,
+    );
+
+    return {
+      status: 'success',
+      svgMarkup,
+    };
+  } catch (error) {
+    logger.error(
+      { logCode: 'PresenterAnnotationsExport' },
+      `Failed to export presenter annotations: ${error}`,
+    );
+
+    return {
+      status: 'error',
+    };
+  }
+};
+
 const Whiteboard = React.memo((props) => {
   const {
     isPresenter = false,
@@ -184,6 +310,10 @@ const Whiteboard = React.memo((props) => {
     lockToolbarTools,
     layoutChanged,
     pointerDiameter = 5,
+    isPresentationDetached,
+    popupWindow,
+    onPresenterViewChange,
+    onPresenterAnnotationsChange,
   } = props;
 
   const allowInfiniteWhiteboardPanForViewers = window.meetingClientSettings?.public?.whiteboard?.allowInfiniteWhiteboardPanForViewers;
@@ -195,6 +325,11 @@ const Whiteboard = React.memo((props) => {
     && hasWBAccess;
 
   clearTldrawCache();
+
+  const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
+  const raf = targetWin.requestAnimationFrame.bind(targetWin);
+  const caf = targetWin.cancelAnimationFrame.bind(targetWin);
+
 
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
@@ -246,6 +381,17 @@ const Whiteboard = React.memo((props) => {
   const hasZoomSyncedRef = useRef(false);
   const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
+  const originalHTMLElementRef = React.useRef(null);
+  const presenterViewFrameRef = React.useRef(null);
+  const lastPresenterViewRef = React.useRef(null);
+  const onPresenterViewChangeRef = React.useRef(onPresenterViewChange);
+  const onPresenterAnnotationsChangeRef = React.useRef(onPresenterAnnotationsChange);
+  const isPresentationDetachedRef = React.useRef(isPresentationDetached);
+  const presenterAnnotationsTimerRef = React.useRef(null);
+  const presenterAnnotationsExportingRef = React.useRef(false);
+  const presenterAnnotationsPendingRef = React.useRef(false);
+  const presenterAnnotationsActiveRef = React.useRef(true);
+  const publishPresenterAnnotationsRef = React.useRef(null);
 
   currentUserRef.current = currentUser;
 
@@ -521,6 +667,19 @@ const Whiteboard = React.memo((props) => {
       });
     }
   }, [removedShapes]);
+
+  React.useEffect(() => {
+    onPresenterViewChangeRef.current = onPresenterViewChange;
+  }, [onPresenterViewChange]);
+
+  React.useEffect(() => {
+    onPresenterAnnotationsChangeRef.current =
+      onPresenterAnnotationsChange;
+  }, [onPresenterAnnotationsChange]);
+
+  React.useEffect(() => {
+    isPresentationDetachedRef.current = isPresentationDetached;
+  }, [isPresentationDetached]);
 
   const handleCopy = useCallback(() => {
     const selectedShapes = tlEditorRef.current?.getSelectedShapes();
@@ -952,8 +1111,10 @@ const Whiteboard = React.memo((props) => {
   calculateZoomValueRef.current = calculateZoomValue;
 
   const getContainerDimensions = () => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    // This change affects the behaviour when resize and fullscreen the popupWindow.
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const container = targetDoc.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = targetDoc.getElementById('presentationInnerWrapper');
     const containerWidth = container ? container.offsetWidth : 0;
     const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
     const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
@@ -1177,8 +1338,10 @@ const Whiteboard = React.memo((props) => {
     stableCount = 0,
     lastDimensions = { width: 0, height: 0 },
   ) => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    // This change affects the behaviour when resize and fullscreen the popupWindow.
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const container = targetDoc.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = targetDoc.getElementById('presentationInnerWrapper');
 
     const containerWidth = container ? container.offsetWidth : 0;
     const containerHeight = container ? container.offsetHeight : 0;
@@ -1209,7 +1372,7 @@ const Whiteboard = React.memo((props) => {
     }
 
     if (currentTry < options.maxTries) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = raf(() => {
         pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
@@ -1244,7 +1407,7 @@ const Whiteboard = React.memo((props) => {
     if (isMountedRef.current) {
       onReady();
     } else if (currentTry <= options.maxTries) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = raf(() => {
         pollUntilMounted(onReady, onFail, ref, options, currentTry + 1);
       });
       if (_ref) {
@@ -1254,6 +1417,234 @@ const Whiteboard = React.memo((props) => {
       onFail();
     }
   };
+
+  const roundPresenterViewValue = (value) => (
+    Number.isFinite(value)
+      ? Number(value.toFixed(6))
+      : 0
+  );
+
+  const updatePresenterView = (editor) => {
+    const callback = onPresenterViewChangeRef.current;
+
+    if (
+      !editor
+      || !isPresenterRef.current
+      || !isPresentationDetachedRef.current
+      || typeof callback !== 'function'
+    ) {
+      return;
+    }
+
+    const viewport = editor.getViewportPageBounds();
+    const slideShape = editor.getShape(
+      `shape:BG-${curPageIdRef.current}`,
+    );
+    const cursorPoint = editor.inputs.currentPagePoint;
+
+    if (
+      !viewport
+      || !(viewport.w > 0)
+      || !(viewport.h > 0)
+      || !slideShape
+      || !(slideShape.props?.w > 0)
+      || !(slideShape.props?.h > 0)
+    ) {
+      if (lastPresenterViewRef.current !== null) {
+        lastPresenterViewRef.current = null;
+        callback(null);
+      }
+
+      return;
+    }
+
+    const cursorLeftRatio = cursorPoint
+      ? (cursorPoint.x - viewport.x) / viewport.w
+      : -1;
+
+    const cursorTopRatio = cursorPoint
+      ? (cursorPoint.y - viewport.y) / viewport.h
+      : -1;
+
+    const cursorVisible =
+      cursorLeftRatio >= 0
+      && cursorLeftRatio <= 1
+      && cursorTopRatio >= 0
+      && cursorTopRatio <= 1;
+
+    const nextPresenterView = {
+      presentationId: presentationIdRef.current,
+      pageId: Number(curPageIdRef.current),
+
+      viewportAspectRatio: roundPresenterViewValue(
+        viewport.w / viewport.h,
+      ),
+
+      slide: {
+        leftRatio: roundPresenterViewValue(
+          (slideShape.x - viewport.x) / viewport.w,
+        ),
+        topRatio: roundPresenterViewValue(
+          (slideShape.y - viewport.y) / viewport.h,
+        ),
+        widthRatio: roundPresenterViewValue(
+          slideShape.props.w / viewport.w,
+        ),
+        heightRatio: roundPresenterViewValue(
+          slideShape.props.h / viewport.h,
+        ),
+      },
+
+      cursor: {
+        leftRatio: roundPresenterViewValue(cursorLeftRatio),
+        topRatio: roundPresenterViewValue(cursorTopRatio),
+        visible: cursorVisible,
+      },
+    };
+
+    if (isEqual(lastPresenterViewRef.current, nextPresenterView)) {
+      return;
+    }
+
+    lastPresenterViewRef.current = nextPresenterView;
+    callback(nextPresenterView);
+  };
+
+  const schedulePresenterViewUpdate = (editor) => {
+    if (
+      !editor
+      || !isPresenterRef.current
+      || !isPresentationDetachedRef.current
+      || typeof onPresenterViewChangeRef.current !== 'function'
+      || presenterViewFrameRef.current !== null
+    ) {
+      return;
+    }
+
+    presenterViewFrameRef.current = raf(() => {
+      presenterViewFrameRef.current = null;
+      updatePresenterView(editor);
+    });
+  };
+
+  const schedulePresenterAnnotationsUpdate = () => {
+    if (
+      !presenterAnnotationsActiveRef.current
+      || !tlEditorRef.current
+      || !isPresenterRef.current
+      || !isPresentationDetachedRef.current
+      || typeof onPresenterAnnotationsChangeRef.current !== 'function'
+    ) {
+      return;
+    }
+
+    // Remember that the store has changed, even if an export is
+    // already running.
+    presenterAnnotationsPendingRef.current = true;
+
+    if (
+      presenterAnnotationsTimerRef.current !== null
+      || presenterAnnotationsExportingRef.current
+    ) {
+      return;
+    }
+
+    presenterAnnotationsTimerRef.current = window.setTimeout(() => {
+      presenterAnnotationsTimerRef.current = null;
+
+      const publish = publishPresenterAnnotationsRef.current;
+      if (typeof publish === 'function') {
+        void publish();
+      }
+    }, PRESENTER_ANNOTATIONS_UPDATE_INTERVAL);
+  };
+
+  const publishPresenterAnnotations = async () => {
+    if (presenterAnnotationsExportingRef.current) {
+      presenterAnnotationsPendingRef.current = true;
+      return;
+    }
+
+    const currentEditor = tlEditorRef.current;
+    const callback = onPresenterAnnotationsChangeRef.current;
+    const currentPageId = Number(curPageIdRef.current);
+    const currentPresentationId = presentationIdRef.current;
+
+    if (
+      !presenterAnnotationsActiveRef.current
+      || !currentEditor
+      || !isPresenterRef.current
+      || !isPresentationDetachedRef.current
+      || typeof callback !== 'function'
+      || !Number.isFinite(currentPageId)
+    ) {
+      return;
+    }
+
+    presenterAnnotationsExportingRef.current = true;
+    presenterAnnotationsPendingRef.current = false;
+
+    try {
+      const exportResult = await exportPresenterAnnotations(
+        currentEditor,
+        currentPageId,
+      );
+
+      /*
+       * getSvg() is asynchronous. The presenter may have changed slides,
+       * closed the popup, or lost presenter status while it was running.
+       */
+      const resultStillCurrent = (
+        presenterAnnotationsActiveRef.current
+        && currentEditor === tlEditorRef.current
+        && isPresenterRef.current
+        && isPresentationDetachedRef.current
+        && Number(curPageIdRef.current) === currentPageId
+        && presentationIdRef.current === currentPresentationId
+        && onPresenterAnnotationsChangeRef.current === callback
+      );
+
+      if (!resultStillCurrent) {
+        presenterAnnotationsPendingRef.current = true;
+        return;
+      }
+
+      if (exportResult.status === 'success') {
+        callback({
+          presentationId: currentPresentationId,
+          pageId: currentPageId,
+          svgMarkup: exportResult.svgMarkup,
+        });
+        return;
+      }
+
+      if (exportResult.status === 'empty') {
+        // Remove an old overlay when the last annotation was deleted.
+        callback({
+          presentationId: currentPresentationId,
+          pageId: currentPageId,
+          svgMarkup: null,
+        });
+      }
+
+      /*
+       * For 'not-ready' and 'error', keep the currently displayed
+       * annotation SVG. A later store or page update will schedule
+       * another export.
+       */
+    } finally {
+      presenterAnnotationsExportingRef.current = false;
+
+      if (
+        presenterAnnotationsPendingRef.current
+        && presenterAnnotationsActiveRef.current
+      ) {
+        schedulePresenterAnnotationsUpdate();
+      }
+    }
+  };
+
+  publishPresenterAnnotationsRef.current = publishPresenterAnnotations;
 
   const handleTldrawMount = (editor) => {
     if (typeof editor.history.setMaxStackSize === 'function') {
@@ -1438,6 +1829,10 @@ const Whiteboard = React.memo((props) => {
         const camKey = `camera:page:${curPageIdRef.current}`;
         const { [camKey]: cameras } = updated;
 
+        if (pointers || cameras) {
+          schedulePresenterViewUpdate(editor);
+        }
+
         if (cameras) {
           const [prevCam, nextCam] = cameras;
           const panned = prevCam.x !== nextCam.x || prevCam.y !== nextCam.y;
@@ -1544,7 +1939,19 @@ const Whiteboard = React.memo((props) => {
             }
           }
           updateCursorZoomRef.current?.();
+          schedulePresenterViewUpdate(editor);
         }
+      },
+    );
+
+    editor.store.listen(
+      ({ changes }) => {
+        if (hasAnnotationShapeChanges(changes)) {
+          schedulePresenterAnnotationsUpdate();
+        }
+      },
+      {
+        scope: 'document',
       },
     );
 
@@ -1584,6 +1991,8 @@ const Whiteboard = React.memo((props) => {
           editor.history.clear();
         });
       });
+
+      schedulePresenterAnnotationsUpdate();
 
       // eslint-disable-next-line no-param-reassign
       editor.store.onBeforeChange = (prev, next) => {
@@ -1625,6 +2034,8 @@ const Whiteboard = React.memo((props) => {
                 'fade-out',
                 '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
+                isPresentationDetached,
+                popupWindow,
               );
             } else if (visibilityState === 'hidden') {
               toggleToolsAnimations(
@@ -1632,6 +2043,8 @@ const Whiteboard = React.memo((props) => {
                 'fade-in',
                 '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
+                isPresentationDetached,
+                popupWindow,
               );
             }
             lastVisibilityStateRef.current = visibilityState;
@@ -1759,6 +2172,10 @@ const Whiteboard = React.memo((props) => {
 
     pollInnerWrapperDimensionsUntilStable(() => {
       adjustCameraOnMount(!isPresenterRef.current);
+
+      raf(() => {
+        schedulePresenterViewUpdate(editor);
+      });
     });
 
     // New cursor hint shape: circle scaled by pointerDiameter, centered at (0,0)
@@ -1992,6 +2409,8 @@ const Whiteboard = React.memo((props) => {
       setIsWheelZoom,
       setWheelZoomTimeout,
       isInfiniteWhiteboard,
+      isPresentationDetached,
+      popupWindow,
     },
   );
 
@@ -2133,14 +2552,14 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (isMountedPollingFrameRef.current !== null) {
-      cancelAnimationFrame(isMountedPollingFrameRef.current);
+      caf(isMountedPollingFrameRef.current);
     }
-    isMountedPollingFrameRef.current = requestAnimationFrame(() => {
+    isMountedPollingFrameRef.current = raf(() => {
       pollUntilMounted(() => {
         if (innerWrapperPollingFrameRef.current !== null) {
-          cancelAnimationFrame(innerWrapperPollingFrameRef.current);
+          caf(innerWrapperPollingFrameRef.current);
         }
-        innerWrapperPollingFrameRef.current = requestAnimationFrame(() => {
+        innerWrapperPollingFrameRef.current = raf(() => {
           pollInnerWrapperDimensionsUntilStable(() => {
             syncCameraWithPresentationArea();
           }, {
@@ -2180,6 +2599,35 @@ const Whiteboard = React.memo((props) => {
       );
     }
   }, [currentPresentationPage, isPresenter, viewerCanPan]);
+
+  // HTMLElement injection
+  // The tldraw module uses HTMLElement variable, which is not from the popup.
+  // Thus some tldraw functions such as fullscreen and resize a drawing
+  //  does not work on the popup window.
+  // This actually modify a global variable, possibly causing other problems
+  //  -> Indeed. Now the original HTMLElement is backed up and used elsewhere.
+  React.useEffect(() => {
+    if (!isPresenter) return;
+
+    if (isPresentationDetached && popupWindow?.HTMLElement) {
+      if (!originalHTMLElementRef.current) {
+        originalHTMLElementRef.current = window.HTMLElement;
+      }
+      window.HTMLElement = popupWindow.HTMLElement;
+    } else {
+      if (originalHTMLElementRef.current) {
+        window.HTMLElement = originalHTMLElementRef.current;
+        originalHTMLElementRef.current = null;
+      }
+    }
+
+    return () => {
+      if (originalHTMLElementRef.current) {
+        window.HTMLElement = originalHTMLElementRef.current;
+        originalHTMLElementRef.current = null;
+      }
+    };
+  }, [isPresentationDetached, popupWindow, isPresenter]);
 
   React.useEffect(() => {
     if (tlEditorRef.current) {
@@ -2263,7 +2711,7 @@ const Whiteboard = React.memo((props) => {
 
   const toggleToolbarIfNeeded = () => {
     if (whiteboardToolbarAutoHide && toggleToolsAnimations) {
-      toggleToolsAnimations('fade-in', 'fade-out', '0s', hasWBAccessRef.current || isPresenterRef.current);
+      toggleToolsAnimations('fade-in', 'fade-out', '0s', hasWBAccessRef.current || isPresenterRef.current, isPresentationDetached, popupWindow);
     }
   };
 
@@ -2345,6 +2793,11 @@ const Whiteboard = React.memo((props) => {
       toggleToolbarIfNeeded();
       resetSlideState();
 
+      raf(() => {
+        schedulePresenterViewUpdate(tlEditorRef.current);
+        schedulePresenterAnnotationsUpdate();
+      });
+
       if (viewerCanPanRef.current) {
         pollInnerWrapperDimensionsUntilStable(() => {
           adjustCameraOnMount(true);
@@ -2409,9 +2862,26 @@ const Whiteboard = React.memo((props) => {
   }, [curPageId]);
 
   React.useEffect(() => {
+    presenterAnnotationsActiveRef.current = true;
     setTldrawIsMounting(true);
     return () => {
       isMountedRef.current = false;
+      presenterAnnotationsActiveRef.current = false;
+      presenterAnnotationsPendingRef.current = false;
+
+      if (presenterAnnotationsTimerRef.current !== null) {
+        window.clearTimeout(
+          presenterAnnotationsTimerRef.current,
+        );
+        presenterAnnotationsTimerRef.current = null;
+      }
+
+      if (presenterViewFrameRef.current !== null) {
+        caf(presenterViewFrameRef.current);
+        presenterViewFrameRef.current = null;
+      }
+      lastPresenterViewRef.current = null;
+
       localStorage.removeItem('initialViewBoxWidth');
       localStorage.removeItem('initialViewBoxHeight');
       localStorage.removeItem('pageZoomMap');
@@ -2469,12 +2939,13 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (!whiteboardToolbarAutoHide) {
-      const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+      const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+      const optionsDropdown = targetDoc.getElementById('WhiteboardOptionButton');
       if (optionsDropdown?.classList.contains('fade-in')) {
         optionsDropdown.classList.remove('fade-in');
       }
     }
-  }, [whiteboardToolbarAutoHide]);
+  }, [whiteboardToolbarAutoHide, isPresentationDetached, popupWindow]);
 
   const hiddenGeoShapes = React.useMemo(() => {
     const bbbMultiUserPenOnly = getFromUserSettings(
@@ -2601,4 +3072,7 @@ Whiteboard.propTypes = {
   locale: PropTypes.string.isRequired,
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  onPresenterViewChange: PropTypes.func,
+  onPresenterAnnotationsChange: PropTypes.func,
 };
+
