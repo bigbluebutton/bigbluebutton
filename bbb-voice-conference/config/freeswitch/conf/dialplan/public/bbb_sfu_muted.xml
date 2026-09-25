@@ -1,5 +1,7 @@
 <include>
     <extension name="bbb_webrtc_sfu_call" continue="true">
+      <!-- bbb-webrtc-sfu only signals over WebSocket; plain SIP (5060) is for dial-in. -->
+      <condition field="${sip_via_protocol}" expression="^wss?$" break="on-false"/>
       <condition field="${sip_user_agent}" expression="^bbb-webrtc-sfu-muos|bbb-webrtc-sfu-mhos$" break="on-false">
         <action application="set" data="presence_data=from_bbb-webrtc-sfu"/>
         <action application="set" data="bbb_authorized=true"/>
