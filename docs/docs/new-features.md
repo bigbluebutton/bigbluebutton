@@ -258,6 +258,14 @@ See [Turn Server Configuration](/administration/turn-server) for the full config
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
 
 
+#### Plugin SDK 1.0 pre-release
+
+The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.2`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
+
+Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.2`, or `^0.1.5 || ^1.0.0-beta.1` to keep supporting BigBlueButton 3.x servers. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
+
+If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.2`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
+
 #### Removing deprecated layout options
 
 The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
@@ -289,7 +297,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.26`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.2`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
