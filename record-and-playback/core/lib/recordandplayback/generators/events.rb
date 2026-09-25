@@ -79,6 +79,21 @@ module BigBlueButton
     end
 
 
+    # Recording formats the meeting opted out of through the
+    # meta_bbb-disable-recording-formats create parameter.
+    #
+    # @param events [Nokogiri::XML::Document] the parsed events.xml
+    # @return [Array<String>] lowercased format names, empty when the meeting did not opt out
+    def self.disabled_recording_formats(events)
+      value = events.at_xpath('/recording/metadata/@bbb-disable-recording-formats')&.value
+      return [] if value.nil?
+
+      value.delete('[]')
+           .split(',')
+           .map { |format| format.strip.downcase }
+           .reject(&:empty?)
+    end
+
     # Get the external meeting id
     def self.get_external_meeting_id(events_xml)
       BigBlueButton.logger.info("Task: Getting external meeting id")
