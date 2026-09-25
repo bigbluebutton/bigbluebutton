@@ -131,4 +131,28 @@ export class ScreenShare extends MultiUsers {
     );
     await this.userPage.hasElement(e.whiteboard, 'the viewer should still be in the meeting');
   }
+
+  // The former presenter's client stops its own share on losing the role, so
+  // this holds even without akka's stop request on presenter assignment.
+  async presenterChangeStopsSharing() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.startSharing();
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'the viewer should see the screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    await this.makePresenter();
+    await this.modPage.wasRemoved(
+      e.stopScreenSharing,
+      'the former presenter should no longer be sharing',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'the new presenter should stop seeing the former presenter screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+  }
 }
