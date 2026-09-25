@@ -4,8 +4,9 @@ import com.github.zafarkhaja.semver.Version
 
 /**
  * Evaluates npm-style semver ranges. java-semver's own expression parser
- * rejects pre-release identifiers (e.g. `^1.0.0-beta.2`), so it is only used
- * here to parse and compare versions.
+ * rejects pre-release identifiers (e.g. `^1.0.0-beta.2`) and lets
+ * pre-releases match plain ranges such as `0.x`, so it is only used here to
+ * parse and compare versions.
  */
 object SemverRange {
 
@@ -48,8 +49,15 @@ object SemverRange {
     range.split("""\|\|?""").exists(comparatorSet => satisfiesComparatorSet(v, parseComparatorSet(comparatorSet)))
   }
 
-  private def satisfiesComparatorSet(v: Version, comparators: List[Comparator]): Boolean =
-    comparators.forall(_.matches(v))
+  private def satisfiesComparatorSet(v: Version, comparators: List[Comparator]): Boolean = {
+    // npm rule: a pre-release only satisfies a range that explicitly opts into
+    // pre-releases of the same major.minor.patch, so neither `0.x` nor
+    // `^1.0.0-beta.2` accepts `1.1.0-alpha.1`.
+    val preReleaseAllowed = !v.isPreRelease || comparators.exists { c =>
+      c.version.isPreRelease && c.version.isSamePatchVersionAs(v)
+    }
+    preReleaseAllowed && comparators.forall(_.matches(v))
+  }
 
   private def parseComparatorSet(comparatorSet: String): List[Comparator] = comparatorSet.trim match {
     case HyphenRangePattern(from, to) => hyphenRange(parsePartialVersion(from), parsePartialVersion(to))
