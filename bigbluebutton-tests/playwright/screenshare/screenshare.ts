@@ -113,4 +113,22 @@ export class ScreenShare extends MultiUsers {
     );
     expect(videoGone, 'the viewer should not lose the screen share across the drop').toBe(false);
   }
+
+  async presenterLeaveStopsSharing() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.startSharing();
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'the viewer should see the screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    await this.modPage.page.close();
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'the viewer should stop seeing the screen share once the presenter leaves',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(e.whiteboard, 'the viewer should still be in the meeting');
+  }
 }

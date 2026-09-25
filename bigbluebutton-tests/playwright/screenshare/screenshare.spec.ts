@@ -26,6 +26,14 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.keepSharingAcrossLiveKitDrop();
   });
 
+  test('Screenshare stops when the presenter leaves', async ({ browser, context, browserName, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.presenterLeaveStopsSharing();
+  });
+
   test('Start screenshare stops external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
     // requiring logged user to start external video on CI environment
     linkIssue(21589);
