@@ -30,8 +30,8 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-podcast_props = YAML::load(File.open('podcast.yml'))
+bbb_props = YAML::safe_load(File.read('../../core/scripts/bigbluebutton.yml'))
+podcast_props = YAML::safe_load(File.read('podcast.yml'))
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -70,7 +70,7 @@ begin
       BigBlueButton.logger.info("copying: #{process_dir}/audio.ogg to -> #{target_dir}")
       FileUtils.cp("#{process_dir}/audio.ogg", target_dir)
 
-      @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+      @doc = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
       recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
       BigBlueButton.logger.info("Creating metadata.xml")
@@ -82,7 +82,7 @@ begin
 
       # Update state and add playback to metadata.xml
       ## Load metadata.xml
-      metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+      metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
       ## Update state
       recording = metadata.root
       state = recording.at_xpath("state")
@@ -102,12 +102,9 @@ begin
         }
       end
       ## Write the new metadata.xml
-      metadata_file = File.new("#{target_dir}/metadata.xml","w")
       metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-      metadata_file.write(metadata.root)
-      metadata_file.close
+      File.write("#{target_dir}/metadata.xml", metadata.root)
       BigBlueButton.logger.info("Added playback to metadata.xml")
-
 
       # Now publish this recording files by copying them into the publish folder.
       if not FileTest.directory?(publish_dir)
@@ -129,10 +126,7 @@ begin
       BigBlueButton.logger.info("Removing published files.")
       FileUtils.rm_r(target_dir)
 
-      publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-podcast.done", "w")
-      publish_done.write("Published #{meeting_id}")
-      publish_done.close
-
+      File.write("#{recording_dir}/status/published/#{meeting_id}-podcast.done", "Published #{meeting_id}")
     else
       BigBlueButton.logger.info("#{target_dir} is already there")
     end
@@ -144,9 +138,7 @@ rescue Exception => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-  publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-podcast.fail", "w")
-  publish_done.write("Failed Publishing #{meeting_id}")
-  publish_done.close
+  File.write("#{recording_dir}/status/published/#{meeting_id}-podcast.fail", "Failed Publishing #{meeting_id}")
 
   exit 1
 end
