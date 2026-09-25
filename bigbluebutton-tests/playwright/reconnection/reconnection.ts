@@ -3,9 +3,40 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
-import { killConnection } from './util';
+import { killConnection, killMediaConnection } from './util';
 
 export class Reconnection extends MultiUsers {
+  private async decodedFrames() {
+    return this.userPage.page.evaluate(async () => {
+      const peers =
+        (window as typeof window & { reconnectionPeerConnections?: RTCPeerConnection[] }).reconnectionPeerConnections ||
+        [];
+      let framesDecoded = 0;
+      for (const peer of peers) {
+        const stats = await peer.getStats();
+        for (const report of stats.values()) {
+          if (report.type === 'inbound-rtp' && report.kind === 'video') {
+            framesDecoded += report.framesDecoded || 0;
+          }
+        }
+      }
+      return framesDecoded;
+    });
+  }
+
+  async webcamMedia() {
+    await this.modPage.shareWebcam();
+    await this.userPage.waitForSelector(`${e.webcamVideoItem} video:not([data-local-stream="true"])`);
+    const before = await this.decodedFrames();
+    await killMediaConnection();
+    await expect
+      .poll(() => this.decodedFrames(), {
+        message: 'subscriber inbound video frames should advance after automatic camera republish',
+        timeout: 60000,
+      })
+      .toBeGreaterThan(before);
+  }
+
   async chat() {
     // chat enabled
     await this.modPage.waitForSelector(e.chatBox);

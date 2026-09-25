@@ -390,18 +390,19 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     } = window.meetingClientSettings.public.kurento.cameraWsOptions;
 
     const { exitVideo } = this.props;
+    const retrying = this.ws != null && this.ws.retryCount < WS_MAX_RETRIES;
     logger.info({
       logCode: 'video_provider_onwsclose',
     }, 'Multiple video provider websocket connection closed.');
 
     this.clearWSHeartbeat();
-    exitVideo();
+    if (!retrying) exitVideo();
     // Media is currently tied to signaling state  - so if signaling shuts down,
     // media will shut down server-side. This cleans up our local state faster
     // and notify the state change as failed so the UI rolls back to the placeholder
     // avatar UI in the camera container
     Object.keys(this.webRtcPeers).forEach((stream) => {
-      if (this.stopWebRTCPeer(stream, false)) {
+      if (this.stopWebRTCPeer(stream, retrying)) {
         notifyStreamStateChange(stream, 'failed');
       }
     });
@@ -707,7 +708,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       conn.oniceconnectionstatechange = null;
     }
 
-    if (isLocal) {
+    if (isLocal && !restarting) {
       stopVideo(stream);
     }
 
@@ -1007,8 +1008,22 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     // Only display WebRTC negotiation error toasts to sharers. The viewer streams
     // will try to autoreconnect silently, but the error will log nonetheless
     if (isLocal) {
-      this.stopWebRTCPeer(stream, false);
-      if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
+      const stillExists = streams.some((item) => item.type === VIDEO_TYPES.STREAM && item.stream === stream);
+
+      if (stillExists) {
+        this.setReconnectionTimeout(stream, isLocal, false);
+        logger.error({
+          logCode: 'video_provider_camera_share_retry',
+          extraInfo: {
+            bridge: 'bbb-webrtc-sfu',
+            cameraId: stream,
+            errorName,
+          },
+        }, 'Automatic camera republish failed. Retrying.');
+      }
+
+      this.stopWebRTCPeer(stream, stillExists);
+      if (!stillExists && errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
     } else {
       // If it's a viewer, set the reconnection timeout. There's a good chance
       // no local candidate was generated and it wasn't set.
