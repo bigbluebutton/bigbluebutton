@@ -1208,7 +1208,7 @@
     "app.videoPreview.quality.low": "低",
     "app.videoPreview.quality.medium": "中",
     "app.videoPreview.quality.high": "高",
-    "app.videoPreview.quality.hd": "HD",
+    "app.videoPreview.quality.hd": "最高",
     "app.videoPreview.cancelLabel": "キャンセル",
     "app.videoPreview.closeLabel": "閉じる",
     "app.videoPreview.findingWebcamsLabel": "ウェブカム取得中",
