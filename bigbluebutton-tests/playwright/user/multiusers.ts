@@ -448,6 +448,74 @@ export class MultiUsers {
     );
   }
 
+  async focusCameraFromPluginCommand() {
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+    await this.userPage2.shareWebcam();
+
+    const cameraTiles = this.modPage.page.locator(e.webcamStreamItem);
+    await expect(cameraTiles, 'should display all three camera tiles').toHaveCount(3);
+
+    const cameraTile = (name: string) => cameraTiles.filter({ hasText: name });
+    const streamIdFor = async (name: string) => {
+      const streamId = await cameraTile(name).locator('[data-stream]').getAttribute('data-stream');
+      if (!streamId) throw new Error(`No stream ID found for ${name}`);
+      return streamId;
+    };
+    const camera2StreamId = await streamIdFor(this.userPage.username);
+    const camera2UserId = camera2StreamId.split('_').slice(0, 2).join('_');
+    const camera3StreamId = await streamIdFor(this.userPage2.username);
+
+    type CameraFocusArguments = {
+      focus: boolean;
+      webcamSelector: ({ userId: string } | { streamId: string })[];
+    };
+    const setCameraFocus = async (args: CameraFocusArguments) => {
+      await this.modPage.page.evaluate((detail) => {
+        window.dispatchEvent(new CustomEvent('SET_CAMERA_FOCUS_COMMAND', { detail }));
+      }, args);
+    };
+    const tileWidths = async () =>
+      cameraTiles.evaluateAll((tiles) => tiles.map((tile) => tile.getBoundingClientRect().width));
+    const expectFocused = async (name: string) => {
+      await expect
+        .poll(
+          async () => {
+            const focusedWidth = await cameraTile(name).evaluate((tile) => tile.getBoundingClientRect().width);
+            const otherWidths = await cameraTiles
+              .filter({ hasNotText: name })
+              .evaluateAll((tiles) => tiles.map((tile) => tile.getBoundingClientRect().width));
+            return otherWidths.every((width) => focusedWidth > width);
+          },
+          { message: `${name} should be larger than the other camera tiles` },
+        )
+        .toBeTruthy();
+    };
+    const expectAllRestored = async () => {
+      await expect
+        .poll(
+          async () => {
+            const widths = await tileWidths();
+            return widths.length === 3 && Math.max(...widths) - Math.min(...widths) <= 1;
+          },
+          { message: 'all three camera tiles should be restored to equal widths' },
+        )
+        .toBeTruthy();
+    };
+
+    await setCameraFocus({ focus: true, webcamSelector: [{ userId: camera2UserId }] });
+    await expectFocused(this.userPage.username);
+
+    await setCameraFocus({ focus: false, webcamSelector: [{ userId: camera2UserId }] });
+    await expectAllRestored();
+
+    await setCameraFocus({ focus: true, webcamSelector: [{ streamId: camera3StreamId }] });
+    await expectFocused(this.userPage2.username);
+
+    await setCameraFocus({ focus: false, webcamSelector: [{ streamId: camera3StreamId }] });
+    await expectAllRestored();
+  }
+
   async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
 

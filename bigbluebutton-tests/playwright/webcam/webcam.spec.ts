@@ -1,8 +1,9 @@
 import { devices } from '@playwright/test';
+
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { Webcam } from './webcam';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
@@ -63,6 +64,14 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.initUserPage(context, { testInfo });
     await webcam.initUserPage2(context, { testInfo });
     await webcam.focusUnfocusWebcam();
+  });
+
+  test('Focus and clear cameras from a plugin command', async ({ browser, context, page }, testInfo) => {
+    const webcam = new MultiUsers(browser, context);
+    await webcam.initModPage(page, { fullName: 'Camera1', testInfo });
+    await webcam.initUserPage(context, { fullName: 'Camera2', testInfo });
+    await webcam.initUserPage2(context, { fullName: 'Camera3', testInfo });
+    await webcam.focusCameraFromPluginCommand();
   });
 
   test('Resize webcam area', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
