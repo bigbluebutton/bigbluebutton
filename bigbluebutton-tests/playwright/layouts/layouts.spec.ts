@@ -19,6 +19,25 @@ test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, 
   });
 });
 
+test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' }, () => {
+  test(
+    'Restoring presentation clears participant grid avatars',
+    { tag: '@media' },
+    async ({ browser, context }, testInfo) => {
+      linkIssue(25482);
+      const layouts = new Layouts(browser, context);
+      await initializePages(layouts, browser, {
+        isMultiUser: true,
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        testInfo,
+        recordVideo: true,
+      });
+      test.setTimeout(10 * 25_000 + 60_000);
+      await layouts.unifiedLayoutRestoreClearsGridAvatars();
+    },
+  );
+});
+
 test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
   test('First minimize of presentation shows participant tiles for moderator', async ({
     browser,
