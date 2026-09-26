@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth/index';
-import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -57,13 +56,104 @@ interface TalkingIndicatorProps {
   toggleVoice: (userId: string, muted: boolean) => void;
 }
 
+interface TalkingIndicatorItemProps {
+  talking: boolean;
+  muted: boolean;
+  color?: string;
+  speechLocale?: string;
+  name: string;
+  role?: string;
+  userId: string;
+  isModerator: boolean;
+  toggleVoice: (userId: string, muted: boolean) => void;
+}
+
+const TalkingIndicatorItem: React.FC<TalkingIndicatorItemProps> = ({
+  talking,
+  muted,
+  color,
+  speechLocale,
+  name,
+  role,
+  userId,
+  isModerator,
+  toggleVoice,
+}) => {
+  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
+  const intl = useIntl();
+  const isYou = userId === Auth.userID;
+  const isTalkingUserMod = role === ROLE_MODERATOR;
+  const isMuteActionAvailable = isModerator;
+
+  const ariaLabel = intl.formatMessage(talking
+    ? intlMessages.isTalking : intlMessages.wasTalking, {
+    userName: name,
+  });
+  let icon = talking ? 'unmute' : 'blank';
+  icon = muted ? 'mute' : icon;
+  return (
+    <Styled.TalkingIndicatorWrapper
+      talking={talking}
+      muted={muted}
+    >
+      {speechLocale && (
+        <Styled.CCIcon
+          iconName={muted ? 'closed_caption_stop' : 'closed_caption'}
+          muted={muted}
+          talking={talking}
+        />
+      )}
+      <Styled.TalkingIndicatorButton
+        $spoke={!talking || undefined}
+        $muted={muted || undefined}
+        $isViewer={!isMuteActionAvailable || undefined}
+        $talkingUserIsViewer={!isTalkingUserMod && !isYou}
+        $you={isYou}
+        $moderator={isTalkingUserMod}
+        key={userId}
+        onClick={() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - call signature is misse due the function being wrapped
+          muteUser(userId, muted, isMuteActionAvailable, toggleVoice);
+        }}
+        label={name}
+        tooltipLabel={!muted && isMuteActionAvailable
+          ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
+          : null}
+        data-test={talking ? 'isTalking' : 'wasTalking'}
+        aria-label={ariaLabel}
+        aria-describedby={talking ? 'description' : null}
+        color="primary"
+        icon={icon}
+        size="lg"
+        style={
+          (isMuteActionAvailable && color)
+            ? {
+              backgroundColor: color,
+              border: `solid 2px ${color}`,
+            }
+            : undefined
+        }
+      >
+        {talking ? (
+          <Styled.Hidden id="description">
+            {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
+          </Styled.Hidden>
+        ) : null}
+      </Styled.TalkingIndicatorButton>
+    </Styled.TalkingIndicatorWrapper>
+  );
+};
+
+// Memoized per user: the list re-renders on every talking change of anyone.
+const MemoizedTalkingIndicatorItem = React.memo(TalkingIndicatorItem);
+
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   talkingUsers,
   moreThanMaxIndicators,
   isModerator,
   toggleVoice,
 }) => {
-  const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
   const intl = useIntl();
   useEffect(() => {
     // component will unmount
@@ -99,80 +189,15 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     };
   });
 
-  const talkingElements = useMemo(() => filteredTalkingUsers.map((talkingUser) => {
-    const {
-      talking,
-      muted,
-      color,
-      speechLocale,
-      name,
-      userId,
-    } = talkingUser;
-
-    const isYou = talkingUser.userId === Auth.userID;
-    const isTalkingUserMod = talkingUser.role === ROLE_MODERATOR;
-    const isMuteActionAvailable = isModerator;
-
-    const ariaLabel = intl.formatMessage(talking
-      ? intlMessages.isTalking : intlMessages.wasTalking, {
-      userName: name,
-    });
-    let icon = talking ? 'unmute' : 'blank';
-    icon = muted ? 'mute' : icon;
-    return (
-      <Styled.TalkingIndicatorWrapper
-        key={userId}
-        talking={talking}
-        muted={muted}
-      >
-        {speechLocale && (
-          <Styled.CCIcon
-            iconName={muted ? 'closed_caption_stop' : 'closed_caption'}
-            muted={muted}
-            talking={talking}
-          />
-        )}
-        <Styled.TalkingIndicatorButton
-          $spoke={!talking || undefined}
-          $muted={muted || undefined}
-          $isViewer={!isMuteActionAvailable || undefined}
-          $talkingUserIsViewer={!isTalkingUserMod && !isYou}
-          $you={isYou}
-          $moderator={isTalkingUserMod}
-          key={userId}
-          onClick={() => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(userId, muted, isMuteActionAvailable, toggleVoice);
-          }}
-          label={name}
-          tooltipLabel={!muted && isMuteActionAvailable
-            ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
-            : null}
-          data-test={talking ? 'isTalking' : 'wasTalking'}
-          aria-label={ariaLabel}
-          aria-describedby={talking ? 'description' : null}
-          color="primary"
-          icon={icon}
-          size="lg"
-          style={
-            (isMuteActionAvailable && color)
-              ? {
-                backgroundColor: color,
-                border: `solid 2px ${color}`,
-              }
-              : undefined
-          }
-        >
-          {talking ? (
-            <Styled.Hidden id="description">
-              {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
-            </Styled.Hidden>
-          ) : null}
-        </Styled.TalkingIndicatorButton>
-      </Styled.TalkingIndicatorWrapper>
-    );
-  }), [filteredTalkingUsers]);
+  const talkingElements = filteredTalkingUsers.map((talkingUser) => (
+    <MemoizedTalkingIndicatorItem
+      key={talkingUser.userId}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...talkingUser}
+      isModerator={isModerator}
+      toggleVoice={toggleVoice}
+    />
+  ));
 
   const maxIndicator = () => {
     if (!moreThanMaxIndicators) return null;
@@ -192,7 +217,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         $muted={false}
         $you={false}
         $talkingUserIsViewer
-        key={uniqueId('_has__More_')}
+        key="_has__More_"
         onClick={() => { }} // maybe add a dropdown to show the rest of the users
         label="..."
         tooltipLabel={ariaLabel}
