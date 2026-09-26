@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import CommonIcon from '/imports/ui/components/common/icon/component';
 import {
   colorBorder,
   colorOffWhite,
@@ -36,7 +37,7 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 
-const Item = styled.li`
+const Item = styled.li<MetricsTableProps>`
   display: flex;
   width: 100%;
   height: 4rem;
@@ -65,6 +66,182 @@ const Name = styled.div`
   }
 `;
 
+const UserConnectionMetricsContainer = styled.div`
+   border-right: 1px solid ${colorBorder};
+  border-left: 1px solid ${colorBorder};
+`;
+
+const ListOccurrenceContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: end;
+  `;
+
+const TimelineChartContainer = styled.div`
+  width: 100%;
+  height: 10rem;
+  min-height: 10rem;
+  padding: 0.5rem 0.75rem 1.25rem 0;
+  border-bottom: 1px solid ${colorBorder};
+`;
+
+const TimelineChartTitle = styled.div`
+  height: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+`;
+
+const OccurrenceListItem = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  border-bottom: 1px solid ${colorBorder};
+`;
+
+const OccurrenceListHeader = styled(OccurrenceListItem)`
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+`;
+
+const OccurrenceListToggle = styled(OccurrenceListHeader)`
+  cursor: pointer;
+  gap: 0.5rem;
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: -2px;
+  }
+`;
+
+const OccurrenceList = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+type OccurrenceListItemIconProps = {
+  status: string;
+}
+
+const OccurrenceListItemIcon = styled.div<OccurrenceListItemIconProps>`
+  align-self: center;
+  border-radius: 50%;
+  color: white;
+  padding: 0.25em;
+  height: 1rem;
+  width: 1rem;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  background-color: green;
+  border: 1px solid darkgreen;
+
+  ${({ status }) => status === 'warning' && `
+    background-color: orange;
+    border: 1px solid darkorange;
+  `}
+
+  ${({ status }) => status === 'danger' && `
+    background-color: red;
+    border: 1px solid darkred;
+  `}
+
+  ${({ status }) => status === 'critical' && `
+    background-color: darkred;
+    border: 1px solid red;
+  `}
+`;
+
+const MetricsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const MetricsTable = styled.table`
+  border-top: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
+  border-collapse: collapse;
+`;
+
+type MetricsTableProps = {
+  last: boolean;
+}
+
+const MetricsTableHeader = styled.th<MetricsTableProps>`
+  border-bottom: 1px solid ${colorBorder};
+  border-right: 1px solid ${colorBorder};
+  padding: 0.5rem;
+  text-align: center;
+   ${({ last }) => last && `
+    border-right: none;
+  `}
+`;
+
+const MetricsTableData = styled.td<MetricsTableProps>`
+  border-bottom: 1px solid ${colorBorder};
+  border-right: 1px solid ${colorBorder};
+  padding: 0.5rem;
+  text-align: center;
+
+  ${({ last }) => last && `
+    border-right: none;
+  `}
+`;
+
+const ColorIndicatorContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 1rem;
+`;
+
+type ColorIndicatorsProps = {
+  width: number;
+  status: string;
+}
+
+const ColorIndicators = styled.div<ColorIndicatorsProps>`
+  display: none;
+  height: 100%;
+  background-color: green;
+
+  ${({ width }) => width && `
+    display: flex;
+    width: ${width}% !important;
+  `}
+
+  ${({ status }) => status === 'warning' && `
+    background-color: orange;
+  `}
+
+  ${({ status }) => status === 'danger' && `
+    background-color: red;
+  `}
+
+  ${({ status }) => status === 'critical' && `
+    background-color: darkred;
+  `}
+`;
+
+const Chevron = styled(CommonIcon)`
+  height: .5rem;
+  width: .5rem;
+
+  ${({ isOpen }) => isOpen && `
+    transform: rotate(180deg);
+  `}
+`;
+
 const FullName = styled(Name)`
   width: 100%;
 `;
@@ -82,7 +259,11 @@ const ClientNotRespondingText = styled.div`
   }
 `;
 
-const Text = styled.div`
+type TextProps = {
+  offline: boolean;
+}
+
+const Text = styled.div<TextProps>`
   padding-left: .5rem;
   white-space: nowrap;
   overflow: hidden;
@@ -119,8 +300,9 @@ const Icon = styled.div`
 
 const Right = styled.div`
   display: flex;
-  width: 5rem;
+  width: 8rem;
   height: 100%;
+  align-items: center;
 `;
 
 const Time = styled.div`
@@ -129,6 +311,7 @@ const Time = styled.div`
   width: 100%;
   height: 100%;
   justify-content: flex-end;
+  margin-right: 1rem;
 `;
 
 const TimeActive = styled.time`
@@ -162,7 +345,11 @@ const NetworkDataContainer = styled(ScrollboxVertical)`
   }
 `;
 
-const NetworkData = styled.div`
+type NetworkDataProps = {
+  invisible: boolean;
+}
+
+const NetworkData = styled.div<NetworkDataProps>`
   font-size: ${fontSizeSmall};
 
   ${({ invisible }) => invisible && `
@@ -234,7 +421,11 @@ const Status = styled.div`
   align-items: center;
 `;
 
-const Copy = styled.span`
+type CopyProps = {
+  disabled: boolean;
+}
+
+const Copy = styled.span<CopyProps>`
   cursor: pointer;
   color: ${colorPrimary};
 
@@ -431,4 +622,20 @@ export default {
   ConnectionTabList,
   ConnectionTabSelector,
   ConnectionTabPanel,
+  ListOccurrenceContainer,
+  OccurrenceListItem,
+  OccurrenceListItemIcon,
+  OccurrenceListHeader,
+  OccurrenceListToggle,
+  OccurrenceList,
+  TimelineChartContainer,
+  TimelineChartTitle,
+  MetricsContainer,
+  MetricsTable,
+  MetricsTableHeader,
+  MetricsTableData,
+  ColorIndicatorContainer,
+  ColorIndicators,
+  UserConnectionMetricsContainer,
+  Chevron,
 };
