@@ -304,6 +304,8 @@ interface Output {
 interface Layout {
     presentationAreaContentActions: PresentationAreaContentActions[];
     deviceType: string;
+    deviceOrientation: string;
+    isCameraDockPropagationSuppressed: boolean;
     fontSize: number;
     fullscreen: Fullscreen;
     idChatOpen: string;

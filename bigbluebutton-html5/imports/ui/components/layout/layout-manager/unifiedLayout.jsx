@@ -7,7 +7,7 @@ import DEFAULT_VALUES, {
 } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
-  ACTIONS, CAMERADOCK_POSITION, LAYOUT_TYPE, PANELS,
+  ACTIONS, CAMERADOCK_POSITION, DEVICE_ORIENTATION, LAYOUT_TYPE, PANELS,
 } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
 import { defaultsDeep } from '/imports/utils/array-utils';
@@ -36,6 +36,7 @@ const UnifiedLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
+  const deviceOrientation = layoutSelect((i) => i.deviceOrientation);
   const isRTL = layoutSelect((i) => i.isRTL);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
@@ -86,7 +87,7 @@ const UnifiedLayout = (props) => {
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
+  }, [input, deviceType, deviceOrientation, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { sidebarContentAuxiliary } = input;
@@ -294,7 +295,8 @@ const UnifiedLayout = (props) => {
       && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
   };
 
-  const isSideBySideCamerasEnforced = () => deviceInfo.isPhoneLandscape()
+  const isSideBySideCamerasEnforced = () => deviceInfo.isPhone
+    && deviceOrientation === DEVICE_ORIENTATION.LANDSCAPE
     && cameraDockInput.numCameras > 0
     && presentationInput.isOpen
     && !isMediaContentOff();

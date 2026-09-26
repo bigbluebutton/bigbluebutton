@@ -25,10 +25,11 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import {
   layoutDispatch,
+  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '../context';
-import { calculatePresentationVideoRate, getPropagatedCameraDock } from './service';
+import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
@@ -52,6 +53,7 @@ const propTypes = {
   isPresenter: PropTypes.bool,
   isModerator: PropTypes.bool,
   isChatEnabled: PropTypes.bool,
+  isCameraDockPropagationSuppressed: PropTypes.bool,
   layoutContextDispatch: PropTypes.func,
   meetingLayout: PropTypes.string,
   meetingLayoutCameraPosition: PropTypes.string,
@@ -109,6 +111,7 @@ const PushLayoutEngine = (props) => {
     setPushLayout,
     hasMeetingLayout,
     isChatEnabled,
+    isCameraDockPropagationSuppressed,
     meetingLayoutSetByUserId,
   } = props;
 
@@ -324,13 +327,19 @@ const PushLayoutEngine = (props) => {
     }
 
     // PROPAGATE LAYOUT
+    // While suppressed, the dock geometry is local and pushes nothing. Lifting the
+    // suppression pushes it once, whether or not it differs from the last render.
+    const cameraDockChanged = isCameraDockPropagationSuppressed
+      ? false
+      : prevProps.isCameraDockPropagationSuppressed === true
+        || cameraIsResizing !== prevProps.cameraIsResizing
+        || cameraPosition !== prevProps.cameraPosition
+        || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
     const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
       || selectedLayout !== prevProps.selectedLayout
-      || cameraIsResizing !== prevProps.cameraIsResizing
-      || cameraPosition !== prevProps.cameraPosition
+      || cameraDockChanged
       || focusedCamera !== prevProps.focusedCamera
       || enforceLayoutResult !== prevProps.enforceLayoutResult
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate)
       || presentationContentUpdatedAt !== prevProps.presentationContentUpdatedAt;
 
     if (pushLayoutMeeting !== undefined
@@ -380,6 +389,9 @@ const PushLayoutEngine = (props) => {
 const PushLayoutEngineContainer = (props) => {
   const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
+  const isCameraDockPropagationSuppressed = layoutSelect(
+    (i) => i.isCameraDockPropagationSuppressed,
+  );
   const presentationInput = layoutSelectInput((i) => i.presentation);
   const layoutContextDispatch = layoutDispatch();
   const isChatEnabled = useIsChatEnabled();
@@ -460,17 +472,17 @@ const PushLayoutEngineContainer = (props) => {
     });
   }, [enforcedLayoutLoading]);
 
-  // Same source for the payload and for the change detection that fires it.
-  const propagatedCameraDock = getPropagatedCameraDock(cameraDockOutput, cameraDockInput);
-  const presentationVideoRate = calculatePresentationVideoRate(propagatedCameraDock);
+  const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater(
-    propagatedCameraDock,
+    cameraDockOutput,
     cameraDockInput,
     presentationInput,
     layoutSettings,
+    isCameraDockPropagationSuppressed,
+    { position: meetingLayoutCameraPosition, videoRate: meetingLayoutVideoRate },
   );
 
   if (!currentUserData || currentUserData === null) return null;
@@ -504,11 +516,11 @@ const PushLayoutEngineContainer = (props) => {
         cameraIsResizing,
         focusedCamera,
         isMeetingLayoutResizing,
-        // What is being propagated, not what the device renders.
-        cameraPosition: propagatedCameraDock.position,
+        cameraPosition: cameraDockPosition,
         isModerator,
         isPresenter,
         isChatEnabled,
+        isCameraDockPropagationSuppressed,
         layoutContextDispatch,
         presentationContentUpdatedAt,
         presentationIsOpen,

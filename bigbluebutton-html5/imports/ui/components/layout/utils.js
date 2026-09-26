@@ -1,5 +1,6 @@
 import { equals } from 'ramda';
 import {
+  DEVICE_ORIENTATION,
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
@@ -8,6 +9,7 @@ import {
   PRESENTATION_AREA,
 } from './enums';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
@@ -209,8 +211,20 @@ const getDeviceType = () => {
   return deviceType;
 };
 
+// Off the browser size the layout managers lay out with, so a pass never sees an
+// orientation that disagrees with its own dimensions.
+const getDeviceOrientation = ({ width, height }) => (height > width
+  ? DEVICE_ORIENTATION.PORTRAIT
+  : DEVICE_ORIENTATION.LANDSCAPE);
+
+// Broader than the side-by-side arrangement unifiedLayout enforces (cameras shared,
+// presentation open): whatever a phone in landscape lays out is laid out for itself,
+// so its dock geometry is never what a presenter should push to the meeting.
+const suppressesCameraDockPropagation = (deviceOrientation) => deviceInfo.isPhone
+  && deviceOrientation === DEVICE_ORIENTATION.LANDSCAPE;
+
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
-  getWaitLayout, getDeviceType, getInitialSidebarContentPanel,
-  isValidSynchronizationLayout,
+  getWaitLayout, getDeviceType, getDeviceOrientation, getInitialSidebarContentPanel,
+  isValidSynchronizationLayout, suppressesCameraDockPropagation,
 };
