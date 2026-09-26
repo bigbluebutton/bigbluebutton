@@ -41,7 +41,8 @@ if ! /opt/libreoffice25.8/program/python \
     /data/convert_pptx_with_bullet_and_autofit_fixes.py \
     "${pipeName}" \
     /data/file.pptx \
-    /data/file.pdf; then
+    /data/file.pdf \
+    --connect-timeout 30; then
   cat "${logFile}" >&2 || true
   exit 1
 fi
