@@ -126,6 +126,7 @@ type Mutation {
     transcriptId: String!
     transcript: String!
     locale: String!
+    captionType: String!
   ): Boolean
 }
 
