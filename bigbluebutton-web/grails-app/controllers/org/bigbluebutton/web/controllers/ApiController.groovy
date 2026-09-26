@@ -45,7 +45,6 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
 import jakarta.servlet.ServletRequest
@@ -1399,7 +1398,7 @@ class ApiController {
       String method = 'join'
       String externalMeetingId = validationService.encodeString(meeting.getExternalId())
       String fullName = validationService.encodeString(us.fullname)
-      ListHashMap<String, String> queryParameters = new ListHashMap<>();
+      LinkedHashMap<String, String> queryParameters = new LinkedHashMap<>();
       queryParameters.put("fullName", fullName);
       queryParameters.put("meetingID", externalMeetingId);
       queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);

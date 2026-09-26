@@ -1,5 +1,5 @@
 #!/bin/bash
 
-gradle clean
-gradle jar
+../gradlew clean
+../gradlew jar
 cp build/libs/*.jar lib
