@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { connectMicrophone } from '../audio/util';
-import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
 import { Page } from '../core/page';
@@ -63,6 +63,45 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.hasElement(e.stopScreenSharing, 'should display the stop screenshare button');
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+  }
+
+  // Regression: with restoreOnUpdate (default true) the presentation container
+  // remounts when a share ends and its annotation-history stream replayed every
+  // row since join, which reopened a presentation the presenter had hidden.
+  async presentationStaysHiddenAfterSharingWithAnnotations() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    // one pencil stroke on the current slide is enough to populate the history stream
+    await this.modPage.waitAndClick(e.wbPencilShape);
+    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
+    if (!wbBox) throw new Error('whiteboard bounding box not available');
+    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+    await this.modPage.page.mouse.down();
+    await this.modPage.page.mouse.move(wbBox.x + 0.6 * wbBox.width, wbBox.y + 0.5 * wbBox.height, { steps: 10 });
+    await this.modPage.page.mouse.up();
+    await this.modPage.hasElement(e.wbDraw, 'should display the drawn stroke');
+    // let the stroke's own history batch land before hiding: this test targets the
+    // replay on remount after the share, not a batch arriving right after the hide
+    await this.modPage.page.waitForTimeout(2000);
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer, 'should hide the presentation');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button');
+
+    await startScreenshare(this.modPage);
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.isSharingScreen, 'should not display the screenshare element after stopping');
+    await this.modPage.hasElement(e.startScreenSharing, 'should display the start screenshare button after stopping');
+
+    // the reopen used to land about a second after the stop: keep watching
+    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    await this.modPage.hasElement(
+      e.restorePresentation,
+      'the presentation should still be hidden after the share ends',
+    );
+    await this.modPage.wasRemoved(e.presentationContainer, 'should not display the presentation after the share ends');
+    await this.modPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button');
   }
 
   async stopSharing() {

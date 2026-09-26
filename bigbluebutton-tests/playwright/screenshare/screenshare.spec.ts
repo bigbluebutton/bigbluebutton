@@ -42,6 +42,18 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.presenterChangeStopsSharing();
   });
 
+  test('Hidden presentation stays hidden after screenshare ends when the slide has annotations', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.presentationStaysHiddenAfterSharingWithAnnotations();
+  });
+
   test('Start screenshare stops external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
     // requiring logged user to start external video on CI environment
     linkIssue(21589);

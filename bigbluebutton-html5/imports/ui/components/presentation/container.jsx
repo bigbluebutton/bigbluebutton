@@ -80,13 +80,45 @@ const PresentationContainer = ({
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
 
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+    userId: user.userId,
+    isModerator: user.isModerator,
+    whiteboardWriteAccess: user.whiteboardWriteAccess,
+  }));
+
   const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
     CURRENT_PAGE_ANNOTATIONS_QUERY,
     {
       variables: { pageId: currentPageId },
       skip: !currentPageId,
+      // Fetched on every mount: the container is unmounted while a screen share
+      // or external video is displayed, and the history stream below must start
+      // from the page state at remount, not from a cached snapshot taken at join.
+      fetchPolicy: 'network-only',
     },
   );
+
+  // Snapshot of the annotations that exist when the stream is (re)started. A
+  // history row that matches this snapshot, or that records a deletion, is a
+  // replay of the page state, not a new event, and must not restore the
+  // presentation. Nor can the user's own rows: they cannot draw while the
+  // presentation is hidden, so an own row arriving then is a late echo.
+  const knownAnnotations = useMemo(() => {
+    const known = new Map();
+    (initialPageAnnotations?.pres_annotation_curr || []).forEach((annotation) => {
+      known.set(annotation.annotationId, new Date(annotation.lastUpdatedAt).getTime());
+    });
+    return known;
+  }, [initialPageAnnotations]);
+
+  const hasNewAnnotationEvent = (annotationStream) => annotationStream.some((row) => {
+    if (!row.annotationInfo) return false;
+    if (row.userId === currentUser?.userId) return false;
+    const knownUpdatedAt = knownAnnotations.get(row.annotationId);
+    if (knownUpdatedAt === undefined) return true;
+    return new Date(row.updatedAt).getTime() > knownUpdatedAt;
+  });
 
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations) return null;
@@ -109,7 +141,7 @@ const PresentationContainer = ({
     skip: !currentPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
-      if (annotationStream.length > 0 && restoreOnUpdate && !presentationIsOpen) {
+      if (restoreOnUpdate && !presentationIsOpen && hasNewAnnotationEvent(annotationStream)) {
         MediaService.setPresentationIsOpen(layoutContextDispatch, true);
       }
       setAnnotationStreamData(annotationStream);
@@ -252,12 +284,6 @@ const PresentationContainer = ({
 
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
-  const { data: currentUser } = useCurrentUser((user) => ({
-    presenter: user.presenter,
-    userId: user.userId,
-    isModerator: user.isModerator,
-    whiteboardWriteAccess: user.whiteboardWriteAccess,
-  }));
   const userIsPresenter = currentUser?.presenter;
 
   const presentationAreaSize = {
