@@ -95,10 +95,9 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const isMuted = !unmutedUsers[user.userId];
-  const isTalking = talkingUsers[user.userId];
+  const { data: isTalking } = useWhoIsTalking(user.userId);
+  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
+  const isMuted = !isUnmuted;
 
   const actionsPermitions = generateActionsPermissions(
     user,

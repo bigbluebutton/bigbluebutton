@@ -164,8 +164,8 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
 
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const isMuted = !unmutedUsers[user.userId];
+  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
+  const isMuted = !isUnmuted;
 
   const actionsPermitions = generateActionsPermissions(
     user,

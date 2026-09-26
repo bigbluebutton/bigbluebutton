@@ -76,12 +76,12 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const amIModerator = currentUserData?.isModerator;
 
   const disabledCams = useStorageKey('disabledCams') || [];
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const { data: talking } = useWhoIsTalking(userId);
+  const { data: unmuted } = useWhoIsUnmuted(userId);
   const voiceUser = stream.type !== VIDEO_TYPES.CONNECTING && stream.voice ? {
     ...stream.voice,
-    talking: talkingUsers[userId],
-    muted: !unmutedUsers[userId],
+    talking,
+    muted: !unmuted,
   } : {};
 
   const {
