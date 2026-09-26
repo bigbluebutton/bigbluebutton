@@ -39,8 +39,6 @@ interface ResponseChoicesProps {
   handleAddOption: () => void;
   secretPoll: boolean;
   question: string | string[];
-  setError: (err: string) => void;
-  setIsPolling: (isPolling: boolean) => void;
   handleToggle: () => void;
   error: string | null;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>, i: number) => void;
@@ -63,8 +61,6 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
   handleAddOption,
   secretPoll,
   question,
-  setError,
-  setIsPolling,
   handleToggle,
   error,
   handleInputChange,
@@ -112,9 +108,14 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
           )}
         </Styled.ResponseHeader>
         {type === pollTypes.Response && (
-          <Styled.PollParagraph>
-            <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
-          </Styled.PollParagraph>
+          <Styled.TypedResponseHint
+            label={intl.formatMessage(intlMessages.typedResponseDesc)}
+            // The library defaults the hint to role="status" aria-live="polite". This one
+            // is static help text tied to the selected type, not a status update, so it
+            // must not be re-announced every time the presenter switches types.
+            role="note"
+            aria-live="off"
+          />
         )}
         <ResponseArea
           error={error}
@@ -124,9 +125,6 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
           optList={optList}
           handleAddOption={handleAddOption}
           secretPoll={secretPoll}
-          question={question}
-          setError={setError}
-          setIsPolling={setIsPolling}
           handleToggle={handleToggle}
           handleInputChange={handleInputChange}
           handleRemoveOption={handleRemoveOption}
