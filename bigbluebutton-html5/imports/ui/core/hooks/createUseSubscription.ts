@@ -7,7 +7,7 @@ import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
-import GrahqlSubscriptionStore, { stringToHash } from '../singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash } from '../singletons/subscriptionStore';
 
 export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
@@ -38,15 +38,11 @@ function createUseSubscription<T>(
   if (usePatchedSubscription) {
     newSubscriptionGQL = makePatchedQuery(query);
   }
-  const queryHash = stringToHash(JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }));
+  const queryHash = getSubscriptionHash(newSubscriptionGQL, queryVariables);
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
     skip = false,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
-    const subHash = stringToHash(
-      JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
-    );
-
     const observer = useRef({
       //  @ts-ignore
       next(response) {
@@ -104,7 +100,7 @@ function createUseSubscription<T>(
 
     useEffect(() => {
       const listener = (event: CustomEvent) => {
-        if (event.detail.subscriptionHash === subHash) {
+        if (event.detail.subscriptionHash === queryHash) {
           //  @ts-ignore
           observer.current[event.detail.type](event.detail.response);
         }
@@ -218,13 +214,12 @@ export const useCreateUseSubscription = <T>(
   queryVariables = {},
   usePatchedSubscription = false,
 ) => {
-  const queryString = JSON.stringify(query);
   const queryVariablesString = JSON.stringify(queryVariables);
 
   const createdSubscription = useMemo(() => {
     return createUseSubscription<T>(query, queryVariables, usePatchedSubscription);
   },
-  [queryString, queryVariablesString, usePatchedSubscription]);
+  [query, queryVariablesString, usePatchedSubscription]);
   return createdSubscription;
 };
 

@@ -17,12 +17,39 @@ export interface SubscriptionStructure<T> {
 }
 // This code was extracted from a geeksforgeeks article
 // https://www.geeksforgeeks.org/how-to-create-hash-from-string-in-javascript/
-export function stringToHash(string: string) {
-  return string.split('').reduce((hash, char) => {
+function stringToHash(string: string) {
+  let hash = 0;
+  for (let i = 0; i < string.length; i += 1) {
     // It's a intended bitwise operation
     // eslint-disable-next-line no-bitwise
-    return char.charCodeAt(0) + (hash << 6) + (hash << 16) - hash;
-  }, 0).toString();
+    hash = string.charCodeAt(i) + (hash << 6) + (hash << 16) - hash;
+  }
+  return hash.toString();
+}
+
+const subscriptionHashes = new WeakMap<DocumentNode | TypedQueryDocumentNode, Map<string, string>>();
+
+// Serializing and hashing a query document costs milliseconds, and hooks ask for
+// the key on every render. The key is cached per document object and variables:
+// documents are module constants or gql results, which graphql-tag caches by
+// source. Variable-driven subscriptions (user list pages, searches) add one small
+// entry per distinct variables value for the session.
+export function getSubscriptionHash(
+  subscription: DocumentNode | TypedQueryDocumentNode,
+  variables?: Record<string, unknown>,
+) {
+  let byVariables = subscriptionHashes.get(subscription);
+  if (!byVariables) {
+    byVariables = new Map();
+    subscriptionHashes.set(subscription, byVariables);
+  }
+  const variablesKey = variables === undefined ? '' : JSON.stringify(variables);
+  let hash = byVariables.get(variablesKey);
+  if (hash === undefined) {
+    hash = stringToHash(JSON.stringify({ subscription, variables }));
+    byVariables.set(variablesKey, hash);
+  }
+  return hash;
 }
 
 class GrahqlSubscriptionStore {
@@ -34,7 +61,7 @@ class GrahqlSubscriptionStore {
     variables?: Record<string, unknown>,
     fetchPolicy?: FetchPolicy,
   ): ReactiveVar<SubscriptionStructure<T>> {
-    const subscriptionHash = stringToHash(JSON.stringify({ subscription, variables }));
+    const subscriptionHash = getSubscriptionHash(subscription, variables);
     const subscriptionStored = this.graphqlSubscriptions[subscriptionHash];
     if (subscriptionStored) {
       const subStored = subscriptionStored();
@@ -98,7 +125,7 @@ class GrahqlSubscriptionStore {
   }
 
   unsubscribe(subscription: DocumentNode | TypedQueryDocumentNode, variables?: Record<string, unknown>) {
-    const subscriptionHash = stringToHash(JSON.stringify({ subscription, variables }));
+    const subscriptionHash = getSubscriptionHash(subscription, variables);
     const subscriptionStored = this.graphqlSubscriptions[subscriptionHash];
     if (!subscriptionStored) {
       return;

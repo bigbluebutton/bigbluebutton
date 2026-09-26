@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar, ReactiveVar,
@@ -25,11 +25,7 @@ const useDeduplicatedSubscription = <T>(
     () => (usePatchedSubscription ? makePatchedQuery(subscription) : subscription),
     [subscription, usePatchedSubscription],
   );
-  const subscriptionHash = stringToHash(JSON.stringify({
-    subscription: query,
-    variables: options?.variables,
-    skip: options?.skip,
-  }));
+  const subscriptionHash = getSubscriptionHash(query, options?.variables);
 
   const [subVar, setSubVar] = useState<
     ReactiveVar<SubscriptionStructure<T>>>(() => initialEmptySub as ReactiveVar<SubscriptionStructure<T>>);
