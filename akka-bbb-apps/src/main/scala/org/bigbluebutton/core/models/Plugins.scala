@@ -12,7 +12,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.util.JsonUtil
 import org.apache.http.client.utils.URIBuilder
 import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
-import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.core.util.{RandomStringGenerator, SemverRange}
 import spray.json.JsValue
 
 import java.util
@@ -243,8 +243,7 @@ object PluginModel {
 
   private def html5SdkSatisfiesPluginRequiredVersion(bbbHtml5SdkVersion: String, pluginHtml5SdkRequirement: String): Boolean = {
     try {
-      val v = Version.parse(bbbHtml5SdkVersion)
-      v.satisfies(pluginHtml5SdkRequirement)
+      SemverRange.satisfies(bbbHtml5SdkVersion, pluginHtml5SdkRequirement)
     } catch {
       case e: Exception =>
         val errorMessage = s"Unexpected error while parsing SDK versions: $e"

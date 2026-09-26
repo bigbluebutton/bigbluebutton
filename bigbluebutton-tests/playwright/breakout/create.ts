@@ -235,6 +235,23 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
   }
 
+  async inheritLockSettingsCheckboxIsChecked() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+
+    await this.modPage.hasElement(
+      e.inheritLockSettingsCheckbox,
+      'should display the "Propagate the current lock settings" checkbox in the create breakout panel',
+    );
+    const checkbox = this.modPage.page.locator(e.inheritLockSettingsCheckbox);
+    await expect(checkbox, 'checkbox should be checked when inheritance is enabled by default').toBeChecked();
+    await checkbox.uncheck();
+    await expect(checkbox, 'moderator should be able to clear the checkbox').not.toBeChecked();
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+  }
+
   async lockViewersVisibleInBreakoutGearMenu() {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');

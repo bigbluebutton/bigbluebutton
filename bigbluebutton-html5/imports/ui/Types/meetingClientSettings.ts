@@ -166,6 +166,7 @@ export interface Breakouts {
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
+  inheritLockSettingsByDefault: boolean
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
@@ -220,6 +221,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  recordingIndicatorAutoCollapse: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean

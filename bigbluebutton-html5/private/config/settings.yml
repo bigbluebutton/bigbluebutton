@@ -179,6 +179,8 @@ public:
       captureSharedNotesByDefault: false
       # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Pre-check the "Propagate the current lock settings" option
+      inheritLockSettingsByDefault: false
       # Minimum number of breakout rooms that can be created
       breakoutRoomMinimum: 2
       # Maximum number of breakout rooms that can be created
@@ -237,6 +239,10 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        # Collapse the recording button to an icon and reveal its label on hover.
+        # Off by default: the label stays put, so the button never resizes under
+        # the pointer and never shifts the nav bar around it.
+        recordingIndicatorAutoCollapse: false
         pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true

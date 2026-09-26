@@ -76,6 +76,8 @@ When browser-based (WebSpeech) live captions are enabled and a user holds the au
 
 Scrolling the mouse wheel over the whiteboard now pans the presentation, and holding `Ctrl` (`Cmd` on macOS) while scrolling zooms in and out - matching the navigation model of most design tools.
 
+This is configurable: set `public.whiteboard.wheelZoomRequiresCtrl` to `false` to restore the BigBlueButton 3.0 behavior, where the wheel zooms directly and no modifier key is involved.
+
 ### Engagement
 
 #### Request to Present
@@ -213,6 +215,8 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.3)
+- [4.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.2)
 - [4.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.1)
 - [4.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.5)
 - [4.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.4)
@@ -254,6 +258,14 @@ See [Turn Server Configuration](/administration/turn-server) for the full config
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
 
 
+#### Plugin SDK 1.0 pre-release
+
+The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.2`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
+
+Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.2`, or `^0.1.5 || ^1.0.0-beta.1` to keep supporting BigBlueButton 3.x servers. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
+
+If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.2`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
+
 #### Removing deprecated layout options
 
 The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
@@ -285,7 +297,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.26`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.2`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
@@ -309,6 +321,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.sidebarNavigation.appsToLabelAsNew` (default `[]`) - apps to highlight with a "new" label (e.g. `poll`, `breakoutroom`, `timer`, `audio-captions`).
 - `public.media.audio.audioWasmProcessing` - configuration block for the "Advanced Filtering" (WASM) audio-processing option; `provider` selects the backend (`bbba` default, or `workadventureDtln`) and a provider may override values set in `constraints`; see [Dedicated Audio settings tab](#dedicated-audio-settings-tab).
 - `public.app.defaultSettings.audio.processingMode` (default `standard`) - which of the three audio-processing modes (`advanced`, `standard`, `original`) comes pre-selected for a new user in Settings > Audio. `advanced` falls back to `standard` when WASM processing is unsupported by the browser or disabled server-side.
+- `public.app.defaultSettings.application.recordingIndicatorAutoCollapse` (default `false`) - collapses the recording indicator in the navigation bar to an icon-only button that reveals its label on hover or keyboard focus. Users can change it in Settings > Application ("Collapse recording button"); phones and the read-only indicator never collapse.
 - `public.media.audio.microphoneConstraints` - browser-level audio constraints (auto gain control, echo cancellation, noise suppression) applied when the user selects the `standard` audio-processing mode (moved from `public.app.defaultSettings.application.microphoneConstraints`).
 - `public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`, `public.timer.serverSyncTimeInterval` - timer presets and behavior.
 - `public.app.breakouts.breakoutRoomMinimum` (default `2`) - minimum number of breakout rooms.
@@ -319,6 +332,9 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.sidebarNavigation.buttons` - controls which built-in sidebar navigation buttons render, in which section (`top`/`center`/`bottom`) and in what order. It is a full replacement list (omit an id to hide that button; ids introduced by future upstream versions must be added back manually). Defaults: `top: [profile, user-list, chat, notes]`, `center: [apps-gallery, pinned-apps]`, `bottom: [audio-captions, learning-dashboard, settings]`.
 - `public.app.audioCaptions.microphoneAlert` (default `enabled: true`) - shows a warning when WebSpeech live captions are on and the user holds the floor but nothing is being transcribed (a likely wrong-microphone / noisy-environment signal). Configurable via `helpLink` (empty hides the link), `threshold` (dB), `speakingThreshold` (ms), `duration` (ms; `0` = manual dismiss) and `interval` (ms).
 - `public.plugins[].settings.pin` / `.isNew` - a plugin can default-pin the items it injects into the Apps Gallery (`pin: true` pins all injected items; `pin: ["id-a", "id-b"]` pins only those ids; user pin/unpin choices are persisted and respected), and `isNew: true` shows the "new" ribbon on the plugin's gallery item.
+- `public.whiteboard.wheelZoomRequiresCtrl` (default `true`) - whether zooming the presentation with the mouse wheel requires holding `Ctrl` (`Cmd` on macOS). With the default, a bare wheel scroll pans the slide; set to `false` for the BigBlueButton 3.0 behavior where the wheel zooms directly. See [Whiteboard: scroll to pan, Ctrl+scroll to zoom](#whiteboard-scroll-to-pan-ctrlscroll-to-zoom).
+- `public.media.livekit.sdkLogBridge` (default `true`) - forwards livekit-client's own logs through the BigBlueButton client logger, so SDK-level media errors reach the usual client log destination.
+- `public.media.livekit.negotiationProbe` (default `false`) - debug instrumentation that logs how long a subscriber offer takes to be answered, from receive to socket dispatch. Off by default; enable only when diagnosing media negotiation latency.
 
 #### Value changed
 

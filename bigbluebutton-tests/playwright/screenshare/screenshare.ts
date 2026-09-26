@@ -1,4 +1,9 @@
+import { expect, test } from '@playwright/test';
+
+import { connectMicrophone } from '../audio/util';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { startScreenshare } from './util';
@@ -68,5 +73,86 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.wasRemoved(e.stopScreenSharing, 'should not display the stop screenshare button after stopping');
     await this.modPage.hasElement(e.startScreenSharing, 'should display the start screenshare button after stopping');
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard after stopping screenshare');
+  }
+
+  async keepSharingAcrossLiveKitDrop() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+    await this.startSharing();
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'the viewer should see the screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    const { sid: droppedSid } = await getPrimaryRoomState(this.modPage.page);
+
+    // Observe the whole period. Media drops may always be transient.
+    await this.userPage.page.evaluate((selector) => {
+      const w = window as unknown as { screenshareVideoGone?: boolean };
+      w.screenshareVideoGone = false;
+      setInterval(() => {
+        if (!document.querySelector(selector)) w.screenshareVideoGone = true;
+      }, 100);
+    }, e.screenShareVideo);
+
+    await dropLiveKitParticipant(this.modPage.page);
+    await this.modPage.hasElement(e.joinAudio, 'the server should have removed the presenter from voice');
+    await expect
+      .poll(async () => (await getPrimaryRoomState(this.modPage.page)).sid, {
+        message: 'the presenter should reconnect to LiveKit as a new participant',
+        timeout: 2 * ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .not.toBe(droppedSid);
+    await this.modPage.wasRemoved(e.joinAudio, 'the presenter should be back in voice', ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    await this.modPage.hasElement(e.stopScreenSharing, 'the presenter should still be sharing');
+    await this.userPage.hasElement(e.screenShareVideo, 'the viewer should still see the screen share');
+    const videoGone = await this.userPage.page.evaluate(
+      () => (window as unknown as { screenshareVideoGone?: boolean }).screenshareVideoGone,
+    );
+    expect(videoGone, 'the viewer should not lose the screen share across the drop').toBe(false);
+  }
+
+  async presenterLeaveStopsSharing() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.startSharing();
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'the viewer should see the screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    await this.modPage.page.close();
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'the viewer should stop seeing the screen share once the presenter leaves',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(e.whiteboard, 'the viewer should still be in the meeting');
+  }
+
+  // The former presenter's client stops its own share on losing the role, so
+  // this holds even without akka's stop request on presenter assignment.
+  async presenterChangeStopsSharing() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.startSharing();
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'the viewer should see the screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    await this.makePresenter();
+    await this.modPage.wasRemoved(
+      e.stopScreenSharing,
+      'the former presenter should no longer be sharing',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'the new presenter should stop seeing the former presenter screen share',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
   }
 }
