@@ -115,6 +115,11 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
     gap: ${navigationSidebarListItemsContainerGapSmallHeight};
   }
 
+  ${({ isMobile }) => !isMobile && `
+    scrollbar-gutter: stable both-edges;
+    scrollbar-width: thin;
+  `}
+
   ${({ isExpanded }) => (isExpanded ? `
     max-height: 100%;
     opacity: 1;
@@ -179,7 +184,8 @@ const BadgeCircle = styled.div`
 `;
 
 const Separator = styled(BaseSeparator)`
-    width: 50%;
+  width: 50%;
+  margin: 0 auto;
 `;
 
 export default {
