@@ -194,6 +194,17 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadOtherPresentationsFormat();
     });
 
+    test('Upload PDF with embedded soft-masked image renders (not blank)', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(23953);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.blurredImagePresentationRendersTest();
+    });
+
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
