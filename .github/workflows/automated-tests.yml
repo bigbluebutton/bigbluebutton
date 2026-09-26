@@ -54,7 +54,7 @@ jobs:
           - package: bbb-learning-dashboard
             cache-files-list: bbb-learning-dashboard
           - package: bbb-playback-record
-            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
+            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-presentation-legacy bbb-playback-screenshare bbb-playback-video bbb-record-core
             cache-files-list: bbb-playback.placeholder.sh bbb-presentation-video.placeholder.sh record-and-playback
           - package: bbb-graphql-server
             build-name: bbb-graphql-server

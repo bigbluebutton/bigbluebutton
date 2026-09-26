@@ -26,8 +26,9 @@ cp -r scripts staging/usr/local/bigbluebutton/core
 chmod -R a+rX staging/usr/local/bigbluebutton/core
 chmod 755 staging/usr/local/bigbluebutton/core/scripts/*/*.rb
 
-mkdir -p staging/var/bigbluebutton
-cp -r playback staging/var/bigbluebutton
+# The 0.81 and 0.9.0 players under playback/ are shipped by the optional
+# bbb-playback-presentation-legacy package; the current player comes from
+# bbb-playback.
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
 mv staging/usr/local/bigbluebutton/core/scripts/presentation.nginx staging/usr/share/bigbluebutton/nginx
