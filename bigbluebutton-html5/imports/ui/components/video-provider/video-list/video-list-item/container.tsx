@@ -71,7 +71,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     meetingId: m.meetingId,
   }));
 
-  const hideUserList = currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList;
+  const isolateUsers = currentUserData?.locked && currentMeeting?.lockSettings?.isolateUsers;
 
   const amIModerator = currentUserData?.isModerator;
 
@@ -95,7 +95,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       (u) => ({ mismatchedUserId: u.userId }),
     )
     : [];
-  const raisedHandIndex = !hideUserList
+  const raisedHandIndex = !isolateUsers
     ? raisedHands.findIndex((user) => user.userId === userId) + 1
     : 0;
 

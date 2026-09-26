@@ -131,8 +131,8 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
           case _            => ""
         }
 
-        val hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
-        val shouldSkip = hideUserList && newPres.role == Roles.VIEWER_ROLE
+        val isolateUsers = MeetingStatus2x.getPermissions(liveMeeting.status).isolateUsers
+        val shouldSkip = isolateUsers && newPres.role == Roles.VIEWER_ROLE
 
         if (!shouldSkip) {
           val msgMeta = Map("assignedBy" -> assignedByName)
