@@ -19,6 +19,7 @@ import { RaisedHandUser } from '/imports/ui/Types/user';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import propsEqualIgnoringFloor from '../utils';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -32,8 +33,8 @@ interface VideoListItemContainerProps {
   stream: VideoItem;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   onVideoItemUnmount: (stream: string) => void;
-  onVirtualBgDrop: (type: string, name: string, data: string) => void;
-  onVideoItemMount: (ref: HTMLVideoElement) => void;
+  onVirtualBgDrop: (stream: string | null, type: string, name: string, data: string) => Promise<unknown>;
+  onVideoItemMount: (stream: string | null, ref: HTMLVideoElement) => void;
 }
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
@@ -120,9 +121,11 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       name={name}
       numOfStreams={numOfStreams}
       onHandleVideoFocus={onHandleVideoFocus}
-      onVideoItemMount={onVideoItemMount}
+      onVideoItemMount={(ref: HTMLVideoElement) => onVideoItemMount(cameraId, ref)}
       onVideoItemUnmount={onVideoItemUnmount}
-      onVirtualBgDrop={onVirtualBgDrop}
+      onVirtualBgDrop={(type: string, fileName: string, data: string) => (
+        onVirtualBgDrop(cameraId, type, fileName, data)
+      )}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
       voiceUser={voiceUser}
@@ -132,4 +135,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   );
 };
 
-export default VideoListItemContainer;
+export default React.memo(
+  VideoListItemContainer,
+  propsEqualIgnoringFloor<VideoListItemContainerProps>(['stream']),
+);
