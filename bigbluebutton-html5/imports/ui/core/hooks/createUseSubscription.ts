@@ -7,7 +7,7 @@ import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
-import GrahqlSubscriptionStore, { getSubscriptionHash } from '../singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash, SubscriptionListener } from '../singletons/subscriptionStore';
 
 export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
@@ -99,23 +99,20 @@ function createUseSubscription<T>(
     }), []);
 
     useEffect(() => {
-      const listener = (event: CustomEvent) => {
-        if (event.detail.subscriptionHash === queryHash) {
-          //  @ts-ignore
-          observer.current[event.detail.type](event.detail.response);
-        }
+      const listener: SubscriptionListener = (detail) => {
+        observer.current[detail.type](detail.response);
       };
       if (skip) {
-        // @ts-ignore
-        window.removeEventListener('graphqlSubscription', listener);
         return () => {};
       }
-      //  @ts-ignore
-      window.addEventListener('graphqlSubscription', listener);
-      GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
+      GrahqlSubscriptionStore.makeSubscription(
+        newSubscriptionGQL,
+        queryVariables,
+        usePatchedSubscription ? 'no-cache' : undefined,
+        listener,
+      );
       return () => {
-        //  @ts-ignore
-        window.removeEventListener('graphqlSubscription', listener);
+        GrahqlSubscriptionStore.removeListener(queryHash, listener);
         GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
       };
     }, [queryHash, skip]);
