@@ -155,13 +155,6 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   toggleVoice,
 }) => {
   const intl = useIntl();
-  useEffect(() => {
-    // component will unmount
-    return () => {
-      setTalkingIndicatorList([]);
-    };
-  }, []);
-
   const filteredTalkingUsers = talkingUsers.map((talkingUser) => {
     const {
       talking,
@@ -277,9 +270,16 @@ const TalkingIndicatorContainer: React.FC = () => {
     ].slice(0, TALKING_INDICATORS_MAX);
   }, [talkingUsersData]);
 
+  useEffect(() => {
+    setTalkingIndicatorList(talkingUsersLoading
+      ? []
+      : talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
+  }, [talkingUsers, talkingUsersLoading]);
+
+  useEffect(() => () => setTalkingIndicatorList([]), []);
+
   if (talkingUsersLoading) return null;
 
-  setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
   return (
     <TalkingIndicator
       talkingUsers={talkingUsers}
