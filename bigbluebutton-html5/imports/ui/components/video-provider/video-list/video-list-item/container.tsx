@@ -10,9 +10,6 @@ import { Layout, Input } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
-import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { RaisedHandUser } from '/imports/ui/Types/user';
@@ -77,13 +74,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const amIModerator = currentUserData?.isModerator;
 
   const disabledCams = useStorageKey('disabledCams') || [];
-  const { data: talking } = useWhoIsTalking(userId);
-  const { data: unmuted } = useWhoIsUnmuted(userId);
-  const voiceUser = stream.type !== VIDEO_TYPES.CONNECTING && stream.voice ? {
-    ...stream.voice,
-    talking,
-    muted: !unmuted,
-  } : {};
 
   const {
     data: usersData,
@@ -128,7 +118,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       )}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
-      voiceUser={voiceUser}
       raisedHandPosition={raisedHandIndex}
       hideNotificationToasts={hideNotifications}
     />
