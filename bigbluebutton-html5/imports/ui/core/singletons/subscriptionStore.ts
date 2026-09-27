@@ -108,7 +108,16 @@ class GrahqlSubscriptionStore {
         ...subStored,
         count: (subStored.count || 1) + 1,
       });
-      this.dispatch({ subscriptionHash, type: 'next', response: subscriptionStored() });
+      const detail: SubscriptionEventDetail = { subscriptionHash, type: 'next', response: subscriptionStored() };
+      // Once the entry holds data, every hook of the hash already has it, so only
+      // the mounting one gets it here. Until then the others can be out of step,
+      // as an error ends the entry's loading without a 'next'; this realigns them.
+      if (subStored.data === null) {
+        this.notifyListeners(detail);
+      } else if (listener) {
+        callListener(listener, detail);
+      }
+      window.dispatchEvent(new CustomEvent('graphqlSubscription', { detail }));
       return subscriptionStored;
     }
 
