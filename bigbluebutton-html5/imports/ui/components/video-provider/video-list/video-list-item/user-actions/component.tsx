@@ -306,7 +306,8 @@ const UserActions: React.FC<UserActionProps> = (props) => {
             actions={getAvailableActions()}
             opts={{
               id: `webcam-${stream.userId}-dropdown-menu`,
-              keepMounted: true,
+              // Every tile has this menu and re-renders it often, so its closed tree is not kept mounted.
+              keepMounted: false,
               transitionDuration: 0,
               elevation: 3,
               getcontentanchorel: null,
