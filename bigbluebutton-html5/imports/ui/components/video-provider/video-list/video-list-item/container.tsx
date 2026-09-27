@@ -6,6 +6,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { layoutSelect, layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { Meeting } from '/imports/ui/Types/meeting';
 import { Layout, Input } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -33,6 +34,12 @@ interface VideoListItemContainerProps {
   onVirtualBgDrop: (stream: string | null, type: string, name: string, data: string) => Promise<unknown>;
   onVideoItemMount: (stream: string | null, ref: HTMLVideoElement) => void;
 }
+
+// A stable projection lets useMeeting reuse its result across renders.
+const projectMeeting = (m: Pick<Partial<Meeting>, 'lockSettings' | 'meetingId'>) => ({
+  lockSettings: m.lockSettings,
+  meetingId: m.meetingId,
+});
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
   const {
@@ -64,10 +71,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     locked: user.locked,
   }));
 
-  const { data: currentMeeting } = useMeeting((m) => ({
-    lockSettings: m.lockSettings,
-    meetingId: m.meetingId,
-  }));
+  const { data: currentMeeting } = useMeeting(projectMeeting);
 
   const hideUserList = currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList;
 

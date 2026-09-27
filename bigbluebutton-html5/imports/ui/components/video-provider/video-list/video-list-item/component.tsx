@@ -209,20 +209,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
-      return setIsVideoPluginHelperSqueezed(true);
-    }
-    return setIsVideoPluginHelperSqueezed(false);
-  });
-
-  const resizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
-      return setIsVideoSqueezed(true);
-    }
-    return setIsVideoSqueezed(false);
-  });
-
   const videoTag = useRef<HTMLVideoElement | null>(null);
   const videoContainer = useRef<HTMLDivElement | null>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -315,6 +301,18 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   // component did mount
   useEffect(() => {
     const isAudioOnly = stream.type === VIDEO_TYPES.AUDIO_ONLY;
+    const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
+      if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
+        return setIsVideoPluginHelperSqueezed(true);
+      }
+      return setIsVideoPluginHelperSqueezed(false);
+    });
+    const resizeObserver = new ResizeObserver((entry) => {
+      if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+        return setIsVideoSqueezed(true);
+      }
+      return setIsVideoSqueezed(false);
+    });
 
     if (!isAudioOnly) {
       subscribeToStreamStateChange(cameraId, onStreamStateChange);

@@ -288,9 +288,9 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     return menuItems;
   };
 
-  const renderDefaultButton = () => (
+  const renderDefaultButton = (actions: ReturnType<typeof getAvailableActions>) => (
     <Styled.MenuWrapper>
-      {enableVideoMenu && getAvailableActions().length >= 1
+      {actions.length >= 1
         ? (
           <BBBMenu
             trigger={(
@@ -303,7 +303,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 {displayName}
               </Styled.DropdownTrigger>
             )}
-            actions={getAvailableActions()}
+            actions={actions}
             opts={{
               id: `webcam-${stream.userId}-dropdown-menu`,
               // Every tile has this menu and re-renders it often, so its closed tree is not kept mounted.
@@ -355,7 +355,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   return (
     isVideoSqueezed
       ? renderSqueezedButton()
-      : renderDefaultButton()
+      : renderDefaultButton(enableVideoMenu ? getAvailableActions() : [])
   );
 };
 
