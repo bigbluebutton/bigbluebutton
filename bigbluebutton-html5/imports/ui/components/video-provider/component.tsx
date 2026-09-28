@@ -732,25 +732,37 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       this.clearRestartTimers(stream);
     }
 
-    return this.destroyWebRTCPeer(stream);
+    return this.destroyWebRTCPeer(stream, restarting);
   }
 
-  destroyWebRTCPeer(stream: string) {
+  destroyWebRTCPeer(stream: string, restarting = false) {
     let stopped = false;
     const peer = this.webRtcPeers[stream];
     const isLocal = VideoService.isLocalStream(stream);
     const role = VideoService.getRole(isLocal);
+
+    // A restart republishes the very same camera, so keep the capture alive instead
+    // of releasing the device and re-acquiring it: that spares the user a
+    // camera-light blink and carries the applied effects over untouched. A stream
+    // that is no longer live has nothing to preserve and still goes down the
+    // stop-and-re-acquire path, which is what a genuinely dead device needs.
+    const preserveStream = restarting && peer?.bbbVideoStream?.mediaStream?.active === true;
 
     if (peer) {
       if (peer && peer.bbbVideoStream) {
         if (typeof peer.inactivationHandler === 'function') {
           peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
         }
-        peer.bbbVideoStream.stop();
+        if (typeof peer.streamSwapHandler === 'function') {
+          peer.bbbVideoStream.removeListener('streamSwapped', peer.streamSwapHandler);
+        }
+        if (!preserveStream) peer.bbbVideoStream.stop();
       }
 
       if (typeof peer.dispose === 'function') {
-        peer.dispose();
+        // Without this the peer stops its sender tracks on the way out, which are
+        // the very tracks the preserved stream is made of.
+        peer.dispose({ preserveLocalStream: preserveStream });
       }
 
       delete this.webRtcPeers[stream];
@@ -793,8 +805,10 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         peer.start();
         peer.generateOffer().then((offer) => {
           // Store the media stream if necessary. The scenario here is one where
-          // there is no preloaded stream stored.
-          if (peer.bbbVideoStream == null) {
+          // there is no preloaded stream stored - or where the preloaded one has
+          // already been stopped, in which case its mediaStream is null and it
+          // cannot be published (BBBVideoStream.stop clears it).
+          if (peer.bbbVideoStream == null || peer.bbbVideoStream.mediaStream == null) {
             bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
             VideoPreviewService.storeStream(
               MediaStreamUtils.extractDeviceIdFromStream(
@@ -806,11 +820,15 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           }
 
           peer.bbbVideoStream = bbbVideoStream;
-          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+          // Kept on the peer so the teardown can detach it: a preserved stream
+          // outlives its peer, and a listener per republish would swap the tracks
+          // once for every reconnect the call has been through.
+          peer.streamSwapHandler = ({ newStream }: { newStream: MediaStream }) => {
             if (newStream && newStream instanceof MediaStream) {
               this.replacePCVideoTracks(stream, newStream);
             }
-          });
+          };
+          bbbVideoStream.on('streamSwapped', peer.streamSwapHandler);
           peer.inactivationHandler = () => this.handleLocalStreamInactive(stream);
           bbbVideoStream.once('inactive', peer.inactivationHandler);
           resolve(offer);
