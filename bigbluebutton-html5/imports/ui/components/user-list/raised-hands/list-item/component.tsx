@@ -23,7 +23,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import Styled from '/imports/ui/components/user-list/user-list-participants/list-item/styles';
 import UserNameStyled from '/imports/ui/components/user-list/user-list-participants/list-item/user-name-with-subs/styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import { convertRemToPixels } from '/imports/utils/dom-utils';
+import useRemInPixels from '/imports/ui/hooks/useRemInPixels';
 import RaisedHandsStyles from '../styles';
 import { useUserOperations, mapRaisedHandToUser } from '/imports/ui/components/user-list/hooks/useUserOperations';
 
@@ -138,7 +138,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
   const { intl, operations, modal } = useUserOperations(user.userId);
 
   const isReactionsEnabled = useIsReactionsEnabled();
-  const emojiSize = convertRemToPixels(2.2);
+  const emojiSize = useRemInPixels(2.2);
   const handEmoji = { id: 'hand', native: '✋' };
   const type = 'raised-hand';
 
