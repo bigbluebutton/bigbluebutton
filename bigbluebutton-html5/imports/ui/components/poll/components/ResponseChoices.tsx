@@ -110,6 +110,10 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
         {type === pollTypes.Response && (
           <Styled.TypedResponseHint
             label={intl.formatMessage(intlMessages.typedResponseDesc)}
+            // The library hardcodes aria-label="Close" on the close button and takes no
+            // prop to translate it. This hint is static help text tied to the selected
+            // response type, not a dismissible message, so it drops the button instead.
+            hideCloseButton
             // The library defaults the hint to role="status" aria-live="polite". This one
             // is static help text tied to the selected type, not a status update, so it
             // must not be re-announced every time the presenter switches types.
