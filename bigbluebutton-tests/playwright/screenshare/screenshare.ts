@@ -118,24 +118,34 @@ export class ScreenShare extends MultiUsers {
   }
 
   // Regression: with restoreOnUpdate (default true) the presentation container
-  // remounts when a share ends and its annotation-history stream replayed every
-  // row since join, which reopened a presentation the presenter had hidden.
+  // remounts when a share ends and its annotation-history stream replayed the
+  // page history, which reopened a presentation the presenter had hidden.
   async presentationStaysHiddenAfterSharingWithAnnotations() {
     test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
-    // one pencil stroke on the current slide is enough to populate the history stream
-    await this.modPage.waitAndClick(e.wbPencilShape);
-    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
+    // The viewer draws, so whatever the presenter sees reached it through its own
+    // annotation-history stream: nothing is still in flight when it hides the presentation.
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
+    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer');
+    const wbBox = await this.userPage.getElementBoundingBox(e.whiteboard);
     if (!wbBox) throw new Error('whiteboard bounding box not available');
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.6 * wbBox.width, wbBox.y + 0.5 * wbBox.height, { steps: 10 });
-    await this.modPage.page.mouse.up();
-    await this.modPage.hasElement(e.wbDraw, 'should display the drawn stroke');
-    // let the stroke's own history batch land before hiding: this test targets the
-    // replay on remount after the share, not a batch arriving right after the hide
-    await this.modPage.page.waitForTimeout(2000);
+    const dragAcross = async (fromY: number, toY: number) => {
+      await this.userPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + fromY * wbBox.height);
+      await this.userPage.page.mouse.down();
+      await this.userPage.page.mouse.move(wbBox.x + 0.6 * wbBox.width, wbBox.y + toY * wbBox.height, { steps: 10 });
+      await this.userPage.page.mouse.up();
+    };
+    await this.userPage.waitAndClick(e.wbPencilShape);
+    await dragAcross(0.2, 0.3);
+    await this.modPage.waitUntilHaveCountSelector(e.wbDraw, 1);
+    await dragAcross(0.6, 0.7);
+    await this.modPage.waitUntilHaveCountSelector(e.wbDraw, 2);
+    // an erased annotation leaves history newer than the newest surviving one
+    await this.userPage.waitAndClick(e.wbEraser);
+    await dragAcross(0.6, 0.7);
+    await this.modPage.waitUntilHaveCountSelector(e.wbDraw, 1);
 
     await this.modPage.waitAndClick(e.minimizePresentation);
     await this.modPage.wasRemoved(e.presentationContainer, 'should hide the presentation');

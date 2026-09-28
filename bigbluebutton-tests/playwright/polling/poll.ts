@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -79,6 +79,42 @@ export class Polling extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
     await this.userPage.hasElement(e.wbPollShape, 'should display the whiteboard poll shape for the attendee');
+  }
+
+  // Publishing the results draws on the whiteboard as the presenter, while the
+  // presentation is hidden: with restoreOnUpdate it must bring the presentation
+  // back for everyone, the presenter included.
+  async publishingResultsRestoresHiddenPresentation() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    const restoreOnUpdate = await this.modPage.page.evaluate(
+      () =>
+        (window as unknown as { meetingClientSettings?: { public?: { presentation?: { restoreOnUpdate?: boolean } } } })
+          .meetingClientSettings?.public?.presentation?.restoreOnUpdate,
+    );
+    test.skip(!restoreOnUpdate, 'presentation.restoreOnUpdate is disabled');
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer, 'should hide the presentation for the presenter');
+
+    await util.startPoll(this.modPage);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'should restore the presentation for the presenter once the results are published',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.hasElement(e.wbPollShape, 'should display the whiteboard poll shape for the presenter');
+    await this.userPage.hasElement(
+      e.wbPollShape,
+      'should display the whiteboard poll shape for the attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
   }
 
   async stopPoll() {
