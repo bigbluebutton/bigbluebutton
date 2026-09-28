@@ -10,7 +10,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import AudioModalContainer from '../../audio-modal/container';
 import AudioManager from '/imports/ui/services/audio-manager';
-import { joinListenOnly } from './service';
+import { rejoinAudioWhileConnected } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
@@ -92,7 +92,9 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   const handleJoinAudio = useCallback((connected: boolean) => {
     if (connected) {
-      joinListenOnly();
+      rejoinAudioWhileConnected().catch(() => {
+        // Nothing to bubble up here, audio-manager already does it.
+      });
     } else {
       setIsAudioModalOpen(true);
     }

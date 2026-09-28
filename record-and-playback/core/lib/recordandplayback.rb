@@ -145,15 +145,6 @@ module BigBlueButton
     BigBlueButton.logger.info "Downloading #{url} to #{output}"
 
     uri = URI.parse(url)
-    if ["http", "https", "ftp"].include? uri.scheme
-      response = Net::HTTP.start(uri.host, uri.port) {|http|
-        http.head(uri.request_uri)
-      }
-      unless response.is_a? Net::HTTPSuccess
-        raise "File not available: #{response.message}"
-      end
-    end
-
     if uri.scheme.nil?
       url = "file://" + url
       uri = URI.parse(url)
@@ -162,6 +153,8 @@ module BigBlueButton
     Net::HTTP.start(uri.host, uri.port) do |http|
       request = Net::HTTP::Get.new uri.request_uri
       http.request request do |response|
+        raise "File not available: #{response.code} #{response.message}" unless response.is_a? Net::HTTPSuccess
+
         open output, 'w' do |io|
           response.read_body do |chunk|
             io.write chunk

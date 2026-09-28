@@ -27,6 +27,7 @@ import {
 } from '/imports/ui/components/video-provider/state';
 import {
   GRID_USERS_SUBSCRIPTION,
+  GRID_USERS_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
   AudioOnlyUsersResponse,
@@ -326,8 +327,12 @@ const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
 
 export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
-  const userCount = getCountData();
   const isGridEnabled = useIsGridEnabled();
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
+    GRID_USERS_COUNT_SUBSCRIPTION,
+    { skip: !isGridEnabled },
+  );
+  const userCount = countData?.user_aggregate?.aggregate?.count ?? 0;
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
@@ -355,6 +360,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     reactionEmoji: u.reactionEmoji,
     cameras: u.cameras,
     voice: u.voice,
+    bot: u.bot,
   }));
 
   const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
@@ -425,6 +431,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     if (
       canOnlySeeModeratorCameras
       && currentUser?.userId
+      && !currentUser.bot
       && !currentUser.isModerator
       && (currentUser.cameras?.length ?? 0) === 0
       && !newGridUsers.some((u) => u.userId === currentUser.userId)
@@ -475,7 +482,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     // The tile replaces the last grid avatar, so preview that user too
     overflowUsers.current = newGridUsers.slice(Math.max(gridItems.current.length - 1, 0));
 
-    // Hidden users = everyone not visible on this page. Count in USERS, not
+    // Hidden users = grid participants not visible on this page. Count in USERS, not
     // stream tiles as a user with several cameras holds several tiles. The
     // overflow tile replaces the last avatar when avatars exist (+1: the
     // replaced user joins the count); on a full-camera page it takes a new

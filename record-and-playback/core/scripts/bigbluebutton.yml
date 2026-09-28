@@ -9,8 +9,8 @@ raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://127.0.0.1:9002/p
 bn_notes_endpoint: http://127.0.0.1:8787/api/documents
-# Specify the notes formats we archive
-# txt, doc and odt are also supported
+# Specify the notes formats we archive. BlockNote (the default editor) exports
+# html, pdf, txt, md, json and yjs; doc and odt only work with Etherpad.
 notes_formats:
   - etherpad
   - html
