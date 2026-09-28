@@ -609,7 +609,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   );
 };
 
-// DragAndDrop re-renders on any modal change in the client and passes the item
-// the same props again.
+// DragAndDrop re-renders for its own confirmation modal, registered on mount,
+// and passes the item the same props again.
 // @ts-expect-error -> Until everything in Typescript.
 export default withDragAndDrop(React.memo(VideoListItem));
