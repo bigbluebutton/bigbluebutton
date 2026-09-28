@@ -6,7 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
-import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import VirtualBgService from '/imports/ui/services/virtual-background/custom-backgrounds';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Session from '/imports/ui/services/storage/in-memory';

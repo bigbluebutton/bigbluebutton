@@ -2,6 +2,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
+import CustomBackgroundsService from '/imports/ui/services/virtual-background/custom-backgrounds';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -66,8 +67,8 @@ const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, 
     customParams,
   };
 
-  return createVirtualBackgroundService(buildParams).then((service) => {
-    const effect = service.startEffect(stream);
+  return createVirtualBackgroundService(buildParams).then(async (service) => {
+    const effect = await service.startEffect(stream);
     return { service, effect };
   });
 };
@@ -101,6 +102,65 @@ const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstanc
 
 const getCameraBrightnessInfo = (deviceId) => getStorageSingletonInstance().getItem(`CameraBrightnessInfo_${deviceId}`);
 
+const isVirtualBackgroundSupported = () => !(deviceInfo.isIos || browserInfo.isSafari);
+
+const loadCustomBackgrounds = () => new Promise((resolve, reject) => {
+  CustomBackgroundsService.load(reject, resolve);
+});
+
+const getCustomBackgroundParams = async (uniqueId, customBackgrounds = {}) => {
+  const findBackground = (backgrounds) => backgrounds[uniqueId]
+    || Object.values(backgrounds).find((background) => background.uniqueId === uniqueId);
+  let background = findBackground(customBackgrounds);
+
+  if (!background?.data) {
+    const storedBackgrounds = await loadCustomBackgrounds();
+    background = findBackground(storedBackgrounds);
+  }
+
+  if (!background?.data) throw new Error('Missing virtual background data');
+  return { uniqueId, file: background.data };
+};
+
+const applyStoredEffects = async (bbbVideoStream, deviceId, { customBackgrounds = {} } = {}) => {
+  const storedVirtualBackground = getSessionVirtualBackgroundInfo(deviceId);
+  const virtualBackground = storedVirtualBackground || customBackgrounds.webcamBackgroundURL;
+  const cameraBrightnessAvailable = window.meetingClientSettings.public.app.enableCameraBrightness
+    && isVirtualBackgroundSupported();
+  const cameraBrightness = cameraBrightnessAvailable ? getCameraBrightnessInfo(deviceId) : null;
+
+  // A stored {type:'none'} is a user who explicitly picked "None": it is a truthy value that asks
+  // for no effect at all. Mirrors the predicate the preview applies on an interactive selection.
+  const wantsVirtualBackground = !!virtualBackground
+    && virtualBackground.type !== EFFECT_TYPES.NONE_TYPE;
+  const wantsBrightnessEffect = !!cameraBrightness
+    && (cameraBrightness.brightness !== 100 || cameraBrightness.wholeImageBrightness);
+
+  if (wantsVirtualBackground) {
+    const {
+      type, name, filename, uniqueId,
+    } = virtualBackground;
+    const customParams = uniqueId
+      ? await getCustomBackgroundParams(uniqueId, customBackgrounds)
+      : undefined;
+    await bbbVideoStream.startVirtualBackground(type, name || filename, customParams);
+  } else if (wantsBrightnessEffect) {
+    await bbbVideoStream.startVirtualBackground(EFFECT_TYPES.NONE_TYPE);
+  }
+
+  if (cameraBrightness) {
+    bbbVideoStream.changeCameraBrightness(cameraBrightness.brightness);
+    bbbVideoStream.toggleCameraBrightnessArea(cameraBrightness.wholeImageBrightness);
+  }
+
+  // Report what was applied, not what was stored: callers use this to decide whether a background
+  // is active, and "None" is not one.
+  return {
+    virtualBackground: wantsVirtualBackground ? virtualBackground : null,
+    cameraBrightness,
+  };
+};
+
 /**
  * @param {string} deviceId
  * @returns {{brightness: number, wholeImageBrightness: boolean}}
@@ -119,8 +179,6 @@ const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => getStorageSingl
 
 const removeSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance()
   .removeItem(`VirtualBackgroundInfo_${deviceId}`);
-
-const isVirtualBackgroundSupported = () => !(deviceInfo.isIos || browserInfo.isSafari);
 
 const getVirtualBgImagePath = () => {
   const {
@@ -141,6 +199,7 @@ export {
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
   getCameraBrightnessInfo,
+  applyStoredEffects,
   getCameraBrightnessInfoWithDefault,
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,

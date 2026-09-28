@@ -12,7 +12,6 @@ import {
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
-import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
@@ -114,6 +113,7 @@ interface VideoProviderProps {
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
   applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
+  applyStoredEffects: (stream: BBBVideoStream) => Promise<void>;
   intl: IntlShape;
 }
 
@@ -791,15 +791,14 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         peer.vpRestartIceRetries = 0;
         peer.start();
         peer.generateOffer().then((offer) => {
+          let acquiredStream = false;
           // Store the media stream if necessary. The scenario here is one where
           // there is no preloaded stream stored.
           if (peer.bbbVideoStream == null) {
-            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+            bbbVideoStream = new BBBVideoStream(peer.videoStream);
+            acquiredStream = true;
             VideoPreviewService.storeStream(
-              MediaStreamUtils.extractDeviceIdFromStream(
-                bbbVideoStream.mediaStream,
-                'video',
-              ),
+              VideoPreviewService.getVideoStreamDeviceId(bbbVideoStream),
               bbbVideoStream,
             );
           }
@@ -812,6 +811,23 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           });
           peer.inactivationHandler = () => this.handleLocalStreamInactive(stream);
           bbbVideoStream.once('inactive', peer.inactivationHandler);
+
+          if (acquiredStream) {
+            const { applyStoredEffects } = this.props;
+            const deviceId = VideoPreviewService.getVideoStreamDeviceId(bbbVideoStream)
+              || VideoPreviewService.webcamDeviceId();
+            peer.restoreStoredEffects = () => applyStoredEffects(bbbVideoStream).catch((error) => {
+              logger.warn({
+                logCode: 'video_provider_restore_stored_effects_failed',
+                extraInfo: {
+                  bridge: 'bbb-webrtc-sfu',
+                  deviceId,
+                  errorName: error?.name,
+                  errorMessage: error?.message,
+                },
+              }, 'Failed to restore stored camera effects after republishing.');
+            });
+          }
           resolve(offer);
         }).catch(reject);
       } catch (error) {
@@ -1288,6 +1304,12 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       // Clear camera shared timeout when camera successfully starts
       this.clearRestartTimers(stream);
       this.attachVideoStream(stream);
+
+      if (peer.isPublisher && peer.restoreStoredEffects) {
+        const { restoreStoredEffects } = peer;
+        delete peer.restoreStoredEffects;
+        restoreStoredEffects();
+      }
 
       playStart(stream);
     } else {
