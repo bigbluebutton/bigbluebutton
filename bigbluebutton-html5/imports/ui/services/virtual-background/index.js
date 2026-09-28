@@ -365,7 +365,7 @@ class VirtualBackgroundService {
                 }, 'Virtual background input video playback did not start automatically');
             }
             this._renderMask();
-            return this._outputCanvasElement.captureStream(parseInt(frameRate, 15));
+            return this._outputCanvasElement.captureStream(parseInt(frameRate, 10) || 15);
         } catch (error) {
             this.stopEffect();
             throw error;
