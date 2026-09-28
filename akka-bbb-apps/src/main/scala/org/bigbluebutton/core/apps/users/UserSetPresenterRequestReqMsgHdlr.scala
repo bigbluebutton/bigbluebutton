@@ -49,7 +49,8 @@ trait UserSetPresenterRequestReqMsgHdlr extends RightsManagementTrait {
               " requesterId=" + requesterId + " requesterName=" + requester.name +
               " assignedBy=" + requesterId)
 
-            AssignPresenterActionHandler.handleAction(liveMeeting, outGW, requesterId, requesterId, skipPermissions = true)
+            AssignPresenterActionHandler.handleAction(liveMeeting, outGW, requesterId = requesterId,
+              assignedBy = requesterId, newPresenterId = requesterId, skipPermissions = true)
 
             return SetPresenterInPodActionHandler.handleAction(state, liveMeeting, outGW,
               requesterId, PresentationPod.DEFAULT_PRESENTATION_POD,
