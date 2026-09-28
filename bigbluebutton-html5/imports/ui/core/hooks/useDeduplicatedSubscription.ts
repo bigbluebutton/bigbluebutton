@@ -14,11 +14,15 @@ const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
   sub: null,
 });
 
+// The store changes count without publishing (setCount), and sub is the
+// store's to end.
+type DeduplicatedSubscription<T> = Omit<SubscriptionStructure<T>, 'count' | 'sub'>;
+
 const useDeduplicatedSubscription = <T>(
   subscription: DocumentNode | TypedQueryDocumentNode,
   options?: SubscriptionHookOptions<NoInfer<T>, NoInfer<OperationVariables>>,
   usePatchedSubscription = false,
-) => {
+): DeduplicatedSubscription<T> => {
   // When patching is enabled, rename the operation to Patched_* so the middleware streams
   // JSON patches instead of full datasets; the subscription store applies them automatically.
   const query = useMemo(

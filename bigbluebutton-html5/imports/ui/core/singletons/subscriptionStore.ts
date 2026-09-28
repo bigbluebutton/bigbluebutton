@@ -86,6 +86,10 @@ class GrahqlSubscriptionStore {
   // Hooks listen here, per hash, so a frame runs only the hooks of its query.
   private listeners = new Map<string, Set<SubscriptionListener>>();
 
+  // Hashes whose entry an error, or a next that threw, changed in place
+  // without publishing; the mark stays until a next publishes the entry.
+  private unpublished = new Set<string>();
+
   makeSubscription<T>(
     subscription: DocumentNode | TypedQueryDocumentNode,
     variables?: Record<string, unknown>,
@@ -104,10 +108,7 @@ class GrahqlSubscriptionStore {
     const subscriptionStored = this.graphqlSubscriptions[subscriptionHash];
     if (subscriptionStored) {
       const subStored = subscriptionStored();
-      subscriptionStored({
-        ...subStored,
-        count: (subStored.count || 1) + 1,
-      });
+      this.setCount(subscriptionHash, subscriptionStored, (subStored.count || 1) + 1);
       const detail: SubscriptionEventDetail = { subscriptionHash, type: 'next', response: subscriptionStored() };
       // Once the entry holds data, every hook of the hash already has it, so only
       // the mounting one gets it here. Until then the others can be out of step,
@@ -136,6 +137,7 @@ class GrahqlSubscriptionStore {
       fetchPolicy: fetchPolicy || 'no-cache',
     }).subscribe({
       next: (data) => {
+        this.unpublished.add(subscriptionHash);
         const values = newSubStructure();
         values.loading = false;
 
@@ -151,10 +153,12 @@ class GrahqlSubscriptionStore {
           values.data = data.data;
         }
         newSubStructure({ ...values });
+        this.unpublished.delete(subscriptionHash);
 
         this.dispatch({ subscriptionHash, type: 'next', response: values });
       },
       error: (error) => {
+        this.unpublished.add(subscriptionHash);
         const values = newSubStructure();
         values.error = error;
         values.loading = false;
@@ -186,14 +190,29 @@ class GrahqlSubscriptionStore {
       return;
     }
 
-    subscriptionStored({
-      ...subscriptionStored(),
-      count: subscriptionStored().count - 1,
-    });
+    this.setCount(subscriptionHash, subscriptionStored, subscriptionStored().count - 1);
 
     if (subscriptionStored().count === 0) {
       subscriptionStored()?.sub?.unsubscribe();
       delete this.graphqlSubscriptions[subscriptionHash];
+      this.unpublished.delete(subscriptionHash);
+    }
+  }
+
+  // No consumer renders the count, and publishing it would re-render every
+  // consumer of the hash, so it is written in place. A marked entry is still
+  // republished: a consumer that does not re-render otherwise shows the
+  // in-place change only through a publish.
+  private setCount(
+    subscriptionHash: string,
+    subscriptionStored: ReactiveVar<SubscriptionStructure<unknown>>,
+    count: number,
+  ) {
+    const subStored = subscriptionStored();
+    if (this.unpublished.has(subscriptionHash)) {
+      subscriptionStored({ ...subStored, count });
+    } else {
+      subStored.count = count;
     }
   }
 
