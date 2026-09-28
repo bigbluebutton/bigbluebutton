@@ -569,6 +569,7 @@ export const useVideoPreview = ({
       if (!shouldSkipVideoPreview()) {
         handlePreviewError('do_gum_preview', error as Error & { name: string }, 'displaying final selection');
       } else {
+        endCameraLoad();
         throw error;
       }
     }
@@ -589,6 +590,7 @@ export const useVideoPreview = ({
       // This is because virtual background failures are deemed critical when
       // skipping the video preview, but not otherwise
       if (shouldSkipVideoPreview() && !isSuperseded()) {
+        endCameraLoad();
         throw error;
       }
     }
