@@ -86,6 +86,10 @@ const intlSFUErrors = defineMessages({
   },
 });
 
+// How many times a camera the server still lists is republished automatically
+// before the failure is surfaced to the sharer. Matches the ICE restart budget.
+const MAX_REPUBLISH_RETRIES = 3;
+
 interface VideoProviderState {
   socketOpen: boolean;
 }
@@ -174,6 +178,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   private restartTimer: Record<string, number>;
 
+  private republishRetries: Record<string, number>;
+
   private videoTags: Record<string, HTMLVideoElement>;
 
   constructor(props: VideoProviderProps) {
@@ -190,6 +196,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     this.wsQueues = {};
     this.restartTimeout = {};
     this.restartTimer = {};
+    this.republishRetries = {};
     this.webRtcPeers = {};
     this.outboundIceQueues = {};
     this.videoTags = {};
@@ -694,6 +701,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     if (this.restartTimer[stream]) {
       delete this.restartTimer[stream];
     }
+
+    delete this.republishRetries[stream];
   }
 
   stopWebRTCPeer(stream: string, restarting = false) {
@@ -1027,21 +1036,30 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     // will try to autoreconnect silently, but the error will log nonetheless
     if (isLocal) {
       const stillExists = streams.some((item) => item.type === VIDEO_TYPES.STREAM && item.stream === stream);
+      const retries = this.republishRetries[stream] || 0;
 
-      if (stillExists) {
-        this.setReconnectionTimeout(stream, isLocal, false);
+      if (stillExists && retries < MAX_REPUBLISH_RETRIES) {
+        this.republishRetries[stream] = retries + 1;
         logger.error({
           logCode: 'video_provider_camera_share_retry',
           extraInfo: {
             bridge: 'bbb-webrtc-sfu',
             cameraId: stream,
             errorName,
+            republishRetries: this.republishRetries[stream],
           },
-        }, 'Automatic camera republish failed. Retrying.');
+        }, `Automatic camera republish failed. Retrying (${this.republishRetries[stream]}/${MAX_REPUBLISH_RETRIES})`);
+        // Republish now instead of waiting for an unrelated re-render to notice
+        // the peer is gone. reconnect stops the peer as a restart, so the
+        // capture and the effects applied to it survive the retry. The media
+        // flow timeout armed when the offer was generated is left running on
+        // purpose: it is what bounds this recovery and eventually surfaces the
+        // error if the camera is really gone.
+        this.reconnect(stream, isLocal);
+      } else {
+        this.stopWebRTCPeer(stream, false);
+        if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
       }
-
-      this.stopWebRTCPeer(stream, stillExists);
-      if (!stillExists && errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
     } else {
       // If it's a viewer, set the reconnection timeout. There's a good chance
       // no local candidate was generated and it wasn't set.
