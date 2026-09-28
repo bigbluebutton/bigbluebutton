@@ -13,6 +13,19 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.stopSharing();
   });
 
+  test('Webcams fill the media area after screenshare ends when no presentation is loaded', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.webcamsFillAreaAfterSharingWithoutPresentation();
+  });
+
   test('Non-LiveKit screenshare survives a LiveKit drop', async ({ browser, context, browserName, page }, testInfo) => {
     test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
     test.skip(!isLiveKit, 'a LiveKit participant close needs the LiveKit audio bridge');
