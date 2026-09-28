@@ -119,6 +119,9 @@ const PollInputs: React.FC<PollInputsProps> = ({
               <BBButton
                 layout="squared"
                 icon={<MdOutlineDelete />}
+                // The legacy button showed this label as a tooltip whenever it was
+                // hidden; the library only does it when asked, so it is passed here.
+                tooltipLabel={intl.formatMessage(intlMessages.delete)}
                 ariaLabel={intl.formatMessage(intlMessages.delete)}
                 ariaDescribedBy={`option-${i}`}
                 dataTest="deletePollOption"
