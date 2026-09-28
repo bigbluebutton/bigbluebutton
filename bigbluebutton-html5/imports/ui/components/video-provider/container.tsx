@@ -200,6 +200,10 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     applyStoredEffects,
   };
 
+  // Both bridges receive the same props, but applyStoredEffects is only read by VideoProvider:
+  // the automatic effect restore exists because bbb-webrtc-sfu republishes the camera from
+  // scratch after an outage. The LiveKit bridge keeps its tracks across a reconnection, so its
+  // effects are never torn down and there is nothing to restore.
   switch (currentMeeting?.cameraBridge) {
     case 'bbb-webrtc-sfu':
       return (
