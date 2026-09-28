@@ -129,7 +129,14 @@ const applyStoredEffects = async (bbbVideoStream, deviceId, { customBackgrounds 
     && isVirtualBackgroundSupported();
   const cameraBrightness = cameraBrightnessAvailable ? getCameraBrightnessInfo(deviceId) : null;
 
-  if (virtualBackground) {
+  // A stored {type:'none'} is a user who explicitly picked "None": it is a truthy value that asks
+  // for no effect at all. Mirrors the predicate the preview applies on an interactive selection.
+  const wantsVirtualBackground = !!virtualBackground
+    && virtualBackground.type !== EFFECT_TYPES.NONE_TYPE;
+  const wantsBrightnessEffect = !!cameraBrightness
+    && (cameraBrightness.brightness !== 100 || cameraBrightness.wholeImageBrightness);
+
+  if (wantsVirtualBackground) {
     const {
       type, name, filename, uniqueId,
     } = virtualBackground;
@@ -137,8 +144,7 @@ const applyStoredEffects = async (bbbVideoStream, deviceId, { customBackgrounds 
       ? await getCustomBackgroundParams(uniqueId, customBackgrounds)
       : undefined;
     await bbbVideoStream.startVirtualBackground(type, name || filename, customParams);
-  } else if (cameraBrightness
-    && (cameraBrightness.brightness !== 100 || cameraBrightness.wholeImageBrightness)) {
+  } else if (wantsBrightnessEffect) {
     await bbbVideoStream.startVirtualBackground(EFFECT_TYPES.NONE_TYPE);
   }
 
@@ -147,7 +153,12 @@ const applyStoredEffects = async (bbbVideoStream, deviceId, { customBackgrounds 
     bbbVideoStream.toggleCameraBrightnessArea(cameraBrightness.wholeImageBrightness);
   }
 
-  return { virtualBackground, cameraBrightness };
+  // Report what was applied, not what was stored: callers use this to decide whether a background
+  // is active, and "None" is not one.
+  return {
+    virtualBackground: wantsVirtualBackground ? virtualBackground : null,
+    cameraBrightness,
+  };
 };
 
 /**
