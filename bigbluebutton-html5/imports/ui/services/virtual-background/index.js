@@ -298,70 +298,78 @@ class VirtualBackgroundService {
         this._maskFrameTimerWorker = new Worker(timerWorkerScript, { name: 'Blur effect worker' });
         this._maskFrameTimerWorker.onmessage = this._onMaskFrameTimer;
 
-        const firstVideoTrack = stream.getVideoTracks()[0];
-
-        const { height, frameRate, width }
-            = firstVideoTrack.getSettings ? firstVideoTrack.getSettings() : firstVideoTrack.getConstraints();
-
-        this._segmentationMask = new ImageData(this._options.width, this._options.height);
-        this._segmentationMaskCanvas = document.createElement('canvas');
-        this._segmentationMaskCanvas.width = this._options.width;
-        this._segmentationMaskCanvas.height = this._options.height;
-
-        const willReadFrequentlySetting = window.meetingClientSettings?.public?.virtualBackgrounds?.willReadFrequently;
-
-        this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d', { willReadFrequently: willReadFrequentlySetting });
-
-        this._outputCanvasElement.width = parseInt(width, 10);
-        this._outputCanvasElement.height = parseInt(height, 10);
-        this._outputCanvasCtx = this._outputCanvasElement.getContext('2d');
-        this._inputVideoElement.width = parseInt(width, 10);
-        this._inputVideoElement.height = parseInt(height, 10);
-        this._inputVideoElement.autoplay = true;
-        this._inputVideoElement.muted = true;
-        this._inputVideoElement.playsInline = true;
-
-        await new Promise((resolve, reject) => {
-            let timeoutId;
-            const cleanup = () => {
-                clearTimeout(timeoutId);
-                this._inputVideoElement.onloadeddata = null;
-                this._inputVideoElement.onerror = null;
-            };
-            const handleLoadedData = () => {
-                cleanup();
-                resolve();
-            };
-            const handleError = error => {
-                cleanup();
-                reject(error);
-            };
-
-            this._inputVideoElement.onloadeddata = handleLoadedData;
-            this._inputVideoElement.onerror = handleError;
-            timeoutId = setTimeout(() => {
-                cleanup();
-                const error = new Error('Timed out waiting for the virtual background input video');
-
-                error.name = 'TimeoutError';
-                reject(error);
-            }, inputVideoLoadTimeout);
-            this._inputVideoElement.srcObject = stream;
-            if (this._inputVideoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-                handleLoadedData();
-            }
-        });
-
+        // Everything below can reject: the input video may fail to load or time out. The caller
+        // never gets a service reference in that case, so nothing else can release the worker and
+        // the retained input stream. Clean up here or they leak for the lifetime of the tab.
         try {
-            await this._inputVideoElement.play();
+            const firstVideoTrack = stream.getVideoTracks()[0];
+
+            const { height, frameRate, width }
+                = firstVideoTrack.getSettings ? firstVideoTrack.getSettings() : firstVideoTrack.getConstraints();
+
+            this._segmentationMask = new ImageData(this._options.width, this._options.height);
+            this._segmentationMaskCanvas = document.createElement('canvas');
+            this._segmentationMaskCanvas.width = this._options.width;
+            this._segmentationMaskCanvas.height = this._options.height;
+
+            const willReadFrequentlySetting = window.meetingClientSettings?.public?.virtualBackgrounds?.willReadFrequently;
+
+            this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d', { willReadFrequently: willReadFrequentlySetting });
+
+            this._outputCanvasElement.width = parseInt(width, 10);
+            this._outputCanvasElement.height = parseInt(height, 10);
+            this._outputCanvasCtx = this._outputCanvasElement.getContext('2d');
+            this._inputVideoElement.width = parseInt(width, 10);
+            this._inputVideoElement.height = parseInt(height, 10);
+            this._inputVideoElement.autoplay = true;
+            this._inputVideoElement.muted = true;
+            this._inputVideoElement.playsInline = true;
+
+            await new Promise((resolve, reject) => {
+                let timeoutId;
+                const cleanup = () => {
+                    clearTimeout(timeoutId);
+                    this._inputVideoElement.onloadeddata = null;
+                    this._inputVideoElement.onerror = null;
+                };
+                const handleLoadedData = () => {
+                    cleanup();
+                    resolve();
+                };
+                const handleError = error => {
+                    cleanup();
+                    reject(error);
+                };
+
+                this._inputVideoElement.onloadeddata = handleLoadedData;
+                this._inputVideoElement.onerror = handleError;
+                timeoutId = setTimeout(() => {
+                    cleanup();
+                    const error = new Error('Timed out waiting for the virtual background input video');
+
+                    error.name = 'TimeoutError';
+                    reject(error);
+                }, inputVideoLoadTimeout);
+                this._inputVideoElement.srcObject = stream;
+                if (this._inputVideoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                    handleLoadedData();
+                }
+            });
+
+            try {
+                await this._inputVideoElement.play();
+            } catch (error) {
+                logger.warn({
+                    logCode: 'virtualbg_inputVideo_play_failure',
+                    extraInfo: { errorName: error.name }
+                }, 'Virtual background input video playback did not start automatically');
+            }
+            this._renderMask();
+            return this._outputCanvasElement.captureStream(parseInt(frameRate, 15));
         } catch (error) {
-            logger.warn({
-                logCode: 'virtualbg_inputVideo_play_failure',
-                extraInfo: { errorName: error.name }
-            }, 'Virtual background input video playback did not start automatically');
+            this.stopEffect();
+            throw error;
         }
-        this._renderMask();
-        return this._outputCanvasElement.captureStream(parseInt(frameRate, 15));
     }
 
     /**
@@ -369,13 +377,15 @@ class VirtualBackgroundService {
      *
      * @returns {void}
      */
-         stopEffect() {
-            this._maskFrameTimerWorker.postMessage({
-                id: CLEAR_TIMEOUT
-            });
+    stopEffect() {
+        this._maskFrameTimerWorker.postMessage({
+            id: CLEAR_TIMEOUT
+        });
 
-            this._maskFrameTimerWorker.terminate();
-        }
+        this._maskFrameTimerWorker.terminate();
+        // Drop the camera stream the input element holds, on the failure path and on the normal one
+        this._inputVideoElement.srcObject = null;
+    }
 
 
     set brightness(value) {
