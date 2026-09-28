@@ -606,6 +606,22 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     setSecretPoll(toggledValue);
   };
 
+  // Switching input modes starts a fresh draft. The custom textarea replaces the response
+  // type inputs, so anything picked before it was turned on is no longer visible - and the
+  // footer's start button is always mounted now, so leaving those values in state let a
+  // poll start from an empty textarea with the previous type's options.
+  const handleCustomInputToggle = () => {
+    const enabled = !customInput;
+    setCustomInput(enabled);
+    setType(enabled ? pollTypes.Custom : '');
+    setOptList([]);
+    setQuestionAndOptions('');
+    setCorrectAnswer({ text: '', index: -1 });
+    setMultipleResponse(false);
+    setError(null);
+    setWarning(null);
+  };
+
   const handlePollLetterOptions = () => {
     if (optList.length === 0) {
       setType(pollTypes.Letter);
@@ -685,11 +701,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
             <Styled.CustomInputRow>
               <BBBToggle
                 checked={customInput}
-                onChange={() => {
-                  const newType = !customInput ? pollTypes.Custom : '';
-                  setType(newType);
-                  setCustomInput(!customInput);
-                }}
+                onChange={handleCustomInputToggle}
                 label={intl.formatMessage(intlMessages.customInputToggleLabel)}
                 inputProps={{ 'data-test': 'autoOptioningPollBtn' } as React.InputHTMLAttributes<HTMLInputElement>}
               />
