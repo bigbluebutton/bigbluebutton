@@ -8,7 +8,6 @@ import { User, RaisedHandUser } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled, useIsReactionsEnabled } from '/imports/ui/services/features';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from '/imports/ui/components/user-list/user-list-participants/list-item/user-item-toolbar/component';
@@ -164,9 +163,6 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
 
-  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
-  const isMuted = !isUnmuted;
-
   const actionsPermitions = generateActionsPermissions(
     user,
     currentUser?.presenter ?? false,
@@ -175,7 +171,6 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     lockSettings,
     usersPolicies,
     isBreakout,
-    isMuted,
     isChatEnabled,
     isPrivateChatEnabled,
     type,
@@ -187,7 +182,6 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
   } = createToolbarOptions(
     intl,
     user,
-    isMuted,
     whiteboardAccess,
     actionsPermitions,
     lockSettings,
