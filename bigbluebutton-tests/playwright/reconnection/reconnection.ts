@@ -156,7 +156,11 @@ export class Reconnection extends MultiUsers {
       .toBe(true);
   }
 
-  async webcamBackground(source: BackgroundSource, flavor: OutageFlavor, testInfo: TestInfo) {
+  /**
+   * @returns whether this run actually exercised the automatic republish effect restore, so the
+   * spec can tell a real pass from a run that skipped its way to green.
+   */
+  async webcamBackground(source: BackgroundSource, flavor: OutageFlavor, testInfo: TestInfo): Promise<boolean> {
     await this.installWebcamEffectCounters();
     const rawPreview = await this.selectBackground(source);
     await this.modPage.waitAndClick(e.startSharingWebcam);
@@ -219,7 +223,7 @@ export class Reconnection extends MultiUsers {
       if (recovery === 'camera-survived' && reacquisitionStarted) recovery = 'failed-republish';
       if (recovery !== 'republished') {
         testInfo.skip(true, `webcam did not auto-republish after the outage (${recovery})`);
-        return;
+        return false;
       }
     }
 
@@ -238,6 +242,9 @@ export class Reconnection extends MultiUsers {
     expect
       .soft(backgroundIsUnchanged(before.remote, after.remote), 'remote background should persist after outage')
       .toBe(true);
+    // A reload re-applies the background through the preview on a fresh page, never through the
+    // republish restore, so it does not count as coverage of that path.
+    return flavor !== 'reload';
   }
 
   private async selectBackground(source: BackgroundSource) {
@@ -263,32 +270,6 @@ export class Reconnection extends MultiUsers {
       );
     }
     return rawPreview;
-  }
-
-  private async recoverWebcamForReshare() {
-    const joinVideo = this.modPage.page.locator(e.joinVideo);
-    const leaveVideo = this.modPage.page.locator(e.leaveVideo);
-    await expect
-      .poll(
-        async () => {
-          const canLeave = await leaveVideo.isEnabled().catch(() => false);
-          return (await joinVideo.isVisible()) || canLeave ? true : undefined;
-        },
-        {
-          message: 'the post-outage UI should expose an enabled webcam control for re-sharing',
-          timeout: LONG_MEDIA_RECOVERY_TIMEOUT,
-        },
-      )
-      .toBe(true);
-    if (await joinVideo.isVisible()) return;
-    try {
-      await leaveVideo.click({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
-    } catch (error) {
-      if (!(await joinVideo.isVisible())) throw error;
-    }
-    await expect(joinVideo, 'the webcam join control should appear after stopping the recovered stream').toBeVisible({
-      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
-    });
   }
 
   private async waitForBothVideos(timeout = VIDEO_LOADING_WAIT_TIME) {
