@@ -1,6 +1,8 @@
 import {
   AudioPresets,
   Track,
+  ConnectionError,
+  ConnectionErrorReason,
   ConnectionState,
   DisconnectReason,
   RoomEvent,
@@ -501,8 +503,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   private static isFatalPublishError(error: Error): boolean {
-    return error.name === 'ConnectionError'
-      && error.message?.includes('timed out');
+    return error instanceof ConnectionError
+      && error.reason === ConnectionErrorReason.Timeout;
   }
 
   private isLocalPublicationMuted(): boolean {
