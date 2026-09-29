@@ -6,6 +6,7 @@ import { elements as e } from '../core/elements';
 import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+import { viewerDrawsTwoStrokesAndErasesOne } from '../whiteboard/util';
 import { startScreenshare } from './util';
 
 export class ScreenShare extends MultiUsers {
@@ -125,27 +126,7 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
-    // The viewer draws, so whatever the presenter sees reached it through its own
-    // annotation-history stream: nothing is still in flight when it hides the presentation.
-    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer');
-    const wbBox = await this.userPage.getElementBoundingBox(e.whiteboard);
-    if (!wbBox) throw new Error('whiteboard bounding box not available');
-    const dragAcross = async (fromY: number, toY: number) => {
-      await this.userPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + fromY * wbBox.height);
-      await this.userPage.page.mouse.down();
-      await this.userPage.page.mouse.move(wbBox.x + 0.6 * wbBox.width, wbBox.y + toY * wbBox.height, { steps: 10 });
-      await this.userPage.page.mouse.up();
-    };
-    await this.userPage.waitAndClick(e.wbPencilShape);
-    await dragAcross(0.2, 0.3);
-    await this.modPage.waitUntilHaveCountSelector(e.wbDraw, 1);
-    await dragAcross(0.6, 0.7);
-    await this.modPage.waitUntilHaveCountSelector(e.wbDraw, 2);
-    // an erased annotation leaves history newer than the newest surviving one
-    await this.userPage.waitAndClick(e.wbEraser);
-    await dragAcross(0.6, 0.7);
-    await this.modPage.waitUntilHaveCountSelector(e.wbDraw, 1);
+    await viewerDrawsTwoStrokesAndErasesOne(this.modPage, this.userPage);
 
     await this.modPage.waitAndClick(e.minimizePresentation);
     await this.modPage.wasRemoved(e.presentationContainer, 'should hide the presentation');

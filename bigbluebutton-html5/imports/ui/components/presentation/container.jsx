@@ -27,7 +27,6 @@ import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
   ANNOTATION_HISTORY_STREAM,
   CURRENT_PAGE_ANNOTATIONS_QUERY,
-  CURRENT_PAGE_LAST_ANNOTATION_EVENT_QUERY,
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -82,27 +81,20 @@ const PresentationContainer = ({
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
 
-  // Both fetched on every mount: the container is unmounted while a screen share
-  // or external video is displayed, and what it restarts from must be the page
-  // state at remount, not a cached snapshot taken at join.
   const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
     CURRENT_PAGE_ANNOTATIONS_QUERY,
     {
       variables: { pageId: currentPageId },
       skip: !currentPageId,
+      // Fetched on every mount: the container is unmounted while a screen share
+      // or external video is displayed, and the history stream below must start
+      // from the page state at remount, not from a cached snapshot taken at join.
       fetchPolicy: 'network-only',
     },
   );
 
-  const { data: lastAnnotationEvent, error: lastAnnotationEventError } = useQuery(
-    CURRENT_PAGE_LAST_ANNOTATION_EVENT_QUERY,
-    {
-      variables: { pageId: currentPageId },
-      skip: !currentPageId,
-      fetchPolicy: 'network-only',
-    },
-  );
-
+  // Erased annotations keep their row, with the time they were erased, so this
+  // is the time of the newest annotation event on the page, deletions included.
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations) return null;
 
@@ -118,19 +110,6 @@ const PresentationContainer = ({
   }, [initialPageAnnotations, currentMeeting?.createdTime]);
 
   const canStream = !!lastUpdatedAt;
-
-  // The stream starts from the newest surviving annotation, so its first batch
-  // replays whatever history is newer than that, such as the deletion of
-  // annotations erased since. Only rows newer than the newest history row known
-  // when the stream was started are new events that may restore the presentation.
-  const lastKnownEventAt = useMemo(() => {
-    if (!lastUpdatedAt || (!lastAnnotationEvent && !lastAnnotationEventError)) return null;
-    const [lastEvent] = lastAnnotationEvent?.pres_annotation_history_curr || [];
-    return Math.max(
-      new Date(lastUpdatedAt).getTime(),
-      lastEvent ? new Date(lastEvent.updatedAt).getTime() : 0,
-    );
-  }, [lastUpdatedAt, lastAnnotationEvent, lastAnnotationEventError]);
   const lastSeenEventAt = useRef(0);
 
   useSubscription(ANNOTATION_HISTORY_STREAM, {
@@ -138,12 +117,14 @@ const PresentationContainer = ({
     skip: !currentPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
+      // A batch with nothing newer than where the stream started, or than what
+      // it already delivered, is a replay and must not restore the presentation.
       const newestInBatch = annotationStream.reduce(
         (latest, row) => Math.max(latest, new Date(row.updatedAt).getTime()),
         0,
       );
-      const hasNewEvent = lastKnownEventAt !== null
-        && newestInBatch > Math.max(lastKnownEventAt, lastSeenEventAt.current);
+      const streamStartedAt = new Date(lastUpdatedAt).getTime();
+      const hasNewEvent = newestInBatch > Math.max(streamStartedAt, lastSeenEventAt.current);
       lastSeenEventAt.current = Math.max(lastSeenEventAt.current, newestInBatch);
       if (restoreOnUpdate && !presentationIsOpen && hasNewEvent) {
         MediaService.setPresentationIsOpen(layoutContextDispatch, true);

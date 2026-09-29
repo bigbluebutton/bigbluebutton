@@ -177,19 +177,6 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
   }
 }`;
 
-export const CURRENT_PAGE_LAST_ANNOTATION_EVENT_QUERY = gql`
-  query CurrentPageLastAnnotationEventQuery($pageId: String!) {
-    pres_annotation_history_curr(
-      where: {pageId: {_eq: $pageId}},
-      order_by: { updatedAt: desc },
-      limit: 1
-    ) {
-      annotationId
-      updatedAt
-    }
-  }
-`;
-
 export const ANNOTATION_HISTORY_STREAM = gql`
   subscription annotationHistoryStream($updatedAt: timestamptz, $pageId: String!) {
     pres_annotation_history_curr_stream(
