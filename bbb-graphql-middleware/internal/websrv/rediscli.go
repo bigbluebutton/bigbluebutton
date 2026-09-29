@@ -128,6 +128,9 @@ func StartRedisListener() {
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 			go streamingserver.RemoveUserCursorsCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+			// The voice state row is normally cleared by the user's own voice events; a user who
+			// leaves the meeting must not stay in the replay cache if that event never arrives.
+			go streamingserver.RemoveUserUserVoiceStatesCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 		}
 
 		if messageName == "SendCursorPositionEvtMsg" {
