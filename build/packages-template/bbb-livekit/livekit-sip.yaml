@@ -1,4 +1,5 @@
-log_level: info
+logging:
+  level: info
 # LK key:secret
 api_key: devkey
 api_secret: secret
