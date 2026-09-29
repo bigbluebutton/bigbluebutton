@@ -117,7 +117,10 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
 
   ${({ isMobile }) => !isMobile && `
     scrollbar-gutter: stable both-edges;
-    scrollbar-width: thin;
+
+    @supports (-moz-appearance: none) {
+      scrollbar-width: thin;
+    }
   `}
 
   ${({ isExpanded }) => (isExpanded ? `
