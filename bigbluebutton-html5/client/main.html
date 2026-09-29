@@ -249,6 +249,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
           if (supported) {
+            // livekit-client >= 2.22.3 depends on Object.hasOwn (via a 3rd-party
+            // dep). Not widely supported (e.g.: Chrome/Edge < 93, Firefox < 92 and Safari < 15.4
+            // lack it). Polyfill it here if necessary since we do not transpile node_modules deps.
+            if (!Object.hasOwn) {
+              Object.defineProperty(Object, 'hasOwn', {
+                value: function (obj, key) {
+                  return Object.prototype.hasOwnProperty.call(obj, key);
+                },
+                configurable: true,
+                writable: true,
+              });
+            }
+
             var bundleHash = '<%= bundleHash %>';
             var isProduction = '<%= isProduction %>' === 'true';
             var script = document.createElement('script');
