@@ -1,10 +1,32 @@
-import { expect } from '@playwright/test';
+import { expect, Page as PlaywrightPage } from '@playwright/test';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 
 export class Create extends MultiUsers {
+  private static async closeAudioModalIfPresent(page: PlaywrightPage) {
+    // the modal can show up well after the client has loaded; left open, its overlay intercepts later clicks
+    await page.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    try {
+      await page.locator(e.audioModal).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
+      await page.locator(e.closeModal).click();
+      await page.locator(e.audioModal).waitFor({ state: 'detached', timeout: ELEMENT_WAIT_LONGER_TIME });
+    } catch {
+      /* audio modal not present */
+    }
+  }
+
+  private static async setCheckboxChecked(page: PlaywrightPage, selector: string, checked: boolean) {
+    const checkbox = page.locator(selector);
+    await checkbox.waitFor({ state: 'attached', timeout: ELEMENT_WAIT_LONGER_TIME });
+    // retry the toggle: a force-click on the 1x1 input is rejected while the modal is still scaled down
+    await expect(async () => {
+      if ((await checkbox.isChecked()) !== checked) await checkbox.click({ force: true });
+      await expect(checkbox).toBeChecked({ checked, timeout: ELEMENT_WAIT_TIME });
+    }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+  }
+
   // Create BreakoutRooms
   async create(captureNotes = false, captureWhiteboard = false) {
     if (!this?.modPage) throw new Error('modPage not initialized');
@@ -172,11 +194,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
-      await breakoutTab.click(e.closeModal);
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     await breakoutTab.locator(e.manageUsers).click();
     await expect(
@@ -215,13 +233,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
-      await breakoutTab.click(e.closeModal);
-    } catch { /* audio modal not present */ }
-
-    // Wait for the React app to be ready in the breakout tab
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout and verify webcam is locked (inherited)
     await breakoutTab.locator(e.manageUsers).click();
@@ -235,9 +247,9 @@ export class Create extends MultiUsers {
       'webcam lock should be enabled in breakout room (inherited from main room)',
     ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    // Mod disables webcam lock and enables webcamsOnlyForModerator — force-click the hidden ScreenreaderInputs
-    await breakoutTab.locator(e.lockShareWebcam).click({ force: true });
-    await breakoutTab.locator(e.lockSeeOtherViewersWebcam).click({ force: true });
+    // Mod disables webcam lock and enables webcamsOnlyForModerator
+    await Create.setCheckboxChecked(breakoutTab, e.lockShareWebcam, false);
+    await Create.setCheckboxChecked(breakoutTab, e.lockSeeOtherViewersWebcam, true);
 
     // Verify toggles flipped within the same modal (native input.checked, not subscription-driven)
     await expect(
@@ -281,11 +293,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
-      await breakoutTab.click(e.closeModal);
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout
     await breakoutTab.locator(e.manageUsers).click();
@@ -300,8 +308,8 @@ export class Create extends MultiUsers {
       breakoutTab.locator(e.lockShareWebcam),
       'webcam lock should be off by default (no inheritance)',
     ).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    await breakoutTab.locator(e.lockShareWebcam).click({ force: true });
-    await breakoutTab.locator(e.lockSeeOtherViewersWebcam).click({ force: true });
+    await Create.setCheckboxChecked(breakoutTab, e.lockShareWebcam, true);
+    await Create.setCheckboxChecked(breakoutTab, e.lockSeeOtherViewersWebcam, true);
 
     await expect(
       breakoutTab.locator(e.lockShareWebcam),
@@ -351,11 +359,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
-      await breakoutTab.click(e.closeModal);
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout and verify mic lock was inherited
     await breakoutTab.locator(e.manageUsers).click();
@@ -370,8 +374,8 @@ export class Create extends MultiUsers {
     ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     // Disable mic lock and enable webcamsOnlyForModerator
-    await breakoutTab.locator(e.lockShareMicrophone).click({ force: true });
-    await breakoutTab.locator(e.lockSeeOtherViewersWebcam).click({ force: true });
+    await Create.setCheckboxChecked(breakoutTab, e.lockShareMicrophone, false);
+    await Create.setCheckboxChecked(breakoutTab, e.lockSeeOtherViewersWebcam, true);
 
     await expect(
       breakoutTab.locator(e.lockShareMicrophone),
@@ -420,11 +424,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
-      await breakoutTab.click(e.closeModal);
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout and verify NO lock settings were propagated
     await breakoutTab.locator(e.manageUsers).click();
@@ -479,11 +479,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
-      await breakoutTab.click(e.closeModal);
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout and verify lock settings WERE propagated
     await breakoutTab.locator(e.manageUsers).click();
@@ -533,14 +529,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    // The audio modal pops up a few seconds after the breakout tab loads and its
-    // overlay intercepts clicks; wait for it, close it, and wait for it to detach.
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: ELEMENT_WAIT_LONGER_TIME });
-      await breakoutTab.click(e.closeModal);
-      await breakoutTab.locator(e.audioModal).waitFor({ state: 'detached', timeout: ELEMENT_WAIT_LONGER_TIME });
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout and verify webcamsOnlyForModerator WAS propagated from parent
     await breakoutTab.locator(e.manageUsers).click();
@@ -585,14 +574,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    // The audio modal pops up a few seconds after the breakout tab loads and its
-    // overlay intercepts clicks; wait for it, close it, and wait for it to detach.
-    try {
-      await breakoutTab.waitForSelector(e.audioModal, { timeout: ELEMENT_WAIT_LONGER_TIME });
-      await breakoutTab.click(e.closeModal);
-      await breakoutTab.locator(e.audioModal).waitFor({ state: 'detached', timeout: ELEMENT_WAIT_LONGER_TIME });
-    } catch { /* audio modal not present */ }
-    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     // Open Lock Viewers in breakout and verify webcamsOnlyForModerator was NOT propagated
     await breakoutTab.locator(e.manageUsers).click();
