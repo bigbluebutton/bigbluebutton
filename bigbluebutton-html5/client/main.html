@@ -206,7 +206,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
           var MIN_VERSIONS = {
-            safari: 14,
+            safari: 14, // hasWeakRef down below may raise the real floor to 14.1
             chrome: 87,
             firefox: 80,
             edge: 85,
@@ -225,6 +225,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
 
           var safariVersion = parseVersion(/Version\/(\d+).*Safari/);
+          // livekit-client needs WeakRef; there's seemingly no polyfill for it that is good enough.
+          // Safari/iOS is the finicky one with this. Test for feature availability directly,
+          // not just version number, as iOS browsers are all WebKit based and may omit
+          // actual versions.
+          var hasWeakRef = typeof WeakRef === 'function';
+          var isOldSafari = isSafari && (
+            !hasWeakRef
+            || (safariVersion && safariVersion < MIN_VERSIONS.safari)
+          );
           var chromeVersion = parseVersion(/(?:Chrome|CriOS)\/(\d+)/);
           var firefoxVersion = parseVersion(/Firefox\/(\d+)/);
           var edgeVersion = parseVersion(/Edg\/(\d+)/);
@@ -239,13 +248,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             && 'addTrack' in RTCPeerConnection.prototype
           );
           var supportedUA = !(
-            (isSafari && safariVersion && safariVersion < MIN_VERSIONS.safari) ||
+            isOldSafari ||
             (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) ||
             (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) ||
             (edgeVersion && edgeVersion < MIN_VERSIONS.edge)||
             (miuiVersion !== null)
           );
-          var supported = supportedUA && supportsWebRTC;
+          var supported = supportedUA && supportsWebRTC && hasWeakRef;
 
 
           if (supported) {
@@ -279,7 +288,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             if (miuiVersion !== null) {
               msgKey = 'app.legacy.unsupportedBrowser';
-            } else if (isSafari && safariVersion && safariVersion < MIN_VERSIONS.safari) {
+            } else if (isOldSafari) {
               msgKey = 'app.legacy.unsupportedSafari';
             } else if (chromeVersion || firefoxVersion || edgeVersion) {
               msgKey = 'app.legacy.upgradeBrowser';
@@ -292,7 +301,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             var FALLBACK = {};
             FALLBACK['app.legacy.unsupportedBrowser'] = replaceLocalePlaceholders('It looks like you\'re using a browser that is not supported. Please use a recent version of either {supportedBrowser1} or {supportedBrowser2} for full support.');
             FALLBACK['app.legacy.upgradeBrowser'] = 'It looks like you\'re using an older version of a supported browser. Please upgrade your browser to a recent version for full support.';
-            FALLBACK['app.legacy.unsupportedSafari'] = 'Please upgrade your browser to Safari 14 or newer for full support.';
+            FALLBACK['app.legacy.unsupportedSafari'] = 'Please upgrade your browser to Safari 14.1 or newer for full support.';
 
             var banner = document.createElement('p');
             banner.className = 'browserWarning';

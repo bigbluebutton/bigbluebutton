@@ -446,17 +446,18 @@ If the browser is older than the required version, the main client bundle is not
 
 BigBlueButton supports the following browsers and minimum versions:
 
-* Safari — 14 or newer
+* Safari — 14.1 or newer
 * Chrome — 87 or newer
 * Firefox — 80 or newer
 * Microsoft Edge — 85 or newer
 * MiuiBrowser — not supported
 
-For Safari versions between 14 and 15, a special compatibility bundle is automatically loaded to ensure proper functionality. All other supported browsers use the standard client bundle.
+For Safari 14.1 through 15.x, a special compatibility bundle is automatically loaded to ensure proper functionality. All other supported browsers use the standard client bundle.
 
 #### Notes
 
 * Any browser below the listed minimum version will display the unsupported browser banner and will not load the BigBlueButton client.
+* Every browser on iOS and iPadOS 14 runs on the system WebKit, so the Safari minimum applies to all of them: iOS or iPadOS 14.5 (Safari 14.1) or newer.
 * Browsers must support **WebRTC** for audio, video, and screen sharing to function properly. You can verify WebRTC support using [https://test.webrtc.org/](https://test.webrtc.org/).
 
 
