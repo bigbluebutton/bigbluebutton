@@ -1,5 +1,15 @@
-import { AudioPresets, LogLevel } from 'livekit-client';
+import { LogLevel, type TrackPublishOptions } from 'livekit-client';
 import { MeetingClientSettings } from '../../Types/meetingClientSettings';
+
+export const LIVEKIT_AUDIO_PUBLISH_OPTIONS: TrackPublishOptions = {
+  audioPreset: {
+    maxBitrate: 48000,
+    priority: 'high',
+  },
+  dtx: false,
+  red: true,
+  forceStereo: false,
+};
 
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
   public: {
@@ -696,12 +706,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           stopLocalTrackOnUnpublish: false,
         },
         audio: {
-          publishOptions: {
-            audioPreset: AudioPresets.music,
-            dtx: true,
-            red: false,
-            forceStereo: false,
-          },
+          publishOptions: LIVEKIT_AUDIO_PUBLISH_OPTIONS,
           unpublishOnMute: false,
           unpublishAfterMuteMs: 5000,
           useLiveKitAudioState: false,
