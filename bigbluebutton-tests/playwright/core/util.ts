@@ -1,5 +1,7 @@
 import { expect } from '@playwright/test';
 import { exec } from 'child_process';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 interface RunScriptOptions {
   handleError?: (stderr: string) => unknown;
@@ -21,6 +23,11 @@ interface WbBox {
   height: number;
 }
 
+// The shipped English locale, loaded once. Assertions on user-facing copy resolve through it
+// rather than repeating the string, so a wording change shows up as one edit in en.json.
+const defaultLocalePath = join(__dirname, '../../../bigbluebutton-html5/public/locales/en.json');
+const defaultLocale: Record<string, string> = JSON.parse(readFileSync(defaultLocalePath, 'utf8'));
+
 // Text
 export async function checkTextContent(
   baseContent: string,
@@ -32,6 +39,17 @@ export async function checkTextContent(
   dataArray.forEach((word) => {
     expect(baseContent, description ?? `should contain the value "${word}"`).toContain(word);
   });
+}
+
+/**
+ * Resolve a locale key to the string the client renders for it under the default locale.
+ * @param key The locale key, e.g. 'app.talkingIndicator.hiddenUser'.
+ * @returns The value from en.json.
+ */
+export function getDefaultLocaleValue(key: string): string {
+  const value = defaultLocale[key];
+  expect(value, `locale key "${key}" should exist in en.json`).toBeDefined();
+  return value;
 }
 
 export function constructClipObj(wbBox: WbBox): ClipObj {

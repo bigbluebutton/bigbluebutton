@@ -4,6 +4,7 @@ import { hoverLastMessage } from '../chat/util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, USER_LEFT_NOTIFICATION_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { linkIssue } from '../core/helpers';
+import { ClientSettingsOverrides } from '../core/page';
 import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../notifications/util';
 import { openSettings } from '../options/util';
 import {
@@ -1005,5 +1006,136 @@ export class LockViewers extends MultiUsers {
       'Locked viewer must receive leave notification when a MODERATOR leaves (hideUserList active)',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
+  }
+
+  /**
+   * A silently ignored settings override would turn a variant into a duplicate of the run it
+   * is meant to contrast with, passing for the wrong reason. The two audio states are served
+   * by different talking-indicator paths, so confirm the client is really on the one asked for.
+   */
+  async assertLiveKitAudioStateOverride(clientSettingsOverrides?: ClientSettingsOverrides) {
+    if (!clientSettingsOverrides) return;
+
+    const inEffect = await this.userPage.page.evaluate(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      () => (window as any).meetingClientSettings?.public?.media?.livekit?.audio?.useLiveKitAudioState,
+    );
+    expect(inEffect, 'LiveKit audio state override should be in effect on the viewer page').toBe(true);
+  }
+
+  /**
+   * Under "Hide user list", a locked viewer must not learn a hidden speaker's name from the
+   * talking indicator.
+   *
+   * The indicator resolves a speaker's name from two independent sources, one per audio
+   * path, and this test is registered against both (see user.spec.ts). The two are guarded
+   * separately, so it fails if either guard is dropped.
+   *
+   * Flow:
+   *   1. Mod joins.
+   *   2. Mod enables lockUserList (hideUserList=true, lockOnJoin=true).
+   *   3. Viewer1 and Viewer2 join → both locked.
+   *   4. Viewer2 joins audio and talks.
+   *   Expected: Viewer2 sees their own indicator, the Mod sees Viewer2's indicator,
+   *   and Viewer1 never sees Viewer2's name.
+   */
+  async hideUserListSuppressesTalkingIndicator(clientSettingsOverrides?: ClientSettingsOverrides) {
+    // Apply the lock before the viewers join so they are locked via lockOnJoin.
+    await applyUserListLock(this.modPage);
+
+    await this.initUserPage(this.modPage.context, { shouldCloseAudioModal: false, clientSettingsOverrides });
+    await this.initUserPage2(this.modPage.context, { shouldCloseAudioModal: false, clientSettingsOverrides });
+    await this.assertLiveKitAudioStateOverride(clientSettingsOverrides);
+
+    // Both observers join audio muted, so the only thing separating them is the lock:
+    // the moderator is exempt from hideUserList, Viewer1 is subject to it. Without this
+    // the absence assertion on Viewer1 could pass simply because they render no
+    // indicators at all.
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone({ shouldUnmute: false });
+    await this.userPage.joinMicrophone({ shouldUnmute: false });
+
+    // Viewer2 talks. joinMicrophone already asserts Viewer2 sees their OWN indicator,
+    // which is the "a viewer always sees their own state" branch of the gate.
+    await this.userPage2.joinMicrophone();
+
+    // Positive control first: confirm the talking event really was emitted and rendered
+    // for an exempt observer, so the absence assertion below cannot pass vacuously.
+    await expect(
+      this.modPage.page.locator(e.isTalking).locator(`:text-is("${this.userPage2.username}")`),
+      'Moderator must still see the talking indicator for a hidden viewer',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Second positive control, on the locked viewer's OWN page. Moderators are exempt from
+    // hideUserList, so the locked viewer must still see the moderator talking. Without this
+    // the test passes just as well when the gate blocks too much - a viewer who receives no
+    // voice activity at all satisfies the absence assertion below. It also synchronises this
+    // page, so that assertion is not resolving against a page that has simply not caught up.
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await expect(
+      this.userPage.page.locator(e.isTalking).locator(`:text-is("${this.modPage.username}")`),
+      'Locked viewer must still see a moderator talking indicator',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // The locked viewer must never learn the speaker's name. Matched against the whole
+    // indicator, not the isTalking button: a speaker who fell silent moves to wasTalking
+    // but keeps their name on screen.
+    await expect(
+      this.userPage.page.locator(e.talkingIndicator).locator(`:text-is("${this.userPage2.username}")`),
+      'Locked viewer must not see a hidden viewer name in the talking indicator',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  /**
+   * The lock applied while a hidden viewer is already talking.
+   *
+   * The server signals the change by going quiet: it stops sending voice activity for the
+   * users the viewer may no longer see, but it never retracts what it already sent. The
+   * stream is a delta source, so any state the client holds for a now-hidden speaker has to
+   * be dropped by the client itself.
+   *
+   * The sibling test above applies the lock before anyone joins, so no such state ever
+   * exists; only this ordering exercises it.
+   *
+   * Flow:
+   *   1. Mod and both viewers join UNLOCKED.
+   *   2. Viewer2 talks; Viewer1 sees Viewer2's name (baseline - the indicator does work).
+   *   3. Mod applies lockUserList mid-meeting.
+   *   Expected: Viewer2's name disappears for Viewer1, while the Mod still sees it.
+   */
+  async hideUserListSuppressesTalkingIndicatorAppliedMidTalk(clientSettingsOverrides?: ClientSettingsOverrides) {
+    await this.initUserPage(this.modPage.context, { shouldCloseAudioModal: false, clientSettingsOverrides });
+    await this.initUserPage2(this.modPage.context, { shouldCloseAudioModal: false, clientSettingsOverrides });
+    await this.assertLiveKitAudioStateOverride(clientSettingsOverrides);
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone({ shouldUnmute: false });
+    await this.userPage.joinMicrophone({ shouldUnmute: false });
+    await this.userPage2.joinMicrophone();
+
+    // Matched against the whole indicator rather than the isTalking button: a speaker who
+    // merely fell silent moves to wasTalking but keeps their name on screen, so asserting
+    // only on isTalking would report a leak as fixed the moment the speaker paused.
+    const viewer2Name = `:text-is("${this.userPage2.username}")`;
+    const viewer2OnViewer1 = this.userPage.page.locator(e.talkingIndicator).locator(viewer2Name);
+
+    // Baseline: with no lock in place the indicator reaches Viewer1 normally. This is what
+    // makes the disappearance below meaningful rather than a page that never rendered it.
+    await expect(viewer2OnViewer1, 'Unlocked viewer should see another viewer talking indicator').toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+
+    await applyUserListLock(this.modPage);
+
+    await expect(
+      viewer2OnViewer1,
+      'Talking indicator name must be dropped once hide user list starts applying',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // The moderator is exempt, so the speaker is still audible and still identified there.
+    await expect(
+      this.modPage.page.locator(e.talkingIndicator).locator(viewer2Name),
+      'Moderator must still see the talking indicator after the lock is applied',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
   }
 }
