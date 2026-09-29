@@ -1,5 +1,6 @@
 import { Browser, BrowserContext, chromium, expect, TestInfo } from '@playwright/test';
 
+import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
@@ -55,11 +56,43 @@ async function measureRail(page: Page): Promise<RailMetrics> {
   }, e.sidebarNavigationScrollbox);
 }
 
+// True once the layout engine has applied the current viewport height: it sizes the
+// rail backdrop (the container's parent) to end at the bottom of the viewport.
+async function railMatchesViewport(page: Page): Promise<boolean> {
+  return page.page.evaluate((selector) => {
+    const backdrop = (document.querySelector(selector) as HTMLElement).parentElement as HTMLElement;
+    return Math.abs(backdrop.getBoundingClientRect().bottom - document.documentElement.clientHeight) < 1;
+  }, e.navigationSidebarContainer);
+}
+
+async function waitForAnimationFrames(page: Page, frames: number): Promise<void> {
+  await page.page.evaluate(
+    (count) =>
+      new Promise<void>((resolve) => {
+        const step = (remaining: number) => {
+          if (remaining === 0) resolve();
+          else requestAnimationFrame(() => step(remaining - 1));
+        };
+        step(count);
+      }),
+    frames,
+  );
+}
+
+// Resizes the viewport and returns the rail geometry once the layout has settled:
+// the rail follows the new height and two animation frames change nothing.
 async function measureAt(page: Page, viewport: { width: number; height: number }): Promise<RailMetrics> {
   await page.setHeightWidthViewPortSize(viewport);
-  // Let the layout engine and the rail ResizeObserver settle after the resize.
-  await page.page.waitForTimeout(600);
-  return measureRail(page);
+  let settled: RailMetrics | undefined;
+  await expect(async () => {
+    expect(await railMatchesViewport(page), 'the rail should follow the new viewport height').toBeTruthy();
+    const before = await measureRail(page);
+    await waitForAnimationFrames(page, 2);
+    const after = await measureRail(page);
+    expect(after, 'the rail geometry should be stable across two animation frames').toEqual(before);
+    settled = after;
+  }).toPass({ timeout: ELEMENT_WAIT_TIME });
+  return settled as RailMetrics;
 }
 
 export class SidebarNavigation extends MultiUsers {
