@@ -514,7 +514,7 @@ jobs:
     strategy:
       fail-fast: false
     env:
-      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
+      SAMPLES_WITH_TESTS: "sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin sample-media-area-plugin"
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
