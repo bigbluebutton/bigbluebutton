@@ -7,6 +7,7 @@ api_secret: secret
 ws_url: ws://localhost:7880
 sip_port: 5062
 sip_port_listen: 5062
+rtp_port: 16384-32768
 redis:
   address: localhost:6379
 no_pin_wait_for_subscribe: false
