@@ -155,6 +155,7 @@ const config = {
 
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
+            image: 'img/bbb-social-card.png',
             tableOfContents: {
                 minHeadingLevel: 2,
                 maxHeadingLevel: 4,
