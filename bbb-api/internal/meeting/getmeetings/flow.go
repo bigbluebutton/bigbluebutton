@@ -19,7 +19,7 @@ func NewGetMeetingsFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *
 		Filter(&RequestFilter{}).
 		Transform(&HTTPToGRPC{})
 
-	sendReceive := pipeline.NewStep[*meeting.GetMeetingsStreamRequest, []*meeting.MeetingInfoResponse]().SendReceive(&SendGetMeetingsRequest{})
+	sendReceive := pipeline.NewStep[*meeting.GetMeetingsStreamRequest, []*meeting.MeetingInfoResponse]().SendReceive(&SendGetMeetingsRequest{client})
 
 	transformToResponse := pipeline.NewStep[[]*meeting.MeetingInfoResponse, *meetingapi.Response]().Transform(&GRPCToResponse{})
 
