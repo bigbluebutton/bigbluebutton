@@ -2,9 +2,9 @@
 
 TARGET=$(basename "$(pwd)")
 
-SERVER_VERSION=v1.9.12
-CLI_VERSION=2.13.2
-SIP_VERSION=v1.2.0
+SERVER_VERSION=v1.13.7
+CLI_VERSION=2.18.8
+SIP_VERSION=v1.17.0
 
 PACKAGE=$(echo "$TARGET" | cut -d'_' -f1)
 VERSION=$(echo "$TARGET" | cut -d'_' -f2)
@@ -100,7 +100,9 @@ else
     GOARCH=amd64
 fi
 
-CGO_ENABLED=1 GOOS=linux GOARCH="${GOARCH}" GO111MODULE=on go build -a -o livekit-sip ./cmd/livekit-sip
+CGO_ENABLED=1 GOOS=linux GOARCH="${GOARCH}" GO111MODULE=on go build -a \
+    -ldflags "-X github.com/livekit/sip/version.Version=${SIP_VERSION}" \
+    -o livekit-sip ./cmd/livekit-sip
 
 cp livekit-sip "$DESTDIR/usr/bin"
 popd > /dev/null
