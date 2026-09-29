@@ -6,6 +6,7 @@ import { elements as e } from '../core/elements';
 import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+import { viewerDrawsTwoStrokesAndErasesOne } from '../whiteboard/util';
 import { startScreenshare } from './util';
 
 export class ScreenShare extends MultiUsers {
@@ -115,6 +116,35 @@ export class ScreenShare extends MultiUsers {
     expect(webcamBox.height, 'the webcam should fill the media area again after the share ends').toBeGreaterThan(
       viewport.height * 0.4,
     );
+  }
+
+  // Regression: with restoreOnUpdate (default true) the presentation container
+  // remounts when a share ends and its annotation-history stream replayed the
+  // page history, which reopened a presentation the presenter had hidden.
+  async presentationStaysHiddenAfterSharingWithAnnotations() {
+    test.skip(!this.modPage.settings?.screensharingEnabled, 'Screen sharing is disabled');
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await viewerDrawsTwoStrokesAndErasesOne(this.modPage, this.userPage);
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer, 'should hide the presentation');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button');
+
+    await startScreenshare(this.modPage);
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.isSharingScreen, 'should not display the screenshare element after stopping');
+    await this.modPage.hasElement(e.startScreenSharing, 'should display the start screenshare button after stopping');
+
+    // the reopen used to land about a second after the stop: keep watching
+    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    await this.modPage.hasElement(
+      e.restorePresentation,
+      'the presentation should still be hidden after the share ends',
+    );
+    await this.modPage.wasRemoved(e.presentationContainer, 'should not display the presentation after the share ends');
+    await this.modPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button');
   }
 
   async stopSharing() {
