@@ -31,9 +31,6 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   ariaDescribedBy,
 }) => {
   const layoutContextDispatch = layoutDispatch();
-  // Same source of truth as the rail scrollbox gutter (deviceType === MOBILE, i.e.
-  // width <= 599px), so the icon width and the gutter switch at the same threshold
-  // and the 600-640px band no longer dips the icons to the mobile size (issue 25564).
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const sidebarContentAuxiliaryInput = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
