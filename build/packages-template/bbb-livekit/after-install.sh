@@ -47,6 +47,6 @@ if [ ! -f /.dockerenv ]; then
   systemctl enable livekit-sip.service
   systemctl daemon-reload
   reloadService nginx
-  startService livekit-server.service || echo "livekit-server service could not be registered or started"
-  startService livekit-sip.service || echo "livekit-sip service could not be registered or started"
+  restartService livekit-server.service || echo "livekit-server service could not be restarted"
+  restartService livekit-sip.service || echo "livekit-sip service could not be restarted"
 fi
