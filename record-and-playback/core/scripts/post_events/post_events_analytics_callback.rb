@@ -190,13 +190,6 @@ begin
       data: data
     }
 
-    # Convert CamelCase keys to snake_keys for the whole payload.
-    # This is a sledgehammer to force keys to be consistent.
-    payload.deep_transform_keys! do |key|
-      k = key.to_s.underscore rescue key
-      k.to_sym rescue key
-    end
-
     BigBlueButton.logger.info(payload.to_json)
 
     send_data(analytics_callback_url, secret, payload)

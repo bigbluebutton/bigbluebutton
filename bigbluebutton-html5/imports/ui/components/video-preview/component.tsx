@@ -285,7 +285,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       stopVirtualBackground(currentVideoStream.current);
     }
 
-    terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+    terminateCameraStream(currentVideoStream.current);
     closeModal();
     if (resolve) resolve();
   }, [

@@ -52,10 +52,21 @@ const setConnectingStream = (stream: ConnectingStream | null) => {
 
 const getConnectingStream = () => connectingStream();
 
+// Cameras this client asked to stop (ie not server-initiated)
+const expectedStreamStops = new Set<string>();
+
+const expectStreamStop = (stream: string) => {
+  expectedStreamStops.add(stream);
+};
+
+const consumeExpectedStreamStop = (stream: string) => expectedStreamStops.delete(stream);
+
 export {
   useVideoState,
   setVideoState,
   getVideoState,
+  expectStreamStop,
+  consumeExpectedStreamStop,
   useConnectingStream,
   getConnectingStream,
   setConnectingStream,

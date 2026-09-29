@@ -1,4 +1,5 @@
 import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
+import { stampMuteCommand } from '/imports/api/audio/client/bridge/mute-intent';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -75,6 +76,7 @@ const toggleMute = (
         extraInfo: { logType: actionType },
       }, 'microphone unmuted');
       Storage.setItem(storageKey, newMutedState);
+      stampMuteCommand(newMutedState);
 
       if (shouldRunLocalMute) AudioManager.unmute();
 
@@ -85,6 +87,7 @@ const toggleMute = (
         extraInfo: { logType: actionType },
       }, 'microphone muted');
       Storage.setItem(storageKey, newMutedState);
+      stampMuteCommand(newMutedState);
 
       if (shouldRunLocalMute) AudioManager.mute();
 

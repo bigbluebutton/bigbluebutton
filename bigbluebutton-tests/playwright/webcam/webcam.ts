@@ -114,6 +114,10 @@ export class Webcam extends Page {
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     };
 
+    // "low" is the lowest visible profile, so it publishes a single encoding
+    // instead of simulcast layers, and that encoding reaches the browser
+    // untouched - in #25587 it carried an undefined framerate, which Firefox
+    // refuses outright. Keep this step on the lowest quality.
     await joinWebcamSettingQuality('low');
     await this.waitAndClick(e.connectionStatusBtn);
     const lowValue = await checkVideoUploadData(this, 0);

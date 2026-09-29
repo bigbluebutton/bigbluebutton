@@ -222,6 +222,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await guestPolicy.rememberChoice();
         });
 
+        test('Waiting list keeps arrival order', async ({ browser, context, page }, testInfo) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page, { testInfo });
+          await guestPolicy.keepsWaitingListOrderedByArrival();
+        });
+
         test.describe.parallel('Actions to specific pending user', () => {
           test('Message', async ({ browser, context, page }, testInfo) => {
             const guestPolicy = new GuestPolicy(browser, context);
