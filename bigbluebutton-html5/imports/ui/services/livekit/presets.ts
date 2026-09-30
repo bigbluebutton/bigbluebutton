@@ -1,4 +1,4 @@
-import { VideoPreset } from 'livekit-client';
+import { type VideoEncoding, VideoPreset } from 'livekit-client';
 import logger from '/imports/startup/client/logger';
 import { LiveKitPresetConfig } from '/imports/ui/Types/meetingClientSettings';
 
@@ -35,6 +35,17 @@ export const assemblePresetFromConfig = (
   }
 
   return new VideoPreset(width, height, maxBitrate, maxFramerate, priority);
+};
+
+export const toPublishEncoding = (preset: VideoPreset): VideoEncoding => {
+  const { maxFramerate, ...encoding } = preset.encoding;
+
+  // VideoPreset always produces the maxFramerate attribute on its encoding,
+  // so a preset built without a framerate carries the key with an undefined value.
+  // This is usually fine, but on scenarios where a single encoding is produced (ie
+  // low quality), this is forwarded verbatim to the transceiver call. Long story
+  // short: undefined becomes NaN which makes Firefox throw. Filter it out here to avoid that.
+  return maxFramerate == null ? encoding : { ...encoding, maxFramerate };
 };
 
 // Removes presets that are identical across all three encoding dimensions:

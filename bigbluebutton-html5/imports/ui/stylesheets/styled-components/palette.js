@@ -54,6 +54,12 @@ const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
 const colorWarning = 'var(--color-warning, purple)';
+const noticeWarningBg = 'var(--notice-warning-bg, rgba(255, 200, 69, 0.2))';
+const noticeWarningBorder = 'var(--notice-warning-border, #FFC845)';
+const noticeWarningText = 'var(--notice-warning-text, #936800)';
+const noticeWarningIcon = 'var(--notice-warning-icon, #A17100)';
+// Lighter than colorOverlay: the screen behind a scrimmed dialog stays readable.
+const colorScrim = 'var(--color-scrim, rgba(57, 60, 72, 0.32))';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
@@ -99,6 +105,12 @@ const btnDefaultGhostColorBorder = `var(--btn-default-ghost-color-border, ${btnD
 const btnDefaultGhostBg = 'var(--btn-default-ghost-bg, var(--btn-default-bg, rgba(255, 255, 255, 0.1)))'; // colorWhite, 10%
 const btnDefaultGhostBorder = 'var(--btn-default-ghost-border, var(--btn-default-border, rgba(255, 255, 255, 0.5)))'; // colorWhite, 50%
 const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255, 0.2))'; // colorWhite, 20%
+
+// Recording indicator, active state only; the idle one keeps btnDefaultGhostBg.
+// Both compose colorDanger, so retheming --color-danger reaches this state too.
+// The fill is that red at 22%, so the outline below reads as the same colour.
+const btnRecordingActiveBg = `var(--btn-recording-active-bg, color-mix(in srgb, ${colorDanger} 22%, transparent))`;
+const btnRecordingActiveBorder = `var(--btn-recording-active-border, ${colorDanger})`;
 
 const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
@@ -304,6 +316,11 @@ export {
   colorDangerDark,
   colorSuccess,
   colorWarning,
+  noticeWarningBg,
+  noticeWarningBorder,
+  noticeWarningText,
+  noticeWarningIcon,
+  colorScrim,
   colorBackground,
   colorOverlay,
   userListBg,
@@ -328,6 +345,8 @@ export {
   btnDefaultGhostBg,
   btnDefaultGhostBorder,
   btnDefaultGhostActiveBg,
+  btnRecordingActiveBg,
+  btnRecordingActiveBorder,
   btnPrimaryBorder,
   btnPrimaryColor,
   btnPrimaryColorSurface,

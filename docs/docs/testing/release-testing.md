@@ -628,6 +628,9 @@ Requires the LiveKit audio bridge (the default). A viewer must be in a breakout 
 3. Click "Return to main room".
 
    - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
+4. Pick "Join room" for a running room (it opens in a new tab), then reopen that room's options menu in the main room.
+
+   - the listen option should be disabled and read "Can't listen: already in room"; other rooms' listen options stay enabled
 
 ## Pre-flight
 
@@ -695,6 +698,31 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 4. Guest: click "Join session"
 
     - The guest should land in the meeting and show up in the user list
+
+### Guest denial in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Moderator: set the guest policy to "Ask moderator"
+
+2. Guest: join the session and wait in the pre-flight guest lobby
+
+3. Moderator: deny the pending guest
+
+    - Guest: the waiting message should be replaced by the denial screen: an "Entry denied by the moderator" badge, the message explaining it, the session's name and how long ago it started above it, and a "Leave session" button
+    - The setup panel should stay where it was, with the camera preview still running if it was on
+    - A line below the message should count down to the automatic exit
+    - On a phone-width window, the denial should open as a dialog over the guest lobby, which stays visible behind a scrim, with the countdown and "Leave session" inside it
+
+4. Guest: wait without clicking anything
+
+    - After 15 seconds the guest should be taken to the session's logout URL, which carries `reasonCode=guest_deny_reason`
+
+5. Repeat steps 1-3 and reload the guest's page before the countdown runs out
+
+    - The denial screen should come back without the setup panel, and the browser should not ask for the microphone or camera
+
+6. Guest: click "Leave session" before the countdown runs out
+
+    - The guest should be taken to the same logout URL straight away
 
 ## Audio
 

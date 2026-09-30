@@ -56,6 +56,127 @@ export function largestEmbeddedRasterWidth(file) {
 }
 
 /**
+ * Pick the pixel size a slide background should be rasterized at.
+ *
+ * Never render below the largest raster the slide embeds, otherwise CairoSVG
+ * crops the slide when it downscales it (issue #25303) and, whichever renderer
+ * is used, a detailed page would be resampled below its native resolution.
+ * Keeps the slide's aspect ratio.
+ *
+ * @param {string} svgPath Path of the slide background SVG.
+ * @param {number} width Target output width in pixels (final render).
+ * @param {number} height Target output height in pixels.
+ * @return {{width: number, height: number}} Size to rasterize at.
+ */
+export function slideRasterSize(svgPath, width, height) {
+  const maxRasterWidth = largestEmbeddedRasterWidth(svgPath);
+
+  if (maxRasterWidth > width) {
+    return {
+      width: maxRasterWidth,
+      height: Math.round(maxRasterWidth * height / width),
+    };
+  }
+
+  return {width, height};
+}
+
+/**
+ * Report whether a slide SVG is BigBlueButton's blank placeholder.
+ *
+ * bbb-web substitutes `blank-svg.svg` for a slide whenever its conversion
+ * failed, the slide did not materialise, or the generated SVG exceeded
+ * `maxBigSvgSize` (SvgImageCreatorImp). In each case participants are shown a
+ * blank slide and annotations were drawn against it, so the export has to stay
+ * blank too - rendering the page from the PDF would put the real content back,
+ * and would undo a deliberate size-protection decision.
+ *
+ * The substitution is a byte-for-byte copy, so comparing the two files
+ * identifies it exactly.
+ *
+ * @param {string} svgPath Path of the slide background SVG.
+ * @param {string} [blankSvgPath] Path of bbb-web's blank slide SVG. When unset
+ *   or unreadable the slide is treated as ordinary content.
+ * @return {boolean} True when the slide is the blank placeholder.
+ */
+export function isBlankSlide(svgPath, blankSvgPath) {
+  if (!blankSvgPath) return false;
+
+  try {
+    return fs.readFileSync(svgPath).equals(fs.readFileSync(blankSvgPath));
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Rasterize a slide background from the source PDF page with poppler.
+ *
+ * Preferred over rendering the derived slide SVG, because CairoSVG cannot
+ * reproduce the soft masks that `pdftocairo -svg` emits. Poppler writes a
+ * soft-masked fill as an SVG `<mask>` holding an opaque grayscale bitmap of
+ * the glyphs, and relies on two `feColorMatrix` primitives to turn that
+ * bitmap's luminance into the mask's alpha. CairoSVG implements only
+ * `feOffset`, `feBlend` and `feFlood`, so it silently drops `feColorMatrix`,
+ * and it applies masks through cairo's `mask_surface` - an *alpha* mask,
+ * where SVG specifies a *luminance* mask. The bitmap is opaque everywhere, so
+ * the mask passes the whole shape and the fill paints as a solid block: text
+ * that a browser renders correctly exports as solid bars.
+ *
+ * Rendering the page from the PDF sidesteps the SVG round-trip altogether.
+ * Poppler produced the slide SVG in the first place and composites PDF soft
+ * masks natively, so the background matches what the client displays.
+ *
+ * @param {string} pdfPath Path of the presentation PDF.
+ * @param {number} page 1-based page number to render.
+ * @param {string} pngPath Destination path for the rasterized PNG.
+ * @param {Object} options
+ * @param {number} options.width Width in pixels to render at.
+ * @param {number} options.height Height in pixels to render at.
+ * @param {string} [options.pdftocairo='pdftocairo'] Path to the pdftocairo
+ *   executable. Defaults to resolving it on PATH, as bbb-web does, so a
+ *   deployment whose settings.json predates this setting still works.
+ * @param {number} [options.timeout=60000] Milliseconds before the conversion
+ *   is killed. A stalled poppler would otherwise hold the worker open and
+ *   never let the caller reach its fallback.
+ * @return {string} Path of the rasterized PNG.
+ * @throws {Error} If pdftocairo cannot be spawned or exits non-zero.
+ */
+export function rasterizeSlideBackgroundFromPdf(pdfPath, page, pngPath, {
+  width, height, pdftocairo = 'pdftocairo', timeout = 60000,
+}) {
+  // -singlefile appends the extension to the output root itself.
+  const outputRoot = pngPath.replace(/\.png$/, '');
+
+  const args = [
+    // -transp keeps the unpainted page transparent, matching what CairoSVG
+    // produced; without it poppler fills the background opaque white.
+    '-png', '-singlefile', '-transp',
+    '-f', String(page), '-l', String(page),
+    '-scale-to-x', String(Math.round(width)),
+    '-scale-to-y', String(Math.round(height)),
+    pdfPath, outputRoot,
+  ];
+
+  const result = cp.spawnSync(pdftocairo, args, {shell: false, timeout});
+
+  if (result.error) throw result.error;
+
+  if (result.signal) {
+    throw new Error(
+        `pdftocairo was killed by ${result.signal} after ${timeout}ms`);
+  }
+
+  if (result.status !== 0) {
+    const stderr = result.stderr?.toString().trim();
+    throw new Error(
+        `pdftocairo exited with status ${result.status}: ${stderr}`);
+  }
+
+  return `${outputRoot}.png`;
+}
+
+/**
  * Rasterize a background slide SVG to a PNG so it composites without cropping.
  *
  * The background slide is later embedded in the annotated SVG as an `<image>`
@@ -67,13 +188,13 @@ export function largestEmbeddedRasterWidth(file) {
  * box, so rasterizing the slide first sidesteps that. The slide's viewBox is
  * ensured first so that slides missing one still fill the raster.
  *
- * The rasterization itself must avoid a second CairoSVG (< 2.7) quirk: when it
- * *downscales* an embedded raster below its native pixel size it crops the
- * slide the same way. Office-document slides embed a single high-resolution
- * image (e.g. a 2048px picture in a 720pt viewBox), so the final resolution
- * `toPx(slideWidth)` can fall well below it. We therefore render at least as
- * large as the biggest embedded raster; the composite scales the PNG down
- * cleanly afterwards, keeping the background sharp.
+ * The size to render at comes from `slideRasterSize`, which keeps the raster
+ * at or above the slide's own embedded rasters - CairoSVG (< 2.7) crops the
+ * slide the same way when it *downscales* an embedded raster below its native
+ * pixel size.
+ *
+ * Kept as the fallback for slides whose source PDF is unavailable; prefer
+ * `rasterizeSlideBackgroundFromPdf`, which does not lose soft masks.
  *
  * @param {string} svgPath Path of the slide background SVG.
  * @param {string} pngPath Destination path for the rasterized PNG.
@@ -91,15 +212,8 @@ export function rasterizeSlideBackground(svgPath, pngPath, {
 }) {
   ensureSlideViewBox(svgPath);
 
-  // Never render below the largest embedded raster's native width, otherwise
-  // CairoSVG crops the slide (issue #25303). Keep the slide's aspect ratio.
-  let renderWidth = width;
-  let renderHeight = height;
-  const maxRasterWidth = largestEmbeddedRasterWidth(svgPath);
-  if (maxRasterWidth > renderWidth) {
-    renderWidth = maxRasterWidth;
-    renderHeight = Math.round(maxRasterWidth * height / width);
-  }
+  const {width: renderWidth, height: renderHeight} =
+    slideRasterSize(svgPath, width, height);
 
   const args = [
     svgPath,

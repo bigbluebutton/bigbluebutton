@@ -112,6 +112,11 @@ const PreviewArrowButton = styled.button<{ position: 'left' | 'right' }>`
       opacity: 0.8;
     }
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 const VideoPreviewContent = styled.div`
