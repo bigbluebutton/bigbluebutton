@@ -56,6 +56,18 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     await sharedNotes.editSharedNotesWithMoreThanOneUser();
   });
 
+  // Etherpad was removed: integrations still sending the legacy editor value must get BlockNote notes
+  test('Legacy sharedNotesEditor=etherpad gets BlockNote notes', async ({ browser, context }, testInfo) => {
+    linkIssue(25720);
+    const sharedNotes = new BlockNoteSharedNotes(browser, context);
+    await initializePages(sharedNotes, browser, {
+      isMultiUser: true,
+      createParameter: 'sharedNotesEditor=etherpad',
+      testInfo,
+    });
+    await sharedNotes.editSharedNotesWithMoreThanOneUser();
+  });
+
   test('See notes without edit permission', async ({ browser, context }, testInfo) => {
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
