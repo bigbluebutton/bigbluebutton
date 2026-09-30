@@ -320,6 +320,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 log.error("Command execution (convertPdfToPng) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
             }
 
+            boolean rasterWritten = false;
+
             if(tempPng.length() > 0) {
                 try  {
                     byte[] pngData = readFileToByteArray(tempPng);
@@ -329,43 +331,53 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     // Maximum base64 encoded PNG size to embed in the SVG (currently 4MB)
                     int browserLimit = 2 * 2 * 1024 * 1024;
 
-                    if (base64Size > browserLimit) {
-                        log.error("Encoded PNG is too large for the browser");
-                    } else {
-                        int width = MAX_SVG_WIDTH;
-                        int height = MAX_SVG_HEIGHT;
+                    int width = MAX_SVG_WIDTH;
+                    int height = MAX_SVG_HEIGHT;
 
-                        ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                        log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+                    ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
+                    log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
 
+                    if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                        width = imageResolution.getWidth();
+                        height = imageResolution.getHeight();
+                    }
+
+                    if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
+                        log.info("The image exceeds max dimension allowed, it will be resized.");
+                        imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
+                        imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                         if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
                             width = imageResolution.getWidth();
                             height = imageResolution.getHeight();
+                        } else {
+                            log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
+                                     page, pres.getName(), width, height);
                         }
 
-                        if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
-                            log.info("The image exceeds max dimension allowed, it will be resized.");
-                            imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
-                            imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                            if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
-                                width = imageResolution.getWidth();
-                                height = imageResolution.getHeight();
-                            } else {
-                                log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
-                                         page, pres.getName(), width, height);
-                            }
+                        // The full size render is the one embedded, shown at the resized dimensions.
+                        // When it is too large, settle for the resized render before giving up.
+                        if (base64Size > browserLimit) {
+                            base64encodedPng = Base64.getEncoder().encodeToString(readFileToByteArray(tempPng));
+                            base64Size = base64encodedPng.getBytes(StandardCharsets.UTF_8).length;
                         }
+                    }
 
+                    if (base64Size > browserLimit) {
+                        log.error("Encoded PNG is too large for the browser");
+                    } else {
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
+                        // From here on the vector svg is gone
+                        vectorFallback = false;
                         try (FileWriter writer = new FileWriter(destsvg)) {
                             writer.write(svg);
                         }
+                        rasterWritten = true;
                     }
                 } catch (IOException e) {
                     log.error("Error during conversion from PNG to SVG: {}", e.getMessage());
                 }
 
-                if(destsvg.length() > 0) {
+                if(rasterWritten) {
                     // Step 3: Add SVG namespace to the destination file
                     // Check : https://phabricator.wikimedia.org/T43174
                     NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList(
@@ -395,6 +407,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             // Delete the temporary PNG after finishing the image conversion
             if(tempPng.exists()) {
                 tempPng.delete();
+            }
+
+            if (!done && vectorFallback && destsvg.length() > 0) {
+                log.warn("Rasterization failed for {} page {}, keeping the vector SVG.", pres.getName(), page);
+                done = true;
             }
         }
 
