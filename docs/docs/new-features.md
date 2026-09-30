@@ -234,7 +234,16 @@ BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-a
 
 In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). `bbb-shared-notes-server` is a required package, installed by default.
 
-Etherpad (`bbb-etherpad` and `bbb-pads` packages) is not part of the default installation of BigBlueButton 4.0. We are working on dropping its support within the BigBlueButton 4.0 lifecycle.
+Etherpad (`bbb-etherpad` and `bbb-pads` packages) is not part of the default installation of BigBlueButton 4.0, and its support was dropped within the 4.0 lifecycle; see [Removed Etherpad](#removed-etherpad).
+
+#### Removed Etherpad
+
+BigBlueButton 4.0 removes Etherpad entirely. Shared notes always use BlockNote (`bbb-shared-notes-server`).
+
+- The `bbb-etherpad` and `bbb-pads` packages are no longer built or published.
+- Upgrading a 4.0 pre-release server (beta or release candidate) that had them installed removes both packages and cleans up what they left behind: the Etherpad files and generated API key, the `etherpad` system user, the `/etc/bigbluebutton/etherpad.json` and `/etc/bigbluebutton/bbb-pads.json` overrides, and the Etherpad data stored in Redis. Pads stored in Etherpad are not migrated. Use `apt full-upgrade` (or `dist-upgrade`): `apt upgrade` does not remove packages. To remove Etherpad before upgrading, run `$ sudo apt purge bbb-etherpad bbb-pads`.
+- The `sharedNotesEditor` `/create` parameter and the `sharedNotesEditor` property in `bbb-web.properties` are ignored; every meeting gets BlockNote shared notes.
+- Recordings made with Etherpad keep the notes they already archived, including when they are rebuilt with `bbb-record --rebuild` (a rebuild reprocesses the archived raw files and does not archive again). Only running the archive step again for such a recording would fail to fetch its notes: the step logs a warning, writes the `notes/export_failed` marker and continues without shared notes.
 
 
 #### New optional package: bbb-coturn
@@ -315,7 +324,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.2`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
-- `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
+- `sharedNotesEditor` was removed: BlockNote is the only shared-notes editor (it first became the default in 4.0.0-beta.4; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default) and [Removed Etherpad](#removed-etherpad)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 
 #### Added
