@@ -8,3 +8,4 @@ Audio Settings Dropdown › should display the button with icon and log when cli
 Camera Settings Dropdown › should display the button with icon and log when clicked
 Subscription Hook › should display the button with icon and log when clicked
 Data Channel › should increment data channel values and wipe data correctly
+Media area › should display and log when clicked
