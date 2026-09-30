@@ -149,7 +149,8 @@ public class PngCreatorImp implements PngCreator {
 
 		String COMMAND = "";
 		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME + "-" + page; // the "-x.png" is appended automagically
-		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " " + source + " " + dest;
+		// pdftoppm rather than pdftocairo, which drops the content behind some soft masks (issue #23953)
+		COMMAND = "pdftoppm -png -scale-to " + slideWidth + " " + source + " " + dest;
 
 		//System.out.println("********* CREATING PNGs " + COMMAND);
 
