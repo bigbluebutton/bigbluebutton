@@ -2,12 +2,30 @@
 import Auth from '/imports/ui/services/auth';
 import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import { uniqueId } from '/imports/utils/string-utils';
-import PadsService from '/imports/ui/components/pads/pads-graphql/service';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+
+const getLang = (): string => {
+  const Settings = getSettingsSingletonInstance();
+  // @ts-ignore While Meteor in the project
+  const { locale } = Settings.application;
+  return locale ? locale.toLowerCase() : '';
+};
+
+const getParams = () => {
+  const config = {
+    lang: getLang(),
+    rtl: document.documentElement.getAttribute('dir') === 'rtl',
+  };
+
+  const params = Object.keys(config)
+    .map((key) => `${key}=${encodeURIComponent(config[key as keyof typeof config])}`)
+    .join('&');
+  return params;
+};
 
 async function convertAndUpload(
   presentations: any,
   padId: string,
-  isEtherpadEditor: boolean,
   presentationEnabled = true,
 ) {
   let filename = 'Shared_Notes';
@@ -21,18 +39,11 @@ async function convertAndUpload(
   const extension = 'pdf';
   filename = `${filename}.${extension}`;
 
-  const PADS_CONFIG = window.meetingClientSettings.public.pads;
   const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
     || window.location.hostname;
 
-  let exportUrlString;
-  const params = PadsService.getParams();
-  if (isEtherpadEditor) {
-    exportUrlString = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/${extension}?${params}`);
-  } else {
-    exportUrlString = Auth.authenticateURL(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/${extension}?${params}`);
-  }
-  const exportUrl = Auth.authenticateURL(exportUrlString);
+  const params = getParams();
+  const exportUrl = Auth.authenticateURL(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/${extension}?${params}`);
 
   const sharedNotesAsFile = await fetch(exportUrl, { credentials: 'include' });
 
