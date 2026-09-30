@@ -212,7 +212,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="sharedNotesEditor" value="${sharedNotesEditor}"/>
         <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
