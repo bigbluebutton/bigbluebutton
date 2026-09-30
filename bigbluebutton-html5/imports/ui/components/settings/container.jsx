@@ -71,6 +71,7 @@ export const useSettingsProps = () => {
     paginationToggleEnabled,
     fallbackLocales: FALLBACK_LOCALES,
     isShowAudioFiltersEnabled: SHOW_AUDIO_FILTERS,
+    isAudioDeviceTestEnabled: !!navigator.mediaDevices?.enumerateDevices,
   };
 };
 

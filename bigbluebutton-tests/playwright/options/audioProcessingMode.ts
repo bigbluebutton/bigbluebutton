@@ -83,8 +83,8 @@ export function audioProcessingModeOverrides(
   };
 }
 
-// public.app.showAudioFilters gates the whole Audio tab (selector + panel),
-// not just the Advanced Filtering option within it - see getSettingsTabs().
+// public.app.showAudioFilters gates the audio processing section of the Audio
+// tab; the device test keeps the tab up without it - see getSettingsTabs().
 export function showAudioFiltersOverride(enabled: boolean): ClientSettingsOverrides {
   return {
     public: {

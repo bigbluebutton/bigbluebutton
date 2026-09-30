@@ -549,6 +549,12 @@ export const elements = {
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
   standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
   originalAudioRadio: 'input[data-test="originalAudioRadio"]',
+  processingAudioSection: 'button[data-test="processingAudioSection"]',
+  deviceTestAudioSection: 'button[data-test="deviceTestAudioSection"]',
+  audioTestInputDevice: 'select[data-test="audioTestInputDevice"]',
+  audioTestOutputDevice: 'select[data-test="audioTestOutputDevice"]',
+  audioTestHearMyselfButton: 'button[data-test="audioTestHearMyselfButton"]',
+  audioTestHasVolume: 'div[data-test="audioTestVolumeMeter"][data-has-volume="true"]',
 
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
