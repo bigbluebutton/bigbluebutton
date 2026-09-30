@@ -365,8 +365,6 @@ class MeetingActor(
     val isSharedNotesEnabled = (sharedNotesEnabledInClientSettings
       && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes"))
 
-    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesEditor == "etherpad"
-
     if (isSharedNotesEnabled) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
@@ -376,17 +374,11 @@ class MeetingActor(
       if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
         Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
       }
-      if (isEtherpadType) {
-        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(
-          outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId
-        )
-      } else {
-        PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
-          outGW, liveMeeting.props.meetingProp.intId,
-          sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson,
-          liveMeeting.props.meetingProp.sharedNotesInitialContentMarkdown
-        )
-      }
+      PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
+        outGW, liveMeeting.props.meetingProp.intId,
+        sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson,
+        liveMeeting.props.meetingProp.sharedNotesInitialContentMarkdown
+      )
     }
   }
 
