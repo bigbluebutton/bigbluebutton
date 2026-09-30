@@ -297,6 +297,8 @@ jobs:
           Version: $META_VERSION
           Maintainer: Fred Dixon <ffdixon@bigbluebutton.org>
           Depends: $DEPENDENCIES
+          Conflicts: bbb-etherpad, bbb-pads
+          Replaces: bbb-etherpad, bbb-pads
           Architecture: amd64
           Description: Virtual Classroom
            BigBlueButton is a virtual classroom for online teaching and learning.

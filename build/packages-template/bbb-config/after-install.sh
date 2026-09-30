@@ -159,5 +159,85 @@ if [ -f /usr/lib/bbb-conf/apply-lib.sh ]; then
   ln -s /usr/lib/bbb-conf/apply-lib.sh /etc/bigbluebutton/bbb-conf/apply-lib.sh
 fi
 
+# Etherpad (bbb-etherpad + bbb-pads) was removed in BigBlueButton 4.0. bbb-config
+# and the bigbluebutton meta-package conflict with both packages, so apt removes them
+# before this script runs; clean up what a plain package removal leaves behind.
+# Never call apt/dpkg from here (the dpkg lock is held); every step is guarded so the
+# cleanup is a no-op on servers that never had Etherpad and when run again.
+etherpadPackageInstalled() {
+  local status
+  status=$(dpkg-query -W -f='${db:Status-Status}' "$1" 2>/dev/null || true)
+  case "$status" in
+    ""|not-installed|config-files) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+cleanupEtherpadResidue() {
+  local pkg unit link pattern removed=0
+  for pkg in bbb-etherpad bbb-pads; do
+    if etherpadPackageInstalled "$pkg"; then
+      echo "$pkg is still installed; skipping the Etherpad cleanup (remove it with: apt-get purge bbb-etherpad bbb-pads)"
+      return 0
+    fi
+  done
+
+  for unit in etherpad bbb-pads; do
+    if [ -f "/usr/lib/systemd/system/$unit.service" ] || [ -f "/lib/systemd/system/$unit.service" ]; then
+      stopService "$unit" || echo "$unit could not be stopped"
+      rm -f "/usr/lib/systemd/system/$unit.service" "/lib/systemd/system/$unit.service"
+      removed=1
+    fi
+    for link in /etc/systemd/system/*.wants/"$unit.service"; do
+      if [ -L "$link" ]; then
+        rm -f "$link"
+        removed=1
+      fi
+    done
+  done
+
+  if [ -e /usr/share/etherpad-lite ]; then
+    echo "Removing /usr/share/etherpad-lite"
+    rm -rf /usr/share/etherpad-lite
+    removed=1
+  fi
+  if [ -e /usr/local/bigbluebutton/bbb-pads ]; then
+    echo "Removing /usr/local/bigbluebutton/bbb-pads"
+    rm -rf /usr/local/bigbluebutton/bbb-pads
+    removed=1
+  fi
+  rm -f /etc/bigbluebutton/bbb-pads.json /etc/bigbluebutton/etherpad.json
+
+  if [ -f /usr/share/bigbluebutton/nginx/notes.nginx ]; then
+    rm -f /usr/share/bigbluebutton/nginx/notes.nginx
+    removed=1
+  fi
+
+  if id etherpad > /dev/null 2>&1; then
+    echo "Removing the etherpad system user"
+    deleteUser etherpad
+  fi
+  if getent group etherpad > /dev/null 2>&1; then
+    deleteGroup etherpad
+  fi
+
+  # Etherpad stored its pads in redis; SCAN (not KEYS) to avoid blocking a busy server
+  if command -v redis-cli > /dev/null 2>&1 && [ "$(redis-cli ping 2>/dev/null)" = "PONG" ]; then
+    for pattern in 'pad:*' 'sessionstorage:*' 'globalAuthor:*' 'token2author:*' 'pad2readonly:*' 'readonly2pad:*' 'ueberDB:*'; do
+      redis-cli --scan --pattern "$pattern" | xargs -r -n 500 redis-cli del > /dev/null || true
+    done
+  fi
+
+  # the /pad location went away with the bbb-etherpad package
+  if [ "$removed" = 1 ]; then
+    systemctl daemon-reload
+    if systemctl -q is-active nginx 2> /dev/null && nginx -t > /dev/null 2>&1; then
+      systemctl reload nginx || echo "nginx could not be reloaded"
+    fi
+  fi
+}
+
+cleanupEtherpadResidue
+
 # Load the overrides
 systemctl daemon-reload
