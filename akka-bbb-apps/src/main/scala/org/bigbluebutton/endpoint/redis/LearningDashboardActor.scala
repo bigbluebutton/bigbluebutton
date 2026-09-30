@@ -180,7 +180,6 @@ class LearningDashboardActor(
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // SharedNotes
-      case m: PadUpdatedEvtMsg       => handlePadUpdatedEvtMsg(m)
       case m: BNSharedNotesUpdatedEvtMsg => handleBNSharedNotesUpdatedEvtMsg(m)
 
       // Whiteboard
@@ -250,22 +249,6 @@ class LearningDashboardActor(
         meetings += (updatedMeeting.intId -> updatedMeeting)
 
         UserActivityDAO.insert(msg.header.meetingId, msg.header.userId, "chat-message")
-      }
-    }
-  }
-
-  private def handlePadUpdatedEvtMsg(msg: PadUpdatedEvtMsg) {
-    if (msg.body.externalId == "notes") {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.body.userId)
-      } yield {
-        val updatedUser = user.copy(totalOfSharedNotes = user.totalOfSharedNotes + 1)
-        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
-
-        meetings += (updatedMeeting.intId -> updatedMeeting)
-
-        UserActivityDAO.insert(msg.header.meetingId, msg.body.userId, "shared-notes")
       }
     }
   }
