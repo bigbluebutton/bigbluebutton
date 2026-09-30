@@ -205,6 +205,17 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.blurredImagePresentationRendersTest();
     });
 
+    test('Upload PDF with an ordinary soft-masked image stays a vector slide', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(23953);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.softMaskedSlideStaysVectorTest();
+    });
+
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);

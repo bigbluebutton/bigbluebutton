@@ -10,6 +10,7 @@ import {
   getCurrentPresentationHeight,
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
+  getCurrentSlideSvg,
   getSlideOuterHtml,
   uploadMultiplePresentations,
   uploadSinglePresentation,
@@ -594,6 +595,25 @@ export class Presentation extends MultiUsers {
       userDarkRatio,
       'the attendee should also see the embedded figure rendered on the slide (issue #23953)',
     ).toBeGreaterThan(0.02);
+  }
+
+  // Counterpart of the test above: an ordinary soft-masked image (e.g. a transparent PNG)
+  // converts to a correct SVG, so the check that rasterizes the slides pdftocairo gets wrong
+  // (issue #23953) must leave it as a vector slide. Assumes the default maskTagThreshold=0.
+  async softMaskedSlideStaysVectorTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.maskSamplePdf, UPLOAD_PDF_WAIT_TIME);
+
+    const slideSvgContent = await getCurrentSlideSvg(this.modPage);
+    expect(slideSvgContent, 'slide SVG should keep its soft masks as vector <mask> elements').toMatch(/<mask[\s>]/);
+    // A rasterized slide is a single <image href="data:image/png;base64,...">, while pdftocairo
+    // vector output references its embedded bitmaps with xlink:href.
+    expect(slideSvgContent, 'slide SVG should not be the rasterized embedded-PNG form').not.toMatch(
+      /<image href="data:image\/png;base64,/,
+    );
   }
 
   async uploadMultiplePresentationsTest() {

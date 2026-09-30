@@ -112,12 +112,11 @@ public class SvgConversionHandler extends AbstractCommandHandler {
 
     /**
      *
-     * @return The number of &lt;filter/&gt; tags in the generated SVG. pdftocairo emits a
-     * &lt;filter&gt; (an alpha-to-luminance feColorMatrix) when it converts a PDF transparency
-     * group used as a soft mask (SMask). Browsers render this construct unreliably and it can
-     * show up blank, so its presence is used to fall back to a rasterized slide. Note: plain
-     * alpha images produce only &lt;mask&gt; (no &lt;filter&gt;) and render fine, so gating on
-     * &lt;filter&gt; avoids needlessly rasterizing them. See issue #23953.
+     * @return The number of &lt;filter/&gt; tags in the generated SVG. pdftocairo (poppler
+     * 24.02.0) defines its alpha/luminance feColorMatrix filters as soon as the page has a soft
+     * mask (SMask) of any kind, plain alpha images included, so a non-zero count only tells
+     * that the slide has soft masks - not that it is broken. It is used to pick the slides
+     * worth verifying for issue #23953.
      */
     public int numberOfFilterTags() {
         if (stdoutContains(FILTER_TAG_OUTPUT)) {

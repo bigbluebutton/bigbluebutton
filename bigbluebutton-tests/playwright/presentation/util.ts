@@ -57,11 +57,9 @@ export async function getCurrentPresentationHeight(locator: Locator) {
   return locator.evaluate((element) => window.getComputedStyle(element).getPropertyValue('height'));
 }
 
-// Rasterizes the current slide image (the server-generated SVG referenced by the
-// tl-image background) onto an off-screen canvas and returns the fraction of
-// near-black pixels. Used to detect slides that converted to a blank image, e.g.
-// when an embedded figure is silently dropped during conversion (issue #23953).
-export async function getCurrentSlideDarkPixelRatio(testPage: Page): Promise<number> {
+// Returns the content of the current slide image: the server-generated SVG referenced
+// by the tl-image background, fetched through the authenticated browser context.
+export async function getCurrentSlideSvg(testPage: Page): Promise<string> {
   await testPage.waitForSelector(e.currentSlideImg);
   const slideUrl = await testPage.page.evaluate(
     ([selector]) => {
@@ -72,11 +70,17 @@ export async function getCurrentSlideDarkPixelRatio(testPage: Page): Promise<num
   );
   expect(slideUrl, 'should resolve the current slide image URL from the whiteboard').toBeTruthy();
 
-  // Fetch the SVG bytes through the authenticated browser context, then rasterize
-  // it in-page via a same-origin blob URL so the canvas is not tainted.
   const response = await testPage.page.request.get(slideUrl as string);
   expect(response.ok(), `should fetch the current slide image (HTTP ${response.status()})`).toBeTruthy();
-  const svg = await response.text();
+  return response.text();
+}
+
+// Rasterizes the current slide image onto an off-screen canvas and returns the fraction
+// of near-black pixels. Used to detect slides that converted to a blank image, e.g.
+// when an embedded figure is silently dropped during conversion (issue #23953).
+export async function getCurrentSlideDarkPixelRatio(testPage: Page): Promise<number> {
+  // Rasterize the SVG in-page via a same-origin blob URL so the canvas is not tainted.
+  const svg = await getCurrentSlideSvg(testPage);
 
   return testPage.page.evaluate(async (svgText) => {
     const blob = new Blob([svgText], { type: 'image/svg+xml' });

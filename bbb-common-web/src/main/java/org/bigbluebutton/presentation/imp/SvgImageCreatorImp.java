@@ -26,6 +26,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private static final int MAX_SVG_WIDTH = 1440;
     private static final int MAX_SVG_HEIGHT = 1080;
 
+    // Size (longest side, in pixels) of the renders compared to find the slides pdftocairo gets wrong
+    private static final int RENDER_COMPARISON_SIZE = 400;
+
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
     private SlidesGenerationProgressNotifier notifier;
@@ -224,17 +227,30 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-        if (destsvg.length() == 0 ||
-                pHandler.numberOfImageTags() > imageTagThreshold ||
+        boolean svgTooComplex = pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
-                pHandler.numberOfUseTags() > useTagThreshold ||
+                pHandler.numberOfUseTags() > useTagThreshold;
+
+        // <filter> tags only tell that the slide has soft masks, which are common and mostly convert
+        // fine. Rasterize just the slides where the cairo backend (the one generating the svg) renders
+        // something noticeably different from the splash backend. See issue #23953.
+        boolean softMaskRenderMismatch = false;
+        if (destsvg.length() > 0 && !svgTooComplex &&
+                filterTagThreshold > 0 && pHandler.numberOfFilterTags() >= filterTagThreshold) {
+            softMaskRenderMismatch = cairoRenderDiffersFromSplash(pres, page, source, convPdfToSvgTimeout);
+        }
+
+        if (destsvg.length() == 0 ||
+                svgTooComplex ||
                 (maskTagThreshold > 0 && pHandler.numberOfMaskTags() >= maskTagThreshold) ||
-                (filterTagThreshold > 0 && pHandler.numberOfFilterTags() >= filterTagThreshold) ||
+                softMaskRenderMismatch ||
                 rasterizeCurrSlide) {
 
-            // We need t delete the destination file as we are starting a
-            // new conversion process
-            if (destsvg.exists()) {
+            // The vector svg is kept when only its soft masks asked for the rasterization: if the
+            // raster cannot be embedded it is a better fallback than a blank slide. Otherwise we need
+            // to delete the destination file as we are starting a new conversion process
+            boolean vectorFallback = destsvg.length() > 0 && !svgTooComplex;
+            if (destsvg.exists() && !vectorFallback) {
                 destsvg.delete();
             }
 
@@ -252,6 +268,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 logData.put("numberOfPaths", pHandler.numberOfPaths());
                 logData.put("numberOfUseTags", pHandler.numberOfUseTags());
                 logData.put("numberOfMasks", pHandler.numberOfMaskTags());
+                logData.put("numberOfFilters", pHandler.numberOfFilterTags());
+                logData.put("softMaskRenderMismatch", softMaskRenderMismatch);
                 logData.put("logCode", "potential_problem_with_svg");
                 logData.put("message", "Potential problem with generated SVG");
                 Gson gson = new Gson();
@@ -281,10 +299,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
 
             // Step 1: Rasterize the PDF page to PNG using poppler's splash backend (pdftoppm).
-            // We intentionally avoid pdftocairo (cairo backend) here: it fails to composite
-            // PDF transparency groups that combine a soft mask (SMask) with an ICCBased
-            // colorspace, producing a blank raster. The splash backend renders them correctly.
-            // See issue #23953.
+            // We intentionally avoid pdftocairo (cairo backend) here: it misplaces an alpha soft
+            // mask (SMask) whose transparency group carries a /Matrix, dropping the masked content
+            // from the raster as well. The splash backend renders it correctly. See issue #23953.
             NuProcessBuilder convertPdfToPng = createRasterizationProcess(page, source,
                         tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')),
                     convPdfToSvgTimeout);
@@ -429,10 +446,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     }
 
     // Rasterizes a single PDF page to PNG using poppler's splash backend (pdftoppm) instead of
-    // the cairo backend (pdftocairo -png). The cairo backend renders some PDF transparency
-    // groups (e.g. a soft-masked ICCBased image) as blank, whereas the splash backend composites
-    // them correctly. "-singlefile" makes pdftoppm write exactly "<destFileRoot>.png" (no page
-    // number suffix), matching the temp file the caller created. See issue #23953.
+    // the cairo backend (pdftocairo -png). The cairo backend drops the content behind some soft
+    // masks (an alpha SMask whose transparency group carries a /Matrix), whereas the splash
+    // backend composites it correctly. "-singlefile" makes pdftoppm write exactly
+    // "<destFileRoot>.png" (no page number suffix), matching the temp file the caller created.
+    // See issue #23953.
     private NuProcessBuilder createRasterizationProcess(int page, String source, String destFileRoot, long timeout) {
         String rawCommand = "pdftoppm -q -png -singlefile -r " + this.svgResolutionPpi;
 
@@ -444,6 +462,64 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         rawCommand += " -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFileRoot;
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    // Renders a single PDF page at low resolution with both poppler backends, cairo (pdftocairo)
+    // and splash (pdftoppm), so the two results can be compared.
+    private NuProcessBuilder createRenderComparisonProcess(int page, String source, String cairoFileRoot,
+            String splashFileRoot, long timeout) {
+        String pageArgs = " -q -png -singlefile -scale-to " + RENDER_COMPARISON_SIZE
+                + " -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " ";
+        String rawCommand = "pdftocairo" + pageArgs + cairoFileRoot + " && pdftoppm" + pageArgs + splashFileRoot;
+
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
+    }
+
+    // Tells whether the cairo backend, the one generating the svg, renders the page noticeably
+    // different from the splash backend. The svg is kept whenever that cannot be determined.
+    private boolean cairoRenderDiffersFromSplash(UploadedPresentation pres, int page, String source, long timeout)
+            throws InterruptedException {
+        File cairoPng = null;
+        File splashPng = null;
+        try {
+            cairoPng = File.createTempFile("cairo-" + page + "-", ".png");
+            splashPng = File.createTempFile("splash-" + page + "-", ".png");
+
+            NuProcessBuilder renderBoth = createRenderComparisonProcess(page, source,
+                    cairoPng.getAbsolutePath().substring(0, cairoPng.getAbsolutePath().lastIndexOf('.')),
+                    splashPng.getAbsolutePath().substring(0, splashPng.getAbsolutePath().lastIndexOf('.')),
+                    timeout);
+
+            Pdf2PngPageConverterHandler handler = new Pdf2PngPageConverterHandler("pdf2png-compare-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
+            renderBoth.setProcessListener(handler);
+            NuProcess process = renderBoth.start();
+            process.waitFor(timeout + 1, TimeUnit.SECONDS);
+
+            if (handler.isCommandTimeout()) {
+                log.error("Command execution (renderComparison) exceeded the {} secs timeout for {} page {}.", timeout, pres.getName(), page);
+            }
+
+            if (cairoPng.length() == 0 || splashPng.length() == 0) {
+                log.warn("Unable to render {} page {} with both backends, keeping the SVG.", pres.getName(), page);
+                return false;
+            }
+
+            boolean differ = SlideRenderComparator.differ(cairoPng, splashPng);
+            if (differ) {
+                log.info("pdftocairo renders {} page {} differently from pdftoppm, slide will be rasterized.", pres.getName(), page);
+            }
+            return differ;
+        } catch (IOException e) {
+            log.warn("Unable to compare the renders of {} page {}, keeping the SVG: {}", pres.getName(), page, e.getMessage());
+            return false;
+        } finally {
+            if (cairoPng != null) {
+                cairoPng.delete();
+            }
+            if (splashPng != null) {
+                splashPng.delete();
+            }
+        }
     }
 
     private NuProcessBuilder createDetectFontType3Process(String source, int page, long timeout) {
