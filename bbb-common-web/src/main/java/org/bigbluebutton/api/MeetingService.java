@@ -648,7 +648,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getSharedNotesInitialContentJson(), m.getSharedNotesInitialContentMarkdown(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
+            m.getSharedNotesInitialContentJson(), m.getSharedNotesInitialContentMarkdown(), m.getRecordFullDurationMedia(),
             m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
@@ -878,7 +878,6 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
-      params.put(ApiParams.SHARED_NOTES_EDITOR, message.sharedNotesEditor);
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES, message.captureSlides.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME, message.captureNotesFilename.toString());
