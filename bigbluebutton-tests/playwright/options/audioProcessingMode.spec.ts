@@ -73,15 +73,43 @@ test.describe('Audio processing mode default', { tag: '@ci' }, () => {
 });
 
 test.describe('Audio processing mode - showAudioFilters', { tag: '@ci' }, () => {
-  test('hides the Audio tab entirely when showAudioFilters is false', async ({ browser, context, page }, testInfo) => {
+  test('leaves only the device test in the Audio tab when showAudioFilters is false', async ({ browser, context, page }, testInfo) => {
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.initModPage(page, {
       testInfo,
       clientSettingsOverrides: showAudioFiltersOverride(false),
     });
 
-    await audioProcessingMode.openSettings();
+    await audioProcessingMode.openAudioSettings();
 
-    await expect(page.locator(e.audioTab)).toHaveCount(0);
+    await expect(page.locator(e.audioTestInputDevice)).toBeVisible();
+    await expect(page.locator(e.deviceTestAudioSection)).toHaveCount(0);
+    await expect(page.locator(e.standardFilteringRadio)).toHaveCount(0);
+  });
+});
+
+test.describe('Audio device test', { tag: '@ci' }, () => {
+  test('tests the microphone and the speaker from the Audio tab', async ({ browser, context, page }, testInfo) => {
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await audioProcessingMode.initModPage(page, { testInfo });
+
+    await audioProcessingMode.openAudioSettings();
+    // The processing section opens first, and the microphone is not opened yet.
+    await expect(page.locator(e.standardFilteringRadio)).toBeVisible();
+    await expect(page.locator(e.audioTestInputDevice)).toHaveCount(0);
+
+    await page.locator(e.deviceTestAudioSection).click();
+
+    await expect(page.locator(e.audioTestInputDevice)).toBeVisible();
+    await expect(page.locator(e.audioTestOutputDevice)).toBeVisible();
+    // The fake microphone beeps: the meter has to pick it up.
+    await expect(page.locator(e.audioTestHasVolume)).toBeVisible();
+
+    const hearMyselfButton = page.locator(e.audioTestHearMyselfButton);
+    const startLabel = await hearMyselfButton.innerText();
+    await hearMyselfButton.click();
+    await expect(hearMyselfButton).not.toHaveText(startLabel);
+    await hearMyselfButton.click();
+    await expect(hearMyselfButton).toHaveText(startLabel);
   });
 });

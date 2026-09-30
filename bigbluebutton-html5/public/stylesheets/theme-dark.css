@@ -298,6 +298,9 @@
   --color-background-white: var(--color-background-white-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
   --color-light-gray: var(--color-light-gray-dark-theme, var(--color-hover-bg-dark, #393C48));
   --color-text-default: var(--color-text-default-dark-theme, #FFFFFF);
+  /* BBBSelect's title and BBButton's subtle label. */
+  --color-dark-gray: var(--color-dark-gray-dark-theme, #FFFFFF);
+  --color-text-light: var(--color-text-light-dark-theme, #B0BDC9);
   /* Disabled label: 1.99:1 over the light disabled ground, 2.07:1 over #393C48
      here -- the low contrast is the affordance, so the ratio is what carries. */
   --color-neutral-3: var(--color-neutral-3-dark-theme, #666D79);
