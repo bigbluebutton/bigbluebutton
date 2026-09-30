@@ -642,16 +642,17 @@ class MeetingActor(
         handleListenOnlyModeToggledInSfuEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg        => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg            => handleBroadcastLayoutMsg(m)
-      case m: BroadcastPushLayoutMsg        => handleBroadcastPushLayoutMsg(m)
-      case m: SetScreenshareAsContentReqMsg => handleSetScreenshareAsContentReqMsg(m)
+      case m: GetCurrentLayoutReqMsg          => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg              => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg          => handleBroadcastPushLayoutMsg(m)
+      case m: SetScreenshareAsContentReqMsg   => handleSetScreenshareAsContentReqMsg(m)
+      case m: SetHideUsersWithoutCameraReqMsg => handleSetHideUsersWithoutCameraReqMsg(m)
 
       // Pads
-      case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadGroupCreatedEvtMsg           => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateReqMsg                 => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreatedEvtMsg                => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesCreatedEvtMsg      => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: BNSharedNotesUpdatedEvtMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.intUserId)
