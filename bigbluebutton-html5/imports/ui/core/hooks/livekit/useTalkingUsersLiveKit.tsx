@@ -9,6 +9,7 @@ import {
 import { ConnectionState, RoomEvent } from 'livekit-client';
 import { liveKitRoom } from '/imports/ui/services/livekit';
 import Auth from '/imports/ui/services/auth';
+import useHideUserList from '/imports/ui/core/hooks/useHideUserList';
 import useWhoIsUnmuted from '../useWhoIsUnmuted';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
@@ -51,6 +52,9 @@ const createUseTalkingUsersLiveKit = () => {
         name: user.name,
         color: user?.color,
         speechLocale: user?.speechLocale,
+        // Carried through so the hideUserList guard below can tell a moderator from a
+        // viewer without a second subscription.
+        role: user?.role,
       };
     });
 
@@ -76,6 +80,8 @@ const createUseTalkingUsersLiveKit = () => {
     const userMetadataMap = useReactiveVar(userMetadataVar);
     const loading = useReactiveVar(loadingVar);
     const currentTalkingState = useReactiveVar(currentTalkingStateVar);
+    const hideUserList = useHideUserList();
+    const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
     const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
     const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
     const [record, setRecord] = useState<Record<string, VoiceItem>>({});
@@ -170,6 +176,20 @@ const createUseTalkingUsersLiveKit = () => {
         const talking = currentTalkingState[userId] ?? false;
         const muted = !unmutedUsers[userId];
         let userMetadata = userMetadataMap[userId];
+        // Under "Hide user list" only the server's voice-activity stream vouches for a
+        // user's identity: it carries exactly the users we are entitled to see. Ourselves
+        // and moderators are never hidden by this lock.
+        const entitledToIdentity = !hideUserList
+          || userId === Auth.userID
+          || userMetadata?.role === ROLE_MODERATOR;
+
+        // The metadata map merges and never evicts, so an entry may predate the lock. A
+        // user the stream has vouched for as a viewer is dropped outright. newRecord starts
+        // as a copy of the previous record, so the entry is deleted rather than skipped.
+        if (!entitledToIdentity && userMetadata) {
+          delete newRecord[userId];
+          return;
+        }
 
         // No metadata for the user is found, which means the client is likely
         // not connected to BBB/gql. If the user is still connected to LK,
@@ -185,9 +205,12 @@ const createUseTalkingUsersLiveKit = () => {
             return;
           }
 
-          userMetadata = {
-            name: participant.name ?? participant.identity,
-          };
+          // A LiveKit participant is not a server-vouched source of identity. Absence from
+          // the stream does not imply the user is hidden from us, so the entry is kept and
+          // its name marked unusable rather than dropped. The user is audible regardless.
+          userMetadata = entitledToIdentity
+            ? { name: participant.name ?? participant.identity }
+            : { name: '', hidden: true };
         }
 
         const previousIndicator = record[userId];
@@ -317,6 +340,8 @@ const createUseTalkingUsersLiveKit = () => {
       remoteParticipants,
       shouldUseLiveKit,
       bbbTalkingUsers,
+      hideUserList,
+      ROLE_MODERATOR,
     ]);
 
     if (!shouldUseLiveKit) return BASELINE_DATA;
