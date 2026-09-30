@@ -245,6 +245,23 @@ module BigBlueButton
     @props
   end
 
+  # Reads a Java .properties file into a Hash with symbol keys.
+  #
+  # java_properties reads the file as UTF-8 and runs regexps over it, so a file
+  # in the .properties spec encoding (ISO-8859-1) aborts with "invalid byte
+  # sequence in UTF-8". Fall back to that encoding instead of failing.
+  def self.read_java_props(filepath)
+    require 'java_properties'
+
+    text = File.binread(filepath).force_encoding(Encoding::UTF_8)
+    unless text.valid_encoding?
+      BigBlueButton.logger.warn("#{filepath} is not valid UTF-8, reading it as ISO-8859-1")
+      text = text.force_encoding(Encoding::ISO_8859_1).encode(Encoding::UTF_8)
+    end
+
+    JavaProperties::Parser.parse(text)
+  end
+
   def self.create_redis_publisher
     props = BigBlueButton.read_props
     redis_host = props['redis_host']
