@@ -215,6 +215,14 @@ public class PngCreatorImp implements PngCreator {
 							dir.getAbsolutePath() + File.separator + dir.list()[0]);
 			//System.out.println("*** PPNG file " + oldFilename.getAbsolutePath());
 			String newFilename = "slide-1.png";
+
+			// Might be the first png of a set and it might be out of order
+			// Avoid setting the second/third/... slide as slide-1.png
+			Matcher matcher = PAGE_NUMBER_PATTERN.matcher(oldFilename.getAbsolutePath());
+			if (matcher.matches()) {
+				newFilename = "slide-" + Integer.parseInt(matcher.group(2).trim()) + ".png";
+			}
+
 			File renamedFile = new File(
 							oldFilename.getParent() + File.separator + newFilename);
 			oldFilename.renameTo(renamedFile);
