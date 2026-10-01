@@ -828,6 +828,7 @@
     "app.switch.onLabel": "SEES",
     "app.switch.offLabel": "VÄLJAS",
     "app.talkingIndicator.ariaMuteDesc": "Vali, et kasutaja vaigistada",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} räägib",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ räägivad",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ rääkisid",
