@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Termine contenuto diapositiva",
     "app.presentation.changedSlideContent": "Presentazione modificata nella diapositiva: {slideNumber}",
     "app.presentation.emptySlideContent": "Nessun contenuto per la diapositiva corrente",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Schermo intero",
     "app.presentation.options.exitFullscreen": "Esci da schermo intero",
     "app.presentation.options.minimize": "Riduci",
