@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Slayt içeriği bitişi",
     "app.presentation.changedSlideContent": "Sunum şu slayta değiştirildi: {slideNumber}",
     "app.presentation.emptySlideContent": "Geçerli slayt için içerik yok",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Sunumu tam ekran görüntüle",
     "app.presentation.options.exitFullscreen": "Tam ekrandan çık",
     "app.presentation.options.minimize": "Küçült",
