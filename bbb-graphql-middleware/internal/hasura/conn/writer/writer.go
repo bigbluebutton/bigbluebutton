@@ -268,15 +268,13 @@ RangeLoop:
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
+					// Iterate the canonical list rather than naming the streams here, so a stream
+					// cannot be added to the list and missed in this teardown.
 					browserConnection.ActiveStreamingsMutex.Lock()
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
-					}
-					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
-						browserConnection.ActiveStreamings = newActiveStreamings
+					for _, operationName := range config.StreamingSubscriptionsManagedByMiddleware {
+						if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, operationName, browserMessage.ID); removed {
+							browserConnection.ActiveStreamings = newActiveStreamings
+						}
 					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
@@ -287,7 +285,7 @@ RangeLoop:
 					continue
 				}
 
-				if !hc.BrowserConn.CurrentlyInMeeting && // avoid sending to Hasura subscriptions that user doesn't have permission
+				if !hc.BrowserConn.IsCurrentlyInMeeting() && // avoid sending to Hasura subscriptions that user doesn't have permission
 					browserMessage.Type == "subscribe" &&
 					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
 					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
