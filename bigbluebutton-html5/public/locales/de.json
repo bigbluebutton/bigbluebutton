@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Ende des Folieninhalts",
     "app.presentation.changedSlideContent": "Präsentation gewechselt zur Folie: {slideNumber}",
     "app.presentation.emptySlideContent": "Kein Inhalt für aktuelle Folie",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Vollbild-Präsentation",
     "app.presentation.options.exitFullscreen": "Vollbilddarstellung beenden",
     "app.presentation.options.minimize": "Minimieren",
