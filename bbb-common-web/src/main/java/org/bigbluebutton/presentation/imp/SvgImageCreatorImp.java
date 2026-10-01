@@ -2,6 +2,10 @@ package org.bigbluebutton.presentation.imp;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -366,11 +370,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         log.error("Encoded PNG is too large for the browser");
                     } else {
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
+                        replaceFile(destsvg, svg);
                         // From here on the vector svg is gone
                         vectorFallback = false;
-                        try (FileWriter writer = new FileWriter(destsvg)) {
-                            writer.write(svg);
-                        }
                         rasterWritten = true;
                     }
                 } catch (IOException e) {
@@ -583,6 +585,18 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 bos.write(buffer, 0, bytesRead);
             }
             return bos.toByteArray();
+        }
+    }
+
+    // Writes the content next to the file and moves it over the file only once complete, so
+    // that a failed write leaves the file as it was
+    static void replaceFile(File file, String content) throws IOException {
+        Path temp = Paths.get(file.getAbsolutePath() + ".tmp");
+        try {
+            Files.writeString(temp, content);
+            Files.move(temp, file.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        } finally {
+            temp.toFile().delete();
         }
     }
 
