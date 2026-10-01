@@ -828,6 +828,7 @@
     "app.switch.onLabel": "تشغيل",
     "app.switch.offLabel": "إيقاف",
     "app.talkingIndicator.ariaMuteDesc": "اختر لكتم صوت المستخدم",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} يتحدث",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ يتحدثون",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ كانوا يتحدثون",
