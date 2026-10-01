@@ -15,7 +15,9 @@ import (
 func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
 	userId := receivedMessage.Core.Body["userId"].(string)
 	voiceUserId := receivedMessage.Core.Body["voiceUserId"].(string)
-	userRole := receivedMessage.Core.Body["userRole"].(string)
+	// The speaker's role, which decides their hideUserList exemption. Read optionally: an absent
+	// role reads as "", which is not MODERATOR, so the speaker gets no exemption.
+	userRole, _ := receivedMessage.Core.Body["userRole"].(string)
 	userName := receivedMessage.Core.Body["userName"].(string)
 	userColor := receivedMessage.Core.Body["userColor"].(string)
 	userSpeechLocale := receivedMessage.Core.Body["userSpeechLocale"].(string)
