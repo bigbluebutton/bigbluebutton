@@ -828,6 +828,7 @@
     "app.switch.onLabel": "เปิด",
     "app.switch.offLabel": "ปิด",
     "app.talkingIndicator.ariaMuteDesc": "เลือกเพื่อปิดเสียงผู้ใช้",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} กำลังพูด",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "มีผู้พูด {userCount}+ คน",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "มีผู้พูด {userCount}+ คน",
