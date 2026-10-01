@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "จุดสิ้นสุดเนื้อหาสไลด์",
     "app.presentation.changedSlideContent": "เปลี่ยนการนำเสนอเป็นสไลด์: {slideNumber}",
     "app.presentation.emptySlideContent": "ไม่มีเนื้อหาสำหรับสไลด์ปัจจุบัน",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "การนำเสนอแบบเต็มหน้าจอ",
     "app.presentation.options.exitFullscreen": "ออกจากโหมดเต็มหน้าจอ",
     "app.presentation.options.minimize": "ย่อเล็กสุด",
