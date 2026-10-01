@@ -15,6 +15,7 @@ import {
 import {
   muteAway,
   muteLoadingState,
+  restoreFromAwayOnPushToTalk,
   useIsMuteLoading,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
@@ -69,6 +70,10 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const isKeyDown = useRef<boolean>(false);
   const cooldownActive = useRef<boolean>(false);
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // The push-to-talk listeners are registered once, on mount, so the handler
+  // reads these props through a ref to see their current values
+  const pushToTalkStateRef = useRef({ away, isAudioLocked, noInputDevice });
+  pushToTalkStateRef.current = { away, isAudioLocked, noInputDevice };
 
   const COOLDOWN_TIME = 800;
 
@@ -91,6 +96,17 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
 
     if (action === 'down' && !isKeyDown.current) {
       isKeyDown.current = true;
+      // Talking means the user is back, as when unmuting with the button.
+      // Not when the microphone can't open (locked or no input device).
+      const { away: isAway, isAudioLocked: isLocked, noInputDevice: noInput } = pushToTalkStateRef.current;
+      if (isAway && !isLocked && !noInput) {
+        restoreFromAwayOnPushToTalk(toggleVoice);
+        setAway({
+          variables: {
+            away: false,
+          },
+        });
+      }
       startPushToTalk(toggleVoice);
     } else if (action === 'up') {
       isKeyDown.current = false;

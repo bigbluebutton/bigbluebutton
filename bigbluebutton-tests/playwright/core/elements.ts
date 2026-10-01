@@ -124,6 +124,7 @@ export const elements = {
   // Chat
   chatBox: 'textarea[id="message-input"]',
   chatMessageItem: 'div[data-test="chatMessageItem"]',
+  userAwayStatusMessage: 'div[data-test="chatMessageItem"][data-message-type="userAwayStatusMsg"]',
   partnerDisconnectedMessage: 'span[data-test="partnerDisconnected"]',
   chatButton: 'button[data-test="chatButton"]',
   sendButton: 'button[data-test="sendMessageButton"]',
@@ -277,6 +278,7 @@ export const elements = {
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
   notificationsTab: 'span[id="notificationTab"]',
+  pushToTalkToggle: 'input[aria-label^="Audio push to talk"]',
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
   userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
