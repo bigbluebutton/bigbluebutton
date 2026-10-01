@@ -45,6 +45,10 @@ type BrowserConnection struct {
 	UserId                             string          // auth info provided by bbb-web
 	CurrentlyInMeeting                 bool
 	BBBWebSessionVariables             map[string]string  // graphql session variables provided by akka-apps
+	SessionVariablesStale              bool               // lock-derived session variables are unsettled pending a refresh
+	MembershipStale                    bool               // CurrentlyInMeeting is unsettled pending a refresh; implies SessionVariablesStale
+	SessionVariablesGeneration         uint64             // incremented per invalidation; a refresh result applies only while it is unchanged
+	SessionVariablesRefreshing         bool               // admits a single refresh loop per connection
 	ClientSessionUUID                  string             // self-generated unique id for this client
 	Context                            context.Context    // browser connection context
 	ContextCancelFunc                  context.CancelFunc // function to cancel the browser context (and so, the browser connection)
@@ -52,7 +56,8 @@ type BrowserConnection struct {
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
-	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control the map usage
+	PendingStreamReplays               map[string][]string            // replays withheld until the connection is a meeting member
+	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control both maps above
 	ConnectionInitMessage              []byte                         // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection                   *HasuraConnection              // associated hasura connection
 	Disconnected                       bool                           // indicate if the connection is gone
