@@ -37,18 +37,15 @@ class ConfirmationModal extends Component {
 
     this.state = {
       checked: false,
-      triggeredFocus: false,
     };
     this.cancelButtonRef = React.createRef();
+    this.focusCancelButton = this.focusCancelButton.bind(this);
   }
 
-  componentDidUpdate() {
-    const { triggeredFocus } = this.state;
-
-    if (!triggeredFocus && this.cancelButtonRef.current) {
-      this.cancelButtonRef.current.children[0].focus();
-      this.setState({ triggeredFocus: true });
-    }
+  // react-modal mounts the dialog's content after this component has rendered,
+  // so the cancel button only exists once the modal reports it has opened.
+  focusCancelButton() {
+    this.cancelButtonRef.current?.children[0]?.focus();
   }
 
   render() {
@@ -83,6 +80,7 @@ class ConfirmationModal extends Component {
     return (
       <Styled.ConfirmationModal
         onRequestClose={handleClose}
+        onAfterOpen={this.focusCancelButton}
         contentLabel={title}
         title={title}
         {...{
