@@ -379,8 +379,8 @@ Permission: Restricted to User Viewing Self-Related Data
 - `userId`
 
 ## Type: user_voice
+Permission: Restricted by Lock Settings
 ### Fields:
-- `callerName`
 - `callerNum`
 - `callingWith`
 - `endTime`
@@ -389,6 +389,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastFloorTime`
 - `listenOnly`
 - `muted`
+- `listenOnlyInputDevice`
 - `deafened`
 - `spoke`
 - `startTime`
@@ -780,6 +781,7 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 - `user: Object` [Type User](#type-user)
 
 ## Type: user_reaction
+Permission: Restricted by Lock Settings
 ### Fields:
 - `createdAt`
 - `expiresAt`
@@ -789,6 +791,7 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 - `user: Object` [Type User](#type-user)
 
 ## Type: user_reaction_current
+Permission: Restricted by Lock Settings
 ### Fields:
 - `reactionEmoji`
 - `userId`
@@ -853,8 +856,10 @@ Permission: Restricted to User Viewing Self-Related Data
 - `value`
 
 ## Type: user_voice_activity
+Permission: Restricted by Lock Settings
 ### Fields:
 - `endTime`
+- `meetingId`
 - `muted`
 - `startTime`
 - `talking`

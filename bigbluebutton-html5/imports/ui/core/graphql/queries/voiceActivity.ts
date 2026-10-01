@@ -11,6 +11,8 @@ export interface VoiceActivityResponse {
       color: string;
       name: string;
       speechLocale: string | undefined;
+      // Not sent on 3.0: akka-apps' voice state event carries no role.
+      role?: string;
     };
   }>;
 }
