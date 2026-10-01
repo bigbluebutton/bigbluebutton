@@ -60,4 +60,14 @@ test.describe.parallel('Audio', { tag: '@ci' }, () => {
     linkIssue(25888);
     await audio.pushToTalkWhileAvailable();
   });
+
+  test('Unmuting with the microphone button removes the away status', async () => {
+    linkIssue(25888);
+    await audio.unmuteClearsAway('button');
+  });
+
+  test('Unmuting yourself from the user list removes the away status', async () => {
+    linkIssue(25888);
+    await audio.unmuteClearsAway('userList');
+  });
 });
