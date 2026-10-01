@@ -828,6 +828,7 @@
     "app.switch.onLabel": "PÅ",
     "app.switch.offLabel": "AV",
     "app.talkingIndicator.ariaMuteDesc": "Välj för att stänga av användarens mikrofon",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} pratar",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ pratar",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ pratade",
