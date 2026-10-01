@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "スライドコンテンツ終了",
     "app.presentation.changedSlideContent": "プレゼンがスライド{slideNumber}に移動",
     "app.presentation.emptySlideContent": "現在のスライドにはコンテンツはありません",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "スライドを全画面表示",
     "app.presentation.options.exitFullscreen": "全画面表示解除",
     "app.presentation.options.minimize": "最小化",
