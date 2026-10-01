@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
 import KEYS from '/imports/utils/keys';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from '../styles';
@@ -8,17 +7,13 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import useMuteSoundAlert from '/imports/ui/core/hooks/useMuteSoundAlert';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
-import VideoService from '/imports/ui/components/video-provider/service';
 import {
   startPushToTalk,
   stopPushToTalk,
   isMutedAlertEnabled,
 } from '../service';
 import {
-  muteAway,
   muteLoadingState,
-  restoreFromAwayOnPushToTalk,
   useIsMuteLoading,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
@@ -75,7 +70,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
-  const [setAway] = useMutation(SET_AWAY);
   const MUTED_ALERT_ENABLED = isMutedAlertEnabled();
 
   const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
@@ -86,10 +80,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const isKeyDown = useRef<boolean>(false);
   const cooldownActive = useRef<boolean>(false);
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
-  // Read through a ref so the push-to-talk listeners are not re-registered
-  // (which would reset the cooldown) when these props change
-  const pushToTalkStateRef = useRef({ away, isAudioLocked, noInputDevice });
-  pushToTalkStateRef.current = { away, isAudioLocked, noInputDevice };
 
   const COOLDOWN_TIME = 800;
 
@@ -117,17 +107,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       if (mediaInterrupted) return;
 
       isKeyDown.current = true;
-      // Talking means the user is back, as when unmuting with the button.
-      // Not when the microphone can't open (locked or no input device).
-      const { away: isAway, isAudioLocked: isLocked, noInputDevice: noInput } = pushToTalkStateRef.current;
-      if (isAway && !isLocked && !noInput) {
-        restoreFromAwayOnPushToTalk(toggleVoice);
-        setAway({
-          variables: {
-            away: false,
-          },
-        });
-      }
       startPushToTalk(toggleVoice);
     } else if (action === 'up') {
       isKeyDown.current = false;
@@ -169,20 +148,10 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    if (muted) {
-      if (away) {
-        if (!noInputDevice) muteAway(muted, true, toggleVoice);
-        VideoService.setTrackEnabled(true);
-        setAway({
-          variables: {
-            away: false,
-          },
-        });
-      } else if (noInputDevice) {
-        // User is in duplex audio, passive-sendrecv, but has no input device set
-        // Open the audio settings modal to allow them to select an input device
-        openAudioSettings({ unmuteOnExit: true });
-      }
+    if (muted && noInputDevice) {
+      // User is in duplex audio, passive-sendrecv, but has no input device set
+      // Open the audio settings modal to allow them to select an input device
+      openAudioSettings({ unmuteOnExit: true });
     }
 
     toggleMuteMicrophone(muted, toggleVoice);

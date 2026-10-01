@@ -233,4 +233,26 @@ export class Audio extends MultiUsers {
       'should not post any away status message when the user was not away',
     );
   }
+
+  async unmuteClearsAway(unmuteFrom: 'button' | 'userList') {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+    await this.setAwayFromProfile();
+
+    if (unmuteFrom === 'button') {
+      await this.modPage.waitAndClick(e.unmuteMicButton);
+    } else {
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+      await this.modPage.waitAndClick(e.currentUser);
+      await this.modPage.waitAndClick(e.unmuteUser);
+    }
+    await this.modPage.hasElement(e.isTalking, 'should open the microphone');
+    await expect(
+      this.userPage.page.locator(e.userAwayStatusMessage).last(),
+      'should display the available status message to the other participant',
+    ).toContainText(`${this.modPage.username} is available`);
+  }
 }
