@@ -65,7 +65,7 @@ export class ExportedAnnotationsOverlap extends Presentation {
     ).toBe(false);
 
     // export in current state and download the annotated PDF
-    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
@@ -92,13 +92,29 @@ export class ExportedAnnotationsOverlap extends Presentation {
   }
 
   private async drawTextAnnotation(screenX: number, screenY: number, text: string) {
-    await this.modPage.waitAndClick(e.wbTextShape);
-    await this.modPage.page.mouse.click(screenX, screenY);
     // typing before the shape editor takes focus sends keystrokes to canvas hotkeys
-    await this.modPage.page.waitForFunction(() => {
+    const editorHasFocus = () => this.modPage.page.evaluate(() => {
       const a = document.activeElement as HTMLElement | null;
       return !!a && (a.isContentEditable || a.tagName === 'TEXTAREA') && !!a.closest('.tl-shape, .tl-container');
-    }, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    });
+    // The 3.0 whiteboard can drop a brand-new text shape out of editing when a remote
+    // shape update lands right after the click, leaving an empty shape behind. Require
+    // the focus to hold, and otherwise clear the leftover and create the shape again.
+    const MAX_ATTEMPTS = 3;
+    for (let attempt = 1; ; attempt += 1) {
+      await this.modPage.waitAndClick(e.wbTextShape);
+      await this.modPage.page.mouse.click(screenX, screenY);
+      await this.modPage.page.waitForTimeout(1000);
+      if (await editorHasFocus()) break;
+      if (attempt === MAX_ATTEMPTS) throw new Error(`text editor did not take focus after ${MAX_ATTEMPTS} attempts`);
+      await this.modPage.page.evaluate(() => {
+        const { editor } = window as { editor?: any };
+        const leftovers = (editor?.getCurrentPageShapes() || [])
+          .filter((s: any) => s.type === 'text' && !(s.props?.text || '').trim());
+        if (leftovers.length) editor.deleteShapes(leftovers.map((s: any) => s.id));
+      });
+      await this.modPage.page.waitForTimeout(1000);
+    }
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i += 1) {
       await this.modPage.page.keyboard.type(lines[i], { delay: 5 });
