@@ -10,9 +10,19 @@ import { MultiUsers } from '../user/multiusers';
 // height range where, before the fix, the classic 5px scrollbar reserved width
 // with zero real overflow and shrank the icons that caused it (issue 25564).
 // OVERFLOW is genuinely too short, so a real scrollbar is expected there.
+// TALL_BAND is above the small-height breakpoint, where the rail uses its full-size
+// icons and padding.
 const REGIME_A = { width: 1280, height: 616 };
 const GHOST_BAND = { width: 1280, height: 560 };
-const OVERFLOW = { width: 1280, height: 460 };
+const OVERFLOW = { width: 1280, height: 420 };
+const TALL_BAND = { width: 1280, height: 700 };
+// The moderator rail (10 icons) where the fixed padding and gaps alone used to
+// overflow by a few pixels while every icon fit (issue 25564, review of PR 25656).
+const SPACING_OVERFLOW = { width: 1286, height: 532 };
+// The rail styles switch to compact icons and spacing at (max-height: 40em).
+const SMALL_HEIGHT_MAX = 640;
+// Shortest height (on the 4px grid of Spec C) where the moderator rail fits.
+const MIN_FIT_HEIGHT = 448;
 
 interface RailMetrics {
   offsetWidth: number;
@@ -141,27 +151,38 @@ export class SidebarNavigation extends MultiUsers {
   }
 
   // Spec C - dynamic viewport resizes (the real field trigger). The icon size must
-  // stay constant across the whole critical range, a real scrollbar must appear
-  // only on genuine overflow, and resizing back to the tall regime must leave no
-  // residual scrollbar.
+  // stay constant within each height band (compact at the small-height breakpoint,
+  // full size above it), a real scrollbar must appear only on genuine overflow, the
+  // spacing alone must not overflow the moderator rail, and resizing back to the
+  // tall regime must leave no residual scrollbar.
   async assertResizeInvariant(): Promise<void> {
-    const base = await measureAt(this.modPage, REGIME_A);
-    const reference = base.buttonWidth;
+    const small = (await measureAt(this.modPage, REGIME_A)).buttonWidth;
+    const tall = (await measureAt(this.modPage, TALL_BAND)).buttonWidth;
+    expect(small, 'a compact icon size should be measured below the breakpoint').not.toBeNull();
+    expect(small as number, 'icons should be smaller below the small-height breakpoint').toBeLessThan(tall as number);
 
-    for (let height = 480; height <= 760; height += 4) {
+    for (let height = 400; height <= 760; height += 4) {
       // eslint-disable-next-line no-await-in-loop
       const metrics = await measureAt(this.modPage, { width: 1280, height });
-      expect(metrics.buttonWidth, `icon size must stay constant at 1280x${height}`).toBe(reference);
-      if (height >= 536) {
+      const reference = height <= SMALL_HEIGHT_MAX ? small : tall;
+      expect(metrics.buttonWidth, `icon size must stay constant within its band at 1280x${height}`).toBe(reference);
+      if (height >= MIN_FIT_HEIGHT) {
         expect(metrics.scrollHeight, `rail content should fit at 1280x${height}`).toBeLessThanOrEqual(
           metrics.clientHeight,
         );
       } else {
-        expect(metrics.scrollHeight, `rail content should overflow below 536px at 1280x${height}`).toBeGreaterThan(
-          metrics.clientHeight,
-        );
+        expect(
+          metrics.scrollHeight,
+          `rail content should overflow below ${MIN_FIT_HEIGHT}px at 1280x${height}`,
+        ).toBeGreaterThan(metrics.clientHeight);
       }
     }
+
+    const spacing = await measureAt(this.modPage, SPACING_OVERFLOW);
+    expect(spacing.buttonCount, 'the moderator rail should show 10 icons').toBe(10);
+    expect(spacing.scrollHeight, 'the rail spacing must not overflow at 1286x532').toBeLessThanOrEqual(
+      spacing.clientHeight,
+    );
 
     const overflow = await measureAt(this.modPage, OVERFLOW);
     expect(overflow.scrollHeight, 'the content should really overflow at a very short height').toBeGreaterThan(
@@ -177,7 +198,7 @@ export class SidebarNavigation extends MultiUsers {
       backToTall.scrollHeight,
       'no overflow should remain after resizing back to the tall regime',
     ).toBeLessThanOrEqual(backToTall.clientHeight);
-    expect(backToTall.buttonWidth, 'icon size must return to the reference size').toBe(reference);
+    expect(backToTall.buttonWidth, 'icon size must return to the reference size').toBe(small);
   }
 
   // Spec B - CI-safe invariant guard on the default (scrollbars-hidden) browser.
@@ -231,14 +252,15 @@ export class SidebarNavigation extends MultiUsers {
   }
 
   // Spec D - locks in the font-size coupling and its bound. The desktop icon size is
-  // min(calc(39rem / 14), 100%), so it follows the user font-size setting up to the
+  // min(calc(39rem / 14), 100%) (calc(32rem / 14) below the small-height breakpoint),
+  // measured here above the breakpoint, so it follows the user font-size setting up to the
   // scrollbox content box (the rail minus the reserved scrollbar gutter). It must keep
   // tracking the setting, and at the largest setting it must stay inside that content
   // box, so the rail never overflows horizontally (issue 25564). This needs real
   // (space-consuming) scrollbars: with --hide-scrollbars the gutter is zero and the
   // content box is the whole rail, so the bound being guarded here cannot be observed.
   async assertFontSizeScaling(): Promise<void> {
-    const base = await measureAt(this.modPage, REGIME_A);
+    const base = await measureAt(this.modPage, TALL_BAND);
     const reference = base.buttonWidth;
     expect(reference, 'a reference icon size should be measured at the default font size').not.toBeNull();
 
