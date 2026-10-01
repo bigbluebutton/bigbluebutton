@@ -116,9 +116,16 @@ class BBBMenu extends React.Component {
   handleClose(event) {
     const { onCloseCallback } = this.props;
     this.setState({ anchorEl: null }, onCloseCallback);
+    const focusedOnClose = document.activeElement;
 
     setTimeout(() => {
-      this.restoreTriggerFocus();
+      // An item can open something that takes focus itself, like a confirmation
+      // modal focusing its cancel button. Only bring focus back to the trigger
+      // if nothing has claimed it since the menu closed.
+      const { activeElement } = document;
+      const focusUnclaimed = !activeElement || activeElement === document.body
+        || activeElement === focusedOnClose || this.anchorElRef?.contains(activeElement);
+      if (focusUnclaimed) this.restoreTriggerFocus();
       this.previousFocus = null;
     }, 0);
   }
