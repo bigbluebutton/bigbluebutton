@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Diatartalom befejezése",
     "app.presentation.changedSlideContent": "A prezentáció váltott a diára: {slideNumber}",
     "app.presentation.emptySlideContent": "A jelenlegi diának nincs tartalma",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Teljesképernyős prezentáció",
     "app.presentation.options.exitFullscreen": "Teljes képernyő bezárása",
     "app.presentation.options.minimize": "Kis méret",
