@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Slut på bildinnehållet",
     "app.presentation.changedSlideContent": "Presentationen ändrades till bild {slideNumber}",
     "app.presentation.emptySlideContent": "Inget innehåll för den aktuella bilden",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Fullskärmspresentation",
     "app.presentation.options.exitFullscreen": "Avsluta helskärmsläget",
     "app.presentation.options.minimize": "Minimera",
