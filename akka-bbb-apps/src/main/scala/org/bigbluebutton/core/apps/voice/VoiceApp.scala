@@ -284,6 +284,9 @@ object VoiceApp extends SystemConfiguration {
                   cvu.voiceUserId
                 )
               }
+              val userRole = Users2x.findWithIntId(liveMeeting.users2x, cvu.intId)
+                .map(_.role)
+                .getOrElse(Roles.VIEWER_ROLE)
               handleUserJoinedVoiceConfEvtMsg(
                 liveMeeting,
                 outGW,
@@ -294,6 +297,7 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callingWith,
                 cvu.callerIdName,
                 cvu.callerIdNum,
+                role = userRole,
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
                 speechLocale = "",
                 cvu.muted,
@@ -349,6 +353,7 @@ object VoiceApp extends SystemConfiguration {
       callingWith:  String,
       callerIdName: String,
       callerIdNum:  String,
+      role:         String,
       color:        String,
       speechLocale: String,
       muted:        Boolean,
@@ -418,6 +423,7 @@ object VoiceApp extends SystemConfiguration {
       callingWith,
       callerIdName,
       callerIdNum,
+      role,
       color,
       speechLocale,
       muted,
@@ -1039,6 +1045,30 @@ object VoiceApp extends SystemConfiguration {
         lastFloorTime
       )
       outGW.send(event)
+    }
+  }
+
+  def setUserRole(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    userId:      String,
+    role:        String
+  ): Unit = {
+    for {
+      u <- VoiceUsers.setUserRole(
+        liveMeeting.voiceUsers,
+        userId,
+        role
+      )
+    } yield {
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        u.intId,
+        Some(u),
+        leftVoiceConf = false
+      )
+      outGW.send(eventUserVoiceStatus)
     }
   }
 }
