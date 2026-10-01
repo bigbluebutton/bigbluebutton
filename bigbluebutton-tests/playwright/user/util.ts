@@ -29,11 +29,29 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
 }
 
 export async function openLockViewers(testPage: Page) {
-  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+  const isLockViewersButtonVisible = await testPage.page
+    .locator(e.lockViewersButton)
+    .isVisible({ timeout: ELEMENT_WAIT_TIME })
+    .catch(() => false);
   if (!isLockViewersButtonVisible) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
   await testPage.waitAndClick(e.lockViewersButton);
+}
+
+export async function openUserListIfClosed(testPage: Page) {
+  // Open the user list panel if it is collapsed, so the moderator crowd-action area is reachable.
+  // Note: locator.isVisible() ignores its `timeout` option and returns the current snapshot, which
+  // is racy right after join; wait for the panel state instead of probing it synchronously.
+  const isPanelOpen = await testPage.page
+    .locator(e.userListPanel)
+    .waitFor({ state: 'visible', timeout: ELEMENT_WAIT_TIME })
+    .then(() => true)
+    .catch(() => false);
+  if (!isPanelOpen) {
+    await testPage.waitAndClick(e.usersListSidebarButton);
+    await testPage.hasElement(e.userListPanel, 'should open the user list panel');
+  }
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {
