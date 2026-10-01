@@ -15,8 +15,8 @@ import (
 func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
 	userId := receivedMessage.Core.Body["userId"].(string)
 	voiceUserId := receivedMessage.Core.Body["voiceUserId"].(string)
-	// Not sent by akka-apps on 3.0. Absent reads as "", which is not MODERATOR, so the speaker
-	// gets no hideUserList exemption.
+	// The speaker's role, which decides their hideUserList exemption. Read optionally: an absent
+	// role reads as "", which is not MODERATOR, so the speaker gets no exemption.
 	userRole, _ := receivedMessage.Core.Body["userRole"].(string)
 	userName := receivedMessage.Core.Body["userName"].(string)
 	userColor := receivedMessage.Core.Body["userColor"].(string)
@@ -58,11 +58,12 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 	jsonDataNext, _ := json.Marshal(browserResponseData)
 
 	meetingId := receivedMessage.Core.Header.MeetingId
+	speakerRole := effectiveSpeakerRole(meetingId, userId, userRole)
 
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		if voiceStateVisibleTo(snapshotStreamingRecipient(bc), meetingId, userId, userRole) {
+		if voiceStateVisibleTo(snapshotStreamingRecipient(bc), meetingId, userId, speakerRole) {
 			browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 		}
 	}
@@ -146,6 +147,31 @@ func cachedVoiceStateSpeaker(row map[string]any) (string, string) {
 	}
 
 	return userId, role
+}
+
+// effectiveSpeakerRole is the role the gate should apply to a voice state event.
+//
+// akka-apps reports VIEWER on the row that clears a user's voice state when it no longer holds a
+// voice record for them, so the event alone cannot be trusted to identify a moderator. The cached
+// row carries the role the user last spoke with; a moderator keeps it, so everyone who was shown
+// their indicator is also sent the row that clears it.
+func effectiveSpeakerRole(meetingId, speakerUserId, eventRole string) string {
+	if strings.EqualFold(eventRole, "MODERATOR") {
+		return eventRole
+	}
+
+	UserVoiceStatesCacheMutex.RLock()
+	row, ok := UserVoiceStatesCache[meetingId][speakerUserId]
+	UserVoiceStatesCacheMutex.RUnlock()
+	if !ok {
+		return eventRole
+	}
+
+	if _, cachedRole := cachedVoiceStateSpeaker(row); strings.EqualFold(cachedRole, "MODERATOR") {
+		return cachedRole
+	}
+
+	return eventRole
 }
 
 // SendPreviousUserVoiceState replays the cached voice state of each user to a new subscriber, and
