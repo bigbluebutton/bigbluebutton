@@ -40,8 +40,22 @@ const TruncatingButtonWrapper = styled(FullWidthFlexItem)`
   }
 `;
 
+// A button that keeps its natural width but never drops below a floor, for
+// pairs sitting side by side (a dialog's confirm/cancel). Without it a one-word
+// label ("Pin", "Yes") renders as a square next to a wider sibling. The row
+// should wrap, and so does the label: two floors plus a long label can be wider
+// than a phone screen, and BBButton never wraps a label on its own.
+const MinWidthButtonWrapper = styled(FullWidthButtonWrapper)`
+  min-width: 8.5rem;
+
+  > * {
+    white-space: normal;
+  }
+`;
+
 export default {
   FullWidthButtonWrapper,
   FullWidthFlexItem,
+  MinWidthButtonWrapper,
   TruncatingButtonWrapper,
 };
