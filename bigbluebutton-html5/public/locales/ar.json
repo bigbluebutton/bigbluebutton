@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "نهاية محتوى الشريحة",
     "app.presentation.changedSlideContent": "تم تغيير العرض التقديمي إلى شريحة: {slideNumber}",
     "app.presentation.emptySlideContent": "لا يوجد محتوى للشريحة الحالية",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "ملء الشاشة",
     "app.presentation.options.exitFullscreen": "الخروج من شاشة كاملة",
     "app.presentation.options.minimize": "تصغير",
