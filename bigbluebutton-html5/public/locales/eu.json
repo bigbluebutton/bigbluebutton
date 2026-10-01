@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Diapositiba aurkezpenaren bukaera",
     "app.presentation.changedSlideContent": "Aurkezpena diapositiba bihurtu da: {slideNumber}",
     "app.presentation.emptySlideContent": "Uneko diapositibak ez du edukirik",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Pantaila osoko aurkezpena",
     "app.presentation.options.exitFullscreen": "Irten pantaila osotik",
     "app.presentation.options.minimize": "Minimizatu",
