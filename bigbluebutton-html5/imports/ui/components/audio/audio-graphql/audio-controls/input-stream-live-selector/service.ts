@@ -215,6 +215,16 @@ export const muteAway = (
   VideoService.setTrackEnabled(away);
 };
 
+// Push-to-talk opens the microphone by itself, so coming back from away through it
+// only restores the speaker and webcam. The flag is cleared so that a later return
+// from away does not unmute a microphone that was muted before.
+export const restoreFromAwayOnPushToTalk = (
+  voiceToggle: (userId: string, muted: boolean) => void,
+) => {
+  Storage.setItem('prevAwayMuted', false);
+  muteAway(false, true, voiceToggle);
+};
+
 export const isMutedAlertEnabled = () => {
   const { enabled = false } = window.meetingClientSettings.public.app.mutedAlert;
   return enabled;

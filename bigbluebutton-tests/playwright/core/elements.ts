@@ -166,6 +166,7 @@ export const elements = {
   // Chat
   chatBox: 'textarea[id="message-input"]',
   chatMessageItem: 'div[data-test="chatMessageItem"]',
+  userAwayStatusMessage: 'div[data-test="chatMessageItem"][data-message-type="userAwayStatusMsg"]',
   chatMessageContent: 'div[data-test="chatMessageContent"]',
   chatMessageItemKeyboardFocused: 'div[data-test="chatMessageItem"].chat-message-container-keyboard-focused',
   partnerDisconnectedMessage: 'span[data-test="partnerDisconnected"]',
@@ -706,6 +707,8 @@ export const elements = {
   dropAreaSidebarBottom: 'div[data-test="dropArea-sidebarContentBottom"]',
   selfViewDisableBtn: 'li[data-test="selfViewDisableBtn"]',
   profileSidebarButton: 'div[data-test="profileSidebarButton"]',
+  profileStatusDropdown: 'div[role="combobox"][aria-labelledby~="status-label-id"]',
+  profileStatusOption: 'ul[role="listbox"] li[role="option"]',
   nextPageVideoPagination: 'button[data-test="nextPageVideoPaginationBtn"]',
   previousPageVideoPagination: 'button[data-test="previousPageVideoPaginationBtn"]',
   videoQualitySelector: 'select[id="setQuality"]',
