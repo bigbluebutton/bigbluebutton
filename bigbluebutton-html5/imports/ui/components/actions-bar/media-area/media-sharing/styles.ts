@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { borderRadiusDefault, spacingSmall, spacingSmallMedium } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
   colorText, colorGrayIcons, appsPanelTextColor,
@@ -6,6 +7,7 @@ import {
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 
 const MODAL_WIDTH = '26.25rem';
 const MODAL_WIDTH_REDUCED = '250px';
@@ -89,12 +91,10 @@ const MediaGrid = styled.div<{ isMobile: boolean }>`
   justify-items: center;
 `;
 
-// Footer container for the start/stop sharing button.
-const FooterContainer = styled.div`
+// Footer container for the start/stop sharing button, which spans the modal.
+const FooterContainer = styled(ButtonWrappers.FullWidthButtonWrapper)`
   padding: 1rem;
   border-top: 1px solid ${appsGalleryOutlineColor};
-  display: flex;
-  justify-content: center;
 `;
 
 // Styles for the sub-view (when presentation/externalvideo/cameraAsContent is selected)
@@ -165,17 +165,12 @@ const BecomePresenterViewContainer = styled.div`
   gap: 1rem;
 `;
 
-// `size="sm"` shrinks the take-presenter button to its label, which leaves it
-// visibly narrower than the text above it. Hold a floor wide enough for the
-// longest of the two labels this view renders, without reaching into
-// BBButton's own markup.
-const becomePresenterButtonMinWidth = '8.5rem';
-
-const BecomePresenterButtonWrapper = styled.div`
-  display: flex;
-
+// The take/request presenter button spans the popover, so it keeps one size
+// whatever the label. BBButton never wraps its label and some translations are
+// wider than the popover, so let them wrap instead of overflowing.
+const BecomePresenterButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
   > * {
-    min-width: ${becomePresenterButtonMinWidth};
+    white-space: normal;
   }
 `;
 
@@ -183,17 +178,21 @@ const BecomePresenterText = styled.div`
   color: ${colorText};
 `;
 
+// Not a BBButton: the library's disabled style would make this status even
+// fainter. It takes BBButton's `sm` box instead, so the button keeps its size
+// when a request turns into a wait.
 const WaitingButton = styled.button<{ $animations?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  border-radius: 8px;
+  gap: ${spacingSmall};
+  padding: ${spacingSmall} ${spacingSmallMedium};
+  border-radius: ${borderRadiusDefault};
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   background-color: #e0e0e0;
   color: #666;
-  border: none;
+  border: 1px solid transparent;
   cursor: not-allowed;
   opacity: 0.7;
 
