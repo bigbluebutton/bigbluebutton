@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Fin du diaporama",
     "app.presentation.changedSlideContent": "Page présentée : {slideNumber}",
     "app.presentation.emptySlideContent": "La diapositive courante n'a pas de contenu",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Présentation en plein écran",
     "app.presentation.options.exitFullscreen": "Sortir du plein écran",
     "app.presentation.options.minimize": "Réduire",
