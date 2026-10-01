@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Τερματισμός του περιεχομένου διαφάνειας",
     "app.presentation.changedSlideContent": "Η παρουσίαση άλλαξε στη διαφάνεια: {slideNumber}",
     "app.presentation.emptySlideContent": "Χωρίς περιεχόμενο για την τρέχουσα διαφάνεια",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Παρουσίαση πλήρους οθόνης",
     "app.presentation.options.exitFullscreen": "Έξοδος από πλήρη οθόνη",
     "app.presentation.options.minimize": "Ελαχιστοποίηση",
