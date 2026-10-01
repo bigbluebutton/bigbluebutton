@@ -828,6 +828,7 @@
     "app.switch.onLabel": "BAI",
     "app.switch.offLabel": "EZ",
     "app.talkingIndicator.ariaMuteDesc": "Aukeratu erabiltzailea isilarazteko",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} hitz egiten ari da",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ hitz egiten ari dira",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ hitz egiten ari ziren",
