@@ -828,6 +828,7 @@
     "app.switch.onLabel": "AN",
     "app.switch.offLabel": "AUS",
     "app.talkingIndicator.ariaMuteDesc": "Auswählen, um jemanden stummzuschalten",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} spricht",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ sprechen",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ haben gesprochen",
