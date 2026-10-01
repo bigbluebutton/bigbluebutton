@@ -111,27 +111,29 @@ class ConfirmationModal extends Component {
 
           <Styled.Footer>
             {!hideConfirmButton && (
-              <BBButton
-                variant="primary"
-                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
-                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
-                disabled={disableConfirmButton}
-                dataTest={confirmButtonDataTest}
-                onClick={() => {
-                  onConfirm(confirmParam, checked);
-                  setIsOpen(false);
-                }}
-              />
+              <Styled.FooterButton>
+                <BBButton
+                  variant="primary"
+                  color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
+                  label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
+                  disabled={disableConfirmButton}
+                  dataTest={confirmButtonDataTest}
+                  onClick={() => {
+                    onConfirm(confirmParam, checked);
+                    setIsOpen(false);
+                  }}
+                />
+              </Styled.FooterButton>
             )}
             {!hideCancelButton && (
-              <div ref={this.cancelButtonRef}>
+              <Styled.FooterButton ref={this.cancelButtonRef}>
                 <BBButton
                   variant="secondary"
                   dataTest="confirmationModalCancel"
                   label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
                   onClick={handleClose}
                 />
-              </div>
+              </Styled.FooterButton>
             )}
           </Styled.Footer>
         </Styled.Container>

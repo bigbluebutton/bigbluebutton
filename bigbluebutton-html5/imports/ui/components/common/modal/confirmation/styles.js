@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import {
   mdPaddingX,
   lgPaddingY,
@@ -45,8 +46,16 @@ const Checkbox = styled.input`
 
 const Footer = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.75rem;
   margin-bottom: ${lgPaddingY};
+`;
+
+// Once the pair stacks on a phone, each button fills its line. Side by side the
+// footer shrinks to fit its buttons, so there is no room to grow into.
+const FooterButton = styled(ButtonWrappers.MinWidthButtonWrapper)`
+  flex-grow: 1;
 `;
 
 const Label = styled.label`
@@ -60,5 +69,6 @@ export default {
   DescriptionText,
   Checkbox,
   Footer,
+  FooterButton,
   Label,
 };
