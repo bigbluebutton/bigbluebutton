@@ -828,6 +828,7 @@
     "app.switch.onLabel": "AÇIK",
     "app.switch.offLabel": "KAPALI",
     "app.talkingIndicator.ariaMuteDesc": "Sesini kapatacağınız kullanıcıyı seçin",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} konuşuyor",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ konuşuyor",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ konuşuyordu",
