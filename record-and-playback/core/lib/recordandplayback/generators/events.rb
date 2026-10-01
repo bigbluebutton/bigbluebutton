@@ -279,8 +279,7 @@ module BigBlueButton
               active_videos.each do |filename|
                 edl_entry[:areas][:webcam] << {
                   :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp],
-                  :user_id => BigBlueButton::Events.get_id_from_filename(filename)
+                  :timestamp => timestamp - videos[filename][:timestamp]
                 }
               end
               video_edl << edl_entry
@@ -303,8 +302,7 @@ module BigBlueButton
               active_videos.each do |filename|
                 edl_entry[:areas][:webcam] << {
                   :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp],
-                  :user_id => BigBlueButton::Events.get_id_from_filename(filename)
+                  :timestamp => timestamp - videos[filename][:timestamp]
                 }
               end
               video_edl << edl_entry
@@ -332,8 +330,7 @@ module BigBlueButton
                   active_videos.each do |filename|
                     edl_entry[:areas][:webcam] << {
                       :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
+                      :timestamp => timestamp - videos[filename][:timestamp]
                     }
                   end
                   video_edl << edl_entry
@@ -347,8 +344,7 @@ module BigBlueButton
                   active_videos.each do |filename|
                     edl_entry[:areas][:webcam] << {
                       :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
+                      :timestamp => timestamp - videos[filename][:timestamp]
                     }
                   end
                   video_edl << edl_entry
@@ -378,8 +374,7 @@ module BigBlueButton
             active_videos.each do |filename|
               edl_entry[:areas][:webcam] << {
                 :filename => filename,
-                :timestamp => timestamp - videos[filename][:timestamp],
-                :user_id => userId
+                :timestamp => timestamp - videos[filename][:timestamp]
               }
             end
             video_edl << edl_entry
