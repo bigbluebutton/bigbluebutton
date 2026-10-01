@@ -368,7 +368,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             disabled
             $animations={animations}
           >
-            <HourglassEmptyIcon sx={{ marginRight: '0.5rem' }} />
+            <HourglassEmptyIcon />
             {intl.formatMessage(intlMessages.waitingForModerator)}
           </Styled.WaitingButton>
         </Styled.BecomePresenterViewContainer>
@@ -430,13 +430,16 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
-        <BBButton
-          dataTest="requestPresenterButton"
-          label={intl.formatMessage(intlMessages.requestPresenter)}
-          variant="primary"
-          onClick={handleRequestPresenterWithFeedback}
-          iconStart={<CoPresentIcon />}
-        />
+        <Styled.BecomePresenterButtonWrapper>
+          <BBButton
+            dataTest="requestPresenterButton"
+            label={intl.formatMessage(intlMessages.requestPresenter)}
+            variant="primary"
+            size="sm"
+            onClick={handleRequestPresenterWithFeedback}
+            iconStart={<CoPresentIcon />}
+          />
+        </Styled.BecomePresenterButtonWrapper>
       </Styled.BecomePresenterViewContainer>
     );
   };
