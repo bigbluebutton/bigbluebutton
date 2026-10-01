@@ -1,8 +1,48 @@
-import { expect } from 'playwright/test';
+import { expect, type Page as PlaywrightPage } from 'playwright/test';
 
 import { CI } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+
+export type TldrawCamera = { pageId: string; x: number; y: number; z: number };
+
+export async function getTldrawCamera(page: PlaywrightPage): Promise<TldrawCamera | null> {
+  return page.evaluate(() => {
+    const whiteboard = document.getElementById('whiteboard-element');
+    if (!whiteboard) return null;
+    const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>).find((key) =>
+      key.startsWith('__reactFiber'),
+    );
+    if (!fiberKey) return null;
+
+    type Editor = {
+      getCamera: () => { x: number; y: number; z: number };
+      getCurrentPageId: () => string;
+    };
+    type Hook = { memoizedState: unknown; next: Hook | null };
+    type Fiber = { memoizedState: Hook | null; return: Fiber | null };
+
+    let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as Fiber | null;
+    while (fiber) {
+      let hook = fiber.memoizedState;
+      while (hook) {
+        const state = hook.memoizedState as { current?: Editor } | null;
+        if (state?.current && typeof state.current.getCamera === 'function') {
+          const camera = state.current.getCamera();
+          return {
+            pageId: state.current.getCurrentPageId(),
+            x: camera.x,
+            y: camera.y,
+            z: camera.z,
+          };
+        }
+        hook = hook.next;
+      }
+      fiber = fiber.return;
+    }
+    return null;
+  });
+}
 
 // Drags across the whiteboard with the tool currently selected on `testPage`, from
 // 30% to 60% of its width, between the given fractions of its height.
