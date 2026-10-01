@@ -828,6 +828,7 @@
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",
     "app.talkingIndicator.ariaMuteDesc": "Επιλέξτε για σίγαση χρήστη",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "Μιλάει ο/η {userName}",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "Μιλάνε {userCount}+",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "Μιλήσανε {userCount}+",
