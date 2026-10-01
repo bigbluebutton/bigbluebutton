@@ -10,7 +10,6 @@ import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 
 const MODAL_WIDTH = '26.25rem';
-const MODAL_WIDTH_REDUCED = '250px';
 
 // This overlay covers the entire viewport and is used to catch outside clicks.
 const Overlay = styled.div`
@@ -28,7 +27,6 @@ const ModalContainer = styled.div<{
   isMobile: boolean,
   isRTL: boolean,
   actionsBarHeight: number,
-  reducedWidth?: boolean,
 }>`
   position: fixed;
   background: ${colorWhite};
@@ -40,13 +38,13 @@ const ModalContainer = styled.div<{
   border-radius: ${lgBorderRadius};
 
   ${({
-    isMobile, isRTL, reducedWidth,
+    isMobile, isRTL,
   }) => (isMobile ? `
     width: 70%;
     right: 6%;
     left: auto;
   ` : `
-    width: ${reducedWidth ? MODAL_WIDTH_REDUCED : MODAL_WIDTH};
+    width: ${MODAL_WIDTH};
     ${isRTL ? `
       left: 24px;
       right: auto;
