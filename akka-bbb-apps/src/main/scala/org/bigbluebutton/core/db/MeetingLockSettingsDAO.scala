@@ -12,7 +12,7 @@ case class MeetingLockSettingsDbModel(
     disablePrivateChat:      Boolean,
     disablePublicChat:       Boolean,
     disableNotes:            Boolean,
-    hideUserList:            Boolean,
+    isolateUsers:            Boolean,
     lockOnJoin:              Boolean,
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
@@ -27,7 +27,7 @@ class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsD
   val disablePrivateChat = column[Boolean]("disablePrivateChat")
   val disablePublicChat = column[Boolean]("disablePublicChat")
   val disableNotes = column[Boolean]("disableNotes")
-  val hideUserList = column[Boolean]("hideUserList")
+  val isolateUsers = column[Boolean]("hideUserList")
   val lockOnJoin = column[Boolean]("lockOnJoin")
   val lockOnJoinConfigurable = column[Boolean]("lockOnJoinConfigurable")
   val hideViewersCursor = column[Boolean]("hideViewersCursor")
@@ -36,7 +36,7 @@ class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsD
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation, presenterPolicy) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
+  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, isolateUsers, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation, presenterPolicy) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
 }
 
 object MeetingLockSettingsDAO {
@@ -50,7 +50,7 @@ object MeetingLockSettingsDAO {
           disablePrivateChat = lockSettingsProps.disablePrivateChat,
           disablePublicChat = lockSettingsProps.disablePublicChat,
           disableNotes = lockSettingsProps.disableNotes,
-          hideUserList = lockSettingsProps.hideUserList,
+          isolateUsers = lockSettingsProps.isolateUsers,
           lockOnJoin = lockSettingsProps.lockOnJoin,
           lockOnJoinConfigurable = lockSettingsProps.lockOnJoinConfigurable,
           hideViewersCursor = lockSettingsProps.hideViewersCursor,
@@ -71,7 +71,7 @@ object MeetingLockSettingsDAO {
           disablePrivateChat = permissions.disablePrivChat,
           disablePublicChat = permissions.disablePubChat,
           disableNotes = permissions.disableNotes,
-          hideUserList = permissions.hideUserList,
+          isolateUsers = permissions.isolateUsers,
           lockOnJoin = permissions.lockOnJoin,
           lockOnJoinConfigurable = permissions.lockOnJoinConfigurable,
           hideViewersCursor = permissions.hideViewersCursor,

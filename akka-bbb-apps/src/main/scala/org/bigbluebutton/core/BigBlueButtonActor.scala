@@ -129,7 +129,7 @@ class BigBlueButtonActor(
                 "presenter" -> false,
                 "hideViewersCursor" -> false,
                 "hideViewersAnnotation" -> false,
-                "hideUserList" -> false,
+                "isolateUsers" -> false,
                 "webcamsOnlyForModerator" -> false
               )
 

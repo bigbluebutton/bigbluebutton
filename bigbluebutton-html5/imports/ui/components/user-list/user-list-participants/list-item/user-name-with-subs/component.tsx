@@ -82,7 +82,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     || lockSettings.disablePrivateChat
     || lockSettings.disablePublicChat
     || lockSettings.disableNotes
-    || lockSettings.hideUserList
+    || lockSettings.isolateUsers
     || lockSettings.hideViewersCursor
     || lockSettings.hideViewersAnnotation
     || lockSettings.webcamsOnlyForModerator
