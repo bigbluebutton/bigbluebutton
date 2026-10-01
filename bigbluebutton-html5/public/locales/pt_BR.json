@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Fim do conteúdo do slide",
     "app.presentation.changedSlideContent": "Apresentação alterada para o slide: {slideNumber}",
     "app.presentation.emptySlideContent": "Nenhum conteúdo no slide atual",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Tela cheia",
     "app.presentation.options.exitFullscreen": "Sair de tela cheia",
     "app.presentation.options.minimize": "Minimizar",
