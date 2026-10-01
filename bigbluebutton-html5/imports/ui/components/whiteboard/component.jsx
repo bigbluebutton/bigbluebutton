@@ -225,6 +225,8 @@ const Whiteboard = React.memo((props) => {
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
+  const incomingPageZoomRef = useRef(null);
+  const suppressNextZoomSyncRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
   const viewerCanPanRef = useRef(viewerCanPan);
   const pageActualZoomRatioRef = useRef(_pageZoomRatioCache);
@@ -1785,7 +1787,7 @@ const Whiteboard = React.memo((props) => {
     }
   };
 
-  const syncCameraOnPresenterZoom = () => {
+  const syncCameraOnPresenterZoom = (pageZoom = zoomValueRef.current) => {
     if (
       !tlEditorRef.current
       || !curPageIdRef.current
@@ -1814,7 +1816,7 @@ const Whiteboard = React.memo((props) => {
       );
     }
 
-    const zoomCamera = (zoomLevelForReset * zoomValueRef.current) / HUNDRED_PERCENT;
+    const zoomCamera = (zoomLevelForReset * pageZoom) / HUNDRED_PERCENT;
     const slideShape = tlEditorRef.current.getShape(`shape:BG-${curPageIdRef.current}`);
     const camera = tlEditorRef.current.getCamera();
     const viewportScreenBounds = tlEditorRef.current.getViewportScreenBounds();
@@ -2096,6 +2098,7 @@ const Whiteboard = React.memo((props) => {
         return;
       }
       const storedZoom = pageZoomMap[`${presentationIdRef.current}_${curPageIdRef.current}`] || HUNDRED_PERCENT;
+      incomingPageZoomRef.current = storedZoom;
       zoomChanger(storedZoom);
       pageJustChangedRef.current = true;
       return;
@@ -2109,7 +2112,11 @@ const Whiteboard = React.memo((props) => {
       && !isWheelZoomRef.current
     ) {
       if (!isMounting && prevZoomValueRef.current !== zoomValue) {
-        syncCameraOnPresenterZoom();
+        if (suppressNextZoomSyncRef.current) {
+          suppressNextZoomSyncRef.current = false;
+        } else {
+          syncCameraOnPresenterZoom();
+        }
       }
     }
     prevZoomValueRef.current = zoomValue;
@@ -2366,8 +2373,11 @@ const Whiteboard = React.memo((props) => {
       resetSlideState();
 
       if (isPresenterRef.current) {
+        const incomingPageZoom = incomingPageZoomRef.current ?? zoomValueRef.current;
+        suppressNextZoomSyncRef.current = incomingPageZoom !== zoomValueRef.current;
         pageJustChangedRef.current = true;
-        syncCameraOnPresenterZoom();
+        syncCameraOnPresenterZoom(incomingPageZoom);
+        incomingPageZoomRef.current = null;
       } else {
         pollInnerWrapperDimensionsUntilStable(() => {
           adjustCameraOnMount(true);

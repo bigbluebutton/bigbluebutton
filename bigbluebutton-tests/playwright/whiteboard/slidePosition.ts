@@ -4,11 +4,29 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { uploadSinglePresentation } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
-import { getTldrawCamera } from './util';
-
-const POSITION_TOLERANCE = 2;
+import { getTldrawCamera, getTldrawEditor, type TldrawCamera } from './util';
 
 export class SlidePosition extends MultiUsers {
+  private async waitForExactCamera(pageNumber: number, expected: TldrawCamera[], label: string) {
+    const pages = [
+      ['presenter', this.modPage.page],
+      ['viewer', this.userPage.page],
+    ] as const;
+    for (const [index, [role, page]] of pages.entries()) {
+      await expect
+        .poll(async () => getTldrawCamera(page), {
+          message: `${role} ${label}`,
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        })
+        .toMatchObject({
+          pageId: `page:${pageNumber}`,
+          x: expect.closeTo(expected[index].x, 2),
+          y: expect.closeTo(expected[index].y, 2),
+          z: expect.closeTo(expected[index].z, 3),
+        });
+    }
+  }
+
   private async waitForCamera(pageNumber: number, expectedY: number, label: string) {
     for (const [role, page] of [
       ['presenter', this.modPage.page],
@@ -102,9 +120,72 @@ export class SlidePosition extends MultiUsers {
     await this.waitForCamera(2, 0, 'keeps page 2 at fit-page top');
     await this.modPage.waitAndClick(e.prevSlide);
     await this.waitForCamera(1, bottomCamera!.y, 'restores FTW page after editor remount');
+  }
 
-    const presenter = await getTldrawCamera(this.modPage.page);
-    const viewer = await getTldrawCamera(this.userPage.page);
-    expect(Math.abs((presenter?.z ?? 0) - (viewer?.z ?? 0))).toBeLessThan(POSITION_TOLERANCE / 100);
+  async restoresPositionsAcrossDifferentZooms() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    const zoomIn = async (times: number) => {
+      for (let index = 0; index < times; index += 1) {
+        await this.modPage.page.locator(e.zoomInButton).evaluate((button: HTMLButtonElement) => button.click());
+        await this.modPage.page.waitForTimeout(700);
+      }
+    };
+    await zoomIn(2);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'page 1 reaches toolbar zoom 150%',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(0.75);
+    const pageOneEditor = await getTldrawEditor(this.modPage.page);
+    await pageOneEditor.evaluate((editor) => {
+      const camera = editor.getCamera();
+      editor.setCamera({ ...camera, y: -250 });
+    });
+    await pageOneEditor.dispose();
+    await expect
+      .poll(async () => (await getTldrawCamera(this.userPage.page))?.y, {
+        message: 'page 1 non-boundary pan reaches the viewer',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(-250, 0);
+    const pageOne = (await Promise.all([
+      getTldrawCamera(this.modPage.page),
+      getTldrawCamera(this.userPage.page),
+    ])) as TldrawCamera[];
+
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.waitForCamera(2, 0, 'opens page 2 before changing its zoom');
+    await zoomIn(1);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'page 2 reaches toolbar zoom 125%',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(0.6);
+    const pageTwoEditor = await getTldrawEditor(this.modPage.page);
+    await pageTwoEditor.evaluate((editor) => {
+      const camera = editor.getCamera();
+      editor.setCamera({ ...camera, y: -150 });
+    });
+    await pageTwoEditor.dispose();
+    await expect
+      .poll(async () => (await getTldrawCamera(this.userPage.page))?.y, {
+        message: 'page 2 non-boundary pan reaches the viewer',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(-150, 0);
+    const pageTwo = (await Promise.all([
+      getTldrawCamera(this.modPage.page),
+      getTldrawCamera(this.userPage.page),
+    ])) as TldrawCamera[];
+
+    await this.modPage.waitAndClick(e.prevSlide);
+    await this.waitForExactCamera(1, pageOne, 'restores the 150% page camera');
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.waitForExactCamera(2, pageTwo, 'restores the 125% page camera');
   }
 }

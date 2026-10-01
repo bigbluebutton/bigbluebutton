@@ -235,6 +235,13 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     });
   });
 
+  test('Different per-slide zooms restore exact camera positions', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresPositionsAcrossDifferentZooms();
+  });
+
   test.describe.parallel('Shape Options', () => {
     test('Duplicate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);
