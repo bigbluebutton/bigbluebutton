@@ -36,6 +36,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       val validationResult = for {
         _ <- checkIfUserGuestStatusIsAllowed(user)
         _ <- checkIfUserIsBanned(user)
+        _ <- checkIfUserAccessRevoked(user)
         _ <- checkIfUserEjected(user)
         _ <- checkIfUserLoggedOut(user)
         _ <- validateMaxParticipants(user)
@@ -113,6 +114,14 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   private def checkIfUserIsBanned(user: RegisteredUser): Either[(String, String), Unit] = {
     if (user.banned) {
       Left(("Banned user rejoining", EjectReasonCode.BANNED_USER_REJOINING))
+    } else {
+      Right(())
+    }
+  }
+
+  private def checkIfUserAccessRevoked(user: RegisteredUser): Either[(String, String), Unit] = {
+    if (RegisteredUsers.isExtIdRevoked(liveMeeting.registeredUsers, user.externId)) {
+      Left(("User is not allowed to join", EjectReasonCode.PERMISSION_FAILED))
     } else {
       Right(())
     }

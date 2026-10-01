@@ -8,6 +8,14 @@ export async function openLockViewers(testPage: Page) {
   await testPage.waitAndClick(e.lockViewersButton);
 }
 
+// Turn on the "Hide user list" lock and dismiss the resulting toast.
+export async function applyUserListLock(testPage: Page) {
+  await openLockViewers(testPage);
+  await testPage.waitAndClickElement(e.lockUserList);
+  await testPage.waitAndClick(e.applyLockSettings);
+  await testPage.closeAllToastNotifications();
+}
+
 export async function setGuestPolicyOption(testPage: Page, option: string) {
   await testPage.waitAndClick(e.manageUsers);
   await testPage.waitAndClick(e.guestPolicyLabel);

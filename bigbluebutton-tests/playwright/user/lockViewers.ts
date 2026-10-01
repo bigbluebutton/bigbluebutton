@@ -7,7 +7,7 @@ import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../noti
 import { openSettings } from '../options/util';
 import { getNotesLocator } from '../sharednotes/etherpad/util';
 import { MultiUsers } from './multiusers';
-import { drawArrow, openLockViewers } from './util';
+import { applyUserListLock, drawArrow, openLockViewers } from './util';
 
 export class LockViewers extends MultiUsers {
   async lockShareWebcam() {
@@ -433,10 +433,7 @@ export class LockViewers extends MultiUsers {
   async hideUserListSuppressesJoinNotification() {
     // Step 2: apply hideUserList lock BEFORE the viewer joins so that the
     // viewer gets locked=true via lockOnJoin.
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Step 3: Viewer1 joins after lock is active → locked=true.
     await this.initUserPage();
@@ -498,10 +495,7 @@ export class LockViewers extends MultiUsers {
    */
   async hideUserListSuppressesLeaveNotification() {
     // Step 2: enable hideUserList before viewers join.
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Steps 3 & 4: both viewers join while lockOnJoin=true → locked=true.
     await this.initUserPage();
@@ -559,10 +553,7 @@ export class LockViewers extends MultiUsers {
    * - moderator: receives join notification
    */
   async hideUserListJoinNotificationVisibleForUnlockedAndModOnly() {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Viewer1 joins locked.
     await this.initUserPage();
@@ -631,10 +622,7 @@ export class LockViewers extends MultiUsers {
    * - moderator: receives leave notification
    */
   async hideUserListLeaveNotificationVisibleForUnlockedAndModOnly() {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Viewer1 joins locked.
     await this.initUserPage();
@@ -709,10 +697,7 @@ export class LockViewers extends MultiUsers {
    *   Expected: Viewer DOES see Mod2's join toast; Mod1 DOES see it too.
    */
   async hideUserListModeratorJoinNotificationVisibleToAll() {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     await this.initUserPage();
 
@@ -769,10 +754,7 @@ export class LockViewers extends MultiUsers {
     await this.initModPage2();
     const mod2Name = this.modPage2.username;
 
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     await this.initUserPage();
 
