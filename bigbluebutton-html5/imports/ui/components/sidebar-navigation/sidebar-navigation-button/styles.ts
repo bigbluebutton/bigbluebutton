@@ -4,6 +4,7 @@ import {
   borderSizeSmall,
   navigationSidebarListItemsWidth,
   navigationSidebarListItemsWidthDesktop,
+  navigationSidebarListItemsWidthDesktopSmallHeight,
   navigationSidebarIconSize,
   navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
@@ -38,9 +39,13 @@ export const ListItem = styled.div<ListItemProps>`
   aspect-ratio: 1 / 1;
   border-radius: 50%;
 
-  ${({ $isMobile }: ListItemProps) => $isMobile && `
+  ${({ $isMobile }: ListItemProps) => ($isMobile ? `
     width: ${navigationSidebarListItemsWidth};
-  `}
+  ` : `
+    @media ${smallHeight} {
+      width: min(${navigationSidebarListItemsWidthDesktopSmallHeight}, 100%);
+    }
+  `)}
 
   > i {
     font-size: ${navigationSidebarIconSize};
