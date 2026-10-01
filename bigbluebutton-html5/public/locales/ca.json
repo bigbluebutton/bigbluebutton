@@ -828,6 +828,7 @@
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",
     "app.talkingIndicator.ariaMuteDesc": "Seleccioneu per a silenciar usuari",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} està parlant",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ estan parlant",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ estaven parlant",
