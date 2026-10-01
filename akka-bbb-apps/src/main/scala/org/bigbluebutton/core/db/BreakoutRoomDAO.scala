@@ -50,6 +50,9 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
 }
 
 object BreakoutRoomDAO {
+  private def freeJoinRooms(model: BreakoutModel): Seq[BreakoutRoom2x] =
+    model.rooms.values.filter(_.freeJoin).toSeq
+
   def insert(breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
     val roomsCreatedAt = new java.sql.Timestamp(System.currentTimeMillis())
 
@@ -73,8 +76,8 @@ object BreakoutRoomDAO {
     ).transactionally)
 
     //Assign left users to a random room in case it is freeJoin
-    val freeJoin = breakout.rooms.exists(r => r._2.freeJoin)
-    if(freeJoin) {
+    val candidates = freeJoinRooms(breakout)
+    if(candidates.nonEmpty) {
       val assignedUsers = (for {
         (_, room) <- breakout.rooms
         userId <- room.assignedUsers
@@ -87,13 +90,11 @@ object BreakoutRoomDAO {
         .filter(user => user.role != Roles.MODERATOR_ROLE || breakout.sendInviteToModerators)
         .map(_.intId)
 
-      val roomsSeq = breakout.rooms.values.toSeq
-
       DatabaseConnection.enqueue(DBIO.sequence(
         for {
           userId <- nonAssignedUsers
-          randomIndex = Random.nextInt(roomsSeq.length)
-          room <- Some(roomsSeq(randomIndex))
+          randomIndex = Random.nextInt(candidates.length)
+          room <- Some(candidates(randomIndex))
           (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
         } yield {
           BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
@@ -109,11 +110,11 @@ object BreakoutRoomDAO {
     if(breakoutModel.rooms.values.nonEmpty) {
 
       //Check if it should assign the user to a room
-      if (breakoutModel.rooms.exists(r => r._2.freeJoin) &&
+      val candidates = freeJoinRooms(breakoutModel)
+      if (candidates.nonEmpty &&
         (regUser.role != Roles.MODERATOR_ROLE || breakoutModel.sendInviteToModerators)
       ) {
-        val rooms = breakoutModel.rooms.values.toSeq
-        val room = rooms(Random.nextInt(rooms.length))
+        val room = candidates(Random.nextInt(candidates.length))
 
         for {
           (redirectToHtml5JoinURL, _) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, regUser.id, room.externalId, room.sequence.toString)

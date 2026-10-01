@@ -33,7 +33,7 @@ import {
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { useAutoplayState } from '/imports/ui/components/livekit/autoplay-modal/hooks';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import useWhoIsUnmutedLiveKit from '/imports/ui/core/hooks/livekit/useWhoIsUnmutedLiveKit';
 
 const PARTICIPANTS_UPDATE_FILTER = [
   RoomEvent.ParticipantConnected,
@@ -127,7 +127,12 @@ const useDebouncedMuteState = (
   participants: RemoteParticipant[],
   debounceMs: number = 2500,
 ): Record<string, boolean> => {
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  // Consume the LiveKit unmuted source directly rather than the opt-in router: this drives which
+  // audio tracks get subscribed, and the router resolves to the GraphQL source when
+  // useLiveKitAudioState is off (the default). That source is filtered by the hideUserList lock, so
+  // routing through it would let a lock stop a viewer from *hearing* hidden participants once
+  // audioSubscriptionPoolSize > 0. Media transport must not depend on a privacy-filtered stream.
+  const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
   const [debouncedState, setDebouncedState] = useState<Record<string, boolean>>(unmutedUsers || {});
   const debouncedStateRef = useRef(debouncedState);
   debouncedStateRef.current = debouncedState;
