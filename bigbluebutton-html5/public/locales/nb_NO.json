@@ -828,6 +828,7 @@
     "app.switch.onLabel": "På",
     "app.switch.offLabel": "Av",
     "app.talkingIndicator.ariaMuteDesc": "Velg for å gjøre brukeren lydløs",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} snakker nå",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ snakker nå",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ har snakket",
