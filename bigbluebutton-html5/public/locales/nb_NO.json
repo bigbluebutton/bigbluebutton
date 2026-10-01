@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Sideinnhold slutt",
     "app.presentation.changedSlideContent": "Presentasjonen ble endret til lysbilde: {slideNumber}",
     "app.presentation.emptySlideContent": "Intet innhold for nåværende side",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Presentasjon i fullskjermvisning",
     "app.presentation.options.exitFullscreen": "Avslutt fullskjermvisning",
     "app.presentation.options.minimize": "Minimèr",
