@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/coder/websocket"
@@ -51,6 +52,7 @@ type BrowserConnection struct {
 	BrowserRequestCookies              []*http.Cookie
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
+	SubscriptionLimitLogged            atomic.Bool                    // indicate if active subscriptions were already logged on reaching the concurrent limit
 	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
 	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control the map usage
 	ConnectionInitMessage              []byte                         // init message received in this connection (to be used on hasura reconnect)

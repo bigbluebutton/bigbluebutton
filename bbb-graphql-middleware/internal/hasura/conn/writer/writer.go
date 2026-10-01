@@ -13,6 +13,7 @@ import (
 
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/subscriptionlimit"
 
 	"github.com/coder/websocket"
 	"github.com/graphql-go/graphql/language/ast"
@@ -141,6 +142,23 @@ RangeLoop:
 								browserConnection.ActiveSubscriptionsMutex.RUnlock()
 
 								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
+									// Log what is holding the slots once per connection, so the cause can be
+									// identified without flooding the log on every rejected subscription.
+									if browserConnection.SubscriptionLimitLogged.CompareAndSwap(false, true) {
+										browserConnection.ActiveSubscriptionsMutex.RLock()
+										operationNames := make([]string, 0, len(browserConnection.ActiveSubscriptions))
+										for _, subscription := range browserConnection.ActiveSubscriptions {
+											operationNames = append(operationNames, subscription.OperationName)
+										}
+										browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+										browserConnection.Logger.
+											WithField("rejectedOperation", browserMessage.Payload.OperationName).
+											WithField("activeSubscriptions", len(operationNames)).
+											WithField("activeSubscriptionsByOperation", subscriptionlimit.SummarizeByOperation(operationNames)).
+											Warn("Concurrent subscription limit reached")
+									}
+
 									sendErrorMessage(
 										browserConnection,
 										queryId,
