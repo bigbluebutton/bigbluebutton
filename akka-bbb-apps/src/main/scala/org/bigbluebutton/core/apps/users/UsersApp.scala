@@ -143,9 +143,6 @@ object UsersApp {
       regUser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
     } yield {
-      // Force reconnection with graphql to refresh permissions
-      GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, reason)
-
       // Update database
       UserDAO.update(regUser)
 
@@ -157,6 +154,13 @@ object UsersApp {
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
       UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
+
+      // Signal the membership change to bbb-graphql-middleware, which re-reads the user's session
+      // state on this request. Every path that ends a user's membership sends it.
+      //
+      // Last in the block: the request blocks and throws when the middleware is unreachable, and
+      // the removal above must complete whether or not the signal gets through.
+      GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, reason)
     }
 
     for {
