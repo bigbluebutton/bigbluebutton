@@ -368,6 +368,7 @@
     "app.presentation.endSlideContent": "Final del contingut de la diapositiva",
     "app.presentation.changedSlideContent": "La presentació ha canviat de diapositiva: {slideNumber}",
     "app.presentation.emptySlideContent": "No hi ha contingut per a la diapositiva actual",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Pantalla completa",
     "app.presentation.options.exitFullscreen": "Surt de la pantalla completa",
     "app.presentation.options.minimize": "Minimitzar",
