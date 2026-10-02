@@ -120,3 +120,7 @@ libraryDependencies ++= Seq(
   "jakarta.servlet" % "jakarta.servlet-api" % "6.0.0" % "provided",
   "jakarta.annotation" % "jakarta.annotation-api" % "2.1.1"
 )
+
+// Pin transitively-pulled artifacts to fixed releases.
+// junrar is reached only via tika-parsers-standard-package > tika-parser-pkg-module.
+dependencyOverrides += "com.github.junrar" % "junrar" % "7.6.1"
