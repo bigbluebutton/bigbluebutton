@@ -342,6 +342,25 @@ const DeviceSelector = styled(Select)`
   border-radius: 0.5rem !important;
   overflow: hidden;
   width: 100%;
+
+  &.Mui-error .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorDanger};
+  }
+
+  /* A refused device lists under a placeholder label: it reads as muted. */
+  &.Mui-error .MuiSelect-select {
+    color: ${colorText};
+  }
+`;
+
+// Under the selector it flags, past the row's icon: the row's 1rem gap would
+// read as the next row's caption.
+const DeviceFieldError = styled.div`
+  margin-top: -0.5rem;
+  padding-left: 2.5rem;
+  color: ${colorDanger};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
 `;
 
 const CameraQualityContainer = styled.div`
@@ -579,6 +598,7 @@ export default {
   ArrowRightIcon,
   AddCameraIcon,
   DeviceSelector,
+  DeviceFieldError,
   CameraQualityContainer,
   CameraQualityText,
   CameraQualitySelector,
