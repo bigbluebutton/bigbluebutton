@@ -567,6 +567,9 @@ export const elements = {
   userBannedMessage2: 'div[id="app"] >> div >> div:nth-child(2)',
   meetingEndedModalTitle: 'div[data-test="meetingEndedModal"]',
   unmuteUser: 'div[data-test="unmuteUser"]',
+  audioStateUnmuted: 'div[data-test="audioStateUnmuted"]',
+  // prefix match: the client writes this data-test with a trailing space
+  audioStateMuted: 'div[data-test^="audioStateMuted"]',
   confirmUnmuteButton: 'button[data-test="confirmUnmute"]',
   denyUnmuteButton: 'button[data-test="denyUnmute"]',
   ejectCamera: 'li[data-test="ejectCamera"]',
