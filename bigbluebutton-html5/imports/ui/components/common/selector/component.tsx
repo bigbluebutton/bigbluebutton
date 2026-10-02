@@ -33,16 +33,15 @@ export default function Selector({
   // If the currently-selected value is no longer among the options (e.g. a
   // plugin removed the option that was selected), fall back to the default
   // rather than rendering an empty value.
-  React.useEffect(() => {
-    const stillValid = options.some((option) => option.value === selected);
+  const isSelectedValid = options.some((option) => option.value === selected);
+  const displayedValue = isSelectedValid ? selected : defaultOption.value;
 
-    if (!stillValid) {
-      // Notify only on an actual change: avoids loops when onChange recreates options
-      if (selected !== defaultOption.value) {
-        changeSelectedValue(defaultOption.value, buildFallbackEvent(defaultOption.value));
-      }
+  React.useEffect(() => {
+    // Notify only on an actual change: avoids loops when onChange recreates options
+    if (!isSelectedValid && selected !== defaultOption.value) {
+      changeSelectedValue(defaultOption.value, buildFallbackEvent(defaultOption.value));
     }
-  }, [options, defaultOption.value, selected]);
+  }, [isSelectedValid, selected, defaultOption.value]);
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
     changeSelectedValue(event.target.value as string | number, event);
@@ -69,7 +68,7 @@ export default function Selector({
       <Styled.FormControl sx={{ width }} size="small">
         {title && <Styled.Title>{title}</Styled.Title>}
         <Styled.Select
-          value={selected}
+          value={displayedValue}
           onChange={handleChange}
           displayEmpty
           hasTitle={!!title}
