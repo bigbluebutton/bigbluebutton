@@ -156,6 +156,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           connectionStatus.setServerIsResponding(false);
           if (!terminateTimeoutRef.current) {
             terminateTimeoutRef.current = window.setTimeout(() => {
+              // Clear the ref so the next stale period arms a new timer
+              terminateTimeoutRef.current = undefined;
               // The apollo client will try to reconnect after the connection is terminated
               // if the option to reconnect is true
               apolloContextHolder.getLink().terminate();
@@ -168,6 +170,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         if (tsNow - tsLastMessageRef.current < boundary.current && !connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(true);
           clearTimeout(terminateTimeoutRef.current);
+          terminateTimeoutRef.current = undefined;
         } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(true);
         }
