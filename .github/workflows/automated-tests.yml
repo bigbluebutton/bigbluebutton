@@ -514,7 +514,7 @@ jobs:
     strategy:
       fail-fast: false
     env:
-      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
+      SAMPLES_WITH_TESTS: "sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin sample-media-area-plugin"
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -545,6 +545,18 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+      - name: Plugins SDK - Require the SDK under test in the sample manifests
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          # akka-apps refuses to load a plugin whose requiredSdkVersion does not
+          # cover the server's SDK version, and a pre-release such as
+          # 1.0.0-beta.2 only matches ranges that name it. The samples are built
+          # from this same SDK, so require exactly its version.
+          SDK_VERSION=$(jq -r '.version' package.json)
+          for manifest in samples/*/manifest.json; do
+            jq --arg v "$SDK_VERSION" '.requiredSdkVersion = $v' "$manifest" > "$manifest.tmp"
+            mv "$manifest.tmp" "$manifest"
+          done
       - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
         uses: actions/setup-node@v5
         with:
