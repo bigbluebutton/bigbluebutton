@@ -28,10 +28,6 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
     .filter({ has: testPage.page.locator(e.webcamConnecting) });
 }
 
-// Glyph of the microphone badge the user list draws on an avatar. The badge is a CSS
-// pseudo-element, so another user's mute state has no attribute or text to select on.
-const USER_LIST_MIC_BADGE = { unmuted: '\ue931', muted: '\ue932' };
-
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
   if (!isLockViewersButtonVisible) {
@@ -58,20 +54,18 @@ export function talkingIndicatorLocator(testPage: Page, userName: string): Locat
   return testPage.page.locator(`${e.isTalking}, ${e.wasTalking}`).filter({ hasText: userName });
 }
 
+// The microphone state a viewer is shown for another user on the user list.
 export async function hasUserListMicState(
   testPage: Page,
   userName: string,
-  state: keyof typeof USER_LIST_MIC_BADGE,
+  state: 'unmuted' | 'muted',
   description: string,
   timeout: number = ELEMENT_WAIT_TIME,
 ) {
-  const avatar = testPage.page.locator(e.userListItem, { hasText: userName }).locator(e.userAvatar);
-  await expect
-    .poll(() => avatar.evaluate((el) => window.getComputedStyle(el, '::after').content), {
-      message: description,
-      timeout,
-    })
-    .toContain(USER_LIST_MIC_BADGE[state]);
+  const audioState = testPage.page
+    .locator(e.userListItem, { hasText: userName })
+    .locator(state === 'unmuted' ? e.audioStateUnmuted : e.audioStateMuted);
+  await expect(audioState, description).toBeVisible({ timeout });
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {

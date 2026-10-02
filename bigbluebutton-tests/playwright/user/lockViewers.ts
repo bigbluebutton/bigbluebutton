@@ -1022,6 +1022,7 @@ export class LockViewers extends MultiUsers {
 
     await applyUserListLock(this.modPage);
     await this.initUserPage();
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElementCount(
       e.userListItem,
       1,
@@ -1045,6 +1046,7 @@ export class LockViewers extends MultiUsers {
     // The talking indicator is not asserted here: it follows the moderator's next talking
     // event, and the fake microphone talks without a pause.
     await this.initUserPage2();
+    await this.userPage2.waitAndClick(e.usersListSidebarButton);
     await hasUserListMicState(
       this.userPage2,
       modName,
@@ -1106,9 +1108,12 @@ export class LockViewers extends MultiUsers {
   async hideUserListVoiceStateFollowsRoleChange() {
     await applyUserListLock(this.modPage);
     await this.initUserPage();
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.initUserPage2();
     const speakerName = this.userPage2.username;
-    const speakerOnModUserList = this.modPage.page.locator(e.userListItem, { hasText: speakerName });
+    const speakerMenuOnModUserList = this.modPage.page
+      .locator(e.userListItem, { hasText: speakerName })
+      .locator(e.moreOptionsUserItemButton);
 
     await this.userPage2.waitAndClick(e.joinAudio);
     await this.userPage2.joinMicrophone();
@@ -1122,8 +1127,8 @@ export class LockViewers extends MultiUsers {
       'Locked viewer must not see the talking indicator of another viewer (hideUserList active)',
     ).toHaveCount(0);
 
-    // Every listed user has its own menu in the DOM: act on the one that was opened.
-    await speakerOnModUserList.click();
+    // Menus closed earlier leave hidden menu items in the DOM: act on the visible one.
+    await speakerMenuOnModUserList.click();
     await this.modPage.getVisibleLocator(e.promoteToModerator).click();
     await this.userPage.hasElementCount(
       e.userListItem,
@@ -1141,7 +1146,7 @@ export class LockViewers extends MultiUsers {
       'Locked viewer must see a user promoted to moderator as unmuted on the user list',
     );
 
-    await speakerOnModUserList.click();
+    await speakerMenuOnModUserList.click();
     await this.modPage.getVisibleLocator(e.demoteToViewer).click();
     await this.userPage.hasElementCount(
       e.userListItem,
