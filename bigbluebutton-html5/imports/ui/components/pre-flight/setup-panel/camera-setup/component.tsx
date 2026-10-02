@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect, useId, useRef, useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -41,6 +41,10 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.preFlight.cameraDisabledLabel',
     description: 'Placeholder shown in the preview when the camera is disabled',
   },
+  permissionPending: {
+    id: 'app.preFlight.devicePermissionPending',
+    description: 'Shown under a device selector whose permission the browser refused',
+  },
 });
 
 interface CameraSetupProps {
@@ -52,8 +56,19 @@ interface CameraSetupProps {
 const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
   const { formatMessage } = useIntl();
   const {
-    shareCamera, setShareCamera, cameraFailed, setCameraFailed, commitCameraRef,
+    shareCamera,
+    setShareCamera,
+    cameraFailed,
+    setCameraFailed,
+    setCameraDenied,
+    permissionRetry,
+    commitCameraRef,
   } = usePreFlight();
+  const cameraErrorId = useId();
+  // Bumped when the browser's own camera permission changes, so a grant made
+  // in the site settings clears the denial without a retry, as the
+  // microphone's does.
+  const [permissionChanges, setPermissionChanges] = useState(0);
 
   const { isVirtualBackgroundsEnabled, isCustomVirtualBackgroundsEnabled } = getVirtualBackgroundAvailability();
 
@@ -71,6 +86,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     viewState,
     deviceError,
     previewError,
+    permissionDenied,
     isCameraLoading,
     brightness,
     videoRef,
@@ -185,6 +201,39 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     setCameraFailed(hasCameraError);
   }, [hasCameraError]);
 
+  useEffect(() => {
+    setCameraDenied(permissionDenied);
+  }, [permissionDenied]);
+
+  useEffect(() => {
+    let permission: PermissionStatus | null = null;
+    let cancelled = false;
+    const handleChange = () => setPermissionChanges((count) => count + 1);
+
+    navigator.permissions?.query({ name: 'camera' as PermissionName })
+      .then((status) => {
+        if (cancelled) return;
+        permission = status;
+        permission.addEventListener('change', handleChange);
+      })
+      // Not every browser names the camera here; the retry still works.
+      .catch(() => null);
+
+    return () => {
+      cancelled = true;
+      permission?.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  // The retry runs the whole initialization again: a refused gUM leaves the
+  // device list obfuscated, and only a fresh enumeration relabels it.
+  useEffect(() => {
+    if ((!permissionRetry && !permissionChanges) || !shareCamera || !permissionDenied) return;
+    initializeCameras();
+  }, [permissionRetry, permissionChanges]);
+
+  const showPermissionError = shareCamera && permissionDenied;
+
   const handleVirtualBgChange = useCallback((checked: boolean) => {
     setVirtualBackgroundChecked(checked);
 
@@ -245,9 +294,16 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
               } as React.ChangeEvent<HTMLSelectElement>)}
               disabled={!shareCamera}
               emptyLabel={emptyDeviceLabel}
+              error={showPermissionError}
+              describedBy={showPermissionError ? cameraErrorId : undefined}
               dataTest="preFlightCameraDevice"
             />
           </ProfileStyled.DeviceContainer>
+          {showPermissionError && (
+            <ProfileStyled.DeviceFieldError id={cameraErrorId} data-test="preFlightCameraDeviceError">
+              {formatMessage(intlMessages.permissionPending)}
+            </ProfileStyled.DeviceFieldError>
+          )}
           <ProfileStyled.DeviceContainer>
             <ProfileStyled.WbSunnyIcon />
             <CameraBrightnessInput
