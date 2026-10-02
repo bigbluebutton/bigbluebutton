@@ -6,8 +6,7 @@ We actively support BigBlueButton through the community forums and through secur
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.6.x (or earlier)  | :x:    |
-| 2.7.x   | :x: |
+| 2.7.x (or earlier)  | :x:    |
 | 3.0.x   | :white_check_mark: |
 | 4.0.x   | :x: |
 | 4.1.x   | :x: |
