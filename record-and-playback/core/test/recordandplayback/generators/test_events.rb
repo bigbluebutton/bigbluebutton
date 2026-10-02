@@ -21,6 +21,26 @@ class TestEvents < Minitest::Test
     end
   end
 
+  def test_disabled_recording_formats_absent
+    assert_empty(BigBlueButton::Events.disabled_recording_formats(@events_meta_edt))
+  end
+
+  def test_disabled_recording_formats_parsed
+    events = Nokogiri::XML(<<~XML)
+      <recording>
+        <metadata bbb-disable-recording-formats="[ Video,PRESENTATION, ,podcast ]" />
+      </recording>
+    XML
+
+    assert_equal(%w[video presentation podcast], BigBlueButton::Events.disabled_recording_formats(events))
+  end
+
+  def test_disabled_recording_formats_empty_value
+    events = Nokogiri::XML('<recording><metadata bbb-disable-recording-formats="" /></recording>')
+
+    assert_empty(BigBlueButton::Events.disabled_recording_formats(events))
+  end
+
   def test_anonymous_user_map_legacy
     map = BigBlueButton::Events.anonymous_user_map(@events_legacy)
     assert_empty(map)
