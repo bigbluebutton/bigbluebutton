@@ -4,7 +4,7 @@ require File.expand_path('../../lib/recordandplayback', __FILE__)
 require 'nokogiri'
 require 'optimist'
 
-props = YAML::load(File.open(File.expand_path('../bigbluebutton.yml', __FILE__)))
+props = YAML::safe_load(File.read(File.expand_path('../bigbluebutton.yml', __FILE__)))
 log_dir = props['log_dir']
 raw_recording_dir = "#{props['recording_dir']}/raw"
 published_dir = props['published_dir']
@@ -39,10 +39,7 @@ def do_recording_update(recording_dir, raw_recording_dir)
   BigBlueButton.logger.info("Processing recording #{meeting_id}")
 
   # Read the metadata.xml file to check if the URL needs update
-  metadata_xml = nil
-  File.open("#{recording_dir}/metadata.xml") do |io|
-    metadata_xml = Nokogiri::XML(io)
-  end
+  metadata_xml = Nokogiri::XML(File.read("#{recording_dir}/metadata.xml"))
 
   link_xml = metadata_xml.at_xpath('/recording/playback/link')
   link = link_xml.content
@@ -54,10 +51,7 @@ def do_recording_update(recording_dir, raw_recording_dir)
   end
 
   # Determine which version playback is appropriate for the recording
-  events_xml = nil
-  File.open("#{raw_recording_dir}/#{meeting_id}/events.xml") do |io|
-    events_xml = Nokogiri::XML(io)
-  end
+  events_xml = Nokogiri::XML(File.read("#{raw_recording_dir}/#{meeting_id}/events.xml"))
 
   recording_xml = events_xml.at_xpath('/recording')
   bbb_version = recording_xml['bbb_version']

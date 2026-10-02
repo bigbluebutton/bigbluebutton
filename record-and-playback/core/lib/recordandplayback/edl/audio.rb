@@ -402,7 +402,7 @@ module BigBlueButton
 
         # Write filter_complex script to a temporary file for this segment
         filter_script = "#{output_basename}_seg#{i}.filter"
-        File.open(filter_script, 'w') { |f| f.write(filter_lines.join("\n")) }
+        File.write(filter_script, filter_lines.join("\n"))
         ffmpeg_cmd += ['-filter_complex_script', filter_script]
 
         BigBlueButton.logger.debug("ffmpeg filter_complex_script for segment #{i}: ")
