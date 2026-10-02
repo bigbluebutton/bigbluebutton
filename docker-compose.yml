@@ -1,0 +1,375 @@
+---
+services:
+  web:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-web:${IMAGE_WEB_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-web:local"
+    restart: unless-stopped
+    environment:
+      - BBB_WEB_LOGLEVEL=INFO
+      - BBB_SERVER_URL=${BBB_SERVER_URL}
+      - SHARED_SECRET=${SHARED_SECRET}
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton
+    depends_on:
+      - redis
+      - etherpad
+      - pads
+      - collabora
+    healthcheck:
+      test: curl -s -o /dev/null http://localhost:8090/bigbluebutton/api || exit 1
+      start_period: 2m
+    networks:
+      bbb-net:
+
+  apps-akka:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:${IMAGE_APPS_AKKA_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:local"
+    environment:
+      - POSTGRES_PASSWORD=${BBB_POSTGRES_BBB_CORE_PASSWORD}
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./conf/bbb-html5.yml:/etc/bigbluebutton/bbb-html5.yml:ro
+    networks:
+      bbb-net:
+
+  html5-client:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-html5-client:${IMAGE_HTML5_CLIENT_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-html5-client:local"
+    networks:
+      bbb-net:
+
+  learning-dashboard:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-learning-dashboard:${IMAGE_LEARNING_DASHBOARD_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-learning-dashboard:local"
+    networks:
+      bbb-net:
+
+  graphql-actions:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:${IMAGE_GRAPHQL_ACTIONS_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:local"
+    restart: unless-stopped
+    environment:
+      - BBB_REDIS_HOST=redis
+      - BBB_REDIS_PORT=6379
+      - SERVER_HOST=0.0.0.0
+    depends_on:
+      - redis
+      - apps-akka
+    networks:
+      bbb-net:
+
+  graphql-middleware:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:local"
+    restart: unless-stopped
+    depends_on:
+      - graphql-server
+      - graphql-actions
+      - web
+      - redis
+    networks:
+      bbb-net:
+
+  graphql-server:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:${IMAGE_GRAPHQL_SERVER_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:local"
+    restart: unless-stopped
+    environment:
+      - BBB_POSTGRES_HASURA_APP_PASSWORD=${BBB_POSTGRES_HASURA_APP_PASSWORD}
+      - BBB_POSTGRES_BBB_HASURA_PASSWORD=${BBB_POSTGRES_BBB_HASURA_PASSWORD}
+      - HASURA_GRAPHQL_ADMIN_SECRET=${HASURA_GRAPHQL_ADMIN_SECRET}
+    depends_on:
+      - postgres
+      - web
+      - apps-akka
+      - graphql-actions
+    networks:
+      bbb-net:
+
+  export-annotations:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-export-annotations:${IMAGE_EXPORT_ANNOTATIONS_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-export-annotations:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - web
+      - pads
+    networks:
+      bbb-net:
+    tmpfs:
+      - /tmp
+
+  pads:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-pads:${IMAGE_PADS_TAG:-latest}"
+    restart: unless-stopped
+    environment:
+      - ETHERPAD_API_KEY=${ETHERPAD_API_KEY}
+    depends_on:
+      - redis
+      - etherpad
+    networks:
+      bbb-net:
+
+  etherpad:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:local"
+    environment:
+      - ETHERPAD_API_KEY=${ETHERPAD_API_KEY}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - collabora
+    networks:
+      bbb-net:
+
+  record-and-playback:
+    container_name: recording-workers
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "resque_workers"
+    volumes:
+      - ./data/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder
+    depends_on:
+      - redis
+    build:
+      args:
+        TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:local"
+    networks:
+      bbb-net:
+
+  recording-starter:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "rap_starter"
+    networks:
+      bbb-net:
+
+  recording-caption-inbox:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "rap_caption_inbox"
+    networks:
+      bbb-net:
+
+  recording-cleanup:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "cleanup"
+    env_file:
+      - .env
+    networks:
+      bbb-net:
+
+  webrtc-sfu:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-sfu:${IMAGE_WEBRTC_SFU_TAG:-latest}"
+    restart: unless-stopped
+    environment:
+      - LIVEKIT_ENABLED=true
+      - LIVEKIT_HOST=http://livekit:7880
+      - LIVEKIT_EVENT_SOURCE=agent
+      - CLIENT_HOST=0.0.0.0
+      - KURENTO=[]
+      - LOG_LEVEL=info
+      - LOG_FILENAME=/dev/null
+      - MCS_ADDRESS=localhost
+      - MCS_HOST=0.0.0.0
+      - MCS_PORT=3009
+      - REDIS_HOST=redis
+    env_file:
+      - .env
+    networks:
+      bbb-net:
+
+  nginx:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_NGINX_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton
+    depends_on:
+      - web
+      - etherpad
+      - html5-client
+      - webhooks
+      - webrtc-sfu
+      - graphql-server
+      - graphql-middleware
+      - livekit
+    networks:
+      bbb-net:
+
+  webhooks:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
+    environment:
+      - NODE_ENV=production
+      - NODE_CONFIG_DIR=/app/config/
+      - SERVER_DOMAIN=${BBB_SERVER_URL}
+      - SHARED_SECRET=${SHARED_SECRET}
+      - LOG_TO_STDOUT=true
+      - LOG_TO_FILE=false
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVER_BIND_IP=0.0.0.0
+    depends_on:
+      - redis
+    networks:
+      bbb-net:
+
+  webrtc-recorder:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-recorder:${IMAGE_WEBRTC_RECORDER_TAG:-latest}"
+    restart: unless-stopped
+    volumes:
+      - ./data/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder
+    environment:
+      - BBBRECORDER_RECORDER_DIRFILEMODE=0755
+      - BBBRECORDER_RECORDER_FILEMODE=0655
+      #- BBBRECORDER_RECORDER_DIRECTORY: '{{ bigbluebutton_webrtc_recorder_directory }}'
+      - BBBRECORDER_PUBSUB_ADAPTER=redis
+      - BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS=redis:6379
+      - BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK=tcp
+      - BBBRECORDER_LIVEKIT_HOST=ws://livekit:7880
+      - BBBRECORDER_LIVEKIT_APIKEY=${LIVEKIT_KEY}
+      - BBBRECORDER_LIVEKIT_APISECRET=${LIVEKIT_SECRET}
+    networks:
+      bbb-net:
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      bbb-net:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HASURA_APP_PASSWORD: ${BBB_POSTGRES_HASURA_APP_PASSWORD}
+      POSTGRES_BBB_HASURA_PASSWORD: ${BBB_POSTGRES_BBB_HASURA_PASSWORD}
+      POSTGRES_BBB_CORE_PASSWORD: ${BBB_POSTGRES_BBB_CORE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./docker/postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+      - ./bbb-graphql-server/bbb_schema.sql:/bbb-graphql-server/bbb_schema.sql:ro
+    networks:
+      bbb-net:
+
+  collabora:
+    image: collabora/code:latest
+    restart: unless-stopped
+    tmpfs:
+      - /tmp
+    networks:
+      bbb-net:
+
+  livekit:
+    image: livekit/livekit-server:v1.9.1
+    restart: unless-stopped
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 7880
+        log_level: info
+        rtc:
+          port_range_start: 16384
+          port_range_end: 32768
+          use_external_ip: false
+          tcp_port: 0
+          allow_tcp_fallback: false
+          interfaces:
+            excludes:
+              - docker0
+        redis:
+          address: 'redis:6379'
+        audio:
+          active_level: 50
+          min_percentile: 10
+          update_interval: 500
+          smooth_intervals: 0
+        keys:
+          ${LIVEKIT_KEY}: ${LIVEKIT_SECRET}
+        room:
+          enabled_codecs:
+            - mime: audio/opus
+            - mime: audio/red
+            - mime: video/vp8
+            - mime: video/rtx
+          enable_remote_unmute: true
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      bbb-net:
+
+  sip:
+    image: livekit/sip:latest
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      SIP_CONFIG_BODY: |
+        log_level: info
+        api_key: ${LIVEKIT_KEY}
+        api_secret: ${LIVEKIT_SECRET}
+        ws_url: 'ws://livekit:7880'
+        redis:
+          address: 'redis:6379'
+        sip_port: 5062
+        sip_port_listen: 5062
+    env_file:
+      - .env
+    networks:
+      bbb-net:
+
+  caddy:
+    image: docker.io/library/caddy:latest
+    restart: unless-stopped
+    environment:
+      BBB_SERVER_URL: ${BBB_SERVER_URL}
+      SSL_MODE: ${SSL_MODE:-internal}
+    ports:
+      - "443:8443"
+      - "80:8080"
+    volumes:
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./ssl:/local/certs:ro
+    depends_on:
+      - nginx
+    networks:
+      bbb-net:
+
+networks:
+  bbb-net:
