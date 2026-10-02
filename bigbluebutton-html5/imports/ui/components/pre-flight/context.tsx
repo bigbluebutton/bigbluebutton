@@ -18,6 +18,18 @@ export interface PreFlightContextValue {
   // camera toggle then reads as off and the join does not try to share it.
   cameraFailed: boolean;
   setCameraFailed: (failed: boolean) => void;
+  // Set by the audio selectors and the camera setup when the browser refuses
+  // the device: the join waits on the device permission screen meanwhile.
+  microphoneDenied: boolean;
+  setMicrophoneDenied: (denied: boolean) => void;
+  cameraDenied: boolean;
+  setCameraDenied: (denied: boolean) => void;
+  // Bumped by the permission screen's retry: the audio selectors and the
+  // camera setup ask the browser again whenever it changes.
+  permissionRetry: number;
+  // The user passed over a denied microphone where listen only is off: the
+  // join carries no audio, and the microphone controls read as such.
+  joiningWithoutAudio: boolean;
   // Set by the setup panel so the join can persist the camera selections
   // (device, profile, virtual background) right before joining.
   commitCameraRef: React.MutableRefObject<(() => void) | null>;

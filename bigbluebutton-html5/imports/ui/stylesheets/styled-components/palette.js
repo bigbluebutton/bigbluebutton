@@ -58,6 +58,12 @@ const noticeWarningBg = 'var(--notice-warning-bg, rgba(255, 200, 69, 0.2))';
 const noticeWarningBorder = 'var(--notice-warning-border, #FFC845)';
 const noticeWarningText = 'var(--notice-warning-text, #936800)';
 const noticeWarningIcon = 'var(--notice-warning-icon, #A17100)';
+// The design's #CD545B label measures 3.7:1 over the pill, so the text darkens
+// to 4.71:1; border and icon keep the design's red, 3.7:1 being enough for them.
+const noticeDangerBg = 'var(--notice-danger-bg, rgba(205, 84, 91, 0.1))';
+const noticeDangerBorder = 'var(--notice-danger-border, #CD545B)';
+const noticeDangerText = 'var(--notice-danger-text, #B8434A)';
+const noticeDangerIcon = 'var(--notice-danger-icon, #CD545B)';
 // Lighter than colorOverlay: the screen behind a scrimmed dialog stays readable.
 const colorScrim = 'var(--color-scrim, rgba(57, 60, 72, 0.32))';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
@@ -320,6 +326,10 @@ export {
   noticeWarningBorder,
   noticeWarningText,
   noticeWarningIcon,
+  noticeDangerBg,
+  noticeDangerBorder,
+  noticeDangerText,
+  noticeDangerIcon,
   colorScrim,
   colorBackground,
   colorOverlay,

@@ -22,8 +22,8 @@
  * links, toast backgrounds) are deliberately absent: they must fall through to
  * whatever the brand declared, which is today's behaviour.
  *
- * Carve-out: a state/notice chip's set (--notice-warning-*) is structure and IS
- * emitted. It carries its own ground, so falling through would hand the dark
+ * Carve-out: a state/notice chip's set (--notice-warning-*, --notice-danger-*)
+ * is structure and IS emitted. It carries its own ground, so falling through would hand the dark
  * theme an unreadable chip rather than hand the brand a choice.
  *
  * Multi-role tokens are split per role in phase 3: the dominant role keeps the
@@ -283,6 +283,13 @@
   --notice-warning-border: var(--notice-warning-border-dark-theme, #FFC845);
   --notice-warning-text: var(--notice-warning-text-dark-theme, #FFC845);
   --notice-warning-icon: var(--notice-warning-icon-dark-theme, #FFC845);
+
+  /* Same carve-out for the danger chip: the light label measures 2.13:1 over the
+     pill here, so label, icon and border lighten together to 5.68:1. */
+  --notice-danger-bg: var(--notice-danger-bg-dark-theme, rgba(205, 84, 91, 0.16));
+  --notice-danger-border: var(--notice-danger-border-dark-theme, #FF9C9C);
+  --notice-danger-text: var(--notice-danger-text-dark-theme, #FF9C9C);
+  --notice-danger-icon: var(--notice-danger-icon-dark-theme, #FF9C9C);
 
   /* The light scrim is a grey that barely darkens a dark screen, so the dialog
      would not stand apart from it. */

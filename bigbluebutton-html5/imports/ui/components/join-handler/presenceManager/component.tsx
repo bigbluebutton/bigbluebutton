@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
@@ -21,6 +21,10 @@ import {
   GuestDeniedActions,
   GuestDeniedHeader,
 } from '/imports/ui/components/pre-flight/error-screen/guest-denied/component';
+import {
+  ConnectionLostActions,
+  ConnectionLostHeader,
+} from '/imports/ui/components/pre-flight/error-screen/connection-lost/component';
 import SessionInfo from '/imports/ui/components/pre-flight/session-info/component';
 import {
   JoiningRoomActions,
@@ -32,6 +36,7 @@ import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -109,6 +114,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [joinRequested, setJoinRequested] = useState(!preFlightEnabled);
   const [joinFailed, setJoinFailed] = useState(false);
   const joinRetryRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const preFlightCommitRef = React.useRef<(() => boolean) | null>(null);
+  const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  // Only a drop counts: the socket is still opening when the screen mounts.
+  const [hasConnected, setHasConnected] = useState(isConnected);
+  if (isConnected && !hasConnected) setHasConnected(true);
+  const connectionLost = hasConnected && !isConnected;
 
   useEffect(() => {
     const allowed = guestStatus === GUEST_STATUSES.ALLOW;
@@ -243,6 +254,20 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   let preFlightActions: React.ReactNode = null;
   let preFlightError: PreFlightError | null = null;
 
+  const retryConnection = () => {
+    // The socket reconnects on its own; a retry while it is down starts over.
+    if (connectionLost) {
+      window.location.reload();
+      return;
+    }
+    // The panel stayed editable under the error: commit it again, as the
+    // join button does. A device denied meanwhile holds the join instead, and
+    // its screen takes over once this one is cleared.
+    const committed = preFlightCommitRef.current?.() ?? true;
+    setJoinFailed(false);
+    if (committed) setJoinRequested(true);
+  };
+
   if (isGuestDenied) {
     // The lobby stays as the header: a phone keeps it behind the dialog.
     preFlightError = {
@@ -255,23 +280,26 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       actions: <GuestDeniedActions onLeave={guestDeniedRedirect.redirect} />,
       onClose: guestDeniedRedirect.redirect,
     };
-  } else if (isGuestAllowed) {
+  } else if (connectionLost || joinFailed) {
+    preFlightError = {
+      header: <ConnectionLostHeader />,
+      actions: <ConnectionLostActions onRetry={retryConnection} />,
+      onClose: retryConnection,
+    };
+  }
+
+  if (!isGuestDenied && isGuestAllowed) {
     preFlightHeader = (
       <JoiningRoomHeader
         meetingName={meetingName}
         clientTitle={CLIENT_TITLE}
         isJoining={joinRequested}
-        hasFailed={joinFailed}
       />
     );
     preFlightActions = (
       <JoiningRoomActions
         isJoining={joinRequested}
-        hasFailed={joinFailed}
-        onJoin={() => {
-          setJoinFailed(false);
-          setJoinRequested(true);
-        }}
+        onJoin={() => setJoinRequested(true)}
       />
     );
   }
@@ -300,11 +328,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
             <PreFlight
               showSetupPanel={isSettingUp || (isGuestDenied && setupPanelShown)}
               header={preFlightHeader}
-              topInfo={isGuestDenied ? (
-                <SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />
-              ) : null}
+              topInfo={<SessionInfo meetingName={meetingName} createdTime={meetingCreatedTime} />}
+              headerNamesSession={!isGuestDenied && isGuestAllowed}
               actions={preFlightActions}
               error={preFlightError}
+              gateJoinOnDevices={isSettingUp && !joinRequested}
+              commitRef={preFlightCommitRef}
             />
           )
           : null

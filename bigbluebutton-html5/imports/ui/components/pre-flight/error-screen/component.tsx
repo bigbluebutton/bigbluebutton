@@ -21,15 +21,27 @@ type BBButtonProps = React.ComponentProps<typeof BBButton>;
 export interface PreFlightErrorAction {
   label: string;
   onClick: () => void;
+  icon?: React.ReactNode;
   variant?: BBButtonProps['variant'];
   color?: BBButtonProps['color'];
   dataTest?: string;
 }
 
+export type PreFlightErrorTone = 'warning' | 'danger';
+
 interface PreFlightErrorHeaderProps {
   badge?: string;
+  // The badge's own icon; a warning sign by default.
+  badgeIcon?: React.ReactNode;
+  tone?: PreFlightErrorTone;
   title: string;
+  // The guest denial's heading wraps at 432px; the connection and device
+  // screens wrap it at 495px (275px in the phone dialog), the device title's
+  // two-line break.
+  wideTitle?: boolean;
   description?: string;
+  // Opens in a new tab: the screen it leaves holds the session.
+  helpLink?: { label: string; url: string };
   announcement?: string;
   notice?: string;
   windowTitle?: string;
@@ -38,8 +50,12 @@ interface PreFlightErrorHeaderProps {
 
 export const PreFlightErrorHeader: React.FC<PreFlightErrorHeaderProps> = ({
   badge,
+  badgeIcon = <WarningIcon />,
+  tone = 'warning',
   title,
+  wideTitle = false,
   description,
+  helpLink,
   announcement,
   notice,
   windowTitle,
@@ -53,17 +69,27 @@ export const PreFlightErrorHeader: React.FC<PreFlightErrorHeaderProps> = ({
     <>
       <Styled.ErrorBlock role="alert" data-test={dataTest}>
         {badge && (
-          <Styled.NoticeBadge>
-            <WarningIcon aria-hidden="true" />
+          <Styled.NoticeBadge $tone={tone}>
+            <Styled.BadgeIcon aria-hidden="true">{badgeIcon}</Styled.BadgeIcon>
             {badge}
           </Styled.NoticeBadge>
         )}
         <Styled.ErrorText>
-          <Styled.ErrorHeading id={ERROR_HEADING_ID}>{title}</Styled.ErrorHeading>
+          <Styled.ErrorHeading id={ERROR_HEADING_ID} $wide={wideTitle}>{title}</Styled.ErrorHeading>
           {description && <Styled.ErrorDescription>{description}</Styled.ErrorDescription>}
         </Styled.ErrorText>
         {announcement && <span className="sr-only">{announcement}</span>}
       </Styled.ErrorBlock>
+      {helpLink?.url && (
+        <Styled.HelpLink
+          href={helpLink.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-test="preFlightErrorHelpLink"
+        >
+          {helpLink.label}
+        </Styled.HelpLink>
+      )}
       {notice && (
         <Styled.ErrorNotice aria-live="off" data-test="preFlightErrorNotice">
           {notice}
@@ -80,13 +106,14 @@ interface PreFlightErrorActionsProps {
 export const PreFlightErrorActions: React.FC<PreFlightErrorActionsProps> = ({ actions }) => (
   <Styled.ErrorActions>
     {actions.map(({
-      label, onClick, variant = 'subtle', color = 'default', dataTest,
+      label, onClick, icon, variant = 'subtle', color = 'default', dataTest,
     }) => (
       <BBButton
         key={label}
         variant={variant}
         color={color}
         label={label}
+        iconStart={icon}
         onClick={onClick}
         dataTest={dataTest}
       />
