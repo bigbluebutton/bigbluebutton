@@ -1627,7 +1627,7 @@
     "app.createBreakoutRoom.increaseBreakoutTime": "Increase breakout time",
     "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
     "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
-    "app.createBreakoutRoom.roomOptions": "Room options",
+    "app.createBreakoutRoom.roomOptions": "Raumoptionen",
     "app.createBreakoutRoom.unassignedUsers": "Noch nicht zugewiesene Personen",
     "app.createBreakoutRoom.youAreInRoom": "Du bist in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Moderation rufen",
