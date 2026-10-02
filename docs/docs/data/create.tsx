@@ -277,7 +277,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. Since 3.0.38 it also withholds other viewers' talking indicator, voice state and reactions; moderators remain visible. (added 2.2)</>)
   },
   {
     "name": "lockSettingsLockOnJoin",
