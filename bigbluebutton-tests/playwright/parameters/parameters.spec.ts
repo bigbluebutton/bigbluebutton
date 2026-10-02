@@ -79,6 +79,15 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.duration();
   });
 
+  test('Meeting Duration Above Remaining Time Threshold', async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, {
+      createParameter: c.durationAboveRemainingTimeThreshold,
+      testInfo,
+    });
+    await createParam.durationAboveRemainingTimeThreshold();
+  });
+
   test('Message Only To Moderators', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, {

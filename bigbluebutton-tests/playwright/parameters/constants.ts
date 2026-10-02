@@ -13,6 +13,7 @@ export const constants = {
   bannerColor: `bannerColor=${'#FFFF00'}`,
   maxParticipants: 'maxParticipants=2',
   duration: 'duration=2',
+  durationAboveRemainingTimeThreshold: 'duration=40',
   messageModerator: 'This is a moderator only message',
   moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
   webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
