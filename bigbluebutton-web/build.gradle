@@ -25,6 +25,8 @@ buildscript {
   configurations.classpath {
     resolutionStrategy {
       force 'com.google.protobuf:protobuf-java:3.25.5'
+      // asset-pipeline-gradle -> ant 1.10.15 (build classpath only); 1.10.18 fixes a path-traversal advisory
+      force 'org.apache.ant:ant:1.10.18'
     }
   }
 }
@@ -73,6 +75,10 @@ dependencies {
     // asset-pipeline -> closure-compiler, on the asset/dev and test classpaths only
     assetDevelopmentRuntime "com.google.protobuf:protobuf-java:3.25.5"
     testRuntimeOnly "com.google.protobuf:protobuf-java:3.25.5"
+    // junrar is reached only via tika-parser-pkg-module (bbb-common-web); 7.6.0 has a directory-traversal advisory
+    implementation("com.github.junrar:junrar") {
+      version { strictly "7.6.1" }
+    }
   }
 
   // Spring Boot managed libs – version comes from `springVersion` property
@@ -111,7 +117,7 @@ dependencies {
   implementation "io.projectreactor:reactor-core"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
-  implementation "org.freemarker:freemarker:2.3.34"
+  implementation "org.freemarker:freemarker:2.3.35"
   implementation "com.google.code.gson:gson:2.11.0"
   implementation "org.json:json:20241224"
   implementation "com.zaxxer:nuprocess:2.0.6"
@@ -132,6 +138,8 @@ dependencies {
 
 configurations.all {
   resolutionStrategy {
+    // grails-console (console config, dev-only) -> ivy 2.5.3; 2.6.0 fixes a directory-traversal advisory
+    force 'org.apache.ivy:ivy:2.6.0'
     dependencySubstitution {
       substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.20.0')
     }

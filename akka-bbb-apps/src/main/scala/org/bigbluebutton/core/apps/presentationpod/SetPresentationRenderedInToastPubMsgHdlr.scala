@@ -24,9 +24,7 @@ trait SetPresentationUploadCompletionNotifiedPubMsgHdlr extends RightsManagement
       val meetingId = liveMeeting.props.meetingProp.intId
       val presentationId = msg.body.presentationId
 
-      if (PresentationPodsApp.presentationBelongsToMeeting(state, presentationId)) {
-        PresPresentationDAO.setPresentationUploadCompletionNotified(meetingId, presentationId)
-      }
+      PresPresentationDAO.setPresentationUploadCompletionNotified(meetingId, presentationId)
     }
     state
   }
