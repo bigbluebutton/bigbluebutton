@@ -242,17 +242,16 @@ const getEffectiveAudioProcessingMode = () => {
 const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
   const Settings = getSettingsSingletonInstance();
-  const configuredConstraints = window.meetingClientSettings.public
-    .media.audio.microphoneConstraints;
   // Derive from the effective mode rather than the persisted constraints: an
   // 'advanced' pick that later loses WASM support resolves to 'standard', and
   // the all-false constraints it stored must not survive that coercion.
   // microphoneConstraints only speaks for a pre-4.0 record with no mode of
-  // its own.
+  // its own; media.audio.microphoneConstraints needs no rung of its own
+  // because getConstraintsForMode('standard') already returns it - honouring
+  // it under 'advanced'/'original' would leave the browser's own filters on.
   const audioDeviceConstraints = hasPersistedChange(SETTINGS.AUDIO, 'processingMode')
     ? getConstraintsForMode(getEffectiveAudioProcessingMode())
     : Settings.application.microphoneConstraints
-      || configuredConstraints
       || getConstraintsForMode(getEffectiveAudioProcessingMode());
 
   const matchConstraints = filterSupportedConstraints(
