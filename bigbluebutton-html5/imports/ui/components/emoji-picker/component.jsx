@@ -8,12 +8,16 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   onEmojiSelect: PropTypes.func.isRequired,
+  include: PropTypes.arrayOf(PropTypes.string),
+  exceptEmojis: PropTypes.arrayOf(PropTypes.string),
 };
 
 const EmojiPicker = (props) => {
   const {
     intl,
     onEmojiSelect,
+    include,
+    exceptEmojis,
   } = props;
 
   const i18n = {
@@ -44,17 +48,12 @@ const EmojiPicker = (props) => {
     },
   };
 
-  const DISABLE_EMOJIS = window.meetingClientSettings.public.chat.disableEmojis;
-
-  const emojisToExclude = [
-    ...DISABLE_EMOJIS,
-  ];
-
   // HACK: the library sets the width after it renders
   //       this code fixes that, but is kinda ugly and only works if
   //       we never render more than one emoji-picker at the same time
   useEffect(() => {
-    document.getElementsByTagName('em-emoji-picker')[0].style.width = 'auto';
+    const picker = document.getElementsByTagName('em-emoji-picker')[0];
+    if (picker) picker.style.width = 'auto';
   });
 
   return (
@@ -66,7 +65,8 @@ const EmojiPicker = (props) => {
       skinTonePosition="none"
       theme="light"
       dynamicWidth
-      exceptEmojis={emojisToExclude}
+      include={include}
+      exceptEmojis={exceptEmojis}
       autoFocus
     />
   );
