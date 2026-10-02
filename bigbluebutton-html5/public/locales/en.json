@@ -1732,6 +1732,7 @@
     "app.learningDashboard.indicators.timeline": "Timeline",
     "app.learningDashboard.indicators.activityScore": "Activity Score",
     "app.learningDashboard.indicators.duration": "Duration",
+    "app.learningDashboard.indicators.meetingIncompleteData": "The final data of this meeting was not recorded. Times are counted until the last recorded activity.",
     "app.learningDashboard.userDetails.startTime": "Start Time",
     "app.learningDashboard.userDetails.endTime": "End Time",
     "app.learningDashboard.userDetails.joined": "Joined",
