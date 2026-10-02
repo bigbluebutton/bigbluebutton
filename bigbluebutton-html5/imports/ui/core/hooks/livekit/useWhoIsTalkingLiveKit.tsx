@@ -51,6 +51,17 @@ const createUseWhoIsTalkingLiveKit = () => {
   function useWhoIsTalking(userId?: string): TalkingUsersState | TalkingUserState {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
     const whoIsTalkingData = useData(userId);
+
+    if (!shouldUseLiveKit) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
+
+    return whoIsTalkingData as TalkingUsersState | TalkingUserState;
+  }
+
+  // Writes the state every consumer above reads, from the primary room.
+  // Mounted once, by LiveKitVoiceActivityAdapter: the room subscriptions below
+  // re-render their host on every active-speaker update.
+  const useDeriveWhoIsTalking = () => {
+    const shouldUseLiveKit = useShouldUseLiveKitAudioState();
     const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
       room,
@@ -64,9 +75,6 @@ const createUseWhoIsTalkingLiveKit = () => {
     const { localParticipant } = useLocalParticipant({ room });
     const connectionState = useConnectionState(room);
     const subscribedAudioUsers = useSubscribedAudioUsers();
-    // Always read the full BBB record: the effect below writes the shared state,
-    // so narrowing it to userId would blank every other user for every consumer.
-    // userId filters on the read side only, through useData above.
     const { data: bbbTalkingUsers } = useWhoIsTalkingGraphql();
 
     useEffect(() => {
@@ -116,16 +124,13 @@ const createUseWhoIsTalkingLiveKit = () => {
       subscribedAudioUsers,
       bbbTalkingUsers,
     ]);
-
-    if (!shouldUseLiveKit) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
-
-    return whoIsTalkingData as TalkingUsersState | TalkingUserState;
-  }
+  };
 
   return {
     useWhoIsTalking: useWhoIsTalking as UseWhoIsTalkingLiveKitHook,
     useWhoIsTalkingConsumersCount: useConsumersCount,
     setWhoIsTalkingLoading: setLoading,
+    useDeriveWhoIsTalking,
   };
 };
 
@@ -133,12 +138,14 @@ const {
   useWhoIsTalking,
   useWhoIsTalkingConsumersCount,
   setWhoIsTalkingLoading,
+  useDeriveWhoIsTalking,
 } = createUseWhoIsTalkingLiveKit();
 
 export {
   useWhoIsTalking,
   useWhoIsTalkingConsumersCount,
   setWhoIsTalkingLoading,
+  useDeriveWhoIsTalking,
 };
 
 export default useWhoIsTalking;
