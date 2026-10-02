@@ -21,24 +21,63 @@ trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
-    log.info("handleAssignPresenterReqMsg: assignedBy={} newPresenterId={}", msg.body.assignedBy, msg.body.newPresenterId)
-    AssignPresenterActionHandler.handleAction(liveMeeting, outGW, msg.body.assignedBy, msg.body.newPresenterId)
+    log.info(
+      "handleAssignPresenterReqMsg: requestedBy={} assignedBy={} newPresenterId={}",
+      msg.header.userId, msg.body.assignedBy, msg.body.newPresenterId
+    )
 
-    // Change presenter of default presentation pod
-    SetPresenterInPodActionHandler.handleAction(state, liveMeeting, outGW,
-      msg.header.userId, PresentationPod.DEFAULT_PRESENTATION_POD,
-      msg.body.newPresenterId)
+    val authorized = AssignPresenterActionHandler.handleAction(
+      liveMeeting, outGW, msg.header.userId, msg.body.assignedBy, msg.body.newPresenterId
+    )
+
+    if (authorized) {
+      // Change presenter of default presentation pod
+      SetPresenterInPodActionHandler.handleAction(state, liveMeeting, outGW,
+        msg.header.userId, PresentationPod.DEFAULT_PRESENTATION_POD,
+        msg.body.newPresenterId)
+    } else {
+      state
+    }
   }
 
 }
 
 object AssignPresenterActionHandler extends RightsManagementTrait {
 
-  def handleAction(liveMeeting: LiveMeeting, outGW: OutMsgRouter, assignedBy: String, newPresenterId: String): Unit = {
-    if (!liveMeeting.props.meetingProp.isBreakout && permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
+  /**
+   * Decides whether requesterId may change the presenter of the meeting.
+   *
+   * requesterId must be the authenticated sender of the request, taken from the
+   * message header. A field carried in the message body is chosen by the caller
+   * and therefore cannot be used to authorize that same caller.
+   *
+   * Lives in the companion object so the decision can be unit tested without
+   * standing up a LiveMeeting.
+   */
+  def isAllowedToAssignPresenter(users: Users2x, requesterId: String, isBreakout: Boolean): Boolean = {
+    isBreakout ||
+      !permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, users, requesterId)
+  }
+
+  /**
+   * Applies the presenter change when requesterId is allowed to make it.
+   *
+   * assignedBy is only the label shown to participants (presenter events and the
+   * chat notice); it never decides whether the change is allowed.
+   *
+   * @return true when the request was authorized, false when it was denied.
+   *         Callers must skip presenter side effects, such as assigning the
+   *         presenter of the presentation pod, when this returns false.
+   */
+  def handleAction(liveMeeting: LiveMeeting, outGW: OutMsgRouter, requesterId: String,
+                   assignedBy: String, newPresenterId: String): Boolean = {
+    val authorized = isAllowedToAssignPresenter(liveMeeting.users2x, requesterId,
+      liveMeeting.props.meetingProp.isBreakout)
+
+    if (!authorized) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change presenter in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, assignedBy, reason, outGW, liveMeeting)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, requesterId, reason, outGW, liveMeeting)
     } else {
       for {
         oldPres <- Users2x.findPresenter(liveMeeting.users2x)
@@ -126,10 +165,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       )
 
       if (announcePresenterChangeInChat) {
-        val assignedByName = Users2x.findWithIntId(liveMeeting.users2x, assignedBy).get match {
-          case u: UserState => u.name
-          case _            => ""
-        }
+        val assignedByName = Users2x.findWithIntId(liveMeeting.users2x, assignedBy).map(_.name).getOrElse("")
 
         val hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
         val shouldSkip = hideUserList && newPres.role == Roles.VIEWER_ROLE
@@ -141,5 +177,6 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       }
     }
 
+    authorized
   }
 }
