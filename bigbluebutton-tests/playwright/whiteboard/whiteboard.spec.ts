@@ -242,6 +242,24 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slidePosition.restoresPositionsAcrossDifferentZooms();
   });
 
+  test('Toolbar-zoomed slide is restored after a fit-to-width slide', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
+  });
+
+  test('Fit-to-width slide keeps its toolbar zoom across a round trip', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresFitToWidthPageWithToolbarZoom();
+  });
+
   test.describe.parallel('Shape Options', () => {
     test('Duplicate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);

@@ -227,6 +227,7 @@ const Whiteboard = React.memo((props) => {
   const pageJustChangedRef = useRef(false);
   const incomingPageZoomRef = useRef(null);
   const suppressNextZoomSyncRef = useRef(false);
+  const pendingPageRestoreRef = useRef(null);
   const isPresenterRef = useRef(isPresenter);
   const viewerCanPanRef = useRef(viewerCanPan);
   const pageActualZoomRatioRef = useRef(_pageZoomRatioCache);
@@ -416,7 +417,9 @@ const Whiteboard = React.memo((props) => {
       }
 
       initialZoomRef.current = initialZoom;
-      prevZoomValueRef.current = zoomValue;
+      // Read the ref: this debounced closure can hold a zoomValue older than the one the
+      // zoom effect has already handled.
+      prevZoomValueRef.current = zoomValueRef.current;
     }
   }, 200);
 
@@ -949,6 +952,11 @@ const Whiteboard = React.memo((props) => {
     });
   };
 
+  const getPendingPageRestore = () => {
+    const pending = pendingPageRestoreRef.current;
+    return pending && pending.pageId === String(curPageIdRef.current) ? pending : null;
+  };
+
   const calculateZoomValue = (localWidth, localHeight) => {
     const calcedZoom = fitToWidth
       ? presentationAreaWidth / localWidth
@@ -1145,12 +1153,30 @@ const Whiteboard = React.memo((props) => {
             baseZoom = zoomWithGap;
           }
 
-          coreCameraLogic({
-            baseZoom,
-            xOffset,
-            yOffset,
-            description: '(presenter)',
-          });
+          // The server offsets belong to the page's zoomed view, so pair them with its
+          // toolbar zoom. A mount can run more than once for the same editor; every run
+          // must write the same camera.
+          const pendingRestore = getPendingPageRestore();
+          const pageZoom = pendingRestore?.zoom ?? (zoomValueRef.current || HUNDRED_PERCENT);
+          // At 100% keep baseZoom as is: the multiplication can move it by one ulp, which
+          // is enough to fire a camera change the mount never used to produce.
+          const presenterZoom = pageZoom === HUNDRED_PERCENT
+            ? baseZoom
+            : (baseZoom * pageZoom) / HUNDRED_PERCENT;
+          if (pendingRestore) {
+            setPageCamera(`page:${curPageIdRef.current}`, {
+              x: pendingRestore.x,
+              y: pendingRestore.y,
+              z: presenterZoom,
+            });
+          } else {
+            coreCameraLogic({
+              baseZoom: presenterZoom,
+              xOffset,
+              yOffset,
+              description: '(presenter)',
+            });
+          }
         } else if (includeViewerLogic) {
           // Viewer logic
           baseZoom = calculateZoomValueRef.current(scaledViewBoxWidth, scaledViewBoxHeight);
@@ -1177,6 +1203,8 @@ const Whiteboard = React.memo((props) => {
     } catch (error) {
       logger.error({ logCode: 'AdjustCameraOnMount' }, `Failed to store viewbox: ${error}`);
       throw error;
+    } finally {
+      pendingPageRestoreRef.current = null;
     }
   };
 
@@ -1879,6 +1907,9 @@ const Whiteboard = React.memo((props) => {
       || !currentPresentationPageRef.current
       || presentationAreaWidth <= 0
       || presentationAreaHeight <= 0
+      // The remounted editor's mount restores this page; a sync now would write and
+      // publish a camera that the restore replaces.
+      || getPendingPageRestore()
     ) {
       return;
     }
@@ -2081,6 +2112,12 @@ const Whiteboard = React.memo((props) => {
     };
   }, [whiteboardRef.current]);
 
+  const prevFitToWidth = usePrevious(fitToWidth);
+
+  React.useEffect(() => {
+    pendingPageRestoreRef.current = null;
+  }, [isPresenter]);
+
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
     setPageZoomMap((prev) => ({
@@ -2094,13 +2131,31 @@ const Whiteboard = React.memo((props) => {
       // (cleared on unmount). Guard against it to preserve the toolbar zoom value
       // after a minimize → restore cycle.
       if (prevCurPageId === undefined) {
+        pendingPageRestoreRef.current = null;
         prevZoomValueRef.current = zoomValue;
         return;
       }
       const storedZoom = pageZoomMap[`${presentationIdRef.current}_${curPageIdRef.current}`] || HUNDRED_PERCENT;
       incomingPageZoomRef.current = storedZoom;
+      // The editor is keyed by fitToWidth, so a page change that flips it mounts a new
+      // editor and the restore in applyPageSwap lands on the discarded one. The new
+      // editor's mount (adjustCameraOnMount) restores the page instead.
+      const remountsEditor = isPresenter
+        && prevFitToWidth !== undefined
+        && prevFitToWidth !== fitToWidth;
+      pendingPageRestoreRef.current = remountsEditor
+        ? {
+          pageId: String(curPageId),
+          zoom: storedZoom,
+          x: currentPresentationPage?.xOffset ?? 0,
+          y: currentPresentationPage?.yOffset ?? 0,
+        }
+        : null;
       zoomChanger(storedZoom);
       pageJustChangedRef.current = true;
+      // Keep the outgoing page's value: the incoming zoom arrives through zoomChanger and
+      // must still count as a change.
+      prevZoomValueRef.current = zoomValue;
       return;
     }
 
@@ -2112,7 +2167,14 @@ const Whiteboard = React.memo((props) => {
       && !isWheelZoomRef.current
     ) {
       if (!isMounting && prevZoomValueRef.current !== zoomValue) {
-        if (suppressNextZoomSyncRef.current) {
+        // The presenter zoomed before the remounted editor restored the page: that zoom
+        // wins, so the regular sync and mount take over from the restore.
+        if (getPendingPageRestore() && getPendingPageRestore().zoom !== zoomValue) {
+          pendingPageRestoreRef.current = null;
+        }
+        // A page restore owns this zoom change: either the swap already applied it, or a
+        // remounted editor will apply it on mount.
+        if (suppressNextZoomSyncRef.current || getPendingPageRestore()) {
           suppressNextZoomSyncRef.current = false;
         } else {
           syncCameraOnPresenterZoom();
@@ -2121,8 +2183,6 @@ const Whiteboard = React.memo((props) => {
     }
     prevZoomValueRef.current = zoomValue;
   }, [zoomValue, pageChanged, tlEditorRef.current]);
-
-  const prevFitToWidth = usePrevious(fitToWidth);
 
   React.useEffect(() => {
     if (prevFitToWidth !== undefined

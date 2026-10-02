@@ -1,10 +1,29 @@
-import { expect } from '@playwright/test';
+import { expect, type Page as PlaywrightPage } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { uploadSinglePresentation } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
 import { getTldrawCamera, getTldrawEditor, type TldrawCamera } from './util';
+
+// Toggling fit-to-width remounts the editor and its mount code moves the camera again
+// about a second later; wait for the camera to stop changing.
+async function waitForSettledCamera(page: PlaywrightPage, label: string) {
+  await expect
+    .poll(
+      async () => {
+        const before = await getTldrawCamera(page);
+        await page.waitForTimeout(800);
+        const after = await getTldrawCamera(page);
+        return JSON.stringify(before) === JSON.stringify(after);
+      },
+      {
+        message: label,
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      },
+    )
+    .toBe(true);
+}
 
 export class SlidePosition extends MultiUsers {
   private async waitForExactCamera(pageNumber: number, expected: TldrawCamera[], label: string) {
@@ -45,6 +64,73 @@ export class SlidePosition extends MultiUsers {
         })
         .toBeCloseTo(expectedY, 0);
     }
+  }
+
+  private async zoomIn(times: number) {
+    for (let index = 0; index < times; index += 1) {
+      await this.modPage.page.locator(e.zoomInButton).evaluate((button: HTMLButtonElement) => button.click());
+      await this.modPage.page.waitForTimeout(700);
+    }
+  }
+
+  // Pans the presenter to a non-boundary y (wheel pans tend to stop at the pan clamp, which
+  // would hide a wrong restore) and returns both cameras once the viewer has followed.
+  private async panPresenterTo(y: number, label: string) {
+    const editor = await getTldrawEditor(this.modPage.page);
+    await editor.evaluate((value, targetY) => {
+      const camera = value.getCamera();
+      value.setCamera({ ...camera, y: targetY });
+    }, y);
+    await editor.dispose();
+    await expect
+      .poll(async () => (await getTldrawCamera(this.userPage.page))?.y, {
+        message: `${label} reaches the viewer`,
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(y, 0);
+    await this.waitForSettledPresenterCamera(`${label} settles for the presenter`);
+    await waitForSettledCamera(this.userPage.page, `${label} settles for the viewer`);
+    return (await Promise.all([
+      getTldrawCamera(this.modPage.page),
+      getTldrawCamera(this.userPage.page),
+    ])) as TldrawCamera[];
+  }
+
+  private async waitForSettledPresenterCamera(label: string) {
+    await waitForSettledCamera(this.modPage.page, label);
+  }
+
+  // Wheel pans always reach viewers; an API camera write in fit-to-width is only published
+  // when the rounded zoom percentage matches the toolbar.
+  private async wheelPresenterDown(ticks: number, label: string) {
+    const bounds = await this.modPage.page.locator(e.whiteboard).boundingBox();
+    if (!bounds) throw new Error('whiteboard bounding box not available');
+    await this.modPage.page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    for (let i = 0; i < ticks; i += 1) await this.modPage.page.mouse.wheel(0, 100);
+    await this.waitForSettledPresenterCamera(`${label} settles for the presenter`);
+    const presenterY = (await getTldrawCamera(this.modPage.page))!.y;
+    await expect
+      .poll(async () => (await getTldrawCamera(this.userPage.page))?.y, {
+        message: `${label} reaches the viewer`,
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(presenterY, 0);
+    await waitForSettledCamera(this.userPage.page, `${label} settles for the viewer`);
+    return (await Promise.all([
+      getTldrawCamera(this.modPage.page),
+      getTldrawCamera(this.userPage.page),
+    ])) as TldrawCamera[];
+  }
+
+  // A toolbar zoom click right after a restore must still move the presenter camera.
+  private async expectToolbarZoomStillApplies(restoredZ: number, label: string) {
+    await this.zoomIn(1);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: label,
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(restoredZ * 1.05);
   }
 
   private async scrollTo(direction: 'top' | 'bottom') {
@@ -127,13 +213,7 @@ export class SlidePosition extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
     await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
-    const zoomIn = async (times: number) => {
-      for (let index = 0; index < times; index += 1) {
-        await this.modPage.page.locator(e.zoomInButton).evaluate((button: HTMLButtonElement) => button.click());
-        await this.modPage.page.waitForTimeout(700);
-      }
-    };
-    await zoomIn(2);
+    await this.zoomIn(2);
     await expect
       .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
         message: 'page 1 reaches toolbar zoom 150%',
@@ -159,7 +239,7 @@ export class SlidePosition extends MultiUsers {
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.waitForCamera(2, 0, 'opens page 2 before changing its zoom');
-    await zoomIn(1);
+    await this.zoomIn(1);
     await expect
       .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
         message: 'page 2 reaches toolbar zoom 125%',
@@ -187,5 +267,68 @@ export class SlidePosition extends MultiUsers {
     await this.waitForExactCamera(1, pageOne, 'restores the 150% page camera');
     await this.modPage.waitAndClick(e.nextSlide);
     await this.waitForExactCamera(2, pageTwo, 'restores the 125% page camera');
+  }
+
+  // The whiteboard editor is remounted when fit-to-width differs between the two pages, so
+  // the restore must also hold on the new editor, toolbar zoom included.
+  async restoresToolbarZoomAfterFitToWidthChange() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.waitForCamera(2, 0, 'opens page 2 at its own top');
+    await this.zoomIn(2);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'page 2 reaches toolbar zoom 150%',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(0.75);
+    const pageTwo = await this.panPresenterTo(-250, 'page 2 non-boundary pan');
+
+    await this.modPage.waitAndClick(e.prevSlide);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.pageId, {
+        message: 'presenter is back on page 1',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBe('page:1');
+    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await this.waitForSettledPresenterCamera('fit-to-width camera settles');
+
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.waitForExactCamera(2, pageTwo, 'restores the 150% page after leaving a fit-to-width page');
+    await this.expectToolbarZoomStillApplies(pageTwo[0].z, 'toolbar zoom-in still applies after the restore');
+  }
+
+  async restoresFitToWidthPageWithToolbarZoom() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await this.waitForCamera(1, 0, 'page 1 in fit-to-width at its top');
+    await this.waitForSettledPresenterCamera('fit-to-width camera settles');
+    const fitToWidthZ = (await getTldrawCamera(this.modPage.page))!.z;
+    await this.zoomIn(1);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'page 1 reaches toolbar zoom 125% on top of fit-to-width',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(fitToWidthZ * 1.2);
+    const pageOne = await this.wheelPresenterDown(4, 'page 1 partial pan');
+    expect(pageOne[0].y, 'page 1 should pan below its top').toBeLessThan(-100);
+    expect(pageOne[0].z, 'page 1 keeps its 125% toolbar zoom after the pan').toBeGreaterThan(fitToWidthZ * 1.2);
+
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.waitForCamera(2, 0, 'opens page 2 at its own top');
+    await this.modPage.waitAndClick(e.prevSlide);
+    await this.waitForExactCamera(1, pageOne, 'restores the zoomed fit-to-width page');
+    // A late presenter publish used to move viewers ~1.5s after the restore.
+    await this.modPage.page.waitForTimeout(3000);
+    await this.waitForExactCamera(1, pageOne, 'keeps the restored camera after late camera syncs');
+    await this.expectToolbarZoomStillApplies(pageOne[0].z, 'toolbar zoom-in still applies after the round trip');
   }
 }
