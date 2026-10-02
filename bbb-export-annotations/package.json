@@ -15,7 +15,7 @@
     "perfect-freehand": "^1.2.2",
     "redis": "^4.7.0",
     "sanitize-filename": "^1.6.3",
-    "svgdom": "^0.1.20",
+    "svgdom": "^0.1.29",
     "wawoff2": "^2.0.1"
   },
   "devDependencies": {

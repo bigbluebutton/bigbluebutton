@@ -710,6 +710,7 @@
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",
     "app.talkingIndicator.ariaMuteDesc": "Select to mute user",
+    "app.talkingIndicator.hiddenUser": "Hidden participant",
     "app.talkingIndicator.isTalking": "{userName} is talking",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ are talking",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ were talking",

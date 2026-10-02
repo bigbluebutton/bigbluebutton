@@ -143,14 +143,15 @@ module BigBlueButton
       return filename.split("/")[-1].split("-")[1]
     end
 
-    def self.extract_filename_from_userId(userId, filenames_list)
-      filename_return = ""
-      filenames_list.each do |filename|
-        if !filename.match(userId).nil?
-          filename_return = filename
-        end
+    # Moves every video of the user, since a user can share more than one camera.
+    # Returns whether any video was moved.
+    def self.move_user_videos(user_id, from_videos, to_videos)
+      user_videos, other_videos = from_videos.partition do |filename|
+        BigBlueButton::Events.get_id_from_filename(filename) == user_id
       end
-      return filename_return
+      from_videos.replace(other_videos)
+      to_videos.concat(user_videos)
+      !user_videos.empty?
     end
 
     def self.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator)
@@ -159,11 +160,7 @@ module BigBlueButton
         list_user_info.each do |user_id, user_role|
           # If the user is a viewer:
           if !BigBlueButton::Events.is_user_moderator(user_id, list_user_info)
-            filename = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
-            if filename != ""
-              active_videos.delete(filename)
-              inactive_videos << filename
-            end
+            BigBlueButton::Events.move_user_videos(user_id, active_videos, inactive_videos)
           end
         end
       else
@@ -282,8 +279,7 @@ module BigBlueButton
               active_videos.each do |filename|
                 edl_entry[:areas][:webcam] << {
                   :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp],
-                  :user_id => BigBlueButton::Events.get_id_from_filename(filename)
+                  :timestamp => timestamp - videos[filename][:timestamp]
                 }
               end
               video_edl << edl_entry
@@ -306,8 +302,7 @@ module BigBlueButton
               active_videos.each do |filename|
                 edl_entry[:areas][:webcam] << {
                   :filename => filename,
-                  :timestamp => timestamp - videos[filename][:timestamp],
-                  :user_id => BigBlueButton::Events.get_id_from_filename(filename)
+                  :timestamp => timestamp - videos[filename][:timestamp]
                 }
               end
               video_edl << edl_entry
@@ -322,17 +317,12 @@ module BigBlueButton
           when "ParticipantStatusChangeEvent"
             is_in_forbidden_period = webcamsOnlyForModerator
             userId = ""
-            filename_to_add = ""
 
             if event.at_xpath('status').text == "role" 
               userId = event.at_xpath('userId').text
 
               if is_in_forbidden_period && event.at_xpath('value').text == "MODERATOR"
-                filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, inactive_videos)
-                if filename_to_add != ""
-                  inactive_videos.delete(filename_to_add)
-                  active_videos << filename_to_add
-
+                if BigBlueButton::Events.move_user_videos(userId, inactive_videos, active_videos)
                   edl_entry = {
                     :timestamp => timestamp,
                     :areas => { :webcam => [] }
@@ -340,18 +330,13 @@ module BigBlueButton
                   active_videos.each do |filename|
                     edl_entry[:areas][:webcam] << {
                       :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
+                      :timestamp => timestamp - videos[filename][:timestamp]
                     }
                   end
                   video_edl << edl_entry
                 end
               elsif is_in_forbidden_period && event.at_xpath('value').text == "VIEWER"
-                filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, active_videos)
-                if filename_to_add != ""
-                  active_videos.delete(filename_to_add)
-                  inactive_videos << filename_to_add
-
+                if BigBlueButton::Events.move_user_videos(userId, active_videos, inactive_videos)
                   edl_entry = {
                     :timestamp => timestamp,
                     :areas => { :webcam => [] }
@@ -359,8 +344,7 @@ module BigBlueButton
                   active_videos.each do |filename|
                     edl_entry[:areas][:webcam] << {
                       :filename => filename,
-                      :timestamp => timestamp - videos[filename][:timestamp],
-                      :user_id => userId
+                      :timestamp => timestamp - videos[filename][:timestamp]
                     }
                   end
                   video_edl << edl_entry
@@ -390,8 +374,7 @@ module BigBlueButton
             active_videos.each do |filename|
               edl_entry[:areas][:webcam] << {
                 :filename => filename,
-                :timestamp => timestamp - videos[filename][:timestamp],
-                :user_id => userId
+                :timestamp => timestamp - videos[filename][:timestamp]
               }
             end
             video_edl << edl_entry

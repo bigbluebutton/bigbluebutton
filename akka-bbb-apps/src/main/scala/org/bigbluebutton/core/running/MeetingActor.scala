@@ -59,6 +59,7 @@ import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 import java.time._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object MeetingActor {
   def props(
@@ -324,6 +325,7 @@ class MeetingActor(
     case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg, state)
     case msg: UpdateBreakoutRoomTimeInternalMsg    => state = handleUpdateBreakoutRoomTimeInternalMsgHdlr(msg, state)
     case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
+    case msg: UpdateBreakoutUserAccessInternalMsg  => handleUpdateBreakoutUserAccessInternalMsg(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: CapturePresentationReqInternalMsg    => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
@@ -1151,6 +1153,20 @@ class MeetingActor(
 
         val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
         UserDAO.update(updatedRegUser)
+
+        // Signal the membership change to bbb-graphql-middleware, which re-reads the user's
+        // session state on this request. Every path that ends a user's membership sends it.
+        //
+        // Off the actor thread: the request is a blocking HTTP call that throws when the
+        // middleware is unreachable, and one audit tick can remove many users.
+        Future {
+          try {
+            GraphqlMiddleware.requestGraphqlReconnection(ru.sessionToken, "user_left_expired")
+          } catch {
+            case e: Throwable =>
+              log.warning("Failed to request graphql reconnection for removed user {}: {}", u.intId, e.getMessage)
+          }
+        }
 
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)

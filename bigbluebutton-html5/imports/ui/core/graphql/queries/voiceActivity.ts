@@ -11,6 +11,8 @@ export interface VoiceActivityResponse {
       color: string;
       name: string;
       speechLocale: string | undefined;
+      // Sent by bbb-graphql-middleware with every row; not in the selection set below.
+      role?: string;
     };
   }>;
 }

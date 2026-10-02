@@ -37,6 +37,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
         callingWith = "flash",
         callerName = user.name,
         callerNum = user.name,
+        role = user.role,
         color = user.color,
         speechLocale = user.speechLocale,
         muted = true,

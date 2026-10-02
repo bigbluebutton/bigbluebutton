@@ -9,7 +9,7 @@ import {
 import { ConnectionState, RoomEvent, Track } from 'livekit-client';
 import { liveKitRoom } from '/imports/ui/services/livekit';
 import Auth from '/imports/ui/services/auth';
-import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
+import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 import useWhoIsUnmutedGraphql from '../useWhoIsUnmutedGraphql';
 import { UnmutedUsersState } from '../types';
 
@@ -28,7 +28,9 @@ const createUseWhoIsUnmutedLiveKit = () => {
   const getWhoIsUnmuted = () => stateVar();
   const useWhoIsUnmutedConsumersCount = () => useReactiveVar(countVar);
   const useWhoIsUnmuted = () => {
-    const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+    // Gated on the bridge, not the useLiveKitAudioState opt-in: selective subscription reads this
+    // directly to decide which audio tracks to subscribe, whatever that opt-in says.
+    const isLiveKitActive = useIsUsingLiveKitAudio();
     const remoteParticipants = useRemoteParticipants({
       room: liveKitRoom,
       updateOnlyOn: [
@@ -49,7 +51,7 @@ const createUseWhoIsUnmutedLiveKit = () => {
 
     useEffect(() => {
       // Only track consumers when LiveKit is actually used
-      if (!shouldUseLiveKit) return undefined;
+      if (!isLiveKitActive) return undefined;
 
       countVar(countVar() + 1);
       return () => {
@@ -58,10 +60,10 @@ const createUseWhoIsUnmutedLiveKit = () => {
           setWhoIsUnmutedState({});
         }
       };
-    }, [shouldUseLiveKit]);
+    }, [isLiveKitActive]);
 
     useEffect(() => {
-      if (!shouldUseLiveKit) return;
+      if (!isLiveKitActive) return;
 
       const isConnected = connectionState === ConnectionState.Connected;
       setWhoIsUnmutedLoading(!isConnected);
@@ -109,11 +111,11 @@ const createUseWhoIsUnmutedLiveKit = () => {
       localParticipant,
       connectionState,
       microphoneTrack,
-      shouldUseLiveKit,
+      isLiveKitActive,
       bbbUnmutedUsers,
     ]);
 
-    if (!shouldUseLiveKit) return BASELINE_DATA;
+    if (!isLiveKitActive) return BASELINE_DATA;
 
     return {
       data: unmutedUsers,
