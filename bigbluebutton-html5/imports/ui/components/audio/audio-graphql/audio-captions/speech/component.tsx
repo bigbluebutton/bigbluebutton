@@ -99,6 +99,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
   const trackRef = useRef<MediaStreamTrack | null>(null);
   const trackIdRef = useRef('');
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
   const lastTranscriptionAtRef = useRef<number>(0);
@@ -210,8 +211,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       logger.debug("Speech recognition ended by browser, but we're not muted. Restart it");
       const timeSinceLastStart = new Date().getTime() - lastStartedAt.current;
       if (timeSinceLastStart < 1000) {
-        setTimeout(() => {
-          start(localeRef.current);
+        restartTimeoutRef.current = setTimeout(() => {
+          if (connectedRef.current && !mutedRef.current) start(localeRef.current);
         }, 1000 - timeSinceLastStart);
       } else {
         start(localeRef.current);
@@ -342,8 +343,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [speechRecognitionRef.current]);
 
-  const connectedRef = useRef(connected);
-  const mutedRef = useRef(muted);
+  // Not the current values, so that mounting with audio already unmuted starts the recognition
+  const connectedRef = useRef(false);
+  const mutedRef = useRef(true);
   const isRestartRef = useRef(false);
   const lastStartedAt = useRef<number>(0);
 
@@ -467,6 +469,21 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       stop();
     }
   }, [inputStream]);
+
+  useEffect(() => () => {
+    clearTimeout(restartTimeoutRef.current);
+
+    const recognition = speechRecognitionRef.current;
+    if (recognition) {
+      recognition.onend = null;
+      recognition.onerror = null;
+      recognition.onresult = null;
+      if (speechHasStarted.started) recognition.abort();
+    }
+
+    speechHasStarted.started = false;
+    releaseTrack();
+  }, []);
 
   return null;
 };
