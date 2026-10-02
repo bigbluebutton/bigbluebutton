@@ -703,4 +703,5 @@ export const playbackElements = {
   seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
   seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
   progressBar: `${videoControlBar} div.vjs-play-progress`,
+  mediaElement: 'div.video-js .vjs-tech',
 } as const;
