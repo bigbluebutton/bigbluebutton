@@ -34,6 +34,9 @@ buildscript {
 version = "0.10.0"
 group = "org.bigbluebutton.web"
 
+// TODO: remove once springVersion manages Tomcat >= 11.0.26 (4.1.1 manages 11.0.24).
+ext['tomcat.version'] = '11.0.26'
+
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"

@@ -209,7 +209,7 @@ Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the follo
 - Groovy 5.1.3
 - Spring Framework 7.0.9
 - Spring Boot 4.1.1
-- Tomcat (embedded) 11.0.24
+- Tomcat (embedded) 11.0.26
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
