@@ -98,7 +98,63 @@ function normalizeUserWebcams(activitiesJson) {
   return newActivities;
 }
 
-// Session conversion runs first: the webcam pass reads intId.sessions.
-export default function normalizeActivitiesJson(activitiesJson) {
-  return normalizeUserWebcams(convertUserSessionsFormat(activitiesJson));
+// When a meeting ends, the server closes every open session, webcam, screenshare and
+// talk in the report and sets endedOn. If that final update is lost (e.g. the server
+// dropped the meeting's state mid-session), the stored report keeps them open and they
+// are counted until Date.now(), growing on every access.
+//
+// For reports known to be from finished meetings, end them at their last recorded
+// activity instead, closing what was left open as the server would. Live reports must
+// not go through this: endedOn is legitimately 0 while the meeting runs.
+function closeUnfinishedReport(activitiesJson) {
+  if (activitiesJson.endedOn > 0) return activitiesJson;
+
+  const users = Object.values(activitiesJson.users || {});
+  const sessions = users.flatMap((user) => Object.values(user.intIds || {})
+    .flatMap((intId) => intId.sessions || []));
+  const intervals = [
+    ...(activitiesJson.screenshares || []),
+    ...users.flatMap((user) => user.webcams || []),
+  ];
+
+  const endedOn = [
+    activitiesJson.createdOn,
+    ...(activitiesJson.presentationSlides || []).map(({ setOn }) => setOn),
+    ...Object.values(activitiesJson.polls || {}).map(({ createdOn }) => createdOn),
+    ...sessions.flatMap(({ registeredOn, leftOn }) => [registeredOn, leftOn]),
+    ...[...intervals, ...users.flatMap((user) => user.away || [])]
+      .flatMap(({ startedOn, stoppedOn }) => [startedOn, stoppedOn]),
+    ...users.flatMap((user) => [
+      ...(user.raiseHand || []),
+      ...(user.reactions || []).map(({ sentOn }) => sentOn),
+      user.talk?.lastTalkStartedOn,
+      user.lastUserDisconnectionOn,
+    ]),
+  ].reduce((latest, ts) => (ts > latest ? ts : latest), 0);
+
+  if (endedOn === 0) return activitiesJson;
+
+  sessions.filter(({ leftOn }) => !leftOn)
+    .forEach((session) => Object.assign(session, { leftOn: endedOn }));
+  intervals.filter(({ stoppedOn }) => !stoppedOn)
+    .forEach((interval) => Object.assign(interval, { stoppedOn: endedOn }));
+  users.map(({ talk }) => talk).filter((talk) => talk?.lastTalkStartedOn > 0)
+    .forEach((talk) => Object.assign(talk, {
+      totalTime: talk.totalTime + (endedOn - talk.lastTalkStartedOn),
+      lastTalkStartedOn: 0,
+    }));
+
+  return Object.assign(activitiesJson, { endedOn, endedOnEstimated: true });
+}
+
+// Session conversion runs first: the other passes read intId.sessions. Unfinished
+// reports are closed before the webcam pass, so it clips against the closed sessions.
+export default function normalizeActivitiesJson(
+  activitiesJson,
+  { isFinishedMeeting = false } = {},
+) {
+  const activities = convertUserSessionsFormat(activitiesJson);
+  return normalizeUserWebcams(
+    isFinishedMeeting ? closeUnfinishedReport(activities) : activities,
+  );
 }
