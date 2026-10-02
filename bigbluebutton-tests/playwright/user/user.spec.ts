@@ -154,6 +154,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await guestPolicy.rememberChoice();
         });
 
+        test('Waiting list keeps arrival order', async ({ browser, context, page }, testInfo) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page, { testInfo });
+          await guestPolicy.keepsWaitingListOrderedByArrival();
+        });
+
         test.describe.parallel('Actions to specific pending user', () => {
           test('Message', async ({ browser, context, page }, testInfo) => {
             const guestPolicy = new GuestPolicy(browser, context);
@@ -301,6 +307,24 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
         },
       );
+
+      // Regression tests for PR #25921: with hideUserList active a locked viewer keeps
+      // receiving the voice state of moderators, and only of moderators.
+      test('Hide user list keeps moderator voice state visible to locked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListModeratorVoiceStateVisibleToLockedViewer();
+      });
+
+      test('Hide user list voice state follows a role change', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListVoiceStateFollowsRoleChange();
+      });
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames

@@ -1,7 +1,12 @@
-import { Locator } from '@playwright/test';
+import { expect, Locator } from '@playwright/test';
 
+import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+
+// Glyph of the microphone badge the user list draws on an avatar. The badge is a CSS
+// pseudo-element, so another user's mute state has no attribute or text to select on.
+const USER_LIST_MIC_BADGE = { unmuted: '\ue931', muted: '\ue932' };
 
 export async function openLockViewers(testPage: Page) {
   await testPage.waitAndClick(e.manageUsers);
@@ -14,6 +19,32 @@ export async function applyUserListLock(testPage: Page) {
   await testPage.waitAndClickElement(e.lockUserList);
   await testPage.waitAndClick(e.applyLockSettings);
   await testPage.closeAllToastNotifications();
+}
+
+// The talking indicator of one user, while that user is talking.
+export function isTalkingLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(e.isTalking).locator(`:text-is("${userName}")`);
+}
+
+// The talking indicator of one user in either state: talking, or shown a moment after.
+export function talkingIndicatorLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(`${e.isTalking}, ${e.wasTalking}`).filter({ hasText: userName });
+}
+
+export async function hasUserListMicState(
+  testPage: Page,
+  userName: string,
+  state: keyof typeof USER_LIST_MIC_BADGE,
+  description: string,
+  timeout: number = ELEMENT_WAIT_TIME,
+) {
+  const avatar = testPage.page.locator(e.userListItem, { hasText: userName }).locator(e.userAvatar);
+  await expect
+    .poll(() => avatar.evaluate((el) => window.getComputedStyle(el, '::after').content), {
+      message: description,
+      timeout,
+    })
+    .toContain(USER_LIST_MIC_BADGE[state]);
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {

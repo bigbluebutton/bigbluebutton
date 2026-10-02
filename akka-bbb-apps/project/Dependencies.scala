@@ -15,11 +15,11 @@ object Dependencies {
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
     val gson = "2.8.9"
-    val jackson = "2.22.1"
-    // jackson-annotations drops the patch component from 2.20 on: the 2.22.1 suite pins it at 2.22.
+    val jackson = "2.22.3"
+    // jackson-annotations drops the patch component from 2.20 on: the 2.22.3 suite pins it at 2.22.
     val jacksonAnnotations = "2.22"
     val netty = "4.1.137.Final"
-    val logback = "1.5.38"
+    val logback = "1.6.3"
     val slf4j = "2.0.17"
     val quicklens = "1.7.5"
     val spray = "1.3.6"

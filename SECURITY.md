@@ -6,10 +6,10 @@ We actively support BigBlueButton through the community forums and through secur
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.6.x (or earlier)  | :x:    |
-| 2.7.x   | :x: |
+| 2.7.x (or earlier)  | :x:    |
 | 3.0.x   | :white_check_mark: |
-| 3.1.x   | :x: |
+| 4.0.x   | :x: |
+| 4.1.x   | :x: |
 
 We have released 3.0 to the community and are going to support 3.0 for the coming months.  Previous versions BigBlueButton 2.7 and 2.6 were on 20.04, which is now end of life and hence we no longer support those releases.
 

@@ -7,7 +7,14 @@ import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../noti
 import { openSettings } from '../options/util';
 import { getNotesLocator } from '../sharednotes/etherpad/util';
 import { MultiUsers } from './multiusers';
-import { applyUserListLock, drawArrow, openLockViewers } from './util';
+import {
+  applyUserListLock,
+  drawArrow,
+  hasUserListMicState,
+  isTalkingLocator,
+  openLockViewers,
+  talkingIndicatorLocator,
+} from './util';
 
 export class LockViewers extends MultiUsers {
   async lockShareWebcam() {
@@ -785,5 +792,172 @@ export class LockViewers extends MultiUsers {
       'Locked viewer must receive leave notification when a MODERATOR leaves (hideUserList active)',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
+  }
+
+  /**
+   * Regression test for PR #25921.
+   *
+   * Moderators are exempt from hideUserList: a locked viewer keeps them on the user
+   * list, so it must also keep receiving their voice state. On 3.0.38 the voice state
+   * event carried no role, so a moderator's updates were withheld like any viewer's:
+   * no talking indicator, and the moderator shown as muted while speaking.
+   *
+   * Flow:
+   *   1. Mod joins and enables lockUserList.
+   *   2. Viewer1 joins (locked).
+   *   3. Mod joins audio and unmutes.
+   *   Expected: Viewer1 sees Mod talking, and unmuted on the user list.
+   *   4. Viewer2 joins (locked) while Mod is already unmuted.
+   *   Expected: Viewer2 sees Mod unmuted, from the state replayed when it subscribes.
+   *   5. Mod mutes.
+   *   Expected: both viewers see Mod muted.
+   *   6. Mod unmutes.
+   *   Expected: both viewers see Mod talking, and unmuted on the user list.
+   */
+  async hideUserListModeratorVoiceStateVisibleToLockedViewer() {
+    const modName = this.modPage.username;
+
+    await applyUserListLock(this.modPage);
+    await this.initUserPage();
+    await this.userPage.hasElementCount(
+      e.userListItem,
+      1,
+      'Locked viewer should see only the moderator on the user list',
+    );
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone();
+
+    await expect(
+      isTalkingLocator(this.userPage, modName),
+      'Locked viewer must see the talking indicator of a moderator (hideUserList active)',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await hasUserListMicState(
+      this.userPage,
+      modName,
+      'unmuted',
+      'Locked viewer must see an unmuted moderator as unmuted on the user list',
+    );
+
+    // The talking indicator is not asserted here: it follows the moderator's next talking
+    // event, and the fake microphone talks without a pause.
+    await this.initUserPage2();
+    await hasUserListMicState(
+      this.userPage2,
+      modName,
+      'unmuted',
+      'Locked viewer joining later must see an already unmuted moderator as unmuted on the user list',
+    );
+
+    await this.modPage.waitAndClick(e.muteMicButton);
+    await hasUserListMicState(this.userPage, modName, 'muted', 'Locked viewer must see the moderator muted again');
+    await hasUserListMicState(
+      this.userPage2,
+      modName,
+      'muted',
+      'Locked viewer who joined later must see the moderator muted again',
+    );
+    await expect(
+      isTalkingLocator(this.userPage, modName),
+      'Locked viewer must stop seeing a muted moderator as talking',
+    ).toHaveCount(0);
+
+    // the client throttles mute toggles: wait so that this one is not dropped
+    await this.modPage.page.waitForTimeout(1000);
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.muteMicButton, 'should display the mute mic button after unmuting again');
+    await this.modPage.checkUserTalkingIndicator();
+    await expect(
+      isTalkingLocator(this.userPage, modName),
+      'Locked viewer must see the talking indicator of a moderator who unmutes again',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      isTalkingLocator(this.userPage2, modName),
+      'Locked viewer who joined later must see the talking indicator of a moderator who unmutes again',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await hasUserListMicState(
+      this.userPage2,
+      modName,
+      'unmuted',
+      'Locked viewer who joined later must see the moderator unmuted again',
+    );
+  }
+
+  /**
+   * Regression test for PR #25921 - role change variant.
+   *
+   * The exemption follows the speaker's current role. A viewer's voice state stays
+   * hidden from locked viewers, becomes visible when that viewer is promoted, and is
+   * taken off their screen again on demotion rather than left at its last state.
+   *
+   * Flow:
+   *   1. Mod joins and enables lockUserList.
+   *   2. Viewer1 and Viewer2 join (locked).
+   *   3. Viewer2 joins audio and unmutes.
+   *   Expected: Mod sees Viewer2 talking; Viewer1 does not.
+   *   4. Mod promotes Viewer2.
+   *   Expected: Viewer1 sees Viewer2 on the user list, unmuted and talking.
+   *   5. Mod demotes Viewer2, who keeps talking.
+   *   Expected: Viewer1 no longer sees Viewer2 on the user list nor a talking indicator.
+   */
+  async hideUserListVoiceStateFollowsRoleChange() {
+    await applyUserListLock(this.modPage);
+    await this.initUserPage();
+    await this.initUserPage2();
+    const speakerName = this.userPage2.username;
+    const speakerOnModUserList = this.modPage.page.locator(e.userListItem, { hasText: speakerName });
+
+    await this.userPage2.waitAndClick(e.joinAudio);
+    await this.userPage2.joinMicrophone();
+
+    await expect(
+      isTalkingLocator(this.modPage, speakerName),
+      'Moderator must see the talking indicator of a viewer (hideUserList active)',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      talkingIndicatorLocator(this.userPage, speakerName),
+      'Locked viewer must not see the talking indicator of another viewer (hideUserList active)',
+    ).toHaveCount(0);
+
+    // Every listed user has its own menu in the DOM: act on the one that was opened.
+    await speakerOnModUserList.click();
+    await this.modPage.getVisibleLocator(e.promoteToModerator).click();
+    await this.userPage.hasElementCount(
+      e.userListItem,
+      2,
+      'Locked viewer should see the promoted user on the user list',
+    );
+    await expect(
+      isTalkingLocator(this.userPage, speakerName),
+      'Locked viewer must see the talking indicator of a user promoted to moderator',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await hasUserListMicState(
+      this.userPage,
+      speakerName,
+      'unmuted',
+      'Locked viewer must see a user promoted to moderator as unmuted on the user list',
+    );
+
+    await speakerOnModUserList.click();
+    await this.modPage.getVisibleLocator(e.demoteToViewer).click();
+    await this.userPage.hasElementCount(
+      e.userListItem,
+      1,
+      'Locked viewer should no longer see the demoted user on the user list',
+    );
+    await expect(
+      talkingIndicatorLocator(this.userPage, speakerName),
+      'Locked viewer must have the talking indicator of a demoted user removed',
+    ).toHaveCount(0);
+    // The demoted user is still unmuted and talking: confirm it, then that it stays hidden.
+    await expect(
+      isTalkingLocator(this.modPage, speakerName),
+      'Moderator must still see the demoted user talking',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await this.userPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    await expect(
+      talkingIndicatorLocator(this.userPage, speakerName),
+      'Locked viewer must not get the later voice state of a demoted user',
+    ).toHaveCount(0);
   }
 }
