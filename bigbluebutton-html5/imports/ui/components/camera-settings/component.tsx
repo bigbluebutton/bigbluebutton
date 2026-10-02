@@ -52,6 +52,9 @@ interface CameraDeviceSelectorProps {
   // Shown in place of the selector when there is no device to list. Defaults to
   // "webcam not found", which only fits when enumeration has actually run.
   emptyLabel?: string;
+  // Flags the selector; the caller renders the text, under the selector's row.
+  error?: boolean;
+  describedBy?: string;
   dataTest?: string;
 }
 
@@ -61,6 +64,8 @@ export const CameraDeviceSelector: React.FC<CameraDeviceSelectorProps> = ({
   onChange,
   disabled = false,
   emptyLabel,
+  error = false,
+  describedBy,
   dataTest,
 }) => {
   const { formatMessage } = useIntl();
@@ -75,7 +80,11 @@ export const CameraDeviceSelector: React.FC<CameraDeviceSelectorProps> = ({
       onChange={(e) => onChange(e.target.value as string)}
       IconComponent={ExpandMoreIcon}
       disabled={disabled}
-      inputProps={{ 'aria-label': formatMessage(intlMessages.cameraLabel) }}
+      error={error}
+      inputProps={{
+        'aria-label': formatMessage(intlMessages.cameraLabel),
+        'aria-describedby': describedBy,
+      }}
       SelectDisplayProps={{ 'data-test': dataTest } as React.HTMLAttributes<HTMLDivElement>}
     >
       {devices.map((webcam, index) => (

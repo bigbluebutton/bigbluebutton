@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
@@ -24,6 +24,9 @@ interface AudioDeviceSelectorsProps {
   onSelectInputDevice: (deviceId: string) => void;
   onSelectOutputDevice: (deviceId: string) => void;
   inputDisabled?: boolean;
+  // Flags the microphone selector, with this text under it.
+  inputError?: string;
+  inputErrorDataTest?: string;
   inputAriaLabel?: string;
   outputAriaLabel?: string;
   inputDataTest?: string;
@@ -43,12 +46,15 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
   onSelectInputDevice,
   onSelectOutputDevice,
   inputDisabled = false,
+  inputError,
+  inputErrorDataTest,
   inputAriaLabel,
   outputAriaLabel,
   inputDataTest,
   outputDataTest,
 }) => {
   const intl = useIntl();
+  const inputErrorId = useId();
 
   const getDeviceLabel = useAudioDeviceLabel();
 
@@ -86,10 +92,14 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
               value={selectedInputDeviceId}
               IconComponent={ExpandMoreIcon}
               disabled={inputDisabled}
+              error={!!inputError}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 onSelectInputDevice(event.target.value as string);
               }}
-              inputProps={inputAriaLabel ? { 'aria-label': inputAriaLabel } : undefined}
+              inputProps={{
+                'aria-label': inputAriaLabel,
+                'aria-describedby': inputError ? inputErrorId : undefined,
+              }}
               data-test={inputDataTest}
             >
               {renderOptions(inputDevices)}
@@ -97,6 +107,11 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
           )
           : <span>{intl.formatMessage(intlMessages.noDeviceFound)}</span>}
       </Styled.DeviceContainer>
+      {inputError && (
+        <Styled.DeviceFieldError id={inputErrorId} data-test={inputErrorDataTest}>
+          {inputError}
+        </Styled.DeviceFieldError>
+      )}
     </>
   );
 };
