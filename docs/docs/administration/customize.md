@@ -1049,10 +1049,10 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
    ```yaml
    sip_port: 5060
    sip_port_listen: 5060
-   rtp_port:
-     port_range_start: <START>
-     port_range_end: <END>
+   rtp_port: <START>-<END>
    ```
+
+   Note: The default RTP range for livekit-sip is `16384-32768`, the range the other media servers share. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
 
 4. Restart BigBlueButton:
 

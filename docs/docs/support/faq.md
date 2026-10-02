@@ -349,7 +349,7 @@ All the features of BigBlueButton are available on Android except screen sharing
 
 #### iOS
 
-BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
+BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 14.5+.
 
 All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
 

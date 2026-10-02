@@ -49,6 +49,10 @@ LiveKit reuses the UDP range above for its media (RTP) streams; its signaling is
 proxied through the existing nginx HTTPS endpoint (TCP 443), so no extra ports are
 required for it.
 
+`livekit-sip` takes its RTP ports from the same range by default (`rtp_port` in
+`/etc/bigbluebutton/livekit-sip.yaml`), so an external call gateway needs UDP access to
+it too.
+
 ### EC2
 
 If you are using EC2, you should also assign your server an [Elastic IP address](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) to prevent it from getting a new IP address on reboot.

@@ -108,6 +108,11 @@ export class LockViewers extends MultiUsers {
     // unlock second user
     await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    // Rejoining before the attendee sees the unlock auto-joins listen-only.
+    await expect(
+      unmuteMicButtonUser2,
+      'should enable the unmute button once the unlock reaches the attendee',
+    ).toBeEnabled();
     // check second user audio after unlocking
     await this.userPage2.waitAndClick(e.audioDropdownMenu);
     await this.userPage2.waitAndClick(e.leaveAudio);
