@@ -51,6 +51,12 @@ def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_
   notes_id = BigBlueButton::Events.get_notes_id(events)
   notes_editor = BigBlueButton::Events.get_notes_editor(events)
 
+  # No pad was ever created, e.g. the meeting ran with disabledFeatures=sharedNotes.
+  if notes_id == 'undefined'
+    BigBlueButton.logger.info("Notes were not used in #{meeting_id}")
+    return
+  end
+
   is_etherpad_editor = notes_editor.eql? "etherpad"
 
   notes_endpoint = etherpad_notes_endpoint
@@ -61,24 +67,20 @@ def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_
   FileUtils.mkdir_p(notes_dir)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
-  base_path_notes = CGI.escape notes_id
-  if base_path_notes != "undefined"
-    BigBlueButton.try_download("#{notes_endpoint}/#{base_path_notes}/export/txt", tmp_note)
+  export_failed = "#{notes_dir}/export_failed"
+  BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/txt", tmp_note)
+  unless File.exist? tmp_note
+    # A pad exists, so the notes service failed rather than the notes going
+    # unused. Archive without them: nothing retries a failed archive.
+    BigBlueButton.logger.warn("Failed to archive notes for #{meeting_id}, the recording will not have them")
+    FileUtils.touch(export_failed)
+    return
   end
-  if File.exist? tmp_note
-    # If the notes are empty, do not archive them
-    blank = false
-    content = File.open(tmp_note).read
-    if content.strip.empty?
-      blank = true
-    end
-    FileUtils.rm_f(tmp_note)
-    if blank
-      BigBlueButton.logger.info("Empty notes for #{meeting_id}")
-      return
-    end
-  else
-    BigBlueButton.logger.info("Notes were not used in #{meeting_id}")
+  FileUtils.rm_f(export_failed)
+  content = File.read(tmp_note)
+  FileUtils.rm_f(tmp_note)
+  if content.strip.empty?
+    BigBlueButton.logger.info("Empty notes for #{meeting_id}")
     return
   end
 

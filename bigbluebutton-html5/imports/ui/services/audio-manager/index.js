@@ -24,7 +24,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
-import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
   setUserSelectedMicrophone,
@@ -334,9 +334,7 @@ class AudioManager {
     // Observe voice activity changes to update any relevant *local* states
     // (see onVoiceUserChanges)
     if (!this._voiceActivityObserver) {
-      const subHash = stringToHash(JSON.stringify({
-        subscription: VOICE_ACTIVITY,
-      }));
+      const subHash = getSubscriptionHash(VOICE_ACTIVITY);
       this._voiceActivityObserver = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
       window.addEventListener('graphqlSubscription', (e) => {
         const { subscriptionHash, response } = e.detail;
