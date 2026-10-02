@@ -1323,7 +1323,7 @@ and superseded by the bbb-webrtc-sfu and LiveKit audio bridges.
 
 **This endpoint is absent on new installs and is removed on upgrade.**
 
-:::warn
+:::warning
 We recommend against reinstating `/ws` on any BBB install. 
 Migrating to any of the newer bridges is the de facto course of action, and
 the sipjs bridge has been removed in the next BBB release.
