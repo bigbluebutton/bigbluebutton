@@ -529,6 +529,38 @@ const TableItemActions = styled.td`
   `}
 `;
 
+const AnimationOptionsRow = styled.tr`
+  background-color: rgba(0, 128, 129, 0.05);
+
+  td {
+    padding-top: 0 !important;
+    padding-bottom: ${smPaddingY} !important;
+  }
+`;
+
+const AnimationOptions = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ${smPaddingX};
+  color: ${colorText};
+
+  [dir="rtl"] & {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+`;
+
+const AnimationOptionsLabel = styled.span`
+  font-weight: bold;
+  margin-right: ${smPaddingX};
+
+  [dir="rtl"] & {
+    margin-right: 0;
+    margin-left: ${smPaddingX};
+  }
+`;
+
 const ExtraHint = styled.div`
   margin-top: 1rem;
   font-weight: bold;
@@ -640,6 +672,9 @@ export default {
   CurrentLabel,
   TableItemName,
   TableItemStatus,
+  AnimationOptionsRow,
+  AnimationOptions,
+  AnimationOptionsLabel,
   ItemAction,
   RemoveButton,
   UploaderDropzone,
