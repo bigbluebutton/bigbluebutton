@@ -170,7 +170,7 @@
     "app.notes.notesDropdown.notesOptions": "Notizoptionen",
     "app.notes.importModal.title": "Markdown importieren",
     "app.notes.importModal.placeholder": "Markdown-Inhalte aus der Zwischenablage hier einfügen",
-    "app.notes.importModal.importMode.label": "Import mode",
+    "app.notes.importModal.importMode.label": "Importmodus",
     "app.notes.importModal.importMode.append.label": "Append",
     "app.notes.importModal.importMode.append.description": "Add to the end of the current notes",
     "app.notes.importModal.importMode.replace.label": "Ersetzen",
