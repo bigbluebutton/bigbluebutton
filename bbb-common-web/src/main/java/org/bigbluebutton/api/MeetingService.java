@@ -1209,7 +1209,14 @@ public class MeetingService implements MessageListener {
 
         if (! StringUtils.isEmpty(m.getMeetingEndedCallbackURL())) {
           String meetingEndedCallbackURL = m.getMeetingEndedCallbackURL();
-          callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
+          try {
+            meetingEndedCallbackURL = new URIBuilder(new URI(meetingEndedCallbackURL))
+              .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
+              .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
+            callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
+          } catch (Exception e) {
+            log.error("Error in callback url={}", meetingEndedCallbackURL, e);
+          }
         }
       }
 
