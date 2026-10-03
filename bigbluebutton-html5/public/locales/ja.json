@@ -710,6 +710,7 @@
     "app.switch.onLabel": "入",
     "app.switch.offLabel": "切",
     "app.talkingIndicator.ariaMuteDesc": "ユーザーをミュートします",
+    "app.talkingIndicator.hiddenUser": "非表示の参加者",
     "app.talkingIndicator.isTalking": "{userName} さんが話しています",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+人が話しています",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+人が話していました。",
