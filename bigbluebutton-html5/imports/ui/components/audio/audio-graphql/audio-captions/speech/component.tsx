@@ -51,14 +51,25 @@ interface AudioCaptionsSpeechProps {
   locale: string;
   connected: boolean;
   muted: boolean;
+  inputStream: MediaStream | null;
 }
 const speechHasStarted = {
   started: false,
+};
+
+// Without a track the browser transcribes its own default microphone, which is not
+// necessarily the one in use in the meeting
+const getInputTrack = (): MediaStreamTrack | null => {
+  const stream = AudioManager.inputStream as MediaStream | null;
+  const track = stream?.getAudioTracks()[0];
+
+  return track?.readyState === 'live' ? track : null;
 };
 const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   locale,
   connected,
   muted,
+  inputStream,
 }) => {
   const resultRef = useRef({
     id: generateId(),
@@ -70,6 +81,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const localeRef = useRef(locale);
 
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
+  const trackRef = useRef<MediaStreamTrack | null>(null);
+  const trackIdRef = useRef('');
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
@@ -166,18 +180,24 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     captionSubmitText(id, transcript, locale, true);
   };
 
+  const releaseTrack = () => {
+    trackRef.current?.stop();
+    trackRef.current = null;
+  };
+
   const onEnd = useCallback(() => {
     logger.debug({
       logCode: 'captions_speech_recognition_ended',
     }, 'Captions speech recognition ended by browser');
 
     speechHasStarted.started = false;
-    if (!mutedRef.current) {
+    releaseTrack();
+    if (connectedRef.current && !mutedRef.current) {
       logger.debug("Speech recognition ended by browser, but we're not muted. Restart it");
       const timeSinceLastStart = new Date().getTime() - lastStartedAt.current;
       if (timeSinceLastStart < 1000) {
-        setTimeout(() => {
-          start(localeRef.current);
+        restartTimeoutRef.current = setTimeout(() => {
+          if (connectedRef.current && !mutedRef.current) start(localeRef.current);
         }, 1000 - timeSinceLastStart);
       } else {
         start(localeRef.current);
@@ -185,7 +205,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, []);
   const onError = useCallback((event: SpeechRecognitionErrorEvent) => {
-    if (isLocaleChangeRef.current && event.error === 'aborted') return;
+    if (isRestartRef.current && event.error === 'aborted') return;
 
     // This error 'no-speech' is expected because speech recognition is set to automatically
     // restart whenever the browser stops it — tipically due to silence timeout. As a result,
@@ -269,12 +289,25 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       }
 
       lastStartedAt.current = new Date().getTime();
+      const track = getInputTrack();
+      // A clone, as Chrome never ends a session whose track is stopped while it starts
+      const clone = track ? track.clone() : null;
       try {
         resultRef.current.id = generateId();
-        speechRecognitionRef.current.start();
+        // Browsers without MediaStreamTrack support in start() ignore the argument
+        if (clone) {
+          clone.enabled = true;
+          speechRecognitionRef.current.start(clone);
+        } else {
+          speechRecognitionRef.current.start();
+        }
+        releaseTrack();
+        trackRef.current = clone;
+        trackIdRef.current = track?.id ?? '';
         speechHasStarted.started = true;
-        isLocaleChangeRef.current = false;
+        isRestartRef.current = false;
       } catch (event: unknown) {
+        clone?.stop();
         onError(event as SpeechRecognitionErrorEvent);
       }
     }
@@ -292,9 +325,10 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [speechRecognitionRef.current]);
 
-  const connectedRef = useRef(connected);
-  const mutedRef = useRef(muted);
-  const isLocaleChangeRef = useRef(false);
+  // Not the current values, so that mounting with audio already unmuted starts the recognition
+  const connectedRef = useRef(false);
+  const mutedRef = useRef(true);
+  const isRestartRef = useRef(false);
   const lastStartedAt = useRef<number>(0);
 
   useEffect(() => {
@@ -312,7 +346,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
       // Locale changed
       if (connectedRef.current && connected) {
-        isLocaleChangeRef.current = true;
+        isRestartRef.current = true;
         stop();
         localeRef.current = locale;
       }
@@ -340,6 +374,32 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [connected, muted, locale]);
 
+  useEffect(() => {
+    const track = getInputTrack();
+
+    // Microphone changed while transcribing, onEnd restarts on the current one
+    if (speechHasStarted.started && (track?.id ?? '') !== trackIdRef.current) {
+      logger.debug('Input stream changed');
+      isRestartRef.current = true;
+      stop();
+    }
+  }, [inputStream]);
+
+  useEffect(() => () => {
+    clearTimeout(restartTimeoutRef.current);
+
+    const recognition = speechRecognitionRef.current;
+    if (recognition) {
+      recognition.onend = null;
+      recognition.onerror = null;
+      recognition.onresult = null;
+      if (speechHasStarted.started) recognition.abort();
+    }
+
+    speechHasStarted.started = false;
+    releaseTrack();
+  }, []);
+
   return null;
 };
 
@@ -348,6 +408,8 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
   // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
   const isConnected = useIsAudioConnected();
+  // @ts-ignore
+  const inputStream = useReactiveVar(AudioManager._inputStream) as MediaStream | null;
 
   const {
     data: currentUser,
@@ -365,6 +427,7 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
       locale={currentUser.speechLocale ?? ''}
       connected={isConnected}
       muted={isMuted}
+      inputStream={inputStream}
     />
   );
 };
