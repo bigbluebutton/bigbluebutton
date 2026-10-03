@@ -254,7 +254,7 @@ export const elements = {
   notesImportMarkdownFileLoaded: '[data-test="notesImportMarkdownFileLoaded"]',
   notesImportMarkdownFileRemove: 'button[data-test="notesImportMarkdownFileRemove"]',
   notesImportMarkdownError: '[data-test="notesImportMarkdownError"]',
-  showMoreSharedNotesButton: 'span[class="show-more-icon-btn"]',
+  showMoreSharedNotesButton: '.show-more-icon-btn',
   exportSharedNotesButton: 'li[data-key="import_export"] button',
   exportPlainButton: 'a[id="exportplaina"] span',
   pinNotes: 'li[data-test="pinNotes"]',
