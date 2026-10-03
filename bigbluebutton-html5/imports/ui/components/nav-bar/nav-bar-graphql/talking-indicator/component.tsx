@@ -54,7 +54,6 @@ interface TalkingIndicatorProps {
 interface TalkingIndicatorItemProps {
   talking: boolean;
   muted: boolean;
-  color?: string;
   speechLocale?: string;
   name: string;
   role?: string;
@@ -71,7 +70,6 @@ interface TalkingIndicatorOverflowProps {
 const TalkingIndicatorItem: React.FC<TalkingIndicatorItemProps> = ({
   talking,
   muted,
-  color,
   speechLocale,
   name,
   role,
@@ -126,14 +124,6 @@ const TalkingIndicatorItem: React.FC<TalkingIndicatorItemProps> = ({
         color="primary"
         icon={icon}
         size="lg"
-        style={
-          (isMuteActionAvailable && color)
-            ? {
-              backgroundColor: color,
-              border: `solid 2px ${color}`,
-            }
-            : undefined
-        }
       >
         {talking ? (
           <Styled.Hidden id="description">
@@ -269,7 +259,6 @@ const TalkingIndicatorContainer: React.FC = () => {
     muted,
     userId,
     user: {
-      color,
       speechLocale,
       name,
       role,
@@ -278,7 +267,6 @@ const TalkingIndicatorContainer: React.FC = () => {
   }) => ({
     talking,
     muted,
-    color,
     speechLocale,
     // A hidden user is one whose identity this viewer is not entitled to. The indicator
     // still shows that someone is speaking - they are audible either way - under a
