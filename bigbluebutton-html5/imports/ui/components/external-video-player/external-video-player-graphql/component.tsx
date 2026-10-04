@@ -282,7 +282,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setReactPlayerPlaying(value);
   };
 
-  let currentTime = getServerCurrentTime();
+  const currentTime = getServerCurrentTime();
 
   const changeVolume = (newVolume: number) => {
     setVolume(newVolume);
@@ -624,22 +624,22 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     autoplayMuteRecoveryRef.current.releaseGestureListener?.();
     autoplayMuteRecoveryRef.current = { armed: true, releaseGestureListener: null };
 
-    const currentTime = getServerCurrentTime();
+    const rate = await getPlaybackRate(playerRef.current as ReactPlayer);
     const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
-    if (isPresenter && !playing) {
-      const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
-        ? internalPlayer.playbackRate
-        : await internalPlayer?.getPlaybackRate?.() ?? 1;
-
-      sendMessage('start', {
+    const currentTime = getServerCurrentTime();
+    // Preserve the existing resume or offset (eg t=60s) seek, so
+    // the initial event does not report zero before this seek is applied.
+    const startTime = Math.max(currentTime, playerCurrentTime);
+    if (currentTime > playerCurrentTime) {
+      playerRef.current?.seekTo(currentTime, 'seconds');
+    }
+    // Including !playing here would suppress the initial record.
+    if (isPresenter) {
+      sendMessage('play', {
         rate,
-        time: currentTime,
+        time: startTime,
         state: 'playing',
       });
-    }
-
-    if (currentTime > playerCurrentTime) {
-      playerRef?.current?.seekTo(currentTime, 'seconds');
     }
     // Reset the progress baseline; the first onProgress tick after start seeds it. A start is
     // also the remount path (new player mounts), so reset the pending discontinuity and the
@@ -739,9 +739,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     // the interleaved handleOnSeek case the identity guard on the baseline write covers.
     tickSeqRef.current += 1;
     const seq = tickSeqRef.current;
-    if (playing && isPresenter) {
-      currentTime = getServerCurrentTime();
-    }
     const interPlayerPlaybackRate = await getPlaybackRate(playerRef.current as ReactPlayer);
     const isLatestTick = tickSeqRef.current === seq;
 
@@ -800,7 +797,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       if (!seekMessage && interPlayerPlaybackRate !== playerPlaybackRate) {
         seekMessage = {
           rate: interPlayerPlaybackRate,
-          time: currentTime,
+          time: state.playedSeconds,
           state: playing ? 'playing' : '',
         };
       }
@@ -874,7 +871,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       }
       sendMessage('playbackRateChange', {
         rate,
-        time: getServerCurrentTime(),
+        // Sample the actual position after reading the new rate.
+        time: await getPlayerCurrentTime(playerRef.current as ReactPlayer),
         state: playing ? 'playing' : '',
       });
     }
