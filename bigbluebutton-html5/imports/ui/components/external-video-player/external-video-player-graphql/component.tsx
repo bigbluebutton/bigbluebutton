@@ -253,6 +253,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   // after buffering on a seek.
   const reactPlayerPlayingRef = useRef(false);
   const firstPlayRef = useRef(true);
+  const skipInitialPlayMessageRef = useRef(false);
   const [playerUrl, setPlayerUrl] = React.useState('');
   const lastCursorRef = useRef<{ position: number, updateAt: number }>({ position: 0, updateAt: 0 });
   // Tracks the last onProgress tick (playedSeconds + wall-clock) so handleProgress
@@ -616,6 +617,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   useEffect(() => () => autoplayMuteRecoveryRef.current.releaseGestureListener?.(), []);
 
   const handleOnStart = async () => {
+    // To prevent handleOnStart and handleOnPlay from firing concurrently
+    skipInitialPlayMessageRef.current = true;
     // A start means a fresh player (new video, or a remount via playerKey), so the previous
     // player's autoplay-mute verdict must not carry over, and a gesture listener still waiting on
     // that player is stale. Done before the first await: react-player invokes onStart then onPlay
@@ -650,12 +653,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   };
 
   const handleOnPlay = async () => {
+    const skipPlayMessage = skipInitialPlayMessageRef.current;
+    skipInitialPlayMessageRef.current = false;
     const wasPlaying = reactPlayerPlayingRef.current;
     setPlayerPlaying(true);
     const internalPlayer = playerRef.current?.getInternalPlayer();
     const url = new URL(videoUrl);
     const isTwitch = url.hostname === 'twitch.tv' || url.hostname === 'www.twitch.tv';
-    if (isPresenter && !playing) {
+    if (isPresenter && !playing && !skipPlayMessage) {
       const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : await internalPlayer?.getPlaybackRate?.() ?? 1;
