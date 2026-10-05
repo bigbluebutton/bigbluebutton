@@ -704,7 +704,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - The guest should be taken to the same logout URL straight away
 
-### Connection loss in the pre-flight
+### Connection loss in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
 
 1. Join a session and wait in the pre-flight screen
 
@@ -722,7 +722,15 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - The page should reload
 
-### Denied devices in the pre-flight
+5. Restore the network, slow it down until a join cannot go through (e.g. DevTools throttling), click "Join session" and wait about 20 seconds
+
+    - The same screen should replace the joining spinner, with the setup panel still editable
+
+6. Mute the microphone in the panel, restore the network and click "Try again"
+
+    - The user should join muted: the retry takes the panel as it is now
+
+### Denied devices in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
 
 1. Block the microphone for the site in the browser, then join a session
 
