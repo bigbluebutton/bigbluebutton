@@ -224,7 +224,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       fallbackOnEmptyLocaleString: true,
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
-      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
+      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006, 3007],
     },
     sharedNotes: {
       serverHostname: '',

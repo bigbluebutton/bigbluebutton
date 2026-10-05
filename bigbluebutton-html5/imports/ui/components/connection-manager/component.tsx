@@ -69,7 +69,16 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
+// bbb-graphql-middleware: "Limit exceeded: Maximum N concurrent subscriptions allowed."
+const SUBSCRIPTION_LIMIT_ERROR = 'concurrent subscriptions allowed';
+
 const errorLink = onError(({ graphQLErrors, networkError }) => {
+  const isSubscriptionLimitError = (message?: string) => !!message?.includes(SUBSCRIPTION_LIMIT_ERROR);
+  if (graphQLErrors?.some(({ message }) => isSubscriptionLimitError(message))
+    || isSubscriptionLimitError(networkError?.message)) {
+    connectionStatus.setSubscriptionLimitReached();
+  }
+
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message }) => {
       logger.error({
