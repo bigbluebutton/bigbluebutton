@@ -23,6 +23,7 @@ import {
 } from './service';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   isWebSpeechApi,
@@ -74,11 +75,11 @@ const speechHasStarted = {
 
 // Without a track the browser transcribes its own default microphone, which is not
 // necessarily the one in use in the meeting
-const getInputTrack = (): MediaStreamTrack | null => {
-  const stream = AudioManager.inputStream as MediaStream | null;
+const getInputTrack = (stream: MediaStream | null): MediaStreamTrack | null => {
   const track = stream?.getAudioTracks()[0];
 
-  return track?.readyState === 'live' ? track : null;
+  // start() rejects a muted track just like an ended one
+  return track?.readyState === 'live' && !track.muted ? track : null;
 };
 const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   locale,
@@ -95,10 +96,15 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   });
 
   const localeRef = useRef(locale);
+  // start() also runs from handlers and timers set up in earlier renders
+  const inputStreamRef = useRef(inputStream);
+  inputStreamRef.current = inputStream;
 
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
   const trackRef = useRef<MediaStreamTrack | null>(null);
   const trackIdRef = useRef('');
+  const hadTrackRef = useRef(false);
+  const defaultDeviceLoggedRef = useRef(false);
   const restartTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
@@ -130,6 +136,15 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   };
 
+  const createSpeechRecognition = () => {
+    const speechRecognition = new SpeechRecognitionAPI();
+
+    speechRecognition.continuous = true;
+    speechRecognition.interimResults = true;
+
+    return speechRecognition;
+  };
+
   const initSpeechRecognition = () => {
     if (!isAudioTranscriptionEnabled) return null;
 
@@ -141,10 +156,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     if (!hasSpeechRecognitionSupport()) return null;
 
     setSpeechVoices();
-    const speechRecognition = new SpeechRecognitionAPI();
-
-    speechRecognition.continuous = true;
-    speechRecognition.interimResults = true;
+    const speechRecognition = createSpeechRecognition();
 
     return speechRecognition;
   };
@@ -292,6 +304,18 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [localeRef]);
 
+  const bindHandlers = () => {
+    speechRecognitionRef.current.onend = () => onEnd();
+    speechRecognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => onError(event);
+    speechRecognitionRef.current.onresult = (event: SpeechRecognitionEvent) => onResult(event);
+  };
+
+  const unbindHandlers = () => {
+    speechRecognitionRef.current.onend = null;
+    speechRecognitionRef.current.onerror = null;
+    speechRecognitionRef.current.onresult = null;
+  };
+
   const start = (settedLocale: string) => {
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
       logger.debug('Starting browser speech recognition for locale: ', settedLocale);
@@ -307,21 +331,55 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       }
 
       lastStartedAt.current = new Date().getTime();
-      const track = getInputTrack();
+      const track = getInputTrack(inputStreamRef.current);
       // A clone, as Chrome never ends a session whose track is stopped while it starts
-      const clone = track ? track.clone() : null;
+      let clone = track ? track.clone() : null;
       try {
         resultRef.current.id = generateId();
-        // Browsers without MediaStreamTrack support in start() ignore the argument
         if (clone) {
           clone.enabled = true;
-          speechRecognitionRef.current.start(clone);
-        } else {
+          try {
+            // Browsers without MediaStreamTrack support in start() ignore the argument
+            speechRecognitionRef.current.start(clone);
+            hadTrackRef.current = true;
+            defaultDeviceLoggedRef.current = false;
+          } catch (error) {
+            clone.stop();
+            clone = null;
+            // Not about the track, e.g. the previous session is still ending
+            if (getInputTrack(inputStreamRef.current)) throw error;
+          }
+        }
+        if (!clone) {
+          // Once an instance had a track, Chrome goes on using that track for a start()
+          // without one, and never starts if it has ended: the default device needs an
+          // instance of its own
+          if (hadTrackRef.current) {
+            unbindHandlers();
+            speechRecognitionRef.current.abort();
+            speechRecognitionRef.current = createSpeechRecognition();
+            speechRecognitionRef.current.lang = settedLocale;
+            bindHandlers();
+            hadTrackRef.current = false;
+          }
           speechRecognitionRef.current.start();
+          // Not on every restart, the browser ends an idle session every few seconds
+          if (!defaultDeviceLoggedRef.current) {
+            const inputTrack = inputStreamRef.current?.getAudioTracks()[0];
+            logger.info({
+              logCode: 'captions_speech_recognition_default_device',
+              extraInfo: {
+                inputStream: MediaStreamUtils.getMediaStreamLogData(inputStreamRef.current),
+                trackReadyState: inputTrack?.readyState,
+                trackMuted: inputTrack?.muted,
+              },
+            }, 'Captions speech recognition started on the browser default microphone');
+            defaultDeviceLoggedRef.current = true;
+          }
         }
         releaseTrack();
         trackRef.current = clone;
-        trackIdRef.current = track?.id ?? '';
+        trackIdRef.current = clone && track ? track.id : '';
         speechHasStarted.started = true;
         isRestartRef.current = false;
       } catch (event: unknown) {
@@ -333,14 +391,23 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   useEffect(() => {
     speechRecognitionRef.current = initSpeechRecognition();
+
+    return () => {
+      clearTimeout(restartTimeoutRef.current);
+
+      if (speechRecognitionRef.current) {
+        unbindHandlers();
+        stop();
+        speechRecognitionRef.current.abort();
+      }
+
+      speechHasStarted.started = false;
+      releaseTrack();
+    };
   }, []);
 
   useEffect(() => {
-    if (speechRecognitionRef.current) {
-      speechRecognitionRef.current.onend = () => onEnd();
-      speechRecognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => onError(event);
-      speechRecognitionRef.current.onresult = (event: SpeechRecognitionEvent) => onResult(event);
-    }
+    if (speechRecognitionRef.current) bindHandlers();
   }, [speechRecognitionRef.current]);
 
   // Not the current values, so that mounting with audio already unmuted starts the recognition
@@ -460,30 +527,20 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   }, [connected, muted, inputStream, locale, isAudioTranscriptionEnabled]);
 
   useEffect(() => {
-    const track = getInputTrack();
+    const track = getInputTrack(inputStream);
 
     // Microphone changed while transcribing, onEnd restarts on the current one
     if (speechHasStarted.started && (track?.id ?? '') !== trackIdRef.current) {
-      logger.debug('Input stream changed');
+      logger.debug({
+        logCode: 'captions_speech_recognition_input_changed',
+        extraInfo: {
+          inputStream: MediaStreamUtils.getMediaStreamLogData(inputStream),
+        },
+      }, 'Captions speech recognition restarting on the changed input stream');
       isRestartRef.current = true;
       stop();
     }
   }, [inputStream]);
-
-  useEffect(() => () => {
-    clearTimeout(restartTimeoutRef.current);
-
-    const recognition = speechRecognitionRef.current;
-    if (recognition) {
-      recognition.onend = null;
-      recognition.onerror = null;
-      recognition.onresult = null;
-      if (speechHasStarted.started) recognition.abort();
-    }
-
-    speechHasStarted.started = false;
-    releaseTrack();
-  }, []);
 
   return null;
 };
