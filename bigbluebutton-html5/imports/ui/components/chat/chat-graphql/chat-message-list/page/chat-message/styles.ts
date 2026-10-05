@@ -6,6 +6,7 @@ import {
   $3xlPadding,
   xlPadding,
   mdPadding,
+  smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
@@ -24,6 +25,7 @@ import {
   systemMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
+import { IconWrapper as ReadConfirmationIconWrapper } from './message-read-confirmation/styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 interface ChatWrapperProps {
@@ -137,6 +139,15 @@ export const ChatContentFooter = styled.div`
 
   [dir="ltr"] & {
     right: 0.25rem;
+  }
+
+  /* keep clear of the read check: message padding + check (1rem glyph) + gap */
+  [dir="rtl"] .chat-message-content:has(${ReadConfirmationIconWrapper}) & {
+    left: calc(${$3xlPadding} + 1rem + ${smPadding});
+  }
+
+  [dir="ltr"] .chat-message-content:has(${ReadConfirmationIconWrapper}) & {
+    right: calc(${$3xlPadding} + 1rem + ${smPadding});
   }
 
   .chat-message-wrapper-focused &,
