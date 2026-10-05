@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "A conexão está instável. Verifique sua conexão de internet (código 3004)",
     "app.notificationBar.connectionCode3005": "Os dados estão carregando lentamente. Reconexão em andamento (código 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Alguns dados em tempo real não puderam ser carregados. Atualize seu cliente (código 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Painel Analítico de Aprendizagem",
     "app.learning-dashboard.description": "Abrir painel com a atividade dos usuários",
     "app.learning-dashboard.clickHereToOpen": "Abrir Painel Analítico de Aprendizagem",
