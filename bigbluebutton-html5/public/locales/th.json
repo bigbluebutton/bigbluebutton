@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "การเชื่อมต่อไม่เสถียร กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ (รหัส 3004)",
     "app.notificationBar.connectionCode3005": "ข้อมูลกำลังโหลดช้า กำลังเชื่อมต่อใหม่ (รหัส 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "ไม่สามารถโหลดข้อมูลสดบางส่วนได้ กรุณารีเฟรชไคลเอนต์ของคุณ (รหัส 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "แดชบอร์ดการวิเคราะห์การเรียนรู้",
     "app.learning-dashboard.description": "แดชบอร์ดที่แสดงกิจกรรมของผู้ใช้",
     "app.learning-dashboard.clickHereToOpen": "เปิดแดชบอร์ดการวิเคราะห์การเรียนรู้",
