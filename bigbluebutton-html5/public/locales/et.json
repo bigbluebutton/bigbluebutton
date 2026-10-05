@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "Ühendus on ebastabiilne. Palun kontrolli oma internetiühendust (kood 3004)",
     "app.notificationBar.connectionCode3005": "Andmete laadimine on aeglane. Uuesti ühendamine on käimas (kood 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Kõiki reaalaja andmeid ei saanud laadida. Palun värskenda oma klienti (kood 3006).",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Õpianalüütika andmelaud",
     "app.learning-dashboard.description": "Andmelaud kasutajate tegevustega",
     "app.learning-dashboard.clickHereToOpen": "Ava õpianalüütika andmelaud",
