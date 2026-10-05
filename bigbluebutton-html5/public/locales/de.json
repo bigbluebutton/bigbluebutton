@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "Verbindung nicht stabil, bitte die Internet-Verbindung überprüfen (Code 3004)",
     "app.notificationBar.connectionCode3005": "Verbindung ist langsam, Neuverbindung... (Code 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Einige Live-Daten können nicht geladen werden. Bitte die Seite neu laden (Code 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Lernanalyse-Dashboard",
     "app.learning-dashboard.description": "Dashboard mit Nutzeraktivitäten",
     "app.learning-dashboard.clickHereToOpen": "Lernanalyse-Dashboard öffnen",
