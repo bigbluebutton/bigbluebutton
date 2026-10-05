@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "A kapcsolat instabil. Ellenőrizd az internet kapcsolatot (kód 3004)",
     "app.notificationBar.connectionCode3005": "Lassú adatbetöltés. Újracsatlakozás folyamatban (kód 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Nem minden élő adat tölthető be. Frissítsd a kliensed (kód 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Aktivitáselemzési irányítópult",
     "app.learning-dashboard.description": "Irányítópult a felhasználói aktivitásokkal",
     "app.learning-dashboard.clickHereToOpen": "Aktivitáselemzési irányítópult megnyitása",
