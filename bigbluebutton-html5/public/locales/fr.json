@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "La connexion est instable. Veuillez vérifier votre connexion internet (code 3004)",
     "app.notificationBar.connectionCode3005": "Des ralentissements sont observés. Reconnexion en cours (code 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Certaines données n'ont pas pu être chargées. Veuillez actualiser votre client (code 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Tableau de bord d'activité des participants",
     "app.learning-dashboard.description": "Tableau d'activité des utilisateurs",
     "app.learning-dashboard.clickHereToOpen": "Ouvrir le tableau de bord d'activité des participants",
