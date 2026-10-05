@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "La connexió és inestable. Comprova la teva connexió a Internet (codi 3004)",
     "app.notificationBar.connectionCode3005": "Les dades es carreguen lentament. Reconnexió en curs (codi 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Algunes dades en temps real no s'han pogut carregar. Refresca el teu client (codi 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Quadre de comandament d'anàlisi de l'aprenentatge",
     "app.learning-dashboard.description": "Obrir el panell de control amb les activitats dels usuaris",
     "app.learning-dashboard.clickHereToOpen": "Obrir tauler de analítica d'aprenentatge",
