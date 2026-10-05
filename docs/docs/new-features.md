@@ -412,6 +412,8 @@ The functionality Select Random User which used to be part of the BigBlueButton 
 We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
 We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/bbb-plugin-typed-captions) which you could use instead.
 
+With this change, `captions` is no longer a valid `disabledFeatures` value. It has had no effect since BBB 3.0.0; only the documentation and the `bigbluebutton.properties` comment still listed it. A server that still sets it keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription, and `pluginManifests` to choose which plugins (such as typed captions) load in a session.
+
 #### Removed userStatus
 
 The `userStatus` feature was replaced by `userReaction`. They were vastly overlapping, causing some confusion when using and maintaining.
