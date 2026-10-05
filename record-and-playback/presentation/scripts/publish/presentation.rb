@@ -1243,7 +1243,9 @@ def get_poll_type(events, published_poll_event)
 end
 
 def generate_json_file(package_dir, filename, contents)
-  File.open("#{package_dir}/#{filename}", 'w') { |f| f.puts(contents.to_json) } unless contents.empty?
+  File.open("#{package_dir}/#{filename}", 'w') do |f|
+    f.puts(JSON.pretty_generate(contents))
+  end unless contents.empty?
 end
 
 def process_poll_events(events, package_dir)
