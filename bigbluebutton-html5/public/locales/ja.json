@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "接続が不安定です。インターネットへの接続を確認してください (コード3004)",
     "app.notificationBar.connectionCode3005": "データの受信が遅くなっています。再接続を行っています (コード3005)",
     "app.notificationBar.issueLoadingDataCode3006": "受信できなかったミーティングのデータがあります。。クライアントを再読み込みしてください (コード3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "参加状況分析ボード",
     "app.learning-dashboard.description": "ユーザーの活動状況を一覧",
     "app.learning-dashboard.clickHereToOpen": "参加状況分析ボードを開く",
