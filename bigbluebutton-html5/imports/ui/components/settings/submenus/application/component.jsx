@@ -160,11 +160,12 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
-    const { layoutContextDispatch } = this.props;
+    const { layoutContextDispatch, savedFontSize, openingFontSize } = this.props;
     const obj = this.state;
-    obj.settings.fontSize = size;
+    // Back at the size the modal opened with, the setting is as it was: no change.
+    obj.settings.fontSize = size === openingFontSize ? savedFontSize : size;
     this.setState(obj, () => {
-      ApplicationMenu.setHtmlFontSize(this.state.settings.fontSize);
+      ApplicationMenu.setHtmlFontSize(size);
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
 

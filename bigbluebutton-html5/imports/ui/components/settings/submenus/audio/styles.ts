@@ -9,6 +9,7 @@ import {
   defaultBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from '/imports/ui/components/settings/submenus/styles';
+import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
   fontSizeSmall,
@@ -108,7 +109,7 @@ const SectionTabList = styled.div`
   padding: 0.5rem 1rem;
   margin-bottom: 1.5rem;
   border: 1px solid ${defaultBorder};
-  border-radius: 1rem;
+  border-radius: ${lgBorderRadius};
 `;
 
 const SectionTab = styled.button<{ $selected: boolean }>`
@@ -117,7 +118,7 @@ const SectionTab = styled.button<{ $selected: boolean }>`
   overflow-wrap: anywhere;
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: ${lgBorderRadius};
   background: ${({ $selected }) => ($selected ? colorBlueAux : 'transparent')};
   color: ${appsPanelTextColor};
   font-size: ${fontSizeBase};
@@ -140,7 +141,6 @@ const DeviceTestContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding-bottom: 1.5rem;
 `;
 
 const SectionHeader = styled.div`
@@ -152,7 +152,7 @@ const SectionDescription = styled.p`
   margin: 0;
   max-width: 28rem;
   color: ${appsPanelTextColor};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: ${textFontWeight};
 `;
 

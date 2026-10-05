@@ -112,4 +112,22 @@ test.describe('Audio device test', { tag: '@ci' }, () => {
     await hearMyselfButton.click();
     await expect(hearMyselfButton).toHaveText(startLabel);
   });
+
+  test('mutes the user while they hear themselves', async ({ browser, context, page }, testInfo) => {
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await audioProcessingMode.initModPage(page, { testInfo });
+    await audioProcessingMode.joinWithMicrophone();
+    await audioProcessingMode.modPage.waitAndClick(e.unmuteMicButton);
+    await expect(page.locator(e.muteMicButton)).toBeAttached();
+
+    await audioProcessingMode.openAudioSettings();
+    await page.locator(e.deviceTestAudioSection).click();
+
+    const hearMyselfButton = page.locator(e.audioTestHearMyselfButton);
+    await hearMyselfButton.click();
+    await expect(page.locator(e.unmuteMicButton)).toBeAttached();
+
+    await hearMyselfButton.click();
+    await expect(page.locator(e.muteMicButton)).toBeAttached();
+  });
 });

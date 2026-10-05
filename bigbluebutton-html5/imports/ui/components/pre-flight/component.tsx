@@ -27,7 +27,7 @@ import { setDarkTheme } from '/imports/ui/components/app/service';
 import { getInitialFontSize } from '/imports/ui/components/settings/service';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
-import { applyLocaleToDocument } from '/imports/startup/client/intlAdapter';
+import { applyLocaleToDocument, getRestoredLocale } from '/imports/startup/client/intlAdapter';
 import muiThemes from '/imports/ui/services/theme/mui';
 import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -103,7 +103,14 @@ const PreFlight: React.FC<PreFlightProps> = ({
     setDarkTheme(darkTheme);
   }, [darkTheme]);
 
-  const [currentLocale] = useCurrentLocale();
+  const [currentLocale, setCurrentLocale] = useCurrentLocale();
+  // IntlAdapter does it after the join: without it, the pre-flight shows (and
+  // the settings save) the browser's locale over the one the user picked.
+  useEffect(() => {
+    const restoredLocale = getRestoredLocale(currentLocale);
+    if (restoredLocale) setCurrentLocale(restoredLocale);
+  }, []);
+
   useEffect(() => {
     if (currentLocale) applyLocaleToDocument(currentLocale);
   }, [currentLocale]);

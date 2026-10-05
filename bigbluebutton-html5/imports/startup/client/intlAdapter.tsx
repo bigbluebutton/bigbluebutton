@@ -24,6 +24,24 @@ export const applyLocaleToDocument = (locale: string) => {
   return isRTL;
 };
 
+/**
+ * The locale to restore over the current one, if any: the one forced by the join
+ * (userdata) or the one the user saved in a previous session.
+ */
+export const getRestoredLocale = (currentLocale: string): string | null => {
+  const { bbb_override_default_locale } = localUserSettings();
+  if (typeof bbb_override_default_locale === 'string') return bbb_override_default_locale;
+
+  // @ts-ignore - JS code
+  const { locale } = getSettingsSingletonInstance().application;
+  if (typeof locale === 'string' && locale !== currentLocale) {
+    const { overrideLocale } = window.meetingClientSettings.public.app.defaultSettings.application;
+    return overrideLocale || locale;
+  }
+
+  return null;
+};
+
 interface IntlAdapterProps {
   children: React.ReactNode;
 }
@@ -74,18 +92,9 @@ const IntlAdapter: React.FC<IntlAdapterProps> = ({
       `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.IntlLocaleUiDataNames.CURRENT_LOCALE}`,
       sendUiDataToPlugins,
     );
-    // @ts-ignore - JS code
-    const { locale } = Settings.application;
-    const clientSettings = window.meetingClientSettings.public.app.defaultSettings.application;
-    const { overrideLocale } = clientSettings;
-    const { bbb_override_default_locale } = localUserSettings();
-    if (typeof bbb_override_default_locale === 'string') {
-      setCurrentLocale(bbb_override_default_locale);
-    } else if (
-      typeof locale === 'string'
-      && locale !== currentLocale
-    ) {
-      setCurrentLocale(overrideLocale || locale);
+    const restoredLocale = getRestoredLocale(currentLocale);
+    if (restoredLocale) {
+      setCurrentLocale(restoredLocale);
     } else {
       setUp();
     }

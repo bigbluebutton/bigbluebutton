@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import { useLocalEcho } from './hooks';
+import { useLocalEcho, useMuteWhileHearing } from './hooks';
 
 const intlMessages = defineMessages({
   startHearing: {
@@ -19,14 +19,15 @@ interface HearMyselfButtonProps {
   outputDeviceId: string | null;
   /**
    * The classic audio modal starts hearing (localEchoTest.initialHearingState)
-   * because it mutes the user meanwhile. Elsewhere, start silent. @default false
+   * as it opens. Elsewhere, start silent. @default false
    */
   initialHearingState?: boolean;
   dataTest?: string;
 }
 
 /**
- * Toggles playing the microphone back on the output device.
+ * Toggles playing the microphone back on the output device. The user is muted
+ * in the audio meanwhile.
  */
 const HearMyselfButton: React.FC<HearMyselfButtonProps> = ({
   stream,
@@ -36,6 +37,7 @@ const HearMyselfButton: React.FC<HearMyselfButtonProps> = ({
 }) => {
   const intl = useIntl();
   const { hearing, setHearing } = useLocalEcho({ stream, outputDeviceId, initialHearingState });
+  useMuteWhileHearing(hearing);
 
   return (
     <BBButton

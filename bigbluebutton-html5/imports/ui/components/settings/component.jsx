@@ -157,6 +157,9 @@ class Settings extends Component {
     const resolvedTabIndex = tabs.indexOf(selectedTab);
     // Not part of the settings: the devices live in the audio manager.
     const audioDeviceSelection = getAudioDeviceSelection();
+    // Restored on close. Kept out of the saved settings: the application tab only
+    // reports a font size the user picks, so an untouched one would read as changed.
+    this.openingFontSize = document.getElementsByTagName('html')[0].style.fontSize;
 
     this.state = {
       current: {
@@ -214,11 +217,6 @@ class Settings extends Component {
 
       this.setState({ allLocales: tempAggregateLocales });
     });
-
-    // needed because the initial value is null in the saved state
-    const { saved } = this.state;
-    saved.application.fontSize = document.getElementsByTagName('html')[0].style.fontSize;
-    this.setState({ saved });
   }
 
   handleUpdateSettings(key, newSettings) {
@@ -308,7 +306,7 @@ class Settings extends Component {
   performClose() {
     const { saved } = this.state;
     const { setIsOpen } = this.props;
-    Settings.setHtmlFontSize(saved.application.fontSize);
+    Settings.setHtmlFontSize(this.openingFontSize);
     document.getElementsByTagName('html')[0].lang = saved.application.locale;
     setIsOpen(false);
   }
@@ -346,6 +344,7 @@ class Settings extends Component {
     const {
       selectedTab,
       current,
+      saved,
       allLocales,
       audioDeviceSelection,
     } = this.state;
@@ -361,6 +360,8 @@ class Settings extends Component {
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            savedFontSize={saved.application.fontSize}
+            openingFontSize={this.openingFontSize}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}

@@ -13,6 +13,8 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import logger from '/imports/startup/client/logger';
 import { AUDIO_INPUT, AUDIO_OUTPUT } from '/imports/ui/components/media-setup/device-label';
+import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import { toggleMuteMicrophoneSystem } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const VOLUME_POLLING_INTERVAL_MS = 100;
 // The "relevance factor" that turns hark's dB reading into a linear level: the
@@ -264,6 +266,24 @@ export const useLocalEcho = ({
   }, [outputDeviceId]);
 
   return { hearing, setHearing };
+};
+
+/**
+ * Mutes the user in the audio while they hear themselves, as the classic audio
+ * modal does during its echo test, and unmutes them when it stops.
+ */
+export const useMuteWhileHearing = (hearing: boolean): void => {
+  const toggleVoice = useToggleVoice();
+
+  useEffect(() => {
+    if (!hearing || !AudioManager.isConnected || AudioManager.isMuted) return undefined;
+
+    toggleMuteMicrophoneSystem(false, toggleVoice);
+    // A listen-only user is muted for good: nothing to restore.
+    if (AudioManager.inputDeviceId === 'listen-only') return undefined;
+
+    return () => toggleMuteMicrophoneSystem(true, toggleVoice);
+  }, [hearing]);
 };
 
 /**
