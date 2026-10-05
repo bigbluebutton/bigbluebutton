@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "Konexioa ezegonkorra da. Mesedez, egiaztatu zure Interneteko konexioa (3004 kodea)",
     "app.notificationBar.connectionCode3005": "Datuak poliki kargatzen ari dira. Birkonexioa abian (3005 kodea)",
     "app.notificationBar.issueLoadingDataCode3006": "Zuzeneko datu batzuk ezin dira kargatu. Mesedez, freskatu zure bezeroa (3006 kodea)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "Ikaskuntzaren estatistiken panela",
     "app.learning-dashboard.description": "Erabiltzaileen jardueren panela",
     "app.learning-dashboard.clickHereToOpen": "Ireki ikaskuntza estatistiken panela",
