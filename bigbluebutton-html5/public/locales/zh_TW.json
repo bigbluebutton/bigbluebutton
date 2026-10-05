@@ -1355,6 +1355,7 @@
     "app.notificationBar.connectionCode3004": "連線不穩定，請檢查你的網路連線 (代號 3004)",
     "app.notificationBar.connectionCode3005": "載入資料緩慢，正在重新連線 (代號 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "有些即時資料無法載入，請再重新整理 (代碼 3006)",
+    "app.notificationBar.issueLoadingDataCode3007": "Too much live data is open at once. Please refresh your client (code 3007)",
     "app.learning-dashboard.label": "學習分析儀表板",
     "app.learning-dashboard.description": "使用者活動的儀表板",
     "app.learning-dashboard.clickHereToOpen": "開啟學習分析儀表板",
