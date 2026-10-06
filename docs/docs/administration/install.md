@@ -178,12 +178,12 @@ BigBlueButton Server 4.1.0-alpha.1 (0)
 
 /etc/bigbluebutton/bbb-web.properties (override for bbb-web)
 /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties (bbb-web)
-       bigbluebutton.web.serverURL: https://test40.bigbluebutton.org
+       bigbluebutton.web.serverURL: https://test41.bigbluebutton.org
                 defaultGuestPolicy: ALWAYS_ACCEPT
               defaultMeetingLayout: UNIFIED_LAYOUT
 
 /etc/nginx/sites-available/bigbluebutton (nginx)
-                       server_name: test40.bigbluebutton.org
+                       server_name: test41.bigbluebutton.org
                               port: 80, [::]:80127.0.0.1:82 http2 proxy_protocol, [::1]:82 http2127.0.0.1:81 proxy_protocol, [::1]:81
 
 /opt/freeswitch/etc/freeswitch/vars.xml (FreeSWITCH)
@@ -203,7 +203,7 @@ UDP port ranges
                     bbb-webrtc-recorder: 24577-32768
 
 /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)
-                     playback_host: test40.bigbluebutton.org
+                     playback_host: test41.bigbluebutton.org
                  playback_protocol: https
                             ffmpeg: 6.1.1-3ubuntu5
 
@@ -229,7 +229,7 @@ UDP port ranges
 /usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
                              build: 64
-                        kurentoUrl: wss://test40.bigbluebutton.org/bbb-webrtc-sfu
+                        kurentoUrl: wss://test41.bigbluebutton.org/bbb-webrtc-sfu
             defaultFullAudioBridge: livekit
            defaultListenOnlyBridge: livekit
 
@@ -360,7 +360,7 @@ If this server is intended for production, you should also
 We provide publicly accessible servers that you can use for testing:
 
 - [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/) - a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases)
-- [https://test40.bigbluebutton.org](https://test40.bigbluebutton.org) - Runs the general build of BigBlueButton 4.0 - usually a few days behind the repository branch `v4.0.x-release`
+- [https://test41.bigbluebutton.org](https://test41.bigbluebutton.org) - Runs the general build of BigBlueButton 4.1 - usually a few days behind the repository branch `v4.1.x-release`
 
 To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](/development/api). To see videos of BigBlueButton HTML5 client, see [https://bigbluebutton.org/html5](https://bigbluebutton.org/html5).
 
