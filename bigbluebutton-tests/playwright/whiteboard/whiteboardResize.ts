@@ -6,6 +6,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { DrawShape } from './drawShape';
+import { getTldrawEditor } from './util';
 
 // Read the zoom percentage text from the toolbar's resetZoomButton (e.g. "150%").
 // customIcon renders the stateZoomPct string directly as text inside the button;
@@ -219,43 +220,22 @@ export class WhiteboardResize extends DrawShape {
     // camera state timing-dependent and non-deterministic across runs.
     // Instead, access the editor via React fiber and call setCamera directly.
     // This sets storedZoomRatio > 1 via the store listener without a server call.
-    const zoomed = await this.modPage.page.evaluate(() => {
-      const whiteboard = document.getElementById('whiteboard-element');
-      if (!whiteboard) return false;
-      const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>)
-        .find((k) => k.startsWith('__reactFiber'));
-      if (!fiberKey) return false;
-
-      // Walk up the React fiber tree from #whiteboard-element to find tlEditorRef.
-      // useRef stores its value as hook.memoizedState = { current: value }.
-      let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as { memoizedState: unknown; return: unknown } | null;
-      while (fiber) {
-        let hook = fiber.memoizedState as { memoizedState: unknown; next: unknown } | null;
-        while (hook) {
-          const ms = hook.memoizedState as { current?: { setCamera?: unknown; getCamera?: unknown; getViewportScreenBounds?: unknown } } | null;
-          if (ms && ms.current && typeof ms.current.setCamera === 'function') {
-            const editor = ms.current as {
-              setCamera: (cam: { x: number; y: number; z: number }, opts?: { immediate?: boolean }) => void;
-              getCamera: () => { x: number; y: number; z: number };
-              getViewportScreenBounds: () => { w: number; h: number };
-            };
-            const cam = editor.getCamera();
-            const vb = editor.getViewportScreenBounds();
-            const newZ = cam.z * 2;
-            // Zoom toward viewport center (keeps the same page point centred).
-            editor.setCamera({
-              x: cam.x + (vb.w / 2) * (1 / newZ - 1 / cam.z),
-              y: cam.y + (vb.h / 2) * (1 / newZ - 1 / cam.z),
-              z: newZ,
-            }, { immediate: true });
-            return true;
-          }
-          hook = hook.next as typeof hook;
-        }
-        fiber = fiber.return as typeof fiber;
-      }
-      return false;
+    const editor = await getTldrawEditor(this.modPage.page);
+    const zoomed = await editor.evaluate((value) => {
+      const cam = value.getCamera();
+      const vb = value.getViewportScreenBounds();
+      const newZ = cam.z * 2;
+      value.setCamera(
+        {
+          x: cam.x + (vb.w / 2) * (1 / newZ - 1 / cam.z),
+          y: cam.y + (vb.h / 2) * (1 / newZ - 1 / cam.z),
+          z: newZ,
+        },
+        { immediate: true },
+      );
+      return true;
     });
+    await editor.dispose();
 
     expect(zoomed, 'tldraw editor must be accessible via React fiber for direct camera zoom').toBe(true);
 
