@@ -1105,7 +1105,6 @@ module BigBlueButton
       events = events_xml.xpath("recording/event[@eventname='StartExternalVideoRecordEvent' or " \
                                "@eventname='UpdateExternalVideoRecordEvent' or " \
                                "@eventname='StopExternalVideoRecordEvent']")
-      # Preserve document order when callbacks have the same millisecond timestamp.
       events.each_with_index.sort_by { |event, index| [event['timestamp'].to_i, index] }.each do |event, _index|
         timestamp = event['timestamp'].to_i
         case event['eventname']
@@ -1132,7 +1131,7 @@ module BigBlueButton
           current_video = nil
         end
       end
-      # Sharing can still be active when the meeting ends.
+      # video can still be active when the meeting ends.
       current_video[:stop_timestamp] = last_event_timestamp(events_xml) if current_video
       videos
     end
