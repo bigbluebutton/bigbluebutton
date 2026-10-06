@@ -45,10 +45,15 @@ class ConnectionController {
       response.contentType = 'plain/text'
 
       if (userSession != null && !isSessionTokenInvalid) {
+        Meeting meeting = meetingService.getMeeting(userSession.meetingID)
         response.addHeader("User-Id", userSession.internalUserId)
         response.addHeader("Meeting-Id", userSession.meetingID)
         response.addHeader("Voice-Bridge", userSession.voicebridge )
         response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
+        if (meeting) {
+          response.addHeader("Meeting-Name", URLEncoder.encode(meeting.getName(), StandardCharsets.UTF_8.name()))
+          response.addHeader("Meeting-Create-Time", meeting.getCreateTime().toString())
+        }
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {

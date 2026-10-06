@@ -368,6 +368,31 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
     - Once it's shared, it should use the presentation area and not be affected by changes on presentations (e.g. delete, upload, enable download).
     - To start a normal webcam sharing, you need to first stop sharing and then click on "Share webcam" and "Start sharing".
 
+### Ask a participant to share their camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/requestCamera.spec.ts)
+
+1. Create the meeting with `allowModsToRequestCameraShare=true` and join with 2 users (a moderator and an attendee).
+
+2. Moderator: open the user list, open the attendee's options and click "Ask to share camera".
+
+    - The moderator should see a "Camera request sent to [user name]" notification.
+    - The attendee should be prompted with "A moderator is asking you to share your camera".
+    - The option should no longer be offered to the moderator while the request is pending.
+
+3. Attendee: click "Keep camera off".
+
+    - The prompt should close and no camera should be shared.
+    - The moderator should be offered the option again.
+
+4. Moderator: ask again. Attendee: click "Share camera".
+
+    - The regular webcam settings modal should open (unless `skipVideoPreview` is set).
+    - After "Start sharing", all users should see the attendee's webcam.
+    - The option should not be offered while the attendee is sharing.
+
+5. Moderator: ask again after the attendee stops sharing, then promote the attendee to moderator (and, in a separate run, make them the presenter) while the request is still unanswered.
+
+    - The prompt should stay on screen through the role change and accepting it should still share the camera.
+
 ## Screenshare
 
 ### Sharing screen in Full Screen mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/screenshare/screenshare.spec.js)
@@ -553,6 +578,131 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 6. Join each user in different rooms
 
     - you should see the correct presentation selected displayed for each user/room
+
+### Moderator listens to a breakout room audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/listenToRoom.spec.ts)
+
+Requires the LiveKit audio bridge (the default). A viewer must be in a breakout room with audio.
+
+1. As a moderator in the main room, join audio, open the breakout rooms panel and pick "Listen to this room's audio" from a running room's options menu.
+
+   - a persistent notification should appear naming the room, with a "Return to main room" button
+   - you should hear the breakout room's audio; the main room's audio should go silent
+   - unmuting should make you audible in the breakout (its members see your talking indicator); main-room users should see you as muted
+2. Mute and unmute using the main room's audio controls: the breakout side should reflect it.
+
+3. Click "Return to main room".
+
+   - the notification should close, main-room audio should resume, and unmuting should make you audible in the main room again
+4. Pick "Join room" for a running room (it opens in a new tab), then reopen that room's options menu in the main room.
+
+   - the listen option should be disabled and read "Can't listen: already in room"; other rooms' listen options stay enabled
+
+## Pre-flight
+
+The pre-flight (setup) screen is disabled by default. Enable it with `public.app.preFlight.enabled: true` in `/etc/bigbluebutton/bbb-html5.yml`, or per session with `userdata-bbb_pre_flight=true` on the join URL; when it is off, joining keeps the previous flow (straight into the meeting, with the audio modal on top).
+
+### Setting up before joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session
+
+    - The pre-flight screen should show up instead of the meeting: the setup panel on the left and the session's name with a "Join session" button on the right
+    - The microphone and camera toggles should be below the preview; the camera toggle starts in `autoShareWebcam`'s state and the microphone toggle in the meeting's `muteOnStart` state
+    - You should not appear in the user list for the other participants yet
+
+2. Click the camera toggle and pick a speaker, a microphone and a camera in the setup panel
+
+    - The camera preview should start once the camera is toggled on
+
+3. Click "Join session"
+
+    - You should land in the meeting with no audio modal and no video preview modal
+    - The audio should be connected with the selected microphone, in the state the microphone toggle showed
+    - The camera should be shared with the selected device
+    - The other participants should see you in the user list and see your camera
+
+    - If the join stalls, the button should come back as "Try again" with a message, instead of leaving you on the spinner
+
+### Joining muted and without camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session and, in the pre-flight screen, toggle the camera on and then off, and click the microphone toggle
+
+    - Both toggles should end up grey and the camera preview should stop
+
+2. Click "Join session"
+
+    - You should land in the meeting muted, with the "Unmute" button displayed
+    - No camera should be shared and the "Share webcam" button should be displayed
+
+### Changing settings before joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session and, in the pre-flight screen, click "Settings" at the bottom of the setup panel
+
+    - The same settings modal as in the meeting should open over the pre-flight, with the language dropdown on the current language
+
+2. Pick another language, increase the font size, turn on the dark mode and click "Save"
+
+    - The pre-flight should switch to the new language, font size and theme
+
+3. Click "Join session"
+
+    - The meeting should keep the language, font size and theme picked in the pre-flight
+    - The "Settings" button should not be in the meeting's profile panel
+
+### Reloading after joining
+
+1. Join a session through the pre-flight screen, then unmute yourself
+
+2. Reload the page
+
+    - The pre-flight screen should show up again instead of rejoining straight away
+    - The microphone toggle reflects the session's "mute on start" setting, not the state you left: check it before joining again, because that is the state that will apply
+
+3. Click "Join session"
+
+    - You should land back in the meeting with the audio and camera the screen showed
+
+### Guest lobby in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Moderator: set the guest policy to "Ask moderator"
+
+2. Guest: join the session
+
+    - The pre-flight screen should show up with the waiting message and the position in the waiting queue on the right
+    - No "Join session" button should be displayed while waiting
+    - The setup panel should remain usable while waiting
+
+3. Moderator: allow the pending guest
+
+    - Guest: the session's name and the "Join session" button should replace the waiting message
+
+4. Guest: click "Join session"
+
+    - The guest should land in the meeting and show up in the user list
+
+### Guest denial in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Moderator: set the guest policy to "Ask moderator"
+
+2. Guest: join the session and wait in the pre-flight guest lobby
+
+3. Moderator: deny the pending guest
+
+    - Guest: the waiting message should be replaced by the denial screen: an "Entry denied by the moderator" badge, the message explaining it, the session's name and how long ago it started above it, and a "Leave session" button
+    - The setup panel should stay where it was, with the camera preview still running if it was on
+    - A line below the message should count down to the automatic exit
+    - On a phone-width window, the denial should open as a dialog over the guest lobby, which stays visible behind a scrim, with the countdown and "Leave session" inside it
+
+4. Guest: wait without clicking anything
+
+    - After 15 seconds the guest should be taken to the session's logout URL, which carries `reasonCode=guest_deny_reason`
+
+5. Repeat steps 1-3 and reload the guest's page before the countdown runs out
+
+    - The denial screen should come back without the setup panel, and the browser should not ask for the microphone or camera
+
+6. Guest: click "Leave session" before the countdown runs out
+
+    - The guest should be taken to the same logout URL straight away
 
 ## Audio
 
@@ -1095,6 +1245,20 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 18. All users should see "Public chat is enabled" notification.
 
 19. All users should be able to send public chat messages now.
+
+### Public chat for a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/user/user.spec.ts)
+
+1. Join meeting with a moderator and a viewer. Do not enable any "Lock viewers" setting.
+
+2. Moderator: open the viewer's actions menu in the user list and select "Lock public chat".
+
+3. Viewer: should see the public chat textbox and send button disabled, while other viewers keep sending public chat messages.
+
+4. Moderator: the viewer's row in the user list should show the "Locked" label. The moderator should still be able to send public chat messages.
+
+5. Moderator: open the same viewer's actions menu and select "Unlock public chat".
+
+6. Viewer: should be able to send public chat messages again and the "Locked" label should disappear.
 
 ### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
@@ -1646,35 +1810,33 @@ Note :
 
 4. Moderator: choose "Ask moderator".
 
-5. "Waiting Users" tab should appear above the user list for all moderators.
+5. Waiting users should appear inline in the user list for all moderators.
 
-6. Moderator: click "Waiting Users" tab, the waiting users panel should open and include "Currently no pending users..." label.
-
-7. Try to join the meeting as moderator
+6. Try to join the meeting as moderator
 
     - Moderators should be able to join bypassing lobby
 
-8. Try to join the meeting as viewer
+7. Try to join the meeting as viewer
 
     - You should get into a lobby screen indicating your position in the queue
 
-9. Moderator: the waiting users panel should be populated with the list of pending viewers and options of how to proceed (if the panel is closed, the pending users counter should appear on top of the "Waiting Users" tab).
+8. Moderator: the user list should show separate "Waiting Authenticated Users" and "Waiting Guests" sections, each with its pending-user count. Expanding a section should show its users and queue-specific actions with the affected count in their labels. The global "Allow everyone" and "Deny everyone" actions should appear only when both queues contain users, also with the total affected count. Searching should filter the visible rows while keeping both queue headers, full counts, and bulk-action scopes unchanged.
 
-10. Moderator: type in the textbox, press Enter or click "Send" button. The message should be visible to all waiting viewers on their lobby screens (as well as in the moderator's waiting users panel).
+9. Moderator: click "Permissions and Policies" at the bottom of the user list, select "Guest Policy", enable "Message to the guests' lobby", type the message, and press Enter or click "Send". The message should be visible to all waiting viewers on their lobby screens.
 
-11. Moderator: click "Message" for a specific viewer in the list, type in the textbox, press Enter or click "Send" button. The message should appear only for that specific viewer.
+10. Moderator: click "Message" for a specific viewer in the list, type in the textbox, press Enter or click "Send" button. The message should appear only for that specific viewer.
 
-    - Click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
+    - Click the global "Deny everyone" action. All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be affected by this, but instead they should be placed in the waiting lobby.
 
-    - Select "Remember choice" and click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" option should become current in the waiting users modal and all new viewers should be redirected to the home page.
+    - Select "Remember choice" and click the global "Deny everyone" action. All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" should become the active Guest Policy setting, and all new viewers should be redirected to the home page.
 
-    - Click "Allow everyone". All the waiting viewers should successfully join the meeting. All new viewers should not be effected by this, but instead they should be placed in the waiting lobby.
+    - Click the global "Allow everyone" action. All the waiting viewers should successfully join the meeting. All new viewers should not be affected by this, but instead they should be placed in the waiting lobby.
 
-    - Select "Remember choice" and click "Allow everyone". All the waiting viewers should successfully join the meeting. "Always allow" option should become current in the waiting users modal and all new viewers should be able to join bypassing the waiting lobby.
+    - Select "Remember choice" and click the global "Allow everyone" action. All the waiting viewers should successfully join the meeting. "Always accept" should become the active Guest Policy setting, and all new viewers should be able to join bypassing the waiting lobby.
 
     - Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
 
-    - Click "Deny" for the specific user in teh waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
+    - Click "Deny" for the specific user in the waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
 
 ## Reactions bar
 

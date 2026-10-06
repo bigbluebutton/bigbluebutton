@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import KEYS from '/imports/utils/keys';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import useMuteSoundAlert from '/imports/ui/core/hooks/useMuteSoundAlert';
@@ -37,10 +38,11 @@ const intlMessages = defineMessages({
   },
 });
 
-interface MuteToggleProps {
+export interface MuteToggleProps {
   talking: boolean;
   muted: boolean;
   disabled: boolean;
+  mediaInterrupted: boolean;
   isAudioLocked: boolean;
   toggleMuteMicrophone: (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void;
   away: boolean;
@@ -56,6 +58,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   talking,
   muted,
   disabled,
+  mediaInterrupted,
   isAudioLocked,
   toggleMuteMicrophone,
   away,
@@ -103,6 +106,11 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     ) return;
 
     if (action === 'down' && !isKeyDown.current) {
+      // Only unmuting the mic is refused while the media session is down as it is
+      // a no-op that may create an inconsistent state.
+      // Muting should still go through as it is partially effective locally.
+      if (mediaInterrupted) return;
+
       isKeyDown.current = true;
       startPushToTalk(toggleVoice);
     } else if (action === 'up') {
@@ -116,7 +124,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     setTimeout(() => {
       muteLoadingState(false);
     }, 1000);
-  }, []);
+  }, [mediaInterrupted]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => handlePushToTalk('down', event);
@@ -128,11 +136,13 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
     return () => {
       if (cooldownTimerRef.current) {
         clearTimeout(cooldownTimerRef.current);
+        cooldownTimerRef.current = null;
+        cooldownActive.current = false;
       }
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [handlePushToTalk]);
 
   useEffect(() => {
     muteLoadingState(false);
@@ -177,16 +187,16 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.MuteToggleButton
         onClick={onClickCallback}
-        disabled={disabled || isAudioLocked}
+        disabled={disabled || isAudioLocked || (mediaInterrupted && muted)}
         hideLabel
         label={label}
         aria-label={label}
-        color={!muted ? 'primary' : 'default'}
+        color={!muted && !mediaInterrupted ? 'primary' : 'default'}
         icon={muted ? 'mute' : 'unmute'}
-        size="lg"
+        size={deviceInfo.isMobile ? 'md' : 'lg'}
         circle
         accessKey={toggleMuteShourtcut}
-        $talking={talking || undefined}
+        $talking={(talking && !mediaInterrupted) || undefined}
         animations={animations}
         loading={isMuteLoading}
         data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}

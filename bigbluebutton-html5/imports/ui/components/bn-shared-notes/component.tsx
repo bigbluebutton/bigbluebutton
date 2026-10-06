@@ -3,6 +3,10 @@ import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+// As of BlockNote 0.53, `collaboration` is no longer a `BlockNoteEditorOptions` field:
+// it ships as an extension behind the `@blocknote/core/yjs` subpath
+import { withCollaboration } from '@blocknote/core/yjs';
+import { SideMenuExtension } from '@blocknote/core/extensions';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
@@ -14,6 +18,7 @@ import {
   ComponentsContext,
   FormattingToolbar,
   NestBlockButton,
+  SuggestionMenuController,
   UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
@@ -21,11 +26,13 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
 
-import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
+import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { User } from '../../Types/user';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
@@ -70,9 +77,6 @@ const createMaxDocumentCharsExtension = (
   },
 });
 
-// The left margin of the table Block as the first block is buggy when used with static toolbar;
-// ideally the fix would come from BlockNote
-// (wait for https://github.com/TypeCellOS/BlockNote/issues/2748 to be resolved)
 const escapeBlurExtension = Extension.create({
   name: 'bbbEscapeBlur',
   addKeyboardShortcuts() {
@@ -85,29 +89,16 @@ const escapeBlurExtension = Extension.create({
   },
 });
 
-// TODO: After the issue on BlockNote is resolved, update BlockNote and remove the
-// fixCursorAtOriginExtension and the fixCursorAtOriginPluginKey
-const fixCursorAtOriginPluginKey = new PluginKey('fixCursorAtOrigin');
-const fixCursorAtOriginExtension = Extension.create({
-  name: 'bbbFixCursorAtOrigin',
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: fixCursorAtOriginPluginKey,
-        appendTransaction(_transactions, _oldState, newState) {
-          const { selection } = newState;
-          if (selection.$from.pos > 2 || selection.$to.pos > 2) return null;
-          const firstBlockContent = newState.doc.firstChild?.firstChild?.firstChild;
-          if (!firstBlockContent || firstBlockContent.type.name !== 'table') return null;
-          if (newState.doc.content.size < 1) return null;
-          const safeSelection = TextSelection.near(newState.doc.resolve(1), 1);
-          if (safeSelection.from === 0) return null;
-          return newState.tr.setSelection(safeSelection);
-        },
-      }),
-    ];
-  },
-});
+const shouldOpenSlashMenu = (transaction: Transaction) => {
+  const { $from } = transaction.selection;
+  if ($from.parent.type.isInGroup('tableContent')) return false;
+
+  const previousCharacter = $from.parent.textBetween(
+    Math.max(0, $from.parentOffset - 1),
+    $from.parentOffset,
+  );
+  return previousCharacter === '' || /\s/.test(previousCharacter);
+};
 
 // TODO: remove this workaround once y-prosemirror's cursor decoration can set `marks: []`
 // (the upstream-correct fix is `marks: []` on the cursor `Decoration.widget` in
@@ -198,6 +189,7 @@ interface BlockNoteAppProps {
 }
 
 function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
   const {
     hocuspocusProvider,
     currentUser,
@@ -266,7 +258,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     [MAX_DOCUMENT_CHARS],
   );
 
-  const editor = useCreateBlockNote({
+  const editor = useCreateBlockNote(withCollaboration({
     tabBehavior: 'prefer-indent',
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
@@ -278,6 +270,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       renderCursor: renderCollaborationCursor,
     },
     schema,
+    links: {
+      onClick: (event) => {
+        if (event.ctrlKey || event.metaKey) {
+          const anchor = (event.target as HTMLElement | null)?.closest<HTMLAnchorElement>(
+            'a[data-inline-content-type="link"]',
+          );
+          if (anchor?.href) window.open(anchor.href, '_blank', 'noopener,noreferrer');
+        }
+        return true;
+      },
+    },
     dictionary: {
       ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
       placeholders: {
@@ -289,7 +292,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       },
     },
     _tiptapOptions: {
-      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension, escapeBlurExtension],
+      extensions: [maxDocumentCharsExtension, escapeBlurExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
@@ -343,7 +346,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         return defaultPasteHandler();
       }
     },
-  }, [blockNoteLocale, notificationErrorMessage]);
+  }), [blockNoteLocale, notificationErrorMessage]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
@@ -372,6 +375,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   // Keep the editor's focus/selection when tapping a toolbar button by
   // cancelling the default focus move on mousedown.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const el = toolbarRef.current;
     if (!el) return undefined;
@@ -381,12 +385,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   }, [editable]);
 
   // Keep editor focus when clicking SideMenu/DragHandleMenu items.
-  // Skip draggable="true" elements — preventDefault on mousedown prevents drag.
+  // Skip native editable controls and BlockNote form popovers so their focus is preserved.
+  // Also skip draggable="true" elements — preventDefault on mousedown prevents drag.
   React.useEffect(() => {
     const { portalElement } = editor;
     if (!portalElement) return undefined;
     const mousedownHandler = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
+      const target = e.target as HTMLElement;
+      const nativeEditableSelector = '[draggable="true"], input, textarea, select, [contenteditable="true"], .bn-form-popover';
+      if (target.closest(nativeEditableSelector)) return;
       e.preventDefault();
       editor.focus();
     };
@@ -400,8 +407,21 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     };
   }, [editor]);
 
+  // TODO: Remove this workaround when BlockNote limits side-menu detection to the editor.
+  // Related upstream issues: https://github.com/TypeCellOS/BlockNote/issues/1016 and
+  // https://github.com/TypeCellOS/BlockNote/issues/351.
+  React.useEffect(() => {
+    const mousemoveHandler = (e: MouseEvent) => {
+      if (!wrapperRef.current?.contains(e.target as Node)) {
+        editor.getExtension(SideMenuExtension)?.hideMenuIfNotFrozen();
+      }
+    };
+    document.addEventListener('mousemove', mousemoveHandler);
+    return () => document.removeEventListener('mousemove', mousemoveHandler);
+  }, [editor]);
+
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div ref={wrapperRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
           /* BlockNote ships Inter and hardcodes it; inherit the client font
@@ -437,6 +457,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           }
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
+          }
+          /* BlockNote fixes link form inputs at 300px, which overflows the
+             Shared Notes panel and scrolls the panel when an input is focused. */
+          .bn-mantine .bn-form-popover .mantine-TextInput-root {
+            width: 100%;
           }
           /* Toolbar and editor are siblings inside .bn-container. DOM order matches
              visual order (toolbar first, editor second), so tab order is correct. */
@@ -502,8 +527,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       <BlockNoteView
         editable={editable}
         editor={editor}
-        theme="light"
+        theme={darkTheme ? 'dark' : 'light'}
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        slashMenu={false}
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
@@ -531,7 +557,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             </div>
           </ToolbarWithAccessibleMenus>
         )}
-        <BlockNoteViewEditor />
+        <BlockNoteViewEditor>
+          <SuggestionMenuController
+            triggerCharacter="/"
+            shouldOpen={shouldOpenSlashMenu}
+          />
+        </BlockNoteViewEditor>
       </BlockNoteView>
       {isImportModalOpen && editable && (
         <MarkdownImportModal
@@ -545,9 +576,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
 interface BlockNoteContainerProps {
   isVisible: boolean;
+  isOnMediaArea: boolean;
 }
 
-function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.ReactElement {
+function BlockNoteContainer({ isVisible, isOnMediaArea }: BlockNoteContainerProps): React.ReactElement {
   const {
     error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry, isSynced,
   } = useHocuspocusProvider();
@@ -585,7 +617,11 @@ function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.React
     };
   }, [renderBlockNote, isVisible, markNotesAsRead]);
   return (
-    <Styled.Notes id="bn-notes-scroll-container" isPresenter={currentUser?.presenter ?? false}>
+    <Styled.Notes
+      id="bn-notes-scroll-container"
+      isPresenter={currentUser?.presenter ?? false}
+      isOnMediaArea={isOnMediaArea}
+    >
       {(hasError) && (
         <Styled.WarningNotificationContainer data-test="notesError">
           <Styled.ErrorMessage>{error}</Styled.ErrorMessage>

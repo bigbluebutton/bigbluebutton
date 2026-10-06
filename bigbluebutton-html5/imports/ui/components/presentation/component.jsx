@@ -12,7 +12,6 @@ import Styled from './styles';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS } from '../layout/enums';
-import DEFAULT_VALUES from '../layout/defaultValues';
 import browserInfo from '/imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
@@ -557,10 +556,9 @@ class Presentation extends PureComponent {
     zoomSlide(w, h, x, y);
   }
 
-  renderPresentationToolbar(svgWidth = 0) {
+  renderPresentationToolbar() {
     const {
       currentSlide,
-      isMobile,
       fullscreenElementId,
       fullscreenContext,
       layoutContextDispatch,
@@ -580,12 +578,6 @@ class Presentation extends PureComponent {
 
     if (!currentSlide) return null;
 
-    const { presentationToolbarMinWidth } = DEFAULT_VALUES;
-
-    const toolbarWidth = (this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth)
-      || isMobile
-      ? svgWidth
-      : presentationToolbarMinWidth;
     return (
       <PresentationToolbarContainer
         {...{
@@ -593,7 +585,6 @@ class Presentation extends PureComponent {
           zoom,
           currentSlide,
           slidePosition,
-          toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
@@ -676,7 +667,6 @@ class Presentation extends PureComponent {
       isRTL = false,
       presentationBounds,
       fullscreenContext,
-      isMobile,
       currentPresentationId,
       intl,
       fullscreenElementId,
@@ -727,18 +717,6 @@ class Presentation extends PureComponent {
 
     const toolbarHeight = getToolbarHeight();
 
-    const { presentationToolbarMinWidth } = DEFAULT_VALUES;
-
-    const isLargePresentation = svgWidth > presentationToolbarMinWidth;
-
-    const containerWidth = isLargePresentation
-      ? svgWidth
-      : presentationToolbarMinWidth;
-
-    const mobileAwareContainerWidth = isMobile
-      ? presentationBounds.width
-      : containerWidth;
-
     const slideContent = currentSlide?.content
       ? `${intl.formatMessage(intlMessages.slideContentStart)}
     ${currentSlide.content}
@@ -755,6 +733,8 @@ class Presentation extends PureComponent {
       || presentationBounds.width === 0
       || presentationBounds.height === 0;
     if (!presentationIsOpen || presentationIsHidden) return null;
+
+    const toolbarWidth = Math.min(svgWidth || presentationBounds.width, presentationBounds.width);
 
     return (
       <>
@@ -872,10 +852,10 @@ class Presentation extends PureComponent {
                     this.refPresentationToolbar = ref;
                   }}
                   style={{
-                    width: mobileAwareContainerWidth,
+                    width: toolbarWidth,
                   }}
                 >
-                  {this.renderPresentationToolbar(svgWidth)}
+                  {this.renderPresentationToolbar()}
                 </Styled.PresentationToolbar>
               )}
             </Styled.SvgContainer>
@@ -931,7 +911,6 @@ Presentation.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isMobile: PropTypes.bool.isRequired,
   fullscreenContext: PropTypes.bool.isRequired,
   presentationAreaSize: PropTypes.shape({
     presentationAreaWidth: PropTypes.number.isRequired,

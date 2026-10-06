@@ -1,0 +1,21 @@
+[Unit]
+Description=Coturn STUN/TURN Server
+Documentation=man:coturn(1) man:turnadmin(1) man:turnserver(1)
+After=network.target
+After=network-online.target
+After=remote-fs.target
+Wants=network-online.target
+
+[Service]
+User=turnserver
+Group=turnserver
+Type=notify
+RuntimeDirectory=turnserver
+ExecStart=/usr/bin/turnserver -c /etc/turnserver.conf
+Restart=on-failure
+InaccessibleDirectories=/home
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
+Alias=turnserver.service

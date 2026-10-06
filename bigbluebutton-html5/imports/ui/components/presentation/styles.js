@@ -8,24 +8,21 @@ import {
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
-  colorWhite,
+  colorBlack,
   colorGrayLightest,
   colorOffWhite,
+  colorPrimary,
+  colorTextStrong,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
+import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
 
-const VisuallyHidden = styled.span`
-  position: absolute;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  height: 1px; width: 1px;
-  margin: -1px; padding: 0; border: 0;
-`;
+const { VisuallyHidden } = VisuallyHiddenStyles;
 
 const PresentationSvg = styled.svg`
   object-fit: contain;
@@ -90,7 +87,7 @@ const ToastTextContent = styled.div`
   position: relative;
   overflow: hidden;
   margin-top: ${smPaddingY};
-  color: black;
+  color: ${colorBlack};
 
   & > div:first-of-type {
     font-weight: bold;
@@ -179,7 +176,7 @@ const Button = styled.button`
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
     0px 2px 3px rgba(0, 0, 0, 0.24),
     0px 2px 6px rgba(0, 0, 0, 0.1);
-  color: #2d2d2d;
+  color: ${colorTextStrong};
   cursor: pointer;
   padding: .3rem .5rem;
   display: flex;

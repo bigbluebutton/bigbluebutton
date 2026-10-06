@@ -11,6 +11,20 @@ Ubuntu 24.04, and the full list of API, `bigbluebutton.properties` and
 `settings.yml` changes — see
 [What's new in BigBlueButton 4.0](https://docs.bigbluebutton.org/4.0/new-features/).
 
+Here's a breakdown of what's new in 4.1 so far.
+
+### Engagement
+
+#### Ask a participant to share their camera
+
+BigBlueButton 4.1 lets a moderator **ask a participant to turn on their webcam**. With the new `allowModsToRequestCameraShare` option set to `true`, moderators get an *Ask to share camera* entry in the user list; the participant is prompted and may accept or decline. Accepting takes them through the regular camera sharing flow, so the webcam is never started without their consent — a moderator cannot turn on someone's camera remotely. The default (`false`) hides the option entirely. This can be set server-wide in bbb-web's properties or per meeting on the `create` call.
+
+### bbb-web properties changes
+
+#### Added
+
+- `allowModsToRequestCameraShare` added (default `false`). When `true`, moderators may ask a participant to share their webcam; the participant accepts or declines.
+
 ## Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 4.1](/development/guide).

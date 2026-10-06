@@ -1,0 +1,28 @@
+diff --git a/src/node/utils/Minify.js b/src/node/utils/Minify.js
+index 2e8a2d9..6ab7137 100644
+--- a/src/node/utils/Minify.js
++++ b/src/node/utils/Minify.js
+@@ -152,13 +152,16 @@ const minify = async (req, res) => {
+       const plugin = plugins.plugins[library];
+       const pluginPath = plugin.package.realPath;
+       filename = path.join(pluginPath, libraryPath);
+-      // On Windows, path.relative converts forward slashes to backslashes. Convert them back
+-      // because some of the code below assumes forward slashes. Node.js treats both the backlash
+-      // and the forward slash characters as pathname component separators on Windows so this does
+-      // not change the meaning of the pathname. This conversion does not introduce a directory
+-      // traversal vulnerability because all '..\\' substrings have already been removed by
+-      // sanitizePathname.
+-      filename = filename.replace(/\\/g, '/');
++      // On Windows, path.join converts forward slashes to backslashes. Convert them back because
++      // some of the code below assumes forward slashes. Node.js treats both the backslash and the
++      // forward slash characters as pathname component separators on Windows so this does not
++      // change the meaning of the pathname on Windows.
++      //
++      // This conversion must only run on Windows: on POSIX, a backslash is an ordinary filename
++      // byte, not a separator, so sanitizePathname() intentionally leaves '..\\' segments alone.
++      // Converting unconditionally would re-derive path separators after the sanitizer has
++      // already run, which is not what the sanitizer's contract expects.
++      if (path.sep === '\\') filename = filename.replace(/\\/g, '/');
+     } else if (LIBRARY_WHITELIST.indexOf(library) !== -1) {
+       // Go straight into node_modules
+       // Avoid `require.resolve()`, since 'mustache' and 'mustache/index.js'

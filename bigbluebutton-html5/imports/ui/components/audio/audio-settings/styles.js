@@ -9,6 +9,7 @@ import {
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBlack,
   colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -49,7 +50,7 @@ const FormElement = styled.div`
 `;
 
 const LabelSmall = styled.label`
-  color: black;
+  color: ${colorBlack};
   font-size: ${fontSizeSmall};
   font-weight: 600;
 

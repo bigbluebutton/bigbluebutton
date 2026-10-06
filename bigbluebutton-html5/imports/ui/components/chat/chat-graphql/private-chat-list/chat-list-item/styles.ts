@@ -10,15 +10,15 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayDark,
-  colorOffWhite,
-  listItemBgHover,
   colorGrayLight,
-  colorWhite,
-  userListBg,
-  colorSuccess,
-  itemFocusBorder,
-  unreadMessagesBg,
   colorGrayLightest,
+  colorOffWhite,
+  colorSuccess,
+  colorWhite,
+  itemFocusBorder,
+  listItemBgHover,
+  unreadMessagesBg,
+  userListBgBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface UserAvatarProps {
@@ -81,7 +81,7 @@ const UserAvatar = styled.div<UserAvatarProps>`
     left: auto;
     bottom: ${userIndicatorsOffset};
     right: ${userIndicatorsOffset};
-    border: 1.5px solid ${userListBg};
+    border: 1.5px solid ${userListBgBorder};
     border-radius: 50%;
     background-color: ${colorSuccess};
     color: ${colorWhite};

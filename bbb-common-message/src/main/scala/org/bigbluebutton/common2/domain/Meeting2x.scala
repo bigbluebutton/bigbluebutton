@@ -23,6 +23,7 @@ case class MeetingProp(
     isBreakout:                             Boolean,
     disabledFeatures:                       Vector[String],
     notifyRecordingIsOn:                    Boolean,
+    notifyRecordingAppend:                  String,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
 )
@@ -59,6 +60,7 @@ case class UsersProp(
     allowModsToUnmuteUsers:       Boolean,
     requireUserConsentBeforeUnmuting:     Boolean,
     allowModsToEjectCameras:      Boolean,
+    allowModsToRequestCameraShare: Boolean,
     authenticatedGuest:           Boolean,
     allowPromoteGuestToModerator: Boolean,
     waitingGuestUsersTimeout: Long

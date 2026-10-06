@@ -249,7 +249,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     [data-testid="style.geo.${shape}"] { display: none !important; }
   `).join('')}
 
-  [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
+  [data-theme="dark"] button[data-testid="mobile.styles"] {
     & > div.tlui-icon {
       color: ${colorWhite};
     }

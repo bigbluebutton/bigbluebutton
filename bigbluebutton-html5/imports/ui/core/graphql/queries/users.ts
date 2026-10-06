@@ -56,6 +56,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!, $where: user_bool
     cameras {
       streamId
     }
+    requestedCameraByMod
     whiteboardWriteAccess
     lastBreakoutRoom {
       isDefaultName
@@ -103,6 +104,7 @@ User,
 | 'raiseHand'
 | 'whiteboardWriteAccess'
 | 'locked'
+| 'requestedCameraByMod'
 > & {
   raiseHandTime?: string;
   voice?: {
@@ -140,5 +142,6 @@ subscription RaisedHandUsers {
       deafened
     }
     locked
+    requestedCameraByMod
   }
 }`;

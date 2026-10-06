@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.core.api.BreakoutRoomEndedInternalMsg
 import org.bigbluebutton.core.db.{ BreakoutRoomDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.LiveKitMemberships
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -17,6 +18,9 @@ trait BreakoutRoomEndedInternalMsgHdlr {
     // send out BreakoutRoomEndedEvtMsg to inform clients the breakout has ended
     outGW.send(MsgBuilder.buildBreakoutRoomEndedEvtMsg(liveMeeting.props.meetingProp.intId, "not-used",
       msg.meetingId))
+
+    // Remove any LK memberships pointing at this breakout.
+    LiveKitMemberships.removeByRoomAll(liveMeeting.liveKitMemberships, msg.meetingId)
 
     val updatedModel = for {
       breakoutModel <- state.breakout

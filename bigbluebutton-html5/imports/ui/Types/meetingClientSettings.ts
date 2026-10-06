@@ -37,15 +37,20 @@ export interface Locales {
   locale: string
   name: string
 }
+export interface PreFlight {
+  enabled: boolean
+}
 export interface App {
   mobileFontSize: string
   desktopFontSize: string
   autoJoin: boolean
+  preFlight: PreFlight
   listenOnlyMode: boolean
   forceListenOnly: boolean
   skipCheck: boolean
   skipCheckOnJoin: boolean
   enableDynamicAudioDeviceSelection: boolean
+  skipEchoTestIfPreviousDevice: boolean
   clientTitle: string
   bbbServerVersion: string
   displayBbbServerVersion: boolean
@@ -130,6 +135,9 @@ export interface AudioCaptions {
   showInSidebarNavigation: boolean
   microphoneAlert: MicrophoneAlert
   language: Language
+  // settings.yml ships `terms:` with no value, which reaches the client as an
+  // explicit null — the defaults merge leaves it as-is, so read sites guard.
+  terms: Record<string, string> | null
 }
 
 export interface MicrophoneAlert {
@@ -166,6 +174,7 @@ export interface Breakouts {
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
+  inheritLockSettingsByDefault: boolean
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
@@ -217,19 +226,25 @@ export interface Application {
   raiseHandPushAlerts: boolean
   guestWaitingAudioAlerts: boolean
   guestWaitingPushAlerts: boolean
+  muteUnmuteAudioAlerts: boolean
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  recordingIndicatorAutoCollapse: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
+  directLeaveButton: boolean
   darkTheme: boolean
+  webcamBorderHighlightColor: number[]
   fallbackLocale: string
   overrideLocale: string | null
+  audioWasmProcessing: boolean
 }
 
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
+  processingMode: 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -325,6 +340,7 @@ export interface Kurento {
   cameraWsOptions: CameraWsOptions
   gUMTimeout: number
   signalCandidates: boolean
+  restartIce: RestartIce
   traceLogs: boolean
   cameraTimeouts: CameraTimeouts
   screenshare: Screenshare
@@ -336,11 +352,23 @@ export interface Kurento {
   autoShareWebcam: boolean
   skipVideoPreview: boolean
   skipVideoPreviewOnFirstJoin: boolean
+  skipVideoPreviewIfPreviousDevice: boolean
   cameraSortingModes: CameraSortingModes
   cameraQualityThresholds: CameraQualityThresholds
   pagination: Pagination
   paginationThresholds: PaginationThresholds
   videoMediaServer?: string
+}
+
+export interface RestartIce {
+  audio: RestartIceOptions
+  video: RestartIceOptions
+  screenshare: RestartIceOptions
+}
+
+export interface RestartIceOptions {
+  enabled: boolean
+  retries: number
 }
 
 export interface CameraWsOptions {
@@ -362,6 +390,7 @@ export interface CameraTimeouts {
 }
 
 export interface Screenshare {
+  showButtonForNonPresenters: boolean
   enableVolumeControl: boolean
   subscriberOffering: boolean
   bitrate: number
@@ -442,6 +471,7 @@ export interface Pagination {
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
+  gridEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }
@@ -547,6 +577,7 @@ export interface Chat {
   storage_key: string
   system_messages_keys: SystemMessagesKeys
   typingIndicator: TypingIndicator
+  mentions: Mentions
   moderatorChatEmphasized: boolean
   privateMessageReadFeedback: MessageReadFeedback
   autoConvertEmoji: boolean
@@ -554,6 +585,7 @@ export interface Chat {
   disableEmojis: string[]
   markdownImageAllowed: boolean
   toolbar: string[]
+  announcePresenterChangeInChat: boolean
 }
 
 export interface MultiFunctionalMode {
@@ -570,6 +602,12 @@ export interface SystemMessagesKeys {
 export interface TypingIndicator {
   enabled: boolean
   showNames: boolean
+}
+
+export interface Mentions {
+  pickerLimit: number
+  pickerDebounceMs: number
+  maxWords: number
 }
 
 export interface MessageReadFeedback {
@@ -600,8 +638,11 @@ export interface Notes {
 export interface Layout {
   hidePresentationOnJoin: boolean
   showParticipantsOnLogin: boolean
+  showSessionDetailsOnJoin: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
+  usersPerUserListPage: number
+  syncCameraDockSizeAndPosition: boolean
 }
 
 export interface SidebarNavigationButtons {
@@ -644,8 +685,12 @@ export interface Media {
   listenOnlyOffering: boolean
   toggleMuteThrottleTime: number
   localEchoTest: LocalEchoTest
-  networkPriorities: MediaNetworkPriorities
+  // Commented out in settings.yml: absence means "do not set networkPriority
+  // on sender encodings at all", so it must stay absent from the defaults.
+  networkPriorities?: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
+  skipInitialCamEnumeration: boolean
+  screenshareTroubleshootingLinks: Record<string, string>
   livekit: LiveKitSettings
 }
 
@@ -685,8 +730,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
@@ -696,6 +743,7 @@ export interface LiveKitSettings {
 
 export interface AudioWasmProcessingSettings {
   enabled: boolean
+  provider?: 'bbba' | 'workadventureDtln'
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
@@ -706,6 +754,8 @@ export interface Audio2 {
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
   audioWasmProcessing?: AudioWasmProcessingSettings
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  microphoneConstraints?: Record<string, unknown>
 }
 
 export interface Screenshare2 {
@@ -738,10 +788,15 @@ export interface Stats {
   timeout: number
   logMediaStats: LogMediaStats
   notification: Notification
-  loss: number[]
-  rtt: number[]
-  level: string[]
+  loss: StatsThresholds
+  rtt: StatsThresholds
   help: string
+}
+
+export interface StatsThresholds {
+  warning: number
+  danger: number
+  critical: number
 }
 
 export interface LogMediaStats {
@@ -814,11 +869,14 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
+  slideSwapDecodeTimeoutMs: number
+  wheelZoomRequiresCtrl: boolean
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
   allowInfiniteWhiteboardPanForViewers: boolean
+  locales: string[]
   styles: Styles
   toolbar: Toolbar
 }
@@ -834,6 +892,11 @@ export interface Status {
 }
 
 export interface Styles {
+  colorStyle: string
+  dashStyle: string
+  fillStyle: string
+  fontStyle: string
+  sizeStyle: string
   text: Text
 }
 
@@ -867,6 +930,7 @@ export interface ClientLog {
 }
 
 export interface Console {
+  enableRuntimeErrorLogging: boolean
   enabled: boolean
   level: string
 }

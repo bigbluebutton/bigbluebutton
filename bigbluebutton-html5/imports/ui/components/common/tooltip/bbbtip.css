@@ -1,13 +1,13 @@
 .tippy-box[data-theme~='bbbtip']{
-    color:#fff;
-    background-color:#333333;
+    color: var(--color-white, #fff);
+    background-color: var(--color-tip-bg, #333333);
     padding: .25rem .5rem;
     border-radius: 4px;
     user-select: none;
 }
 
 .tippy-box[data-theme~='bbbtip']>.tippy-svg-arrow{
-    fill: #333333;
+    fill: var(--color-tip-bg, #333333);
     background-color: transparent;
 }
 

@@ -27,6 +27,7 @@
 - `meetingCameraCap`
 - `meetingId`
 - `name`
+- `notifyRecordingAppend`
 - `notifyRecordingIsOn`
 - `presentationUploadExternalDescription`
 - `presentationUploadExternalUrl`
@@ -111,6 +112,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactionEmoji`
 - `registeredAt`
 - `registeredOn`
+- `requestedCameraByMod`
 - `role`
 - `speechLocale`
 - `userId`
@@ -123,7 +125,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `guestStatusDetails: Object` [Type user_guest](#type-user_guest)
 - `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
-- `livekit: Object` [Type user_livekit](#type-user_livekit)
+- `livekitRooms: Array` [Type user_livekit_room](#type-user_livekit_room)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `sessionCurrent: Object` [Type user_session_current](#type-user_session_current)
@@ -234,6 +236,7 @@ Permission: Restricted by Lock Settings
 - `reactionEmoji`
 - `registeredAt`
 - `registeredOn`
+- `requestedCameraByMod`
 - `role`
 - `speechLocale`
 - `userId`
@@ -421,6 +424,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `createdAt`
 - `ended`
 - `multipleResponses`
+- `numResponders`
 - `ownerId`
 - `pollId`
 - `published`
@@ -916,10 +920,12 @@ Permission: Restricted to Moderators
 - `shortName`
 - `startedAt`
 
-## Type: user_livekit
+## Type: user_livekit_room
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
-- `livekitToken`
+- `roomName`
+- `purpose`
+- `token`
 
 ## Type: user_session
 Permission: Restricted to User Viewing Self-Related Data

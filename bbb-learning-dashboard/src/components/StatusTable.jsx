@@ -121,8 +121,16 @@ class StatusTable extends React.Component {
     const usersPeriods = {};
     Object.values(allUsers || {}).forEach((user) => {
       usersPeriods[user.userKey] = [];
-      Object.values(user.intIds || {}).forEach((intId, index, intIdsArray) => {
-        intId.sessions.forEach((session, sessionIndex, sessionArray) => {
+      // The session merge below consumes entries as it walks them. Copy the session arrays first:
+      // they belong to the polled payload held in App's state, and splicing them there
+      // deletes sessions for every other consumer until the next poll replaces it.
+      const intIdsArray = Object.values(user.intIds || {})
+        .map((intId) => ({ ...intId, sessions: [...(intId.sessions || [])] }));
+
+      for (let index = 0; index < intIdsArray.length; index += 1) {
+        const sessionArray = intIdsArray[index].sessions;
+        for (let sessionIndex = 0; sessionIndex < sessionArray.length; sessionIndex += 1) {
+          const session = sessionArray[sessionIndex];
           let { leftOn } = session;
           const nextSession = sessionArray[sessionIndex + 1];
           if (nextSession && Math.abs(leftOn - nextSession.registeredOn) <= 30000) {
@@ -140,8 +148,8 @@ class StatusTable extends React.Component {
             registeredOn: session.registeredOn,
             leftOn,
           });
-        });
-      });
+        }
+      }
     });
 
     const usersRegisteredTimes = Object
@@ -234,6 +242,7 @@ class StatusTable extends React.Component {
                   : `${URLPrefix}/${presentationId}/thumbnail/${pageNum}${tokenParams}`;
                 return (
                   <td
+                    key={start}
                     style={{
                       [padding]: `${(end - start) / 1000}px`,
                     }}
@@ -281,7 +290,7 @@ class StatusTable extends React.Component {
                 return 0;
               })
               .map((user) => (
-                <tr className="text-gray-700 bg-inherit">
+                <tr className="text-gray-700 bg-inherit" key={user.userKey}>
                   <th
                     className={`z-30 px-4 py-3 bg-inherit sticky ${isRTL ? 'right-0' : 'left-0'}`}
                     scope="row"
@@ -305,7 +314,7 @@ class StatusTable extends React.Component {
                     const boundaryRight = period.end;
                     const interval = period.end - period.start;
                     return (
-                      <td className="relative px-3.5 2xl:px-4 py-3 text-sm col-text-left">
+                      <td className="relative px-3.5 2xl:px-4 py-3 text-sm col-text-left" key={period.start}>
                         { usersPeriods[user.userKey].length > 0 ? (
                           usersPeriods[user.userKey].map((userPeriod) => {
                             const { registeredOn, leftOn } = userPeriod;
@@ -315,7 +324,7 @@ class StatusTable extends React.Component {
                               leftOn >= boundaryLeft && leftOn <= boundaryRight
                                 ? leftOn : boundaryRight);
                             return (
-                              <>
+                              <React.Fragment key={`${registeredOn}-${leftOn}`}>
                                 { (registeredOn >= boundaryLeft && registeredOn <= boundaryRight)
                                   || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
                                   || (boundaryLeft > registeredOn && boundaryRight < leftOn)
@@ -329,6 +338,7 @@ class StatusTable extends React.Component {
                                   const redress = '(0.875rem / 2 + 0.25rem + 2px)';
                                   return (
                                     <div
+                                      key={`${reaction.sentOn}-${reaction.name}`}
                                       className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-reaction select-none"
                                       role="generic"
                                       style={{
@@ -340,7 +350,7 @@ class StatusTable extends React.Component {
                                     </div>
                                   );
                                 }) }
-                              </>
+                              </React.Fragment>
                             );
                           })
                         ) : null }

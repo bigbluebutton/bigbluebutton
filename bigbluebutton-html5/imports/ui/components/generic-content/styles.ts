@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { colorBlackSurface } from '/imports/ui/stylesheets/styled-components/palette';
 
 type ContainerProps = {
   preventInteraction: boolean;
@@ -8,7 +9,7 @@ type ContainerProps = {
 export const Container = styled.div<ContainerProps>`
   position: absolute;
   pointer-events: inherit;
-  background: var(--color-black);
+  background: ${colorBlackSurface};
   z-index: 5;
   display: grid;
   ${({ preventInteraction }) => preventInteraction && `
