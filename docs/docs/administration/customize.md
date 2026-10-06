@@ -1499,6 +1499,18 @@ HERE
 
 ### HTML5 client
 
+#### Configure when the remaining time banner appears
+
+By default, the HTML5 client shows the remaining time banner when a meeting has fewer than 6 minutes left. To change the threshold, set `public.app.remainingTimeThresholdInMinutes` in `/etc/bigbluebutton/bbb-html5.yml`. For example, the following restores the previous behaviour, where the banner appeared 30 minutes before the end of the meeting:
+
+```yaml
+public:
+  app:
+    remainingTimeThresholdInMinutes: 30
+```
+
+Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new threshold applies to meetings created after the restart.
+
 #### Change the default welcome message
 
 The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.

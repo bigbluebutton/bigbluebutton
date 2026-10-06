@@ -93,6 +93,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       appsGallery: {
         maxPinnedApps: 3,
       },
+      remainingTimeThresholdInMinutes: 6,
       remainingTimeAlertThresholdArray: [
         1,
         5,
