@@ -280,22 +280,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test.describe.serial(() => {
-      // current testing code is checking the old (write) captions
-      // this parameter should works the same way with the automatic captions
-      test.fixme();
-      test('Captions', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.captionsDisabled, testInfo });
-        await disabledFeatures.captions();
-      });
-      test('Captions (exclude)', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.captionsExclude, testInfo });
-        await disabledFeatures.captionsExclude();
-      });
-    });
-
-    test.describe.serial(() => {
       test('Chat', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, { createParameter: c.chatDisabled, testInfo });

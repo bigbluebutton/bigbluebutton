@@ -102,7 +102,6 @@ export const constants = {
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
   speechRecognitionDisabled: 'disabledFeatures=liveTranscription',
-  captionsDisabled: 'disabledFeatures=captions',
   chatDisabled: 'disabledFeatures=chat',
   externalVideosDisabled: 'disabledFeatures=externalVideos',
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
@@ -123,7 +122,6 @@ export const constants = {
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
   speechRecognitionExclude:
     'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
-  captionsExclude: 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
   learningDashboardExclude:

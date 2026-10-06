@@ -144,6 +144,7 @@ Updated in 4.0:
   - **Changed:** Parameter `sharedNotesEditor` now strips control characters and surrounding whitespace, accepts `etherpad` or `blockNote` case-insensitively, canonicalizes known values, and rejects unknown values.
   - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
+  - **Removed option:** `captions` is no longer a valid `disabledFeatures` value (it has had no effect since BBB 3.0, when typed captions moved to a plugin). Use `liveTranscription` to disable automatic transcription.
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
