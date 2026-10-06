@@ -305,6 +305,8 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `lockSettingsDisableNote` is no longer recognized; use `lockSettingsDisableNotes` instead. The singular property was renamed in BBB 2.5.
 - `clientLogoutTimerInMinutes` was removed. It was never consumed by the HTML5 client; its last reader, the `/enter` endpoint, was removed before BBB 4.0.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="clientLogoutTimerInMinutes" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise. The `bbb-conf --check` retired-property warning only scans `/etc/bigbluebutton/bbb-web.properties`, not `resources.xml`.
+- `enteredUsersTimeout` was removed. It set how long bbb-web tracked users who had called the `/enter` endpoint without joining; that endpoint was removed in BBB 3.0, so nothing has been tracked since. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
+  - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `enteredUserCleanupTimerTask` bean and the `<property name="enteredUserCleanupTimerTask" .../>` and `<property name="enteredUsersTimeout" .../>` entries - bbb-web will fail to start otherwise.
 
 #### Value changed
 
