@@ -223,6 +223,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       logger.debug("Speech recognition ended by browser, but we're not muted. Restart it");
       const timeSinceLastStart = new Date().getTime() - lastStartedAt.current;
       if (timeSinceLastStart < 1000) {
+        clearTimeout(restartTimeoutRef.current);
         restartTimeoutRef.current = setTimeout(() => {
           if (connectedRef.current && !mutedRef.current) start(localeRef.current);
         }, 1000 - timeSinceLastStart);
