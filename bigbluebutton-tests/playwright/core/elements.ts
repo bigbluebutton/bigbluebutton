@@ -227,6 +227,7 @@ export const elements = {
   preFlight: 'div[data-test="preFlight"]',
   layoutContainer: 'div#layout',
   preFlightJoinButton: 'button[data-test="preFlightJoinButton"]',
+  preFlightSettingsButton: 'button[data-test="preFlightSettingsButton"]',
   preFlightSessionInfo: '[data-test="preFlightSessionInfo"]',
   preFlightSessionAge: '[data-test="preFlightSessionAge"]',
   preFlightErrorDialog: '[data-test="preFlightErrorDialog"]',
@@ -548,6 +549,12 @@ export const elements = {
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
   standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
   originalAudioRadio: 'input[data-test="originalAudioRadio"]',
+  processingAudioSection: 'button[data-test="processingAudioSection"]',
+  deviceTestAudioSection: 'button[data-test="deviceTestAudioSection"]',
+  audioTestInputDevice: 'select[data-test="audioTestInputDevice"]',
+  audioTestOutputDevice: 'select[data-test="audioTestOutputDevice"]',
+  audioTestHearMyselfButton: 'button[data-test="audioTestHearMyselfButton"]',
+  audioTestHasVolume: 'div[data-test="audioTestVolumeMeter"][data-has-volume="true"]',
 
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',

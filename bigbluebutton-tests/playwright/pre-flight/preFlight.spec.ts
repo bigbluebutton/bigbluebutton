@@ -38,6 +38,12 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     await preFlight.picksDevicesInTheSetupPanel();
   });
 
+  test('Changes settings before joining', async ({ browser, context, page }, testInfo) => {
+    const preFlight = new PreFlight(browser, context);
+    await preFlight.initModPage(page, { testInfo });
+    await preFlight.changesSettingsBeforeJoining();
+  });
+
   test('Guest lobby within the pre-flight', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, { testInfo });

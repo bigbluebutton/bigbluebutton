@@ -1,33 +1,18 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
-import {
-  truncateDeviceName,
-} from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import useAudioDeviceLabel, { AUDIO_INPUT, AUDIO_OUTPUT } from '/imports/ui/components/media-setup/device-label';
 // The styled pieces still live in the profile panel; moving them into a neutral
 // module is a follow-up.
 import Styled from '/imports/ui/components/profile-settings/styles';
 
-export const AUDIO_INPUT = 'audioinput';
-export const AUDIO_OUTPUT = 'audiooutput';
+export { AUDIO_INPUT, AUDIO_OUTPUT };
 
 const intlMessages = defineMessages({
   noDeviceFound: {
     id: 'app.audio.noDeviceFound',
     description: 'No device found',
-  },
-  fallbackInputLabel: {
-    id: 'app.audio.audioSettings.fallbackInputLabel',
-    description: 'Audio input device label',
-  },
-  fallbackOutputLabel: {
-    id: 'app.audio.audioSettings.fallbackOutputLabel',
-    description: 'Audio output device label',
-  },
-  fallbackNoPermissionLabel: {
-    id: 'app.audio.audioSettings.fallbackNoPermission',
-    description: 'No permission to access audio devices label',
   },
 });
 
@@ -65,22 +50,11 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
 }) => {
   const intl = useIntl();
 
-  const getFallbackLabel = useCallback((device: MediaDeviceInfo, index: number) => {
-    const baseLabel = device?.kind === AUDIO_OUTPUT
-      ? intlMessages.fallbackOutputLabel
-      : intlMessages.fallbackInputLabel;
-    let label = intl.formatMessage(baseLabel, { index });
-
-    if (!device?.deviceId) {
-      label = `${label} ${intl.formatMessage(intlMessages.fallbackNoPermissionLabel)}`;
-    }
-
-    return label;
-  }, [intl]);
+  const getDeviceLabel = useAudioDeviceLabel();
 
   const renderOptions = (devices: MediaDeviceInfo[]) => devices.map((device, index) => (
     <MenuItem key={device.deviceId} value={device.deviceId}>
-      {truncateDeviceName(device.label || getFallbackLabel(device, index + 1))}
+      {getDeviceLabel(device, index + 1)}
     </MenuItem>
   ));
 
