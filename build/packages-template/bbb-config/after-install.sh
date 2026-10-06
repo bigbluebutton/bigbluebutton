@@ -162,8 +162,9 @@ fi
 # Etherpad (bbb-etherpad + bbb-pads) was removed in BigBlueButton 4.0. bbb-config
 # and the bigbluebutton meta-package conflict with both packages, so apt removes them
 # before this script runs; clean up what a plain package removal leaves behind.
-# Never call apt/dpkg from here (the dpkg lock is held); every step is guarded so the
-# cleanup is a no-op on servers that never had Etherpad and when run again.
+# Never call apt/dpkg from here (the dpkg lock is held). The cleanup only runs on
+# upgrades (or when a package was left in config-files state), and every step is
+# guarded so it is a no-op on servers that never had Etherpad and when run again.
 etherpadPackageInstalled() {
   local status
   status=$(dpkg-query -W -f='${db:Status-Status}' "$1" 2>/dev/null || true)
@@ -171,6 +172,20 @@ etherpadPackageInstalled() {
     ""|not-installed|config-files) return 1 ;;
     *) return 0 ;;
   esac
+}
+
+# $1 is the previously configured bbb-config version, empty on a fresh install
+etherpadCleanupNeeded() {
+  local pkg
+  if [ -n "$1" ]; then
+    return 0
+  fi
+  for pkg in bbb-etherpad bbb-pads; do
+    if [ "$(dpkg-query -W -f='${db:Status-Status}' "$pkg" 2>/dev/null || true)" = config-files ]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 cleanupEtherpadResidue() {
@@ -228,16 +243,19 @@ cleanupEtherpadResidue() {
     done
   fi
 
-  # the /pad location went away with the bbb-etherpad package
   if [ "$removed" = 1 ]; then
     systemctl daemon-reload
-    if systemctl -q is-active nginx 2> /dev/null && nginx -t > /dev/null 2>&1; then
-      systemctl reload nginx || echo "nginx could not be reloaded"
-    fi
+  fi
+  # apt may already have removed the /pad location (notes.nginx) with bbb-etherpad,
+  # leaving nothing for this function to delete, so reload whenever nginx is running
+  if systemctl -q is-active nginx 2> /dev/null && nginx -t > /dev/null 2>&1; then
+    systemctl reload nginx || echo "nginx could not be reloaded"
   fi
 }
 
-cleanupEtherpadResidue
+if etherpadCleanupNeeded "${2:-}"; then
+  cleanupEtherpadResidue
+fi
 
 # Load the overrides
 systemctl daemon-reload
