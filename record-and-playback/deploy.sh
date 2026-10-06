@@ -20,6 +20,7 @@
 set -xe
 
 sudo cp core/Gemfile /usr/local/bigbluebutton/core/Gemfile
+sudo cp core/Gemfile.lock /usr/local/bigbluebutton/core/Gemfile.lock
 sudo rm -rf /usr/local/bigbluebutton/core/lib
 sudo cp -r core/lib /usr/local/bigbluebutton/core/
 sudo rm -rf /usr/local/bigbluebutton/core/scripts
