@@ -6,7 +6,6 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const getLang = (): string => {
   const Settings = getSettingsSingletonInstance();
-  // @ts-ignore While Meteor in the project
   const { locale } = Settings.application;
   return locale ? locale.toLowerCase() : '';
 };
