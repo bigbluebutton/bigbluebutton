@@ -192,7 +192,7 @@ Here's a sample log entry
 
 Located in `/etc/nginx/sites-enabled/bigbluebutton`
 
-This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/develop/build/packages-template/bbb-html5/bigbluebutton.nginx))
+This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx))
 
 
 ### Log files
@@ -213,7 +213,7 @@ This configures nginx to use `/var/www/bigbluebutton-default/assets` as the defa
 
 This is one of the main configuration files for BigBlueButton applications.
 
-https://github.com/bigbluebutton/bigbluebutton/blob/main/bigbluebutton-web/grails-app/conf/bigbluebutton.properties
+https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties
 
 ### Log files
 
