@@ -4,13 +4,6 @@ BIGBLUEBUTTON_USER=bigbluebutton
 BBB_HTML5_SETTINGS_FILE=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 
-HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-if grep -v '#' /etc/bigbluebutton/bbb-web.properties | grep -q '^bigbluebutton.web.serverURL=https'; then
-  PROTOCOL=https
-else
-  PROTOCOL=http
-fi
-
 chown -R $BIGBLUEBUTTON_USER:$BIGBLUEBUTTON_USER /usr/share/bigbluebutton/html5-client/
 
 if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then

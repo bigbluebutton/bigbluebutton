@@ -2,25 +2,6 @@
 import Auth from '/imports/ui/services/auth';
 import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import { uniqueId } from '/imports/utils/string-utils';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-
-const getLang = (): string => {
-  const Settings = getSettingsSingletonInstance();
-  const { locale } = Settings.application;
-  return locale ? locale.toLowerCase() : '';
-};
-
-const getParams = () => {
-  const config = {
-    lang: getLang(),
-    rtl: document.documentElement.getAttribute('dir') === 'rtl',
-  };
-
-  const params = Object.keys(config)
-    .map((key) => `${key}=${encodeURIComponent(config[key as keyof typeof config])}`)
-    .join('&');
-  return params;
-};
 
 async function convertAndUpload(
   presentations: any,
@@ -41,8 +22,7 @@ async function convertAndUpload(
   const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
     || window.location.hostname;
 
-  const params = getParams();
-  const exportUrl = Auth.authenticateURL(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/${extension}?${params}`);
+  const exportUrl = Auth.authenticateURL(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/${extension}`);
 
   const sharedNotesAsFile = await fetch(exportUrl, { credentials: 'include' });
 
