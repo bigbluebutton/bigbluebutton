@@ -2558,7 +2558,7 @@ select "meeting"."meetingId",
         (case
             when NULLIF("durationInSeconds",0) is null then false
             when current_timestamp + (
-                SELECT coalesce(("clientSettingsJson"->'public'->'app'->'remainingTimeThresholdInMinutes')::int, 30) * '1 minute'::interval
+                SELECT coalesce(("clientSettingsJson"->'public'->'app'->'remainingTimeThresholdInMinutes')::int, 6) * '1 minute'::interval
                 FROM "meeting_clientSettings" mcs
                 WHERE mcs."meetingId" = "meeting"."meetingId"
             ) > ("createdAt" + ("durationInSeconds" * '1 second'::interval)) then true
