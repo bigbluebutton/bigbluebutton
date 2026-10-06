@@ -47,7 +47,9 @@ interface PreFlightAudioSelectorsProps {
  */
 const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ listenOnly }) => {
   const intl = useIntl();
-  const { microphoneDenied, setMicrophoneDenied, permissionRetry } = usePreFlight();
+  const {
+    microphoneDenied, setMicrophoneDenied, setMicrophonePending, permissionRetry,
+  } = usePreFlight();
   // Bumped when the browser's own microphone permission changes, so a grant
   // made in the site settings clears the denial without a retry.
   const [permissionChanges, setPermissionChanges] = useState(0);
@@ -163,9 +165,12 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
   useEffect(() => {
     if (listenOnly) {
       updateDevices();
-      return;
+      return undefined;
     }
 
+    // Only the latest check settles the pending state.
+    let superseded = false;
+    setMicrophonePending(true);
     // Without microphone permission the browser obfuscates the device labels.
     // Only a refusal counts as denied: an unknown answer gets the benefit of
     // the doubt, as in the audio modal.
@@ -174,7 +179,15 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
         setMicrophoneDenied(granted === false);
         updateDevices();
       })
-      .catch(() => null);
+      .catch(() => null)
+      .finally(() => {
+        if (!superseded) setMicrophonePending(false);
+      });
+
+    return () => {
+      superseded = true;
+      setMicrophonePending(false);
+    };
   }, [listenOnly, permissionStatus, permissionRetry, permissionChanges, updateDevices]);
 
   // A microphone picked in the settings' device test lands in the manager.
@@ -218,6 +231,8 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
         : undefined}
       inputAriaLabel={intl.formatMessage(intlMessages.microphoneSourceLabel)}
       outputAriaLabel={intl.formatMessage(intlMessages.speakerSourceLabel)}
+      inputPlaceholder={intl.formatMessage(intlMessages.microphoneSourceLabel)}
+      outputPlaceholder={intl.formatMessage(intlMessages.speakerSourceLabel)}
       inputDataTest="preFlightInputDevice"
       inputErrorDataTest="preFlightInputDeviceError"
       outputDataTest="preFlightOutputDevice"

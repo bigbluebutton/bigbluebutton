@@ -4,6 +4,7 @@ import LockPersonIcon from '@mui/icons-material/LockPersonOutlined';
 import HeadphonesIcon from '@mui/icons-material/HeadphonesOutlined';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import {
   PreFlightErrorAction,
   PreFlightErrorActions,
@@ -47,7 +48,11 @@ const intlMessages = defineMessages({
 
 export const DevicePermissionHeader: React.FC = () => {
   const intl = useIntl();
-  const { helpLink } = window.meetingClientSettings.public.app;
+  const { public: { app, media } } = window.meetingClientSettings;
+  // The audio modal's permission troubleshooting link, where the deployment
+  // set one; the generic help page otherwise.
+  const helpLink = media.audioTroubleshootingLinks?.[AudioErrors.MIC_ERROR.NO_PERMISSION]
+    || app.helpLink;
 
   return (
     <PreFlightErrorHeader
