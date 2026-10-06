@@ -72,11 +72,12 @@ interface PreFlightProps {
   error?: PreFlightError | null;
   // Set to the setup's commit, for a join the screen's own button does not
   // start: a retry after a stalled join carries what was changed meanwhile.
-  // Returns false, committing nothing, while a denied device holds the join.
+  // Returns false, committing nothing, while a denied device holds the join
+  // or the browser has yet to answer for one.
   commitRef?: React.MutableRefObject<(() => boolean) | null>;
-  // On while the user sets up, waiting guests included: a denied device then
-  // holds the screen on the permission error until it is sorted out. Off once
-  // the join is underway.
+  // On once the user may join, until the join is underway: a denied device
+  // then holds the screen on the permission error until it is sorted out. A
+  // waiting guest keeps the lobby, with the device flagged in the panel.
   gateJoinOnDevices?: boolean;
 }
 
@@ -118,6 +119,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
   const [cameraFailed, setCameraFailed] = useState(false);
   const [microphoneDenied, setMicrophoneDenied] = useState(false);
   const [cameraDenied, setCameraDenied] = useState(false);
+  const [microphonePending, setMicrophonePending] = useState(false);
+  const [cameraPending, setCameraPending] = useState(false);
   const [permissionRetry, setPermissionRetry] = useState(0);
   // Where listen only is off, a denied microphone can still be passed over:
   // the user joins without audio and can join it from the session.
@@ -187,6 +190,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
     && !microphoneSkipped;
   const cameraBlocked = cameraDenied && shareCamera;
   const devicesBlocked = microphoneBlocked || cameraBlocked;
+  const devicesPending = (microphonePending && audioMode === AUDIO_MODES.MICROPHONE
+    && !microphoneSkipped) || (cameraPending && shareCamera);
 
   const commit = useCallback(() => {
     const listenOnly = audioMode === AUDIO_MODES.LISTEN_ONLY;
@@ -210,7 +215,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
     if (!commitRef) return undefined;
     // eslint-disable-next-line no-param-reassign
     commitRef.current = () => {
-      if (devicesBlocked) return false;
+      if (devicesBlocked || devicesPending) return false;
       commit();
       return true;
     };
@@ -219,7 +224,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
       // eslint-disable-next-line no-param-reassign
       commitRef.current = null;
     };
-  }, [commitRef, commit, devicesBlocked]);
+  }, [commitRef, commit, devicesBlocked, devicesPending]);
 
   const contextValue = useMemo(() => ({
     audioMode,
@@ -234,6 +239,9 @@ const PreFlight: React.FC<PreFlightProps> = ({
     setMicrophoneDenied,
     cameraDenied,
     setCameraDenied,
+    setMicrophonePending,
+    setCameraPending,
+    devicesPending,
     permissionRetry,
     joiningWithoutAudio,
     commitCameraRef,
@@ -247,6 +255,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
     cameraFailed,
     microphoneDenied,
     cameraDenied,
+    devicesPending,
     permissionRetry,
     joiningWithoutAudio,
     commit,

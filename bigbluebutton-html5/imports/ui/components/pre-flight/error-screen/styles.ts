@@ -103,6 +103,9 @@ const ErrorHeading = styled(PreFlightStyled.Heading)<{ $wide: boolean }>`
 const ErrorDescription = styled(PreFlightStyled.Description)`
   max-width: 25rem;
   font-size: ${fontSizeMedium};
+  /* The design breaks these texts evenly; greedy wrapping strands a word or
+     two on the last line. */
+  text-wrap: balance;
 
   @media ${smallOnly} {
     font-size: ${fontSizeBase};

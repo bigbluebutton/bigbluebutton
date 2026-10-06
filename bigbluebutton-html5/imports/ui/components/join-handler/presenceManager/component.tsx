@@ -116,10 +116,13 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const joinRetryRef = React.useRef<ReturnType<typeof setTimeout>>();
   const preFlightCommitRef = React.useRef<(() => boolean) | null>(null);
   const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  // A socket that stops carrying messages stays "connected" until the
+  // heartbeat watchdog terminates it, about 45 s into the silence.
+  const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
   // Only a drop counts: the socket is still opening when the screen mounts.
   const [hasConnected, setHasConnected] = useState(isConnected);
   if (isConnected && !hasConnected) setHasConnected(true);
-  const connectionLost = hasConnected && !isConnected;
+  const connectionLost = hasConnected && (!isConnected || !serverIsResponding);
 
   useEffect(() => {
     const allowed = guestStatus === GUEST_STATUSES.ALLOW;
@@ -209,6 +212,10 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   useEffect(() => {
     if (joined) {
+      // The stalled join landed after all: the panel stayed editable under
+      // its screen, and what it shows now is what the user expects to join
+      // with. A device denied meanwhile commits nothing, as on a retry.
+      if (joinFailed) preFlightCommitRef.current?.();
       clearTimeout(timeoutRef.current);
       setAllowToRender(true);
     }
@@ -256,8 +263,9 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const retryConnection = () => {
     // The socket reconnects on its own; a retry while it is down starts over.
+    // Offline, a reload only trades the setup for the browser's error page.
     if (connectionLost) {
-      window.location.reload();
+      if (navigator.onLine) window.location.reload();
       return;
     }
     // The panel stayed editable under the error: commit it again, as the
@@ -282,7 +290,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     };
   } else if (connectionLost || joinFailed) {
     preFlightError = {
-      header: <ConnectionLostHeader />,
+      header: <ConnectionLostHeader joinStalled={!connectionLost} />,
       actions: <ConnectionLostActions onRetry={retryConnection} />,
       onClose: retryConnection,
     };
@@ -332,7 +340,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               headerNamesSession={!isGuestDenied && isGuestAllowed}
               actions={preFlightActions}
               error={preFlightError}
-              gateJoinOnDevices={isSettingUp && !joinRequested}
+              gateJoinOnDevices={isGuestAllowed && !joinRequested}
               commitRef={preFlightCommitRef}
             />
           )

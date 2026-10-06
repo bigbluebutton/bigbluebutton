@@ -21,7 +21,14 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.joiningLabel',
     description: 'Label of the join button while the join is underway',
   },
+  devicePending: {
+    id: 'app.preFlight.devicePermissionPending',
+    description: 'Shown above the join button while the browser has yet to answer for a device',
+  },
 });
+
+// Describes the join button while it is held, so one page-wide id will do.
+const DEVICE_PENDING_NOTICE_ID = 'preFlightDevicePendingNotice';
 
 interface JoiningRoomHeaderProps {
   meetingName: string;
@@ -40,7 +47,7 @@ export const JoiningRoomHeader: React.FC<JoiningRoomHeaderProps> = ({
   isJoining,
 }) => {
   const intl = useIntl();
-  const { joiningWithoutAudio } = usePreFlight();
+  const { joiningWithoutAudio, devicesPending } = usePreFlight();
 
   useEffect(() => {
     document.title = meetingName || clientTitle;
@@ -62,6 +69,15 @@ export const JoiningRoomHeader: React.FC<JoiningRoomHeaderProps> = ({
           {intl.formatMessage(intlMessages.withoutAudio)}
         </Styled.JoinNotice>
       )}
+      {devicesPending && (
+        <Styled.JoinNotice
+          id={DEVICE_PENDING_NOTICE_ID}
+          aria-live="polite"
+          data-test="preFlightDevicePending"
+        >
+          {intl.formatMessage(intlMessages.devicePending)}
+        </Styled.JoinNotice>
+      )}
     </>
   );
 };
@@ -76,7 +92,7 @@ export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
   onJoin,
 }) => {
   const intl = useIntl();
-  const { commit } = usePreFlight();
+  const { commit, devicesPending } = usePreFlight();
 
   const handleJoin = useCallback(() => {
     commit();
@@ -87,9 +103,10 @@ export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
     <Styled.ActionsWrapper>
       <BBButton
         variant="primary"
-        disabled={isJoining}
+        disabled={isJoining || devicesPending}
         label={intl.formatMessage(isJoining ? intlMessages.joiningLabel : intlMessages.joinLabel)}
         onClick={handleJoin}
+        ariaDescribedBy={devicesPending ? DEVICE_PENDING_NOTICE_ID : undefined}
         dataTest="preFlightJoinButton"
       />
     </Styled.ActionsWrapper>

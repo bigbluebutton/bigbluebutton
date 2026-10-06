@@ -61,6 +61,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     cameraFailed,
     setCameraFailed,
     setCameraDenied,
+    setCameraPending,
     permissionRetry,
     commitCameraRef,
   } = usePreFlight();
@@ -139,10 +140,14 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
     };
   }, [webcamDeviceId, selectedProfile, updateVirtualBackgroundInfo, updateCameraBrightnessInfo]);
 
+  // A failed preview reads as off on the toggle, so a click retries it
+  // instead of turning off a camera the user cannot see. A refused one reads
+  // as on, still flagged, and a click turns it off: asking again is the
+  // permission screen's retry.
+  const cameraOn = shareCamera && (!cameraFailed || permissionDenied);
+
   const handleToggleCamera = useCallback(() => {
-    // A failed preview reads as off on the toggle, so a click retries it
-    // instead of turning off a camera the user cannot see.
-    if (shareCamera && !cameraFailed) {
+    if (cameraOn) {
       invalidateCameraAcquisition();
       terminateCameraStream(currentVideoStream.current);
       cleanupStreamAndVideo();
@@ -165,8 +170,7 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
       if (deviceId) displayPreview();
     });
   }, [
-    shareCamera,
-    cameraFailed,
+    cameraOn,
     webcamDeviceId,
     invalidateCameraAcquisition,
     terminateCameraStream,
@@ -204,6 +208,16 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
   useEffect(() => {
     setCameraDenied(permissionDenied);
   }, [permissionDenied]);
+
+  // Any load while the toggle is on, its permission prompt included; a failed
+  // acquisition ends it.
+  const cameraPending = shareCamera && isCameraLoading && !hasCameraError;
+
+  useEffect(() => {
+    setCameraPending(cameraPending);
+  }, [cameraPending]);
+
+  useEffect(() => () => setCameraPending(false), []);
 
   useEffect(() => {
     let permission: PermissionStatus | null = null;
@@ -263,14 +277,14 @@ const CameraSetup: React.FC<CameraSetupProps> = ({ micControl, children }) => {
         <Styled.PreviewControls>
           {micControl}
           <Styled.PreviewControlButton
-            $active={shareCamera && !cameraFailed}
+            $active={cameraOn}
             onClick={handleToggleCamera}
-            aria-label={formatMessage(shareCamera && !cameraFailed
+            aria-label={formatMessage(cameraOn
               ? intlMessages.disableCameraLabel
               : intlMessages.enableCameraLabel)}
             data-test="preFlightCameraToggle"
           >
-            {shareCamera && !cameraFailed ? <VideocamIcon /> : <VideocamOffIcon />}
+            {cameraOn ? <VideocamIcon /> : <VideocamOffIcon />}
           </Styled.PreviewControlButton>
         </Styled.PreviewControls>
       </CameraPreview>

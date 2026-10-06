@@ -60,10 +60,9 @@ declare global {
 // camera permission queries and the getUserMedia calls asking for a refused
 // device are touched; everything else, the grant included, runs for real.
 export const refuseDevices = (refused: Record<DeviceKind, boolean>) => {
-  type FakeStatus = EventTarget & { onchange: ((event: Event) => void) | null };
   const state = { ...refused };
   const refusals: Record<DeviceKind, number> = { audio: 0, video: 0 };
-  const statuses: { kind: DeviceKind; status: FakeStatus }[] = [];
+  const statuses: { kind: DeviceKind; status: PermissionStatus }[] = [];
   const kinds: Record<string, DeviceKind> = { microphone: 'audio', camera: 'video' };
 
   const query = navigator.permissions.query.bind(navigator.permissions);
@@ -71,11 +70,19 @@ export const refuseDevices = (refused: Record<DeviceKind, boolean>) => {
     const kind = kinds[descriptor.name];
     if (!kind) return query(descriptor);
     if (state[kind]) refusals[kind] += 1;
-    const status = new EventTarget() as FakeStatus;
-    status.onchange = null;
-    Object.defineProperty(status, 'state', { get: () => (state[kind] ? 'denied' : 'granted') });
+    const events = new EventTarget();
+    const status: PermissionStatus = {
+      name: descriptor.name,
+      get state() {
+        return state[kind] ? 'denied' : 'granted';
+      },
+      onchange: null,
+      addEventListener: events.addEventListener.bind(events),
+      removeEventListener: events.removeEventListener.bind(events),
+      dispatchEvent: events.dispatchEvent.bind(events),
+    };
     statuses.push({ kind, status });
-    return Promise.resolve(status as unknown as PermissionStatus);
+    return Promise.resolve(status);
   };
 
   const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);

@@ -24,6 +24,13 @@ export interface PreFlightContextValue {
   setMicrophoneDenied: (denied: boolean) => void;
   cameraDenied: boolean;
   setCameraDenied: (denied: boolean) => void;
+  // Set while the browser has yet to answer for the device, its prompt
+  // possibly open: the join waits for the answer. The camera's covers any
+  // load of a camera the user turned on, not only its prompt.
+  setMicrophonePending: (pending: boolean) => void;
+  setCameraPending: (pending: boolean) => void;
+  // A pending device the user is about to join with.
+  devicesPending: boolean;
   // Bumped by the permission screen's retry: the audio selectors and the
   // camera setup ask the browser again whenever it changes.
   permissionRetry: number;

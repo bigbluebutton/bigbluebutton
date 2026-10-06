@@ -708,7 +708,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
 1. Join a session and wait in the pre-flight screen
 
-2. Cut the network (e.g. DevTools "Offline"), then wait a few seconds
+2. Cut the network (e.g. DevTools "Offline"), then wait about 20 seconds: the socket stays open, so the client only notices once the server's heartbeat goes quiet
 
     - The "Unstable connection" screen should replace the session's name and the "Join session" button: a "Connection lost" badge, the message, a help link and "Try again"
     - The session's age and name should show above it
@@ -718,15 +718,15 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - Once the client reconnects, the screen should go back to the "Join session" button on its own
 
-4. Cut the network again and click "Try again" while it is down
+4. Cut the network again and, once the screen is up, click "Try again"
 
-    - The page should reload
+    - The page should not reload while the browser is offline, and the screen should still clear on its own once the network is back
 
-5. Restore the network, slow it down until a join cannot go through (e.g. DevTools throttling), click "Join session" and wait about 20 seconds
+5. On the server, stop the GraphQL actions (`sudo systemctl stop bbb-graphql-actions`) so the join gets no answer, then click "Join session" and wait about 20 seconds. Throttling the network does not do it: the join still goes through
 
-    - The same screen should replace the joining spinner, with the setup panel still editable
+    - A "Joining is taking longer than expected" screen should replace the joining spinner, with the setup panel still editable
 
-6. Mute the microphone in the panel, restore the network and click "Try again"
+6. Mute the microphone in the panel, start the GraphQL actions again (`sudo systemctl start bbb-graphql-actions`) and click "Try again"
 
     - The user should join muted: the retry takes the panel as it is now
 
@@ -752,7 +752,8 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
 4. As a guest waiting for approval, block the microphone
 
-    - The same screen should replace the waiting message until it is sorted out
+    - The waiting message should stay, with the microphone selector flagged
+    - Once the guest is approved, the same screen should replace the "Join session" button until it is sorted out
 
 ## Audio
 
