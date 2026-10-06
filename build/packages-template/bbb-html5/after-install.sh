@@ -44,6 +44,13 @@ fi
 
 chown root:root /usr/lib/systemd/system
 
+# Etherpad was removed in 4.0: drop the public.pads override left by older installs
+BBB_HTML5_OVERRIDE_FILE=/etc/bigbluebutton/bbb-html5.yml
+if [ -f $BBB_HTML5_OVERRIDE_FILE ] && [ "$(yq-go e '.public.pads' $BBB_HTML5_OVERRIDE_FILE)" != "null" ]; then
+  echo "removing public.pads from $BBB_HTML5_OVERRIDE_FILE"
+  yq-go e -i 'del(.public.pads)' $BBB_HTML5_OVERRIDE_FILE
+fi
+
 chmod go+r $BBB_HTML5_SETTINGS_FILE
 #
 # Restart nginx to take advantage of the updates to nginx configuration
