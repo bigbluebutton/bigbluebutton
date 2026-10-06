@@ -85,6 +85,19 @@ dependencies {
     implementation("com.github.junrar:junrar") {
       version { strictly "7.6.1" }
     }
+    // bouncycastle is reached only via tika (bbb-common-web); tika-parent 3.3.2 manages it at 1.85
+    implementation("org.bouncycastle:bcprov-jdk18on") {
+      version { strictly "1.86" }
+    }
+    implementation("org.bouncycastle:bcpkix-jdk18on") {
+      version { strictly "1.86" }
+    }
+    implementation("org.bouncycastle:bcutil-jdk18on") {
+      version { strictly "1.86" }
+    }
+    implementation("org.bouncycastle:bcjmail-jdk18on") {
+      version { strictly "1.86" }
+    }
   }
 
   // Spring Boot managed libs – version comes from `springVersion` property
