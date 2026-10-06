@@ -1277,9 +1277,8 @@ def external_video_events_for_segment(events, start_timestamp, stop_timestamp)
   updates = events.select do |event|
     event[:timestamp] >= start_timestamp && event[:timestamp] < stop_timestamp
   end
-  # Recording pauses remove wall-clock time from the published timeline. Restore
-  # the last known state at the beginning of each included segment instead of
-  # collapsing updates from the omitted time onto the same recording timestamp.
+  # Restore the external video's state when recording resumes.
+  # Paused recording time is excluded from the published timeline.
   previous = events.reverse.find { |event| event[:timestamp] < start_timestamp }
   if previous && (updates.empty? || updates.first[:timestamp] > start_timestamp)
     position = previous[:time]
