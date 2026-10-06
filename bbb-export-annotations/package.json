@@ -23,7 +23,7 @@
     "eslint-config-google": "^0.14.0"
   },
   "engines": {
-    "node": ">=18.16.0",
+    "node": ">=24.0.0",
     "npm": ">=9.5.0"
   },
   "type": "module"

@@ -226,14 +226,15 @@ Recent releases:
 
 ### Other notable changes
 
+#### Node.js 24 runtime
+
+BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-actions`, `bbb-shared-notes-server`, `bbb-export-annotations`, `bbb-webhooks`, `bbb-webrtc-sfu`, `bbb-transcription-controller`) on Node.js 24, the Active LTS line maintained until April 2028. `bbb-install.sh` installs it from NodeSource, and the packages declare a dependency on `nodejs (>= 24) (<< 25)`.
+
 #### Promoted BlockNote shared notes as default
 
-In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). This means that `bbb-shared-notes-server` is now a required package, installed by default while `bbb-etherpad` and `bbb-pads` are now optional.
-In the event that you prefer using Etherpad, install the optional packages via
+In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). `bbb-shared-notes-server` is a required package, installed by default.
 
-`$ sudo apt install bbb-pads bbb-etherpad`
-
-At this point you can use it in a specific session by passing `sharedNotesEditor=etherpad` on the `/create` call. If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=etherpad`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+Etherpad (`bbb-etherpad` and `bbb-pads` packages) is not part of the default installation of BigBlueButton 4.0. We are working on dropping its support within the BigBlueButton 4.0 lifecycle.
 
 
 #### New optional package: bbb-coturn
