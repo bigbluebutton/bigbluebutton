@@ -2220,8 +2220,6 @@ class ApiController {
     Boolean enabled = maxParticipants > 0;
     // Users refreshing page or reconnecting must be identified
     Boolean rejoin = meeting.getUserById(us.internalUserId) != null;
-    // Users that passed enter once, still not joined but somehow re-entered
-    Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
     // User are able to rejoin if he already joined previously with the same extId
     Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
     // Bot users should not be affected by max partiicpants limitation
@@ -2229,13 +2227,11 @@ class ApiController {
     // Users that already joined the meeting
     // It will count only unique users in order to avoid the same user from filling all slots
     int joinedUniqueUsers = meeting.countUniqueExtIds()
-    // Users that are entering the meeting
-    int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
+    log.info("Joined users - ${joinedUniqueUsers}")
 
     Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax && !isBot) {
+    if (enabled && !rejoin && !userExtIdAlreadyJoined && reachedMax && !isBot) {
       return true;
     }
 
