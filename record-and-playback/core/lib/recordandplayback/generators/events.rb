@@ -1097,8 +1097,7 @@ module BigBlueButton
       rec_events.sort_by {|a| a[:timestamp]}
     end
 
-    # Collect sharing intervals and their playback updates without changing the
-    # start/stop-only helpers used by other recording formats.
+    # Collect sharing start/stop and playback updates such as skip and rate change.
     def self.get_external_video_playback_events(events_xml)
       BigBlueButton.logger.info "Getting external video playback events"
       videos = []
