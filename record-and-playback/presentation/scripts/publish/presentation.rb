@@ -930,7 +930,13 @@ def process_presentation(package_dir)
     # Do event specific processing
     case eventname
     when 'SharePresentationEvent'
-      current_presentation = event.at_xpath('presentationName').text
+      next_presentation = event.at_xpath('presentationName').text
+      if !current_presentation.empty? && current_presentation != next_presentation
+        current_x_offset = current_y_offset = 0.0
+        current_width_ratio = current_height_ratio = 100.0
+        current_panzoom_width = current_panzoom_height = nil
+      end
+      current_presentation = next_presentation
       current_slide = current_presentation_slide[current_presentation].to_i
       slide_changed = panzoom_changed = true
 

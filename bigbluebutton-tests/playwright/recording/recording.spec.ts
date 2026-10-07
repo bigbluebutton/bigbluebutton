@@ -76,12 +76,26 @@ test.describe('Recording with audio', { tag: ['@ci', '@media'] }, () => {
 });
 
 test.describe('Recording with screenshare', { tag: ['@ci', '@media'] }, () => {
-  test('Restore presentation panzoom after screenshare stops', async ({ browser, browserName, page }, testInfo) => {
+  test.beforeEach(({ browserName }) => {
     test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+  });
+
+  test('Keep presentation panzoom after screenshare stops', async ({ browser, page }, testInfo) => {
     linkIssue(25920);
     test.setTimeout(240_000);
     const recording = new Recording(browser, page.context());
     await recording.initModPage(page, { createParameter: c.recordMeeting, testInfo });
-    await recording.recordScreensharePresentationTransition();
+    await recording.recordScreensharePresentationTransition(false);
+  });
+
+  test('Reset presentation panzoom after switching presentations during screenshare', async ({
+    browser,
+    page,
+  }, testInfo) => {
+    linkIssue(25920);
+    test.setTimeout(240_000);
+    const recording = new Recording(browser, page.context());
+    await recording.initModPage(page, { createParameter: c.recordMeeting, testInfo });
+    await recording.recordScreensharePresentationTransition(true);
   });
 });

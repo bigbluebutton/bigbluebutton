@@ -203,27 +203,30 @@ export class Recording extends MultiUsers {
     return playbackUrl;
   }
 
-  async recordScreensharePresentationTransition() {
+  async recordScreensharePresentationTransition(switchPresentation: boolean) {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
     await this.modPage.waitAndClick(e.recordingIndicator);
     await this.modPage.hasElement(e.confirmRecordingButton, 'recording confirmation should be visible');
     await this.modPage.waitAndClick(e.confirmRecordingButton);
 
-    await this.modPage.waitAndClick(e.zoomInButton);
-    await expect(this.modPage.page.locator(e.resetZoomButton)).toContainText('125%');
-    await this.modPage.waitAndClick(e.zoomInButton);
+    for (const zoomLevel of [125, 150, 175, 200]) {
+      await this.modPage.waitAndClick(e.zoomInButton);
+      await expect(this.modPage.page.locator(e.resetZoomButton)).toContainText(`${zoomLevel}%`);
+    }
     await expect(
       this.modPage.page.locator(e.resetZoomButton),
       'the presentation should be zoomed before screenshare starts',
-    ).toContainText('150%');
+    ).toContainText('200%');
 
     await startScreenshare(this.modPage);
-    await uploadSinglePresentation(this.modPage, 'sample.pdf');
+    if (switchPresentation) await uploadSinglePresentation(this.modPage, 'sample.pdf');
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.wasRemoved(e.isSharingScreen, 'screenshare should stop');
-    const aspectRatio = await getCurrentSlideAspectRatio(this.modPage);
-    expect(aspectRatio, 'the presentation uploaded during screenshare should be current').toBeLessThan(1);
+    if (switchPresentation) {
+      const aspectRatio = await getCurrentSlideAspectRatio(this.modPage);
+      expect(aspectRatio, 'the presentation uploaded during screenshare should be current').toBeLessThan(1);
+    }
     await this.modPage.page.waitForTimeout(10_000);
     await skipSlide(this.modPage);
 
@@ -263,10 +266,16 @@ export class Recording extends MultiUsers {
       (slide: Record<string, string>) => slide['xlink:href'] !== 'presentation/deskshare.png',
     );
     expect(initialSlide, 'recording should contain the initial presentation').toBeTruthy();
-    expect(
-      returnedSlide!['xlink:href'],
-      'the returning slide should belong to the presentation uploaded during screenshare',
-    ).not.toEqual(initialSlide!['xlink:href']);
+    if (switchPresentation) {
+      expect(
+        returnedSlide!['xlink:href'],
+        'the returning slide should belong to the presentation uploaded during screenshare',
+      ).not.toEqual(initialSlide!['xlink:href']);
+    } else {
+      expect(returnedSlide!['xlink:href'], 'the same slide should return after screenshare stops').toEqual(
+        initialSlide!['xlink:href'],
+      );
+    }
 
     const panzoomEvents: { timestamp: number; viewbox: number[] }[] = panzooms.recording.event.map(
       (event: { $: { timestamp: string }; viewBox: string[] }) => ({
@@ -287,23 +296,30 @@ export class Recording extends MultiUsers {
     const [viewboxX, viewboxY, viewboxWidth, viewboxHeight] = viewboxes[viewboxes.length - 1];
     const returnedSlideWidth = Number(returnedSlide!.width);
     const returnedSlideHeight = Number(returnedSlide!.height);
-    const zoomScale = 1.5;
-    expect(viewboxWidth, 'viewBox width should restore the deliberate zoom on the returning slide').toBeCloseTo(
-      returnedSlideWidth / zoomScale,
-      0,
-    );
-    expect(viewboxHeight, 'viewBox height should restore the deliberate zoom on the returning slide').toBeCloseTo(
-      returnedSlideHeight / zoomScale,
-      0,
-    );
-    expect(viewboxX / returnedSlideWidth, 'the restored zoom should preserve its horizontal position').toBeCloseTo(
-      zoomedPresentation![0] / Number(initialSlide!.width),
-      4,
-    );
-    expect(viewboxY / returnedSlideHeight, 'the restored zoom should preserve its vertical position').toBeCloseTo(
-      zoomedPresentation![1] / Number(initialSlide!.height),
-      4,
-    );
+    if (switchPresentation) {
+      expect(viewboxWidth, 'a new presentation should reset the viewBox width').toBeCloseTo(returnedSlideWidth, 0);
+      expect(viewboxHeight, 'a new presentation should reset the viewBox height').toBeCloseTo(returnedSlideHeight, 0);
+      expect(viewboxX, 'a new presentation should reset the horizontal position').toBeCloseTo(0, 4);
+      expect(viewboxY, 'a new presentation should reset the vertical position').toBeCloseTo(0, 4);
+    } else {
+      const zoomScale = 2;
+      expect(viewboxWidth, 'viewBox width should restore the deliberate zoom on the returning slide').toBeCloseTo(
+        returnedSlideWidth / zoomScale,
+        0,
+      );
+      expect(viewboxHeight, 'viewBox height should restore the deliberate zoom on the returning slide').toBeCloseTo(
+        returnedSlideHeight / zoomScale,
+        0,
+      );
+      expect(viewboxX / returnedSlideWidth, 'the restored zoom should preserve its horizontal position').toBeCloseTo(
+        zoomedPresentation![0] / Number(initialSlide!.width),
+        4,
+      );
+      expect(viewboxY / returnedSlideHeight, 'the restored zoom should preserve its vertical position').toBeCloseTo(
+        zoomedPresentation![1] / Number(initialSlide!.height),
+        4,
+      );
+    }
   }
 
   async recordingToastDoesNotBlockModals() {
