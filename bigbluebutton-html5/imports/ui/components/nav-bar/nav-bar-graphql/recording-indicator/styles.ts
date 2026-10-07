@@ -119,7 +119,9 @@ const HOVER_COLLAPSE_DELAY = '0.25s';
 // open. Gating on a real pointer keeps phones and tablets a plain clickable
 // button. Detected by capability rather than by user agent, so a touchscreen
 // laptop is handled by how it is being used, not by what it is called.
-const HOVER_CAPABLE = '@media (hover: hover) and (pointer: fine)';
+// The bare query is exported so the component can tell when the label shows.
+export const HOVER_CAPABLE_QUERY = '(hover: hover) and (pointer: fine)';
+const HOVER_CAPABLE = `@media ${HOVER_CAPABLE_QUERY}`;
 
 // The collapse animates max-width, which cannot be `auto`, so the open state
 // needs a length. It is the same 30vw cap the label has when it does not
