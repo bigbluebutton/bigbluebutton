@@ -5,6 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import {
   Rooms,
@@ -317,6 +318,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     breakoutRoomLimit: BREAKOUT_LIM,
     breakoutRoomMinimum: MIN_BREAKOUT_ROOMS,
     sendInvitationToAssignedModeratorsByDefault: inviteModsByDefault,
+    inheritLockSettingsByDefault,
   } = BREAKOUT_SETTINGS;
 
   const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
@@ -344,7 +346,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>(
     () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
   );
-  const [inheritLockSettings, setInheritLockSettings] = useState(false);
+  const [inheritLockSettings, setInheritLockSettings] = useState(inheritLockSettingsByDefault);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
@@ -705,31 +707,24 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         />
       </Styled.ScrollContent>
 
-      {tooltipText ? (
-        <TooltipContainer title={tooltipText}>
+      {(() => {
+        const startButton = (
           <Styled.StartButtonWrapper>
-            <Styled.StartButton
+            <BBButton
+              variant="primary"
               disabled={!canStart}
               onClick={handleCreateRoom}
-              aria-label={intl.formatMessage(intlMessages.startLabel)}
-              data-test="createBreakoutRoomsButton"
-            >
-              {intl.formatMessage(intlMessages.startLabel)}
-            </Styled.StartButton>
+              label={intl.formatMessage(intlMessages.startLabel)}
+              dataTest="createBreakoutRoomsButton"
+            />
           </Styled.StartButtonWrapper>
-        </TooltipContainer>
-      ) : (
-        <Styled.StartButtonWrapper>
-          <Styled.StartButton
-            disabled={!canStart}
-            onClick={handleCreateRoom}
-            aria-label={intl.formatMessage(intlMessages.startLabel)}
-            data-test="createBreakoutRoomsButton"
-          >
-            {intl.formatMessage(intlMessages.startLabel)}
-          </Styled.StartButton>
-        </Styled.StartButtonWrapper>
-      )}
+        );
+        return tooltipText ? (
+          <TooltipContainer title={tooltipText}>
+            {startButton}
+          </TooltipContainer>
+        ) : startButton;
+      })()}
     </Styled.PanelContent>
   );
 };

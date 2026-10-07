@@ -15,6 +15,7 @@ import {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  removeStoredAudioOutputDeviceId,
   getAudioConstraints,
   doGUM,
   destroyWasmProcessor,
@@ -30,6 +31,7 @@ import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
 } from '/imports/ui/components/audio/service';
+import { getActiveProviderId } from '/imports/ui/components/audio/audio-processor/service';
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -55,6 +57,18 @@ const checkMediaDevicesTarget = () => {
       },
     }, 'navigator.mediaDevices EventTarget unavailable');
   }
+};
+
+const isOutputDeviceGone = async (deviceId) => {
+  if (typeof navigator.mediaDevices?.enumerateDevices !== 'function') return false;
+
+  const devices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+  const outputDevices = devices.filter((device) => device.kind === 'audiooutput');
+
+  // Anonymised device lists (no permission granted yet) carry empty IDs: they
+  // cannot be used to judge a stored device.
+  return outputDevices.some((device) => device.deviceId)
+    && !outputDevices.some((device) => device.deviceId === deviceId);
 };
 
 class AudioManager {
@@ -96,6 +110,7 @@ class AudioManager {
       bypassGUM: makeVar(false),
       permissionStatus: makeVar(null),
       transparentListenOnlySupported: makeVar(false),
+      isUsingLiveKit: makeVar(false),
     });
 
     this._inputStream = makeVar(null);
@@ -125,7 +140,7 @@ class AudioManager {
     checkMediaDevicesTarget();
   }
 
-  isUsingLiveKit() {
+  isBridgeLiveKit() {
     return this.bridge?.bridgeName === 'livekit';
   }
 
@@ -133,7 +148,7 @@ class AudioManager {
     const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
     const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
 
-    return this.isUsingLiveKit() && useLiveKitAudioState;
+    return this.isUsingLiveKit && useLiveKitAudioState;
   }
 
   onBeforeUnload() {
@@ -197,26 +212,37 @@ class AudioManager {
     }
   }
 
-  _applyCachedOutputDeviceId() {
+  async _applyCachedOutputDeviceId() {
     const cachedId = getStoredAudioOutputDeviceId();
 
-    if (typeof cachedId === 'string') {
-      this.changeOutputDevice(cachedId, false)
-        .then(() => {
-          this.outputDeviceId = cachedId;
-        })
-        .catch((error) => {
-          logger.warn({
-            logCode: 'audiomanager_output_device_storage_failed',
-            extraInfo: {
-              bridge: this.bridgeName,
-              deviceId: cachedId,
-              errorMessage: error.message,
-              errorName: error.name,
-              errorStack: error?.stack,
-            },
-          }, `Failed to apply output audio device from storage: ${error.message}`);
-        });
+    if (typeof cachedId !== 'string') return;
+
+    try {
+      if (await isOutputDeviceGone(cachedId)) {
+        logger.warn({
+          logCode: 'audiomanager_stored_output_device_gone',
+          extraInfo: { bridge: this.bridgeName, deviceId: cachedId },
+        }, 'Stored output audio device is gone, keeping the default one');
+        removeStoredAudioOutputDeviceId();
+        return;
+      }
+
+      // The equality check is bypassed: the media element's sinkId may already
+      // carry the stored device - the pre-flight speaker selector sets it
+      // before any bridge exists - while the bridge never got it.
+      await this.changeOutputDevice(cachedId, false, true);
+      this.outputDeviceId = cachedId;
+    } catch (error) {
+      logger.warn({
+        logCode: 'audiomanager_output_device_storage_failed',
+        extraInfo: {
+          bridge: this.bridgeName,
+          deviceId: cachedId,
+          errorMessage: error.message,
+          errorName: error.name,
+          errorStack: error?.stack,
+        },
+      }, `Failed to apply output audio device from storage: ${error.message}`);
     }
   }
 
@@ -357,6 +383,7 @@ class AudioManager {
     this.loadBridges(bridges, userData);
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
+    this.isUsingLiveKit = this.isBridgeLiveKit();
     this.audioEventHandler = audioEventHandler;
 
     // Only observe GraphQL voice activity if not using LiveKit's audio state
@@ -673,10 +700,14 @@ class AudioManager {
 
     let newMuteState;
 
-    // when user leaves voice conf, set muted = false
-    // as the user might have been transfered to a breakout room
+    // On the FreeSWITCH bridge a voice-conf leave means a transfer may be under
+    // way, so the user is unmuted. Under LiveKit it can only be a reconnect or a
+    // disconnect, and the event carries no observed voice state at all: akka
+    // builds it from an empty voice user, whose mute field is a hard-coded
+    // placeholder. Neither half of it says anything about this user, so the
+    // whole event is ignored rather than just its unmute.
     if (leftVoiceConf !== undefined && leftVoiceConf) {
-      newMuteState = false;
+      if (!this.isUsingLiveKit) newMuteState = false;
     } else if (muted !== undefined && muted !== this.isMuted) {
       newMuteState = muted;
     }
@@ -789,6 +820,8 @@ class AudioManager {
             isListenOnly: this.isListenOnly,
             stats: getRTCStatsLogMetadata(stats),
             clientSessionNumber: this.bridge.clientSessionNumber,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio Joined');
       });
@@ -877,6 +910,8 @@ class AudioManager {
             outputDeviceId: this.outputDeviceId,
             outputDevices: this.outputDevicesJSON,
             isListenOnly: this.isListenOnly,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+            wasmProcessingProvider: getActiveProviderId(),
           },
         }, 'Audio ended without issue');
       } else if (status === FAILED) {
@@ -1131,7 +1166,7 @@ class AudioManager {
       });
   }
 
-  async changeOutputDevice(deviceId, isLive) {
+  async changeOutputDevice(deviceId, isLive, force = false) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
 
@@ -1140,7 +1175,7 @@ class AudioManager {
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 
-    if (typeof deviceId === 'string' && sinkIdSupported && currentDeviceId !== targetDeviceId) {
+    if (typeof deviceId === 'string' && sinkIdSupported && (force || currentDeviceId !== targetDeviceId)) {
       try {
         if (typeof this.bridge?.changeOutputDevice === 'function') {
           // If the bridge supports changing the output device, use it
@@ -1387,7 +1422,32 @@ class AudioManager {
   }
 
   async updateAudioConstraints(constraints) {
+    const prevInputStream = this.inputStream;
+
     await this.bridge.updateAudioConstraints(constraints);
+    this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+
+    logger.info({
+      logCode: 'audio_constraints_updated',
+      extraInfo: {
+        bridge: this.bridgeName,
+        inputDeviceId: this.inputDeviceId,
+        inputDevices: this.inputDevicesJSON,
+        outputDeviceId: this.outputDeviceId,
+        outputDevices: this.outputDevicesJSON,
+        clientSessionNumber: this.bridge.clientSessionNumber,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+        wasmProcessingEnabled: isWasmProcessingEnabled(),
+        wasmProcessingProvider: getActiveProviderId(),
+      },
+    });
+
+    // Bridges may re-acquire the stream when doing this. Cleanup is in order if
+    // applicable (i.e.: old one is stale, compare via id).
+    if (prevInputStream && (prevInputStream.id !== this.inputStream?.id)) {
+      destroyWasmProcessor(prevInputStream);
+      MediaStreamUtils.stopMediaStreamTracks(prevInputStream);
+    }
   }
 
   /**

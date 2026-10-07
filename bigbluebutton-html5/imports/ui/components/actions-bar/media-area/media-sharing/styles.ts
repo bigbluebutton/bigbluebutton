@@ -1,8 +1,14 @@
 import styled, { css } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
 import {
-  colorDanger, colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
-  colorText, colorGrayIcons, appsPanelTextColor,
+  appsGalleryOutlineColor,
+  appsPanelTextColor,
+  colorGrayIcons,
+  colorGrayUserListToolbar,
+  colorPrimary,
+  colorText,
+  colorTextSecondary,
+  colorWhiteSurface,
+  mediaSharingChipBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
@@ -22,32 +28,6 @@ const Overlay = styled.div`
   z-index: 1000;
 `;
 
-// @ts-ignore - Button is JSX element
-const ConfirmationButton = styled(Button)`
-  display: flex;
-  width: 100%;
-  height: 3.5rem;
-  padding: 1rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1 0 0;
-  border-radius: ${lgBorderRadius};
-  font-size: 1rem;
-
-  ${({ color }) => color === 'danger' && `
-    border: 1px solid ${colorDanger};
-  `}
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  i {
-    font-size: 1.5rem;
-  }
-`;
-
 // Modal container positioned in the bottom right corner.
 const ModalContainer = styled.div<{
   isMobile: boolean,
@@ -56,7 +36,7 @@ const ModalContainer = styled.div<{
   reducedWidth?: boolean,
 }>`
   position: fixed;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   box-shadow: -4px 4px 8px 0px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
@@ -190,12 +170,19 @@ const BecomePresenterViewContainer = styled.div`
   padding: 1rem;
   flex-direction: column;
   gap: 1rem;
+`;
 
-  ${ConfirmationButton} {
-    height: 2.5rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    min-width: 8.5rem;
+// `size="sm"` shrinks the take-presenter button to its label, which leaves it
+// visibly narrower than the text above it. Hold a floor wide enough for the
+// longest of the two labels this view renders, without reaching into
+// BBButton's own markup.
+const becomePresenterButtonMinWidth = '8.5rem';
+
+const BecomePresenterButtonWrapper = styled.div`
+  display: flex;
+
+  > * {
+    min-width: ${becomePresenterButtonMinWidth};
   }
 `;
 
@@ -211,8 +198,8 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  background-color: #e0e0e0;
-  color: #666;
+  background-color: ${mediaSharingChipBg};
+  color: ${colorTextSecondary};
   border: none;
   cursor: not-allowed;
   opacity: 0.7;
@@ -235,7 +222,7 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
 
 export default {
   Overlay,
-  ConfirmationButton,
+  BecomePresenterButtonWrapper,
   ModalContainer,
   HeaderContainer,
   ContentContainer,

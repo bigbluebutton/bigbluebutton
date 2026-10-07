@@ -115,7 +115,7 @@ public class MeetingService implements MessageListener {
 
   private IBbbWebApiGWApp gw;
 
-  private  HashMap<String, PresentationUploadToken> uploadAuthzTokens;
+  private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -123,7 +123,7 @@ public class MeetingService implements MessageListener {
     meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
     sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
     removedSessions = new ConcurrentHashMap<String, UserSessionBasicData>(8, 0.9f, 1);
-    uploadAuthzTokens = new HashMap<String, PresentationUploadToken>();
+    uploadAuthzTokens = new ConcurrentHashMap<String, PresentationUploadToken>();
   }
 
   public void addUserSession(String token, UserSession user) {
@@ -308,21 +308,24 @@ public class MeetingService implements MessageListener {
   }
 
   public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
-    return uploadAuthzTokens.containsKey(authzToken);
+    return authzToken != null && uploadAuthzTokens.containsKey(authzToken);
   }
 
   public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
-    Boolean valid = uploadAuthzTokens.containsKey(authzToken);
-    expirePresentationUploadToken(authzToken);
-    return valid;
+    return consumePresentationUploadToken(authzToken) != null;
   }
 
   public PresentationUploadToken getPresentationUploadToken(String authzToken) {
-    if(uploadAuthzTokens.containsKey(authzToken)) {
-      return uploadAuthzTokens.get(authzToken);
-    } else {
-      return null;
-    }
+    if (authzToken == null) return null;
+    return uploadAuthzTokens.get(authzToken);
+  }
+
+  /**
+   * Atomically retrieves and expires a one-time presentation upload token.
+   */
+  public PresentationUploadToken consumePresentationUploadToken(String authzToken) {
+    if (authzToken == null) return null;
+    return uploadAuthzTokens.remove(authzToken);
   }
 
   public void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken presUploadToken, int uploadedFileSize, int maxUploadFileSize) {
@@ -588,8 +591,7 @@ public class MeetingService implements MessageListener {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
-    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
-    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
+    if (existingId == null && existingTelVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
       ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
@@ -616,7 +618,7 @@ public class MeetingService implements MessageListener {
   private void handleCreateMeeting(Meeting m) {
     if (m.isBreakout()) {
       Meeting parent = meetings.get(m.getParentMeetingId());
-      parent.addBreakoutRoom(m.getExternalId());
+      parent.addBreakoutRoom(m.getExternalId(), m.getInternalId());
       if (storeEvents(parent)) {
         storeService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
       }
@@ -692,10 +694,11 @@ public class MeetingService implements MessageListener {
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getMeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
-            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getRequireUserConsentBeforeUnmuting(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
+            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getRequireUserConsentBeforeUnmuting(), m.getAllowModsToEjectCameras(),
+            m.getAllowModsToRequestCameraShare(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
+            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
@@ -767,19 +770,6 @@ public class MeetingService implements MessageListener {
       for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
           Meeting m = entry.getValue();
           if (telVoice.equals(m.getTelVoice())) {
-              if (!m.isForciblyEnded())
-                  return m;
-          }
-      }
-      return null;
-  }
-
-  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
-      if (webVoice == null)
-          return null;
-      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
-          Meeting m = entry.getValue();
-          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
@@ -936,11 +926,13 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.AUTO_START_RECORDING, message.autoStartRecording.toString());
       params.put(ApiParams.ALLOW_START_STOP_RECORDING, message.allowStartStopRecording.toString());
+      params.put(ApiParams.MEETING_KEEP_EVENTS, parentMeeting.getMeetingKeepEvents().toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
       params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
+      params.put(ApiParams.NOTIFY_RECORDING_APPEND, parentMeeting.getNotifyRecordingAppend());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
       params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
@@ -1054,7 +1046,7 @@ public class MeetingService implements MessageListener {
   }
 
   public void expirePresentationUploadToken(String usedToken) {
-    uploadAuthzTokens.remove(usedToken);
+    if (usedToken != null) uploadAuthzTokens.remove(usedToken);
   }
 
   public void addUserCustomData(String meetingId, String userID,
@@ -1211,8 +1203,14 @@ public class MeetingService implements MessageListener {
       }
 
       //Remove Learning Dashboard files
-      if(!m.getDisabledFeatures().contains("learningDashboard") && m.getLearningDashboardCleanupDelayInMinutes() > 0) {
-        learningDashboardService.removeJsonDataFile(message.meetingId, m.getLearningDashboardCleanupDelayInMinutes());
+      //Breakout rooms don't get their data cleaned up on their own end: it's scheduled here, when the
+      //parent meeting ends, so moderators can still check a breakout's dashboard while the parent meeting
+      //is ongoing even after that breakout itself has closed.
+      if (!m.isBreakout() && !m.getDisabledFeatures().contains("learningDashboard") && m.getLearningDashboardCleanupDelayInMinutes() > 0) {
+        List<String> meetingIdsToClean = new ArrayList<>();
+        meetingIdsToClean.add(message.meetingId);
+        meetingIdsToClean.addAll(m.getBreakoutRoomsInternalIds());
+        learningDashboardService.removeJsonDataFiles(meetingIdsToClean, m.getLearningDashboardCleanupDelayInMinutes());
       }
 
       processRemoveEndedMeeting(message);

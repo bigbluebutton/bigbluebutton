@@ -300,7 +300,9 @@ export class MessageActions extends Chat {
     );
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.waitAndClick(e.closeModal);
-    await this.modPage.waitAndClick(e.askJoinRoom1);
+    // :visible - menus opened earlier in this flow leave hidden duplicate
+    // menuitems in the DOM, so a plain visible-wait can land on a stale one
+    await this.modPage.page.locator(`${e.askJoinRoom1}:visible`).first().click();
     await this.modPage.hasElement(
       e.alreadyConnected,
       'should display the alreadyConnected element when mod join',

@@ -21,7 +21,7 @@ import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
-  liveKitRoom,
+  liveKitRoomRegistry,
   lkToggleMuteCameras,
 } from '/imports/ui/services/livekit';
 import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
@@ -189,10 +189,6 @@ class VideoService {
   static getPreviousVideoPage() {
     const previousPage = VideoService.calculatePreviousPage();
     VideoService.setCurrentVideoPageIndex(previousPage);
-  }
-
-  static isGridEnabled() {
-    return Session.getItem('isGridEnabled');
   }
 
   stopConnectingStream() {
@@ -551,13 +547,12 @@ class VideoService {
 
     try {
       const lkStats = await getLiveKitStats({
-        room: liveKitRoom,
+        room: liveKitRoomRegistry.getPrimary(),
         kind: 'video',
         source: Track.Source.Camera,
       });
       lkStats.forEach((stat) => {
-        // @ts-expect-error -> Untyped object.
-        const { id, type: statType, kind } = stat;
+        const { id, type: statType, kind } = stat as { id: string; type: string; kind?: string };
 
         if (statsToFilter.includes(statType) && (!kind || kind === 'video')) {
           stats[id] = { [statType]: stat };
@@ -619,6 +614,7 @@ export default {
   getStreamsToConnectAndDisconnect: VideoService.getStreamsToConnectAndDisconnect,
   getPreviousVideoPage: VideoService.getPreviousVideoPage,
   getNextVideoPage: VideoService.getNextVideoPage,
+  setVideoPage: VideoService.setCurrentVideoPageIndex,
   getCurrentVideoPageIndex: VideoService.getCurrentVideoPageIndex,
   isLocalStream: videoService.isLocalStream.bind(videoService),
   isPaginationEnabled: VideoService.isPaginationEnabled,

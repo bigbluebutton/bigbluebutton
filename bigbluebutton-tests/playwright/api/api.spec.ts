@@ -1,3 +1,4 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
@@ -12,6 +13,30 @@ test.describe.parallel('API', () => {
   test.fixme('getMeetingInfo', async ({ browser, context, page }, testInfo) => {
     const api = new API(browser, context);
     await api.testGetMeetingInfo(page, testInfo);
+  });
+
+  test('webVoiceParamIgnored', async () => {
+    await API.testWebVoiceParamIgnored();
+  });
+
+  test('duplicateVoiceBridgeRejected', async () => {
+    await API.testDuplicateVoiceBridgeRejected();
+  });
+
+  test('joinLongFullNameAccepted', { tag: '@ci' }, async () => {
+    linkIssue(25682);
+    await API.testJoinLongFullNameAccepted();
+  });
+
+  test('joinFullNameOverLimitRejected', { tag: '@ci' }, async () => {
+    linkIssue(25682);
+    await API.testJoinFullNameOverLimitRejected();
+  });
+
+  test('joinLongFullNameThroughClient', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
+    linkIssue(25682);
+    const api = new API(browser, context);
+    await api.testJoinLongFullNameThroughClient(page, testInfo);
   });
 
   test('breakoutWithoutParent', async () => {

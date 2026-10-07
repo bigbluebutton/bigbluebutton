@@ -1,9 +1,10 @@
-	import React, { Component } from 'react';
+import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Langmap from 'langmap';
 import About from '/imports/ui/components/settings/submenus/about/component';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
+import Audio from '/imports/ui/components/settings/submenus/audio/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
@@ -13,6 +14,9 @@ import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
+import { SETTINGS_TABS, getSettingsTabs } from './enums';
+import { applyAudioDeviceSelection, getAudioDeviceSelection } from './service';
+import { notify } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -83,12 +87,17 @@ const intlMessages = defineMessages({
     id: 'app.settings.transcriptionTab.label',
     description: 'label for transcriptions tab',
   },
+  deviceChangeFailed: {
+    id: 'app.audioNotification.deviceChangeFailed',
+    description: 'Device change failed',
+  },
 });
 
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  selectedTab: PropTypes.oneOf(Object.values(SETTINGS_TABS)),
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -108,6 +117,9 @@ const propTypes = {
     locale: PropTypes.string,
     microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
+  audio: PropTypes.shape({
+    processingMode: PropTypes.oneOf(['advanced', 'standard', 'original']),
+  }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
@@ -120,6 +132,8 @@ const propTypes = {
     englishName: PropTypes.string.isRequired,
     nativeName: PropTypes.string.isRequired,
   })).isRequired,
+  isShowAudioFiltersEnabled: PropTypes.bool.isRequired,
+  isAudioDeviceTestEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -127,32 +141,50 @@ class Settings extends Component {
     document.getElementsByTagName('html')[0].style.fontSize = size;
   }
 
+  static markUnsaved(unsavedKeys, key, changed) {
+    const otherKeys = unsavedKeys.filter((k) => k !== key);
+    return changed ? [...otherKeys, key] : otherKeys;
+  }
+
   constructor(props) {
     super(props);
 
     const {
-      dataSaving, application, selectedTab, transcription,
+      dataSaving, application, audio, selectedTab, transcription,
     } = props;
+
+    const tabs = this.getVisibleTabs();
+    const resolvedTabIndex = tabs.indexOf(selectedTab);
+    // Not part of the settings: the devices live in the audio manager.
+    const audioDeviceSelection = getAudioDeviceSelection();
+    // Restored on close. Kept out of the saved settings: the application tab only
+    // reports a font size the user picks, so an untouched one would read as changed.
+    this.openingFontSize = document.getElementsByTagName('html')[0].style.fontSize;
 
     this.state = {
       current: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        audio: clone(audio),
         transcription: clone(transcription),
       },
       saved: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        audio: clone(audio),
       },
-      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 3
-        ? selectedTab
-        : 0,
+      audioDeviceSelection,
+      savedAudioDeviceSelection: audioDeviceSelection,
+      selectedTab: resolvedTabIndex >= 0 ? resolvedTabIndex : 0,
       unsavedModalOpen: false,
-      hasUnsavedChanges: false,
+      // Keys edited away from their saved value: one edit must not clear another's.
+      unsavedKeys: [],
     };
 
     this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
+    this.handleAudioDeviceSelectionChange = this.handleAudioDeviceSelectionChange.bind(this);
+    this.handleSave = this.handleSave.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
     this.handleClose = this.handleClose.bind(this);
@@ -185,24 +217,54 @@ class Settings extends Component {
 
       this.setState({ allLocales: tempAggregateLocales });
     });
-
-    // needed because the initial value is null in the saved state
-    const { saved } = this.state;
-    saved.application.fontSize = document.getElementsByTagName('html')[0].style.fontSize;
-    this.setState({ saved });
   }
 
   handleUpdateSettings(key, newSettings) {
     const { saved } = this.state;
-    const hasUnsavedChanges = JSON.stringify(saved[key]) !== JSON.stringify(newSettings);
+    const changed = JSON.stringify(saved[key]) !== JSON.stringify(newSettings);
 
     this.setState((prevState) => ({
       current: {
         ...prevState.current,
         [key]: newSettings,
       },
-      hasUnsavedChanges,
+      unsavedKeys: Settings.markUnsaved(prevState.unsavedKeys, key, changed),
     }));
+  }
+
+  handleAudioDeviceSelectionChange(audioDeviceSelection) {
+    const { savedAudioDeviceSelection } = this.state;
+    const changed = audioDeviceSelection.inputDeviceId !== savedAudioDeviceSelection.inputDeviceId
+      || audioDeviceSelection.outputDeviceId !== savedAudioDeviceSelection.outputDeviceId;
+
+    this.setState((prevState) => ({
+      audioDeviceSelection,
+      unsavedKeys: Settings.markUnsaved(prevState.unsavedKeys, 'audioDevices', changed),
+    }));
+  }
+
+  handleSave() {
+    const { intl, setIsOpen, setLocalSettings } = this.props;
+    const {
+      current, saved, audioDeviceSelection, savedAudioDeviceSelection,
+    } = this.state;
+
+    this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
+    applyAudioDeviceSelection(savedAudioDeviceSelection, audioDeviceSelection, () => {
+      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+    });
+
+    if (saved.application.locale !== current.application.locale) {
+      const { language } = formatLocaleCode(saved.application.locale);
+      const newLanguage = current.application.locale;
+      setUseCurrentLocale(newLanguage);
+      document.body.classList.remove(`lang-${language}`);
+    }
+
+    /* We need to use setIsOpen(false) here to prevent submenu state updates,
+    *  from re-opening the modal.
+    */
+    setIsOpen(false);
   }
 
   handleSelectTab(tab) {
@@ -212,9 +274,9 @@ class Settings extends Component {
   }
 
   handleClose() {
-    const { hasUnsavedChanges } = this.state;
+    const { unsavedKeys } = this.state;
 
-    if (hasUnsavedChanges) {
+    if (unsavedKeys.length > 0) {
       this.setState({ unsavedModalOpen: true });
       return;
     }
@@ -227,10 +289,24 @@ class Settings extends Component {
     });
   }
 
+  getVisibleTabs() {
+    const {
+      isShowAudioFiltersEnabled, isAudioDeviceTestEnabled, isScreenSharingEnabled, isVideoEnabled,
+      isGladiaEnabled,
+    } = this.props;
+
+    return getSettingsTabs({
+      isShowAudioFiltersEnabled,
+      isAudioDeviceTestEnabled,
+      isDataSavingTabEnabled: isScreenSharingEnabled || isVideoEnabled,
+      isGladiaEnabled,
+    });
+  }
+
   performClose() {
     const { saved } = this.state;
     const { setIsOpen } = this.props;
-    Settings.setHtmlFontSize(saved.application.fontSize);
+    Settings.setHtmlFontSize(this.openingFontSize);
     document.getElementsByTagName('html')[0].lang = saved.application.locale;
     setIsOpen(false);
   }
@@ -260,77 +336,32 @@ class Settings extends Component {
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
-      isGladiaEnabled,
       paginationToggleEnabled,
       isChatEnabled,
+      isShowAudioFiltersEnabled,
     } = this.props;
 
     const {
       selectedTab,
       current,
+      saved,
       allLocales,
+      audioDeviceSelection,
     } = this.state;
 
-    const isDataSavingTabEnabled = isScreenSharingEnabled || isVideoEnabled;
+    const tabs = this.getVisibleTabs();
 
-    return (
-      <Styled.SettingsTabs
-        onSelect={this.handleSelectTab}
-        selectedIndex={selectedTab}
-      >
-        <Styled.SettingsTabList>
-          <Styled.SettingsTabSelector
-            aria-labelledby="appTab"
-            selectedClassName="is-selected"
-          >
-            <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
-          </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
-            aria-labelledby="notificationTab"
-            selectedClassName="is-selected"
-          >
-            <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
-          </Styled.SettingsTabSelector>
-          {isDataSavingTabEnabled
-            ? (
-              <Styled.SettingsTabSelector
-                aria-labelledby="dataSavingTab"
-                selectedClassName="is-selected"
-              >
-                <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
-              </Styled.SettingsTabSelector>
-            )
-            : null}
-          {isGladiaEnabled
-            ? (
-              <Styled.SettingsTabSelector
-                aria-labelledby="transcriptionTab"
-                selectedClassName="is-selected"
-              >
-                <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
-              </Styled.SettingsTabSelector>
-            )
-            : null}
-          <Styled.SettingsTabSelector
-            aria-labelledby="shortcutsTab"
-            selectedClassName="is-selected"
-            data-test="shortcutsTabButton"
-          >
-            <span id="shortcutsTab">{intl.formatMessage(intlMessages.shortcutsLabel)}</span>
-          </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
-            aria-labelledby="aboutTab"
-            selectedClassName="is-selected"
-            data-test="aboutTabButton"
-          >
-            <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
-          </Styled.SettingsTabSelector>
-        </Styled.SettingsTabList>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
+    const tabConfig = {
+      [SETTINGS_TABS.APPLICATION]: {
+        ariaId: 'appTab',
+        labelMsg: intlMessages.appTabLabel,
+        panel: (
           <Application
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            savedFontSize={saved.application.fontSize}
+            openingFontSize={this.openingFontSize}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
@@ -338,8 +369,26 @@ class Settings extends Component {
             isReactionsEnabled={isReactionsEnabled}
             paginationToggleEnabled={paginationToggleEnabled}
           />
-        </Styled.SettingsTabPanel>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
+        ),
+      },
+      [SETTINGS_TABS.AUDIO]: {
+        ariaId: 'audioTab',
+        labelMsg: intlMessages.audioTabLabel,
+        panel: (
+          <Audio
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={current.application}
+            audioSettings={current.audio}
+            showProcessing={isShowAudioFiltersEnabled}
+            deviceSelection={audioDeviceSelection}
+            onDeviceSelectionChange={this.handleAudioDeviceSelectionChange}
+          />
+        ),
+      },
+      [SETTINGS_TABS.NOTIFICATION]: {
+        ariaId: 'notificationTab',
+        labelMsg: intlMessages.notificationLabel,
+        panel: (
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
@@ -348,39 +397,78 @@ class Settings extends Component {
             isChatEnabled={isChatEnabled}
             {...{ isModerator }}
           />
-        </Styled.SettingsTabPanel>
-        {isDataSavingTabEnabled
-          ? (
-            <Styled.SettingsTabPanel selectedClassName="is-selected">
-              <DataSaving
-                settings={current.dataSaving}
-                handleUpdateSettings={this.handleUpdateSettings}
-                displaySettingsStatus={this.displaySettingsStatus}
-                isScreenSharingEnabled={isScreenSharingEnabled}
-                isVideoEnabled={isVideoEnabled}
-              />
-            </Styled.SettingsTabPanel>
-          )
-          : null}
-        {isGladiaEnabled
-          ? (
-            <Styled.SettingsTabPanel selectedClassName="is-selected">
-              <Transcription
-                handleUpdateSettings={this.handleUpdateSettings}
-                settings={current.transcription}
-                displaySettingsStatus={this.displaySettingsStatus}
-              />
-            </Styled.SettingsTabPanel>
-          )
-          : null}
-        <Styled.SettingsTabPanel selectedClassName="is-selected" $noPadding>
-          <Shortcuts />
-        </Styled.SettingsTabPanel>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
-          <About
-            settings={current.application}
+        ),
+      },
+      [SETTINGS_TABS.DATA_SAVING]: {
+        ariaId: 'dataSavingTab',
+        spanId: 'dataSaving',
+        labelMsg: intlMessages.dataSavingLabel,
+        panel: (
+          <DataSaving
+            settings={current.dataSaving}
+            handleUpdateSettings={this.handleUpdateSettings}
+            displaySettingsStatus={this.displaySettingsStatus}
+            isScreenSharingEnabled={isScreenSharingEnabled}
+            isVideoEnabled={isVideoEnabled}
           />
-        </Styled.SettingsTabPanel>
+        ),
+      },
+      [SETTINGS_TABS.TRANSCRIPTION]: {
+        ariaId: 'transcriptionTab',
+        labelMsg: intlMessages.transcriptionLabel,
+        panel: (
+          <Transcription
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={current.transcription}
+            displaySettingsStatus={this.displaySettingsStatus}
+          />
+        ),
+      },
+      [SETTINGS_TABS.SHORTCUTS]: {
+        ariaId: 'shortcutsTab',
+        labelMsg: intlMessages.shortcutsLabel,
+        dataTest: 'shortcutsTabButton',
+        noPadding: true,
+        panel: <Shortcuts />,
+      },
+      [SETTINGS_TABS.ABOUT]: {
+        ariaId: 'aboutTab',
+        labelMsg: intlMessages.aboutTabLabel,
+        dataTest: 'aboutTabButton',
+        panel: <About settings={current.application} />,
+      },
+    };
+
+    return (
+      <Styled.SettingsTabs
+        onSelect={this.handleSelectTab}
+        selectedIndex={selectedTab}
+      >
+        <Styled.SettingsTabList>
+          {tabs.map((tabId) => {
+            const {
+              ariaId, spanId, labelMsg, dataTest,
+            } = tabConfig[tabId];
+            return (
+              <Styled.SettingsTabSelector
+                key={tabId}
+                aria-labelledby={ariaId}
+                selectedClassName="is-selected"
+                data-test={dataTest}
+              >
+                <span id={spanId || ariaId}>{intl.formatMessage(labelMsg)}</span>
+              </Styled.SettingsTabSelector>
+            );
+          })}
+        </Styled.SettingsTabList>
+        {tabs.map((tabId) => {
+          const { panel, noPadding } = tabConfig[tabId];
+          return (
+            <Styled.SettingsTabPanel key={tabId} selectedClassName="is-selected" $noPadding={noPadding}>
+              {panel}
+            </Styled.SettingsTabPanel>
+          );
+        })}
       </Styled.SettingsTabs>
     );
   }
@@ -388,13 +476,11 @@ class Settings extends Component {
   render() {
     const {
       intl,
-      setIsOpen,
       isOpen,
-      setLocalSettings,
       modalHeight,
       modalWidth,
     } = this.props;
-    const { current, saved, unsavedModalOpen } = this.state;
+    const { unsavedModalOpen } = this.state;
 
     if (unsavedModalOpen) {
       return (
@@ -414,21 +500,7 @@ class Settings extends Component {
         modalIsOpen={isOpen}
         documentTitle={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
-          callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-
-            if (saved.application.locale !== current.application.locale) {
-              const { language } = formatLocaleCode(saved.application.locale);
-              const newLanguage = current.application.locale;
-              setUseCurrentLocale(newLanguage);
-              document.body.classList.remove(`lang-${language}`);
-            }
-
-            /* We need to use setIsOpen(false) here to prevent submenu state updates,
-            *  from re-opening the modal.
-            */
-            setIsOpen(false);
-          },
+          callback: this.handleSave,
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
         }}
@@ -444,16 +516,7 @@ class Settings extends Component {
           </Styled.ActionButton>
           <Styled.ActionButton
             data-test="saveSettingsButton"
-            onClick={() => {
-              this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-              if (saved.application.locale !== current.application.locale) {
-                const { language } = formatLocaleCode(saved.application.locale);
-                const newLanguage = current.application.locale;
-                setUseCurrentLocale(newLanguage);
-                document.body.classList.remove(`lang-${language}`);
-              }
-              setIsOpen(false);
-            }}
+            onClick={this.handleSave}
           >
             {intl.formatMessage(intlMessages.SaveLabel)}
           </Styled.ActionButton>

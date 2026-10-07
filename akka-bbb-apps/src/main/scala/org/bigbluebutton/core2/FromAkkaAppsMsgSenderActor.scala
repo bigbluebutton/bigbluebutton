@@ -66,6 +66,8 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toSfuRedisChannel, json)
       case GenerateLiveKitTokenReqMsg.NAME =>
         msgSender.send(toSfuRedisChannel, json)
+      case RemoveLiveKitParticipantSysMsg.NAME =>
+        msgSender.send(toSfuRedisChannel, json)
 
       //==================================================================
       // Send chat, presentation, and whiteboard in different channels so as not to

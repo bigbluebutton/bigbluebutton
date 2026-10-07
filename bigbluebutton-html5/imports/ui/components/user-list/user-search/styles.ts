@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 import {
-  colorGray,
   colorBorder,
+  colorBorderSurface,
+  colorGray,
   colorPrimary,
   colorText,
-  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -20,7 +21,7 @@ const SearchContainer = styled.div`
   align-items: center;
   position: relative;
   margin: ${lgPadding};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border-radius: ${lgBorderRadius};
   border: 1px solid ${colorBorder};
   padding: ${smPaddingY} ${smPaddingX};
@@ -32,7 +33,7 @@ const SearchContainer = styled.div`
   cursor: text;
 
   &:focus-within {
-    box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
+    box-shadow: 0 0 0 ${xsPadding} ${colorBorderSurface};
   }
 `;
 

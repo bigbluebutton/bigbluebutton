@@ -10,6 +10,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
 import { useWhoIsTalking } from '/imports/ui/core/hooks/useWhoIsTalking';
 import { useWhoIsUnmuted } from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { useHasMeetingCameraCapReached } from '/imports/ui/components/video-provider/hooks';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from './user-item-toolbar/component';
@@ -25,6 +26,7 @@ import { UserListItemProps } from './types';
 import UserNameWithSubs from './user-name-with-subs/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useUserOperations } from '/imports/ui/components/user-list/hooks/useUserOperations';
+import { getFilteredAvatar } from '/imports/ui/components/user-list/service';
 
 const getIconComponent = (icon: PluginSdk.PluginIconType): React.ReactNode => {
   if (typeof icon === 'string') {
@@ -97,6 +99,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
+  const hasMeetingCameraCapReached = useHasMeetingCameraCapReached();
   const isMuted = !unmutedUsers[user.userId];
   const isTalking = talkingUsers[user.userId];
 
@@ -112,6 +115,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     isChatEnabled,
     isPrivateChatEnabled,
     type,
+    hasMeetingCameraCapReached,
   );
 
   const {
@@ -133,11 +137,13 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setRole,
     operations.setLocked,
     operations.userEjectCameras,
+    operations.userRequestCamera,
     () => modal.setIsOpen(true),
     operations.setRaiseHand,
+    operations.setUserChatLocked,
   );
 
-  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = getFilteredAvatar(user);
 
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;

@@ -1,18 +1,20 @@
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
 import Select from '@mui/material/Select';
 import {
-  colorPrimary,
+  btnPrimaryBg,
+  colorBlueLighter,
+  colorDanger,
   colorGray,
   colorGrayLight,
   colorGrayLighter,
-  colorWhite,
   colorGrayUserListToolbar,
+  colorInfoBannerBg,
+  colorPrimary,
   colorText,
-  btnPrimaryBg,
-  colorDanger,
-  colorBlueLighter,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
@@ -332,7 +334,7 @@ export const InfoBanner = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  background: #e8f0fe;
+  background: ${colorInfoBannerBg};
   border-radius: 0.75rem;
   padding: 0.75rem;
   margin: 0.5rem 0;
@@ -578,31 +580,9 @@ export const PresentationSelect = styled(Select)`
   }
 `;
 
-export const StartButtonWrapper = styled.div`
+export const StartButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
   padding: 0.75rem 1rem;
   margin-top: auto;
-`;
-
-export const StartButton = styled.button<{ disabled?: boolean }>`
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: ${colorWhite};
-  background: ${colorPrimary};
-  border: 2px solid ${colorPrimary};
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    opacity: 0.85;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 `;
 
 export const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
@@ -694,6 +674,5 @@ export default {
   UserRemoveBtn,
   PresentationSelect,
   StartButtonWrapper,
-  StartButton,
   MaterialSwitch,
 };

@@ -71,6 +71,7 @@ interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerP
   inAudio: boolean;
   showMute: boolean;
   disabled: boolean;
+  mediaInterrupted: boolean;
   inputDeviceId: string;
   outputDeviceId: string;
   inputStream: string;
@@ -93,6 +94,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   inAudio,
   showMute,
   disabled,
+  mediaInterrupted,
   inputDeviceId,
   outputDeviceId,
   inputStream,
@@ -200,6 +202,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
             talking={talking}
             muted={muted}
             disabled={disabled || isAudioLocked}
+            mediaInterrupted={mediaInterrupted}
             isAudioLocked={isAudioLocked}
             toggleMuteMicrophone={toggleMuteMicrophone}
             away={away}
@@ -214,6 +217,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
           <>
             {(isConnected && !listenOnly) && (
               <MuteToggle
+                mediaInterrupted={mediaInterrupted}
                 talking={talking}
                 muted={muted}
                 disabled={disabled || isAudioLocked}
@@ -293,6 +297,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const supportsTransparentListenOnly = useReactiveVar(AudioManager._transparentListenOnlySupported.value) as boolean;
   const isConnected = useIsAudioConnected();
+  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
+  const mediaInterrupted = useReactiveVar(AudioManager._isReconnecting.value) as boolean;
 
   const updateInputDevices = (devices: InputDeviceInfo[] = []) => {
     AudioManager.inputDevices = devices;
@@ -315,6 +321,7 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       showMute={(inAudio && !currentMeeting?.lockSettings?.disableMic) ?? false}
       isConnected={isConnected}
       disabled={isConnecting || isHangingUp}
+      mediaInterrupted={mediaInterrupted}
       inputDeviceId={inputDeviceId}
       outputDeviceId={outputDeviceId}
       inputStream={inputStream}

@@ -1,10 +1,15 @@
 import styled from 'styled-components';
 import ReactModal from 'react-modal';
+import {
+  scrollFadeColor,
+  scrollbarThumb,
+  scrollbarThumbHover,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const ScrollboxVertical = styled.div`
   overflow-y: auto;
-  background: linear-gradient(white 30%, rgba(255,255,255,0)),
-    linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+  background: linear-gradient(${scrollFadeColor} 30%, transparent),
+    linear-gradient(transparent, ${scrollFadeColor} 70%) 0 100%,
     /* Shadows */
     radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
@@ -24,26 +29,26 @@ const ScrollboxVertical = styled.div`
     height: 0;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.25);
+    background: ${scrollbarThumb};
     border: none;
     border-radius: 50px;
   }
-  &::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.5); }
-  &::-webkit-scrollbar-thumb:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-thumb:hover { background: ${scrollbarThumbHover}; }
+  &::-webkit-scrollbar-thumb:active { background: ${scrollbarThumb}; }
   &::-webkit-scrollbar-track {
-    background: rgba(0,0,0,.25);
+    background: ${scrollbarThumb};
     border: none;
     border-radius: 50px;
   }
-  &::-webkit-scrollbar-track:hover { background: rgba(0,0,0,.25); }
-  &::-webkit-scrollbar-track:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-track:hover { background: ${scrollbarThumb}; }
+  &::-webkit-scrollbar-track:active { background: ${scrollbarThumb}; }
   &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 
 const ModalScrollboxVertical = styled(ReactModal)`
   overflow-y: auto;
-  background: linear-gradient(white 30%, rgba(255,255,255,0)),
-    linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+  background: linear-gradient(${scrollFadeColor} 30%, transparent),
+    linear-gradient(transparent, ${scrollFadeColor} 70%) 0 100%,
     /* Shadows */
     radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
@@ -63,19 +68,19 @@ const ModalScrollboxVertical = styled(ReactModal)`
     height: 0;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.25);
+    background: ${scrollbarThumb};
     border: none;
     border-radius: 50px;
   }
-  &::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.5); }
-  &::-webkit-scrollbar-thumb:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-thumb:hover { background: ${scrollbarThumbHover}; }
+  &::-webkit-scrollbar-thumb:active { background: ${scrollbarThumb}; }
   &::-webkit-scrollbar-track {
-    background: rgba(0,0,0,.25);
+    background: ${scrollbarThumb};
     border: none;
     border-radius: 50px;
   }
-  &::-webkit-scrollbar-track:hover { background: rgba(0,0,0,.25); }
-  &::-webkit-scrollbar-track:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-track:hover { background: ${scrollbarThumb}; }
+  &::-webkit-scrollbar-track:active { background: ${scrollbarThumb}; }
   &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 

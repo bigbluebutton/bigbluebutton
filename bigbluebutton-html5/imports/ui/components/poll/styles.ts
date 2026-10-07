@@ -1,4 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import Button from '/imports/ui/components/common/button/component';
 import {
   Separator as BaseSeparator,
@@ -25,36 +26,39 @@ import {
   mdPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorText,
   colorBlueLight,
+  colorBlueLightest,
   colorBorder,
-  colorGray,
-  colorGrayLighter,
-  colorGrayLightest,
+  colorBorderSurface,
   colorDanger,
-  colorWarning,
-  colorHeading,
-  colorPrimary,
+  colorGray,
   colorGrayDark,
-  colorWhite,
-  pollBlue,
-  pollStatsBorderColor,
-  colorOffWhite,
-  SegmentedButtonRingOffsetShadow,
-  SegmentedButtonRingShadow,
-  SegmentedButtonBoxShadowSm,
-  slate900,
-  darkCyanLime,
+  colorGrayLighterSurface,
+  colorGrayLightest,
+  colorGreen100,
+  colorGreen600,
+  colorHeading,
   colorInfoBoxQuizBg,
   colorInfoBoxQuizBorder,
   colorInfoBoxQuizText,
-  colorSelectedCorrectAnswerText,
+  colorOffWhite,
+  colorPrimary,
   colorSelectedCorrectAnswerBg,
-  colorSelectedCorrectAnswerTextActive,
   colorSelectedCorrectAnswerBgActive,
-  colorGreen600,
-  colorGreen100,
-  colorBlueLightest,
+  colorSelectedCorrectAnswerText,
+  colorSelectedCorrectAnswerTextActive,
+  colorText,
+  colorWarning,
+  colorWhite,
+  colorWhiteSurface,
+  darkCyanLime,
+  pollBlue,
+  pollStatsBorderColor,
+  SegmentedButtonBoxShadowSm,
+  SegmentedButtonRingOffsetShadow,
+  SegmentedButtonRingShadow,
+  slate600,
+  slate900,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -101,10 +105,10 @@ const PollOptionInput = styled.input<PollOptionInputProps>`
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   border: 1px solid ${colorBorder};
-  box-shadow: 0 0 0 1px ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorderSurface};
 
   ${({ isCorrect }) => isCorrect && ` 
-    background-color: rgb(240, 253, 244);
+    background-color: ${colorInfoBoxQuizBg};
     border-color: rgb(134 239 172 / 1);
   `}
 `;
@@ -154,7 +158,7 @@ const PollQuestionArea = styled.textarea<PollQuestionAreaProps>`
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   border: 1px solid ${colorBorder};
-  box-shadow: 0 0 0 1px ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorderSurface};
 
   ${({ hasError }) => hasError && `
     border-color: ${colorDanger};
@@ -299,23 +303,6 @@ const Toggle = styled.label`
   align-items: center;
 `;
 
-// @ts-ignore - Button is a JS Component
-const StartPollBtn = styled(Button)`
-  position: relative;
-  width: 100%;
-  min-height: ${pollInputHeight};
-  margin-top: 1rem;
-  font-size: ${fontSizeBase};
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-
-  &:hover {
-    & > span {
-      opacity: 1;
-    }
-  }
-`;
-
 const NoSlidePanelContainer = styled.div`
   color: ${colorGrayDark};
   text-align: center;
@@ -325,7 +312,7 @@ const NoSlidePanelContainer = styled.div`
 const PollButton = styled(Button)`
   margin-top: ${smPaddingY};
   margin-bottom: ${smPaddingY};
-  // background-color: ${colorWhite};
+  // background-color: ${colorWhiteSurface};
   box-shadow: 0 0 0 1px ${colorPrimary};
   color: ${colorWhite};
   background-color: ${colorPrimary}
@@ -340,7 +327,7 @@ const PollButton = styled(Button)`
   }
 
   &:active {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     box-shadow: 0 0 0 1px ${pollBlue};
 
     & > span {
@@ -349,7 +336,7 @@ const PollButton = styled(Button)`
   }
 
   &:focus {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     box-shadow: 0 0 0 1px ${pollBlue};
 
     & > span {
@@ -378,8 +365,8 @@ const PollButton = styled(Button)`
   }
 
   &:hover {
-    box-shadow: 0 0 0 1px ${colorWhite};
-    background-color: ${colorWhite};
+    box-shadow: 0 0 0 1px ${colorWhiteSurface};
+    background-color: ${colorWhiteSurface};
     color: ${pollBlue};
 
     & > span {
@@ -511,7 +498,7 @@ const Right = styled.div`
 `;
 
 const BarShade = styled.div`
-  background-color: ${colorGrayLighter};
+  background-color: ${colorGrayLighterSurface};
   height: 100%;
   min-height: 100%;
   position: absolute;
@@ -590,27 +577,15 @@ const ConnectingAnimation = styled.span<ConnectingAnimationProps>`
 const ButtonsActions = styled.div`
   display: flex;
   width: 100%;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
 `;
 
-// @ts-ignore - Button is a JS Component
-const PublishButton = styled(Button)`
-  width: 48%;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-`;
+const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
 
-const CancelButton = styled(PublishButton)``;
-
-// @ts-ignore - Button is a JS Component
-const LiveResultButton = styled(Button)`
+const StartPollButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
+  margin-top: 1rem;
   width: 100%;
-  margin-top: ${smPaddingY};
-  margin-bottom: ${smPaddingY};
-  font-size: ${fontSizeBase};
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
 `;
 
 const THeading = styled.th`
@@ -623,11 +598,11 @@ const THeading = styled.th`
 
 const DndTextArea = styled.textarea<{ active: boolean }>`
   ${({ active }) => active && `
-    background: ${colorGrayLighter};
+    background: ${colorGrayLighterSurface};
   `}
 
   ${({ active }) => !active && `
-    background: ${colorWhite};
+    background: ${colorWhiteSurface};
   `}
 `;
 
@@ -666,7 +641,7 @@ const SegmentedButton = styled.button<TabSelectorButtonProps>`
   border: 0;
   background-color: transparent;
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  color: rgb(75 85 99 / 1);
+  color: ${slate600};
   font-weight: 500;
   font-size: ${fontSizeBase};
   line-height: ${lineHeightComputed};
@@ -676,7 +651,7 @@ const SegmentedButton = styled.button<TabSelectorButtonProps>`
   cursor: pointer;
 
   &:hover {
-    color: rgb(17 24 39 / 1);
+    color: ${slate900};
   }
 
   ${({ active }) => active && `
@@ -684,7 +659,7 @@ const SegmentedButton = styled.button<TabSelectorButtonProps>`
                 var(${SegmentedButtonRingShadow}, 0 0 #0000),
                 var(${SegmentedButtonBoxShadowSm});
     color: ${slate900};
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
   `}
 
 
@@ -833,7 +808,6 @@ export default {
   Row,
   Col,
   Toggle,
-  StartPollBtn,
   NoSlidePanelContainer,
   PollButton,
   DragAndDropPollContainer,
@@ -862,9 +836,8 @@ export default {
   Status,
   ConnectingAnimation,
   ButtonsActions,
-  PublishButton,
-  CancelButton,
-  LiveResultButton,
+  ButtonWrapper,
+  StartPollButtonWrapper,
   THeading,
   DndTextArea,
   ContentWrapper,

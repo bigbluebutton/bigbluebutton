@@ -5,6 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from '../styles';
 import {
   ResponseInfo,
@@ -102,7 +103,7 @@ interface LiveResultProps {
   questionText: string;
   responses: Array<ResponseInfo>;
   usersCount: number;
-  numberOfAnswerCount: number;
+  respondedUsersCount: number;
   animations: boolean;
   pollId: string;
   users: Array<UserInfo>;
@@ -115,7 +116,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   questionText,
   responses,
   usersCount,
-  numberOfAnswerCount,
+  respondedUsersCount,
   animations,
   pollId,
   users,
@@ -159,18 +160,18 @@ const LiveResult: React.FC<LiveResultProps> = ({
       </Styled.Instructions>
       <Styled.Stats>
         {questionText ? <Styled.Title data-test="currentPollQuestion">{questionText}</Styled.Title> : null}
-        <Styled.Status>
-          {usersCount !== numberOfAnswerCount
+        <Styled.Status data-test="pollStatus">
+          {usersCount !== respondedUsersCount
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  current: numberOfAnswerCount,
+                  current: respondedUsersCount,
                   total: usersCount,
                 })} `}
               </span>
             )
             : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {usersCount !== numberOfAnswerCount
+          {usersCount !== respondedUsersCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
         <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
@@ -202,51 +203,58 @@ const LiveResult: React.FC<LiveResultProps> = ({
           </Styled.ShowCorrectAnswerLabel>
         )
       }
-      {numberOfAnswerCount >= 0
+      {respondedUsersCount >= 0
         ? (
           <Styled.ButtonsActions>
-            <Styled.PublishButton
-              onClick={() => {
-                Session.setItem('pollInitiated', false);
-                publishPoll(pollId, shouldShowCorrectAnswer);
-                stopPoll();
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                  value: true,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                  value: PANELS.CHAT,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_ID_CHAT_OPEN,
-                  value: PUBLIC_GROUP_CHAT_KEY,
-                });
-              }}
-              disabled={numberOfAnswerCount <= 0}
-              label={intl.formatMessage(intlMessages.publishLabel)}
-              data-test="publishPollingLabel"
-              color="primary"
-            />
-            <Styled.CancelButton
-              onClick={() => {
-                Session.setItem('pollInitiated', false);
-                Session.setItem('resetPollPanel', true);
-                stopPoll();
-              }}
-              label={intl.formatMessage(intlMessages.cancelPollLabel)}
-              data-test="cancelPollLabel"
-            />
+            <Styled.ButtonWrapper>
+              <BBButton
+                variant="primary"
+                onClick={() => {
+                  Session.setItem('pollInitiated', false);
+                  publishPoll(pollId, shouldShowCorrectAnswer);
+                  stopPoll();
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                    value: true,
+                  });
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                    value: PANELS.CHAT,
+                  });
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_ID_CHAT_OPEN,
+                    value: PUBLIC_GROUP_CHAT_KEY,
+                  });
+                }}
+                disabled={respondedUsersCount <= 0}
+                label={intl.formatMessage(intlMessages.publishLabel)}
+                dataTest="publishPollingLabel"
+              />
+            </Styled.ButtonWrapper>
+            <Styled.ButtonWrapper>
+              <BBButton
+                variant="secondary"
+                onClick={() => {
+                  Session.setItem('pollInitiated', false);
+                  Session.setItem('resetPollPanel', true);
+                  stopPoll();
+                }}
+                label={intl.formatMessage(intlMessages.cancelPollLabel)}
+                dataTest="cancelPollLabel"
+              />
+            </Styled.ButtonWrapper>
           </Styled.ButtonsActions>
         ) : (
-          <Styled.LiveResultButton
-            onClick={() => {
-              stopPoll();
-            }}
-            label={intl.formatMessage(intlMessages.backLabel)}
-            color="primary"
-            data-test="restartPoll"
-          />
+          <Styled.ButtonsActions>
+            <Styled.ButtonWrapper>
+              <BBButton
+                variant="primary"
+                onClick={() => stopPoll()}
+                label={intl.formatMessage(intlMessages.backLabel)}
+                dataTest="restartPoll"
+              />
+            </Styled.ButtonWrapper>
+          </Styled.ButtonsActions>
         )}
       <Styled.Separator />
       {
@@ -350,7 +358,7 @@ const LiveResultContainer: React.FC = () => {
     type,
   } = currentPoll;
 
-  const numberOfAnswerCount = currentPoll.responses_aggregate.aggregate.sum.optionResponsesCount;
+  const respondedUsersCount = currentPoll.numResponders;
   const numberOfUsersCount = currentPoll.users_aggregate.aggregate.count;
 
   return (
@@ -359,7 +367,7 @@ const LiveResultContainer: React.FC = () => {
       responses={responses}
       isSecret={isSecret}
       usersCount={numberOfUsersCount}
-      numberOfAnswerCount={numberOfAnswerCount ?? 0}
+      respondedUsersCount={respondedUsersCount}
       animations={animations}
       pollId={pollId}
       users={users}

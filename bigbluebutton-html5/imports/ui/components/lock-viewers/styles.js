@@ -9,13 +9,14 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import {
+  colorBorder,
   colorGray,
   colorGrayDark,
   colorGrayLabel,
   colorPrimary,
   colorText,
   colorWhite,
-  colorBorder,
+  colorWhiteSurface,
   settingsModalTabSelected,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -117,7 +118,7 @@ const SettingsTabSelector = styled(Tab)`
     font-size: 0.8rem;
     min-height: 3rem;
     border-radius: 8px;
-    background: ${colorWhite};
+    background: ${colorWhiteSurface};
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
     &.is-selected {

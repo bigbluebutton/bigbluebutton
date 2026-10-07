@@ -1,4 +1,8 @@
 import styled from 'styled-components';
+import {
+  colorLink,
+  colorTextEmphasis,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from '/imports/ui/components/settings/submenus/styles';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -15,15 +19,15 @@ const Content = styled.div`
 const Text = styled.p`
   margin: 8px 0;
   font-size: ${fontSizeBase};
-  color: #333;
+  color: ${colorTextEmphasis};
 `;
 
 const Link = styled.a`
-  color: #333;
+  color: ${colorTextEmphasis};
 `;
 
 const TableButton = styled.button`
-  color: #333;
+  color: ${colorTextEmphasis};
   background-color: transparent;
   border: none;
   font-size: ${fontSizeBase};
@@ -38,12 +42,12 @@ const TableButton = styled.button`
   }
 
   &:focus {
-    outline: 2px solid #007BFF;
+    outline: 2px solid ${colorLink};
     outline-offset: 2px;
   }
 
   &:active {
-    color: #0056b3;
+    color: ${colorLink};
   }
 `;
 

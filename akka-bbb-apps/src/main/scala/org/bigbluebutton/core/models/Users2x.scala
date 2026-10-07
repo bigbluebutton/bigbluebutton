@@ -256,6 +256,17 @@ object Users2x {
     }
   }
 
+  def setUserUnmuteRequested(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.requestedUnmuteByMod).setTo(true)
+      users.save(newUser)
+      UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
   def resetUserUnmuteRequested(users: Users2x, intId: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -263,6 +274,18 @@ object Users2x {
       val newUser = u.modify(_.requestedUnmuteByMod).setTo(false)
       users.save(newUser)
       UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
+  def setUserCameraRequested(users: Users2x, intId: String, requested: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+      if u.requestedCameraByMod != requested
+    } yield {
+      val newUser = u.modify(_.requestedCameraByMod).setTo(requested)
+      users.save(newUser)
+      UserStateDAO.updateRequestedCameraByMod(u.meetingId, u.intId, requested)
       newUser
     }
   }
@@ -477,6 +500,7 @@ case class UserState(
     lastActivityTime:      Long                = System.currentTimeMillis(),
     lastInactivityInspect: Long                = 0,
     requestedUnmuteByMod:  Boolean             = false,
+    requestedCameraByMod:  Boolean             = false,
     requestedPresenter:    Boolean             = false,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,

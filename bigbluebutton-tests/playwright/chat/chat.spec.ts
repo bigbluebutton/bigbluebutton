@@ -1,7 +1,9 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
 import { Jumbomoji } from './jumbomoji';
+import { Mention } from './mention';
 import { MessageActions } from './messageActions';
+import { ChatPluginDomElements } from './pluginDomElements';
 import { PrivateChatListPreview } from './privateChatListPreview';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
@@ -17,6 +19,24 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.sendPrivateMessage();
+  });
+
+  test('Pick a mention from the mention picker', async ({ browser, context, page }, testInfo) => {
+    const mention = new Mention(browser, context);
+    await mention.initPages(page, testInfo);
+    await mention.pickMentionFromPicker();
+  });
+
+  test('No mention picker on a private chat', async ({ browser, context, page }, testInfo) => {
+    const mention = new Mention(browser, context);
+    await mention.initPages(page, testInfo);
+    await mention.noPickerOnPrivateChat();
+  });
+
+  test('Mention survives a message edit', async ({ browser, context, page }, testInfo) => {
+    const mention = new Mention(browser, context);
+    await mention.initPages(page, testInfo);
+    await mention.mentionSurvivesEdit();
   });
 
   test('Clear chat', async ({ browser, context, page }, testInfo) => {
@@ -222,7 +242,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
 
       test(
         'User can delete only his own messages in breakout rooms',
-        { tag: '@flaky-3.1' },
+        { tag: '@flaky' },
         async ({ browser, context, page }, testInfo) => {
           const message = new MessageActions(browser, context);
           await message.initPages(page, testInfo);
@@ -276,5 +296,25 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.orderReactions();
       });
     });
+  });
+});
+
+test.describe.parallel('Chat plugin dom elements', { tag: '@ci' }, () => {
+  test('Keeps delivering dom elements after a message is deleted', async ({ browser, context, page }, testInfo) => {
+    const domElements = new ChatPluginDomElements(browser, context);
+    // Single-user scenarios: the probe, the deletion and the focus trap are all moderator-side
+    await domElements.initModPage(page, { testInfo });
+    await domElements.keepsDeliveringAfterMessageDeletion();
+  });
+
+  test('Keeps delivering dom elements after the keyboard focus re-mounts a message', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const domElements = new ChatPluginDomElements(browser, context);
+    // Single-user scenarios: the probe, the deletion and the focus trap are all moderator-side
+    await domElements.initModPage(page, { testInfo });
+    await domElements.keepsDeliveringAfterKeyboardFocus();
   });
 });

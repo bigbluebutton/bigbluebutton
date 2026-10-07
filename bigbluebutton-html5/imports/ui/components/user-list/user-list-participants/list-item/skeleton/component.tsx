@@ -1,4 +1,8 @@
 import React, { memo } from 'react';
+import {
+  appsGalleryOutlineColorSurface,
+  colorWhiteSurface,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import listItemStyles from '../styles';
@@ -19,7 +23,11 @@ const SkeletonUserListItem: React.FC<SkeletonUserListItemProps> = ({
 
   return (
     <Styled.SkeletonUserItemContents>
-      <SkeletonTheme baseColor="#DCE4EC" enableAnimation={enableAnimation}>
+      <SkeletonTheme
+        baseColor={appsGalleryOutlineColorSurface}
+        highlightColor={colorWhiteSurface}
+        enableAnimation={enableAnimation}
+      >
         <div style={{ direction: isRTL ? 'rtl' : 'ltr', width: '100%' }}>
           <listItemStyles.UserItemContents>
             <Styled.UserAvatar data-test="userAvatar">

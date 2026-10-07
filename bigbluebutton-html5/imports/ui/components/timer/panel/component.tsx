@@ -8,6 +8,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
   useMutation,
 } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
@@ -210,50 +211,73 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
     );
   }, [songTrack, stopwatch, running, handleMusicSwitchChange, intl]);
 
+  const deactivateButton = (
+    <Styled.ButtonWrapper>
+      <BBButton
+        variant="secondary"
+        label={intl.formatMessage(intlMessages.deactivate)}
+        onClick={handleDeactivate}
+        dataTest="deactivateTimer"
+      />
+    </Styled.ButtonWrapper>
+  );
+
   let controlButtons;
   if (running) {
     controlButtons = (
       <Styled.ButtonRow>
-        <Styled.ResetButton
-          color="secondary"
-          label={intl.formatMessage(intlMessages.reset)}
-          onClick={handleReset}
-          data-test="resetTimerStopWatch"
-        />
-        <Styled.ControlButton
-          color="danger"
-          label={intl.formatMessage(intlMessages.stop)}
-          onClick={timerStop}
-          data-test="startStopTimer"
-        />
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="secondary"
+            label={intl.formatMessage(intlMessages.reset)}
+            onClick={handleReset}
+            dataTest="resetTimerStopWatch"
+          />
+        </Styled.ButtonWrapper>
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            color="danger"
+            label={intl.formatMessage(intlMessages.stop)}
+            onClick={() => timerStop()}
+            dataTest="startStopTimer"
+          />
+        </Styled.ButtonWrapper>
       </Styled.ButtonRow>
     );
   } else if (isPaused) {
     controlButtons = (
       <Styled.ButtonRow>
-        <Styled.ResetButton
-          color="secondary"
-          label={intl.formatMessage(intlMessages.reset)}
-          onClick={handleReset}
-          data-test="resetTimerStopWatch"
-        />
-        <Styled.ControlButton
-          color="primary"
-          label={intl.formatMessage(intlMessages.start)}
-          onClick={timerStart}
-          data-test="startStopTimer"
-        />
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="secondary"
+            label={intl.formatMessage(intlMessages.reset)}
+            onClick={handleReset}
+            dataTest="resetTimerStopWatch"
+          />
+        </Styled.ButtonWrapper>
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            label={intl.formatMessage(intlMessages.start)}
+            onClick={() => timerStart()}
+            dataTest="startStopTimer"
+          />
+        </Styled.ButtonWrapper>
       </Styled.ButtonRow>
     );
   } else {
     controlButtons = (
       <Styled.ButtonRow>
-        <Styled.ControlButton
-          color="primary"
-          label={intl.formatMessage(intlMessages.start)}
-          onClick={timerStart}
-          data-test="startStopTimer"
-        />
+        {deactivateButton}
+        <Styled.ButtonWrapper>
+          <BBButton
+            variant="primary"
+            label={intl.formatMessage(intlMessages.start)}
+            onClick={() => timerStart()}
+            dataTest="startStopTimer"
+          />
+        </Styled.ButtonWrapper>
       </Styled.ButtonRow>
     );
   }
@@ -305,12 +329,11 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
           <Styled.FooterSeparator />
           <Styled.ControlsContainer>
             {controlButtons}
-            <Styled.DeactivateButton
-              color="default"
-              label={intl.formatMessage(intlMessages.deactivate)}
-              onClick={handleDeactivate}
-              data-test="deactivateTimer"
-            />
+            {(running || isPaused) && (
+              <Styled.ButtonRow>
+                {deactivateButton}
+              </Styled.ButtonRow>
+            )}
           </Styled.ControlsContainer>
         </Styled.TimerContent>
       </Styled.TimerScrollableContent>

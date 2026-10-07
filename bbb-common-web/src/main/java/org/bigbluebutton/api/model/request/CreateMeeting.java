@@ -2,6 +2,7 @@ package org.bigbluebutton.api.model.request;
 
 import jakarta.ws.rs.core.MediaType;
 import org.bigbluebutton.api.model.constraint.*;
+import org.bigbluebutton.api.domain.SharedNotesEditor;
 import org.bigbluebutton.api.model.shared.Checksum;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         MODERATOR_PW("moderatorPW"),
         IS_BREAKOUT_ROOM("isBreakoutRoom"),
         RECORD("record"),
+        SHARED_NOTES_EDITOR("sharedNotesEditor"),
         PRES_UPLOAD_EXT_URL("presentationUploadExternalUrl");
 
         private final String value;
@@ -54,6 +56,9 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
     @IsBooleanConstraint(message = "Record must be a boolean value (true or false)")
     private String recordString;
     private Boolean record;
+
+    @Pattern(regexp = SharedNotesEditor.VALID_PATTERN, key = "invalidSharedNotesEditor", message = "sharedNotesEditor must be either etherpad or blockNote")
+    private String sharedNotesEditor;
 
     @UrlConstraint
     private String presentationUploadExternalUrl;
@@ -126,6 +131,14 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         this.record = record;
     }
 
+    public String getSharedNotesEditor() {
+        return sharedNotesEditor;
+    }
+
+    public void setSharedNotesEditor(String sharedNotesEditor) {
+        this.sharedNotesEditor = sharedNotesEditor;
+    }
+
     public String getPresentationUploadExternalUrl() {
         return presentationUploadExternalUrl;
     }
@@ -143,6 +156,7 @@ public class CreateMeeting extends RequestWithChecksum<CreateMeeting.Params> {
         if(params.containsKey(Params.MODERATOR_PW.getValue())) setModeratorPW(params.get(Params.MODERATOR_PW.getValue())[0]);
         if(params.containsKey(Params.IS_BREAKOUT_ROOM.getValue())) setBreakoutRoomString(params.get(Params.IS_BREAKOUT_ROOM.value)[0]);
         if(params.containsKey(Params.RECORD.getValue())) setRecordString(params.get(Params.RECORD.getValue())[0]);
+        if(params.containsKey(Params.SHARED_NOTES_EDITOR.getValue())) setSharedNotesEditor(params.get(Params.SHARED_NOTES_EDITOR.getValue())[0]);
         if(params.containsKey(Params.PRES_UPLOAD_EXT_URL.getValue())) setPresentationUploadExternalUrl(params.get(Params.PRES_UPLOAD_EXT_URL.getValue())[0]);
     }
 

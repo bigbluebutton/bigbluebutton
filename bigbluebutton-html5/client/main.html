@@ -25,6 +25,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        client (insertBefore NotFoundError) on the next render. Use in-app i18n. -->
   <meta name="google" content="notranslate">
   <script>document.documentElement.setAttribute('translate', 'no');</script>
+  <script>
+    // Applies the persisted theme before the first paint. Two key spellings on purpose:
+    // the session adapter prefixes 'BBB_' and the local one 'BBB', so a deployment with
+    // userSettingsStorage: local writes 'BBBchanged_settings_application'. The prefix
+    // asymmetry is pre-existing and must not be normalised here -- that would orphan
+    // every already-persisted setting. The gate is 'darkTheme' in changed, not
+    // truthiness, because Settings.save() writes {} unconditionally and an empty object
+    // would otherwise be taken as authoritative and stop the search.
+    (function applyPersistedTheme() {
+      var keys = ['BBB_changed_settings_application', 'BBBchanged_settings_application'];
+      var stores;
+      try {
+        stores = [window.sessionStorage, window.localStorage];
+      } catch (e) {
+        return;
+      }
+      for (var i = 0; i < stores.length; i += 1) {
+        for (var j = 0; j < keys.length; j += 1) {
+          var changed = null;
+          try {
+            var raw = stores[i] && stores[i].getItem(keys[j]);
+            changed = raw ? JSON.parse(raw) : null;
+          } catch (e) {
+            changed = null;
+          }
+          if (changed && typeof changed === 'object' && 'darkTheme' in changed) {
+            if (changed.darkTheme === true) {
+              document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            return;
+          }
+        }
+      }
+      // Nothing persisted: anticipate the shipped default, darkTheme.autoDetectFromSystem
+      // true, so an OS-dark user does not get a light first paint. A deployment that turns
+      // autoDetectFromSystem off trades this for a dark flash instead; the default config
+      // is the common case, and the server's defaultSettings cannot be known pre-paint.
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) { /* matchMedia unavailable: leave the first paint light */ }
+    })();
+  </script>
   <title>BigBlueButton</title>
   <link rel="stylesheet" href="stylesheets/normalize.css" crossorigin="anonymous"/>
   <style>
@@ -41,7 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       height: 100%;
       font-family: 'Source Sans Pro', Arial, sans-serif;
       font-size: 1rem; /* 16px */
-      background-color: var(--color-background);
+      background-color: var(--color-background, #102133);
     }
 
     /* language-specific font */
@@ -94,13 +138,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     }
 
     ::-webkit-input-placeholder {
-      color: var(--palette-placeholder-text);
+      color: var(--palette-placeholder-text, #787675);
       opacity: 1;
     }
 
     :-moz-placeholder, /* Firefox 4 to 18 */
     ::-moz-placeholder { /* Firefox 19+ */
-      color: var(--palette-placeholder-text);
+      color: var(--palette-placeholder-text, #787675);
       opacity: 1;
     }
 
@@ -109,8 +153,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     }
 
     .overrideSelect {
-      background-color: #FFF !important;
-      color: #000 !important;
+      background-color: var(--color-white-surface, var(--color-white, #FFF)) !important;
+      color: var(--color-black, #000) !important;
     }
 
     .select {
@@ -127,9 +171,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     }
 
     .browserWarning {
-      border: 5px solid #F3F6F9;
+      border: 5px solid var(--color-off-white-border, var(--color-off-white, #F3F6F9));
       border-radius: 0.5rem;
-      color: #F3F6F9;
+      color: var(--color-off-white-text, var(--color-off-white, #F3F6F9));
       text-align: center;
       width: 500px;
       position: fixed;
@@ -177,6 +221,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="stylesheet" href="stylesheets/modals.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/toastify.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/toggleSwitch.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="stylesheets/theme-dark.css" crossorigin="anonymous"/>
   
   <style>
     @font-face {
@@ -189,7 +234,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </style>
   <!-- fonts -->
 </head>
-<body style="background-color: #102133">
+<body>
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
   <svg style="display: none; width: 1px; height: 1px;">
     <defs>

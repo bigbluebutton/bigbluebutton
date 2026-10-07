@@ -1,20 +1,23 @@
 import styled, { css } from 'styled-components';
 import {
+  colorBorder,
+  colorBorderSurface,
   colorDangerDark,
-  colorBorder, colorOffWhite,
+  colorOffWhite,
   colorPrimary,
   colorText,
-  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPadding, smPadding, smPaddingX, xlPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import EmojiButton from '../chat-message-list/page/chat-message/message-toolbar/emoji-button/component';
+import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
 const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
   border-radius: 0.375rem;
-  background-color: ${colorWhite};
-  box-shadow: inset 0 0 0 1px ${colorBorder};
+  background-color: ${colorWhiteSurface};
+  box-shadow: inset 0 0 0 1px ${colorBorderSurface};
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -61,7 +64,7 @@ const Message = styled.div`
   min-width: 0;
 `;
 
-const HtmlContent = styled.div`
+const HtmlContent = styled.div<ChatMentionStylesProps>`
   color: ${colorText};
 
   & img {
@@ -120,6 +123,8 @@ const HtmlContent = styled.div`
   & h6 {
     margin: 0;
   }
+
+  ${chatMentionStyles}
 `;
 
 const CloseBtn = styled(EmojiButton)`

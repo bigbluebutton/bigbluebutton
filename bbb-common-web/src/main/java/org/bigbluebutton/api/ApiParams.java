@@ -41,7 +41,6 @@ public class ApiParams {
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
     public static final String DARK_LOGO = "darklogo";
-    public static final String LOGOUT_TIMER = "logoutTimer";
     public static final String LOGIN_URL = "loginURL";
     public static final String LOGOUT_URL = "logoutURL";
     public static final String MAX_PARTICIPANTS = "maxParticipants";
@@ -58,6 +57,7 @@ public class ApiParams {
     public static final String REQUIRE_USER_CONSENT_BEFORE_UNMUTING = "requireUserConsentBeforeUnmuting";
     public static final String ALLOW_REQUESTS_WITHOUT_SESSION = "allowRequestsWithoutSession";
     public static final String ALLOW_MODS_TO_EJECT_CAMERAS = "allowModsToEjectCameras";
+    public static final String ALLOW_MODS_TO_REQUEST_CAMERA_SHARE = "allowModsToRequestCameraShare";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";
@@ -66,7 +66,6 @@ public class ApiParams {
     public static final String REDIRECT = "redirect";
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";
-    public static final String WEB_VOICE = "webVoice";
     public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String MULTIUSER_WHITEBOARD_ENABLED = "multiUserWhiteboardEnabled";
@@ -84,6 +83,7 @@ public class ApiParams {
     public static final String CLIENT_SETTINGS_OVERRIDE_JSON_URL = "clientSettingsOverrideJsonUrl";
     public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
+    public static final String NOTIFY_RECORDING_APPEND = "notifyRecordingAppend";
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
     public static final String PRESENTATION_UPLOAD_EXTERNAL_URL = "presentationUploadExternalUrl";

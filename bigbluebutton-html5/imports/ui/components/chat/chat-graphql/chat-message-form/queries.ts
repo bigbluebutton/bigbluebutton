@@ -5,6 +5,7 @@ export interface LastSentMessageData {
   chatId: string;
   message: string;
   messageId: string;
+  messageAsHtml: string;
 }
 
 export type LastSentMessageResponse =
@@ -28,6 +29,7 @@ export const USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY = gql`
       chatId
       message
       messageId
+      messageAsHtml
     }
   }
 `;
@@ -50,6 +52,7 @@ export const USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY = gql`
       chatId
       message
       messageId
+      messageAsHtml
     }
   }
 `;

@@ -18,6 +18,7 @@ import {
   useTalkingUserConsumersCount,
 } from '/imports/ui/core/hooks/useTalkingUsers';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import Auth from '/imports/ui/services/auth';
 
 const VoiceActivityAdapter = () => {
   const shouldUseLiveKitAudioState = useShouldUseLiveKitAudioState();
@@ -49,11 +50,15 @@ const VoiceActivityAdapter = () => {
     // LiveKit state should be resilient to GraphQL disconnections on certain
     // occasions. Complete absence of data from either sources is treated in
     // the LK hooks.
-    if (!connected && !shouldUseLiveKitAudioState) {
-      dispatchWhoIsUnmutedUpdate(undefined);
-      dispatchWhoIsTalkingUpdate(undefined);
-      dispatchTalkingUserUpdate(undefined);
-    }
+    if (connected || shouldUseLiveKitAudioState) return;
+
+    // Everyone but the local user is dropped and rebuilt from the unmuted set
+    // on disconnections. The local entry stays because an absent one reads as
+    // muted, and that causes a local state inconsistency where the microphone
+    // might actually be unmuted/transmitting, but the UI shows it as muted.
+    dispatchWhoIsUnmutedUpdate(undefined, [Auth.userID as string]);
+    dispatchWhoIsTalkingUpdate(undefined);
+    dispatchTalkingUserUpdate(undefined);
   }, [connected, shouldUseLiveKitAudioState]);
 
   return null;

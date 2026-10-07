@@ -163,6 +163,7 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     requireUserConsentBeforeUnmuting:       java.lang.Boolean,
                     allowModsToEjectCameras:                java.lang.Boolean,
+                    allowModsToRequestCameraShare:  java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
@@ -175,6 +176,7 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
+                    notifyRecordingAppend:                  String,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
@@ -199,6 +201,7 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
+      notifyRecordingAppend,
       presentationUploadExternalDescription,
       presentationUploadExternalUrl
     )
@@ -244,6 +247,7 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting.booleanValue(), allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
+      allowModsToRequestCameraShare = allowModsToRequestCameraShare.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(),
       allowPromoteGuestToModerator = allowPromoteGuestToModerator.booleanValue(),
       waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()
