@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "使用者名稱",
     "app.profileSettings.statusTitle": "狀態",
     "app.profileSettings.addExtraCamera": "新增額外鏡頭",
-    "app.pads.hint": "按 Esc 鍵以聚焦筆記工具欄",
     "app.user.activityCheck": "使用者活動檢查",
     "app.user.activityCheck.label": "檢查使用者是否仍在會議中（{responseDelay}）",
     "app.user.activityCheck.check": "檢查",
