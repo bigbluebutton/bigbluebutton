@@ -787,6 +787,8 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions']
     announcePresenterChangeInChat: true
+    # Possible values: rich | simple
+    messageInputComponent: simple
   userReaction:
     enabled: true
     expire: 30
