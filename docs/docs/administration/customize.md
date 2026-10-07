@@ -156,6 +156,16 @@ If for some reason the scripts have to be run more than once, use the --force mo
 $ sudo ./bbb-x.x-script --force
 ```
 
+#### Play recordings made with BigBlueButton 0.81 or 0.9
+
+Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default: `bbb-playback-presentation` ships only the processing scripts, and the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package:
+
+```bash
+$ sudo apt-get install bbb-playback-presentation-legacy
+```
+
+The package installs both players and the redirect from the unversioned link `/playback/presentation/playback.html` to the 0.81 player, so links published by those versions keep working. These players only render recordings created by BigBlueButton 0.81 and 0.9; recordings made with the current version use the `2.3` player from `bbb-playback`. To remove the players again, run `sudo apt-get remove bbb-playback-presentation-legacy`.
+
 #### Enable playback of recordings on iOS
 
 The `presentation` playback format encodes the video shared during the session (webcam and screen share) as `.webm` (VP8) files; however, iOS devices only support playback of `.mp4` (h.264) video files. To enable playback of the `presentation` recording format on iOS devices, edit `/usr/local/bigbluebutton/core/scripts/presentation.yml` and uncomment the entry for `mp4`.
@@ -1489,6 +1499,18 @@ HERE
 
 ### HTML5 client
 
+#### Configure when the remaining time banner appears
+
+By default, the HTML5 client shows the remaining time banner when a meeting has fewer than 6 minutes left. To change the threshold, set `public.app.remainingTimeThresholdInMinutes` in `/etc/bigbluebutton/bbb-html5.yml`. For example, the following restores the previous behaviour, where the banner appeared 30 minutes before the end of the meeting:
+
+```yaml
+public:
+  app:
+    remainingTimeThresholdInMinutes: 30
+```
+
+Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new threshold applies to meetings created after the restart.
+
 #### Change the default welcome message
 
 The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.
@@ -1730,7 +1752,7 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
@@ -1750,7 +1772,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out | Integer | 5 |
 | `usersTimeout` | Timeout (millis) to remove a joined user after they left without a rejoin | Integer | 60000 (60s) |
 | `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
-| `enteredUsersTimeout` | Timeout (millis) to remove users that called the enter API but did not join | Integer | 45000 (45s) |
 | `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
 | `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
 | `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |
@@ -1787,7 +1808,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends. For a breakout room's dashboard, the countdown starts when the parent meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
-| `sharedNotesEditor` | Type of shared notes editor to use. Control characters and surrounding whitespace are stripped, values are case-insensitive, and invalid configured defaults fall back to `blockNote`. | etherpad, blockNote | blockNote _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |

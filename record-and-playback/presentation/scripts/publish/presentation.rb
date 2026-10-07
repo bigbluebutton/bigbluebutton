@@ -35,11 +35,11 @@ require "active_support"
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
-@presentation_props = YAML.safe_load(File.read('presentation.yml'))
+@presentation_props = BigBlueButton.load_yaml('presentation.yml')
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = BigBlueButton.load_yaml(filepathPresOverride, fallback: {})
   @presentation_props = @presentation_props.merge(presOverrideProps)
 end
 
@@ -360,7 +360,7 @@ def svg_render_shape_poll(g, slide, shape)
   svg_file = "#{@process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
 
   # Save the poll json to a temp file
-  File.open(json_file, 'w') { |f| f.write result }
+  File.write(json_file, result)
   # Render the poll svg
   ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s,
                                '-n', num_responders.to_s, '-o', svg_file)
@@ -895,8 +895,12 @@ def process_presentation(package_dir)
   cursor_x = cursor_y = -1.0
   cursor_visible = false
   presenter = nil
-  # Current deskshare state (affects presentation and pan/zoom)
+  # Current deskshare state (affects presentation and pan/zoom). The screenshare takes over the
+  # presentation area only while one is being shared *and* it is configured as content; assume the
+  # latter for recordings that predate SetScreenshareAsContentEvent.
   deskshare = false
+  screenshare_active = false
+  screenshare_as_content = true
   slides = []
   panzooms = []
   cursors = []
@@ -938,23 +942,28 @@ def process_presentation(package_dir)
       panzoom_changed = true
 
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
-      deskshare = slide_changed = true if @presentation_props['include_deskshare']
+      if @presentation_props['include_deskshare']
+        screenshare_active = true
+        deskshare = screenshare_active && screenshare_as_content
+        slide_changed = true
+      end
 
     when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
       if @presentation_props['include_deskshare']
+        screenshare_active = false
         deskshare = false
         slide_changed = true
       end
 
     when 'SetScreenshareAsContentEvent'
       next unless @presentation_props['include_deskshare']
-      screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
-      if screenshare_as_content
-        deskshare = slide_changed = true
-      else
-        deskshare = false
-        slide_changed = true
-      end
+
+      # This carries the layout preference - if the screenshareAsContent flag is false, then
+      # screenshare is not visible (the content area shows the presentation instead).
+      sac_el = event.at_xpath('screenshareAsContent')
+      screenshare_as_content = sac_el.text == 'true' if sac_el
+      deskshare = screenshare_active && screenshare_as_content
+      slide_changed = true
 
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
@@ -1295,9 +1304,10 @@ def process_external_video_events(_events, package_dir)
 end
 
 def generate_done_or_fail_file(success)
-  File.open("#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}", 'w') do |file|
-    file.write("#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}")
-  end
+  File.write(
+    "#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}",
+    "#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}"
+  )
 end
 
 def copy_media_files_helper(media, media_files, package_dir)
@@ -1477,7 +1487,7 @@ begin
           end
         end
         ## Write the new metadata.xml
-        File.open("#{package_dir}/metadata.xml", 'w') { |file| file.write(Nokogiri::XML(metadata.to_xml, &:noblanks).root) }
+        File.write("#{package_dir}/metadata.xml", Nokogiri::XML(metadata.to_xml, &:noblanks).root)
         BigBlueButton.logger.info('Added playback to metadata.xml')
 
         # Create slides.xml

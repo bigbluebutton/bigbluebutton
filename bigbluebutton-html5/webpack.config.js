@@ -30,7 +30,6 @@ const config = {
   cache: {
     type: 'filesystem',
     allowCollectingMemory: true,
-    maxAge: 86400000,
     // Only active during local yalc-based tldraw development. When the file exists,
     // webpack discards its cache on each rebuild so stale ENOENT errors can't persist.
     // Absent in production / CI (package comes from npm), so no effect there.

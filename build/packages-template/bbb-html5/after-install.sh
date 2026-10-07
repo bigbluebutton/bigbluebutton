@@ -4,13 +4,6 @@ BIGBLUEBUTTON_USER=bigbluebutton
 BBB_HTML5_SETTINGS_FILE=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 
-HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-if grep -v '#' /etc/bigbluebutton/bbb-web.properties | grep -q '^bigbluebutton.web.serverURL=https'; then
-  PROTOCOL=https
-else
-  PROTOCOL=http
-fi
-
 chown -R $BIGBLUEBUTTON_USER:$BIGBLUEBUTTON_USER /usr/share/bigbluebutton/html5-client/
 
 if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
@@ -22,8 +15,6 @@ fi
 WSURL=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
 yq-go e -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_FILE
-
-yq-go e -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $BBB_HTML5_SETTINGS_FILE
 
 sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
@@ -45,6 +36,13 @@ if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
 fi
 
 chown root:root /usr/lib/systemd/system
+
+# Etherpad was removed in 4.0: drop the public.pads override left by older installs
+BBB_HTML5_OVERRIDE_FILE=/etc/bigbluebutton/bbb-html5.yml
+if [ -f $BBB_HTML5_OVERRIDE_FILE ] && [ "$(yq-go e '.public.pads' $BBB_HTML5_OVERRIDE_FILE)" != "null" ]; then
+  echo "removing public.pads from $BBB_HTML5_OVERRIDE_FILE"
+  yq-go e -i 'del(.public.pads)' $BBB_HTML5_OVERRIDE_FILE
+fi
 
 chmod go+r $BBB_HTML5_SETTINGS_FILE
 #

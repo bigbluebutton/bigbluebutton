@@ -25,6 +25,7 @@ import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+import Auth from '/imports/ui/services/auth';
 import AudioService, {
   CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
   CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
@@ -218,8 +219,8 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+  const { data: currentUserUnmuted } = useWhoIsUnmuted(Auth.userID);
+  const currentUserMuted = currentUser?.userId && !currentUserUnmuted;
 
   // Sync AudioManager muted/talking states when using LiveKit audio state.
   useAudioManagerStateSync();
