@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Brukernavn",
     "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Legg til et ekstra kamera",
-    "app.pads.hint": "Trykk på Esc for å fokusere dialogboksens verktøylinje",
     "app.user.activityCheck": "Sjekk brukeraktivitet",
     "app.user.activityCheck.label": "Sjekk om brukeren fortsatt er i økten ({responseDelay})",
     "app.user.activityCheck.check": "Sjekk",
