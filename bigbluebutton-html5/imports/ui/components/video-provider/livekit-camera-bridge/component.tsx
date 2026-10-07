@@ -2,7 +2,6 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { toast } from 'react-toastify';
@@ -17,7 +16,6 @@ import {
   Track,
 } from 'livekit-client';
 import { useConnectionState, useTracks } from '@livekit/components-react';
-import { debounce } from '/imports/utils/debounce';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { getCameraPublishOptions } from './service';
 import VideoListContainer from '/imports/ui/components/video-provider/video-list/container';
@@ -638,38 +636,45 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     streamsToDisconnect.forEach(destroyStream);
   };
 
-  // We're using a ref to avoid recreating the debounced function on every render
-  // If that were the case, we'd lose the timer reference for the debounce and
-  // it wouldn't work as expected (ie.: no debounce) - prlanzarin
+  // Connects wait only after a page change, so quick paging does not subscribe to
+  // the pages flipped past. The flush reads the streams current when it fires:
+  // renders in between neither postpone it nor connect the old page early.
+  const pageChangeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPageIndex = useRef(currentVideoPageIndex);
   const connectStreamsRef = useRef(connectStreams);
   connectStreamsRef.current = connectStreams;
-  const debouncedConnectStreams = useMemo(
-    () => debounce(
-      (streamsToConnect: string[]) => connectStreamsRef.current(streamsToConnect),
-      VideoService.getPageChangeDebounceTime(),
-      { leading: false, trailing: true },
-    ),
-    [],
-  );
 
-  const updateStreams = useCallback((streamsList: VideoItem[], shouldDebounce = false) => {
-    const connectedStreamIds = [
-      ...Object.keys(bridgeRefs.current.localTracks),
-      ...Object.keys(bridgeRefs.current.remoteTracks),
-    ];
+  const getConnectedStreamIds = () => [
+    ...Object.keys(bridgeRefs.current.localTracks),
+    ...Object.keys(bridgeRefs.current.remoteTracks),
+  ];
+
+  const updateStreams = useCallback((streamsList: VideoItem[], pageChanged = false) => {
     const [
       streamsToConnect,
       streamsToDisconnect,
-    ] = VideoService.getStreamsToConnectAndDisconnect(streamsList, connectedStreamIds);
+    ] = VideoService.getStreamsToConnectAndDisconnect(streamsList, getConnectedStreamIds());
 
-    if (shouldDebounce) {
-      debouncedConnectStreams(streamsToConnect);
-    } else {
+    if (pageChanged) {
+      if (pageChangeTimer.current) clearTimeout(pageChangeTimer.current);
+      pageChangeTimer.current = setTimeout(() => {
+        pageChangeTimer.current = null;
+        const [pageStreams] = VideoService.getStreamsToConnectAndDisconnect(
+          streamsRef.current,
+          getConnectedStreamIds(),
+        );
+        connectStreamsRef.current(pageStreams);
+      }, VideoService.getPageChangeDebounceTime());
+    } else if (!pageChangeTimer.current) {
       connectStreams(streamsToConnect);
     }
 
     destroyStreams(streamsToDisconnect);
-  }, [connectStreams, debouncedConnectStreams]);
+  }, [connectStreams]);
+
+  useEffect(() => () => {
+    if (pageChangeTimer.current) clearTimeout(pageChangeTimer.current);
+  }, []);
 
   const replaceVideoTracks = (streamId: string, mediaStream: MediaStream) => {
     const track = bridgeRefs.current.localTracks[streamId];
@@ -736,11 +741,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   useEffect(() => {
     const isLiveKitConnected = connectionState === ConnectionState.Connected;
+    const pageChanged = currentVideoPageIndex !== lastPageIndex.current;
+    lastPageIndex.current = currentVideoPageIndex;
 
     if (isClientConnected && isLiveKitConnected) {
-      const shouldDebounce = VideoService.isPaginationEnabled()
-        && currentVideoPageIndex !== undefined;
-      updateStreams(streams, shouldDebounce);
+      updateStreams(streams, pageChanged && VideoService.isPaginationEnabled());
     }
   }, [
     connectionState,
