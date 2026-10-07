@@ -10,6 +10,7 @@ import {
   BBBToggle,
   BBBTypography,
 } from '@bigbluebutton/bbb-ui-components-react';
+import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { throttle } from '/imports/utils/throttle';
 import Button from '/imports/ui/components/common/button/component';
@@ -45,6 +46,8 @@ const intlMessages = defineMessages({
 
 const TITLE_ID = 'layoutViewTitle';
 const TOGGLE_THROTTLE_TIME = 300;
+// How long the requested value is shown after the server accepts it without reporting it back.
+const PENDING_VALUE_TIMEOUT = 2000;
 
 const LayoutViewButton: React.FC = () => {
   const intl = useIntl();
@@ -61,16 +64,33 @@ const LayoutViewButton: React.FC = () => {
   // quick consecutive clicks build on each other instead of on a stale server value.
   const [pendingValue, setPendingValue] = useState<boolean | null>(null);
   const requestedValue = useRef(false);
+  const pendingTimeout = useRef<ReturnType<typeof setTimeout>>();
   const isChecked = pendingValue ?? hideUsersWithoutCamera;
 
   // Throttled like the mute toggle; reads the ref so the trailing call sends the latest value.
   const sendRequestedValue = useMemo(() => throttle(() => {
+    const value = requestedValue.current;
+    clearTimeout(pendingTimeout.current);
     setHideUsersWithoutCamera({
-      variables: { hideUsersWithoutCamera: requestedValue.current },
-    }).catch(() => setPendingValue(null));
+      variables: { hideUsersWithoutCamera: value },
+    }).then(() => {
+      // The subscription may never report the requested value: a quick on/off can reach the
+      // client as no change at all. Fall back to the server value so the toggle can't get stuck.
+      clearTimeout(pendingTimeout.current);
+      pendingTimeout.current = setTimeout(() => setPendingValue(null), PENDING_VALUE_TIMEOUT);
+    }).catch((error) => {
+      logger.error({
+        logCode: 'layout_view_hide_users_without_camera_failed',
+        extraInfo: { value, errorMessage: error?.message },
+      }, `Failed to set hideUsersWithoutCamera to ${value}: ${error?.message}`);
+      setPendingValue(null);
+    });
   }, TOGGLE_THROTTLE_TIME), [setHideUsersWithoutCamera]);
 
-  useEffect(() => () => sendRequestedValue.cancel(), [sendRequestedValue]);
+  useEffect(() => () => {
+    sendRequestedValue.cancel();
+    clearTimeout(pendingTimeout.current);
+  }, [sendRequestedValue]);
 
   // Only a server change can settle the request, so intermediate echoes don't flicker.
   useEffect(() => {
@@ -78,11 +98,19 @@ const LayoutViewButton: React.FC = () => {
   }, [hideUsersWithoutCamera]);
 
   const canToggle = !!(currentUser?.presenter || currentUser?.isModerator);
-  if (!canToggle || !isWebcamGridEnabled) return null;
+  const isAvailable = canToggle && isWebcamGridEnabled;
+
+  // Don't reopen by itself if the user loses the role with the popover open and gets it back.
+  useEffect(() => {
+    if (!isAvailable) setIsOpen(false);
+  }, [isAvailable]);
+
+  if (!isAvailable) return null;
 
   const handleToggle = () => {
     const nextValue = !isChecked;
     requestedValue.current = nextValue;
+    clearTimeout(pendingTimeout.current);
     setPendingValue(nextValue);
     sendRequestedValue();
   };
