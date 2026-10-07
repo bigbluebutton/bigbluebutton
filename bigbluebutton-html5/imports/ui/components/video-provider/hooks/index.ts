@@ -556,16 +556,26 @@ export const useGridSize = () => {
   return size;
 };
 
+export const useHideUsersWithoutCamera = () => {
+  const { data } = useMeeting((m) => ({
+    layout: m.layout,
+  }));
+
+  return !!data?.layout?.hideUsersWithoutCamera;
+};
+
 export const useIsGridEnabled = () => {
   const isGridLayout = useStorageKey('isGridEnabled');
   const isWebcamGridEnabled = useIsWebcamGridEnabled();
+  const hideUsersWithoutCamera = useHideUsersWithoutCamera();
 
-  return !!isGridLayout && isWebcamGridEnabled;
+  return !!isGridLayout && isWebcamGridEnabled && !hideUsersWithoutCamera;
 };
 
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
+  const hideUsersWithoutCamera = useHideUsersWithoutCamera();
   // When the user can only see moderator cameras, drop non-moderators ([true]); otherwise
   // keep everyone ([true, false]).
   const useAudioOnlySubscription = useCreateUseSubscription(
@@ -573,7 +583,7 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
     { moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false] },
     true,
   );
-  const { data, loading, errors } = useAudioOnlySubscription();
+  const { data, loading, errors } = useAudioOnlySubscription((u) => u, hideUsersWithoutCamera);
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
   const {
     showAudioOnlyOnFirstPage,
@@ -583,7 +593,7 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
 
   // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
   // webcam over an open presentation in the unified layout (issues #25235/#25359).
-  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
+  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout || hideUsersWithoutCamera) return [];
   if (loading) return [];
 
   if (errors) {
