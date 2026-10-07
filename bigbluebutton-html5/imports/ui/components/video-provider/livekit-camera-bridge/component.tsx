@@ -60,6 +60,12 @@ const intlClientErrors = defineMessages({
 });
 
 const CAMERA_STOPPED_TOAST_ID = 'livekit-camera-stopped';
+// Cameras that appear within this window subscribe in one batch, so the server
+// renegotiates once for them; renders cannot hold a connect past the cap.
+const CONNECT_COALESCE_MS = 150;
+const CONNECT_MAX_WAIT_MS = 1000;
+// A pending subscribe request is re-sent only after this long, in case it was lost.
+const SUBSCRIBE_RETRY_MS = 5000;
 
 const intlSFUErrors = defineMessages({
   2000: {
@@ -151,6 +157,8 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   // Streams whose failures were already surfaced to the end user. Avoids trailing toasts.
   const announcedFailures = useRef(new Set<string>());
+  // When each pending camera subscription was last requested, by track sid.
+  const subscribeRequestedAt = useRef(new Map<string, number>());
 
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;
@@ -354,7 +362,13 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       }
 
       if (withSelectiveSubscription) {
-        publication.setSubscribed(true);
+        const requestedAt = subscribeRequestedAt.current.get(publication.trackSid);
+        const now = Date.now();
+
+        if (!publication.isDesired || requestedAt === undefined || now - requestedAt > SUBSCRIBE_RETRY_MS) {
+          subscribeRequestedAt.current.set(publication.trackSid, now);
+          publication.setSubscribed(true);
+        }
       }
     }
   };
@@ -481,6 +495,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     if (!lkIsCameraSource(track)) return;
 
     bridgeRefs.current.subscriptions.set(trackSid, { track, publication });
+    subscribeRequestedAt.current.delete(trackSid);
 
     if (track?.kind === 'video' && publication) {
       const stream = publication.trackName;
@@ -554,6 +569,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
     bridgeRefs.current.publications.delete(trackName);
     bridgeRefs.current.subscriptions.delete(trackSid);
+    subscribeRequestedAt.current.delete(trackSid);
   };
 
   const syncLiveKitRefs = useCallback((clearRefs = true) => {
@@ -636,10 +652,13 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     streamsToDisconnect.forEach(destroyStream);
   };
 
-  // Connects wait only after a page change, so quick paging does not subscribe to
-  // the pages flipped past. The flush reads the streams current when it fires:
-  // renders in between neither postpone it nor connect the old page early.
-  const pageChangeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Connects run from one timer. A page change waits the page change delay,
+  // restarted by further page changes, so quick paging does not subscribe to the
+  // pages flipped past; nothing else postpones it. Other passes wait the
+  // coalescing window. The flush connects the streams current when it fires.
+  const connectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectTimerForPageChange = useRef(false);
+  const connectDeadline = useRef(0);
   const lastPageIndex = useRef(currentVideoPageIndex);
   const connectStreamsRef = useRef(connectStreams);
   connectStreamsRef.current = connectStreams;
@@ -649,6 +668,16 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     ...Object.keys(bridgeRefs.current.remoteTracks),
   ];
 
+  const flushConnects = () => {
+    connectTimer.current = null;
+    connectTimerForPageChange.current = false;
+    const [pendingStreams] = VideoService.getStreamsToConnectAndDisconnect(
+      streamsRef.current,
+      getConnectedStreamIds(),
+    );
+    connectStreamsRef.current(pendingStreams);
+  };
+
   const updateStreams = useCallback((streamsList: VideoItem[], pageChanged = false) => {
     const [
       streamsToConnect,
@@ -656,24 +685,29 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     ] = VideoService.getStreamsToConnectAndDisconnect(streamsList, getConnectedStreamIds());
 
     if (pageChanged) {
-      if (pageChangeTimer.current) clearTimeout(pageChangeTimer.current);
-      pageChangeTimer.current = setTimeout(() => {
-        pageChangeTimer.current = null;
-        const [pageStreams] = VideoService.getStreamsToConnectAndDisconnect(
-          streamsRef.current,
-          getConnectedStreamIds(),
-        );
-        connectStreamsRef.current(pageStreams);
-      }, VideoService.getPageChangeDebounceTime());
-    } else if (!pageChangeTimer.current) {
-      connectStreams(streamsToConnect);
+      if (connectTimer.current) clearTimeout(connectTimer.current);
+      connectTimerForPageChange.current = true;
+      connectTimer.current = setTimeout(flushConnects, VideoService.getPageChangeDebounceTime());
+    } else if (streamsToConnect.length > 0 && !connectTimerForPageChange.current) {
+      const now = Date.now();
+
+      if (connectTimer.current) {
+        clearTimeout(connectTimer.current);
+      } else {
+        connectDeadline.current = now + CONNECT_MAX_WAIT_MS;
+      }
+
+      connectTimer.current = setTimeout(
+        flushConnects,
+        Math.max(0, Math.min(CONNECT_COALESCE_MS, connectDeadline.current - now)),
+      );
     }
 
     destroyStreams(streamsToDisconnect);
   }, [connectStreams]);
 
   useEffect(() => () => {
-    if (pageChangeTimer.current) clearTimeout(pageChangeTimer.current);
+    if (connectTimer.current) clearTimeout(connectTimer.current);
   }, []);
 
   const replaceVideoTracks = (streamId: string, mediaStream: MediaStream) => {
