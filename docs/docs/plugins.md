@@ -132,7 +132,7 @@ All plugin sources are combined into a single list with duplicates removed. This
 You can use placeholders in the plugin URLs defined in any of the previously mentioned configurations. Currently, the only supported placeholder is:
 
 - `%%HTML5_PLUGIN_SDK_VERSION%%` – This will be automatically replaced by the version of the `bigbluebutton-html-plugin-sdk` used by `bigbluebutton-html5`.
-- `%%HTML5_PLUGIN_SDK_MAIN_VERSION%%` – This will be automatically replaced by the Main version of the `bigbluebutton-html-plugin-sdk` - Composed by Major + Minor (e.g.: `0.0` for `0.0.84`) - used by `bigbluebutton-html5`.
+- `%%HTML5_PLUGIN_SDK_MAIN_VERSION%%` – This will be automatically replaced by the Main version of the `bigbluebutton-html-plugin-sdk`, following semver compatibility: just the Major from `1.0` on (e.g.: `1` for `1.0.0-beta.3` and for `1.2.0`), Major + Minor for `0.x` versions, where every Minor is a breaking change (e.g.: `0.1` for `0.1.26`) - used by `bigbluebutton-html5`.
 - `%%BBB_VERSION%%` – This will be automatically replaced by the complete BigBlueButton server version (e.g.: `3.0.6`) from which the URL is called.
 - `%%BBB_MAIN_VERSION%%` – This will be automatically replaced by the current BigBlueButton server Main version - Composed by Major + Minor (e.g.: `3.0` for `3.0.6`) from which the URL is called.
 - `%%MEETING_ID%%` – This will be automatically replaced by the external meeting ID.
