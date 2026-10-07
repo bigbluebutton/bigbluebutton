@@ -6,14 +6,13 @@ import React, {
 } from 'react';
 import { SidekickAreaOptionsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/enums';
 import {
-  RemoveGenericContentSidekickAreaBadgeCommandArguments,
   RenameGenericContentSidekickAreaCommandArguments,
-  SetGenericContentSidekickAreaBadgeCommandArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/types';
 import AppItem from '/imports/ui/components/apps-gallery/app-item/component';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
+import { useGenericContentBadge } from '/imports/ui/core/local-states/useGenericContentBadges';
 import { APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from '../types';
 
 interface ExternalAppItemProps {
@@ -42,30 +41,11 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   viewMode = APPS_GALLERY_VIEW_MODE.LIST,
 }) => {
   const [nameReplacement, setNameReplacement] = useState<string>(name);
-  const [badgeContent, setBadgeContent] = useState<string | null>(null);
   const extractedId = useMemo(
     () => appKey.replace(PANELS.GENERIC_CONTENT_SIDEKICK, ''),
     [appKey],
   );
-
-  const handleGenericContentSetBadge = ((ev: CustomEvent<SetGenericContentSidekickAreaBadgeCommandArguments>) => {
-    const {
-      id: genericContentId,
-      badgeContent,
-    } = ev.detail;
-    if (genericContentId === extractedId) {
-      setBadgeContent(badgeContent);
-    }
-  }) as EventListener;
-
-  const handleGenericContentRemoveBadge = ((ev: CustomEvent<RemoveGenericContentSidekickAreaBadgeCommandArguments>) => {
-    const {
-      id: genericContentId,
-    } = ev.detail;
-    if (genericContentId === extractedId) {
-      setBadgeContent(null);
-    }
-  }) as EventListener;
+  const badgeContent = useGenericContentBadge(extractedId);
 
   const handleGenericContentRename = ((ev: CustomEvent<RenameGenericContentSidekickAreaCommandArguments>) => {
     const {
@@ -82,30 +62,14 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
       SidekickAreaOptionsEnum.RENAME_GENERIC_CONTENT_MENU,
       handleGenericContentRename,
     );
-    window.addEventListener(
-      SidekickAreaOptionsEnum.SET_GENERIC_CONTENT_BADGE,
-      handleGenericContentSetBadge,
-    );
-    window.addEventListener(
-      SidekickAreaOptionsEnum.REMOVE_GENERIC_CONTENT_BADGE,
-      handleGenericContentRemoveBadge,
-    );
 
     return () => {
       window.removeEventListener(
         SidekickAreaOptionsEnum.RENAME_GENERIC_CONTENT_MENU,
         handleGenericContentRename,
       );
-      window.removeEventListener(
-        SidekickAreaOptionsEnum.SET_GENERIC_CONTENT_BADGE,
-        handleGenericContentSetBadge,
-      );
-      window.removeEventListener(
-        SidekickAreaOptionsEnum.REMOVE_GENERIC_CONTENT_BADGE,
-        handleGenericContentRemoveBadge,
-      );
     };
-  }, [handleGenericContentRename, handleGenericContentSetBadge, handleGenericContentRemoveBadge]);
+  }, [handleGenericContentRename]);
 
   return (
     <AppItem
