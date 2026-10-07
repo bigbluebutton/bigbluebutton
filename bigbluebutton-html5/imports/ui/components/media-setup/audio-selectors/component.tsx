@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
@@ -24,8 +24,15 @@ interface AudioDeviceSelectorsProps {
   onSelectInputDevice: (deviceId: string) => void;
   onSelectOutputDevice: (deviceId: string) => void;
   inputDisabled?: boolean;
+  // Flags the microphone selector, with this text under it.
+  inputError?: string;
+  inputErrorDataTest?: string;
   inputAriaLabel?: string;
   outputAriaLabel?: string;
+  // Shown in a selector left without a value, as the browser's hidden device
+  // ids leave it; MUI renders an empty value as a blank field.
+  inputPlaceholder?: string;
+  outputPlaceholder?: string;
   inputDataTest?: string;
   outputDataTest?: string;
 }
@@ -43,12 +50,17 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
   onSelectInputDevice,
   onSelectOutputDevice,
   inputDisabled = false,
+  inputError,
+  inputErrorDataTest,
   inputAriaLabel,
   outputAriaLabel,
+  inputPlaceholder,
+  outputPlaceholder,
   inputDataTest,
   outputDataTest,
 }) => {
   const intl = useIntl();
+  const inputErrorId = useId();
 
   const getDeviceLabel = useAudioDeviceLabel();
 
@@ -58,6 +70,12 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
     </MenuItem>
   ));
 
+  const renderPlaceholder = (placeholder: string | undefined, value: string) => (
+    placeholder && !value
+      ? () => <Styled.DevicePlaceholder>{placeholder}</Styled.DevicePlaceholder>
+      : undefined
+  );
+
   return (
     <>
       <Styled.DeviceContainer>
@@ -66,6 +84,8 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
           ? (
             <Styled.DeviceSelector
               value={selectedOutputDeviceId}
+              displayEmpty={!!outputPlaceholder}
+              renderValue={renderPlaceholder(outputPlaceholder, selectedOutputDeviceId)}
               IconComponent={ExpandMoreIcon}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 onSelectOutputDevice(event.target.value as string);
@@ -84,12 +104,18 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
           ? (
             <Styled.DeviceSelector
               value={selectedInputDeviceId}
+              displayEmpty={!!inputPlaceholder}
+              renderValue={renderPlaceholder(inputPlaceholder, selectedInputDeviceId)}
               IconComponent={ExpandMoreIcon}
               disabled={inputDisabled}
+              error={!!inputError}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 onSelectInputDevice(event.target.value as string);
               }}
-              inputProps={inputAriaLabel ? { 'aria-label': inputAriaLabel } : undefined}
+              inputProps={{
+                'aria-label': inputAriaLabel,
+                'aria-describedby': inputError ? inputErrorId : undefined,
+              }}
               data-test={inputDataTest}
             >
               {renderOptions(inputDevices)}
@@ -97,6 +123,11 @@ const AudioDeviceSelectors: React.FC<AudioDeviceSelectorsProps> = ({
           )
           : <span>{intl.formatMessage(intlMessages.noDeviceFound)}</span>}
       </Styled.DeviceContainer>
+      {inputError && (
+        <Styled.DeviceFieldError id={inputErrorId} data-test={inputErrorDataTest}>
+          {inputError}
+        </Styled.DeviceFieldError>
+      )}
     </>
   );
 };
