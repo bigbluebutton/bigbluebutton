@@ -1,28 +1,23 @@
 import styled from 'styled-components';
 import Popover from '@mui/material/Popover';
-import {
-  borderRadiusDefault,
-  colorBackgroundWhite,
-  colorBorderDefault,
-  spacingLarge,
-  spacingMedium,
-  spacingXLarge,
-} from '@bigbluebutton/bbb-ui-components-react';
+import { spacingXLarge } from '@bigbluebutton/bbb-ui-components-react';
+import { appsGalleryOutlineColor, colorWhiteSurface } from '/imports/ui/stylesheets/styled-components/palette';
+import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Anchor = styled.div`
   position: relative;
 `;
 
-// The library has no popover, so this is an MUI Popover dressed with the library's tokens.
+// Dressed like the media-sharing panel next to it in the actions bar.
 const Panel = styled(Popover)`
   & .MuiPopover-paper {
-    width: 24.75rem;
+    width: 26.25rem;
     max-width: calc(100vw - 2rem);
     margin-top: -${spacingXLarge};
-    background: ${colorBackgroundWhite};
-    border: 1px solid ${colorBorderDefault};
-    border-radius: ${borderRadiusDefault};
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    background: ${colorWhiteSurface};
+    border-radius: ${lgBorderRadius};
+    box-shadow: -4px 4px 8px 0px rgba(0, 0, 0, 0.25);
   }
 `;
 
@@ -30,15 +25,19 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${spacingMedium} ${spacingMedium} ${spacingMedium} ${spacingLarge};
+  padding: 1rem;
+  border-bottom: 1px solid ${appsGalleryOutlineColor};
 
   h2 {
     margin: 0;
+    font-size: ${fontSizeBase};
+    font-weight: ${headingsFontWeight};
+    text-transform: uppercase;
   }
 `;
 
 const Content = styled.div`
-  padding: ${spacingLarge};
+  padding: 1rem;
 `;
 
 export default {

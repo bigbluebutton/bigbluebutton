@@ -3,13 +3,10 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { MdAutoAwesomeMosaic, MdClose } from 'react-icons/md';
-import {
-  BBButton,
-  BBBDivider,
-  BBBToggle,
-  BBBTypography,
-} from '@bigbluebutton/bbb-ui-components-react';
+import { MdAutoAwesomeMosaic } from 'react-icons/md';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react';
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { throttle } from '/imports/utils/throttle';
@@ -150,19 +147,16 @@ const LayoutViewButton: React.FC = () => {
         }}
       >
         <Styled.Header>
-          <BBBTypography variant="header" as="h2" id={TITLE_ID}>
-            {intl.formatMessage(intlMessages.title)}
-          </BBBTypography>
-          <BBButton
-            layout="circle"
-            variant="subtle"
-            icon={<MdClose size="1.5rem" />}
+          <h2 id={TITLE_ID}>{intl.formatMessage(intlMessages.title)}</h2>
+          <IconButton
+            data-test="closeLayoutViewPanel"
+            aria-label={intl.formatMessage(intlMessages.closeLabel)}
             onClick={() => setIsOpen(false)}
-            ariaLabel={intl.formatMessage(intlMessages.closeLabel)}
-            dataTest="closeLayoutViewPanel"
-          />
+            size="small"
+          >
+            <CloseIcon />
+          </IconButton>
         </Styled.Header>
-        <BBBDivider />
         <Styled.Content>
           <BBBToggle
             data-test="hideUsersWithoutCameraToggle"
