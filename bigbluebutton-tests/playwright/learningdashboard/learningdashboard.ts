@@ -160,6 +160,17 @@ export class LearningDashboard extends MultiUsers {
     await this.checkColumnAnswer(/^Poll 2$/, 'B');
     await this.checkColumnAnswer(/^Poll 3$/, 'C');
 
+    // Hovering a header shows when the poll was asked
+    await this.dashboardPage.page
+      .locator(e.dashboardColumnHeader)
+      .filter({ hasText: /^Poll 1$/ })
+      .locator(e.dashboardColumnHeaderTitle)
+      .hover();
+    await expect(
+      this.dashboardPage.page.locator(e.dashboardHeaderTooltip),
+      'should show the date and time the poll was asked',
+    ).toHaveText(/\d{1,2}:\d{2}:\d{2}/);
+
     // A new poll must not renumber the existing columns
     await this.runPollWithoutQuestion(e.pollLetterAlternatives, 'D');
     await this.dashboardPage.reloadPage();

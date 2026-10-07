@@ -799,6 +799,8 @@ export const elements = {
   pollPanel: 'button[data-test="pollsPanelDashboard"]',
   quizPanel: 'button[data-test="quizzesPanelDashboard"]',
   dashboardColumnHeader: 'div[role="columnheader"]',
+  dashboardColumnHeaderTitle: 'div.MuiDataGrid-columnHeaderTitle',
+  dashboardHeaderTooltip: 'div[role="tooltip"]',
   pollTrueFalseQuestion: 'div[role="rowgroup"] div:nth-child(3) div',
   pollTrueFalseAnswer: 'div[role="cell"]:nth-child(3)',
   pollABCDQuestion: 'div[role="rowgroup"] div:nth-child(4) div',
