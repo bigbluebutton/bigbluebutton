@@ -39,7 +39,7 @@ interface ExternalVideoPlayerToolbarProps {
   toolbarStyle: string;
   handleReload: () => void;
   toggleSubtitle: () => void;
-  playerName: string;
+  playerName?: string;
   subtitlesOn: boolean;
   playerParent: HTMLDivElement | null;
   played: number;
