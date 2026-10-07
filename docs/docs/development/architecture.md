@@ -56,6 +56,8 @@ flowchart TB
   akkaapps --> redisdb
   webapi <--> nginx
   webapi <--> redis
+  gqlmw --> akkaapps
+  gqlmw --> webapi
 
   %% ── Media: LiveKit (default) ─────────────────────────
   livekit["LiveKit server<br/>(default A/V/screenshare)"]:::neo
@@ -65,6 +67,8 @@ flowchart TB
 
   nginx <--> livekit
   livekitsip --> livekit
+  livekit <--> redis
+  livekitsip <--> redis
   sfu <--> livekit
   sfu <--> nginx
   sfu <--> redis
@@ -77,7 +81,10 @@ flowchart TB
   akkafsesl[akka-fsesl]:::alt
 
   sfu -.-> mediasoup
+  sfu -.-> freeswitch
+  recorder <-.-> mediasoup
   mediasoup -.-> freeswitch
+  freeswitch -.-> livekitsip
   akkaapps -.-> akkafsesl
   akkafsesl -.-> freeswitch
 
@@ -235,7 +242,7 @@ Then below the SVG conversion flow. It covers the conversion fallback. Sometimes
 
 ### Internal network connections
 
-The following diagram shows how the various components of BigBlueButton connect to each other via sockets. Teal lines carry media. Dashed boxes and lines are alternative or opt-in paths (the FreeSWITCH and mediasoup bridges, and telephone dial-in): those services are installed on every server but only carry traffic when that path is in use. The orange box is the local disk that `bbb-record-core` collects raw recording data from.
+The following diagram shows how the various components of BigBlueButton connect to each other via sockets. Teal lines carry media. Purple lines are Redis: mostly pub/sub messages to and from `bbb-apps-akka`, plus the queues named on them. Dashed boxes and lines are alternative or opt-in paths (the FreeSWITCH and mediasoup bridges, and telephone dial-in): those services are installed on every server but only carry traffic when that path is in use. The orange box is the local disk that `bbb-record-core` collects raw recording data from.
 
 ```mermaid
 ---
@@ -247,7 +254,7 @@ config:
     considerModelOrder: NODES_AND_EDGES
 ---
 flowchart TB
-  %% Teal = media · dashed = alternative or opt-in path · orange = local disk recordings are collected from
+  %% Teal = media · purple = Redis · dashed = alternative or opt-in path · orange = local disk recordings are collected from
 
   browser["<b>Browser</b><br/>bbb-html5 client"]
   pstn["<b>Phone / SIP trunk</b><br/>optional dial-in"]:::optional
@@ -265,8 +272,9 @@ flowchart TB
     hasura["<b>Hasura</b> :8085<br/>graphql-server"]
     actions["<b>graphql-actions</b> :8093<br/>turns mutations into Redis messages"]
     akka["<b>bbb-apps-akka</b> :8901<br/>meeting state · single Pekko process"]
-    redis["<b>Redis</b> :6379<br/>pub/sub + recording events"]
-    pg[("<b>PostgreSQL</b> :5432<br/>bbb_graphql (unlogged) · blocknote_app")]
+    exportann["<b>bbb-export-annotations</b><br/>whiteboard annotations → PDF"]
+    redis["<b>Redis</b> :6379<br/>pub/sub + recording events"]:::bus
+    pg[("<b>PostgreSQL</b> :5432<br/>bbb_graphql (unlogged) · hasura_app · blocknote_app")]
 
     recorder["<b>bbb-webrtc-recorder</b><br/>hidden LiveKit subscriber"]
     sip["<b>livekit-sip</b> :5062<br/>dial-in for LiveKit meetings"]:::optional
@@ -286,31 +294,49 @@ flowchart TB
   proxy -- /hocuspocus/collaboration ws --> notes
   proxy -- /bbb-webrtc-sfu ws --> sfu
   proxy -- /livekit/ ws --> livekit
+  %% invisible links: keep these near HAProxy instead of sinking toward Redis
+  proxy ~~~ gqlmw
+  proxy ~~~ notes
+  proxy ~~~ web
 
   %% ── Meeting state ──
+  gqlmw -- "checkGraphqlAuthorization (HTTP)" --> web
+  gqlmw -- "session variables /userInfo (HTTP)" --> akka
   gqlmw -- "queries · subscriptions (ws via nginx :8185)" --> hasura
   gqlmw -- "mutations (HTTP)" --> actions
-  hasura -- reads --> pg
+  hasura -- "reads · metadata in hasura_app" --> pg
   hasura -- "auth hook /userInfo" --> akka
-  actions -- publishes --> redis
-  akka <-- pub/sub --> redis
   akka -- writes --> pg
   notes -- blocknote_app --> pg
+  exportann -- "upload PDF (HTTP)" --> web
+
+  %% ── Redis ──
+  web r1@<--> redis
+  gqlmw r2@<--> redis
+  actions r3@-- publishes --> redis
+  akka r4@<--> redis
+  notes r5@<--> redis
+  sfu r6@<--> redis
+  recorder r7@<-- "start/stop · status" --> redis
+  livekit r8@<-- "LiveKit bus (psrpc)" --> redis
+  sip r9@<-. "LiveKit bus (psrpc)" .-> redis
+  exportann r10@<-- "job queue · annotations" --> redis
+  fsesl r11@<-. voice pub/sub .-> redis
 
   %% ── Media ──
   sfu -- "server API :7880" --> livekit
   livekit -- "webhooks :3040" --> sfu
-  sfu -- "start/stop (via Redis)" --> recorder
   recorder m1@== "WebRTC · subscribe" ==> livekit
   browser m2@== "UDP 16384–32768 · straight to the host IP, bypasses nginx" ==> livekit
   sip m3@== SIP participant ==> livekit
 
   %% ── Alternative bridges and dial-in ──
   sfu -. spawns .-> mediasoup
+  sfu -. "SIP ws :5066 · ESL :8021" .-> freeswitch
   browser m4@-. "UDP · alternative bridge" .-> mediasoup
   mediasoup -. RTP audio .-> freeswitch
+  mediasoup m5@-. "WebRTC (recording)" .-> recorder
   fsesl -. ESL :8021 .-> freeswitch
-  fsesl <-. voice pub/sub .-> redis
   pstn -. SIP :5060 .-> freeswitch
   freeswitch -. "SIP :5062 after PIN prompt" .-> sip
 
@@ -319,15 +345,18 @@ flowchart TB
   recorder -- "/var/lib/bbb-webrtc-recorder" --> disk
   freeswitch -. "/var/freeswitch/meetings" .-> disk
   disk -- "inotify on .done marker · media" --> reccore
-  redis -- "events · resque queue" --> reccore
+  redis r12@-- "events · resque queue" --> reccore
 
   %% ── Styling (translucent fills so it reads in light and dark mode) ──
   classDef media     stroke:#0f8a83,stroke-width:2px;
+  classDef bus       stroke:#8a5cd6,stroke-width:2px;
   classDef optional  fill:#8881,stroke:#888,stroke-dasharray:4 4;
   classDef disk      fill:#d9603b22,stroke:#d9603b;
   classDef mediaEdge stroke:#0f8a83,stroke-width:2.5px;
-  class m1,m2,m3,m4 mediaEdge;
+  classDef busEdge   stroke:#8a5cd6,stroke-width:1.5px;
+  class m1,m2,m3,m4,m5 mediaEdge;
+  class r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12 busEdge;
   style host fill:#5b6b8c14,stroke:#5b6b8c66;
 ```
 
-Besides the links drawn above, `bbb-web`, `bbb-graphql-middleware`, `bbb-webrtc-sfu` and `bbb-shared-notes-server` also exchange messages with `bbb-apps-akka` over Redis pub/sub. Those links are left out to keep the diagram readable.
+Opt-in packages that are not installed by default, such as `bbb-webhooks` and `bbb-transcription-controller`, also connect to Redis; they are left out of the diagram.
