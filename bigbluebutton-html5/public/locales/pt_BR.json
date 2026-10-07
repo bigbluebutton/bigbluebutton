@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Nome",
     "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Adicionar câmera extra",
-    "app.pads.hint": "Pressione Esc para focar na barra de ferramentas do editor",
     "app.user.activityCheck": "Verificação de atividade do usuário",
     "app.user.activityCheck.label": "Verifica se o usuário ainda está na sessão ({responseDelay})",
     "app.user.activityCheck.check": "Verificar",
