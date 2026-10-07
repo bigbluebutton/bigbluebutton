@@ -3,8 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
 import {
-  AudioFilterMode, AudioFilterOption, AudioMenuProps, AudioMenuState,
+  AudioFilterMode, AudioFilterOption, AudioMenuProps, AudioMenuSection, AudioMenuState,
 } from './types';
+import DeviceTest from './device-test/component';
 import {
   isWasmProcessorSupported, isWasmProcessingConfigEnabled, getConstraintsForMode,
   getEffectiveAudioProcessingMode,
@@ -12,6 +13,9 @@ import {
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 
 const AUDIO_SECTION_TITLE_ID = 'audioProcessingSectionTitle';
+
+const SECTIONS: AudioMenuSection[] = ['processing', 'deviceTest'];
+const ARROW_STEPS: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
 
 const intlMessages = defineMessages({
   audioTabTitle: {
@@ -50,7 +54,24 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.advancedFilteringDisabledReason',
     description: 'reason shown when advanced filtering is unavailable',
   },
+  processingSectionLabel: {
+    id: 'app.submenu.audio.processingSectionLabel',
+    description: 'Label of the audio processing section switch',
+  },
+  deviceTestSectionLabel: {
+    id: 'app.submenu.audio.deviceTestSectionLabel',
+    description: 'Label of the device test section switch',
+  },
+  sectionsLabel: {
+    id: 'app.submenu.audio.sectionsLabel',
+    description: 'Accessible name of the audio tab section switch',
+  },
 });
+
+const SECTION_LABELS = {
+  processing: intlMessages.processingSectionLabel,
+  deviceTest: intlMessages.deviceTestSectionLabel,
+};
 
 class AudioMenu extends BaseMenu {
   props!: AudioMenuProps;
@@ -64,7 +85,24 @@ class AudioMenu extends BaseMenu {
       settings: props.settings,
       audioSettings: props.audioSettings,
       audioFilterMode: getEffectiveAudioProcessingMode(),
+      selectedSection: props.showProcessing ? 'processing' : 'deviceTest',
     };
+
+    this.handleSectionKeyDown = this.handleSectionKeyDown.bind(this);
+  }
+
+  handleSectionKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    const { selectedSection } = this.state;
+    const step = ARROW_STEPS[event.key];
+    if (!step) return;
+
+    event.preventDefault();
+    // In a right-to-left page the arrows point the other way.
+    const direction = document.documentElement.dir === 'rtl' ? -step : step;
+    const index = (SECTIONS.indexOf(selectedSection) + direction + SECTIONS.length) % SECTIONS.length;
+    const nextSection = SECTIONS[index];
+    this.setState({ selectedSection: nextSection });
+    document.getElementById(`audio-section-tab-${nextSection}`)?.focus();
   }
 
   handleAudioFilterModeChange(mode: AudioFilterMode) {
@@ -170,13 +208,11 @@ class AudioMenu extends BaseMenu {
     );
   }
 
-  render() {
-    const {
-      intl,
-    } = this.props;
+  renderProcessing() {
+    const { intl } = this.props;
 
     return (
-      <Styled.AudioMenuContainer>
+      <>
         <Styled.AudioTitle id={AUDIO_SECTION_TITLE_ID}>
           {intl.formatMessage(intlMessages.audioTabTitle)}
         </Styled.AudioTitle>
@@ -186,6 +222,76 @@ class AudioMenu extends BaseMenu {
         <Styled.Form>
           {this.renderAudioFilters()}
         </Styled.Form>
+      </>
+    );
+  }
+
+  renderSectionTabs() {
+    const { intl } = this.props;
+    const { selectedSection } = this.state;
+
+    return (
+      <Styled.SectionTabList
+        role="tablist"
+        aria-label={intl.formatMessage(intlMessages.sectionsLabel)}
+        onKeyDown={this.handleSectionKeyDown}
+      >
+        {SECTIONS.map((section, index) => {
+          const selected = section === selectedSection;
+
+          return (
+            <React.Fragment key={section}>
+              {index > 0 && <Styled.SectionTabDivider aria-hidden />}
+              <Styled.SectionTab
+                type="button"
+                role="tab"
+                id={`audio-section-tab-${section}`}
+                aria-selected={selected}
+                aria-controls={`audio-section-panel-${section}`}
+                tabIndex={selected ? 0 : -1}
+                $selected={selected}
+                onClick={() => this.setState({ selectedSection: section })}
+                data-test={`${section}AudioSection`}
+              >
+                {intl.formatMessage(SECTION_LABELS[section])}
+              </Styled.SectionTab>
+            </React.Fragment>
+          );
+        })}
+      </Styled.SectionTabList>
+    );
+  }
+
+  render() {
+    const {
+      showProcessing,
+      deviceSelection,
+      onDeviceSelectionChange,
+    } = this.props;
+    const { selectedSection } = this.state;
+
+    // The device test mounts only while shown: it holds the microphone open.
+    const deviceTest = (
+      <DeviceTest
+        selection={deviceSelection}
+        onSelectionChange={onDeviceSelectionChange}
+      />
+    );
+
+    if (!showProcessing) {
+      return <Styled.AudioMenuContainer>{deviceTest}</Styled.AudioMenuContainer>;
+    }
+
+    return (
+      <Styled.AudioMenuContainer>
+        {this.renderSectionTabs()}
+        <div
+          role="tabpanel"
+          id={`audio-section-panel-${selectedSection}`}
+          aria-labelledby={`audio-section-tab-${selectedSection}`}
+        >
+          {selectedSection === 'processing' ? this.renderProcessing() : deviceTest}
+        </div>
       </Styled.AudioMenuContainer>
     );
   }

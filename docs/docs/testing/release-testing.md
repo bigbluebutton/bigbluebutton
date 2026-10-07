@@ -20,7 +20,7 @@ all of these tests.
 
 ## Presentation
 
-### Uploading a Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Uploading a Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. As a moderator, select Moderator/Presenter Action menu (+)
 
@@ -35,7 +35,7 @@ all of these tests.
 
 5. Presentation should appear on All Clients in sync with updates, and All Clients should see the notification with the new presentation name
 
-### Sending presentation download link in the chat - containing the annotations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Sending presentation download link in the chat - containing the annotations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join a meeting
 
@@ -53,7 +53,7 @@ all of these tests.
     - After the upload is done, every user should be able to see a public chat message with the name of the file + "(with whiteboard annotations)" and a downloadable link below
     - This file should contain all presentation slides **including the annotations**
 
-### Enable/Disable presentation download [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Enable/Disable presentation download [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join a meeting
 
@@ -76,7 +76,7 @@ all of these tests.
 
     - The presentation should not be available for download anymore
 
-### Deleting Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Deleting Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Select Moderator/Presenter Action menu
 
@@ -89,7 +89,7 @@ all of these tests.
     - The presentation deleted should not be available to selection anymore
     - If the deleted presentation was the current one, it should change to another already uploaded presentation or leave the space empty
 
-### Uploading multiple presentations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Uploading multiple presentations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Select Moderator/Presenter Action menu
 
@@ -104,7 +104,7 @@ all of these tests.
     - You should see the notification displaying the upload progress
     - Current selected file should appear for all clients
 
-### Deleting previously uploaded presentations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Deleting previously uploaded presentations [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Presenter: open "Manage presentations" modal, upload two new presentations.
 
@@ -116,7 +116,7 @@ all of these tests.
 
 6. New presenter: open "Manage presentations" modal, verify that there's only the default presentation name visible.
 
-### Navigation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Navigation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Locate slide navigation bar
 
@@ -128,13 +128,13 @@ all of these tests.
 
 5. The selected slide should appear
 
-### Zoom [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Zoom [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Zoom in (+) and out (-) by clicking in the buttons or using the scroll
 
 2. Using the Pan tool, move document around while zoomed in.
 
-### Draw and Pan [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Draw and Pan [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Zoom in by (+)
 
@@ -145,7 +145,7 @@ all of these tests.
 4. Hold down the space while moving mouse to pan.
 
 
-### Minimize/Restore Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Minimize/Restore Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Clicking on Share webcam.
 
@@ -160,7 +160,7 @@ all of these tests.
 
 (Note : Presentation area will auto expand when the presenter engages Screen Sharing or YouTube Link Share)
 
-### Full Screen option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Full Screen option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Click on the presentation options button and select "Fullscreen presentation"
 
@@ -180,7 +180,7 @@ all of these tests.
 
     - Application should return to normal screen again
 
-### Snapshot of current presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Snapshot of current presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting.
 
@@ -191,7 +191,7 @@ all of these tests.
     - You should see the download starting
     - The file should contains the image of the current slide of the presentation, including the annotations applied
 
-### Fit to width option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Fit to width option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. In the presentation toolbar (bottom), click on "Fit to width" button
 
@@ -202,7 +202,7 @@ all of these tests.
 
     - Presentation should return to normal view
 
-### Make viewer a presenter [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Make viewer a presenter [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Click viewer icon from users list
 
@@ -212,7 +212,7 @@ all of these tests.
     - Attendees are also able to be presenter
     - All users should see the presenter icon in the user avatar
 
-### Take presenter status[(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Take presenter status[(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. After making other user presenter, click on this user icon form users list
 
@@ -223,7 +223,7 @@ all of these tests.
 
 ## Webcams
 
-### Joining Webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
+### Joining Webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/webcam.spec.ts)
 
 1. Click on "Share webcam" icon
 
@@ -251,7 +251,7 @@ all of these tests.
 
     - The webcam video should stop sharing for all users
 
-### Make webcam fullscreen [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
+### Make webcam fullscreen [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/webcam.spec.ts)
 
 1. Click the webcam's fullscreen button ("Make [user name] fullscreen") in the top-right.
 
@@ -308,7 +308,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - The webcam will be resized as per the size we want.
 
-### Stop Sharing webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
+### Stop Sharing webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/webcam.spec.ts)
 
 1. Start sharing webcam.
 
@@ -316,7 +316,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - The webcam sharing should stop and no other user should keep seeing your webcam sharing
 
-### Pin/Unpin webcams [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
+### Pin/Unpin webcams [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/webcam.spec.ts)
 
 1. Join meeting with at least 3 webcams.
 
@@ -340,7 +340,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
     - That particular webcam should unpin
     - The same behavior should be done by clicking on the "Unpin" button at the top-left
 
-### Disable self-view [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/webcam/webcam.spec.js)
+### Disable self-view [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/webcam/webcam.spec.ts)
 
 1. Join in a meeting with 2 users sharing webcams.
 
@@ -389,7 +389,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - The "Layout view" button shouldn't be shown.
 
-### Share camera as content [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Share camera as content [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join in a meeting with 2 users.
 
@@ -430,7 +430,7 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
 ## Screenshare
 
-### Sharing screen in Full Screen mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/screenshare/screenshare.spec.js)
+### Sharing screen in Full Screen mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/screenshare/screenshare.spec.ts)
 
 1. Clicking on share screen icon
 
@@ -471,7 +471,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 ## Breakout rooms
 
-### Moderators creating breakout rooms and assigning users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Moderators creating breakout rooms and assigning users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Click "Manage users" (cog wheel icon in the user list).
 
@@ -495,7 +495,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 11. In the main room, click "Breakout Rooms". The breakout rooms panel should appear and it should contain the timer for the rooms (according to the duration that was set during the creation of the breakout rooms).
 
-### Message to all breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Message to all breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Click "Manage users" (cog wheel icon in the user list).
 
@@ -515,7 +515,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - Public chats in all the breakout rooms should get the message highlighted by a special background color.
 
-### Viewers choosing the breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Viewers choosing the breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Click "Manage users" (cog wheel icon in the user list).
 
@@ -549,7 +549,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - Moderator should successfully join the room you chose.
 
-### End breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### End breakout rooms [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Join breakout room as moderator.
 
@@ -558,7 +558,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
     - All of the breakout rooms should end and all users should get back to the main room
     - If users already got the audio on, they shouldn't get prompted for the audio modal
 
-### Edit the duration of a breakout room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Edit the duration of a breakout room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Join breakout room as moderator.
 
@@ -578,7 +578,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
     - The user should be notified about the removal and the prompt to confirm the joining of the new breakout room should appear
     - In case this user is already in a breakout, it should logout from that room and see the breakout invitation of the new one
 
-### Exporting the breakout room's shared notes to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Exporting the breakout room's shared notes to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Create a breakout room with enabling "Capture shared notes when breakout rooms end".
 
@@ -586,7 +586,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - Breakout room's shared notes should be converted to a pdf and that pdf should be available for uploading to the whiteboard
 
-### Exporting the breakout room's whiteboard annotations to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/breakout.spec.js)
+### Exporting the breakout room's whiteboard annotations to the main room [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/breakout.spec.ts)
 
 1. Create a breakout room with enabling "Capture whiteboard when breakout rooms end".
 
@@ -614,7 +614,7 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
     - you should see the correct presentation selected displayed for each user/room
 
-### Moderator listens to a breakout room audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/breakout/listenToRoom.spec.ts)
+### Moderator listens to a breakout room audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/breakout/listenToRoom.spec.ts)
 
 Requires the LiveKit audio bridge (the default). A viewer must be in a breakout room with audio.
 
@@ -667,6 +667,21 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - You should land in the meeting muted, with the "Unmute" button displayed
     - No camera should be shared and the "Share webcam" button should be displayed
+
+### Changing settings before joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session and, in the pre-flight screen, click "Settings" at the bottom of the setup panel
+
+    - The same settings modal as in the meeting should open over the pre-flight, with the language dropdown on the current language
+
+2. Pick another language, increase the font size, turn on the dark mode and click "Save"
+
+    - The pre-flight should switch to the new language, font size and theme
+
+3. Click "Join session"
+
+    - The meeting should keep the language, font size and theme picked in the pre-flight
+    - The "Settings" button should not be in the meeting's profile panel
 
 ### Reloading after joining
 
@@ -726,7 +741,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
 ## Audio
 
-### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. Join a meeting.
 
@@ -744,7 +759,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - You should be redirected to the meeting and your microphone button and avatar in the in the user list should indicate the you are unmuted.
 
-### Mute/unmute yourself [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+### Mute/unmute yourself [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. Join a meeting.
 
@@ -759,7 +774,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 4. Click the microphone button repeatedly
     - You should change between unmuted and muted states and the button should indicate it
 
-### Leave audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+### Leave audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. Join meeting with audio.
 
@@ -768,7 +783,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
     - You should hear the disconnect sound and leave audio
     - "You have left audio conference" notification should appear
 
-### Listen Only Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+### Listen Only Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. Join a meeting.
 
@@ -776,14 +791,14 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
     - You should be redirected to the meeting and your microphone button and user list avatar should indicate that you are in listen only mode.
 
-### Testing microphone (echo test) [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+### Testing microphone (echo test) [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. Click on microphone and go through echo test
 
     - You should see 2 inputs for each input and output audio device
     - You should see a volume indicator down below "Your audio stream volume". Once you select correctly and speak, a green line indicating the volume should be displayed
 
-### Changing audio source after joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+### Changing audio source after joining [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1. After joining the audio, click on the "Change audio settings" button aside the mute button
 
@@ -807,7 +822,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 
 Enable Microphone : This will cause a user name to appear on left top corner of the Presentation Area whenever a User talks.
 
-#### Muting user from Talking Indicator [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
+#### Muting user from Talking Indicator [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
 
 1.  As Moderator: Click on the name of User appearing in top left corner of the Presentation area.
 
@@ -866,7 +881,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 ## Whiteboard
 
-### Use pencil (draw) tool [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Use pencil (draw) tool [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.ts)
 
 1. Join meeting with two or more users.
 
@@ -876,7 +891,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - All clients should see the drawing.
 
-### Change shape tool size [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Change shape tool size [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.ts)
 
 1. Join meeting with two or more users.
 
@@ -889,7 +904,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - From now on, the drawn shapes should have the size you selected
     - If you had selected a shape before opening styles menu and changing size, the selected shape should change its size
 
-### Changing shape tool color [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Changing shape tool color [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.ts)
 
 1. Join meeting with two or more users.
 
@@ -902,7 +917,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - From now on, the drawn shapes should have the color you selected
     - If you had selected a shape before opening styles menu and changing color, the selected shape should change its color
 
-### Use text tool [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Use text tool [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.ts)
 
 1. Join meeting with two or more users.
 
@@ -916,7 +931,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - The text should appear according to the selected font size and color
     - The text should be displayed by the time it is typed (live content)
 
-### Undo last annotation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Undo last annotation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.ts)
 
 1. Join meeting with two or more users.
 
@@ -927,7 +942,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - It should also be triggered by pressing CTRL+Z
     - The last drawn shape should be removed to all users
 
-### Multi-user whiteboard [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.js)
+### Multi-user whiteboard [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/whiteboard/whiteboard.spec.ts)
 
 1. Join meeting with two or more users.
 
@@ -946,7 +961,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - All clients should be able to draw and see each other's changes on the whiteboard (including the recently joined viewer).
 
-## YouTube Video sharing [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+## YouTube Video sharing [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 ### Start YouTube video sharing
 
@@ -1031,7 +1046,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 ## Shared Notes
 
-### Using shared notes panel [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/sharednotes/sharednotes.spec.js)
+### Using shared notes panel [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/sharednotes/blocknote/sharednotes.spec.ts)
 
 1. Join a meeting with two or more users.
 
@@ -1042,7 +1057,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - Notification should appear on the "Shared Notes" button for those users whose shared notes panel is closed.
     - After opening the shared notes panel, all clients should see the writing as well. The username will appear near the test that user is currently typing.
 
-### Exporting Shared notes [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Exporting Shared notes [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Selecting "export"
 
@@ -1052,7 +1067,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - Share notes should export and download in the chosen format.
 
-### Pin notes onto whiteboard [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Pin notes onto whiteboard [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Open shared notes, write something. Click the three dots icon. Choose "Pin notes onto whiteboard".
 
@@ -1064,7 +1079,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - Shared notes should disappear from the whiteboard
     - You should be able to open Shared Notes again.
 
-### Convert notes to presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Convert notes to presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Open shared notes, write something
 
@@ -1074,7 +1089,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - Shared notes should be converted to a presentation file and that file should be uploaded to the whiteboard
 
-### Using shared notes formatting tools [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Using shared notes formatting tools [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join a meeting with two or more users.
 
@@ -1090,7 +1105,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 ## Lock Settings
 
-### Webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Webcam [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join meeting with moderators and viewers.
 
@@ -1134,7 +1149,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 21. New viewer: should be able to share a webcam.
 
-### See other viewers webcams [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### See other viewers webcams [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with moderators and viewers.
 
@@ -1186,7 +1201,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 25. Each user should see all webcams again.
 
-### Microphone [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Microphone [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with moderators and viewers, all - with audio.
 
@@ -1226,7 +1241,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 19. All users should be able to join audio or mute/unmute now.
 
-### Public chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Public chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with moderators and viewers.
 
@@ -1266,7 +1281,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 19. All users should be able to send public chat messages now.
 
-### Public chat for a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/user/user.spec.ts)
+### Public chat for a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join meeting with a moderator and a viewer. Do not enable any "Lock viewers" setting.
 
@@ -1280,7 +1295,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 6. Viewer: should be able to send public chat messages again and the "Locked" label should disappear.
 
-### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Private chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with moderators and viewers.
 
@@ -1314,7 +1329,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 16. All private chats should get back to normal.
 
-### Shared notes [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Shared notes [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with moderators and viewers.
 
@@ -1354,7 +1369,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 19. All users should be able to use shared notes now.
 
-### See other viewers in the Users list [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### See other viewers in the Users list [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with moderators and viewers.
 
@@ -1394,7 +1409,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 19. All users should be able to use shared notes now.
 
-### Unlock a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Unlock a specific user [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join meeting with viewers and moderators.
 
@@ -1412,7 +1427,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
 ## Chat
 
-### Public message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
+### Public message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/chat/chat.spec.ts)
 
 1. Join meeting with viewers and moderators.
 
@@ -1424,7 +1439,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - All users should see the message.
 
-### Private message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
+### Private message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/chat/chat.spec.ts)
 
 1. Join meeting with viewers and moderators.
 
@@ -1439,7 +1454,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
     - The other user should see the private chat message tab and a message counter notification
     - After clicking on the tab, user should see the private message.
 
-### Chat Character Limit [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
+### Chat Character Limit [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/chat/chat.spec.ts)
 
 1. Join meeting.
 
@@ -1447,7 +1462,7 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 
     - Warning should appear to inform about the character limit and you shouldn't be able to send the message.
 
-### Sending Empty chat message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/chat/chat.spec.js)
+### Sending Empty chat message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/chat/chat.spec.ts)
 
 1. Join meeting.
 
@@ -1484,7 +1499,7 @@ Note :
 
 ## Polling
 
-### Start a single-choice poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
+### Start a single-choice poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/polling/polling.spec.ts)
 
 1. Join meeting
 
@@ -1505,7 +1520,7 @@ Note :
 
     - Poll results will show up in public chat and presentation area for all users.
 
-### Start a multiple-choice poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
+### Start a multiple-choice poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/polling/polling.spec.ts)
 
 1. Join meeting
 
@@ -1527,7 +1542,7 @@ Note :
 
     - Poll results will show up in public chat and presentation area for all users.
 
-### Start an anonymous poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
+### Start an anonymous poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/polling/polling.spec.ts)
 
 1. Join meeting
 
@@ -1551,7 +1566,7 @@ Note :
     - Poll results will show up in public chat and presentation area for all users.
 
 
-### Custom Poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
+### Custom Poll [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/polling/polling.spec.ts)
 
 1. Click on the options (+) button in the bottom left corner of the whiteboard area.
 
@@ -1568,7 +1583,7 @@ Note :
   on it are available
 - A live Poll Results Tab will show up to the presenter.
 
-### Quick Poll Option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/polling/polling.spec.js)
+### Quick Poll Option [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/polling/polling.spec.ts)
 
 (Presenter feature : Choosing Quick Poll Options from the current Slide which is loaded from the Quick Poll file)
 
@@ -1598,7 +1613,7 @@ Note :
 
     - All the current reactions should be cleared
 
-### Mute all users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Mute all users [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Moderator: select manage users icon (cog wheel icon in users list)
 
@@ -1606,7 +1621,7 @@ Note :
 
     - All users (moderator/presenter included) who are already joined in the client with a functioning mic will be muted (if unmuted)
 
-### Mute all users except presenter [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Mute all users except presenter [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Select manage users icon (cog wheel in users list)
 
@@ -1615,7 +1630,7 @@ Note :
     - All users except the current presenter who are already joined in the client with a functioning mic will be muted (if unmuted) and unable to unmute their mics
     - All moderators should be able to see and use this feature
 
-### Saving Usernames [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Saving Usernames [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Moderator: Select manage users icon (cog wheel in users list)
 
@@ -1662,7 +1677,7 @@ Note :
 
 2. Enable/Disable audio filters for Microphone
 
-#### Dark Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
+#### Dark Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/options/options.spec.ts)
 
 1. Click on the [On/Off] the switch button to Enable Dark Mode
 
@@ -1694,7 +1709,7 @@ Note :
 
     - after using a reaction or raising your hand, the reactions bar should close
 
-#### Application Language [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
+#### Application Language [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/options/options.spec.ts)
 
 1. Click on the [On/Off] the switch button
 
@@ -1706,7 +1721,7 @@ Note :
 
 4. The screen quickly reloads to apply the language change action
 
-#### Font Size [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
+#### Font Size [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/options/options.spec.ts)
 
 
 1. Click on (+) or (-) buttons to increase or decrease the font size of Presentation.
@@ -1730,10 +1745,10 @@ Note :
 #### Popup Alerts
 
 1. There should be a switch button for each notification:
-    - Chat message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
-    - User join [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+    - Chat message [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
+    - User join [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
     - User leave
-    - Raise hand (moderators only) [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+    - Raise hand (moderators only) [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
 
 2. Enabling them, you should see a notification every time an event is triggered
 
@@ -1757,7 +1772,7 @@ Note :
 
 ### Shortcut keys
 
-#### Keyboard Shortcuts [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/parameters/parameters.spec.js)
+#### Keyboard Shortcuts [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/parameters/parameters.spec.ts)
 
 1. Click on the Keyboard Shortcuts in the options menu.
 
@@ -1802,7 +1817,7 @@ Note :
 
 ## Guest Policy
 
-### Always deny [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Always deny [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join meeting as moderator.
 
@@ -1820,7 +1835,7 @@ Note :
 
     - Viewers should be automatically denied and redirected to home page
 
-### Ask moderator [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Ask moderator [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join meeting as moderator.
 
@@ -1876,7 +1891,7 @@ Note :
     - The reaction should be changed once you click in a different emoji
     - if the `emojiRain` setting is enabled, all users should see an animated rain of emojis from their reactions button on every reaction 
 
-### Raise / Lower your hand  [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Raise / Lower your hand  [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join in a meeting with 2 users
 
@@ -1900,7 +1915,7 @@ Note :
 
 ## Recording
 
-### Start recording notification: not in audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+### Start recording notification: not in audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
 
 1. Create a recorded meeting and join the meeting without joining audio.
 
@@ -1908,7 +1923,7 @@ Note :
 
 3. Verify that the toast notification about no active mic appears.
 
-### Start recording notification: in listen only [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+### Start recording notification: in listen only [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
 
 1. Create a recorded meeting and join the meeting in listen only mode.
 
@@ -1916,7 +1931,7 @@ Note :
 
 3. Verify that the toast notification about no active mic appears.
 
-### No start recording notification: in audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+### No start recording notification: in audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
 
 1. Create a recorded meeting and join the meeting with microphone.
 
@@ -1924,7 +1939,7 @@ Note :
 
 3. Verify that the toast notification about no active mic doesn't appear.
 
-### Start recording modal [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/notifications/notifications.spec.js)
+### Start recording modal [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/notifications/notifications.spec.ts)
 
 1. Create a recorded meeting and join it.
 
@@ -1932,7 +1947,7 @@ Note :
 
 3. Verify that the start recording modal appears.
 
-## Custom Parameters [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/parameters/parameters.spec.js)
+## Custom Parameters [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/parameters/parameters.spec.ts)
 
 Client should apply user metadata according to the descriptions from [here](/administration/customize#application-parameters).
 
@@ -1966,7 +1981,7 @@ preUploadedPresentationName=ScientificPaper.pdf
 
 ## Timer and stopwatch
 
-### Stopwatch [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Stopwatch [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join in a meeting with 2 users (mod and attendee)
 
@@ -2000,7 +2015,7 @@ preUploadedPresentationName=ScientificPaper.pdf
     - Any active stopwatch should stop immediately, not being displayed anymore
 
 
-### Timer [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
+### Timer [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/user/user.spec.ts)
 
 1. Join in a meeting with 2 users (mod and attendee)
 

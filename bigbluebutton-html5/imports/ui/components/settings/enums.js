@@ -14,11 +14,12 @@ const SETTINGS_TABS = {
 // indices computed elsewhere.
 const getSettingsTabs = ({
   isShowAudioFiltersEnabled,
+  isAudioDeviceTestEnabled,
   isDataSavingTabEnabled,
   isGladiaEnabled,
 }) => [
   SETTINGS_TABS.APPLICATION,
-  ...(isShowAudioFiltersEnabled ? [SETTINGS_TABS.AUDIO] : []),
+  ...(isShowAudioFiltersEnabled || isAudioDeviceTestEnabled ? [SETTINGS_TABS.AUDIO] : []),
   SETTINGS_TABS.NOTIFICATION,
   ...(isDataSavingTabEnabled ? [SETTINGS_TABS.DATA_SAVING] : []),
   ...(isGladiaEnabled ? [SETTINGS_TABS.TRANSCRIPTION] : []),
