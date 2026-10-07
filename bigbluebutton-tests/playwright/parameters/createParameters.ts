@@ -173,6 +173,14 @@ export class CreateParameters extends MultiUsers {
     await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the moderator');
   }
 
+  async muteOnStartDisabled() {
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.clickMicrophoneButton();
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.hasElement(e.muteMicButton, 'should display the mute microphone button for the moderator');
+    await this.modPage.hasElement(e.isTalking, 'should display the talking indicator for the moderator');
+  }
+
   async allowModsToUnmuteUsers() {
     await this.initUserPage(this.modPage.context, { shouldCloseAudioModal: false });
     await this.userPage.clickMicrophoneButton();

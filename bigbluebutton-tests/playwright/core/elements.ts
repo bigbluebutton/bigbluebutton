@@ -282,19 +282,18 @@ export const elements = {
   virtualBackgroundToggle: 'input[data-test="virtualBackgroundToggle"]',
 
   // Timer
-  timerContainer: 'div[data-test="timerContainer"]',
-  stopwatchContainer: 'div[data-test="stopwatchContainer"]',
   timerStopwatchFeature: 'div[data-test="timerSidebarButton"]',
   stopwatchCurrent: 'span[data-test="stopwatchCurrent"]',
-  timerCurrent: 'div[data-test="timerCurrent"]',
   startStopTimer: 'button[data-test="startStopTimer"]',
   resetTimerStopwatch: 'button[data-test="resetTimerStopWatch"]',
   timerButton: 'button[data-test="timerButton"]',
   timerIndicator: 'div[data-test="timeIndicator"]',
   stopwatch: 'button[data-test="stopwatchButton"]',
-  hoursInput: 'input[data-test="hoursInput"]',
-  minutesInput: 'input[data-test="minutesInput"]',
-  secondsInput: 'input[data-test="secondsInput"]',
+  timerHoursInput: 'input[data-test="timerHoursInput"]',
+  timerMinutesInput: 'input[data-test="timerMinutesInput"]',
+  timerSecondsInput: 'input[data-test="timerSecondsInput"]',
+  timerPreset10min: 'button[data-test="preset-600"]',
+  timerAdd30s: 'button[data-test="add30s"]',
   timerHeader: 'header[data-test="timerHeader"]',
 
   // Notes
@@ -346,7 +345,7 @@ export const elements = {
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
   // data-test moved from the <input> to the MUI Checkbox root in the settings redesign
   userJoinPushAlerts: '[data-test="userJoinPopupAlerts"]',
-  userLeavePushAlerts: '[data-test="userLeavePopupAlerts"]',
+  userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
@@ -522,7 +521,6 @@ export const elements = {
   usersListSidebarButton: 'div[data-test="usersListSidebarButton"]',
   toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
   currentUser: 'div[data-test="userListItemCurrent"]',
-  manageUsers: 'button[data-test="manageUsers"]',
   presenterClassName: 'presenter--',
   mobileUser: 'span[data-test="mobileUser"]',
   userNameSubs: 'span[data-test="userNameSubs"]',
@@ -541,7 +539,7 @@ export const elements = {
   connectionDataContainer: networkDataContainer,
   avatarsWrapperAvatar: 'div[data-test="avatarsWrapperAvatar"]',
   guestPolicyLabel: 'li[data-test="guestPolicyLabel"]',
-  downloadUserNamesList: 'li[data-test="downloadUserNamesList"]',
+  downloadUserNamesList: 'button[data-test="downloadUserNamesList"]',
   joinMeetingDemoPage: 'div[class^="join-meeting"]',
   askModerator: 'li[data-test="askModerator"]',
   alwaysAccept: 'li[data-test="alwaysAccept"]',
@@ -552,7 +550,6 @@ export const elements = {
   demoteToViewer: 'li[data-test="demoteToViewer"]',
   makePresenter: 'li[data-test="makePresenter"]',
   takePresenter: 'li[data-test="takePresenter"]',
-  usersJoinMuted: 'li[data-test="usersJoinMuted"]',
   muteAllExceptPresenter: 'li[data-test="muteAllExceptPresenter"]',
   error403removedLabel: 'You have been removed from the meeting',
   removeUser: 'li[data-test="removeUser"]',
@@ -570,9 +567,8 @@ export const elements = {
   ejectCamera: 'li[data-test="ejectCamera"]',
   closeUserList: 'button[data-test="closeUserList"]',
   userListPanel: 'div[data-test="userListPanel"]',
-  clearStatus: 'li[data-test="clearStatus"]',
   // direct crowd-action button in the participants panel (replaced the
-  // manageUsers gear dropdown's "mute all except presenter" item)
+  // 3.0 gear dropdown's "mute all except presenter" item)
   muteAllUsers: 'button[data-test="muteAllUsers"]',
 
   // Lock Viewers

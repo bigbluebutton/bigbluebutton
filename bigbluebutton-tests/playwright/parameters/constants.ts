@@ -26,6 +26,7 @@ export const constants = {
   moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
   webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
   muteOnStart: 'muteOnStart=true',
+  muteOnStartDisabled: 'muteOnStart=false',
   allowModsToUnmuteUsers: 'allowModsToUnmuteUsers=true',
   lockSettingsDisableCam: 'lockSettingsDisableCam=true',
   lockSettingsDisableMic: 'lockSettingsDisableMic=true',
