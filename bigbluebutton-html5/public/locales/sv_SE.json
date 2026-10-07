@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Användarnamn",
     "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Lägg till en extra kamera",
-    "app.pads.hint": "Tryck på Esc för att fokusera anteckningsytans verktygsfält",
     "app.user.activityCheck": "Användaraktivitetskontroll",
     "app.user.activityCheck.label": "Kontrollera om användaren fortfarande är i sessionen ({responseDelay})",
     "app.user.activityCheck.check": "Kontrollera",
