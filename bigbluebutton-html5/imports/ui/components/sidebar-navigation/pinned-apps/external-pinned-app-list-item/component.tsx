@@ -11,7 +11,7 @@ import { SidekickAreaOptionsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/
 import { PinnedAppProps } from '../types';
 import PinnedAppBase from '../pinned-app-list-item/component';
 import { PANELS } from '/imports/ui/components/layout/enums';
-import Styled from '../../styles';
+import NotificationBadgeStyled from '/imports/ui/components/common/notification-badge/styles';
 import { useGenericContentBadge } from '/imports/ui/core/local-states/useGenericContentBadges';
 
 const ExternalPinnedApp: React.FC<PinnedAppProps> = (props) => {
@@ -60,9 +60,9 @@ const ExternalPinnedApp: React.FC<PinnedAppProps> = (props) => {
       isOpened={isOpened}
     >
       {badgeContent && (
-        <Styled.BadgeCircle data-test={`${appKey}Badge`}>
+        <NotificationBadgeStyled.NotificationBadge $anchored data-test={`${appKey}Badge`}>
           {badgeContent}
-        </Styled.BadgeCircle>
+        </NotificationBadgeStyled.NotificationBadge>
       )}
     </PinnedAppBase>
   );

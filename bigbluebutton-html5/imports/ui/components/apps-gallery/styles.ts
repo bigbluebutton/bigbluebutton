@@ -15,6 +15,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
+  smPadding,
   lgPadding,
   appsButtonsBorderRadius,
   borderRadiusRounded,
@@ -53,8 +54,16 @@ const PinnedAppsWrapper = styled.div`
 
 const UnpinnedAppsWrapper = PinnedAppsWrapper;
 
-const AppTitle = styled.div`
+const AppTitleWrapper = styled.div`
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: ${smPadding};
+  min-width: 0;
+`;
+
+const AppTitle = styled.div`
+  min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -350,6 +359,7 @@ export default {
   Wrapper,
   PinnedAppsWrapper,
   UnpinnedAppsWrapper,
+  AppTitleWrapper,
   AppTitle,
   RegisteredAppContent,
   OpenButton,
