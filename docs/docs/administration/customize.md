@@ -43,7 +43,7 @@ then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -1514,10 +1514,10 @@ For example, if you would like to replace `de.json` with the version from a spec
 ```bash
 cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-release/bigbluebutton-html5/public/locales/de.json
 cd /usr/share/bigbluebutton/html5-client/locales/
 rm de.json
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
 ```
 
@@ -1730,7 +1730,7 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|

@@ -35,9 +35,9 @@ export const constants = {
   notifyRecordingAppendMessage: 'This meeting will be summarized using AI — <strong>plain text</strong>',
   notifyRecordingAppend: 'notifyRecordingAppend=This meeting will be summarized using AI — <strong>plain text</strong>',
   preUploadedPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedHeavyPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-develop/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   camerasOnly: 'meetingLayout=CAMERAS_ONLY',
