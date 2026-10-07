@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Anzeigename",
     "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Weitere Kamera zeigen",
-    "app.pads.hint": "Esc drücken, um die Symbolleiste des Pads auszuwählen",
     "app.user.activityCheck": "Teilnehmeraktivitätsprüfung",
     "app.user.activityCheck.label": "Prüfen, ob Person noch in der Sitzung ({responseDelay}) ist",
     "app.user.activityCheck.check": "Bestätigen",
