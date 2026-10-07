@@ -100,6 +100,7 @@ interface VideoListProps {
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
   gridSize: number;
+  raisedHandPositions: Map<string, number>;
 }
 
 interface VideoListState {
@@ -509,6 +510,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       isGridEnabled,
       overflowCount,
       overflowUsers,
+      raisedHandPositions,
     } = this.props;
     const numOfStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
@@ -555,7 +557,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
             numOfStreams={numOfStreams}
             cameraId={stream}
-            userId={userId}
+            raisedHandPosition={raisedHandPositions.get(userId) ?? 0}
             name={name}
             focused={isFocused}
             isStream={isStream}
