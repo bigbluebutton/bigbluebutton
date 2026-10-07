@@ -36,7 +36,6 @@ jobs:
             bbb-playback-record,
             bbb-graphql-server,
             bbb-shared-notes-server,
-            bbb-etherpad,
             bbb-web,
             bbb-fsesl-akka,
             bbb-html5,
@@ -62,9 +61,6 @@ jobs:
             cache-files-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
           - package: bbb-shared-notes-server
             cache-files-list: bbb-shared-notes-server
-          - package: bbb-etherpad
-            cache-files-list: bbb-etherpad.placeholder.sh
-            cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
           - package: bbb-web
             cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
           - package: bbb-fsesl-akka
@@ -80,8 +76,8 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go bbb-coturn
-            cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
+            build-list: bbb-mkclean bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go bbb-coturn
+            cache-files-list: bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -217,11 +213,6 @@ jobs:
         with:
           name: artifacts_bbb-graphql-server
           path: all-artifacts
-      - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-etherpad
-          path: all-artifacts
       - name: Download artifacts_bbb-shared-notes-server
         uses: actions/download-artifact@v7
         with:
@@ -306,6 +297,8 @@ jobs:
           Version: $META_VERSION
           Maintainer: Fred Dixon <ffdixon@bigbluebutton.org>
           Depends: $DEPENDENCIES
+          Conflicts: bbb-etherpad, bbb-pads
+          Replaces: bbb-etherpad, bbb-pads
           Architecture: amd64
           Description: Virtual Classroom
            BigBlueButton is a virtual classroom for online teaching and learning.
@@ -330,7 +323,6 @@ jobs:
             artifacts_bbb-learning-dashboard
             artifacts_bbb-playback-record
             artifacts_bbb-graphql-server
-            artifacts_bbb-etherpad
             artifacts_bbb-shared-notes-server
             artifacts_bbb-freeswitch
             artifacts_bbb-webrtc

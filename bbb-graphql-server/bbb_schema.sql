@@ -2296,7 +2296,6 @@ create unlogged table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
     "padId" varchar(100),
-    "sharedNotesEditor" varchar(25),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,
@@ -2309,10 +2308,6 @@ create unlogged table "sharedNotes_rev" (
 	"sharedNotesExtId" varchar(25),
 	"rev" integer,
 	"userId" varchar(50),
-	"changeset" text,
-	"start" integer,
-	"end" integer,
-	"diff" TEXT,
 	"createdAt" timestamp with time zone,
 	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
@@ -2321,31 +2316,11 @@ create index "idx_sharedNotes_rev_pk_reverse" on "sharedNotes_rev"("sharedNotesE
 create index "idx_sharedNotes_rev_user_meeting" on "sharedNotes_rev"("userId", "meetingId");
 --create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
 
-create view "v_sharedNotes_diff" as
-select "meetingId", "sharedNotesExtId", "userId", "start", "end", "diff", "rev"
-from "sharedNotes_rev"
-where "diff" is not null;
-
-create unlogged table "sharedNotes_session" (
-    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "sharedNotesExtId" varchar(25),
-    "userId" varchar(50),
-    "sessionId" varchar(50),
-    constraint "pk_sharedNotes_session" primary key ("meetingId", "userId", "sharedNotesExtId"),
-    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
-);
-create index "sharedNotes_session_userId_rev" on "sharedNotes_session"("userId", "meetingId", "sharedNotesExtId");
-
 create view "v_sharedNotes" as
 SELECT sn.*, max(snr."createdAt") "lastUpdatedAt"
 FROM "sharedNotes" sn
 LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
 GROUP BY sn."meetingId", sn."sharedNotesExtId";
-
-create view "v_sharedNotes_session" as
-SELECT sns.*, sn."padId"
-FROM "sharedNotes_session" sns
-JOIN "sharedNotes" sn ON sn."meetingId" = sns."meetingId" AND sn."sharedNotesExtId" = sn."sharedNotesExtId";
 
 ----------------------
 
@@ -2624,12 +2599,6 @@ select "meeting"."meetingId",
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
         ) as "isSharedNotesPinned",
-        exists (
-            select 1
-            from "sharedNotes"
-            where "sharedNotes"."meetingId" = "meeting"."meetingId"
-            and "sharedNotes"."sharedNotesEditor" = 'etherpad'
-        ) as "isEtherpadSharedNotes",
         exists (
             select 1
             from "v_pres_page_curr"
