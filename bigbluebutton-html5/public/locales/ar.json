@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "اسم المستخدم",
     "app.profileSettings.statusTitle": "الحالة",
     "app.profileSettings.addExtraCamera": "إضافة كاميرا إضافية",
-    "app.pads.hint": "اضغط على Esc لتركيز شريط أدوات اللوحة",
     "app.user.activityCheck": "التحقق من نشاط المستخدم",
     "app.user.activityCheck.label": "التحقق مما إذا كان المستخدم لا يزال في الجلسة ({responseDelay})",
     "app.user.activityCheck.check": "تحقق",
