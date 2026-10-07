@@ -242,8 +242,80 @@ Then below the SVG conversion flow. It covers the conversion fallback. Sometimes
 
 ### Internal network connections
 
-The following diagram shows how the various components of BigBlueButton connect to each other via sockets.
+The following diagram shows how the various components of BigBlueButton connect to each other via sockets. Teal lines carry media, dashed boxes run only when FreeSWITCH audio is used, and the orange box is the local disk shared between processes.
 
-![Network Connections](/img/22-connections.png)
+```mermaid
+---
+config:
+  layout: elk
+  flowchart:
+    wrappingWidth: 320
+  elk:
+    considerModelOrder: NODES_AND_EDGES
+---
+flowchart LR
+  %% Teal = media path · dashed = only with FreeSWITCH audio · orange = shared local disk
 
-<!-- TODO update the network connections diagram --->
+  browser["<b>Browser</b><br/>bbb-html5 client"]
+
+  subgraph host["ONE UBUNTU HOST · bigbluebutton.target · every bind and every config default is 127.0.0.1"]
+    proxy["<b>nginx · HAProxy</b><br/>:443"]
+
+    html5["<b>bbb-html5</b><br/>static files"]
+    web["<b>bbb-web</b> :8090<br/>API · writes /var/bigbluebutton"]
+    gqlmw["<b>graphql-middleware</b> :8378<br/>Go · patches subscriptions"]
+    notes["<b>shared-notes-server</b> :8787<br/>Hocuspocus / Yjs"]
+    sfu["<b>bbb-webrtc-sfu</b> :3008<br/>LiveKit controller · tokens"]
+    livekit["<b>livekit-server</b> :7880<br/>ws signaling + UDP media"]:::media
+
+    hasura["<b>Hasura</b> :8085<br/>graphql-server"]
+    actions["<b>graphql-actions</b> :8093<br/>publishes to Redis"]
+    akka["<b>bbb-apps-akka</b> :8901<br/>meeting state · singleton"]
+    redis["<b>Redis</b> :6379<br/>pub/sub + recording events"]
+    pg[("<b>PostgreSQL</b> :5432<br/>bbb_graphql (unlogged)")]
+    recorder["<b>bbb-webrtc-recorder</b><br/>writes /var/lib/bbb-webrtc-recorder"]
+    sip["<b>livekit-sip</b> :5062<br/>PSTN dial-in (optional)"]
+
+    fsesl["<b>bbb-fsesl-akka</b><br/>only with FreeSWITCH audio"]:::optional
+    freeswitch["<b>FreeSWITCH</b><br/>writes /var/freeswitch/meetings"]:::optional
+
+    disk[["<b>local filesystem, shared by six processes</b><br/>/var/bigbluebutton<br/>/var/lib/bbb-webrtc-recorder<br/>/var/freeswitch/meetings<br/>/var/mediasoup"]]:::disk
+    reccore["<b>bbb-record-core</b><br/>resque workers<br/>rsync, then delete"]
+  end
+
+  %% ── Everything from the browser enters through the proxy on TCP 443 ──
+  browser -- TCP 443 --> proxy
+  proxy -- /html5client --> html5
+  proxy -- /bigbluebutton --> web
+  proxy -- /graphql ws --> gqlmw
+  proxy -- /hocuspocus ws --> notes
+  proxy -- /bbb-webrtc-sfu ws --> sfu
+  proxy -- /livekit ws --> livekit
+
+  %% ── Meeting state ──
+  gqlmw -- queries --> hasura
+  hasura -- reads --> pg
+  hasura -- mutations --> actions
+  akka <-- pub/sub --> redis
+  akka -- writes --> pg
+
+  %% ── Media ──
+  sfu -- "API · webhook :3040" --> livekit
+  sip -- SIP participant --> livekit
+  recorder m1@== WebRTC ==> livekit
+  browser m2@== "UDP 16384–32768 · straight to the host IP, bypasses nginx" ==> livekit
+
+  %% ── Only with FreeSWITCH audio ──
+  fsesl -. ESL :8021 .-> freeswitch
+
+  %% ── Recording ──
+  disk -- inotify --> reccore
+
+  %% ── Styling (translucent fills so it reads in light and dark mode) ──
+  classDef media     stroke:#0f8a83,stroke-width:2px;
+  classDef optional  fill:#8881,stroke:#888,stroke-dasharray:4 4;
+  classDef disk      fill:#d9603b22,stroke:#d9603b;
+  classDef mediaEdge stroke:#0f8a83,stroke-width:2.5px;
+  class m1,m2 mediaEdge;
+  style host fill:#5b6b8c14,stroke:#5b6b8c66;
+```
