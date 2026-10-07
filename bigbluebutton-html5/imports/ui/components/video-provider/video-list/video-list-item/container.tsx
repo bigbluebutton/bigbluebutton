@@ -14,7 +14,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import propsEqualIgnoringFloor from '../utils';
 
 interface VideoListItemContainerProps {
-  numOfStreams: number;
+  canFocus: boolean;
   cameraId: string | null;
   pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   name: string;
@@ -38,7 +38,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     focused,
     isStream,
     name,
-    numOfStreams,
+    canFocus,
     onHandleVideoFocus,
     onVideoItemMount,
     onVideoItemUnmount,
@@ -93,7 +93,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       focused={focused}
       isStream={isStream}
       name={name}
-      numOfStreams={numOfStreams}
+      canFocus={canFocus}
       onHandleVideoFocus={onHandleVideoFocus}
       onVideoItemMount={handleVideoItemMount}
       onVideoItemUnmount={onVideoItemUnmount}
