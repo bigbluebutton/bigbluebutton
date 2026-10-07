@@ -1,12 +1,18 @@
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';
 const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
+// Chromium's virtual device ID that always resolves to the current OS
+// default input/output device. Only meaningful on Blink-based desktop
+// browsers - see getAudioConstraints() below.
+const SYSTEM_DEFAULT_DEVICE_ID = 'default';
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -102,6 +108,17 @@ const getAudioConstraints = (constraintFields = {}) => {
 
   if (deviceId) {
     matchConstraints.deviceId = { exact: deviceId };
+  } else if (browserInfo.isBlink && !deviceInfo.isMobile) {
+    // Chrome (M123+) can prioritize a per-origin pinned capture device over
+    // an omitted or "ideal" deviceId - see
+    // https://groups.google.com/a/chromium.org/g/blink-dev/c/El5jaGnhVu4
+    // An "exact" constraint is the only documented way to override that and
+    // actually get the OS default device. Guarded to Blink desktop only: the
+    // "default" virtual device only exists on Chromium, and on Firefox/Safari
+    // this would throw OverconstrainedError. Mobile is excluded because it
+    // was never affected (single microphone) and "default" is not guaranteed
+    // to exist there.
+    matchConstraints.deviceId = { exact: SYSTEM_DEFAULT_DEVICE_ID };
   }
 
   return matchConstraints;
@@ -126,7 +143,22 @@ const doGUM = async (constraints, retryOnFailure = false) => {
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 
-      return navigator.mediaDevices.getUserMedia({ audio: true });
+      // The stored device is gone or never matched, so forget it. Otherwise
+      // a forced "exact" deviceId (see getAudioConstraints()) keeps pinning
+      // it on every later attempt. NotReadableError is left alone: the
+      // device exists, it's just busy right now.
+      if (error.name !== 'NotReadableError') {
+        getStorageSingletonInstance().removeItem(INPUT_DEVICE_ID_KEY);
+      }
+
+      // Retry without the deviceId but keep the audio processing constraints
+      // (AGC/echo cancellation/noise suppression). Falling back to
+      // `{ audio: true }` would silently capture with the browser's defaults.
+      const { deviceId, ...retryConstraints } = constraints?.audio ?? {};
+
+      return navigator.mediaDevices.getUserMedia({
+        audio: Object.keys(retryConstraints).length > 0 ? retryConstraints : true,
+      });
     }
 
     // Not OverconstrainedError - bubble up the error.
