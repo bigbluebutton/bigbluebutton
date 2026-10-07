@@ -84,6 +84,7 @@ export interface App {
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
   appsGallery: AppsGallery
+  remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts

@@ -139,7 +139,6 @@ export const generateActionsPermissions = (
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
-  isMuted: boolean,
   isChatEnabled: boolean,
   isPrivateChatEnabled: boolean,
   type: string,
@@ -169,9 +168,9 @@ export const generateActionsPermissions = (
     && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || !userChatIsLocked)
     && type === 'participant';
 
+  // Neither checks the mute state; the audio entry consults the one that applies.
   const allowedToMuteAudio = hasAuthority
     && subjectUserInAudio
-    && !isMuted
     && !subjectUserVoice?.listenOnly
     && !isSubjectUserBot
     && (type === 'participant' || type === 'raised-hand');
@@ -179,7 +178,6 @@ export const generateActionsPermissions = (
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserInAudio
     && !subjectUserVoice?.listenOnly
-    && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
     && !lockSettings?.disableMic
     && (type === 'participant' || type === 'raised-hand');
@@ -339,7 +337,6 @@ export const toggleVoice = (
 export const createToolbarOptions = (
   intl: IntlShape,
   user: User,
-  isMuted: boolean,
   whiteboardAccess: boolean,
   actionsPermitions: UserActionPermissions,
   lockSettings: LockSettings,
@@ -379,9 +376,7 @@ export const createToolbarOptions = (
     && !user.isModerator;
   const userChatLocked = !!user.userLockSettings?.disablePublicChat;
 
-  const getAudioStateOption = () => {
-    if (!subjectUserInAudio) return null;
-
+  const getAudioStateOption = (isMuted: boolean) => {
     const isListenOnly = user.voice?.listenOnly || user.voice?.listenOnlyInputDevice;
 
     if (isListenOnly) {
@@ -426,7 +421,6 @@ export const createToolbarOptions = (
       dataTest: hasPermissionToMute ? 'muteUser' : 'audioStateUnmuted',
     };
   };
-  const audioStateOption = getAudioStateOption();
 
   return {
     pinnedToolbarOptions: [
@@ -456,7 +450,7 @@ export const createToolbarOptions = (
         icon: 'group_chat',
         dataTest: 'startPrivateChat',
       },
-      ...(audioStateOption ? [{ ...audioStateOption, allowed: true }] : []),
+      ...(subjectUserInAudio ? [{ key: 'audio', allowed: true, resolve: getAudioStateOption }] : []),
       {
         allowed: allowedToChangeWhiteboardAccess && !!pageId,
         key: 'changeWhiteboardAccess',

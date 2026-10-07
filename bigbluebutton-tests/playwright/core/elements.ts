@@ -166,6 +166,7 @@ export const elements = {
   // Chat
   chatBox: 'textarea[id="message-input"]',
   chatMessageItem: 'div[data-test="chatMessageItem"]',
+  userAwayStatusMessage: 'div[data-test="chatMessageItem"][data-message-type="userAwayStatusMsg"]',
   chatMessageContent: 'div[data-test="chatMessageContent"]',
   chatMessageItemKeyboardFocused: 'div[data-test="chatMessageItem"].chat-message-container-keyboard-focused',
   partnerDisconnectedMessage: 'span[data-test="partnerDisconnected"]',
@@ -395,7 +396,6 @@ export const elements = {
   pollSidebarButton: 'div[data-test="pollSidebarButton"]',
   minimizePolling: 'button[data-test="minimizePolling"]',
   startPoll: 'button[data-test="startPoll"]',
-  restartPoll: 'button[data-test="restartPoll"]',
   hidePollDesc: 'button[data-test="hidePollDesc"]',
   pollingContainer: 'aside[data-test="pollingContainer"]',
   pollLetterAlternatives: 'button[data-test="pollLetterAlternatives"]',
@@ -451,6 +451,7 @@ export const elements = {
   // dimensions - if the upload silently reverted to a default, the ratio would not match.
   nonDefaultRatioPresentationFileName: 'sample.pdf',
   maskSamplePdf: 'sample-with-mask.pdf',
+  blurImagePresentationFileName: 'blurImage.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
@@ -567,6 +568,9 @@ export const elements = {
   userBannedMessage2: 'div[id="app"] >> div >> div:nth-child(2)',
   meetingEndedModalTitle: 'div[data-test="meetingEndedModal"]',
   unmuteUser: 'div[data-test="unmuteUser"]',
+  audioStateUnmuted: 'div[data-test="audioStateUnmuted"]',
+  // prefix match: the client writes this data-test with a trailing space
+  audioStateMuted: 'div[data-test^="audioStateMuted"]',
   confirmUnmuteButton: 'button[data-test="confirmUnmute"]',
   denyUnmuteButton: 'button[data-test="denyUnmute"]',
   ejectCamera: 'li[data-test="ejectCamera"]',
@@ -707,6 +711,8 @@ export const elements = {
   dropAreaSidebarBottom: 'div[data-test="dropArea-sidebarContentBottom"]',
   selfViewDisableBtn: 'li[data-test="selfViewDisableBtn"]',
   profileSidebarButton: 'div[data-test="profileSidebarButton"]',
+  profileStatusDropdown: 'div[role="combobox"][aria-labelledby~="status-label-id"]',
+  profileStatusOption: 'ul[role="listbox"] li[role="option"]',
   nextPageVideoPagination: 'button[data-test="nextPageVideoPaginationBtn"]',
   previousPageVideoPagination: 'button[data-test="previousPageVideoPaginationBtn"]',
   videoQualitySelector: 'select[id="setQuality"]',
