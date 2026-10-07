@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "ユーザー名",
     "app.profileSettings.statusTitle": "状況",
     "app.profileSettings.addExtraCamera": "新たなカメラを追加",
-    "app.pads.hint": "パッドのツールバーにフォーカスするにはEscを押してください",
     "app.user.activityCheck": "ユーザーアクティビティ確認",
     "app.user.activityCheck.label": "会議にユーザーがまだ参加しているか確認してください ({responseDelay})",
     "app.user.activityCheck.check": "確認",
