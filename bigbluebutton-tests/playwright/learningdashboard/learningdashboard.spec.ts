@@ -33,6 +33,27 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' }, () => {
     await learningDashboard.polls();
   });
 
+  // eslint-disable-next-line no-empty-pattern
+  test('Polls without a question are numbered in the order they were asked', async ({}, testInfo) => {
+    linkIssue(25818);
+    await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
+    await learningDashboard.pollsWithoutQuestionNumbering();
+  });
+
+  // eslint-disable-next-line no-empty-pattern
+  test('Quizzes without a question are numbered in the order they were asked', async ({}, testInfo) => {
+    linkIssue(25818);
+    await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
+    await learningDashboard.quizzesWithoutQuestionNumbering();
+  });
+
+  // eslint-disable-next-line no-empty-pattern
+  test('Session data lists polls in the order they were asked', async ({}, testInfo) => {
+    linkIssue(25818);
+    await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
+    await learningDashboard.sessionDataPollsInCreationOrder();
+  });
+
   test('Basic Infos', async () => {
     await learningDashboard.basicInfos();
   });

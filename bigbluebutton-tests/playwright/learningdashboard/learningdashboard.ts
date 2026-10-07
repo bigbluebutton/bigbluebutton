@@ -130,18 +130,155 @@ export class LearningDashboard extends MultiUsers {
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
 
-    const checkPollAnswer = async (question: string, answer: string) => {
-      const header = this.dashboardPage.page.locator('div[role="columnheader"]').filter({ hasText: question });
-      await expect(header, `should display the "${question}" column header`).toBeVisible();
-      const field = await header.getAttribute('data-field');
-      const cell = this.dashboardPage.page.locator(`div[role="cell"][data-field="${field}"]`);
-      await expect(cell, `should display the correct answer for "${question}"`).toContainText(answer);
-    };
+    await this.checkColumnAnswer('True/False?', 'True');
+    await this.checkColumnAnswer('ABCD?', 'A');
+    await this.checkColumnAnswer('Yes/No/Abstention?', 'Yes');
+    await this.checkColumnAnswer('User response?', e.answerMessage);
+  }
 
-    await checkPollAnswer('True/False?', 'True');
-    await checkPollAnswer('ABCD?', 'A');
-    await checkPollAnswer('Yes/No/Abstention?', 'Yes');
-    await checkPollAnswer('User response?', e.answerMessage);
+  async pollsWithoutQuestionNumbering() {
+    await openPoll(this.modPage);
+    for (const answer of ['A', 'B', 'C']) {
+      await this.runPollWithoutQuestion(e.pollLetterAlternatives, answer);
+    }
+
+    await this.dashboardPage.reloadPage();
+    await this.dashboardPage.waitAndClick(e.pollPanel);
+    await this.dashboardPage.hasText(
+      e.pollTotal,
+      '3',
+      'should count the 3 answered polls',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await expect
+      .poll(() => this.numberedColumnHeaders('Poll'), {
+        message: 'should number the polls in the order they were asked, newest first',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toEqual(['Poll 3', 'Poll 2', 'Poll 1']);
+    await this.checkColumnAnswer(/^Poll 1$/, 'A');
+    await this.checkColumnAnswer(/^Poll 2$/, 'B');
+    await this.checkColumnAnswer(/^Poll 3$/, 'C');
+
+    // A new poll must not renumber the existing columns
+    await this.runPollWithoutQuestion(e.pollLetterAlternatives, 'D');
+    await this.dashboardPage.reloadPage();
+    await this.dashboardPage.waitAndClick(e.pollPanel);
+    await this.dashboardPage.hasText(
+      e.pollTotal,
+      '4',
+      'should count the 4 answered polls',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await expect
+      .poll(() => this.numberedColumnHeaders('Poll'), {
+        message: 'should keep the existing poll numbers after a new poll',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toEqual(['Poll 4', 'Poll 3', 'Poll 2', 'Poll 1']);
+    await this.checkColumnAnswer(/^Poll 3$/, 'C');
+    await this.checkColumnAnswer(/^Poll 4$/, 'D');
+  }
+
+  async quizzesWithoutQuestionNumbering() {
+    await openPoll(this.modPage);
+    await this.modPage.waitForSelector(e.pollQuestionArea);
+    const quizTab = this.modPage.page.locator(e.quizTab);
+    test.skip(!(await quizTab.isVisible()), 'Quizzes are disabled');
+
+    for (const answer of ['B', 'C']) {
+      await quizTab.click();
+      await this.runPollWithoutQuestion(e.pollLetterAlternatives, answer, {
+        correctAnswerIndex: 'ABCD'.indexOf(answer),
+      });
+    }
+
+    await this.dashboardPage.reloadPage();
+    await this.dashboardPage.waitAndClick(e.quizPanel);
+    await expect
+      .poll(() => this.numberedColumnHeaders('Quiz'), {
+        message: 'should number the quizzes in the order they were asked, newest first',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toEqual(['Quiz 2', 'Quiz 1']);
+    await this.checkColumnAnswer(/^Quiz 1$/, 'B');
+    await this.checkColumnAnswer(/^Quiz 2$/, 'C');
+  }
+
+  async sessionDataPollsInCreationOrder() {
+    // Past four polls the dashboard data no longer keeps them in creation order
+    const polls = [
+      { type: e.pollLetterAlternatives, answer: 'A' },
+      { type: e.pollLetterAlternatives, answer: 'B' },
+      { type: e.pollLetterAlternatives, answer: 'C' },
+      { type: e.pollLetterAlternatives, answer: 'D' },
+      { type: e.pollTrueFalse, answer: 'True' },
+      { type: e.pollYesNoAbstentionBtn, answer: 'Yes' },
+    ];
+    await openPoll(this.modPage);
+    for (const { type, answer } of polls) {
+      await this.runPollWithoutQuestion(type, answer);
+    }
+
+    await this.dashboardPage.reloadPage();
+    await this.dashboardPage.waitAndClick(e.pollPanel);
+    await this.dashboardPage.hasText(
+      e.pollTotal,
+      '6',
+      'should count the 6 answered polls',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    const downloadSessionLocator = this.dashboardPage.page.locator(e.downloadSessionLearningDashboard);
+    const { content } = await this.dashboardPage.handleDownload(downloadSessionLocator);
+    const [headerLine, ...rows] = content.split('\r\n');
+    const header = headerLine.split(',');
+    const attendeeRow = rows.find((row) => row.startsWith('"Attendee"'));
+    if (!attendeeRow) throw new Error('Attendee row not found in the session data');
+    const attendeeValues = [...attendeeRow.matchAll(/"([^"]*)"/g)].map(([, value]) => value);
+    const answersByPollNumber = polls.map((_, index) => attendeeValues[header.indexOf(`Poll ${index + 1}`)]);
+
+    expect(answersByPollNumber, 'should list the polls in the order they were asked').toEqual(
+      polls.map(({ answer }) => answer),
+    );
+  }
+
+  private async runPollWithoutQuestion(
+    responseTypeSelector: string,
+    answer: string,
+    { correctAnswerIndex }: { correctAnswerIndex?: number } = {},
+  ) {
+    await this.modPage.page.locator(e.pollQuestionArea).fill('');
+    await this.modPage.waitAndClick(responseTypeSelector);
+    if (correctAnswerIndex !== undefined) {
+      // The tooltip replaces the checkbox id, so reach it through its answer option row
+      await this.modPage.page
+        .locator(e.pollOptionItem)
+        .nth(correctAnswerIndex)
+        .locator('xpath=ancestor::*[.//input[@type="checkbox"]][1]//input[@type="checkbox"]')
+        .check();
+    }
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.page
+      .locator(e.pollAnswerOptionBtn, { hasText: new RegExp(`^${answer}$`) })
+      .click({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await this.modPage.hasText(e.userVoteLiveResult, answer, 'should display the user vote live result');
+    await this.modPage.waitAndClick(e.cancelPollBtn);
+  }
+
+  private async numberedColumnHeaders(label: 'Poll' | 'Quiz') {
+    const headers = await this.dashboardPage.page.locator(e.dashboardColumnHeader).allTextContents();
+    return headers.map((header) => header.trim()).filter((header) => new RegExp(`^${label} \\d+$`).test(header));
+  }
+
+  private async checkColumnAnswer(question: string | RegExp, answer: string) {
+    const header = this.dashboardPage.page.locator(e.dashboardColumnHeader).filter({ hasText: question });
+    await expect(header, `should display the "${question}" column header`).toBeVisible();
+    const field = await header.getAttribute('data-field');
+    const cell = this.dashboardPage.page.locator(`div[role="cell"][data-field="${field}"]`);
+    await expect(cell, `should display the correct answer for "${question}"`).toContainText(answer, {
+      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
   }
 
   async basicInfos() {
