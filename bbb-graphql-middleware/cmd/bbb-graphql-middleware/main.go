@@ -31,6 +31,13 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "main")
 
+	// Refuse to start on a configuration that expresses the not-in-meeting rule two ways at once.
+	if err := config.ValidateSubscriptionLists(); err != nil {
+		log.Fatalf("Invalid subscription configuration: %v", err)
+	}
+
+	common.RegisterMetrics()
+
 	common.InitUniqueID()
 	log = log.WithField("graphql-middleware-uid", common.GetUniqueID())
 

@@ -728,4 +728,5 @@ const ChatMessageListContainer: React.FC = () => {
   );
 };
 
-export default ChatMessageListContainer;
+// Takes no props: the memo keeps re-renders of the chat panel from reaching it.
+export default React.memo(ChatMessageListContainer);

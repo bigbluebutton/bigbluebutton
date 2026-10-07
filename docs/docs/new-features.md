@@ -226,14 +226,15 @@ Recent releases:
 
 ### Other notable changes
 
+#### Node.js 24 runtime
+
+BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-actions`, `bbb-shared-notes-server`, `bbb-export-annotations`, `bbb-webhooks`, `bbb-webrtc-sfu`, `bbb-transcription-controller`) on Node.js 24, the Active LTS line maintained until April 2028. `bbb-install.sh` installs it from NodeSource, and the packages declare a dependency on `nodejs (>= 24) (<< 25)`.
+
 #### Promoted BlockNote shared notes as default
 
-In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). This means that `bbb-shared-notes-server` is now a required package, installed by default while `bbb-etherpad` and `bbb-pads` are now optional.
-In the event that you prefer using Etherpad, install the optional packages via
+In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). `bbb-shared-notes-server` is a required package, installed by default.
 
-`$ sudo apt install bbb-pads bbb-etherpad`
-
-At this point you can use it in a specific session by passing `sharedNotesEditor=etherpad` on the `/create` call. If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=etherpad`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+Etherpad (`bbb-etherpad` and `bbb-pads` packages) is not part of the default installation of BigBlueButton 4.0. We are working on dropping its support within the BigBlueButton 4.0 lifecycle.
 
 
 #### New optional package: bbb-coturn
@@ -253,10 +254,29 @@ Unlike the distro package, `bbb-coturn` does **not** enable or start the service
 See [Turn Server Configuration](/administration/turn-server) for the full configuration.
 
 
+#### New optional package: bbb-playback-presentation-legacy
+
+The players for recordings made with BigBlueButton 0.81 and 0.9 (served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`) moved out of `bbb-playback-presentation` into the new `bbb-playback-presentation-legacy` package, together with the redirect from the unversioned `/playback/presentation/playback.html` link. Recordings made by any current version use the 2.3 player from `bbb-playback`, so a default install no longer ships the old players, and links to them answer 404.
+
+It is an **optional** package, not a dependency of the `bigbluebutton` meta-package. If you migrated recordings from those versions and still need to play them, install it with
+
+`$ sudo apt install bbb-playback-presentation-legacy`
+
+See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09) for details.
+
+
 #### New administration tool: bbbctl
 
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
 
+
+#### Plugin SDK 1.0 pre-release
+
+The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.2`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
+
+Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.2`, or `^0.1.5 || ^1.0.0-beta.1` to keep supporting BigBlueButton 3.x servers. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
+
+If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.2`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
 
 #### Removing deprecated layout options
 
@@ -273,6 +293,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Other removed configuration
 
 - `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client-side WebRTC stats logging](#client-side-webrtc-stats-logging)).
+- `captions` is no longer a valid `disabledFeatures` value. It has had no effect since BBB 3.0, when typed captions moved to a plugin. Use `liveTranscription` to disable automatic transcription.
 
 ### Changes to events.xml
 
@@ -285,12 +306,15 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `lockSettingsDisableNote` is no longer recognized; use `lockSettingsDisableNotes` instead. The singular property was renamed in BBB 2.5.
 - `clientLogoutTimerInMinutes` was removed. It was never consumed by the HTML5 client; its last reader, the `/enter` endpoint, was removed before BBB 4.0.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="clientLogoutTimerInMinutes" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise. The `bbb-conf --check` retired-property warning only scans `/etc/bigbluebutton/bbb-web.properties`, not `resources.xml`.
+- `enteredUsersTimeout` was removed. It set how long bbb-web tracked users who had called the `/enter` endpoint without joining; that endpoint was removed in BBB 3.0, so nothing has been tracked since. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
+  - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `enteredUserCleanupTimerTask` bean and the `<property name="enteredUserCleanupTimerTask" .../>` and `<property name="enteredUsersTimeout" .../>` entries - bbb-web will fail to start otherwise.
 
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.26`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.2`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
+- `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 
@@ -310,6 +334,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.
+- `public.app.remainingTimeThresholdInMinutes` (default `6`) - how many minutes before the end of a meeting with a set `duration` the remaining time banner appears. Previously this was hard-coded to 30 minutes; set it to `30` to restore that behavior. See [Configure when the remaining time banner appears](/administration/customize#configure-when-the-remaining-time-banner-appears).
 - `public.sidebarNavigation.appsToLabelAsNew` (default `[]`) - apps to highlight with a "new" label (e.g. `poll`, `breakoutroom`, `timer`, `audio-captions`).
 - `public.media.audio.audioWasmProcessing` - configuration block for the "Advanced Filtering" (WASM) audio-processing option; `provider` selects the backend (`bbba` default, or `workadventureDtln`) and a provider may override values set in `constraints`; see [Dedicated Audio settings tab](#dedicated-audio-settings-tab).
 - `public.app.defaultSettings.audio.processingMode` (default `standard`) - which of the three audio-processing modes (`advanced`, `standard`, `original`) comes pre-selected for a new user in Settings > Audio. `advanced` falls back to `standard` when WASM processing is unsupported by the browser or disabled server-side.

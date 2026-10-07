@@ -156,6 +156,16 @@ If for some reason the scripts have to be run more than once, use the --force mo
 $ sudo ./bbb-x.x-script --force
 ```
 
+#### Play recordings made with BigBlueButton 0.81 or 0.9
+
+Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default: `bbb-playback-presentation` ships only the processing scripts, and the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package:
+
+```bash
+$ sudo apt-get install bbb-playback-presentation-legacy
+```
+
+The package installs both players and the redirect from the unversioned link `/playback/presentation/playback.html` to the 0.81 player, so links published by those versions keep working. These players only render recordings created by BigBlueButton 0.81 and 0.9; recordings made with the current version use the `2.3` player from `bbb-playback`. To remove the players again, run `sudo apt-get remove bbb-playback-presentation-legacy`.
+
 #### Enable playback of recordings on iOS
 
 The `presentation` playback format encodes the video shared during the session (webcam and screen share) as `.webm` (VP8) files; however, iOS devices only support playback of `.mp4` (h.264) video files. To enable playback of the `presentation` recording format on iOS devices, edit `/usr/local/bigbluebutton/core/scripts/presentation.yml` and uncomment the entry for `mp4`.
@@ -1489,6 +1499,18 @@ HERE
 
 ### HTML5 client
 
+#### Configure when the remaining time banner appears
+
+By default, the HTML5 client shows the remaining time banner when a meeting has fewer than 6 minutes left. To change the threshold, set `public.app.remainingTimeThresholdInMinutes` in `/etc/bigbluebutton/bbb-html5.yml`. For example, the following restores the previous behaviour, where the banner appeared 30 minutes before the end of the meeting:
+
+```yaml
+public:
+  app:
+    remainingTimeThresholdInMinutes: 30
+```
+
+Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new threshold applies to meetings created after the restart.
+
 #### Change the default welcome message
 
 The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.
@@ -1750,7 +1772,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out | Integer | 5 |
 | `usersTimeout` | Timeout (millis) to remove a joined user after they left without a rejoin | Integer | 60000 (60s) |
 | `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
-| `enteredUsersTimeout` | Timeout (millis) to remove users that called the enter API but did not join | Integer | 45000 (45s) |
 | `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
 | `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
 | `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |

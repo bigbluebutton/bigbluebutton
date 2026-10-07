@@ -568,9 +568,6 @@ const createEndpointTableData = [
                 <li>
                   <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
                 </li>
-                <li>
-                  <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Captions</b>
-                </li>
               </ul>
             </li>
             <li>

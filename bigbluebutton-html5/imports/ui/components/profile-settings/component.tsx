@@ -333,9 +333,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   }));
 
   const voiceToggle = useToggleVoice();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const { data: unmuted } = useWhoIsUnmuted(Auth.userID as string);
 
-  const muted = !unmutedUsers[Auth.userID as string];
+  const muted = !unmuted;
   const away = currentUserData?.away ?? false;
 
   const [setAway] = useMutation(SET_AWAY);

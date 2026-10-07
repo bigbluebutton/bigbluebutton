@@ -161,6 +161,8 @@ public:
       duration: 4000
     appsGallery:
       maxPinnedApps: 3
+    # Show the remaining time banner when the meeting has fewer than this many minutes left.
+    remainingTimeThresholdInMinutes: 6
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
@@ -350,6 +352,7 @@ public:
       - 3004
       # - 3005
       # - 3006
+      - 3007
   externalVideoPlayer:
     enabled: true
   kurento:

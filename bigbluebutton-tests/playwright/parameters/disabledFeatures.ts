@@ -25,10 +25,6 @@ export class DisabledFeatures extends MultiUsers {
     }
   }
 
-  async captions() {
-    await this.modPage.waitAndClick(e.manageUsers);
-  }
-
   async chat() {
     await this.modPage.wasRemoved(
       e.hidePublicChat,
@@ -161,10 +157,6 @@ export class DisabledFeatures extends MultiUsers {
         'should not display the speech recognition unsupported message',
       );
     }
-  }
-
-  async captionsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
   }
 
   async chatExclude() {

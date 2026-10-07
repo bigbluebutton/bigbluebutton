@@ -558,6 +558,16 @@ export const useIsGridEnabled = () => {
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const {
+    showAudioOnlyOnFirstPage,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
+  // webcam over an open presentation in the unified layout (issues #25235/#25359).
+  const showAudioOnlyTiles = showAudioOnlyOnFirstPage && isUnifiedLayout;
+
   // When the user can only see moderator cameras, drop non-moderators ([true]); otherwise
   // keep everyone ([true, false]).
   const useAudioOnlySubscription = useCreateUseSubscription(
@@ -565,17 +575,10 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
     { moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false] },
     true,
   );
-  const { data, loading, errors } = useAudioOnlySubscription();
-  const layoutType = layoutSelect((i: Layout) => i.layoutType);
-  const {
-    showAudioOnlyOnFirstPage,
-  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+  // Skipped when the tiles aren't shown, so the client doesn't receive a result it discards.
+  const { data, loading, errors } = useAudioOnlySubscription((u) => u, !showAudioOnlyTiles);
 
-  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
-
-  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
-  // webcam over an open presentation in the unified layout (issues #25235/#25359).
-  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
+  if (!showAudioOnlyTiles) return [];
   if (loading) return [];
 
   if (errors) {

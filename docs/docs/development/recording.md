@@ -656,6 +656,8 @@ systemctl restart bbb-rap-starter
 systemctl restart bbb-rap-resque-worker
 ```
 
+`deploy.sh` does not install the players for recordings made with BigBlueButton 0.81 and 0.9. If you need them on a development server, build and install the `bbb-playback-presentation-legacy` package (`build/setup.sh bbb-playback-presentation-legacy`), as described in [play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09).
+
 #### Deploying other formats
 
 When running `deploy.sh`, it will only set the presentation workflow by default. However it is possible to add other formats too such as video, screenshare, etc. In order to do that, you just have to change `deploy_format "presentation"` in the `deploy.sh` script, adding whatever formats you want, so, in case of `video` and `screenshare`, it would be:

@@ -156,6 +156,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
+    this.handleVideoItemMount = this.handleVideoItemMount.bind(this);
+    this.handleVirtualBgDrop = this.handleVirtualBgDrop.bind(this);
     this.autoplayWasHandled = false;
     this.touchStartX = null;
     this.touchStartY = null;
@@ -318,6 +320,21 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       ],
       { duration: MOBILE_PAGE_ANIM_MS, easing: 'ease-out' },
     );
+  }
+
+  // Shared by every tile, which passes its own stream: a closure per item would
+  // re-render all memoized tiles on each list render.
+  handleVideoItemMount(stream: string | null, videoRef: HTMLVideoElement) {
+    const { onVideoItemMount } = this.props;
+
+    this.handleCanvasResize();
+    if (stream !== null) onVideoItemMount(stream, videoRef);
+  }
+
+  handleVirtualBgDrop(stream: string | null, type: string, name: string, data: string) {
+    const { onVirtualBgDrop } = this.props;
+
+    return stream !== null ? onVirtualBgDrop(stream, type, name, data) : Promise.resolve(null);
   }
 
   handleCanvasResize() {
@@ -484,8 +501,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   renderVideoList() {
     const {
       streams,
-      onVirtualBgDrop,
-      onVideoItemMount,
       onVideoItemUnmount,
       handleVideoFocus,
       setUserCamerasRequestedFromPlugin,
@@ -546,17 +561,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             isStream={isStream}
             setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
             onHandleVideoFocus={isStream ? handleVideoFocus : null}
-            onVideoItemMount={(videoRef) => {
-              this.handleCanvasResize();
-              if (isStream) onVideoItemMount(item.stream, videoRef);
-            }}
+            onVideoItemMount={this.handleVideoItemMount}
             stream={item}
             onVideoItemUnmount={onVideoItemUnmount}
-            onVirtualBgDrop={
-              (type, name, data) => {
-                return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
-              }
-            }
+            onVirtualBgDrop={this.handleVirtualBgDrop}
           />
         </Styled.VideoListItem>
       );
