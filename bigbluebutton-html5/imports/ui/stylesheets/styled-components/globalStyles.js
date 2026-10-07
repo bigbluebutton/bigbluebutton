@@ -112,12 +112,14 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${colorWhite} !important;
   }
 
+  // Scale, not width: a width animation lays out and repaints the page on every
+  // frame, which costs the most when many video tiles are on screen.
   @keyframes track-progress {
     0% {
-      width: 100%;
+      transform: scaleX(1);
     }
     100% {
-      width: 0;
+      transform: scaleX(0);
     }
   }
 
@@ -126,9 +128,11 @@ const GlobalStyle = createGlobalStyle`
     bottom: 0;
     left: 0;
     right: auto;
-    width: 0;
+    width: 100%;
     height: 5px;
     z-index: 999;
+    transform: scaleX(0);
+    transform-origin: left;
     animation: track-progress linear 1;
     background-color: ${colorGrayLighter} !important;
     border-radius: ${borderRadius};
@@ -136,6 +140,7 @@ const GlobalStyle = createGlobalStyle`
     [dir="rtl"] & {
       left: auto;
       right: 0;
+      transform-origin: right;
     }
   }
 
