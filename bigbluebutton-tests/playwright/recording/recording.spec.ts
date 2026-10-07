@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { linkIssue } from '../core/helpers';
 import { Page } from '../core/page';
 import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
@@ -71,5 +72,16 @@ test.describe('Recording with audio', { tag: ['@ci', '@media'] }, () => {
     await recording.initModPage(page, { createParameter: c.recordMeeting, shouldCloseAudioModal: false });
     const playbackUrl = await recording.recordMeetingWithAudio();
     expect(playbackUrl, 'should return a valid presentation playback URL').toContain('/playback/presentation/');
+  });
+});
+
+test.describe('Recording with screenshare', { tag: ['@ci', '@media'] }, () => {
+  test('Restore presentation panzoom after screenshare stops', async ({ browser, browserName, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    linkIssue(25920);
+    test.setTimeout(240_000);
+    const recording = new Recording(browser, page.context());
+    await recording.initModPage(page, { createParameter: c.recordMeeting, testInfo });
+    await recording.recordScreensharePresentationTransition();
   });
 });
