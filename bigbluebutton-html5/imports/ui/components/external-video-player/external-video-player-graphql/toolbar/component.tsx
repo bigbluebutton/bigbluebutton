@@ -96,6 +96,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 {playerName === 'YouTube' && (
                   <Subtitles
                     toggleSubtitle={toggleSubtitle}
+                    subtitlesOn={subtitlesOn}
                     label={subtitlesOn
                       ? intl.formatMessage(intlMessages.subtitlesOn)
                       : intl.formatMessage(intlMessages.subtitlesOff)}

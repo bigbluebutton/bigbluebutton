@@ -623,6 +623,18 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setPlayerName(player?.player?.player?.constructor?.displayName);
   };
 
+  const toggleSubtitle = () => {
+    const nextSubtitlesOn = !subtitlesOn;
+    setSubtitlesOn(nextSubtitlesOn);
+    // YouTube's captions module (only YouTube shows this toggle).
+    const internalPlayer = playerRef.current?.getInternalPlayer();
+    if (!isPresenter && nextSubtitlesOn) {
+      internalPlayer?.setOption?.('captions', 'reload', true);
+    } else {
+      internalPlayer?.unloadModule?.('captions');
+    }
+  };
+
   const handleOnStart = async () => {
     // A start means a fresh player (new video, or a remount via playerKey), so the previous
     // player's autoplay-mute verdict must not carry over, and a gesture listener still waiting on
@@ -980,7 +992,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               mutedByEchoTest={isEchoTest}
               playing={playing}
               playerName={playerName}
-              toggleSubtitle={() => setSubtitlesOn(!subtitlesOn)}
+              toggleSubtitle={toggleSubtitle}
               playerParent={playerParentRef.current}
               played={played}
               loaded={loaded}
