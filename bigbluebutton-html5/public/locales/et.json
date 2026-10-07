@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Kasutajanimi",
     "app.profileSettings.statusTitle": "Olek",
     "app.profileSettings.addExtraCamera": "Lisa täiendav kaamera",
-    "app.pads.hint": "Kirjutusala tööriistariba aktiveerimiseks vajuta Esc-klahvi",
     "app.user.activityCheck": "Kasutaja aktiivsuse kontroll",
     "app.user.activityCheck.label": "Kontrolli, kas kasutaja on veel sessioonil ({responseDelay})",
     "app.user.activityCheck.check": "Kontrolli",
