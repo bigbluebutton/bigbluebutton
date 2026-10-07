@@ -18,6 +18,7 @@ import {
 } from '/imports/ui/services/features';
 import {
   handleRemoveBadge,
+  handleRenameMenu,
   handleSetBadge,
 } from './utils';
 
@@ -198,10 +199,12 @@ const PluginSidekickAreaUiCommandsHandler = () => {
   useEffect(() => {
     window.addEventListener(SidekickAreaOptionsEnum.SET_GENERIC_CONTENT_BADGE, handleSetBadge);
     window.addEventListener(SidekickAreaOptionsEnum.REMOVE_GENERIC_CONTENT_BADGE, handleRemoveBadge);
+    window.addEventListener(SidekickAreaOptionsEnum.RENAME_GENERIC_CONTENT_MENU, handleRenameMenu);
 
     return () => {
       window.removeEventListener(SidekickAreaOptionsEnum.SET_GENERIC_CONTENT_BADGE, handleSetBadge);
       window.removeEventListener(SidekickAreaOptionsEnum.REMOVE_GENERIC_CONTENT_BADGE, handleRemoveBadge);
+      window.removeEventListener(SidekickAreaOptionsEnum.RENAME_GENERIC_CONTENT_MENU, handleRenameMenu);
     };
   }, []);
 
