@@ -428,9 +428,10 @@ const QuizzesTable = (props) => {
   const anonGridRow = [];
   const gridRows = [];
 
-  Object.values(quizzes).sort((a, b) => b.createdOn - a.createdOn).map((v, i) => {
+  // Shown newest first, but numbered in the order they were asked
+  Object.values(quizzes).sort((a, b) => b.createdOn - a.createdOn).map((v, i, sortedQuizzes) => {
     initQuizData[`${v?.pollId}`] = '';
-    const headerName = v?.question?.length > 0 ? v?.question : `Quiz ${i + 1}`;
+    const headerName = v?.question?.length > 0 ? v?.question : `Quiz ${sortedQuizzes.length - i}`;
     if (v?.anonymous) {
       hasAnonymousQuiz = true;
       anonymousQuizData[`${v?.pollId}`] = v?.anonymousAnswers;
