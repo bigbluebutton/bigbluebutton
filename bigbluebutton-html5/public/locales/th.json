@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "ชื่อผู้ใช้",
     "app.profileSettings.statusTitle": "สถานะ",
     "app.profileSettings.addExtraCamera": "เพิ่มกล้องเสริม",
-    "app.pads.hint": "กด Esc เพื่อโฟกัสที่แถบเครื่องมือของแผ่นงาน",
     "app.user.activityCheck": "ตรวจสอบกิจกรรมของผู้ใช้",
     "app.user.activityCheck.label": "ตรวจสอบว่าผู้ใช้ยังอยู่ในเซสชันหรือไม่ ({responseDelay})",
     "app.user.activityCheck.check": "ตรวจสอบ",
