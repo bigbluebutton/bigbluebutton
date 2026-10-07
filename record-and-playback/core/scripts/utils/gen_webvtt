@@ -29,11 +29,24 @@ import logging
 import json
 import sys
 import os
+import re
 import argparse
 
 logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
+
+# Keep caption_<locale>.vtt within the 255-byte Linux filename limit.
+MAX_LOCALE_LENGTH = 255 - len("caption_") - len(".vtt")
+SAFE_LOCALE_PATTERN = re.compile(r"\A[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z")
+
+
+def is_safe_locale(locale):
+    return (
+        isinstance(locale, str)
+        and len(locale) <= MAX_LOCALE_LENGTH
+        and SAFE_LOCALE_PATTERN.fullmatch(locale) is not None
+    )
 
 
 def webvtt_timestamp(ms):
@@ -386,6 +399,11 @@ def parse_events(directory="."):
                 if event["locale"] is None:
                     logger.warn(
                         "Skipping invalid caption event with unset locale. See https://github.com/bigbluebutton/bigbluebutton/issues/19178 for details"
+                    )
+                    continue
+                if not is_safe_locale(event["locale"]):
+                    logger.warning(
+                        "Skipping caption event with an invalid locale"
                     )
                     continue
             else:

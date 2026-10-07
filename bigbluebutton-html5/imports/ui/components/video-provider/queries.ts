@@ -91,10 +91,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
         isModerator: { _in: $moderatorValues },
       },
       limit: $limit,
-      order_by: {
-        nameSortable: asc,
-        userId: asc,
-      },
+      order_by: [{ nameSortable: asc }, { userId: asc }],
     ) {
       meetingId
       name

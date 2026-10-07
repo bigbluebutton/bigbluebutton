@@ -8,7 +8,6 @@ import { User, RaisedHandUser } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled, useIsReactionsEnabled } from '/imports/ui/services/features';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from '/imports/ui/components/user-list/user-list-participants/list-item/user-item-toolbar/component';
@@ -23,7 +22,7 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import Styled from '/imports/ui/components/user-list/user-list-participants/list-item/styles';
 import UserNameStyled from '/imports/ui/components/user-list/user-list-participants/list-item/user-name-with-subs/styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import { convertRemToPixels } from '/imports/utils/dom-utils';
+import useRemInPixels from '/imports/ui/hooks/useRemInPixels';
 import RaisedHandsStyles from '../styles';
 import { useUserOperations, mapRaisedHandToUser } from '/imports/ui/components/user-list/hooks/useUserOperations';
 
@@ -138,7 +137,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
   const { intl, operations, modal } = useUserOperations(user.userId);
 
   const isReactionsEnabled = useIsReactionsEnabled();
-  const emojiSize = convertRemToPixels(2.2);
+  const emojiSize = useRemInPixels(2.2);
   const handEmoji = { id: 'hand', native: '✋' };
   const type = 'raised-hand';
 
@@ -164,9 +163,6 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
 
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const isMuted = !unmutedUsers[user.userId];
-
   const actionsPermitions = generateActionsPermissions(
     user,
     currentUser?.presenter ?? false,
@@ -175,7 +171,6 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     lockSettings,
     usersPolicies,
     isBreakout,
-    isMuted,
     isChatEnabled,
     isPrivateChatEnabled,
     type,
@@ -187,7 +182,6 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
   } = createToolbarOptions(
     intl,
     user,
-    isMuted,
     whiteboardAccess,
     actionsPermitions,
     lockSettings,

@@ -21,7 +21,7 @@ import org.bigbluebutton.api.util.UnitSpec
 class SvgConversionHandlerTest extends UnitSpec {
 
   val sampleSvgFile = "src/test/resources/sample-with-mask.svg"
-  val analyzedTags = List("<image", "<mask", "<path", "<use")
+  val analyzedTags = List("<filter", "<image", "<mask", "<path", "<use")
 
   private def handlerFedWith(stdout: String): SvgConversionHandler = {
     val handler = new SvgConversionHandler("test")
@@ -53,6 +53,7 @@ class SvgConversionHandlerTest extends UnitSpec {
     assert(handler.numberOfImageTags() == 3)
     assert(handler.numberOfPaths() == 2)
     assert(handler.numberOfUseTags() == 4)
+    assert(handler.numberOfFilterTags() == countOccurrences(svgContent, "<filter"))
   }
 
   it should "count zero mask tags when the analysis output has no mask line" in {
