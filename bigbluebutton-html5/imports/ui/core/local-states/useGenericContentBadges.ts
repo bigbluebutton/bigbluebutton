@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import createUseLocalState from './createUseLocalState';
 import useReactiveVarSelector from '../hooks/useReactiveVarSelector';
 
@@ -15,6 +16,16 @@ const useGenericContentBadge = (id: string) => useReactiveVarSelector(
   (badges) => (Object.hasOwn(badges, id) ? badges[id] : undefined),
 );
 
+// Serialized so that a badge content update, which keeps the same ids, does not
+// re-render the caller.
+const useGenericContentBadgeIds = (): string[] => {
+  const serializedIds = useReactiveVarSelector(
+    genericContentBadgesVar,
+    (badges) => JSON.stringify(Object.keys(badges)),
+  );
+  return useMemo(() => JSON.parse(serializedIds), [serializedIds]);
+};
+
 const removeGenericContentBadge = (id: string) => setGenericContentBadges((badges) => {
   if (!Object.hasOwn(badges, id)) return badges;
   const remainingBadges = { ...badges };
@@ -24,6 +35,7 @@ const removeGenericContentBadge = (id: string) => setGenericContentBadges((badge
 
 export {
   useGenericContentBadge,
+  useGenericContentBadgeIds,
   setGenericContentBadges,
   removeGenericContentBadge,
 };
