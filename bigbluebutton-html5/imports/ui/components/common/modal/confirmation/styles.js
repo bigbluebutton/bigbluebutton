@@ -1,6 +1,6 @@
 import styled from 'styled-components';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import {
   mdPaddingX,
   lgPaddingY,
@@ -52,10 +52,15 @@ const Footer = styled.div`
   margin-bottom: ${lgPaddingY};
 `;
 
-// Once the pair stacks on a phone, each button fills its line. Side by side the
-// footer shrinks to fit its buttons, so there is no room to grow into.
-const FooterButton = styled(ButtonWrappers.MinWidthButtonWrapper)`
+// A floor keeps a one-word label ("Pin", "Yes") from rendering as a square
+// next to a wider sibling. Once the pair stacks on a phone, each button fills
+// its line; side by side the footer shrinks to fit its buttons, so there is no
+// room to grow into. Two floors plus a long label can be wider than a phone
+// screen, so the label wraps instead of overflowing.
+const FooterButton = styled(BBButton)`
+  min-width: 8.5rem;
   flex-grow: 1;
+  white-space: normal;
 `;
 
 const Label = styled.label`

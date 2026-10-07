@@ -381,16 +381,15 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
-          <Styled.BecomePresenterButtonWrapper>
-            <BBButton
-              dataTest="takePresenterButton"
-              label={intl.formatMessage(intlMessages.takePresenter)}
-              variant="primary"
-              size="sm"
-              onClick={handleTakePresenter}
-              iconStart={<CoPresentIcon />}
-            />
-          </Styled.BecomePresenterButtonWrapper>
+          <Styled.BecomePresenterButton
+            dataTest="takePresenterButton"
+            label={intl.formatMessage(intlMessages.takePresenter)}
+            variant="primary"
+            size="sm"
+            fullWidth
+            onClick={handleTakePresenter}
+            iconStart={<CoPresentIcon />}
+          />
         </Styled.BecomePresenterViewContainer>
       );
     }
@@ -411,16 +410,15 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.BecomePresenterText>
             {intl.formatMessage(intlMessages.mustBePresenter)}
           </Styled.BecomePresenterText>
-          <Styled.BecomePresenterButtonWrapper>
-            <BBButton
-              dataTest="takePresenterButton"
-              label={intl.formatMessage(intlMessages.takePresenter)}
-              variant="primary"
-              size="sm"
-              onClick={handleRequestPresenterWithFeedback}
-              iconStart={<CoPresentIcon />}
-            />
-          </Styled.BecomePresenterButtonWrapper>
+          <Styled.BecomePresenterButton
+            dataTest="takePresenterButton"
+            label={intl.formatMessage(intlMessages.takePresenter)}
+            variant="primary"
+            size="sm"
+            fullWidth
+            onClick={handleRequestPresenterWithFeedback}
+            iconStart={<CoPresentIcon />}
+          />
         </Styled.BecomePresenterViewContainer>
       );
     }
@@ -430,16 +428,15 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
-        <Styled.BecomePresenterButtonWrapper>
-          <BBButton
-            dataTest="requestPresenterButton"
-            label={intl.formatMessage(intlMessages.requestPresenter)}
-            variant="primary"
-            size="sm"
-            onClick={handleRequestPresenterWithFeedback}
-            iconStart={<CoPresentIcon />}
-          />
-        </Styled.BecomePresenterButtonWrapper>
+        <Styled.BecomePresenterButton
+          dataTest="requestPresenterButton"
+          label={intl.formatMessage(intlMessages.requestPresenter)}
+          variant="primary"
+          size="sm"
+          fullWidth
+          onClick={handleRequestPresenterWithFeedback}
+          iconStart={<CoPresentIcon />}
+        />
       </Styled.BecomePresenterViewContainer>
     );
   };
@@ -497,6 +494,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
                     disabled={!isSharingVideo && !hasCameraAsContent && !isScreenGloballyBroadcasting}
                     onClick={() => stopSharingAction?.()}
                     iconStart={<Icon iconName={stopSharingIcon} />}
+                    fullWidth
                   />
                 </Styled.FooterContainer>
               )}

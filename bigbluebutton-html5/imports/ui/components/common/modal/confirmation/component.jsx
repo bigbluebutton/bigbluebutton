@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 
 const messages = defineMessages({
@@ -38,14 +38,14 @@ class ConfirmationModal extends Component {
     this.state = {
       checked: false,
     };
-    this.cancelButtonRef = React.createRef();
+    this.cancelButtonId = uniqueId('confirmationModalCancel-');
     this.focusCancelButton = this.focusCancelButton.bind(this);
   }
 
   // react-modal mounts the dialog's content after this component has rendered,
   // so the cancel button only exists once the modal reports it has opened.
   focusCancelButton() {
-    this.cancelButtonRef.current?.children[0]?.focus();
+    document.getElementById(this.cancelButtonId)?.focus();
   }
 
   render() {
@@ -109,29 +109,26 @@ class ConfirmationModal extends Component {
 
           <Styled.Footer>
             {!hideConfirmButton && (
-              <Styled.FooterButton>
-                <BBButton
-                  variant="primary"
-                  color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
-                  label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
-                  disabled={disableConfirmButton}
-                  dataTest={confirmButtonDataTest}
-                  onClick={() => {
-                    onConfirm(confirmParam, checked);
-                    setIsOpen(false);
-                  }}
-                />
-              </Styled.FooterButton>
+              <Styled.FooterButton
+                variant="primary"
+                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
+                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
+                disabled={disableConfirmButton}
+                dataTest={confirmButtonDataTest}
+                onClick={() => {
+                  onConfirm(confirmParam, checked);
+                  setIsOpen(false);
+                }}
+              />
             )}
             {!hideCancelButton && (
-              <Styled.FooterButton ref={this.cancelButtonRef}>
-                <BBButton
-                  variant="secondary"
-                  dataTest="confirmationModalCancel"
-                  label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
-                  onClick={handleClose}
-                />
-              </Styled.FooterButton>
+              <Styled.FooterButton
+                id={this.cancelButtonId}
+                variant="secondary"
+                dataTest="confirmationModalCancel"
+                label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
+                onClick={handleClose}
+              />
             )}
           </Styled.Footer>
         </Styled.Container>

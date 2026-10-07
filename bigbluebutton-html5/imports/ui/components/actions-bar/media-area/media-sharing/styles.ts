@@ -1,5 +1,7 @@
 import styled, { css } from 'styled-components';
-import { borderRadiusDefault, spacingSmall, spacingSmallMedium } from '@bigbluebutton/bbb-ui-components-react';
+import {
+  BBButton, borderRadiusDefault, spacingSmall, spacingSmallMedium,
+} from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
   colorText, colorGrayIcons, appsPanelTextColor,
@@ -7,7 +9,6 @@ import {
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 
 const MODAL_WIDTH = '26.25rem';
 
@@ -89,10 +90,12 @@ const MediaGrid = styled.div<{ isMobile: boolean }>`
   justify-items: center;
 `;
 
-// Footer container for the start/stop sharing button, which spans the modal.
-const FooterContainer = styled(ButtonWrappers.FullWidthButtonWrapper)`
+// Footer container for the start/stop sharing button.
+const FooterContainer = styled.div`
   padding: 1rem;
   border-top: 1px solid ${appsGalleryOutlineColor};
+  display: flex;
+  justify-content: center;
 `;
 
 // Styles for the sub-view (when presentation/externalvideo/cameraAsContent is selected)
@@ -166,10 +169,8 @@ const BecomePresenterViewContainer = styled.div`
 // The take/request presenter button spans the popover, so it keeps one size
 // whatever the label. BBButton never wraps its label and some translations are
 // wider than the popover, so let them wrap instead of overflowing.
-const BecomePresenterButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
-  > * {
-    white-space: normal;
-  }
+const BecomePresenterButton = styled(BBButton)`
+  white-space: normal;
 `;
 
 const BecomePresenterText = styled.div`
@@ -212,7 +213,7 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
 
 export default {
   Overlay,
-  BecomePresenterButtonWrapper,
+  BecomePresenterButton,
   ModalContainer,
   HeaderContainer,
   ContentContainer,
