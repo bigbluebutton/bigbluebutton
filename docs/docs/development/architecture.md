@@ -242,7 +242,7 @@ Then below the SVG conversion flow. It covers the conversion fallback. Sometimes
 
 ### Internal network connections
 
-The following diagram shows how the various components of BigBlueButton connect to each other via sockets. Teal lines carry media, dashed boxes run only when FreeSWITCH audio is used, and the orange box is the local disk shared between processes.
+The following diagram shows how the various components of BigBlueButton connect to each other via sockets. Teal lines carry media. Dashed boxes and lines are alternative or opt-in paths (the FreeSWITCH and mediasoup bridges, and telephone dial-in): those services are installed on every server but only carry traffic when that path is in use. The orange box is the local disk that `bbb-record-core` collects raw recording data from.
 
 ```mermaid
 ---
@@ -253,69 +253,88 @@ config:
   elk:
     considerModelOrder: NODES_AND_EDGES
 ---
-flowchart LR
-  %% Teal = media path · dashed = only with FreeSWITCH audio · orange = shared local disk
+flowchart TB
+  %% Teal = media · dashed = alternative or opt-in path · orange = local disk recordings are collected from
 
   browser["<b>Browser</b><br/>bbb-html5 client"]
+  pstn["<b>Phone / SIP trunk</b><br/>optional dial-in"]:::optional
 
-  subgraph host["ONE UBUNTU HOST · bigbluebutton.target · every bind and every config default is 127.0.0.1"]
-    proxy["<b>nginx · HAProxy</b><br/>:443"]
+  subgraph host["ONE UBUNTU HOST · bigbluebutton.target"]
+    proxy["<b>HAProxy</b> :443 · TLS<br/>→ <b>nginx</b>"]
 
     html5["<b>bbb-html5</b><br/>static files"]
-    web["<b>bbb-web</b> :8090<br/>API · writes /var/bigbluebutton"]
-    gqlmw["<b>graphql-middleware</b> :8378<br/>Go · patches subscriptions"]
+    web["<b>bbb-web</b> :8090<br/>API · authorizes every ws upgrade"]
+    gqlmw["<b>graphql-middleware</b> :8378<br/>Go · JSON-patches subscription updates"]
     notes["<b>shared-notes-server</b> :8787<br/>Hocuspocus / Yjs"]
-    sfu["<b>bbb-webrtc-sfu</b> :3008<br/>LiveKit controller · tokens"]
-    livekit["<b>livekit-server</b> :7880<br/>ws signaling + UDP media"]:::media
+    sfu["<b>bbb-webrtc-sfu</b> :3008<br/>LiveKit controller · rooms · tokens · recording"]
+    livekit["<b>livekit-server</b> :7880<br/>ws signaling + API · UDP media"]:::media
 
     hasura["<b>Hasura</b> :8085<br/>graphql-server"]
-    actions["<b>graphql-actions</b> :8093<br/>publishes to Redis"]
-    akka["<b>bbb-apps-akka</b> :8901<br/>meeting state · singleton"]
+    actions["<b>graphql-actions</b> :8093<br/>turns mutations into Redis messages"]
+    akka["<b>bbb-apps-akka</b> :8901<br/>meeting state · single Pekko process"]
     redis["<b>Redis</b> :6379<br/>pub/sub + recording events"]
-    pg[("<b>PostgreSQL</b> :5432<br/>bbb_graphql (unlogged)")]
-    recorder["<b>bbb-webrtc-recorder</b><br/>writes /var/lib/bbb-webrtc-recorder"]
-    sip["<b>livekit-sip</b> :5062<br/>PSTN dial-in (optional)"]
+    pg[("<b>PostgreSQL</b> :5432<br/>bbb_graphql (unlogged) · blocknote_app")]
 
-    fsesl["<b>bbb-fsesl-akka</b><br/>only with FreeSWITCH audio"]:::optional
-    freeswitch["<b>FreeSWITCH</b><br/>writes /var/freeswitch/meetings"]:::optional
+    recorder["<b>bbb-webrtc-recorder</b><br/>hidden LiveKit subscriber"]
+    sip["<b>livekit-sip</b> :5062<br/>dial-in for LiveKit meetings"]:::optional
+    mediasoup["<b>mediasoup workers</b><br/>inside bbb-webrtc-sfu · alternative bridge"]:::optional
+    fsesl["<b>bbb-fsesl-akka</b><br/>akka-apps ↔ FreeSWITCH"]:::optional
+    freeswitch["<b>FreeSWITCH</b> :5060<br/>alternative audio bridge · dial-in gateway"]:::optional
 
-    disk[["<b>local filesystem, shared by six processes</b><br/>/var/bigbluebutton<br/>/var/lib/bbb-webrtc-recorder<br/>/var/freeswitch/meetings<br/>/var/mediasoup"]]:::disk
-    reccore["<b>bbb-record-core</b><br/>resque workers<br/>rsync, then delete"]
+    disk[["<b>local filesystem</b><br/>raw recording data"]]:::disk
+    reccore["<b>bbb-record-core</b><br/>rap-starter (inotify) · resque workers<br/>copy/remux, then delete originals"]
   end
 
-  %% ── Everything from the browser enters through the proxy on TCP 443 ──
+  %% ── Everything from the browser enters through HAProxy/nginx on TCP 443 ──
   browser -- TCP 443 --> proxy
   proxy -- /html5client --> html5
-  proxy -- /bigbluebutton --> web
+  proxy -- "/bigbluebutton · auth_request" --> web
   proxy -- /graphql ws --> gqlmw
-  proxy -- /hocuspocus ws --> notes
+  proxy -- /hocuspocus/collaboration ws --> notes
   proxy -- /bbb-webrtc-sfu ws --> sfu
-  proxy -- /livekit ws --> livekit
+  proxy -- /livekit/ ws --> livekit
 
   %% ── Meeting state ──
-  gqlmw -- queries --> hasura
+  gqlmw -- "queries · subscriptions (ws via nginx :8185)" --> hasura
+  gqlmw -- "mutations (HTTP)" --> actions
   hasura -- reads --> pg
-  hasura -- mutations --> actions
+  hasura -- "auth hook /userInfo" --> akka
+  actions -- publishes --> redis
   akka <-- pub/sub --> redis
   akka -- writes --> pg
+  notes -- blocknote_app --> pg
 
   %% ── Media ──
-  sfu -- "API · webhook :3040" --> livekit
-  sip -- SIP participant --> livekit
-  recorder m1@== WebRTC ==> livekit
+  sfu -- "server API :7880" --> livekit
+  livekit -- "webhooks :3040" --> sfu
+  sfu -- "start/stop (via Redis)" --> recorder
+  recorder m1@== "WebRTC · subscribe" ==> livekit
   browser m2@== "UDP 16384–32768 · straight to the host IP, bypasses nginx" ==> livekit
+  sip m3@== SIP participant ==> livekit
 
-  %% ── Only with FreeSWITCH audio ──
+  %% ── Alternative bridges and dial-in ──
+  sfu -. spawns .-> mediasoup
+  browser m4@-. "UDP · alternative bridge" .-> mediasoup
+  mediasoup -. RTP audio .-> freeswitch
   fsesl -. ESL :8021 .-> freeswitch
+  fsesl <-. voice pub/sub .-> redis
+  pstn -. SIP :5060 .-> freeswitch
+  freeswitch -. "SIP :5062 after PIN prompt" .-> sip
 
   %% ── Recording ──
-  disk -- inotify --> reccore
+  web -- "/var/bigbluebutton" --> disk
+  recorder -- "/var/lib/bbb-webrtc-recorder" --> disk
+  freeswitch -. "/var/freeswitch/meetings" .-> disk
+  disk -- "inotify on .done marker · media" --> reccore
+  redis -- "events · resque queue" --> reccore
 
   %% ── Styling (translucent fills so it reads in light and dark mode) ──
   classDef media     stroke:#0f8a83,stroke-width:2px;
   classDef optional  fill:#8881,stroke:#888,stroke-dasharray:4 4;
   classDef disk      fill:#d9603b22,stroke:#d9603b;
   classDef mediaEdge stroke:#0f8a83,stroke-width:2.5px;
-  class m1,m2 mediaEdge;
+  class m1,m2,m3,m4 mediaEdge;
   style host fill:#5b6b8c14,stroke:#5b6b8c66;
 ```
+
+Besides the links drawn above, `bbb-web`, `bbb-graphql-middleware`, `bbb-webrtc-sfu` and `bbb-shared-notes-server` also exchange messages with `bbb-apps-akka` over Redis pub/sub. Those links are left out to keep the diagram readable.
