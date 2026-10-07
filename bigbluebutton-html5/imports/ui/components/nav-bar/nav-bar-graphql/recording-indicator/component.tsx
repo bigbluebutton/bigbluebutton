@@ -137,6 +137,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     animations: boolean; recordingIndicatorAutoCollapse: boolean;
   };
 
+  // Open from the moment the confirmation shows until one of its buttons is
+  // clicked; the button stays expanded for that whole time.
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
   const closeRecordingConfirmation = useCallback(() => {
@@ -262,6 +264,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       isPhone={isPhone}
       animations={animations}
       autoCollapse={recordingIndicatorAutoCollapse}
+      $expanded={isRecordingModalOpen}
       time={time}
       tabIndex={0}
       key="recording-toggle"
