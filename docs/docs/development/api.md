@@ -141,7 +141,7 @@ Updated in 4.0:
   - **Removed parameter:** `logoutTimer` (it had no effect; the value was stored in bbb-web but never propagated to akka-apps or the HTML5 client).
   - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
-  - **Changed:** Parameter `sharedNotesEditor` now strips control characters and surrounding whitespace, accepts `etherpad` or `blockNote` case-insensitively, canonicalizes known values, and rejects unknown values.
+  - **Removed parameter:** `sharedNotesEditor` (Etherpad support was removed; the parameter is now ignored and meetings always use BlockNote for shared notes).
   - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
   - **Removed option:** `captions` is no longer a valid `disabledFeatures` value (it has had no effect since BBB 3.0, when typed captions moved to a plugin). Use `liveTranscription` to disable automatic transcription.
@@ -209,7 +209,7 @@ $ sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+
 
 **IMPORTANT: DO NOT ALLOW END USERS TO KNOW YOUR SHARED SECRET OR ELSE YOUR SECURITY WILL BE COMPROMISED.**
 
-There are other configuration values in bbb-web's configuration `bigbluebutton.properties` (overwritten by `/etc/bigbluebutton/bbb-web.properties` ) related to the lifecycle of a meeting. You don't need to understand all of these to start using the BigBlueButton API. For most BigBlueButton servers, you can leave the [default values](https://github.com/bigbluebutton/bigbluebutton/blob/main/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).
+There are other configuration values in bbb-web's configuration `bigbluebutton.properties` (overwritten by `/etc/bigbluebutton/bbb-web.properties` ) related to the lifecycle of a meeting. You don't need to understand all of these to start using the BigBlueButton API. For most BigBlueButton servers, you can leave the [default values](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).
 
 In BigBlueButton 2.5 support for additional hashing algorithms, besides sha1 and sha256, were added. These include sha384 and sha512. The `supportedChecksumAlgorithms` property in bbb-web defines which algorithms are supported. By default checksums can be validated with any of the supported algorithms. To remove support for one or more of these algorithms simply delete it from the configuration file.
 If you drop support for sha256, (for example if you want to force only sha512 to be used) you will also need to update the `checkSumAlgorithmForBreakouts` property in akka-apps.
@@ -406,7 +406,7 @@ One other think to pay attention is to not include any of the parameters in both
 
 #### Shared Notes Initial Content
 
-If `sharedNotesEditor` is set to `blockNote`, you can send initial content. It can be done with the create parameter `sharedNotesInitialContentJsonUrl` containing the URL from which the content will be fetched, or send the content directly via the `create` payload.
+You can send initial content for the shared notes. It can be done with the create parameter `sharedNotesInitialContentJsonUrl` containing the URL from which the content will be fetched, or send the content directly via the `create` payload.
 
 If you choose the second option (sending content directly), the POST request payload must be as follows:
 

@@ -68,7 +68,6 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
-	private String sharedNotesEditor = "etherpad";
 	private String sharedNotesInitialContentJsonUrl = "";
 	private ArrayList<Object> sharedNotesInitialContentJson;
 	private String sharedNotesInitialContentMarkdownUrl = "";
@@ -175,7 +174,6 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
-        sharedNotesEditor = builder.sharedNotesEditor;
 		sharedNotesInitialContentJsonUrl = builder.sharedNotesInitialContentJsonUrl;
 		sharedNotesInitialContentMarkdownUrl = builder.sharedNotesInitialContentMarkdownUrl;
 		sharedNotesInitialContentMarkdown = builder.sharedNotesInitialContentMarkdown;
@@ -681,10 +679,6 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 
-	public String getSharedNotesEditor() {
-		return sharedNotesEditor;
-	}
-
 	public String getSharedNotesInitialContentJsonUrl() {
 		return sharedNotesInitialContentJsonUrl;
 	}
@@ -1027,7 +1021,6 @@ public class Meeting {
     	private boolean autoStartRecording;
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
-        private String sharedNotesEditor;
 		private String sharedNotesInitialContentJsonUrl;
 		private String sharedNotesInitialContentMarkdownUrl;
 		private String sharedNotesInitialContentMarkdown;
@@ -1114,11 +1107,6 @@ public class Meeting {
 
     	public Builder withAllowStartStopRecording(boolean allow) {
     		this.allowStartStopRecording = allow;
-    		return this;
-    	}
-
-		public Builder withSharedNotesEditor(String type) {
-    		this.sharedNotesEditor = type;
     		return this;
     	}
 

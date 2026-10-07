@@ -333,8 +333,7 @@ export class LockViewers extends MultiUsers {
   }
 
   async lockEditSharedNotes() {
-    // shared notes are BlockNote on 4.0 (Etherpad is an optional add-on
-    // exercised by its own suite), so assert the lock via the BlockNote editor
+    // shared notes are always BlockNote, so assert the lock via the BlockNote editor
     await startSharedNotesBlockNote(this.userPage);
     const sharedNotesLocator = getBlockNoteEditorLocator(this.userPage);
     await sharedNotesLocator.click();
