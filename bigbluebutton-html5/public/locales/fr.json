@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Nom d'utilisateur",
     "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Ajouter une caméra ",
-    "app.pads.hint": "Appuyez sur Echap pour sélectionner la barre d'outils de l'éditeur",
     "app.user.activityCheck": "Vérification de l'activité de l'utilisateur",
     "app.user.activityCheck.label": "Vérifier si l'utilisateur participe toujours à la séance ({responseDelay})",
     "app.user.activityCheck.check": "Vérifier",
