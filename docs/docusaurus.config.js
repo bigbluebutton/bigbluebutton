@@ -74,6 +74,10 @@ const config = {
                         '4.0': {
                             label: '4.0 (in development)',
                             banner: 'unreleased'
+                        },
+                        '4.1': {
+                            label: '4.1 (in development)',
+                            banner: 'unreleased'
                         }
                     }
                 },
