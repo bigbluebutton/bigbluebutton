@@ -1152,7 +1152,7 @@ sudo bbb-conf --restart
 
 #### Rasterize slides whose SVG contains mask tags
 
-Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same BMP-based fallback used by `imageTagThreshold` and `useTagThreshold`) for any slide whose SVG contains a configurable number of `<mask>` tags.
+Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same fallback used by `imageTagThreshold` and `useTagThreshold`: the page is rendered to a PNG image with `pdftoppm` and embedded in the slide) for any slide whose SVG contains a configurable number of `<mask>` tags.
 
 The check is **disabled by default** (`maskTagThreshold=0`), because masks are common in ordinary PDFs and the `pdftocairo` shipped with Ubuntu 24.04 (poppler 24.02.0) generates correct mask values. To rasterize only mask-heavy slides, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
 
@@ -1161,6 +1161,20 @@ maskTagThreshold=100
 ```
 
 A slide is rasterized when its SVG contains at least `maskTagThreshold` mask tags (a value of `1` would rasterize any slide containing a mask). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
+
+#### Verify slides with soft masks
+
+Soft masks (images with transparency, drop shadows, blurred or faded edges) are common in PDFs and mostly convert to a correct SVG. Some do not: `pdftocairo`, which generates the slide SVG, drops the content behind certain soft masks (for example the ones written by macOS), so the image, or the whole slide, shows up blank ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)).
+
+`pdftocairo` emits `<filter>` tags whenever a page has soft masks, so bbb-web verifies every slide whose SVG contains at least `filterTagThreshold` `<filter>` tags. It renders the page at low resolution with both `pdftocairo` and `pdftoppm`, and rasterizes the slide only when the two renders noticeably differ. The check is **enabled by default** (`filterTagThreshold=1`) and costs a fraction of a second per verified slide. Slides that are verified and match keep their vector SVG. If the comparison cannot be made, or the rasterized slide is too large to embed, the vector SVG is kept as well.
+
+To turn the check off, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+filterTagThreshold=0
+```
+
+With the check off, affected slides may show up blank or with missing images again. To rasterize every slide with soft masks without verifying it first, use `maskTagThreshold=1` instead (see above). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
 
 #### Increase the file size for an uploaded presentation
 
