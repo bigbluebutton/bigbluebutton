@@ -213,7 +213,6 @@
     "app.profileSettings.usernameTitle": "Όνομα χρήστη",
     "app.profileSettings.statusTitle": "Κατάσταση",
     "app.profileSettings.addExtraCamera": "Προσθήκη επιπλέον κάμερας",
-    "app.pads.hint": "Πατήστε «Esc» για εστίαση στη γραμμή εργαλείων",
     "app.user.activityCheck": "Έλεγχος δραστηριότητας χρήστη",
     "app.user.activityCheck.label": "Έλεγχος αν υπάρχουν ακόμα χρήστες στην τηλεδιάσκεψη ({responseDelay})",
     "app.user.activityCheck.check": "Έλεγχος",
