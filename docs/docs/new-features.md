@@ -289,7 +289,7 @@ The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (
 
 The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.3`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
 
-Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.2`, or `^0.1.5 || ^1.0.0-beta.1` to keep supporting BigBlueButton 3.x servers. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
+Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.1`, which also accepts the final `1.0.0` and later `1.x` releases. To keep one manifest loading on 4.0 pre-releases up to 4.0.0-rc.4, which run the `0.1.x` SDK, add the `0.1.x` range: `^0.1.5 || ^1.0.0-beta.1`. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
 
 If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.3`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
 
