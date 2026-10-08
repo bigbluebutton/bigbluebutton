@@ -14,6 +14,7 @@ export interface ModalSimpleProps {
   priority?: ModalPriority | string;
   dataTest?: string;
   documentTitle?: boolean | string;
+  hideCloseButton?: boolean;
   children?: React.ReactNode;
   /** Closes the modal (via `setIsOpen(false)`) on a `CLOSE_MODAL_<NAME>` document event. */
   modalName?: string;

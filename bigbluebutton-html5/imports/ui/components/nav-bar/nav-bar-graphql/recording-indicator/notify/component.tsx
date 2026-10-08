@@ -89,6 +89,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
       priority={priority}
       shouldCloseOnOverlayClick={false}
       shouldCloseOnEsc={false}
+      hideCloseButton
       noFooter={false}
       footerContent={(
         <>

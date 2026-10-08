@@ -30,6 +30,8 @@ export interface GenericModalProps {
   allowScroll?: boolean;
   /** Hides the footer section. Defaults to hiding it only when there is no `footerContent`. */
   noFooter?: boolean;
+  /** Hides the header close button, for modals that must be answered through their own actions. */
+  hideCloseButton?: boolean;
   /** Custom content rendered in the modal footer. */
   footerContent?: React.ReactNode;
   /** Keeps the footer pinned to the bottom when the body scrolls. */
@@ -93,6 +95,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
   shouldCloseOnEsc = true,
   allowScroll = true,
   noFooter,
+  hideCloseButton = false,
   footerContent = null,
   stickyFooter = true,
   children,
@@ -163,6 +166,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
       shouldCloseOnEsc={shouldCloseOnEsc}
       allowScroll={allowScroll}
       noFooter={noFooter ?? !footerContent}
+      hideCloseButton={hideCloseButton}
       footerContent={footerContent}
       stickyFooter={stickyFooter}
       contentRef={contentRefCallback}

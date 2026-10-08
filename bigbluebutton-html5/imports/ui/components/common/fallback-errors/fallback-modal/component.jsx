@@ -15,6 +15,7 @@ const FallbackModal = ({ error, intl }) => (
     priority="medium"
     shouldCloseOnEsc={false}
     shouldCloseOnOverlayClick={false}
+    hideCloseButton
     onRequestClose={() => {}}
     contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
     isOpen={!!error}

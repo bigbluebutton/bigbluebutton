@@ -11,6 +11,7 @@ const propTypes = {
   }),
   shouldCloseOnOverlayClick: PropTypes.bool,
   shouldCloseOnEsc: PropTypes.bool,
+  hideCloseButton: PropTypes.bool,
   modalIsOpen: PropTypes.bool,
   isOpen: PropTypes.bool,
   onRequestClose: PropTypes.func,
@@ -32,6 +33,7 @@ const defaultProps = {
   dismiss: { callback: null },
   shouldCloseOnOverlayClick: true,
   shouldCloseOnEsc: true,
+  hideCloseButton: false,
   modalIsOpen: false,
   isOpen: false,
   onRequestClose: null,
@@ -50,6 +52,7 @@ const ModalSimple = ({
   dismiss,
   shouldCloseOnOverlayClick,
   shouldCloseOnEsc,
+  hideCloseButton,
   modalIsOpen,
   isOpen,
   onRequestClose,
@@ -97,6 +100,7 @@ const ModalSimple = ({
       contentLabel={contentLabel || title}
       shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
       shouldCloseOnEsc={shouldCloseOnEsc}
+      hideCloseButton={hideCloseButton}
       priority={priority}
       anchorElement={anchorElement}
       {...otherProps}

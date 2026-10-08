@@ -92,6 +92,7 @@ class ActivityCheck extends Component {
         onRequestClose={() => userActivitySign()}
         shouldCloseOnOverlayClick={false}
         shouldCloseOnEsc={false}
+        hideCloseButton
         priority="high"
         isOpen
         noFooter={false}
