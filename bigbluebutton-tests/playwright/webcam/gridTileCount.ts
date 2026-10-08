@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ClientSettingsOverrides, Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 
 // Above this grid size, exceeding the grid would require too many simultaneous
@@ -61,6 +61,30 @@ export const GEOMETRY_CLIENT_SETTINGS_MODULE = [
   }),
   ']]></module></modules>',
 ].join('');
+
+export const BOT_LABEL_SETTINGS: ClientSettingsOverrides = {
+  public: { user: { label: { bot: true } } },
+};
+
+export const SMALL_GRID_SETTINGS: ClientSettingsOverrides = {
+  public: {
+    user: { label: { bot: true } },
+    app: { defaultSettings: { application: { paginationEnabled: true } } },
+    kurento: {
+      cameraSortingModes: { partitionPrivilegedStreams: false },
+      pagination: {
+        desktopGridSizes: { moderator: 2, viewer: 2 },
+        desktopPageSizes: { moderator: 2, viewer: 2 },
+      },
+      paginationThresholds: { enabled: false },
+    },
+  },
+};
+
+async function shareCamera(participant: Page): Promise<void> {
+  expect(participant.settings?.webcamSharingEnabled, 'the test requires webcam sharing').toBe(true);
+  await participant.shareWebcam();
+}
 
 export class GridTileCount extends MultiUsers {
   // Reads the effective grid size delivered to the client through meetingClientSettings.
@@ -288,5 +312,193 @@ export class GridTileCount extends MultiUsers {
       Math.abs((tileBox?.width ?? 0) - (cameraBox?.width ?? 1)),
       `the overflow tile (${tileBox?.width}px) must be as wide as a camera cell (${cameraBox?.width}px)`,
     ).toBeLessThanOrEqual(2);
+  }
+
+  private async openGrid(): Promise<void> {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    const usersButton = this.modPage.page.locator(e.usersListSidebarButton);
+    if ((await usersButton.getAttribute('aria-expanded')) !== 'true') {
+      await usersButton.click();
+    }
+  }
+
+  private async waitForParticipantCount(count: number): Promise<void> {
+    // The sidebar and the grid use the same total-user subscription.
+    // Wait for it before checking that a bot has no effect on the grid.
+    await expect(this.modPage.page.locator(e.usersListSidebarButton)).toHaveText(String(count), {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+  }
+
+  private async joinViewer(name: string, count: number, bot = false): Promise<Page> {
+    const viewer = new Page(this.browser, await this.context.newPage(), this.modPage.testInfo);
+    await viewer.init(false, {
+      fullName: name,
+      meetingId: this.modPage.meetingId,
+      joinParameter: bot ? 'bot=true' : undefined,
+    });
+    const userRow = this.modPage.page.locator(e.userListItem).filter({ hasText: name });
+    await expect(userRow, `${name} must appear in the moderator user list`).toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    if (bot) {
+      await expect(userRow.locator(e.userNameSubs), 'the server must identify the joined user as a bot').toContainText(
+        'Automated',
+      );
+    }
+    await this.waitForParticipantCount(count);
+    return viewer;
+  }
+
+  private async leaveBot(bot: Page, remainingCount: number): Promise<void> {
+    await bot.logoutFromMeeting();
+    await expect(this.modPage.page.locator(e.userListItem).filter({ hasText: bot.username })).toHaveCount(0, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await this.waitForParticipantCount(remainingCount);
+  }
+
+  private async attachGridState(name: string): Promise<void> {
+    const { page, testInfo } = this.modPage;
+    if (!testInfo) return;
+
+    const videoList = page.locator(e.webcamVideoList);
+    const tiles = await videoList.locator(e.webcamVideoItem).evaluateAll((items) =>
+      items.map((item) => ({
+        name: item.getAttribute('data-user-name'),
+        type: item.getAttribute('data-video-type'),
+      })),
+    );
+    const overflowCounts = await videoList
+      .locator(e.overflowTile)
+      .evaluateAll((items) => items.map((item) => item.getAttribute('data-overflow-count')));
+    await testInfo.attach(`${name}-grid`, {
+      body: JSON.stringify({ tiles, overflowCounts }, null, 2),
+      contentType: 'application/json',
+    });
+    await testInfo.attach(`${name}-screenshot`, {
+      body: await page.screenshot(),
+      contentType: 'image/png',
+    });
+  }
+
+  async checkModeratorAvatarWithBot(): Promise<void> {
+    await this.openGrid();
+    const videoList = this.modPage.page.locator(e.webcamVideoList);
+    const moderatorAvatar = videoList.locator(
+      `${e.webcamVideoItem}[data-video-type="grid"][data-user-name="${this.modPage.username}"]`,
+    );
+    const overflowTile = videoList.locator(e.overflowTile);
+    await expect(moderatorAvatar, 'the moderator avatar must appear before the bot joins').toBeVisible();
+    await expect(overflowTile).toHaveCount(0);
+
+    const bot = await this.joinViewer('BotWithoutCamera', 2, true);
+    await this.attachGridState('avatar-after-bot-join');
+    // Soft checks let the test also check recovery when the bot leaves.
+    await expect.soft(moderatorAvatar, 'a bot must not replace the moderator avatar').toBeVisible();
+    await expect.soft(overflowTile, 'a bot without a camera must not create an overflow tile').toHaveCount(0);
+
+    await this.leaveBot(bot, 1);
+    await expect(moderatorAvatar, 'the moderator avatar must remain after the bot leaves').toBeVisible();
+    await expect(overflowTile).toHaveCount(0);
+  }
+
+  async checkModeratorCameraWithBot(): Promise<void> {
+    await shareCamera(this.modPage);
+    await this.openGrid();
+    const videoList = this.modPage.page.locator(e.webcamVideoList);
+    const cameras = videoList.locator(e.webcamStreamItem);
+    const overflowTile = videoList.locator(e.overflowTile);
+    await expect(cameras).toHaveCount(1);
+    await expect(overflowTile).toHaveCount(0);
+
+    const bot = await this.joinViewer('BotWithoutCamera', 2, true);
+    await this.attachGridState('camera-after-bot-join');
+    await expect(cameras, 'the moderator camera must remain visible').toHaveCount(1);
+    await expect.soft(overflowTile, 'a bot without a camera must not create an overflow tile').toHaveCount(0);
+
+    await this.leaveBot(bot, 1);
+    await expect(cameras).toHaveCount(1);
+    await expect(overflowTile).toHaveCount(0);
+  }
+
+  async checkHumanOverflowWithBot(): Promise<void> {
+    expect(await this.getConfiguredGridSize(), 'the test requires two grid cells').toBe(2);
+    await shareCamera(this.modPage);
+    await this.openGrid();
+    const viewer = await this.joinViewer('HumanWithCamera', 2);
+    await shareCamera(viewer);
+    const videoList = this.modPage.page.locator(e.webcamVideoList);
+    const cameras = videoList.locator(e.webcamStreamItem);
+    const overflowTile = videoList.locator(e.overflowTile);
+    await expect(cameras).toHaveCount(2, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(overflowTile).toHaveCount(0);
+
+    await this.joinViewer('HumanWithoutCamera', 3);
+    await expect(overflowTile, 'one human is hidden by the two visible cameras').toHaveAttribute(
+      'data-overflow-count',
+      '1',
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
+
+    const bot = await this.joinViewer('BotWithoutCamera', 4, true);
+    await this.attachGridState('human-overflow-after-bot-join');
+    await expect(cameras, 'both human cameras must remain visible').toHaveCount(2);
+    await expect
+      .soft(overflowTile, 'the overflow tile must count only the one hidden human')
+      .toHaveAttribute('data-overflow-count', '1');
+
+    await this.leaveBot(bot, 3);
+    await expect(cameras).toHaveCount(2);
+    await expect(overflowTile).toHaveAttribute('data-overflow-count', '1');
+  }
+
+  async checkBotCameraAcrossPages(): Promise<void> {
+    expect(await this.getConfiguredGridSize(), 'the test requires two grid cells').toBe(2);
+    expect(await this.getEffectiveModeratorPageSize(3), 'the test requires two cameras per page').toBe(2);
+    await shareCamera(this.modPage);
+    await this.openGrid();
+    const viewer = await this.joinViewer('HumanWithCamera', 2);
+    await shareCamera(viewer);
+    const videoList = this.modPage.page.locator(e.webcamVideoList);
+    const cameras = videoList.locator(e.webcamStreamItem);
+    const overflowTile = videoList.locator(e.overflowTile);
+    await expect(cameras).toHaveCount(2, { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    const bot = await this.joinViewer('BotWithCamera', 3, true);
+    await shareCamera(bot);
+    await expect(this.modPage.page.locator(e.nextPageVideoPagination)).toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await expect(cameras).toHaveCount(2);
+    await expect(overflowTile, 'one camera user is on the second page').toHaveAttribute('data-overflow-count', '1');
+
+    const cameraNames = () =>
+      cameras.evaluateAll((items) => items.map((item) => item.getAttribute('data-user-name') ?? ''));
+    const firstPageNames = await cameraNames();
+    await this.modPage.waitAndClick(e.nextPageVideoPagination);
+    await expect
+      .poll(cameraNames, { message: 'the next page must show a different set of cameras' })
+      .not.toEqual(firstPageNames);
+    await expect(cameras).toHaveCount(1);
+    await expect(overflowTile, 'two camera users are on the first page').toHaveAttribute('data-overflow-count', '2');
+    const allNames = new Set([...firstPageNames, ...(await cameraNames())]);
+    expect([...allNames].sort(), 'the moderator, human, and bot cameras must all be reachable').toEqual(
+      [this.modPage.username, viewer.username, bot.username].sort(),
+    );
+
+    await bot.waitAndClick(e.leaveVideo);
+    await expect(cameras, 'the two human cameras must return to one page').toHaveCount(2, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await expect(videoList.locator(`${e.webcamStreamItem}[data-user-name="${bot.username}"]`)).toHaveCount(0);
+    await this.waitForParticipantCount(3);
+    await this.attachGridState('bot-camera-stopped');
+    await expect.soft(overflowTile, 'the bot must stop counting when its camera stops').toHaveCount(0);
+
+    await this.leaveBot(bot, 2);
+    await expect(cameras).toHaveCount(2);
+    await expect(overflowTile).toHaveCount(0);
   }
 }

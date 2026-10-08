@@ -20,6 +20,8 @@ buildscript {
   configurations.classpath {
     resolutionStrategy {
       force 'com.google.protobuf:protobuf-java:3.25.5'
+      // asset-pipeline-gradle -> ant 1.10.15 (build classpath only); 1.10.18 fixes a path-traversal advisory
+      force 'org.apache.ant:ant:1.10.18'
     }
   }
 }
@@ -27,15 +29,16 @@ buildscript {
 version "0.10.0"
 group "org.bigbluebutton.web"
 
-ext['tomcat.version'] = '10.1.56'
+ext['tomcat.version'] = '10.1.59'
 ext['netty.version'] = '4.2.17.Final'
 ext['lettuce.version'] = '7.7.0.RELEASE'
 ext['postgresql.version'] = '42.7.13'
 ext['spring-framework.version'] = '6.2.19'
-ext['jackson-bom.version'] = '2.22.1'
-ext['logback.version'] = '1.5.38'
+ext['jackson-bom.version'] = '2.22.3'
+ext['logback.version'] = '1.6.3'
 ext['spring-data-bom.version'] = '2025.0.13'
-ext['httpclient5.version'] = '5.6.3'
+ext['httpclient5.version'] = '5.6.4'
+ext['ant.version'] = '1.10.18'
 ext['httpcore5.version'] = '5.4.3'
 ext['selenium.version'] = '4.45.0'
 ext['opentelemetry.version'] = '1.63.0'
@@ -78,6 +81,23 @@ dependencies {
     // asset-pipeline -> closure-compiler, on the asset/dev and test classpaths only
     assetDevelopmentRuntime "com.google.protobuf:protobuf-java:3.25.5"
     testRuntimeOnly "com.google.protobuf:protobuf-java:3.25.5"
+    // junrar is reached only via tika-parser-pkg-module (bbb-common-web); 7.6.0 has a directory-traversal advisory
+    implementation("com.github.junrar:junrar") {
+      version { strictly "7.6.1" }
+    }
+    // bouncycastle is reached only via tika (bbb-common-web); tika-parent 3.3.2 manages it at 1.85
+    implementation("org.bouncycastle:bcprov-jdk18on") {
+      version { strictly "1.86" }
+    }
+    implementation("org.bouncycastle:bcpkix-jdk18on") {
+      version { strictly "1.86" }
+    }
+    implementation("org.bouncycastle:bcutil-jdk18on") {
+      version { strictly "1.86" }
+    }
+    implementation("org.bouncycastle:bcjmail-jdk18on") {
+      version { strictly "1.86" }
+    }
   }
 
   // Spring Boot managed libs – version comes from `springVersion` property
@@ -89,9 +109,9 @@ dependencies {
 
   // Override transitive tomcat-embed from spring-boot-starter-tomcat.
   // TODO: remove once springVersion >= 3.5.17 (which will manage a fixed tomcat-embed).
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.56"
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.56"
-  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.59"
+  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.59"
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.59"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
@@ -122,7 +142,7 @@ dependencies {
   implementation "io.projectreactor:reactor-core:3.8.7"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
-  implementation "org.freemarker:freemarker:2.3.34"
+  implementation "org.freemarker:freemarker:2.3.35"
   implementation "com.google.code.gson:gson:2.11.0"
   implementation "org.json:json:20241224"
   implementation "com.zaxxer:nuprocess:2.0.6"
@@ -143,6 +163,8 @@ dependencies {
 
 configurations.all {
   resolutionStrategy {
+    // grails-console (console config, dev-only) -> ivy 2.5.3; 2.6.0 fixes a directory-traversal advisory
+    force 'org.apache.ivy:ivy:2.6.0'
     dependencySubstitution {
       substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.20.0')
     }
@@ -187,6 +209,39 @@ assets {
 }
 
 test {
+  // Spock 2.x runs on the JUnit Platform only. Without this the JUnit 4 runner
+  // discovers zero specs and the task passes vacuously.
+  useJUnitPlatform()
+
+  // Guard against that regressing. Before useJUnitPlatform() was added, this
+  // task reported success while executing zero tests, which hid every failure in
+  // ApiControllerSpec for as long as it existed. A green build that ran nothing
+  // must be a failure, not a pass.
+  //
+  // Bump MIN_EXPECTED_TESTS when adding specs; it is a floor, not an exact count,
+  // so it does not need to track every new test case.
+  ext.MIN_EXPECTED_TESTS = 40
+  ext.executedTestCount = 0
+
+  afterSuite { desc, result ->
+    if (desc.parent == null) {
+      // Root suite: `result` aggregates the whole run.
+      test.ext.executedTestCount = result.testCount
+    }
+  }
+
+  doLast {
+    int executed = test.ext.executedTestCount
+    if (executed < test.ext.MIN_EXPECTED_TESTS) {
+      throw new GradleException(
+          "Test discovery looks broken: executed ${executed} tests, expected at least " +
+          "${test.ext.MIN_EXPECTED_TESTS}. Either specs stopped being discovered (check " +
+          "useJUnitPlatform() above) or specs were removed — if the removal was intended, " +
+          "lower MIN_EXPECTED_TESTS in bigbluebutton-web/build.gradle.")
+    }
+    logger.lifecycle("Test discovery check: executed ${executed} tests (floor ${test.ext.MIN_EXPECTED_TESTS}).")
+  }
+
   testLogging {
     events "passed", "failed", "skipped"
     showStandardStreams = true

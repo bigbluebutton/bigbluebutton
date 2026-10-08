@@ -37,10 +37,8 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-graphql-actions -- handles requests from the clients on their way to the core
 - bbb-webrtc-sfu -- manages media connections
 - bbb-webrtc-recorder -- handles recording of the media
-- bbb-pads -- manages the control to Etherpad
 - bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
-- bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
-- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (serving as the Shared Notes component and replacing Etherpad)
+- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (the Shared Notes component)
 - bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
 This document describes how to set up a development environment using an existing BigBlueButton 4.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
@@ -416,6 +414,27 @@ to begin exporting presentations with annotations. If you run into permission is
 and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
 
 Use `journalctl -u bbb-export-annotations -e` to see recent logs.
+
+## Developing the Learning Dashboard
+
+The Learning Analytics Dashboard is a React application bundled with [webpack](https://webpack.js.org/), the same bundler the HTML5 client uses. It is served as static files by nginx under `/learning-analytics-dashboard/`.
+
+To work on it with hot reload, run (as user `bigbluebutton` on your development server):
+
+```bash
+cd ~/dev/bigbluebutton/bbb-learning-dashboard
+./run-dev.sh
+```
+
+This starts webpack-dev-server on port 3100 and installs an nginx location that proxies `/learning-analytics-dashboard/` to it, including the hot-module-reload websocket, which connects back through nginx on port 443.
+
+To build the production bundle and have nginx serve the static files instead, run:
+
+```bash
+./deploy.sh
+```
+
+Environment variables for the dashboard (for example `REACT_APP_EXTERNAL_HELP_PAGE_URL`, which adds an external help link) are read from `bbb-learning-dashboard/.env`; copy `.env.example` to `.env` to get started. Setting `REACT_APP_STANDALONE_MODE=true` at build time produces a build that loads `learning_dashboard_data.json`, locales, and the presentation from paths relative to the exported dashboard, for serving outside of a BigBlueButton server.
 
 ## Troubleshooting
 
