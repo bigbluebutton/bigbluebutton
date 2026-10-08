@@ -1,11 +1,13 @@
 import { expect, Locator } from '@playwright/test';
+import { parseStringPromise } from 'xml2js';
 
 import { openPublicChat } from '../chat/util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
-import { skipSlide } from '../presentation/util';
+import { getCurrentSlideAspectRatio, skipSlide, uploadSinglePresentation } from '../presentation/util';
+import { startScreenshare } from '../screenshare/util';
 import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
 
@@ -75,7 +77,11 @@ export class Recording extends MultiUsers {
 
     // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
-    await this.modPage.hasNElements(e.toastContainer, 2, 'should display 2 toasts when starting recording, one for no mic and one for the options');
+    await this.modPage.hasNElements(
+      e.toastContainer,
+      2,
+      'should display 2 toasts when starting recording, one for no mic and one for the options',
+    );
     await this.modPage.hasElement(e.cancelRecordingButton, 'should display the Cancel button in the recording toast');
     await this.modPage.hasElement(e.confirmRecordingButton, 'should display the Confirm button in the recording toast');
     await this.modPage.waitAndClick(e.confirmRecordingButton);
@@ -113,9 +119,11 @@ export class Recording extends MultiUsers {
       const match = text?.match(/(\d+):(\d+)/);
       expect(match, 'should find time pattern in recording button text').not.toBeNull();
       const [, minutes, seconds] = match!;
-      const totalSeconds = Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
+      const totalSeconds = Number.parseInt(minutes, 10) * 60 + Number.parseInt(seconds, 10);
       expect(totalSeconds).toBeGreaterThan(5);
-    }, 'should display more than 5 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    }, 'should display more than 5 seconds on the recording button counter').toPass({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.endMeetingButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
@@ -173,9 +181,11 @@ export class Recording extends MultiUsers {
       const match = text?.match(/(\d+):(\d+)/);
       expect(match, 'should find time pattern in recording button text').not.toBeNull();
       const [, minutes, seconds] = match!;
-      const totalSeconds = Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
+      const totalSeconds = Number.parseInt(minutes, 10) * 60 + Number.parseInt(seconds, 10);
       expect(totalSeconds).toBeGreaterThan(8);
-    }, 'should display more than 8 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    }, 'should display more than 8 seconds on the recording button counter').toPass({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
 
     // stop recording and end meeting
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
@@ -191,6 +201,125 @@ export class Recording extends MultiUsers {
     }
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
     return playbackUrl;
+  }
+
+  async recordScreensharePresentationTransition(switchPresentation: boolean) {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasElement(e.confirmRecordingButton, 'recording confirmation should be visible');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+
+    for (const zoomLevel of [125, 150, 175, 200]) {
+      await this.modPage.waitAndClick(e.zoomInButton);
+      await expect(this.modPage.page.locator(e.resetZoomButton)).toContainText(`${zoomLevel}%`);
+    }
+    await expect(
+      this.modPage.page.locator(e.resetZoomButton),
+      'the presentation should be zoomed before screenshare starts',
+    ).toContainText('200%');
+
+    await startScreenshare(this.modPage);
+    if (switchPresentation) await uploadSinglePresentation(this.modPage, 'sample.pdf');
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.isSharingScreen, 'screenshare should stop');
+    if (switchPresentation) {
+      const aspectRatio = await getCurrentSlideAspectRatio(this.modPage);
+      expect(aspectRatio, 'the presentation uploaded during screenshare should be current').toBeLessThan(1);
+    }
+    await this.modPage.page.waitForTimeout(10_000);
+    await skipSlide(this.modPage);
+
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.endMeetingButton);
+    await this.modPage.waitAndClick(e.confirmEndMeetingButton);
+    await this.modPage.hasElement(e.meetingEndedModal, 'meeting should end');
+
+    const { response } = await this.getRecordingsWithRetry(24, 5_000);
+    const recordingData = response.recordings?.[0]?.recording?.[0];
+    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+    const playbackUrl = formats.find((format) => format?.type?.[0] === 'presentation')?.url?.[0];
+    if (!playbackUrl) throw new Error('Presentation playback URL not found');
+
+    const recordId = new URL(playbackUrl).pathname.split('/').pop();
+    if (!recordId) throw new Error('Recording ID not found in playback URL');
+    const serverOrigin = new URL(process.env.BBB_URL!).origin;
+    const [shapesResponse, panzoomsResponse] = await Promise.all([
+      this.modPage.page.request.get(`${serverOrigin}/presentation/${recordId}/shapes.svg`),
+      this.modPage.page.request.get(`${serverOrigin}/presentation/${recordId}/panzooms.xml`),
+    ]);
+    expect(shapesResponse.ok(), 'shapes.svg should be accessible').toBeTruthy();
+    expect(panzoomsResponse.ok(), 'panzooms.xml should be accessible').toBeTruthy();
+
+    const shapes = await parseStringPromise(await shapesResponse.text());
+    const panzooms = await parseStringPromise(await panzoomsResponse.text());
+    const slides = shapes.svg.image.map((image: { $: Record<string, string> }) => image.$);
+    const deskshareSlides = slides.filter(
+      (slide: Record<string, string>) => slide['xlink:href'] === 'presentation/deskshare.png',
+    );
+    expect(deskshareSlides.length, 'recording should contain a screenshare slide').toBeGreaterThan(0);
+    const screenshareStart = Number(deskshareSlides[0].in);
+    const screenshareStop = Number(deskshareSlides.at(-1).out);
+    const returnedSlide = slides.find((slide: Record<string, string>) => Number(slide.in) === screenshareStop);
+    expect(returnedSlide, 'a presentation slide should replace the screenshare at its stop time').toBeTruthy();
+    const initialSlide = slides.find(
+      (slide: Record<string, string>) => slide['xlink:href'] !== 'presentation/deskshare.png',
+    );
+    expect(initialSlide, 'recording should contain the initial presentation').toBeTruthy();
+    if (switchPresentation) {
+      expect(
+        returnedSlide!['xlink:href'],
+        'the returning slide should belong to the presentation uploaded during screenshare',
+      ).not.toEqual(initialSlide!['xlink:href']);
+    } else {
+      expect(returnedSlide!['xlink:href'], 'the same slide should return after screenshare stops').toEqual(
+        initialSlide!['xlink:href'],
+      );
+    }
+
+    const panzoomEvents: { timestamp: number; viewbox: number[] }[] = panzooms.recording.event.map(
+      (event: { $: { timestamp: string }; viewBox: string[] }) => ({
+        timestamp: Number(event.$.timestamp),
+        viewbox: event.viewBox[0].split(' ').map(Number),
+      }),
+    );
+    const preScreensharePanzooms = panzoomEvents.filter((event) => event.timestamp < screenshareStart);
+    const zoomedPresentation = preScreensharePanzooms[preScreensharePanzooms.length - 1]?.viewbox;
+    expect(zoomedPresentation, 'a presentation panzoom should be recorded before screenshare starts').toBeTruthy();
+    expect(
+      zoomedPresentation![2],
+      'the pre-screenshare viewBox should preserve the deliberate presentation zoom',
+    ).toBeLessThan(Number(initialSlide!.width));
+
+    const viewboxes = panzoomEvents.filter((event) => event.timestamp <= screenshareStop).map((event) => event.viewbox);
+    expect(viewboxes.length, 'a panzoom should be active when screenshare stops').toBeGreaterThan(0);
+    const [viewboxX, viewboxY, viewboxWidth, viewboxHeight] = viewboxes[viewboxes.length - 1];
+    const returnedSlideWidth = Number(returnedSlide!.width);
+    const returnedSlideHeight = Number(returnedSlide!.height);
+    if (switchPresentation) {
+      expect(viewboxWidth, 'a new presentation should reset the viewBox width').toBeCloseTo(returnedSlideWidth, 0);
+      expect(viewboxHeight, 'a new presentation should reset the viewBox height').toBeCloseTo(returnedSlideHeight, 0);
+      expect(viewboxX, 'a new presentation should reset the horizontal position').toBeCloseTo(0, 4);
+      expect(viewboxY, 'a new presentation should reset the vertical position').toBeCloseTo(0, 4);
+    } else {
+      const zoomScale = 2;
+      expect(viewboxWidth, 'viewBox width should restore the deliberate zoom on the returning slide').toBeCloseTo(
+        returnedSlideWidth / zoomScale,
+        0,
+      );
+      expect(viewboxHeight, 'viewBox height should restore the deliberate zoom on the returning slide').toBeCloseTo(
+        returnedSlideHeight / zoomScale,
+        0,
+      );
+      expect(viewboxX / returnedSlideWidth, 'the restored zoom should preserve its horizontal position').toBeCloseTo(
+        zoomedPresentation![0] / Number(initialSlide!.width),
+        4,
+      );
+      expect(viewboxY / returnedSlideHeight, 'the restored zoom should preserve its vertical position').toBeCloseTo(
+        zoomedPresentation![1] / Number(initialSlide!.height),
+        4,
+      );
+    }
   }
 
   async recordingToastDoesNotBlockModals() {

@@ -1050,13 +1050,13 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         <ChatContentFooter>
           {!deleteTime && editTime && (
             <Tooltip title={intl.formatTime(editTime)}>
-              <EditLabel>
+              <EditLabel data-test="chatMessageFooterEditedLabel">
                 <Icon iconName="pen_tool" />
                 <span>{intl.formatMessage(intlMessages.edited)}</span>
               </EditLabel>
             </Tooltip>
           )}
-          <ChatTime>
+          <ChatTime data-test="chatMessageFooterTime">
             <FormattedTime value={dateTime} />
           </ChatTime>
         </ChatContentFooter>
