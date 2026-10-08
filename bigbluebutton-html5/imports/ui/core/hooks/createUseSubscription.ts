@@ -7,7 +7,7 @@ import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
-import GrahqlSubscriptionStore, { stringToHash } from '../singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash, SubscriptionListener } from '../singletons/subscriptionStore';
 
 export const makePatchedQuery = (query: DocumentNode | TypedQueryDocumentNode) => {
   if (!query) {
@@ -38,36 +38,11 @@ function createUseSubscription<T>(
   if (usePatchedSubscription) {
     newSubscriptionGQL = makePatchedQuery(query);
   }
-  const queryHash = stringToHash(JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }));
+  const queryHash = getSubscriptionHash(newSubscriptionGQL, queryVariables);
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
     skip = false,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
-    const subscriptionHashRef = useRef<string>('');
-    const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
-    const optionsRef = useRef({});
-    const subHash = stringToHash(
-      JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }),
-    );
-
-    useEffect(() => {
-      if (subscriptionHashRef.current !== subHash) {
-        subscriptionHashRef.current = subHash;
-        if (subscriptionRef.current && optionsRef.current) {
-          GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, optionsRef.current);
-        }
-
-        subscriptionRef.current = query;
-        optionsRef.current = queryVariables;
-      }
-    }, [subHash]);
-
-    useEffect(() => {
-      return () => {
-        GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
-      };
-    }, []);
-
     const observer = useRef({
       //  @ts-ignore
       next(response) {
@@ -124,24 +99,21 @@ function createUseSubscription<T>(
     }), []);
 
     useEffect(() => {
-      const listener = (event: CustomEvent) => {
-        if (event.detail.subscriptionHash === subHash) {
-          //  @ts-ignore
-          observer.current[event.detail.type](event.detail.response);
-        }
+      const listener: SubscriptionListener = (detail) => {
+        observer.current[detail.type](detail.response);
       };
       if (skip) {
-        GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
-        // @ts-ignore
-        window.removeEventListener('graphqlSubscription', listener);
         return () => {};
       }
-      //  @ts-ignore
-      window.addEventListener('graphqlSubscription', listener);
-      GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
+      GrahqlSubscriptionStore.makeSubscription(
+        newSubscriptionGQL,
+        queryVariables,
+        usePatchedSubscription ? 'no-cache' : undefined,
+        listener,
+      );
       return () => {
-        //  @ts-ignore
-        window.removeEventListener('graphqlSubscription', listener);
+        GrahqlSubscriptionStore.removeListener(queryHash, listener);
+        GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
       };
     }, [queryHash, skip]);
 
@@ -239,13 +211,12 @@ export const useCreateUseSubscription = <T>(
   queryVariables = {},
   usePatchedSubscription = false,
 ) => {
-  const queryString = JSON.stringify(query);
   const queryVariablesString = JSON.stringify(queryVariables);
 
   const createdSubscription = useMemo(() => {
     return createUseSubscription<T>(query, queryVariables, usePatchedSubscription);
   },
-  [queryString, queryVariablesString, usePatchedSubscription]);
+  [query, queryVariablesString, usePatchedSubscription]);
   return createdSubscription;
 };
 

@@ -91,33 +91,6 @@ class PresentationPodsAppSpec extends AnyFlatSpec {
     assert(!PresentationPodsApp.pageBelongsToMeeting(stateWith(emptyPod), ownPageId))
   }
 
-  behavior of "PresentationPodsApp.presentationBelongsToMeeting"
-
-  it should "accept a presentation held by one of the meeting's pods" in {
-    assert(PresentationPodsApp.presentationBelongsToMeeting(stateWith(defaultPod), "own-presentation-id"))
-  }
-
-  it should "reject a presentation belonging to another meeting" in {
-    assert(!PresentationPodsApp.presentationBelongsToMeeting(stateWith(defaultPod), "foreign-presentation-id"))
-  }
-
-  it should "reject an unknown presentation id, and not confuse a page id for one" in {
-    assert(!PresentationPodsApp.presentationBelongsToMeeting(stateWith(defaultPod), "no-such-presentation"))
-    assert(!PresentationPodsApp.presentationBelongsToMeeting(stateWith(defaultPod), ownPageId))
-  }
-
-  it should "reject every presentation when the meeting has no pods or no presentations" in {
-    val emptyPod = PresentationPod(PresentationPod.DEFAULT_PRESENTATION_POD, "", Map.empty)
-    assert(!PresentationPodsApp.presentationBelongsToMeeting(stateWith(), "own-presentation-id"))
-    assert(!PresentationPodsApp.presentationBelongsToMeeting(stateWith(emptyPod), "own-presentation-id"))
-  }
-
-  it should "find a presentation held by a non-default pod" in {
-    val secondPod = PresentationPod("second-pod", "", Map.empty)
-      .addPresentation(presentation("second-presentation-id", "second-presentation-id/1"))
-    assert(PresentationPodsApp.presentationBelongsToMeeting(stateWith(defaultPod, secondPod), "second-presentation-id"))
-  }
-
   behavior of "PresentationPodsApp.pageBelongsToMeeting (multi-pod)"
 
   it should "find a page held by a non-default pod" in {

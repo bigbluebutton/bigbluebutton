@@ -98,6 +98,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       appsGallery: {
         maxPinnedApps: 3,
       },
+      remainingTimeThresholdInMinutes: 6,
       remainingTimeAlertThresholdArray: [
         1,
         5,
@@ -233,7 +234,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       fallbackOnEmptyLocaleString: true,
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
-      showConnectionErrors: [3002, 3004],
+      showConnectionErrors: [3002, 3004, 3007],
     },
     sharedNotes: {
       serverHostname: '',
@@ -721,9 +722,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         center: ['apps-gallery', 'pinned-apps'],
         bottom: ['audio-captions', 'learning-dashboard', 'settings'],
       },
-    },
-    pads: {
-      url: 'ETHERPAD_HOST',
     },
     media: {
       audio: {
