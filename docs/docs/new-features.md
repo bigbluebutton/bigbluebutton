@@ -204,11 +204,12 @@ lists.
 
 Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
 - Java 21 (OpenJDK)
-- Grails 7.0.12
-- Gradle 8.14.3
-- Groovy 4.0.21
-- Spring 6.2.11
-- Spring Boot 3.5.16
+- Grails 8.0.0
+- Gradle 9.8.0
+- Groovy 5.1.3
+- Spring Framework 7.0.9
+- Spring Boot 4.1.1
+- Tomcat (embedded) 11.0.26
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
@@ -231,6 +232,25 @@ Recent releases:
 #### Node.js 24 runtime
 
 BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-actions`, `bbb-shared-notes-server`, `bbb-export-annotations`, `bbb-webhooks`, `bbb-webrtc-sfu`, `bbb-transcription-controller`) on Node.js 24, the Active LTS line maintained until April 2028. `bbb-install.sh` installs it from NodeSource, and the packages declare a dependency on `nodejs (>= 24) (<< 25)`.
+
+#### Security response headers from bbb-web
+
+With the move to Grails 8, bbb-web adds four browser security headers to every response it sends:
+
+- `X-Frame-Options: SAMEORIGIN`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `X-XSS-Protection: 0`
+
+Joining a meeting is not affected, including from an LMS or any other site that embeds BigBlueButton in a frame: the `join` call answers with a redirect, and the client, slides and recordings are served by nginx, which does not add these headers. What changes is that a page rendered by bbb-web itself, such as an API response, is no longer displayed inside a frame on another site.
+
+To turn a header off, set its `enabled` property to `false` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web (`sudo systemctl restart bbb-web`). For example, to allow bbb-web's own pages in frames on other sites again:
+
+```properties
+grails.security.headers.frame-options.enabled=false
+```
+
+The other three headers are controlled by `grails.security.headers.content-type-options.enabled`, `grails.security.headers.referrer-policy.enabled` and `grails.security.headers.xss-protection.enabled`. `grails.security.headers.enabled=false` turns all four off.
 
 #### Promoted BlockNote shared notes as default
 

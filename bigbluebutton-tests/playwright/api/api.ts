@@ -2,8 +2,11 @@ import { expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
 import axios from 'axios';
 import * as xml2js from 'xml2js';
 
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
 import { createMeeting, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
+import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 
 // Minimal shape of the /create response we assert on (xml2js wraps every
@@ -15,6 +18,14 @@ interface CreateResponse {
     errors?: { error: { key: string[]; message: string[] }[] }[];
   };
 }
+
+// Browser hardening headers Grails 8 adds to every bbb-web response (apache/grails-core#15967).
+const BBB_WEB_SECURITY_HEADERS: Record<string, string> = {
+  'x-frame-options': 'SAMEORIGIN',
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'x-xss-protection': '0',
+};
 
 export class API extends MultiUsers {
   async getNewPageTab() {
@@ -219,5 +230,78 @@ export class API extends MultiUsers {
 
     await this.modPage.page.close();
     await this.userPage.page.close();
+  }
+
+  // A document, a redirect and an error response from bbb-web all carry the headers.
+  static async testBbbWebSecurityHeaders() {
+    const server = parameters.server!.replace(/\/$/, '');
+    const meetingID = await createMeeting();
+    const responses = {
+      'GET /api': await axios.get(`${server}/api`, { adapter: 'http' }),
+      'join redirect': await axios.get(getJoinURL({ meetingID, fullName: 'Headers' }), {
+        adapter: 'http',
+        maxRedirects: 0,
+        validateStatus: (status) => status === 302,
+      }),
+      'unmapped URL': await axios.get(`${server}/no-such-endpoint`, {
+        adapter: 'http',
+        validateStatus: (status) => status === 404,
+      }),
+    };
+    expect(String(responses['GET /api'].data), 'GET /api should be answered by bbb-web').toContain('SUCCESS');
+    for (const [request, response] of Object.entries(responses)) {
+      for (const [header, value] of Object.entries(BBB_WEB_SECURITY_HEADERS)) {
+        expect(response.headers[header], `${request} should send ${header}: ${value}`).toEqual(value);
+      }
+    }
+  }
+
+  // An LMS-style page on another origin frames the join URL: the join redirect carries
+  // X-Frame-Options, but the client it redirects to is served by nginx without it, so the
+  // meeting still loads. A document rendered by bbb-web itself is refused in such a frame.
+  // allowRequestsWithoutSession: the JSESSIONID cookie is not sent from a cross-site frame.
+  static async testJoinInsideCrossOriginFrame(page: PlaywrightPage) {
+    const server = parameters.server!.replace(/\/$/, '');
+    const meetingID = await createMeeting('allowRequestsWithoutSession=true');
+    const joinUrl = getJoinURL({
+      meetingID,
+      fullName: 'Framed',
+      options: { isModerator: true, skipSessionDetailsModal: true },
+    });
+    const parentUrl = 'https://lms.example.test/course';
+    // Serve the LMS URL from the server's front page: Chromium refuses to frame a server on a
+    // private address (the CI runner) from a page that has no network address of its own.
+    await page.route(parentUrl, (route) => route.continue({ url: `${new URL(server).origin}/` }));
+    await page.goto(parentUrl, { waitUntil: 'commit' });
+    expect(page.url(), 'the LMS page should stay on its own origin').toBe(parentUrl);
+
+    // bbb-web answers the framed /api request, and the browser refuses to display the answer.
+    const apiFrameResponse = page
+      .waitForResponse(`${server}/api`, { timeout: ELEMENT_WAIT_LONGER_TIME })
+      .catch(() => null);
+    const apiFrameFailure = page
+      .waitForEvent('requestfailed', {
+        predicate: (request) => request.url() === `${server}/api`,
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .catch(() => null);
+    await page.setContent(
+      '<!doctype html><title>LMS</title>' +
+        `<iframe id="meeting" src="${joinUrl.replace(/&/g, '&amp;')}" allow="microphone; camera" ` +
+        'style="width:1280px;height:720px"></iframe>' +
+        `<iframe id="api" src="${server}/api"></iframe>`,
+      { waitUntil: 'domcontentloaded' },
+    );
+
+    await expect(
+      page.frameLocator('#meeting').locator(e.audioModal),
+      'the client should load inside a frame on another origin',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+
+    expect((await apiFrameResponse)?.status(), 'bbb-web should answer the framed /api request').toBe(200);
+    expect(
+      (await apiFrameFailure)?.failure()?.errorText,
+      'bbb-web should not render its own response inside a frame on another origin',
+    ).toBe('net::ERR_BLOCKED_BY_RESPONSE');
   }
 }
