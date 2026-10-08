@@ -48,7 +48,17 @@ select_permissions:
               - userId:
                   _eq: X-Hasura-UserId
               - meetingId:
-                  _eq: X-Hasura-UserListNotLockedInMeeting
+                  _eq: X-Hasura-NotLockedInMeeting
+              - _exists:
+                  _table:
+                    name: v_meeting_lockSettings
+                    schema: public
+                  _where:
+                    _and:
+                      - meetingId:
+                          _eq: X-Hasura-MeetingId
+                      - hideUserList:
+                          _eq: false
   - role: bbb_client_not_in_meeting
     permission:
       columns:
