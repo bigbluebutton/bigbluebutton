@@ -1,4 +1,5 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import { useMutation } from '@apollo/client';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import {
@@ -17,6 +18,11 @@ import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/exten
 import GenericMainContent from './component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import getDifferenceBetweenLists from '../utils';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { isSharing, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
+import { PIN_NOTES } from '/imports/ui/components/notes/mutations';
 import { GenericContentMainAreaContainerProps } from '../types';
 
 const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerProps> = (
@@ -29,6 +35,11 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
     pluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
+  const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
+  const { data: currentMeeting } = useMeeting((m) => ({ componentsFlags: m.componentsFlags }));
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [pinSharedNotes] = useMutation(PIN_NOTES);
+  const previousMainAreaIds = useRef<string[]>([]);
   let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
   if (pluginsExtensibleAreasAggregatedState.genericContentItems) {
@@ -68,6 +79,21 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
       });
     }
   }
+
+  const mainAreaIds = genericContainerContentExtensibleArea.map((g) => g.id);
+  const mainAreaIdsKey = mainAreaIds.join(',');
+
+  // New plugin content ejects core content, like core features do among themselves
+  useEffect(() => {
+    const hasNewContent = mainAreaIds.some((id) => !previousMainAreaIds.current.includes(id));
+    previousMainAreaIds.current = mainAreaIds;
+    if (!hasNewContent || !currentUser?.presenter) return;
+
+    const { hasExternalVideo, isSharedNotesPinned } = currentMeeting?.componentsFlags || {};
+    if (isSharing()) screenshareHasEnded();
+    if (hasExternalVideo) stopExternalVideoShare();
+    if (isSharedNotesPinned) pinSharedNotes({ variables: { pinned: false } });
+  }, [mainAreaIdsKey]);
 
   const genericContentLayoutInformation: GenericContentMainAreaFromLayout = layoutSelectOutput(
     (i: Output) => i.genericMainContent,
