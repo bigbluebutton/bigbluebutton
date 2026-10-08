@@ -326,13 +326,16 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
-- Grails 7.0.12
-- Gradle 8.14.3
-- Groovy 4.0.21
+- Grails 8.0.0
+- Gradle 9.8.0
+- Groovy 5.1.3
 - Java 21
-- Spring 6.2.19
-- Spring Boot 3.5.16
+- Spring 7.0.9
+- Spring Boot 4.1.1
+- Tomcat 11.0.26 (embedded in bbb-web)
 - FreeSWITCH 1.11.3 (since BigBlueButton 3.0.36; earlier 3.0 releases shipped a patched 1.10.12)
+
+The bbb-web stack (Grails, Gradle, Groovy, Spring, Spring Boot and Tomcat) was upgraded in BigBlueButton 3.0.40; earlier 3.0 releases shipped Grails 7.0.12, Gradle 8.14.3, Groovy 4.0.21, Spring 6.2.19, Spring Boot 3.5.16 and Tomcat 10.1.
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
