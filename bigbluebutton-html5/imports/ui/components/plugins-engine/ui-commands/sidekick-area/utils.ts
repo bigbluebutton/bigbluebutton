@@ -7,7 +7,7 @@ import { setGenericContentBadges } from '/imports/ui/core/local-states/useGeneri
 import { setGenericContentMenuNames } from '/imports/ui/core/local-states/useGenericContentMenuNames';
 
 const removeBadge = (id: string) => setGenericContentBadges((badges) => {
-  if (!(id in badges)) return badges;
+  if (!Object.hasOwn(badges, id)) return badges;
   const remainingBadges = { ...badges };
   delete remainingBadges[id];
   return remainingBadges;

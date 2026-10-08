@@ -12,7 +12,8 @@ const [
 
 const useGenericContentBadge = (id: string) => useReactiveVarSelector(
   genericContentBadgesVar,
-  (badges) => badges[id],
+  // A plain object inherits Object.prototype keys, which a plugin id may collide with.
+  (badges) => (Object.hasOwn(badges, id) ? badges[id] : undefined),
 );
 
 // Serialized so that a badge content update, which keeps the same ids, does not
