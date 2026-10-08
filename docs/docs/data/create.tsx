@@ -50,13 +50,13 @@ const createEndpointTableData = [
     "name": "dialNumber",
     "required": false,
     "type": "String",
-    "description": (<>The dial access number that participants can call in using regular phone. You can set a default dial number via <code className="language-plaintext highlighter-rouge">defaultDialAccessNumber</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a></>)
+    "description": (<>The dial access number that participants can call in using regular phone. You can set a default dial number via <code className="language-plaintext highlighter-rouge">defaultDialAccessNumber</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a></>)
   },
   {
     "name": "voiceBridge",
     "required": false,
     "type": "String",
-    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit numeric string in the range 00000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
+    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit numeric string in the range 00000 to 99999.  If you <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/docs/docs/administration/customize.md#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
   },
   {
     "name": "maxParticipants",
@@ -74,7 +74,7 @@ const createEndpointTableData = [
     "name": "logoutURL",
     "required": false,
     "type": "String",
-    "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
   },
   {
     "name": "meetingEndedURL",
@@ -86,7 +86,7 @@ const createEndpointTableData = [
     "name": "record",
     "required": false,
     "type": "Boolean",
-    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+    "description": (<>Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false.<br /><br /> In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the <code className="language-plaintext highlighter-rouge">autoStartRecording</code> and <code className="language-plaintext highlighter-rouge">allowStartStopRecording</code> parameters in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
   },
   {
     "name": "duration",
@@ -448,29 +448,22 @@ const createEndpointTableData = [
     "description": (<>Like <code className="language-plaintext highlighter-rouge">logo</code>, but used when the client is in dark mode. If only <code className="language-plaintext highlighter-rouge">logo</code> is provided, it is used in both light and dark modes. (added 3.0)</>)
   },
   {
-    "name": "sharedNotesEditor",
-    "required": false,
-    "type": "String",
-    "default": "blockNote",
-    "description": (<>Editor to be rendered in the shared-notes area: <code>blockNote</code> or <code>etherpad</code>. Values are stripped of control characters and surrounding whitespace, matched case-insensitively, and stored using the canonical spelling. Unknown values cause the create request to fail.</>)
-  },
-  {
     "name": "sharedNotesInitialContentJsonUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
   },
   {
     "name": "sharedNotesInitialContentMarkdown",
     "required": false,
     "type": "String",
-    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module. (added 3.0.33)</>)
+    "description": (<>Raw markdown used as the shared-notes initial content. When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module. (added 3.0.33)</>)
   },
   {
     "name": "sharedNotesInitialContentMarkdownUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently. (added 3.0.33)</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown. When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently. (added 3.0.33)</>)
   },
   {
     "name": "disabledFeatures",
@@ -567,9 +560,6 @@ const createEndpointTableData = [
                 </li>
                 <li>
                   <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
-                </li>
-                <li>
-                  <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Captions</b>
                 </li>
               </ul>
             </li>

@@ -1,5 +1,6 @@
 import { makeVar } from '@apollo/client';
 import { Notification } from './queries';
+import { expectStreamStop } from '/imports/ui/components/video-provider/state';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { throttle } from '/imports/utils/throttle';
 
@@ -123,4 +124,17 @@ export default {
   userJoinPushAlert,
   userLeavePushAlert,
   layoutUpdate,
+};
+
+export const cameraEjected = (
+  notification: Notification,
+  notifier: (notification: Notification) => void,
+) => {
+  const { streamId } = notification.messageValues;
+
+  if (streamId) expectStreamStop(streamId);
+
+  // There's one other notification for lock settings. It has its own notification handler,
+  // Notify on a case-by-case basis to avoid multiple annoying toasts.
+  if (notification.messageId === 'app.video.ejectedByModerator') notifier(notification);
 };

@@ -276,7 +276,7 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, m
 		}).
 		Observe(float64(dataSize))
 
-	if common.PrometheusAdvancedMetricsEnabled {
+	if common.AdvancedMetricsEnabled() {
 		// Decode the JSON array into raw messages
 		var rawMessages []json.RawMessage
 		err := json.Unmarshal(hasuraMessage.Payload.Data[dataKey], &rawMessages)

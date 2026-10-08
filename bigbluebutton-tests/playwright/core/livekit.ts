@@ -61,3 +61,89 @@ export const getMicPlacement = async (page: PlaywrightPage): Promise<RoomMicPlac
       ).length,
     }));
   });
+
+// The LiveKit signal socket (/rtc, or /rtc/v1 on newer SDKs).
+const LIVEKIT_SIGNAL_URL = /\/rtc(\/v1)?\?/;
+
+export interface LiveKitSignalRoute {
+  // Stops delivering the server's frames and close to every signal socket open
+  // now; returns how many open sockets were held. Sockets opened afterwards (the
+  // client's own reconnect) pass through untouched.
+  hold: () => number;
+}
+
+export const routeLiveKitSignal = async (page: PlaywrightPage): Promise<LiveKitSignalRoute> => {
+  // Routes the page's LiveKit signal sockets through Playwright so a test can
+  // intercept and hold signaling messages. Must be installed before navigation.
+  // E.g. use case.: Use the hold API in conjunction with dropLiveKitParticipant
+  // to simulate a server-side participant drop.
+  const sockets: Array<{ held: boolean; closed: boolean }> = [];
+
+  await page.routeWebSocket(LIVEKIT_SIGNAL_URL, (ws) => {
+    const socket = { held: false, closed: false };
+    sockets.push(socket);
+    const server = ws.connectToServer();
+
+    ws.onMessage((message) => {
+      try {
+        server.send(message);
+      } catch {
+        // The server side is gone once the participant was closed; the client's
+        // pings into it are expected to fail.
+      }
+    });
+    server.onMessage((message) => {
+      if (!socket.held) ws.send(message);
+    });
+    ws.onClose((code, reason) => {
+      socket.closed = true;
+      server.close({ code, reason });
+    });
+    server.onClose((code, reason) => {
+      socket.closed = true;
+      if (!socket.held) ws.close({ code, reason });
+    });
+  });
+
+  return {
+    hold: () => {
+      const open = sockets.filter((socket) => !socket.closed);
+      open.forEach((socket) => {
+        // eslint-disable-next-line no-param-reassign
+        socket.held = true;
+      });
+      return open.length;
+    },
+  };
+};
+
+export interface PrimaryRoomState {
+  state: string;
+  sid: string;
+}
+
+export const getPrimaryRoomState = async (page: PlaywrightPage): Promise<PrimaryRoomState> =>
+  page.evaluate(() => {
+    const w = window as unknown as {
+      liveKitRooms?: { getPrimary: () => { state: string; localParticipant: { sid: string } } | undefined };
+    };
+    if (!w.liveKitRooms) throw new Error('window.liveKitRooms is not exposed - the test must opt in before load');
+    const room = w.liveKitRooms.getPrimary();
+    if (!room) throw new Error('no primary LiveKit room');
+
+    return { state: room.state, sid: room.localParticipant.sid };
+  });
+
+export const dropLiveKitParticipant = async (page: PlaywrightPage): Promise<void> =>
+  page.evaluate(async () => {
+    const w = window as unknown as {
+      liveKitRooms?: { getPrimary: () => { simulateScenario: (scenario: string) => Promise<void> } | undefined };
+    };
+    const room = w.liveKitRooms?.getPrimary();
+    if (!room) throw new Error('no primary LiveKit room - window.liveKitRooms must be exposed before load');
+
+    // Makes livekit-server close the page's primary participant the way it does on
+    // NEGOTIATE_FAILED or JOIN_TIMEOUT: participant_left fires (and reaches akka as
+    // LiveKitParticipantLeftEvtMsg), but no leave is sent to the client.
+    await room.simulateScenario('node-failure');
+  });

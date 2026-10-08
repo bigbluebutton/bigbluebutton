@@ -63,10 +63,12 @@ test.describe('Recording timer', { tag: '@ci' }, () => {
       'should display the Confirm button in the recording confirmation toast',
     );
     await modPage.waitAndClick(e.confirmRecordingButton);
+    // Structural, not color-exact: the palette is themeable and dark theme
+    // shifts every computed color.
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should have a red background color when recording',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+      'recording indicator button should gain a 1px outline when recording',
+    ).toHaveCSS('border-top-style', 'solid');
 
     // The timer must start near 0:00. With the clock-skew bug it shows ~14:00 instead,
     // because the clamped (>= 0) skew leaves the client's clock offset baked into the

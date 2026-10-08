@@ -38,6 +38,7 @@ import FloatingWindowContainer from '/imports/ui/components/floating-window/cont
 import WebRTCStatsObserver from '/imports/ui/components/stats/component';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
+import LiveKitVoiceActivityAdapter from '../../core/adapters/livekit-voice-activity';
 import LayoutObserver from '../layout/observer';
 import LiveKitMembershipsManager from '/imports/ui/components/livekit/memberships-manager/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
@@ -196,6 +197,7 @@ const App: React.FC<AppProps> = ({
           {renderActionsBar()}
           <EmojiRainContainer />
           <VoiceActivityAdapter />
+          <LiveKitVoiceActivityAdapter />
         </Styled.Layout>
         <RequestPresenterContainer />
       </>
@@ -207,6 +209,8 @@ const App: React.FC<AppProps> = ({
     <>
       <ScreenReaderAlertAdapter />
       <PluginsEngineManager pluginConfig={pluginConfig} />
+      {/* The plugins engine consumes voice state in this layout too. */}
+      <LiveKitVoiceActivityAdapter />
       <LayoutEngine />
       <LayoutObserver />
       <GlobalStyles />

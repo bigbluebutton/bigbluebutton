@@ -22,6 +22,7 @@ import {
   createToolbarOptions,
 } from './service';
 import { UserListItemProps } from './types';
+import { User } from '/imports/ui/Types/user';
 import UserNameWithSubs from './user-name-with-subs/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useUserOperations } from '/imports/ui/components/user-list/hooks/useUserOperations';
@@ -55,6 +56,40 @@ const renderUserListItemIconsFromPlugin = (
     </Styled.IconRightContainer>
   );
 });
+
+interface TalkingAvatarProps {
+  user: User;
+  children: React.ReactNode;
+}
+
+// Reads the subject's talking and mute state itself, so a change re-renders the
+// avatar and not the whole row.
+const TalkingAvatar: React.FC<TalkingAvatarProps> = ({ user, children }) => {
+  const { data: isTalking } = useWhoIsTalking(user.userId);
+  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
+  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+
+  const Settings = getSettingsSingletonInstance();
+  const animations = Settings?.application?.animations;
+
+  return (
+    <Styled.Avatar
+      data-test-presenter={user.presenter ? '' : undefined}
+      data-test-avatar="userAvatar"
+      moderator={user.isModerator}
+      presenter={user.presenter}
+      talking={isTalking}
+      muted={!isUnmuted}
+      color={user.color}
+      animations={animations}
+      avatar={userAvatarFiltered}
+      you={user.userId === Auth.userID}
+    >
+      {/* @ts-ignore - UserAvatar is JS, so its inferred children type is null */}
+      {children}
+    </Styled.Avatar>
+  );
+};
 
 const UserListItem: React.FC<UserListItemProps> = ({
   currentUserIsModerator,
@@ -95,10 +130,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const isMuted = !unmutedUsers[user.userId];
-  const isTalking = talkingUsers[user.userId];
 
   const actionsPermitions = generateActionsPermissions(
     user,
@@ -108,7 +139,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
     lockSettings,
     usersPolicies,
     isBreakout,
-    isMuted,
     isChatEnabled,
     isPrivateChatEnabled,
     type,
@@ -120,7 +150,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
   } = createToolbarOptions(
     intl,
     user,
-    isMuted,
     whiteboardAccess,
     actionsPermitions,
     lockSettings,
@@ -137,11 +166,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setRaiseHand,
     operations.setUserChatLocked,
   );
-
-  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
-
-  const Settings = getSettingsSingletonInstance();
-  const animations = Settings?.application?.animations;
 
   return (
     <Styled.UserItemContents
@@ -166,24 +190,12 @@ const UserListItem: React.FC<UserListItemProps> = ({
           isOpen={modal.isOpen}
         />
       )}
-      <Styled.Avatar
-        data-test-presenter={user.presenter ? '' : undefined}
-        data-test-avatar="userAvatar"
-        moderator={user.isModerator}
-        presenter={user.presenter}
-        talking={isTalking}
-        muted={isMuted}
-        color={user.color}
-        animations={animations}
-        avatar={userAvatarFiltered}
-        you={user.userId === Auth.userID}
-      >
-        {/* @ts-ignore */}
+      <TalkingAvatar user={user}>
         <AvatarContent
           data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
           user={user}
         />
-      </Styled.Avatar>
+      </TalkingAvatar>
       <UserNameWithSubs
         subjectUser={user}
         lockSettings={lockSettings}

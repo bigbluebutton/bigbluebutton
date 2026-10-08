@@ -21,8 +21,10 @@ trait SetPresentationUploadCompletionNotifiedPubMsgHdlr extends RightsManagement
       val reason = "No permission to set presentation rendered in toast."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
+      val meetingId = liveMeeting.props.meetingProp.intId
       val presentationId = msg.body.presentationId
-      PresPresentationDAO.setPresentationUploadCompletionNotified(presentationId)
+
+      PresPresentationDAO.setPresentationUploadCompletionNotified(meetingId, presentationId)
     }
     state
   }

@@ -22,7 +22,6 @@ export interface Public {
   notes: Notes
   layout: Layout
   sidebarNavigation: SidebarNavigation
-  pads: Pads
   sharedNotes: SharedNotes
   media: Media
   stats: Stats
@@ -84,6 +83,7 @@ export interface App {
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
   appsGallery: AppsGallery
+  remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
@@ -166,6 +166,7 @@ export interface Breakouts {
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
+  inheritLockSettingsByDefault: boolean
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
@@ -220,6 +221,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  recordingIndicatorAutoCollapse: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
@@ -617,10 +619,6 @@ export interface SidebarNavigation {
   buttons: SidebarNavigationButtons
 }
 
-export interface Pads {
-  url: string
-}
-
 export interface SharedNotes {
   serverHostname: string
   maxDocumentChars: number
@@ -687,8 +685,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings

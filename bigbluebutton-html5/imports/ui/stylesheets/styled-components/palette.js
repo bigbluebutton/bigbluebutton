@@ -19,6 +19,7 @@ const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
 const colorBlueAux = 'var(--color-blue-aux, #E5EFFB)';
+const colorBlueDark = 'var(--color-blue-dark, #0F4D9D)';
 const colorBlueLightestChannel = '228 236 242';
 const colorBlueLighterChannel = '146 188 234';
 
@@ -60,6 +61,12 @@ const btnDefaultGhostColor = `var(--btn-default-color, ${colorWhite})`;
 const btnDefaultGhostBg = 'var(--btn-default-bg, rgba(255, 255, 255, 0.1))'; // colorWhite, 10%
 const btnDefaultGhostBorder = 'var(--btn-default-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
 const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255, 0.2))'; // colorWhite, 20%
+
+// Recording indicator, active state only; the idle one keeps btnDefaultGhostBg.
+// Both compose colorDanger, so retheming --color-danger reaches this state too.
+// The fill is that red at 22%, so the outline below reads as the same colour.
+const btnRecordingActiveBg = `var(--btn-recording-active-bg, color-mix(in srgb, ${colorDanger} 22%, transparent))`;
+const btnRecordingActiveBorder = `var(--btn-recording-active-border, ${colorDanger})`;
 
 const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
@@ -199,6 +206,7 @@ export {
   colorBlueLightestChannel,
   colorBlueLighterChannel,
   colorBlueAux,
+  colorBlueDark,
   colorPrimary,
   colorDanger,
   colorDangerDark,
@@ -223,6 +231,8 @@ export {
   btnDefaultGhostBg,
   btnDefaultGhostBorder,
   btnDefaultGhostActiveBg,
+  btnRecordingActiveBg,
+  btnRecordingActiveBorder,
   btnPrimaryBorder,
   btnPrimaryColor,
   btnPrimaryBg,

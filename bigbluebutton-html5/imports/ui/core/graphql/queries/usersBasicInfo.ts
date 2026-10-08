@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 const USERS_BASIC_INFO_SUBSCRIPTION = gql`
   subscription UsersBasicInfo {
-    user(order_by: {nameSortable: asc, userId: asc}) {
+    user(order_by: [{ nameSortable: asc }, { userId: asc }]) {
       meetingId
       userId
       extId

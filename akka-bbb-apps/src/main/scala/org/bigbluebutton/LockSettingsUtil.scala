@@ -150,6 +150,7 @@ object LockSettingsUtil {
           liveMeeting.props.meetingProp.intId,
           user.intId,
           webcam.streamId,
+          CameraHdlrHelpers.CAM_EJECTED_BY_LOCK,
           outGW
         )
       }

@@ -57,6 +57,7 @@ export const meetingComparator = <T>(
   if ((aup?.maxUsers ?? 0) !== (bup?.maxUsers ?? 0)) return false;
   if ((aup?.meetingId ?? '') !== (bup?.meetingId ?? '')) return false;
   if ((aup?.meetingLayout ?? '') !== (bup?.meetingLayout ?? '')) return false;
+  if ((aup?.multiUserWhiteboardEnabled ?? false) !== (bup?.multiUserWhiteboardEnabled ?? false)) return false;
   if ((aup?.userCameraCap ?? 0) !== (bup?.userCameraCap ?? 0)) return false;
   if ((aup?.webcamsOnlyForModerator ?? false) !== (bup?.webcamsOnlyForModerator ?? false)) return false;
   if ((aup?.guestLobbyMessage ?? '') !== (bup?.guestLobbyMessage ?? '')) return false;

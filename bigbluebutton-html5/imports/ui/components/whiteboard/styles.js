@@ -231,10 +231,30 @@ const TldrawV2GlobalStyle = createGlobalStyle`
           grid-row: auto / auto !important;
           position: relative !important;
           top: 2px !important;
+          left: 0 !important;
+          right: 0 !important;
+          max-width: 100% !important;
+        }
+
+        .tlui-toolbar,
+        .tlui-toolbar__inner,
+        .tlui-toolbar__left {
+          max-width: 100% !important;
+        }
+
+        .tlui-toolbar__tools {
+          flex-wrap: wrap !important;
+          justify-content: center !important;
+        }
+
+        .tlui-toolbar__tools .tlui-button__tool {
+          width: 30px !important;
+          min-width: 30px !important;
         }
 
         .tlui-toolbar__tools.tlui-toolbar__tools__mobile {
-          height: 30px !important;
+          min-height: 30px !important;
+          height: auto !important;
         }
 
         [data-side="top"][role="dialog"]:has(.tlui-style-panel) {

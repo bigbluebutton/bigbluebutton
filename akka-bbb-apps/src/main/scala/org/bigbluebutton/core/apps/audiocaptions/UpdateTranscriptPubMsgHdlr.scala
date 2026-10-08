@@ -8,6 +8,25 @@ import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x, VoiceUs
 import org.bigbluebutton.core.running.LiveMeeting
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.{IllformedLocaleException, Locale}
+
+private[audiocaptions] object CaptionLocale {
+  // Keep caption_<locale>.vtt within the 255-byte Linux filename limit.
+  private val MaxLength = 255 - "caption_".length - ".vtt".length
+  private val SafeCharacters = "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$".r
+
+  def isValid(locale: String): Boolean = {
+    if (locale == null || locale.length > MaxLength || !SafeCharacters.pattern.matcher(locale).matches()) {
+      false
+    } else {
+      try {
+        new Locale.Builder().setLanguageTag(locale).build().toLanguageTag == locale
+      } catch {
+        case _: IllformedLocaleException => false
+      }
+    }
+  }
+}
 
 trait UpdateTranscriptPubMsgHdlr {
   this: AudioCaptionsApp2x =>
@@ -46,7 +65,13 @@ trait UpdateTranscriptPubMsgHdlr {
 
     val isTranscriptionEnabled = !liveMeeting.props.meetingProp.disabledFeatures.contains("liveTranscription")
 
-    if (isTranscriptionEnabled) {
+    if (!CaptionLocale.isValid(msg.body.locale)) {
+      context.system.log.warning(
+        "Ignoring transcript with an invalid locale from user {} in meeting {}",
+        msg.header.userId,
+        meetingId
+      )
+    } else if (isTranscriptionEnabled) {
       for {
         u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
         voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.header.userId)

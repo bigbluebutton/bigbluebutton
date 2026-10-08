@@ -244,6 +244,7 @@ class PresentationController {
     if (!uriMatcher.matches()) {
       log.debug("Refusing presentation upload that did not arrive on the upload path." +
               " uri=" + sanitizeForLog(requestUri))
+      response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
@@ -257,20 +258,23 @@ class PresentationController {
     PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(authzToken)
     if (presUploadToken == null) {
       log.debug "WARNING! AuthzToken=" + sanitizeForLog(authzToken) + " was not valid (or already used) in meetingId=" + sanitizeForLog(params.conference)
+      response.setStatus(403)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
 
-    def meetingId = presUploadToken.meetingId
-    if (params.conference != null && params.conference != meetingId) {
-      log.warn("Ignoring conference parameter that does not match the upload token." +
-              " meetingId=" + meetingId +
-              " presentationId=" + presUploadToken.presentationId +
-              " requestedMeetingId=" + sanitizeForLog(params.conference))
+    if (!presUploadToken.isValidFor(params.conference)) {
+      log.warn "Presentation upload token scope mismatch for requested meetingId=" + sanitizeForLog(params.conference)
+      response.setStatus(403)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'upload token scope mismatch'
+      return
     }
 
+    def meetingId = presUploadToken.meetingId
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
       if (meeting == null) {

@@ -154,26 +154,11 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Pads
-      case PadGroupCreatedEvtMsg.NAME =>
-        routePadMsg[PadGroupCreatedEvtMsg](envelope, jsonNode)
-      case PadCreateReqMsg.NAME =>
-        routeGenericMsg[PadCreateReqMsg](envelope, jsonNode)
-      case PadCreatedEvtMsg.NAME =>
-        routePadMsg[PadCreatedEvtMsg](envelope, jsonNode)
       case BNSharedNotesCreatedEvtMsg.NAME =>
         routePadMsg[BNSharedNotesCreatedEvtMsg](envelope, jsonNode)
       case BNSharedNotesUpdatedEvtMsg.NAME =>
         routePadMsg[BNSharedNotesUpdatedEvtMsg](envelope, jsonNode)
-      case PadCreateSessionReqMsg.NAME =>
-        routeGenericMsg[PadCreateSessionReqMsg](envelope, jsonNode)
-      case PadSessionCreatedEvtMsg.NAME =>
-        routePadMsg[PadSessionCreatedEvtMsg](envelope, jsonNode)
-      case PadSessionDeletedSysMsg.NAME =>
-        routePadMsg[PadSessionDeletedSysMsg](envelope, jsonNode)
-      case PadUpdatedSysMsg.NAME =>
-        routePadMsg[PadUpdatedSysMsg](envelope, jsonNode)
-      case PadContentSysMsg.NAME =>
-        routePadMsg[PadContentSysMsg](envelope, jsonNode)
+      // TODO(4.1 etherpad removal, #25720)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
       case PadPinnedReqMsg.NAME =>

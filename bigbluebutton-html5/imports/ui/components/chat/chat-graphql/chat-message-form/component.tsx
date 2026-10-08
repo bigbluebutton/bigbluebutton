@@ -153,6 +153,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
+  const inputWrapperRef = useRef<HTMLDivElement>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
@@ -381,6 +382,21 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       textAreaRef.current?.dispatchEvent?.('autosize:update');
     }
   }, [message]);
+
+  useEffect(() => {
+    const wrapper = inputWrapperRef.current;
+    if (!wrapper) return undefined;
+    let lastWidth = wrapper.clientWidth;
+    // autosize re-measures on input and on window resize only; dragging the
+    // panel edge changes the textarea's width with neither.
+    const observer = new ResizeObserver(() => {
+      if (wrapper.clientWidth === lastWidth) return;
+      lastWidth = wrapper.clientWidth;
+      textAreaRef.current?.dispatchEvent('autosize:update');
+    });
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleReplyIntention = (e: Event) => {
@@ -670,6 +686,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         ) : null}
         <Styled.Wrapper>
           <Styled.InputWrapper
+            ref={inputWrapperRef}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 textAreaRef.current?.textarea.focus();
@@ -875,4 +892,5 @@ const ChatMessageFormContainer: React.FC = () => {
   );
 };
 
-export default ChatMessageFormContainer;
+// Takes no props: the memo keeps re-renders of the chat panel from reaching it.
+export default React.memo(ChatMessageFormContainer);

@@ -1,5 +1,6 @@
 import React, {
   useMemo,
+  useRef,
   useState,
   useCallback,
   memo,
@@ -9,6 +10,7 @@ import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import logger from '/imports/startup/client/logger';
 import {
   useMutation, useSubscription, useQuery,
 } from '@apollo/client';
@@ -84,9 +86,15 @@ const PresentationContainer = ({
     {
       variables: { pageId: currentPageId },
       skip: !currentPageId,
+      // Fetched on every mount: the container is unmounted while a screen share
+      // or external video is displayed, and the history stream below must start
+      // from the page state at remount, not from a cached snapshot taken at join.
+      fetchPolicy: 'network-only',
     },
   );
 
+  // Erased annotations keep their row, with the time they were erased, so this
+  // is the time of the newest annotation event on the page, deletions included.
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations) return null;
 
@@ -102,13 +110,23 @@ const PresentationContainer = ({
   }, [initialPageAnnotations, currentMeeting?.createdTime]);
 
   const canStream = !!lastUpdatedAt;
+  const lastSeenEventAt = useRef(0);
 
   useSubscription(ANNOTATION_HISTORY_STREAM, {
     variables: { pageId: currentPageId, updatedAt: lastUpdatedAt },
     skip: !currentPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
-      if (annotationStream.length > 0 && restoreOnUpdate && !presentationIsOpen) {
+      // A batch with nothing newer than where the stream started, or than what
+      // it already delivered, is a replay and must not restore the presentation.
+      const newestInBatch = annotationStream.reduce(
+        (latest, row) => Math.max(latest, new Date(row.updatedAt).getTime()),
+        0,
+      );
+      const streamStartedAt = new Date(lastUpdatedAt).getTime();
+      const hasNewEvent = newestInBatch > Math.max(streamStartedAt, lastSeenEventAt.current);
+      lastSeenEventAt.current = Math.max(lastSeenEventAt.current, newestInBatch);
+      if (restoreOnUpdate && !presentationIsOpen && hasNewEvent) {
         MediaService.setPresentationIsOpen(layoutContextDispatch, true);
       }
       setAnnotationStreamData(annotationStream);
@@ -123,6 +141,10 @@ const PresentationContainer = ({
   const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
   const setMultiUserWhiteboardEnabled = () => {
+    logger.info({
+      logCode: 'whiteboard_multi_user_toggle',
+      extraInfo: { logType: 'presenter_action', enabled: true },
+    }, 'presenter enabled multi-user whiteboard for the meeting');
     userSetWhiteboardWriteAccess({
       variables: {
         userIds: [],
@@ -133,6 +155,10 @@ const PresentationContainer = ({
   };
 
   const setMultiUserWhiteboardDisabled = () => {
+    logger.info({
+      logCode: 'whiteboard_multi_user_toggle',
+      extraInfo: { logType: 'presenter_action', enabled: false },
+    }, 'presenter disabled multi-user whiteboard for the meeting');
     userSetWhiteboardWriteAccess({
       variables: {
         userIds: [],

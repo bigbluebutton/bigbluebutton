@@ -24,7 +24,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
-import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
   setUserSelectedMicrophone,
@@ -334,9 +334,7 @@ class AudioManager {
     // Observe voice activity changes to update any relevant *local* states
     // (see onVoiceUserChanges)
     if (!this._voiceActivityObserver) {
-      const subHash = stringToHash(JSON.stringify({
-        subscription: VOICE_ACTIVITY,
-      }));
+      const subHash = getSubscriptionHash(VOICE_ACTIVITY);
       this._voiceActivityObserver = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
       window.addEventListener('graphqlSubscription', (e) => {
         const { subscriptionHash, response } = e.detail;
@@ -676,10 +674,14 @@ class AudioManager {
 
     let newMuteState;
 
-    // when user leaves voice conf, set muted = false
-    // as the user might have been transfered to a breakout room
+    // On the FreeSWITCH bridge a voice-conf leave means a transfer may be under
+    // way, so the user is unmuted. Under LiveKit it can only be a reconnect or a
+    // disconnect, and the event carries no observed voice state at all: akka
+    // builds it from an empty voice user, whose mute field is a hard-coded
+    // placeholder. Neither half of it says anything about this user, so the
+    // whole event is ignored rather than just its unmute.
     if (leftVoiceConf !== undefined && leftVoiceConf) {
-      newMuteState = false;
+      if (!this.isUsingLiveKit) newMuteState = false;
     } else if (muted !== undefined && muted !== this.isMuted) {
       newMuteState = muted;
     }

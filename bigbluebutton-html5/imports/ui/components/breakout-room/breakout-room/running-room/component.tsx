@@ -94,6 +94,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.stopListeningToRoom',
     description: 'Stop listening to breakout room audio',
   },
+  listenAlreadyInRoom: {
+    id: 'app.createBreakoutRoom.listenAlreadyInRoom',
+    description: 'Listen option label while the user is joined in that breakout room',
+  },
   sendMessage: {
     id: 'app.chat.submitLabel',
     description: 'Send message button label',
@@ -230,6 +234,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   ]);
 
   const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
+    if (breakout.isUserCurrentlyInRoom) return;
+
     if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
       breakoutRoomTransfer({
         variables: {
@@ -486,9 +492,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         },
                         {
                           key: `listen-${breakout.breakoutRoomMeetingId}`,
-                          label: isListening
-                            ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                            : intl.formatMessage(intlMessages.listenToRoom),
+                          // A live full join in this room (another tab) would play the
+                          // listen-in mic back to the user through that session.
+                          label: breakout.isUserCurrentlyInRoom
+                            ? intl.formatMessage(intlMessages.listenAlreadyInRoom)
+                            : intl.formatMessage(
+                              isListening ? intlMessages.stopListeningToRoom : intlMessages.listenToRoom,
+                            ),
+                          disabled: breakout.isUserCurrentlyInRoom,
                           dataTest: `listenToBreakoutRoomButton${breakout.sequence}`,
                           onClick: () => handleListenToRoom(breakout),
                         },

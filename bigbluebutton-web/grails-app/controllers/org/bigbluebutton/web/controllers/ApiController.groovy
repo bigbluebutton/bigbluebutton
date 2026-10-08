@@ -1439,7 +1439,7 @@ class ApiController {
         queryParameters.put("sessionName", params.sessionName);
       }
 
-      List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(","));
+      List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(",")).collect { it.trim() };
 
       boolean isModerator = us.role?.equals(ROLE_MODERATOR);
       boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
@@ -1451,9 +1451,15 @@ class ApiController {
 
                 // For prefix userdata-
                 if (key.startsWith("userdata-")) {
+                  String userdataName = key - "userdata-"
+                  if (!userdataName.matches(/[A-Za-z0-9_.]+/)) {
+                    log.warn("Ignoring malformed userdata parameter in getJoinUrl request: [{}]", ParamsUtil.sanitizeString(key))
+                    return false
+                  }
+
                   if (isModerator && !meeting.isBreakout()) return true
                   if (blockAllUserdataForViewers) return false
-                  return !userdataBlocklistForViewers.contains(key - "userdata-")
+                  return !userdataBlocklistForViewers.any { it.equalsIgnoreCase(userdataName) }
                 }
 
                 return false
@@ -1463,7 +1469,7 @@ class ApiController {
 
       String httpQueryString = "";
       for(String parameterName : queryParameters.keySet()) {
-        httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + parameterName + "=" + validationService.encodeString(queryParameters.get(parameterName));
+        httpQueryString += ( queryParameters.isEmpty() ? "?" : "&" ) + validationService.encodeString(parameterName) + "=" + validationService.encodeString(queryParameters.get(parameterName));
       }
 
       String checksum = DigestUtils.sha1Hex(method + httpQueryString + validationService.getSecuritySalt())
@@ -2248,8 +2254,6 @@ class ApiController {
     Boolean enabled = maxParticipants > 0;
     // Users refreshing page or reconnecting must be identified
     Boolean rejoin = meeting.getUserById(us.internalUserId) != null;
-    // Users that passed enter once, still not joined but somehow re-entered
-    Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
     // User are able to rejoin if he already joined previously with the same extId
     Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
     // Bot users should not be affected by max partiicpants limitation
@@ -2257,13 +2261,11 @@ class ApiController {
     // Users that already joined the meeting
     // It will count only unique users in order to avoid the same user from filling all slots
     int joinedUniqueUsers = meeting.countUniqueExtIds()
-    // Users that are entering the meeting
-    int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
+    log.info("Joined users - ${joinedUniqueUsers}")
 
     Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax && !isBot) {
+    if (enabled && !rejoin && !userExtIdAlreadyJoined && reachedMax && !isBot) {
       return true;
     }
 
