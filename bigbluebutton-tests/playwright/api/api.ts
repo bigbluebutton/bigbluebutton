@@ -4,6 +4,7 @@ import * as xml2js from 'xml2js';
 
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
 import { createMeeting, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
+import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 
 // Minimal shape of the /create response we assert on (xml2js wraps every
@@ -15,6 +16,14 @@ interface CreateResponse {
     errors?: { error: { key: string[]; message: string[] }[] }[];
   };
 }
+
+// Browser hardening headers Grails 8 adds to every bbb-web response (apache/grails-core#15967).
+const BBB_WEB_SECURITY_HEADERS: Record<string, string> = {
+  'x-frame-options': 'SAMEORIGIN',
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'x-xss-protection': '0',
+};
 
 export class API extends MultiUsers {
   async getNewPageTab() {
@@ -219,5 +228,28 @@ export class API extends MultiUsers {
 
     await this.modPage.page.close();
     await this.userPage.page.close();
+  }
+
+  // A document, a redirect and an error response from bbb-web all carry the headers.
+  static async testBbbWebSecurityHeaders() {
+    const server = parameters.server!.replace(/\/$/, '');
+    const meetingID = await createMeeting();
+    const responses = {
+      'GET /api': await axios.get(`${server}/api`, { adapter: 'http' }),
+      'join redirect': await axios.get(getJoinURL({ meetingID, fullName: 'Headers' }), {
+        adapter: 'http',
+        maxRedirects: 0,
+        validateStatus: (status) => status === 302,
+      }),
+      'unmapped URL': await axios.get(`${server}/no-such-endpoint`, {
+        adapter: 'http',
+        validateStatus: (status) => status === 404,
+      }),
+    };
+    for (const [request, response] of Object.entries(responses)) {
+      for (const [header, value] of Object.entries(BBB_WEB_SECURITY_HEADERS)) {
+        expect(response.headers[header], `${request} should send ${header}: ${value}`).toEqual(value);
+      }
+    }
   }
 }
