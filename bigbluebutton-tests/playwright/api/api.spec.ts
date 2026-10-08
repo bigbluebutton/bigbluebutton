@@ -43,6 +43,10 @@ test.describe.parallel('API', () => {
     await API.testBbbWebSecurityHeaders();
   });
 
+  test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page }) => {
+    await API.testJoinInsideCrossOriginFrame(page);
+  });
+
   test('breakoutWithoutParent', async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });

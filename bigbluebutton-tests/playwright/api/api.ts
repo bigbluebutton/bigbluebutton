@@ -2,6 +2,8 @@ import { expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
 import axios from 'axios';
 import * as xml2js from 'xml2js';
 
+import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
 import { createMeeting, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
 import { parameters } from '../core/parameters';
@@ -251,5 +253,42 @@ export class API extends MultiUsers {
         expect(response.headers[header], `${request} should send ${header}: ${value}`).toEqual(value);
       }
     }
+  }
+
+  // An LMS-style page on another origin frames the join URL: the join redirect carries
+  // X-Frame-Options, but the client it redirects to is served by nginx without it, so the
+  // meeting still loads. A document rendered by bbb-web itself is refused in such a frame.
+  // allowRequestsWithoutSession: the JSESSIONID cookie is not sent from a cross-site frame.
+  static async testJoinInsideCrossOriginFrame(page: PlaywrightPage) {
+    const server = parameters.server!.replace(/\/$/, '');
+    const meetingID = await createMeeting('allowRequestsWithoutSession=true');
+    const joinUrl = getJoinURL({
+      meetingID,
+      fullName: 'Framed',
+      options: { isModerator: true, skipSessionDetailsModal: true },
+    });
+    const parentUrl = 'https://lms.example.test/course';
+    await page.route(parentUrl, (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body:
+          '<!doctype html><title>LMS</title>' +
+          `<iframe id="meeting" src="${joinUrl.replace(/&/g, '&amp;')}" allow="microphone; camera" ` +
+          'style="width:1280px;height:720px"></iframe>' +
+          `<iframe id="api" src="${server}/api"></iframe>`,
+      }),
+    );
+    await page.goto(parentUrl);
+
+    await expect(
+      page.frameLocator('#meeting').locator(e.audioModal),
+      'the client should load inside a frame on another origin',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+
+    const apiFrame = await (await page.$('#api'))!.contentFrame();
+    const apiFrameText = await apiFrame!.evaluate(() => document.documentElement.textContent || '');
+    expect(apiFrameText, 'bbb-web should not render its own response inside a frame on another origin').not.toContain(
+      'SUCCESS',
+    );
   }
 }
