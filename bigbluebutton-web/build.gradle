@@ -2,9 +2,6 @@ repositories {
   mavenCentral()
   mavenLocal()
   maven { url = "https://repo.grails.org/grails/core" }
-  // TEMP: Grails 8.0.0 is not on Maven Central yet (ASF release vote in
-  // progress); remove the staging repo once the 8.0.0 artifacts are promoted.
-  maven { url = "https://repository.apache.org/content/groups/staging" }
 }
 
 buildscript {
@@ -12,8 +9,6 @@ buildscript {
     mavenCentral()
     mavenLocal()
     maven { url = "https://repo.grails.org/grails/core" }
-    // TEMP: see note above — remove once Grails 8.0.0 reaches Maven Central.
-    maven { url = "https://repository.apache.org/content/groups/staging" }
   }
   dependencies {
     classpath platform("org.apache.grails:grails-gradle-bom:${grailsVersion}")
@@ -64,9 +59,6 @@ repositories {
   mavenCentral()
   mavenLocal()
   maven { url = "https://repo.grails.org/grails/core" }
-  // TEMP: Grails 8.0.0 is not on Maven Central yet (ASF release vote in
-  // progress); remove the staging repo once the 8.0.0 artifacts are promoted.
-  maven { url = "https://repository.apache.org/content/groups/staging" }
 }
 
 dependencies {
