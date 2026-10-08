@@ -17,6 +17,14 @@ public:
     # again or reloading page and joining mic again.
     # This setting won't have effect if skipCheck = true
     skipCheckOnJoin: false
+    # When true, the user hears no audio until they explicitly join (click "Join
+    # audio"), restoring the pre-3.0 behavior where the user could end up with no
+    # audio. With LiveKit the audio bridge connection is not optional (transparent
+    # listen-only connects on entry), so instead of avoiding the connection the
+    # user is deafened at join time and undeafened only on an explicit join.
+    # Default false preserves the current 3.0 behavior (the user hears audio once
+    # the modal is closed).
+    deafenAudioUntilExplicitJoin: false
     #
     # Allow users to change microphone/speaker dynamically
     # The device is changed immediately, without the need to rejoin
