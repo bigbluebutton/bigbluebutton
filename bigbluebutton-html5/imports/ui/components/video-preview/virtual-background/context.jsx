@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { v4 as uuid } from 'uuid';
 import { throttle } from '/imports/utils/throttle';
-import Service from './service';
+import Service from '/imports/ui/services/virtual-background/custom-backgrounds';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';

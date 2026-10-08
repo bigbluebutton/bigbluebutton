@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
@@ -32,6 +32,10 @@ import {
   useVideoState,
 } from './state';
 import { VIDEO_TYPES } from './enums';
+import VideoPreviewService from '/imports/ui/components/video-preview/service';
+import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
+import { applyStoredEffects as restoreStoredEffects } from '/imports/ui/services/virtual-background/service';
+import { BBBVideoStream } from '/imports/ui/components/video-preview/hooks/types';
 
 interface VideoProviderContainerProps {
   focusedId: string;
@@ -48,6 +52,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
   const [meetingSettings] = useMeetingSettings();
   const connectingStream = useConnectingStream();
+  const { backgrounds: customBackgrounds } = useContext(CustomVirtualBackgroundsContext);
 
   const sendUserShareWebcam = (cameraId: string) => {
     return cameraBroadcastStart({ variables: { cameraId, contentType: 'camera' } });
@@ -88,6 +93,12 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING);
 
   const isClientConnected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
+
+  const applyStoredEffects = async (stream: BBBVideoStream) => {
+    const deviceId = VideoPreviewService.getVideoStreamDeviceId(stream)
+      || VideoPreviewService.webcamDeviceId();
+    await restoreStoredEffects(stream, deviceId, { customBackgrounds });
+  };
 
   const {
     streams,
@@ -186,8 +197,13 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     lockUser,
     stopVideo,
     applyCameraProfile,
+    applyStoredEffects,
   };
 
+  // Both bridges receive the same props, but applyStoredEffects is only read by VideoProvider:
+  // the automatic effect restore exists because bbb-webrtc-sfu republishes the camera from
+  // scratch after an outage. The LiveKit bridge keeps its tracks across a reconnection, so its
+  // effects are never torn down and there is nothing to restore.
   switch (currentMeeting?.cameraBridge) {
     case 'bbb-webrtc-sfu':
       return (
