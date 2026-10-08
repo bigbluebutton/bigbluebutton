@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { BBBModal } from '@bigbluebutton/bbb-ui-components-react';
 import type { ModalPriority } from '/imports/ui/core/singletons/modalController';
 import {
@@ -64,6 +64,30 @@ export interface GenericModalProps {
 }
 
 /**
+ * Positions the modal content directly below `anchorElement`, centred on it
+ * and clamped to the viewport. `position: fixed` takes the content out of the
+ * overlay's flex flow, so the overlay's centring no longer applies.
+ */
+const getAnchoredStyle = (anchorElement: HTMLElement): React.CSSProperties => {
+  const anchorRect = anchorElement.getBoundingClientRect();
+  const anchorCenterX = anchorRect.left + anchorRect.width / 2;
+  const marginX = 10;
+  const viewportWidth = document.documentElement.clientWidth;
+  const effectiveWidth = Math.min(600, viewportWidth - 2 * marginX);
+  const rawLeft = anchorCenterX - effectiveWidth / 2;
+  const left = Math.max(marginX, Math.min(rawLeft, viewportWidth - effectiveWidth - marginX));
+
+  return {
+    position: 'fixed',
+    top: `${anchorRect.bottom + 10}px`,
+    left: `${left}px`,
+    width: `${effectiveWidth}px`,
+    maxWidth: `${effectiveWidth}px`,
+    overflow: 'visible',
+  };
+};
+
+/**
  * GenericModal — the single, unified modal primitive for BigBlueButton HTML5.
  *
  * Built on top of `BBBModal` from `@bigbluebutton/bbb-ui-components-react`, it adds
@@ -125,38 +149,32 @@ const GenericModal: React.FC<GenericModalProps> = ({
 
   useEffect(() => () => unregisterDocumentTitleView(documentTitleViewId), [documentTitleViewId]);
 
-  // contentRef: applied directly to the ReactModal content element, since
-  // BBBModal's props extend ReactModal.Props.
-  const contentRefCallback = useCallback((node: HTMLDivElement | null) => {
-    if (!node) return;
+  // The ReactModal content element (BBBModal forwards `contentRef`), styled
+  // imperatively because BBBModal owns its inline `style`.
+  const [contentNode, setContentNode] = useState<HTMLDivElement | null>(null);
+  // Serialized so an inline `contentStyle` literal does not re-apply every render.
+  const contentStyleKey = contentStyle ? JSON.stringify(contentStyle) : '';
 
-    if (contentStyle) {
-      Object.assign(node.style, contentStyle);
-    }
+  useLayoutEffect(() => {
+    if (!contentNode) return undefined;
 
-    if (anchorElement) {
-      // Position the modal content directly below the anchor element.
-      // position:fixed removes the element from the overlay's flex flow so
-      // align-items/justify-content no longer affect placement.
-      const anchorRect = anchorElement.getBoundingClientRect();
-      const anchorCenterX = anchorRect.left + anchorRect.width / 2;
-      const marginX = 10;
-      const viewportWidth = document.documentElement.clientWidth;
-      // Constrain width so the modal never overflows the viewport (important on mobile).
-      const effectiveWidth = Math.min(600, viewportWidth - 2 * marginX);
-      // Center under the anchor, then clamp so neither edge escapes the viewport.
-      const rawLeft = anchorCenterX - effectiveWidth / 2;
-      const left = Math.max(marginX, Math.min(rawLeft, viewportWidth - effectiveWidth - marginX));
-      Object.assign(node.style, {
-        position: 'fixed',
-        top: `${anchorRect.bottom + 10}px`,
-        left: `${left}px`,
-        width: `${effectiveWidth}px`,
-        maxWidth: `${effectiveWidth}px`,
-        overflow: 'visible',
-      });
-    }
-  }, [anchorElement, contentStyle]);
+    const { style } = contentNode;
+    // Restoring the library's inline styles drops whatever a previous
+    // anchor or contentStyle set before the current ones are applied.
+    const baseCssText = style.cssText;
+    const applyStyles = () => {
+      style.cssText = baseCssText;
+      Object.assign(style, contentStyle, anchorElement ? getAnchoredStyle(anchorElement) : undefined);
+    };
+
+    applyStyles();
+    if (anchorElement) window.addEventListener('resize', applyStyles);
+
+    return () => {
+      window.removeEventListener('resize', applyStyles);
+      style.cssText = baseCssText;
+    };
+  }, [contentNode, anchorElement, contentStyleKey]);
 
   return (
     <BBBModal
@@ -173,7 +191,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
       hideCloseButton={hideCloseButton}
       footerContent={footerContent}
       stickyFooter={stickyFooter}
-      contentRef={contentRefCallback}
+      contentRef={setContentNode}
       parentSelector={() => document.querySelector<HTMLElement>('#modals-container') ?? document.body}
       portalClassName={`modal-${priority ?? 'low'}`}
       testId={dataTest}
