@@ -181,6 +181,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
     });
 
+    test('Exported text annotation keeps the client line breaks', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationKeepsClientLineBreaks(testInfo);
+    });
+
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
