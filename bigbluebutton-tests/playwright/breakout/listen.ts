@@ -18,6 +18,8 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { getMicPlacement } from '../core/livekit';
 import { Page } from '../core/page';
+import { getDefaultLocaleValue } from '../core/util';
+import { applyUserListLock } from '../user/util';
 import { Join } from './join';
 
 // Purposes carried by the user_livekit_room memberships.
@@ -124,11 +126,11 @@ export class Listen extends Join {
   // Moderator creates two default breakout rooms with the attendee randomly
   // assigned to one of them; the attendee joins that room with a microphone and
   // is talking there. Returns the joined page plus the resolved assigned sequence.
-  async setup(): Promise<{ breakoutUserPage: Page; assignedSequence: number }> {
+  async setup(inheritLockSettings = false): Promise<{ breakoutUserPage: Page; assignedSequence: number }> {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    const assignedSequence = await this.createBreakoutAssignedToAttendee();
+    const assignedSequence = await this.createBreakoutAssignedToAttendee(inheritLockSettings);
     const breakoutUserPage = await this.joinRoom(true);
     await breakoutUserPage.hasElement(e.isTalking, `attendee should be talking in breakout room ${assignedSequence}`);
 
@@ -140,7 +142,7 @@ export class Listen extends Join {
   // attendee then lands in EITHER room (resolveAssignedSequence reads it
   // back), and the cross-client invite is waited out with a one-shot reload
   // recovery. Returns the assigned sequence.
-  private async createBreakoutAssignedToAttendee(): Promise<number> {
+  private async createBreakoutAssignedToAttendee(inheritLockSettings = false): Promise<number> {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
@@ -148,6 +150,18 @@ export class Listen extends Join {
     // randomlyAssign only mounts once the create panel has fully rendered;
     // waiting to click it settles the panel without a fixed sleep.
     await this.modPage.waitAndClick(e.randomlyAssign, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    if (inheritLockSettings) {
+      // the inherit toggle lives behind the create panel's "more options" disclosure
+      await this.modPage.waitAndClick(e.moreOptionsToggle);
+      const inheritCheckbox = this.modPage.page.locator(e.inheritLockSettingsCheckbox);
+      await inheritCheckbox.waitFor({ state: 'attached', timeout: ELEMENT_WAIT_LONGER_TIME });
+      // retried: under load a single click can land before the switch is wired and not register
+      await expect(async () => {
+        if (!(await inheritCheckbox.isChecked())) await inheritCheckbox.click({ force: true });
+        await expect(inheritCheckbox).toBeChecked({ timeout: ELEMENT_WAIT_TIME });
+      }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    }
+
     const createButton = this.modPage.page.locator(e.createBreakoutRoomsButton);
     await expect(createButton, 'random assignment should enable the create button').toBeEnabled({
       timeout: ELEMENT_WAIT_LONGER_TIME,
@@ -195,8 +209,8 @@ export class Listen extends Join {
 
   // Reaches the steady listen state: attendee talking in their assigned breakout,
   // the moderator with a connected (muted) mic in main, listening to that breakout.
-  async reachListen(): Promise<{ breakoutUserPage: Page; room: BreakoutRoomInfo }> {
-    const { breakoutUserPage, assignedSequence } = await this.setup();
+  async reachListen(inheritLockSettings = false): Promise<{ breakoutUserPage: Page; room: BreakoutRoomInfo }> {
+    const { breakoutUserPage, assignedSequence } = await this.setup(inheritLockSettings);
     await this.connectModMicrophone();
     const room = await this.listenToRoom(assignedSequence);
 
@@ -359,6 +373,61 @@ export class Listen extends Join {
   }
 
   // -- Test cases --
+
+  /**
+   * Breakout listen-in under "Hide user list".
+   *
+   * A moderator listening in from the parent meeting is a participant in the breakout's
+   * LiveKit room but not a user of the breakout meeting, so the breakout's voice-activity
+   * stream never carries them and the client has no server-vouched name for them.
+   *
+   * The lock must not turn that absence into a disappearance. The attendee is hearing them
+   * regardless, so the indicator stays; what the client cannot vouch for is the name, so
+   * that is what gets withheld. Dropping the entry instead would make a moderator - the
+   * class the lock exempts - inaudible-but-invisible, undoing the listen-in feature for
+   * every locked breakout.
+   */
+  async hideUserListKeepsListeningModeratorIndicator(): Promise<void> {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    // Locked in the main room first, then inherited by the breakout at creation.
+    await applyUserListLock(this.modPage);
+
+    const { breakoutUserPage } = await this.reachListen(true);
+
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+
+    // The listening moderator still reaches the locked attendee as a second talker.
+    await this.expectBreakoutActiveTalkers(
+      breakoutUserPage,
+      2,
+      'locked attendee should still hear and see the listening moderator as a second talker',
+    );
+
+    const entries = breakoutUserPage.page.locator(`${e.talkingIndicator} :is(${e.isTalking}, ${e.wasTalking})`);
+
+    // ... but without their name, which no server-vouched source supplied.
+    await expect(
+      entries.locator(`:text-is("${this.modPage.username}")`),
+      'locked attendee must not be shown the listening moderator name',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
+
+    // Resolved from the locale rather than repeated here: this is product copy, and the
+    // assertion should follow it rather than pin it.
+    const hiddenPlaceholder = getDefaultLocaleValue('app.talkingIndicator.hiddenUser');
+
+    await expect(
+      entries.locator(`:text-is("${hiddenPlaceholder}")`),
+      'the listening moderator should appear under the hidden-participant placeholder',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // The attendee keeps their own indicator, by name: the count above is also satisfied
+    // by a record that lost the attendee and gained two strangers.
+    await expect(
+      entries.locator(`:text-is("${this.userPage.username}")`),
+      'locked attendee should still hold their own talking indicator',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
 
   async goldenPath(): Promise<void> {
     const { breakoutUserPage, room } = await this.reachListen();
