@@ -618,7 +618,7 @@ class LockViewersComponent extends Component {
       <Styled.LockViewersModal
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
-        contentStyle={deviceInfo.isMobile ? { height: '90vh' } : { minWidth: '55rem' }}
+        contentStyle={deviceInfo.isMobile ? { height: '90vh' } : { minWidth: 'min(55rem, 90vw)' }}
         showDividers
         footerContent={(
           <Styled.ActionsContainer>

@@ -660,6 +660,9 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       onRequestClose={handleProceed}
       contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
       title={getModalTitle()}
+      contentStyle={deviceInfo.isPhone
+        ? { minWidth: '100%', minHeight: '100%', borderRadius: 0 }
+        : undefined}
       shouldCloseOnOverlayClick={allowCloseModal}
       dataTest="webcamSettingsModal"
       isOpen={isOpen}

@@ -462,7 +462,7 @@ class Settings extends Component {
           callback: this.handleClose,
         }}
         onRequestClose={this.handleClose}
-        contentStyle={{ width: modalWidth, height: modalHeight, maxWidth: modalWidth }}
+        contentStyle={{ width: `min(${modalWidth}, 90vw)`, height: modalHeight }}
         showDividers
         footerContent={(
           <Styled.ActionsContainer>
