@@ -1,4 +1,4 @@
-import { initializePages } from '../core/helpers';
+import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 
@@ -44,5 +44,30 @@ test.describe.parallel('Audio', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#talking-indicator
   test('Mute another user by clicking the talking indicator', async () => {
     await audio.muteAnotherUser();
+  });
+
+  test('Push-to-talk removes the away status', async () => {
+    linkIssue(25888);
+    await audio.pushToTalkClearsAway({ unmutedBeforeAway: false });
+  });
+
+  test('Push-to-talk removes the away status of a user who was unmuted when going away', async () => {
+    linkIssue(25888);
+    await audio.pushToTalkClearsAway({ unmutedBeforeAway: true });
+  });
+
+  test('Push-to-talk does not change the status of an available user', async () => {
+    linkIssue(25888);
+    await audio.pushToTalkWhileAvailable();
+  });
+
+  test('Unmuting with the microphone button removes the away status', async () => {
+    linkIssue(25888);
+    await audio.unmuteClearsAway('button');
+  });
+
+  test('Unmuting yourself from the user list removes the away status', async () => {
+    linkIssue(25888);
+    await audio.unmuteClearsAway('userList');
   });
 });
