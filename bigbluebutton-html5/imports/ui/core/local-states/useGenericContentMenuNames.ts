@@ -11,7 +11,8 @@ const [
 
 const useGenericContentMenuName = (id: string) => useReactiveVarSelector(
   genericContentMenuNamesVar,
-  (menuNames) => menuNames[id],
+  // A plain object inherits Object.prototype keys, which a plugin id may collide with.
+  (menuNames) => (Object.hasOwn(menuNames, id) ? menuNames[id] : undefined),
 );
 
 export {
