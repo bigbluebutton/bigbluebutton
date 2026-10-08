@@ -257,11 +257,14 @@ class LearningDashboardActor(
   // keystroke, while Etherpad commits at most one changeset per user every 500ms. Counting at most
   // one edit per user in that window keeps the numbers comparable with the Etherpad-era metric.
   // Server-side changes carry intUserId "SYSTEM", which matches no user and is ignored.
+  // Only the meeting's notes document counts, the counterpart of the Etherpad-era
+  // externalId == "notes" filter (prefix defined in bbb-shared-notes-server src/hocuspocus/utils.ts).
   private val sharedNotesEditCountWindowMs = 500
 
   private def handleBNSharedNotesUpdatedEvtMsg(msg: BNSharedNotesUpdatedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      if msg.body.documentName == s"bn-document__${meeting.intId}"
       user <- findUserByIntId(meeting, msg.body.intUserId)
     } yield {
       val now = System.currentTimeMillis()
