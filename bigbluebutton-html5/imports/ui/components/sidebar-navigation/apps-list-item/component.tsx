@@ -29,7 +29,7 @@ const AppsListItem: React.FC = () => {
     const { sidebarContent, sidebarContentAuxiliary } = i;
     return badgedAppIds.some((id) => {
       const appKey = PANELS.GENERIC_CONTENT_SIDEKICK + id;
-      const isAppPanelOpened = sidebarContent.sidebarContentPanel === appKey
+      const isAppPanelOpened = (sidebarContent.isOpen === true && sidebarContent.sidebarContentPanel === appKey)
         || (sidebarContentAuxiliary.isOpen === true && sidebarContentAuxiliary.sidebarContentPanel === appKey);
       return Boolean(registeredApps?.[appKey])
         && !pinnedApps?.includes(appKey)
