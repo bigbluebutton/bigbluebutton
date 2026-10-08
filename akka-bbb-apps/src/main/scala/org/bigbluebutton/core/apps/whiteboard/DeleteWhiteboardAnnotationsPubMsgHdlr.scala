@@ -3,13 +3,14 @@ package org.bigbluebutton.core.apps.whiteboard
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait DeleteWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
 
-  def handle(msg: DeleteWhiteboardAnnotationsPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: DeleteWhiteboardAnnotationsPubMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: DeleteWhiteboardAnnotationsPubMsg, removedAnnotationsIds: Array[String]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -47,7 +48,7 @@ trait DeleteWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
             getWhiteboardAnnotations(msg.body.whiteboardId, liveMeeting).map(a => a.id)
           }
         }
-        val deletedAnnotations = deleteWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, annotationsIds, liveMeeting, isUserPresenter, isUserModerator)
+        val deletedAnnotations = deleteWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, annotationsIds, state, liveMeeting, isUserPresenter, isUserModerator)
         if (!deletedAnnotations.isEmpty) {
           broadcastEvent(msg, deletedAnnotations)
         }

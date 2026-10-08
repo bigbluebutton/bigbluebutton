@@ -27,6 +27,13 @@ func ReadNewStreamingSubscription(
 	if browserMessage.Type == "subscribe" && slices.Contains(config.StreamingSubscriptionsManagedByMiddleware, browserMessage.Payload.OperationName) {
 		queryId := browserMessage.ID
 
+		// Registration is not an authorization point. Enforcement lives in the handlers, which
+		// evaluate the recipient on every send, and in the replay helpers below - the correct place
+		// for it, since a subscription outlives changes to the state it is authorized against and
+		// this registration is never revisited.
+		//
+		// Do not add a check here. Connection state is not necessarily settled at this moment, and a
+		// refusal at registration is permanent: the client subscribes once and does not retry.
 		browserConnection.ActiveStreamingsMutex.Lock()
 		if _, queryIdExists := browserConnection.ActiveStreamings[browserMessage.Payload.OperationName]; !queryIdExists {
 			browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = []string{queryId}
@@ -35,12 +42,16 @@ func ReadNewStreamingSubscription(
 		}
 		browserConnection.ActiveStreamingsMutex.Unlock()
 
-		if browserMessage.Payload.OperationName == "getCursorCoordinatesStream" {
-			SendPreviousCursorPosition(browserConnection, queryId)
-		}
+		// A replay withheld here is not lost: it is re-attempted when membership arrives.
+		if !sendStreamReplay(browserConnection, browserMessage.Payload.OperationName, queryId) {
+			browserConnection.MarkStreamReplayPending(browserMessage.Payload.OperationName, queryId)
+			browserConnection.Logger.Debugf("Deferred %s replay: connection is not in the meeting yet", browserMessage.Payload.OperationName)
 
-		if browserMessage.Payload.OperationName == "getUserVoiceStateStream" {
-			SendPreviousUserVoiceState(browserConnection, queryId)
+			// Membership may have arrived between the check and the mark. The refresh that brought it
+			// has then already drained the pending replays and will not come back for this one.
+			if recipient := snapshotStreamingRecipient(browserConnection); recipient.inMeeting(recipient.MeetingId) {
+				ReplayPendingStreams(browserConnection)
+			}
 		}
 	}
 

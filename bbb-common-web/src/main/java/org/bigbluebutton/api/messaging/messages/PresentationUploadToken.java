@@ -24,4 +24,8 @@ public class PresentationUploadToken implements IMessage  {
     public boolean isSystemUpload() {
         return SYSTEM_USER_ID.equals(userId);
     }
+
+    public boolean isValidFor(String requestedMeetingId) {
+        return meetingId != null && meetingId.equals(requestedMeetingId);
+    }
 }

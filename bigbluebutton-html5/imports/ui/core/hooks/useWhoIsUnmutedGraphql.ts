@@ -19,9 +19,21 @@ const createUseWhoIsUnmutedGraphql = () => {
     setState,
   } = createReactiveRecordStateHook();
 
-  const dispatchWhoIsUnmutedUpdate = (data?: { userId: string; muted: boolean }[]) => {
+  // `retain` survives a reset: the stream replays only talking-or-unmuted users,
+  // so anyone it omits has to be dropped here or they stay unmuted forever.
+  const dispatchWhoIsUnmutedUpdate = (
+    data?: { userId: string; muted: boolean }[],
+    retain: string[] = [],
+  ) => {
     if (!data) {
-      setState({});
+      const currentUnmuted = getState();
+      const kept: Record<string, boolean> = {};
+
+      retain.forEach((userId) => {
+        if (currentUnmuted[userId]) kept[userId] = true;
+      });
+      setState(kept);
+
       return;
     }
 
