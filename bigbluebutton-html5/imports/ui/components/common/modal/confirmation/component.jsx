@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 
 const messages = defineMessages({
@@ -81,7 +82,7 @@ class ConfirmationModal extends Component {
     const handleClose = onRequestClose || (() => setIsOpen(false));
 
     return (
-      <Styled.ConfirmationModal
+      <ModalSimple
         onRequestClose={handleClose}
         contentLabel={title}
         title={title}
@@ -135,7 +136,7 @@ class ConfirmationModal extends Component {
             ) : null }
           </Styled.Description>
         </Styled.Container>
-      </Styled.ConfirmationModal>
+      </ModalSimple>
     );
   }
 }

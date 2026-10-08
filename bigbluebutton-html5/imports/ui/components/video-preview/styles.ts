@@ -24,7 +24,6 @@ import {
   fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
   Tab, Tabs, TabList,
@@ -225,8 +224,6 @@ const ExtraActions = styled.div`
   }
 `;
 
-const VideoPreviewModal = styled(ModalSimple)``;
-
 const ellipsis = keyframes`
   to {
     width: 1.5em;
@@ -393,7 +390,6 @@ export default {
   FooterContainer,
   Actions,
   ExtraActions,
-  VideoPreviewModal,
   FetchingAnimation,
   VideoPreview,
   Marker,

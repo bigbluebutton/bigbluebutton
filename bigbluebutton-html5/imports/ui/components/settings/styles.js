@@ -20,7 +20,6 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -215,8 +214,6 @@ const ActionButton = styled.button`
   }
 `;
 
-const Modal = styled(ModalSimple)``;
-
 export default {
   ToggleLabel,
   SettingsTabs,
@@ -226,5 +223,4 @@ export default {
   SettingsTabPanel,
   ActionsContainer,
   ActionButton,
-  Modal,
 };

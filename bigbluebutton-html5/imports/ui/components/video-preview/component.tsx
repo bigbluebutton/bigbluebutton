@@ -10,6 +10,7 @@ import { MutationFunction } from '@apollo/client';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -656,7 +657,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   const darkThemeState = AppService.isDarkThemeEnabled();
 
   return (
-    <Styled.VideoPreviewModal
+    <ModalSimple
       onRequestClose={handleProceed}
       contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
       title={getModalTitle()}
@@ -690,7 +691,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         </Styled.Header>
         {deviceInfo.hasMediaDevices ? renderModalContent() : supportWarning()}
       </Styled.Container>
-    </Styled.VideoPreviewModal>
+    </ModalSimple>
   );
 };
 

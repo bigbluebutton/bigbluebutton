@@ -800,7 +800,6 @@
     "app.settings.main.cancel.label": "Cancel",
     "app.settings.main.cancel.label.description": "Discards the changes and closes the settings menu",
     "app.settings.main.save.label": "Save",
-    "app.settings.main.save.label.description": "Saves the changes and closes the settings menu",
     "app.settings.dataSavingTab.label": "Data savings",
     "app.settings.dataSavingTab.webcam": "Enable other participants webcams",
     "app.settings.dataSavingTab.screenShare": "Enable other participants desktop sharing",

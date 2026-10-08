@@ -1,13 +1,10 @@
 import styled from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
   lgPaddingY,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
-
-const ConfirmationModal = styled(ModalSimple)``;
 
 const Container = styled.div`
   display: flex;
@@ -50,7 +47,6 @@ const Label = styled.label`
 `;
 
 export default {
-  ConfirmationModal,
   Container,
   Description,
   DescriptionText,

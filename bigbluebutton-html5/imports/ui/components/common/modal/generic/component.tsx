@@ -73,6 +73,10 @@ export interface GenericModalProps {
  * Use this component for all new modals. Prefer migrating existing modals that
  * only need a title + body (and optionally a footer) away from `ModalSimple`.
  *
+ * Only the props declared in `GenericModalProps` reach the modal: `className`,
+ * `styled(GenericModal)` rules and unknown props are dropped, so size or
+ * position the content through `contentStyle`.
+ *
  * @example
  * <GenericModal
  *   title="Confirm Action"

@@ -9,6 +9,7 @@ import Notification from '/imports/ui/components/settings/submenus/notification/
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
@@ -52,10 +53,6 @@ const intlMessages = defineMessages({
   SaveLabel: {
     id: 'app.settings.main.save.label',
     description: 'Save the changes and close the settings menu',
-  },
-  SaveLabelDesc: {
-    id: 'app.settings.main.save.label.description',
-    description: 'Settings modal save button label',
   },
   notificationLabel: {
     id: 'app.submenu.notification.SectionTitle', // set menu label identical to section title
@@ -433,34 +430,10 @@ class Settings extends Component {
     }
 
     return (
-      <Styled.Modal
+      <ModalSimple
         title={intl.formatMessage(intlMessages.SettingsLabel)}
-        width={modalWidth}
-        height={modalHeight}
         modalIsOpen={isOpen}
         documentTitle={intl.formatMessage(intlMessages.SettingsLabel)}
-        confirm={{
-          callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-
-            if (saved.application.locale !== current.application.locale) {
-              const { language } = formatLocaleCode(saved.application.locale);
-              const newLanguage = current.application.locale;
-              setUseCurrentLocale(newLanguage);
-              document.body.classList.remove(`lang-${language}`);
-            }
-
-            /* We need to use setIsOpen(false) here to prevent submenu state updates,
-            *  from re-opening the modal.
-            */
-            setIsOpen(false);
-          },
-          label: intl.formatMessage(intlMessages.SaveLabel),
-          description: intl.formatMessage(intlMessages.SaveLabelDesc),
-        }}
-        dismiss={{
-          callback: this.handleClose,
-        }}
         onRequestClose={this.handleClose}
         contentStyle={{ width: `min(${modalWidth}, 90vw)`, height: modalHeight }}
         showDividers
@@ -479,6 +452,7 @@ class Settings extends Component {
                   setUseCurrentLocale(newLanguage);
                   document.body.classList.remove(`lang-${language}`);
                 }
+                // setIsOpen(false) keeps submenu state updates from re-opening the modal.
                 setIsOpen(false);
               }}
             >
@@ -488,7 +462,7 @@ class Settings extends Component {
         )}
       >
         {this.renderModalContent()}
-      </Styled.Modal>
+      </ModalSimple>
     );
   }
 }

@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -109,8 +108,6 @@ const ConnectingAnimation = styled.span`
   }
 `;
 
-const AudioModal = styled(ModalSimple)``;
-
 const BrowserWarning = styled.p`
   margin: ${lineHeightComputed};
   text-align: center;
@@ -175,7 +172,6 @@ export default {
   Connecting,
   ConnectingAnimation,
   ConnectingSubtext,
-  AudioModal,
   BrowserWarning,
   Content,
 };

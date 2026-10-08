@@ -6,7 +6,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { useMutation } from '@apollo/client';
-import Styled from './styles';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
   shareScreen,
@@ -163,13 +163,13 @@ const ScreenshareButton = ({
   };
 
   const RenderScreenshareUnavailableModal = (otherProps) => (
-    <Styled.ScreenShareModal
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
       title={intl.formatMessage(intlMessages.screenShareUnavailable)}
       {...otherProps}
     >
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-    </Styled.ScreenShareModal>
+    </ModalSimple>
   );
 
   const amIBroadcasting = isScreenBroadcasting && amIPresenter;

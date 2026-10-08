@@ -1,7 +1,4 @@
 import styled from 'styled-components';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-
-const ScreenShareModal = styled(ModalSimple)``;
 
 const Container = styled.span`
   display: flex;
@@ -17,6 +14,5 @@ const Container = styled.span`
   }
 `;
 export default {
-  ScreenShareModal,
   Container,
 };

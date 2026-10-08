@@ -8,6 +8,7 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import AudioModalFooterContext from './context';
 import AudioSettings from '../audio-settings/component';
@@ -720,7 +721,7 @@ const AudioModal = ({
 
   return (
     <Styled.Background isBlurred={Session.getItem('audioModalIsOpen')}>
-      <Styled.AudioModal
+      <ModalSimple
         modalName="AUDIO"
         onRequestClose={closeModal}
         dataTest="audioModal"
@@ -752,7 +753,7 @@ const AudioModal = ({
             {renderContent()}
           </Styled.Content>
         </AudioModalFooterContext.Provider>
-      </Styled.AudioModal>
+      </ModalSimple>
     </Styled.Background>
   );
 };
