@@ -21,27 +21,25 @@ sdk install sbt 1.10.7
 
 ### Development
 
+Run these steps from the root of your checkout of this repository.
+
 Build `bbb-common-message`
 
 ```
-cd bigbluebutton/bbb-common-message
-
-./deploy.sh
+(cd bbb-common-message && ./deploy.sh)
 ```
 
 Build `bbb-common-web` (resolves `bbb-common-message` from the local repos —
 keep this order)
 
 ```
-cd bigbluebutton/bbb-common-web
-
-./deploy.sh
+(cd bbb-common-web && ./deploy.sh)
 ```
 
 Build and run `bbb-web`
 
 ```
-cd bigbluebutton/bigbluebutton-web
+cd bigbluebutton-web
 
 # Make sure you don't have old libs lying around. Might cause issues.
 # You need to do this only once to cleanup lib dir.
