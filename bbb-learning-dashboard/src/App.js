@@ -19,6 +19,7 @@ import PollsTable from './components/PollsTable';
 import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
 import { makeUserCSVData, tsToHHmmss } from './services/UserService';
+import normalizeActivitiesJson from './services/CompatibilityService';
 import QuizzesTable from './components/QuizzesTable';
 import QuizzesChart from './components/QuizzesChart';
 import {
@@ -271,25 +272,12 @@ class App extends React.Component {
       learningDashboardAccessToken, meetingId, sessionToken, invalidSessionCount,
     } = this.state;
 
-    // adjust user sessions to be compatible with old json
-    const convertUserUsessionsFormat = (activitiesJson) => {
-      const newActivivies = activitiesJson;
-      Object.values(newActivivies.users).forEach((user) => {
-        Object.values(user.intIds).forEach((intId) => {
-          if (!intId?.sessions && intId?.registeredOn) {
-            const newIntId = intId;
-            newIntId.sessions = [
-              { registeredOn: intId.registeredOn, leftOn: intId.leftOn },
-            ];
-          }
-        });
-      });
-      return newActivivies;
-    };
+    const isStandaloneMode = process.env.REACT_APP_STANDALONE_MODE === 'true';
 
     const handleSuccess = (json) => {
       this.setState({
-        activitiesJson: convertUserUsessionsFormat(json),
+        // Standalone builds only serve reports of finished meetings
+        activitiesJson: normalizeActivitiesJson(json, { isFinishedMeeting: isStandaloneMode }),
         loading: false,
         invalidSessionCount: 0,
         lastUpdated: Date.now(),
@@ -300,8 +288,6 @@ class App extends React.Component {
     const handleFailure = () => {
       this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
     };
-
-    const isStandaloneMode = process.env.REACT_APP_STANDALONE_MODE === 'true';
 
     if (isStandaloneMode) {
       fetch('learning_dashboard_data.json')
@@ -496,6 +482,18 @@ class App extends React.Component {
               :&nbsp;
               <span>{tsToHHmmss(this.totalOfActivity())}</span>
             </p>
+            {
+              activitiesJson.endedOnEstimated
+                ? (
+                  <p className="text-xs max-w-xs" data-test="meetingIncompleteDataDashboard">
+                    <FormattedMessage
+                      id="app.learningDashboard.indicators.meetingIncompleteData"
+                      defaultMessage="The final data of this meeting was not recorded. Times are counted until the last recorded activity."
+                    />
+                  </p>
+                )
+                : null
+            }
           </div>
         </div>
 
