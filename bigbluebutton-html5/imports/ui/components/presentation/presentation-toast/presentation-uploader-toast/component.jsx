@@ -78,6 +78,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
   },
+  PRESENTATION_UPLOAD_POD_LIMIT_REACHED: {
+    id: 'app.presentationUploder.conversion.podLimitReached',
+    description: 'warns the user that the presentation area already holds the maximum number of presentations',
+  },
+  CONVERSION_RATE_LIMIT_EXCEEDED: {
+    id: 'app.presentationUploder.conversion.rateLimitExceeded',
+    description: 'warns the user that too many presentations were uploaded recently',
+  },
+  PRESENTATION_UPLOAD_UNKNOWN_POD: {
+    id: 'app.presentationUploder.conversion.unknownPod',
+    description: 'warns the user that the upload could not be assigned to a presentation area',
+  },
   OFFICE_DOC_CONVERSION_INVALID: {
     id: 'app.presentationUploder.conversion.officeDocConversionInvalid',
     description: '',
@@ -211,6 +223,9 @@ function renderPresentationItemStatus(item, intl) {
       case 'INVALID_MIME_TYPE':
         constraint['extension'] = item.uploadErrorDetailsJson.fileExtension;
         constraint['contentType'] = item.uploadErrorDetailsJson.fileMime;
+        break;
+      case 'PRESENTATION_UPLOAD_POD_LIMIT_REACHED':
+        constraint['maxPresentationsPerPod'] = item.uploadErrorDetailsJson.maxPresentationsPerPod;
         break;
       default:
         break;

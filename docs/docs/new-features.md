@@ -339,6 +339,14 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `lockSettingsPresenterPolicy` added (default `requireApproval`). Controls whether viewers can request the presenter role; see [Request to Present](#request-to-present).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 - `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
+- `maxPresentationsPerRequest` added in BBB 3.0
+- `insertDocumentMaxRequests` added in BBB 3.0 — set to `0` to disable
+- `insertDocumentRateWindowSec` added in BBB 3.0
+- `presentationConversionMaxRequests` added in BBB 3.0 — per-meeting cap on presentations entering the conversion pipeline from participant and API uploads; breakout-room captures are exempt from this limit; set to `0` to disable
+- `presentationConversionRateWindowSec` added in BBB 3.0
+- `apps.presentationUploadTokenMaxRequests` (bbb-apps-akka) added in BBB 3.0 — per-user upload-token request rate limit; set to `0` to disable
+- `apps.presentationUploadTokenWindowSec` (bbb-apps-akka) added in BBB 3.0
+- `apps.presentationMaxPerPod` (bbb-apps-akka) added in BBB 3.0 — caps presentations held in a pod (meeting state, not conversion load); set to `0` to disable
 - `filterTagThreshold` added (default `1`; `0` = disabled). Slides whose generated SVG contains `N` or more `<filter>` tags (which `pdftocairo` emits for soft masks) are rendered with both `pdftocairo` and `pdftoppm`, and are rasterized only when the two renders noticeably differ. This fixes slides that showed up blank or with missing images ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)); see [Verify slides with soft masks](/administration/customize#verify-slides-with-soft-masks).
 
 ### Client settings (settings.yml) changes

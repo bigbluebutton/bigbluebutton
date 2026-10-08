@@ -219,6 +219,19 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  // Reuses the generic PresentationConversionFailedErrorSysPubMsg envelope; messageKey is
+  // what the client renders, so no dedicated message type is needed.
+  def buildPresentationConversionRateLimitedMsg(msg: ConversionRateLimitExceeded): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionFailedErrorSysPubMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationConversionFailedErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.messageKey,
+      presentationId = msg.presentationId, presName = msg.filename, meetingId = msg.meetingId,
+      errorDetail = msg.errorDetail)
+    val req = PresentationConversionFailedErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationConversionEndedSysMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionEndedSysMsg.NAME, routing)

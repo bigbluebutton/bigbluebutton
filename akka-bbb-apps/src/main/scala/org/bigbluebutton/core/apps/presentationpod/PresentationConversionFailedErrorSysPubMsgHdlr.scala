@@ -18,6 +18,10 @@ trait PresentationConversionFailedErrorSysPubMsgHdlr {
       msg.body.messageKey -> msg.body.errorDetail
     )
 
+    // updateErrors is a plain UPDATE, so ensure the row exists first. No-op when it already does.
+    PresPresentationDAO.insertUploadTokenIfNotExists(
+      liveMeeting.props.meetingProp.intId, "", "", msg.body.presentationId, "", msg.body.presName
+    )
     PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
     state
   }

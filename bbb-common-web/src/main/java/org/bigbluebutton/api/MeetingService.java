@@ -120,7 +120,7 @@ public class MeetingService implements MessageListener {
     meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
     sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
     removedSessions = new ConcurrentHashMap<String, UserSessionBasicData>(8, 0.9f, 1);
-    uploadAuthzTokens = new ConcurrentHashMap<String, PresentationUploadToken>();
+    uploadAuthzTokens = new ConcurrentHashMap<String, PresentationUploadToken>(8, 0.9f, 1);
   }
 
   public void addUserSession(String token, UserSession user) {
@@ -274,22 +274,18 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
+  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT consume the token
     return authzToken != null && uploadAuthzTokens.containsKey(authzToken);
   }
 
-  public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
-    return consumePresentationUploadToken(authzToken) != null;
-  }
-
-  public PresentationUploadToken getPresentationUploadToken(String authzToken) {
+  public PresentationUploadToken getPresentationUploadToken(String authzToken) { // Note we DO NOT consume the token
     if (authzToken == null) return null;
     return uploadAuthzTokens.get(authzToken);
   }
 
-  /**
-   * Atomically retrieves and expires a one-time presentation upload token.
-   */
+  // Atomically validate and consume the single-use upload token. For N concurrent
+  // callers with the same token, exactly one gets the non-null token and the rest
+  // get null, so the token authorizes exactly one upload.
   public PresentationUploadToken consumePresentationUploadToken(String authzToken) {
     if (authzToken == null) return null;
     return uploadAuthzTokens.remove(authzToken);
@@ -1008,10 +1004,6 @@ public class MeetingService implements MessageListener {
 
   private void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
-  }
-
-  public void expirePresentationUploadToken(String usedToken) {
-    if (usedToken != null) uploadAuthzTokens.remove(usedToken);
   }
 
   public void addUserCustomData(String meetingId, String userID,
