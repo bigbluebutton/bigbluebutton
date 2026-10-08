@@ -85,8 +85,8 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 		//
 		// The presenter branch is not reachable from any current producer, which only ever targets
 		// moderators. It is kept because the settled check is doing real work there: presenter is
-		// orthogonal to role, so a locked viewer-presenter is inside the fan-out of a lock-settings
-		// change, unlike a moderator.
+		// orthogonal to role, so a locked viewer-presenter's session is refreshed by per-user lock
+		// and presenter changes (lock_user_changed, assigned_presenter), unlike a moderator's.
 		matches := recipient.inMeeting(meetingId) && recipient.sessionVarsSettled()
 		isModerator := matches && strings.EqualFold(role, "moderator") && recipient.sessionVar("x-hasura-moderatorinmeeting") == meetingId
 		isPresenter := matches && strings.EqualFold(role, "presenter") && recipient.sessionVar("x-hasura-presenterinmeeting") == meetingId
