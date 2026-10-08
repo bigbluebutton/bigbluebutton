@@ -33,6 +33,24 @@ export const throwErrorIfInvalidLocale = (locale: unknown, allowEmpty: boolean =
     }
 };
 
+// Transcript locales end up in recording filenames, so they must also be the
+// canonical form of a BCP 47 tag.
+export const throwErrorIfNonCanonicalLocale = (locale: unknown) => {
+    try {
+        const canonicalLocales = (Intl as unknown as {
+            getCanonicalLocales(value: string): string[];
+        }).getCanonicalLocales(locale as string);
+
+        if (canonicalLocales.length === 1 && canonicalLocales[0] === locale) {
+            return;
+        }
+    } catch (_error) {
+        // Fall through to the validation error below.
+    }
+
+    throw new ValidationError('Locale must be a canonical BCP 47 language tag.', 400);
+};
+
 export const throwErrorIfStringTooLong = (name: string, value: unknown, maxLength: number) => {
     if (typeof value === 'string' && value.length > maxLength) {
         throw new ValidationError(`Parameter '${name}' exceeds the maximum length of ${maxLength}`, 400);

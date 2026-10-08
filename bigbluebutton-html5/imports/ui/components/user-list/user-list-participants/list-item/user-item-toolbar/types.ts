@@ -12,9 +12,17 @@ export interface ToolbarEntry {
   disabled?: boolean;
 }
 
+// An entry that shows the subject's mute state. The toolbar resolves it in a
+// leaf that reads that state, so a mute change re-renders the leaf, not the row.
+export interface MuteStateToolbarEntry {
+  allowed: boolean | undefined;
+  key: string;
+  resolve: (isMuted: boolean) => Omit<ToolbarEntry, 'allowed'>;
+}
+
 export interface UserItemToolbarProps {
   subjectUser: User;
-  pinnedToolbarOptions: ToolbarEntry[];
+  pinnedToolbarOptions: (ToolbarEntry | MuteStateToolbarEntry)[];
   otherToolbarOptions: ToolbarEntry[];
   setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
   open: boolean;

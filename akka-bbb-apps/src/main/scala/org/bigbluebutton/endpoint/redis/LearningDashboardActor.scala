@@ -3,6 +3,7 @@ package org.bigbluebutton.endpoint.redis
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
@@ -11,6 +12,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import java.security.MessageDigest
+import scala.annotation.meta.field
 import scala.concurrent.duration._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -106,6 +108,10 @@ case class Away(
                )
 
 case class Webcam(
+                   // Server-side correlation key only: it matches a cam-stopped event to the entry
+                   // it closes. No dashboard consumer reads it, and it carries the publisher's
+                   // client session id and browser device id, so keep it out of the published report.
+                   @(JsonIgnore @field) stream: String = null,
                    startedOn: Long = System.currentTimeMillis(),
                    stoppedOn: Long = 0,
                  )
@@ -146,6 +152,8 @@ class LearningDashboardActor(
   private var meetingsLastJsonHash : Map[String,String] = Map()
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
   private var meetingExcludedFromDashboardUserIds : Map[String,Vector[String]] = Map()
+  // Last time a BlockNote edit was counted, per meeting and user (see handleBNSharedNotesUpdatedEvtMsg)
+  private var meetingSharedNotesEditCountedOn : Map[String,Map[String,Long]] = Map()
 
   system.scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds, self, SendPeriodicReport)
 
@@ -172,7 +180,7 @@ class LearningDashboardActor(
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // SharedNotes
-      case m: PadUpdatedEvtMsg       => handlePadUpdatedEvtMsg(m)
+      case m: BNSharedNotesUpdatedEvtMsg => handleBNSharedNotesUpdatedEvtMsg(m)
 
       // Whiteboard
       case m: SendWhiteboardAnnotationsEvtMsg       => handleSendWhiteboardAnnotationsEvtMsg(m)
@@ -245,18 +253,28 @@ class LearningDashboardActor(
     }
   }
 
-  private def handlePadUpdatedEvtMsg(msg: PadUpdatedEvtMsg) {
-    if (msg.body.externalId == "notes") {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.body.userId)
-      } yield {
+  // bbb-shared-notes-server sends one BNSharedNotesUpdatedEvtMsg per Yjs update, i.e. roughly per
+  // keystroke, while Etherpad commits at most one changeset per user every 500ms. Counting at most
+  // one edit per user in that window keeps the numbers comparable with the Etherpad-era metric.
+  // Server-side changes carry intUserId "SYSTEM", which matches no user and is ignored.
+  private val sharedNotesEditCountWindowMs = 500
+
+  private def handleBNSharedNotesUpdatedEvtMsg(msg: BNSharedNotesUpdatedEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.intUserId)
+    } yield {
+      val now = System.currentTimeMillis()
+      val countedOn = meetingSharedNotesEditCountedOn.getOrElse(meeting.intId, Map())
+      if (now - countedOn.getOrElse(user.userKey, 0L) >= sharedNotesEditCountWindowMs) {
+        meetingSharedNotesEditCountedOn += (meeting.intId -> (countedOn + (user.userKey -> now)))
+
         val updatedUser = user.copy(totalOfSharedNotes = user.totalOfSharedNotes + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
 
-        UserActivityDAO.insert(msg.header.meetingId, msg.body.userId, "shared-notes")
+        UserActivityDAO.insert(msg.header.meetingId, msg.body.intUserId, "shared-notes")
       }
     }
   }
@@ -395,6 +413,14 @@ class LearningDashboardActor(
     } else {
       latestUserWithExtId
     }
+  }
+
+  // The open entry for the stream that stopped. Every entry has one: the dashboard keeps its
+  // meetings in memory only, so none of them predates this process.
+  private def findOpenWebcamIndex(user: User, stream: String): Option[Int] = {
+    val index = user.webcams.lastIndexWhere(w => w.stoppedOn == 0 && w.stream == stream)
+
+    if (index >= 0) Some(index) else None
   }
 
   private def replaceLastItem[T](items: Vector[T], replacement: T): Vector[T] = {
@@ -649,7 +675,7 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
     } yield {
 
-      val updatedUser = user.copy(webcams = user.webcams :+ Webcam())
+      val updatedUser = user.copy(webcams = user.webcams :+ Webcam(stream = msg.body.stream))
       val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
       meetings += (updatedMeeting.intId -> updatedMeeting)
 
@@ -667,13 +693,13 @@ class LearningDashboardActor(
       user <- findUserByIntId(meeting, msg.body.userId)
         .orElse(findUserByAnyIntId(meeting, msg.body.userId))
     } yield {
-      user.webcams.lastOption match {
-        case Some(webcam) if webcam.stoppedOn == 0 =>
-          val stoppedWebcam: Webcam = webcam.copy(stoppedOn = System.currentTimeMillis())
-          val updatedUser = user.copy(webcams = replaceLastItem(user.webcams, stoppedWebcam))
+      findOpenWebcamIndex(user, msg.body.stream) match {
+        case Some(index) =>
+          val stoppedWebcam: Webcam = user.webcams(index).copy(stoppedOn = System.currentTimeMillis())
+          val updatedUser = user.copy(webcams = user.webcams.updated(index, stoppedWebcam))
           val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
           meetings += (updatedMeeting.intId -> updatedMeeting)
-        case _ => // No active webcam to stop.
+        case None => // No active webcam to stop.
       }
     }
   }
@@ -1148,6 +1174,7 @@ class LearningDashboardActor(
       meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
       meetingExcludedFromDashboardUserIds = meetingExcludedFromDashboardUserIds.-(updatedMeeting.intId)
+      meetingSharedNotesEditCountedOn = meetingSharedNotesEditCountedOn.-(updatedMeeting.intId)
       meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
     }

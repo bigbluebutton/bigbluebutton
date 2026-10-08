@@ -19,7 +19,6 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   object JobTypes {
     val DOWNLOAD = "PresentationWithAnnotationDownloadJob"
     val CAPTURE_PRESENTATION = "PresentationWithAnnotationExportJob"
-    val CAPTURE_NOTES = "PadCaptureJob"
   }
 
   def buildStoreAnnotationsInRedisSysMsg(annotations: StoredAnnotations, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {

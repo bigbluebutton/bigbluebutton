@@ -111,6 +111,13 @@ trait TransferUserToMeetingRequestHdlr extends HandlerHelpers with RightsManagem
       return
     }
 
+    val joinedInTarget = breakoutFound.exists(room => room.users.exists(_.extId == s"$userId-${room.sequence}"))
+
+    if (joinedInTarget) {
+      log.warning("livekitTransferIntoMeeting: user {} is joined in breakout {}, rejecting listen-in", userId, toMeetingId)
+      return
+    }
+
     // Auto switch: clear any previous breakout-listen membership first.
     val existingMemberships = LiveKitMemberships.findByUserAndPurpose(liveMeeting.liveKitMemberships, userId, "breakout-listen")
 

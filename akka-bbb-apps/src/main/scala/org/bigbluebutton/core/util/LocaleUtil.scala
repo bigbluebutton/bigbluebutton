@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.util
 
+import java.util.{ IllformedLocaleException, Locale }
+
 object LocaleUtil {
   // "caption"."locale" and "caption_locale"."locale" are varchar(15)
   private val MaxLocaleLength = 15
@@ -14,6 +16,15 @@ object LocaleUtil {
     case l if l.length > MaxLocaleLength => false
     case l                               => LocalePattern.pattern.matcher(l).matches()
   }
+
+  // Transcript locales end up in recording filenames, so they must also be the
+  // canonical form of a BCP 47 tag.
+  def isCanonicalLocale(locale: String): Boolean =
+    locale != null && (try {
+      new Locale.Builder().setLanguageTag(locale).build().toLanguageTag == locale
+    } catch {
+      case _: IllformedLocaleException => false
+    })
 
   def isValidCaptionId(captionId: String): Boolean = captionId match {
     case null                               => false

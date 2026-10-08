@@ -2,6 +2,7 @@ import { RedisMessage } from '../types';
 import {
   throwErrorIfInvalidInput,
   throwErrorIfInvalidLocale,
+  throwErrorIfNonCanonicalLocale,
   throwErrorIfIntOutOfRange,
   throwErrorIfStringTooLong,
 } from "../imports/validation";
@@ -22,6 +23,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   )
 
   throwErrorIfInvalidLocale(input.locale);
+  throwErrorIfNonCanonicalLocale(input.locale);
   throwErrorIfStringTooLong('transcriptId', input.transcriptId, MAX_TRANSCRIPT_ID_LENGTH);
   throwErrorIfStringTooLong('text', input.text, MAX_TRANSCRIPT_LENGTH);
   throwErrorIfStringTooLong('transcript', input.transcript, MAX_TRANSCRIPT_LENGTH);

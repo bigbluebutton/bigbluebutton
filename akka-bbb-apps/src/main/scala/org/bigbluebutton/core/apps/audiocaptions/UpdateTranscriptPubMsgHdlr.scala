@@ -49,7 +49,7 @@ trait UpdateTranscriptPubMsgHdlr {
 
     if (!isTranscriptionEnabled) {
       log.debug("Ignoring transcript from user {} in meeting {}: liveTranscription is disabled", msg.header.userId, meetingId)
-    } else if (!LocaleUtil.isValidLocale(msg.body.locale)) {
+    } else if (!LocaleUtil.isValidLocale(msg.body.locale) || !LocaleUtil.isCanonicalLocale(msg.body.locale)) {
       log.warning("Ignoring transcript from user {} in meeting {}: invalid locale '{}'", msg.header.userId, meetingId, msg.body.locale)
     } else if (!LocaleUtil.isValidCaptionId(msg.body.transcriptId)) {
       log.warning("Ignoring transcript from user {} in meeting {}: invalid transcriptId", msg.header.userId, meetingId)

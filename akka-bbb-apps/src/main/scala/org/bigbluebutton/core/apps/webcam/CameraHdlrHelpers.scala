@@ -7,8 +7,13 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.models.{ Users2x, Webcams, WebcamStream }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait {
+  val CAM_EJECTED_BY_MODERATOR = "app.video.ejectedByModerator"
+  val CAM_EJECTED_BY_LOCK = "app.video.ejectedByLockSettings"
+
   def isCameraBroadcastAllowed(
       liveMeeting: LiveMeeting,
       meetingId:   String,
@@ -168,6 +173,7 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       meetingId: String,
       userId:    String,
       streamId:  String,
+      reason:    String,
       outGW:     OutMsgRouter
   ): Unit = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
@@ -178,6 +184,17 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
     outGW.send(msgEvent)
+    val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+      userId,
+      meetingId,
+      "info",
+      "video",
+      reason,
+      "Notification that a moderator or a lock setting stopped a user's camera",
+      Map("streamId" -> streamId)
+    )
+    outGW.send(notifyEvent)
+    NotificationDAO.insert(notifyEvent)
   }
 
   def requestCamSubscriptionEjection(
