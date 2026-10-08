@@ -10,6 +10,7 @@ import { getCurrentSlideAspectRatio, skipSlide, uploadSinglePresentation } from 
 import { startScreenshare } from '../screenshare/util';
 import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
+import { getTldrawCamera } from '../whiteboard/util';
 
 type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
 
@@ -210,6 +211,7 @@ export class Recording extends MultiUsers {
     await this.modPage.hasElement(e.confirmRecordingButton, 'recording confirmation should be visible');
     await this.modPage.waitAndClick(e.confirmRecordingButton);
 
+    const initialCamera = (await getTldrawCamera(this.modPage.page))!;
     for (const zoomLevel of [125, 150, 175, 200]) {
       await this.modPage.waitAndClick(e.zoomInButton);
       await expect(this.modPage.page.locator(e.resetZoomButton)).toContainText(`${zoomLevel}%`);
@@ -219,8 +221,42 @@ export class Recording extends MultiUsers {
       'the presentation should be zoomed before screenshare starts',
     ).toContainText('200%');
 
+    await this.initUserPage();
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    // The toolbar updates before the debounced zoom and camera animation finish.
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'the presenter camera should reach the final 200% zoom',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(initialCamera.z * 2, 3);
+    await expect
+      .poll(
+        async () => {
+          const before = await getTldrawCamera(this.modPage.page);
+          await this.modPage.page.waitForTimeout(800);
+          const after = await getTldrawCamera(this.modPage.page);
+          return JSON.stringify(before) === JSON.stringify(after);
+        },
+        { message: 'the presenter camera should settle before screenshare', timeout: ELEMENT_WAIT_LONGER_TIME },
+      )
+      .toBe(true);
+    const zoomedCamera = (await getTldrawCamera(this.modPage.page))!;
+    await expect
+      .poll(async () => getTldrawCamera(this.userPage.page), {
+        message: 'the final presentation camera should reach the viewer before screenshare',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toMatchObject({
+        x: expect.closeTo(zoomedCamera.x, 2),
+        y: expect.closeTo(zoomedCamera.y, 2),
+        z: expect.closeTo(zoomedCamera.z, 3),
+      });
+
     await startScreenshare(this.modPage);
     if (switchPresentation) await uploadSinglePresentation(this.modPage, 'sample.pdf');
+    // Give the recording a distinct screenshare interval before restoring the slide.
+    await this.modPage.page.waitForTimeout(3_000);
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.wasRemoved(e.isSharingScreen, 'screenshare should stop');
     if (switchPresentation) {
