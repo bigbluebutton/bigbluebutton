@@ -7,12 +7,10 @@ webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
 webrtc_recorder_audio_src: /var/lib/bbb-webrtc-recorder/audio
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
-notes_endpoint: http://127.0.0.1:9002/p
 bn_notes_endpoint: http://127.0.0.1:8787/loopback/api/documents
-# Specify the notes formats we archive. BlockNote (the default editor) exports
-# html, pdf, txt, md, json and yjs; doc and odt only work with Etherpad.
+# Specify the notes formats we archive. The shared notes server exports
+# html, pdf, txt, md, json and yjs.
 notes_formats:
-  - etherpad
   - html
   - pdf
 redis_host: 127.0.0.1

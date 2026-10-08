@@ -1152,7 +1152,7 @@ sudo bbb-conf --restart
 
 #### Rasterize slides whose SVG contains mask tags
 
-Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same BMP-based fallback used by `imageTagThreshold` and `useTagThreshold`) for any slide whose SVG contains a configurable number of `<mask>` tags.
+Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same fallback used by `imageTagThreshold` and `useTagThreshold`: the page is rendered to a PNG image with `pdftoppm` and embedded in the slide) for any slide whose SVG contains a configurable number of `<mask>` tags.
 
 The check is **disabled by default** (`maskTagThreshold=0`), because masks are common in ordinary PDFs and the `pdftocairo` shipped with Ubuntu 24.04 (poppler 24.02.0) generates correct mask values. To rasterize only mask-heavy slides, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
 
@@ -1161,6 +1161,20 @@ maskTagThreshold=100
 ```
 
 A slide is rasterized when its SVG contains at least `maskTagThreshold` mask tags (a value of `1` would rasterize any slide containing a mask). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
+
+#### Verify slides with soft masks
+
+Soft masks (images with transparency, drop shadows, blurred or faded edges) are common in PDFs and mostly convert to a correct SVG. Some do not: `pdftocairo`, which generates the slide SVG, drops the content behind certain soft masks (for example the ones written by macOS), so the image, or the whole slide, shows up blank ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)).
+
+`pdftocairo` emits `<filter>` tags whenever a page has soft masks, so bbb-web verifies every slide whose SVG contains at least `filterTagThreshold` `<filter>` tags. It renders the page at low resolution with both `pdftocairo` and `pdftoppm`, and rasterizes the slide only when the two renders noticeably differ. The check is **enabled by default** (`filterTagThreshold=1`) and costs a fraction of a second per verified slide. Slides that are verified and match keep their vector SVG. If the comparison cannot be made, or the rasterized slide is too large to embed, the vector SVG is kept as well.
+
+To turn the check off, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+filterTagThreshold=0
+```
+
+With the check off, affected slides may show up blank or with missing images again. To rasterize every slide with soft masks without verifying it first, use `maskTagThreshold=1` instead (see above). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
 
 #### Increase the file size for an uploaded presentation
 
@@ -1752,7 +1766,7 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
@@ -1808,7 +1822,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends. For a breakout room's dashboard, the countdown starts when the parent meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
-| `sharedNotesEditor` | Type of shared notes editor to use. Control characters and surrounding whitespace are stripped, values are case-insensitive, and invalid configured defaults fall back to `blockNote`. | etherpad, blockNote | blockNote _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |

@@ -37,10 +37,8 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-graphql-actions -- handles requests from the clients on their way to the core
 - bbb-webrtc-sfu -- manages media connections
 - bbb-webrtc-recorder -- handles recording of the media
-- bbb-pads -- manages the control to Etherpad
 - bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
-- bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
-- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (serving as the Shared Notes component and replacing Etherpad)
+- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (the Shared Notes component)
 - bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
 This document describes how to set up a development environment using an existing BigBlueButton 4.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).

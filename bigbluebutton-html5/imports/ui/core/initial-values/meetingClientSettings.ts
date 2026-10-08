@@ -632,9 +632,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         bottom: ['audio-captions', 'learning-dashboard', 'settings'],
       },
     },
-    pads: {
-      url: 'ETHERPAD_HOST',
-    },
     media: {
       audio: {
         defaultFullAudioBridge: 'livekit',

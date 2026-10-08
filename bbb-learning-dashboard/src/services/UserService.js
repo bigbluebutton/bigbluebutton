@@ -137,7 +137,8 @@ const tableHeaderFields = [
 export function makeUserCSVData(users, polls, intl) {
   const userRecords = {};
   const userValues = Object.values(users || {});
-  const pollValues = Object.values(polls || {});
+  // Polls are numbered in the order they were asked
+  const pollValues = Object.values(polls || {}).sort((a, b) => a.createdOn - b.createdOn);
 
   for (let i = 0; i < userValues.length; i += 1) {
     const user = userValues[i];

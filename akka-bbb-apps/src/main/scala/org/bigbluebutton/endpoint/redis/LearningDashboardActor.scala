@@ -152,6 +152,8 @@ class LearningDashboardActor(
   private var meetingsLastJsonHash : Map[String,String] = Map()
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
   private var meetingExcludedFromDashboardUserIds : Map[String,Vector[String]] = Map()
+  // Last time a BlockNote edit was counted, per meeting and user (see handleBNSharedNotesUpdatedEvtMsg)
+  private var meetingSharedNotesEditCountedOn : Map[String,Map[String,Long]] = Map()
 
   system.scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds, self, SendPeriodicReport)
 
@@ -178,7 +180,7 @@ class LearningDashboardActor(
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
       // SharedNotes
-      case m: PadUpdatedEvtMsg       => handlePadUpdatedEvtMsg(m)
+      case m: BNSharedNotesUpdatedEvtMsg => handleBNSharedNotesUpdatedEvtMsg(m)
 
       // Whiteboard
       case m: SendWhiteboardAnnotationsEvtMsg       => handleSendWhiteboardAnnotationsEvtMsg(m)
@@ -251,18 +253,28 @@ class LearningDashboardActor(
     }
   }
 
-  private def handlePadUpdatedEvtMsg(msg: PadUpdatedEvtMsg) {
-    if (msg.body.externalId == "notes") {
-      for {
-        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
-        user <- findUserByIntId(meeting, msg.body.userId)
-      } yield {
+  // bbb-shared-notes-server sends one BNSharedNotesUpdatedEvtMsg per Yjs update, i.e. roughly per
+  // keystroke, while Etherpad commits at most one changeset per user every 500ms. Counting at most
+  // one edit per user in that window keeps the numbers comparable with the Etherpad-era metric.
+  // Server-side changes carry intUserId "SYSTEM", which matches no user and is ignored.
+  private val sharedNotesEditCountWindowMs = 500
+
+  private def handleBNSharedNotesUpdatedEvtMsg(msg: BNSharedNotesUpdatedEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.body.intUserId)
+    } yield {
+      val now = System.currentTimeMillis()
+      val countedOn = meetingSharedNotesEditCountedOn.getOrElse(meeting.intId, Map())
+      if (now - countedOn.getOrElse(user.userKey, 0L) >= sharedNotesEditCountWindowMs) {
+        meetingSharedNotesEditCountedOn += (meeting.intId -> (countedOn + (user.userKey -> now)))
+
         val updatedUser = user.copy(totalOfSharedNotes = user.totalOfSharedNotes + 1)
         val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
 
-        UserActivityDAO.insert(msg.header.meetingId, msg.body.userId, "shared-notes")
+        UserActivityDAO.insert(msg.header.meetingId, msg.body.intUserId, "shared-notes")
       }
     }
   }
@@ -1162,6 +1174,7 @@ class LearningDashboardActor(
       meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
       meetingExcludedFromDashboardUserIds = meetingExcludedFromDashboardUserIds.-(updatedMeeting.intId)
+      meetingSharedNotesEditCountedOn = meetingSharedNotesEditCountedOn.-(updatedMeeting.intId)
       meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
     }

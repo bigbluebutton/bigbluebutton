@@ -49,7 +49,6 @@ const intlMessages = defineMessages({
 interface NotesDropdownContainerGraphqlProps {
   handlePinSharedNotes: (pinned: boolean) => void;
   padId: string;
-  isEtherpadSharedNotes: boolean;
   isPinned: boolean;
 }
 
@@ -63,8 +62,7 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
-    isEtherpadSharedNotes, isPinned,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled, isPinned,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -83,7 +81,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     const menuItems = [];
 
     if (amIPresenter) {
-      if (!isEtherpadSharedNotes && IMPORT_MARKDOWN_ENABLED) {
+      if (IMPORT_MARKDOWN_ENABLED) {
         menuItems.push(
           {
             key: uniqueId('notes-option-'),
@@ -105,42 +103,40 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations, padId, isEtherpadSharedNotes, presentationEnabled);
+            return Service.convertAndUpload(presentations, padId, presentationEnabled);
           },
         },
       );
     }
 
-    if (!isEtherpadSharedNotes) {
-      const { sessionToken } = Auth;
-      const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
-        || window.location.hostname;
+    const { sessionToken } = Auth;
+    const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
+      || window.location.hostname;
 
+    menuItems.push(
+      {
+        key: uniqueId('notes-option-'),
+        icon: downloadIcon,
+        dataTest: 'exportNotesAsPDF',
+        label: intl.formatMessage(intlMessages.exportAsPDFLabel),
+        onClick: () => {
+          window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
+        },
+      },
+    );
+
+    if (EXPORT_MARKDOWN_ENABLED) {
       menuItems.push(
         {
           key: uniqueId('notes-option-'),
           icon: downloadIcon,
-          dataTest: 'exportNotesAsPDF',
-          label: intl.formatMessage(intlMessages.exportAsPDFLabel),
+          dataTest: 'exportNotesAsMarkdown',
+          label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
           onClick: () => {
-            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
+            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
           },
         },
       );
-
-      if (EXPORT_MARKDOWN_ENABLED) {
-        menuItems.push(
-          {
-            key: uniqueId('notes-option-'),
-            icon: downloadIcon,
-            dataTest: 'exportNotesAsMarkdown',
-            label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
-            onClick: () => {
-              window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
-            },
-          },
-        );
-      }
     }
 
     if (amIPresenter && !isPinned && NOTES_ARE_PINNABLE()) {
@@ -192,7 +188,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
   const {
-    handlePinSharedNotes, padId, isEtherpadSharedNotes, isPinned,
+    handlePinSharedNotes, padId, isPinned,
   } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
@@ -217,7 +213,6 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       handlePinSharedNotes={handlePinSharedNotes}
       presentationEnabled={isPresentationEnabled}
       padId={padId}
-      isEtherpadSharedNotes={isEtherpadSharedNotes}
       isPinned={isPinned}
     />
   );

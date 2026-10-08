@@ -215,6 +215,8 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.0-rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.5)
+- [4.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.4)
 - [4.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.3)
 - [4.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.2)
 - [4.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.1)
@@ -234,7 +236,20 @@ BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-a
 
 In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). `bbb-shared-notes-server` is a required package, installed by default.
 
-Etherpad (`bbb-etherpad` and `bbb-pads` packages) is not part of the default installation of BigBlueButton 4.0. We are working on dropping its support within the BigBlueButton 4.0 lifecycle.
+Etherpad (`bbb-etherpad` and `bbb-pads` packages) is not part of the default installation of BigBlueButton 4.0, and its support was dropped within the 4.0 lifecycle; see [Removed Etherpad](#removed-etherpad).
+
+#### Removed Etherpad
+
+BigBlueButton 4.0 removes Etherpad entirely. Shared notes always use BlockNote (`bbb-shared-notes-server`).
+
+- The `bbb-etherpad` and `bbb-pads` packages are no longer built or published.
+- Upgrading a 4.0 pre-release server (beta or release candidate) that had them installed removes both packages and cleans up what they left behind: the Etherpad files and generated API key, the `etherpad` system user, the `/etc/bigbluebutton/etherpad.json` and `/etc/bigbluebutton/bbb-pads.json` overrides, the `public.pads` entry in `/etc/bigbluebutton/bbb-html5.yml`, and the pads and authors Etherpad stored in Redis (keys starting with `pad:`, `sessionstorage:`, `globalAuthor:`, `token2author:`, `pad2readonly:`, `readonly2pad:` and `ueberDB:`). Pads stored in Etherpad are not migrated.
+  - Etherpad's group and session keys are left in Redis (`groups`, `group:*`, `group2sessions:*`, `author2sessions:*`, `session:*`, `mapper2group:*` and `mapper2author:*`): these prefixes are too generic to delete safely on a Redis instance that other applications may share. Nothing reads them anymore; remove them by hand if you need to.
+  - Use `apt full-upgrade` (or `dist-upgrade`). `apt upgrade` never removes packages, and because the `bigbluebutton` package depends on the exact version of every BigBlueButton package, it then holds back the whole BigBlueButton upgrade, not only the Etherpad removal. To remove Etherpad before upgrading, run `$ sudo apt purge bbb-etherpad bbb-pads`.
+- The `sharedNotesEditor` `/create` parameter and the `sharedNotesEditor` property in `bbb-web.properties` are ignored; every meeting gets BlockNote shared notes. If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, remove its `<property name="sharedNotesEditor" .../>` entry; see [bbb-web properties changes](#bbb-web-properties-changes).
+- The Etherpad-only parts of the GraphQL API were removed: the `sharedNotesEditor` field of `sharedNotes`, the `isEtherpadSharedNotes` field of `meeting.componentsFlags`, the `sharedNotesSession` field of `user_current`, the `sharedNotes_session` and `sharedNotes_diff` types (with their queries and subscriptions) and the `sharedNotesCreateSession` mutation. Plugins or integrations that still request any of them get a GraphQL validation error and should drop them.
+- The recording scripts no longer read `notes_endpoint` (the Etherpad export endpoint) from `bigbluebutton.yml`, and `etherpad` is no longer a valid entry in `notes_formats`. Remove both from `/etc/bigbluebutton/recording/recording.yml` if you set them there. The notes are exported from `bn_notes_endpoint`, which now defaults to `http://127.0.0.1:8787/loopback/api/documents`. If you override `bn_notes_endpoint` in `recording.yml`, change its path to `/loopback/api/documents`. The previous `/api/documents` path no longer answers the recording scripts, so recordings would be archived without their shared notes.
+- Recordings made with Etherpad keep the notes they already archived, including when they are rebuilt with `bbb-record --rebuild` (a rebuild reprocesses the archived raw files and does not archive again). Only running the archive step again for such a recording would fail to fetch its notes: the step logs a warning, writes the `notes/export_failed` marker and continues without shared notes.
 
 
 #### New optional package: bbb-coturn
@@ -272,11 +287,11 @@ The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (
 
 #### Plugin SDK 1.0 pre-release
 
-The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.2`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
+The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.3`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
 
-Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.2`, or `^0.1.5 || ^1.0.0-beta.1` to keep supporting BigBlueButton 3.x servers. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
+Plugin authors should publish manifests with a range that names the pre-release, for example `^1.0.0-beta.1`, which also accepts the final `1.0.0` and later `1.x` releases. To keep one manifest loading on 4.0 pre-releases up to 4.0.0-rc.4, which run the `0.1.x` SDK, add the `0.1.x` range: `^0.1.5 || ^1.0.0-beta.1`. Update the manifests of the plugins you deploy before, or together with, the upgrade. See [SDK version compatibility](/plugins#sdk-version-compatibility).
 
-If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.2`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
+If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.3`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
 
 #### Removing deprecated layout options
 
@@ -308,14 +323,15 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="clientLogoutTimerInMinutes" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise. The `bbb-conf --check` retired-property warning only scans `/etc/bigbluebutton/bbb-web.properties`, not `resources.xml`.
 - `enteredUsersTimeout` was removed. It set how long bbb-web tracked users who had called the `/enter` endpoint without joining; that endpoint was removed in BBB 3.0, so nothing has been tracked since. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `enteredUserCleanupTimerTask` bean and the `<property name="enteredUserCleanupTimerTask" .../>` and `<property name="enteredUsersTimeout" .../>` entries - bbb-web will fail to start otherwise.
+- `sharedNotesEditor` was removed: BlockNote is the only shared-notes editor (it first became the default in 4.0.0-beta.4; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default) and [Removed Etherpad](#removed-etherpad)). A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored.
+  - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="sharedNotesEditor" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise.
 
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.2`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
+- `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.3`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
-- `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 
 #### Added
@@ -323,6 +339,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `lockSettingsPresenterPolicy` added (default `requireApproval`). Controls whether viewers can request the presenter role; see [Request to Present](#request-to-present).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 - `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
+- `filterTagThreshold` added (default `1`; `0` = disabled). Slides whose generated SVG contains `N` or more `<filter>` tags (which `pdftocairo` emits for soft masks) are rendered with both `pdftocairo` and `pdftoppm`, and are rasterized only when the two renders noticeably differ. This fixes slides that showed up blank or with missing images ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)); see [Verify slides with soft masks](/administration/customize#verify-slides-with-soft-masks).
 
 ### Client settings (settings.yml) changes
 
@@ -342,6 +359,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.media.audio.microphoneConstraints` - browser-level audio constraints (auto gain control, echo cancellation, noise suppression) applied when the user selects the `standard` audio-processing mode (moved from `public.app.defaultSettings.application.microphoneConstraints`).
 - `public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`, `public.timer.serverSyncTimeInterval` - timer presets and behavior.
 - `public.app.breakouts.breakoutRoomMinimum` (default `2`) - minimum number of breakout rooms.
+- `public.app.breakouts.inheritLockSettingsByDefault` (default `false`) - pre-checks the "Propagate the current lock settings" option when a moderator creates breakout rooms, like `captureSharedNotesByDefault` and `sendInvitationToAssignedModeratorsByDefault` do for their options.
 - `public.app.audioCaptions.showInSidebarNavigation` and `public.app.audioCaptions.terms` - show captions in the sidebar navigation and configure terms-of-service URLs per locale.
 - `public.app.darkTheme.autoDetectFromSystem` (default `true`) - uses the operating system's `prefers-color-scheme` preference as the initial theme and keeps following it while the user has not chosen a theme manually. The per-user "Dark mode" toggle and the `bbb_prefer_dark_theme` parameter always take precedence over the detected system theme.
 - `public.stats.logMediaStats` and `public.stats.probes` - client-side WebRTC stats logging.
@@ -364,6 +382,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.app.defaultSettings.application.pushToTalkEnabled` default changed from `false` to `true` - push-to-talk (hold `M` to stay unmuted, added in BBB 3.0) is now enabled by default.
 - `public.layout.showSessionDetailsOnJoin` default changed from `true` to `false` - the Session Details dialog is no longer opened automatically when joining.
 - `public.kurento.pagination.mobileGridSizes` (`moderator` and `viewer`) defaults changed from `14` to `6`, as part of the [mobile layout overhaul](#mobile-layout-overhaul).
+- `public.app.showConnectionErrors` now includes the new error code `3007`. The client shows it when bbb-graphql-middleware refuses a subscription because the connection reached `max_connection_concurrent_subscriptions`, and asks the user to refresh. Remove `3007` from the list to fall back to the generic `3006` handling. See [Common Client Errors](/support/troubleshooting#common-client-errors).
 
 #### Removed
 
@@ -371,6 +390,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
 - `public.app.defaultSettings.application.audioWasmProcessing` and the commented-out `public.app.defaultSettings.application.microphoneConstraints` example - superseded by `public.app.defaultSettings.audio.processingMode` and `public.media.audio.microphoneConstraints` (see [Dedicated Audio settings tab](#dedicated-audio-settings-tab)).
 - The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.
+- `public.pads.url` (the Etherpad URL), removed together with Etherpad. Earlier 4.0 pre-releases wrote it into `bbb-html5.yml`; the upgrade removes the `public.pads` entry from that file (see [Removed Etherpad](#removed-etherpad)).
 
 
 ## Development

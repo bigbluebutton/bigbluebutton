@@ -92,7 +92,7 @@ function seedModule(): string {
 export class ExportIndentationSharedNotes extends MultiUsers {
   // Creates a meeting seeded with the nested document, then joins as moderator.
   private async createAndJoinSeeded() {
-    const meetingId = await createMeetingWithModules(seedModule(), 'sharedNotesEditor=blocknote');
+    const meetingId = await createMeetingWithModules(seedModule());
     const context = await this.browser.newContext();
     const page = await context.newPage();
     await this.initModPage(page, { meetingId });

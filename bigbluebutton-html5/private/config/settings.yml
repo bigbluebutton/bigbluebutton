@@ -878,8 +878,6 @@ public:
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
     appsToLabelAsNew: []
-  pads:
-    url: ETHERPAD_HOST
   sharedNotes:
     # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
     # e.g: `bbb-host` (only the domain without protocol and path)

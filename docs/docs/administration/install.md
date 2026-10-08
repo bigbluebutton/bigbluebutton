@@ -257,9 +257,7 @@ bbb-webrtc-sfu ———————————————► [✔ - active]
 bbb-webrtc-recorder ——————————► [✔ - active]
 livekit-server ———————————————► [✔ - active]
 livekit-sip ——————————————————► [✔ - active]
-etherpad —————————————————————► [✔ - active]
 bbb-web ——————————————————————► [✔ - active]
-bbb-pads —————————————————————► [✔ - active]
 bbb-export-annotations ———————► [✔ - active]
 bbb-rap-caption-inbox ————————► [✔ - active]
 bbb-rap-resque-worker ————————► [✔ - active]
@@ -273,7 +271,6 @@ You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packag
 # dpkg -l | grep bbb-
 ii  bbb-apps-akka                        2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f all          BigBlueButton Apps (Akka)
 ii  bbb-config                           2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton configuration utilities
-ii  bbb-etherpad                         2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        The EtherPad Lite components for BigBlueButton
 ii  bbb-export-annotations               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton Export Annotations
 ii  bbb-freeswitch-core                  2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton build of FreeSWITCH
 ii  bbb-freeswitch-sounds                2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        FreeSWITCH Sounds
@@ -286,7 +283,6 @@ ii  bbb-learning-dashboard               2:4.0.0~beta.3+20260525T143438-git.loca
 ii  bbb-libreoffice-docker               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton setup for LibreOffice running in docker
 ii  bbb-livekit                          2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton build of LiveKit Server
 ii  bbb-mkclean                          2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        Clean and optimize Matroska and WebM files
-ii  bbb-pads                             2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton Pads
 ii  bbb-playback                         2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        Player for BigBlueButton presentation format recordings
 ii  bbb-playback-notes                   2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton notes recording format
 ii  bbb-playback-presentation            2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton presentation recording format

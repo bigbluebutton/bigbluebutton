@@ -74,5 +74,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-remove after-remove.sh \
     --before-install before-install.sh \
     --description "BigBlueButton configuration utilities" \
+    --conflicts bbb-etherpad --conflicts bbb-pads \
+    --replaces bbb-etherpad --replaces bbb-pads \
     $DIRECTORIES \
     $OPTS

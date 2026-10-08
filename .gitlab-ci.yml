@@ -44,12 +44,10 @@ get_external_dependencies:
   script: build/get_external_dependencies.sh
   artifacts:
     paths:
-      - bbb-etherpad
       - bbb-webhooks
       - bbb-webrtc-sfu
       - bbb-webrtc-recorder
       - freeswitch
-      - bbb-pads
       - bbb-playback
       - bbb-transcription-controller
     expire_in: 1h 30min
@@ -81,11 +79,6 @@ bbb-coturn-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-coturn
-
-bbb-etherpad-build:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-etherpad
 
 bbb-freeswitch-core-build:
   extends: .build_job
@@ -131,11 +124,6 @@ bbb-mkclean-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-mkclean
-
-bbb-pads-build:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-pads
 
 bbb-playback-build:
   extends: .build_job
