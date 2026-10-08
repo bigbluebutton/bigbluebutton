@@ -89,6 +89,7 @@ export interface App {
   breakouts: Breakouts
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
+  audioFilterStorage: 'session' | 'local'
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
