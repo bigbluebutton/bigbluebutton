@@ -10,15 +10,8 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lgBorderRadius,
-  borderRadiusRounded,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-
-const Modal = styled(ModalSimple)`
-  border-radius: ${borderRadiusRounded};
-  width: 35rem;
-`;
 
 const Content = styled.div`
   padding: 0 1rem;
@@ -74,7 +67,6 @@ const ActionButton = styled.button`
 `;
 
 export default {
-  Modal,
   Content,
   Text,
   IgnoreText,

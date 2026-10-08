@@ -24,31 +24,10 @@ import {
   fontSizeMedium,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import GenericModal from '/imports/ui/components/common/modal/generic/component';
 import Icon from '/imports/ui/components/common/icon/component';
 
-const LockViewersModal = styled(ModalSimple)`
-  padding: 0;
-  border-radius: 1rem;
-  min-width: 55rem;
-
-  @media ${smallOnly} {
-    min-width: auto;
-    width: 100%;
-  }
-
-  & > div {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  & > div > div:last-child {
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-`;
+const LockViewersModal = GenericModal;
 
 const SettingsTabs = styled(Tabs)`
   display: flex;
@@ -70,7 +49,6 @@ const SettingsTabList = styled(TabList)`
   display: flex;
   flex-flow: column;
   margin: 0;
-  border-top: 1px solid ${colorBorder};
   padding: 0;
   width: calc(100% / 3);
   min-height: 28rem;
@@ -153,9 +131,7 @@ const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
   padding: 1.5rem 2rem;
-  border-top: 1px solid ${colorBorder};
   border-left: 1px solid ${colorBorder};
-  border-bottom: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
   min-height: 35rem;
   overflow-y: auto;
@@ -175,10 +151,12 @@ const SettingsTabPanel = styled(TabPanel)`
     margin: 0;
     padding: 0.5rem 1rem;
     border: none;
+    min-height: 0;
     height: auto;
     flex-grow: 1;
     flex-basis: 0;
     overflow-x: hidden;
+    overflow-y: auto;
   }
 `;
 
@@ -206,11 +184,8 @@ const ActionsContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 1.5rem;
-  padding: 1.5rem;
-  border-top: 1px solid ${colorBorder};
 
   @media ${smallOnly} {
-    padding: 1rem;
     gap: 1rem;
   }
 `;

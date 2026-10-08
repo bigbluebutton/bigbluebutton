@@ -4,7 +4,7 @@
   opacity: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay, rgba(6, 23, 42, 0.75)) !important;
 }
 
 .ReactModal__Overlay--after-open {
@@ -46,14 +46,17 @@
 }
 
 .modal-low {
+  position: relative;
   z-index: 1001;
 }
 
 .modal-medium {
+  position: relative;
   z-index: 1002;
 }
 
 .modal-high {
+  position: relative;
   z-index: 1003;
 }
 
