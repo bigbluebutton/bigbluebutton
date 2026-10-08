@@ -55,6 +55,12 @@ Yes.
 
 We started BigBlueButton as an open source project, and we intend to keep it that way. One of the main goals we had was to create a large open source community around the project. To further this goal, we are in the process of putting together an [independent not-for-profit BigBlueButton organization](https://bigbluebutton.org/2010/07/12/bigbluebutton-foundation/) (similar to the Eclipse Foundation) to oversee and accelerate the growth of the BigBlueButton project.
 
+### When was BigBlueButton first released?
+
+The [core developers](#bigbluebutton-committer) released the first version of BigBlueButton on June 12, 2009. Since then there have been many releases, each one improving on the previous. Starting with BigBlueButton 2.0, release notes are published on [GitHub](https://github.com/bigbluebutton/bigbluebutton/releases).
+
+From the start the project has emphasized stability through extensive beta testing — for example, BigBlueButton 0.80 went through four beta releases and three release candidates, and both 0.81 and 0.9.1 had roughly five months of beta testing each. Larger features were often delivered in phases; record and playback, for instance, first captured slides (0.80), then captured all content (0.81), and then added a moderator Start/Stop recording button (0.9.1).
+
 ### I tried to join one of the mailing lists and got rejected
 
 To avoid SPAM in our mailing lists, when you apply to join you are prompted to ask a simple question. If we get an application without an answer, we assume the application is from a bot and delete it.
@@ -66,6 +72,22 @@ Be sure to provide us an answer so we know you are a real person that wants to j
 There is a very active BigBlueButton community of members on the developer mailing list (over 2000 members and counting!). In the BigBlueButton community at-large all the members, users, developers, educational institutions, and commercial companies are all collaborating on using and improving BigBlueButton.
 
 As with any open source project, the continued growth of the community depends on the quality of the software. The quality of the software, in turn, depends on the developers involved and the process we use to build a release.
+
+### Who we build BigBlueButton for
+
+Our requirements are largely driven by our target market: on-line learning. We are also often asked "Why are you focusing on only one market -- don't you realize that BigBlueButton would be great for market X, Y, and Z?" We realize that the core features -- shared chat, presentation, voice, video, and desktop -- are the same core features for many markets (including on-line learning). It is our belief that by focusing and delivering a world-class product for on-line learning, we will, in essence, deliver a world-class solution for other markets as well.
+
+What are the requirements for on-line learning? At the highest level it's to provide remote students a high-quality learning experience. In other words, we think of BigBlueButton in terms of "How can we make on-line learning more effective for teachers and students?"
+
+There are actually five distinct roles in any deployment of BigBlueButton: teacher, student, administrator, support, and developer. Each person has a job to accomplish; each person has their own user stories:
+
+- As a **teacher** I want to effectively communicate my content in a way that maximizes student learning and engagement. I want interactive classes, not just a one-way lecture (though there are times with larger classes that one-way lectures make sense).
+- As a **student** I want to efficiently learn the material so I can gain new skills and (for most students enrolled in an educational institution) obtain good grades to help build a better career. I want opportunities to interact with the instructor (either one-on-one or during the class). I want to access recorded content to assist in my learning and application of concepts.
+- As an **administrator** I want easy access to BigBlueButton from my educational institution's learning management system (LMS).
+- As the **manager of support** I want BigBlueButton to be easy to teach and support so I can achieve a high satisfaction rating from my users and lower my support effort (and costs) relative to other options.
+- As a **developer** I want to install BigBlueButton in 30 minutes (or less). I want to be able to integrate BigBlueButton into my product in less than four hours so I can explore its value with others.
+
+We measure our success by how easily we enable each person to accomplish their job. We also have goals that are not specific to any role; rather, they underlie **all** requirements.
 
 ### Development Priorities
 
@@ -136,7 +158,7 @@ Each release cycle goes according to the following steps.
 
 #### 1. Planning
 
-During the planning process, the committers decide on the main features for a release by reviewing the [BigBlueButton Road Map](/support/road-map) along with all starred issues and, in particular, issues marked with tags [stability](https://github.com/bigbluebutton/bigbluebutton/issues?q=is%3Aissue+is%3Aopen+label%3AStability) and [usability](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Ausability).
+During the planning process, the committers decide on the main features for a release by reviewing the [issue tracker](https://github.com/bigbluebutton/bigbluebutton/issues) along with all starred issues and, in particular, issues marked with tags [stability](https://github.com/bigbluebutton/bigbluebutton/issues?q=is%3Aissue+is%3Aopen+label%3AStability) and [usability](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Ausability).
 
 We review the features according to the development priorities for our target market (see [When will feature X be implemented?](#when-will-feature-x-be-implemented)).
 
@@ -704,7 +726,7 @@ For audio, the storage of the audio stream is 110 MB/h. The storage is a .wav fi
 
 For audio + webcam, the additional storage is for saving each individual webcam stream. A one hour webcam stream at the default resolution (320x240) is 20M.
 
-For audio + deskshare, the additional storage is for the desktop sharing stream (there will only be one stream at any one time). A one hour desktop sharing stream is 125M.
+For audio + screenshare, the additional storage is for the screen sharing stream (there will only be one stream at any one time). A one hour screen sharing stream is 125M.
 
 ##### Playback
 
@@ -871,7 +893,7 @@ We want to make BigBlueButton the leading open source web conferencing system fo
 
 Time is a precious commodity. In general, when planning each release, we look at the outstanding issues and group them in three categories (in order of priority)
 
-1. What are the most important items on our [road map](/support/road-map) (these are the features that best support our target market of on-line learning)?
+1. What are the most important items in our [issue tracker](https://github.com/bigbluebutton/bigbluebutton/issues) (these are the features that best support our target market of on-line learning)?
 2. What refactoring/features by the [core committers](#bigbluebutton-committer) are needed to improve the code base/maintainability/usability of the product?
 3. What features are our community asking to implement (specifically, those not related to distance education, but would be useful to some, such as remote desktop control)?
 

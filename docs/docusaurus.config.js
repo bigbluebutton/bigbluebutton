@@ -117,10 +117,6 @@ const config = {
                         title: 'Support',
                         items: [
                             {
-                                label: 'Road Map',
-                                to: '/support/road-map',
-                            },
-                            {
                                 label: 'FAQ',
                                 to: '/support/faq',
                             },

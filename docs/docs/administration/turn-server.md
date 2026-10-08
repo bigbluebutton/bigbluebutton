@@ -8,16 +8,14 @@ keywords:
 - coturn
 - turn server
 ---
-# BBB 2.6 now includes coturn for TURN server
-Starting with BigBlueButton version 2.6, the default installation process includes coturn, a TURN server that allows users behind restrictive firewalls to connect. You don't need any additional configuration changes unless you want to override the default configuration.
+<!-- Anchor alias: preserves external links to the previous "BBB 2.6 now includes coturn for TURN server" heading. -->
+<a id="bbb-26-now-includes-coturn-for-turn-server"></a>
 
-This document covers how to set up a TURN server for previous versions of BigBlueButton.
+# BigBlueButton includes coturn for the TURN server
 
-# BBB 2.6 now includes coturn for TURN server
+BigBlueButton's default installation process includes [coturn](https://github.com/coturn/coturn), a TURN server that allows users behind restrictive firewalls to connect. You don't need any additional configuration changes unless you want to override the default configuration.
 
-Starting with BigBlueButton version 2.6, the default installation process includes coturn, a TURN server that allows users behind restrictive firewalls to connect. You don't need any additional configuration changes unless you want to override the default configuration.
-
-This document covers how to set up a TURN server for previous versions of BigBlueButton.
+This document covers how to set up a standalone TURN server — for example, on a dedicated host, or when you want to run and manage coturn yourself rather than relying on the bundled installation.
 
 ## Setup a TURN server
 
@@ -39,9 +37,9 @@ Having the server behind NAT (for example, on Amazon EC2) is OK, but all incomin
 
 ### Required Software
 
-We recommend using a minimal server installation of Ubuntu 20.04. The [coturn](https://github.com/coturn/coturn) software requires port 443 for its exclusive use in our recommended configuration, which means the server cannot have any dashboard software or other web applications running.
+We recommend using a minimal server installation of Ubuntu 22.04. The [coturn](https://github.com/coturn/coturn) software requires port 443 for its exclusive use in our recommended configuration, which means the server cannot have any dashboard software or other web applications running.
 
-Stable versions of coturn are already available in the Ubuntu packaging repositories for version 20.04 and later, and it can be installed with apt-get:
+Stable versions of coturn are already available in the Ubuntu packaging repositories for version 22.04 and later, and it can be installed with apt-get:
 
 ```bash
 $ sudo apt-get update
@@ -69,7 +67,6 @@ On the coturn server, you need to have the following ports (in addition port 22)
 You can use `certbot` from [Let's Encrypt](https://letsencrypt.org/) to easily generate free TLS certificates. To setup `certbot` enter the following commands on your TURN server (not your BigBlueButton server).
 
 ```bash
-$ sudo add-apt-repository ppa:certbot/certbot
 $ sudo apt-get update
 $ sudo apt-get install certbot
 ```
@@ -321,8 +318,7 @@ WebRTC: ICE failed, your TURN server appears to be broken, see about:webrtc for 
 
 then FireFox was unable to communicate with your TURN server, or your TURN server was not running or configured correctly.
 
-To ensure that your firewall is not blocking UDP connections over port 443, open a new tab and visit [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/), launch a test session, and try sharing your webcam.
-the browser may not be able to connect to the TURN server or the TURN server is not running or configured correctly.
+To ensure that your firewall is not blocking UDP connections over port 443, open a new tab, join a session on your own BigBlueButton server, and try sharing your webcam. If the webcam fails to connect, the browser may not be able to reach the TURN server, or the TURN server is not running or configured correctly.
 
 The TURN server also acts as a STUN server, so you can first check that the STUN portion is working using the `stunclient`. Run the following commands below and substitute `<youor-turn-server-host>` with the hostname of your TURN server.
 
