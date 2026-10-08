@@ -15,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Description = styled.div`
-  text-align: left;
+  text-align: start;
   line-height: ${lineHeightBase};
   color: ${colorGray};
   margin-bottom: ${jumboPaddingY};

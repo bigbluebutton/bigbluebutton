@@ -10,7 +10,7 @@ const ActivityModalContent = styled.div`
   margin-top: auto;
   margin-bottom: auto;
   padding: 0.5rem;
-  text-align: left;
+  text-align: start;
 
   & > p {
     font-size: ${fontSizeLarge};
