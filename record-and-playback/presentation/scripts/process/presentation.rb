@@ -40,11 +40,11 @@ meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = BigBlueButton.read_props
-presentation_props = YAML.safe_load(File.open('presentation.yml'))
+presentation_props = YAML.safe_load(File.read('presentation.yml'))
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = YAML::safe_load(File.read(filepathPresOverride))
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 
@@ -76,9 +76,7 @@ unless FileTest.directory?(target_dir)
       b.playback
       b.meta
     end
-    metadata_xml = File.new("#{target_dir}/metadata.xml", 'w')
-    metadata_xml.write(metaxml)
-    metadata_xml.close
+    File.write("#{target_dir}/metadata.xml", metaxml)
     BigBlueButton.logger.info('Created inital metadata.xml')
 
     BigBlueButton::AudioProcessor.process(raw_archive_dir, "#{target_dir}/audio")
@@ -138,10 +136,8 @@ unless FileTest.directory?(target_dir)
       end
     end
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml", 'w')
     metadata = Nokogiri::XML(metadata.to_xml, &:noblanks)
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
     version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
@@ -245,9 +241,7 @@ unless FileTest.directory?(target_dir)
     # Copy shared notes from raw files
     FileUtils.cp_r("#{raw_archive_dir}/notes", target_dir) unless Dir["#{raw_archive_dir}/notes/*"].empty?
 
-    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", 'w')
-    process_done.write("Processed #{meeting_id}")
-    process_done.close
+    File.write("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "Processed #{meeting_id}")
 
     # Update state in metadata.xml
     ## Load metadata.xml
@@ -257,9 +251,7 @@ unless FileTest.directory?(target_dir)
     state = recording.at_xpath('state')
     state.content = 'processed'
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml", 'w')
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info('Created an updated metadata.xml with state=processed')
   rescue StandardError => e
     BigBlueButton.logger.error(e.message)
