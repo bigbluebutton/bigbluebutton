@@ -107,6 +107,14 @@ export class CreateParameters extends MultiUsers {
     );
   }
 
+  async durationAboveRemainingTimeThreshold() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
+    await this.modPage.wasRemoved(
+      e.timeRemaining,
+      'should not display the remaining time above the configured threshold',
+    );
+  }
+
   async moderatorOnlyMessage() {
     await this.modPage.waitForSelector(e.whiteboard);
     // check for the mod only message on the mod page

@@ -130,6 +130,8 @@ public:
       interval: 200
       threshold: -50
       duration: 4000
+    # Show the remaining time banner when the meeting has fewer than this many minutes left.
+    remainingTimeThresholdInMinutes: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting

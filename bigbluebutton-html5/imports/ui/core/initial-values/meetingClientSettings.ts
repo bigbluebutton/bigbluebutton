@@ -81,6 +81,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         threshold: -50,
         duration: 4000,
       },
+      remainingTimeThresholdInMinutes: 30,
       remainingTimeAlertThresholdArray: [
         1,
         5,
