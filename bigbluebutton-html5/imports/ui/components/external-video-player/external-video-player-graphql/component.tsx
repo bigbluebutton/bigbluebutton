@@ -255,6 +255,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const firstPlayRef = useRef(true);
   const [playerUrl, setPlayerUrl] = React.useState('');
   const [playerName, setPlayerName] = React.useState<string>();
+  const captionsListenerPlayerRef = useRef<unknown>(null);
   const lastCursorRef = useRef<{ position: number, updateAt: number }>({ position: 0, updateAt: 0 });
   // Tracks the last onProgress tick (playedSeconds + wall-clock) so handleProgress
   // can detect a seek the player did not surface via onSeek (every provider except
@@ -620,15 +621,31 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     // displayName rather than constructor.name: production builds minify class names, so the
     // latter never matched there.
     // @ts-ignore accessing lib private property
-    setPlayerName(player?.player?.player?.constructor?.displayName);
+    const name = player?.player?.player?.constructor?.displayName;
+    setPlayerName(name);
+    if (name !== 'YouTube') return;
+
+    // YouTube turns captions on by itself when the video or the viewer defaults to them, so the
+    // subtitles button follows what the player shows: its captions module reports the track it
+    // shows (none while off) and fires onApiChange when it loads or unloads.
+    const internalPlayer = player.getInternalPlayer();
+    const syncSubtitlesOn = () => {
+      setSubtitlesOn(!!internalPlayer?.getOption?.('captions', 'track')?.languageCode);
+    };
+    // onReady fires again for every video the same player loads.
+    if (captionsListenerPlayerRef.current !== internalPlayer) {
+      captionsListenerPlayerRef.current = internalPlayer;
+      internalPlayer?.addEventListener?.('onApiChange', syncSubtitlesOn);
+    }
+    syncSubtitlesOn();
   };
 
   const toggleSubtitle = () => {
     const nextSubtitlesOn = !subtitlesOn;
     setSubtitlesOn(nextSubtitlesOn);
-    // YouTube's captions module (only YouTube shows this toggle).
+    // YouTube's captions module (only YouTube viewers get this toggle).
     const internalPlayer = playerRef.current?.getInternalPlayer();
-    if (!isPresenter && nextSubtitlesOn) {
+    if (nextSubtitlesOn) {
       internalPlayer?.setOption?.('captions', 'reload', true);
     } else {
       internalPlayer?.unloadModule?.('captions');
