@@ -17,8 +17,9 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 import withDragAndDrop from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { User, VideoItem } from '/imports/ui/components/video-provider/types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import PluginButtonContainer from '../../../plugins/plugin-button/container';
 import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
@@ -58,13 +59,6 @@ interface VideoListItemProps {
   };
   dragging: boolean;
   draggingOver: boolean;
-  voiceUser: {
-    muted: boolean;
-    listenOnly: boolean;
-    talking: boolean;
-    joined: boolean;
-    deafened: boolean;
-  };
   raisedHandPosition: number;
 }
 
@@ -115,9 +109,90 @@ const renderPluginItems = (
   return (<></>);
 };
 
+// The elements that show talking and mute state (these and UserStatus) read it
+// themselves, so a flip re-renders them and not the whole tile.
+const useTalkingHighlight = (userId: string, hasVoice: boolean) => {
+  const { data: talking } = useWhoIsTalking(userId);
+  const { animations, webcamBorderHighlightColor } = getSettingsSingletonInstance().application;
+
+  return {
+    talking: hasVoice && !!talking,
+    animations,
+    customHighlight: webcamBorderHighlightColor,
+  };
+};
+
+interface TalkingContentProps {
+  containerRef: React.MutableRefObject<HTMLDivElement | null>;
+  userId: string;
+  hasVoice: boolean;
+  fullscreen: boolean;
+  isStream: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onTouchStart: () => void;
+  onTouchMove: () => void;
+  onDragLeave?: (e: DragEvent) => void;
+  onDragOver?: (e: DragEvent) => void;
+  onDrop?: (e: DragEvent) => void;
+  dragging: boolean;
+  draggingOver: boolean;
+  children: React.ReactNode;
+}
+
+const TalkingContent: React.FC<TalkingContentProps> = ({
+  containerRef, userId, hasVoice, ...props
+}) => {
+  const { talking, animations, customHighlight } = useTalkingHighlight(userId, hasVoice);
+
+  return (
+    // @ts-expect-error -> Until everything in Typescript.
+    <Styled.Content
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...props}
+      ref={containerRef}
+      talking={talking}
+      customHighlight={customHighlight}
+      data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
+      animations={animations}
+    />
+  );
+};
+
+interface WebcamConnectingProps {
+  user: Partial<User>;
+  stream: VideoItem;
+  hasVoice: boolean;
+  unhealthyStream: boolean;
+  squeezed: boolean;
+}
+
+const WebcamConnecting: React.FC<WebcamConnectingProps> = ({
+  user, stream, hasVoice, unhealthyStream, squeezed,
+}) => {
+  const { talking, animations, customHighlight } = useTalkingHighlight(stream.userId, hasVoice);
+
+  return (
+    <Styled.WebcamConnecting
+      data-test={squeezed ? 'webcamConnectingSqueezed' : 'webcamConnecting'}
+      animations={animations}
+      talking={talking}
+      customHighlight={customHighlight}
+    >
+      <UserAvatarVideo
+        user={user}
+        stream={stream}
+        voiceUser={squeezed ? undefined : { talking }}
+        unhealthyStream={unhealthyStream}
+        squeezed={squeezed}
+      />
+    </Styled.WebcamConnecting>
+  );
+};
+
 const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const {
-    name, voiceUser, isFullscreenContext, layoutContextDispatch, onHandleVideoFocus,
+    name, isFullscreenContext, layoutContextDispatch, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
@@ -133,20 +208,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
-      return setIsVideoPluginHelperSqueezed(true);
-    }
-    return setIsVideoPluginHelperSqueezed(false);
-  });
-
-  const resizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
-      return setIsVideoSqueezed(true);
-    }
-    return setIsVideoSqueezed(false);
-  });
 
   const videoTag = useRef<HTMLVideoElement | null>(null);
   const videoContainer = useRef<HTMLDivElement | null>(null);
@@ -165,9 +226,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   }, [videoContainer]);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
-  const Settings = getSettingsSingletonInstance();
-  const { animations, webcamBorderHighlightColor } = Settings.application;
-  const talking = voiceUser?.talking;
+  const voiceUser = stream.type !== VIDEO_TYPES.CONNECTING ? stream.voice : undefined;
   const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream?.raiseHand)
     || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand)
     || (stream.type === VIDEO_TYPES.AUDIO_ONLY && stream.user?.raiseHand);
@@ -242,6 +301,18 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   // component did mount
   useEffect(() => {
     const isAudioOnly = stream.type === VIDEO_TYPES.AUDIO_ONLY;
+    const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
+      if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
+        return setIsVideoPluginHelperSqueezed(true);
+      }
+      return setIsVideoPluginHelperSqueezed(false);
+    });
+    const resizeObserver = new ResizeObserver((entry) => {
+      if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+        return setIsVideoSqueezed(true);
+      }
+      return setIsVideoSqueezed(false);
+    });
 
     if (!isAudioOnly) {
       subscribeToStreamStateChange(cameraId, onStreamStateChange);
@@ -340,36 +411,23 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   };
 
   const renderWebcamConnecting = () => (
-    <Styled.WebcamConnecting
-      data-test="webcamConnecting"
-      animations={animations}
-      talking={talking}
-      customHighlight={webcamBorderHighlightColor}
-    >
-      <UserAvatarVideo
-        user={user}
-        stream={stream}
-        voiceUser={voiceUser}
-        unhealthyStream={videoDataLoaded && !isStreamHealthy}
-        squeezed={false}
-      />
-    </Styled.WebcamConnecting>
+    <WebcamConnecting
+      user={user}
+      stream={stream}
+      hasVoice={!!voiceUser}
+      unhealthyStream={videoDataLoaded && !isStreamHealthy}
+      squeezed={false}
+    />
   );
 
   const renderWebcamConnectingSqueezed = () => (
-    <Styled.WebcamConnecting
-      data-test="webcamConnectingSqueezed"
-      animations={animations}
-      talking={talking}
-      customHighlight={webcamBorderHighlightColor}
-    >
-      <UserAvatarVideo
-        user={user}
-        stream={stream}
-        unhealthyStream={videoDataLoaded && !isStreamHealthy}
-        squeezed
-      />
-    </Styled.WebcamConnecting>
+    <WebcamConnecting
+      user={user}
+      stream={stream}
+      hasVoice={!!voiceUser}
+      unhealthyStream={videoDataLoaded && !isStreamHealthy}
+      squeezed
+    />
   );
 
   const renderDefaultButtons = () => (
@@ -472,14 +530,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   } = makeDragOperations(stream.userId);
 
   return (
-    // @ts-expect-error -> Until everything in Typescript.
-    <Styled.Content
-      ref={videoContainer}
-      talking={talking}
-      customHighlight={webcamBorderHighlightColor}
+    <TalkingContent
+      containerRef={videoContainer}
+      userId={stream.userId}
+      hasVoice={!!voiceUser}
       fullscreen={isFullscreenContext}
-      data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
-      animations={animations}
       isStream={isStream}
       onMouseEnter={() => {
         if (!isVideoSqueezed) return;
@@ -550,9 +605,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       {((isSelfViewDisabled && stream.userId === Auth.userID) || disabledCams.includes(cameraId))
       && renderWebcamConnecting()}
       {stream.type !== VIDEO_TYPES.AUDIO_ONLY && renderCameraHelperButtons()}
-    </Styled.Content>
+    </TalkingContent>
   );
 };
 
+// DragAndDrop re-renders for its own confirmation modal, registered on mount,
+// and passes the item the same props again.
 // @ts-expect-error -> Until everything in Typescript.
-export default withDragAndDrop(VideoListItem);
+export default withDragAndDrop(React.memo(VideoListItem));
