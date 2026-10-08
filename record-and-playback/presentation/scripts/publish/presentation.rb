@@ -35,11 +35,11 @@ require "active_support"
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
-@presentation_props = YAML.safe_load(File.read('presentation.yml'))
+@presentation_props = BigBlueButton.load_yaml('presentation.yml')
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = BigBlueButton.load_yaml(filepathPresOverride, fallback: {})
   @presentation_props = @presentation_props.merge(presOverrideProps)
 end
 
@@ -360,7 +360,7 @@ def svg_render_shape_poll(g, slide, shape)
   svg_file = "#{@process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
 
   # Save the poll json to a temp file
-  File.open(json_file, 'w') { |f| f.write result }
+  File.write(json_file, result)
   # Render the poll svg
   ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s,
                                '-n', num_responders.to_s, '-o', svg_file)
@@ -863,6 +863,10 @@ def events_get_image_info(slide, tldraw)
   end
 
   slide[:width], slide[:height] = FastImage.size(image_path)
+  if slide_deskshare && (!slide[:width] || !slide[:height])
+    slide[:width] = @presentation_props['deskshare_output_width'].to_i
+    slide[:height] = @presentation_props['deskshare_output_height'].to_i
+  end
   BigBlueButton.logger.info("Image size is #{slide[:width]}x#{slide[:height]}")
 end
 
@@ -890,6 +894,7 @@ def process_presentation(package_dir)
   # Current pan/zoom state
   current_x_offset = current_y_offset = 0.0
   current_width_ratio = current_height_ratio = 100.0
+  current_panzoom_width = current_panzoom_height = nil
   current_x_camera = current_y_camera = current_zoom = 0.0  
   # Current cursor status
   cursor_x = cursor_y = -1.0
@@ -925,7 +930,13 @@ def process_presentation(package_dir)
     # Do event specific processing
     case eventname
     when 'SharePresentationEvent'
-      current_presentation = event.at_xpath('presentationName').text
+      next_presentation = event.at_xpath('presentationName').text
+      if !current_presentation.empty? && current_presentation != next_presentation
+        current_x_offset = current_y_offset = 0.0
+        current_width_ratio = current_height_ratio = 100.0
+        current_panzoom_width = current_panzoom_height = nil
+      end
+      current_presentation = next_presentation
       current_slide = current_presentation_slide[current_presentation].to_i
       slide_changed = panzoom_changed = true
 
@@ -939,20 +950,22 @@ def process_presentation(package_dir)
       current_y_offset = event.at_xpath('yOffset').text.to_f
       current_width_ratio = event.at_xpath('widthRatio').text.to_f
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
+      current_panzoom_width = slides.last[:width]
+      current_panzoom_height = slides.last[:height]
       panzoom_changed = true
 
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
       if @presentation_props['include_deskshare']
         screenshare_active = true
         deskshare = screenshare_active && screenshare_as_content
-        slide_changed = true
+        slide_changed = panzoom_changed = true
       end
 
     when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
       if @presentation_props['include_deskshare']
         screenshare_active = false
         deskshare = false
-        slide_changed = true
+        slide_changed = panzoom_changed = true
       end
 
     when 'SetScreenshareAsContentEvent'
@@ -963,7 +976,7 @@ def process_presentation(package_dir)
       sac_el = event.at_xpath('screenshareAsContent')
       screenshare_as_content = sac_el.text == 'true' if sac_el
       deskshare = screenshare_active && screenshare_as_content
-      slide_changed = true
+      slide_changed = panzoom_changed = true
 
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
@@ -1031,9 +1044,15 @@ def process_presentation(package_dir)
       panzoom = panzooms.last
       slide_width = slide[:width]
       slide_height = slide[:height]
+      panzoom_x_offset = current_x_offset
+      panzoom_y_offset = current_y_offset
+      if tldraw && !deskshare && current_panzoom_width && current_panzoom_height
+        panzoom_x_offset *= slide_width.to_f / current_panzoom_width
+        panzoom_y_offset *= slide_height.to_f / current_panzoom_height
+      end
       if panzoom &&
-         (panzoom[:x_offset] == current_x_offset) &&
-         (panzoom[:y_offset] == current_y_offset) &&
+         (panzoom[:x_offset] == panzoom_x_offset) &&
+         (panzoom[:y_offset] == panzoom_y_offset) &&
          (panzoom[:width_ratio] == current_width_ratio) &&
          (panzoom[:height_ratio] == current_height_ratio) &&
          (panzoom[:width] == slide_width) &&
@@ -1046,10 +1065,10 @@ def process_presentation(package_dir)
           panzoom[:out] = timestamp
           panzooms_emit_event(panzooms_rec, panzoom, tldraw)
         end
-        BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
+        BigBlueButton.logger.info("Panzoom: #{panzoom_x_offset} #{panzoom_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
         panzoom = {
-          x_offset: current_x_offset,
-          y_offset: current_y_offset,
+          x_offset: panzoom_x_offset,
+          y_offset: panzoom_y_offset,
           width_ratio: current_width_ratio,
           height_ratio: current_height_ratio,
           width: slide[:width],
@@ -1304,9 +1323,10 @@ def process_external_video_events(_events, package_dir)
 end
 
 def generate_done_or_fail_file(success)
-  File.open("#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}", 'w') do |file|
-    file.write("#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}")
-  end
+  File.write(
+    "#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}",
+    "#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}"
+  )
 end
 
 def copy_media_files_helper(media, media_files, package_dir)
@@ -1486,7 +1506,7 @@ begin
           end
         end
         ## Write the new metadata.xml
-        File.open("#{package_dir}/metadata.xml", 'w') { |file| file.write(Nokogiri::XML(metadata.to_xml, &:noblanks).root) }
+        File.write("#{package_dir}/metadata.xml", Nokogiri::XML(metadata.to_xml, &:noblanks).root)
         BigBlueButton.logger.info('Added playback to metadata.xml')
 
         # Create slides.xml

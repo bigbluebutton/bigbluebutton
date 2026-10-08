@@ -161,6 +161,8 @@ public:
       duration: 4000
     appsGallery:
       maxPinnedApps: 3
+    # Show the remaining time banner when the meeting has fewer than this many minutes left.
+    remainingTimeThresholdInMinutes: 6
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
@@ -179,6 +181,8 @@ public:
       captureSharedNotesByDefault: false
       # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Pre-check the "Propagate the current lock settings" option
+      inheritLockSettingsByDefault: false
       # Minimum number of breakout rooms that can be created
       breakoutRoomMinimum: 2
       # Maximum number of breakout rooms that can be created
@@ -237,6 +241,10 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        # Collapse the recording button to an icon and reveal its label on hover.
+        # Off by default: the label stays put, so the button never resizes under
+        # the pointer and never shifts the nav bar around it.
+        recordingIndicatorAutoCollapse: false
         pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true
@@ -344,6 +352,7 @@ public:
       - 3004
       # - 3005
       # - 3006
+      - 3007
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -869,8 +878,6 @@ public:
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
     appsToLabelAsNew: []
-  pads:
-    url: ETHERPAD_HOST
   sharedNotes:
     # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
     # e.g: `bbb-host` (only the domain without protocol and path)

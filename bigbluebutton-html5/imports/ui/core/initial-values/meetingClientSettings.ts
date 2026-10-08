@@ -93,6 +93,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       appsGallery: {
         maxPinnedApps: 3,
       },
+      remainingTimeThresholdInMinutes: 6,
       remainingTimeAlertThresholdArray: [
         1,
         5,
@@ -105,6 +106,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         captureWhiteboardByDefault: false,
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
+        inheritLockSettingsByDefault: false,
         breakoutRoomMinimum: 2,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
@@ -144,6 +146,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
+          recordingIndicatorAutoCollapse: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
           darkTheme: false,
@@ -222,7 +225,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       fallbackOnEmptyLocaleString: true,
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
-      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
+      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006, 3007],
     },
     sharedNotes: {
       serverHostname: '',
@@ -628,9 +631,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         center: ['apps-gallery', 'pinned-apps'],
         bottom: ['audio-captions', 'learning-dashboard', 'settings'],
       },
-    },
-    pads: {
-      url: 'ETHERPAD_HOST',
     },
     media: {
       audio: {

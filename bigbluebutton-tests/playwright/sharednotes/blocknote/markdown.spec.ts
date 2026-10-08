@@ -10,7 +10,6 @@ test.describe.parallel('Shared Notes - BlockNote Markdown', { tag: '@ci' }, () =
       markdownSharedNotes = new MarkdownSharedNotes(browser, context);
       await initializePages(markdownSharedNotes, browser, {
         isMultiUser: true,
-        createParameter: 'sharedNotesEditor=blocknote',
         testInfo,
       });
     });

@@ -1,5 +1,7 @@
 Learning Analytics Dashboard will be accessible through https://yourdomain/learning-analytics-dashboard
 
+The dashboard is a React application bundled with [webpack](https://webpack.js.org/).
+
 # Dev Instructions
 
 ## Prepare destination directory
@@ -28,6 +30,10 @@ cp .env.example .env
 ```
 ./run-dev.sh
 ```
+
+`run-dev.sh` starts webpack-dev-server on port 3100 and points nginx at it,
+so the dashboard is reachable through `https://yourdomain/learning-analytics-dashboard/`
+with hot module reload. The build is configured in `webpack.config.js`.
 
 ---
 
