@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 
 const messages = defineMessages({
@@ -37,18 +37,15 @@ class ConfirmationModal extends Component {
 
     this.state = {
       checked: false,
-      triggeredFocus: false,
     };
-    this.cancelButtonRef = React.createRef();
+    this.cancelButtonId = uniqueId('confirmationModalCancel-');
+    this.focusCancelButton = this.focusCancelButton.bind(this);
   }
 
-  componentDidUpdate() {
-    const { triggeredFocus } = this.state;
-
-    if (!triggeredFocus && this.cancelButtonRef.current) {
-      this.cancelButtonRef.current.children[0].focus();
-      this.setState({ triggeredFocus: true });
-    }
+  // react-modal mounts the dialog's content after this component has rendered,
+  // so the cancel button only exists once the modal reports it has opened.
+  focusCancelButton() {
+    document.getElementById(this.cancelButtonId)?.focus();
   }
 
   render() {
@@ -83,6 +80,7 @@ class ConfirmationModal extends Component {
     return (
       <Styled.ConfirmationModal
         onRequestClose={handleClose}
+        onAfterOpen={this.focusCancelButton}
         contentLabel={title}
         title={title}
         {...{
@@ -111,7 +109,7 @@ class ConfirmationModal extends Component {
 
           <Styled.Footer>
             {!hideConfirmButton && (
-              <BBButton
+              <Styled.FooterButton
                 variant="primary"
                 color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
                 label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
@@ -124,14 +122,13 @@ class ConfirmationModal extends Component {
               />
             )}
             {!hideCancelButton && (
-              <div ref={this.cancelButtonRef}>
-                <BBButton
-                  variant="secondary"
-                  dataTest="confirmationModalCancel"
-                  label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
-                  onClick={handleClose}
-                />
-              </div>
+              <Styled.FooterButton
+                id={this.cancelButtonId}
+                variant="secondary"
+                dataTest="confirmationModalCancel"
+                label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
+                onClick={handleClose}
+              />
             )}
           </Styled.Footer>
         </Styled.Container>

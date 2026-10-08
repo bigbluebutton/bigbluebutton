@@ -21,6 +21,8 @@ const AppendDescription = styled(ConfirmationModalStyles.DescriptionText)`
 
 const Footer = styled(ConfirmationModalStyles.Footer)``;
 
+const { FooterButton } = ConfirmationModalStyles;
+
 // BBButton's aria-labelledby points at its own visible label whenever one is
 // set, which overrides its ariaLabel prop. The consent choices carry more
 // context than "Continue"/"Leave session", so that context rides on a
@@ -33,5 +35,6 @@ export default {
   Description,
   AppendDescription,
   Footer,
+  FooterButton,
   ScreenreaderLabel,
 };
