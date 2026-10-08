@@ -1243,7 +1243,9 @@ def get_poll_type(events, published_poll_event)
 end
 
 def generate_json_file(package_dir, filename, contents)
-  File.open("#{package_dir}/#{filename}", 'w') { |f| f.puts(contents.to_json) } unless contents.empty?
+  File.open("#{package_dir}/#{filename}", 'w') do |f|
+    f.puts(JSON.pretty_generate(contents))
+  end unless contents.empty?
 end
 
 def process_poll_events(events, package_dir)
@@ -1271,33 +1273,49 @@ def process_poll_events(events, package_dir)
   generate_json_file(package_dir, 'polls.json', published_polls)
 end
 
+def external_video_events_for_segment(events, start_timestamp, stop_timestamp)
+  updates = events.select do |event|
+    event[:timestamp] >= start_timestamp && event[:timestamp] < stop_timestamp
+  end
+  # Restore the external video's state when recording resumes.
+  # Paused recording time is excluded from the published timeline.
+  previous = events.reverse.find { |event| event[:timestamp] < start_timestamp }
+  if previous && (updates.empty? || updates.first[:timestamp] > start_timestamp)
+    position = previous[:time]
+    position += (start_timestamp - previous[:timestamp]) / 1000.0 * previous[:rate] if previous[:playing]
+    updates.unshift(previous.merge(timestamp: start_timestamp, time: position, type: 'playerUpdate'))
+  end
+  updates.map do |event|
+    event.merge(timestamp: translate_timestamp(event[:timestamp]) / 1000.0)
+  end
+end
+
 def process_external_video_events(_events, package_dir)
   BigBlueButton.logger.info('Processing external video events')
 
-  # Retrieve external video events
-  external_video_events = BigBlueButton::Events.match_start_and_stop_external_video_events(
-    BigBlueButton::Events.get_start_and_stop_external_video_events(@doc)
-  )
-
   external_videos = []
-  @rec_events.each do |re|
-    external_video_events.each do |event|
-      BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
-      start_timestamp = event[:start_timestamp]
-      timestamp = (translate_timestamp(start_timestamp) / 1000).to_i
-      # do not add same external_video twice
-      next if external_videos.find { |ev| ev[:timestamp] == timestamp }
-
-      re_start_timestamp = re[:start_timestamp]
-      re_stop_timestamp = re[:stop_timestamp]
-      next unless ((start_timestamp >= re_start_timestamp) && (start_timestamp <= re_stop_timestamp)) ||
-                  ((start_timestamp < re_start_timestamp) && (re_stop_timestamp >= re_start_timestamp))
-
-      external_videos << {
-        timestamp: timestamp,
-        external_video_url: event[:external_video_url],
+  BigBlueButton::Events.get_external_video_playback_events(@doc).each do |video|
+    segments = @rec_events.map do |recording|
+      {
+        start_timestamp: [video[:start_timestamp], recording[:start_timestamp]].max,
+        stop_timestamp: [video[:stop_timestamp], recording[:stop_timestamp]].min,
       }
-    end
+    end.select { |segment| segment[:start_timestamp] < segment[:stop_timestamp] }
+    next if segments.empty?
+
+    start_timestamp = translate_timestamp(segments.first[:start_timestamp]) / 1000.0
+    stop_timestamp = translate_timestamp(segments.last[:stop_timestamp]) / 1000.0
+    external_videos << {
+      # Keep the existing chat-link fields and their types. Do not deduplicate by
+      # integer seconds: separate shares can start within the same second.
+      timestamp: start_timestamp.to_i,
+      external_video_url: video[:external_video_url],
+      start_timestamp: start_timestamp,
+      stop_timestamp: stop_timestamp,
+      events: segments.flat_map do |segment|
+        external_video_events_for_segment(video[:events], segment[:start_timestamp], segment[:stop_timestamp])
+      end,
+    }
   end
 
   generate_json_file(package_dir, 'external_videos.json', external_videos)
