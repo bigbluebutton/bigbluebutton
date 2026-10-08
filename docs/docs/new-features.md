@@ -285,6 +285,13 @@ See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/custom
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
 
 
+#### Configurable whiteboard annotation types
+
+BigBlueButton 4.0 adds a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
+
+Two related behaviour changes ship with it. The server now rejects the `video` shape type, which the HTML5 client still permits, so a video inserted on the whiteboard is drawn for its author but not shared or recorded. And annotations carrying a link that is not an `http://` or `https://` URL are rejected; the whiteboard's own link editor only ever produces `https://` URLs, so this does not affect normal use.
+
+
 #### Plugin SDK 1.0 pre-release
 
 The HTML5 client now uses `bigbluebutton-html-plugin-sdk` `1.0.0-beta.3`, and `html5PluginSdkVersion` defaults to the same value. This is a breaking change for plugins: a pre-release SDK only satisfies a `requiredSdkVersion` range that names a `1.0.0` pre-release, so manifests declaring `0.x` ranges such as `^0.1.26` or `~0.0.77` are rejected and each meeting records a plugin load failure in `bbb-apps-akka`.
