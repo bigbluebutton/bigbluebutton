@@ -421,8 +421,6 @@ export class Layouts extends MultiUsers {
     await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
     await this.userPage.getVisibleLocator(e.unfocusWebcamBtn).click();
     await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
-    // Every tile keeps its dropdown menu in the DOM, so scope the probe to the
-    // visible (open) menu.
     await expect(
       this.userPage.getVisibleLocator(e.focusWebcamBtn),
       'the focused camera tile should offer focus again after the viewer unfocuses locally',

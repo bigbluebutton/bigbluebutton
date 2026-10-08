@@ -22,7 +22,6 @@ export interface Public {
   notes: Notes
   layout: Layout
   sidebarNavigation: SidebarNavigation
-  pads: Pads
   sharedNotes: SharedNotes
   media: Media
   stats: Stats
@@ -84,6 +83,7 @@ export interface App {
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
   appsGallery: AppsGallery
+  remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
@@ -617,10 +617,6 @@ export interface SidebarNavigationButtons {
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
   buttons: SidebarNavigationButtons
-}
-
-export interface Pads {
-  url: string
 }
 
 export interface SharedNotes {

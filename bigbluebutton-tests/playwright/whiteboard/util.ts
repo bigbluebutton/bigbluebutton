@@ -1,8 +1,60 @@
-import { expect } from 'playwright/test';
+import { expect, type JSHandle, type Page as PlaywrightPage } from 'playwright/test';
 
 import { CI } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+
+export type TldrawCamera = { pageId: string; x: number; y: number; z: number };
+
+export type TldrawEditor = {
+  getCamera: () => { x: number; y: number; z: number };
+  getCurrentPageId: () => string;
+  getViewportScreenBounds: () => { w: number; h: number };
+  setCamera: (camera: { x: number; y: number; z: number }, options?: { immediate?: boolean }) => void;
+};
+
+export async function getTldrawEditor(page: PlaywrightPage): Promise<JSHandle<TldrawEditor>> {
+  const editor = await page.evaluateHandle(() => {
+    const whiteboard = document.getElementById('whiteboard-element');
+    if (!whiteboard) return null;
+    const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>).find((key) =>
+      key.startsWith('__reactFiber'),
+    );
+    if (!fiberKey) return null;
+
+    type Hook = { memoizedState: unknown; next: Hook | null };
+    type Fiber = { memoizedState: Hook | null; return: Fiber | null };
+    let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as Fiber | null;
+    while (fiber) {
+      let hook = fiber.memoizedState;
+      while (hook) {
+        const state = hook.memoizedState as { current?: TldrawEditor } | null;
+        if (state?.current && typeof state.current.setCamera === 'function') return state.current;
+        hook = hook.next;
+      }
+      fiber = fiber.return;
+    }
+    return null;
+  });
+  const isNull = await editor.evaluate((value) => value === null);
+  if (isNull) {
+    await editor.dispose();
+    throw new Error('tldraw editor not found in React fiber tree');
+  }
+  return editor as JSHandle<TldrawEditor>;
+}
+
+export async function getTldrawCamera(page: PlaywrightPage): Promise<TldrawCamera | null> {
+  const editor = await getTldrawEditor(page);
+  try {
+    return await editor.evaluate((value) => ({
+      pageId: value.getCurrentPageId(),
+      ...value.getCamera(),
+    }));
+  } finally {
+    await editor.dispose();
+  }
+}
 
 // Drags across the whiteboard with the tool currently selected on `testPage`, from
 // 30% to 60% of its width, between the given fractions of its height.

@@ -119,3 +119,10 @@ libraryDependencies ++= Seq(
 // Pin transitively-pulled artifacts to fixed releases.
 // junrar is reached only via tika-parsers-standard-package > tika-parser-pkg-module.
 dependencyOverrides += "com.github.junrar" % "junrar" % "7.6.1"
+// bouncycastle is reached only via tika-parsers-standard-package; tika-parent 3.3.2 manages it at 1.85.
+dependencyOverrides ++= Seq(
+  "org.bouncycastle" % "bcprov-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcpkix-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcutil-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcjmail-jdk18on" % "1.86"
+)
