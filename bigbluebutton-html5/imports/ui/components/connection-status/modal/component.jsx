@@ -512,6 +512,7 @@ class ConnectionStatusComponent extends PureComponent {
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
         dataTest="connectionStatusModal"
         allowScroll={false}
+        shouldCloseOnOverlayClick
         noFooter={false}
         showDividers
         footerContent={this.renderCopyDataButton()}

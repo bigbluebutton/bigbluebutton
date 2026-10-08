@@ -620,6 +620,7 @@ class LockViewersComponent extends Component {
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
         contentStyle={deviceInfo.isMobile ? { height: '90vh' } : { minWidth: 'min(55rem, 90vw)' }}
         showDividers
+        shouldCloseOnOverlayClick
         footerContent={(
           <Styled.ActionsContainer>
             <Styled.ActionButton
