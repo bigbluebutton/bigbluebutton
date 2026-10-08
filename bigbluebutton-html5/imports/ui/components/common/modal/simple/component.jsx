@@ -26,38 +26,19 @@ const propTypes = {
   setIsOpen: PropTypes.func,
 };
 
-const defaultProps = {
-  id: 'simpleModal',
-  title: '',
-  contentLabel: undefined,
-  dismiss: { callback: null },
-  shouldCloseOnOverlayClick: true,
-  shouldCloseOnEsc: true,
-  hideCloseButton: false,
-  modalIsOpen: false,
-  isOpen: false,
-  onRequestClose: null,
-  priority: undefined,
-  dataTest: undefined,
-  children: null,
-  documentTitle: false,
-  modalName: undefined,
-  setIsOpen: undefined,
-};
-
 const ModalSimple = ({
-  id,
-  title,
+  id = 'simpleModal',
+  title = '',
   contentLabel,
   dismiss,
-  shouldCloseOnOverlayClick,
-  shouldCloseOnEsc,
-  hideCloseButton,
-  modalIsOpen,
-  isOpen,
-  onRequestClose,
+  shouldCloseOnOverlayClick = true,
+  shouldCloseOnEsc = true,
+  hideCloseButton = false,
+  modalIsOpen = false,
+  isOpen = false,
+  onRequestClose = null,
   priority,
-  children,
+  children = null,
   // legacy props — intentionally ignored (handled by GenericModal/BBBModal internally)
   // eslint-disable-next-line no-unused-vars
   shouldShowCloseButton,
@@ -111,6 +92,5 @@ const ModalSimple = ({
 };
 
 ModalSimple.propTypes = propTypes;
-ModalSimple.defaultProps = defaultProps;
 
 export default ModalSimple;
