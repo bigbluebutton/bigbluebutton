@@ -17,7 +17,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import { notify } from '/imports/ui/services/notification';
-import Styled from './styles';
+import Styled, { HOVER_CAPABLE_QUERY } from './styles';
 import { User } from '/imports/ui/Types/user';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
@@ -32,6 +32,7 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import Service from './service';
 import { Layout } from '../../../layout/layoutTypes';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -92,6 +93,20 @@ const intlMessages = defineMessages({
   },
 });
 
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(() => globalThis.matchMedia(query).matches);
+
+  useEffect(() => {
+    const mediaQuery = globalThis.matchMedia(query);
+    const handleChange = (event: MediaQueryListEvent) => setMatches(event.matches);
+    setMatches(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [query]);
+
+  return matches;
+};
+
 interface RecordingIndicatorProps {
   allowStartStopRecording: boolean;
   // eslint-disable-next-line react/no-unused-prop-types
@@ -137,6 +152,11 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     animations: boolean; recordingIndicatorAutoCollapse: boolean;
   };
 
+  const isHoverCapable = useMediaQuery(HOVER_CAPABLE_QUERY);
+  const isSmallViewport = useMediaQuery(smallOnly);
+
+  // Open from the moment the confirmation shows until one of its buttons is
+  // clicked; the button stays expanded for that whole time.
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
   const closeRecordingConfirmation = useCallback(() => {
@@ -262,6 +282,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       isPhone={isPhone}
       animations={animations}
       autoCollapse={recordingIndicatorAutoCollapse}
+      $expanded={isRecordingModalOpen}
       time={time}
       tabIndex={0}
       key="recording-toggle"
@@ -295,7 +316,23 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     </Styled.RecordingControl>
   );
 
-  const recordingButtonWithTooltip = (
+  // Where the label is drawn: never on phones, not in the idle circle of small
+  // viewports, and with the collapse on only under a real pointer's hover or
+  // while the confirmation holds the button open.
+  const isLabelVisible = !isPhone
+    && (recording || !isSmallViewport)
+    && (
+      !recordingIndicatorAutoCollapse
+      || !showButton
+      || isHoverCapable
+      || isRecordingModalOpen
+    );
+
+  // A visible label already says what the tooltip would, so the tooltip is
+  // dropped; a custom viewer tooltip that says something else is kept.
+  const recordingButtonWithTooltip = isLabelVisible && tooltipTitle === recordTitle ? (
+    <span>{recordMeetingButton}</span>
+  ) : (
     <Tooltip title={tooltipTitle}>
       <span>{recordMeetingButton}</span>
     </Tooltip>

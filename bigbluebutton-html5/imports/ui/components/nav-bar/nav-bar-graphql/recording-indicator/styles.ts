@@ -31,6 +31,7 @@ interface RecordingIndicatorProps {
   isPhone?: boolean;
   animations?: boolean;
   autoCollapse?: boolean;
+  $expanded?: boolean;
 }
 
 interface RecordingStatusViewOnlyProps {
@@ -118,7 +119,9 @@ const HOVER_COLLAPSE_DELAY = '0.25s';
 // open. Gating on a real pointer keeps phones and tablets a plain clickable
 // button. Detected by capability rather than by user agent, so a touchscreen
 // laptop is handled by how it is being used, not by what it is called.
-const HOVER_CAPABLE = '@media (hover: hover) and (pointer: fine)';
+// The bare query is exported so the component can tell when the label shows.
+export const HOVER_CAPABLE_QUERY = '(hover: hover) and (pointer: fine)';
+const HOVER_CAPABLE = `@media ${HOVER_CAPABLE_QUERY}`;
 
 // The collapse animates max-width, which cannot be `auto`, so the open state
 // needs a length. It is the same 30vw cap the label has when it does not
@@ -156,8 +159,9 @@ const expandedMetrics = (borderWidth: string) => css`
 
 // Rests as an icon-only circle and reveals the label on hover. The height is
 // pinned so it cannot drift with font metrics; `borderWidth` is subtracted from
-// the padding so bordered and borderless states close the same box.
-const collapsedOnRest = (borderWidth: string) => css`
+// the padding so bordered and borderless states close the same box. `expanded`
+// holds it open while its recording confirmation is up.
+const collapsedOnRest = (borderWidth: string, expanded?: boolean) => css`
   height: ${NAV_BAR_BUTTON_SIZE};
   padding: 0 calc((${NAV_BAR_BUTTON_SIZE} - ${fontSizeLarge}) / 2 - ${borderWidth});
   transition: padding 0.2s ease ${HOVER_COLLAPSE_DELAY};
@@ -195,12 +199,23 @@ const collapsedOnRest = (borderWidth: string) => css`
       margin-left: ${mdPadding};
     }
   }
+
+  /* Logical margins rather than a [dir="rtl"] & rule: styled-components binds
+     a non-leading & to the static class, which would outlive the hold. */
+  ${expanded && css`
+    ${expandedMetrics(borderWidth)}
+
+    ${RecordingIndicatorIcon} {
+      margin-right: 0;
+      margin-inline-end: ${mdPadding};
+    }
+  `}
 `;
 
 // While recording the button rests as a pill holding the dot and the timer, so
 // it never shrinks to a circle. Only the action label collapses, under the same
-// asymmetric delay as collapsedOnRest.
-const labelCollapsedOnRest = css`
+// asymmetric delay as collapsedOnRest, and `expanded` holds it open the same way.
+const labelCollapsedOnRest = (expanded?: boolean) => css`
   /* The timer owns the gap after the dot. */
   ${RecordingIndicatorIcon} {
     margin: 0;
@@ -241,6 +256,17 @@ const labelCollapsedOnRest = css`
       margin-left: 0;
     }
   }
+
+  /* Logical margin for the same reason as in collapsedOnRest. */
+  ${expanded && css`
+    ${PresentationTitle} {
+      max-width: ${LABEL_MAX_WIDTH};
+      opacity: 1;
+      margin-left: 0;
+      margin-inline-start: ${mdPadding};
+      transition-delay: 0s;
+    }
+  `}
 `;
 
 // A read-only pill (someone who may not record) has pointer-events disabled, so
@@ -306,7 +332,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   /* Recording: a pill with the red outline, showing the dot and the elapsed
      time at rest. Hover only adds the stop label. */
   ${({
-    recording, isPhone, disabled, autoCollapse,
+    recording, isPhone, disabled, autoCollapse, $expanded,
   }) => recording && css`
     ${staticBox(borderSizeSmall)}
     background-color: ${btnRecordingActiveBg};
@@ -318,19 +344,19 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     }
 
     ${!isPhone && (autoCollapse && !disabled
-    ? labelCollapsedOnRest
+    ? labelCollapsedOnRest($expanded)
     : labelStaticBesideTimer)}
   `}
 
   /* Idle: borderless, so nothing to compensate. */
   ${({
-    recording, isPhone, disabled, autoCollapse,
+    recording, isPhone, disabled, autoCollapse, $expanded,
   }) => !recording && css`
     border: ${borderSizeSmall};
     border-radius: 2em;
 
     ${!isPhone && autoCollapse && !disabled
-    ? collapsedOnRest('0px')
+    ? collapsedOnRest('0px', $expanded)
     : staticBox('0px')}
   `}
 
