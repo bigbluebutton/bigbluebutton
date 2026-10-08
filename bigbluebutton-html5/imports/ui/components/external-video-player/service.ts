@@ -23,15 +23,15 @@ const getPlayingState = (state: number) => {
 
 const calculateCurrentTime = (timeSync: number, externalVideoProps?: ExternalVideo) => {
   const playerCurrentTime = externalVideoProps?.playerCurrentTime ?? 0;
-
+  const playerPlaybackRate = externalVideoProps?.playerPlaybackRate ?? 1;
   const playerUpdatedAt = externalVideoProps?.updatedAt ?? Date.now();
   const playerUpdatedAtDate = new Date(playerUpdatedAt);
   const currentDate = new Date(Date.now() + (timeSync ?? 0));
   const isPaused = !externalVideoProps?.playerPlaying;
   const currentTime = isPaused
     ? playerCurrentTime
-    : ((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000)
-    + (playerCurrentTime);
+    : ((currentDate.getTime() - playerUpdatedAtDate.getTime()) / 1000) * playerPlaybackRate
+    + playerCurrentTime;
 
   return currentTime;
 };
