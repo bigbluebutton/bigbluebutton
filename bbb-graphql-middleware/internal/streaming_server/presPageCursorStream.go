@@ -33,6 +33,11 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	xPercent := receivedMessage.Core.Body["xPercent"].(float64)
 	yPercent := receivedMessage.Core.Body["yPercent"].(float64)
 	cursorHiddenForLockedViewers := cursorIsHiddenForLockedViewers(receivedMessage.Core.Body, receivedCursorIsFromViewer)
+	if _, hasLockStateInEvent := receivedMessage.Core.Body["hiddenForLockedViewers"].(bool); hasLockStateInEvent && receivedCursorIsFromViewer {
+		// Only a viewer's cursor says anything about hideViewersCursor: for anyone else the flag is
+		// false whatever the lock.
+		seedMeetingHideViewersCursor(receivedMessage.Core.Header.MeetingId, cursorHiddenForLockedViewers)
+	}
 
 	item := map[string]any{
 		"xPercent":   xPercent,
@@ -127,11 +132,13 @@ func SendPreviousCursorPosition(browserConnection *common.BrowserConnection, que
 
 	// The replay is subject to the same rules as the live path; subscribing is not a way around
 	// them. Each cached row records whether its cursor came from a viewer, so the live gate applies
-	// per row rather than to the replay as a whole.
+	// per row rather than to the replay as a whole, against the meeting's current lock state rather
+	// than the one the row was produced under.
+	hideViewersCursor := meetingHidesViewersCursor(recipient.MeetingId)
 	previousMessages, _ := GetCursorsCache(recipient.MeetingId)
 	items := make([]any, 0, len(previousMessages))
 	for _, cached := range previousMessages {
-		if !cursorVisibleTo(recipient, recipient.MeetingId, cached.FromViewer) {
+		if !cursorVisibleTo(recipient, recipient.MeetingId, cached.FromViewer && hideViewersCursor) {
 			continue
 		}
 		items = append(items, cached.Row)

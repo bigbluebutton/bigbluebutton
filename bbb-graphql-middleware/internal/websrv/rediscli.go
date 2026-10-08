@@ -53,6 +53,7 @@ var allowedMessages = []string{
 	"UserVoiceStateEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
+	"LockSettingsInMeetingChangedEvtMsg",
 }
 
 func StartRedisListener() {
@@ -124,6 +125,7 @@ func StartRedisListener() {
 			go common.RemoveMeetingHasuraMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingPatchedMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingStreamCursorValueCache(receivedMessage.Core.Body["meetingId"].(string))
+			go streamingserver.RemoveMeetingLockSettings(receivedMessage.Core.Body["meetingId"].(string))
 		}
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
@@ -131,6 +133,15 @@ func StartRedisListener() {
 			// The voice state row is normally cleared by the user's own voice events; a user who
 			// leaves the meeting must not stay in the replay cache if that event never arrives.
 			go streamingserver.RemoveUserUserVoiceStatesCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+		}
+
+		// Lock changes are no longer pushed into the sessions; the stream replays read them from here.
+		if messageName == "LockSettingsInMeetingChangedEvtMsg" {
+			hideUserList, hasHideUserList := receivedMessage.Core.Body["hideUserList"].(bool)
+			hideViewersCursor, hasHideViewersCursor := receivedMessage.Core.Body["hideViewersCursor"].(bool)
+			if hasHideUserList && hasHideViewersCursor {
+				streamingserver.RecordMeetingLockSettings(receivedMessage.Core.Header.MeetingId, hideUserList, hideViewersCursor)
+			}
 		}
 
 		if messageName == "SendCursorPositionEvtMsg" {
