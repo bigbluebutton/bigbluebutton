@@ -91,7 +91,7 @@ const MobileAppModalGraphql: React.FC<MobileAppModalGraphqlProps> = (props) => {
       title={intl.formatMessage(intlMessages.title)}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      priority={priority as 'low' | 'medium' | 'high'}
+      priority={priority}
     >
       <Styled.Center>
         {`${intl.formatMessage(intlMessages.description)}`}

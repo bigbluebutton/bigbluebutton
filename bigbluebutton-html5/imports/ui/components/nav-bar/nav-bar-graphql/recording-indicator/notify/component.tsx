@@ -100,18 +100,18 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
             {intl.formatMessage(intlMessages.leaveAriaLabel)}
           </Styled.ScreenreaderLabel>
           <BBButton
-            variant="primary"
-            dataTest="recordingNotifyContinue"
-            label={intl.formatMessage(intlMessages.continue)}
-            onClick={handleContinueInRecordedSession}
-            ariaLabelledBy="recordingNotifyContinueLabel"
-          />
-          <BBButton
             variant="secondary"
             dataTest="recordingNotifyLeave"
             label={intl.formatMessage(intlMessages.leave)}
             onClick={skipButtonHandle}
             ariaLabelledBy="recordingNotifyLeaveLabel"
+          />
+          <BBButton
+            variant="primary"
+            dataTest="recordingNotifyContinue"
+            label={intl.formatMessage(intlMessages.continue)}
+            onClick={handleContinueInRecordedSession}
+            ariaLabelledBy="recordingNotifyContinueLabel"
           />
         </>
       )}

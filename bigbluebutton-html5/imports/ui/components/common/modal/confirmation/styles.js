@@ -1,8 +1,5 @@
 import styled from 'styled-components';
-import {
-  lgPaddingY,
-  jumboPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
+import { jumboPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -39,7 +36,6 @@ const Checkbox = styled.input`
 const Footer = styled.div`
   display: flex;
   gap: 0.75rem;
-  margin-bottom: ${lgPaddingY};
 `;
 
 const Label = styled.label`

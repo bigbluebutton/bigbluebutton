@@ -214,7 +214,7 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
   // On mobile the modal stays centred; on desktop anchor it below the session title.
   const anchorElement = deviceInfo.isMobile
     ? null
-    : document.getElementById('presentationTitle') as HTMLElement | null;
+    : document.getElementById('presentationTitle');
 
   return (
     <SessionDetails
