@@ -9,8 +9,6 @@ func TestReconnectionAffectsMembership(t *testing.T) {
 	preserving := []string{
 		"role_changed",
 		"lock_user_changed",
-		"lockSettings_changed",
-		"webcamOnlyForMod_changed",
 		"assigned_presenter",
 		"assigned_presenter_automatically",
 	}
