@@ -76,7 +76,8 @@ const SettingsTabSelector = styled(Tab)`
   color: ${colorGrayDark};
   cursor: pointer;
   border-radius: 10px;
-  margin: 1rem 1.5rem;
+  margin-block: 1rem;
+  margin-inline: 0 1.5rem;
   transition: background-color 0.3s, color 0.3s;
 
   & > span {
@@ -101,12 +102,10 @@ const SettingsTabSelector = styled(Tab)`
 
     &:first-child {
       border-radius: 8px 0 0 8px;
-      margin-left: 0.5rem;
     }
 
     &:last-child {
       border-radius: 0 8px 8px 0;
-      margin-right: 0.5rem;
     }
 
     &.is-selected {
@@ -144,7 +143,8 @@ const SettingsIcon = styled(Icon)`
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
-  ${({ $noPadding }) => !$noPadding && 'padding: 1.5rem 3rem'};
+  // BBBModal already pads the outer edge, so only the side next to the tab list gets 3rem.
+  ${({ $noPadding }) => !$noPadding && 'padding-block: 1.5rem; padding-inline: 3rem 1.5rem'};
   border-left: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
 
@@ -160,7 +160,7 @@ const SettingsTabPanel = styled(TabPanel)`
   @media ${smallOnly} {
     width: 100%;
     margin: 0;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0;
     border: none;
     height: auto;
     flex-grow: 1;
