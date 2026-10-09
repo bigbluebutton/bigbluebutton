@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="fixture" bbb_version="2.7.0">
+  <meeting id="fixture" externalId="fixture" name="fixture" breakout="false"/>
+  <metadata isBreakout="false" meetingId="fixture" meetingName="fixture"/>
+  <event timestamp="1000" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Alice</name>
+    <role>MODERATOR</role>
+    <userId>w_alice</userId>
+  </event>
+  <!-- #19178: a caption event with an empty locale (old clients could send one) -->
+  <event timestamp="2000" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode></localeCode>
+    <text>bad</text>
+    <locale></locale>
+    <startIndex>0</startIndex>
+    <endIndex>0</endIndex>
+  </event>
+  <!-- a locale that is not a safe file name component -->
+  <event timestamp="2100" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>../../etc</localeCode>
+    <text>evil</text>
+    <locale>x</locale>
+    <startIndex>0</startIndex>
+    <endIndex>0</endIndex>
+  </event>
+  <!-- #19701: the spammy transcript event of 2.7/3.0 must be ignored -->
+  <event timestamp="2200" module="AUDIO-CAPTIONS" eventname="TranscriptUpdatedEvent">
+    <locale>en-US</locale>
+    <transcript>spam</transcript>
+  </event>
+  <event timestamp="2300" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text>hello</text>
+    <locale>en-US</locale>
+    <startIndex>0</startIndex>
+    <endIndex>0</endIndex>
+  </event>
+</recording>

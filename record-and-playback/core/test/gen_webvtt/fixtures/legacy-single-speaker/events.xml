@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<recording meeting_id="fixture" bbb_version="3.0.17">
+  <meeting id="fixture" externalId="fixture" name="fixture" breakout="false" />
+  <metadata isBreakout="false" meetingId="fixture" meetingName="fixture" />
+  <breakout />
+  <breakoutRooms />
+  <event timestamp="22065101" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Alice</name>
+    <role>MODERATOR</role>
+    <userId>w_zw7eziesz2jg</userId>
+  </event>
+  <event timestamp="22065110" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <status>true</status>
+    <userId>system</userId>
+  </event>
+  <event timestamp="22070051" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text>the</text>
+    <locale>en-US</locale>
+    <startIndex>0</startIndex>
+    <endIndex>0</endIndex>
+  </event>
+  <event timestamp="22070291" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> birch</text>
+    <locale>en-US</locale>
+    <startIndex>3</startIndex>
+    <endIndex>3</endIndex>
+  </event>
+  <event timestamp="22070545" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> canoe</text>
+    <locale>en-US</locale>
+    <startIndex>9</startIndex>
+    <endIndex>9</endIndex>
+  </event>
+  <event timestamp="22070794" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> slid</text>
+    <locale>en-US</locale>
+    <startIndex>15</startIndex>
+    <endIndex>15</endIndex>
+  </event>
+  <event timestamp="22071052" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> on</text>
+    <locale>en-US</locale>
+    <startIndex>20</startIndex>
+    <endIndex>20</endIndex>
+  </event>
+  <event timestamp="22071307" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> the</text>
+    <locale>en-US</locale>
+    <startIndex>23</startIndex>
+    <endIndex>23</endIndex>
+  </event>
+  <event timestamp="22071593" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> smooth</text>
+    <locale>en-US</locale>
+    <startIndex>27</startIndex>
+    <endIndex>27</endIndex>
+  </event>
+  <event timestamp="22071847" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> planks</text>
+    <locale>en-US</locale>
+    <startIndex>34</startIndex>
+    <endIndex>34</endIndex>
+  </event>
+  <event timestamp="22071895" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> glue</text>
+    <locale>en-US</locale>
+    <startIndex>41</startIndex>
+    <endIndex>41</endIndex>
+  </event>
+  <event timestamp="22072141" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> the</text>
+    <locale>en-US</locale>
+    <startIndex>46</startIndex>
+    <endIndex>46</endIndex>
+  </event>
+  <event timestamp="22072407" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> sheet</text>
+    <locale>en-US</locale>
+    <startIndex>50</startIndex>
+    <endIndex>50</endIndex>
+  </event>
+  <event timestamp="22072704" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> to</text>
+    <locale>en-US</locale>
+    <startIndex>56</startIndex>
+    <endIndex>56</endIndex>
+  </event>
+  <event timestamp="22072960" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> the</text>
+    <locale>en-US</locale>
+    <startIndex>59</startIndex>
+    <endIndex>59</endIndex>
+  </event>
+  <event timestamp="22073207" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> dark</text>
+    <locale>en-US</locale>
+    <startIndex>63</startIndex>
+    <endIndex>63</endIndex>
+  </event>
+  <event timestamp="22073477" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> blue</text>
+    <locale>en-US</locale>
+    <startIndex>68</startIndex>
+    <endIndex>68</endIndex>
+  </event>
+  <event timestamp="22073730" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> background</text>
+    <locale>en-US</locale>
+    <startIndex>73</startIndex>
+    <endIndex>73</endIndex>
+  </event>
+  <event timestamp="22073984" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text />
+    <locale>en-US</locale>
+    <startIndex>41</startIndex>
+    <endIndex>41</endIndex>
+  </event>
+  <event timestamp="22074064" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> it</text>
+    <locale>en-US</locale>
+    <startIndex>84</startIndex>
+    <endIndex>84</endIndex>
+  </event>
+  <event timestamp="22074315" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> is</text>
+    <locale>en-US</locale>
+    <startIndex>87</startIndex>
+    <endIndex>87</endIndex>
+  </event>
+  <event timestamp="22074618" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> easy</text>
+    <locale>en-US</locale>
+    <startIndex>90</startIndex>
+    <endIndex>90</endIndex>
+  </event>
+  <event timestamp="22074876" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> to</text>
+    <locale>en-US</locale>
+    <startIndex>95</startIndex>
+    <endIndex>95</endIndex>
+  </event>
+  <event timestamp="22075196" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> tell</text>
+    <locale>en-US</locale>
+    <startIndex>98</startIndex>
+    <endIndex>98</endIndex>
+  </event>
+  <event timestamp="22075444" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> the</text>
+    <locale>en-US</locale>
+    <startIndex>103</startIndex>
+    <endIndex>103</endIndex>
+  </event>
+  <event timestamp="22075730" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> depth</text>
+    <locale>en-US</locale>
+    <startIndex>107</startIndex>
+    <endIndex>107</endIndex>
+  </event>
+  <event timestamp="22075976" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> of</text>
+    <locale>en-US</locale>
+    <startIndex>113</startIndex>
+    <endIndex>113</endIndex>
+  </event>
+  <event timestamp="22076240" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> a</text>
+    <locale>en-US</locale>
+    <startIndex>116</startIndex>
+    <endIndex>116</endIndex>
+  </event>
+  <event timestamp="22076482" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text> well</text>
+    <locale>en-US</locale>
+    <startIndex>118</startIndex>
+    <endIndex>118</endIndex>
+  </event>
+  <event timestamp="22076734" module="CAPTION" eventname="EditCaptionHistoryEvent">
+    <localeCode>en-US</localeCode>
+    <text />
+    <locale>en-US</locale>
+    <startIndex>84</startIndex>
+    <endIndex>84</endIndex>
+  </event>
+  <event timestamp="22080383" module="PARTICIPANT" eventname="EndAndKickAllEvent">
+    <reason>ENDED_FROM_API</reason>
+  </event>
+</recording>
