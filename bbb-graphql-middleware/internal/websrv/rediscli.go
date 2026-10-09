@@ -53,6 +53,7 @@ var allowedMessages = []string{
 	"UserVoiceStateEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
+	"LockSettingsInMeetingChangedEvtMsg",
 }
 
 func StartRedisListener() {
@@ -94,6 +95,11 @@ func StartRedisListener() {
 
 		messageName := receivedRedisMessageEnvelope.Envelope.Name
 
+		// Lock changes are no longer pushed into the sessions; the stream replays read them from the
+		// per-meeting state. Updated here, synchronously and in publish order, before any handler
+		// goroutine is started, so the latest message carrying a lock always wins.
+		streamingserver.RecordMeetingLocks(messageName, receivedMessage)
+
 		if messageName == "ForceUserGraphqlReconnectionSysMsg" {
 			sessionTokenToInvalidate := receivedMessage.Core.Body["sessionToken"]
 			reason := receivedMessage.Core.Body["reason"]
@@ -124,6 +130,7 @@ func StartRedisListener() {
 			go common.RemoveMeetingHasuraMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingPatchedMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingStreamCursorValueCache(receivedMessage.Core.Body["meetingId"].(string))
+			streamingserver.RemoveMeetingLockSettings(receivedMessage.Core.Body["meetingId"].(string))
 		}
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
