@@ -22,6 +22,8 @@ const LoadedChatMessagesHookContainer = (props: GeneralHookManagerProps) => {
     user: message.user,
     senderRole: message.senderRole,
     messageMetadata: message.messageMetadata,
+    deletedAt: message.deletedAt,
+    deletedBy: message.deletedBy,
   }));
 
   const { version } = props;

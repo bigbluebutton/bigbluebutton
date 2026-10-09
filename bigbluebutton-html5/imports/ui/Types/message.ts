@@ -11,8 +11,8 @@ export interface Message {
     name: string;
   } | null;
   meetingId: string;
-  message: string;
-  messageAsHtml: string;
+  message: string | null;
+  messageAsHtml: string | null;
   messageType: string;
   messageId: string;
   senderId: string;
