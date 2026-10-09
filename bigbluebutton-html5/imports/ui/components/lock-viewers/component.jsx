@@ -5,6 +5,7 @@ import { clone } from 'radash';
 import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -622,20 +623,20 @@ class LockViewersComponent extends Component {
         showDividers
         shouldCloseOnOverlayClick
         footerContent={(
-          <Styled.ActionsContainer>
-            <Styled.ActionButton
+          <>
+            <BBButton
+              variant="secondary"
+              dataTest="cancelLockSettings"
+              label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
-              data-test="cancelLockSettings"
-            >
-              {intl.formatMessage(intlMessages.buttonCancel)}
-            </Styled.ActionButton>
-            <Styled.ActionButtonPrimary
+            />
+            <BBButton
+              variant="primary"
+              dataTest="applyLockSettings"
+              label={intl.formatMessage(intlMessages.buttonApply)}
               onClick={() => this.handleSave()}
-              data-test="applyLockSettings"
-            >
-              {intl.formatMessage(intlMessages.buttonApply)}
-            </Styled.ActionButtonPrimary>
-          </Styled.ActionsContainer>
+            />
+          </>
         )}
         {...{
           isOpen,

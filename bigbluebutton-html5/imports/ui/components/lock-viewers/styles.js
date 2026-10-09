@@ -180,42 +180,6 @@ const SectionDescription = styled.p`
   line-height: 1.4;
 `;
 
-const ActionsContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.5rem;
-
-  @media ${smallOnly} {
-    gap: 1rem;
-  }
-`;
-
-const ActionButton = styled.button`
-  width: 10rem;
-  height: 3rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 1rem;
-  cursor: pointer;
-  font-size: ${fontSizeBase};
-  background-color: transparent;
-  color: ${colorGrayLabel};
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-const ActionButtonPrimary = styled(ActionButton)`
-  width: 10.75rem;
-  background-color: ${colorPrimary};
-  color: ${colorWhite};
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
 const GuestPolicySelector = styled(Select)`
   height: 2.75rem;
   border-radius: 0.5rem !important;
@@ -352,9 +316,6 @@ export default {
   TabContent,
   SectionTitle,
   SectionDescription,
-  ActionsContainer,
-  ActionButton,
-  ActionButtonPrimary,
   GuestPolicySelector,
   LobbyMessageSection,
   SwitchRow,
