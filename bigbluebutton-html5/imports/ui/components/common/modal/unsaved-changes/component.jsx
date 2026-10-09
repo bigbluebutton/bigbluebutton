@@ -54,14 +54,12 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
         </>
       )}
     >
-      <Styled.Content>
-        <Styled.Text>
-          {intl.formatMessage(intlMessages.message)}
-        </Styled.Text>
-        <Styled.IgnoreText>
-          {intl.formatMessage(intlMessages.ignoreMessage)}
-        </Styled.IgnoreText>
-      </Styled.Content>
+      <Styled.Text>
+        {intl.formatMessage(intlMessages.message)}
+      </Styled.Text>
+      <Styled.IgnoreText>
+        {intl.formatMessage(intlMessages.ignoreMessage)}
+      </Styled.IgnoreText>
     </ModalSimple>
   );
 };
