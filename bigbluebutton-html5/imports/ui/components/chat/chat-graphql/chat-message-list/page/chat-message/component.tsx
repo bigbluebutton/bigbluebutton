@@ -587,6 +587,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     showHeading: boolean;
     showToolbar: boolean;
   } = useMemo(() => {
+    const textContent = message.messageAsHtml !== null
+      ? <ChatMessageTextContent text={message.messageAsHtml} />
+      : null;
+
     switch (message.messageType) {
       case ChatMessageType.POLL: {
         const pollData = JSON.parse(message.messageMetadata) as { quiz: boolean;};
@@ -644,11 +648,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           color: '#0F70D7',
           isModerator: true,
           isSystemSender: true,
-          component: (
-            <ChatMessageTextContent
-              text={message.messageAsHtml}
-            />
-          ),
+          component: textContent,
           showAvatar: true,
           showHeading: true,
           showToolbar: true,
@@ -659,11 +659,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           color: '#0F70D7',
           isModerator: true,
           isSystemSender: true,
-          component: (
-            <ChatMessageTextContent
-              text={message.messageAsHtml}
-            />
-          ),
+          component: textContent,
           showAvatar: true,
           showHeading: true,
           showToolbar: false,
@@ -749,13 +745,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showAvatar: true,
           showHeading: true,
           showToolbar: true,
-          component: isCustomPluginMessage
-            ? null
-            : (
-              <ChatMessageTextContent
-                text={message.messageAsHtml}
-              />
-            ),
+          component: isCustomPluginMessage ? null : textContent,
         };
       }
       case ChatMessageType.TEXT:
@@ -768,11 +758,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showAvatar: true,
           showHeading: true,
           showToolbar: true,
-          component: (
-            <ChatMessageTextContent
-              text={message.messageAsHtml}
-            />
-          ),
+          component: textContent,
         };
     }
   }, [message.message, intl.locale]);
