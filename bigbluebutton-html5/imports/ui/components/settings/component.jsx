@@ -9,6 +9,7 @@ import Notification from '/imports/ui/components/settings/submenus/notification/
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
@@ -438,12 +439,16 @@ class Settings extends Component {
         contentStyle={{ width: `min(${modalWidth}, 90vw)`, height: modalHeight }}
         showDividers
         footerContent={(
-          <Styled.ActionsContainer>
-            <Styled.ActionButton onClick={this.performClose}>
-              {intl.formatMessage(intlMessages.CancelLabel)}
-            </Styled.ActionButton>
-            <Styled.ActionButton
-              data-test="saveSettingsButton"
+          <>
+            <BBButton
+              variant="secondary"
+              label={intl.formatMessage(intlMessages.CancelLabel)}
+              onClick={this.performClose}
+            />
+            <BBButton
+              variant="primary"
+              dataTest="saveSettingsButton"
+              label={intl.formatMessage(intlMessages.SaveLabel)}
               onClick={() => {
                 this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
                 if (saved.application.locale !== current.application.locale) {
@@ -455,10 +460,8 @@ class Settings extends Component {
                 // setIsOpen(false) keeps submenu state updates from re-opening the modal.
                 setIsOpen(false);
               }}
-            >
-              {intl.formatMessage(intlMessages.SaveLabel)}
-            </Styled.ActionButton>
-          </Styled.ActionsContainer>
+            />
+          </>
         )}
       >
         {this.renderModalContent()}
