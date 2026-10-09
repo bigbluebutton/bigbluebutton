@@ -12,7 +12,6 @@ class LiveMeeting(
     val props:               DefaultProps,
     val status:              MeetingStatus2x,
     val screenshareModel:    ScreenshareModel,
-    val audioCaptions:       AudioCaptions,
     val timerModel:          TimerModel,
     val chatModel:           ChatModel,
     val externalVideoModel:  ExternalVideoModel,

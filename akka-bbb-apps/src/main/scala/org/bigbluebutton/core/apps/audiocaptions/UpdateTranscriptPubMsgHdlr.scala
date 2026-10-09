@@ -1,13 +1,10 @@
 package org.bigbluebutton.core.apps.audiocaptions
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.CaptionDAO
-import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x, VoiceUsers}
+import org.bigbluebutton.core.models.{Users2x, VoiceUsers}
 import org.bigbluebutton.core.running.LiveMeeting
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.{IllformedLocaleException, Locale}
 
 private[audiocaptions] object CaptionLocale {
@@ -34,30 +31,14 @@ trait UpdateTranscriptPubMsgHdlr {
   def handle(msg: UpdateTranscriptPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
 
+    // Keeps the speaker's client in sync and, through the recorder, becomes the
+    // CaptionUpdatedEvent of the recording: one segment per transcriptId, whole text.
     def broadcastEvent(userId: String, transcriptId: String, transcript: String, locale: String, result: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(TranscriptUpdatedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(TranscriptUpdatedEvtMsg.NAME, meetingId, userId)
       val body = TranscriptUpdatedEvtMsgBody(transcriptId, transcript, locale, result)
       val event = TranscriptUpdatedEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-
-      bus.outGW.send(msgEvent)
-    }
-
-    // Adapt to the current captions' recording process
-    def editTranscript(
-        userId: String,
-        start:  Int,
-        end:    Int,
-        locale: String,
-        text:   String
-    ): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
-      val envelope = BbbCoreEnvelope(EditCaptionHistoryEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(EditCaptionHistoryEvtMsg.NAME, meetingId, userId)
-      val body = EditCaptionHistoryEvtMsgBody(start, end, locale, locale, text)
-      val event = EditCaptionHistoryEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
       bus.outGW.send(msgEvent)
@@ -77,32 +58,12 @@ trait UpdateTranscriptPubMsgHdlr {
         voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.header.userId)
         if !voiceUser.listenOnly
       } yield {
-        val (start, end, text) = AudioCaptions.editTranscript(
-          liveMeeting.audioCaptions,
-          msg.body.transcriptId,
-          msg.body.start,
-          msg.body.end,
-          msg.body.text,
-          msg.body.transcript,
-          msg.body.locale
-        )
-
-        editTranscript(
-          msg.header.userId,
-          start,
-          end,
-          msg.body.locale,
-          text
-        )
-
-        val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
-
-        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, msg.body.locale)
+        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, msg.body.transcript, msg.body.locale)
 
         broadcastEvent(
           msg.header.userId,
           msg.body.transcriptId,
-          transcript,
+          msg.body.transcript,
           msg.body.locale,
           msg.body.result,
         )

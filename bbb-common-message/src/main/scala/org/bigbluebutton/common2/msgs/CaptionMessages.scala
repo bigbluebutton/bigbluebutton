@@ -23,11 +23,6 @@ case class CaptionSubmitTranscriptEvtMsgBody(
                                                    )
 
 /* Out Messages */
-// For recordings
-object EditCaptionHistoryEvtMsg { val NAME = "EditCaptionHistoryEvtMsg" }
-case class EditCaptionHistoryEvtMsg(header: BbbClientMsgHeader, body: EditCaptionHistoryEvtMsgBody) extends StandardMsg
-case class EditCaptionHistoryEvtMsgBody(startIndex: Integer, endIndex: Integer, name: String, locale: String, text: String)
-
 object AddCaptionLocaleEvtMsg { val NAME = "AddCaptionLocaleEvtMsg" }
 case class AddCaptionLocaleEvtMsg(header: BbbClientMsgHeader, body: AddCaptionLocaleEvtMsgBody) extends StandardMsg
 case class AddCaptionLocaleEvtMsgBody(locale: String)
