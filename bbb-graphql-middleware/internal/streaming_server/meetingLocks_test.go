@@ -30,30 +30,77 @@ func TestMeetingLocksReadAsLockedUntilKnown(t *testing.T) {
 	}
 }
 
-func TestMeetingLocksSeedOnlyFillsTheUnknown(t *testing.T) {
+// lockMessage builds a Redis message for testMeetingId with the given body, as the read loop sees it.
+func lockMessage(name string, body map[string]any) common.RedisMessage {
+	var msg common.RedisMessage
+	msg.Core.Header.Name = name
+	msg.Core.Header.MeetingId = testMeetingId
+	msg.Core.Body = body
+	return msg
+}
+
+func recordLockSettingsChange(hideUserList, hideViewersCursor bool) {
+	RecordMeetingLocks("LockSettingsInMeetingChangedEvtMsg", lockMessage("LockSettingsInMeetingChangedEvtMsg", map[string]any{
+		"hideUserList":      hideUserList,
+		"hideViewersCursor": hideViewersCursor,
+	}))
+}
+
+func TestRecordMeetingLocksLatestMessageWins(t *testing.T) {
 	resetMeetingLocks(t)
 
-	seedMeetingHideUserList(testMeetingId, false)
-	seedMeetingHideViewersCursor(testMeetingId, false)
-	if meetingHidesUserList(testMeetingId) || meetingHidesViewersCursor(testMeetingId) {
-		t.Fatal("a seed must fill a meeting with no recorded lock state")
+	recordLockSettingsChange(true, true)
+	if !meetingHidesUserList(testMeetingId) || !meetingHidesViewersCursor(testMeetingId) {
+		t.Fatal("a lock settings change must be recorded")
 	}
 
-	RecordMeetingLockSettings(testMeetingId, true, true)
-	if !meetingHidesUserList(testMeetingId) || !meetingHidesViewersCursor(testMeetingId) {
-		t.Fatal("a lock settings change must overwrite a seed")
+	// The lock settings change that turned the locks off was lost: the next events that carry the
+	// lock correct the state although an entry already exists.
+	RecordMeetingLocks("UserVoiceStateEvtMsg", lockMessage("UserVoiceStateEvtMsg", map[string]any{"hideUserList": false}))
+	if meetingHidesUserList(testMeetingId) {
+		t.Error("a voice state event carrying hideUserList must update an existing entry")
 	}
 
-	// An event produced before the change but handled after it must not restore the old state.
-	seedMeetingHideUserList(testMeetingId, false)
-	seedMeetingHideViewersCursor(testMeetingId, false)
+	RecordMeetingLocks("SendCursorPositionEvtMsg", lockMessage("SendCursorPositionEvtMsg", map[string]any{"userIsViewer": true, "hiddenForLockedViewers": false}))
+	if meetingHidesViewersCursor(testMeetingId) {
+		t.Error("a viewer's cursor event carrying hiddenForLockedViewers must update an existing entry")
+	}
+
+	// And back on, from the events alone.
+	RecordMeetingLocks("UserVoiceStateEvtMsg", lockMessage("UserVoiceStateEvtMsg", map[string]any{"hideUserList": true}))
+	RecordMeetingLocks("SendCursorPositionEvtMsg", lockMessage("SendCursorPositionEvtMsg", map[string]any{"userIsViewer": true, "hiddenForLockedViewers": true}))
 	if !meetingHidesUserList(testMeetingId) || !meetingHidesViewersCursor(testMeetingId) {
-		t.Error("a seed must not overwrite a recorded lock settings change")
+		t.Error("a later event carrying the lock must overwrite the previous one")
 	}
 
 	RemoveMeetingLockSettings(testMeetingId)
 	if !meetingHidesUserList(testMeetingId) {
 		t.Error("a removed meeting must read as locked again")
+	}
+}
+
+func TestRecordMeetingLocksIgnoresMessagesWithoutTheLock(t *testing.T) {
+	resetMeetingLocks(t)
+
+	recordLockSettingsChange(false, true)
+
+	// An older akka-apps sends neither field.
+	RecordMeetingLocks("UserVoiceStateEvtMsg", lockMessage("UserVoiceStateEvtMsg", map[string]any{"talking": true}))
+	RecordMeetingLocks("SendCursorPositionEvtMsg", lockMessage("SendCursorPositionEvtMsg", map[string]any{"userIsViewer": true}))
+	// A moderator's cursor carries false whatever the lock, so it says nothing about it.
+	RecordMeetingLocks("SendCursorPositionEvtMsg", lockMessage("SendCursorPositionEvtMsg", map[string]any{"userIsViewer": false, "hiddenForLockedViewers": false}))
+	// A message that is not a lock carrier, even with a matching field name.
+	RecordMeetingLocks("NotifyAllInMeetingEvtMsg", lockMessage("NotifyAllInMeetingEvtMsg", map[string]any{"hideUserList": true}))
+
+	if meetingHidesUserList(testMeetingId) || !meetingHidesViewersCursor(testMeetingId) {
+		t.Error("a message without the lock must leave the recorded state unchanged")
+	}
+
+	// Nor does it create an entry for a meeting with none.
+	RemoveMeetingLockSettings(testMeetingId)
+	RecordMeetingLocks("UserVoiceStateEvtMsg", lockMessage("UserVoiceStateEvtMsg", map[string]any{"talking": true}))
+	if !meetingHidesUserList(testMeetingId) {
+		t.Error("a message without the lock must not record an unlocked state")
 	}
 }
 
@@ -71,12 +118,9 @@ func TestVoiceStateEventCarriesTheLock(t *testing.T) {
 	if rows := receivedVoiceStateRows(t, locked); len(rows) != 1 || rowUser(rows[0])["name"] != "Viewer" {
 		t.Errorf("with hideUserList off a viewer's voice state must reach a locked viewer, got %v", rows)
 	}
-	if meetingHidesUserList(testMeetingId) {
-		t.Error("the event must seed the meeting's hideUserList state")
-	}
 
 	// The lock is switched on: the very next event applies it, with no session refresh.
-	RecordMeetingLockSettings(testMeetingId, true, false)
+	recordLockSettingsChange(true, false)
 	HandleUserVoiceStateEvtMsg(voiceStateEvent("viewer-2", "VIEWER", "Viewer", false, false, false), &connectionsMutex, connections)
 	if rows := receivedVoiceStateRows(t, locked); len(rows) != 0 {
 		t.Errorf("with hideUserList on a viewer's voice state must not reach a locked viewer, got %v", rows)
@@ -110,12 +154,12 @@ func TestVoiceStateReplayFollowsTheCurrentLock(t *testing.T) {
 		t.Errorf("with no recorded lock state a viewer's row must be withheld from a locked viewer, got %v", rows)
 	}
 
-	RecordMeetingLockSettings(testMeetingId, false, false)
+	recordLockSettingsChange(false, false)
 	if rows := replayed(); len(rows) != 1 {
 		t.Errorf("with hideUserList off a viewer's row must be replayed to a locked viewer, got %v", rows)
 	}
 
-	RecordMeetingLockSettings(testMeetingId, true, false)
+	recordLockSettingsChange(true, false)
 	if rows := replayed(); len(rows) != 0 {
 		t.Errorf("with hideUserList on a viewer's row must be withheld from a locked viewer, got %v", rows)
 	}
@@ -190,12 +234,12 @@ func TestCursorReplayFollowsTheCurrentLock(t *testing.T) {
 		t.Errorf("with no recorded lock state only the moderator's cursor may be replayed, got %v", users)
 	}
 
-	RecordMeetingLockSettings(testMeetingId, false, false)
+	recordLockSettingsChange(false, false)
 	if users := replayedUsers(); !users["viewer-2"] || !users["mod-1"] {
 		t.Errorf("with hideViewersCursor off every cursor must be replayed, got %v", users)
 	}
 
-	RecordMeetingLockSettings(testMeetingId, false, true)
+	recordLockSettingsChange(false, true)
 	if users := replayedUsers(); users["viewer-2"] || !users["mod-1"] {
 		t.Errorf("with hideViewersCursor on a viewer's cursor must be withheld from a locked viewer, got %v", users)
 	}

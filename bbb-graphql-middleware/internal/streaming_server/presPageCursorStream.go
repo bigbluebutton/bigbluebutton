@@ -33,11 +33,6 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	xPercent := receivedMessage.Core.Body["xPercent"].(float64)
 	yPercent := receivedMessage.Core.Body["yPercent"].(float64)
 	cursorHiddenForLockedViewers := cursorIsHiddenForLockedViewers(receivedMessage.Core.Body, receivedCursorIsFromViewer)
-	if _, hasLockStateInEvent := receivedMessage.Core.Body["hiddenForLockedViewers"].(bool); hasLockStateInEvent && receivedCursorIsFromViewer {
-		// Only a viewer's cursor says anything about hideViewersCursor: for anyone else the flag is
-		// false whatever the lock.
-		seedMeetingHideViewersCursor(receivedMessage.Core.Header.MeetingId, cursorHiddenForLockedViewers)
-	}
 
 	item := map[string]any{
 		"xPercent":   xPercent,

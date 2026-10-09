@@ -151,16 +151,13 @@ func sendUserVoiceState(browserConnections []*common.BrowserConnection, jsonData
 
 // voiceStateHideUserList reads the hideUserList lock the event was produced under. An event from an
 // akka-apps that does not send it falls back to the state recorded for the meeting, which reads as
-// locked when nothing has been recorded. An event that carries it seeds the meeting's state for the
-// replays.
+// locked when nothing has been recorded. Recording the event's value for the replays is done by
+// RecordMeetingLocks in the Redis read loop, not here.
 func voiceStateHideUserList(receivedMessage common.RedisMessage) bool {
-	meetingId := receivedMessage.Core.Header.MeetingId
 	hideUserList, hasLockStateInEvent := receivedMessage.Core.Body["hideUserList"].(bool)
 	if !hasLockStateInEvent {
-		return meetingHidesUserList(meetingId)
+		return meetingHidesUserList(receivedMessage.Core.Header.MeetingId)
 	}
-
-	seedMeetingHideUserList(meetingId, hideUserList)
 
 	return hideUserList
 }
