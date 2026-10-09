@@ -31,7 +31,7 @@ A mismatch used to be invisible: the shared fixture calls `testInfo.skip()` when
   {
     "name": "plugin-pick-random-user",
     "repo": "bigbluebutton/bbb-plugin-pick-random-user",
-    "ref": "v0.1.2",
+    "ref": "v0.1.3",
     "servePath": "assets/plugins/pick-random-user-plugin",
     "flakyTests": [
       "My Suite › should do something when button is clicked",
