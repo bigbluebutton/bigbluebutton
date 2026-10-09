@@ -73,6 +73,28 @@ test.describe.parallel('Captions', { tag: '@ci' }, () => {
     }
   });
 
+  test('Speaker labels follow the chat anonymization of the recording', async ({ browser, context }, testInfo) => {
+    linkIssue(19700);
+    test.setTimeout(8 * 60 * 1000);
+    const captions = new Captions(browser, context);
+    await captions.initCaptionPages(testInfo, { createParameter: 'meta_bbb-anonymize-chat=true' });
+    await joinWithTranscription(captions.modPage, 'en-US');
+    await joinWithTranscription(captions.userPage, 'en-US');
+    await captions.startRecording();
+    await speak(captions.modPage, SENTENCES.alice1);
+    await speak(captions.userPage, SENTENCES.bob1);
+    await expect.poll(async () => (await captionRows(captions.modPage)).length).toBe(2);
+
+    await captions.endMeeting();
+    const text = (await captions.recordedTracks())['en-US'];
+    // like the chat: viewers are anonymized, moderators keep their name
+    const bySpeaker = textBySpeaker(text, ['Alice', 'Viewer 1', 'Bob']);
+    expect(Object.keys(bySpeaker).sort(), `speaker labels in: ${text}`).toEqual(['Alice', 'Viewer 1']);
+    expect(countSentence(bySpeaker.Alice, SENTENCES.alice1)).toBe(1);
+    expect(countSentence(bySpeaker['Viewer 1'], SENTENCES.bob1)).toBe(1);
+    expect(text, 'the viewer name must not be in the recorded captions').not.toContain('Bob');
+  });
+
   test('Transcripts in two languages are recorded as separate tracks', async ({ browser, context }, testInfo) => {
     linkIssue(19700);
     test.setTimeout(8 * 60 * 1000);

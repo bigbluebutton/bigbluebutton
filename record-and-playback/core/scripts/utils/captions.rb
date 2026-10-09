@@ -81,9 +81,16 @@ if not FileTest.directory?(target_dir)
   begin
     BigBlueButton.logger.info("Generating closed captions")
     FileUtils.mkdir_p captions_meeting_dir
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', captions_meeting_dir)
+    events = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
+    ret = BigBlueButton.generate_webvtt(raw_archive_dir, captions_meeting_dir, events, props)
     if ret != 0
       raise "Generating closed caption files failed"
+    end
+
+    # The captions API (getRecordingTextTracks) and the caption/presentation integration
+    # name the files <kind>_<lang>.vtt, like uploaded tracks
+    Dir.glob("#{captions_meeting_dir}/caption_*.vtt").each do |vtt|
+      FileUtils.mv(vtt, File.join(captions_meeting_dir, File.basename(vtt).sub(/\Acaption_/, 'captions_')))
     end
 
     FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")

@@ -930,6 +930,26 @@ module BigBlueButton
       reactions
     end
 
+    # Whether participant names are anonymized in the processed recording: defaults from
+    # bigbluebutton.yml ('anonymize_chat', 'anonymize_chat_moderators'), overridden per meeting
+    # by the create meta params 'meta_bbb-anonymize-chat' and 'meta_bbb-anonymize-chat-moderators'.
+    # Returns [anonymize, anonymize_moderators]
+    def self.anonymize_settings(events, bbb_props = {})
+      metadata = events.at_xpath('/recording/metadata')
+      anonymize = metadata['bbb-anonymize-chat'] unless metadata.nil?
+      anonymize = bbb_props['anonymize_chat'] if anonymize.nil?
+      anonymize_moderators = metadata['bbb-anonymize-chat-moderators'] unless metadata.nil?
+      anonymize_moderators = bbb_props['anonymize_chat_moderators'] if anonymize_moderators.nil?
+      [anonymize.to_s.casecmp?('true'), anonymize_moderators.to_s.casecmp?('true')]
+    end
+
+    # Display names of the participants keyed by internal user id, anonymized according to
+    # anonymize_settings. Used for chat senders and for the speaker labels of recorded captions.
+    def self.participant_name_map(events, bbb_props = {})
+      anonymize, anonymize_moderators = anonymize_settings(events, bbb_props)
+      anonymize ? anonymous_user_map(events, moderators: anonymize_moderators) : user_name_map(events)
+    end
+
     # Get a list of chat events, with start/end time for segments and recording marks applied.
     # Optionally anonymizes chat participant names.
     # Reads the keys 'anonymize_chat' and 'anonymize_chat_moderators' from bbb_props, but allows
@@ -954,16 +974,7 @@ module BigBlueButton
       # Recordings without status events are assumed to have been recorded from the beginning
       record = events.at_xpath('/recording/event[@eventname="RecordStatusEvent"]').nil?
 
-      # Load the anonymize settings; defaults from bigbluebutton.yml, override with meta params
-      metadata = events.at_xpath('/recording/metadata')
-      anonymize_senders = metadata['bbb-anonymize-chat'] unless metadata.nil?
-      anonymize_senders = bbb_props['anonymize_chat'] if anonymize_senders.nil?
-      anonymize_senders = anonymize_senders.to_s.casecmp?('true')
-      anonymize_moderators = metadata['bbb-anonymize-chat-moderators'] unless metadata.nil?
-      anonymize_moderators = bbb_props['anonymize_chat_moderators'] if anonymize_moderators.nil?
-      anonymize_moderators = anonymize_moderators.to_s.casecmp?('true')
-
-      user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : user_name_map(events);
+      user_map = participant_name_map(events, bbb_props)
       reaction_emoji = get_chat_reactions(events)
       chats = []
       events.xpath('/recording/event').each do |event|

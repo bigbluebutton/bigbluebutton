@@ -18,10 +18,20 @@
 # To install dependencies on Ubuntu:
 # apt-get install python3 python3-lxml python3-pyicu
 
+# Generates one WebVTT caption track per locale from the caption events of a
+# recording. Two kinds of events are understood:
+#
+# - CaptionUpdatedEvent (BigBlueButton 4.1 and later): one event per update of a
+#   caption segment, i.e. an utterance of a speaker as the live transcription
+#   produces it, or a typed caption. Every event carries the whole text of the
+#   segment, its captionId, userId, locale and captionType. Each segment becomes
+#   its own run of cues, labelled with the speaker's name, so several people
+#   speaking the same language at the same time no longer share one text buffer.
+# - EditCaptionHistoryEvent (older recordings): character-index edits of one
+#   text per locale. Replayed as before, without speaker labels.
+
 from lxml import etree
 from collections import deque
-from fractions import Fraction
-import io
 from icu import Locale, BreakIterator, UnicodeString
 import unicodedata
 import html
@@ -64,9 +74,23 @@ class CaptionLine:
         self.end_time = 0
 
 
+class Cue:
+    def __init__(self, start_time, end_time, text, speaker=None):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.text = text
+        self.speaker = speaker
+
+
 class Caption:
-    def __init__(self, locale):
+    """A run of text with a timestamp per UTF-16 code unit.
+
+    Either the whole legacy per-locale stream, or one segment (utterance) of the
+    per-segment format, in which case `speaker` names who said it."""
+
+    def __init__(self, locale, speaker=None):
         self.locale = locale
+        self.speaker = speaker
         self.text = UnicodeString()
         self.timestamps = list()
         self._del_timestamps = list()
@@ -107,6 +131,14 @@ class Caption:
 
         self.text[i:j] = text
         self.timestamps[i:j] = [timestamp] * len(text)
+
+    def set_timed_text(self, text, timestamps):
+        """Replace the content with `text` (a str) whose UTF-16 code units are
+        timestamped by `timestamps` (one entry per code unit)."""
+        self.text = UnicodeString(text)
+        self.timestamps = list(timestamps)
+        self._del_timestamps = [None] * len(self.timestamps)
+        assert len(self.text) == len(self.timestamps)
 
     def apply_record_events(self, events):
         record = False
@@ -169,6 +201,7 @@ class Caption:
 
     @classmethod
     def from_events(cls, events, apply_record_events=True):
+        """The legacy per-locale streams built from EditCaptionHistoryEvent."""
         captions = {}
 
         # Apply all of the caption events to generate the full text
@@ -195,6 +228,9 @@ class Caption:
 
         logger.info("Generated %d caption stream(s)", len(captions))
         return captions
+
+    def first_timestamp(self):
+        return min(self.timestamps) if self.timestamps else 0
 
     def split_lines(self, max_length=32):
         lines = list()
@@ -267,20 +303,15 @@ class Caption:
 
         return lines
 
-    def write_webvtt(self, f):
-        # Write magic
-        f.write("WEBVTT\n\n".encode("utf-8"))
-
+    def cues(self):
+        """The lines of this caption as timed cues, with the duration cleanup
+        heuristics applied."""
         lines = self.split_lines()
 
-        i = 0
         # Don't generate cues for empty lines
-        while i < len(lines):
-            if len(lines[i].text) == 0:
-                del lines[i]
-                continue
-            i += 1
+        lines = [line for line in lines if len(line.text.strip()) > 0]
 
+        cues = list()
         i = 0
         while i < len(lines):
             line = lines[i]
@@ -324,17 +355,144 @@ class Caption:
                 if next_start_time - end_time < 500:
                     end_time = next_start_time
 
-            f.write(
-                "{} --> {}\n".format(
-                    webvtt_timestamp(start_time), webvtt_timestamp(end_time)
-                ).encode("utf-8")
-            )
-            f.write(html.escape(text, quote=False).encode("utf-8"))
-            f.write("\n\n".encode("utf-8"))
+            cues.append(Cue(start_time, end_time, text, self.speaker))
+
+        return cues
 
     def caption_desc(self):
         locale = Locale(self.locale)
         return {"locale": self.locale, "localeName": locale.getDisplayName(locale)}
+
+
+class Segment:
+    """One caption segment of the per-segment format: the successive texts of a
+    captionId, each with the time it was recorded."""
+
+    def __init__(self, caption_id, user_id, locale, caption_type):
+        self.caption_id = caption_id
+        self.user_id = user_id
+        self.locale = locale
+        self.caption_type = caption_type
+        self.updates = list()  # (timestamp, text)
+        self.final = False
+
+    def update(self, timestamp, text, locale, user_id, is_final):
+        # A late interim result after the final one would shorten the text again
+        if self.final and not is_final:
+            logger.debug("Ignoring interim update of finished segment '%s'", self.caption_id)
+            return
+        self.final = self.final or is_final
+        self.updates.append((timestamp, text))
+        self.locale = locale
+        self.user_id = user_id
+
+    @staticmethod
+    def utf16_length(text):
+        return len(text.encode("utf-16-le")) // 2
+
+    def to_caption(self, speaker):
+        """A Caption whose code units carry the time they first appeared: a text
+        that grows keeps the timestamps of its unchanged prefix, a revision gets
+        the time of the revision."""
+        caption = Caption(self.locale, speaker)
+
+        prev_text = ""
+        prev_timestamps = list()  # per code point
+        for timestamp, text in self.updates:
+            prefix = 0
+            limit = min(len(prev_text), len(text))
+            while prefix < limit and prev_text[prefix] == text[prefix]:
+                prefix += 1
+            prev_timestamps = prev_timestamps[:prefix] + [timestamp] * (len(text) - prefix)
+            prev_text = text
+
+        # Surrounding whitespace carries no information (browsers prefix
+        # follow-up results with a space)
+        start = 0
+        end = len(prev_text)
+        while start < end and prev_text[start].isspace():
+            start += 1
+        while end > start and prev_text[end - 1].isspace():
+            end -= 1
+        text = prev_text[start:end]
+        timestamps = list()
+        for char, timestamp in zip(text, prev_timestamps[start:end]):
+            timestamps.extend([timestamp] * self.utf16_length(char))
+
+        caption.set_timed_text(text, timestamps)
+        return caption
+
+
+def segments_from_events(events):
+    """Caption segments keyed by captionId, in order of first appearance."""
+    segments = {}
+    for event in events:
+        if event["name"] != "caption_updated":
+            continue
+        segment = segments.get(event["caption_id"])
+        if segment is None:
+            segment = segments[event["caption_id"]] = Segment(
+                event["caption_id"], event["user_id"], event["locale"], event["caption_type"]
+            )
+        segment.update(event["timestamp"], event["text"], event["locale"], event["user_id"], event["is_final"])
+    logger.info("Found %d caption segment(s)", len(segments))
+    return segments
+
+
+def participant_names(events):
+    names = {}
+    for event in events:
+        if event["name"] == "participant_join" and event["user_id"]:
+            names[event["user_id"]] = event["user_name"]
+    return names
+
+
+def captions_by_locale(events, speaker_names):
+    """Every Caption of the recording grouped by locale: the legacy stream of the
+    locale, if any, then one Caption per segment in order of their first update."""
+    captions = {}
+
+    for locale, caption in Caption.from_events(events).items():
+        captions.setdefault(locale, []).append(caption)
+
+    record_events = [event for event in events if event["name"] == "record_status"]
+    segments = list(segments_from_events(events).values())
+    segments.sort(key=lambda segment: segment.updates[0][0])
+    for segment in segments:
+        speaker = speaker_names.get(segment.user_id)
+        if speaker is None:
+            logger.info("No name for user '%s', its captions carry no speaker label", segment.user_id)
+        caption = segment.to_caption(speaker)
+        logger.debug("Applying recording events to segment '%s'", segment.caption_id)
+        caption.apply_record_events(record_events)
+        captions.setdefault(segment.locale, []).append(caption)
+
+    return captions
+
+
+def write_webvtt(f, captions):
+    """One WebVTT file for the Captions of a locale, cues in time order. Cues of
+    different speakers may overlap in time; players show them together. A cue
+    names its speaker whenever the speaker differs from the previous cue's."""
+    f.write("WEBVTT\n\n".encode("utf-8"))
+
+    cues = list()
+    for caption in captions:
+        cues.extend(caption.cues())
+    cues.sort(key=lambda cue: cue.start_time)
+
+    previous_speaker = None
+    for cue in cues:
+        if cue.speaker is not None and cue.speaker != previous_speaker:
+            cue.text = "{}: {}".format(cue.speaker, cue.text)
+        previous_speaker = cue.speaker
+        f.write(
+            "{} --> {}\n".format(
+                webvtt_timestamp(cue.start_time), webvtt_timestamp(cue.end_time)
+            ).encode("utf-8")
+        )
+        f.write(html.escape(cue.text, quote=False).encode("utf-8"))
+        f.write("\n\n".encode("utf-8"))
 
 
 def parse_record_status(event, element):
@@ -344,6 +502,15 @@ def parse_record_status(event, element):
     event["name"] = "record_status"
     event["user_id"] = userId.text
     event["status"] = status.text == "true"
+
+
+def parse_participant_join(event, element):
+    userId = element.find("userId")
+    name = element.find("name")
+
+    event["name"] = "participant_join"
+    event["user_id"] = userId.text if userId is not None else None
+    event["user_name"] = name.text if name is not None else None
 
 
 def parse_caption_edit(event, element):
@@ -366,6 +533,20 @@ def parse_caption_edit(event, element):
         event["text"] = text.text
     event["start_index"] = int(startIndex.text)
     event["end_index"] = int(endIndex.text)
+
+
+def parse_caption_updated(event, element):
+    def text_of(name):
+        child = element.find(name)
+        return child.text if child is not None else None
+
+    event["name"] = "caption_updated"
+    event["caption_id"] = text_of("captionId")
+    event["user_id"] = text_of("userId")
+    event["locale"] = text_of("locale")
+    event["caption_type"] = text_of("captionType")
+    event["text"] = text_of("text") or ""
+    event["is_final"] = text_of("isFinal") == "true"
 
 
 def parse_events(directory="."):
@@ -394,12 +575,24 @@ def parse_events(directory="."):
             if name == "RecordStatusEvent":
                 parse_record_status(event, element)
                 have_record_events = True
+            elif name == "ParticipantJoinEvent":
+                parse_participant_join(event, element)
             elif name == "EditCaptionHistoryEvent":
                 parse_caption_edit(event, element)
                 if event["locale"] is None:
-                    logger.warn(
+                    logger.warning(
                         "Skipping invalid caption event with unset locale. See https://github.com/bigbluebutton/bigbluebutton/issues/19178 for details"
                     )
+                    continue
+                if not is_safe_locale(event["locale"]):
+                    logger.warning(
+                        "Skipping caption event with an invalid locale"
+                    )
+                    continue
+            elif name == "CaptionUpdatedEvent":
+                parse_caption_updated(event, element)
+                if not event["caption_id"]:
+                    logger.warning("Skipping caption event without a captionId")
                     continue
                 if not is_safe_locale(event["locale"]):
                     logger.warning(
@@ -427,6 +620,14 @@ def parse_events(directory="."):
     return events
 
 
+def load_speaker_names(filename):
+    """Display names keyed by userId, as prepared by the recording scripts (which
+    apply the anonymization settings of the recording)."""
+    with open(filename, encoding="utf-8") as f:
+        names = json.load(f)
+    return {str(k): str(v) for k, v in names.items() if v}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate WebVTT files from BigBlueButton captions",
@@ -442,6 +643,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "-o", "--output", metavar="PATH", help="output directory", default=os.curdir
     )
+    parser.add_argument(
+        "--speaker-names",
+        metavar="FILE",
+        help="JSON file mapping user ids to display names for the speaker labels "
+        "(default: the names from the participant join events)",
+        default=None,
+    )
     args = parser.parse_args()
 
     rawdir = args.input
@@ -450,17 +658,23 @@ if __name__ == "__main__":
     logger.info("Reading recording events file")
     events = parse_events(rawdir)
 
+    if args.speaker_names:
+        logger.info("Reading speaker names from %s", args.speaker_names)
+        speaker_names = load_speaker_names(args.speaker_names)
+    else:
+        speaker_names = participant_names(events)
+
     logger.info("Generating caption data from recording events")
-    captions = Caption.from_events(events)
-    for locale, caption in captions.items():
+    captions = captions_by_locale(events, speaker_names)
+    for locale in captions:
         filename = os.path.join(outputdir, "caption_{}.vtt".format(locale))
         logger.info("Writing captions for locale %s to %s", locale, filename)
         with open(filename, "wb") as f:
-            caption.write_webvtt(f)
+            write_webvtt(f, captions[locale])
 
     filename = os.path.join(outputdir, "captions.json")
     logger.info("Writing captions index file to %s", filename)
 
-    caption_descs = [caption.caption_desc() for caption in captions.values()]
+    caption_descs = [captions[locale][0].caption_desc() for locale in captions]
     with open(filename, "w") as f:
         json.dump(caption_descs, f)

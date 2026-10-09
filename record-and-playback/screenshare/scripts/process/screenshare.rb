@@ -160,7 +160,7 @@ screenshare_props['formats'].each_with_index do |format, i|
 end
 
 logger.info("Generating closed captions")
-ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', process_dir)
+ret = BigBlueButton.generate_webvtt(raw_archive_dir, process_dir, events, props)
 if ret != 0
   raise "Generating closed caption files failed"
 end

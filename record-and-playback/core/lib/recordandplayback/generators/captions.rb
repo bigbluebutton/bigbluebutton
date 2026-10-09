@@ -16,8 +16,27 @@
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
 require File.expand_path('../../edl', __FILE__)
+require 'json'
+require 'tempfile'
 
 module BigBlueButton
+
+  # Runs utils/gen_webvtt on a raw recording: writes caption_<locale>.vtt and
+  # captions.json to out_dir. The speaker labels of the cues are the participant
+  # names, anonymized like the chat (see BigBlueButton::Events.anonymize_settings).
+  #
+  # events is the parsed events.xml, bbb_props the bigbluebutton.yml settings.
+  # Returns the exit status of gen_webvtt.
+  def self.generate_webvtt(raw_archive_dir, out_dir, events, bbb_props)
+    speaker_names = Tempfile.new(['caption_speakers', '.json'])
+    begin
+      speaker_names.write(BigBlueButton::Events.participant_name_map(events, bbb_props).to_json)
+      speaker_names.close
+      exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', out_dir, '--speaker-names', speaker_names.path)
+    ensure
+      speaker_names.close!
+    end
+  end
 
   # Convert a caption file in some format to WebVTT.
   #
