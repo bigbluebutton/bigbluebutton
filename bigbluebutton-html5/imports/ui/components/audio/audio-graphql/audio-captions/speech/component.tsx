@@ -204,6 +204,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const transcriptUpdate = debounce(captionSubmitText, THROTTLE_TIMEOUT);
 
   const updateFinalTranscript = (id: string, transcript: string, locale: string) => {
+    // The final result follows the last interim one within the debounce delay: a pending
+    // interim update would be sent after the final one and shorten the caption again
+    transcriptUpdate.cancel();
     captionSubmitText(id, transcript, locale, true);
   };
 
@@ -395,6 +398,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     return () => {
       clearTimeout(restartTimeoutRef.current);
+      transcriptUpdate.cancel();
 
       if (speechRecognitionRef.current) {
         unbindHandlers();
