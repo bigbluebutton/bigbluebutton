@@ -15,8 +15,8 @@ function formatMeetingCreateTime(createTime: string): string {
   const date = new Date(Number(createTime));
   const pad = (value: number) => String(value).padStart(2, '0');
   return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-    `_${pad(date.getHours())}-${pad(date.getMinutes())}`
+    `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}` +
+    `_${pad(date.getUTCHours())}-${pad(date.getUTCMinutes())}`
   );
 }
 

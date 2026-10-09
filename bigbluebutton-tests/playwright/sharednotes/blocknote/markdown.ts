@@ -82,8 +82,8 @@ export class MarkdownSharedNotes extends MultiUsers {
       'meeting data should not be exposed in the export URL',
     ).toBeFalsy();
 
-    // The filename uses the server-local rendering of createTime. Tests must run
-    // in the same timezone as the BBB server for this deterministic comparison.
+    // The filename uses the UTC rendering of the meeting create time so it is
+    // deterministic across Playwright runners and BBB servers in different timezones.
     const expectedFilename = await expectedSharedNotesFilename(this.modPage.meetingId, 'md');
     expect(filename, 'the exported filename should identify the meeting and use its create time').toBe(
       expectedFilename,

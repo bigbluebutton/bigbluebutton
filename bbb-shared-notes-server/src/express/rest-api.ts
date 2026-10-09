@@ -34,8 +34,8 @@ const MAX_MEETING_NAME_LENGTH = 200;
 
 const formatTimestamp = (date: Date): string => {
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-    + `_${pad(date.getHours())}-${pad(date.getMinutes())}`;
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
+    + `_${pad(date.getUTCHours())}-${pad(date.getUTCMinutes())}`;
 };
 
 const sanitizeMeetingName = (name: string): string =>
