@@ -15,6 +15,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
+  smPadding,
   lgPadding,
   appsButtonsBorderRadius,
   borderRadiusRounded,
@@ -28,6 +29,7 @@ import {
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import NotificationBadgeStyled from '/imports/ui/components/common/notification-badge/styles';
 
 const PanelContent = styled(BasePanelContent)``;
 
@@ -53,8 +55,21 @@ const PinnedAppsWrapper = styled.div`
 
 const UnpinnedAppsWrapper = PinnedAppsWrapper;
 
-const AppTitle = styled.div`
+const AppTitleWrapper = styled.div`
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: ${smPadding};
+  min-width: 0;
+
+  > ${NotificationBadgeStyled.NotificationBadge} {
+    flex-shrink: 1;
+    max-width: 50%;
+  }
+`;
+
+const AppTitle = styled.div`
+  min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -249,12 +264,15 @@ const TileAppsWrapper = styled.div`
   width: 100%;
 `;
 
+const tilePaddingBlock = '2rem';
+const tilePaddingInline = '1rem';
+
 const TileItem = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: ${tilePaddingBlock} ${tilePaddingInline};
   border: 1px solid ${colorBorder};
   border-radius: ${lgBorderRadius};
   gap: ${appsPanelItemsSpacing};
@@ -334,6 +352,15 @@ const TileClickableArea = styled.div`
   width: 100%;
   cursor: pointer;
 
+  /* Centered in the tile's bottom padding, so a badge does not grow the tile. */
+  > ${NotificationBadgeStyled.NotificationBadge} {
+    position: absolute;
+    left: 50%;
+    bottom: calc(${tilePaddingBlock} / 2);
+    transform: translate(-50%, 50%);
+    max-width: calc(100% - 2 * ${tilePaddingInline});
+  }
+
   /* Stretch the click target over the whole tile so the "NEW" badge and the
      surrounding padding also open the app; the pin stays clickable via its
      higher z-index. */
@@ -350,6 +377,7 @@ export default {
   Wrapper,
   PinnedAppsWrapper,
   UnpinnedAppsWrapper,
+  AppTitleWrapper,
   AppTitle,
   RegisteredAppContent,
   OpenButton,

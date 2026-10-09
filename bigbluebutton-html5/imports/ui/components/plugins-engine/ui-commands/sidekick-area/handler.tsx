@@ -6,6 +6,7 @@ import {
 import {
   SidekickAreaPanelCommandArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/panel/types';
+import { SidekickAreaOptionsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/enums';
 import logger from '/imports/startup/client/logger';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
@@ -15,6 +16,11 @@ import {
   useIsMultiFunctionalModeEnabled,
   useIsSharedNotesEnabled,
 } from '/imports/ui/services/features';
+import {
+  handleRemoveBadge,
+  handleRenameMenu,
+  handleSetBadge,
+} from './utils';
 
 // A plugin can dispatch the raw event, so the enum alone is not a boundary.
 const ALLOWED_CORE_PANELS: string[] = Object.values(SidekickAreaCorePanelEnum);
@@ -189,6 +195,18 @@ const PluginSidekickAreaUiCommandsHandler = () => {
     isAuxiliaryOpen,
     sidebarContentPanelAuxiliary,
   ]);
+
+  useEffect(() => {
+    window.addEventListener(SidekickAreaOptionsEnum.SET_GENERIC_CONTENT_BADGE, handleSetBadge);
+    window.addEventListener(SidekickAreaOptionsEnum.REMOVE_GENERIC_CONTENT_BADGE, handleRemoveBadge);
+    window.addEventListener(SidekickAreaOptionsEnum.RENAME_GENERIC_CONTENT_MENU, handleRenameMenu);
+
+    return () => {
+      window.removeEventListener(SidekickAreaOptionsEnum.SET_GENERIC_CONTENT_BADGE, handleSetBadge);
+      window.removeEventListener(SidekickAreaOptionsEnum.REMOVE_GENERIC_CONTENT_BADGE, handleRemoveBadge);
+      window.removeEventListener(SidekickAreaOptionsEnum.RENAME_GENERIC_CONTENT_MENU, handleRenameMenu);
+    };
+  }, []);
 
   useEffect(() => {
     window.addEventListener(
