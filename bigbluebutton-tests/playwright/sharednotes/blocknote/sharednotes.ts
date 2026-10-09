@@ -200,8 +200,8 @@ export class BlockNoteSharedNotes extends MultiUsers {
       'empty shared notes PDF export should return a PDF document',
     ).toContain('application/pdf');
 
-    // The filename uses the server-local rendering of createTime. Tests must run
-    // in the same timezone as the BBB server for this deterministic comparison.
+    // The filename uses the UTC rendering of the meeting create time so it is
+    // deterministic across Playwright runners and BBB servers in different timezones.
     const expectedContentDisposition = async (ext: string) =>
       `attachment; filename="${await expectedSharedNotesFilename(this.modPage.meetingId, ext)}"`;
     expect(
