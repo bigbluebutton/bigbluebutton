@@ -1,11 +1,15 @@
 /**
+ * @typedef {((...args: any[]) => void) & { cancel: () => void }} DebouncedFunction
+ */
+
+/**
  * Debounce function, includes leading and trailing options (lodash-like)
  * @param {Function} func - function to be debounced
  * @param {Number} delay - delay in milliseconds
  * @param {Object} options - options object
  * @param {Boolean} options.leading - whether to invoke the function on the leading edge
  * @param {Boolean} options.trailing - whether to invoke the function on the trailing edge
- * @returns {Function} - debounced function
+ * @returns {DebouncedFunction} - debounced function; cancel() drops a pending trailing call
  */
 export function debounce(func, delay, options = {}) {
   let timeoutId;
@@ -34,7 +38,7 @@ export function debounce(func, delay, options = {}) {
     }, delay);
   }
 
-  return function (...args) {
+  function debounced(...args) {
     lastArgs = args;
     lastThis = this;
 
@@ -55,5 +59,17 @@ export function debounce(func, delay, options = {}) {
       clearTimeout(timeoutId);
       scheduleTimeout();
     }
+  }
+
+  debounced.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    lastArgs = null;
+    lastThis = null;
+    calledOnce = false;
   };
+
+  return debounced;
 }
