@@ -29,6 +29,7 @@ import {
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import NotificationBadgeStyled from '/imports/ui/components/common/notification-badge/styles';
 
 const PanelContent = styled(BasePanelContent)``;
 
@@ -60,6 +61,11 @@ const AppTitleWrapper = styled.div`
   align-items: center;
   gap: ${smPadding};
   min-width: 0;
+
+  > ${NotificationBadgeStyled.NotificationBadge} {
+    flex-shrink: 1;
+    max-width: 50%;
+  }
 `;
 
 const AppTitle = styled.div`
@@ -342,6 +348,10 @@ const TileClickableArea = styled.div`
   gap: ${appsPanelItemsSpacing};
   width: 100%;
   cursor: pointer;
+
+  > ${NotificationBadgeStyled.NotificationBadge} {
+    max-width: 100%;
+  }
 
   /* Stretch the click target over the whole tile so the "NEW" badge and the
      surrounding padding also open the app; the pin stays clickable via its
