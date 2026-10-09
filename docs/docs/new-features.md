@@ -19,6 +19,29 @@ Here's a breakdown of what's new in 4.1 so far.
 
 BigBlueButton 4.1 lets a moderator **ask a participant to turn on their webcam**. With the new `allowModsToRequestCameraShare` option set to `true`, moderators get an *Ask to share camera* entry in the user list; the participant is prompted and may accept or decline. Accepting takes them through the regular camera sharing flow, so the webcam is never started without their consent — a moderator cannot turn on someone's camera remotely. The default (`false`) hides the option entirely. This can be set server-wide in bbb-web's properties or per meeting on the `create` call.
 
+### Recording
+
+#### Caption tracks name the speaker
+
+Live captions (automatic transcription and typed captions) are recorded per utterance: every caption segment is stored with its speaker, language and text, and the caption track of a recording names the speaker (`Alice: ...`) whenever the speaker changes. Several participants speaking the same language at the same time no longer garble the track; earlier versions kept one shared text per language and appended the other speaker's words again at every turn. Typed captions, for example from caption plugins, are now part of the recording too.
+
+Speaker names follow the chat anonymization settings of the recording (`anonymize_chat` and `anonymize_chat_moderators` in `bigbluebutton.yml`, or the `meta_bbb-anonymize-chat` and `meta_bbb-anonymize-chat-moderators` create parameters).
+
+#### Caption track API and uploads
+
+The live caption tracks returned by `getRecordingTextTracks` can now be downloaded: the recording stores them as `captions_<lang>.vtt`, the name the API links to. Tracks uploaded with `putRecordingTextTrack` now show up in the presentation playback; the upload handler (`bbb-rap-caption-inbox`) used to fail on every upload and stop.
+
+For recordings processed before the upgrade, rename the live tracks once to make their API links work:
+
+```bash
+cd /var/bigbluebutton/captions
+for f in */caption_*.vtt; do mv -n "$f" "${f%/*}/captions_${f#*/caption_}"; done
+```
+
+#### events.xml
+
+Recordings made with 4.1 contain `CaptionUpdatedEvent` (module `CAPTION`; one event per update of a caption segment, with `captionId`, `userId`, `locale`, `captionType`, `text` and `isFinal`) instead of `EditCaptionHistoryEvent`. Recordings from earlier versions are processed as before.
+
 ### bbb-web properties changes
 
 #### Added
