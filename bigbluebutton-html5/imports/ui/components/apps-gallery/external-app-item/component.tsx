@@ -51,7 +51,9 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
     >
       {badgeContent && (
         <NotificationBadgeStyled.NotificationBadge data-test={`${appKey}GalleryBadge`}>
-          {badgeContent}
+          <NotificationBadgeStyled.NotificationBadgeLabel>
+            {badgeContent}
+          </NotificationBadgeStyled.NotificationBadgeLabel>
         </NotificationBadgeStyled.NotificationBadge>
       )}
     </AppItem>

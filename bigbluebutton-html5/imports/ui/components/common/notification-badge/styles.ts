@@ -42,7 +42,19 @@ const NotificationBadge = styled.div<{ $anchored?: boolean }>`
   flex-shrink: 0;
   white-space: nowrap;
 
-  ${({ $anchored }) => $anchored && notificationBadgeAnchor}
+  ${({ $anchored }) => $anchored && `
+    ${notificationBadgeAnchor}
+    max-width: 100%;
+  `}
+`;
+
+// Plugin badges are free text, and a flex container cannot end its own text in
+// an ellipsis. The normal line height keeps accents from being clipped.
+const NotificationBadgeLabel = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: normal;
 `;
 
 export {
@@ -53,4 +65,5 @@ export {
 
 export default {
   NotificationBadge,
+  NotificationBadgeLabel,
 };
