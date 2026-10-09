@@ -12,8 +12,9 @@ import {
 } from '../core/apolloProbe';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { apiCall } from '../core/helpers';
+import { apiCall, getApiCallUrl } from '../core/helpers';
 import { Page } from '../core/page';
+import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 import { emitSpeech, installFakeSpeechRecognition, waitForRecognizer } from './fakeSpeechRecognition';
 
@@ -202,6 +203,33 @@ export async function textTracks(recordId: string): Promise<TextTrack[]> {
 export async function trackText(track: TextTrack): Promise<string> {
   const response = await axios.get<string>(track.href, { adapter: 'http', responseType: 'text' });
   expect(response.status, `caption track ${track.href} should be downloadable`).toEqual(200);
+  return vttText(response.data);
+}
+
+// putRecordingTextTrack: uploads a WebVTT caption track for a recording.
+export async function uploadTextTrack(recordId: string, lang: string, label: string, vtt: string): Promise<string> {
+  const url = getApiCallUrl('putRecordingTextTrack', { recordID: recordId, kind: 'captions', lang, label });
+  const form = new FormData();
+  form.append('file', new Blob([vtt], { type: 'text/vtt' }), `${lang}.vtt`);
+  const response = await axios.post(url, form, { adapter: 'http' });
+  return JSON.stringify(response.data);
+}
+
+// The caption tracks the presentation playback offers (published captions.json), and the
+// cue text of one of them.
+const playbackUrl = (recordId: string, file: string): string =>
+  `${new URL(parameters.server!).origin}/presentation/${recordId}/${file}`;
+
+export async function playbackCaptionLocales(recordId: string): Promise<string[]> {
+  const response = await axios.get<{ locale: string }[]>(playbackUrl(recordId, 'captions.json'), { adapter: 'http' });
+  return response.data.map((caption) => caption.locale).sort();
+}
+
+export async function playbackCaptionText(recordId: string, locale: string): Promise<string> {
+  const response = await axios.get<string>(playbackUrl(recordId, `caption_${locale}.vtt`), {
+    adapter: 'http',
+    responseType: 'text',
+  });
   return vttText(response.data);
 }
 

@@ -7,11 +7,15 @@ import {
   Captions,
   countSentence,
   joinWithTranscription,
+  playbackCaptionLocales,
+  playbackCaptionText,
   SENTENCES,
   speak,
   submitTranscript,
   submitTypedCaption,
   textBySpeaker,
+  textTracks,
+  uploadTextTrack,
 } from './captions';
 import { emitEndOfUtterance } from './fakeSpeechRecognition';
 
@@ -143,6 +147,42 @@ test.describe.parallel('Captions', { tag: '@ci' }, () => {
     expect(countSentence(text, SENTENCES.typed1), `typed captions should be in the recording: ${text}`).toBe(1);
     expect(countSentence(text, SENTENCES.typed2), `typed captions should be in the recording: ${text}`).toBe(1);
     expect(countSentence(text, SENTENCES.alice1)).toBe(1);
+  });
+
+  test('An uploaded caption track is published next to the live captions', async ({ browser, context }, testInfo) => {
+    linkIssue(19700);
+    test.setTimeout(8 * 60 * 1000);
+    const captions = new Captions(browser, context);
+    await captions.initCaptionPages(testInfo, { withViewer: false });
+    await joinWithTranscription(captions.modPage, 'en-US');
+    await captions.startRecording();
+    await speak(captions.modPage, SENTENCES.alice1);
+    await expect.poll(async () => (await captionRows(captions.modPage)).length).toBe(1);
+    await captions.endMeeting();
+    const recordId = await captions.waitForPublishedRecording();
+
+    const uploaded = 'uploaded caption track';
+    const response = await uploadTextTrack(
+      recordId,
+      'de-DE',
+      'Deutsch',
+      `WEBVTT\n\n00:00:01.000 --> 00:00:03.000\n${uploaded}\n`,
+    );
+    expect(response, 'the upload should be accepted').toContain('upload_text_track_success');
+
+    // the upload handler converts it and the presentation playback lists it
+    await expect
+      .poll(() => playbackCaptionLocales(recordId).catch(() => []), {
+        message: 'the presentation playback should offer the uploaded track',
+        timeout: 60000,
+      })
+      .toEqual(['de-DE', 'en-US']);
+    expect(await playbackCaptionText(recordId, 'de-DE')).toEqual(uploaded);
+    expect(countSentence(await playbackCaptionText(recordId, 'en-US'), SENTENCES.alice1)).toBe(1);
+    expect(
+      (await textTracks(recordId)).map((track) => `${track.lang} ${track.source}`).sort(),
+      'getRecordingTextTracks should list the live and the uploaded track',
+    ).toEqual(['de-DE upload', 'en-US live']);
   });
 
   test('A late interim result does not truncate the final transcript', async ({ browser, context }, testInfo) => {

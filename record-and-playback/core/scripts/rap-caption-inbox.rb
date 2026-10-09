@@ -106,22 +106,7 @@ caption_file_notify = proc do |json_filename|
       tmp_dest = File.join(captions_work, dest_filename)
       final_dest_dir = File.join(captions_dir, record_id)
       final_dest = File.join(final_dest_dir, dest_filename)
-        
-      presentation_dir = props['presentation_dir']
-      presentation_dest_dir = "#{presentation_dir}/#{record_id}/caption_en-US.vtt"
-      caption_json_file = "#{presentation_dir}/#{record_id}/captions.json"
-      
-      # en-US need by presentation 
-      new_caption_info['lang'] = new_caption_info['lang'].sub('_', '-')
-        
-      File.open(caption_json_file, 'w') do |file|
-        file.puts "[{\"localeName\": \"#{new_caption_info['label']}\", \"locale\": \"#{new_caption_info['lang']}\"}]"
-      end
-        
-      # resetting en-US to en_US
-      new_caption_info['lang'] = new_caption_info['lang'].sub('-', '_')
 
-      
       # Convert the received caption file to WebVTT
       ffmpeg_cmd = [
         'ffmpeg', '-y', '-v', 'warning', '-nostats', '-nostdin',
@@ -133,12 +118,11 @@ caption_file_notify = proc do |json_filename|
 
       FileUtils.mkdir_p(final_dest_dir)
       FileUtils.mv(tmp_dest, final_dest)
-      FileUtils.cp(final_dest, presentation_dest_dir)
 
       # Finally, save the updated index file that references the new caption
       File.write(index_filename, JSON.pretty_generate(captions_info))
 
-      Dir.glob(File.expand_path('captions/*', __dir__)) do |caption_script|
+      Dir.glob(File.expand_path('caption/*', __dir__)) do |caption_script|
         next unless File.file?(caption_script) && File.executable?(caption_script)
 
         logger.info("Running caption integration script #{caption_script}")
@@ -155,6 +139,10 @@ caption_file_notify = proc do |json_filename|
       logger.info('Deleting invalid files from inbox directory')
       FileUtils.rm_f(src_filename) if src_filename
       FileUtils.rm_f(json_filename)
+    rescue StandardError => e
+      # Keep handling other uploads: the files stay in the inbox and are retried on restart
+      logger.exception(e)
+      logger.error("Failed to process caption file #{json_filename}, leaving it in the inbox")
     ensure
       FileUtils.rm_rf(File.join(captions_work_base, record_id))
     end

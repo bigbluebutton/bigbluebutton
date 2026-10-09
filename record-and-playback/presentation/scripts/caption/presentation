@@ -23,6 +23,8 @@ require 'bundler/setup'
 
 require File.expand_path('../../../core/lib/boot', __dir__)
 
+require 'fileutils'
+require 'json'
 require 'optparse'
 require 'journald/logger'
 
@@ -109,10 +111,11 @@ captions.each do |caption|
               else kind
               end
 
-  FileUtils.cp(
-    File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt"),
-    File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt")
-  )
+  src = File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt")
+  # Live captions of recordings processed before 4.1 were stored as caption_<lang>.vtt
+  legacy_src = File.join(captions_dir, recording_id, "caption_#{lang}.vtt")
+  src = legacy_src if kind == 'captions' && !File.exist?(src) && File.exist?(legacy_src)
+  FileUtils.cp(src, File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt"))
 
   # Remove any existing matching tracks from the playback captions list...
   playback_captions.reject! do |playback_caption|
@@ -133,5 +136,5 @@ end
 
 logger.info('Saving updated playback captions list')
 # Sort the list by label so the selection menu looks nice
-playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
+playback_captions.sort_by! { |caption| caption['localeName'].to_s }
 File.write(playback_captions_path, JSON.pretty_generate(playback_captions))
