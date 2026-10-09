@@ -264,12 +264,15 @@ const TileAppsWrapper = styled.div`
   width: 100%;
 `;
 
+const tilePaddingBlock = '2rem';
+const tilePaddingInline = '1rem';
+
 const TileItem = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: ${tilePaddingBlock} ${tilePaddingInline};
   border: 1px solid ${colorBorder};
   border-radius: ${lgBorderRadius};
   gap: ${appsPanelItemsSpacing};
@@ -349,8 +352,13 @@ const TileClickableArea = styled.div`
   width: 100%;
   cursor: pointer;
 
+  /* Centered in the tile's bottom padding, so a badge does not grow the tile. */
   > ${NotificationBadgeStyled.NotificationBadge} {
-    max-width: 100%;
+    position: absolute;
+    left: 50%;
+    bottom: calc(${tilePaddingBlock} / 2);
+    transform: translate(-50%, 50%);
+    max-width: calc(100% - 2 * ${tilePaddingInline});
   }
 
   /* Stretch the click target over the whole tile so the "NEW" badge and the
