@@ -16,6 +16,8 @@ export interface GenericModalProps {
   isOpen: boolean;
   /** Callback when the modal requests to close (ESC key, overlay click, close button). */
   onRequestClose: () => void;
+  /** Called once the modal content is mounted, e.g. to move focus into it. */
+  onAfterOpen?: () => void;
   /** Modal title displayed in the header. */
   title?: string;
   /** Accessibility label for the modal content region. Defaults to title. */
@@ -116,6 +118,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
   id,
   isOpen,
   onRequestClose,
+  onAfterOpen,
   title,
   contentLabel,
   showDividers = false,
@@ -181,6 +184,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
       id={id}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
+      onAfterOpen={onAfterOpen}
       title={title}
       contentLabel={contentLabel ?? title}
       showDividers={showDividers}
