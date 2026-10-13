@@ -36,7 +36,7 @@ import {
   colorGrayIcons,
   colorGrayUserListToolbar,
   colorGrayLighterSurface,
-  colorGrayLight,
+  colorGrayLightBorder,
   colorDanger,
   colorWarning,
   colorHeading,
@@ -178,6 +178,9 @@ const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
     width: 100%;
     margin: 0;
     color: ${colorText};
+    // The library paints this box with --color-neutral-white, which the dark theme
+    // leaves white on purpose, so it would carry the dark theme's white text.
+    background: ${colorWhiteSurface};
     -webkit-appearance: none;
     padding: ${$2xlPadding} ${jumboPaddingY};
     border-radius: ${lgBorderRadius};
@@ -594,7 +597,7 @@ const SegmentedButtonContainer = styled.div`
   display: flex;
   padding: 0.15rem;
   background-color: ${colorOffWhite};
-  border: ${borderSizeSmall} solid ${colorGrayLight};
+  border: ${borderSizeSmall} solid ${colorGrayLightBorder};
   border-radius: ${borderRadiusRounded};
 `;
 
