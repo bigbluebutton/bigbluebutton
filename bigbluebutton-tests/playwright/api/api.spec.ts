@@ -43,7 +43,11 @@ test.describe.parallel('API', () => {
     await API.testBbbWebSecurityHeaders();
   });
 
-  test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page }) => {
+  test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page, browserName }) => {
+    test.skip(
+      browserName !== 'chromium',
+      'route.continue() with another URL navigates the page away from the LMS origin in Firefox',
+    );
     await API.testJoinInsideCrossOriginFrame(page);
   });
 
