@@ -4,6 +4,7 @@ import * as xml2js from 'xml2js';
 
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
 import { createMeeting, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
+import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 
 // Minimal shape of the /create response we assert on (xml2js wraps every
@@ -141,6 +142,62 @@ export class API extends MultiUsers {
     const { response: parsed } = await xml2js.parseStringPromise(response.data);
     expect(parsed.returncode, 'a 255 character fullName should join').toEqual(['SUCCESS']);
     expect(parsed.messageKey, 'the join should succeed normally').toEqual(['successfullyJoined']);
+  }
+
+  static async testConcurrentJoinsRetainUserMetadata() {
+    const meetingID = await createMeeting();
+    const joinCount = 16;
+
+    try {
+      await Promise.all(
+        Array.from({ length: joinCount }, async (_, index) => {
+          const marker = `marker-${index}`;
+          const response = await axios.get(
+            getApiCallUrl('join', {
+              meetingID,
+              fullName: `Concurrent user ${index}`,
+              role: 'VIEWER',
+              userID: `concurrent-${meetingID}-${index}`,
+              redirect: 'false',
+              'userdata-racemarker': marker,
+            }),
+            {
+              adapter: 'http',
+              headers: { Accept: 'application/xml' },
+            },
+          );
+          const { response: joined } = await xml2js.parseStringPromise(response.data);
+          expect(joined.returncode, `concurrent join ${index} should succeed`).toEqual(['SUCCESS']);
+
+          const sessionToken = joined.session_token[0];
+          const sessionCookie = response.headers['set-cookie']?.find((cookie) => cookie.startsWith('JSESSIONID='));
+          expect(sessionCookie, `concurrent join ${index} should establish an HTTP session`).toBeDefined();
+
+          const metadataUrl = new URL('/api/rest/userMetadata', parameters.server).toString();
+          await expect
+            .poll(async () => {
+              const metadata = await axios.get(metadataUrl, {
+                adapter: 'http',
+                headers: {
+                  Cookie: sessionCookie!.split(';')[0],
+                  'x-session-token': sessionToken,
+                },
+                validateStatus: () => true,
+              });
+              if (metadata.status !== 200) return false;
+              return (
+                metadata.data.user_metadata?.some(
+                  (item: { parameter: string; value: string }) =>
+                    item.parameter === 'racemarker' && item.value === marker,
+                ) ?? false
+              );
+            }, `concurrent join ${index} should retain its own user metadata`)
+            .toBe(true);
+        }),
+      );
+    } finally {
+      await axios.get(getApiCallUrl('end', { meetingID }), { adapter: 'http' });
+    }
   }
 
   // Above the limit the join is rejected, matching the userName bound already
