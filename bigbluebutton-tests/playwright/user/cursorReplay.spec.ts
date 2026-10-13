@@ -1,12 +1,24 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { APOLLO_CLIENT_SETTINGS_MODULE, getOwnUserId, isApolloClientExposed } from '../core/apolloProbe';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { test } from '../core/setup/fixtures';
 import { recordStreamFrames } from '../core/streamRecorder';
 import { MultiUsers } from './multiusers';
 import { drawArrow, openLockViewers } from './util';
+
+const APOLLO_EXPOSURE_SKIP_REASON =
+  'requires window.__APOLLO_CLIENT__ to read user ids ' +
+  '(dev bundle or enableApolloDevTools provisioned via clientSettingsOverride)';
+
+/** The userId of every row in a cursor stream frame. */
+const cursorRowUserIds = (frameText: string): string[] => {
+  const rows = JSON.parse(frameText)?.payload?.data?.pres_page_cursor_stream;
+  if (!Array.isArray(rows)) throw new Error(`not a cursor stream frame: ${frameText}`);
+  return rows.map((row: { userId: string }) => row.userId);
+};
 
 /**
  * A user subscribing to the cursor stream is replayed the last known position of each user, so the
@@ -24,11 +36,14 @@ class CursorReplay extends MultiUsers {
    */
   async lockedJoinerStillGetsTheModeratorCursor() {
     await this.modPage.waitForSelector(e.whiteboard);
+    test.skip(!(await isApolloClientExposed(this.modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
 
     // A viewer cursor in the cache: the row the lock must withhold.
     await this.initUserPage();
     await this.userPage.waitForSelector(e.whiteboard);
+    const modUserId = await getOwnUserId(this.modPage.page);
+    const viewerUserId = await getOwnUserId(this.userPage.page);
     await drawArrow(this.userPage);
 
     // A moderator cursor in the cache: the row the lock does not cover. Drawing rather than
@@ -56,7 +71,7 @@ class CursorReplay extends MultiUsers {
     const { context } = this.modPage;
     if (!context) throw new Error('no browser context on modPage');
     const raw = await context.newPage();
-    const recorder = await recordStreamFrames(raw);
+    const recorder = await recordStreamFrames(raw, { keepFullFrames: ['cursor'] });
     const lockedJoiner = new Page(this.browser, raw, this.modPage.testInfo);
     const mark = recorder.mark();
     await lockedJoiner.init(false, { fullName: 'LockedJoiner', meetingId: this.modPage.meetingId });
@@ -65,18 +80,22 @@ class CursorReplay extends MultiUsers {
     // Polled rather than slept on: the replay is sent once, when the subscription registers, and
     // that moment is not tied to anything observable in the DOM.
     await expect
-      .poll(() => recorder.framesSince(mark, 'cursor').length, {
+      .poll(() => recorder.fullFramesSince(mark, 'cursor').length, {
         message: 'a locked viewer joining must still be replayed: 0 frames means the replay was withheld',
         timeout: ELEMENT_WAIT_LONGER_TIME,
       })
       .toBeGreaterThan(0);
 
-    const frames = recorder.framesSince(mark, 'cursor');
-    const rows = frames.flatMap((f) => [...f.excerpt.matchAll(/"userId":"([^"]+)"/g)].map((m) => m[1]));
+    // Whole frames, by identity: a count of distinct users cannot tell a correct replay from an
+    // inverted filter, which also leaves exactly one row.
+    const rows = recorder.fullFramesSince(mark, 'cursor').flatMap((f) => cursorRowUserIds(f.text));
+    const got = `moderator ${modUserId}, viewer ${viewerUserId}; got rows for ${JSON.stringify(rows)}`;
+    expect(rows, `the replay must not carry the viewer cursor (${got})`).not.toContain(viewerUserId);
+    expect(rows, `the replay must carry the moderator cursor (${got})`).toContain(modUserId);
     expect(
-      new Set(rows).size,
-      `the replay must carry the moderator cursor and not the viewer one; got rows for ${JSON.stringify(rows)}`,
-    ).toBe(1);
+      rows.filter((userId) => userId !== modUserId),
+      `the replay must carry the moderator cursor only (${got})`,
+    ).toEqual([]);
   }
 }
 
@@ -84,7 +103,7 @@ test.describe('Cursor replay on join', { tag: '@ci' }, () => {
   test('Locked viewer joining is replayed the moderator cursor only', async ({ browser, context, page }, testInfo) => {
     test.setTimeout(240_000);
     const cursorReplay = new CursorReplay(browser, context);
-    await cursorReplay.initModPage(page, { testInfo });
+    await cursorReplay.initModPage(page, { testInfo, createModules: APOLLO_CLIENT_SETTINGS_MODULE });
     await cursorReplay.lockedJoinerStillGetsTheModeratorCursor();
   });
 });

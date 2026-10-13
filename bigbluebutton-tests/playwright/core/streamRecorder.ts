@@ -39,6 +39,22 @@ export interface RecordedFrame {
   excerpt: string;
 }
 
+/** A frame kept whole, for streams whose rows a test asserts on. */
+export interface FullFrame {
+  stream: StreamName;
+  at: number;
+  text: string;
+}
+
+export interface RecordStreamFramesOptions {
+  urlPattern?: string | RegExp;
+  /**
+   * Streams whose frames are kept whole and uncapped, for assertions on their rows. The excerpts
+   * behind framesSince are truncated and capped, so a missing row there proves nothing.
+   */
+  keepFullFrames?: StreamName[];
+}
+
 export type StreamCounts = Record<StreamName, number>;
 
 /** Opaque snapshot of the exact per-stream totals at a point in time. */
@@ -60,6 +76,8 @@ export interface StreamRecorder {
   countsSince(mark: StreamMark): StreamCounts;
   /** Best-effort detail for failure messages; capped at MAX_DETAIL_FRAMES. */
   framesSince(mark: StreamMark, stream?: StreamName): RecordedFrame[];
+  /** Whole frames since `mark`. Never lossy; throws unless `stream` was in keepFullFrames. */
+  fullFramesSince(mark: StreamMark, stream: StreamName): FullFrame[];
   streamsSince(mark: StreamMark): StreamName[];
 
   /**
@@ -110,10 +128,12 @@ function emptyCounts(): StreamCounts {
 
 export async function recordStreamFrames(
   target: PlaywrightPage | BrowserContext,
-  urlPattern: string | RegExp = /\/graphql/,
+  { urlPattern = /\/graphql/, keepFullFrames = [] }: RecordStreamFramesOptions = {},
 ): Promise<StreamRecorder> {
   const totals = emptyCounts();
   const detail: RecordedFrame[] = [];
+  const keptWhole = new Set<StreamName>(keepFullFrames);
+  const full: FullFrame[] = [];
   const closes: CloseEvent[] = [];
   const openBrowserSockets = new Set<WebSocketRoute>();
   const openServerSockets = new Set<WebSocketRoute>();
@@ -165,6 +185,7 @@ export async function recordStreamFrames(
       for (const stream of ALL_STREAMS) {
         if (asText.includes(MIDDLEWARE_STREAMS[stream].rootField)) {
           totals[stream] += 1;
+          if (keptWhole.has(stream)) full.push({ stream, at: Date.now(), text: asText });
           if (detail.length < MAX_DETAIL_FRAMES) {
             detail.push({ stream, at: Date.now(), excerpt: asText.slice(0, 300) });
           }
@@ -212,6 +233,10 @@ export async function recordStreamFrames(
       return since;
     },
     framesSince: (mark, stream) => detail.filter((f) => f.at >= mark.at && (!stream || f.stream === stream)),
+    fullFramesSince: (mark, stream) => {
+      if (!keptWhole.has(stream)) throw new Error(`stream "${stream}" is not in keepFullFrames`);
+      return full.filter((f) => f.at >= mark.at && f.stream === stream);
+    },
     streamsSince: (mark) => ALL_STREAMS.filter((s) => totals[s] - mark.totals[s] > 0),
     isSocketOpen: () => openServerSockets.size > 0,
     totalSocketsOpened: () => socketsOpened,

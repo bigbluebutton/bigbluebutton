@@ -3,7 +3,14 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
-import { ALL_STREAMS, recordStreamFrames, StreamCounts, StreamName, StreamRecorder } from '../core/streamRecorder';
+import {
+  ALL_STREAMS,
+  recordStreamFrames,
+  StreamCounts,
+  StreamMark,
+  StreamName,
+  StreamRecorder,
+} from '../core/streamRecorder';
 import { enableChatPopup, enableUserJoinPopup, saveSettings } from '../notifications/util';
 import { openSettings } from '../options/util';
 import { MultiUsers } from './multiusers';
@@ -11,6 +18,13 @@ import { drawArrow } from './util';
 
 const VICTIM = 'EjectedViewer';
 const CONTROL = 'ControlViewer';
+
+/**
+ * How long a round waits for the victim's copy of a frame once the control viewer has its own. The
+ * middleware queues both copies in the same fan-out, so this only has to cover the difference in
+ * delivery between two sockets on the same host.
+ */
+const VICTIM_SETTLE_MS = 1000;
 
 /**
  * Coverage for the bbb-graphql-middleware streaming-server authorization gates.
@@ -163,6 +177,10 @@ export class EjectedStreams extends MultiUsers {
    * Rounds are retried because membership state propagates asynchronously, so frames already in
    * flight immediately after the change are expected and must not fail the run.
    *
+   * A round is read only once its frames have landed: first the control viewer's, then, after a
+   * settle, the victim's. Read any earlier and a frame from this round falls into the next round's
+   * window. The loop would then stop on a quiet round whose leaked frames had not arrived yet.
+   *
    * An explicit loop rather than expect().toPass() so the failure modes stay distinguishable: if
    * the frames never stop, the socket eventually closes on its own, and toPass would report
    * whichever assertion happened to fail last rather than the one that matters.
@@ -180,15 +198,16 @@ export class EjectedStreams extends MultiUsers {
       const controlMark = this.controlRecorder.mark();
       await drive();
 
+      const controlGotEverything = await this.waitForControl(controlMark, drivenStreams, deadline);
+      await this.modPage.page.waitForTimeout(VICTIM_SETTLE_MS);
+
       const victimSaw = this.victimRecorder.countsSince(victimMark);
-      const controlSaw = this.controlRecorder.countsSince(controlMark);
       lastVictim = victimSaw;
       victimRounds.push(victimSaw);
 
       // The victim seeing nothing only means something if the round produced events at all and the
       // victim's connection was still able to receive them.
       const victimQuiet = ALL_STREAMS.every((stream) => victimSaw[stream] === 0);
-      const controlGotEverything = drivenStreams.every((stream) => controlSaw[stream] > 0);
 
       if (victimQuiet && controlGotEverything && this.victimRecorder.isSocketOpen()) {
         sawLiveRound = true;
@@ -223,6 +242,21 @@ export class EjectedStreams extends MultiUsers {
         `(socket open: ${this.victimRecorder.isSocketOpen()}, ` +
         `closes: ${JSON.stringify(this.victimRecorder.closeEvents())})`,
     ).toBe(true);
+  }
+
+  /**
+   * Waits until the control viewer has received every driven stream since `mark`. Returns false
+   * rather than throwing if that does not happen in time, since a round without the control's frames
+   * is retried, not failed.
+   */
+  private async waitForControl(mark: StreamMark, drivenStreams: StreamName[], deadline: number) {
+    const giveUpAt = Math.min(deadline, Date.now() + ELEMENT_WAIT_LONGER_TIME);
+    for (;;) {
+      const controlSaw = this.controlRecorder.countsSince(mark);
+      if (drivenStreams.every((stream) => controlSaw[stream] > 0)) return true;
+      if (Date.now() >= giveUpAt) return false;
+      await this.modPage.page.waitForTimeout(100);
+    }
   }
 
   /**
