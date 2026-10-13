@@ -315,7 +315,7 @@ export const setOutputDeviceId = (outputDeviceId) => {
 
 export const shareScreen = async (
   isCameraAsContentBroadcasting,
-  stopWatching,
+  onStarted,
   isPresenter,
   onFail,
   options = {},
@@ -353,8 +353,8 @@ export const shareScreen = async (
       return;
     }
 
-    // stop external video share if running
-    stopWatching();
+    // eject other presentation area content (external video, pinned notes, ...)
+    onStarted();
 
     setSharingContentType(contentType);
     setIsSharing(true);

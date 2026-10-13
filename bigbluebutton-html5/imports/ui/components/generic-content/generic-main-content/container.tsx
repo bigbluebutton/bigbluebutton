@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useMutation } from '@apollo/client';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import {
@@ -19,10 +18,7 @@ import GenericMainContent from './component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import getDifferenceBetweenLists from '../utils';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { isSharing, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
-import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
-import { PIN_NOTES } from '/imports/ui/components/notes/mutations';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { GenericContentMainAreaContainerProps } from '../types';
 
 const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerProps> = (
@@ -36,9 +32,7 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
   } = useContext(PluginsContext);
   const layoutContextDispatch: DispatcherFunction = layoutDispatch();
   const { data: currentUser } = useCurrentUser((u) => ({ presenter: u.presenter }));
-  const { data: currentMeeting } = useMeeting((m) => ({ componentsFlags: m.componentsFlags }));
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const [pinSharedNotes] = useMutation(PIN_NOTES);
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   const previousMainAreaIds = useRef<string[]>([]);
   let genericContainerContentExtensibleArea = [] as PluginSdk.GenericContentMainArea[];
 
@@ -87,12 +81,7 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
   useEffect(() => {
     const hasNewContent = mainAreaIds.some((id) => !previousMainAreaIds.current.includes(id));
     previousMainAreaIds.current = mainAreaIds;
-    if (!hasNewContent || !currentUser?.presenter) return;
-
-    const { hasExternalVideo, isSharedNotesPinned } = currentMeeting?.componentsFlags || {};
-    if (isSharing()) screenshareHasEnded();
-    if (hasExternalVideo) stopExternalVideoShare();
-    if (isSharedNotesPinned) pinSharedNotes({ variables: { pinned: false } });
+    if (hasNewContent && currentUser?.presenter) ejectPresentationAreaContent('pluginContent');
   }, [mainAreaIdsKey]);
 
   const genericContentLayoutInformation: GenericContentMainAreaFromLayout = layoutSelectOutput(
