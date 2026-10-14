@@ -33,7 +33,8 @@ import {
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { useAutoplayState } from '/imports/ui/components/livekit/autoplay-modal/hooks';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import useWhoIsUnmutedLiveKit from '/imports/ui/core/hooks/livekit/useWhoIsUnmutedLiveKit';
+import { useHasActiveNonPrimaryMembership } from '/imports/ui/components/livekit/memberships-manager/hooks';
 
 const PARTICIPANTS_UPDATE_FILTER = [
   RoomEvent.ParticipantConnected,
@@ -75,7 +76,7 @@ const getSelectiveSubscriptionConfig = () => {
  * @returns A map of participant IDs to their last spoke timestamp
  */
 const useParticipantsLastSpokeAt = (
-  liveKitRoom: Room,
+  liveKitRoom: Room | undefined,
 ): Map<string, number> => {
   const speakingParticipants = useSpeakingParticipants();
   const participantsLastSpokeAtMap = useRef<Map<string, number>>(new Map());
@@ -107,12 +108,13 @@ const useParticipantsLastSpokeAt = (
   }, [speakingParticipants]);
 
   useEffect(() => {
+    if (!liveKitRoom) return undefined;
     liveKitRoom.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
 
     return () => {
       liveKitRoom.off(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
     };
-  }, [handleParticipantDisconnected]);
+  }, [liveKitRoom, handleParticipantDisconnected]);
 
   return participantLastSpokeAt;
 };
@@ -127,7 +129,12 @@ const useDebouncedMuteState = (
   participants: RemoteParticipant[],
   debounceMs: number = 2500,
 ): Record<string, boolean> => {
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  // Consume the LiveKit unmuted source directly rather than the opt-in router: this drives which
+  // audio tracks get subscribed, and the router resolves to the GraphQL source when
+  // useLiveKitAudioState is off (the default). That source is filtered by the hideUserList lock, so
+  // routing through it would let a lock stop a viewer from *hearing* hidden participants once
+  // audioSubscriptionPoolSize > 0. Media transport must not depend on a privacy-filtered stream.
+  const { data: unmutedUsers } = useWhoIsUnmutedLiveKit();
   const [debouncedState, setDebouncedState] = useState<Record<string, boolean>>(unmutedUsers || {});
   const debouncedStateRef = useRef(debouncedState);
   debouncedStateRef.current = debouncedState;
@@ -281,12 +288,16 @@ export const useMediaSenders = (
   }, [data, remoteParticipants, deafened, mediaType]);
 };
 
-export const useMediaSubscriptions = (liveKitRoom: Room) => {
+export const useMediaSubscriptions = (liveKitRoom: Room | undefined) => {
   const [autoplayState] = useAutoplayState(liveKitRoom);
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
   const willinglyDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
-  const deafened = willinglyDeafened || !autoplayState.canPlayAudio;
+  // While the user is in a non-primary LK room (e.g., listening to a
+  // breakout), the primary room must be effectively deafened. That may change in the
+  // future (prlanzarin)
+  const hasActiveSecondary = useHasActiveNonPrimaryMembership();
+  const deafened = willinglyDeafened || !autoplayState.canPlayAudio || hasActiveSecondary;
   const remoteParticipants = useRemoteParticipants({
     updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
   });
@@ -383,8 +394,10 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
           const participant = participantsById.get(participantId);
           if (participant) {
             participant.audioTrackPublications.forEach((publication) => {
-              // Screen share audio is always subscribed regardless of group membership
-              if (publication.source === Track.Source.ScreenShareAudio) return;
+              // Screen share audio is always subscribed regardless of group
+              // membership - except while deafened (incl. an active non-primary
+              // membership), when the primary room must go fully silent.
+              if (publication.source === Track.Source.ScreenShareAudio && !deafened) return;
 
               const { trackSid } = publication;
 
@@ -406,8 +419,9 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     });
 
     // Force-subscribe any screen share audio not already handled by the
-    // desired-subscription pass above.
+    // desired-subscription pass above - unless deafened (see above).
     pendingScreenShareAudio.forEach(({ publication, participantId }) => {
+      if (deafened) return;
       if (!publication.isSubscribed && !desiredSubscriptions.has(participantId)) {
         publication.setSubscribed(true);
         logger.debug({

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
+import { mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
 
 const LeaveButton = styled(Button)`
   border-radius: 1.1rem;
@@ -25,6 +26,21 @@ const LeaveButton = styled(Button)`
     z-index: 3;
     display: flex;
   `}
+
+  @media ${smallOnly} {
+    width: ${mobileNavbarButtonSize};
+    height: ${mobileNavbarButtonSize};
+    min-width: ${mobileNavbarButtonSize};
+    padding: 0 !important;
+    border-radius: 50% !important;
+    font-size: 1rem;
+    align-items: center;
+    justify-content: center;
+
+    & > span {
+      display: none !important;
+    }
+  }
 `;
 
 const LeaveButtonWrapper = styled.div`

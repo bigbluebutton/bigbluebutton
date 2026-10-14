@@ -7,6 +7,7 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   cancel: {
@@ -89,6 +90,7 @@ const ChatReplyIntention = () => {
         <Styled.HtmlContent
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message || '') }}
+          $currentUserId={Auth.userID as string | undefined}
         />
       </Styled.Message>
       <Tooltip title={intl.formatMessage(intlMessages.cancel, { cancelKey: CANCEL_KEY })}>

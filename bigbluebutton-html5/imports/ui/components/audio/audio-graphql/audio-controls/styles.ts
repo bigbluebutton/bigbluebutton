@@ -2,7 +2,7 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhiteBorder } from '/imports/ui/stylesheets/styled-components/palette';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 
 const pulse = keyframes`
@@ -22,7 +22,7 @@ const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
   ${({ ghost }) => ghost && `
     span {
       background-color: transparent !important;
-      border-color: ${colorWhite} !important;
+      border-color: ${colorWhiteBorder} !important;
     }
   `}
 `;
@@ -48,7 +48,7 @@ const MuteToggleButton = styled(Button)`
   ${({ ghost }) => ghost && `
     span {
       background-color: transparent !important;
-      border-color: ${colorWhite} !important;
+      border-color: ${colorWhiteBorder} !important;
     }
   `}
 

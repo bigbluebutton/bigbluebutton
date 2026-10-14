@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { CI, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import { CI, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
@@ -8,6 +8,9 @@ import {
   checkSvgIndex,
   expectSlidesEqualBetweenPages,
   getCurrentPresentationHeight,
+  getCurrentSlideAspectRatio,
+  getCurrentSlideDarkPixelRatio,
+  getCurrentSlideSvg,
   getSlideOuterHtml,
   uploadMultiplePresentations,
   uploadSinglePresentation,
@@ -427,6 +430,45 @@ export class Presentation extends MultiUsers {
     }
   }
 
+  async maskRasterizationFallbackTest() {
+    // wait for whiteboard to load and no notifications
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.maskSamplePdf, UPLOAD_PDF_WAIT_TIME);
+
+    // secondary check: the uploaded slide is visibly present
+    await this.modPage.hasElement(e.currentSlideImg, 'should display the uploaded slide as the current slide image');
+
+    // 4.0 renders slides as tldraw image assets, so a visual snapshot cannot tell a rasterized
+    // (embedded-PNG) slide apart from a vector slide of the same content. Inspect the served
+    // slide SVG file instead, deriving its URL from the current tl-image asset.
+    const slideSvgUrl = await this.modPage.page.evaluate(
+      ([selector]) => {
+        const element = document.querySelector(selector) as HTMLElement | null;
+        return element?.style?.backgroundImage?.split('"')[1] ?? null;
+      },
+      [e.currentSlideImg],
+    );
+    // the asset URL carries pageToken/sessionToken query params, e.g. .../svg/1?pageToken=...
+    expect(slideSvgUrl, 'should resolve the served slide SVG url from the current slide asset').toMatch(
+      /\/svg\/\d+(\?|$)/,
+    );
+
+    const slideSvgResponse = await this.modPage.page.request.get(slideSvgUrl as string);
+    expect(slideSvgResponse.ok(), 'should fetch the served slide SVG').toBeTruthy();
+    const slideSvgContent = await slideSvgResponse.text();
+
+    // A rasterized slide is the embedded-PNG SVG produced by SvgImageCreatorImp.createSvgWithEmbeddedPng():
+    // a single <image href="data:image/png;base64,..."> and no vector elements. pdftocairo vector output
+    // instead uses xlink:href for embedded bitmaps and contains <path> elements.
+    expect(slideSvgContent, 'served slide SVG should be the rasterized embedded-PNG form').toMatch(
+      /<image href="data:image\/png;base64,/,
+    );
+    expect(slideSvgContent, 'rasterized slide SVG should contain no vector <path> elements').not.toMatch(/<path[\s>]/);
+  }
+
   async uploadOtherPresentationsFormat() {
     // wait for whiteboard to load and no notifications
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
@@ -514,6 +556,64 @@ export class Presentation extends MultiUsers {
         maxDiffPixels: 1000,
       });
     }
+  }
+
+  // Regression test for https://github.com/bigbluebutton/bigbluebutton/issues/23953
+  // The PDF embeds a soft-masked (SMask) image inside a transparency group. poppler's
+  // cairo backend (pdftocairo) fails to composite it and produces a fully blank slide,
+  // while the client reports the conversion as successful. The slide must render its
+  // content (a large black rectangle) instead of a blank page.
+  async blurredImagePresentationRendersTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    // Snapshot the attendee's slide first: uploadSinglePresentation only waits on
+    // the moderator page, so the attendee assertion below must wait for the new
+    // slide to propagate before measuring it.
+    const userSlideBeforeUpload = await getSlideOuterHtml(this.userPage);
+
+    await uploadSinglePresentation(this.modPage, e.blurImagePresentationFileName, UPLOAD_PDF_WAIT_TIME);
+    await this.modPage.closeAllToastNotifications();
+
+    const modDarkRatio = await getCurrentSlideDarkPixelRatio(this.modPage);
+    expect(
+      modDarkRatio,
+      'the uploaded PDF slide should render its embedded figure (a black rectangle), not a blank page (issue #23953)',
+    ).toBeGreaterThan(0.02);
+
+    // The attendee must receive the same non-blank slide.
+    await this.userPage.closeAllToastNotifications();
+    await expect
+      .poll(() => getSlideOuterHtml(this.userPage), {
+        message: 'the attendee should receive the uploaded presentation slide',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .not.toBe(userSlideBeforeUpload);
+    const userDarkRatio = await getCurrentSlideDarkPixelRatio(this.userPage);
+    expect(
+      userDarkRatio,
+      'the attendee should also see the embedded figure rendered on the slide (issue #23953)',
+    ).toBeGreaterThan(0.02);
+  }
+
+  // Counterpart of the test above: an ordinary soft-masked image (e.g. a transparent PNG)
+  // converts to a correct SVG, so the check that rasterizes the slides pdftocairo gets wrong
+  // (issue #23953) must leave it as a vector slide. Assumes the default maskTagThreshold=0.
+  async softMaskedSlideStaysVectorTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.maskSamplePdf, UPLOAD_PDF_WAIT_TIME);
+
+    const slideSvgContent = await getCurrentSlideSvg(this.modPage);
+    expect(slideSvgContent, 'slide SVG should keep its soft masks as vector <mask> elements').toMatch(/<mask[\s>]/);
+    // A rasterized slide is a single <image href="data:image/png;base64,...">, while pdftocairo
+    // vector output references its embedded bitmaps with xlink:href.
+    expect(slideSvgContent, 'slide SVG should not be the rasterized embedded-PNG form').not.toMatch(
+      /<image href="data:image\/png;base64,/,
+    );
   }
 
   async uploadMultiplePresentationsTest() {
@@ -708,6 +808,33 @@ export class Presentation extends MultiUsers {
         },
       )
       .toBe(true);
+  }
+
+  async uploadPresentationKeepsSourceDimensions() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+
+    // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707). bbb-web derives the
+    // slide dimensions from the SVG the converter emits, so the rendered slide must keep that
+    // portrait ratio. No other presentation in the meeting shares it: if the dimensions ever
+    // collapsed to the 1440x1080 (4:3 = 1.33) default, or if the upload silently reverted to
+    // the 1920x1080 (16:9 = 1.78) default deck, the ratio would not match. Both are rejected.
+    //
+    // Coverage scope: this is a regression guard for the dimension pipeline (the width/height
+    // probe that pdftocairo SVGs always satisfy). It does NOT exercise the viewBox fallback in
+    // readSvgDims/parseViewBoxDims - that branch is only reached when width/height are absent
+    // or unparseable, and pdftocairo always emits them. See the PR body for why the viewBox
+    // path is defensive (defence in depth) rather than covered by a real upload.
+    const sourceAspectRatio = 595.27 / 841.89;
+    await expect
+      .poll(async () => getCurrentSlideAspectRatio(this.modPage), {
+        message: 'should render the slide with the source A4-portrait aspect ratio, not a default',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(sourceAspectRatio, 1);
   }
 
   async uploadAndRemoveAllPresentations() {

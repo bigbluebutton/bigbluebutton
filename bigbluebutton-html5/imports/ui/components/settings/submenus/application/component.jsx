@@ -8,10 +8,6 @@ import Styled from './styles';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import {
-  isBBBAWasmSupported,
-  isWasmProcessingEnabled,
-} from '/imports/api/audio/client/bridge/service';
 
 const MIN_FONTSIZE = 0;
 
@@ -23,15 +19,6 @@ const intlMessages = defineMessages({
   animationsLabel: {
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
-  },
-  musicianModeLabel: {
-    id: 'app.submenu.application.musicianModeLabel',
-    description: 'audio filters label',
-  },
-  audioWasmFilterLabel: {
-    id: 'app.submenu.application.audioWasmFilterLabel',
-    description: 'audio wasm filters label',
-    defaultMessage: 'Big Blue Better Audio',
   },
   darkThemeLabel: {
     id: 'app.submenu.application.darkThemeLabel',
@@ -96,6 +83,10 @@ const intlMessages = defineMessages({
   disableLabel: {
     id: 'app.videoDock.webcamDisableLabelAllCams',
   },
+  recordingIndicatorAutoCollapseLabel: {
+    id: 'app.submenu.application.recordingIndicatorAutoCollapseLabel',
+    description: 'recording button auto collapse label',
+  },
   autoCloseReactionsBarLabel: {
     id: 'app.actionsBar.reactions.autoCloseReactionsBarLabel',
   },
@@ -113,16 +104,12 @@ class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
-    const wasmFiltersSupported = isBBBAWasmSupported();
-    const audioFilterStatus = !wasmFiltersSupported
-      ? ApplicationMenu.isAudioFilterEnabled(props.settings.microphoneConstraints)
-      : isWasmProcessingEnabled();
-
     this.state = {
       settingsName: 'application',
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      initialFontSize: null,
       showSelect: false,
       fontSizes: [
         '12px',
@@ -131,7 +118,6 @@ class ApplicationMenu extends BaseMenu {
         '18px',
         '20px',
       ],
-      audioFilterEnabled: audioFilterStatus,
     };
   }
 
@@ -153,80 +139,18 @@ class ApplicationMenu extends BaseMenu {
       fontSizes.sort();
     }
     const fontIndex = fontSizes.indexOf(clientFont);
-    this.changeFontSize(clientFont);
+    // Kept out of the settings, so an untouched size is not saved.
     this.setState({
+      initialFontSize: clientFont,
       isSmallestFontSize: fontIndex <= MIN_FONTSIZE,
       isLargestFontSize: fontIndex >= (fontSizes.length - 1),
       fontSizes,
     });
   }
 
-  static isAudioFilterEnabled(_constraints) {
-    if (typeof _constraints === 'undefined') return true;
-
-    const _isConstraintEnabled = (constraintValue) => {
-      switch (typeof constraintValue) {
-        case 'boolean':
-          return constraintValue;
-        case 'string':
-          return constraintValue === 'true';
-        case 'object':
-          return !!(constraintValue.exact || constraintValue.ideal);
-        default:
-          return false;
-      }
-    };
-
-    let isAnyFilterEnabled = true;
-
-    const constraints = _constraints && (typeof _constraints.advanced === 'object')
-      ? _constraints.advanced
-      : _constraints || {};
-
-    isAnyFilterEnabled = !!Object.values(constraints).find(
-      (constraintValue) => _isConstraintEnabled(constraintValue),
-    );
-
-    return isAnyFilterEnabled;
-  }
-
-  handleAudioFilterChange() {
-    const _audioFilterEnabled = !ApplicationMenu.isAudioFilterEnabled(this
-      .state.settings.microphoneConstraints);
-    const _newConstraints = {
-      autoGainControl: _audioFilterEnabled,
-      echoCancellation: _audioFilterEnabled,
-      noiseSuppression: _audioFilterEnabled,
-    };
-
-    const obj = this.state;
-    obj.settings.audioWasmProcessing = false;
-    obj.settings.microphoneConstraints = _newConstraints;
-    this.handleUpdateSettings(this.state.settingsName, obj.settings);
-    this.setState({
-      audioFilterEnabled: _audioFilterEnabled,
-    });
-  }
-
-  handleAudioWasmProcessingChange() {
-    if (!isBBBAWasmSupported()) return;
-
-    const _audioWasmProcessingEnabled = !isWasmProcessingEnabled(
-      this.state.settings.audioWasmProcessing,
-    );
-    const _newConstraints = {
-      autoGainControl: false,
-      echoCancellation: false,
-      noiseSuppression: false,
-    };
-
-    const obj = this.state;
-    obj.settings.audioWasmProcessing = _audioWasmProcessingEnabled;
-    obj.settings.microphoneConstraints = _newConstraints;
-    this.handleUpdateSettings(this.state.settingsName, obj.settings);
-    this.setState({
-      audioFilterEnabled: _audioWasmProcessingEnabled,
-    });
+  getFontSize() {
+    const { settings, initialFontSize } = this.state;
+    return settings.fontSize || initialFontSize;
   }
 
   handleUpdateFontSize(size) {
@@ -236,11 +160,12 @@ class ApplicationMenu extends BaseMenu {
   }
 
   changeFontSize(size) {
-    const { layoutContextDispatch } = this.props;
+    const { layoutContextDispatch, savedFontSize, openingFontSize } = this.props;
     const obj = this.state;
-    obj.settings.fontSize = size;
+    // Back at the size the modal opened with, the setting is as it was: no change.
+    obj.settings.fontSize = size === openingFontSize ? savedFontSize : size;
     this.setState(obj, () => {
-      ApplicationMenu.setHtmlFontSize(this.state.settings.fontSize);
+      ApplicationMenu.setHtmlFontSize(size);
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
 
@@ -251,7 +176,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   handleIncreaseFontSize() {
-    const currentFontSize = this.state.settings.fontSize;
+    const currentFontSize = this.getFontSize();
     const availableFontSizes = this.state.fontSizes;
     const maxFontSize = availableFontSizes.length - 1;
     const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < maxFontSize;
@@ -262,7 +187,7 @@ class ApplicationMenu extends BaseMenu {
   }
 
   handleDecreaseFontSize() {
-    const currentFontSize = this.state.settings.fontSize;
+    const currentFontSize = this.getFontSize();
     const availableFontSizes = this.state.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
     const fs = canDecreaseFontSize ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
@@ -275,46 +200,6 @@ class ApplicationMenu extends BaseMenu {
     const obj = this.state;
     obj.settings[fieldname] = e.target.value;
     this.handleUpdateSettings('application', obj.settings);
-  }
-
-  renderAudioFilters() {
-    const SHOW_AUDIO_FILTERS = (window.meetingClientSettings.public.app
-      .showAudioFilters === undefined)
-      ? true
-      : window.meetingClientSettings.public.app.showAudioFilters;
-
-    if (SHOW_AUDIO_FILTERS) {
-      const { intl, displaySettingsStatus } = this.props;
-      const { settings } = this.state;
-      const wasmFiltersSupported = isBBBAWasmSupported();
-      const audioFilterStatus = !wasmFiltersSupported
-        ? ApplicationMenu.isAudioFilterEnabled(settings.microphoneConstraints)
-        : isWasmProcessingEnabled();
-      const filterChangeCallback = !wasmFiltersSupported
-        ? () => this.handleAudioFilterChange()
-        : () => this.handleAudioWasmProcessingChange();
-
-      return (
-        <Styled.Row>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              <SubMenusStyle.MaterialSwitch
-                icons="false"
-                checked={!this.state.audioFilterEnabled}
-                onChange={filterChangeCallback}
-                aria-label={`${intl.formatMessage(intlMessages.musicianModeLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
-                inputProps={{ 'data-test': 'audioFilterToggleBtn' }}
-              />
-              <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                {intl.formatMessage(intlMessages.musicianModeLabel)}
-              </Styled.Label>
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
-      );
-    }
-
-    return null;
   }
 
   renderPaginationToggle() {
@@ -436,7 +321,8 @@ class ApplicationMenu extends BaseMenu {
 
   renderFontSizeControl() {
     const { intl } = this.props;
-    const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
+    const { isLargestFontSize, isSmallestFontSize } = this.state;
+    const fontSize = this.getFontSize();
 
     const pixelPercentage = {
       '12px': '75%',
@@ -449,13 +335,13 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, {
-      size: `${pixelPercentage[settings.fontSize]}`,
+      size: `${pixelPercentage[fontSize]}`,
     });
 
     return (
       <Styled.Row style={{ alignItems: 'center' }}>
         <Styled.Col style={{ justifyContent: 'flex-start' }}>
-          <Styled.ExampleText style={{ fontSize: settings.fontSize }}>
+          <Styled.ExampleText style={{ fontSize }}>
             {intl.formatMessage(intlMessages.exampleTextLabel)}
           </Styled.ExampleText>
         </Styled.Col>
@@ -479,7 +365,7 @@ class ApplicationMenu extends BaseMenu {
             </Styled.Col>
             <Styled.Col>
               <Styled.BoldLabel>
-                {`${pixelPercentage[settings.fontSize]}`}
+                {`${pixelPercentage[fontSize]}`}
               </Styled.BoldLabel>
             </Styled.Col>
             <Styled.Col>
@@ -560,7 +446,6 @@ class ApplicationMenu extends BaseMenu {
               </Styled.Col>
             </Styled.Row>
 
-            {this.renderAudioFilters()}
             {this.renderPushToTalkToggle()}
             {this.renderPaginationToggle()}
             {this.renderDarkThemeToggle()}
@@ -578,6 +463,23 @@ class ApplicationMenu extends BaseMenu {
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
                     {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
+                  </Styled.Label>
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  <SubMenusStyle.MaterialSwitch
+                    icons="false"
+                    checked={!!settings.recordingIndicatorAutoCollapse}
+                    onChange={() => this.handleToggle('recordingIndicatorAutoCollapse')}
+                    aria-label={`${intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)} - ${displaySettingsStatus(!!settings.recordingIndicatorAutoCollapse, true)}`}
+                    inputProps={{ 'data-test': 'recordingIndicatorAutoCollapseToggleBtn' }}
+                  />
+                  <Styled.Label style={{ marginLeft: '0.5rem' }}>
+                    {intl.formatMessage(intlMessages.recordingIndicatorAutoCollapseLabel)}
                   </Styled.Label>
                 </Styled.FormElementRight>
               </Styled.Col>

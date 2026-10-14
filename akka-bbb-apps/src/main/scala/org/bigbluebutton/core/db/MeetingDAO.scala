@@ -30,6 +30,7 @@ case class MeetingDbModel(
     maxPinnedCameras:                     Int,
     bridges:                               MeetingBridgesDbModel,
     notifyRecordingIsOn:                   Boolean,
+    notifyRecordingAppend:                 String,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
@@ -54,6 +55,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     maxPinnedCameras,
     bridges,
     notifyRecordingIsOn,
+    notifyRecordingAppend,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
@@ -80,6 +82,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val bridges = (cameraBridge, screenShareBridge, audioBridge) <> (MeetingBridgesDbModel.tupled, MeetingBridgesDbModel.unapply)
 
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
+  val notifyRecordingAppend = column[String]("notifyRecordingAppend")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
@@ -117,6 +120,7 @@ object MeetingDAO {
             audioBridge = meetingProps.meetingProp.audioBridge
           ),
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
+          notifyRecordingAppend = meetingProps.meetingProp.notifyRecordingAppend,
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,

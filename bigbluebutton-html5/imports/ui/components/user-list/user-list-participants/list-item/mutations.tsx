@@ -25,6 +25,14 @@ export const USER_EJECT_CAMERAS = gql`
     }
   `;
 
+export const USER_REQUEST_CAMERA = gql`
+  mutation UserRequestCamera($userId: String!) {
+    userRequestCamera(
+      userId: $userId,
+    )
+  }
+`;
+
 export const CHAT_CREATE_WITH_USER = gql`
   mutation ChatCreateWithUser($userId: String!) {
     chatCreateWithUser(
@@ -45,6 +53,7 @@ export default {
   SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
+  USER_REQUEST_CAMERA,
   CHAT_CREATE_WITH_USER,
   SET_LISTEN_ONLY_INPUT_DEVICE,
 };

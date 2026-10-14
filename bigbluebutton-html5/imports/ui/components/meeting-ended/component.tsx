@@ -14,6 +14,7 @@ import {
   openLearningDashboardUrl,
   setLearningDashboardCookie,
   allowRedirectToLogoutURL,
+  appendLogoutReason,
 } from './service';
 import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
@@ -205,7 +206,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     if (allowRedirect) {
       const reason = generateEndMessage(endMessageCode, endedBy);
       const finalUrl = reason
-        ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(endMessageCode)}`
+        ? appendLogoutReason(logoutUrl, reason, endMessageCode)
         : logoutUrl;
       window.location.href = finalUrl;
     }

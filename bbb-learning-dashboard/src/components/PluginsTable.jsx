@@ -109,8 +109,8 @@ const PluginsTable = (props) => {
   });
   const gridRows = useMemo(() => Object.values(allUserPluginInformation).filter(
     (u) => !(Object.keys(u?.pluginUserData)?.length === 0),
-  ).map((u, i) => ({
-    id: i + 1,
+  ).map((u) => ({
+    id: u.userKey,
     User: u,
     // This is going to be of the form:
     // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry

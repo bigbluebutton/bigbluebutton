@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import {
+  colorDanger,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const ProgressBar = styled.div`
   position: absolute;
@@ -17,7 +20,7 @@ const Loaded = styled.div`
 
 const Played = styled.div`
   height: 100%;  
-  background-color: #DF2721;
+  background-color: ${colorDanger};
 `;
 
 export default {

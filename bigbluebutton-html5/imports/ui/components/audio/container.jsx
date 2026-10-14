@@ -25,11 +25,13 @@ import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+import Auth from '/imports/ui/services/auth';
 import AudioService, {
   CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
   CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
 } from '/imports/ui/components/audio/service';
 import { useModalRegistration } from '../../core/singletons/modalController';
+import { isPreFlightCompleted, shouldPreFlightShareCamera } from '/imports/ui/components/pre-flight/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -47,6 +49,10 @@ const intlMessages = defineMessages({
   reconnectingAudio: {
     id: 'app.audioManager.reconnectingAudio',
     description: 'Reconnecting audio toast message',
+  },
+  preFlightCameraLocked: {
+    id: 'app.preFlight.cameraLockedOnJoin',
+    description: 'Told on join when the lock refused the camera picked in the pre-flight',
   },
   genericError: {
     id: 'app.audioManager.genericError',
@@ -142,6 +148,7 @@ const AudioContainer = (props) => {
   });
 
   const meetingIsBreakout = useMeetingIsBreakout();
+  const preFlightCompleted = isPreFlightCompleted();
   const { data: meeting } = useMeeting((m) => ({
     audioBridge: m.audioBridge,
     voiceSettings: {
@@ -190,6 +197,22 @@ const AudioContainer = (props) => {
       bridges,
     );
 
+    // The pre-flight already collected the audio/camera choices: no modal
+    // opens, the camera shares straight away and the caller joins the audio.
+    if (preFlightCompleted) {
+      if (enableVideo && shouldPreFlightShareCamera()) {
+        // The webcam lock is not readable before the join, so the pre-flight
+        // lets the camera be picked and the refusal only lands here. Say so
+        // rather than dropping the choice without a word.
+        if (userWebcam) {
+          notify(intl.formatMessage(intlMessages.preFlightCameraLocked), 'info', 'video_off');
+        } else {
+          openVideoPreviewModal();
+        }
+      }
+      return Promise.resolve(true);
+    }
+
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
         openVideoPreviewModal();
@@ -218,8 +241,8 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+  const { data: currentUserUnmuted } = useWhoIsUnmuted(Auth.userID);
+  const currentUserMuted = currentUser?.userId && !currentUserUnmuted;
 
   // Sync AudioManager muted/talking states when using LiveKit audio state.
   useAudioManagerStateSync();
@@ -252,7 +275,9 @@ const AudioContainer = (props) => {
     if (!lockSettingsLoaded) return;
     init().then(() => {
       // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
-      if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
+      if (Service.isUsingAudio() || currentUserHasVoice) return;
+
+      if (preFlightCompleted || meetingIsBreakout) {
         joinAudio();
       }
     });
@@ -317,6 +342,7 @@ const AudioContainer = (props) => {
             priority: 'medium',
             setIsOpen: videoPreviewModal.isOpen ? videoPreviewModal.close : videoPreviewModal.open,
             isOpen: videoPreviewModal.isOpen,
+            skipPreview: preFlightCompleted && shouldPreFlightShareCamera(),
           }}
         />
       ) : null}

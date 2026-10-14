@@ -386,17 +386,49 @@ const sanitizeShape = (shape) => {
 };
 
 const debouncedUpdateShapes = debounce((
-  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape, currentUserId,
 ) => {
   if (shapes && Object.keys(shapes).length > 0) {
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
+      const editingShape = tlEditorRef.current?.getEditingShape();
       const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
+        const remoteVersion = Number(shape.meta?.version ?? 0);
+        const localVersion = Number(editingShape?.meta?.version ?? 0);
+        const echoAuthor = shape.meta?.updatedBy ?? shape.meta?.createdBy;
+        const isOwnActiveFrame = Boolean(currentUserId)
+          && editingShape?.id === shape.id
+          && editingShape.type === 'frame'
+          && shape.type === 'frame'
+          && shape.props?.name !== undefined
+          && echoAuthor === currentUserId;
+
+        // store.put replaces the whole local record. Ignore older self echoes so
+        // they cannot roll back keystrokes or any other newer local frame fields.
+        if (isOwnActiveFrame && remoteVersion < localVersion) {
+          return acc;
+        }
+
+        const shouldPreserveActiveFrameName = isOwnActiveFrame
+          && editingShape.props.name !== shape.props.name;
+
+        // Preserve the locally controlled name for current or newer self echoes
+        // while still reconciling the rest of the server record.
+        const shapeToMerge = shouldPreserveActiveFrameName
+          ? {
+            ...shape,
+            props: {
+              ...shape.props,
+              name: editingShape.props.name,
+            },
+          }
+          : shape;
+
         if (
           (shape.meta?.presentationId === presentationIdRef.current
           || shape?.whiteboardId?.includes(presentationIdRef.current))
           && isValidShapeType(shape)
         ) {
-          acc.push(sanitizeShape(shape));
+          acc.push(sanitizeShape(shapeToMerge));
         }
         return acc;
       }, []);
@@ -412,6 +444,13 @@ const debouncedUpdateShapes = debounce((
 }, 175);
 
 const setupColorThemePaletteOverrides = () => {
+  // The slide canvas stays light in the dark theme, so the shape palette stays
+  // light with it: tldraw's dark `black` is #e1e1e1, a grey default swatch that
+  // draws every annotation in near-white ink on a white slide. Cloned, not
+  // aliased, so the per-colour overrides below cannot reach lightMode.
+  DefaultColorThemePalette.darkMode = JSON.parse(
+    JSON.stringify(DefaultColorThemePalette.lightMode),
+  );
   // Override the default color theme to use our custom palette with more vibrant yellow highlights
   DefaultColorThemePalette.lightMode.black.highlight = {
     srgb: '#FFFF00',

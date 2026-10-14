@@ -3,12 +3,12 @@ import styled, { css, keyframes } from 'styled-components';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  colorPrimary,
   colorDanger,
   colorGrayDark,
   colorOffWhite,
-  colorWhite,
+  colorPrimary,
   colorSuccess,
+  colorWhiteBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const pulse = keyframes`
@@ -29,7 +29,7 @@ export const MuteToggleButton = styled(Button)`
     span {
       box-shadow: none;
       background-color: transparent !important;
-      border-color: ${colorWhite} !important;
+      border-color: ${colorWhiteBorder} !important;
     }
   `}
 

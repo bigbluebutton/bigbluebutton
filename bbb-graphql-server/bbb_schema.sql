@@ -31,6 +31,7 @@ create unlogged table "meeting" (
 	"screenShareBridge" varchar(30),
 	"audioBridge" varchar(30),
 	"notifyRecordingIsOn" boolean,
+	"notifyRecordingAppend" text,
 	"presentationUploadExternalDescription" text,
 	"presentationUploadExternalUrl" text,
 	"learningDashboardAccessToken" varchar(100),
@@ -159,6 +160,7 @@ create unlogged table "meeting_usersPolicies" (
     "allowModsToUnmuteUsers"       boolean,
     "requireUserConsentBeforeUnmuting"     boolean,
     "allowModsToEjectCameras"      boolean,
+    "allowModsToRequestCameraShare" boolean,
     "authenticatedGuest"           boolean,
     "allowPromoteGuestToModerator" boolean
 );
@@ -176,6 +178,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."requireUserConsentBeforeUnmuting",
     "meeting_usersPolicies"."allowModsToEjectCameras",
+    "meeting_usersPolicies"."allowModsToRequestCameraShare",
     "meeting_usersPolicies"."authenticatedGuest",
     "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
@@ -248,9 +251,9 @@ from (
 
 create unlogged table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "groupId"    varchar(100),
+    "groupId"    text,
     "groupIndex" integer,
-    "name"       varchar(100),
+    "name"       text,
     "usersExtId" varchar[],
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );
@@ -311,6 +314,7 @@ CREATE UNLOGGED TABLE "user" (
 	"inactivityWarningDisplay" bool default FALSE,
 	"inactivityWarningTimeoutSecs" numeric,
     "requestedUnmuteByMod" bool default FALSE,
+    "requestedCameraByMod" bool default FALSE,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
 	"whiteboardWriteAccess" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone,
@@ -451,6 +455,7 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."requestedPresenter",
+    "user"."requestedCameraByMod",
     "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
@@ -554,6 +559,7 @@ SELECT
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs",
     "user"."requestedUnmuteByMod",
+    "user"."requestedCameraByMod",
     "user"."requestedPresenter",
     "user"."bot"
 FROM "user";
@@ -739,8 +745,8 @@ CREATE UNLOGGED TABLE "user_voice" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
 	"voiceUserId" varchar(100),
-	"callerName" varchar(100),
-	"callerNum" varchar(100),
+	"callerName" text,
+	"callerNum" text,
 	"callingWith" varchar(100),
 	"joined" boolean,
 	"listenOnly" boolean,
@@ -1271,7 +1277,7 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
     "senderId" varchar(100),
-    "senderName" varchar(255),
+    "senderName" text,
 	"senderRole" varchar(20),
 	"createdAt" timestamp with time zone not null,
 	"editedAt" timestamp with time zone,
@@ -1904,7 +1910,15 @@ LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionI
 WHERE u."bot" IS FALSE
 GROUP BY poll."pollId", u."meetingId", u."userId";
 
-CREATE VIEW "v_poll" AS SELECT * FROM "poll";
+CREATE VIEW "v_poll" AS
+SELECT poll.*,
+(
+    -- Secret polls keep the userId only in a separate response marker row.
+    SELECT count(DISTINCT response."userId")::integer
+    FROM poll_response response
+    WHERE response."pollId" = poll."pollId"
+) AS "numResponders"
+FROM poll;
 
 CREATE VIEW v_poll_option AS
 SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"
@@ -2287,7 +2301,6 @@ create unlogged table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
     "padId" varchar(100),
-    "sharedNotesEditor" varchar(25),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,
@@ -2300,10 +2313,6 @@ create unlogged table "sharedNotes_rev" (
 	"sharedNotesExtId" varchar(25),
 	"rev" integer,
 	"userId" varchar(50),
-	"changeset" text,
-	"start" integer,
-	"end" integer,
-	"diff" TEXT,
 	"createdAt" timestamp with time zone,
 	constraint "pk_sharedNotes_rev" primary key ("meetingId", "sharedNotesExtId", "rev"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
@@ -2312,31 +2321,11 @@ create index "idx_sharedNotes_rev_pk_reverse" on "sharedNotes_rev"("sharedNotesE
 create index "idx_sharedNotes_rev_user_meeting" on "sharedNotes_rev"("userId", "meetingId");
 --create view "v_sharedNotes_rev" as select * from "sharedNotes_rev";
 
-create view "v_sharedNotes_diff" as
-select "meetingId", "sharedNotesExtId", "userId", "start", "end", "diff", "rev"
-from "sharedNotes_rev"
-where "diff" is not null;
-
-create unlogged table "sharedNotes_session" (
-    "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "sharedNotesExtId" varchar(25),
-    "userId" varchar(50),
-    "sessionId" varchar(50),
-    constraint "pk_sharedNotes_session" primary key ("meetingId", "userId", "sharedNotesExtId"),
-    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
-);
-create index "sharedNotes_session_userId_rev" on "sharedNotes_session"("userId", "meetingId", "sharedNotesExtId");
-
 create view "v_sharedNotes" as
 SELECT sn.*, max(snr."createdAt") "lastUpdatedAt"
 FROM "sharedNotes" sn
 LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
 GROUP BY sn."meetingId", sn."sharedNotesExtId";
-
-create view "v_sharedNotes_session" as
-SELECT sns.*, sn."padId"
-FROM "sharedNotes_session" sns
-JOIN "sharedNotes" sn ON sn."meetingId" = sns."meetingId" AND sn."sharedNotesExtId" = sn."sharedNotesExtId";
 
 ----------------------
 
@@ -2548,7 +2537,11 @@ create view "v_meeting_componentsFlags" as
 select "meeting"."meetingId",
         (case
             when NULLIF("durationInSeconds",0) is null then false
-            when current_timestamp + '30 minutes'::interval > ("createdAt" + ("durationInSeconds" * '1 second'::interval)) then true
+            when current_timestamp + (
+                SELECT coalesce(("clientSettingsJson"->'public'->'app'->'remainingTimeThresholdInMinutes')::int, 6) * '1 minute'::interval
+                FROM "meeting_clientSettings" mcs
+                WHERE mcs."meetingId" = "meeting"."meetingId"
+            ) > ("createdAt" + ("durationInSeconds" * '1 second'::interval)) then true
             else false
         end) "showRemainingTime",
         exists (
@@ -2613,12 +2606,6 @@ select "meeting"."meetingId",
         ) as "isSharedNotesPinned",
         exists (
             select 1
-            from "sharedNotes"
-            where "sharedNotes"."meetingId" = "meeting"."meetingId"
-            and "sharedNotes"."sharedNotesEditor" = 'etherpad'
-        ) as "isEtherpadSharedNotes",
-        exists (
-            select 1
             from "v_pres_page_curr"
             where "v_pres_page_curr"."meetingId" = "meeting"."meetingId"
         ) as "hasCurrentPresentation"
@@ -2626,16 +2613,20 @@ from "meeting";
 
 ------------------------
 ----LiveKit
-CREATE UNLOGGED TABLE "user_livekit"(
-	"meetingId" varchar(100),
-	"userId" varchar(50),
-	"livekitToken" TEXT,
-	CONSTRAINT "user_livekit_pkey" PRIMARY KEY ("meetingId", "userId"),
-	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+-- Note: in LK, roomName is the unique identifier for a room. In our case, it is
+-- the BBB meeting ID for the meeting that owns this LK room.
+CREATE UNLOGGED TABLE "user_livekit_room" (
+    "meetingId"   varchar(100) NOT NULL,
+    "userId"      varchar(50)  NOT NULL,
+    "roomName"    varchar(255) NOT NULL,
+    "purpose"     varchar(64)  NOT NULL,
+    "token"       TEXT,
+    CONSTRAINT "user_livekit_room_pkey" PRIMARY KEY ("meetingId", "userId", "roomName"),
+    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-
-CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
-CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
+-- No secondary index: the PK btree serves (meetingId) and
+-- (meetingId, userId) prefix lookups (Hasura per-user filter, sweeps).
+CREATE VIEW  "v_user_livekit_room" AS SELECT * FROM "user_livekit_room";
 
 CREATE UNLOGGED TABLE "mediaGroup" (
 	"meetingId" 			varchar(100),

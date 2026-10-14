@@ -14,12 +14,12 @@ import {
   iconLineHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
-  colorWhite,
   colorDanger,
   colorGray,
+  colorGrayLightestText,
+  colorPrimary,
   colorSuccess,
-  colorGrayLightest,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import ToastStyles from '/imports/ui/components/common/toast/styles';
@@ -152,7 +152,7 @@ const ToastItemIcon = styled(Icon)<{
   `}
 
   ${({ loading, color }) => loading && css`
-    color: ${colorGrayLightest};
+    color: ${colorGrayLightestText};
     border: 1px solid;
     border-radius: 50%;
     border-right-color: ${color || colorGray};

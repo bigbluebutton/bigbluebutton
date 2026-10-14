@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import Dropzone from 'react-dropzone';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
+  colorDanger,
   colorGray,
   colorGrayLight,
   colorGrayLighter,
   colorGrayLightest,
-  colorDanger,
-  colorPrimary,
+  colorGrayLightestBorder,
   colorOffWhite,
+  colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -98,7 +99,7 @@ const FileChip = styled.div`
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   background-color: ${colorOffWhite};
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorGrayLightestBorder};
   border-radius: 0.25rem;
   font-size: 0.875rem;
 `;

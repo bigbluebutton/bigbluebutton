@@ -14,6 +14,8 @@ import org.bigbluebutton.core2.MeetingStatus2x
 trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
+  import SendGroupChatMessageMsgHdlr.isCustomFlagSet
+
   def handle(msg: SendGroupChatMessageMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
@@ -112,7 +114,29 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             }
 
             val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
-            val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType, allowedHtmlElements)
+            val gcMessageRaw = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType, allowedHtmlElements)
+
+            // Mentions only make sense where there is a participant list to pick from, and
+            // skipping private chats keeps their messages off the name matching entirely.
+            val (mentionedHtml, mentionedUserIds) = if (chatIsPrivate) {
+              (gcMessageRaw.messageAsHtml, List.empty[String])
+            } else {
+              GroupChatApp.applyMentions(
+                gcMessageRaw.messageAsHtml,
+                liveMeeting.users2x,
+                GroupChatApp.parseRequestedMentions(gcMessageRaw.metadata)
+              )
+            }
+
+            // The client asks for mentions, the server decides them: never persist either key
+            // as it arrived.
+            val baseMetadata = gcMessageRaw.metadata - "mentionedUserIds" - "mentions"
+            val gcMessage = if (mentionedUserIds.nonEmpty) {
+              val updatedMetadata = baseMetadata + ("mentionedUserIds" -> mentionedUserIds)
+              gcMessageRaw.copy(messageAsHtml = mentionedHtml, metadata = updatedMetadata)
+            } else {
+              gcMessageRaw.copy(messageAsHtml = mentionedHtml, metadata = baseMetadata)
+            }
 
             val allowSendPluginMessage =
               if (isPluginMessage) getAllowSendPluginMessage(liveMeeting.plugins, gcMessage, userState) else true
@@ -154,9 +178,12 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       rawPluginName <- chatMessage.metadata.get("pluginName")
       pluginName = rawPluginName.toString
       rawCustomValue <- chatMessage.metadata.get("custom")
-      customStr = rawCustomValue.toString
-      custom = customStr.toBooleanOption.getOrElse(false)
-      plugin = getPluginManifestContentByName(pluginInstance, pluginName).get
+      custom = isCustomFlagSet(rawCustomValue)
+      // A generator, not a value binding: an unknown pluginName short-circuits to
+      // the getOrElse(true) below instead of throwing. There is no manifest to
+      // read a restriction from, so there is nothing to enforce - and the name is
+      // caller controlled, so a bogus one must not be a failure path.
+      plugin <- getPluginManifestContentByName(pluginInstance, pluginName)
     } yield {
       val isCustomPluginMessage = pluginName.nonEmpty && custom
 
@@ -175,6 +202,26 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
 
   private def isRoleAllowedToSendMessage(allowedRoles: List[String], user: UserState): Boolean = {
     checkPermission(user, allowedRoles).contains(true)
+  }
+
+}
+
+object SendGroupChatMessageMsgHdlr {
+
+  // The client decides a message is a custom plugin card with a JavaScript truthiness
+  // test on `metadata.custom` (chat-message component). Accepting only the literal "true"
+  // here would leave every other truthy value (1, "yes", {}, []) outside the role gate.
+  //
+  // Lives in the companion object, and not in the trait, so it can be exercised on its
+  // own - the trait needs a LiveMeeting and a MessageBus to be instantiated at all.
+  private[apps] def isCustomFlagSet(value: Any): Boolean = value match {
+    case null       => false
+    case b: Boolean => b
+    case s: String  => s.nonEmpty
+    case n: Number =>
+      val d = n.doubleValue()
+      d != 0.0d && !d.isNaN
+    case _ => true
   }
 
 }

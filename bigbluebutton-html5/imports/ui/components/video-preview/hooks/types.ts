@@ -48,6 +48,12 @@ export interface UseVideoPreviewProps {
   isCameraAsContent?: boolean;
   isCameraShared?: boolean;
   forceOpen?: boolean;
+  // Per-instance skip of the preview UI, unlike the global
+  // PreviewService.getSkipVideoPreview().
+  skipPreview?: boolean;
+  // Doesn't enumerate devices nor acquire a stream on mount; the consumer calls
+  // initializeCameras() when the user asks for the camera.
+  deferInitialization?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;
@@ -67,24 +73,30 @@ export interface UseVideoPreviewReturn {
   videoRef: React.RefObject<HTMLVideoElement>;
   currentVideoStream: React.MutableRefObject<BBBVideoStream | null>;
   getInitialCameraStream: (deviceId: string | null) => Promise<string | null>;
+  // Drops whatever camera acquisition is in flight.
+  invalidateCameraAcquisition: () => void;
   initializeCameras: () => void;
   displayPreview: () => void;
-  handleSelectWebcam: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;
+  handleSelectWebcam: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<string | null>;
   handleSelectProfile: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;
   handleVirtualBgSelected: (
-    type: string, name?: string, customParams?: CustomBgParams, deviceId?: string | null
+    type: string,
+    name?: string,
+    customParams?: CustomBgParams,
+    deviceId?: string | null,
+    stream?: BBBVideoStream | null,
   ) => Promise<boolean>;
   setCameraBrightness: (newBrightness: number, deviceId?: string | null) => Promise<void>;
   handleBrightnessAreaChange: () => Promise<void>;
   stopVirtualBackground: (bbbVideoStream: BBBVideoStream | null) => void;
-  updateVirtualBackgroundInfo: (deviceId: string | undefined) => void;
+  updateVirtualBackgroundInfo: (deviceId?: string | null, stream?: BBBVideoStream | null) => void;
   updateCameraBrightnessInfo: () => void;
-  terminateCameraStream: (stream: BBBVideoStream | null, deviceId: string | null) => void;
+  terminateCameraStream: (stream: BBBVideoStream | null) => void;
   cleanupStreamAndVideo: () => void;
   setCurrentVideoStream: (stream: BBBVideoStream | null) => void;
   handleStartSharing: (deviceId: string) => void;
   shouldSkipVideoPreview: () => boolean;
-  applyStoredVirtualBg: (deviceId: string | null) => Promise<void>;
+  applyStoredVirtualBg: (deviceId?: string | null, stream?: BBBVideoStream | null) => Promise<void>;
   VIEW_STATES: typeof VIEW_STATES;
 }
 

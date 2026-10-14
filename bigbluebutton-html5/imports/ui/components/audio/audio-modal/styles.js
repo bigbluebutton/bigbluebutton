@@ -2,7 +2,13 @@ import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  audioModalIconBg,
+  audioModalIconColor,
+  audioModalIconSecondaryColor,
+  colorBlack,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
   btnSpacing,
@@ -18,16 +24,16 @@ const AudioOptions = styled.span`
 
 const AudioModalButton = styled(Button)`
   i {
-    color: #3c5764;
+    color: ${audioModalIconSecondaryColor};
   }
 
   // Modifies the audio button icon colour
   & span:first-child {
     display: inline-block;
-    color: #1b3c4b;
-    background-color: #f1f8ff;
+    color: ${audioModalIconColor};
+    background-color: ${audioModalIconBg};
     box-shadow: none;
-    border: 5px solid #f1f8ff;
+    border: 5px solid ${audioModalIconBg};
     font-size: 3.5rem;
 
     @media ${smallOnly} {
@@ -35,31 +41,24 @@ const AudioModalButton = styled(Button)`
     }
   }
 
-  // The bbb-icons unmute (microphone) glyph has a taller ink box than the listen (headphone)
-  // glyph at the same font-size: mic ink is ~61px tall vs the headphone's ~49px at 3.5rem, so
-  // even with their centers aligned the mic overhangs the headphone by ~6px at each end and reads
-  // as a different size inside its circle. scale(0.8) (rounded from 49/61 ~= 0.803) shrinks the mic
-  // to the headphone's ink height about the glyph's geometric center (transform-origin defaults to
-  // center), so the two icons occupy the same vertical band. Uniform scale keeps the mic's natural
-  // proportions - scaleY alone flattens it, and a smaller font-size overshoots and re-anchors the
-  // glyph on the text baseline, dropping its center below the headphone's. Scoped to the unmute
-  // glyph inside AudioModalButton so the icon reused elsewhere (mute toggle, audio test) is
-  // untouched.
+  // The unmute and listen glyphs have matching ink heights, but the unmute glyph sits slightly
+  // higher in its em box. Move only this instance down so both icons occupy the same vertical band.
+  // The em-based offset scales with the desktop and mobile font sizes.
   & span:first-child i.icon-bbb-unmute {
-    transform: scale(0.8);
+    transform: translateY(0.025em);
   }
 
   // When hovering over a button of class audioBtn, change the border colour of first span-child
   &:hover span:first-child,
   &:focus span:first-child {
     border: 5px solid ${colorPrimary};
-    background-color: #f1f8ff;
+    background-color: ${audioModalIconBg};
   }
 
   // Modifies the button label text
   & span:last-child {
     display: block;
-    color: black;
+    color: ${colorBlack};
     font-size: 1rem;
     font-weight: 600;
     margin-top: ${btnSpacing};

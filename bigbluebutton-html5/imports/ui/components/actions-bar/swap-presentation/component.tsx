@@ -9,6 +9,7 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const SwapPresentationButton = () => {
   const [showScreenShare, swapPresentation] = usePresentationSwap();
@@ -45,7 +46,7 @@ const SwapPresentationButton = () => {
       label={!showScreenShare ? 'Swap to screenshare' : 'Swap to presentation'}
       hideLabel
       circle
-      size="lg"
+      size={deviceInfo.isMobile ? 'md' : 'lg'}
       hoverColor={listItemBgHover}
     />
   );

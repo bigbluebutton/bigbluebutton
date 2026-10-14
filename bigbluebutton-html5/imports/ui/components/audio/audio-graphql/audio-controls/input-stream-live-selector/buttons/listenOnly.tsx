@@ -2,6 +2,7 @@ import React from 'react';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
@@ -42,7 +43,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
       hideLabel
       color="primary"
       icon={listenOnly ? 'listen' : 'volume_level_2'}
-      size="lg"
+      size={deviceInfo.isMobile ? 'md' : 'lg'}
       circle
       onClick={actAsDeviceSelector
         ? () => null

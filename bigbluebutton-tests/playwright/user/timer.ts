@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
+import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { MultiUsers } from './multiusers';
 import { timeInSeconds } from './util';
 
@@ -52,10 +53,14 @@ export class Timer extends MultiUsers {
     await this.clickOnTimerControl();
     await this.modPage.hasText(e.stopwatchCurrent, /00:02/, 'should display 00:02 after 2 seconds');
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
-    await expect(
-      this.modPage.page.locator(e.startStopTimer),
-      'should switch the button color to the same as stopped after resetting the timer',
-    ).toHaveAttribute('color', 'primary');
+    await expect(async () => {
+      const { r, b } = await this.getStartStopButtonColor();
+      // Stopped state uses the primary (blue-dominant) color.
+      expect(
+        b,
+        'should switch the button color to the same as stopped after resetting the timer',
+      ).toBeGreaterThan(r);
+    }).toPass({ timeout: ELEMENT_WAIT_TIME });
     await this.modPage.hasText(
       e.stopwatchCurrent,
       /00:00/,
@@ -152,11 +157,29 @@ export class Timer extends MultiUsers {
 
   async clickOnTimerControl(isStarting = true) {
     await this.modPage.waitAndClick(e.startStopTimer);
-    const expectedColor = isStarting ? 'danger' : 'primary';
 
-    await expect(
-      this.modPage.page.locator(e.startStopTimer),
-      `should switch the button color after ${isStarting ? 'starting' : 'stopping'} the timer`,
-    ).toHaveAttribute('color', expectedColor);
+    // The running (Stop) control uses a danger (red-dominant) color and the
+    // stopped (Start) control a primary (blue-dominant) one. Assert the
+    // dominant channel of the computed background rather than an exact hex or a
+    // DOM `color` attribute, so the check stays valid across palette/theme
+    // changes and after the migration to the shared button component.
+    await expect(async () => {
+      const { r, b } = await this.getStartStopButtonColor();
+      if (isStarting) {
+        expect(r, 'should switch the button to the danger (red) color after starting the timer').toBeGreaterThan(b);
+      } else {
+        expect(b, 'should switch the button to the primary (blue) color after stopping the timer').toBeGreaterThan(r);
+      }
+    }).toPass({ timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async getStartStopButtonColor() {
+    const backgroundColor = await this.modPage.page.locator(e.startStopTimer).evaluate(
+      (elem) => getComputedStyle(elem).backgroundColor,
+    );
+    const match = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    return match
+      ? { r: Number(match[1]), g: Number(match[2]), b: Number(match[3]) }
+      : { r: 0, g: 0, b: 0 };
   }
 }

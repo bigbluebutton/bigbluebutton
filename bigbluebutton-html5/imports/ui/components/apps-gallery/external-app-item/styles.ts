@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
-import { colorDanger, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorDanger, colorGrayDarkBorder } from '/imports/ui/stylesheets/styled-components/palette';
 
 const BadgeCircle = styled.div`
   border-radius: 50%;
@@ -8,7 +8,7 @@ const BadgeCircle = styled.div`
   height: 1.2rem;
   bottom: ${borderSize};
   background-color: ${colorDanger};
-  border: ${borderSize} solid ${colorGrayDark};
+  border: ${borderSize} solid ${colorGrayDarkBorder};
   display: flex;
   justify-content: center;
   align-items: center;

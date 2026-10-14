@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import {
-  colorWhite,
-  colorPrimary,
-  colorBorder,
   appsPanelTextColor,
   colorBackground,
+  colorBorder,
+  colorPrimary,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -44,7 +44,7 @@ const Poll = styled.div`
   outline-style: solid;
   order: 2;
   height: 100%;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   min-width: 20em;
   padding: ${smPaddingX};
 
@@ -69,7 +69,7 @@ const Poll = styled.div`
 `;
 
 export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   display: flex;
   flex-grow: 1;
   flex-direction: column;

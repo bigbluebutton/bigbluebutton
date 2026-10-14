@@ -182,6 +182,7 @@ select_permissions:
         - audioBridge
         - meetingId
         - name
+        - notifyRecordingAppend
         - notifyRecordingIsOn
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl
@@ -216,6 +217,7 @@ select_permissions:
         - meetingCameraCap
         - meetingId
         - name
+        - notifyRecordingAppend
         - notifyRecordingIsOn
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl

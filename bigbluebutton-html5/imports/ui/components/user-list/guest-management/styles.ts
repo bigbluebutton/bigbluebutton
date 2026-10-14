@@ -1,10 +1,12 @@
 import styled from 'styled-components';
 import { Select, ButtonBase } from '@mui/material';
 import {
-  colorGrayDark,
-  colorWhite,
   btnPrimaryBg,
-  colorOffWhite,
+  colorGrayDark,
+  colorGrayDarkBorder,
+  colorOffWhiteBorder,
+  colorWhite,
+  colorWhiteSurface,
 } from '../../../stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -16,7 +18,7 @@ import {
 
 export const GuestManagementContainer = styled.div`
   border-radius: ${contentSidebarBorderRadius};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
 `;
 
 export const ClickableArea = styled.div`
@@ -30,7 +32,7 @@ export const ClickableArea = styled.div`
   width: fit-content;
 
   &:focus-within {
-    outline: 2px solid ${colorGrayDark};
+    outline: 2px solid ${colorGrayDarkBorder};
     outline-offset: -2px;
   }
 `;
@@ -44,7 +46,7 @@ export const ToggleButton = styled(ButtonBase)`
   border-radius: ${contentSidebarBorderRadius};
 
   &:focus {
-    outline: 2px solid ${colorOffWhite};
+    outline: 2px solid ${colorOffWhiteBorder};
     border-radius: ${contentSidebarBorderRadius};
     outline-offset: -2px;
   }
@@ -136,7 +138,7 @@ export const GuestPolicySelector = styled(Select)`
   border-radius: 0.5rem !important;
   width: 100%;
   fieldset {
-    border-color: ${colorGrayDark} !important;
+    border-color: ${colorGrayDarkBorder} !important;
   }
 `;
 

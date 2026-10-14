@@ -181,6 +181,17 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.askJoinRoom2);
     await this.modPage.waitAndClick(e.roomOptions2);
     await this.modPage.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElementDisabled(
+      e.listenToBreakoutRoomButton2,
+      'should disable listening to a breakout room the moderator is already joined in',
+    );
+    await this.modPage.press('Escape');
+    await this.modPage.waitAndClick(e.roomOptions1);
+    await this.modPage.hasElementEnabled(
+      e.listenToBreakoutRoomButton1,
+      'should keep listening enabled for a breakout room the moderator is not joined in',
+    );
+    await this.modPage.press('Escape');
 
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
     await breakoutModPage.page.bringToFront();

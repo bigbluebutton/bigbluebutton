@@ -13,6 +13,7 @@ export default function MeetingInfo() {
         maxPinnedCameras
         meetingCameraCap
         name
+        notifyRecordingAppend
         notifyRecordingIsOn
         presentationUploadExternalDescription
         presentationUploadExternalUrl

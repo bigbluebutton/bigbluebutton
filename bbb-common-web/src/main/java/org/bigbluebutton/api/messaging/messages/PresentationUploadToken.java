@@ -14,4 +14,8 @@ public class PresentationUploadToken implements IMessage  {
         this.filename = filename;
         this.meetingId = meetingId;
     }
+
+    public boolean isValidFor(String requestedMeetingId) {
+        return meetingId != null && meetingId.equals(requestedMeetingId);
+    }
 }

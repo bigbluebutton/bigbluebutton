@@ -1,14 +1,10 @@
 import Logger from '../lib/utils/logger.js';
-import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import redis from 'redis';
-import sanitize from 'sanitize-filename';
-import stream from 'stream';
 import WorkerStarter from '../lib/utils/worker-starter.js';
 import {PresAnnStatusMsg} from '../lib/utils/message-builder.js';
 import {workerData} from 'worker_threads';
-import {promisify} from 'util';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Collector');
@@ -124,75 +120,12 @@ async function collectAnnotationsFromRedis() {
   process.process();
 }
 
-/**
- * Creates a promise that resolves after a specified number of milliseconds,
- * effectively pausing execution for that duration. Used to delay operations
- * in an asynchronous function.
- * @async
- * @function sleep
- * @param {number} ms - The amount of time in milliseconds to sleep.
- * @return {Promise<void>} Resolves after the specified number of milliseconds.
- */
-async function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-/** Export shared notes via bbb-pads in the desired format
- * @param {Integer} retries - Number of retries to get the shared notes
-*/
-async function collectSharedNotes(retries = 3) {
-  /** One of the following formats is supported:
-    etherpad / html / pdf / txt / doc / odf */
-
-  const padId = exportJob.presId;
-  const notesFormat = 'pdf';
-
-  const underscoredFilename = exportJob.serverSideFilename.replace(/\s/g, '_');
-  const sanitizedFilename = sanitize(underscoredFilename);
-  const serverSideFilename = `${sanitizedFilename}.${notesFormat}`;
-  const notesEndpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
-  const filePath = path.join(dropbox, serverSideFilename);
-
-  const finishedDownload = promisify(stream.finished);
-  const writer = fs.createWriteStream(filePath);
-
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: notesEndpoint,
-      responseType: 'stream',
-    });
-    response.data.pipe(writer);
-    await finishedDownload(writer);
-  } catch (err) {
-    if (retries > 0 && err?.response?.status == 429) {
-      // Wait for the bbb-pads API to be available due to rate limiting
-      const backoff = err.response.headers['retry-after'] * 1000;
-      logger.info(`Retrying ${jobId} in ${backoff}ms...`);
-      await sleep(backoff);
-      return collectSharedNotes(retries - 1);
-    } else {
-      logger.error(`Could not download notes in job ${jobId}`);
-      return;
-    }
-  }
-
-  const notifier = new WorkerStarter({jobType, jobId,
-    serverSideFilename, filename: exportJob.filename});
-  notifier.notify();
-}
-
 switch (jobType) {
   case 'PresentationWithAnnotationExportJob':
     collectAnnotationsFromRedis();
     break;
   case 'PresentationWithAnnotationDownloadJob':
     collectAnnotationsFromRedis();
-    break;
-  case 'PadCaptureJob':
-    collectSharedNotes();
     break;
   default:
     logger.error(`Unknown job type ${jobType}`);

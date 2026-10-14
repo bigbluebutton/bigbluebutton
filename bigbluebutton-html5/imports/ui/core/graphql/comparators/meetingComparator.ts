@@ -39,6 +39,7 @@ export const meetingComparator = <T>(
   if ((aData.meetingId ?? '') !== (bData.meetingId ?? '')) return false;
   if ((aData.name ?? '') !== (bData.name ?? '')) return false;
   if ((aData.notifyRecordingIsOn ?? false) !== (bData.notifyRecordingIsOn ?? false)) return false;
+  if ((aData.notifyRecordingAppend ?? '') !== (bData.notifyRecordingAppend ?? '')) return false;
   if ((aData.presentationUploadExternalDescription ?? '') !== (bData.presentationUploadExternalDescription ?? '')) return false;
   if ((aData.presentationUploadExternalUrl ?? '') !== (bData.presentationUploadExternalUrl ?? '')) return false;
   if ((aData.endWhenNoModerator ?? false) !== (bData.endWhenNoModerator ?? false)) return false;
@@ -48,6 +49,7 @@ export const meetingComparator = <T>(
   const aup = aData.usersPolicies;
   const bup = bData.usersPolicies;
   if ((aup?.allowModsToEjectCameras ?? false) !== (bup?.allowModsToEjectCameras ?? false)) return false;
+  if ((aup?.allowModsToRequestCameraShare ?? false) !== (bup?.allowModsToRequestCameraShare ?? false)) return false;
   if ((aup?.allowModsToUnmuteUsers ?? false) !== (bup?.allowModsToUnmuteUsers ?? false)) return false;
   if ((aup?.authenticatedGuest ?? false) !== (bup?.authenticatedGuest ?? false)) return false;
   if ((aup?.allowPromoteGuestToModerator ?? false) !== (bup?.allowPromoteGuestToModerator ?? false)) return false;
@@ -56,6 +58,7 @@ export const meetingComparator = <T>(
   if ((aup?.maxUsers ?? 0) !== (bup?.maxUsers ?? 0)) return false;
   if ((aup?.meetingId ?? '') !== (bup?.meetingId ?? '')) return false;
   if ((aup?.meetingLayout ?? '') !== (bup?.meetingLayout ?? '')) return false;
+  if ((aup?.multiUserWhiteboardEnabled ?? false) !== (bup?.multiUserWhiteboardEnabled ?? false)) return false;
   if ((aup?.userCameraCap ?? 0) !== (bup?.userCameraCap ?? 0)) return false;
   if ((aup?.webcamsOnlyForModerator ?? false) !== (bup?.webcamsOnlyForModerator ?? false)) return false;
   if ((aup?.guestLobbyMessage ?? '') !== (bup?.guestLobbyMessage ?? '')) return false;

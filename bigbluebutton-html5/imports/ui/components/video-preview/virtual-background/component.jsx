@@ -19,6 +19,10 @@ import withFileReader from '/imports/ui/components/common/file-reader/component'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import {
+  appsGalleryOutlineColorSurface,
+  colorWhiteSurface,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -438,7 +442,11 @@ const VirtualBgSelector = ({
     );
 
     const renderSkeleton = () => (
-      <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
+      <SkeletonTheme
+        baseColor={appsGalleryOutlineColorSurface}
+        highlightColor={colorWhiteSurface}
+        direction={isRTL ? 'rtl' : 'ltr'}
+      >
         {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
           // eslint-disable-next-line react/no-array-index-key
           <Styled.SkeletonWrapper key={`skeleton-${index}`}>

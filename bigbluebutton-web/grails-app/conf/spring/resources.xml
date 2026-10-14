@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="userCleanupTimerTask" class="org.bigbluebutton.web.services.UserCleanupTimerTask"/>
-    <bean id="enteredUserCleanupTimerTask" class="org.bigbluebutton.web.services.EnteredUserCleanupTimerTask"/>
 
     <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService"
           init-method="start" destroy-method="stop">
@@ -59,11 +58,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
         <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
-        <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="usersTimeout" value="${usersTimeout}"/>
-        <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
@@ -215,7 +212,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="sharedNotesEditor" value="${sharedNotesEditor}"/>
         <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
@@ -239,7 +235,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="userInactivityThresholdInMinutes" value="${userInactivityThresholdInMinutes}"/>
         <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
-        <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="cameraBridge" value="${cameraBridge}"/>
         <property name="screenShareBridge" value="${screenShareBridge}"/>
@@ -247,6 +242,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="requireUserConsentBeforeUnmuting" value="${requireUserConsentBeforeUnmuting}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
+        <property name="allowModsToRequestCameraShare" value="${allowModsToRequestCameraShare}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="breakoutRoomsMultiUserWhiteboardDefaultOn" value="${breakoutRoomsMultiUserWhiteboardDefaultOn}"/>
@@ -261,7 +257,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="lockSettingsHideViewersAnnotation" value="${lockSettingsHideViewersAnnotation}"/>
         <property name="lockSettingsPresenterPolicy" value="${lockSettingsPresenterPolicy}"/>
-        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
@@ -298,6 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
         <property name="pageTokenSecret" value="${pageTokenSecret}"/>
+        <property name="numDownloadThreads" value="${numPresentationDownloadThreads}"/>
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">

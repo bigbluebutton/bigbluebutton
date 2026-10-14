@@ -7,13 +7,8 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import logger from '/imports/startup/client/logger';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Source Sans Pro, Arial, sans-serif',
-  },
-});
+import { ThemeProvider } from '@mui/material/styles';
+import muiThemes from '/imports/ui/services/theme/mui';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -93,10 +88,12 @@ class Base extends Component {
   }
 
   render() {
+    const { darkTheme } = this.props;
+
     return (
       <>
         <DebugWindow />
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
           <AppContainer {...this.props} />
         </ThemeProvider>
       </>
@@ -105,13 +102,14 @@ class Base extends Component {
 }
 
 const BaseContainer = (props) => {
-  const { animations } = useSettings(SETTINGS.APPLICATION);
+  const { animations, darkTheme } = useSettings(SETTINGS.APPLICATION);
   const layoutContextDispatch = layoutDispatch();
 
   return (
     <Base
       {...{
         animations,
+        darkTheme,
         layoutContextDispatch,
         ...props,
       }}

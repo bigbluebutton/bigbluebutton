@@ -8,6 +8,8 @@ class WebcamApp2x(implicit val context: ActorContext)
   with CamStreamSubscribedInSfuEvtMsgHdlr
   with CamStreamUnsubscribedInSfuEvtMsgHdlr
   with EjectUserCamerasCmdMsgHdlr
+  with RequestUserCameraCmdMsgHdlr
+  with CameraRequestAnswerReqMsgHdlr
   with GetCamBroadcastPermissionReqMsgHdlr
   with GetCamSubscribePermissionReqMsgHdlr
   with GetWebcamsOnlyForModeratorReqMsgHdlr

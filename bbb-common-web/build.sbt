@@ -103,16 +103,27 @@ homepage := Some(url("https://www.bigbluebutton.org"))
 
 libraryDependencies ++= Seq(
   "jakarta.validation" % "jakarta.validation-api" % "3.0.2",
-  "org.springframework.data" % "spring-data-commons" % "3.4.10",
+  "org.springframework.data" % "spring-data-commons" % "3.5.12",
   "org.hibernate.validator" % "hibernate-validator" % "8.0.1.Final",
   "org.glassfish" % "jakarta.el" % "4.0.2",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
   "commons-validator" % "commons-validator" % "1.10.0",
-  "org.apache.tika" % "tika-core" % "3.3.1",
-  "org.apache.tika" % "tika-parsers-standard-package" % "3.3.1",
+  "org.apache.tika" % "tika-core" % "3.3.2",
+  "org.apache.tika" % "tika-parsers-standard-package" % "3.3.2",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
   "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0",
   "xyz.capybara" % "clamav-client" % "2.1.2",
   "jakarta.servlet" % "jakarta.servlet-api" % "6.0.0" % "provided",
   "jakarta.annotation" % "jakarta.annotation-api" % "2.1.1"
+)
+
+// Pin transitively-pulled artifacts to fixed releases.
+// junrar is reached only via tika-parsers-standard-package > tika-parser-pkg-module.
+dependencyOverrides += "com.github.junrar" % "junrar" % "7.6.1"
+// bouncycastle is reached only via tika-parsers-standard-package; tika-parent 3.3.2 manages it at 1.85.
+dependencyOverrides ++= Seq(
+  "org.bouncycastle" % "bcprov-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcpkix-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcutil-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcjmail-jdk18on" % "1.86"
 )

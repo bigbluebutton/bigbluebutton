@@ -1,15 +1,18 @@
 import styled from 'styled-components';
 import {
-  colorPrimary,
-  listItemBgHover,
-  itemFocusBorder,
-  colorGray,
-  colorWhite,
-  colorDanger,
-  colorText,
-  colorGrayDark,
-  colorOffWhite,
   btnPrimaryBg,
+  colorDanger,
+  colorGray,
+  colorGrayDark,
+  colorGrayUserListToolbar,
+  colorOffWhiteBorder,
+  colorPrimary,
+  colorSuccess,
+  colorText,
+  colorWhite,
+  colorWhiteSurface,
+  itemFocusBorder,
+  listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -105,7 +108,7 @@ const Users = styled.div`
 `;
 
 const Panel = styled.div<PanelProps>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
@@ -155,7 +158,7 @@ const GuestNumberIndicator = styled.div`
 const GuestOptionsContainer = styled.div`
   flex-shrink: 0;
   display: flex;
-  background: #F4F6FA;
+  background: ${colorGrayUserListToolbar};
   padding: 0.25rem 0.5rem;
   align-items: center;
   border-radius: 1.5rem;
@@ -167,32 +170,36 @@ export const AcceptDenyButtonsContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0px 0.5rem 0.5rem;
+
+  @media ${smallOnly} {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
 `;
 
-const AcceptDenyButtonText = styled.div`
+const AcceptDenyButtonText = styled.span`
   font-size: ${fontSizeSmall};
   font-weight: ${textFontWeight};
   line-height: 120%;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-skip-ink: none;
-  text-decoration-thickness: auto;
-  text-underline-offset: auto;
-  text-underline-position: from-font;
 `;
 
-const AcceptAllButton = styled.div`
+const AcceptAllButton = styled(ButtonBase)`
   display: flex;
-  color: ${colorPrimary};
+  && {
+    color: ${colorSuccess};
+  }
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
   cursor: pointer;
 `;
 
-const DenyAllButton = styled.div`
+const DenyAllButton = styled(ButtonBase)`
   display: flex;
-  color: ${colorDanger};
+  && {
+    color: ${colorDanger};
+  }
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
@@ -285,7 +292,7 @@ export const ToggleButton = styled(ButtonBase)`
   border-radius: ${contentSidebarBorderRadius};
 
   &:focus {
-    outline: 2px solid ${colorOffWhite};
+    outline: 2px solid ${colorOffWhiteBorder};
     border-radius: ${contentSidebarBorderRadius};
     outline-offset: -2px;
   }
@@ -342,7 +349,16 @@ export const RememberChoiceContainer = styled.div`
 export const ActionButtonsWrapper = styled.div`
   display: inline-flex;
   align-items: center;
+  margin-left: auto;
   gap: 1.5rem;
+
+  @media ${smallOnly} {
+    display: flex;
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
 `;
 
 export default {

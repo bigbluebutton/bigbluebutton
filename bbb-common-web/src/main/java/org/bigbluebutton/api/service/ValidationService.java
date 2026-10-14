@@ -77,6 +77,12 @@ public class ValidationService {
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
         params = sanitizeParams(params);
 
+        if (params.containsKey("checksum") && params.get("checksum").length > 1) {
+            Map<String, String> violations = new HashMap<>();
+            violations.put("checksumError", "Checksums do not match");
+            return violations;
+        }
+
         Request request = initializeRequest(apiCall, params, queryString, servletRequest);
         Map<String,String> violations = new HashMap<>();
 

@@ -11,6 +11,7 @@ import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql
 import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
 import { UserActionPermissions } from './types';
 import logger from '/imports/startup/client/logger';
+import { notify } from '/imports/ui/services/notification';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 
 const intlMessages = defineMessages({
@@ -122,6 +123,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
   },
+  requestUserCameraLabel: {
+    id: 'app.userList.menu.requestUserCamera.label',
+    description: 'label to ask a user to share their camera',
+  },
+  requestUserCameraSent: {
+    id: 'app.userList.menu.requestUserCamera.sent',
+    description: 'toast confirming the camera request was sent',
+  },
   lowerUserHand: {
     id: 'app.statusNotifier.lowerHandDescOneUser',
     description: 'Label for lowering a user raised hand',
@@ -139,10 +148,10 @@ export const generateActionsPermissions = (
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
-  isMuted: boolean,
   isChatEnabled: boolean,
   isPrivateChatEnabled: boolean,
   type: string,
+  hasMeetingCameraCapReached: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
   const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
@@ -158,18 +167,20 @@ export const generateActionsPermissions = (
   const preventSelfChat = !amISubjectUser;
   const moderatorOverride = currentUserIsModerator
     && !amISubjectUser && !isDialInUser && isPrivateChatEnabled;
+  const viewerToModeratorOverride = isSubjectUserModerator
+    && isChatEnabled && isPrivateChatEnabled && !isDialInUser && !isSubjectUserBot;
   const regularUserCondition = (isPrivateChatEnabled
     && isChatEnabled
     && !lockSettings?.disablePrivateChat
     && !isDialInUser)
     || currentUserIsModerator;
   const allowedToChatPrivately = preventSelfChat
-    && (moderatorOverride || regularUserCondition || !userChatIsLocked)
+    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || !userChatIsLocked)
     && type === 'participant';
 
+  // Neither checks the mute state; the audio entry consults the one that applies.
   const allowedToMuteAudio = hasAuthority
     && subjectUserInAudio
-    && !isMuted
     && !subjectUserVoice?.listenOnly
     && !isSubjectUserBot
     && (type === 'participant' || type === 'raised-hand');
@@ -177,7 +188,6 @@ export const generateActionsPermissions = (
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserInAudio
     && !subjectUserVoice?.listenOnly
-    && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
     && !lockSettings?.disableMic
     && (type === 'participant' || type === 'raised-hand');
@@ -221,10 +231,35 @@ export const generateActionsPermissions = (
     && lockSettings?.hasActiveLockSetting
     && (type === 'participant' || type === 'raised-hand');
 
+  // Per-user public chat lock (as in 3.0): independent of the meeting-wide lock settings
+  const allowedToLockPublicChat = isChatEnabled
+    && amIModerator
+    && !isSubjectUserModerator
+    && !isDialInUser
+    && !isSubjectUserBot
+    && type === 'participant';
+
   const allowedToEjectCameras = amIModerator
     && !amISubjectUser
     && usersPolicies?.allowModsToEjectCameras
     && subjectUser.cameras.length > 0
+    && (type === 'participant' || type === 'raised-hand');
+
+  // Mirrors CameraHdlrHelpers.canBeAskedToShareCamera: a request the server
+  // would drop must not be offered, since dropping it is silent.
+  const isSubjectUserCamLocked = !isSubjectUserModerator
+    && subjectUser.locked
+    && !!lockSettings?.disableCam;
+
+  const allowedToRequestCamera = amIModerator
+    && !amISubjectUser
+    && !isDialInUser
+    && !isSubjectUserBot
+    && !isSubjectUserCamLocked
+    && !hasMeetingCameraCapReached
+    && !subjectUser.requestedCameraByMod
+    && usersPolicies?.allowModsToRequestCameraShare
+    && subjectUser.cameras.length === 0
     && (type === 'participant' || type === 'raised-hand');
 
   const allowedToLowerHand = subjectUser.raiseHand
@@ -241,7 +276,9 @@ export const generateActionsPermissions = (
     allowedToPromote,
     allowedToDemote,
     allowedToChangeUserLockStatus,
+    allowedToLockPublicChat,
     allowedToEjectCameras,
+    allowedToRequestCamera,
     allowedToRemove,
     allowedToLowerHand,
   };
@@ -286,6 +323,13 @@ export const handleWhiteboardAccessChange = async (
     const { userId, whiteboardWriteAccess } = user;
 
     if (newWhiteboardWriteAccess !== whiteboardWriteAccess) {
+      logger.info({
+        logCode: 'usermenu_option_whiteboard_access_toggle',
+        extraInfo: { logType: 'moderator_action', userId, granted: newWhiteboardWriteAccess },
+      }, newWhiteboardWriteAccess
+        ? 'moderator granted whiteboard access to user'
+        : 'moderator removed whiteboard access from user');
+
       // Update user whiteboardWriteAccess
       await userSetWhiteboardWriteAccess({
         variables: {
@@ -321,21 +365,22 @@ export const toggleVoice = (
 export const createToolbarOptions = (
   intl: IntlShape,
   user: User,
-  isMuted: boolean,
   whiteboardAccess: boolean,
   actionsPermitions: UserActionPermissions,
   lockSettings: LockSettings,
   pageId: string,
   layoutContextDispatch: DispatcherFunction,
   chatCreateWithUser: MutationFunction,
-  toggleVoice: (userId: string, muted: boolean) => Promise<void>,
+  voiceToggle: (userId: string, muted: boolean) => Promise<void>,
   userSetWhiteboardWriteAccess: MutationFunction,
   setPresenter: MutationFunction,
   setRole: MutationFunction,
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
+  userRequestCamera: MutationFunction,
   openConfirmationModal: () => void,
   setRaiseHand: MutationFunction,
+  setUserChatLocked: MutationFunction,
 ) => {
   const MODERATOR_ROLE = window.meetingClientSettings.public.user.role_moderator;
   const VIEWER_ROLE = window.meetingClientSettings.public.user.role_viewer;
@@ -348,7 +393,9 @@ export const createToolbarOptions = (
     allowedToPromote,
     allowedToDemote,
     allowedToChangeUserLockStatus,
+    allowedToLockPublicChat,
     allowedToEjectCameras,
+    allowedToRequestCamera,
     allowedToRemove,
     allowedToLowerHand,
   } = actionsPermitions;
@@ -357,10 +404,9 @@ export const createToolbarOptions = (
   const userLocked = user.locked
     && lockSettings?.hasActiveLockSetting
     && !user.isModerator;
+  const userChatLocked = !!user.userLockSettings?.disablePublicChat;
 
-  const getAudioStateOption = () => {
-    if (!subjectUserInAudio) return null;
-
+  const getAudioStateOption = (isMuted: boolean) => {
     const isListenOnly = user.voice?.listenOnly || user.voice?.listenOnlyInputDevice;
 
     if (isListenOnly) {
@@ -385,7 +431,7 @@ export const createToolbarOptions = (
           ? intl.formatMessage(intlMessages.unmuteUserAudioLabel)
           : intl.formatMessage(intlMessages.microphoneClosed),
         onClick: hasPermissionToUnmute
-          ? () => toggleVoice(user.userId, false)
+          ? () => toggleVoice(user.userId, false, voiceToggle)
           : () => {},
         disabled: !hasPermissionToUnmute,
         dataTest: hasPermissionToUnmute ? 'unmuteUser' : 'audioStateMuted ',
@@ -399,13 +445,12 @@ export const createToolbarOptions = (
         ? intl.formatMessage(intlMessages.muteUserAudioLabel)
         : intl.formatMessage(intlMessages.microphoneOpen),
       onClick: hasPermissionToMute
-        ? () => toggleVoice(user.userId, true)
+        ? () => toggleVoice(user.userId, true, voiceToggle)
         : () => {},
       disabled: !hasPermissionToMute,
       dataTest: hasPermissionToMute ? 'muteUser' : 'audioStateUnmuted',
     };
   };
-  const audioStateOption = getAudioStateOption();
 
   return {
     pinnedToolbarOptions: [
@@ -435,7 +480,7 @@ export const createToolbarOptions = (
         icon: 'group_chat',
         dataTest: 'startPrivateChat',
       },
-      ...(audioStateOption ? [{ ...audioStateOption, allowed: true }] : []),
+      ...(subjectUserInAudio ? [{ key: 'audio', allowed: true, resolve: getAudioStateOption }] : []),
       {
         allowed: allowedToChangeWhiteboardAccess && !!pageId,
         key: 'changeWhiteboardAccess',
@@ -513,6 +558,23 @@ export const createToolbarOptions = (
         dataTest: 'unlockUserButton',
       },
       {
+        allowed: allowedToLockPublicChat,
+        key: 'lockChat',
+        label: userChatLocked
+          ? intl.formatMessage(intlMessages.unlockPublicChat)
+          : intl.formatMessage(intlMessages.lockPublicChat),
+        onClick: () => {
+          setUserChatLocked({
+            variables: {
+              userId: user.userId,
+              disablePubChat: !userChatLocked,
+            },
+          });
+        },
+        icon: userChatLocked ? 'unlock' : 'lock',
+        dataTest: 'togglePublicChat',
+      },
+      {
         allowed: allowedToEjectCameras,
         key: 'ejectUserCameras',
         label: intl.formatMessage(intlMessages.ejectUserCamerasLabel),
@@ -525,6 +587,33 @@ export const createToolbarOptions = (
         },
         icon: 'video_off',
         dataTest: 'ejectCamera',
+      },
+      {
+        allowed: allowedToRequestCamera,
+        key: 'requestUserCamera',
+        label: intl.formatMessage(intlMessages.requestUserCameraLabel),
+        onClick: () => {
+          userRequestCamera({
+            variables: {
+              userId: user.userId,
+            },
+          }).then(() => {
+            // The request is silent for the moderator otherwise: the prompt and
+            // the answer both happen on the other end.
+            notify(
+              intl.formatMessage(intlMessages.requestUserCameraSent, { userName: user.name }),
+              'info',
+              'video',
+            );
+          }).catch((error) => {
+            logger.error({
+              logCode: 'user_request_camera_failed',
+              extraInfo: { errorMessage: error.message, userId: user.userId },
+            }, 'Requesting the user camera failed');
+          });
+        },
+        icon: 'video',
+        dataTest: 'requestUserCamera',
       },
       {
         allowed: allowedToRemove,

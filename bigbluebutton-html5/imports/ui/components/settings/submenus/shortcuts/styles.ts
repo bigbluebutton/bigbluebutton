@@ -13,6 +13,7 @@ import {
   colorPrimary,
   colorText,
   colorWhite,
+  colorWhiteSurface,
   settingsModalTabSelected,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -109,7 +110,7 @@ const ShortcutsTabSelector = styled(Tab)`
     font-size: 0.85rem;
     min-height: 3rem;
     border-radius: 8px;
-    background: ${colorWhite};
+    background: ${colorWhiteSurface};
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
     margin: 0 2px;

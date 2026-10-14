@@ -47,4 +47,4 @@ tput sgr0
 sudo cp learning-dashboard-dev.nginx /usr/share/bigbluebutton/nginx/learning-dashboard.nginx
 sudo systemctl restart nginx
 
-PORT=3100 WDS_SOCKET_PORT=443 WDS_SOCKET_PATH=learning-analytics-dashboard/ws npm start | cat
+PORT=3100 HMR_CLIENT_PORT=443 npm start

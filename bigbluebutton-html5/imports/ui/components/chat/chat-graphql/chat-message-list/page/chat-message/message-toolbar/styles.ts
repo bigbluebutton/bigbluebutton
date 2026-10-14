@@ -1,8 +1,9 @@
 import styled, { css } from 'styled-components';
 import {
   colorBorder,
+  colorBorderSurface,
   colorGrayLightest,
-  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderRadius, lgPadding, smPadding,
@@ -50,8 +51,8 @@ const Container = styled.div`
   max-width: max-content;
   display: flex;
   border-radius: 1rem;
-  background-color: ${colorWhite};
-  box-shadow: 0 0.125rem 0.125rem 0 ${colorBorder};
+  background-color: ${colorWhiteSurface};
+  box-shadow: 0 0.125rem 0.125rem 0 ${colorBorderSurface};
   padding: ${smPadding} ${lgPadding};
   gap: ${smPadding};
 `;

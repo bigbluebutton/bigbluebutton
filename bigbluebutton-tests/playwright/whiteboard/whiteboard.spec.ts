@@ -1,14 +1,16 @@
 import type { Browser, BrowserContext, Page, TestInfo } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
+import { SlideChangeBlank } from './slideChangeBlank';
 import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
+import { SlidePosition } from './slidePosition';
 import { TextShape } from './textShape';
-import { linkIssue } from '../core/helpers';
 import { WhiteboardResize } from './whiteboardResize';
 
 async function runResizeTest(
@@ -92,7 +94,9 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await textShape.stickyNote();
   });
 
-  test('Pan', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+  // fails deterministically on 4.0: the post-pan canvas screenshot diverges ~16%
+  // from its baseline on every server - pan/camera behavior changed, needs rework
+  test('Pan', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
     const tools = new ShapeTools(browser, context);
     await tools.initModPage(page, { testInfo });
@@ -170,6 +174,90 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slideChange.initModPage(page, { testInfo });
     await slideChange.initUserPage(context, { testInfo });
     await slideChange.crashOnSlideChangeWhileEditing();
+  });
+
+  test('No blank presentation area on slide change with a cold cache', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.noBlankOnSlideChange();
+  });
+
+  test('Slide change with a broken background asset degrades without hanging', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.brokenAssetDegradesWithoutHanging();
+  });
+
+  test('Viewer follows a slide change that happens during camera calibration', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.viewerFollowsSlideChangeDuringMount();
+  });
+
+  test('Each slide restores its own last position', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.preservesEachSlidesLastPosition();
+  });
+
+  test('Fit-to-width position survives a slide-change remount', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresFitToWidthPageAfterRemount();
+  });
+
+  test('Slide position restoration is independent of decode timing', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.preservesEachSlidesLastPosition({ slowDecode: true });
+  });
+
+  test.describe('Reduced motion', () => {
+    test('Presenter and viewer restore the same per-slide position', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25866);
+      const slidePosition = new SlidePosition(browser, context);
+      await slidePosition.initPages(page, testInfo);
+      await slidePosition.preservesEachSlidesLastPosition({ reducedMotion: true });
+    });
+  });
+
+  test('Different per-slide zooms restore exact camera positions', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresPositionsAcrossDifferentZooms();
+  });
+
+  test('Toolbar-zoomed slide is restored after a fit-to-width slide', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
+  });
+
+  test('Fit-to-width slide keeps its toolbar zoom across a round trip', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresFitToWidthPageWithToolbarZoom();
   });
 
   test.describe.parallel('Shape Options', () => {

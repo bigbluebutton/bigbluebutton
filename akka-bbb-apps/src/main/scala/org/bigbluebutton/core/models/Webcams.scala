@@ -100,6 +100,7 @@ class Webcams {
 case class WebcamStream(
     streamId:      String,
     userId:        String,
+    userName:      String,
     contentType:   String,
     hasAudio:      Boolean,
     showAsContent: Boolean,

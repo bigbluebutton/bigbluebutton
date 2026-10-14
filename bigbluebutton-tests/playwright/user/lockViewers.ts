@@ -3,11 +3,24 @@ import { expect } from '@playwright/test';
 import { hoverLastMessage } from '../chat/util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, USER_LEFT_NOTIFICATION_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../notifications/util';
 import { openSettings } from '../options/util';
-import { getNotesLocator } from '../sharednotes/etherpad/util';
+import {
+  getBlockNoteEditorLocator,
+  getBlockNoteReadOnlyLocator,
+  startSharedNotesBlockNote,
+} from '../sharednotes/blocknote/util';
 import { MultiUsers } from './multiusers';
-import { drawArrow, openLockViewers, setPresentationPermission } from './util';
+import {
+  applyUserListLock,
+  drawArrow,
+  hasUserListMicState,
+  isTalkingLocator,
+  openLockViewers,
+  setPresentationPermission,
+  talkingIndicatorLocator,
+} from './util';
 
 export class LockViewers extends MultiUsers {
   async lockShareWebcam() {
@@ -119,6 +132,34 @@ export class LockViewers extends MultiUsers {
     await this.userPage2.waitAndClick(e.joinEchoTestButton);
     await this.userPage2.hasElement(e.muteMicButton, 'should connect with the mic unmuted');
     await this.userPage2.hasElement(e.isTalking, 'should display the is talking element for the second attendee');
+  }
+
+  async lockPublicChatForSpecificUser() {
+    // no meeting-wide lock is active: the per-user action must be available anyway
+    const attendeeRow = this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username });
+    const isAttendeeRowVisible = await attendeeRow.isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+    if (!isAttendeeRowVisible) {
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+    }
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page.locator(`${e.togglePublicChat}:visible`).first().click();
+    await this.userPage.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the locked attendee');
+    await this.userPage.hasElementDisabled(
+      e.sendButton,
+      'should have the send button on the public chat disabled for the locked attendee',
+    );
+    await expect(attendeeRow, 'should display the locked label on the attendee row for the moderator').toContainText(
+      /locked/i,
+    );
+    // unlock the same user
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page.locator(`${e.togglePublicChat}:visible`).first().click();
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should have the public chat enabled again for the unlocked attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expect(attendeeRow, 'should remove the locked label from the attendee row').not.toContainText(/locked/i);
   }
 
   async lockSendPublicChatMessages() {
@@ -244,10 +285,58 @@ export class LockViewers extends MultiUsers {
     ).not.toBeVisible();
   }
 
+  async lockedViewerCanSendPrivateMessageToModerator() {
+    linkIssue(25601);
+
+    // Lock private chat before the attendee starts a chat with the moderator.
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClickElement(e.lockPrivateChat);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    const moderatorRow = this.userPage.page.locator(e.userListItem).filter({ hasText: this.modPage.username }).first();
+    await expect(moderatorRow, 'should display the moderator for the locked attendee').toBeVisible();
+    await moderatorRow.click();
+
+    const startPrivateChatButton = moderatorRow.locator(e.startPrivateChat);
+    await expect(
+      startPrivateChatButton,
+      'should allow the locked attendee to start a private chat with the moderator',
+    ).toBeVisible();
+    await startPrivateChatButton.click();
+
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should enable the private chat input for the locked attendee when chatting with the moderator',
+    );
+    await this.userPage.hasElementEnabled(
+      e.sendButton,
+      'should enable the private chat send button for the locked attendee when chatting with the moderator',
+    );
+
+    const message = 'Private message from a locked attendee';
+    await this.userPage.fill(e.chatBox, message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await expect(
+      this.userPage.page.locator(e.chatUserMessageText).last(),
+      'should display the private message for the locked attendee',
+    ).toHaveText(message);
+
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.waitAndClick(e.privateChatButton);
+    await this.modPage.waitAndClick(e.privateChatItem);
+    await expect(
+      this.modPage.page.locator(e.chatUserMessageText).last(),
+      'should deliver the private message from the locked attendee to the moderator',
+    ).toHaveText(message);
+  }
+
   async lockEditSharedNotes() {
-    await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
-    await this.userPage.waitForSelector(e.hideNotesLabel);
-    const sharedNotesLocator = getNotesLocator(this.userPage);
+    // shared notes are always BlockNote, so assert the lock via the BlockNote editor
+    await startSharedNotesBlockNote(this.userPage);
+    const sharedNotesLocator = getBlockNoteEditorLocator(this.userPage);
+    await sharedNotesLocator.click();
     await sharedNotesLocator.pressSequentially(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
     await expect(
       sharedNotesLocator,
@@ -261,14 +350,30 @@ export class LockViewers extends MultiUsers {
 
     await this.initUserPage2();
     await this.userPage2.waitAndClick(e.sharedNotesSidebarButton);
-    await this.userPage2.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the second attendee');
+    await this.userPage2.hasElement(
+      e.blockNoteReadOnly,
+      'should display the shared notes read-only for the second attendee',
+    );
 
-    await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
-    await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the first attendee');
+    await this.userPage.hasElement(
+      e.blockNoteReadOnly,
+      'should display the shared notes read-only for the first attendee',
+    );
 
-    const attendeeRow = await this.modPage.page.locator(e.userListItem).first();
+    // target the locked attendee's row by exact name - .first() can grab the
+    // moderator's own row, and a bare hasText would also match "<name>2"
+    const attendeeRow = await this.modPage.page
+      .locator(e.userListItem)
+      .filter({ has: this.modPage.page.getByText(this.userPage.username, { exact: true }) })
+      .first();
+    await attendeeRow.hover();
     await attendeeRow.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.waitAndClick(e.unlockUserButton);
+    // :visible - previously-closed menus leave hidden duplicate menuitems in the DOM
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
+    await this.userPage.hasElement(
+      e.blockNoteEditable,
+      'should display the shared notes editable again for the unlocked first attendee',
+    );
   }
 
   async lockSeeOtherViewersUserList() {
@@ -291,9 +396,15 @@ export class LockViewers extends MultiUsers {
       'should contain one user on the user list for the first attendee',
     );
 
-    const attendeeRow = await this.modPage.page.locator(e.userListItem).first();
+    // unlock the SECOND attendee specifically - .first() used to grab whichever
+    // row sorted first and could unlock the wrong user, leaving this count at 1
+    const attendeeRow = await this.modPage.page
+      .locator(e.userListItem)
+      .filter({ hasText: this.userPage2.username })
+      .first();
     await attendeeRow.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.waitAndClick(e.unlockUserButton);
+    // :visible - previously-closed menus leave hidden duplicate menuitems in the DOM
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     await this.userPage2.hasElementCount(
       e.userListItem,
       2,
@@ -341,8 +452,10 @@ export class LockViewers extends MultiUsers {
       e.wbDrawnArrow,
       'should not display the other viewer annotation for the viewer who just joined',
     );
-    await this.modPage.page.locator(e.chatButton).hover();
-    await this.userPage.page.locator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    // park the cursor on a neutral element (chatButton is gone from 4.0)
+    await this.modPage.page.locator(e.messagesSidebarButton).hover();
+    // ensure userPage cursor won't be visible on the screenshot (chatButton is gone from 4.0)
+    await this.userPage.page.locator(e.messagesSidebarButton).hover();
     await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
     await expect(
       user2WbLocator,
@@ -363,7 +476,7 @@ export class LockViewers extends MultiUsers {
     // unlock user2
     const attendee2Row = await this.modPage.page.locator(e.userListItem).last();
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.page.locator(e.unlockUserButton).last().click();
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     // check if previous annotations is displayed after unlocking user
     await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
     await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
@@ -413,7 +526,7 @@ export class LockViewers extends MultiUsers {
     // Unlock user2
     const attendee2Row = await this.modPage.page.locator(e.userListItem).last();
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
-    await this.modPage.page.locator(e.unlockUserButton).last().click();
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     await this.modPage.page.waitForTimeout(1000); // ensure the unlock settings are applied
     await this.modPage.page.locator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
     await this.modPage.page.locator(e.messagesSidebarButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
@@ -527,10 +640,7 @@ export class LockViewers extends MultiUsers {
   async hideUserListSuppressesJoinNotification() {
     // Step 2: apply hideUserList lock BEFORE the viewer joins so that the
     // viewer gets locked=true via lockOnJoin.
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Step 3: Viewer1 joins after lock is active → locked=true.
     await this.initUserPage();
@@ -592,10 +702,7 @@ export class LockViewers extends MultiUsers {
    */
   async hideUserListSuppressesLeaveNotification() {
     // Step 2: enable hideUserList before viewers join.
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Steps 3 & 4: both viewers join while lockOnJoin=true → locked=true.
     await this.initUserPage();
@@ -653,10 +760,7 @@ export class LockViewers extends MultiUsers {
    * - moderator: receives join notification
    */
   async hideUserListJoinNotificationVisibleForUnlockedAndModOnly() {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Viewer1 joins locked.
     await this.initUserPage();
@@ -664,8 +768,9 @@ export class LockViewers extends MultiUsers {
     await this.initUserPage2();
 
     const unlockedViewerName = this.userPage2.username;
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).click();
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).locator(e.moreOptionsUserItemButton).click();
+    // :visible - stale unmounted menus leave hidden duplicate menuitems; nth=1 can land on one
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     const unlockedViewer = this.userPage2;
 
     await openSettings(this.modPage);
@@ -725,18 +830,16 @@ export class LockViewers extends MultiUsers {
    * - moderator: receives leave notification
    */
   async hideUserListLeaveNotificationVisibleForUnlockedAndModOnly() {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     // Viewer1 joins locked.
     await this.initUserPage();
     // Viewer2 joins locked, then is explicitly unlocked.
     await this.initUserPage2();
     const unlockedViewerName = this.userPage2.username;
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).click();
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).locator(e.moreOptionsUserItemButton).click();
+    // :visible - stale unmounted menus leave hidden duplicate menuitems; nth=1 can land on one
+    await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     const unlockedViewer = this.userPage2;
 
     // Viewer3 stays locked and will leave.
@@ -803,10 +906,7 @@ export class LockViewers extends MultiUsers {
    *   Expected: Viewer DOES see Mod2's join toast; Mod1 DOES see it too.
    */
   async hideUserListModeratorJoinNotificationVisibleToAll() {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     await this.initUserPage();
 
@@ -863,10 +963,7 @@ export class LockViewers extends MultiUsers {
     await this.initModPage2();
     const mod2Name = this.modPage2.username;
 
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockUserList);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.modPage.closeAllToastNotifications();
+    await applyUserListLock(this.modPage);
 
     await this.initUserPage();
 
@@ -897,5 +994,177 @@ export class LockViewers extends MultiUsers {
       'Locked viewer must receive leave notification when a MODERATOR leaves (hideUserList active)',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
+  }
+
+  /**
+   * Regression test for PR #25921.
+   *
+   * Moderators are exempt from hideUserList: a locked viewer keeps them on the user
+   * list, so it must also keep receiving their voice state. On 3.0.38 the voice state
+   * event carried no role, so a moderator's updates were withheld like any viewer's:
+   * no talking indicator, and the moderator shown as muted while speaking.
+   *
+   * Flow:
+   *   1. Mod joins and enables lockUserList.
+   *   2. Viewer1 joins (locked).
+   *   3. Mod joins audio and unmutes.
+   *   Expected: Viewer1 sees Mod talking, and unmuted on the user list.
+   *   4. Viewer2 joins (locked) while Mod is already unmuted.
+   *   Expected: Viewer2 sees Mod unmuted, from the state replayed when it subscribes.
+   *   5. Mod mutes.
+   *   Expected: both viewers see Mod muted.
+   *   6. Mod unmutes.
+   *   Expected: both viewers see Mod talking, and unmuted on the user list.
+   */
+  async hideUserListModeratorVoiceStateVisibleToLockedViewer() {
+    const modName = this.modPage.username;
+
+    await applyUserListLock(this.modPage);
+    await this.initUserPage();
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.hasElementCount(
+      e.userListItem,
+      1,
+      'Locked viewer should see only the moderator on the user list',
+    );
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone();
+
+    await expect(
+      isTalkingLocator(this.userPage, modName),
+      'Locked viewer must see the talking indicator of a moderator (hideUserList active)',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await hasUserListMicState(
+      this.userPage,
+      modName,
+      'unmuted',
+      'Locked viewer must see an unmuted moderator as unmuted on the user list',
+    );
+
+    // The talking indicator is not asserted here: it follows the moderator's next talking
+    // event, and the fake microphone talks without a pause.
+    await this.initUserPage2();
+    await this.userPage2.waitAndClick(e.usersListSidebarButton);
+    await hasUserListMicState(
+      this.userPage2,
+      modName,
+      'unmuted',
+      'Locked viewer joining later must see an already unmuted moderator as unmuted on the user list',
+    );
+
+    await this.modPage.waitAndClick(e.muteMicButton);
+    await hasUserListMicState(this.userPage, modName, 'muted', 'Locked viewer must see the moderator muted again');
+    await hasUserListMicState(
+      this.userPage2,
+      modName,
+      'muted',
+      'Locked viewer who joined later must see the moderator muted again',
+    );
+    await expect(
+      isTalkingLocator(this.userPage, modName),
+      'Locked viewer must stop seeing a muted moderator as talking',
+    ).toHaveCount(0);
+
+    // the client throttles mute toggles: wait so that this one is not dropped
+    await this.modPage.page.waitForTimeout(1000);
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.muteMicButton, 'should display the mute mic button after unmuting again');
+    await this.modPage.checkUserTalkingIndicator();
+    await expect(
+      isTalkingLocator(this.userPage, modName),
+      'Locked viewer must see the talking indicator of a moderator who unmutes again',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      isTalkingLocator(this.userPage2, modName),
+      'Locked viewer who joined later must see the talking indicator of a moderator who unmutes again',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await hasUserListMicState(
+      this.userPage2,
+      modName,
+      'unmuted',
+      'Locked viewer who joined later must see the moderator unmuted again',
+    );
+  }
+
+  /**
+   * Regression test for PR #25921 - role change variant.
+   *
+   * The exemption follows the speaker's current role. A viewer's voice state stays
+   * hidden from locked viewers, becomes visible when that viewer is promoted, and is
+   * taken off their screen again on demotion rather than left at its last state.
+   *
+   * Flow:
+   *   1. Mod joins and enables lockUserList.
+   *   2. Viewer1 and Viewer2 join (locked).
+   *   3. Viewer2 joins audio and unmutes.
+   *   Expected: Mod sees Viewer2 talking; Viewer1 does not.
+   *   4. Mod promotes Viewer2.
+   *   Expected: Viewer1 sees Viewer2 on the user list, unmuted and talking.
+   *   5. Mod demotes Viewer2, who keeps talking.
+   *   Expected: Viewer1 no longer sees Viewer2 on the user list nor a talking indicator.
+   */
+  async hideUserListVoiceStateFollowsRoleChange() {
+    await applyUserListLock(this.modPage);
+    await this.initUserPage();
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.initUserPage2();
+    const speakerName = this.userPage2.username;
+    const speakerMenuOnModUserList = this.modPage.page
+      .locator(e.userListItem, { hasText: speakerName })
+      .locator(e.moreOptionsUserItemButton);
+
+    await this.userPage2.waitAndClick(e.joinAudio);
+    await this.userPage2.joinMicrophone();
+
+    await expect(
+      isTalkingLocator(this.modPage, speakerName),
+      'Moderator must see the talking indicator of a viewer (hideUserList active)',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      talkingIndicatorLocator(this.userPage, speakerName),
+      'Locked viewer must not see the talking indicator of another viewer (hideUserList active)',
+    ).toHaveCount(0);
+
+    // Menus closed earlier leave hidden menu items in the DOM: act on the visible one.
+    await speakerMenuOnModUserList.click();
+    await this.modPage.getVisibleLocator(e.promoteToModerator).click();
+    await this.userPage.hasElementCount(
+      e.userListItem,
+      2,
+      'Locked viewer should see the promoted user on the user list',
+    );
+    await expect(
+      isTalkingLocator(this.userPage, speakerName),
+      'Locked viewer must see the talking indicator of a user promoted to moderator',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await hasUserListMicState(
+      this.userPage,
+      speakerName,
+      'unmuted',
+      'Locked viewer must see a user promoted to moderator as unmuted on the user list',
+    );
+
+    await speakerMenuOnModUserList.click();
+    await this.modPage.getVisibleLocator(e.demoteToViewer).click();
+    await this.userPage.hasElementCount(
+      e.userListItem,
+      1,
+      'Locked viewer should no longer see the demoted user on the user list',
+    );
+    await expect(
+      talkingIndicatorLocator(this.userPage, speakerName),
+      'Locked viewer must have the talking indicator of a demoted user removed',
+    ).toHaveCount(0);
+    // The demoted user is still unmuted and talking: confirm it, then that it stays hidden.
+    await expect(
+      isTalkingLocator(this.modPage, speakerName),
+      'Moderator must still see the demoted user talking',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await this.userPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    await expect(
+      talkingIndicatorLocator(this.userPage, speakerName),
+      'Locked viewer must not get the later voice state of a demoted user',
+    ).toHaveCount(0);
   }
 }
