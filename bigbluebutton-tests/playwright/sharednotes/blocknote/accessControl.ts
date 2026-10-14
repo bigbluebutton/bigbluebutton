@@ -40,17 +40,31 @@ export class BlockNoteAccessControl extends MultiUsers {
 
   private documentName = '';
 
-  async seedModeratorNotes() {
-    await startBlockNoteSharedNotes(this.modPage);
-    const editor = this.modPage.page.locator(e.blockNoteEditable);
+  private async seedNotes(page: Page): Promise<string> {
+    await startBlockNoteSharedNotes(page);
+    const editor = page.page.locator(e.blockNoteEditable);
     await editor.click();
     await editor.pressSequentially(this.notesText);
     await expect(editor, 'moderator should see the typed notes').toContainText(this.notesText, {
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
-    const internalId = await getInternalMeetingId(this.modPage);
+    const internalId = await getInternalMeetingId(page);
     expect(internalId, 'should resolve the internal meeting id').toBeTruthy();
-    this.documentName = `bn-document__${internalId}`;
+    const documentName = `bn-document__${internalId}`;
+    const sessionToken = await getSessionToken(page);
+    expect(sessionToken, 'the moderator should have a session token').toBeTruthy();
+    await expect(async () => {
+      const response = await readDocumentViaRest(page, documentName, sessionToken as string);
+      expect(response.status).toBe(200);
+      expect(response.body).toContain(this.notesText);
+    }, 'the typed notes should be persisted before the access checks run').toPass({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    return documentName;
+  }
+
+  async seedModeratorNotes() {
+    this.documentName = await this.seedNotes(this.modPage);
   }
 
   async waitingGuestCannotReadNotes() {
@@ -100,11 +114,12 @@ export class BlockNoteAccessControl extends MultiUsers {
     await this.seedModeratorNotes();
     const sessionToken = await getSessionToken(this.modPage);
     expect(sessionToken, 'the moderator should have a session token').toBeTruthy();
-    const response = await readDocumentViaRest(
-      this.modPage,
-      'bn-document__someothermeeting-1234567890',
-      sessionToken as string,
-    );
+    await this.initModPage2(this.context, {
+      useModMeetingId: false,
+      createParameter: 'sharedNotesEditor=blockNote',
+    });
+    const otherDocumentName = await this.seedNotes(this.modPage2);
+    const response = await readDocumentViaRest(this.modPage, otherDocumentName, sessionToken as string);
     expect(response.status, 'reading another meeting document must return 403').toBe(403);
   }
 
