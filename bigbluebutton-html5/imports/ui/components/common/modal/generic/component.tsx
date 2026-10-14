@@ -1,5 +1,8 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { BBBModal } from '@bigbluebutton/bbb-ui-components-react';
+import { createPortal } from 'react-dom';
+import { defineMessages, useIntl } from 'react-intl';
+import { MdClose } from 'react-icons/md';
+import { BBBModal, BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import type { ModalPriority } from '/imports/ui/core/singletons/modalController';
 import {
   createDocumentTitleViewId,
@@ -8,6 +11,13 @@ import {
 } from '/imports/ui/components/app/document-title-manager/service';
 
 export type { ModalPriority };
+
+const intlMessages = defineMessages({
+  close: {
+    id: 'app.modal.close',
+    description: 'Label and tooltip of the modal close button',
+  },
+});
 
 export interface GenericModalProps {
   /** Id of the modal content element. */
@@ -137,6 +147,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
   closeButtonDataTest = 'closeModal',
   documentTitle = false,
 }) => {
+  const intl = useIntl();
   const [documentTitleViewId] = useState(() => createDocumentTitleViewId('generic-modal'));
   const resolvedDocumentTitle = typeof documentTitle === 'string'
     ? documentTitle
@@ -179,6 +190,13 @@ const GenericModal: React.FC<GenericModalProps> = ({
     };
   }, [contentNode, anchorElement, contentStyleKey]);
 
+  // BBBModal hardcodes its close button's aria-label to "close" and gives it no
+  // tooltip, so its own button stays hidden and a translated one is portaled
+  // into the library's header (the content element's first child), where the
+  // library's button sits. Temporary until BBBModal accepts a close button label.
+  const headerNode = contentNode?.firstElementChild ?? null;
+  const closeLabel = intl.formatMessage(intlMessages.close);
+
   return (
     <BBBModal
       id={id}
@@ -192,7 +210,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
       shouldCloseOnEsc={shouldCloseOnEsc}
       allowScroll={allowScroll}
       noFooter={noFooter ?? !footerContent}
-      hideCloseButton={hideCloseButton}
+      hideCloseButton
       footerContent={footerContent}
       stickyFooter={stickyFooter}
       contentRef={setContentNode}
@@ -200,9 +218,21 @@ const GenericModal: React.FC<GenericModalProps> = ({
       portalClassName={`modal-${priority ?? 'low'}`}
       testId={dataTest}
       data={dataTest ? { test: dataTest } : undefined}
-      closeButtonDataTest={closeButtonDataTest}
     >
       {children}
+      {!hideCloseButton && headerNode && createPortal(
+        <BBButton
+          layout="circle"
+          variant="subtle"
+          icon={<MdClose size="1.5rem" />}
+          onClick={onRequestClose}
+          ariaLabel={title ? `${closeLabel} ${title}` : closeLabel}
+          tooltipLabel={closeLabel}
+          tooltipPlacement="bottom"
+          dataTest={closeButtonDataTest}
+        />,
+        headerNode,
+      )}
     </BBBModal>
   );
 };
