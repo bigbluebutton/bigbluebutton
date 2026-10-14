@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -35,18 +36,18 @@ const RequestModalContent = styled.div`
     gap: 1rem;
     margin-top: 0;
     padding: 0;
+  }
+`;
 
-    button {
-      flex: 1;
-
-      i {
-        display: none;
-      }
-    }
+// On a phone the pair shares the row equally (the component drops the icons there).
+const RequestButton = styled(BBButton)`
+  @media ${smallOnly} {
+    flex: 1;
   }
 `;
 
 export default {
   Subtitle,
   RequestModalContent,
+  RequestButton,
 };
