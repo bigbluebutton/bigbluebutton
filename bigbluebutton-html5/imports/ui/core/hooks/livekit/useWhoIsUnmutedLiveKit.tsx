@@ -48,14 +48,24 @@ const createUseWhoIsUnmutedLiveKit = () => {
   function useWhoIsUnmuted(): UnmutedUsersState;
   function useWhoIsUnmuted(userId: string): UnmutedUserState;
   function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
-    // Derive unmuted state from LiveKit whenever LiveKit is the audio bridge,
-    // independent of the `useLiveKitAudioState` opt-in. The router
-    // (useWhoIsUnmuted) still decides which source it exposes by the opt-in, but
-    // the talking-indicator hook consumes this directly so it can reflect the
-    // mute state of audible participants with no server voice record (e.g. a
-    // moderator transferred into a breakout to listen).
     const isLiveKitActive = useIsUsingLiveKitAudio();
     const whoIsUnmutedData = useData(userId);
+
+    if (!isLiveKitActive) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
+
+    return whoIsUnmutedData as UnmutedUsersState | UnmutedUserState;
+  }
+
+  // Writes the state every consumer above reads, from the primary room. It
+  // runs whenever LiveKit is the audio bridge, independent of the
+  // `useLiveKitAudioState` opt-in: the router (useWhoIsUnmuted) decides which
+  // source it exposes by the opt-in, but the talking-indicator hook reads this
+  // store directly to reflect the mute state of audible participants with no
+  // server voice record (e.g. a moderator transferred into a breakout to listen).
+  // Mounted once, by LiveKitVoiceActivityAdapter: the room subscriptions below
+  // re-render their host on every participant's track event.
+  const useDeriveWhoIsUnmuted = () => {
+    const isLiveKitActive = useIsUsingLiveKitAudio();
     const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
       room,
@@ -71,9 +81,6 @@ const createUseWhoIsUnmutedLiveKit = () => {
     });
     const { localParticipant, microphoneTrack } = useLocalParticipant({ room });
     const connectionState = useConnectionState(room);
-    // Always read the full BBB record: the effect below writes the shared state,
-    // so narrowing it to userId would blank every other user for every consumer.
-    // userId filters on the read side only, through useData above.
     const { data: bbbUnmutedUsers } = useWhoIsUnmutedGraphql();
 
     // Derive unmuted state from LiveKit participants
@@ -129,16 +136,13 @@ const createUseWhoIsUnmutedLiveKit = () => {
       isLiveKitActive,
       bbbUnmutedUsers,
     ]);
-
-    if (!isLiveKitActive) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
-
-    return whoIsUnmutedData as UnmutedUsersState | UnmutedUserState;
-  }
+  };
 
   return {
     useWhoIsUnmuted: useWhoIsUnmuted as UseWhoIsUnmutedLiveKitHook,
     useWhoIsUnmutedConsumersCount: useConsumersCount,
     setWhoIsUnmutedLoading: setLoading,
+    useDeriveWhoIsUnmuted,
   };
 };
 
@@ -146,12 +150,14 @@ const {
   useWhoIsUnmuted,
   useWhoIsUnmutedConsumersCount,
   setWhoIsUnmutedLoading,
+  useDeriveWhoIsUnmuted,
 } = createUseWhoIsUnmutedLiveKit();
 
 export {
   useWhoIsUnmuted,
   useWhoIsUnmutedConsumersCount,
   setWhoIsUnmutedLoading,
+  useDeriveWhoIsUnmuted,
 };
 
 export default useWhoIsUnmuted;

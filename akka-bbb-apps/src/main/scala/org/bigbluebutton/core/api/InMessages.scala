@@ -97,6 +97,15 @@ case class SendMessageToBreakoutRoomInternalMsg(parentId: String, breakoutId: St
 case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String, extUserId: String, ejectedBy: String, reason: String, reasonCode: String, ban: Boolean) extends InMessage
 
 /**
+ * Sent by parent meeting to breakout room to update whether an external user id is accepted in the room.
+ * @param parentId
+ * @param breakoutId
+ * @param extUserId
+ * @param revoked
+ */
+case class UpdateBreakoutUserAccessInternalMsg(parentId: String, breakoutId: String, extUserId: String, revoked: Boolean) extends InMessage
+
+/**
  * Sent by parent meeting to breakout room to import annotated slides.
  * @param userId
  * @param parentMeetingId

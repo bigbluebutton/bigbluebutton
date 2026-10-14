@@ -94,7 +94,6 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
-    private String defaultSharedNotesEditor;
     private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
     private int learningDashboardCleanupDelayInMinutes;
@@ -660,17 +659,6 @@ public class ParamsProcessorUtil {
                     .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
         }
 
-        String sharedNotesEditor = defaultSharedNotesEditor;
-        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_EDITOR))) {
-            String canonicalSharedNotesEditor = SharedNotesEditor.canonicalize(
-                    params.get(ApiParams.SHARED_NOTES_EDITOR));
-            if (canonicalSharedNotesEditor != null) {
-                sharedNotesEditor = canonicalSharedNotesEditor;
-            } else {
-                log.warn("Invalid param [sharedNotesEditor] for meeting=[{}]", internalMeetingId);
-            }
-        }
-
         boolean allowStartStoptRec = allowStartStopRecording;
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
             try {
@@ -984,7 +972,6 @@ public class ParamsProcessorUtil {
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
-                .withSharedNotesEditor(sharedNotesEditor)
                 .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
                 .withSharedNotesInitialContentMarkdown(sharedNotesInitialContentMarkdown)
                 .withSharedNotesInitialContentMarkdownUrl(sharedNotesInitialContentMarkdownUrl)
@@ -1986,17 +1973,6 @@ public class ParamsProcessorUtil {
 
     public void setPluginUtils(PluginUtils pluginUtils) {
         this.pluginUtils = pluginUtils;
-    }
-
-    public void setSharedNotesEditor(String sharedNotesEditor) {
-        String canonicalSharedNotesEditor = SharedNotesEditor.canonicalize(sharedNotesEditor);
-        if (canonicalSharedNotesEditor == null) {
-            log.error("Invalid default [sharedNotesEditor]=[{}]; using [{}]", sharedNotesEditor,
-                    SharedNotesEditor.BLOCK_NOTE);
-            this.defaultSharedNotesEditor = SharedNotesEditor.BLOCK_NOTE;
-        } else {
-            this.defaultSharedNotesEditor = canonicalSharedNotesEditor;
-        }
     }
 
     /**

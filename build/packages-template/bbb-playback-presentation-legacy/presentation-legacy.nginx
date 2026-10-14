@@ -1,0 +1,13 @@
+# Redirect for links published by BigBlueButton 0.81 and 0.9.0, which did not
+# carry the player version in the path. The players themselves are served by
+# the static location for /playback/presentation in presentation.nginx
+# (package bbb-playback-presentation). The exact match modifier keeps this
+# location distinct from that prefix location.
+location = /playback/presentation/playback.html {
+        return 301 /playback/presentation/0.81/playback.html?$query_string;
+        # If you have recordings from 0.9.0 beta versions and are sure
+        # that you will never want to play recordings made with
+        # BigBlueButton 0.81, comment the line above and uncomment the
+        # following line:
+        #return 301 /playback/presentation/0.9.0/playback.html?$query_string;
+}

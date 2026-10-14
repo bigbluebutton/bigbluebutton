@@ -21,7 +21,7 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
     val isPrimaryRoom = roomName == meetingId
 
     // Media cleanup below is primary-room-only; non-primary leaves are ignored
-    // as they should not affect the user's voice state, webcam state, or presenter state.
+    // as they should not affect the user's voice state or screen share.
     if (isPrimaryRoom) {
       val isPresenter = Users2x.isPresenter(userId, liveMeeting.users2x)
 
@@ -54,7 +54,9 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
         outGW.send(eventUserVoiceStatus)
       }
 
-      if (isPresenter && ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
+      val isLiveKitScreenShare = liveMeeting.props.meetingProp.screenShareBridge == "livekit"
+
+      if (isPresenter && isLiveKitScreenShare && ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
         ScreenshareDAO.updateStopped(
           meetingId,
           ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel)

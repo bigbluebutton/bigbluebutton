@@ -22,7 +22,6 @@ public interface IBbbWebApiGWApp {
                      Boolean allowStartStopRecording,
                      ArrayList<Object> sharedNotesInitialContentJson,
                      String sharedNotesInitialContentMarkdown,
-                     String sharedNotesEditor,
                      Boolean recordFullDurationMedia,
                      Boolean webcamsOnlyForModerator,
                      Boolean multiUserWhiteboardEnabled,

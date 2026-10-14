@@ -2,9 +2,9 @@
 import React from 'react';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { AvatarContentProps, EmojiProps } from './types';
-import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { useIsReactionsEnabled } from '/imports/ui/services/features';
 import { getFilteredAvatar } from '/imports/ui/components/user-list/service';
+import useRemInPixels from '/imports/ui/hooks/useRemInPixels';
 
 const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
   <em-emoji emoji={emoji} native={native} size={size} />
@@ -12,6 +12,7 @@ const Emoji: React.FC<EmojiProps> = ({ emoji, native, size }) => (
 
 const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
   const isReactionsEnabled = useIsReactionsEnabled();
+  const emojiSize = useRemInPixels(1.3);
   const emojiIcons = [
     {
       id: 'clock7',
@@ -20,8 +21,6 @@ const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
   ];
 
   const getIconUser = () => {
-    const emojiSize = convertRemToPixels(1.3);
-
     if (user.isDialIn) {
       return <Icon iconName="volume_level_2" />;
     }

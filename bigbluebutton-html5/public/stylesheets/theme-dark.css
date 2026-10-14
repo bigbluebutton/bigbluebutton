@@ -297,6 +297,12 @@
      its surface alias, so emitting that one separates the roles. */
   --color-background-white: var(--color-background-white-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
   --color-light-gray: var(--color-light-gray-dark-theme, var(--color-hover-bg-dark, #393C48));
+  /* BBButton tertiary's ground and its hover, plus BBBHint's hover. Kept
+     blue-tinted like the light pair (#E5EFFB/#D4E5FA) so the tertiary fill stays
+     distinct from the surface it sits on; a neutral grey would read as a
+     disabled field. */
+  --color-background-blue: var(--color-background-blue-dark-theme, #1E2B3F);
+  --color-hover-light: var(--color-hover-light-dark-theme, #243552);
   --color-text-default: var(--color-text-default-dark-theme, #FFFFFF);
   /* BBBSelect's title and BBButton's subtle label. */
   --color-dark-gray: var(--color-dark-gray-dark-theme, #FFFFFF);

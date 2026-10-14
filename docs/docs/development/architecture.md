@@ -81,20 +81,13 @@ flowchart TB
   akkaapps -.-> akkafsesl
   akkafsesl -.-> freeswitch
 
-  %% ── Shared notes: BlockNote (default) ────────────────
+  %% ── Shared notes: BlockNote ──────────────────────────
   sharednotes["bbb-shared-notes-server<br/>(Hocuspocus / Yjs)"]:::neo
   blocknotedb[("blocknote_app<br/>(Yjs docs)")]:::neo
 
   nginx <--> sharednotes
   sharednotes <--> blocknotedb
   sharednotes <--> redis
-
-  %% ── Shared notes: Etherpad (alternative) ─────────────
-  pads["bbb-pads<br/>(alternative)"]:::alt
-  etherpad["Etherpad<br/>(alternative)"]:::alt
-
-  redis <--> pads
-  pads <--> etherpad
 
   %% ── Presentation conversion & static files ──────────
   prescon[Presentation Conversion]

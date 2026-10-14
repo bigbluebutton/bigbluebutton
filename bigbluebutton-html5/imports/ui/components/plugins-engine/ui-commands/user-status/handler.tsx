@@ -11,12 +11,12 @@ import { UserStatusEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-comman
 
 const PluginUserStatusUiCommandsHandler = () => {
   const [setAway] = useMutation(SET_AWAY);
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const { data: unmuted } = useWhoIsUnmuted(Auth.userID as string);
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
   }));
   const voiceToggle = useToggleVoice();
-  const muted = !unmutedUsers[Auth.userID as string];
+  const muted = !unmuted;
 
   const handleUserStatusAway = (event: CustomEvent<SetAwayStatusCommandArguments>) => {
     const { away: targetAwayStatus } = event.detail;
@@ -46,7 +46,7 @@ const PluginUserStatusUiCommandsHandler = () => {
         handleUserStatusAway as EventListener,
       );
     };
-  }, [unmutedUsers, currentUserData]);
+  }, [muted, currentUserData]);
   return null;
 };
 

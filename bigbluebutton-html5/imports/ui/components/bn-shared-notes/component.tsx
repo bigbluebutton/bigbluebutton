@@ -605,10 +605,9 @@ function BlockNoteContainer({ isVisible, isOnMediaArea }: BlockNoteContainerProp
   const renderBlockNote = !error && !isAuthenticating
     && hocuspocusProvider && !connectionClosed && isSynced && !!currentUser;
 
-  // The notes are read when the synced editor is on screen. Mirror the
-  // etherpad pad (pads-graphql/component.tsx): mark as read on show and on
-  // hide - the panel stays mounted for NOTES_UNMOUNT_DELAY after closing,
-  // and edits arriving in that window must stay unread.
+  // The notes are read when the synced editor is on screen: mark as read on
+  // show and on hide - the panel stays mounted for NOTES_UNMOUNT_DELAY after
+  // closing, and edits arriving in that window must stay unread.
   React.useEffect(() => {
     if (!renderBlockNote) return () => {};
     if (isVisible) markNotesAsRead();

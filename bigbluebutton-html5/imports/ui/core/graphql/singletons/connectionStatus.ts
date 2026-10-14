@@ -60,6 +60,10 @@ class ConnectionStatus {
 
   private subscriptionFailed = makeVar(false);
 
+  // Set when the server refuses a subscription because this connection holds the maximum
+  // allowed. Nothing new can load until the client reconnects, so it stays set until reload.
+  private subscriptionLimitReached = makeVar(false);
+
   // @ts-ignore
   private networkData: ReactiveVar<NetworkData> = makeVar({
     // These are placeholder values for the connstats modal to render something
@@ -297,6 +301,17 @@ class ConnectionStatus {
 
   public getSubscriptionFailedVar() {
     return this.subscriptionFailed;
+  }
+
+  public setSubscriptionLimitReached(): void {
+    if (!this.subscriptionLimitReached()) {
+      logger.warn({ logCode: 'stats_subscription_limit_reached' }, 'Subscription refused: concurrent subscription limit reached');
+      this.subscriptionLimitReached(true);
+    }
+  }
+
+  public getSubscriptionLimitReachedVar() {
+    return this.subscriptionLimitReached;
   }
 
   public addUserNetworkHistory(

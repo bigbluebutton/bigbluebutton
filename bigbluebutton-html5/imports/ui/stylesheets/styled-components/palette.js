@@ -40,6 +40,7 @@ const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
 const colorBlueLightestBorder = `var(--color-blue-lightest-border, ${colorBlueLightest})`;
 const colorBlueAux = 'var(--color-blue-aux, #E5EFFB)';
 const colorInfoBannerBg = 'var(--color-info-banner-bg, #e8f0fe)';
+const colorBlueDark = 'var(--color-blue-dark, #0F4D9D)';
 const colorBlueLightestChannel = '228 236 242';
 const colorBlueLighterChannel = '146 188 234';
 
@@ -311,6 +312,7 @@ export {
   colorBlueLighterChannel,
   colorBlueAux,
   colorInfoBannerBg,
+  colorBlueDark,
   colorPrimary,
   colorDanger,
   colorDangerDark,
