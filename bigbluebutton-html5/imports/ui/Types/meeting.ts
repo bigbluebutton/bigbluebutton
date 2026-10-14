@@ -108,6 +108,7 @@ export interface Layout {
   cameraDockAspectRatio: string;
   cameraWithFocus: string;
   presentationMinimized: boolean;
+  hideUsersWithoutCamera: boolean;
   setByUserId: string;
 }
 
