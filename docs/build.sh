@@ -40,6 +40,7 @@ BRANCHES=(
   v2.7.x-release
   v3.0.x-release
   v4.0.x-release
+  v4.1.x-release
 )
 
 git fetch "$REMOTE"
