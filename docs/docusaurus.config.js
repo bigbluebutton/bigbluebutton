@@ -73,6 +73,10 @@ const config = {
                         },
                         '4.0': {
                             banner: 'none'
+                        },
+                        '4.1': {
+                            label: '4.1 (in development)',
+                            banner: 'unreleased'
                         }
                     }
                 },
@@ -121,8 +125,8 @@ const config = {
                     // TODO: remove default route to /
                     const redirect_list = [];
 
-                    // Create /4.0 redirect paths for all routes except 2.5, 2.6, 2.7 or 3.0 ones
-                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7") || path.startsWith("/3.0"))){
+                    // Create /4.0 redirect paths for all routes except 2.5, 2.6, 2.7, 3.0 or 4.1 ones
+                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7") || path.startsWith("/3.0") || path.startsWith("/4.1"))){
                         redirect_list.push("/4.0" + path);
                     }
 
