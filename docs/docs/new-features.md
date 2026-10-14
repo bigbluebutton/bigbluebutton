@@ -251,6 +251,8 @@ To turn a header off, set its `enabled` property to `false` in `/etc/bigbluebutt
 grails.security.headers.frame-options.enabled=false
 ```
 
+The other three headers are controlled by `grails.security.headers.content-type-options.enabled`, `grails.security.headers.referrer-policy.enabled` and `grails.security.headers.xss-protection.enabled`. `grails.security.headers.enabled=false` turns all four off.
+
 #### Other bbb-web response changes on Grails 8
 
 - A request for a URL under `/bigbluebutton/` that no API call handles is still answered with 404, but the body is JSON instead of the XML `<Map>` document Grails 7 produced.
@@ -258,8 +260,6 @@ grails.security.headers.frame-options.enabled=false
 - A request with more than 10000 parameters is answered with an HTTP 500 page by the embedded Tomcat; Tomcat 10.1 ignored the parameters beyond the limit.
 - Sent directly to port 8090 (nginx answers 413 for bodies above 1 MB before that), a form POST larger than Tomcat's 2 MB limit is answered with an HTTP 500 page instead of an API error.
 - If a `systemd` override of `bbb-web.service` replaces `ExecStart`, update it to launch with `-cp .` as the packaged unit does. With the previous classpath (`-cp WEB-INF/lib/*:/:WEB-INF/classes/:.`) bbb-web on Grails 8 never finishes starting and nginx answers 502.
-
-The other three headers are controlled by `grails.security.headers.content-type-options.enabled`, `grails.security.headers.referrer-policy.enabled` and `grails.security.headers.xss-protection.enabled`. `grails.security.headers.enabled=false` turns all four off.
 
 #### Promoted BlockNote shared notes as default
 
