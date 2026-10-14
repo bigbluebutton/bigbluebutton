@@ -1,9 +1,11 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
 import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
 import { ChatPluginDomElements } from './pluginDomElements';
 import { PrivateChatListPreview } from './privateChatListPreview';
+import { ReadConfirmation } from './readConfirmation';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -168,6 +170,21 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const jumbomoji = new Jumbomoji(browser, context);
     await jumbomoji.initModPage(page, { testInfo });
     await jumbomoji.verifyJumbomoji();
+  });
+
+  test('Private message read check does not overlap the message time on hover', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25936);
+    const readConfirmation = new ReadConfirmation(browser, context);
+    await readConfirmation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { chat: { privateMessageReadFeedback: { enabled: true } } } },
+    });
+    await readConfirmation.initUserPage(context, { testInfo });
+    await readConfirmation.verifyReadCheckDoesNotOverlapMessageTime();
   });
 
   test('Private chat preview renders at first paint', async ({ browser, context, page }, testInfo) => {

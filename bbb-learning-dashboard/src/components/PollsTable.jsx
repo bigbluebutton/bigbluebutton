@@ -7,6 +7,16 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import UserAvatar from './UserAvatar';
 
+const CREATED_ON_FORMAT = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+};
+
 const PollsTable = (props) => {
   const {
     allUsers, polls, intl,
@@ -299,17 +309,25 @@ const PollsTable = (props) => {
   const anonGridRow = [];
   const gridRows = [];
 
-  Object.values(polls).sort((a, b) => b.createdOn - a.createdOn).map((v, i) => {
+  // Shown newest first, but numbered in the order they were asked
+  Object.values(polls).sort((a, b) => b.createdOn - a.createdOn).map((v, i, sortedPolls) => {
     initPollData[`${v?.pollId}`] = '';
-    const headerName = v?.question?.length > 0 ? v?.question : `Poll ${i + 1}`;
+    const headerName = v?.question?.length > 0 ? v?.question : `Poll ${sortedPolls.length - i}`;
     if (v?.anonymous) {
       hasAnonymousPoll = true;
       anonymousPollData[`${v?.pollId}`] = v?.anonymousAnswers;
     }
 
+    let description;
+    if (v?.createdOn) {
+      const createdOn = intl.formatDate(v.createdOn, CREATED_ON_FORMAT);
+      description = v?.question?.length > 0 ? `${headerName} (${createdOn})` : createdOn;
+    }
+
     const commonColProps = {
       field: v?.pollId,
       headerName,
+      description,
       flex: 1,
     };
 
