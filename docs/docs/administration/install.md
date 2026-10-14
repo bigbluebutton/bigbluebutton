@@ -10,13 +10,9 @@ keywords:
 
 We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated Linux server. This document shows you how to install.
 
-
-# BigBlueButton 4.0 is under development. This documentation section is a DRAFT.
-
-
 ## Before you install
 
-We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 24.04 64-bit server with no prior software installed. If you want to upgrade from BigBlueButton 3.0, you could upgrade using the [4.0 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v4.0.x-release).
+We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 24.04 64-bit server with no prior software installed.
 Upgrading from an earlier version of BigBlueButton (2.6, 2.7, 3.0) directly is not supported. We recommend setting up a clean server for BigBlueButton 4.0 on Ubuntu 24.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
