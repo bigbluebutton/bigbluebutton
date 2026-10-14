@@ -56,7 +56,7 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    lastVersion: '3.0',
+                    lastVersion: '4.0',
                     includeCurrentVersion: false,
                     versions: {
                         '2.5': {
@@ -72,8 +72,7 @@ const config = {
                             banner: 'none'
                         },
                         '4.0': {
-                            label: '4.0 (in development)',
-                            banner: 'unreleased'
+                            banner: 'none'
                         }
                     }
                 },
@@ -122,9 +121,9 @@ const config = {
                     // TODO: remove default route to /
                     const redirect_list = [];
 
-                    // Create redirect paths for all routes except 2.5 or 2.6, 2.7 ones
-                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7"))){
-                        redirect_list.push("/3.0" + path);
+                    // Create /4.0 redirect paths for all routes except 2.5, 2.6, 2.7 or 3.0 ones
+                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7") || path.startsWith("/3.0"))){
+                        redirect_list.push("/4.0" + path);
                     }
 
                     if ( path.includes("/testing/release-testing") ){
@@ -180,7 +179,7 @@ const config = {
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v3.0.x-release/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v4.0.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },
