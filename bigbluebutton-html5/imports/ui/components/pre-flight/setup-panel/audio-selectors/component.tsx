@@ -16,6 +16,7 @@ import AudioDeviceSelectors, {
   AUDIO_INPUT,
   AUDIO_OUTPUT,
 } from '/imports/ui/components/media-setup/audio-selectors/component';
+import { usePreFlight } from '../../context';
 
 const intlMessages = defineMessages({
   deviceChangeFailed: {
@@ -30,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.audioSettings.speakerSourceLabel',
     description: 'Label of the speaker selector',
   },
+  permissionPending: {
+    id: 'app.preFlight.devicePermissionPending',
+    description: 'Shown under a device selector whose permission the browser refused',
+  },
 });
 
 interface PreFlightAudioSelectorsProps {
@@ -42,6 +47,12 @@ interface PreFlightAudioSelectorsProps {
  */
 const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ listenOnly }) => {
   const intl = useIntl();
+  const {
+    microphoneDenied, setMicrophoneDenied, setMicrophonePending, permissionRetry,
+  } = usePreFlight();
+  // Bumped when the browser's own microphone permission changes, so a grant
+  // made in the site settings clears the denial without a retry.
+  const [permissionChanges, setPermissionChanges] = useState(0);
   const [inputDevices, setInputDevices] = useState<MediaDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = useState<MediaDeviceInfo[]>([]);
   const [inputDeviceId, setInputDeviceId] = useState<string>(
@@ -130,16 +141,54 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
   }, [enableDynamicAudioDeviceSelection, permissionStatus]);
 
   useEffect(() => {
+    let permission: PermissionStatus | null = null;
+    // The query can settle after the cleanup ran: the listener is then never
+    // added, rather than added for good.
+    let cancelled = false;
+    const handleChange = () => setPermissionChanges((count) => count + 1);
+
+    navigator.permissions?.query({ name: 'microphone' as PermissionName })
+      .then((status) => {
+        if (cancelled) return;
+        permission = status;
+        permission.addEventListener('change', handleChange);
+      })
+      // Not every browser names the microphone here; the retry still works.
+      .catch(() => null);
+
+    return () => {
+      cancelled = true;
+      permission?.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  useEffect(() => {
     if (listenOnly) {
       updateDevices();
-      return;
+      return undefined;
     }
 
+    // Only the latest check settles the pending state.
+    let superseded = false;
+    setMicrophonePending(true);
     // Without microphone permission the browser obfuscates the device labels.
+    // Only a refusal counts as denied: an unknown answer gets the benefit of
+    // the doubt, as in the audio modal.
     AudioService.hasMicrophonePermission({ gumOnPrompt: true, permissionStatus })
-      .then(() => updateDevices())
-      .catch(() => null);
-  }, [listenOnly, permissionStatus, updateDevices]);
+      .then((granted: boolean | null) => {
+        setMicrophoneDenied(granted === false);
+        updateDevices();
+      })
+      .catch(() => null)
+      .finally(() => {
+        if (!superseded) setMicrophonePending(false);
+      });
+
+    return () => {
+      superseded = true;
+      setMicrophonePending(false);
+    };
+  }, [listenOnly, permissionStatus, permissionRetry, permissionChanges, updateDevices]);
 
   // A microphone picked in the settings' device test lands in the manager.
   useEffect(() => {
@@ -177,9 +226,15 @@ const PreFlightAudioSelectors: React.FC<PreFlightAudioSelectorsProps> = ({ liste
       onSelectInputDevice={handleSelectInputDevice}
       onSelectOutputDevice={handleSelectOutputDevice}
       inputDisabled={listenOnly}
+      inputError={microphoneDenied && !listenOnly
+        ? intl.formatMessage(intlMessages.permissionPending)
+        : undefined}
       inputAriaLabel={intl.formatMessage(intlMessages.microphoneSourceLabel)}
       outputAriaLabel={intl.formatMessage(intlMessages.speakerSourceLabel)}
+      inputPlaceholder={intl.formatMessage(intlMessages.microphoneSourceLabel)}
+      outputPlaceholder={intl.formatMessage(intlMessages.speakerSourceLabel)}
       inputDataTest="preFlightInputDevice"
+      inputErrorDataTest="preFlightInputDeviceError"
       outputDataTest="preFlightOutputDevice"
     />
   );

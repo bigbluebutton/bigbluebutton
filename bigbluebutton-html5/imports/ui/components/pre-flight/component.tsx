@@ -8,6 +8,10 @@ import Styled from './styles';
 import SetupPanel from './setup-panel/component';
 import { PreFlightErrorDialog } from './error-screen/component';
 import PreFlightSettings from './settings/component';
+import {
+  DevicePermissionActions,
+  DevicePermissionHeader,
+} from './error-screen/device-permission/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
 import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
@@ -50,7 +54,12 @@ interface PreFlightProps {
   // The session heading and whatever states it: above the panel on a phone,
   // beside it otherwise.
   header: React.ReactNode;
+  // The session info above an error; left out while there is none.
   topInfo?: React.ReactNode;
+  // The header already names the session (the join step): a phone, which
+  // keeps the header behind the error dialog, then leaves the info out rather
+  // than name the session twice.
+  headerNamesSession?: boolean;
   // What commits the setup - the join button. Rendered after the panel in both
   // layouts, so it never precedes the controls it commits.
   actions?: React.ReactNode;
@@ -61,14 +70,26 @@ interface PreFlightProps {
   // actions' place beside the panel, and opens as a dialog over the unchanged
   // screen on a phone.
   error?: PreFlightError | null;
+  // Set to the setup's commit, for a join the screen's own button does not
+  // start: a retry after a stalled join carries what was changed meanwhile.
+  // Returns false, committing nothing, while a denied device holds the join
+  // or the browser has yet to answer for one.
+  commitRef?: React.MutableRefObject<(() => boolean) | null>;
+  // On once the user may join, until the join is underway: a denied device
+  // then holds the screen on the permission error until it is sorted out. A
+  // waiting guest keeps the lobby, with the device flagged in the panel.
+  gateJoinOnDevices?: boolean;
 }
 
 const PreFlight: React.FC<PreFlightProps> = ({
   header,
   topInfo = null,
+  headerNamesSession = false,
   actions = null,
   showSetupPanel = true,
   error = null,
+  gateJoinOnDevices = false,
+  commitRef,
 }) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
@@ -96,6 +117,14 @@ const PreFlight: React.FC<PreFlightProps> = ({
     return !!enableVideo && !!autoShareWebcam;
   });
   const [cameraFailed, setCameraFailed] = useState(false);
+  const [microphoneDenied, setMicrophoneDenied] = useState(false);
+  const [cameraDenied, setCameraDenied] = useState(false);
+  const [microphonePending, setMicrophonePending] = useState(false);
+  const [cameraPending, setCameraPending] = useState(false);
+  const [permissionRetry, setPermissionRetry] = useState(0);
+  // Where listen only is off, a denied microphone can still be passed over:
+  // the user joins without audio and can join it from the session.
+  const [microphoneSkipped, setMicrophoneSkipped] = useState(false);
   const commitCameraRef = useRef<(() => void) | null>(null);
   const audioModeTouched = useRef(false);
 
@@ -154,10 +183,20 @@ const PreFlight: React.FC<PreFlightProps> = ({
     setJoinMutedState(muted);
   }, []);
 
+  const joiningWithoutAudio = audioMode === AUDIO_MODES.MICROPHONE
+    && microphoneDenied && microphoneSkipped;
+  // A denial only matters for what the user is about to join with.
+  const microphoneBlocked = microphoneDenied && audioMode === AUDIO_MODES.MICROPHONE
+    && !microphoneSkipped;
+  const cameraBlocked = cameraDenied && shareCamera;
+  const devicesBlocked = microphoneBlocked || cameraBlocked;
+  const devicesPending = (microphonePending && audioMode === AUDIO_MODES.MICROPHONE
+    && !microphoneSkipped) || (cameraPending && shareCamera);
+
   const commit = useCallback(() => {
     const listenOnly = audioMode === AUDIO_MODES.LISTEN_ONLY;
 
-    setUserSelectedMicrophone(!listenOnly);
+    setUserSelectedMicrophone(!listenOnly && !joiningWithoutAudio);
     setUserSelectedListenOnly(listenOnly);
 
     if (!listenOnly) {
@@ -170,7 +209,22 @@ const PreFlight: React.FC<PreFlightProps> = ({
     if (willShareCamera) commitCameraRef.current?.();
 
     setPreFlightCompleted(true);
-  }, [audioMode, joinMuted, shareCamera, cameraFailed]);
+  }, [audioMode, joinMuted, shareCamera, cameraFailed, joiningWithoutAudio]);
+
+  useEffect(() => {
+    if (!commitRef) return undefined;
+    // eslint-disable-next-line no-param-reassign
+    commitRef.current = () => {
+      if (devicesBlocked || devicesPending) return false;
+      commit();
+      return true;
+    };
+
+    return () => {
+      // eslint-disable-next-line no-param-reassign
+      commitRef.current = null;
+    };
+  }, [commitRef, commit, devicesBlocked, devicesPending]);
 
   const contextValue = useMemo(() => ({
     audioMode,
@@ -181,9 +235,61 @@ const PreFlight: React.FC<PreFlightProps> = ({
     setShareCamera,
     cameraFailed,
     setCameraFailed,
+    microphoneDenied,
+    setMicrophoneDenied,
+    cameraDenied,
+    setCameraDenied,
+    setMicrophonePending,
+    setCameraPending,
+    devicesPending,
+    permissionRetry,
+    joiningWithoutAudio,
     commitCameraRef,
     commit,
-  }), [audioMode, setAudioMode, joinMuted, setJoinMuted, shareCamera, cameraFailed, commit]);
+  }), [
+    audioMode,
+    setAudioMode,
+    joinMuted,
+    setJoinMuted,
+    shareCamera,
+    cameraFailed,
+    microphoneDenied,
+    cameraDenied,
+    devicesPending,
+    permissionRetry,
+    joiningWithoutAudio,
+    commit,
+  ]);
+
+  let activeError = error;
+  if (!activeError && gateJoinOnDevices && devicesBlocked) {
+    const retryPermissions = () => setPermissionRetry((count) => count + 1);
+    const listenOnly = microphoneBlocked && canListenOnly
+      ? () => {
+        setAudioMode(AUDIO_MODES.LISTEN_ONLY);
+        if (cameraBlocked) setShareCamera(false);
+      }
+      : null;
+    const withoutMicrophone = microphoneBlocked && !canListenOnly
+      ? () => {
+        setMicrophoneSkipped(true);
+        if (cameraBlocked) setShareCamera(false);
+      }
+      : null;
+
+    activeError = {
+      header: <DevicePermissionHeader />,
+      actions: (
+        <DevicePermissionActions
+          onListenOnly={listenOnly}
+          onContinueWithoutMicrophone={withoutMicrophone}
+          onContinueWithoutCamera={cameraBlocked ? () => setShareCamera(false) : null}
+          onRetry={retryPermissions}
+        />
+      ),
+      onClose: retryPermissions,
+    };
+  }
 
   return (
     <PreFlightContext.Provider value={contextValue}>
@@ -195,7 +301,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
         <Styled.Page data-test="preFlight">
           {isPhoneWidth && (
             <Styled.HeaderColumn>
-              {topInfo}
+              {activeError && !headerNamesSession && topInfo}
               {header}
             </Styled.HeaderColumn>
           )}
@@ -209,11 +315,11 @@ const PreFlight: React.FC<PreFlightProps> = ({
             </Styled.SetupColumn>
           )}
           <Styled.ContentColumn>
-            {!isPhoneWidth && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
-            {!isPhoneWidth && error ? (
+            {!isPhoneWidth && activeError && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
+            {!isPhoneWidth && activeError ? (
               <Styled.CenterStack>
-                {error.header}
-                <Styled.ActionBar>{error.actions}</Styled.ActionBar>
+                {activeError.header}
+                <Styled.ActionBar>{activeError.actions}</Styled.ActionBar>
               </Styled.CenterStack>
             ) : (
               <Styled.CenterStack>
@@ -223,10 +329,10 @@ const PreFlight: React.FC<PreFlightProps> = ({
             )}
           </Styled.ContentColumn>
         </Styled.Page>
-        {isPhoneWidth && error && (
-          <PreFlightErrorDialog onClose={error.onClose}>
-            {error.header}
-            {error.actions}
+        {isPhoneWidth && activeError && (
+          <PreFlightErrorDialog onClose={activeError.onClose}>
+            {activeError.header}
+            {activeError.actions}
           </PreFlightErrorDialog>
         )}
       </ThemeProvider>

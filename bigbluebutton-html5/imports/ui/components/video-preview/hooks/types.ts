@@ -67,6 +67,8 @@ export interface UseVideoPreviewReturn {
   viewState: string;
   deviceError: string | null;
   previewError: string | null;
+  // The browser refused the camera; cleared once a stream comes through.
+  permissionDenied: boolean;
   isCameraLoading: boolean;
   brightness: number;
   wholeImageBrightness: boolean;
