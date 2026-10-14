@@ -26,6 +26,7 @@ import {
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
@@ -34,6 +35,29 @@ import {
 const Separator = styled(BaseSeparator)``;
 
 const PanelContent = styled(BasePanelContent)``;
+
+// A button whose label ellipsizes instead of overflowing, capped at its container's width
+// so it also truncates where a card centers it at its content width. BBButton can't
+// truncate a label yet (bigbluebutton/bbb-ui-components-react#106), so this reaches its
+// label span.
+const TruncatingButton = styled(BBButton)`
+  min-width: 0;
+  max-width: 100%;
+
+  & > span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+`;
+
+// For a bottom bar's pair: the buttons drop to one per line before they get narrow
+// enough to truncate. Only for rows: in a column the 10rem basis becomes a height.
+const BottomBarButton = styled(TruncatingButton)`
+  flex: 1 1 10rem;
+`;
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -363,6 +387,8 @@ const NotAssignedHelpText = styled.p`
 export default {
   Separator,
   PanelContent,
+  TruncatingButton,
+  BottomBarButton,
   BreakoutActions,
   AlreadyConnected,
   JoinButton,
