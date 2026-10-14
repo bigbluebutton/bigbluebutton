@@ -7,7 +7,7 @@ import {
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
 import browserInfo from '/imports/utils/browserInfo';
 import { MutationFunction } from '@apollo/client';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import { BBButton, BBBCheckbox } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
@@ -20,7 +20,6 @@ import {
   getSessionVirtualBackgroundInfoWithDefault,
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
 import AppService from '/imports/ui/components/app/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useVideoPreview } from './hooks/useVideoPreview';
@@ -430,15 +429,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           <Styled.Marker>100</Styled.Marker>
         </Styled.MarkerWrapper>
         <div style={{ display: 'flex', marginTop: '.5rem' }}>
-          <Checkbox
+          <BBBCheckbox
             onChange={handleBrightnessAreaChange}
             checked={wholeImageBrightness}
-            ariaLabel={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
-            ariaDescribedBy="whole-image-desc"
-            ariaDesc={intl.formatMessage(intlMessages.wholeImageBrightnessDesc)}
             disabled={!isVirtualBackgroundSupported() || isCameraLoading}
             label={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
+            slotProps={{ input: { 'aria-describedby': 'whole-image-desc' } }}
           />
+          <div id="whole-image-desc" hidden>
+            {intl.formatMessage(intlMessages.wholeImageBrightnessDesc)}
+          </div>
         </div>
       </Styled.InternCol>
     );
