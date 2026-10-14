@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
 import KEYS from '/imports/utils/keys';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from '../styles';
@@ -8,15 +7,12 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import useMuteSoundAlert from '/imports/ui/core/hooks/useMuteSoundAlert';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
-import VideoService from '/imports/ui/components/video-provider/service';
 import {
   startPushToTalk,
   stopPushToTalk,
   isMutedAlertEnabled,
 } from '../service';
 import {
-  muteAway,
   muteLoadingState,
   useIsMuteLoading,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
@@ -74,7 +70,6 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();
-  const [setAway] = useMutation(SET_AWAY);
   const MUTED_ALERT_ENABLED = isMutedAlertEnabled();
 
   const unmuteAudioLabel = away ? intlMessages.umuteAudioAndSetActive : intlMessages.unmuteAudio;
@@ -153,20 +148,10 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   const onClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    if (muted) {
-      if (away) {
-        if (!noInputDevice) muteAway(muted, true, toggleVoice);
-        VideoService.setTrackEnabled(true);
-        setAway({
-          variables: {
-            away: false,
-          },
-        });
-      } else if (noInputDevice) {
-        // User is in duplex audio, passive-sendrecv, but has no input device set
-        // Open the audio settings modal to allow them to select an input device
-        openAudioSettings({ unmuteOnExit: true });
-      }
+    if (muted && noInputDevice) {
+      // User is in duplex audio, passive-sendrecv, but has no input device set
+      // Open the audio settings modal to allow them to select an input device
+      openAudioSettings({ unmuteOnExit: true });
     }
 
     toggleMuteMicrophone(muted, toggleVoice);

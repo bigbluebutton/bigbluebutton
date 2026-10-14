@@ -215,6 +215,16 @@ export const muteAway = (
   VideoService.setTrackEnabled(away);
 };
 
+// Coming back from away without touching the microphone: restores the speaker
+// and webcam, and clears the flag so that a later return from away does not
+// unmute a microphone that was muted before.
+export const restoreFromAway = (
+  voiceToggle: (userId: string, muted: boolean) => void,
+) => {
+  Storage.setItem('prevAwayMuted', false);
+  muteAway(false, true, voiceToggle);
+};
+
 export const isMutedAlertEnabled = () => {
   const { enabled = false } = window.meetingClientSettings.public.app.mutedAlert;
   return enabled;

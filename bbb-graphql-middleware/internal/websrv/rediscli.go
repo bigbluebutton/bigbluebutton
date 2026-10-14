@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"bbb-graphql-middleware/config"
@@ -16,13 +17,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var redisClient = redis.NewClient(&redis.Options{
-	Addr:     fmt.Sprintf("%s:%d", config.GetConfig().Redis.Host, config.GetConfig().Redis.Port),
-	Password: config.GetConfig().Redis.Password,
-	DB:       0,
-})
+var (
+	redisClient     *redis.Client
+	redisClientOnce sync.Once
+)
 
+// GetRedisConn returns the shared Redis client, building it on first use.
+//
+// Built here rather than at package initialisation so that importing this package does not read
+// the config file.
 func GetRedisConn() *redis.Client {
+	redisClientOnce.Do(func() {
+		cfg := config.GetConfig()
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
+			Password: cfg.Redis.Password,
+			DB:       0,
+		})
+	})
+
 	return redisClient
 }
 
@@ -86,7 +99,7 @@ func StartRedisListener() {
 			reason := receivedMessage.Core.Body["reason"]
 			log.Infof("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
-			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string), fmt.Sprintf("%v", reason))
 		}
 
 		if messageName == "ForceUserGraphqlDisconnectionSysMsg" {
@@ -115,6 +128,9 @@ func StartRedisListener() {
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 			go streamingserver.RemoveUserCursorsCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+			// The voice state row is normally cleared by the user's own voice events; a user who
+			// leaves the meeting must not stay in the replay cache if that event never arrives.
+			go streamingserver.RemoveUserUserVoiceStatesCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 		}
 
 		if messageName == "SendCursorPositionEvtMsg" {

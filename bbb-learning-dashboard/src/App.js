@@ -410,7 +410,8 @@ class App extends React.Component {
 
     const usersCount = Object.values(activitiesJson.users || {})
       .filter((u) => activitiesJson.endedOn > 0
-        || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+        || Object.values(u.intIds)[Object.values(u.intIds).length - 1]
+          .sessions.slice(-1)[0].leftOn === 0)
       .length;
 
     const polls = Object.fromEntries(Object

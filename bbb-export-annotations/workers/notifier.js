@@ -76,9 +76,6 @@ if (jobType == 'PresentationWithAnnotationDownloadJob') {
   const filePath = path.join(baseDirectory, subDirectory,
       jobId, serverSideFilename);
   await upload(filePath);
-} else if (jobType == 'PadCaptureJob') {
-  const filePath = `${dropbox}/${serverSideFilename}`;
-  await upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);
 }

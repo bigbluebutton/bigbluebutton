@@ -421,8 +421,6 @@ export class Layouts extends MultiUsers {
     await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
     await this.userPage.getVisibleLocator(e.unfocusWebcamBtn).click();
     await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
-    // Every tile keeps its dropdown menu in the DOM, so scope the probe to the
-    // visible (open) menu.
     await expect(
       this.userPage.getVisibleLocator(e.focusWebcamBtn),
       'the focused camera tile should offer focus again after the viewer unfocuses locally',
@@ -634,6 +632,83 @@ export class Layouts extends MultiUsers {
     // layout instead (mirror of issue 25590)
     await this.modPage.setHeightWidthViewPortSize(MOBILE_VIEWPORT);
     await assertMobileLayoutActive(this.modPage);
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutRestoreClearsGridAvatars() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitAndClick(e.joinVideo);
+    await this.userPage.waitAndClick(e.startSharingWebcam);
+    await this.userPage.waitForSelector(e.leaveVideo);
+    const extraAttendees: Page[] = [];
+    for (let i = 2; i <= 9; i += 1) {
+      const attendeePage = await this.context.newPage();
+      const attendee = new Page(this.browser, attendeePage, this.modPage.testInfo);
+      // eslint-disable-next-line no-await-in-loop
+      await attendee.init(false, {
+        fullName: `Attendee${i}`,
+        meetingId: this.modPage.meetingId,
+      });
+      extraAttendees.push(attendee);
+    }
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      10,
+      'the minimized presentation should show all ten participants in the grid',
+    );
+
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      1,
+      'restoring the presentation should remove stale grid avatars and keep the shared webcam',
+    );
+    await this.modPage.wasRemoved(
+      `${e.webcamVideoItem}[data-video-type="grid"]`,
+      'restoring the presentation should remove every grid avatar',
+    );
+
+    const [departingAttendee] = extraAttendees;
+    await departingAttendee.logoutFromMeeting();
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      1,
+      'a participant leaving while the presentation is open should not restore stale grid avatars',
+    );
+
+    const latePage = await this.context.newPage();
+    const lateAttendee = new Page(this.browser, latePage, this.modPage.testInfo);
+    await lateAttendee.init(false, {
+      fullName: 'LateAttendee',
+      meetingId: this.modPage.meetingId,
+    });
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      1,
+      'a participant joining while the presentation is open should not restore stale grid avatars',
+    );
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await expect
+      .poll(() => this.modPage.getVisibleLocator(e.webcamVideoItem).count(), {
+        message: 'minimizing again should restore the participant grid',
+      })
+      .toBeGreaterThanOrEqual(9);
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.hasElementCount(e.webcamVideoItem, 1, 'restoring again should keep only the shared webcam');
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone({ shouldUnmute: true });
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      2,
+      'an audio-only speaking tile should remain next to the shared webcam over the open presentation',
+    );
 
     await this.attachPageVideos();
   }

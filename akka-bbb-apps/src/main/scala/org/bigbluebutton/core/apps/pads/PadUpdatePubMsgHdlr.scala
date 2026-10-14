@@ -5,6 +5,8 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 
+// TODO(4.1 etherpad removal, #25720): delete this handler once bbb-transcription-controller is
+// confirmed not to publish PadUpdatePubMsg (its bbb-pads consumer is gone).
 trait PadUpdatePubMsgHdlr {
   this: PadsApp2x =>
 

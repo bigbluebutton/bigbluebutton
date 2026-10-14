@@ -1,9 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 
 	"dario.cat/mergo"
@@ -121,9 +123,55 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 	"Patched_userCurrentSubscription",
 }
 
+// ReconnectionReasonsPreservingMembership lists the reconnection reasons that cannot have changed
+// a user's meeting membership - they carry role, lock or presenter changes only.
+//
+// This is an allowlist, and it must stay one. Any reason not listed here, including one this list
+// has never seen, is treated as possibly membership-changing. The inverse formulation is not
+// available: the eject paths in akka-apps forward a human-readable sentence rather than a reason
+// code, so the set of reasons that DO change membership is open-ended. Entries here correspond to
+// fixed literals in akka-apps; anything dynamic belongs outside the list.
+var ReconnectionReasonsPreservingMembership = []string{
+	"role_changed",
+	"lock_user_changed",
+	"lockSettings_changed",
+	"webcamOnlyForMod_changed",
+	"assigned_presenter",
+	"assigned_presenter_automatically",
+}
+
+// Operation names of the subscriptions the Middleware answers itself. Declared once and used by
+// name everywhere, so the handler that fans a stream out, the list below and the teardown that
+// removes it cannot drift apart.
+const (
+	OpCursorCoordinatesStream = "getCursorCoordinatesStream"
+	OpNotificationStream      = "getNotificationStream"
+	OpChatMessageStream       = "getChatMessageStream"
+	OpUserVoiceStateStream    = "getUserVoiceStateStream"
+)
+
 var StreamingSubscriptionsManagedByMiddleware = []string{
-	"getCursorCoordinatesStream",
-	"getNotificationStream",
-	"getChatMessageStream",
-	"getUserVoiceStateStream",
+	OpCursorCoordinatesStream,
+	OpNotificationStream,
+	OpChatMessageStream,
+	OpUserVoiceStateStream,
+}
+
+// ValidateSubscriptionLists reports a middleware-managed stream that also appears in the
+// not-in-meeting allowlist.
+//
+// The two lists express the same invariant - what a connection that is not a meeting member may
+// receive - by different means. AllowedSubscriptionsForNotInMeetingUsers governs subscriptions
+// forwarded to Hasura; the streaming server answers its own and does not consult that list, denying
+// every one of them to a non-member. An operation named in both would therefore read as permitted
+// before joining and behave as denied, so it is refused at startup rather than silently doing
+// nothing.
+func ValidateSubscriptionLists() error {
+	for _, operationName := range StreamingSubscriptionsManagedByMiddleware {
+		if slices.Contains(AllowedSubscriptionsForNotInMeetingUsers, operationName) {
+			return fmt.Errorf("operation %q is both middleware-managed and in the not-in-meeting allowlist", operationName)
+		}
+	}
+
+	return nil
 }

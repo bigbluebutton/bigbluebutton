@@ -2,6 +2,7 @@ import React, { useId } from 'react';
 import { capitalize } from 'radash';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { defineMessages, useIntl } from 'react-intl';
+import useRemInPixels from '/imports/ui/hooks/useRemInPixels';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -43,6 +44,7 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
 
   const intl = useIntl();
   const id = useId();
+  const emojiSize = useRemInPixels(1);
 
   let usersLabel = '';
   if (userNames.length) {
@@ -77,9 +79,7 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
         }}
       >
         <em-emoji
-          size={parseFloat(
-            window.getComputedStyle(document.documentElement).fontSize,
-          )}
+          size={emojiSize}
           emoji={{
             native: reactionEmoji,
           }}

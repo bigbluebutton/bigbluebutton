@@ -22,6 +22,7 @@ import ListenOnly from './buttons/listenOnly';
 import LiveSelection from './buttons/LiveSelection';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import Auth from '/imports/ui/services/auth';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
@@ -270,10 +271,10 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
     };
   });
 
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
-  const muted = Boolean(currentUser?.userId && !unmutedUsers[currentUser.userId]);
+  const { data: currentUserTalking } = useWhoIsTalking(Auth.userID as string);
+  const { data: currentUserUnmuted } = useWhoIsUnmuted(Auth.userID as string);
+  const talking = Boolean(currentUser?.userId && currentUserTalking);
+  const muted = Boolean(currentUser?.userId && !currentUserUnmuted);
 
   const { data: currentMeeting } = useMeeting((m) => {
     return {

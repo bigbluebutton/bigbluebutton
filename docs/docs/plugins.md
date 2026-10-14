@@ -132,7 +132,7 @@ All plugin sources are combined into a single list with duplicates removed. This
 You can use placeholders in the plugin URLs defined in any of the previously mentioned configurations. Currently, the only supported placeholder is:
 
 - `%%HTML5_PLUGIN_SDK_VERSION%%` – This will be automatically replaced by the version of the `bigbluebutton-html-plugin-sdk` used by `bigbluebutton-html5`.
-- `%%HTML5_PLUGIN_SDK_MAIN_VERSION%%` – This will be automatically replaced by the Main version of the `bigbluebutton-html-plugin-sdk` - Composed by Major + Minor (e.g.: `0.0` for `0.0.84`) - used by `bigbluebutton-html5`.
+- `%%HTML5_PLUGIN_SDK_MAIN_VERSION%%` – This will be automatically replaced by the Main version of the `bigbluebutton-html-plugin-sdk`, following semver compatibility: just the Major from `1.0` on (e.g.: `1` for `1.0.0-beta.3` and for `1.2.0`), Major + Minor for `0.x` versions, where every Minor is a breaking change (e.g.: `0.1` for `0.1.26`) - used by `bigbluebutton-html5`.
 - `%%BBB_VERSION%%` – This will be automatically replaced by the complete BigBlueButton server version (e.g.: `3.0.6`) from which the URL is called.
 - `%%BBB_MAIN_VERSION%%` – This will be automatically replaced by the current BigBlueButton server Main version - Composed by Major + Minor (e.g.: `3.0` for `3.0.6`) from which the URL is called.
 - `%%MEETING_ID%%` – This will be automatically replaced by the external meeting ID.
@@ -205,6 +205,15 @@ Official plugins on the legacy `0.0.x` line therefore use tilde ranges, as shown
 in the examples below. Plugins on the `0.1.x` line use caret ranges. This caret
 convention continues to express compatibility when the SDK reaches `1.x`: for
 example, `^1.0.0` accepts compatible `1.x` releases and rejects `2.0.0`.
+
+Pre-release SDK versions follow npm's pre-release rule: a pre-release only
+satisfies a range in which some comparator names a pre-release of the same
+`major.minor.patch`. While the server runs `1.0.0-beta.3`, `^1.0.0`, `0.x` and
+`>=0.1.5` all reject it, because none of them names a `1.0.0` pre-release. To
+load on a pre-release SDK and still support the stable line, declare both, for
+example `^0.1.5 || ^1.0.0-beta.1`. `^1.0.0-beta.1` also accepts the final
+`1.0.0` and later `1.x` releases, but rejects pre-releases of other versions such
+as `1.1.0-alpha.1`.
 
 Here is a complete `manifest.json` example with all possible configurations:
 

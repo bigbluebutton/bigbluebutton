@@ -46,7 +46,6 @@
   - `hasScreenshare: Boolean`
   - `hasTimer: Boolean`
   - `isSharedNotesPinned: Boolean`
-  - `isEtherpadSharedNotes: Boolean`
   - `showRemainingTime: Boolean`
 - `externalVideo: Object` [Type externalVideo](#type-externalVideo)
 - `groups: Array` [Type meeting_group](#type-meeting_group)
@@ -129,7 +128,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `sessionCurrent: Object` [Type user_session_current](#type-user_session_current)
-- `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharednotes_session)
 - `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionerror)
 - `userClientSettings: Object` [Type user_clientSettings](#type-user_clientsettings)
 - `userLockSettings: Object` **Type user_lockSettings**
@@ -315,7 +313,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `hasScreenshare`
 - `hasTimer`
 - `isSharedNotesPinned`
-- `isEtherpadSharedNotes`
 - `showRemainingTime`
 
 ## Type: pres_page
@@ -383,8 +380,8 @@ Permission: Restricted to User Viewing Self-Related Data
 - `userId`
 
 ## Type: user_voice
+Permission: Restricted by Lock Settings
 ### Fields:
-- `callerName`
 - `callerNum`
 - `callingWith`
 - `endTime`
@@ -393,7 +390,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastFloorTime`
 - `listenOnly`
 - `muted`
-- `requestedUnmuteByMod`
+- `listenOnlyInputDevice`
 - `deafened`
 - `spoke`
 - `startTime`
@@ -747,22 +744,12 @@ Permission: Restricted to User Viewing Self-Related Data
 
 ## Type: sharedNotes
 ### Fields:
-- `lastRev`
+- `lastUpdatedAt`
 - `model`
 - `name`
-- `sharedNotesEditor`
 - `padId`
 - `pinned`
 - `sharedNotesExtId`
-
-## Type: sharedNotes_session
-Permission: Restricted to User Viewing Self-Related Data
-### Fields:
-- `padId`
-- `sessionId`
-- `sharedNotesExtId`
-### Relationships:
-- `sharedNotes: Object` [Type sharednotes](#type-sharednotes)
 
 ## Type: user_connectionStatusHistory
 Permission: Restricted to Moderators or the User Viewing Self-Related Data
@@ -787,6 +774,7 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 - `user: Object` [Type User](#type-user)
 
 ## Type: user_reaction
+Permission: Restricted by Lock Settings
 ### Fields:
 - `createdAt`
 - `expiresAt`
@@ -796,6 +784,7 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 - `user: Object` [Type User](#type-user)
 
 ## Type: user_reaction_current
+Permission: Restricted by Lock Settings
 ### Fields:
 - `reactionEmoji`
 - `userId`
@@ -844,15 +833,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `uploadTemporaryId`
 - `uploadToken`
 
-## Type: sharedNotes_diff
-### Fields:
-- `diff`
-- `end`
-- `rev`
-- `sharedNotesExtId`
-- `start`
-- `userId`
-
 ## Type: user_metadata
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
@@ -860,8 +840,10 @@ Permission: Restricted to User Viewing Self-Related Data
 - `value`
 
 ## Type: user_voice_activity
+Permission: Restricted by Lock Settings
 ### Fields:
 - `endTime`
+- `meetingId`
 - `muted`
 - `startTime`
 - `talking`
