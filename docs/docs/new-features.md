@@ -336,7 +336,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 #### Other removed configuration
 
-- `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client-side WebRTC stats logging](#client-side-webrtc-stats-logging)).
+- `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client settings (settings.yml) changes](#client-settings-settingsyml-changes)).
 - `captions` is no longer a valid `disabledFeatures` value. It has had no effect since BBB 3.0, when typed captions moved to a plugin. Use `liveTranscription` to disable automatic transcription.
 
 ### Changes to events.xml
