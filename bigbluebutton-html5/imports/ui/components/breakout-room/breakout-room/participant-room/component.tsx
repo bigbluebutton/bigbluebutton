@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
@@ -279,17 +278,15 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
           <Styled.InfoText>
             {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
           </Styled.InfoText>
-          <Styled.ButtonWrapper>
-            <BBButton
-              variant="primary"
-              dataTest={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
-              label={isCurrentlyInRoom
-                ? intl.formatMessage(intlMessages.alreadyConnected)
-                : intl.formatMessage(intlMessages.joinRoom)}
-              disabled={isCurrentlyInRoom}
-              onClick={handleEnterRoom}
-            />
-          </Styled.ButtonWrapper>
+          <Styled.CardButton
+            variant="primary"
+            dataTest={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
+            label={isCurrentlyInRoom
+              ? intl.formatMessage(intlMessages.alreadyConnected)
+              : intl.formatMessage(intlMessages.joinRoom)}
+            disabled={isCurrentlyInRoom}
+            onClick={handleEnterRoom}
+          />
         </Styled.InfoCard>
       );
     }
@@ -347,19 +344,17 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                       <Icon iconName="user_list" />
                     </Styled.FreeJoinRoomCount>
                   </Styled.FreeJoinRoomCardHeader>
-                  <Styled.ButtonWrapper>
-                    <BBButton
-                      variant={isCurrent ? 'primary' : 'secondary'}
-                      label={(() => {
-                        if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
-                        if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
-                        return intl.formatMessage(intlMessages.requestToJoin);
-                      })()}
-                      disabled={isRequesting || breakout.isUserCurrentlyInRoom}
-                      onClick={() => handleFreeJoinRoom(breakout)}
-                      dataTest={`freeJoinRoom${breakout.sequence}`}
-                    />
-                  </Styled.ButtonWrapper>
+                  <Styled.CardButton
+                    variant={isCurrent ? 'primary' : 'secondary'}
+                    label={(() => {
+                      if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
+                      if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
+                      return intl.formatMessage(intlMessages.requestToJoin);
+                    })()}
+                    disabled={isRequesting || breakout.isUserCurrentlyInRoom}
+                    onClick={() => handleFreeJoinRoom(breakout)}
+                    dataTest={`freeJoinRoom${breakout.sequence}`}
+                  />
                 </Styled.FreeJoinRoomCard>
               );
             })}
@@ -370,22 +365,18 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       )}
       {isInBreakout && (
         <Styled.BottomBar>
-          <Styled.ButtonWrapper>
-            <BBButton
-              variant="primary"
-              label={intl.formatMessage(intlMessages.callModerator)}
-              onClick={handleCallModerator}
-              dataTest="callModeratorButton"
-            />
-          </Styled.ButtonWrapper>
-          <Styled.ButtonWrapper>
-            <BBButton
-              variant="secondary"
-              label={intl.formatMessage(intlMessages.returnToMainSession)}
-              onClick={handleReturnToMainSession}
-              dataTest="returnToMainSessionButton"
-            />
-          </Styled.ButtonWrapper>
+          <Styled.BottomBarButton
+            variant="primary"
+            label={intl.formatMessage(intlMessages.callModerator)}
+            onClick={handleCallModerator}
+            dataTest="callModeratorButton"
+          />
+          <Styled.BottomBarButton
+            variant="secondary"
+            label={intl.formatMessage(intlMessages.returnToMainSession)}
+            onClick={handleReturnToMainSession}
+            dataTest="returnToMainSessionButton"
+          />
         </Styled.BottomBar>
       )}
     </Styled.PanelContent>

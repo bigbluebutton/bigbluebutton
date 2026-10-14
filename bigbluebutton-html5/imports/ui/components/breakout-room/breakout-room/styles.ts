@@ -26,6 +26,7 @@ import {
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
@@ -34,6 +35,42 @@ import {
 const Separator = styled(BaseSeparator)``;
 
 const PanelContent = styled(BasePanelContent)``;
+
+// A bottom bar's button. The pair drops to one per line before the buttons get narrow
+// enough to truncate; a label that still doesn't fit ellipsizes. Only for rows: in a
+// column the 10rem basis becomes a height. BBButton can't truncate a label yet
+// (bigbluebutton/bbb-ui-components-react#106), so this reaches its label span.
+const BottomBarButton = styled(BBButton)`
+  flex: 1 1 10rem;
+  min-width: 0;
+  max-width: 100%;
+
+  & > span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+`;
+
+// A room card's button. A card can be as narrow as 7.5rem, so its label wraps instead of
+// being cut, hyphenating a word that doesn't fit where the browser can. The button fills
+// its card's spare height, so the buttons of one row of cards match. BBButton keeps a
+// label on one line (bigbluebutton/bbb-ui-components-react#105), so this reaches its
+// label span.
+const CardButton = styled(BBButton)`
+  flex-grow: 1;
+  min-width: 0;
+  max-width: 100%;
+
+  & > span {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+`;
 
 const BreakoutActions = styled.div`
   display: flex;
@@ -363,6 +400,8 @@ const NotAssignedHelpText = styled.p`
 export default {
   Separator,
   PanelContent,
+  BottomBarButton,
+  CardButton,
   BreakoutActions,
   AlreadyConnected,
   JoinButton,
