@@ -216,6 +216,7 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0)
 - [4.0.0-rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.5)
 - [4.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.4)
 - [4.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.3)
