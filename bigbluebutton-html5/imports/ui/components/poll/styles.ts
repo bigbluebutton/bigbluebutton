@@ -739,12 +739,11 @@ const SelectedCorrectAnswerIndicator = styled.span<SelectedCorrectAnswerIndicato
   `}
 `;
 
+// Sits under the option instead of over it, so it never hides the option text.
 const CorrectLabel = styled.div`
-  position: absolute;
-  top: 50%;
-  right: 2rem;
-  transform:  translate(0, -50%);
-  border-radius: 9999px; 
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  border-radius: 9999px;
   color: ${colorGreen600};
   background-color: ${colorGreen100};
   padding: 0.25rem 0.50rem;
@@ -754,6 +753,7 @@ const CorrectLabel = styled.div`
 
 const PollInputContainer = styled.div`
   display: flex;
+  flex-direction: column;
   flex: 1 1 0%;
   position: relative;
 `;

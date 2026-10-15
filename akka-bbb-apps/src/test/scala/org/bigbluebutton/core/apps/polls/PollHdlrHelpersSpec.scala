@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.polls
 
+import org.bigbluebutton.common2.msgs.{ StartCustomPollReqMsgBody, StartPollReqMsgBody }
 import org.scalatest.flatspec.AnyFlatSpec
 
 // Exercises the answer-id bounds filter that keeps a malformed poll vote from
@@ -62,5 +63,33 @@ class PollHdlrHelpersSpec extends AnyFlatSpec {
 
   it should "collapse duplicate valid ids on a multi-response vote" in {
     assert(selectValidAnswerIds(Seq(1, 1, 0), multiResponse = true, validAnswerIds) == Seq(1, 0))
+  }
+
+  private def customBody(question: String, answers: Seq[String], correctAnswer: String) =
+    StartCustomPollReqMsgBody("user", "poll", "CUSTOM", secretPoll = false, multipleResponse = false,
+      quiz = true, question, answers, correctAnswer)
+
+  it should "cut a custom poll question and each option to their own limits" in {
+    val limited = PollHdlrHelpers.limitStartCustomPollBody(
+      customBody("q" * 600, Seq("a" * 103, "short"), ""), maxQuestionLength = 500, maxOptionLength = 100)
+    assert(limited.question.length == 500)
+    assert(limited.answers.map(_.length) == Seq(100, 5))
+  }
+
+  it should "cut the quiz correct answer like the option it names" in {
+    val limited = PollHdlrHelpers.limitStartCustomPollBody(
+      customBody("q", Seq("a" * 103), "a" * 103), maxQuestionLength = 500, maxOptionLength = 100)
+    assert(limited.correctAnswer == limited.answers.head)
+  }
+
+  it should "leave a custom poll within the limits untouched" in {
+    val body = customBody("question", Seq("A", "B"), "B")
+    assert(PollHdlrHelpers.limitStartCustomPollBody(body, maxQuestionLength = 500, maxOptionLength = 100) == body)
+  }
+
+  it should "cut the question of a regular poll" in {
+    val body = StartPollReqMsgBody("user", "poll", "A-4", secretPoll = false, multipleResponse = false,
+      quiz = false, "q" * 600, "")
+    assert(PollHdlrHelpers.limitStartPollBody(body, maxQuestionLength = 500).question.length == 500)
   }
 }

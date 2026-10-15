@@ -240,6 +240,17 @@ export const validateInput = (input: string) => {
   return i;
 };
 
+// In custom input the first line is the question and the others are options, each
+// cut to its own limit.
+export const limitQuestionAndOptionLines = (
+  input: string,
+  maxQuestionLength: number,
+  maxOptionLength: number,
+) => input
+  .split('\n')
+  .map((line, index) => line.substring(0, index === 0 ? maxQuestionLength : maxOptionLength))
+  .join('\n');
+
 export const getSplittedQuestionAndOptions = (questionAndOptions: string[] | string) => {
   const inputList = Array.isArray(questionAndOptions)
     ? questionAndOptions

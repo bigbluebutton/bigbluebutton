@@ -61,7 +61,7 @@ const QuickPollDropdown = (props) => {
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
   const QUICK_POLL_CORRECT_ANSWER_SUFFIX = POLL_SETTINGS.quiz.quickPollCorrectAnswerSuffix;
   const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-  const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
+  const MAX_CHAR_LIMIT = POLL_SETTINGS.maxOptionLength;
   const CANCELED_POLL_DELAY = 250;
 
   // Utility function to escape special characters for regex
