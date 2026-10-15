@@ -337,6 +337,16 @@ Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the follo
 
 The bbb-web stack (Grails, Gradle, Groovy, Spring, Spring Boot and Tomcat) was upgraded in BigBlueButton 3.0.40; earlier 3.0 releases shipped Grails 7.0.12, Gradle 8.14.3, Groovy 4.0.21, Spring 6.2.19, Spring Boot 3.5.16 and Tomcat 10.1.
 
+#### bbb-web on Grails 8: what changes for integrations and administrators
+
+- Grails 8 can add four browser security headers to every bbb-web response (`X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-XSS-Protection: 0`). On 3.0 they are off, so responses stay as they were on Grails 7. To turn them on, set `grails.security.headers.enabled=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web (`sudo systemctl restart bbb-web`); joining a meeting from a page on another site keeps working either way, only a page rendered by bbb-web itself, such as an API response, can no longer be shown inside a frame on another site.
+- A request for a URL under `/bigbluebutton/` that no API call handles is still answered with 404, but the body is JSON instead of the XML `<Map>` document Grails 7 produced.
+- Without a CORS configuration (the default; the cluster-proxy setup configures one), a cross-origin preflight request is answered with 200 and no `Access-Control-*` headers instead of 403, and responses no longer carry `Vary: Origin`. Neither version grants cross-origin access.
+- A request with more than 10000 parameters is answered with an HTTP 500 page by the embedded Tomcat; Tomcat 10.1 ignored the parameters beyond the limit.
+- Sent directly to port 8090 (nginx answers 413 for bodies above 1 MB before that), a form POST larger than Tomcat's 2 MB limit is answered with an HTTP 500 page instead of an API error.
+- bbb-web does not start while `grails.controllers.upload.maxFileSize` or `grails.controllers.upload.maxRequestSize` is set in `/usr/share/bbb-web/WEB-INF/classes/application.properties`, for example from an older copy of that file put back by a post-installation routine; the packaged file uses `spring.servlet.multipart.max-file-size` and `max-request-size` instead. The old keys in `/etc/bigbluebutton/bbb-web.properties` are ignored.
+- If a `systemd` override of `bbb-web.service` replaces `ExecStart`, update it to launch with `-cp .` as the packaged unit does. With the previous classpath (`-cp WEB-INF/lib/*:/:WEB-INF/classes/:.`) bbb-web on Grails 8 never finishes starting and nginx answers 502.
+
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
