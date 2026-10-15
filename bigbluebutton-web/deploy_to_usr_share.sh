@@ -17,9 +17,10 @@ done
 UNIT=../build/packages-template/bbb-web/bbb-web.service
 if ! cmp -s "$UNIT" /lib/systemd/system/bbb-web.service ; then
 	sudo cp "$UNIT" /lib/systemd/system/bbb-web.service
-	sudo systemctl daemon-reload
 	echo 'bbb-web.service replaced with the one from build/packages-template/bbb-web'
 fi
+# systemctl cat shows the files on disk; reload first so the check matches what systemd would start
+sudo systemctl daemon-reload
 if systemctl cat bbb-web | grep -q -- '-cp WEB-INF/lib/\*' ; then
 	echo 'ERROR: the active bbb-web unit still launches with the old classpath (an override under /etc/systemd/system?).'
 	echo 'bbb-web on Grails 8 never binds its port that way. Change the override to "-cp .", run'
