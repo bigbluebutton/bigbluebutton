@@ -5,6 +5,7 @@ import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
+import { EditedShapeRemoved } from './editedShapeRemoved';
 import { MultiUserWhiteboard } from './multiUserWhiteboard';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
@@ -176,6 +177,24 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slideChange.initModPage(page, { testInfo });
     await slideChange.initUserPage(context, { testInfo });
     await slideChange.crashOnSlideChangeWhileEditing();
+  });
+
+  test('No crash when the presenter deletes the text a viewer is editing', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const removed = new EditedShapeRemoved(browser, context);
+    await removed.initModPage(page, { testInfo });
+    await removed.initUserPage(context, { testInfo });
+    await removed.presenterDeletesTextBeingEdited();
+  });
+
+  test('Viewer text started right after the multi-user grant is kept', async ({ browser, context, page }, testInfo) => {
+    const removed = new EditedShapeRemoved(browser, context);
+    await removed.initModPage(page, { testInfo });
+    await removed.initUserPageWithSlowSubmits(context, testInfo, 1500);
+    await removed.newTextSurvivesAccessGrant();
   });
 
   test('No blank presentation area on slide change with a cold cache', async ({ browser, context, page }, testInfo) => {
