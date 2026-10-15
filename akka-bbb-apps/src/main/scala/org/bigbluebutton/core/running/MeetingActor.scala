@@ -501,7 +501,7 @@ class MeetingActor(
         updateUserLastActivity(m.header.userId)
       case m: ChangeUserPinStateReqMsg =>
         usersApp.handleChangeUserPinStateReqMsg(m)
-        updateUserLastActivity(m.body.changedBy)
+        updateUserLastActivity(m.header.userId)
       case m: UserConnectionAliveReqMsg    => usersApp.handleUserConnectionAliveReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg    => usersApp.handleSetUserSpeechLocaleReqMsg(m)
       case m: SetUserSpeechOptionsReqMsg   => usersApp.handleSetUserSpeechOptionsReqMsg(m)
