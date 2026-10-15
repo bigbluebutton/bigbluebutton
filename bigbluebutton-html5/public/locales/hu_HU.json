@@ -1662,7 +1662,7 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Külső videó megosztásának befejezése",
     "app.legacy.unsupportedBrowser": "Úgy tűnik nem támogatott böngészőt használsz. Használj újabb verziójú {supportedBrowser1} vagy {supportedBrowser2} böngészőt a teljes támogatáshoz.",
     "app.legacy.upgradeBrowser": "Úgy tűnik egy támogatott böngésző régi verzióját használod. Frissíts újabb verzióra a teljes támogatáshoz.",
-    "app.legacy.unsupportedSafari": "Frissítsd a böngészőt Safari 14 vagy újabb verzióra a teljes támogatáshoz.",
+    "app.legacy.unsupportedSafari": "Please upgrade your browser to Safari 14.1 or newer for full support.",
     "app.debugWindow.windowTitle": "Hibakeresés",
     "app.debugWindow.form.userAgentLabel": "Felhasználói ügynök",
     "app.debugWindow.form.button.copy": "Másolás",
