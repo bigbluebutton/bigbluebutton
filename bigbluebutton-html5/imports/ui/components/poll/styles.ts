@@ -751,6 +751,19 @@ const CorrectLabel = styled.div`
   line-height: ${lineHeightComputed};
 `;
 
+const OptionsLegend = styled.ul`
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  text-align: start;
+  font-size: ${fontSizeSmaller};
+  overflow-wrap: anywhere;
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+`;
+
 const PollInputContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -814,6 +827,7 @@ export default {
   TypedResponseHint,
   SelectedCorrectAnswerIndicator,
   CorrectLabel,
+  OptionsLegend,
   PollInputContainer,
   PollQuestionAreaWrapper,
 };
