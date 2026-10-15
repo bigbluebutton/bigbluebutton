@@ -1,0 +1,17 @@
+FROM golang:1.24-alpine AS builder
+
+RUN apk update && apk upgrade && apk add --no-cache git
+
+COPY . /usr/local/src
+WORKDIR /usr/local/src
+RUN CGO_ENABLED=0 go build --tags=docker -ldflags="-w -s" -o /usr/local/bin/app ./cmd/meeting-api
+
+FROM gcr.io/distroless/static-debian12:debug AS app
+
+COPY --from=builder /usr/local/bin/app /usr/local/bbb-api/app
+COPY --from=builder /usr/local/src/.api /usr/local/bbb-api/.api
+COPY --from=builder /usr/local/src/configs /usr/local/bbb-api/configs
+
+EXPOSE 8080
+WORKDIR /usr/local/bbb-api
+ENTRYPOINT [ "./app" ]

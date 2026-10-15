@@ -1,6 +1,7 @@
 package getmeetings
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
@@ -20,7 +21,10 @@ type HTTPToGRPC struct{}
 // it into a [GetMeetingsStreamRequest], and then returns it in a new message.
 func (h *HTTPToGRPC) Transform(msg pipeline.Message[*http.Request]) (pipeline.Message[*meeting.GetMeetingsStreamRequest], error) {
 	req := msg.Payload
-	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
+	params, ok := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
+	if !ok {
+		return pipeline.Message[*meeting.GetMeetingsStreamRequest]{}, errors.New(responses.MissingReqParams)
+	}
 	meetingID := validation.StripCtrlChars(params.Get(meetingapi.IDParam).Value)
 	grpcReq := &meeting.GetMeetingsStreamRequest{
 		MeetingData: &common.MeetingData{
