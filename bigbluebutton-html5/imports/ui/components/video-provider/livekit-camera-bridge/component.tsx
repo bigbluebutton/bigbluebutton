@@ -378,10 +378,15 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
       bridgeRefs.current.localVideoStreams[stream] = localBBBStream;
       const { mediaStream } = localBBBStream;
+      const publishRoom = liveKitRoomRegistry.getPrimary();
+
+      if (!publishRoom) throw new Error('LiveKit room not available');
+
       const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
       const basePubOptions = {
         dtx: true,
         videoCodec: 'vp8' as const,
+        degradationPreference: publishRoom.options.publishDefaults?.degradationPreference ?? 'balanced',
         ...LIVEKIT_SETTINGS?.publishOptions,
       };
       const simulcastOptions = getCameraPublishOptions(mediaStream);
@@ -391,10 +396,6 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         source: Track.Source.Camera,
         name: stream,
       };
-
-      const publishRoom = liveKitRoomRegistry.getPrimary();
-
-      if (!publishRoom) throw new Error('LiveKit room not available');
 
       const publishers: Promise<LocalTrackPublication>[] = mediaStream
         .getTracks()
