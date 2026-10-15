@@ -940,6 +940,10 @@ public:
       # microphoneConstraints: browser-level audio constraints (AGC/echo
       # cancellation/noise suppression) applied when the user selects the
       # 'standard' audio processing mode in Settings > Audio.
+      # They apply in 'standard' only, including when the user hasn't picked a
+      # mode: if app.defaultSettings.audio.processingMode is 'original' every
+      # browser filter is off, and if it is 'advanced' the browser filters come
+      # from audioWasmProcessing.constraints instead.
       # For more details, see:
       # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
       # Currently, google chrome sets {ideal: true} for autoGainControl,
