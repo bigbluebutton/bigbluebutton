@@ -101,6 +101,9 @@ const PresentationUploaderContainer = (props) => {
         renderToastList={Service.renderToastList}
         renderPresentationItemStatus={PresUploaderToast.renderPresentationItemStatus}
         handleFiledrop={Service.handleFiledrop}
+        uploadPresentationNotes={Service.uploadPresentationNotes}
+        extractPresentationNotesFromExistingPptx={Service.extractPresentationNotesFromExistingPptx}
+        renderNotesUploadToast={PresUploaderToast.renderNotesUploadToast}
         dispatchDisableDownloadable={Service.dispatchDisableDownloadable}
         dispatchEnableDownloadable={Service.dispatchEnableDownloadable}
         {...props}

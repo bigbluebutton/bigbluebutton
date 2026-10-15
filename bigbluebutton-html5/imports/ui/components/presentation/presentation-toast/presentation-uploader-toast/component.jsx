@@ -285,6 +285,60 @@ function renderToastItem(item, intl) {
   );
 }
 
+function renderNotesUploadToast({
+  intl,
+  title,
+  fileName,
+  progress,
+}) {
+  const statusText = progress != null
+    ? `${Math.floor(progress)}%`
+    : '';
+
+  return (
+    <Styled.ToastWrapper data-test="presentationNotesUploadProgressToast">
+      <Styled.UploadToastHeader>
+        <Styled.UploadIcon iconName="upload" />
+        <Styled.UploadToastTitle>{title}</Styled.UploadToastTitle>
+      </Styled.UploadToastHeader>
+
+      <Styled.InnerToast>
+        <div>
+          <div>
+            <Styled.UploadRow>
+              <Styled.FileLine>
+                <span>
+                  <Icon iconName="file" />
+                </span>
+
+                <Styled.ToastFileName>
+                  <span>{fileName}</span>
+                </Styled.ToastFileName>
+
+                <Styled.StatusIcon>
+                  <Styled.ToastItemIcon
+                    loading
+                    iconName="blank"
+                  />
+                </Styled.StatusIcon>
+              </Styled.FileLine>
+
+              <Styled.StatusInfo>
+                <Styled.StatusInfoSpan
+                  data-test="processingPresentationNotesItem"
+                  styles="info"
+                >
+                  {statusText}
+                </Styled.StatusInfoSpan>
+              </Styled.StatusInfo>
+            </Styled.UploadRow>
+          </div>
+        </div>
+      </Styled.InnerToast>
+    </Styled.ToastWrapper>
+  );
+}
+
 const renderToastList = (presentations, intl) => {
   let converted = 0;
 
@@ -575,4 +629,5 @@ export const PresentationUploaderToast = ({
 export default {
   handleDismissToast,
   renderPresentationItemStatus,
+  renderNotesUploadToast,
 };
