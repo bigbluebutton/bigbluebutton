@@ -43,6 +43,45 @@ then
 	convertToParam="$convertToParam --writer"
 fi
 
-cp "${source}" "$tempDir/file"
+animationExpander="/usr/share/bbb-libreoffice-conversion/expand_pptx_animations.py"
+animationMarker="${source}.expand-animations"
+inputForConversion="${source}"
+
+if [[ "${source,,}" == *.pptx && -f "${animationMarker}" ]]; then
+  expandedPresentation="${source%.*}.expanded.pptx"
+  temporaryExpandedPresentation="${expandedPresentation}.tmp.$$.pptx"
+
+  echo "Expanding PowerPoint animations before LibreOffice conversion: ${source}"
+
+  if [[ ! -r "${animationExpander}" ]]; then
+    echo "PowerPoint animation expander is not readable: ${animationExpander}" >&2
+    exit 1
+  fi
+
+  rm -f "${temporaryExpandedPresentation}"
+
+  if ! /usr/bin/timeout "${timeoutSecs}s" \
+      /usr/bin/python3 \
+      "${animationExpander}" \
+      "${source}" \
+      "${temporaryExpandedPresentation}"; then
+    echo "PowerPoint animation expansion failed: ${source}" >&2
+    rm -f "${temporaryExpandedPresentation}"
+    exit 1
+  fi
+
+  if [[ ! -s "${temporaryExpandedPresentation}" ]]; then
+    echo "Expanded PowerPoint file was not created: ${temporaryExpandedPresentation}" >&2
+    rm -f "${temporaryExpandedPresentation}"
+    exit 1
+  fi
+
+  # Publish the complete file atomically.
+  mv -f "${temporaryExpandedPresentation}" "${expandedPresentation}"
+
+  inputForConversion="${expandedPresentation}"
+fi
+
+cp "${inputForConversion}" "${tempDir}/file"
 sudo /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env="HOME=/tmp/" -w /tmp/ --user=$(printf %05d `id -u`) -v "$tempDir/":/data/ -v /usr/share/fonts/:/usr/share/fonts/:ro -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro -v /etc/fonts/:/etc/fonts/:ro -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro --rm bbb-soffice sh -c "timeout $(printf %03d $timeoutSecs)s /usr/bin/soffice -env:UserInstallation=file:///tmp/ $convertToParam --outdir /data /data/file"
 cp "$tempDir/file.$convertTo" "${dest}"

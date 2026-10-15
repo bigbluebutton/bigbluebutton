@@ -270,6 +270,7 @@ class PresentationController {
     }
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
+	  def expandAnimations = params.boolean('expand_animations') ?: false
     def podId = presUploadToken.podId
 
     // Defaults current to false (optional upload parameter)
@@ -334,6 +335,36 @@ class PresentationController {
             uploadFailReasons
     )
     if (isPresentationMimeTypeValid) {
+      if (expandAnimations && filenameExt.equalsIgnoreCase("pptx")) {
+		  File animationExpansionMarker =
+			  new File(pres.absolutePath + ".expand-animations")
+		  
+        try {
+			if (!animationExpansionMarker.createNewFile()
+				&& !animationExpansionMarker.exists()) {
+				throw new IOException(
+					"Unable to create PowerPoint animation expansion marker"
+				)
+			}
+          log.info(
+			  "PowerPoint animation expansion requested for " +
+			  presFilename + " (presId: " + presId + ")"
+		  )
+		} catch (IOException e) {
+			log.error(
+				"Unable to create PowerPoint animation expansion marker for " +
+				presFilename,
+				e
+			)
+			org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+			response.status = 500
+			response.addHeader("Cache-Control", "no-cache")
+			response.contentType = 'text/plain'
+			response.outputStream << 'upload-failed'
+			return
+		}
+	  }
+
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."
         uploadedPres.setDownloadable();
