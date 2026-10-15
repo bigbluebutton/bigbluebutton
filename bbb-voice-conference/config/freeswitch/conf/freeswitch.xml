@@ -37,13 +37,16 @@
       vars.xml contains all the #set directives for the preprocessor.
   -->
   <X-PRE-PROCESS cmd="include" data="vars.xml"/>
+  <X-PRE-PROCESS cmd="include" data="/etc/bigbluebutton/freeswitch/vars.xml"/>
 
   <section name="configuration" description="Various Configuration">
     <X-PRE-PROCESS cmd="include" data="autoload_configs/*.xml"/>
+    <X-PRE-PROCESS cmd="include" data="/etc/bigbluebutton/freeswitch/autoload_configs/*.xml"/>
   </section>
 
   <section name="dialplan" description="Regex/XML Dialplan">
     <X-PRE-PROCESS cmd="include" data="dialplan/*.xml"/>
+    <X-PRE-PROCESS cmd="include" data="/etc/bigbluebutton/freeswitch/dialplan/*.xml"/>
   </section>
 
   <!-- mod_dingaling is reliant on the vcard data in the "directory" section. -->
