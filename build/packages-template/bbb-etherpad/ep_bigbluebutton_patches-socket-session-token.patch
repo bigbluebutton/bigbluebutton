@@ -1,0 +1,38 @@
+--- a/static/js/client_hooks.js
++++ b/static/js/client_hooks.js
+@@ -5,11 +5,20 @@
+   return sessionToken;
+ }
+ 
+-exports.documentReady = function (hook_name, args, cb) {
+-    const socketio = require("ep_etherpad-lite/static/js/socketio")
++// Wrap connect() for adding the sessionToken to the query params, so nginx can
++// authorize the socket.io requests against BigBlueButton (auth_request).
++//
++// Installed when this module is evaluated, not in the documentReady hook: since
++// Etherpad 2.x the pad bootstrap runs pad.init() (which opens the socket.io
++// connection on DOM ready) before it calls documentReady, so a wrapper installed
++// from that hook came too late and the socket connected without the token.
++// Plugin modules are evaluated while the client plugins are registered, which is
++// before pad.init().
++(function wrapSocketConnect() {
++    const socketio = require("ep_etherpad-lite/static/js/socketio");
++    if (socketio.connect.bbbSessionToken) return;
+ 
+-    // wrap connect() for adding the sessionToken to the query params
+-    const originalConnect = socketio.connect
++    const originalConnect = socketio.connect;
+     socketio.connect = function(etherpadBaseUrl, namespace = '/', options = {} ) {
+         return originalConnect(etherpadBaseUrl, namespace, Object.assign({}, options, {
+             query: Object.assign({
+@@ -17,7 +26,10 @@
+             }, options.query || {})
+         }))
+     }
++    socketio.connect.bbbSessionToken = true;
++})();
+ 
++exports.documentReady = function (hook_name, args, cb) {
+     const pad_utils = require("ep_etherpad-lite/static/js/pad_utils");
+ 
+     // wrap js-cookie's setter for configuring all cookies expiration to Session
