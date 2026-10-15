@@ -1662,7 +1662,7 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Sluta dela extern video",
     "app.legacy.unsupportedBrowser": "Det verkar som om du använder en webbläsare som inte stöds. Använd en aktuell version av antingen {supportedBrowser1} eller {supportedBrowser2} för fullständigt stöd.",
     "app.legacy.upgradeBrowser": "Det verkar som om du använder en äldre version av en webbläsare som stöds. Uppgradera webbläsaren till en aktuell version för fullständigt stöd.",
-    "app.legacy.unsupportedSafari": "Uppgradera till Safari 14 eller senare för fullständigt stöd.",
+    "app.legacy.unsupportedSafari": "Please upgrade your browser to Safari 14.1 or newer for full support.",
     "app.debugWindow.windowTitle": "Felsökning",
     "app.debugWindow.form.userAgentLabel": "Användaragent",
     "app.debugWindow.form.button.copy": "Kopiera",
