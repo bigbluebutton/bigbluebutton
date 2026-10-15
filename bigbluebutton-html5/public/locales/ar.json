@@ -1662,7 +1662,7 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "إيقاف مشاركة الفيديو الخارجي",
     "app.legacy.unsupportedBrowser": "يبدو أنك تستخدم متصفحاً غير مدعوم. يرجى استخدام إصدار حديث إما {supportedBrowser1} أو {supportedBrowser2} للحصول على الدعم الكامل.",
     "app.legacy.upgradeBrowser": "يبدو أنك تستخدم إصدارًا قديمًا من متصفح مدعوم. يُرجى ترقية متصفحك إلى إصدار أحدث للحصول على الدعم الكامل.",
-    "app.legacy.unsupportedSafari": "يرجى ترقية متصفحك إلى Safari 14 أو أحدث للحصول على الدعم الكامل.",
+    "app.legacy.unsupportedSafari": "Please upgrade your browser to Safari 14.1 or newer for full support.",
     "app.debugWindow.windowTitle": "تصحيح",
     "app.debugWindow.form.userAgentLabel": "وكيل المستخدم",
     "app.debugWindow.form.button.copy": "نسخ",
