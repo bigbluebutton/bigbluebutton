@@ -26,6 +26,10 @@ test.describe.parallel('API', () => {
     await API.testJoinInsideCrossOriginFrame(page);
   });
 
+  test('overAThousandRequestParameters', { tag: '@ci' }, async () => {
+    await API.testOverAThousandRequestParameters();
+  });
+
   test('breakoutWithoutParent', async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });

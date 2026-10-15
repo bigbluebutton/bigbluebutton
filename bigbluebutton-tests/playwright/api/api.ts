@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
-import { createMeeting, getJoinURL } from '../core/helpers';
+import { createMeeting, getApiCallUrl, getJoinURL } from '../core/helpers';
 import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 
@@ -112,6 +112,18 @@ export class API extends MultiUsers {
 
     await this.modPage.page.close();
     await this.userPage.page.close();
+  }
+
+  // Spring Boot 4 lowered Tomcat's default parameter limit from 10000 to 1000, and Tomcat 11
+  // answers a request over the limit with its own HTTP 500 page; bbb-web keeps the limit at 10000.
+  static async testOverAThousandRequestParameters() {
+    const form = new URLSearchParams();
+    for (let i = 0; i < 1200; i += 1) form.append(`probe${i}`, 'x');
+    const response = await axios.post(getApiCallUrl('getMeetings', null), form, { adapter: 'http' });
+    expect(response.status, 'bbb-web should answer a request with 1200 parameters').toBe(200);
+    expect(String(response.data), 'bbb-web should process the request normally').toContain(
+      '<returncode>SUCCESS</returncode>',
+    );
   }
 
   // A document, a redirect and an error response from bbb-web carry none of the headers.
