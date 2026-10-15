@@ -156,6 +156,16 @@ If for some reason the scripts have to be run more than once, use the --force mo
 $ sudo ./bbb-x.x-script --force
 ```
 
+#### Play recordings made with BigBlueButton 0.81 or 0.9
+
+Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default: `bbb-playback-presentation` ships only the processing scripts, and the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package:
+
+```bash
+$ sudo apt-get install bbb-playback-presentation-legacy
+```
+
+The package installs both players and the redirect from the unversioned link `/playback/presentation/playback.html` to the 0.81 player, so links published by those versions keep working. These players only render recordings created by BigBlueButton 0.81 and 0.9; recordings made with the current version use the `2.3` player from `bbb-playback`. To remove the players again, run `sudo apt-get remove bbb-playback-presentation-legacy`.
+
 #### Enable playback of recordings on iOS
 
 The `presentation` playback format encodes the video shared during the session (webcam and screen share) as `.webm` (VP8) files; however, iOS devices only support playback of `.mp4` (h.264) video files. To enable playback of the `presentation` recording format on iOS devices, edit `/usr/local/bigbluebutton/core/scripts/presentation.yml` and uncomment the entry for `mp4`.
