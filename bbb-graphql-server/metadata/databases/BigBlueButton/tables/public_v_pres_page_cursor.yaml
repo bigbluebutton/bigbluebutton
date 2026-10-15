@@ -29,6 +29,7 @@ select_permissions:
         - userId
         - xPercent
         - yPercent
+        - laserType
       filter:
         _and:
           - meetingId:

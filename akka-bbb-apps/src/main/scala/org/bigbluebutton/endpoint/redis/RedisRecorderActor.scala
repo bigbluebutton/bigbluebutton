@@ -377,6 +377,7 @@ class RedisRecorderActor(
     ev.setUserId(msg.header.userId)
     ev.setXPercent(msg.body.xPercent)
     ev.setYPercent(msg.body.yPercent)
+    ev.setLaserType(msg.body.laserType)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
