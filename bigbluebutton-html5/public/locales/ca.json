@@ -1662,7 +1662,7 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Deixa de compartir els vídeos externs",
     "app.legacy.unsupportedBrowser": "Sembla que utilitzeu un navegador que no és compatible. Si us plau, utilitzeu {supportedBrowser1} o {supportedBrowser2} per obtenir assistència completa.",
     "app.legacy.upgradeBrowser": "Sembla que utilitzeu una versió anterior d'un navegador compatible. Actualitzeu el navegador per obtenir assistència completa.",
-    "app.legacy.unsupportedSafari": "Actualitza el navegador a Safari 14 o una versió posterior per a una compatibilitat completa.",
+    "app.legacy.unsupportedSafari": "Please upgrade your browser to Safari 14.1 or newer for full support.",
     "app.debugWindow.windowTitle": "Eliminar errors",
     "app.debugWindow.form.userAgentLabel": "Agent d'usuari",
     "app.debugWindow.form.button.copy": "Copiar",
