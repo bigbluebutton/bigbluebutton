@@ -9,7 +9,7 @@ keywords:
 - turn server
 ---
 
-## TURN in BigBlueButton 4.0
+## TURN in BigBlueButton
 
 BigBlueButton normally requires a wide range of UDP ports to be available for WebRTC communication. In some network restricted sites or development environments, such as those behind NAT or a firewall that restricts outgoing UDP connections, users may be unable to make outgoing UDP connections to your BigBlueButton server.
 
@@ -51,11 +51,11 @@ Note: coturn will not start until a configuration is applied (see below).
 
 #### Using the bbb-coturn package
 
-Starting with BigBlueButton 4.0, the `bbb-coturn` package provides a newer coturn (4.16.0) built by the BigBlueButton project. It is what `bbb-install.sh` installs on the BigBlueButton server; it is not a dependency of the `bigbluebutton` package, so it is not pulled in when you install BigBlueButton by other means.
+The `bbb-coturn` package provides a newer coturn (4.16.0) built by the BigBlueButton project. It is what `bbb-install.sh` installs on the BigBlueButton server; it is not a dependency of the `bigbluebutton` package, so it is not pulled in when you install BigBlueButton by other means.
 
 `bbb-coturn` is a drop-in replacement for the distro `coturn` package. It declares `Provides`/`Conflicts`/`Replaces` on `coturn`, so apt removes the distro package when you install it, and it keeps the same `/usr/bin/turnserver` binary, `/etc/turnserver.conf` config file, and `coturn.service` unit name (a `turnserver.service` alias is included). Everything else on this page applies unchanged, including the systemd override below.
 
-To install it on a dedicated TURN server, add the BigBlueButton package repository for the release you are running, then install the package. Replace `<version>` with your BigBlueButton release (for example `noble-400`):
+To install it on a dedicated TURN server, add the BigBlueButton package repository for the release you are running, then install the package. Replace `<version>` with the value you pass to `bbb-install.sh -v`; it is also in `/etc/apt/sources.list.d/bigbluebutton.list` on your BigBlueButton server:
 
 ```bash
 $ sudo mkdir -p /etc/apt/keyrings
@@ -274,12 +274,7 @@ Ensure that `coturn` has bound to ports 443 and 3478 with `ss -tlnp | grep turns
 
 ### With bbb-install.sh
 
-Pass `-c <hostname>:<secret>` together with `-v` when you install or upgrade the BigBlueButton server, for example:
-
-```bash
-$ wget -qO- https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release/bbb-install.sh | bash -s -- \
-    -v noble-400 -s bbb.example.com -e info@example.com -c turn.example.com:<secret_value>
-```
+Add `-c <hostname>:<secret>` to the `bbb-install.sh` command from [Install BigBlueButton](/administration/install#install) when you install or upgrade the BigBlueButton server, for example `-c turn.example.com:<secret_value>`.
 
 `bbb-install.sh` then writes `/etc/bigbluebutton/turn-stun-servers.xml` (the file shown below) and does not install the local coturn and HAProxy; nginx listens on port 443 itself. Pass the same `-c` option every time you re-run the script.
 
