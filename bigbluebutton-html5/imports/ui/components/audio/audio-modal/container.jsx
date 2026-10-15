@@ -59,6 +59,10 @@ const AudioModalContainer = (props) => {
     APP_CONFIG.skipEchoTestIfPreviousDevice,
   ) && !deviceInfo.isMobile;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
+  const deafenAudioUntilExplicitJoin = getFromUserSettings(
+    'bbb_deafen_audio_until_explicit_join',
+    APP_CONFIG.deafenAudioUntilExplicitJoin,
+  );
 
   let formattedDialNum = '';
   let formattedTelVoice = '';
@@ -120,17 +124,22 @@ const AudioModalContainer = (props) => {
     const callback = () => {
       setIsOpen(false);
 
-      // When using LiveKit, force joining audio when the modal is closed,
-      // but the user is not connected nor connecting to audio. This also means
-      // that the user will join muted as not clicking "Join Audio" signals
-      // that intention.
-      if (usingLiveKit && !isConnected && !isConnecting) {
+      if (!usingLiveKit) return;
+
+      // deafenAudioUntilExplicitJoin: closing the modal must not force a join -
+      // the user stays deafened until they explicitly join audio.
+      if (deafenAudioUntilExplicitJoin) return;
+
+      // Force joining audio when the modal is closed, but the user is not
+      // connected nor connecting to audio. This also means that the user will
+      // join muted as not clicking "Join Audio" signals that intention.
+      if (!isConnected && !isConnecting) {
         joinMic({ muteOnStart: true }).catch((error) => handleJoinError(error, false));
       }
     };
 
     closeModal(callback);
-  }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
+  }, [deafenAudioUntilExplicitJoin, isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
   if (!currentUserData) return null;
