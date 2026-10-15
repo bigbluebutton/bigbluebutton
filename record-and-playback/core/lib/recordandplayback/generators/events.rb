@@ -1097,6 +1097,45 @@ module BigBlueButton
       rec_events.sort_by {|a| a[:timestamp]}
     end
 
+    # Collect sharing start/stop and playback updates such as skip and rate change.
+    def self.get_external_video_playback_events(events_xml)
+      BigBlueButton.logger.info "Getting external video playback events"
+      videos = []
+      current_video = nil
+      events = events_xml.xpath("recording/event[@eventname='StartExternalVideoRecordEvent' or " \
+                               "@eventname='UpdateExternalVideoRecordEvent' or " \
+                               "@eventname='StopExternalVideoRecordEvent']")
+      events.each_with_index.sort_by { |event, index| [event['timestamp'].to_i, index] }.each do |event, _index|
+        timestamp = event['timestamp'].to_i
+        case event['eventname']
+        when 'StartExternalVideoRecordEvent'
+          current_video[:stop_timestamp] = timestamp if current_video
+          current_video = {
+            start_timestamp: timestamp,
+            external_video_url: event.at_xpath('externalVideoUrl').text,
+            events: [],
+          }
+          videos << current_video
+        when 'UpdateExternalVideoRecordEvent'
+          next unless current_video
+
+          current_video[:events] << {
+            timestamp: timestamp,
+            type: event.at_xpath('status').text,
+            time: event.at_xpath('time').text.to_f,
+            rate: event.at_xpath('rate').text.to_f,
+            playing: event.at_xpath('state').text.to_i != 0,
+          }
+        when 'StopExternalVideoRecordEvent'
+          current_video[:stop_timestamp] = timestamp if current_video
+          current_video = nil
+        end
+      end
+      # video can still be active when the meeting ends.
+      current_video[:stop_timestamp] = last_event_timestamp(events_xml) if current_video
+      videos
+    end
+
     # Get events when the moderator wants the recording to start or stop
     def self.get_start_and_stop_external_video_events(events_xml)
       BigBlueButton.logger.info "Getting start and stop externalvideo events"
