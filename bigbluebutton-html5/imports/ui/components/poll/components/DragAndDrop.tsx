@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import Styled from '../styles';
 
 interface DragAndDropPros {
+  MAX_QUESTION_CHARS: number;
   MAX_INPUT_CHARS: number;
   handleTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   [key: string]: unknown;
 }
 
 const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((props, ref) => {
-  const { MAX_INPUT_CHARS, handleTextareaChange } = props;
+  const { MAX_QUESTION_CHARS, MAX_INPUT_CHARS, handleTextareaChange } = props;
   const [drag, setDrag] = useState(false);
   const dropRef = useRef<HTMLTextAreaElement | null>(null);
   const dragCounter = useRef(0);
@@ -72,17 +73,19 @@ const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((prop
   };
 
   const setPollText = (pollText: string) => {
+    // The first line is the question, the others are options: each has its own limit.
     const arr = pollText.split('\n');
-    const text = arr.map((line) => (
-      line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line
+    const text = arr.map((line, index) => (
+      line.substring(0, index === 0 ? MAX_QUESTION_CHARS : MAX_INPUT_CHARS)
     )).join('\n');
     handleTextareaChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   };
 
-  // Strips the two props this component consumes itself, so they are not forwarded down
+  // Strips the props this component consumes itself, so they are not forwarded down
   // to the textarea underneath.
   const getCleanProps = () => {
     const cleanProps: Partial<DragAndDropPros> = { ...props };
+    delete cleanProps.MAX_QUESTION_CHARS;
     delete cleanProps.MAX_INPUT_CHARS;
     delete cleanProps.handleTextareaChange;
     return cleanProps;

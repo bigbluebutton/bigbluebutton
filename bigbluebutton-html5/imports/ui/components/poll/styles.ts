@@ -387,13 +387,13 @@ const ResultLeft = styled.td`
     padding: 0 0 0 .5rem;
   }
   padding-bottom: .25rem;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 `;
 
 const ResultRight = styled.td`
   padding-bottom: .25rem;
   padding-right: 0.5rem;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 `;
 
 const Main = styled.div`
@@ -492,7 +492,7 @@ const Stats = styled.div`
 
 const Title = styled.span`
   font-weight: bold;
-  word-break: break-all;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
 `;
 

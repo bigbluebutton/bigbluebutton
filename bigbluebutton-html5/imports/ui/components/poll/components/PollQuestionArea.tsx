@@ -65,9 +65,14 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
     ? intlMessages.questionLabel
     : intlMessages.optionalQuestionLabel;
   // Custom input swaps the library's textarea for the drag-and-drop one, which needs the
-  // two extra props to turn a dropped file into poll options.
+  // extra props to turn a dropped file into a question and poll options.
   const dragAndDropProps = customInput
-    ? { as: DraggableTextArea, MAX_INPUT_CHARS, handleTextareaChange }
+    ? {
+      as: DraggableTextArea,
+      MAX_QUESTION_CHARS: QUESTION_MAX_INPUT_CHARS,
+      MAX_INPUT_CHARS,
+      handleTextareaChange,
+    }
     : {};
   return (
     <Styled.PollQuestionAreaWrapper>

@@ -284,6 +284,9 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
+  /* A long question must not push the top of the box out of the viewport. */
+  max-height: calc(100% - ${pollBottomOffset} - ${jumboPaddingX});
+  overflow-y: auto;
 
   [dir="rtl"] & {
     left: ${jumboPaddingX};
@@ -297,7 +300,6 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
     left: 50%;
     transform: translate(-50%, -50%);
     max-height: 95%;
-    overflow-y: auto;
 
     [dir="rtl"] & {
       left: 50%;
