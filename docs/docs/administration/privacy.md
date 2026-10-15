@@ -114,7 +114,7 @@ Replace the `uid` and `gid` values with the ones on your server; `getent passwd 
 
 #### Deleted recordings remain on disk
 
-When recordings are deleted with the `deleteRecordings` API call, BigBlueButton does not remove them from disk. It moves them from `/var/bigbluebutton/published/` or `/var/bigbluebutton/unpublished/` to `/var/bigbluebutton/deleted/`, as a safety measure against accidental deletions. Deleted recordings are not listed by `getRecordings` unless `state=deleted` is requested explicitly, and they are not served, but they keep using disk space and may contain personal data subject to retention requirements. Nothing purges them automatically. The raw directory of a deleted recording also stays in `/var/bigbluebutton/recording/raw/` until the daily cleanup job removes it (`published_days` after the recording was published).
+When recordings are deleted with the `deleteRecordings` API call, BigBlueButton does not remove them from disk. It moves them from `/var/bigbluebutton/published/` or `/var/bigbluebutton/unpublished/` to `/var/bigbluebutton/deleted/`, as a safety measure against accidental deletions. Deleted recordings are not listed by `getRecordings` unless `state=deleted` is requested explicitly, and they are not served, but they keep using disk space and may contain personal data subject to retention requirements. Nothing purges them automatically. The raw directory of a deleted recording also stays in `/var/bigbluebutton/recording/raw/` until the daily cleanup job removes it (`published_days` after the meeting was archived, under the same rule as above).
 
 ##### Resolution
 
@@ -190,7 +190,7 @@ When `bbb-install.sh` sets up the built-in TURN server (that is, when it is run 
 
 #### TURN and STUN servers
 
-Browsers use STUN and TURN servers for NAT traversal. The `turn-stun-servers.xml` shipped with `bbb-web` lists the public STUN server `stun:stun.l.google.com:19302`, so on a server where that file is left as shipped, every client sends STUN requests, which reveal its IP address, to Google. `bbb-install.sh` always replaces it with the server's own TURN server (the built-in one, or the one given with `-c`). You can also [set up your own TURN/STUN server](/administration/turn-server) and configure it in `/etc/bigbluebutton/turn-stun-servers.xml`, which takes precedence over the shipped file. The logs of a coturn server are covered [below](#coturn).
+Browsers use STUN and TURN servers for NAT traversal. The `turn-stun-servers.xml` shipped with `bbb-web` lists the public STUN server `stun:stun.l.google.com:19302`, so on a server where that file is left as shipped, every client sends STUN requests, which reveal its IP address, to Google. `bbb-install.sh` always replaces it with the server's own TURN server: with `-c` it writes `/etc/bigbluebutton/turn-stun-servers.xml`; without `-c` it rewrites the shipped file under `/usr/share/bbb-web`, which the next `bbb-web` package upgrade restores, so the Google STUN entry comes back until `bbb-install.sh` is run again (re-running it is the documented way to upgrade). You can also [set up your own TURN/STUN server](/administration/turn-server) and configure it in `/etc/bigbluebutton/turn-stun-servers.xml`, which takes precedence over the shipped file. The logs of a coturn server are covered [below](#coturn).
 
 #### Live captions and transcription
 
@@ -206,7 +206,7 @@ This section is about Greenlight v3. Greenlight is a front end; everything above
 
 ### Rooms are recordable by default
 
-The default rooms configuration enables "Allow room to be recorded" for new rooms, so their meetings are created with `record=true` and the whole session is captured, see [above](#bigbluebutton-either-records-all-of-a-session-or-does-not-record-at-all). Room owners can turn the setting off per room, and the setting is forced off for users whose role does not have the permission to record.
+The default rooms configuration enables "Allow room to be recorded" for new rooms, so their meetings are created with `record=true` and recorded as described [above](#bigbluebutton-either-records-all-of-a-session-or-does-not-record-at-all): the events of the whole session, and the media between the recording marks. Room owners can turn the setting off per room, and the setting is forced off for users whose role does not have the permission to record.
 
 #### Resolution
 
