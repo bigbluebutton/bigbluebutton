@@ -50,9 +50,6 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
    * requesterId must be the authenticated sender of the request, taken from the
    * message header. A field carried in the message body is chosen by the caller
    * and therefore cannot be used to authorize that same caller.
-   *
-   * Lives in the companion object so the decision can be unit tested without
-   * standing up a LiveMeeting.
    */
   def isAllowedToAssignPresenter(users: Users2x, requesterId: String, isBreakout: Boolean): Boolean = {
     isBreakout ||
