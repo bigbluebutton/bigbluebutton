@@ -62,9 +62,9 @@ cd bigbluebutton-web
 # Build presentation checker
 if [ -d pres-checker ]; then
   cd pres-checker
-    gradle clean
-    gradle resolveDeps
-    gradle jar
+    ../gradlew clean
+    ../gradlew resolveDeps
+    ../gradlew jar
     mkdir -p "$STAGING"/usr/share/prescheck/lib
     cp lib/* "$STAGING"/usr/share/prescheck/lib
     cp build/libs/bbb-pres-check-0.0.1.jar "$STAGING"/usr/share/prescheck/lib

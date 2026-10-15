@@ -115,16 +115,15 @@ const PushLayoutEngine = (props) => {
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
     const enforcedLayout = LAYOUT_TYPE[enforceLayoutResult] || null;
 
-    Settings.application.selectedLayout = enforcedLayout
+    let actualLayout = enforcedLayout
       || changeLayout
       || defaultLayout
       || meetingLayout;
-
-    let { selectedLayout: actualLayout } = Settings.application;
     if (isMobile()) {
       actualLayout = actualLayout === 'custom' ? 'smart' : actualLayout;
-      Settings.application.selectedLayout = actualLayout;
     }
+    // a new object, so that useSettings subscribers re-render
+    Settings.application = { ...Settings.application, selectedLayout: actualLayout };
 
     if (actualLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
       Session.setItem('isGridEnabled', !presentationIsOpen);
