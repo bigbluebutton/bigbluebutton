@@ -18,7 +18,7 @@ import { isSystemThemeAutoDetectEnabled, systemPrefersDarkTheme } from './system
 // in sessionStorage under a meeting-scoped key, so its value follows the user
 // into neither a new browser session nor a new meeting; 'local' opts out and
 // leaves the group to the ordinary rules.
-const isSessionScoped = (settingGroup) => {
+export const isSessionScoped = (settingGroup) => {
   const flag = SETTINGS_STORAGE_FLAGS[settingGroup.replace('_', '')];
   if (!flag) return false;
 
