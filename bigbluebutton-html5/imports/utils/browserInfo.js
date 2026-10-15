@@ -9,6 +9,7 @@ const isSafari = BOWSER_RESULTS.browser.name === 'Safari';
 const isEdge = BOWSER_RESULTS.browser.name === 'Microsoft Edge';
 const isIe = BOWSER_RESULTS.browser.name === 'Internet Explorer';
 const isFirefox = BOWSER_RESULTS.browser.name === 'Firefox';
+const isBlink = BOWSER_RESULTS.engine.name === 'Blink';
 
 const browserName = BOWSER_RESULTS.browser.name;
 
@@ -47,6 +48,7 @@ const browserInfo = {
   isEdge,
   isIe,
   isFirefox,
+  isBlink,
   browserName,
   versionNumber,
   isValidSafariVersion,
