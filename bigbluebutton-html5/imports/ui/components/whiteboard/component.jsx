@@ -222,6 +222,7 @@ const Whiteboard = React.memo((props) => {
   const shapeBatchRef = useRef({});
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
+  const isTouchZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
   const viewerCanPanRef = useRef(viewerCanPan);
@@ -1685,6 +1686,48 @@ const Whiteboard = React.memo((props) => {
           viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
         }
 
+        const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
+        const currentPage = currentPresentationPageRef.current;
+
+        // Prevent pinch zoom outside allowed range
+        if (
+          zoomed
+          && isPresenterRef.current
+          && isTouchZoomRef.current
+          && currentPage
+          && Number.isFinite(currentPage.scaledWidth)
+          && currentPage.scaledWidth > 0
+          && Number.isFinite(currentPage.scaledHeight)
+          && currentPage.scaledHeight > 0
+        ) {
+          const { widthGap } = getContainerDimensions();
+
+          let baseZoom = calculateZoomValueRef.current(
+            currentPage.scaledWidth,
+            currentPage.scaledHeight,
+          );
+
+          if (widthGap > 0) {
+            baseZoom = calculateZoomWithGapValueRef.current(
+              currentPage.scaledWidth,
+              currentPage.scaledHeight,
+              widthGap,
+            );
+          }
+
+          if (Number.isFinite(baseZoom) && baseZoom > 0) {
+            const minimumZoom = currentPage.infiniteWhiteboard
+              ? baseZoom * 0.25
+              : baseZoom;
+
+            const maximumZoom = baseZoom * 4;
+
+            if (next.z < minimumZoom || next.z > maximumZoom) {
+              return prev;
+            }
+          }
+        }
+
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
         const presentationHeightLocal = currentPresentationPageRef.current?.scaledHeight || 0;
 
@@ -1978,7 +2021,7 @@ const Whiteboard = React.memo((props) => {
 
   useMouseEvents(
     {
-      whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
+      whiteboardRef, tlEditorRef, isWheelZoomRef, isTouchZoomRef, initialZoomRef, isPresenterRef,
     },
     {
       hasWBAccess: hasWBAccessRef.current,
