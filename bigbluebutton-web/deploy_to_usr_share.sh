@@ -11,6 +11,22 @@ do
     fi
 done
 
+# Grails 8 never finishes starting when the exploded war is launched with the old
+# classpath (-cp WEB-INF/lib/*:/:WEB-INF/classes/:.): install the packaged unit, which
+# launches with -cp . (see build/packages-template/bbb-web/bbb-web.service).
+UNIT=../build/packages-template/bbb-web/bbb-web.service
+if ! cmp -s "$UNIT" /lib/systemd/system/bbb-web.service ; then
+	sudo cp "$UNIT" /lib/systemd/system/bbb-web.service
+	sudo systemctl daemon-reload
+	echo 'bbb-web.service replaced with the one from build/packages-template/bbb-web'
+fi
+if systemctl cat bbb-web | grep -q -- '-cp WEB-INF/lib/\*' ; then
+	echo 'ERROR: the active bbb-web unit still launches with the old classpath (an override under /etc/systemd/system?).'
+	echo 'bbb-web on Grails 8 never binds its port that way. Change the override to "-cp .", run'
+	echo 'sudo systemctl daemon-reload, then run this script again. Nothing was deployed.'
+	exit 1
+fi
+
 sudo service bbb-web stop
 ./build.sh
 

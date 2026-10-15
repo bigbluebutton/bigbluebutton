@@ -1,11 +1,15 @@
 apply plugin: 'java'
 
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
-version '0.0.1'
+version = '0.0.1'
 jar.enabled = true
-archivesBaseName = 'bbb-pres-check'
+base {
+    archivesName = 'bbb-pres-check'
+}
 
 task resolveDeps(type: Copy) {
     into('lib')
