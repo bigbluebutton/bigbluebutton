@@ -23,9 +23,9 @@ This section documents privacy related settings, defaults, and configuration opt
 
 #### BigBlueButton either records all of a session or does not record at all
 
-When a meeting is created with `record=true`, BigBlueButton captures the entire session: audio, webcams, screen sharing, whiteboard and presentation events, chat, and shared notes. This is independent of whether the recording button is pressed. The button only sets recording marks; the raw material of the whole session is needed because parts of the recording (for example the whiteboard) depend on earlier state, see [Recording](/development/recording).
+When a meeting is created with `record=true`, BigBlueButton records the events of the entire session (whiteboard and presentation events, chat, shared notes, who joined and left), independent of whether the recording button is pressed. The button only sets recording marks; the events of the whole session are needed because parts of the recording (for example the whiteboard) depend on earlier state, see [Recording](/development/recording). The media (audio, webcams and screen sharing) is captured only while the recording is running, that is, between the marks, unless `recordFullDurationMedia=true` is set in `/etc/bigbluebutton/bbb-web.properties` (default `false`); with it, the media of the whole session is kept as well.
 
-After the meeting ends, the archive step checks for recording marks. If the meeting has none, it is not processed into a recording: the meeting's events are deleted from Redis, the media files are deleted after they were copied into the raw directory, and the raw directory `/var/bigbluebutton/recording/raw/` keeps its copy, marked with a `.norecord` status file. The daily cleanup job deletes those raw directories `unrecorded_days` (default 14) after the meeting. Depending on the use case and jurisdiction it might be prudent to keep that window, so that a recording can still be produced when users forgot to click the recording button.
+After the meeting ends, the archive step copies the events and whatever media was captured into `/var/bigbluebutton/recording/raw/<meetingId>/` and deletes the original media files. It then checks for recording marks. If the meeting has none, it is not processed into a recording: the meeting's events are deleted from Redis and the raw directory is marked with a `.norecord` status file. The daily cleanup job deletes those raw directories `unrecorded_days` (default 14) after the meeting. Depending on the use case and jurisdiction it might be prudent to keep that window, so that a recording can still be produced when users forgot to click the recording button; with the default `recordFullDurationMedia=false` such a recording contains the events but no media.
 
 If the front end (which uses the BigBlueButton API to create the meeting) specifies `record=false` or does not specify the parameter, no media is recorded and the "start"/"stop" recording button is not shown. The presentation files and the session data described below are still stored.
 
@@ -52,14 +52,20 @@ Lower `history` in `/etc/default/bigbluebutton-cron-config`.
 Independent of recording, a running meeting is stored in several places, each with its own cleanup:
 
 - The PostgreSQL database `bbb_graphql` holds the state of the meeting that the client reads through GraphQL: the users with their names and roles, chat messages, polls, and so on. bbb-apps-akka deletes a meeting from the database one hour after it ended, and the rows that belong to it (users, chat messages, and so on) are deleted with it.
-- Shared notes are stored by `bbb-shared-notes-server` in the PostgreSQL database `blocknote_app`. A meeting's notes are deleted `documentExpireMinutesAfterMeetingEnd` (default 60) minutes after the meeting ended; the setting can be changed in `/etc/bigbluebutton/bbb-shared-notes-server.yml`.
-- The Learning Dashboard data (names, join and leave times, talk time, chat and poll activity) is written to `/var/bigbluebutton/learning-dashboard/`. The files are deleted `learningDashboardCleanupDelayInMinutes` (default 2) minutes after the meeting ended; for recorded meetings the archive step keeps a copy in the raw recording directory. The dashboard can be turned off with `disabledFeatures=learningDashboard` in `/etc/bigbluebutton/bbb-web.properties`.
-- Redis holds the events of a recorded meeting until the archive step has stored them in the raw recording directory.
-- When a meeting is created with `meetingKeepEvents=true` (or `defaultKeepEvents=true` is set in `bbb-web.properties`, default `false`), the events of the meeting are written to `/var/bigbluebutton/events/<meetingId>/events.xml` even if the meeting is not recorded. No cleanup job removes these files.
+- Shared notes are stored by `bbb-shared-notes-server` in the PostgreSQL database `blocknote_app`. A meeting's notes are deleted `postgres.documentExpireMinutesAfterMeetingEnd` (default 60) minutes after the meeting ended; the setting can be changed in `/etc/bigbluebutton/bbb-shared-notes-server.yml`:
+
+  ```yaml
+  postgres:
+    documentExpireMinutesAfterMeetingEnd: 60
+  ```
+
+- The Learning Dashboard data (names, join and leave times, talk time, chat and poll activity) is written to `/var/bigbluebutton/learning-dashboard/`. bbb-web deletes the files `learningDashboardCleanupDelayInMinutes` (default 2) minutes after the meeting ended; `0` keeps them permanently, and a front end can set the value per meeting on the `create` call. The deletion is a timer inside bbb-web: if bbb-web is restarted during that delay, the files stay, because the daily cleanup job does not touch this directory. For recorded meetings the archive step keeps a copy in the raw recording directory. The dashboard can be turned off with `disabledFeatures=learningDashboard` in `/etc/bigbluebutton/bbb-web.properties`.
+- Redis holds the events of a recorded meeting until the recording scripts have stored them in the raw recording directory: the sanity step deletes them for meetings with recording marks, the archive step for meetings without.
+- When a meeting is created with `meetingKeepEvents=true` (or `defaultKeepEvents=true` is set in `bbb-web.properties`, default `false`), the events of the meeting are written to `/var/bigbluebutton/events/<meetingId>/events.xml` even if the meeting is not recorded. Breakout rooms inherit the parent meeting's value. No cleanup job removes these files.
 
 #### BigBlueButton stores full raw recording data
 
-The raw data of a recorded meeting (audio, webcam and screen sharing files, events, presentations, shared notes, Learning Dashboard data) stays in `/var/bigbluebutton/recording/raw/<meetingId>/` after the recording was processed. This includes the parts of the session before the presenter clicked the recording button. The daily cleanup job deletes the raw directory `published_days` (default 14) after a recording was published. The raw directory of a recording that was unpublished through the API is kept until the recording is deleted.
+The raw data of a recorded meeting (audio, webcam and screen sharing files, events, presentations, shared notes, Learning Dashboard data) stays in `/var/bigbluebutton/recording/raw/<meetingId>/` after the recording was processed. The events cover the parts of the session before the presenter clicked the recording button; the media does too if `recordFullDurationMedia` is set. The daily cleanup job deletes the raw directory `published_days` (default 14) after the meeting was archived (it looks at the modification time of the raw `events.xml`), provided every enabled recording format was published successfully. Unpublishing a recording through the API does not change that, since it only moves the processed files. If any format failed, the raw directory is kept until it is deleted by hand (`bbb-record --delete`).
 
 ##### Resolution
 
@@ -86,7 +92,7 @@ When recording is enabled, the BigBlueButton stack writes the session's media an
 - `/var/bigbluebutton/recording/raw/`, `/var/bigbluebutton/published/`, `/var/bigbluebutton/unpublished/` and `/var/bigbluebutton/deleted/` (raw and processed recordings), `/var/bigbluebutton/<meetingId>/` (presentations), `/var/bigbluebutton/learning-dashboard/` and `/var/bigbluebutton/events/`, owned by the `bigbluebutton` user
 - `/var/lib/bbb-webrtc-recorder/` (webcams, screen sharing and, with the LiveKit audio bridge, audio, written by `bbb-webrtc-recorder`), owned by the `bigbluebutton` user
 - `/var/freeswitch/meetings/` (audio, with the FreeSWITCH audio bridge), owned by the `freeswitch` user
-- `/var/mediasoup/` (webcams and screen sharing, only with the mediasoup media bridge), owned by the `bigbluebutton` user
+- `/var/mediasoup/` (webcams and screen sharing, only with the mediasoup media bridge), created by the `bbb-webrtc-sfu` package
 
 The media files of a meeting are deleted by the archive step once it has copied them into the raw directory; the daily cleanup job deletes anything older than `history` days that was left behind.
 
@@ -138,9 +144,10 @@ To keep the raw directories of published recordings, comment out the `remove_raw
 Server operators who keep logs should know these retention settings:
 
 - `log_history` in `/etc/default/bigbluebutton-cron-config` (default 28 days) for the rotated files under `/var/log/bigbluebutton/`, `/var/log/bbb-webrtc-sfu/` and `/opt/freeswitch/var/log/freeswitch/`
-- `/etc/logrotate.d/bbb-record-core`, which rotates `/var/log/bigbluebutton/bbb-rap-worker.log` and `sanity.log` weekly and keeps 8 rotations
-- `/etc/logrotate.d/bbb-webrtc-sfu`, which rotates `/var/log/bbb-webrtc-sfu/*.log` daily and keeps 7 rotations
+- `/etc/logrotate.d/bbb-record-core.logrotate`, which rotates `/var/log/bigbluebutton/bbb-rap-worker.log` and `sanity.log` weekly and keeps 8 rotations
+- `/etc/logrotate.d/bbb-webrtc-sfu.logrotate`, which rotates `/var/log/bbb-webrtc-sfu/*.log` daily and keeps 7 rotations
 - `/usr/share/bbb-web/WEB-INF/classes/logback.xml`, which rotates `/var/log/bigbluebutton/bbb-web.log` daily and keeps 14 days
+- `/usr/share/bbb-apps-akka/conf/logback.xml` and `/usr/share/bbb-fsesl-akka/conf/logback.xml`, which rotate `/var/log/bbb-apps-akka/bbb-apps-akka.log` and `/var/log/bbb-fsesl-akka/bbb-fsesl-akka.log` daily and keep 14 days; `log_history` does not cover these two directories
 - `/etc/logrotate.d/nginx` (Ubuntu's default: daily, 14 rotations) for the nginx logs
 - `/etc/systemd/journald.conf` (`SystemMaxUse`, `MaxRetentionSec`) for the services that log to the systemd journal: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, `bbb-webrtc-recorder`, `bbb-shared-notes-server`, `bbb-export-annotations`, `livekit-server`, `livekit-sip`, and the optional `bbb-webhooks` and `bbb-transcription-controller`
 
@@ -148,7 +155,15 @@ Server operators who keep logs should know these retention settings:
 
 `bbb-web` logs every API request, including meeting creation and the join requests with the users' names, to `/var/log/bigbluebutton/bbb-web.log`. The log level is `appLogLevel` in `/etc/bigbluebutton/bbb-web.properties` (default `DEBUG`); the individual loggers are configured in `/usr/share/bbb-web/WEB-INF/classes/logback.xml`.
 
-`bbb-apps-akka` logs what happens inside meetings (users joining and leaving, roles, and so on) to `/var/log/bbb-apps-akka/bbb-apps-akka.log`, at `DEBUG` by default. Set `loglevel` in `/etc/bigbluebutton/bbb-apps-akka.conf` (the override of `/usr/share/bbb-apps-akka/conf/application.conf`) and the logger levels in `/usr/share/bbb-apps-akka/conf/logback.xml`. `bbb-fsesl-akka`, which connects the meetings to FreeSWITCH, logs the voice users the same way to `/var/log/bbb-fsesl-akka/bbb-fsesl-akka.log`; its settings are `/etc/bigbluebutton/bbb-fsesl-akka.conf` and `/usr/share/bbb-fsesl-akka/conf/logback.xml`.
+`bbb-apps-akka` logs what happens inside meetings to `/var/log/bbb-apps-akka/bbb-apps-akka.log`, at `DEBUG` by default: users joining and leaving, their roles, and, by default, every public and private chat message with its text, as JSON. The chat messages are logged because `analytics.includeChat` is `true` in `/usr/share/bbb-apps-akka/conf/application.conf`; turn them off in `/etc/bigbluebutton/bbb-apps-akka.conf` (the override of that file):
+
+```
+analytics {
+  includeChat = false
+}
+```
+
+The general level is `loglevel` in the same override, and the logger levels are in `/usr/share/bbb-apps-akka/conf/logback.xml`. `bbb-fsesl-akka`, which connects the meetings to FreeSWITCH, logs the voice users the same way to `/var/log/bbb-fsesl-akka/bbb-fsesl-akka.log`; its settings are `/etc/bigbluebutton/bbb-fsesl-akka.conf` and `/usr/share/bbb-fsesl-akka/conf/logback.xml`.
 
 `bbb-webrtc-sfu` logs the media sessions, including user identifiers, to `/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log`. To reduce it, set the log level in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
 
@@ -169,13 +184,13 @@ FreeSWITCH logs to `/opt/freeswitch/var/log/freeswitch/freeswitch.log`, at `debu
 
 By default nginx keeps a full access log, which includes the users' IP addresses and every requested URL, among them the join URLs with the users' names. The BigBlueButton site configuration `/etc/nginx/sites-available/bigbluebutton` logs to `/var/log/nginx/bigbluebutton.access.log`, and `/etc/nginx/nginx.conf` logs everything else to `/var/log/nginx/access.log`. To turn the access logs off, set `access_log off;` in both files and reload nginx with `systemctl reload nginx`.
 
-Since BigBlueButton 4.0, HAProxy terminates TLS on port 443 in front of nginx. `bbb-install.sh` configures it in `/etc/haproxy/haproxy.cfg` with `option tcplog`, so every connection is logged with the client's IP address through syslog (facility `local0`, on Ubuntu `/var/log/haproxy.log`). To turn this off, add `no log` to the `frontend nginx_or_turn` section and reload HAProxy with `systemctl reload haproxy`; `bbb-install.sh` rewrites the file when it is run again, so repeat the change after an upgrade.
+When `bbb-install.sh` sets up the built-in TURN server (that is, when it is run without `-c`), HAProxy terminates TLS on port 443 in front of nginx. `bbb-install.sh` configures it in `/etc/haproxy/haproxy.cfg` with `option tcplog`, so every connection is logged with the client's IP address through syslog (facility `local0`, on Ubuntu `/var/log/haproxy.log`). To turn this off, add `no log` to the `frontend nginx_or_turn` section and reload HAProxy with `systemctl reload haproxy`; `bbb-install.sh` rewrites the file when it is run again, so repeat the change after an upgrade. With `-c`, HAProxy is not installed and nginx listens on port 443 itself.
 
 ### Integrations
 
 #### TURN and STUN servers
 
-Browsers use STUN and TURN servers for NAT traversal. The default `turn-stun-servers.xml` shipped with `bbb-web` lists the public STUN server `stun:stun.l.google.com:19302`, so every client sends STUN requests, which reveal its IP address, to Google. You can [set up your own TURN/STUN server](/administration/turn-server) and configure it in `/etc/bigbluebutton/turn-stun-servers.xml`, which replaces the shipped file; `bbb-install.sh -c` writes that file for you. The logs of a coturn server are covered [below](#coturn).
+Browsers use STUN and TURN servers for NAT traversal. The `turn-stun-servers.xml` shipped with `bbb-web` lists the public STUN server `stun:stun.l.google.com:19302`, so on a server where that file is left as shipped, every client sends STUN requests, which reveal its IP address, to Google. `bbb-install.sh` always replaces it with the server's own TURN server (the built-in one, or the one given with `-c`). You can also [set up your own TURN/STUN server](/administration/turn-server) and configure it in `/etc/bigbluebutton/turn-stun-servers.xml`, which takes precedence over the shipped file. The logs of a coturn server are covered [below](#coturn).
 
 #### Live captions and transcription
 
@@ -183,7 +198,7 @@ Automatic transcription is disabled by default (`public.app.audioCaptions.enable
 
 #### Webhooks and callbacks
 
-The optional `bbb-webhooks` package posts meeting and user events, including user names, to the URLs that the front end registers, and a meeting created with `meta_analytics-callback-url` sends its events to that URL after it ends. Whoever receives these callbacks processes personal data as well.
+The optional `bbb-webhooks` package posts meeting and user events, including user names, to the URLs that the front end registers. A meeting created with `meta_analytics-callback-url` posts a summary of its events to that URL after it ends, if the meeting keeps its events (`meetingKeepEvents`, see above); the script also writes that summary to `/var/bigbluebutton/events/<meetingId>/data.json`, which no cleanup job removes, and logs the whole payload to `/var/log/bigbluebutton/post_events_analytics_callback.log`. Whoever receives these callbacks processes personal data as well.
 
 ## Greenlight
 
@@ -195,7 +210,7 @@ The default rooms configuration enables "Allow room to be recorded" for new room
 
 #### Resolution
 
-Administrators can disable recording for every room under Administration > Rooms Configuration by setting "Allow Room to be recorded" to disabled, or disable recording on the BigBlueButton server as described above.
+Administrators can disable recording for every room under Administration > Room Configuration by setting "Allow Room to be recorded" to disabled, or disable recording on the BigBlueButton server as described above.
 
 ### Consent to recording and privacy policy
 
@@ -223,9 +238,9 @@ The nginx in front of Greenlight keeps the same access logs as described for Big
 
 ## coturn
 
-With `bbb-install.sh -c` or the `bbb-coturn` package, coturn logs to `/var/log/turnserver/turnserver.log`, rotated daily with 7 rotations kept (`/etc/logrotate.d/coturn`). The log contains the IP addresses and ports of the users who relay media through the TURN server; together with the other logs it allows identifying the sessions these users joined.
+`bbb-install.sh` installs coturn (the `bbb-coturn` package) on the BigBlueButton server when it is run without `-c`. Its systemd override makes coturn log to `/var/log/turnserver/turnserver.log` (the package's own unit sets no `--log-file`), rotated daily with 7 rotations kept (`/etc/logrotate.d/coturn`). The log contains the IP addresses and ports of the users who relay media through the TURN server; together with the other logs it allows identifying the sessions these users joined. With `-c <host>:<secret>`, the TURN server is elsewhere and nothing is logged on the BigBlueButton server.
 
-coturn has no option to log less. To stop logging, change `--log-file` in the `coturn` systemd unit (`systemctl edit coturn`, where `bbb-install.sh` sets it) to `/dev/null`, or shorten the rotation in `/etc/logrotate.d/coturn`.
+coturn has no option to log less. To stop logging, change `--log-file` in the override that `bbb-install.sh` created (`systemctl edit coturn`) to `/dev/null`, or shorten the rotation in `/etc/logrotate.d/coturn`.
 
 ## Scalelite
 
