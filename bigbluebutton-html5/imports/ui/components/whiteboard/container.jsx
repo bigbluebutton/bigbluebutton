@@ -319,8 +319,12 @@ const WhiteboardContainer = (props) => {
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
+  // Read when the sync runs: isMultiUserActive and hasWBAccess arrive in separate renders.
+  const canResyncRef = useRef(false);
+  canResyncRef.current = isMultiUserActive && hasWBAccess;
+
   useEffect(() => {
-    setTimeout(async () => {
+    const syncTimer = setTimeout(async () => {
       if (!currentPresentationPageRef.current?.pageId || !editor || !connectedStatus) return;
       try {
         const result = await refetchInitialPageAnnotations();
@@ -339,7 +343,7 @@ const WhiteboardContainer = (props) => {
           if (shape.id.startsWith('shape:BG-')) return;
           const serverAnn = serverMap.get(shape.id);
           if (!serverAnn) {
-            if (isMultiUserActive && hasWBAccess) {
+            if (canResyncRef.current) {
               shapesToResync.push(shape);
             } else {
               shapesToRemove.push(shape.id);
@@ -383,6 +387,7 @@ const WhiteboardContainer = (props) => {
         );
       }
     }, RECONNECT_SYNC_DELAY_MS);
+    return () => clearTimeout(syncTimer);
   }, [
     connectedStatus,
     isMultiUserActive,
