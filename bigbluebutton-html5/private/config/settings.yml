@@ -280,8 +280,8 @@ public:
         # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
         # it falls back to 'standard' (advanced -> standard).
         # Unless audioFilterStorage is set to 'local', a user's own pick is
-        # kept for the browser session and meeting only, so every fresh join
-        # starts from this default.
+        # kept for the browser session and current meeting only, so a new
+        # meeting or browser session starts from this default.
         processingMode: standard
       dataSaving:
         viewParticipantsWebcams: true
