@@ -523,6 +523,14 @@ const Whiteboard = React.memo((props) => {
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
         tlEditorRef.current?.store.remove([...removedShapes]);
       });
+      // Removing the shape being edited leaves tldraw in select.editing_shape with no
+      // editing shape, and its next pointer-down throws "Expected an editing shape!".
+      if (
+        tlEditorRef.current?.getPath() === 'select.editing_shape'
+        && !tlEditorRef.current.getEditingShape()
+      ) {
+        tlEditorRef.current.cancel();
+      }
     }
   }, [removedShapes]);
 
