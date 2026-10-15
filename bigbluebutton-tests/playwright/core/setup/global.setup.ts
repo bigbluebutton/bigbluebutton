@@ -46,10 +46,13 @@ async function validateEnvironmentAndAPI(): Promise<void> {
     // the rejection.
     const joinUrl = helpers.getJoinURL({ meetingID: testMeetingId, fullName: 'Test User' });
     const joinResponse = await requestContext.get(joinUrl, { timeout: 15000, maxRedirects: 0 });
-    const joinErrors = new URL(joinResponse.headers().location ?? '', server).searchParams.get('errors');
+    const joinLocation = joinResponse.headers().location;
+    const joinErrors = joinLocation ? new URL(joinLocation, server).searchParams.get('errors') : null;
 
-    if (joinResponse.status() !== 302 || joinErrors !== null) {
-      const details = joinErrors !== null ? ` Errors: ${joinErrors}` : '';
+    if (joinResponse.status() !== 302 || !joinLocation || joinErrors !== null) {
+      let details = '';
+      if (!joinLocation) details = ' No redirect target.';
+      else if (joinErrors !== null) details = ` Errors: ${joinErrors}`;
       const msg = `Failed to validate /join endpoint. HTTP status: ${joinResponse.status()}.${details}`;
       console.error(msg);
       throw new Error(msg);
