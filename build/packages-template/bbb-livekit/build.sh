@@ -2,9 +2,9 @@
 
 TARGET=$(basename "$(pwd)")
 
-SERVER_VERSION=v1.13.7
-CLI_VERSION=2.18.8
-SIP_VERSION=v1.17.0
+SERVER_VERSION=v1.13.10
+CLI_VERSION=2.19.0
+SIP_VERSION=v1.19.0
 
 PACKAGE=$(echo "$TARGET" | cut -d'_' -f1)
 VERSION=$(echo "$TARGET" | cut -d'_' -f2)
@@ -70,11 +70,11 @@ fi
     # This is going to be reported in upstream and hopefully fixed there, but
     # for now I'm patching this inline with a trigger to break the build on
     # subsequent LK bumps so we remember to fix this upstream - prlanzarin
-    grep -qE '^[[:space:]]+github.com/livekit/psrpc v0\.7\.7$' go.mod || {
-        echo "livekit no longer requires psrpc v0.7.7, which the psrpc patch is made for. Fix it upstream." >&2
+    grep -qE '^[[:space:]]+github.com/livekit/psrpc v0\.8\.2$' go.mod || {
+        echo "livekit no longer requires psrpc v0.8.2, which the psrpc patch is made for. Fix it upstream." >&2
         exit 1
     }
-    psrpc_dir=$(go mod download -json github.com/livekit/psrpc@v0.7.7 | jq -er .Dir)
+    psrpc_dir=$(go mod download -json github.com/livekit/psrpc@v0.8.2 | jq -er .Dir)
     mkdir -p third_party
     cp -r "$psrpc_dir" third_party/psrpc
     chmod -R u+w third_party/psrpc
