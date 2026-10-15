@@ -1531,17 +1531,16 @@ Three settings in `public.poll` limit how long the texts of a poll can be:
 
 | Setting | Default | Limits |
 |---|---|---|
-| `maxQuestionLength` | 1200 | the poll question |
-| `maxOptionLength` | 45 | each option the presenter writes (typed, pasted or loaded from a text file) |
-| `maxTypedAnswerLength` | 45 | the answer a user types in a response poll |
+| `maxQuestionLength` | 500 | the poll question |
+| `maxOptionLength` | 100 | each option the presenter writes (typed, pasted or loaded from a text file) |
+| `maxTypedAnswerLength` | 100 | the answer a user types in a response poll |
 
-The client stops input at these lengths, and `bbb-apps-akka` cuts longer texts it receives, so the limits hold even for requests that do not come from the client. For example, to allow longer options and typed answers, set in `/etc/bigbluebutton/bbb-html5.yml`:
+The client stops input at these lengths, and `bbb-apps-akka` cuts longer texts it receives, so the limits hold even for requests that do not come from the client. Previously the question allowed 1200 characters, and options and typed answers 45. For example, to give the question its former limit back, set in `/etc/bigbluebutton/bbb-html5.yml`:
 
 ```yaml
 public:
   poll:
-    maxOptionLength: 100
-    maxTypedAnswerLength: 100
+    maxQuestionLength: 1200
 ```
 
 Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new limits apply to meetings created after the restart.

@@ -7,9 +7,10 @@ import org.bigbluebutton.core.running.OutMsgRouter
 object PollHdlrHelpers {
 
   // Default lengths, used when the meeting's client settings do not carry the
-  // public.poll.maxQuestionLength / maxOptionLength entries.
-  val DefaultMaxQuestionLength = 1200
-  val DefaultMaxOptionLength = 45
+  // public.poll.maxQuestionLength / maxOptionLength / maxTypedAnswerLength entries.
+  val DefaultMaxQuestionLength = 500
+  val DefaultMaxOptionLength = 100
+  val DefaultMaxTypedAnswerLength = 100
 
   // Cuts the question to the configured length, so the server never stores a
   // question longer than the client lets the presenter type.
