@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { openPublicChat } from '../chat/util';
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
@@ -44,18 +44,33 @@ export class LearningDashboard extends MultiUsers {
     const { sharedNotesEnabled } = this.modPage.settings || {};
     test.skip(!sharedNotesEnabled, 'Shared notes are disabled');
 
+    // the moderator and the attendee edit the notes; the second attendee never opens them
     await startSharedNotesBlockNote(this.modPage);
     await getBlockNoteEditorLocator(this.modPage).pressSequentially(e.message);
+    await startSharedNotesBlockNote(this.userPage);
+    await getBlockNoteEditorLocator(this.userPage).pressSequentially(e.message);
 
-    await this.dashboardPage.reloadPage();
     const moderatorSharedNotes = await rowFilter(this.dashboardPage, /Moderator/, e.sharedNotesLearningDashboard);
-    await expect(moderatorSharedNotes, 'should count the shared notes edits of the moderator').toHaveText(
-      /^[1-9]\d*$/,
-      { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME },
-    );
-    // the dashboard leaves the cell empty when the count is 0
     const attendeeSharedNotes = await rowFilter(this.dashboardPage, /Attendee/, e.sharedNotesLearningDashboard);
-    await expect(attendeeSharedNotes, 'should not count shared notes edits for the attendee').toHaveText('');
+    const bystanderSharedNotes = await rowFilter(this.dashboardPage, /Bystander/, e.sharedNotesLearningDashboard);
+    // the dashboard data is refreshed every few seconds, so reload until the counts show up
+    await expect(async () => {
+      await this.dashboardPage.reloadPage();
+      await expect(moderatorSharedNotes, 'should count the shared notes edits of the moderator').toHaveText(
+        /^[1-9]\d*$/,
+        { timeout: ELEMENT_WAIT_TIME },
+      );
+      await expect(attendeeSharedNotes, 'should count the shared notes edits of the attendee').toHaveText(
+        /^[1-9]\d*$/,
+        { timeout: ELEMENT_WAIT_TIME },
+      );
+      await expect(bystanderSharedNotes, 'should list the user who never edited the notes').toHaveCount(1);
+    }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME * 2 });
+    // the dashboard leaves the cell empty when the count is 0
+    await expect(
+      bystanderSharedNotes,
+      'should not count shared notes edits for the user who never edited them',
+    ).toHaveText('');
   }
 
   async userTimeOnMeeting() {

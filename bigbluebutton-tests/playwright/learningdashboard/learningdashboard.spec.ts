@@ -20,6 +20,7 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' }, () => {
   test('Shared Notes edits', async ({}, testInfo) => {
     linkIssue(25721);
     await learningDashboard.initUserPage(learningDashboard.modPage.context, { testInfo });
+    await learningDashboard.initUserPage2(learningDashboard.modPage.context, { fullName: 'Bystander', testInfo });
     await learningDashboard.editSharedNotes();
   });
 
