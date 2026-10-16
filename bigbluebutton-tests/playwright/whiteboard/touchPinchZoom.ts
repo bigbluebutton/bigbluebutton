@@ -209,6 +209,28 @@ export class TouchPinchZoom extends MultiUsers {
     await touchPinch(this.touchPage, this.cdp, this.center, fromDistance, toDistance, options);
   }
 
+  // Two touches reported at the same point, carried 30 px together: there is no finger distance
+  // to zoom from, so the camera must not move (and must stay a finite number).
+  async fingersAtTheSamePointLeaveTheCameraAlone() {
+    const before = await readCamera(this.modPage.page);
+    const fingers = (dy: number) => [
+      { id: 0, x: this.center.x, y: this.center.y + dy },
+      { id: 1, x: this.center.x, y: this.center.y + dy },
+    ];
+    await this.cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: fingers(0) });
+    for (const dy of [10, 20, 30]) {
+      await this.touchPage.waitForTimeout(33);
+      await this.cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: fingers(dy) });
+    }
+    await this.touchPage.waitForTimeout(33);
+    await this.cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    const after = await waitForSettledCamera(this.modPage.page, 'camera settles after the two-finger move');
+    expect([after.x, after.y, after.z].every(Number.isFinite), 'camera should stay a finite number').toBe(true);
+    expect(after.z, 'zoom should not change').toBeCloseTo(before.z, 4);
+    expect(after.x, 'camera x should not change').toBeCloseTo(before.x, 1);
+    expect(after.y, 'camera y should not change').toBeCloseTo(before.y, 1);
+  }
+
   private async toolbarZoomText(): Promise<string> {
     return this.modPage.page.evaluate(() => {
       const button = document.querySelector('[data-test="resetZoomButton"]') as HTMLElement | null;

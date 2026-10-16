@@ -293,8 +293,10 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
   });
 
-  // Chromium only: the two-finger gestures are sent with CDP Input.dispatchTouchEvent.
   test.describe.parallel('Touch pinch zoom', () => {
+    // The two-finger gestures are sent with CDP Input.dispatchTouchEvent.
+    test.skip(({ browserName }) => browserName !== 'chromium', 'CDP touch input is Chromium-only');
+
     test('Presenter pinch zoom stays between 100% and 400% and viewers follow', async ({
       browser,
       context,
@@ -317,6 +319,13 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
       const touchPinchZoom = new TouchPinchZoom(browser, context);
       await touchPinchZoom.initTouchPages(testInfo);
       await touchPinchZoom.pinchZoomsInOneDirection();
+    });
+
+    test('Two fingers at the same point leave the camera alone', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.fingersAtTheSamePointLeaveTheCameraAlone();
     });
 
     test('Presenter two-finger pan reaches viewers', async ({ browser, context }, testInfo) => {

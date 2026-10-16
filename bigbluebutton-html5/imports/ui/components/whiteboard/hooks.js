@@ -224,7 +224,10 @@ const useMouseEvents = ({
     }, 150);
   };
 
-  useEffect(() => () => clearTimeout(mouseLeaveTimeoutRef.current), []);
+  useEffect(() => () => {
+    clearTimeout(mouseLeaveTimeoutRef.current);
+    clearTimeout(touchZoomResetTimeoutRef.current);
+  }, []);
 
   const handleMouseWheel = throttle({ interval: 175 }, (event) => {
     event.preventDefault();
@@ -401,6 +404,11 @@ const useMouseEvents = ({
 
     const MAX_ZOOM_FACTOR = 4;
     const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
+    // Two touches reported at the same point: no distance to zoom from yet.
+    if (!(gesture.startDistance > 0)) {
+      gesture.startDistance = distance;
+      return;
+    }
     const { x: cx, y: cy, z: cz } = editor.getCamera();
     const bounds = editor.getViewportScreenBounds();
     const pinchZoom = gesture.startZ * (distance / gesture.startDistance);
