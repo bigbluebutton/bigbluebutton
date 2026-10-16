@@ -1,33 +1,5 @@
 import {ValidationError} from "../types/ValidationError";
 
-// Keep caption_<locale>.vtt within the 255-byte Linux filename limit.
-const MAX_LOCALE_LENGTH = 255 - 'caption_'.length - '.vtt'.length;
-const SAFE_LOCALE_CHARACTERS = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
-
-const invalidLocaleMessage = `Locale must be a canonical BCP 47 language tag of at most ${MAX_LOCALE_LENGTH} characters`;
-
-export const throwErrorIfInvalidLocale = (locale: unknown) => {
-    if (typeof locale !== 'string'
-        || locale.length > MAX_LOCALE_LENGTH
-        || !SAFE_LOCALE_CHARACTERS.test(locale)) {
-        throw new ValidationError(invalidLocaleMessage, 400);
-    }
-
-    try {
-        const canonicalLocales = (Intl as unknown as {
-            getCanonicalLocales(value: string): string[];
-        }).getCanonicalLocales(locale);
-
-        if (canonicalLocales.length === 1 && canonicalLocales[0] === locale) {
-            return;
-        }
-    } catch (_error) {
-        // Fall through to the validation error below.
-    }
-
-    throw new ValidationError(invalidLocaleMessage, 400);
-};
-
 export const throwErrorIfNotModerator = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-moderatorinmeeting'] == "") {
         throw new ValidationError('Permission Denied (not moderator).', 403);
@@ -37,6 +9,57 @@ export const throwErrorIfNotModerator = (sessionVariables: Record<string, unknow
 export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-presenterinmeeting'] == "") {
         throw new ValidationError('Permission Denied (not presenter).', 403);
+    }
+};
+
+// "caption"."locale" and "caption_locale"."locale" are varchar(15)
+const MAX_LOCALE_LENGTH = 15;
+const LOCALE_PATTERN = /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/;
+
+export const throwErrorIfInvalidLocale = (locale: unknown, allowEmpty: boolean = false) => {
+    if (typeof locale !== 'string') {
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+
+    if (locale === '') {
+        if (allowEmpty) {
+            return;
+        }
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+
+    if (locale.length > MAX_LOCALE_LENGTH || !LOCALE_PATTERN.test(locale)) {
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+};
+
+// Transcript locales end up in recording filenames, so they must also be the
+// canonical form of a BCP 47 tag.
+export const throwErrorIfNonCanonicalLocale = (locale: unknown) => {
+    try {
+        const canonicalLocales = (Intl as unknown as {
+            getCanonicalLocales(value: string): string[];
+        }).getCanonicalLocales(locale as string);
+
+        if (canonicalLocales.length === 1 && canonicalLocales[0] === locale) {
+            return;
+        }
+    } catch (_error) {
+        // Fall through to the validation error below.
+    }
+
+    throw new ValidationError('Locale must be a canonical BCP 47 language tag.', 400);
+};
+
+export const throwErrorIfStringTooLong = (name: string, value: unknown, maxLength: number) => {
+    if (typeof value === 'string' && value.length > maxLength) {
+        throw new ValidationError(`Parameter '${name}' exceeds the maximum length of ${maxLength}`, 400);
+    }
+};
+
+export const throwErrorIfIntOutOfRange = (name: string, value: unknown, min: number, max: number) => {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+        throw new ValidationError(`Parameter '${name}' must be an integer between ${min} and ${max}`, 400);
     }
 };
 

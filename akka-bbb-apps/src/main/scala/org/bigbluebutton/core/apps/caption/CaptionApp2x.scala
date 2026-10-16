@@ -2,11 +2,13 @@ package org.bigbluebutton.core.apps.caption
 
 import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ CaptionDAO, CaptionLocaleDAO, CaptionTypes }
+import org.bigbluebutton.core.util.LocaleUtil
 
 class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
   val log = Logging(context.system, getClass)
@@ -14,6 +16,7 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
   def handle(msg: CaptionSubmitTranscriptPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
     val validCaptionTypes = Set(CaptionTypes.TYPED, CaptionTypes.AUDIO_TRANSCRIPTION)
+    val maxTextLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.captions.maxTextLength", 8192)
 
     def broadcastSuccessEvent(transcriptId: String, transcript: String, locale: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -31,6 +34,15 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else if (!validCaptionTypes.contains(msg.body.captionType)) {
       log.warning("Invalid captionType '{}' from user {} in meeting {}", msg.body.captionType, msg.header.userId, meetingId)
+    } else if (!LocaleUtil.isValidLocale(msg.body.locale)) {
+      log.warning("Invalid locale '{}' from user {} in meeting {}", msg.body.locale, msg.header.userId, meetingId)
+    } else if (!LocaleUtil.isValidCaptionId(msg.body.transcriptId)) {
+      log.warning("Invalid transcriptId from user {} in meeting {}", msg.header.userId, meetingId)
+    } else if (msg.body.transcript.length > maxTextLength) {
+      log.warning(
+        "Ignoring caption transcript from user {} in meeting {}: length {} exceeds {}",
+        msg.header.userId, meetingId, msg.body.transcript.length, maxTextLength
+      )
     } else {
       CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
         msg.body.transcript, msg.body.locale, msg.body.captionType)
@@ -56,6 +68,11 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to add caption locale."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else if (!LocaleUtil.isValidLocale(msg.body.locale)) {
+      log.warning(
+        "Invalid locale '{}' from user {} in meeting {}",
+        msg.body.locale, msg.header.userId, liveMeeting.props.meetingProp.intId
+      )
     } else {
       broadcastAddCaptionLocaleEvent(msg.body.locale, msg.header.userId)
     }
