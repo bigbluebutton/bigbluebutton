@@ -161,7 +161,11 @@ class Tooltip extends Component {
   }
 
   onShow() {
+    const { title } = this.props;
+    if (!title) return false;
+
     document.addEventListener('keyup', this.handleEscapeHide);
+    return true;
   }
 
   onHide() {

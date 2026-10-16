@@ -39,6 +39,22 @@ test.describe.parallel('API', () => {
     await api.testJoinLongFullNameThroughClient(page, testInfo);
   });
 
+  test('bbbWebSecurityHeaders', { tag: '@ci' }, async () => {
+    await API.testBbbWebSecurityHeaders();
+  });
+
+  test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page, browserName }) => {
+    test.skip(
+      browserName !== 'chromium',
+      'route.continue() with another URL navigates the page away from the LMS origin in Firefox',
+    );
+    await API.testJoinInsideCrossOriginFrame(page);
+  });
+
+  test('overAThousandRequestParameters', { tag: '@ci' }, async () => {
+    await API.testOverAThousandRequestParameters();
+  });
+
   test('breakoutWithoutParent', async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });

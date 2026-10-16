@@ -1,11 +1,14 @@
 apply plugin: 'java'
 
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
-version '0.0.1'
-jar.enabled = true
-archivesBaseName = 'bbb-pres-check'
+version = '0.0.1'
+base {
+    archivesName = 'bbb-pres-check'
+}
 
 task resolveDeps(type: Copy) {
     into('lib')
@@ -19,20 +22,18 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.poi:poi:5.4.1'
-    implementation 'org.apache.poi:poi-ooxml:5.4.1'
-    implementation 'org.apache.poi:poi-ooxml-full:5.4.1'
-    implementation 'commons-io:commons-io:2.11.0'
-    implementation 'org.apache.commons:commons-lang3:3.18.0'
-    implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
+    implementation 'org.apache.poi:poi:5.5.1'
+    implementation 'org.apache.poi:poi-ooxml:5.5.1'
+    implementation 'org.apache.poi:poi-ooxml-full:5.5.1'
+    // Keep in sync with the commons-lang3 version forced in ../build.gradle
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
+    implementation 'org.apache.commons:commons-collections4:4.5.0'
+    // Provider for the log4j-api POI logs through (version from POI's log4j-bom)
+    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.24.3'
 }
 
 jar {
-    manifest.mainAttributes("Permissions": "all-permissions")
-    manifest.mainAttributes("Codebase": "*")
-    manifest.mainAttributes("Application-Name": "BigBlueButton Presentation Checker")
-    manifest.mainAttributes("Application-Library-Allowable-Codebase": "*")
-    manifest.mainAttributes("Caller-Allowable-Codebase": "*")
-    manifest.mainAttributes("Trusted-Only": "true")
+    manifest {
+        attributes('Main-Class': 'org.bigbluebutton.prescheck.Main')
+    }
 }
