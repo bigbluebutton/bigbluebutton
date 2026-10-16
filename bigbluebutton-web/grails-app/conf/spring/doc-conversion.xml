@@ -143,9 +143,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
 
     <bean id="pdfSlidesGenerationService"
-          class="org.bigbluebutton.presentation.imp.PdfSlidesGenerationService">
+          class="org.bigbluebutton.presentation.imp.PdfSlidesGenerationService" destroy-method="stop">
         <constructor-arg index="0" value="${numConversionThreads}"/>
         <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
     </bean>
 
     <bean id="presentationFileProcessor"

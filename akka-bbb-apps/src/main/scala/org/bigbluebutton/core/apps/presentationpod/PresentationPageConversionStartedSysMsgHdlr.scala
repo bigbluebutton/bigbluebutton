@@ -78,8 +78,15 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
         sendConversionRejected("PRESENTATION_REMOVED")
         state
 
+      // Already in the pod: a repeated start. Re-adding would replace it with an empty
+      // presentation and reset its row, so leave it as it is.
+      case Some(pod) if pod.getPresentation(presentationId).isDefined =>
+        log.info("Ignoring repeated conversion start for presentation already in pod. " +
+          s"meetingId=$meetingId podId=$podId presentationId=$presentationId")
+        state
+
       // Bounds the akka pod map. 0 disables the cap.
-      case Some(pod) if presMaxPerPod > 0 && pod.getPresentationsSize() >= presMaxPerPod =>
+      case Some(pod) if PresentationPodsApp.podIsFullFor(pod, presentationId, presMaxPerPod) =>
         log.warning("Rejecting presentation: pod presentation limit reached. " +
           s"meetingId=$meetingId userId=${msg.header.userId} podId=$podId " +
           s"count=${pod.getPresentationsSize()} limit=$presMaxPerPod presentationId=$presentationId")

@@ -119,4 +119,22 @@ class PresentationPodsAppSpec extends AnyFlatSpec {
     assert(PresentationPodsApp.findPodWithPresentation(stateWith(defaultPod), "no-such-presentation").isEmpty)
     assert(PresentationPodsApp.findPodWithPresentation(stateWith(), "own-presentation-id").isEmpty)
   }
+
+  behavior of "PresentationPodsApp.podIsFullFor"
+
+  it should "refuse a new presentation when the pod is at its limit" in {
+    assert(PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 1))
+  }
+
+  it should "not refuse a presentation the full pod already holds" in {
+    assert(!PresentationPodsApp.podIsFullFor(defaultPod, "own-presentation-id", 1))
+  }
+
+  it should "accept a new presentation while the pod is below its limit" in {
+    assert(!PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 2))
+  }
+
+  it should "never refuse when the limit is disabled" in {
+    assert(!PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 0))
+  }
 }

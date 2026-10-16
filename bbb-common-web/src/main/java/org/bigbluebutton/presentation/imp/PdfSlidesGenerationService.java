@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.bigbluebutton.presentation.RejectedPresentationRegistry;
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,8 @@ public class PdfSlidesGenerationService {
 
   private PresentationConversionCompletionService presentationConversionCompletionService;
 
+  private RejectedPresentationRegistry rejectedPresentations;
+
   public PdfSlidesGenerationService(int numConversionThreads) {
     executor = Executors.newFixedThreadPool(numConversionThreads);
   }
@@ -44,6 +47,14 @@ public class PdfSlidesGenerationService {
   public Future<?> process(PageToConvert pageToConvert) {
     return executor.submit(() -> {
       try {
+        // bbb-apps-akka refused this presentation while the page was queued; do not convert it.
+        if (rejectedPresentations != null
+                && rejectedPresentations.isRejected(pageToConvert.getMeetingId(), pageToConvert.getPresId())) {
+          log.info("Skipping page {} of rejected presentation [{}] in meeting [{}]",
+                  pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId());
+          return;
+        }
+
         log.info("Starting conversion for page {}", pageToConvert.getPageNumber());
         boolean success = pageToConvert.convert();
 
@@ -70,6 +81,14 @@ public class PdfSlidesGenerationService {
 
   public void setPresentationConversionCompletionService(PresentationConversionCompletionService s) {
     this.presentationConversionCompletionService = s;
+  }
+
+  public void setRejectedPresentationRegistry(RejectedPresentationRegistry rejectedPresentations) {
+    this.rejectedPresentations = rejectedPresentations;
+  }
+
+  public void stop() {
+    executor.shutdownNow();
   }
 
   public void sendMessage(PageConvertProgressMessage msg) {
