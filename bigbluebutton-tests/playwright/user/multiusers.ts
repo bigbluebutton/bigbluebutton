@@ -489,44 +489,6 @@ export class MultiUsers {
     ).toBeVisible();
   }
 
-  async disabledUsersJoinMuted() {
-    // join user muted
-    await this.initUserPage(this.modPage.context, {
-      shouldCloseAudioModal: false,
-    });
-    await this.userPage.clickMicrophoneButton();
-    await this.userPage.waitAndClick(e.joinEchoTestButton);
-    await this.userPage.wasRemoved(
-      e.establishingAudioLabel,
-      'should stop displaying the establishing audio label when the first user joins audio',
-    );
-    await this.userPage.hasElement(
-      e.unmuteMicButton,
-      'should display the unmute microphone button for the first user - joined muted',
-    );
-    // disabled user join muted
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.usersJoinMuted);
-    // join user unmuted
-    await this.initUserPage2(this.modPage.context, {
-      shouldCloseAudioModal: false,
-    });
-    await this.userPage2.clickMicrophoneButton();
-    await this.userPage2.waitAndClick(e.joinEchoTestButton);
-    await this.userPage2.wasRemoved(
-      e.establishingAudioLabel,
-      'should stop displaying the establishing audio label when the second user joins audio',
-    );
-    await this.userPage2.hasElement(
-      e.muteMicButton,
-      'should display the mute microphone button for the second user - joined unmuted',
-    );
-    // check if the talking indicator is displayed for everyone
-    await this.modPage.hasElement(e.isTalking, 'should display the talking indicator for the moderator');
-    await this.userPage.hasElement(e.isTalking, 'should display the talking indicator for the first user');
-    await this.userPage2.hasElement(e.isTalking, 'should display the talking indicator for the second user');
-  }
-
   async muteAllUsersExceptPresenter() {
     // join audio
     await this.modPage.joinMicrophone();
@@ -692,43 +654,6 @@ export class MultiUsers {
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
     });
-  }
-
-  async clearAllStatusIcon() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage2.waitForSelector(e.whiteboard);
-
-    await this.modPage.waitAndClick(e.reactionsButton);
-    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
-    await this.modPage.hasText(
-      e.moderatorAvatar,
-      '😃',
-      'should display the smiling emoji in the moderator avatar for the moderator',
-    );
-    await this.modPage.hasText(
-      e.reactionsButton,
-      '😃',
-      'should display the smiling emoji on the reactions button when used',
-    );
-
-    await this.modPage2.waitAndClick(e.reactionsButton);
-    await this.modPage2.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
-    await this.modPage2.hasText(
-      e.moderatorAvatar,
-      '😃',
-      'should display the smiling emoji in the moderator avatar for the moderator',
-    );
-    await this.modPage2.hasText(
-      e.reactionsButton,
-      '😃',
-      'should display the smiling emoji on the reactions button when used',
-    );
-
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.clearStatus);
-
-    await this.modPage.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
-    await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
   }
 
   async leaveMeeting() {

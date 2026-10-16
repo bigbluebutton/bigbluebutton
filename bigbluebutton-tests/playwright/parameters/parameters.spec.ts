@@ -116,6 +116,13 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.muteOnStart();
   });
 
+  // muteOnStart defaults to true, so the test above covers the default and this one the opt-out
+  test('Mute On Start disabled', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, { createParameter: c.muteOnStartDisabled, testInfo });
+    await createParam.muteOnStartDisabled();
+  });
+
   test('Allow Mods To Unmute Users', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.allowModsToUnmuteUsers, testInfo });
