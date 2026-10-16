@@ -38,12 +38,12 @@ module BigBlueButton
   #
   # A file with no document -- empty or entirely commented out -- yields
   # +fallback+, and so does a file whose only document is null: a bare "---"
-  # or "null". Psych's own fallback covers just the first case. Override
+  # or "null". Psych returns nil for both, so one check covers them. Override
   # files may legitimately be empty, so those callers pass fallback: {}; a
   # required config that parses as nil keeps failing loudly rather than
   # silently yielding empty settings.
   def self.load_yaml(path, fallback: nil)
-    loaded = YAML.safe_load_file(path, permitted_classes: YAML_PERMITTED_CLASSES, aliases: true, fallback: fallback)
+    loaded = YAML.safe_load_file(path, permitted_classes: YAML_PERMITTED_CLASSES, aliases: true)
     loaded.nil? ? fallback : loaded
   end
 end
