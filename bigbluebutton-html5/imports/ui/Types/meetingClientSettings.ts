@@ -233,7 +233,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
-  processingMode: 'advanced' | 'standard' | 'original'
+  processingMode: 'voiceIsolation' | 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
