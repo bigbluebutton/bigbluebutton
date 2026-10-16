@@ -75,7 +75,7 @@ const storeStream = (deviceId, stream) => {
 
   // Stream insurance: clean it up if it ends (see the events being listened to below)
   stream.once('inactive', () => {
-    deleteStream(deviceId);
+    if (getStream(deviceId) === stream) deleteStream(deviceId);
   });
 
   return true;

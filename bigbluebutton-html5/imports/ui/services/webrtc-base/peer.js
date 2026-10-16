@@ -505,18 +505,24 @@ export default class WebRtcPeer extends EventEmitter2 {
       .then(() => this.peerConnection.setRemoteDescription(sdp));
   }
 
-  dispose() {
-    this.logger.debug('BBB::WebRtcPeer::dispose');
+  // preserveLocalStream: hand the capture over to whoever is going to republish
+  // it instead of releasing the device. Closing the peer connection already stops
+  // transmission, so the tracks can be added to a fresh one as they are; the
+  // caller owns them from here on and is responsible for stopping them.
+  dispose({ preserveLocalStream = false } = {}) {
+    this.logger.debug('BBB::WebRtcPeer::dispose', { preserveLocalStream });
 
     try {
       if (this.peerConnection) {
-        this.peerConnection.getSenders().forEach(({ track }) => stopTrack(track));
+        if (!preserveLocalStream) {
+          this.peerConnection.getSenders().forEach(({ track }) => stopTrack(track));
+        }
         if (!this.isPeerConnectionClosed()) this.peerConnection.close();
         this.peerConnection = null;
       }
 
       if (this.localStream) {
-        stopStream(this.localStream);
+        if (!preserveLocalStream) stopStream(this.localStream);
         this.localStream = null;
       }
 
