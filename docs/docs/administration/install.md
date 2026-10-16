@@ -412,13 +412,18 @@ If the server has no route to Docker Hub at all, load the image from a machine t
 # on a machine with access to Docker Hub
 docker pull bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
 docker save bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200 -o bbb-libreoffice.tar
+scp bbb-libreoffice.tar bbb.example.com:
 
 # on the BigBlueButton server
-docker load -i bbb-libreoffice.tar
+sudo docker load -i bbb-libreoffice.tar
 sudo apt-get install -f
 ```
 
-Document conversion runs the image straight from this reference, so Docker pulls it again by itself if it is ever removed from the server (for example by `docker image prune -a`). The only cost is that the first conversion after the removal waits for the download.
+Document conversion runs the image straight from this reference, so Docker pulls it again by itself if it is ever removed from the server (for example by `docker image prune -a`). The first conversion after the removal then waits for the download, and on a slow connection it can run into the 60-second conversion timeout of `bbb-web` and fail once. If you prune images on the server, pull the image back right away so no upload has to wait for it:
+
+```bash
+sudo docker pull "$(cat /usr/share/bbb-libreoffice/docker-image)"
+```
 
 ## Feedback and reporting bugs
 
