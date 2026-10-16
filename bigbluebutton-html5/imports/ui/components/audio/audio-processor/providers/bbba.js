@@ -28,18 +28,47 @@ const BBBA_DEFAULTS = {
 
 // files loaded during loadFiles()
 const loadedFiles = {
-  // store first caught error
-  error: null,
-  // BBBA-mapi.wasm
-  wasmBlob: null,
-  // BBBA-mapi.js
+  // BBBA-mapi.wasm or BBBA-nosimd-mapi.wasm, depending on the browser
+  wasmURL: null,
+  // compiled WebAssembly.Module, shared by every processor instance
+  wasmModule: null,
+  // BBBA-mapi.js (emscripten glue)
   wasmJS: null,
   // mapi-proc.js
   worklet: null,
 };
 
+// These are fetched from fixed URLs, unlike the webpack bundle which carries
+// a content hash and so can never go stale. Nothing sets Cache-Control on
+// /html5client/wasm, so a browser is free to keep serving a cached copy after
+// a redeploy - which pairs a NEW bundle with an OLD worklet. That combination
+// is silently broken rather than merely outdated: the two disagree about the
+// port protocol, and the plugin does not load or keeps its built-in defaults.
+// 'no-cache' forces revalidation (a cheap 304 when unchanged) instead of blind
+// reuse.
+const fetchOpts = { cache: 'no-cache' };
+
+// fetch that rejects on HTTP errors, instead of handing an error page on
+const fetchOk = (url) => fetch(url, fetchOpts).then((resp) => {
+  if (!resp.ok) throw new Error(`${url}: HTTP ${resp.status}`);
+  return resp;
+});
+
+const fetchBytes = (url) => fetchOk(url).then((resp) => resp.arrayBuffer());
+
+// Compile while the file downloads. compileStreaming needs the server to send
+// Content-Type: application/wasm; compile from the bytes when it does not.
+const compileWasm = (url) => {
+  if (typeof WebAssembly.compileStreaming !== 'function') {
+    return fetchBytes(url).then((bytes) => WebAssembly.compile(bytes));
+  }
+  return WebAssembly.compileStreaming(fetchOk(url))
+    .catch(() => fetchBytes(url).then((bytes) => WebAssembly.compile(bytes)));
+};
+
 // create audio worklet or script processor
-// we rely on script processor because worklets must run at 128 block size, which is not possible on low-spec machines
+// we rely on script processor because worklets must run at 128 block size,
+// which is not possible on low-spec machines
 // Firefox implements createMediaStreamTrackSource, which taps the track rather
 // than going through the stream-level plumbing of createMediaStreamSource. That
 // is the better behaved path there; Chrome does not implement it.
@@ -55,6 +84,9 @@ const createSourceNode = (audioContext, stream) => {
   return audioContext.createMediaStreamSource(stream);
 };
 
+// contexts that already have the worklet module added
+const contextsWithModule = new WeakSet();
+
 const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reject) => {
   const contextSource = createSourceNode(audioContext, stream);
   const contextDestination = audioContext.createMediaStreamDestination();
@@ -64,45 +96,70 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
     // addModule re-runs the worklet script, and registerProcessor throws
     // NotSupportedError on a duplicate name. Harmless while every call gets a
     // fresh context, fatal the moment one is reused, so guard it per context.
+    // The emscripten glue goes in front of the processor in the same module,
+    // which defines mapi_bbba there without an eval (so a CSP without
+    // 'unsafe-eval' is fine).
     const addModuleOnce = () => {
-      if (audioContext.__mapiModuleAdded) return Promise.resolve();
-      const processorBlob = new Blob([loadedFiles.worklet], { type: 'text/javascript' });
+      if (contextsWithModule.has(audioContext)) return Promise.resolve();
+      const processorBlob = new Blob(
+        [loadedFiles.wasmJS, '\n', loadedFiles.worklet],
+        { type: 'text/javascript' },
+      );
       const processorURL = URL.createObjectURL(processorBlob);
       return audioContext.audioWorklet.addModule(processorURL).then(() => {
-        audioContext.__mapiModuleAdded = true;
+        contextsWithModule.add(audioContext);
         URL.revokeObjectURL(processorURL);
       });
     };
 
     addModuleOnce().then(() => {
       const audioProcessorOptions = {
+        // 'explicit' makes the browser downmix stereo capture to mono; the
+        // default 'max' would ignore channelCount and the processor would only
+        // see the left channel.
         channelCount: 1,
+        channelCountMode: 'explicit',
         numberOfInputs: 1,
         numberOfOutputs: 1,
         outputChannelCount: [1],
       };
       const processor = new AudioWorkletNode(audioContext, 'mapi-proc', audioProcessorOptions);
       processor.port.onmessage = (event) => {
-        if (event.data?.type === 'loaded') {
-          Object.entries(BBBA_DEFAULTS).forEach(([index, value]) => {
-            processor.port.postMessage({ type: 'param', index: Number(index), value });
-          });
+        switch (event.data?.type) {
+          case 'loaded':
+            Object.entries(BBBA_DEFAULTS).forEach(([index, value]) => {
+              processor.port.postMessage({ type: 'param', index: Number(index), value });
+            });
 
-          contextSource.connect(processor);
-          processor.connect(contextDestination);
-          resolve({ stream: contextDestination.stream, processor });
-        } else if (event.data?.type === 'error') {
-          reject(event.data.error);
+            contextSource.connect(processor);
+            processor.connect(contextDestination);
+            resolve({ stream: contextDestination.stream, processor });
+            break;
+          case 'error':
+            reject(event.data.error);
+            break;
+          case 'need-bytes':
+            // this browser cannot pass a compiled module to the worklet
+            fetchBytes(loadedFiles.wasmURL).then((bytes) => {
+              processor.port.postMessage({ type: 'init', wasm: bytes }, [bytes]);
+            }).catch(reject);
+            break;
+          default:
+            break;
         }
       };
-      processor.port.postMessage({ type: 'init', wasm: loadedFiles.wasmBlob, js: loadedFiles.wasmJS });
+      // The compiled module is shared with the worklet instead of copied.
+      processor.port.postMessage({ type: 'init', wasm: loadedFiles.wasmModule });
     }).catch(reject);
     return;
   }
 
   // fallback with createScriptProcessor follows here
 
-  // execute JS to expose the emscripten load module function
+  // execute JS to expose the emscripten load module function. Android only:
+  // without a worklet there is no module to put the glue in, so this path
+  // still needs a CSP with 'unsafe-eval'.
+  // eslint-disable-next-line no-new-func
   const jsfnBbba = new Function(`${loadedFiles.wasmJS}return mapi_bbba;`);
   const createModuleBbba = jsfnBbba.call();
 
@@ -115,9 +172,9 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
   // create the wasm module and instance
   createModuleBbba({
     instantiateWasm: (imports, successCallback) => {
-      WebAssembly.instantiate(loadedFiles.wasmBlob, imports)
-        .then((output) => {
-          successCallback(output.instance, output.module);
+      WebAssembly.instantiate(loadedFiles.wasmModule, imports)
+        .then((instance) => {
+          successCallback(instance, loadedFiles.wasmModule);
         })
         .catch(reject);
       return {};
@@ -127,7 +184,16 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
 
       const audioData = module._malloc(module.HEAPF32.BYTES_PER_ELEMENT * bufferSize);
       const audioPtrs = module._malloc(module.HEAPU32.BYTES_PER_ELEMENT);
-      module.HEAPU32[(audioPtrs + (0 << 2)) >> 2] = audioData;
+      module.HEAPU32.set([audioData], audioPtrs / module.HEAPU32.BYTES_PER_ELEMENT);
+
+      // memory growth detaches views, so check before every use
+      let view = null;
+      const heapView = () => {
+        if (view === null || view.buffer !== module.HEAPF32.buffer) {
+          view = new Float32Array(module.HEAPF32.buffer, audioData, bufferSize);
+        }
+        return view;
+      };
 
       let enabled = true;
       processor.onaudioprocess = (e) => {
@@ -136,18 +202,9 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
           return;
         }
 
-        let buffer = e.inputBuffer.getChannelData(0);
-
-        for (let i = 0; i < bufferSize; ++i) {
-          module.HEAPF32[(audioData + (i << 2)) >> 2] = buffer[i];
-        }
-
+        heapView().set(e.inputBuffer.getChannelData(0));
         module._mapi_process(handle, audioPtrs, audioPtrs, bufferSize);
-
-        buffer = e.outputBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; ++i) {
-          buffer[i] = module.HEAPF32[(audioData + (i << 2)) >> 2];
-        }
+        e.outputBuffer.copyToChannel(heapView(), 0);
       };
 
       // use same API as worklet for pushing changes
@@ -180,31 +237,11 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
 });
 
 // load processor files, trigger Promise resolve when all done
-const loadFiles = () => new Promise((resolve, reject) => {
-  const checkResolved = () => {
-    if (loadedFiles.wasmBlob && loadedFiles.wasmJS && loadedFiles.worklet) {
-      resolve(true);
-      return true;
-    }
-    if (loadedFiles.error) {
-      reject(loadedFiles.error);
-      return true;
-    }
-    return false;
-  };
-  const catchHandler = (error) => {
-    // only reject Promise once
-    if (!loadedFiles.error) {
-      loadedFiles.error = error;
-      reject(loadedFiles.error);
-    }
-  };
+let loadPromise = null;
 
-  // try again in case of previous error
-  loadedFiles.error = null;
-
-  // return early if already loaded before
-  if (checkResolved()) return;
+const loadFiles = () => {
+  // already loaded, or loading
+  if (loadPromise) return loadPromise;
 
   // check if SIMD is supported, needed for old Safari versions
   const supportsSIMD = WebAssembly.validate(
@@ -212,51 +249,40 @@ const loadFiles = () => new Promise((resolve, reject) => {
     new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11]),
   );
 
-  // These three are fetched from fixed URLs, unlike the webpack bundle which
-  // carries a content hash and so can never go stale. Nothing sets
-  // Cache-Control on /html5client/wasm, so a browser is free to keep serving a
-  // cached copy after a redeploy - which pairs a NEW bundle with an OLD
-  // worklet. That combination is silently broken rather than merely outdated:
-  // the two disagree about the port protocol, every mapi_set_parameter call
-  // throws in the worklet, and the plugin keeps its built-in defaults with no
-  // signal on the main thread. 'no-cache' forces revalidation (a cheap 304
-  // when unchanged) instead of blind reuse.
-  const fetchOpts = { cache: 'no-cache' };
-
   // load wasm files and worklet
   const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
   const serverPathPrefix = pathMatch ? pathMatch[1] : '';
   const basepath = `${serverPathPrefix}/html5client/wasm/`;
   const suffix = supportsSIMD ? '' : '-nosimd';
-  fetch(`${basepath}BBBA${suffix}-mapi.wasm`, fetchOpts).then((resp) => {
-    resp.arrayBuffer().then((bytes) => {
-      loadedFiles.wasmBlob = bytes;
-      checkResolved();
-    }).catch(catchHandler);
-  }).catch(catchHandler);
-  fetch(`${basepath}BBBA${suffix}-mapi.js`, fetchOpts).then((resp) => {
-    resp.text().then((text) => {
-      loadedFiles.wasmJS = text;
-      checkResolved();
-    }).catch(catchHandler);
-  }).catch(catchHandler);
-  fetch(`${basepath}mapi-proc.js`, fetchOpts).then((resp) => {
-    resp.text().then((text) => {
-      loadedFiles.worklet = text;
-      checkResolved();
-    }).catch(catchHandler);
-  }).catch(catchHandler);
-});
+  const wasmURL = `${basepath}BBBA${suffix}-mapi.wasm`;
+
+  loadPromise = Promise.all([
+    compileWasm(wasmURL),
+    fetchOk(`${basepath}BBBA${suffix}-mapi.js`).then((resp) => resp.text()),
+    fetchOk(`${basepath}mapi-proc.js`).then((resp) => resp.text()),
+  ]).then(([wasmModule, wasmJS, worklet]) => {
+    loadedFiles.wasmURL = wasmURL;
+    loadedFiles.wasmModule = wasmModule;
+    loadedFiles.wasmJS = wasmJS;
+    loadedFiles.worklet = worklet;
+    return true;
+  });
+
+  // try again on the next call after a failure
+  loadPromise.catch(() => { loadPromise = null; });
+
+  return loadPromise;
+};
 
 // create an audio processor on top of a stream, resolving to the contract
 // shape the audio-processor dispatcher expects from every provider
 const createProcessorStream = (stream) => new Promise((resolve, reject) => {
-  // BBBA must run at 48 kHz: rnnoise is a 48 kHz model with a fixed 480-sample
-  // frame and the wasm build contains no resampler, so feeding it another rate
-  // degrades the denoising. Ask the context for 48 kHz and let the browser
-  // resample the capture. Note this cannot be taken from the track: Firefox
-  // does not report sampleRate in getSettings(), so the previous code resolved
-  // to { sampleRate: undefined } and silently fell back to the device rate.
+  // BBBA runs at 48 kHz internally (rnnoise is a 48 kHz model) and resamples
+  // any other context rate in and out itself, at some CPU cost. Ask the context
+  // for 48 kHz so that cost is not paid on top of the browser's own capture
+  // resampling. Note this cannot be taken from the track: Firefox does not
+  // report sampleRate in getSettings(), so the previous code resolved to
+  // { sampleRate: undefined } and silently fell back to the device rate.
   let audioContext;
   try {
     audioContext = new AudioContext({ sampleRate: 48000 });
@@ -266,7 +292,7 @@ const createProcessorStream = (stream) => new Promise((resolve, reject) => {
   }
   if (audioContext.sampleRate !== 48000) {
     // eslint-disable-next-line no-console
-    console.warn(`BBBA: AudioContext is at ${audioContext.sampleRate} Hz, rnnoise expects 48000 Hz`);
+    console.warn(`BBBA: AudioContext is at ${audioContext.sampleRate} Hz, resampling to 48000 Hz internally`);
   }
   const closeAndReject = (error) => {
     audioContext.close?.().catch(() => {});
