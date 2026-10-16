@@ -7,7 +7,7 @@ import {
 } from './types';
 import {
   isWasmProcessorSupported, isWasmProcessingConfigEnabled,
-  getEffectiveAudioProcessingMode,
+  getEffectiveAudioProcessingMode, isVoiceIsolationSupported,
 } from '/imports/api/audio/client/bridge/service';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 
@@ -156,6 +156,8 @@ class AudioMenu extends BaseMenu {
         disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
         dataTest: 'advancedFilteringRadio',
       });
+    }
+    if (wasmConfigEnabled && isVoiceIsolationSupported()) {
       options.push({
         value: 'voiceIsolation',
         titleMsg: intlMessages.voiceIsolationLabel,

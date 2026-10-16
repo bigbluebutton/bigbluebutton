@@ -93,6 +93,11 @@ const setWasmProcessorParameter = (index, value) => {
 // Undefined for a provider that exposes no such parameter.
 const getWasmProcessorDefaultIntensity = () => getActiveProvider().defaultIntensity;
 
+// Voice isolation is the provider driven at maximum intensity, so it is only
+// on offer where the provider exposes that knob - BBBA, not workadventureDtln.
+const isVoiceIsolationSupported = () => typeof getActiveProvider()
+  .intensityParamIndex === 'number';
+
 export {
   adoptWasmProcessor,
   createWasmProcessorStream,
@@ -100,6 +105,7 @@ export {
   getActiveProviderId,
   getProviderForcedMicrophoneConstraints,
   getWasmProcessorDefaultIntensity,
+  isVoiceIsolationSupported,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
