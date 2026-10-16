@@ -175,6 +175,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="learningDashboardService" class="org.bigbluebutton.api.LearningDashboardService">
         <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
+        <property name="recordStatusDir" value="${recordStatusDir}"/>
     </bean>
 
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
