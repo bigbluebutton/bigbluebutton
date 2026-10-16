@@ -8,6 +8,7 @@ import {
   destroyWasmProcessor,
   getProviderForcedMicrophoneConstraints,
   getWasmProcessorDefaultIntensity,
+  isVoiceIsolationSupported,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
@@ -162,26 +163,6 @@ const getWasmProcessingSettings = () => {
 
 const isWasmProcessingConfigEnabled = () => !!getWasmProcessingSettings().enabled;
 
-// media.audio.audioWasmProcessing.intensity is admin-only config: there is no
-// user-facing control for it, so it is read fresh per processor rather than
-// tracked in Settings. Unset or unparseable falls back to whatever the
-// provider ships. Clamped because the value is free-form YAML and
-// _mapi_set_parameter takes whatever it is handed.
-const getWasmProcessingIntensity = () => {
-  if (getEffectiveAudioProcessingMode() === 'voiceIsolation') {
-    return MAX_WASM_PROCESSING_INTENSITY;
-  }
-
-  const parsed = Number(getWasmProcessingSettings().intensity);
-
-  if (!Number.isFinite(parsed)) return getWasmProcessorDefaultIntensity();
-
-  return Math.min(
-    MAX_WASM_PROCESSING_INTENSITY,
-    Math.max(MIN_WASM_PROCESSING_INTENSITY, parsed),
-  );
-};
-
 const isAdvancedProcessingSupported = () => isWasmProcessorSupported()
   && isWasmProcessingConfigEnabled();
 
@@ -230,11 +211,14 @@ const getConstraintsForMode = (mode) => {
 
 // Validates a mode and resolves it against actual browser support.
 // Unknown values and unsupported 'advanced' both land on 'standard'.
+// 'voiceIsolation' on a provider that cannot do it lands on 'advanced'.
 const resolveAudioProcessingMode = (mode) => {
   const validMode = AUDIO_PROCESSING_MODES.includes(mode) ? mode : 'standard';
 
   if ((validMode === 'advanced' || validMode === 'voiceIsolation') && !isAdvancedProcessingSupported()) return 'standard';
 
+  // A provider without an intensity knob can still run 'advanced'
+  if (validMode === 'voiceIsolation' && !isVoiceIsolationSupported()) return 'advanced';
 
   return validMode;
 };
@@ -261,6 +245,26 @@ const getEffectiveAudioProcessingMode = () => {
   }
 
   return getDefaultAudioProcessingMode();
+};
+
+// media.audio.audioWasmProcessing.intensity is admin-only config: there is no
+// user-facing control for it, so it is read fresh per processor rather than
+// tracked in Settings. Unset or unparseable falls back to whatever the
+// provider ships. Clamped because the value is free-form YAML and
+// _mapi_set_parameter takes whatever it is handed.
+const getWasmProcessingIntensity = () => {
+  if (getEffectiveAudioProcessingMode() === 'voiceIsolation') {
+    return MAX_WASM_PROCESSING_INTENSITY;
+  }
+
+  const parsed = Number(getWasmProcessingSettings().intensity);
+
+  if (!Number.isFinite(parsed)) return getWasmProcessorDefaultIntensity();
+
+  return Math.min(
+    MAX_WASM_PROCESSING_INTENSITY,
+    Math.max(MIN_WASM_PROCESSING_INTENSITY, parsed),
+  );
 };
 
 const getAudioConstraints = (constraintFields = {}) => {
@@ -564,6 +568,7 @@ export {
   destroyWasmProcessor,
   stereoUnsupported,
   isAdvancedProcessingSupported,
+  isVoiceIsolationSupported,
   isWasmProcessorSupported,
   isWasmProcessingConfigEnabled,
   isWasmProcessingEnabled,
