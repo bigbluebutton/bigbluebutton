@@ -112,7 +112,7 @@ const propTypes = {
     microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
   audio: PropTypes.shape({
-    processingMode: PropTypes.oneOf(['advanced', 'standard', 'original']),
+    processingMode: PropTypes.oneOf(['voiceIsolation', 'advanced', 'standard', 'original']),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
