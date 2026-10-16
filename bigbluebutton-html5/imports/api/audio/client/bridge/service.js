@@ -21,7 +21,7 @@ const DEFAULT_INPUT_DEVICE_ID = '';
 const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
-const AUDIO_PROCESSING_MODES = ['advanced', 'standard', 'original'];
+const AUDIO_PROCESSING_MODES = ['voiceIsolation', 'advanced', 'standard', 'original'];
 const MIN_WASM_PROCESSING_INTENSITY = 0;
 const MAX_WASM_PROCESSING_INTENSITY = 100;
 
@@ -170,6 +170,10 @@ const isWasmProcessingConfigEnabled = () => !!getWasmProcessingSettings().enable
 // provider ships. Clamped because the value is free-form YAML and
 // _mapi_set_parameter takes whatever it is handed.
 const getWasmProcessingIntensity = () => {
+  if (getEffectiveAudioProcessingMode() === 'voiceIsolation') {
+    return MAX_WASM_PROCESSING_INTENSITY;
+  }
+
   const parsed = Number(getWasmProcessingSettings().intensity);
 
   if (!Number.isFinite(parsed)) return getWasmProcessorDefaultIntensity();
@@ -231,12 +235,13 @@ const getConstraintsForMode = (mode) => {
 const resolveAudioProcessingMode = (mode) => {
   const validMode = AUDIO_PROCESSING_MODES.includes(mode) ? mode : 'standard';
 
-  if (validMode === 'advanced' && !isAdvancedProcessingSupported()) return 'standard';
+  if ((validMode === 'advanced' || validMode === 'voiceIsolation') && !isAdvancedProcessingSupported()) return 'standard';
+
 
   return validMode;
 };
 
-// Resolves defaultSettings.audio.processingMode (advanced/standard/original)
+// Resolves defaultSettings.audio.processingMode (voiceIsolation/advanced/standard/original)
 // against actual browser support. Only used as a last resort, when the user
 // has made no choice of their own.
 const getDefaultAudioProcessingMode = () => resolveAudioProcessingMode(
@@ -296,7 +301,7 @@ const getAudioConstraints = (constraintFields = {}) => {
 };
 
 // check if wasm processing is enabled
-const isWasmProcessingEnabled = () => getEffectiveAudioProcessingMode() === 'advanced';
+const isWasmProcessingEnabled = () => (getEffectiveAudioProcessingMode() === 'advanced' || getEffectiveAudioProcessingMode() === 'voiceIsolation') && isWasmProcessingConfigEnabled();
 
 const loadWasmProcessor = async () => {
   if (isAdvancedProcessingSupported()) {
