@@ -435,4 +435,10 @@ case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, f
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
 case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
+
+// Sent when a presentation whose conversion bbb-web already started will not be added to a
+// pod, so bbb-web can stop converting it and delete its files.
+object PresentationConversionRejectedSysMsg { val NAME = "PresentationConversionRejectedSysMsg" }
+case class PresentationConversionRejectedSysMsg(header: BbbClientMsgHeader, body: PresentationConversionRejectedSysMsgBody) extends BbbCoreMsg
+case class PresentationConversionRejectedSysMsgBody(meetingId: String, podId: String, presentationId: String, reason: String)
 // ------------ akka-apps to bbb-common-web ------------

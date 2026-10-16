@@ -14,11 +14,18 @@ trait PresentationConversionFailedErrorSysPubMsgHdlr {
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    val errorDetails = scala.collection.immutable.Map(
-      msg.body.messageKey -> msg.body.errorDetail
-    )
+    // A removed or refused presentation keeps its current row state (or stays deleted).
+    if (!liveMeeting.droppedPresentations.contains(msg.body.presentationId)) {
+      val errorDetails = scala.collection.immutable.Map(
+        msg.body.messageKey -> msg.body.errorDetail
+      )
 
-    PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
+      // updateErrors is a plain UPDATE, so ensure the row exists first. No-op when it already does.
+      PresPresentationDAO.insertUploadTokenIfNotExists(
+        liveMeeting.props.meetingProp.intId, "", "", msg.body.presentationId, "", msg.body.presName
+      )
+      PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
+    }
     state
   }
 }

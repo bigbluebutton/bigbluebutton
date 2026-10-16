@@ -1209,6 +1209,122 @@ You will have to additionally increase the size for the HTML5 client, edit `/usr
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
+#### Limit the number of presentations per API request
+
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit.
+
+To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
+
+```properties
+#----------------------------------------------------
+# Maximum number of presentations processed per create/insertDocument API call (default 10).
+maxPresentationsPerRequest=10
+```
+
+Set the value to `0` to disable the limit entirely.
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+$ sudo bbb-conf --restart
+```
+
+#### Rate limit presentation uploads
+
+BigBlueButton has several independent controls over presentation uploads. They protect different things, so it is worth knowing which one to reach for. Set any of the `*MaxRequests` settings, or `presentationMaxPerPod`, to `0` to disable that limit entirely.
+
+##### Limit conversion load (the main resource control)
+
+Presentation conversion is the most resource-intensive part of an upload. `bbb-web` caps how many presentations may enter the conversion pipeline for a single meeting:
+
+- **20** presentations per meeting within a rolling **60-second** window (`presentationConversionMaxRequests` / `presentationConversionRateWindowSec`).
+
+This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. Interactive uploads also show an error in the presenter's upload toast.
+
+Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it and the room is destroyed immediately afterwards, so discarding it would lose it permanently with nothing left to retry from.
+
+Be aware that this means no conversion rate limit applies to captures. `apps.presentationMaxPerPod` is not a substitute: it caps how many presentations a pod holds, which is meeting state, and it is checked in `bbb-apps-akka` only once conversion has already started (see below). Ending a breakout session imports up to two presentations per room (captured slides and captured shared notes are separate uploads, each behind its own setting), all at once, so a session with many rooms produces a corresponding burst of conversion work in the parent meeting.
+
+The limit is keyed by internal meeting ID, so a throttled meeting recovers once the window passes. To change the values, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+#----------------------------------------------------
+# Rate limit on presentations entering the conversion pipeline, per meeting
+# (defaults: 20 per 60s). 0 = disabled.
+presentationConversionMaxRequests=20
+presentationConversionRateWindowSec=60
+```
+
+When raising or lowering this, note the floor: a single `create` call may carry up to `maxPresentationsPerRequest` documents, counting the automatically injected default presentation, so a value below that will silently drop documents from a legitimate `create`.
+
+##### Limit how many presentations a pod holds
+
+`bbb-apps-akka` caps how many presentations a single presentation pod may contain:
+
+- **50** presentations per presentation pod (`presentationMaxPerPod`).
+
+This caps **meeting state** — how many presentations exist in the pod and appear in the client's presentation list. To bound conversion load, use `presentationConversionMaxRequests` above.
+
+An over-limit presentation is refused entry to the pod and a warning is logged in `bbb-apps-akka`.
+
+- **Interactive uploads** are refused when the client asks for an upload token, before the file is sent. The presenter sees "Maximum of N presentations reached" in the upload toast.
+- **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. No error is shown to the presenter, since they did not upload the document.
+
+##### Limit how fast one presenter can request uploads
+
+`bbb-apps-akka` rate limits presentation upload-**token** requests per user:
+
+- **20** upload-token requests per user within a rolling **60-second** window (`presentationUploadTokenMaxRequests` / `presentationUploadTokenWindowSec`).
+
+This covers the interactive client path only, because only the client requests an upload token. It does not apply to `create`, `insertDocument`, or breakout-room slide copies.
+
+A refused request is not uploaded. The upload toast shows "You are uploading too many presentations at once" for the first refusal in each window; later refusals in the same window show the "Request upload token timeout" notification instead. Requests refused by `presentationMaxPerPod` also count towards this limit.
+
+To change either `bbb-apps-akka` limit, add an overwrite rule in `/etc/bigbluebutton/bbb-apps-akka.conf` under the `apps` block:
+
+```properties
+apps {
+  # Maximum presentation upload-token requests allowed per user within the window below.
+  # 0 = disabled
+  presentationUploadTokenMaxRequests = 20
+  # Length in seconds of the per-user rate-limit window.
+  presentationUploadTokenWindowSec = 60
+  # Maximum number of presentations allowed in a single presentation pod.
+  # 0 = disabled
+  presentationMaxPerPod = 50
+}
+```
+
+##### Limit `insertDocument` API calls
+
+`bbb-web` rate limits the `insertDocument` API per meeting:
+
+- **30** `insertDocument` calls per meeting within a rolling **60-second** window (`insertDocumentMaxRequests` / `insertDocumentRateWindowSec`).
+
+When a meeting exceeds this rate the request is rejected with a `FAILED` response before the request body is read, and a warning is logged in `bbb-web`.
+
+```properties
+#----------------------------------------------------
+# Rate limit for the insertDocument API, applied per meeting (defaults: 30 per 60s).
+# 0 = disabled.
+insertDocumentMaxRequests=30
+insertDocumentRateWindowSec=60
+```
+
+Note how this relates to the conversion limit: `insertDocumentMaxRequests` bounds API **calls**, while `presentationConversionMaxRequests` bounds the **presentations** those calls carry. With the shipped defaults the conversion limit is the lower of the two, so that is the one to raise if a legitimate integration is being throttled.
+
+##### Which limit rejected my upload?
+
+| Setting | Enforced in | Log message | Client error |
+| --- | --- | --- | --- |
+| `presentationConversionMaxRequests` | `bbb-web` | `Rejecting presentation conversion: per-meeting rate limit exceeded` | "Too many presentations were uploaded recently" |
+| `insertDocumentMaxRequests` | `bbb-web` | `Rejecting insertDocument: rate limit exceeded` | API `FAILED` response |
+| `maxPresentationsPerRequest` | `bbb-web` | `Presentation count N exceeds maxPresentationsPerRequest` | none — excess documents are dropped; `bbb-web` logs a warning |
+| `presentationMaxPerPod` | `bbb-apps-akka` | `Rejecting presentation upload token request: pod presentation limit reached` (interactive) or `Rejecting presentation: pod presentation limit reached` (API) | "Maximum of N presentations reached" for interactive uploads; none for API documents |
+| `presentationUploadTokenMaxRequests` | `bbb-apps-akka` | `Rejecting presentation upload token request: request rate limit exceeded` | "You are uploading too many presentations at once" |
+
+Restart your server with `sudo bbb-conf --restart` to apply any of these changes.
+
 #### Add custom fonts for presentation conversion
 
 Starting with BigBlueButton 2.3 we added support for using additional fonts when converting presentation files.

@@ -53,6 +53,25 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
+    // Record the rejection on a row of its own so the uploader shows why the upload failed.
+    // The empty token tells the client not to send the file. At most one such row per user
+    // per rate-limit window, so repeated rejected requests cannot create unbounded rows.
+    def reportRejection(msg: PresentationUploadTokenReqMsg, errorMsgKey: String, errorDetails: Map[String, String]): Unit = {
+      val userId = msg.header.userId
+      if (liveMeeting.presUploadRateLimiter.shouldReportRejection(userId, System.currentTimeMillis(), presUploadTokenWindowSec * 1000L)) {
+        val presentationId = PresentationPodsApp.generatePresentationId(msg.body.filename)
+        PresPresentationDAO.insertUploadTokenIfNotExists(
+          liveMeeting.props.meetingProp.intId,
+          userId,
+          msg.body.uploadTemporaryId,
+          presentationId,
+          "",
+          msg.body.filename
+        )
+        PresPresentationDAO.updateErrors(presentationId, errorMsgKey, errorDetails)
+      }
+    }
+
     def userIsAllowedToUploadInPod(podId: String, userId: String): Boolean = {
       var allowed = false
 
@@ -84,19 +103,42 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       if (userIsAllowedToUploadInPod(msg.body.podId, msg.header.userId)) {
-        val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
-        val presentationId = PresentationPodsApp.generatePresentationId(msg.body.filename)
-        broadcastPresentationUploadTokenPassResp(msg, token, presentationId)
-        broadcastPresentationUploadTokenSysPubMsg(msg, token, presentationId)
+        // Count is taken before the new presentation exists in the pod, so it
+        // does not include tokens already issued but not yet converted; the
+        // per-user request rate limit bounds that window.
+        val podPresCount = PresentationPodsApp.getPresentationPod(state, msg.body.podId)
+          .map(_.getPresentationsSize()).getOrElse(0)
 
-        PresPresentationDAO.insertUploadTokenIfNotExists(
-          meetingId,
-          msg.header.userId,
-          msg.body.uploadTemporaryId,
-          presentationId,
-          token,
-          msg.body.filename
-        )
+        // Rate limit first, so every request counts against it, including ones the pod
+        // cap would refuse.
+        if (!liveMeeting.presUploadRateLimiter.allow(
+          msg.header.userId, System.currentTimeMillis(),
+          presUploadTokenMaxRequests, presUploadTokenWindowSec * 1000L
+        )) {
+          log.warning("Rejecting presentation upload token request: request rate limit exceeded. " +
+            s"meetingId=$meetingId userId=${msg.header.userId} limit=$presUploadTokenMaxRequests windowSec=$presUploadTokenWindowSec")
+          broadcastPresentationUploadTokenFailResp(msg)
+          reportRejection(msg, "PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED", Map.empty)
+        } else if (presMaxPerPod > 0 && podPresCount >= presMaxPerPod) { //0 = no limit
+          log.warning("Rejecting presentation upload token request: pod presentation limit reached. " +
+            s"meetingId=$meetingId userId=${msg.header.userId} podId=${msg.body.podId} count=$podPresCount limit=$presMaxPerPod")
+          broadcastPresentationUploadTokenFailResp(msg)
+          reportRejection(msg, "PRESENTATION_UPLOAD_POD_LIMIT_REACHED", Map("maxPresentationsPerPod" -> presMaxPerPod.toString))
+        } else {
+          val token = PresentationPodsApp.generateToken(msg.body.podId, msg.header.userId)
+          val presentationId = PresentationPodsApp.generatePresentationId(msg.body.filename)
+          broadcastPresentationUploadTokenPassResp(msg, token, presentationId)
+          broadcastPresentationUploadTokenSysPubMsg(msg, token, presentationId)
+
+          PresPresentationDAO.insertUploadTokenIfNotExists(
+            meetingId,
+            msg.header.userId,
+            msg.body.uploadTemporaryId,
+            presentationId,
+            token,
+            msg.body.filename
+          )
+        }
 
       } else {
         broadcastPresentationUploadTokenFailResp(msg)

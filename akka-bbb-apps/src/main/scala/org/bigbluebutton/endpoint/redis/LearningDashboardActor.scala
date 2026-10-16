@@ -1,6 +1,6 @@
 package org.bigbluebutton.endpoint.redis
 
-import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Cancellable, Props}
 import org.bigbluebutton.common2.domain.PresentationVO
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.annotation.JsonIgnore
@@ -155,7 +155,19 @@ class LearningDashboardActor(
   // Last time a BlockNote edit was counted, per meeting and user (see handleBNSharedNotesUpdatedEvtMsg)
   private var meetingSharedNotesEditCountedOn : Map[String,Map[String,Long]] = Map()
 
-  system.scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds, self, SendPeriodicReport)
+  // Scheduled in preStart and cancelled in postStop so a restart replaces the timer, not adds one.
+  private var periodicReportTimer: Option[Cancellable] = None
+
+  override def preStart(): Unit = {
+    super.preStart()
+    periodicReportTimer = Some(system.scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds, self, SendPeriodicReport))
+  }
+
+  override def postStop(): Unit = {
+    periodicReportTimer.foreach(_.cancel())
+    periodicReportTimer = None
+    super.postStop()
+  }
 
   def receive = {
     //=============================
@@ -175,6 +187,16 @@ class LearningDashboardActor(
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
+    // Contain per-message failures so that one message cannot restart the actor.
+    try {
+      dispatchBbbCommonEnvCoreMsg(msg)
+    } catch {
+      case e: Exception =>
+        log.error(e, "Failed to handle {} in LearningDashboardActor", msg.core.getClass.getSimpleName)
+    }
+  }
+
+  private def dispatchBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       // Chat
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)

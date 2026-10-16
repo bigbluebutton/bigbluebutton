@@ -101,4 +101,40 @@ class PresentationPodsAppSpec extends AnyFlatSpec {
     assert(PresentationPodsApp.pageBelongsToMeeting(state, "second-presentation-id/1"))
     assert(PresentationPodsApp.pageBelongsToMeeting(state, ownPageId))
   }
+
+  behavior of "PresentationPodsApp.findPodWithPresentation"
+
+  it should "return the pod that holds the presentation" in {
+    val secondPod = PresentationPod("second-pod", "", Map.empty)
+      .addPresentation(presentation("second-presentation-id", "second-presentation-id/1"))
+    val state = stateWith(defaultPod, secondPod)
+
+    assert(PresentationPodsApp.findPodWithPresentation(state, "own-presentation-id").map(_.id)
+      .contains(PresentationPod.DEFAULT_PRESENTATION_POD))
+    assert(PresentationPodsApp.findPodWithPresentation(state, "second-presentation-id").map(_.id)
+      .contains("second-pod"))
+  }
+
+  it should "return None for a presentation held by no pod" in {
+    assert(PresentationPodsApp.findPodWithPresentation(stateWith(defaultPod), "no-such-presentation").isEmpty)
+    assert(PresentationPodsApp.findPodWithPresentation(stateWith(), "own-presentation-id").isEmpty)
+  }
+
+  behavior of "PresentationPodsApp.podIsFullFor"
+
+  it should "refuse a new presentation when the pod is at its limit" in {
+    assert(PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 1))
+  }
+
+  it should "not refuse a presentation the full pod already holds" in {
+    assert(!PresentationPodsApp.podIsFullFor(defaultPod, "own-presentation-id", 1))
+  }
+
+  it should "accept a new presentation while the pod is below its limit" in {
+    assert(!PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 2))
+  }
+
+  it should "never refuse when the limit is disabled" in {
+    assert(!PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 0))
+  }
 }
