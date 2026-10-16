@@ -1,4 +1,4 @@
-FROM sbtscala/scala-sbt:eclipse-temurin-17.0.14_7_1.10.11_2.13.16
+FROM sbtscala/scala-sbt:eclipse-temurin-21.0.7_6_1.10.11_2.13.16
 
 RUN apt-get update && apt-get install -y unzip
 

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 RUN apt-get update && apt-get install -y \
         wget unzip gosu locales \

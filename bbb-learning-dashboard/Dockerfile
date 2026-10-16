@@ -4,10 +4,11 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+# webpack and friends live in devDependencies (post-CRA); do not omit them
+RUN npm ci
 
 COPY . .
-RUN DISABLE_ESLINT_PLUGIN=true npm run build
+RUN npm run build
 
 # Stage 2: Runtime
 FROM nginx:stable-alpine

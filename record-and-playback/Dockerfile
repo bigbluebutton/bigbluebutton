@@ -1,25 +1,24 @@
-FROM debian:bullseye AS bbb-presentation-video-builder
+# Use the prebuilt package from GitHub Releases (same as bbb-presentation-video.placeholder.sh).
+# Building from source on debian:bullseye fails — Bullseye security mirrors return 404s.
+FROM debian:bookworm-slim AS bbb-presentation-video-builder
 
-ARG TAG_BBB_PRESENTATION_VIDEO="5.0.0"
+ARG TAG_BBB_PRESENTATION_VIDEO="5.1.0-rc.4"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    software-properties-common \
-    debhelper \
-    devscripts \
-    equivs \
-    git \
-    git-buildpackage \
-    pristine-tar
+    ca-certificates \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --branch ${TAG_BBB_PRESENTATION_VIDEO} https://github.com/bigbluebutton/bbb-presentation-video.git
+WORKDIR /out
+RUN curl -Lf -o ubuntu-22.04.zip \
+      "https://github.com/bigbluebutton/bbb-presentation-video/releases/download/${TAG_BBB_PRESENTATION_VIDEO}/ubuntu-22.04.zip" \
+    && unzip -o ubuntu-22.04.zip \
+    && mv bbb-presentation-video_*.deb bbb-presentation-video.deb \
+    && rm -f ubuntu-22.04.zip
 
-WORKDIR /bbb-presentation-video
-
-RUN DEBIAN_FRONTEND=noninteractive mk-build-deps -i -r -t 'apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends'
-
-RUN gbp buildpackage --git-ignore-new --git-ignore-branch --no-sign
-
-FROM ruby:3.0-slim-bullseye
+# Gemfile.lock (connection_pool 3.x / activesupport 7.2) needs Ruby >= 3.2
+FROM ruby:3.2-slim-bookworm
 
 # install apt dependencies
 RUN apt-get update && apt-get install -y \
@@ -78,9 +77,13 @@ ENV YQ_VERSION=v4.49.2
 RUN  wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq \
     && chmod +x /usr/bin/yq
 
-# create user
-# the ID should match the one creating the files in `core`
-RUN groupadd -g 998 bigbluebutton && useradd -m -u 998 -g bigbluebutton bigbluebutton
+# Prefer 998:998 to match other BBB containers / shared volumes.
+# Bookworm assigns 998 to systemd-network once systemd packages are installed;
+# reclaim it — this image does not need systemd-network.
+RUN userdel -r systemd-network 2>/dev/null || userdel systemd-network 2>/dev/null || true \
+ && groupdel systemd-network 2>/dev/null || true \
+ && groupadd -g 998 bigbluebutton \
+ && useradd -m -u 998 -g bigbluebutton bigbluebutton
 
 RUN mkdir -p \
     /usr/local/bigbluebutton \
@@ -150,7 +153,7 @@ RUN chmod +x /usr/local/bigbluebutton/core/scripts/bbb-remove-old-recordings
 COPY --chown=bigbluebutton:bigbluebutton ./docker/cleanup.sh /cleanup.sh
 RUN chmod +x /cleanup.sh
 
-COPY --from=bbb-presentation-video-builder /bbb-presentation-video_*.deb /tmp/bbb-presentation-video.deb
+COPY --from=bbb-presentation-video-builder /out/bbb-presentation-video.deb /tmp/bbb-presentation-video.deb
 RUN dpkg -i /tmp/bbb-presentation-video.deb && rm /tmp/bbb-presentation-video.deb
 
 COPY --chown=bigbluebutton:bigbluebutton ./docker/bbb-web.properties /etc/bigbluebutton/bbb-web.properties.tmpl
@@ -163,4 +166,4 @@ USER bigbluebutton
 WORKDIR /usr/local/bigbluebutton/core/scripts
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["rasque_workers"]
+CMD ["resque_workers"]

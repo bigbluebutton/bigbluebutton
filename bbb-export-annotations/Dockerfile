@@ -25,9 +25,15 @@ COPY --from=deps /app/node_modules ./node_modules
 
 COPY --chown=bigbluebutton:bigbluebutton . .
 
-# Coverwrite config with docker hosts
+# Fonts ship in the packaging tree (not under this app dir)
+COPY --from=fonts / /usr/local/share/fonts/
+RUN chmod -R a+rX /usr/local/share/fonts
+
+# Blank slide assets expected at /usr/share/bigbluebutton/blank/
+COPY --from=slides / /usr/share/bigbluebutton/blank/
+
+# Overwrite config with docker hosts
 RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' ./config/settings.json
-RUN sed -i 's|http://127.0.0.1:9002|http://pads:9002|g' ./config/settings.json
 RUN jq '.redis.host = "redis"' ./config/settings.json | sponge ./config/settings.json
 
 USER bigbluebutton

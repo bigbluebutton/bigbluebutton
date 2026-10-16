@@ -67,6 +67,10 @@ target "graphql-server" {
 target "export-annotations" {
       inherits = ["docker-metadata-action"]
       context = "./bbb-export-annotations"
+      contexts = {
+          fonts = "./build/packages-template/bbb-export-annotations/fonts"
+          slides = "./bigbluebutton-config/slides"
+      }
 }
 
 target "record-and-playback" {

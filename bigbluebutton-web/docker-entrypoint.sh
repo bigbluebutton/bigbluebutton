@@ -19,5 +19,6 @@ fi
 # Set log level
 sed -i "s|BBB_WEB_LOGLEVEL|${BBB_WEB_LOGLEVEL:-INFO}|g" /usr/share/bbb-web/WEB-INF/classes/logback.xml
 
+# Match packaged bbb-web.service: Boot 3+/4 WarLauncher + -cp . (WEB-INF/lib/* hangs)
 # Allow additional JVM options via JAVA_OPTS environment variable
-exec java ${JAVA_OPTS} -Dgrails.env=prod -Dserver.address=0.0.0.0 -Dserver.port=8090 -Dspring.main.allow-circular-references=true -Xms384m -Xmx384m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/bigbluebutton/diagnostics -cp WEB-INF/lib/*:/:WEB-INF/classes/:. org.springframework.boot.loader.WarLauncher "$@"
+exec java ${JAVA_OPTS} -Dgrails.env=prod -Dserver.address=0.0.0.0 -Dserver.port=8090 -Dspring.main.allow-circular-references=true -Xms384m -Xmx384m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/bigbluebutton/diagnostics -cp . org.springframework.boot.loader.launch.WarLauncher "$@"
