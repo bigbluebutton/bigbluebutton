@@ -310,12 +310,11 @@ In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `
 
 #### Increase the number of recording workers
 
-<!-- TODO remove when 12403 is resolved -->
+Recordings are handled by two services. `bbb-rap-archive-worker` archives each meeting as soon as it ends, and keeps meeting events when `defaultKeepEvents` or `meetingKeepEvents` is enabled. `bbb-rap-resque-worker` processes and publishes the recordings.
+
 > **Warning**
 >
-> If the `defaultKeepEvents` or `meetingKeepEvents` setting in bbb-web is enabled, you must not increase the number of BigBlueButton recording workers. Doing so could result in data loss, as meeting events will not be correctly archived.
->
-> For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
+> Do not increase the number of workers in `bbb-rap-archive-worker`. Archive and events jobs for the same meeting must not run at the same time, or meeting events can be archived incompletely. For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
 
 Run `systemctl edit bbb-rap-resque-worker.service`, and insert the following into the editor, replacing the number with the desired number of recordings to process concurrently.
 
@@ -339,9 +338,9 @@ If you run `systemctl status bbb-rap-resque-worker.service` now, you will see th
    CGroup: /system.slice/bbb-rap-resque-worker.service
       ├─23630 /bin/sh -c /usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log
       ├─23631 /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
-      ├─23650 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-      ├─23651 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-      └─23652 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
+      ├─23650 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions
+      ├─23651 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions
+      └─23652 resque-2.0.0: Waiting for rap:publish,rap:process,rap:sanity,rap:captions
 ```
 
 #### Install additional recording processing formats
