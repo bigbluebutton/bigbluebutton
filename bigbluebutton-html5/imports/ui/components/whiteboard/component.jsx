@@ -1459,6 +1459,11 @@ const Whiteboard = React.memo((props) => {
         // Handle removed shapes immediately (not batched)
         const idsToRemove = Object.keys(removed);
         if (idsToRemove.length > 0) {
+          // A shape removed before it was persisted (e.g. a dot bailed by a second finger)
+          // must not be sent afterwards.
+          idsToRemove.forEach((id) => {
+            delete shapeBatchRef.current[id];
+          });
           removeShapes(idsToRemove);
         }
       },
@@ -1514,7 +1519,8 @@ const Whiteboard = React.memo((props) => {
               hasZoomSyncedRef.current = false;
             }
 
-            if (isWheelZoomRef.current) {
+            // Wheel and touch gestures move the camera directly; zoomChanger follows it.
+            if (isWheelZoomRef.current || isTouchZoomRef.current) {
               zoomSlide(
                 viewedRegionW, viewedRegionH, nextCam.x, nextCam.y,
                 currentPresentationPageRef.current,
@@ -1629,7 +1635,7 @@ const Whiteboard = React.memo((props) => {
       });
 
       // eslint-disable-next-line no-param-reassign
-      editor.store.onBeforeChange = (prev, next) => {
+      editor.store.onBeforeChange = (prev, next, source) => {
         if (isPhone) {
           const path = editor.getPath();
           const activePaths = [
@@ -1720,9 +1726,12 @@ const Whiteboard = React.memo((props) => {
         let viewportHeight;
 
         if (isPresenterRef.current) {
-          const viewportPageBounds = editor?.getViewportPageBounds();
-          viewportWidth = viewportPageBounds?.w;
-          viewportHeight = viewportPageBounds?.h;
+          // The viewport of the camera being written, not of the current one: with the
+          // current zoom, a zoom step that starts at 100% would be pushed back to (0, 0).
+          const { w, h } = editor.getViewportScreenBounds();
+          const zoom = next?.typeName === CAMERA_TYPE && next.z > 0 ? next.z : editor.getCamera().z;
+          viewportWidth = w / zoom;
+          viewportHeight = h / zoom;
         } else {
           viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth;
           viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
@@ -1734,6 +1743,7 @@ const Whiteboard = React.memo((props) => {
         // Prevent pinch zoom outside allowed range
         if (
           zoomed
+          && source === 'user'
           && isPresenterRef.current
           && isTouchZoomRef.current
           && currentPage
@@ -1742,19 +1752,25 @@ const Whiteboard = React.memo((props) => {
           && Number.isFinite(currentPage.scaledHeight)
           && currentPage.scaledHeight > 0
         ) {
-          const { widthGap } = getContainerDimensions();
+          // The same 100 % as the touch handler and the wheel, or the gate would reject
+          // their writes at the bounds.
+          let baseZoom = initialZoomRef.current;
 
-          let baseZoom = calculateZoomValueRef.current(
-            currentPage.scaledWidth,
-            currentPage.scaledHeight,
-          );
+          if (!(baseZoom > 0)) {
+            const { widthGap } = getContainerDimensions();
 
-          if (widthGap > 0) {
-            baseZoom = calculateZoomWithGapValueRef.current(
+            baseZoom = calculateZoomValueRef.current(
               currentPage.scaledWidth,
               currentPage.scaledHeight,
-              widthGap,
             );
+
+            if (widthGap > 0) {
+              baseZoom = calculateZoomWithGapValueRef.current(
+                currentPage.scaledWidth,
+                currentPage.scaledHeight,
+                widthGap,
+              );
+            }
           }
 
           if (Number.isFinite(baseZoom) && baseZoom > 0) {
@@ -2208,6 +2224,7 @@ const Whiteboard = React.memo((props) => {
       && currentPresentationPage
       && isPresenter
       && !isWheelZoomRef.current
+      && !isTouchZoomRef.current
     ) {
       if (!isMounting && prevZoomValueRef.current !== zoomValue) {
         // The presenter zoomed before the remounted editor restored the page: that zoom

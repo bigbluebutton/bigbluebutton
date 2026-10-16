@@ -86,9 +86,13 @@ const useMouseEvents = ({
   const fingerCountRef = React.useRef(0);
   const initialPinchDistanceRef = React.useRef(0);
   const isPinchingRef = React.useRef(false);
+  const touchGestureRef = React.useRef(null);
   const mouseLeaveTimeoutRef = React.useRef();
   const touchZoomResetTimeoutRef = React.useRef();
   const PINCH_THRESHOLD = 10;
+  const PAN_THRESHOLD = 8;
+  // Outlives zoomChanger's 200 ms debounce, so the zoom effect still skips its camera sync.
+  const TOUCH_GESTURE_SETTLE_MS = 300;
 
   const getDistanceBetweenTouches = (touch1, touch2) => {
     const dx = touch2.clientX - touch1.clientX;
@@ -96,11 +100,21 @@ const useMouseEvents = ({
     return Math.sqrt(dx * dx + dy * dy);
   };
 
+  const getTouchMidpoint = (touch1, touch2) => ({
+    x: (touch1.clientX + touch2.clientX) / 2,
+    y: (touch1.clientY + touch2.clientY) / 2,
+  });
+
+  const setIsTouchZoom = (value) => {
+    // eslint-disable-next-line no-param-reassign
+    isTouchZoomRef.current = value;
+  };
+
   const resetTouchZoomAfterCameraSettles = () => {
     clearTimeout(touchZoomResetTimeoutRef.current);
     touchZoomResetTimeoutRef.current = setTimeout(() => {
-      isTouchZoomRef.current = false;
-    }, 175);
+      setIsTouchZoom(false);
+    }, TOUCH_GESTURE_SETTLE_MS);
   };
 
   const handleMouseUp = () => {
@@ -287,88 +301,134 @@ const useMouseEvents = ({
     setWheelZoomTimeout();
   });
 
+  const isSecondaryTouchPointer = (event) => !event.isPrimary && event.pointerType === 'touch';
+
+  // tldraw (use-gesture) starts its own pinch on the second pointerdown it sees, so no
+  // second touch pointer may reach it: the presenter's pinch is handled in handleTouchMove.
   const handlePointerDown = (event) => {
-    if (!event.isPrimary && event.pointerType === 'touch' && !isPresenterRef.current) {
-      event.stopPropagation();
-      tlEditorRef.current?.cancel();
+    if (!isSecondaryTouchPointer(event)) return;
+    event.stopPropagation();
+    const editor = tlEditorRef.current;
+    if (!editor || editor.getInstanceState().isPenMode) return;
+    // End what the first finger started; an idle tool would switch to select on cancel.
+    const isBusy = () => {
+      const path = editor.getPath();
+      return path.includes('.') && !path.endsWith('.idle') && path !== 'select.editing_shape';
+    };
+    if (isBusy()) {
+      editor.interrupt();
+      if (isBusy()) editor.complete();
     }
+  };
+
+  const handleSecondaryPointer = (event) => {
+    if (isSecondaryTouchPointer(event)) event.stopPropagation();
   };
 
   const handleTouchStart = (event) => {
     if (event.touches.length === 2) {
       clearTimeout(touchZoomResetTimeoutRef.current);
-      if (isPresenterRef.current) {
-        isTouchZoomRef.current = true;
-      }
-      if (!isPresenterRef.current) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
       fingerCountRef.current = 2;
       isPinchingRef.current = false;
       const [t1, t2] = event.touches;
       initialPinchDistanceRef.current = getDistanceBetweenTouches(t1, t2);
+      touchGestureRef.current = null;
+      if (!isPresenterRef.current) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      const camera = tlEditorRef.current?.getCamera();
+      if (!camera) return;
+      setIsTouchZoom(true);
+      const midpoint = getTouchMidpoint(t1, t2);
+      touchGestureRef.current = {
+        active: false,
+        startZ: camera.z,
+        startDistance: initialPinchDistanceRef.current,
+        startMidpoint: midpoint,
+        previousMidpoint: midpoint,
+      };
     } else if (event.touches.length === 3) {
       fingerCountRef.current = 3;
+      touchGestureRef.current = null;
     } else {
       fingerCountRef.current = 0;
+      touchGestureRef.current = null;
     }
   };
 
-  const handleTouchMove = throttle({ interval: 175 }, (event) => {
-    if (fingerCountRef.current === 2 && event.touches.length === 2) {
-      const [t1, t2] = event.touches;
-      const currentDistance = getDistanceBetweenTouches(t1, t2);
-      const distanceDiff = Math.abs(currentDistance - initialPinchDistanceRef.current);
-      if (distanceDiff > PINCH_THRESHOLD) {
-        isPinchingRef.current = true;
-
-        // Pinch-to-zoom for presenters
-        if (isPresenterRef.current && tlEditorRef.current && currentPresentationPage) {
-          const MAX_ZOOM_FACTOR = 4;
-          const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
-          const ZOOM_STEP = 0.1;
-
-          const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
-          let currentZoomLevel = cz / initialZoomRef.current;
-
-          // Zoom in if fingers moving apart, zoom out if moving together
-          if (currentDistance > initialPinchDistanceRef.current) {
-            currentZoomLevel = Math.min(currentZoomLevel + ZOOM_STEP, MAX_ZOOM_FACTOR);
-          } else {
-            currentZoomLevel = Math.max(currentZoomLevel - ZOOM_STEP, MIN_ZOOM_FACTOR);
-          }
-
-          const zoomPercentage = currentZoomLevel * 100;
-          zoomChanger(zoomPercentage);
-
-          const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
-
-          // Calculate center point between the two touches
-          const centerX = (t1.clientX + t2.clientX) / 2;
-          const centerY = (t1.clientY + t2.clientY) / 2;
-
-          const rect = whiteboardRef.current?.getBoundingClientRect();
-          const canvasCenterX = (centerX - (rect?.left || 0)) / cz + cx;
-          const canvasCenterY = (centerY - (rect?.top || 0)) / cz + cy;
-
-          const nextCamera = {
-            x: cx + (canvasCenterX - cx) * (cz / newCameraZoomFactor - 1),
-            y: cy + (canvasCenterY - cy) * (cz / newCameraZoomFactor - 1),
-            z: newCameraZoomFactor,
-          };
-
-          tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
-
-          // Update initial distance for continuous pinch
-          initialPinchDistanceRef.current = currentDistance;
-        }
-      }
+  const handleTouchMove = (event) => {
+    if (fingerCountRef.current !== 2 || event.touches.length !== 2) return;
+    const [t1, t2] = event.touches;
+    const distance = getDistanceBetweenTouches(t1, t2);
+    if (Math.abs(distance - initialPinchDistanceRef.current) > PINCH_THRESHOLD) {
+      isPinchingRef.current = true;
     }
-  });
+
+    const gesture = touchGestureRef.current;
+    const editor = tlEditorRef.current;
+    const baseZoom = initialZoomRef.current;
+    if (
+      !gesture
+      || !editor
+      || !isPresenterRef.current
+      || !currentPresentationPage
+      || !(baseZoom > 0)
+    ) {
+      return;
+    }
+
+    const midpoint = getTouchMidpoint(t1, t2);
+    if (!gesture.active) {
+      const moved = Math.hypot(
+        midpoint.x - gesture.startMidpoint.x,
+        midpoint.y - gesture.startMidpoint.y,
+      );
+      if (Math.abs(distance - gesture.startDistance) <= PINCH_THRESHOLD && moved <= PAN_THRESHOLD) {
+        return;
+      }
+      // Start from here, so the view does not jump by the threshold.
+      gesture.active = true;
+      gesture.startDistance = distance;
+      gesture.startZ = editor.getCamera().z;
+      gesture.previousMidpoint = midpoint;
+      isPinchingRef.current = true;
+      editor.stopCameraAnimation();
+      return;
+    }
+    if (event.cancelable) event.preventDefault();
+
+    const MAX_ZOOM_FACTOR = 4;
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
+    const { x: cx, y: cy, z: cz } = editor.getCamera();
+    const bounds = editor.getViewportScreenBounds();
+    const pinchZoom = gesture.startZ * (distance / gesture.startDistance);
+    const nz = Math.min(
+      MAX_ZOOM_FACTOR * baseZoom,
+      Math.max(MIN_ZOOM_FACTOR * baseZoom, pinchZoom),
+    );
+    if (nz !== pinchZoom) {
+      // At a bound: zoom back as soon as the fingers turn round.
+      gesture.startZ = nz;
+      gesture.startDistance = distance;
+    }
+
+    // Keep the page point under the fingers under them (page = screen / z - camera); the
+    // store's onBeforeChange keeps the slide in view.
+    const previous = gesture.previousMidpoint;
+    gesture.previousMidpoint = midpoint;
+    editor.setCamera({
+      x: cx + (midpoint.x - bounds.x) / nz - (previous.x - bounds.x) / cz,
+      y: cy + (midpoint.y - bounds.y) / nz - (previous.y - bounds.y) / cz,
+      z: nz,
+    });
+    zoomChanger((nz / baseZoom) * 100);
+  };
 
   const handleTouchEnd = (event) => {
     if (event.touches.length < 2) {
+      touchGestureRef.current = null;
       resetTouchZoomAfterCameraSettles();
     }
 
@@ -394,6 +454,7 @@ const useMouseEvents = ({
     fingerCountRef.current = 0;
     isPinchingRef.current = false;
     initialPinchDistanceRef.current = 0;
+    touchGestureRef.current = null;
     resetTouchZoomAfterCameraSettles();
   };
 
@@ -425,6 +486,9 @@ const useMouseEvents = ({
       presentationWrapper.addEventListener('mouseleave', handleMouseLeave);
       presentationWrapper.addEventListener('wheel', handleMouseWheel, { passive: false, capture: true });
       presentationWrapper.addEventListener('pointerdown', handlePointerDown, { capture: true });
+      presentationWrapper.addEventListener('pointermove', handleSecondaryPointer, { capture: true });
+      presentationWrapper.addEventListener('pointerup', handleSecondaryPointer, { capture: true });
+      presentationWrapper.addEventListener('pointercancel', handleSecondaryPointer, { capture: true });
       presentationWrapper.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
       presentationWrapper.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
       presentationWrapper.addEventListener('touchcancel', handleTouchCancel, { passive: false, capture: true });
@@ -439,6 +503,9 @@ const useMouseEvents = ({
         presentationWrapper.removeEventListener('mouseleave', handleMouseLeave);
         presentationWrapper.removeEventListener('wheel', handleMouseWheel, { capture: true });
         presentationWrapper.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+        presentationWrapper.removeEventListener('pointermove', handleSecondaryPointer, { capture: true });
+        presentationWrapper.removeEventListener('pointerup', handleSecondaryPointer, { capture: true });
+        presentationWrapper.removeEventListener('pointercancel', handleSecondaryPointer, { capture: true });
         presentationWrapper.removeEventListener('touchstart', handleTouchStart, { capture: true });
         presentationWrapper.removeEventListener('touchend', handleTouchEnd, { capture: true });
         presentationWrapper.removeEventListener('touchcancel', handleTouchCancel, { capture: true });
