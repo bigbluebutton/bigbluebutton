@@ -62,6 +62,15 @@ test.describe('Listen to breakout room', { tag: ['@ci'] }, () => {
     await listen.goldenPath();
   });
 
+  test('a listening moderator keeps a talking indicator under hide user list', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const listen = await initListen(browser, context, page, testInfo);
+    await listen.hideUserListKeepsListeningModeratorIndicator();
+  });
+
   test('breakout-listen membership and mic attach survive a client reload', async ({
     browser,
     context,
