@@ -11,6 +11,7 @@ import { SlideChangeBlank } from './slideChangeBlank';
 import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
 import { SlidePosition } from './slidePosition';
 import { TextShape } from './textShape';
+import { TouchPinchZoom } from './touchPinchZoom';
 import { WhiteboardResize } from './whiteboardResize';
 
 async function runResizeTest(
@@ -290,5 +291,49 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
 
   test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
+  });
+
+  // Chromium only: the two-finger gestures are sent with CDP Input.dispatchTouchEvent.
+  test.describe.parallel('Touch pinch zoom', () => {
+    test('Presenter pinch zoom stays between 100% and 400% and viewers follow', async ({
+      browser,
+      context,
+    }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.pinchStaysWithinZoomRange();
+    });
+
+    test('Slow presenter pinch ends with viewers on the same view', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.slowPinchReachesViewer();
+    });
+
+    test('Presenter pinch zoom does not flicker', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.pinchZoomsInOneDirection();
+    });
+
+    test('Presenter two-finger pan reaches viewers', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.twoFingerPanReachesViewer();
+    });
+
+    test('Viewer touch gestures move no camera and keep the two-finger undo', async ({
+      browser,
+      context,
+    }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo, { touch: 'viewer' });
+      await touchPinchZoom.viewerTouchGestures();
+    });
   });
 });
