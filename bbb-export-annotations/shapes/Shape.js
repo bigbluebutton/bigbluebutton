@@ -1,8 +1,39 @@
 import {Pattern, Line, Defs, Rect, G, Text, Tspan} from '@svgdotjs/svg.js';
 import {radToDegree} from '../shapes/helpers.js';
-import opentype from 'opentype.js';
+import * as harfbuzz from 'harfbuzzjs';
 import wawoff2 from 'wawoff2';
 import fs from 'fs';
+
+// Text is measured by shaping it with HarfBuzz, which applies the same
+// OpenType features browsers apply (kerning, contextual alternates,
+// ligatures), so widths match the client's layout. Fonts are loaded once
+// and one scratch buffer is reused for every measurement.
+const shapingFonts = new Map();
+const shapingBuffer = new harfbuzz.Buffer();
+
+/**
+ * Loads a woff2 font into HarfBuzz, caching the result per path.
+ * @param {string} fontPath - Path to the woff2 font file.
+ * @return {Promise<{font: Object, upem: number}>} The HarfBuzz font and
+ * its units per em.
+ */
+async function loadShapingFont(fontPath) {
+  if (shapingFonts.has(fontPath)) return shapingFonts.get(fontPath);
+
+  const fontBuffer = fs.readFileSync(fontPath);
+  const arrayBuffer = fontBuffer.buffer.slice(
+      fontBuffer.byteOffset,
+      fontBuffer.byteOffset + fontBuffer.byteLength);
+  const decompressed = await wawoff2.decompress(arrayBuffer);
+  const sfnt = decompressed.buffer.slice(
+      decompressed.byteOffset,
+      decompressed.byteOffset + decompressed.byteLength);
+
+  const face = new harfbuzz.Face(new harfbuzz.Blob(sfnt));
+  const entry = {font: new harfbuzz.Font(face), upem: face.upem};
+  shapingFonts.set(fontPath, entry);
+  return entry;
+}
 /**
  * Represents a basic Tldraw shape on the whiteboard.
  *
@@ -372,42 +403,42 @@ export class Shape {
   }
 
   /**
-     * Measures the width of a given text string using font metrics.
-    * @param {string} text - The text to measure.
-    * @param {opentype.Font} font - The loaded font object.
-    * @param {number} fontSize - The size of the font.
-    * @return {number} The width of the text.
-    */
+   * Measures the width of a text string by shaping it with HarfBuzz.
+   * @param {string} text - The text to measure.
+   * @param {{font: Object, upem: number}} font - A loaded shaping font.
+   * @param {number} fontSize - The font size in px.
+   * @return {number} The width of the text in px.
+   */
   measureTextWidth(text, font, fontSize) {
-    const scale = 1 / font.unitsPerEm * fontSize;
-    const glyphs = font.stringToGlyphs(text);
-    let width = 0;
+    if (!text) return 0;
 
-    glyphs.forEach((glyph) => {
-      if (glyph.advanceWidth) {
-        width += glyph.advanceWidth * scale;
-      }
-    });
+    shapingBuffer.reset();
+    shapingBuffer.addText(text);
+    shapingBuffer.guessSegmentProperties();
+    harfbuzz.shape(font.font, shapingBuffer);
+    const advance = shapingBuffer.getGlyphPositions()
+        .reduce((sum, glyph) => sum + glyph.xAdvance, 0);
 
-    return width;
+    return advance * fontSize / font.upem;
   }
 
   /**
-     * Gets the smallest character width of a given text string using
-     * font metrics.
-    * @param {string} text - The text to measure.
-    * @param {opentype.Font} font - The loaded font object.
-    * @param {number} fontSize - The size of the font.
-    * @return {number} The width of the smallest character.
-    */
+   * Gets the width of the narrowest character in a text string.
+   * @param {string} text - The text to inspect.
+   * @param {{font: Object, upem: number}} font - A loaded shaping font.
+   * @param {number} fontSize - The font size in px.
+   * @return {number} The width of the narrowest character in px.
+   */
   getSmallestCharWidth(text, font, fontSize) {
-    const widths = text.split('')
+    const widths = [...new Set(text)]
         .map((char) => this.measureTextWidth(char, font, fontSize));
     return Math.min(...widths);
   }
 
   /**
-   * Wraps text to fit within a specified width and height.
+   * Wraps text to fit within a specified width, breaking lines where a
+   * browser would: at whitespace or after a hyphen, and inside a word only
+   * when the word alone is wider than the line.
    * @param {string} text - The text to wrap.
    * @param {number} width - The width of the bounding box.
    * @return {Promise<string[]>} An array of strings, each being a line.
@@ -418,88 +449,69 @@ export class Shape {
             './config/settings.json',
             'utf8'));
 
-    const font = this.props?.font || 'draw';
-    const fontPath = config.fonts[font];
-
-    const textLines = text.split('\n');
-    const lines = [];
-
-    // Read the font file into a Buffer
-    const fontBuffer = fs.readFileSync(fontPath);
-
-    // Convert the Buffer to an ArrayBuffer
-    const arrayBuffer = fontBuffer.buffer.slice(
-        fontBuffer.byteOffset,
-        fontBuffer.byteOffset + fontBuffer.byteLength);
-
-    const decompressedBuffer = await wawoff2.decompress(arrayBuffer);
-
-    const decompressedArrayBuffer = decompressedBuffer.buffer.slice(
-        decompressedBuffer.byteOffset,
-        decompressedBuffer.byteOffset + decompressedBuffer.byteLength);
-
-    // Parse the font using the ArrayBuffer
-    const parsedFont = opentype.parse(decompressedArrayBuffer);
+    const fontName = this.props?.font || 'draw';
+    const font = await loadShapingFont(config.fonts[fontName]);
     const fontSize = Shape.determineFontSize(this.size, this.type);
 
-    // measureTextWidth sums bare glyph advances, so it cannot apply the font's
-    // GPOS kerning the way the client's browser layout does and overestimates a
-    // line by up to ~3%. The margin must absorb that overestimate: wrapping a
-    // line the client kept on one line makes the shape taller than the box the
-    // client stored, overlapping the annotation below it (#24566). Erring wider
-    // only risks mild horizontal overflow, which cannot interleave text.
-    width += (this.getSmallestCharWidth(text, parsedFont, fontSize) * 2);
+    // Tolerance in the "keep on one line" direction only. Wrapping a line
+    // the client kept on one line makes the shape taller than the box the
+    // client stored and spills into whatever lies below (#24566); keeping a
+    // line the client wrapped only overflows horizontally by this amount.
+    width += this.getSmallestCharWidth(text, font, fontSize);
 
     // Subtract inline padding
     width -= (this.padding * 2);
 
-    const _wrapText = (token, availableWidth) => {
-      let prefix = '';
-      let suffix = token;
+    const measure = (s) => this.measureTextWidth(s, font, fontSize);
+    const lines = [];
 
-      for (let i = 1; i < token.length; i++) {
-        const textWidth = this.measureTextWidth(
-            token.substring(0, i),
-            parsedFont,
-            fontSize);
-        if (textWidth > availableWidth) break;
-        prefix = token.substring(0, i);
-        suffix = token.substring(i, token.length);
-      }
-
-      return {prefix, suffix};
-    };
-
-    for (const textLine of textLines) {
-      if (!textLine) {
+    for (const paragraph of text.split('\n')) {
+      if (!paragraph) {
         lines.push('');
         continue;
       }
-      const textLineTokens = textLine.split(/\b/);
-      let textAccum = '';
-      for (const token of textLineTokens) {
-        const testLine = textAccum + token;
-        const testWidth = this.measureTextWidth(
-            testLine,
-            parsedFont,
-            fontSize);
-        if (testWidth > width) {
-          if (!textAccum.endsWith(' ') || !/\S/.test(token)) {
-            const {prefix, suffix} = _wrapText(textAccum + token, width);
-            lines.push(prefix);
-            textAccum = suffix;
-          } else {
-            lines.push(textAccum);
-            textAccum = token;
-          }
-        } else {
-          textAccum += token;
+
+      // Break opportunities: whitespace runs, and after a hyphen.
+      const tokens = paragraph.split(/(\s+)/)
+          .flatMap((token) => {
+            if (/\s/.test(token)) return [token];
+            return token.split(/(?<=-)/);
+          })
+          .filter((token) => token !== '');
+
+      let line = '';
+      for (const token of tokens) {
+        // Whitespace hangs at the end of a line; it never forces a wrap.
+        if (/^\s+$/.test(token)) {
+          line += token;
+          continue;
         }
+
+        if (measure(line + token) <= width) {
+          line += token;
+          continue;
+        }
+
+        if (line.trim() !== '') {
+          lines.push(line.trimEnd());
+          line = '';
+        }
+
+        // The token starts a new line; split it only if it does not fit
+        // on a line of its own.
+        let rest = token;
+        while (rest.length > 1 && measure(rest) > width) {
+          let fit = 1;
+          while (fit < rest.length &&
+                 measure(rest.substring(0, fit + 1)) <= width) {
+            fit += 1;
+          }
+          lines.push(rest.substring(0, fit));
+          rest = rest.substring(fit);
+        }
+        line = rest;
       }
-      if (textAccum !== '') {
-        lines.push(textAccum);
-        textAccum = '';
-      }
+      lines.push(line.trimEnd());
     }
 
     return lines;
