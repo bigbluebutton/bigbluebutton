@@ -40,7 +40,7 @@ for f in */caption_*.vtt; do mv -n "$f" "${f%/*}/captions_${f#*/caption_}"; done
 
 #### events.xml
 
-Recordings made with 4.1 contain `CaptionUpdatedEvent` (module `CAPTION`; one event per update of a caption segment, with `captionId`, `userId`, `locale`, `captionType`, `text` and `isFinal`) instead of `EditCaptionHistoryEvent`. Recordings from earlier versions are processed as before.
+Recordings made with 4.1 contain `CaptionUpdatedEvent` (module `CAPTION`; one event per update of a caption segment, with `captionId`, `userId`, `locale`, `captionType`, `text` and `isFinal`) instead of `EditCaptionHistoryEvent`. Each event carries the whole text of the segment at that update; see [Captions in the events outline](/development/recording#captions). Recordings from earlier versions are processed as before.
 
 ### bbb-web properties changes
 
