@@ -38,6 +38,10 @@ object PresentationPodsApp {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
   }
 
+  def findPodWithPresentation(state: MeetingState2x, presentationId: String): Option[PresentationPod] = {
+    getAllPresentationPodsInMeeting(state).find(_.getPresentation(presentationId).isDefined)
+  }
+
   def pageBelongsToMeeting(state: MeetingState2x, pageId: String): Boolean = {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
       .exists(_.presentations.values.exists(_.pages.contains(pageId)))

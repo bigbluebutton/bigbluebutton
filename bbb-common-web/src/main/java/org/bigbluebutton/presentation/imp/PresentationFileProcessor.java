@@ -50,6 +50,7 @@ public class PresentationFileProcessor {
     private ImageSlidesGenerationService imageSlidesGenerationService;
     private PdfSlidesGenerationService pdfSlidesGenerationService;
     private S3FileManager s3FileManager;
+    private RejectedPresentationRegistry rejectedPresentations;
 
     private final ExecutorService executor;
     private final ExecutorService supervisor;
@@ -192,6 +193,15 @@ public class PresentationFileProcessor {
 
         List<PageToConvert> listOfPagesConverted = new ArrayList<>();
         for (int page = 1; page <= pres.getNumberOfPages(); page++) {
+            // bbb-apps-akka refused this presentation; schedule no more pages for it.
+            if (rejectedPresentations != null && rejectedPresentations.isRejected(pres.getMeetingId(), pres.getId())) {
+                log.info("Stopping page extraction of rejected presentation [{}] in meeting [{}] at page {}",
+                        pres.getId(), pres.getMeetingId(), page);
+                presentationConversionCompletionService.handle(
+                        new PresentationConversionDiscardMessage(pres.getId(), pres.getMeetingId()));
+                break;
+            }
+
             File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
 
             boolean useBlanks = false;
@@ -445,6 +455,10 @@ public class PresentationFileProcessor {
 
     public void setPdfSlidesGenerationService(PdfSlidesGenerationService s) {
         this.pdfSlidesGenerationService = s;
+    }
+
+    public void setRejectedPresentationRegistry(RejectedPresentationRegistry rejectedPresentations) {
+        this.rejectedPresentations = rejectedPresentations;
     }
 
     public void setS3FileManager(S3FileManager s3FileManager) {

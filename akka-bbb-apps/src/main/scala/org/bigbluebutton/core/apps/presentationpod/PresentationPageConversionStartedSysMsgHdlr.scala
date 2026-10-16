@@ -42,6 +42,25 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
       bus.outGW.send(msgEvent)
     }
 
+    // Tell bbb-web the presentation will not be added to a pod, so it stops converting it
+    // and deletes its files.
+    def sendConversionRejected(reason: String): Unit = {
+      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+      val envelope = BbbCoreEnvelope(PresentationConversionRejectedSysMsg.NAME, routing)
+      val header = BbbClientMsgHeader(
+        PresentationConversionRejectedSysMsg.NAME,
+        liveMeeting.props.meetingProp.intId, msg.header.userId
+      )
+      val body = PresentationConversionRejectedSysMsgBody(
+        meetingId = liveMeeting.props.meetingProp.intId,
+        podId = msg.body.podId,
+        presentationId = msg.body.presentationId,
+        reason = reason
+      )
+      val event = PresentationConversionRejectedSysMsg(header, body)
+      bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
+    }
+
     val downloadable = msg.body.downloadable
     val removable = msg.body.removable
     val presentationId = msg.body.presentationId
@@ -52,6 +71,13 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
       "", removable, filenameConverted = msg.body.presFilenameConverted, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
 
     PresentationPodsApp.getPresentationPod(state, podId) match {
+      // Removed before its conversion started: do not bring it back.
+      case _ if liveMeeting.droppedPresentations.contains(presentationId) =>
+        log.info("Not adding presentation that was already removed. " +
+          s"meetingId=$meetingId podId=$podId presentationId=$presentationId")
+        sendConversionRejected("PRESENTATION_REMOVED")
+        state
+
       // Bounds the akka pod map. 0 disables the cap.
       case Some(pod) if presMaxPerPod > 0 && pod.getPresentationsSize() >= presMaxPerPod =>
         log.warning("Rejecting presentation: pod presentation limit reached. " +
@@ -68,6 +94,9 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
           "PRESENTATION_UPLOAD_POD_LIMIT_REACHED",
           Map("maxPresentationsPerPod" -> presMaxPerPod.toString)
         )
+
+        liveMeeting.droppedPresentations.add(presentationId)
+        sendConversionRejected("PRESENTATION_UPLOAD_POD_LIMIT_REACHED")
 
         // Drop any conversion tracker entry for this presentation.
         state.update(state.presentationConversions.remove(presentationId))
@@ -96,6 +125,9 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
           "PRESENTATION_UPLOAD_UNKNOWN_POD",
           Map.empty
         )
+
+        liveMeeting.droppedPresentations.add(presentationId)
+        sendConversionRejected("PRESENTATION_UPLOAD_UNKNOWN_POD")
 
         state
     }

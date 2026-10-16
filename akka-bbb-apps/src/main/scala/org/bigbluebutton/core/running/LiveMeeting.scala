@@ -29,7 +29,8 @@ class LiveMeeting(
     val guestsWaiting:         GuestsWaiting,
     val clientSettings:        Map[String, Object],
     val plugins:               PluginModel,
-    val presUploadRateLimiter: PresentationUploadTokenRateLimiter
+    val presUploadRateLimiter: PresentationUploadTokenRateLimiter,
+    val droppedPresentations:  DroppedPresentations
 ) {
   val audioFloorManager = new AudioFloorManager(props.meetingProp.intId)
   val voiceUserReconciler = new VoiceUserReconciler(props.meetingProp.intId)

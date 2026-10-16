@@ -18,8 +18,11 @@ trait PresentationConversionUpdatePubMsgHdlr {
       "", removable = true, filenameConverted = msg.body.presName, uploadCompleted = false, numPages = 0, errorDetails = Map.empty)
 
     // Not updateConversionStarted: this message carries no error information, so it must not
-    // touch the error columns.
-    PresPresentationDAO.updateConversionProgress(liveMeeting.props.meetingProp.intId, pres)
+    // touch the error columns. It also creates the row for uploads that have none yet, so a
+    // removed or refused presentation is skipped rather than recreated.
+    if (!liveMeeting.droppedPresentations.contains(presentationId)) {
+      PresPresentationDAO.updateConversionProgress(liveMeeting.props.meetingProp.intId, pres)
+    }
 
     state
   }
