@@ -70,6 +70,20 @@ def webvtt_timestamp(ms):
     return "{:02}:{:02}:{:02}.{:03}".format(h, m, s, frac_s)
 
 
+def display_duration(text, duration=0):
+    """How long a cue with this text stays on screen, at least `duration`."""
+    # A minimum per-character time for display (up to 3.2s for 32char)
+    if duration < 100 * len(text):
+        duration = 100 * len(text)
+    # Don't show a caption (even a short one) for less than 1s
+    if duration < 1000:
+        duration = 1000
+    # Make lines go away if they've been showing for >16 seconds
+    if duration > 16000:
+        duration = 16000
+    return duration
+
+
 class CaptionLine:
     def __init__(self):
         self.text = ""
@@ -306,6 +320,34 @@ class Caption:
 
         return lines
 
+    @staticmethod
+    def page_simultaneous_lines(lines):
+        """Spread lines that appeared at the same time over their display time,
+        two lines (one cue) at a time, and no later than the next line that
+        appears after them.
+
+        Every line of a typed caption, or of text that arrived in one update,
+        starts at the same time; cues() would then cut every cue but the last
+        to nothing to keep them from overlapping."""
+        i = 0
+        while i < len(lines):
+            start_time = lines[i].start_time
+            j = i + 1
+            while j < len(lines) and lines[j].start_time <= start_time:
+                j += 1
+            if j - i > 2:
+                pages = [lines[k:k + 2] for k in range(i, j, 2)]
+                durations = [display_duration("\n".join(line.text for line in page)) for page in pages]
+                scale = 1
+                if j < len(lines):
+                    scale = min(1, (lines[j].start_time - start_time) / sum(durations))
+                offset = 0
+                for page, duration in zip(pages, durations):
+                    for line in page:
+                        line.start_time = start_time + int(offset * scale)
+                    offset += duration
+            i = j
+
     def cues(self):
         """The lines of this caption as timed cues, with the duration cleanup
         heuristics applied."""
@@ -313,6 +355,7 @@ class Caption:
 
         # Don't generate cues for empty lines
         lines = [line for line in lines if len(line.text.strip()) > 0]
+        self.page_simultaneous_lines(lines)
 
         cues = list()
         i = 0
@@ -326,17 +369,7 @@ class Caption:
 
             # Apply some duration cleanup heuristics to give some reasonable
             # line durations
-            duration = end_time - start_time
-            # A minimum per-character time for display (up to 3.2s for 32char)
-            if duration < 100 * len(text):
-                duration = 100 * len(text)
-            # Don't show a caption (even a short one) for less than 1s
-            if duration < 1000:
-                duration = 1000
-            # Make lines go away if they've been showing for >16 seconds
-            if duration > 16000:
-                duration = 16000
-            end_time = start_time + duration
+            end_time = start_time + display_duration(text, end_time - start_time)
 
             if i < len(lines):
                 next_line = lines[i]

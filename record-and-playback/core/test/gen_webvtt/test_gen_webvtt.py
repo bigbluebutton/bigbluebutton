@@ -33,6 +33,9 @@ ALICE_LONG = ('the source of the huge river is the clear spring kick the ball st
               'through help the woman get back to her feet')
 BOB_LONG = ('a pot of tea helps to pass the evening smoky fires lack flame and heat the soft cushion '
             'broke the mans fall')
+TYPED_LONG = ('This third message is a much longer one, written as a captioner would while a speaker goes on '
+              'for a while about several topics, so that it does not fit on one caption line.')
+TYPED_NOTE = 'first line of a note second line of the same note third line, added with Shift+Enter'
 
 CUE_TIMING = re.compile(r'^\d\d:\d\d:\d\d\.\d{3} --> \d\d:\d\d:\d\d\.\d{3}$')
 
@@ -54,6 +57,23 @@ def cue_texts(path):
         lines = block.strip().split('\n')
         if lines and CUE_TIMING.match(lines[0]):
             cues.append(' '.join(lines[1:]))
+    return cues
+
+
+def timed_cues(path):
+    """Every cue of a WebVTT file as (start ms, end ms, text with lines joined by spaces)."""
+    def ms(timestamp):
+        h, m, s = timestamp.split(':')
+        return round((int(h) * 3600 + int(m) * 60 + float(s)) * 1000)
+
+    with open(path, encoding='utf-8') as f:
+        blocks = f.read().split('\n\n')
+    cues = []
+    for block in blocks:
+        lines = block.strip().split('\n')
+        if lines and CUE_TIMING.match(lines[0]):
+            start, end = lines[0].split(' --> ')
+            cues.append((ms(start), ms(end), ' '.join(lines[1:])))
     return cues
 
 
@@ -241,6 +261,32 @@ class CaptionUpdatedEvents(unittest.TestCase):
         self.assertEqual(count_sentence(text, 'The birch canoe'), 1, text)
         self.assertNotIn('slid', text)
         self.assertEqual(count_sentence(text, 'after the pause'), 1, text)
+
+    def test_long_typed_caption_is_shown_whole(self):
+        # A typed caption arrives whole, so all its lines start at the same time; each
+        # pair of lines must still get its reading time, rather than every cue but the
+        # last being cut to nothing
+        run = GenWebvttRun('segments-typed-long', names=NAMES)
+        self.assertEqual(run.returncode, 0, run.failure_details())
+        self.assertEqual(run.text('en-US'), f'Alice: {TYPED_LONG} {TYPED_NOTE} Bob: {BOB_LONG}')
+        typed = [cue for cue in timed_cues(os.path.join(run.outdir, 'caption_en-US.vtt')) if cue[0] < 49000]
+        self.assertEqual(len(typed), 5, typed)
+        for start, end, text in typed:
+            self.assertGreaterEqual(end - start, 1000, f'{text!r} is not shown long enough: {typed}')
+        # the message is shown from when it was sent (2 s, 1 s into the recording)
+        self.assertEqual(typed[0][0], 1000)
+
+    def test_speech_arriving_at_once_is_shown_before_the_words_after_it(self):
+        # The first result of an utterance can already fill three lines; they are shown
+        # in turn, but not held back past the words that arrive after them (51.5 s)
+        run = GenWebvttRun('segments-typed-long', names=NAMES)
+        self.assertEqual(run.returncode, 0, run.failure_details())
+        speech = [cue for cue in timed_cues(os.path.join(run.outdir, 'caption_en-US.vtt')) if cue[0] >= 49000]
+        for start, end, text in speech:
+            self.assertGreater(end, start, f'{text!r} is never shown: {speech}')
+        self.assertEqual(speech[0][0], 49000)
+        self.assertIn('the mans fall', speech[-1][2])
+        self.assertLessEqual(speech[-1][0], 50500, speech)
 
     def test_speaker_names_can_be_supplied(self):
         # The recording scripts pass the (possibly anonymised) participant names.
