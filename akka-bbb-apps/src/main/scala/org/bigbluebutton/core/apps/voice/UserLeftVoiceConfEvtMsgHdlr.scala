@@ -6,6 +6,7 @@ import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserLeftVoiceConfEvtMsgHdlr {
@@ -65,7 +66,8 @@ trait UserLeftVoiceConfEvtMsgHdlr {
         msg.body.voiceConf,
         user.intId,
         Some(user.copy(muted = true, talking = false)),
-        leftVoiceConf = true
+        leftVoiceConf = true,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
 

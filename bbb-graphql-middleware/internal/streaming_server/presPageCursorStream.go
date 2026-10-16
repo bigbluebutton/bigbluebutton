@@ -15,10 +15,24 @@ var (
 	QueryIdPlaceholderInBytes = []byte(QueryIdPlaceholder)
 )
 
+// cursorIsHiddenForLockedViewers reports whether this cursor event must be withheld
+// from locked viewers. The lock state travels with the event (instead of being frozen
+// into each receiver's session), so a hideViewersCursor change applies to the very
+// next event without refreshing any session. When the field is absent (event produced
+// by an older akka-apps) it falls back to hiding every viewer cursor from locked
+// viewers, which is the privacy-safe direction.
+func cursorIsHiddenForLockedViewers(eventBody map[string]interface{}, cursorIsFromViewer bool) bool {
+	if hiddenForLockedViewers, hasLockStateInEvent := eventBody["hiddenForLockedViewers"].(bool); hasLockStateInEvent {
+		return hiddenForLockedViewers
+	}
+	return cursorIsFromViewer
+}
+
 func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
 	receivedCursorIsFromViewer := receivedMessage.Core.Body["userIsViewer"].(bool)
 	xPercent := receivedMessage.Core.Body["xPercent"].(float64)
 	yPercent := receivedMessage.Core.Body["yPercent"].(float64)
+	cursorHiddenForLockedViewers := cursorIsHiddenForLockedViewers(receivedMessage.Core.Body, receivedCursorIsFromViewer)
 
 	item := map[string]any{
 		"xPercent":   xPercent,
@@ -45,7 +59,7 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		if cursorVisibleTo(snapshotStreamingRecipient(bc), meetingId, receivedCursorIsFromViewer) {
+		if cursorVisibleTo(snapshotStreamingRecipient(bc), meetingId, cursorHiddenForLockedViewers) {
 			browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 		}
 	}
@@ -73,26 +87,29 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 
 // cursorVisibleTo decides whether one connection may see a cursor update.
 //
-// The "see other viewers' cursors" lock is expressed by X-Hasura-CursorLockedUserId, which the
-// not-in-meeting branch of the session-variables hook omits entirely. An empty value therefore
-// means "unknown", not "unlocked". Membership and a settled refresh are checked first, so the
-// lock comparison is only reached once its input is meaningful.
-func cursorVisibleTo(r streamingRecipient, meetingId string, cursorIsFromViewer bool) bool {
+// hiddenForLockedViewers is the "see other viewers' cursors" lock as it applies to this cursor:
+// true only for a viewer's cursor while hideViewersCursor is on. The lock state travels with the
+// event, so only the recipient's side - whether it is a locked viewer - comes from the session.
+//
+// That side is read as X-Hasura-NotLockedInMeeting, which holds the meeting id only for a user who
+// is not locked and is absent for a connection that is not in the meeting. Comparing it against a
+// non-empty meeting id makes "unknown" read as "locked", never as "unlocked". Membership and a
+// settled refresh are checked first, so the comparison is only reached once its input is
+// meaningful.
+func cursorVisibleTo(r streamingRecipient, meetingId string, hiddenForLockedViewers bool) bool {
 	if !r.inMeeting(meetingId) {
 		return false
 	}
 
-	if !cursorIsFromViewer {
-		return true // moderator/presenter cursors are not covered by the lock
+	if !hiddenForLockedViewers {
+		return true
 	}
 
 	if !r.sessionVarsSettled() {
 		return false
 	}
 
-	viewersCursorLocked := r.sessionVar("x-hasura-cursorlockeduserid") == r.UserId
-
-	return !viewersCursorLocked
+	return r.sessionVar("x-hasura-notlockedinmeeting") == meetingId
 }
 
 // SendPreviousCursorPosition replays the last known cursor of each user to a new subscriber, and
@@ -110,11 +127,13 @@ func SendPreviousCursorPosition(browserConnection *common.BrowserConnection, que
 
 	// The replay is subject to the same rules as the live path; subscribing is not a way around
 	// them. Each cached row records whether its cursor came from a viewer, so the live gate applies
-	// per row rather than to the replay as a whole.
+	// per row rather than to the replay as a whole, against the meeting's current lock state rather
+	// than the one the row was produced under.
+	hideViewersCursor := meetingHidesViewersCursor(recipient.MeetingId)
 	previousMessages, _ := GetCursorsCache(recipient.MeetingId)
 	items := make([]any, 0, len(previousMessages))
 	for _, cached := range previousMessages {
-		if !cursorVisibleTo(recipient, recipient.MeetingId, cached.FromViewer) {
+		if !cursorVisibleTo(recipient, recipient.MeetingId, cached.FromViewer && hideViewersCursor) {
 			continue
 		}
 		items = append(items, cached.Row)

@@ -501,6 +501,7 @@ case class UserVoiceStateEvtMsgBody(
     talking:          Boolean,
     muted:            Boolean,
     leftVoiceConf:    Boolean,
+    hideUserList:     Boolean,
 )
 
 /**

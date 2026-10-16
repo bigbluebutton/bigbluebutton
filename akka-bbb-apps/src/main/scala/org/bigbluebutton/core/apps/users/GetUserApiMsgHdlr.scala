@@ -4,7 +4,6 @@ import org.apache.pekko.actor.ActorRef
 import org.bigbluebutton.core.api.{ ApiResponseFailure, ApiResponseSuccess, GetUserApiMsg, UserInfosApiMsg }
 import org.bigbluebutton.core.models.{ RegisteredUser, RegisteredUsers, Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
 
 trait GetUserApiMsgHdlr extends HandlerHelpers {
   this: UsersApp =>
@@ -30,8 +29,6 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
 
     val currentlyInMeeting = regUser.joined && !regUser.loggedOut && !regUser.ejected && userStateExists
 
-    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
-
     var userInfos: Map[String, Any] = Map()
     userInfos += ("returncode" -> "SUCCESS")
     userInfos += ("meetingID" -> liveMeeting.props.meetingProp.intId)
@@ -47,17 +44,11 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
     userInfos += ("moderator" -> isModerator)
     userInfos += ("presenter" -> Users2x.userIsInPresenterGroup(liveMeeting.users2x, regUser.id))
     userInfos += ("isBreakout" -> liveMeeting.props.meetingProp.isBreakout)
-    if (isModerator || !isLocked) {
-      userInfos += ("hideViewersCursor" -> false)
-      userInfos += ("hideViewersAnnotation" -> false)
-      userInfos += ("hideUserList" -> false)
-      userInfos += ("webcamsOnlyForModerator" -> false)
-    } else {
-      userInfos += ("hideViewersCursor" -> permissions.hideViewersCursor)
-      userInfos += ("hideViewersAnnotation" -> permissions.hideViewersAnnotation)
-      userInfos += ("hideUserList" -> permissions.hideUserList)
-      userInfos += ("webcamsOnlyForModerator" -> MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status))
-    }
+    // Which lock settings apply to a locked viewer is no longer resolved here: the
+    // Hasura permission rules read the current meeting_lockSettings row directly,
+    // so a meeting-wide lock change propagates as data without reconnecting anyone.
+    // The connection only carries whether this user is a locked viewer.
+    userInfos += ("locked" -> (!isModerator && isLocked))
 
     userInfos
   }

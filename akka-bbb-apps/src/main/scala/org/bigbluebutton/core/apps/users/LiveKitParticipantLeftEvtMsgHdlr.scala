@@ -6,6 +6,7 @@ import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.db.ScreenshareDAO
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait LiveKitParticipantLeftEvtMsgHdlr {
@@ -49,7 +50,8 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
           liveMeeting.props.voiceProp.voiceConf,
           userId,
           None,
-          leftVoiceConf = true
+          leftVoiceConf = true,
+          hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
         )
         outGW.send(eventUserVoiceStatus)
       }
