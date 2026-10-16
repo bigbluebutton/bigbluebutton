@@ -100,6 +100,7 @@ interface VideoListProps {
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
   gridSize: number;
+  raisedHandPositions: Map<string, number>;
 }
 
 interface VideoListState {
@@ -509,10 +510,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       isGridEnabled,
       overflowCount,
       overflowUsers,
+      raisedHandPositions,
     } = this.props;
     const numOfStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
     ).length;
+    // Tiles take the threshold, not the count: a join or leave then changes no
+    // tile's props until the count crosses it.
+    const canFocus = numOfStreams > 2;
 
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
@@ -538,7 +543,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
-      const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const isFocused = isStream && focusedId === stream && canFocus;
       const shouldRender = item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false;
 
       if (!shouldRender) return null;
@@ -553,9 +558,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         >
           <VideoListItemContainer
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
-            numOfStreams={numOfStreams}
+            canFocus={canFocus}
             cameraId={stream}
-            userId={userId}
+            raisedHandPosition={raisedHandPositions.get(userId) ?? 0}
             name={name}
             focused={isFocused}
             isStream={isStream}

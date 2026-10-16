@@ -46,7 +46,7 @@ interface VideoListItemProps {
   focused: boolean;
   isStream: boolean;
   name: string;
-  numOfStreams: number;
+  canFocus: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
   onVideoItemMount: (ref: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
@@ -193,7 +193,7 @@ const WebcamConnecting: React.FC<WebcamConnectingProps> = ({
 const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const {
     name, isFullscreenContext, layoutContextDispatch, onHandleVideoFocus,
-    cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
+    cameraId, canFocus, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
     pluginUserCameraHelperPerPosition, raisedHandPosition,
@@ -378,7 +378,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       videoContainer={videoContainer}
       isVideoSqueezed={isVideoSqueezed}
       cameraId={cameraId}
-      numOfStreams={numOfStreams}
+      canFocus={canFocus}
       onHandleVideoFocus={onHandleVideoFocus}
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
@@ -444,7 +444,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           name={name}
           stream={stream}
           cameraId={cameraId}
-          numOfStreams={numOfStreams}
+          canFocus={canFocus}
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
