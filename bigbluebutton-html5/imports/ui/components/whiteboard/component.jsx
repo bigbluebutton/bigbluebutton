@@ -1478,7 +1478,12 @@ const Whiteboard = React.memo((props) => {
 
         const path = editor.getPath();
 
-        if ((isPresenterRef.current || hasWBAccessRef.current) && pointers) {
+        // During a two-finger touch the handler publishes the point between the fingers.
+        if (
+          (isPresenterRef.current || hasWBAccessRef.current)
+          && pointers
+          && !isTouchZoomRef.current
+        ) {
           const [, nextPointer] = pointers;
           updateCursorPosition(nextPointer?.x, nextPointer?.y);
         }

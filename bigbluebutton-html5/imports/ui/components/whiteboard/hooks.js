@@ -424,6 +424,10 @@ const useMouseEvents = ({
       z: nz,
     });
     zoomChanger((nz / baseZoom) * 100);
+
+    // The cursor the others see follows the point between the fingers, not the first finger.
+    const { x: nx, y: ny } = editor.getCamera();
+    updateCursorPosition((midpoint.x - bounds.x) / nz - nx, (midpoint.y - bounds.y) / nz - ny);
   };
 
   const handleTouchEnd = (event) => {
