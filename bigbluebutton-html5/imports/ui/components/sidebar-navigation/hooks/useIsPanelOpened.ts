@@ -10,7 +10,10 @@ import { Input } from '/imports/ui/components/layout/layoutTypes';
 // useIsSpecificPanelOpened instead, which avoids re-rendering on unrelated
 // panel toggles.
 const useIsPanelOpened = () => {
-  const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
+  const {
+    sidebarContentPanel,
+    isOpen: sidebarContentIsOpened,
+  } = layoutSelectInput((i: Input) => i.sidebarContent);
   const {
     sidebarContentPanel: sidebarContentPanelAuxiliary,
     isOpen: sidebarContentPanelAuxiliaryIsOpened,
@@ -18,10 +21,15 @@ const useIsPanelOpened = () => {
 
   return useCallback((panelId: string) => {
     return (
-      sidebarContentPanel === panelId
+      (sidebarContentIsOpened === true && sidebarContentPanel === panelId)
       || (sidebarContentPanelAuxiliaryIsOpened === true && sidebarContentPanelAuxiliary === panelId)
     );
-  }, [sidebarContentPanel, sidebarContentPanelAuxiliary, sidebarContentPanelAuxiliaryIsOpened]);
+  }, [
+    sidebarContentPanel,
+    sidebarContentIsOpened,
+    sidebarContentPanelAuxiliary,
+    sidebarContentPanelAuxiliaryIsOpened,
+  ]);
 };
 
 export default useIsPanelOpened;

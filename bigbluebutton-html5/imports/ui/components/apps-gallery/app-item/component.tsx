@@ -131,9 +131,11 @@ const AppItem: React.FC<AppItemProps> = ({
         <Styled.OpenButton $pinned={isPinned} aria-hidden="true">
           {resolveIcon(icon)}
         </Styled.OpenButton>
-        <Styled.AppTitle>{name}</Styled.AppTitle>
+        <Styled.AppTitleWrapper>
+          <Styled.AppTitle>{name}</Styled.AppTitle>
+          {children}
+        </Styled.AppTitleWrapper>
         {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
-        {children}
       </Styled.ClickableArea>
       <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>
         <Styled.PinApp
