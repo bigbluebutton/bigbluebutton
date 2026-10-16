@@ -23,13 +23,16 @@ else
 	echo "Docker already installed";
 fi
 
-IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
-if [ "$IMAGE_CHECK"  = "0" ]; then
-	echo "Docker image doesn't exists, building"
-	docker build -t bbb-soffice docker/
-else
+IMAGE="$(cat docker-image)"
+if docker image inspect "$IMAGE" &> /dev/null; then
 	echo "Docker image already exists";
+else
+	echo "Docker image doesn't exist, pulling"
+	docker pull "$IMAGE"
 fi
+
+install -Dm644 docker-image /usr/share/bbb-libreoffice/docker-image
+install -Dm644 assets/zzz-bbb-docker-libreoffice /usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
@@ -41,15 +44,13 @@ else
 	echo "Install folder already exists"
 fi;
 
-FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 || echo 0`
-if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
-	echo "Sudoers file doesn't exists, installing"
-	cp assets/zzz-bbb-docker-libreoffice /etc/sudoers.d/zzz-bbb-docker-libreoffice
-	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
-	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
-else
-	echo "Sudoers file already exists"
-fi;
+# Always rendered, so a rule written for an earlier image is replaced on upgrade
+echo "Installing sudoers file"
+IMAGE_SUDOERS="${IMAGE//:/\\:}"
+TEMPLATE="$(cat assets/zzz-bbb-docker-libreoffice)"
+echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
 
 aptInstalledList=$(apt list --installed 2>&1)
 fontInstalled=0
