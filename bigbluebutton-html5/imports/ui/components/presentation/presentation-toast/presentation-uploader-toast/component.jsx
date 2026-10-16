@@ -86,6 +86,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.rateLimitExceeded',
     description: 'warns the user that too many presentations were uploaded recently',
   },
+  PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED: {
+    id: 'app.presentationUploder.upload.rateLimitExceeded',
+    description: 'warns the user that they requested too many uploads in a short time',
+  },
   PRESENTATION_UPLOAD_UNKNOWN_POD: {
     id: 'app.presentationUploder.conversion.unknownPod',
     description: 'warns the user that the upload could not be assigned to a presentation area',
