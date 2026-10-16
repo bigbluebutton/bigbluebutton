@@ -50,6 +50,7 @@ interface CameraDock {
     focusedId: string;
     isDragging?: boolean;
     isResizing?: boolean;
+    isLocalOnly?: boolean;
     numCameras?: number;
     position: string;
     width: number;
@@ -313,6 +314,18 @@ interface Layout {
     output: Output;
 }
 
+interface MeetingCameraDock {
+    position?: string;
+    videoRate: number;
+}
+
+interface CameraDockPropagationState {
+    isCameraDockPropagationSuppressed: boolean;
+    cameraIsResizing?: boolean;
+    cameraPosition: string;
+    presentationVideoRate: number;
+}
+
 interface ActionForDispatcher {
   type: string;
   value: object | boolean | string;
@@ -321,8 +334,10 @@ interface ActionForDispatcher {
 type DispatcherFunction = (action: ActionForDispatcher) => void;
 
 export {
+  CameraDockPropagationState,
   Input,
   Layout,
+  MeetingCameraDock,
   Output,
   DispatcherFunction,
 };

@@ -15,6 +15,11 @@ export const DEVICE_TYPE = {
   DESKTOP: 'desktop',
 };
 
+export const DEVICE_ORIENTATION = {
+  PORTRAIT: 'portrait',
+  LANDSCAPE: 'landscape',
+};
+
 export const SMALL_VIEWPORT_BREAKPOINT = 640;
 
 export const MEDIA_ONLY_LAYOUT_MARGIN = 10;
