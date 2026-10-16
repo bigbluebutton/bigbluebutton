@@ -148,7 +148,7 @@ Updated in 4.0:
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
-  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
+  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
@@ -812,7 +812,6 @@ Tools for experimenting:
 | `userdata-bbb_show_animations_default` | If `false`, the animations setting (reactions, whiteboard toolbar fading and the like) starts turned off for the user. | `true` (`public.app.defaultSettings.application.animations`) |
 | `userdata-bbb_record_permission` | `true` lets the user start and stop the recording whatever their role; `false` prevents it even for a moderator. Checked by the client and enforced by bbb-apps-akka; the meeting must allow it (`allowStartStopRecording`). Added in 3.0. | none: moderators may record |
 | `userdata-bbb_record_permission_tooltip` | Text shown as the tooltip of the recording indicator for a user who is not allowed to record. Added in 3.0. | none |
-| `userdata-bbb_parent_room_moderator` | Set by BigBlueButton itself on the join URLs it generates for breakout rooms: `true` when the user is a moderator of the parent room. Not meant to be passed by integrations. Added in 3.0. | not set |
 
 ##### Branding parameters
 
