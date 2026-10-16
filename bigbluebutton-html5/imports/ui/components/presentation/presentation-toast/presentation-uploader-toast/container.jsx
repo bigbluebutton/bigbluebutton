@@ -6,6 +6,7 @@ import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import SET_PRESENTATION_RENDERED_IN_TOAST from './mutation';
 
 const PresentationUploaderToastContainer = (props) => {
@@ -21,8 +22,15 @@ const PresentationUploaderToastContainer = (props) => {
   const [setPresentationUploadCompletionNotified] = useMutation(SET_PRESENTATION_RENDERED_IN_TOAST);
   const presentations = presentationData?.pres_presentation || [];
 
+  const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
+
+  // Errors are shown only to whoever uploaded the file, so a presenter is not told about a
+  // document an integration pushed through the API. Breakout room captures ('204') are kept.
   const presentationsToBeShowed = presentations.filter(
-    (p) => (!p.uploadCompletionNotified),
+    (p) => (!p.uploadCompletionNotified
+      && (!p.uploadErrorMsgKey
+        || p.uploadUserId === currentUser?.userId
+        || p.uploadErrorMsgKey === '204')),
   );
 
   if (presentationLoading) return null;

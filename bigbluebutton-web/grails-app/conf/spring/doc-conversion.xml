@@ -44,6 +44,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="windowSec" value="${presentationConversionRateWindowSec:60}"/>
     </bean>
 
+    <!-- Presentations bbb-apps-akka refused after their conversion started: conversion stops
+         scheduling pages for them and their directory is deleted after maxPageConversionTime. -->
+    <bean id="rejectedPresentationRegistry" class="org.bigbluebutton.presentation.RejectedPresentationRegistry"
+          init-method="start" destroy-method="stop">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
+    </bean>
+
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
@@ -157,6 +165,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="counterService" ref="pageCounterService"/>
         <property name="pdfSlidesGenerationService" ref="pdfSlidesGenerationService"/>
         <property name="s3FileManager" ref="s3FileManager"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
     </bean>
 
     <bean id="imageSlidesGenerationService"
@@ -185,6 +194,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           init-method="start" destroy-method="stop">
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="s3FileManager" ref="s3FileManager"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
     </bean>
 
 </beans>
