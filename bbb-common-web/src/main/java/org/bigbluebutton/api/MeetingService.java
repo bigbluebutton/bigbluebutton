@@ -56,6 +56,7 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.bigbluebutton.presentation.RejectedPresentationRegistry;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
@@ -113,6 +114,7 @@ public class MeetingService implements MessageListener {
   private IBbbWebApiGWApp gw;
 
   private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
+  private RejectedPresentationRegistry rejectedPresentations;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -1002,6 +1004,12 @@ public class MeetingService implements MessageListener {
 
   }
 
+  private void processPresentationConversionRejected(PresentationConversionRejected message) {
+    if (rejectedPresentations != null) {
+      rejectedPresentations.reject(message.meetingId, message.presentationId);
+    }
+  }
+
   private void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
   }
@@ -1303,6 +1311,10 @@ public class MeetingService implements MessageListener {
     this.presDownloadService = presDownloadService;
   }
 
+  public void setRejectedPresentationRegistry(RejectedPresentationRegistry rejectedPresentations) {
+    this.rejectedPresentations = rejectedPresentations;
+  }
+
   public void userJoinedVoice(UserJoinedVoice message) {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
@@ -1449,6 +1461,8 @@ public class MeetingService implements MessageListener {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {
           processPresentationUploadToken((PresentationUploadToken) message);
+        } else if (message instanceof PresentationConversionRejected) {
+          processPresentationConversionRejected((PresentationConversionRejected) message);
         } else if (message instanceof PositionInWaitingQueueUpdated) {
           processPositionInWaitingQueueUpdated((PositionInWaitingQueueUpdated) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {

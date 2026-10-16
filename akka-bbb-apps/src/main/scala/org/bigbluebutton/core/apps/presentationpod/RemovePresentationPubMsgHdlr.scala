@@ -40,15 +40,23 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
       val presentationId = msg.body.presentationId
       val meetingId = liveMeeting.props.meetingProp.intId
 
-      // Keep this unconditional: a row without a pod entry would otherwise be undeletable.
-      PresPresentationDAO.delete(meetingId, presentationId)
-
-      // Only announce presentations that were in the pod; consumers of this event assume they were.
-      PresentationPodsApp.getPresentationPod(state, podId) match {
-        case Some(pod) if pod.getPresentation(presentationId).isDefined =>
+      PresentationPodsApp.findPodWithPresentation(state, presentationId) match {
+        case Some(pod) if pod.id == podId =>
+          PresPresentationDAO.delete(meetingId, presentationId)
+          liveMeeting.droppedPresentations.add(presentationId)
           broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
           state.update(state.presentationPodManager.removePresentationInPod(pod.id, presentationId))
-        case _ =>
+
+        case Some(pod) =>
+          log.warning("Not removing presentation held by a different pod. " +
+            s"meetingId=$meetingId requestedPodId=$podId podId=${pod.id} presentationId=$presentationId")
+          state
+
+        // In no pod (refused, or not yet converted): delete the row so it does not linger.
+        // Not announced; consumers of the remove event assume the presentation was in a pod.
+        case None =>
+          PresPresentationDAO.delete(meetingId, presentationId)
+          liveMeeting.droppedPresentations.add(presentationId)
           state
       }
     }
