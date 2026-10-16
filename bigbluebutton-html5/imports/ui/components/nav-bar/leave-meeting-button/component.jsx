@@ -168,6 +168,7 @@ class LeaveMeetingButton extends PureComponent {
           )}
           actions={actions}
           disabled={isDisabled}
+          overrideMobileStyles
           opts={{
             id: 'app-leave-meeting-menu',
             keepMounted: true,
