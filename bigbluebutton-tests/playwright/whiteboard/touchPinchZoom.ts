@@ -17,9 +17,13 @@ import { dragAcrossWhiteboard, getTldrawCamera, getTldrawEditor, type TldrawCame
 
 type Point = { x: number; y: number };
 
+// A tldraw instance_presence record, as BBB creates one per published cursor.
+type PresenceRecord = { typeName: string; userName?: string; cursor: Point };
+
 type TouchTestEditor = TldrawEditor & {
   getCurrentToolId: () => string;
   screenToPage: (point: Point) => Point;
+  store: { allRecords: () => PresenceRecord[] };
 };
 
 interface PinchOptions {
@@ -285,7 +289,34 @@ export class TouchPinchZoom extends MultiUsers {
     const after = await pageUnderFingers();
     const driftInPixels = Math.hypot(after.x - before.x, after.y - before.y) * presenter.z;
     expect(driftInPixels, 'the slide point between the fingers should stay between them').toBeLessThan(3);
+    // The cursor the viewer sees sits between the fingers, as the zoom centre does, not on the
+    // first finger (half the finger distance away).
+    await expect
+      .poll(
+        async () => {
+          const cursor = await this.presenterCursorOnViewer();
+          return cursor ? Math.hypot(cursor.x - after.x, cursor.y - after.y) * presenter.z : Number.POSITIVE_INFINITY;
+        },
+        {
+          message: 'the presenter cursor on the viewer should sit between the fingers',
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        },
+      )
+      .toBeLessThan(6);
     await this.expectNoStrokeLeftByTheFingers();
+  }
+
+  // The presenter's cursor as the viewer renders it: the presence record BBB creates from the
+  // published cursor position (page space).
+  private presenterCursorOnViewer(): Promise<Point | null> {
+    return withEditor(this.userPage.page, (editor) =>
+      editor.evaluate((value, userName) => {
+        const presence = value.store
+          .allRecords()
+          .find((record) => record.typeName === 'instance_presence' && record.userName === userName);
+        return presence ? { x: presence.cursor.x, y: presence.cursor.y } : null;
+      }, this.modPage.username),
+    );
   }
 
   async pinchZoomsInOneDirection() {
