@@ -6,6 +6,71 @@ import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, LOOP_INTERVAL } from '../c
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
+export type VideoPixelFingerprint = [number, number, number][];
+
+const FINGERPRINT_POINTS = [
+  [0.15, 0.15],
+  [0.5, 0.15],
+  [0.85, 0.5],
+  [0.15, 0.85],
+  [0.85, 0.85],
+];
+
+export async function sampleVideoPixels(
+  testPage: Page,
+  selector: string,
+  timeout = ELEMENT_WAIT_TIME,
+): Promise<VideoPixelFingerprint> {
+  const video = testPage.page.locator(selector).first();
+  await expect(video, `video ${selector} should be visible before sampling`).toBeVisible();
+  await expect
+    .poll(() => video.evaluate((element: HTMLVideoElement) => element.readyState >= 2 && element.videoWidth > 0), {
+      message: `video ${selector} should have a decoded frame before sampling`,
+      timeout,
+    })
+    .toBe(true);
+
+  return video.evaluate((element: HTMLVideoElement, points) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 24;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) throw new Error('Could not create a canvas context for video sampling');
+    context.drawImage(element, 0, 0, canvas.width, canvas.height);
+    return points.map(([x, y]) => {
+      const pixel = context.getImageData(
+        Math.round(x * (canvas.width - 1)),
+        Math.round(y * (canvas.height - 1)),
+        1,
+        1,
+      ).data;
+      return [pixel[0], pixel[1], pixel[2]] as [number, number, number];
+    });
+  }, FINGERPRINT_POINTS);
+}
+
+export function backgroundIsUnchanged(before: VideoPixelFingerprint, after: VideoPixelFingerprint, tolerance = 8) {
+  return (
+    before.length === after.length &&
+    after.every((pixel, pointIndex) =>
+      pixel.every((channel, channelIndex) => Math.abs(channel - before[pointIndex][channelIndex]) <= tolerance),
+    )
+  );
+}
+
+export function backgroundDiffersFromRaw(
+  raw: VideoPixelFingerprint,
+  background: VideoPixelFingerprint,
+  minimumChannelDifference = 16,
+) {
+  if (raw.length !== background.length) return false;
+  return background.some((pixel, pointIndex) =>
+    pixel.some(
+      (channel, channelIndex) => Math.abs(channel - raw[pointIndex][channelIndex]) >= minimumChannelDifference,
+    ),
+  );
+}
+
 export async function webcamContentCheck(testPage: Page) {
   // Verify the webcam stream is live by checking that the video's currentTime advances.
   await testPage.waitForSelector(e.webcamVideoItem);
