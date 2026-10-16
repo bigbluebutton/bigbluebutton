@@ -6,6 +6,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.audiocaptions.CaptionLocale
 import org.bigbluebutton.core.db.{ CaptionDAO, CaptionLocaleDAO, CaptionTypes }
 
 class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementTrait {
@@ -31,6 +32,8 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else if (!validCaptionTypes.contains(msg.body.captionType)) {
       log.warning("Invalid captionType '{}' from user {} in meeting {}", msg.body.captionType, msg.header.userId, meetingId)
+    } else if (!CaptionLocale.isValid(msg.body.locale)) {
+      log.warning("Ignoring caption transcript with an invalid locale from user {} in meeting {}", msg.header.userId, meetingId)
     } else {
       CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
         msg.body.transcript, msg.body.locale, msg.body.captionType)

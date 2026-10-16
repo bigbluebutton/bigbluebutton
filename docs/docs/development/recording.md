@@ -603,14 +603,19 @@ that a `.done` entry in `~/temp/recording/status/sanity` exists.
 
 Assuming the recording passed the sanity check, it's time to process the recording.
 
-Set the path of the captions generation script:
+Set the path of the captions generation script. The recording scripts run it through
+`BigBlueButton.generate_webvtt` in `core/lib/recordandplayback/generators/captions.rb`, which
+also passes the speaker names (anonymized as configured), so change the path there:
 
 ```ruby
-## ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
-ret = BigBlueButton.exec_ret(
+## exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', out_dir, '--speaker-names', speaker_names.path)
+exec_ret(
    '/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt',
    ...)
 ```
+
+A custom recording format should call `BigBlueButton.generate_webvtt` too. Run directly,
+`utils/gen_webvtt` writes captions without speaker names.
 
 Now, the presentation processing script can run without throwing an error.
 
@@ -893,6 +898,38 @@ The sections that follow cover the types of events you will encounter in `events
 | :-------------- | :----------------------------------------------------- |
 | PublicChatEvent | - timestampUTC<br/>- senderId<br/>- date<br/>- message |
 
+### Captions
+
+| Event               | Attributes                                                                                                                       |
+| :------------------ | :------------------------------------------------------------------------------------------------------------------------------- |
+| CaptionUpdatedEvent | - timestampUTC<br/>- date<br/>- captionId<br/>- userId<br/>- locale<br/>- captionType<br/>- text<br/>- isFinal                   |
+
+**CaptionUpdatedEvent** — Emitted for every update of a caption segment. A segment is one utterance of a speaker as the live transcription produces it, or one typed caption.
+
+| Attribute    | Type    | Description                                                                                                                                  |
+| ------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| timestampUTC | String  | UTC timestamp of the update                                                                                                                  |
+| date         | String  | Date of the update                                                                                                                           |
+| captionId    | String  | The segment this update belongs to. A speaker's next utterance starts a new segment after the final result of the previous one; every typed caption is a segment of its own |
+| userId       | String  | Internal user ID of the speaker, or of the user who typed the caption, as in `ParticipantJoinEvent`                                          |
+| locale       | String  | Language of the segment, a BCP 47 tag such as `en-US`. Each language becomes its own caption track                                           |
+| captionType  | String  | `AUDIO_TRANSCRIPTION` for live transcription, `TYPED` for typed captions (for example from a caption plugin)                                  |
+| text         | String  | The whole text of the segment at this update, not a difference to the previous update. It can start with a space                              |
+| isFinal      | Boolean | `true` for the final result of an utterance and for typed captions, `false` for interim results                                               |
+
+Each update carries the whole text of the segment, in the recording as in the live meeting: speech recognizers revise words they already reported in later interim results, so every update a client sends holds the full current text of the utterance, and the live captions show that text. The recording keeps each update as it was sent. The text of an event therefore replaces the text of the previous event with the same `captionId`; it is never appended to it. With the browser's own transcription, a speaking user's client sends an interim update at most every 200 ms; the timestamps of the updates let the recording processing time each word of the caption cues.
+
+Typed captions are recorded the same way, as segments with a single event. Each caption a moderator submits becomes one segment: with the [Typed captions plugin](https://github.com/bigbluebutton/bbb-plugin-typed-captions), every message sent with Enter or the send button, and nothing of what is still being typed. Its only event has `captionType` `TYPED`, `isFinal` `true`, the whole message as `text` (which can contain line breaks) and the moderator who typed it as `userId`, so the whole caption starts at the time it was sent. A typed caption and the live transcription of the same language end up in the same caption track.
+
+To rebuild the captions of a recording from these events:
+
+1. Group the events by `captionId`, in the order they appear in `events.xml`.
+2. The last event of a segment holds its text. Once an event with `isFinal` set to `true` was seen, later interim events of the same segment can be ignored.
+3. Apply the recording marks (`RecordStatusEvent`) as for the other events.
+4. Segments of different speakers in the same language can overlap in time.
+
+Recordings made with earlier versions contain `EditCaptionHistoryEvent` instead: one shared text per language, edited by character position. Each event replaces the characters from `startIndex` to `endIndex` with `text`, and `localeCode` names the language. These events carry no speaker. Some of these recordings also contain `TranscriptUpdatedEvent` (module `AUDIO-CAPTIONS`) with the current transcript of a language; it identifies neither the segment nor the speaker, and the recording processing does not use it.
+
 
 ### Participant
 
@@ -950,7 +987,7 @@ The sections that follow cover the types of events you will encounter in `events
 | ParticipantMutedEvent   | - participant<br/>- timestampUTC<br/>- bridge<br/>- date<br/>- muted                                                         |
 | ParticipantLeftEvent    | - participant<br/>- timestampUTC<br/>- bridge<br/>- date                                                                     |
 
-### Pads (for shared notes and captions)
+### Pads (shared notes)
 
 | Event                        | Attributes                                             |
 | :--------------------------- | :----------------------------------------------------- |
