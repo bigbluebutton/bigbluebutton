@@ -15,6 +15,9 @@ class PresentationUploadTokenRateLimiter {
   // userId -> ascending timestamps (ms) of recent allowed token requests
   private var requestTimestamps: Map[String, Vector[Long]] = Map.empty
 
+  // userId -> time (ms) a rejection was last reported to that user
+  private var lastRejectionReportedMs: Map[String, Long] = Map.empty
+
   /**
    * Prunes this user's timestamps older than (nowMs - windowMs), then admits the
    * request (recording nowMs) when the remaining count is below maxRequests.
@@ -42,7 +45,20 @@ class PresentationUploadTokenRateLimiter {
     }
   }
 
+  /**
+   * Returns true, and records nowMs, when no rejection has been reported to this user
+   * within the last windowMs. Bounds how many rejection records one user can cause.
+   */
+  def shouldReportRejection(userId: String, nowMs: Long, windowMs: Long): Boolean = {
+    val reportedRecently = lastRejectionReportedMs.get(userId).exists(_ > nowMs - windowMs)
+    if (!reportedRecently) {
+      lastRejectionReportedMs = lastRejectionReportedMs.updated(userId, nowMs)
+    }
+    !reportedRecently
+  }
+
   def removeUser(userId: String): Unit = {
     requestTimestamps = requestTimestamps - userId
+    lastRejectionReportedMs = lastRejectionReportedMs - userId
   }
 }
