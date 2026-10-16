@@ -32,21 +32,31 @@ trait ChangeUserAwayReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
+    def sendChatMessageAnnouncingUserAwayStatusChange(user: UserState, away: Boolean): Unit = {
+      val announceUserAwayStatusInChat = getConfigPropertyValueByPathAsBooleanOrElse(
+        liveMeeting.clientSettings,
+        "public.chat.announceUserAwayStatusInChat",
+        alternativeValue = true
+      )
+      if (announceUserAwayStatusInChat) {
+        val msgMeta = Map(
+          "away" -> away
+        )
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, user.name)
+      }
+    }
+
     val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       newUserState <- Users2x.setUserAway(liveMeeting.users2x, user.intId, msg.body.away)
     } yield {
-      val msgMeta = Map(
-        "away" -> msg.body.away
-      )
-
       if (!(user.role == Roles.VIEWER_ROLE && user.locked && permissions.disablePubChat)
         && (!user.userLockSettings.disablePublicChat || user.role == Roles.MODERATOR_ROLE)
         && !(permissions.hideUserList && user.role == Roles.VIEWER_ROLE)
         && ((user.away && !msg.body.away) || (!user.away && msg.body.away))) {
-        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_AWAY_STATUS_MSG, msgMeta, user.name)
+        sendChatMessageAnnouncingUserAwayStatusChange(user, msg.body.away)
       }
 
       broadcast(newUserState, msg.body.away)
