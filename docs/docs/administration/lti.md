@@ -20,7 +20,7 @@ What this means is that with no custom code, any LTI compliant platform can inte
 
 There are two components for LTI integration that you need to install on your BigBlueButton server.
   - [bbb-lti-broker](https://github.com/bigbluebutton/bbb-lti-broker)
-  - [bbb-apps-room](https://github.com/bigbluebutton/bbb-app-rooms)
+  - [bbb-app-rooms](https://github.com/bigbluebutton/bbb-app-rooms)
 
 The broker component handles the incoming launch, while the rooms component handles the rendering of the interface to the educator and student. 
 
@@ -32,4 +32,4 @@ When installing using [bbb-install.sh](https://github.com/bigbluebutton/bbb-inst
 
 After using the `-t` option, you can access the LTI launch URL by opening the URL `https://<hostname>/lti`.  With the LTI launch URL, key, and secret, you can test the LTI integration using the [TSUGI test](https://www.tsugi.org/lti-test/lms.php) page.
 
-For more details on the configuration of the LTI integration for BigBlueButton, see the README files for [bbb-lti-broker](https://github.com/bigbluebutton/bbb-lti-broker) and [bbb-apps-room](https://github.com/bigbluebutton/bbb-app-rooms).
+For more details on the configuration of the LTI integration for BigBlueButton, see the README files for [bbb-lti-broker](https://github.com/bigbluebutton/bbb-lti-broker) and [bbb-app-rooms](https://github.com/bigbluebutton/bbb-app-rooms).
