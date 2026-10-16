@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.RightsManagementTrait
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
