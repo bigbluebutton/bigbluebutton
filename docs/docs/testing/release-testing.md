@@ -1782,7 +1782,7 @@ Note :
 
 ## Custom Parameters [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/parameters/parameters.spec.ts)
 
-Client should apply user metadata according to the descriptions from [here](/administration/customize#application-parameters).
+Client should apply user metadata according to the descriptions from [here](/development/api#user-metadata-parameters).
 
 ### Override default presentation on CREATE meeting API call
 
