@@ -293,16 +293,14 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       <Styled.Dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={roomName} data-test="breakoutJoinConfirmationDialog" onClick={(e) => e.stopPropagation()}>
         <Styled.Header>
           <Styled.Title>{roomName}</Styled.Title>
-          <Styled.CloseButtonWrapper>
-            <BBButton
-              layout="circle"
-              variant="subtle"
-              icon={<MdClose size="1.25rem" />}
-              onClick={handleClose}
-              ariaLabel={intl.formatMessage(intlMessages.closeModal)}
-              dataTest="closeBreakoutJoinConfirmation"
-            />
-          </Styled.CloseButtonWrapper>
+          <Styled.CloseButton
+            layout="circle"
+            variant="subtle"
+            icon={<MdClose size="1.25rem" />}
+            onClick={handleClose}
+            ariaLabel={intl.formatMessage(intlMessages.closeModal)}
+            dataTest="closeBreakoutJoinConfirmation"
+          />
         </Styled.Header>
         <Styled.Body>
           {freeJoin ? select : (

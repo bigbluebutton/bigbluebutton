@@ -141,6 +141,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
       <BBButton
         variant="primary"
         dataTest="startPoll"
+        fullWidth
         ariaDescribedBy="start-poll-button"
         // eslint-disable-next-line max-len
         label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
