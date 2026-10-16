@@ -775,7 +775,7 @@ There is a XML response for this call only when the `redirect` parameter is set 
 
 #### User metadata parameters
 
-Any `join` parameter whose name starts with `userdata-` is accepted and stored as metadata of that user, the per-user counterpart of the `meta_` parameters of [`create`](#get-post-create). The name after the prefix may contain letters, digits, `_` and `.`; it must not contain another `-`, or bbb-web ignores the parameter. The value is kept with the user for the lifetime of the meeting and is:
+Any `join` parameter whose name starts with `userdata-` is accepted and stored as metadata of that user, the per-user counterpart of the `meta_` parameters of [`create`](#get-post-create). The name after the prefix must not contain another `-`, or bbb-web drops the parameter; `getJoinUrl` additionally only forwards names made of letters, digits, `_` and `.`. The value is kept with the user for the lifetime of the meeting and is:
 
 - delivered to that user's HTML5 client when it loads, where the `bbb_` parameters listed below change the look and default behaviour of the client for that user only;
 - available to bbb-apps-akka, which enforces the recording parameters on the server side;
@@ -788,7 +788,7 @@ Values are URL encoded. The client parses each value as JSON where possible and 
 
 Each parameter overrides one default of the client's `settings.yml`, named in the **Default** column; the same key can be changed for the whole server in `/etc/bigbluebutton/bbb-html5.yml` (see [Configuration Files](/administration/configuration-files)).
 
-[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. For viewers, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording and whiteboard permission parameters); moderators can pass any of them.
+[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, audio bridge and whiteboard tool parameters).
 
 Tools for experimenting:
 
@@ -802,7 +802,7 @@ Tools for experimenting:
 | `userdata-bbb_auto_join_audio` | If `false`, the audio prompt (microphone or listen only) does not open when the client loads; the user joins audio later from the actions bar. | `true` (`public.app.autoJoin`) |
 | `userdata-bbb_client_title` | Text used as the browser tab title. | `BigBlueButton` (`public.app.clientTitle`) |
 | `userdata-bbb_force_listen_only` | If `true`, the user can only join audio in listen-only mode; the microphone option is hidden. Moderators are not affected. | `false` (`public.app.forceListenOnly`) |
-| `userdata-bbb_listen_only_mode` | If `false`, the listen-only option is removed from the audio prompt, so the user must join with a microphone. Only read when the meeting's audio bridge is `fullaudio` (bbb-webrtc-sfu with FreeSWITCH); with the LiveKit bridge the listen-only option is never offered, because users join through a muted microphone connection instead. | `true` (`public.app.listenOnlyMode`) |
+| `userdata-bbb_listen_only_mode` | If `false`, the listen-only option is removed from the audio prompt, so the user must join with a microphone. Only read when the meeting's audio bridge (`audioBridge`, default `livekit`) is `bbb-webrtc-sfu`; with `livekit` the listen-only option is not offered anyway, unless `bbb_force_listen_only` forces it, because users join through a muted microphone connection instead. | `true` (`public.app.listenOnlyMode`) |
 | `userdata-bbb_skip_check_audio` | If `true`, the echo test is skipped when the user joins with a microphone. | `false` (`public.app.skipCheck`) |
 | `userdata-bbb_skip_check_audio_on_first_join` | If `true`, the echo test is skipped the first time the user joins with a microphone in a session; it is shown again if the user leaves and rejoins audio. No effect when `bbb_skip_check_audio` is `true`. Added in 2.3. | `false` (`public.app.skipCheckOnJoin`) |
 | `userdata-bbb_skip_echotest_if_previous_device` | If `true`, the echo test is skipped when the browser has stored working input and output devices from an earlier session. Ignored on mobile devices. Added in 3.0. | `false` (`public.app.skipEchoTestIfPreviousDevice`) |
@@ -830,16 +830,16 @@ Tools for experimenting:
 
 | Parameter | Description | Default |
 | --- | --- | --- |
-| `userdata-bbb_auto_share_webcam` | If `true`, the webcam sharing dialog opens automatically when the client loads, after the audio prompt. | `false` (`public.kurento.autoShareWebcam`) |
+| `userdata-bbb_auto_share_webcam` | If `true`, the webcam sharing dialog opens automatically when the client loads, together with the audio prompt when that opens too. No effect when `bbb_enable_video` is `false`. | `false` (`public.kurento.autoShareWebcam`) |
 | `userdata-bbb_preferred_camera_profile` | Id of the camera profile preselected in the webcam dialog, out of `public.kurento.cameraProfiles` (for example `low`, `medium`, `high`). | the profile marked `default` (`medium`) |
 | `userdata-bbb_enable_video` | If `false`, the webcam sharing button is hidden and the user cannot share a webcam. | `true` (`public.kurento.enableVideo`) |
 | `userdata-bbb_record_video` | If `false`, the user's webcam is not recorded. Enforced by bbb-apps-akka. | `true` |
-| `userdata-bbb_skip_video_preview` | If `true`, the webcam preview dialog is skipped and sharing starts with the default device and profile. | `false` (`public.kurento.skipVideoPreview`) |
+| `userdata-bbb_skip_video_preview` | If `true`, the webcam preview dialog is skipped and sharing starts right away. | `false` (`public.kurento.skipVideoPreview`) |
 | `userdata-bbb_skip_video_preview_on_first_join` | If `true`, the webcam preview dialog is skipped the first time the user shares a webcam in a session; it is shown again on later shares. Added in 2.3. | `false` (`public.kurento.skipVideoPreviewOnFirstJoin`) |
 | `userdata-bbb_skip_video_preview_if_previous_device` | If `true`, the webcam preview dialog is skipped when the browser has a stored camera from an earlier session. Added in 3.0. | `false` (`public.kurento.skipVideoPreviewIfPreviousDevice`) |
 | `userdata-bbb_mirror_own_webcam` | If `false`, the user sees their own webcam unmirrored. Does not change what other users see. | `true` (`public.app.mirrorOwnWebcam`) |
-| `userdata-bbb_transparent_listen_only` | If `false`, listen-only users get a receive-only audio connection instead of a muted microphone connection that can be unmuted without rejoining. Only read when the meeting's audio bridge is `fullaudio`; the LiveKit bridge always works this way. | `true` (`public.media.transparentListenOnly`) |
-| `userdata-bbb_transcription_provider` | Speech-to-text provider for live captions: `webspeech` (in the browser) or `gladia` (through the server's transcription service, which must be set up). Added in 3.0. | `webspeech` (`public.app.audioCaptions.provider`) |
+| `userdata-bbb_transparent_listen_only` | If `false`, listen-only users get a receive-only audio connection instead of a muted microphone connection that can be unmuted without rejoining. Only read when the meeting's audio bridge is `bbb-webrtc-sfu`; the `livekit` bridge always works this way. | `true` (`public.media.transparentListenOnly`) |
+| `userdata-bbb_transcription_provider` | Speech-to-text provider for live captions: `webspeech` (speech recognition in the browser) or the name of the server-side provider the transcription service is set up for, such as `gladia` or `vosk` (see [Enable live captions](/administration/customize#enable-live-captions)). Added in 3.0. | `webspeech` (`public.app.audioCaptions.provider`) |
 
 ##### Presentation parameters
 
@@ -853,7 +853,7 @@ Tools for experimenting:
 | --- | --- | --- |
 | `userdata-bbb_multi_user_pen_only` | If `true`, a user who is neither moderator nor presenter only gets the pen tool (plus the hand tool when viewers may pan) when the whiteboard is in multi-user mode. | `false` (`public.whiteboard.toolbar.multiUserPenOnly`) |
 | `userdata-bbb_presenter_tools` | JSON array of the toolbar items available to the user while they are presenter. The ids are the ones listed under `public.whiteboard.toolbar.presenterTools`: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `line`, `frame`, `highlight`, `delete-selected-items`, `more` and `actions`. | all (`public.whiteboard.toolbar.presenterTools`) |
-| `userdata-bbb_multi_user_tools` | Same as `bbb_presenter_tools`, for a user who is not a moderator while the whiteboard is in multi-user mode. | all (`public.whiteboard.toolbar.multiUserTools`) |
+| `userdata-bbb_multi_user_tools` | Same as `bbb_presenter_tools`, for a user who is neither moderator nor presenter while the whiteboard is in multi-user mode. | all (`public.whiteboard.toolbar.multiUserTools`) |
 | `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Not kept across page reloads; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
 
 ##### Theming and styling parameters

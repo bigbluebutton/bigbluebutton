@@ -44,7 +44,7 @@ const getJoinUrlTableData = [
             <>
                 Include additional user data parameters prefixed with userdata- (see <a href="#user-metadata-parameters">User metadata parameters</a>). These parameters will merge with the original user's existing userdata
                 settings. In cases where the same parameter is defined both in the original and the new session, the new session's parameter takes precedence.
-                For viewers, the parameters listed in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped; moderators can pass any of them.
+                For viewers, and for everyone inside a breakout room, the parameters listed in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped; moderators in the parent room can pass any of them.
             </>
         ),
     },
