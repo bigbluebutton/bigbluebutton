@@ -113,10 +113,26 @@ class TestConfigYaml < Minitest::Test
     end
   end
 
+  # Psych's fallback: covers only a stream with no document. A bare document
+  # marker or an explicit null is a document whose value is nil, and an admin
+  # who trims an override down to "---" would otherwise get a TypeError from
+  # the merge that follows.
+  def test_null_document_override_returns_requested_fallback
+    ["---\n", "null\n", "~\n", "---\n# nothing enabled here\n"].each do |content|
+      with_yaml(content) do |path|
+        assert_equal({}, BigBlueButton.load_yaml(path, fallback: {}), "for #{content.inspect}")
+      end
+    end
+  end
+
   # A required config that parses as nil must not be silently treated as empty:
   # that would turn a broken install into wrong paths instead of a crash.
   def test_empty_required_config_is_not_masked
     with_yaml("# nothing enabled here\n") do |path|
+      assert_nil(BigBlueButton.load_yaml(path))
+    end
+
+    with_yaml("---\n") do |path|
       assert_nil(BigBlueButton.load_yaml(path))
     end
   end

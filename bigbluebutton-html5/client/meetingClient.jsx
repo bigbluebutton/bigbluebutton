@@ -22,9 +22,6 @@ import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
 import ContextProviders from '/imports/ui/components/context-providers/component';
-// The adapter import is "unused" as far as static code is concerned, but it
-// needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
-import adapter from 'webrtc-adapter';
 
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlAdapter from '/imports/startup/client/intlAdapter';

@@ -1,14 +1,7 @@
 import styled from 'styled-components';
 import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ConfirmationModalStyles from '/imports/ui/components/common/modal/confirmation/styles';
 import { lgPaddingY } from '/imports/ui/stylesheets/styled-components/general';
-
-const RecordingNotifyModal = styled(ModalSimple)``;
-
-const Container = styled(ConfirmationModalStyles.Container)`
-  padding: 3.625em 0 3.625em 0;
-`;
 
 const Description = styled(ConfirmationModalStyles.Description)``;
 
@@ -30,8 +23,6 @@ const { FooterButton } = ConfirmationModalStyles;
 const { VisuallyHidden: ScreenreaderLabel } = VisuallyHiddenStyles;
 
 export default {
-  RecordingNotifyModal,
-  Container,
   Description,
   AppendDescription,
   Footer,

@@ -130,6 +130,7 @@ export const useVideoPreview = ({
   );
 
   const webcamDeviceId = useRef<string | null>(initialDeviceId);
+  const [previewDeviceId, setPreviewDeviceId] = useState<string | null>(initialDeviceId);
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentVideoStream = useRef<BBBVideoStream | null>(null);
   // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
@@ -409,6 +410,8 @@ export const useVideoPreview = ({
     // Trust the stream over the request: the browser may have handed over another camera
     const actualDeviceId = PreviewService.getVideoStreamDeviceId(currentVideoStream.current) || deviceId;
     webcamDeviceId.current = actualDeviceId;
+    // Consumers must render when the captured camera changes, even if other state is unchanged.
+    setPreviewDeviceId(actualDeviceId);
     return actualDeviceId;
   }, []);
 
@@ -825,7 +828,7 @@ export const useVideoPreview = ({
 
   return {
     // state
-    webcamDeviceId: webcamDeviceId.current,
+    webcamDeviceId: previewDeviceId,
     virtualBackgroundActive,
     availableWebcams,
     selectedProfile,
