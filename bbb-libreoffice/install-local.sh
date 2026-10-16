@@ -44,17 +44,13 @@ else
 	echo "Install folder already exists"
 fi;
 
-FILE_SUDOERS_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice ] && echo 1 || echo 0`
-if [ "$FILE_SUDOERS_CHECK" = "0" ]; then
-	echo "Sudoers file doesn't exists, installing"
-	IMAGE_SUDOERS="${IMAGE//:/\\:}"
-	TEMPLATE="$(cat assets/zzz-bbb-docker-libreoffice)"
-	echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > /etc/sudoers.d/zzz-bbb-docker-libreoffice
-	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
-	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
-else
-	echo "Sudoers file already exists"
-fi;
+# Always rendered, so a rule written for an earlier image is replaced on upgrade
+echo "Installing sudoers file"
+IMAGE_SUDOERS="${IMAGE//:/\\:}"
+TEMPLATE="$(cat assets/zzz-bbb-docker-libreoffice)"
+echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice
+chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice
 
 aptInstalledList=$(apt list --installed 2>&1)
 fontInstalled=0
