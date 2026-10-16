@@ -12,12 +12,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Presentations whose conversion bbb-apps-akka has refused (for example because the pod is
- * full). The conversion pipeline checks {@link #isRejected} to stop scheduling more work for
- * them, and their directory is deleted once any work already running has had time to finish.
+ * full). The conversion pipeline checks {@link #isRejected} before starting any work for a
+ * presentation, so none starts once it is rejected, however long that work was queued.
  *
- * <p>Deletion is delayed rather than immediate because page tasks that were already submitted
- * keep writing into the directory until they complete or the supervisor times them out after
- * maxPageConversionTime. Register as a Spring singleton with
+ * <p>The directory is deleted once work that was already running has had time to finish.
+ * Deletion is delayed rather than immediate because those tasks keep writing into the
+ * directory until they complete or the supervisor times them out after maxPageConversionTime.
+ * The marker outlives that deletion. When it expires the directory is deleted again, to remove
+ * anything a task that overran the first deletion wrote afterwards.
+ *
+ * <p>Register as a Spring singleton with
  * {@code init-method="start"} / {@code destroy-method="stop"}.
  */
 public class RejectedPresentationRegistry {
@@ -26,6 +30,10 @@ public class RejectedPresentationRegistry {
 
   // Extra time on top of maxPageConversionTime before the directory is deleted.
   private static final long DELETE_MARGIN_SEC = 30;
+
+  // How long a presentation stays rejected. Far longer than conversion work waits in the
+  // queues, so no queued work for it starts after the marker is gone.
+  private static final long MARKER_TTL_SEC = 3600;
 
   private final Set<String> rejected = ConcurrentHashMap.newKeySet();
 
@@ -64,14 +72,17 @@ public class RejectedPresentationRegistry {
 
     log.info("Presentation conversion rejected, stopping and scheduling cleanup. meetingId={} presId={}",
             meetingId, presentationId);
-    scheduler.schedule(() -> deleteFiles(meetingId, presentationId),
-            maxPageConversionTime + DELETE_MARGIN_SEC, TimeUnit.SECONDS);
+    long deleteDelaySec = maxPageConversionTime + DELETE_MARGIN_SEC;
+    scheduler.schedule(() -> deleteFiles(meetingId, presentationId), deleteDelaySec, TimeUnit.SECONDS);
+    scheduler.schedule(() -> expire(meetingId, presentationId),
+            Math.max(MARKER_TTL_SEC, deleteDelaySec + DELETE_MARGIN_SEC), TimeUnit.SECONDS);
   }
 
   public boolean isRejected(String meetingId, String presentationId) {
     return rejected.contains(key(meetingId, presentationId));
   }
 
+  // Deletes the directory only. The presentation stays rejected until expire.
   void deleteFiles(String meetingId, String presentationId) {
     try {
       File presDir = org.bigbluebutton.api.Util.getPresentationDir(presentationDir, meetingId, presentationId);
@@ -81,6 +92,12 @@ public class RejectedPresentationRegistry {
       }
     } catch (Exception e) {
       log.warn("Failed to delete files of rejected presentation. meetingId={} presId={}", meetingId, presentationId, e);
+    }
+  }
+
+  void expire(String meetingId, String presentationId) {
+    try {
+      deleteFiles(meetingId, presentationId);
     } finally {
       rejected.remove(key(meetingId, presentationId));
     }

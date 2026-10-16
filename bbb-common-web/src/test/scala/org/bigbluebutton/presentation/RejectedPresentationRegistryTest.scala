@@ -50,7 +50,7 @@ class RejectedPresentationRegistryTest extends UnitSpec {
     } finally r.stop()
   }
 
-  it should "delete the presentation directory and forget the presentation" in {
+  it should "delete the presentation directory but keep the presentation rejected" in {
     val base = Files.createTempDirectory("rejected").toFile
     val dir = presentationDirUnder(base)
     val r = registry(base)
@@ -59,7 +59,8 @@ class RejectedPresentationRegistryTest extends UnitSpec {
       r.deleteFiles(meetingId, presId)
       assert(!dir.exists())
       assert(new File(base, s"$meetingId/$meetingId").exists(), "sibling presentations must be kept")
-      assert(!r.isRejected(meetingId, presId))
+      // Work still queued for the presentation must keep seeing the rejection.
+      assert(r.isRejected(meetingId, presId))
     } finally r.stop()
   }
 
@@ -68,7 +69,53 @@ class RejectedPresentationRegistryTest extends UnitSpec {
     try {
       r.reject(meetingId, presId)
       r.deleteFiles(meetingId, presId)
+      assert(r.isRejected(meetingId, presId))
+      r.expire(meetingId, presId)
       assert(!r.isRejected(meetingId, presId))
+    } finally r.stop()
+  }
+
+  it should "stay rejected when rejected twice" in {
+    val r = registry(Files.createTempDirectory("rejected").toFile)
+    try {
+      r.reject(meetingId, presId)
+      r.reject(meetingId, presId)
+      assert(r.isRejected(meetingId, presId))
+    } finally r.stop()
+  }
+
+  it should "delete the directory and forget the presentation on expiry" in {
+    val base = Files.createTempDirectory("rejected").toFile
+    val dir = presentationDirUnder(base)
+    val r = registry(base)
+    try {
+      r.reject(meetingId, presId)
+      r.expire(meetingId, presId)
+      assert(!dir.exists())
+      assert(!r.isRejected(meetingId, presId))
+    } finally r.stop()
+  }
+
+  // A task that was still running at the first deletion can write blank slides afterwards,
+  // recreating the directory. Expiry must remove that too.
+  it should "remove files written after the first deletion on expiry" in {
+    val base = Files.createTempDirectory("rejected").toFile
+    val dir = presentationDirUnder(base)
+    val sibling = new File(base, s"$meetingId/$meetingId/other-presentation")
+    assert(sibling.mkdirs())
+    val r = registry(base)
+    try {
+      r.reject(meetingId, presId)
+      r.deleteFiles(meetingId, presId)
+      assert(!dir.exists())
+
+      val thumbnails = new File(dir, "thumbnails")
+      assert(thumbnails.mkdirs())
+      Files.writeString(new File(thumbnails, "thumb-1.png").toPath, "blank")
+
+      r.expire(meetingId, presId)
+      assert(!dir.exists())
+      assert(sibling.exists(), "sibling presentations must be kept")
     } finally r.stop()
   }
 
