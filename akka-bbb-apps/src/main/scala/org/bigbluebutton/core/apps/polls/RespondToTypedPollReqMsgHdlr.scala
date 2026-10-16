@@ -22,7 +22,7 @@ trait RespondToTypedPollReqMsgHdlr {
       !Polls.hasUserAlreadyAddedTypedAnswer(msg.body.pollId, msg.header.userId, liveMeeting.polls)) {
 
       //Truncate answer case it is longer than `maxTypedAnswerLength`
-      val maxTypedAnswerLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.poll.maxTypedAnswerLength", 45)
+      val maxTypedAnswerLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.poll.maxTypedAnswerLength", PollHdlrHelpers.DefaultMaxTypedAnswerLength)
       val answer = msg.body.answer.substring(0, Math.min(msg.body.answer.length, maxTypedAnswerLength))
 
       val answerExists = Polls.findAnswerWithText(msg.body.pollId, msg.body.questionId, answer, liveMeeting.polls)

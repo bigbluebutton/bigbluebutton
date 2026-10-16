@@ -292,21 +292,14 @@ object Polls {
     }
   }
 
-  private def pollResultToWhiteboardShape(
-      result:     SimplePollResultOutVO,
-      page:       PresentationPage,
-      quiz:       Boolean,
-      showAnswer: Boolean
-  ): scala.collection.immutable.Map[String, Object] = {
-    val maxImageWidth = 1440
-    val maxImageHeight = 1080
-
+  // Size of the published result on the whiteboard, in whiteboard units: it grows with
+  // the question and the number of answers, but never past the slide, where a very
+  // long question would otherwise cover it entirely (the shape lays the chart out in
+  // whatever height is left under the question).
+  private[core] def pollShapeSize(questionLength: Int, answerCount: Int, slideWidth: Double, slideHeight: Double): (Int, Int) = {
     // Base dimensions for the poll annotation
     var pollWidth = 300
     var pollHeight = 200
-
-    val questionText = result.questionText.getOrElse("")
-    val questionLength = questionText.length
 
     // Adjust width and height based on question length
     val extraLines = {
@@ -330,15 +323,34 @@ object Polls {
 
     // Adjust height based on the number of answers
     val defaultAnswerCount = 3
-    val extraAnswerCount = result.answers.size - defaultAnswerCount
+    val extraAnswerCount = answerCount - defaultAnswerCount
     if (extraAnswerCount > 0) {
       val additionalHeight = Math.round(extraAnswerCount * 40.0)
       pollHeight += additionalHeight.toInt
     }
 
+    (Math.min(pollWidth, slideWidth.toInt), Math.min(pollHeight, slideHeight.toInt))
+  }
+
+  private def pollResultToWhiteboardShape(
+      result:     SimplePollResultOutVO,
+      page:       PresentationPage,
+      quiz:       Boolean,
+      showAnswer: Boolean
+  ): scala.collection.immutable.Map[String, Object] = {
+    val maxImageWidth = 1440
+    val maxImageHeight = 1080
+
     val whiteboardRatio = Math.min(maxImageWidth / page.width, maxImageHeight / page.height);
     val scaledWidth = page.width * whiteboardRatio
     val scaledHeight = page.height * whiteboardRatio
+
+    val (pollWidth, pollHeight) = pollShapeSize(
+      result.questionText.getOrElse("").length,
+      result.answers.size,
+      scaledWidth,
+      scaledHeight
+    )
 
     val x: Double = scaledWidth - pollWidth
     val y: Double = scaledHeight - pollHeight

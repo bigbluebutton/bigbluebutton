@@ -135,9 +135,16 @@ const SubmitVoteButton = styled(Button)`
   border-radius: ${borderRadiusRounded};
 `;
 
+// Text that wraps to the width of the box: it asks the box for no more than the poll width
+// (so a long text does not stretch it), and fills the box when long options made it wider.
+const fillBoxWidth = css`
+  width: 0;
+  min-width: max(100%, ${pollWidth});
+`;
+
 const PollingSecret = styled.div`
   font-size: ${fontSizeSmall};
-  max-width: ${pollWidth};
+  ${fillBoxWidth}
 `;
 
 // Tells a multiple-response poll apart from a single-response one at a glance: without a
@@ -265,7 +272,7 @@ const QText = styled.div`
   word-break: break-word;
   white-space: pre-wrap;
   font-size: ${fontSizeLarge};
-  max-width: ${pollWidth};
+  ${fillBoxWidth}
   padding-right: ${smPaddingX};
 `;
 
@@ -284,6 +291,9 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
+  /* A long question must not push the top of the box out of the viewport. */
+  max-height: calc(100% - ${pollBottomOffset} - ${jumboPaddingX});
+  overflow-y: auto;
 
   [dir="rtl"] & {
     left: ${jumboPaddingX};
@@ -297,7 +307,6 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
     left: 50%;
     transform: translate(-50%, -50%);
     max-height: 95%;
-    overflow-y: auto;
 
     [dir="rtl"] & {
       left: 50%;
