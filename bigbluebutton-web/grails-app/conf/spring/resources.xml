@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingService" ref="recordingService"/>
         <property name="presDownloadService" ref="presDownloadService"/>
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
         <property name="sessionsCleanupDelayInMinutes" value="${sessionsCleanupDelayInMinutes}"/>
