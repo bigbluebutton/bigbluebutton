@@ -79,6 +79,14 @@ export function getLeaveTime(eventsArr) {
   }, 0);
 }
 
+// A user is in the meeting while any of their sessions is open. The open session is not
+// necessarily on the last intId: intIds keep their first-join order (and lose any order past
+// four entries), and an earlier intId reconnects in place.
+export function isUserOnline(user) {
+  return Object.values(user.intIds)
+    .some((intId) => intId.sessions.some((session) => session.leftOn === 0));
+}
+
 export function tsToHHmmss(ts) {
   return (new Date(ts).toISOString().substr(11, 8));
 }

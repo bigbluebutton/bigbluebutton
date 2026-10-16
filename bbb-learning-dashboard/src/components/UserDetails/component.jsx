@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
-import { getSumOfTime, tsToHHmmss, getActivityScore } from '../../services/UserService';
+import {
+  getSumOfTime, tsToHHmmss, getActivityScore, isUserOnline,
+} from '../../services/UserService';
 import { usePreviousValue } from '../../utils/hooks';
 import { toCamelCase } from '../../utils/string';
 
@@ -72,8 +74,7 @@ const UserDatailsComponent = (props) => {
     .map((intId) => intId.sessions.map((session) => session.leftOn)).flat();
   const joinTime = Math.min(...registeredTimes);
   const leftTime = Math.max(...leftTimes);
-  const currentlyInMeeting = Object.values(user.intIds)
-    .some((intId) => intId.sessions.some((session) => session.leftOn === 0));
+  const currentlyInMeeting = isUserOnline(user);
 
   // Used in the calculation of the online loader.
   const sessionDuration = (endedOn || currTime()) - createdOn;
