@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import {
@@ -10,6 +11,7 @@ import {
   playbackCaptionLocales,
   playbackCaptionText,
   SENTENCES,
+  sentTranscripts,
   speak,
   submitTranscript,
   submitTypedCaption,
@@ -17,7 +19,7 @@ import {
   textTracks,
   uploadTextTrack,
 } from './captions';
-import { emitEndOfUtterance } from './fakeSpeechRecognition';
+import { emitEndOfUtterance, emitInterimThenEndSession, waitForRecognizer } from './fakeSpeechRecognition';
 
 // Live captions (webspeech transcription) and their recording.
 // Tracking issue: https://github.com/bigbluebutton/bigbluebutton/issues/19700
@@ -204,6 +206,51 @@ test.describe.parallel('Captions', { tag: '@ci' }, () => {
     // nothing arrives later that shortens the caption again
     await captions.modPage.page.waitForTimeout(1500);
     expect((await captionRows(captions.modPage)).map((row) => row.captionText.trim())).toEqual([finalText]);
+  });
+
+  test('An utterance cut off by the end of the recognition session is sent as final', async ({
+    browser,
+    context,
+  }, testInfo) => {
+    linkIssue(19700);
+    const captions = new Captions(browser, context);
+    await captions.initCaptionPages(testInfo, { withViewer: false, record: false });
+    await joinWithTranscription(captions.modPage, 'en-US');
+
+    // the browser ends the session right after an interim result, without a final one
+    const cutOff = 'cut off before the browser gave a final result';
+    await emitInterimThenEndSession(captions.modPage.page, cutOff);
+
+    await expect
+      .poll(
+        () => sentTranscripts(captions.modPage).filter((sent) => sent.isFinal && sent.transcript === cutOff).length,
+        { message: 'the last interim transcript should be sent as the final one' },
+      )
+      .toBe(1);
+    await expect
+      .poll(async () => (await captionRows(captions.modPage)).map((row) => row.captionText.trim()))
+      .toEqual([cutOff]);
+    // and the recognizer starts again for what comes next
+    await waitForRecognizer(captions.modPage.page, ELEMENT_WAIT_EXTRA_LONG_TIME);
+  });
+
+  test('Typed captions with an invalid locale are rejected', async ({ browser, context }, testInfo) => {
+    linkIssue(19700);
+    const captions = new Captions(browser, context);
+    await captions.initCaptionPages(testInfo, { withViewer: false, record: false });
+    await joinWithTranscription(captions.modPage, 'en-US');
+
+    // caption ids are a global primary key: keep them unique across meetings
+    const typedId = `typed-probe-${captions.modPage.meetingId}`;
+    const invalidLocales = ['', 'en_US', 'en-us', '../../etc', 'en-US<script>', 'x'.repeat(250)];
+    for (const [i, locale] of invalidLocales.entries()) {
+      const errors = await submitTypedCaption(captions.modPage, `${typedId}-${i}`, 'typed probe', locale);
+      expect(errors.length, `locale ${JSON.stringify(locale.slice(0, 20))} should be rejected`).toBeGreaterThan(0);
+    }
+    expect(await submitTypedCaption(captions.modPage, `${typedId}-ok`, 'typed probe ok', 'en-US')).toEqual([]);
+    await expect
+      .poll(async () => (await captionRows(captions.modPage)).map((row) => `${row.locale}: ${row.captionText}`))
+      .toEqual(['en-US: typed probe ok']);
   });
 
   test('Transcripts with an invalid locale are rejected', async ({ browser, context }, testInfo) => {

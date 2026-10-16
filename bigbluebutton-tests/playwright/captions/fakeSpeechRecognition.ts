@@ -17,6 +17,7 @@ type FakeSpeechWindow = Window & {
     isRunning: () => boolean;
     lang: () => string | undefined;
     emit: (transcript: string, isFinal: boolean) => void;
+    endSession: () => void;
   };
 };
 
@@ -63,7 +64,7 @@ export const installFakeSpeechRecognition = (context: BrowserContext): Promise<v
         this.finish();
       }
 
-      private finish() {
+      finish() {
         if (!this.started) return;
         this.started = false;
         if (FakeSpeechRecognition.active === this) FakeSpeechRecognition.active = null;
@@ -79,6 +80,11 @@ export const installFakeSpeechRecognition = (context: BrowserContext): Promise<v
         if (!recognition?.started) throw new Error('fake speech recognition is not running');
         const result = Object.assign([{ transcript, confidence: 1 }], { isFinal });
         recognition.onresult?.({ resultIndex: 0, results: [result], target: recognition });
+      },
+      // The browser ends the session on its own (silence, network), as recognizers do
+      // every few seconds, without a final result for what it last reported
+      endSession: () => {
+        FakeSpeechRecognition.active?.finish();
       },
     };
     Object.assign(window, {
@@ -114,3 +120,12 @@ export const emitEndOfUtterance = (
     },
     [firstInterim, lastInterim, finalText, delayMs] as const,
   );
+
+// An interim result, then the browser ends the session before the final one: within the
+// client's 200 ms debounce of interim results.
+export const emitInterimThenEndSession = (page: PlaywrightPage, transcript: string): Promise<void> =>
+  page.evaluate((text) => {
+    const speech = (window as FakeSpeechWindow).__fakeSpeech!;
+    speech.emit(text, false);
+    speech.endSession();
+  }, transcript);

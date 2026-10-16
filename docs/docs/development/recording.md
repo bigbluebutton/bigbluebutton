@@ -603,14 +603,19 @@ that a `.done` entry in `~/temp/recording/status/sanity` exists.
 
 Assuming the recording passed the sanity check, it's time to process the recording.
 
-Set the path of the captions generation script:
+Set the path of the captions generation script. The recording scripts run it through
+`BigBlueButton.generate_webvtt` in `core/lib/recordandplayback/generators/captions.rb`, which
+also passes the speaker names (anonymized as configured), so change the path there:
 
 ```ruby
-## ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
-ret = BigBlueButton.exec_ret(
+## exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', out_dir, '--speaker-names', speaker_names.path)
+exec_ret(
    '/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt',
    ...)
 ```
+
+A custom recording format should call `BigBlueButton.generate_webvtt` too. Run directly,
+`utils/gen_webvtt` writes captions without speaker names.
 
 Now, the presentation processing script can run without throwing an error.
 

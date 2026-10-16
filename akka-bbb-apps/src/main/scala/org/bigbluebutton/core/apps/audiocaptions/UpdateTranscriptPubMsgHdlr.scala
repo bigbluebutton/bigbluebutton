@@ -7,7 +7,7 @@ import org.bigbluebutton.core.models.{Users2x, VoiceUsers}
 import org.bigbluebutton.core.running.LiveMeeting
 import java.util.{IllformedLocaleException, Locale}
 
-private[audiocaptions] object CaptionLocale {
+private[apps] object CaptionLocale {
   // Keep caption_<locale>.vtt within the 255-byte Linux filename limit.
   private val MaxLength = 255 - "caption_".length - ".vtt".length
   private val SafeCharacters = "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$".r

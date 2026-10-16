@@ -30,6 +30,7 @@ require 'rubygems'
 require 'optimist'
 require 'yaml'
 require 'json'
+require 'tmpdir'
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :type => String
@@ -50,24 +51,6 @@ log_dir = props['log_dir']
 
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 
-# Generate captions.json for API
-def create_api_captions_file(captions_meeting_dir)
-  BigBlueButton.logger.info("Generating closed captions for API")
-
-  captions = JSON.parse(File.read("#{captions_meeting_dir}/captions_playback.json"))
-  captions_json = []
-  captions.each do |track|
-    caption = {}
-    caption[:kind] = :captions
-    caption[:label] = track['localeName']
-    caption[:lang] = track['locale']
-    caption[:source] = :live
-    captions_json << caption
-  end
-
-  File.write("#{captions_meeting_dir}/captions.json", captions_json.to_json)
-end
-
 if not FileTest.directory?(target_dir)
 
   captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
@@ -82,20 +65,14 @@ if not FileTest.directory?(target_dir)
     BigBlueButton.logger.info("Generating closed captions")
     FileUtils.mkdir_p captions_meeting_dir
     events = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
-    ret = BigBlueButton.generate_webvtt(raw_archive_dir, captions_meeting_dir, events, props)
-    if ret != 0
-      raise "Generating closed caption files failed"
+    # Generated aside, so that tracks uploaded for the recording are not replaced
+    Dir.mktmpdir('captions') do |live_dir|
+      ret = BigBlueButton.generate_webvtt(raw_archive_dir, live_dir, events, props)
+      if ret != 0
+        raise "Generating closed caption files failed"
+      end
+      BigBlueButton.update_api_captions(captions_meeting_dir, live_dir)
     end
-
-    # The captions API (getRecordingTextTracks) and the caption/presentation integration
-    # name the files <kind>_<lang>.vtt, like uploaded tracks
-    Dir.glob("#{captions_meeting_dir}/caption_*.vtt").each do |vtt|
-      FileUtils.mv(vtt, File.join(captions_meeting_dir, File.basename(vtt).sub(/\Acaption_/, 'captions_')))
-    end
-
-    FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")
-    create_api_captions_file(captions_meeting_dir)
-    FileUtils.rm "#{captions_meeting_dir}/captions_playback.json"
 
   rescue Exception => e
     BigBlueButton.logger.error(e.message)

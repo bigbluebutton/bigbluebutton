@@ -21,17 +21,20 @@
 # Generates one WebVTT caption track per locale from the caption events of a
 # recording. Two kinds of events are understood:
 #
-# - CaptionUpdatedEvent (BigBlueButton 4.1 and later): one event per update of a
-#   caption segment, i.e. an utterance of a speaker as the live transcription
-#   produces it, or a typed caption. Every event carries the whole text of the
-#   segment, its captionId, userId, locale and captionType. Each segment becomes
-#   its own run of cues, labelled with the speaker's name, so several people
-#   speaking the same language at the same time no longer share one text buffer.
+# - CaptionUpdatedEvent (current recordings): one event per update of a caption
+#   segment, i.e. an utterance of a speaker as the live transcription produces
+#   it, or a typed caption. Every event carries the whole text of the segment,
+#   its captionId, userId, locale and captionType. Each segment becomes its own
+#   run of cues, so several people speaking the same language at the same time
+#   no longer share one text buffer. With --speaker-names, a cue names its
+#   speaker whenever the speaker changes.
 # - EditCaptionHistoryEvent (older recordings): character-index edits of one
 #   text per locale. Replayed as before, without speaker labels.
 
 from lxml import etree
 from collections import deque
+import difflib
+import heapq
 from icu import Locale, BreakIterator, UnicodeString
 import unicodedata
 import html
@@ -390,20 +393,44 @@ class Segment:
     def utf16_length(text):
         return len(text.encode("utf-16-le")) // 2
 
+    @staticmethod
+    def align_timestamps(prev_text, prev_timestamps, text, timestamp):
+        """Timestamps (one per code point) for `text`, the update of `prev_text`
+        recorded at `timestamp`. Characters that were already there keep their
+        time, and so do revised ones (a recognizer capitalising or punctuating
+        what it heard earlier); only text added at the end is new speech."""
+        if not prev_text:
+            return [timestamp] * len(text)
+
+        a = [char.casefold() for char in prev_text]
+        b = [char.casefold() for char in text]
+        timestamps = list()
+        matcher = difflib.SequenceMatcher(None, a, b, autojunk=False)
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == "equal":
+                timestamps.extend(prev_timestamps[i1:i2])
+            elif tag == "delete":
+                continue
+            elif i1 == len(a):
+                timestamps.extend([timestamp] * (j2 - j1))
+            else:
+                revised = min(prev_timestamps[i1:i2]) if tag == "replace" else prev_timestamps[i1]
+                kept = j2 - j1
+                if tag == "replace" and i2 == len(a):
+                    # a revised ending can also carry new words
+                    kept = min(i2 - i1, j2 - j1)
+                timestamps.extend([revised] * kept + [timestamp] * (j2 - j1 - kept))
+        return timestamps
+
     def to_caption(self, speaker):
-        """A Caption whose code units carry the time they first appeared: a text
-        that grows keeps the timestamps of its unchanged prefix, a revision gets
-        the time of the revision."""
+        """A Caption whose code units carry the time they first appeared (see
+        align_timestamps)."""
         caption = Caption(self.locale, speaker)
 
         prev_text = ""
         prev_timestamps = list()  # per code point
         for timestamp, text in self.updates:
-            prefix = 0
-            limit = min(len(prev_text), len(text))
-            while prefix < limit and prev_text[prefix] == text[prefix]:
-                prefix += 1
-            prev_timestamps = prev_timestamps[:prefix] + [timestamp] * (len(text) - prefix)
+            prev_timestamps = self.align_timestamps(prev_text, prev_timestamps, text, timestamp)
             prev_text = text
 
         # Surrounding whitespace carries no information (browsers prefix
@@ -439,14 +466,6 @@ def segments_from_events(events):
     return segments
 
 
-def participant_names(events):
-    names = {}
-    for event in events:
-        if event["name"] == "participant_join" and event["user_id"]:
-            names[event["user_id"]] = event["user_name"]
-    return names
-
-
 def captions_by_locale(events, speaker_names):
     """Every Caption of the recording grouped by locale: the legacy stream of the
     locale, if any, then one Caption per segment in order of their first update."""
@@ -460,7 +479,7 @@ def captions_by_locale(events, speaker_names):
     segments.sort(key=lambda segment: segment.updates[0][0])
     for segment in segments:
         speaker = speaker_names.get(segment.user_id)
-        if speaker is None:
+        if speaker is None and speaker_names:
             logger.info("No name for user '%s', its captions carry no speaker label", segment.user_id)
         caption = segment.to_caption(speaker)
         logger.debug("Applying recording events to segment '%s'", segment.caption_id)
@@ -476,10 +495,9 @@ def write_webvtt(f, captions):
     names its speaker whenever the speaker differs from the previous cue's."""
     f.write("WEBVTT\n\n".encode("utf-8"))
 
-    cues = list()
-    for caption in captions:
-        cues.extend(caption.cues())
-    cues.sort(key=lambda cue: cue.start_time)
+    # Each caption's cues are in order already; merging keeps a single
+    # (legacy) stream exactly as it was
+    cues = heapq.merge(*[caption.cues() for caption in captions], key=lambda cue: cue.start_time)
 
     previous_speaker = None
     for cue in cues:
@@ -502,15 +520,6 @@ def parse_record_status(event, element):
     event["name"] = "record_status"
     event["user_id"] = userId.text
     event["status"] = status.text == "true"
-
-
-def parse_participant_join(event, element):
-    userId = element.find("userId")
-    name = element.find("name")
-
-    event["name"] = "participant_join"
-    event["user_id"] = userId.text if userId is not None else None
-    event["user_name"] = name.text if name is not None else None
 
 
 def parse_caption_edit(event, element):
@@ -575,8 +584,6 @@ def parse_events(directory="."):
             if name == "RecordStatusEvent":
                 parse_record_status(event, element)
                 have_record_events = True
-            elif name == "ParticipantJoinEvent":
-                parse_participant_join(event, element)
             elif name == "EditCaptionHistoryEvent":
                 parse_caption_edit(event, element)
                 if event["locale"] is None:
@@ -646,8 +653,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--speaker-names",
         metavar="FILE",
-        help="JSON file mapping user ids to display names for the speaker labels "
-        "(default: the names from the participant join events)",
+        help="JSON file mapping user ids to the display names to label the cues with; "
+        "the recording scripts pass the names anonymized as configured "
+        "(BigBlueButton.generate_webvtt). Without it, cues carry no speaker names",
         default=None,
     )
     args = parser.parse_args()
@@ -658,11 +666,10 @@ if __name__ == "__main__":
     logger.info("Reading recording events file")
     events = parse_events(rawdir)
 
+    speaker_names = {}
     if args.speaker_names:
         logger.info("Reading speaker names from %s", args.speaker_names)
         speaker_names = load_speaker_names(args.speaker_names)
-    else:
-        speaker_names = participant_names(events)
 
     logger.info("Generating caption data from recording events")
     captions = captions_by_locale(events, speaker_names)

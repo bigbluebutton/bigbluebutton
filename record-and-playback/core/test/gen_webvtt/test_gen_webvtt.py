@@ -62,11 +62,26 @@ def count_sentence(text, sentence):
     return len(re.findall(r'(?<![^\W_])' + re.escape(sentence) + r'(?![^\W_])', text))
 
 
+# The names the recording scripts pass for the fixtures' participants
+# (BigBlueButton.generate_webvtt, anonymized as configured)
+NAMES = {'w_alice': 'Alice', 'w_bob': 'Bob'}
+
+
 class GenWebvttRun:
-    def __init__(self, fixture, extra_args=()):
+    def __init__(self, fixture, names=None, extra_args=()):
         self.outdir = tempfile.mkdtemp(prefix='gen_webvtt_test_')
         cmd = [sys.executable, GEN_WEBVTT, '-i', os.path.join(FIXTURES, fixture), '-o', self.outdir] + list(extra_args)
-        self.result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        names_file = None
+        if names is not None:
+            with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
+                json.dump(names, f)
+                names_file = f.name
+            cmd += ['--speaker-names', names_file]
+        try:
+            self.result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        finally:
+            if names_file:
+                os.unlink(names_file)
 
     @property
     def returncode(self):
@@ -124,10 +139,11 @@ class LegacyEditCaptionHistoryEvents(unittest.TestCase):
 
 
 class CaptionUpdatedEvents(unittest.TestCase):
-    """Captions recorded per utterance (CaptionUpdatedEvent) become labelled cues."""
+    """Captions recorded per utterance (CaptionUpdatedEvent) become cues, labelled
+    with the names the recording scripts supply."""
 
     def test_two_speakers_in_one_language(self):
-        run = GenWebvttRun('segments-two-speakers')
+        run = GenWebvttRun('segments-two-speakers', names=NAMES)
         self.assertEqual(run.returncode, 0, run.failure_details())
         self.assertEqual(run.vtt_files(), ['caption_en-US.vtt', 'caption_pt-BR.vtt'])
         text = run.text('en-US')
@@ -145,7 +161,7 @@ class CaptionUpdatedEvents(unittest.TestCase):
         )
 
     def test_cue_timing_follows_the_utterance(self):
-        run = GenWebvttRun('segments-two-speakers')
+        run = GenWebvttRun('segments-two-speakers', names=NAMES)
         self.assertEqual(run.returncode, 0, run.failure_details())
         with open(os.path.join(run.outdir, 'caption_en-US.vtt'), encoding='utf-8') as f:
             timings = [l.strip() for l in f if CUE_TIMING.match(l.strip())]
@@ -156,7 +172,7 @@ class CaptionUpdatedEvents(unittest.TestCase):
         self.assertEqual(starts, sorted(starts))
 
     def test_paused_recording_is_left_out(self):
-        run = GenWebvttRun('segments-pause-resume')
+        run = GenWebvttRun('segments-pause-resume', names=NAMES)
         self.assertEqual(run.returncode, 0, run.failure_details())
         text = run.text('en-US')
         self.assertEqual(count_sentence(text, BEFORE_START), 0, 'what was said before the recording started must not be in the captions')
@@ -165,12 +181,12 @@ class CaptionUpdatedEvents(unittest.TestCase):
         self.assertEqual(count_sentence(text, ALICE_2), 1)
 
     def test_late_interim_result_does_not_shorten_the_final_text(self):
-        run = GenWebvttRun('segments-stale-interim')
+        run = GenWebvttRun('segments-stale-interim', names=NAMES)
         self.assertEqual(run.returncode, 0, run.failure_details())
         self.assertEqual(run.text('en-US'), 'Alice: it is easy to tell the depth over well')
 
     def test_interleaved_long_utterances_name_the_speaker_of_every_cue(self):
-        run = GenWebvttRun('segments-long-overlap')
+        run = GenWebvttRun('segments-long-overlap', names=NAMES)
         self.assertEqual(run.returncode, 0, run.failure_details())
         cues = cue_texts(os.path.join(run.outdir, 'caption_en-US.vtt'))
         self.assertGreater(len(cues), 2, 'long overlapping utterances should be split into several cues')
@@ -190,19 +206,45 @@ class CaptionUpdatedEvents(unittest.TestCase):
         self.assertEqual(sum(1 for cue in cues if cue.startswith('Bob: ')), 2, cues)
 
     def test_utterance_without_final_result_keeps_its_last_text(self):
-        run = GenWebvttRun('segments-unfinished')
+        run = GenWebvttRun('segments-unfinished', names=NAMES)
         self.assertEqual(run.returncode, 0, run.failure_details())
         self.assertEqual(run.text('en-US'), 'Alice: the birch canoe slid')
 
+    def test_cues_carry_no_speaker_names_unless_supplied(self):
+        # Run directly, without the names the recording scripts pass (anonymized as
+        # configured), the generator must not fall back to the participants' real names
+        run = GenWebvttRun('segments-two-speakers')
+        self.assertEqual(run.returncode, 0, run.failure_details())
+        text = run.text('en-US')
+        for sentence in (ALICE_1, BOB_1, ALICE_2, TYPED_1):
+            self.assertEqual(count_sentence(text, sentence), 1, f'{sentence!r} once in: {text}')
+        self.assertNotIn('Alice', text)
+        self.assertNotIn('Bob', text)
+
+    def test_revised_first_character_keeps_the_time_of_the_utterance(self):
+        # A final result that capitalises the first word revises what the interim
+        # results had since 1 s into the recording; it must not re-time the cue to
+        # when the final arrived (8 s)
+        run = GenWebvttRun('segments-revised-first-character', names=NAMES)
+        self.assertEqual(run.returncode, 0, run.failure_details())
+        self.assertEqual(run.text('en-US'), 'Alice: The birch canoe slid.')
+        with open(os.path.join(run.outdir, 'caption_en-US.vtt'), encoding='utf-8') as f:
+            timings = [l.strip() for l in f if CUE_TIMING.match(l.strip())]
+        self.assertEqual(timings[0].split(' --> ')[0], '00:00:01.000')
+
+    def test_revision_during_a_pause_keeps_what_was_said_before(self):
+        # The words heard before the pause stay; only what the final adds while the
+        # recording is paused is left out
+        run = GenWebvttRun('segments-revised-during-pause', names=NAMES)
+        self.assertEqual(run.returncode, 0, run.failure_details())
+        text = run.text('en-US')
+        self.assertEqual(count_sentence(text, 'The birch canoe'), 1, text)
+        self.assertNotIn('slid', text)
+        self.assertEqual(count_sentence(text, 'after the pause'), 1, text)
+
     def test_speaker_names_can_be_supplied(self):
         # The recording scripts pass the (possibly anonymised) participant names.
-        with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
-            json.dump({'w_alice': 'Moderator 1', 'w_bob': 'Viewer 1'}, f)
-            names_file = f.name
-        try:
-            run = GenWebvttRun('segments-two-speakers', ['--speaker-names', names_file])
-        finally:
-            os.unlink(names_file)
+        run = GenWebvttRun('segments-two-speakers', names={'w_alice': 'Moderator 1', 'w_bob': 'Viewer 1'})
         self.assertEqual(run.returncode, 0, run.failure_details())
         text = run.text('en-US')
         self.assertIn(f'Moderator 1: {ALICE_1}', text)

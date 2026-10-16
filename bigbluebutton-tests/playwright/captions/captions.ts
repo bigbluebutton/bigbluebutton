@@ -1,4 +1,4 @@
-import { expect, type TestInfo } from '@playwright/test';
+import { expect, type Page as PlaywrightPage, type TestInfo } from '@playwright/test';
 import axios from 'axios';
 
 import {
@@ -178,18 +178,62 @@ export async function submitTranscript(
   }
 }
 
-// A typed caption, as plugins submit them (captionSubmitTranscript, captionType TYPED).
+// A typed caption, as plugins submit them (captionSubmitTranscript, captionType TYPED);
+// returns the errors, if any.
 export async function submitTypedCaption(
   page: Page,
   transcriptId: string,
   transcript: string,
   locale: string,
 ): Promise<string[]> {
-  const { errors } = await runMutation(
-    page.page,
-    stringVarMutation('captionSubmitTranscript', { transcriptId, transcript, locale, captionType: 'TYPED' }),
-  );
-  return errors;
+  // a rejected action reaches Apollo as a transport error (thrown), not as `errors`
+  try {
+    const { errors } = await runMutation(
+      page.page,
+      stringVarMutation('captionSubmitTranscript', { transcriptId, transcript, locale, captionType: 'TYPED' }),
+    );
+    return errors;
+  } catch (error) {
+    return [(error as Error).message];
+  }
+}
+
+export interface SubmittedTranscript {
+  transcriptId: string;
+  transcript: string;
+  isFinal: boolean;
+}
+
+// The captionSubmitText mutations a page sends, as they go out on its GraphQL websocket.
+// Recording starts with the page's next connection, so call it before the page joins.
+const submittedTranscripts = new WeakMap<PlaywrightPage, SubmittedTranscript[]>();
+
+export function recordSubmittedTranscripts(page: PlaywrightPage): void {
+  const sent: SubmittedTranscript[] = [];
+  submittedTranscripts.set(page, sent);
+  page.on('websocket', (ws) => {
+    if (!ws.url().includes('graphql')) return;
+    ws.on('framesent', ({ payload }) => {
+      if (typeof payload !== 'string' || !payload.includes('captionSubmitText')) return;
+      try {
+        const frame = JSON.parse(payload);
+        const variables = frame?.payload?.variables;
+        if (frame.type === 'subscribe' && variables?.transcriptId !== undefined) {
+          sent.push({
+            transcriptId: variables.transcriptId,
+            transcript: variables.transcript,
+            isFinal: variables.isFinal,
+          });
+        }
+      } catch {
+        // not a GraphQL operation frame
+      }
+    });
+  });
+}
+
+export function sentTranscripts(page: Page): SubmittedTranscript[] {
+  return submittedTranscripts.get(page.page) ?? [];
 }
 
 export async function textTracks(recordId: string): Promise<TextTrack[]> {
@@ -243,6 +287,7 @@ export class Captions extends MultiUsers {
     const modContext = await this.browser.newContext();
     await installFakeSpeechRecognition(modContext);
     const modPage = await modContext.newPage();
+    recordSubmittedTranscripts(modPage);
     this.modPage = new Page(this.browser, modPage, testInfo);
     await this.modPage.init(true, {
       fullName: 'Alice',
@@ -255,6 +300,7 @@ export class Captions extends MultiUsers {
     const userContext = await this.browser.newContext();
     await installFakeSpeechRecognition(userContext);
     const userPage = await userContext.newPage();
+    recordSubmittedTranscripts(userPage);
     this.userPage = new Page(this.browser, userPage, testInfo);
     await this.userPage.init(false, {
       fullName: 'Bob',

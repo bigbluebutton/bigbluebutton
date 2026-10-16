@@ -77,11 +77,9 @@ begin
   playback_captions_path = File.join(publish_dir, recording_id, 'captions.json')
   playback_captions = JSON.parse(File.read(playback_captions_path))
 rescue Errno::ENOENT
-  logger.info("Playback doesn't have a captions.json - old playback format version?")
-  logger.info('Triggering recording reprocessing.')
-  archive_done_file = ''
-  File.write(archive_done_file, 'Reprocessing for captions')
-  # Treat this as success, the captions will be integrated during reprocessing
+  # Only playbacks of a very old format have none. A rebuild generates a current
+  # playback, and it includes the uploaded captions (BigBlueButton.add_uploaded_captions).
+  logger.warn("Playback doesn't have a captions.json (old playback format): rebuild the recording to show the captions")
   exit(0)
 end
 
@@ -112,7 +110,7 @@ captions.each do |caption|
               end
 
   src = File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt")
-  # Live captions of recordings processed before 4.1 were stored as caption_<lang>.vtt
+  # Older recordings stored their live captions as caption_<lang>.vtt
   legacy_src = File.join(captions_dir, recording_id, "caption_#{lang}.vtt")
   src = legacy_src if kind == 'captions' && !File.exist?(src) && File.exist?(legacy_src)
   FileUtils.cp(src, File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt"))
