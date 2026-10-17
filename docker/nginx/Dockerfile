@@ -26,7 +26,7 @@ COPY ./build/packages-template/bbb-html5/bigbluebutton.nginx \
      /etc/nginx/vhosts.d/
 
 # Copy nginx config-files to /etc/bigbluebutton/nginx/
-COPY ./bbb-learning-dashboard/learning-dashboard.nginx \
+COPY ./docker/nginx/learning-dashboard.nginx \
      ./bigbluebutton-web/loadbalancer.nginx \
      ./bigbluebutton-web/nginx-confs/presentation-slides.nginx \
      ./bigbluebutton-web/bbb-web.nginx \
