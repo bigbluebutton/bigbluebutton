@@ -26,9 +26,14 @@ COPY --from=build --chown=bigbluebutton /dist /usr/share/bbb-web
 COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/lib /usr/share/prescheck/lib
 COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
 
+# Client settings catalog (same path as apps-akka / packaging). Override is mounted at
+# /etc/bigbluebutton/bbb-html5.yml from ./conf/bbb-html5.yml in docker-compose.
+RUN mkdir -p /usr/share/bigbluebutton/html5-client/private/config
+COPY --from=html5-config --chown=bigbluebutton / /usr/share/bigbluebutton/html5-client/private/config/
+
 # Create necessary directories
 RUN mkdir -p /var/bigbluebutton/diagnostics /etc/bigbluebutton
-RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton /var/bigbluebutton
+RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton /var/bigbluebutton /usr/share/bigbluebutton/html5-client
 
 COPY --chown=bigbluebutton turn-stun-servers.xml.tmpl /etc/bigbluebutton/turn-stun-servers.xml.tmpl
 
