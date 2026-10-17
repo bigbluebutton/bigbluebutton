@@ -39,6 +39,7 @@ COPY ./bbb-learning-dashboard/learning-dashboard.nginx \
      ./build/packages-template/bbb-webrtc-sfu/webrtc-sfu.nginx \
      ./build/packages-template/bbb-graphql-middleware/graphql.nginx \
      ./build/packages-template/bbb-livekit/livekit.nginx \
+     ./build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx \
      ./record-and-playback/notes/scripts/notes-playback.nginx \
      ./record-and-playback/podcast/scripts/podcast.nginx \
      ./record-and-playback/presentation/scripts/presentation.nginx \
@@ -58,6 +59,8 @@ RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/
     sed -i 's|http://127.0.0.1:3008|http://webrtc-sfu:3008|g' /etc/bigbluebutton/nginx/webrtc-sfu.nginx && \
     sed -i 's|http://127.0.0.1:8378|http://graphql-middleware:8378|g' /etc/bigbluebutton/nginx/graphql.nginx && \
     sed -i 's|http://127.0.0.1:7880|http://livekit:7880|g' /etc/bigbluebutton/nginx/livekit.nginx && \
+    sed -i 's|http://localhost:8787|http://shared-notes-server:8787|g' /etc/bigbluebutton/nginx/bbb-shared-notes-server.nginx && \
+    sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/bbb-shared-notes-server.nginx && \
     sed -i 's|127.0.0.1:8085|graphql-server:8085|g' /etc/nginx/vhosts.d/hasura-loadbalancer.nginx && \
     sed -i 's|127.0.0.1:8185|0.0.0.0:8185|g' /etc/nginx/vhosts.d/hasura-loadbalancer.nginx
 

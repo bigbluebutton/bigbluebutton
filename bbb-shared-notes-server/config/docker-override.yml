@@ -1,0 +1,11 @@
+# Merged over default.yml when running in docker-compose
+expressServer:
+  host: 0.0.0.0
+  port: 8787
+redis:
+  host: redis
+postgres:
+  host: postgres
+bbbWeb:
+  host: web
+  port: 8090
