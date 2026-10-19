@@ -124,7 +124,7 @@ class DebugWindow extends Component {
             bottomRight: true,
           }}
         >
-          <Styled.DebugWindow>
+          <Styled.DebugWindow data-test="debugWindow">
             <Styled.Header id="debugWindowHeader">
               <Styled.MoveIcon iconName="fit_to_screen" />
               <Styled.Title>
