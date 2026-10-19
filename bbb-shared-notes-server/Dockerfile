@@ -28,7 +28,8 @@ RUN apt-get update \
 
 # Same steps as build/packages-template/bbb-shared-notes-server/build.sh: compile, rename to
 # bbb-shared-notes-server.js, ship it with package files, config, node_modules and assets.
-# Install scripts are skipped: the only one that matters is the package's own postinstall
+# Source maps of the dependencies are not shipped: node reads them only with
+# --enable-source-maps. Install scripts are skipped: the only one that matters is the package's own postinstall
 # (the unverified Twemoji download), replaced by the checked download below.
 WORKDIR /build/src
 COPY package.json package-lock.json tsconfig.json ./
@@ -52,7 +53,8 @@ RUN mv ../src/dist/index.js bbb-shared-notes-server.js \
     && mv ../src/dist/* . \
     && cp -r ../src/package.json ../src/package-lock.json ../src/assets . \
     && npm ci --no-progress --omit=dev --ignore-scripts \
-    && npm cache clean --force
+    && npm cache clean --force \
+    && find node_modules -type f -name '*.map' -delete
 
 # yq as upstream packages it (bbb-yq-go): version from its build.sh, verified against its
 # checksum file (amd64 and arm64).
