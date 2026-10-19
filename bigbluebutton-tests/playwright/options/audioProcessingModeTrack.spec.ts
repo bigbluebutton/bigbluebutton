@@ -9,6 +9,7 @@ import { test } from '../core/setup/fixtures';
 import {
   AudioProcessingMode,
   audioProcessingModeOverrides,
+  canStartAudioContext,
   CapturedAudioConstraints,
   captureGetUserMediaAudioConstraints,
   getCapturedAudioConstraints,
@@ -20,6 +21,9 @@ import {
 // 'standard' when BBBA/WASM is active ("on top of WASM"), so constraints can't
 // tell the two apart - whether the WASM processor file was actually requested
 // is the only reliable signal for that mode.
+const NO_AUDIO_CONTEXT =
+  'Advanced filtering needs a running AudioContext; headless Firefox without an audio output device cannot start one';
+
 test.describe('Audio processing mode - actual getUserMedia constraints', { tag: ['@ci', '@media'] }, () => {
   test('applies the configured media.audio.microphoneConstraints for Standard filtering', async ({
     browser,
@@ -97,7 +101,13 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     });
   });
 
-  test('loads the BBBA/WASM processor for Advanced filtering', async ({ browser, context, page }, testInfo) => {
+  test('loads the BBBA/WASM processor for Advanced filtering', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
     await audioProcessingMode.initModPage(page, {
@@ -114,9 +124,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('applies media.audio.audioWasmProcessing.constraints, not microphoneConstraints, for Advanced filtering', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await captureGetUserMediaAudioConstraints(page);
 
     const audioProcessingMode = new AudioProcessingMode(browser, context);
@@ -159,9 +171,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('loads the WorkAdventure/DTLN processor for Advanced filtering when configured', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
     await audioProcessingMode.initModPage(page, {
@@ -190,9 +204,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('forces noiseSuppression off for Advanced filtering with the WorkAdventure/DTLN provider, even if audioWasmProcessing.constraints says otherwise', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await captureGetUserMediaAudioConstraints(page);
 
     const audioProcessingMode = new AudioProcessingMode(browser, context);

@@ -688,21 +688,26 @@ export class Recording extends MultiUsers {
       })
       .toBeLessThan(1);
 
-    await button.hover();
-    await expect
-      .poll(() => indicatorLabelSpace(button), {
-        message: 'hovering the indicator should reveal its label',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
+    // The client opens the indicator on hover only under (hover: hover) and
+    // (pointer: fine); headless Firefox matches neither, so it is keyboard-only there.
+    const hoverCapable = await page.evaluate(() => window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    if (hoverCapable) {
+      await button.hover();
+      await expect
+        .poll(() => indicatorLabelSpace(button), {
+          message: 'hovering the indicator should reveal its label',
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
 
-    await page.mouse.move(0, 0);
-    await expect
-      .poll(() => indicatorLabelSpace(button), {
-        message: 'the indicator should collapse again once the pointer leaves',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBeLessThan(1);
+      await page.mouse.move(0, 0);
+      await expect
+        .poll(() => indicatorLabelSpace(button), {
+          message: 'the indicator should collapse again once the pointer leaves',
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .toBeLessThan(1);
+    }
 
     // Tab away and back, so the focus comes from the keyboard and matches
     // :focus-visible - a programmatic focus alone would not.

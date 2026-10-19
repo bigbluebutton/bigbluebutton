@@ -2,7 +2,7 @@ import { elements as e } from '../core/elements';
 import { parameters } from '../core/parameters';
 
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
-export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+export const CUSTOM_STYLE_URL = 'https://bbb-test-stub.local/css-test-file.css';
 
 // group names around the old varchar(100) limit of meeting_group (issue 25676)
 export const LONG_GROUP_NAMES = {
