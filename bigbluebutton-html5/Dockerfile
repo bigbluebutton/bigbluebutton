@@ -44,7 +44,8 @@ COPY --from=bbb-config bigbluebutton-release /tmp/bigbluebutton-release
 # webpack.config.js), and bbb-html5.nginx.static serves those copies (gzip_static on): each .gz
 # whose content no longer matches its file is written again, so browsers get the build
 # identifier as cache buster. A .gz file without a sibling is the compressed copy of a safari
-# bundle under its name before the renaming; nothing requests that name, so it is removed. The
+# bundle under its name before the renaming; nginx never serves it (try_files looks for the
+# uncompressed name, which no longer exists), so it is removed. The
 # build fails if a placeholder is left in a served file (the JS bundles keep their
 # own built-in defaults, which settings.yml overrides).
 WORKDIR /src/dist

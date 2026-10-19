@@ -18,14 +18,15 @@ FROM docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d
 
 # No per-package version pin: the base image is pinned by digest, and the installed package
 # versions are recorded at build time (docker/README.md, "Package versions").
-# The class data sharing archive for heaps without compressed object pointers (above 32 GB)
-# is removed; such a JVM starts without the archive.
+# The class data sharing archive for JVMs without compressed object pointers (heaps above
+# 32 GB, ZGC) is removed: such a JVM starts without class data sharing, a little slower. The
+# services here use small heaps and the default collector. `-f`: not every architecture ships it.
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openjdk-21-jre-headless \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s "java-21-openjdk-$(dpkg --print-architecture)" /usr/lib/jvm/java-21 \
-    && rm /usr/lib/jvm/java-21/lib/server/classes_nocoops.jsa
+    && rm -f /usr/lib/jvm/java-21/lib/server/classes_nocoops.jsa
 
 ENV JAVA_HOME=/usr/lib/jvm/java-21 \
     LANG=C.UTF-8
