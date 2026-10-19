@@ -5,6 +5,7 @@ import {
   Operation,
 } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
+import { recordMutationAction } from '../actionTrail';
 import { isTelemetryActive } from '../config';
 import { recordTelemetry } from '../recorder';
 import { GraphqlOperationType, GraphqlPhase } from '../types';
@@ -25,6 +26,8 @@ const timingLink = new ApolloLink((operation, forward) => {
   const operationName = operation.operationName || 'anonymous';
   const ts = Date.now();
   const start = performance.now();
+  // The repro trail gets the operation name only, never the variables
+  if (operationType === 'mutation') recordMutationAction(operationName);
 
   const emit = (phase: GraphqlPhase, failed: boolean) => recordTelemetry({
     kind: 'graphql',

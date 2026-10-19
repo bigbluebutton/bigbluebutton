@@ -1,5 +1,11 @@
 import logger from '/imports/startup/client/logger';
 import { Telemetry } from '/imports/ui/Types/meetingClientSettings';
+import {
+  clearActionTrail,
+  ReproTrail,
+  reproTrail,
+  startActionTrail,
+} from './actionTrail';
 import { getConfig, isTelemetryActive, loadConfig } from './config';
 import startSummaryEmitter from './emit';
 import startMainThreadObservers from './observers/mainThreadObserver';
@@ -52,12 +58,19 @@ declare global {
     bbbTelemetry?: {
       dump: () => TelemetryDump;
       stats: () => Record<TelemetryKind, KindStats>;
+      trail: () => ReproTrail;
       clear: () => void;
     };
   }
 }
 
 let started = false;
+
+// Discards measurements and the repro trail
+export const clearTelemetry = (): void => {
+  clearStore();
+  clearActionTrail();
+};
 
 // Called once by settings-loader, right after window.meetingClientSettings is filled
 export const startTelemetry = (): void => {
@@ -68,13 +81,15 @@ export const startTelemetry = (): void => {
   window.bbbTelemetry = {
     dump: telemetryDump,
     stats: () => byKind(kindStats),
-    clear: clearStore,
+    trail: reproTrail,
+    clear: clearTelemetry,
   };
   if (!isTelemetryActive()) return;
 
   configureStore(config.bufferSize);
   startResourceObserver();
   startMainThreadObservers();
+  startActionTrail();
   if (config.logToServer) startSummaryEmitter();
   if (config.exporter === 'otlp') {
     // import() keeps the sink out of the startup path and becomes a real chunk if the build ever
@@ -100,4 +115,4 @@ export const startTelemetry = (): void => {
   }, 'Client performance telemetry started');
 };
 
-export { isTelemetryActive, clearStore as clearTelemetry };
+export { isTelemetryActive, reproTrail };
