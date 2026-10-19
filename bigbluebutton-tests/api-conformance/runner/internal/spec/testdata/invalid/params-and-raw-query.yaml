@@ -1,0 +1,9 @@
+# want: 9: steps[0]: use params or raw_query, not both
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    params: {a: b}
+    raw_query: a=b

@@ -1,0 +1,9 @@
+# want: 8: variant id "a" is used twice
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+variants:
+  - {id: a}
+  - {id: a}
+steps: [{call: create}]

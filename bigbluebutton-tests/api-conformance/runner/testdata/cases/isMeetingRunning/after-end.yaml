@@ -1,0 +1,24 @@
+id: isMeetingRunning.lifecycle.after-end
+title: isMeetingRunning eventually reports false after end
+endpoint: isMeetingRunning
+class: contract
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Running}
+  - call: end
+    params: {meetingID: "${uid}"}
+    expect: {messageKey: sentEndMeetingRequest}
+  - wait: 100ms
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    eventually:
+      within: 5s
+      every: 200ms
+      until:
+        xpath:
+          /response/running: "false"
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/running: "false"

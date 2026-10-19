@@ -1,0 +1,42 @@
+id: join.redirect.session-token
+title: join redirects with a session token, and its getJoinUrl link works for another user
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join test}
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator}
+    client: ann
+    headers: {Accept: null, X-Forwarded-For: 203.0.113.7}
+    expect:
+      status: 302
+      headers:
+        Set-Cookie: {regex: '(?i);\s*secure'}
+      redirect:
+        path: {regex: /html5client/}
+        query:
+          sessionToken: {exists: true}
+    capture:
+      sessionToken: location:query.sessionToken
+      clientHost: location:host
+      jsession: cookie:JSESSIONID
+  - call: getJoinUrl
+    params: {sessionToken: "${sessionToken}", fullName: Bob}
+    client: ann
+    expect:
+      format: json
+      jsonpath:
+        $.response.returncode: SUCCESS
+    capture: {joinUrl: $.response.url}
+  - url: "${joinUrl}"
+    client: bob
+    expect:
+      status: 302
+      redirect:
+        host: "${clientHost}"
+teardown:
+  - {call: end, params: {meetingID: "${uid}"}, ignoreResult: true}

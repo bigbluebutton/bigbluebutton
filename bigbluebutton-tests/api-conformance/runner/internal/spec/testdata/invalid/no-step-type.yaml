@@ -1,0 +1,7 @@
+# want: 7: found none
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - params: {a: b}

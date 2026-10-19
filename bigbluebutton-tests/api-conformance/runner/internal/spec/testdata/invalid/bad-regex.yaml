@@ -1,0 +1,8 @@
+# want: 8: bad regex: 
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    expect: {message: {regex: "a(b"}}

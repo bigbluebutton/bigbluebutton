@@ -1,0 +1,8 @@
+# want: 8: fixture bodies/nope.xml not found in
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    body: {xmlFile: bodies/nope.xml}

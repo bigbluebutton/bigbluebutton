@@ -1,0 +1,10 @@
+# want: 10: bad JSONPath "$.a[": 
+id: stuns.x.y
+title: t
+endpoint: stuns
+class: contract
+steps:
+  - call: stuns
+    expect:
+      jsonpath:
+        "$.a[": x
