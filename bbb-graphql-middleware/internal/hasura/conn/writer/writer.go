@@ -234,6 +234,12 @@ RangeLoop:
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
+					// A query re-sent after a Hasura reconnection keeps its original start time,
+					// so the first-data histogram counts each query once
+					subscribedAt, firstDataObserved := time.Now(), false
+					if previous, exists := browserConnection.ActiveSubscriptions[queryId]; exists {
+						subscribedAt, firstDataObserved = previous.SubscribedAt, previous.FirstDataObserved
+					}
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                         queryId,
 						Message:                    fromBrowserMessage,
@@ -246,6 +252,8 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 						LastReceivedData:           lastReceivedData,
+						SubscribedAt:               subscribedAt,
+						FirstDataObserved:          firstDataObserved,
 					}
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()

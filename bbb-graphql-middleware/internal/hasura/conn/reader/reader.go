@@ -108,6 +108,11 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 				Inc()
 		}
 
+		if hasuraMessageInfo.Type == "next" && !subscription.FirstDataObserved {
+			subscription.FirstDataObserved = true
+			observeFirstData(hc, hasuraMessageInfo.ID, subscription)
+		}
+
 		if hasuraMessageInfo.Type == "next" &&
 			subscription.Type == common.Subscription {
 
@@ -176,6 +181,27 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 		// Forward the message to browser
 		hc.BrowserConn.FromHasuraToBrowserChannel.SendWait(hc.Context, message)
 	}
+}
+
+// observeFirstData records the time to first result once per query. The flag goes into the map
+// right away; the handlers below write their own copy back, which already carries it.
+func observeFirstData(hc *common.HasuraConnection, queryId string, subscription common.GraphQlSubscription) {
+	hc.BrowserConn.ActiveSubscriptionsMutex.Lock()
+	if current, ok := hc.BrowserConn.ActiveSubscriptions[queryId]; ok {
+		current.FirstDataObserved = true
+		hc.BrowserConn.ActiveSubscriptions[queryId] = current
+	}
+	hc.BrowserConn.ActiveSubscriptionsMutex.Unlock()
+
+	if subscription.SubscribedAt.IsZero() {
+		return
+	}
+	common.GqlSubscriptionFirstData.
+		With(prometheus.Labels{
+			"type":          string(subscription.Type),
+			"operationName": subscription.OperationName,
+		}).
+		Observe(common.MillisecondsSince(subscription.SubscribedAt))
 }
 
 func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, subscription common.GraphQlSubscription, queryId string) bool {

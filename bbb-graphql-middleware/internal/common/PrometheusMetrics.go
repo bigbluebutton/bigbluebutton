@@ -1,6 +1,8 @@
 package common
 
 import (
+	"time"
+
 	"bbb-graphql-middleware/config"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -102,7 +104,28 @@ var (
 		},
 		[]string{"application"},
 	)
+	GqlMutationDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "gql_mutation_duration_milliseconds",
+			Help:    "Time for bbb-graphql-actions to accept a mutation sent by the client",
+			Buckets: []float64{10, 50, 100, 250, 500, 1000, 2500, 5000},
+		},
+		[]string{"operationName"},
+	)
+	GqlSubscriptionFirstData = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "gql_subscription_first_data_milliseconds",
+			Help:    "Time from a new query or subscription reaching the middleware to its first result from Hasura",
+			Buckets: []float64{50, 100, 250, 500, 1000, 2500, 5000, 10000},
+		},
+		[]string{"type", "operationName"},
+	)
 )
+
+// MillisecondsSince returns the elapsed time with sub-millisecond precision, for latency histograms.
+func MillisecondsSince(start time.Time) float64 {
+	return float64(time.Since(start).Microseconds()) / 1000
+}
 
 // RegisterMetrics registers the collectors with the default Prometheus registry.
 //
@@ -121,4 +144,6 @@ func RegisterMetrics() {
 		prometheus.MustRegister(GqlReceivedDataPayloadLength)
 	}
 	prometheus.MustRegister(ApplicationsLatency)
+	prometheus.MustRegister(GqlMutationDuration)
+	prometheus.MustRegister(GqlSubscriptionFirstData)
 }

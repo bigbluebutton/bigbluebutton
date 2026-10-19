@@ -80,9 +80,13 @@ RangeLoop:
 					if strings.HasPrefix(browserMessage.Payload.Query, "mutation") {
 						if funcName, inputs, err := parseGraphQLMutation(browserMessage.Payload.Query, browserMessage.Payload.Variables); err == nil {
 							mutationFuncName = funcName
+							startedAt := time.Now()
 							if err = SendGqlActionsRequest(funcName, inputs, browserConnection.BBBWebSessionVariables, browserConnection.Logger); err == nil {
 								// Add Prometheus Metrics
 								common.GqlMutationsCounter.With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).Inc()
+								common.GqlMutationDuration.
+									With(prometheus.Labels{"operationName": browserMessage.Payload.OperationName}).
+									Observe(common.MillisecondsSince(startedAt))
 							} else {
 								sendErrorMessage(
 									browserConnection,
