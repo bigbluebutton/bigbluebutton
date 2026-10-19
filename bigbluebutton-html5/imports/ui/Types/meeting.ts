@@ -138,6 +138,7 @@ export interface Meeting {
   cameraBridge: string;
   screenShareBridge: string;
   audioBridge: string;
+  roomMode: string;
   meetingId: string;
   name: string;
   notifyRecordingIsOn: boolean;

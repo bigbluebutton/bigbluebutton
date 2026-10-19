@@ -42,6 +42,7 @@ case class MeetingDbModel(
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
+    roomMode:                              String,
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -66,7 +67,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endWhenNoModeratorDelayInMinutes,
     endedAt,
     endedReasonCode,
-    endedBy
+    endedBy,
+    roomMode
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -100,6 +102,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
+  val roomMode = column[String]("roomMode")
 }
 
 object MeetingDAO {
@@ -156,7 +159,8 @@ object MeetingDAO {
           endWhenNoModeratorDelayInMinutes = meetingProps.durationProps.endWhenNoModeratorDelayInMinutes,
           endedAt = None,
           endedReasonCode = None,
-          endedBy = None
+          endedBy = None,
+          roomMode = ""
         )
       )
     )
@@ -185,6 +189,15 @@ object MeetingDAO {
         .filter(_.meetingId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
+    )
+  }
+
+  def updateRoomMode(meetingId: String, roomMode: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(m => m.roomMode)
+        .update(roomMode)
     )
   }
 
