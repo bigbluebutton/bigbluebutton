@@ -330,6 +330,10 @@ The layout selection modal and the push layout button have also been removed. Th
 
 The `layouts` option has been removed from `disabledFeatures`.
 
+#### Single place for the server URL and shared secret
+
+You can now set the server URL and the API shared secret once, in the optional `/etc/bigbluebutton/bigbluebutton.env` file (`BBB_URL` and `BBB_SECRET`). Values set there take precedence over the settings of bbb-web, bbb-apps-akka, bbb-webhooks and bbb-webrtc-sfu, and are also used by `bbb-conf`, the recording callbacks and `bbb-install.sh`. The file is never written by the packages or by `bbb-install.sh`, so updates never change these values. See [Server URL and shared secret](/administration/configuration-files#server-url-and-shared-secret-etcbigbluebuttonbigbluebuttonenv).
+
 #### Removed REST endpoint
 
 The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client settings are now served through the GraphQL stack. Any integration that fetched client settings from that endpoint should be updated.

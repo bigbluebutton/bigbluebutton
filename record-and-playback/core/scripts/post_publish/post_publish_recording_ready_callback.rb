@@ -72,8 +72,7 @@ begin
   unless callback_url.nil?
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
-    props = BigBlueButton.read_java_props(bbb_web_properties)
-    secret = props[:securitySalt]
+    secret = (ENV['BBB_SECRET'] unless ENV['BBB_SECRET'].to_s.empty?) || BigBlueButton.read_java_props(bbb_web_properties)[:securitySalt]
     external_meeting_id = BigBlueButton::Events.get_external_meeting_id(events_xml)
 
     payload = { meeting_id: external_meeting_id, record_id: meeting_id }

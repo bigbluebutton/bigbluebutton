@@ -36,15 +36,27 @@ BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
 tmpfile=$(mktemp /tmp/carriage-return.XXXXXX)
 echo "\n" > $tmpfile
 
-PROTOCOL=http
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
-    PROTOCOL=https
-  fi
+# BBB_URL from /etc/bigbluebutton/bigbluebutton.env takes precedence over the bbb-web properties. Read it in a
+# subshell so that sourcing this library does not define the file's variables (the shared secret) in apply-config.sh
+if [ -r /etc/bigbluebutton/bigbluebutton.env ]; then
+  BBB_ENV_URL=$(source /etc/bigbluebutton/bigbluebutton.env && echo "$BBB_URL")
 fi
 
-HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+if [ -n "$BBB_ENV_URL" ]; then
+  PROTOCOL=${BBB_ENV_URL%%://*}
+  SERVER_URL=${BBB_ENV_URL#*://}
+  HOST=$SERVER_URL
+else
+  PROTOCOL=http
+  if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
+    SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+    if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
+      PROTOCOL=https
+    fi
+  fi
+
+  HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+fi
 
 HTML5_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ ! -f "${HTML5_CONFIG}" ]; then

@@ -25,4 +25,6 @@ done
 
 sudo service bbb-web stop
 
+set -a; if [ -r /etc/bigbluebutton/bigbluebutton.env ]; then source /etc/bigbluebutton/bigbluebutton.env; fi; set +a
+
 exec ./gradlew bootRun --args='--server.port=8090'
