@@ -494,6 +494,156 @@ PowerPoint and Excel documents (made by the service from the flat ODF files in
 the expected page counts, documents with linked images converted without any request reaching
 a listener on the service's network, and the service attached to its internal network only.
 
+## Development
+
+`compose.dev.yml` at the repository root is an override of `docker-compose.yml` for working on
+the source; never use it in a deployment. It adds a `build:` entry to every service that runs one
+of our images (the context, named contexts and arguments of its bake target) and the development
+loops of the html5 client, bbb-web and akka-apps, which follow the bare-metal ones of the
+development guide (`docs/docs/development/dev-guide.md`). Set `BBB_IMAGE_REGISTRY=localhost` in
+`.env` (written by `docker compose run --rm setup`, as for a deployment), so that the local builds
+get the names that bake gives them and never those of the published images, and pass both files
+to every command:
+
+```bash
+alias dcdev='docker compose -f docker-compose.yml -f compose.dev.yml'
+dcdev build                 # every image from the working tree, and the builders' images
+dcdev up -d --wait          # the stack, with the html5 client's development server
+```
+
+With the default features (`BBB_FEATURES=recording`) this also starts the recording services
+and, as always, the office document conversion (about 0.5 to 0.9 GB for Collabora alone). For a
+lighter stack, start it without them, or with no optional feature for this run:
+
+```bash
+dcdev up -d --wait --scale conversion=0 --scale recording=0 --scale recording-starter=0 \
+    --scale recording-caption-inbox=0 --scale recording-cleanup=0 --scale bbb-webrtc-recorder=0
+BBB_FEATURES= COMPOSE_PROFILES= dcdev up -d --wait --scale conversion=0   # no recording at all
+```
+
+Pass the same options to later `up` commands, or they start the services again. Without
+`conversion`, office documents are not converted (PDF and image uploads still are).
+
+The Java base, bbb-common-message and bbb-common-web, which bake builds as targets without an
+image, are services with `scale: 0` there: images that need them name them as `service:<name>`
+contexts, so they are built when needed and never started (a service in a disabled profile could
+not be named that way). The builders' images, the build stages of the bbb-web and akka-apps
+images, are such services too (`bbb-web-build-stage`, `akka-apps-build-stage`): the run-only
+builders have no `build:` of their own, because `docker compose run` rebuilds the image of the
+service it runs, with all its `service:` contexts, before starting it.
+
+**html5 client.** On bare metal, `run-dev.sh` points nginx's `bbb-html5.nginx` at
+`bbb-html5.nginx.dev`, which proxies `/html5client/` to webpack-dev-server on `localhost:3000`, and
+runs `npm start`. Here the `html5` service keeps its image's nginx with
+`build/packages-template/bbb-html5/bbb-html5.nginx.dev` mounted over its `bbb-html5.nginx`, and
+the service `html5-dev` (Node 24, the client's build image, as its user `node`) runs `npm start`
+in its network namespace, so `localhost:3000` is the same address. Both mount
+`bigbluebutton-html5/` at `/home/bigbluebutton/src/bigbluebutton-html5`, the path from which
+`bbb-html5.nginx.dev` serves the locales; `node_modules` is the volume `html5-dev-node-modules`
+(made writable for `node` by the one-shot service `html5-dev-volume`), filled with `npm ci` when
+`npm ls` finds it incomplete (at the first start and after a change of `package-lock.json`).
+Edit the source on the host: webpack recompiles, and the browser reloads or replaces the changed
+modules through the WebSocket `/html5client/ws`, which the edge nginx passes on with the Upgrade
+headers of `bbb-html5.nginx.dev`: a Compose config with inline content replaces the edge
+image's template of that location (`/usr/local/share/bbb/nginx/fragments/bbb-html5.nginx.static`),
+which the entrypoint renders as usual. Compose writes such a config into the container before it
+starts, which a read-only root filesystem refuses, so the dev `nginx` runs with `read_only: false`. `html5` is healthy, and the rest of the stack
+starts, once webpack has compiled the client. Logs: `dcdev logs -f html5-dev`.
+
+**bbb-web.** On bare metal, `deploy_to_usr_share.sh` builds the WAR with Gradle, unpacks it into
+`/usr/share/bbb-web` and restarts bbb-web. Here bbb-web runs from the volumes `bbb-web-dev`
+and `bbb-web-dev-prescheck`, mounted at `/usr/share/bbb-web` and `/usr/share/prescheck`; they
+start as copies of the image's directories. After a change:
+
+```bash
+dcdev run --rm bbb-web-build && dcdev restart bbb-web
+```
+
+`bbb-web-build` (profile `dev-build`, run-only) runs the image's build stage (JDK 21, Gradle,
+bbb-common-web in `~/.m2`, the dependencies and build outputs of the image build). It copies the
+mounted `bigbluebutton-web/` (read-only; `build/`, `.gradle/` and `lib/` of the host are not
+copied) over its source, runs `gradle assemble`, which builds only what changed since the image
+build, unpacks the WAR, applies the image's changes to the classpath (the rendered
+`bigbluebutton.properties` and `turn-stun-servers.xml` as links into `/run/bbb-web`, logback
+without the file appender, `run-in-systemd.sh`) and replaces the content of `bbb-web-dev`. The
+presentation checker's jars that are the same in the new WAR become links to it, as in the image
+(the others stay copies), and the checker replaces the content of `bbb-web-dev-prescheck`, so no
+link points to a jar the new WAR no longer has.
+`grails-app/conf/bigbluebutton.properties`, the base the entrypoint renders, is mounted from the
+source, so a change to it needs only the restart. The upstream alternative `run-dev.sh`
+(`gradlew bootRun`) is not offered: it needs a JDK and Gradle in the runtime image.
+
+**akka-apps.** On bare metal, `run.sh` stages the application with sbt and starts it from
+`target/universal/stage`. Here akka-apps runs from the volume `akka-apps-dev` mounted at
+`/usr/share/bbb-apps-akka` (a copy of the image's directory at first). After a change:
+
+```bash
+dcdev run --rm akka-apps-build && dcdev restart akka-apps
+```
+
+`akka-apps-build` runs the image's build stage (sbt, JDK 21, bbb-common-message in the local
+repositories, the compiled classes of the image build): it copies `build.sbt`, `project/` and
+`src/` of the mounted `akka-bbb-apps/`, runs `sbt Universal/stage` (incremental), applies the
+image's `docker/application.conf.patch` and logback change to `conf/` and replaces the content of
+`akka-apps-dev`.
+
+Measured with Docker Engine 29.9.1 in `dind.sh` on one laptop (22 threads, 30 GB), with an
+empty build cache: building html5, bbb-web (with the Java base, bbb-common-message and
+bbb-common-web), akka-apps and the builders' images about 21 minutes; the first `up` of the
+development variant 132 s (`npm ci` 87 s, webpack's first compilation 30 s). Then: a change to
+the client is in the bundle after 3 s; `run --rm bbb-web-build` 23 s and bbb-web healthy 13 s
+after the restart; `run --rm akka-apps-build` 27 s and akka-apps healthy 8 s after the
+restart.
+
+Known limits:
+
+- The settings of the html5 client come from the `settings.yml` that akka-apps and bbb-web take
+  from the html5 image, as on bare metal from the installed package: a change to
+  `bigbluebutton-html5/private/config/settings.yml` needs `dcdev build html5 akka-apps bbb-web`
+  (or an override in `/etc/bigbluebutton/bbb-html5.yml`, see "Override files").
+- A change to bbb-common-message or bbb-common-web (bare metal: their `deploy.sh`, or
+  `deploy_to_usr_share.sh --build`) needs `dcdev build bbb-web-build-stage
+  akka-apps-build-stage` before the next run of the builders.
+- The volumes `bbb-web-dev` and `akka-apps-dev` keep the last deployed build, also over a new
+  image: after `dcdev build bbb-web` (or `akka-apps`) run the builder, or remove the volume
+  (`dcdev rm -sf bbb-web && docker volume rm bigbluebutton_bbb-web-dev`).
+- The builders repeat the Dockerfiles' steps after the build (the commands of `bbb-web-build` and
+  `akka-apps-build` in `compose.dev.yml`): keep them in sync with `bigbluebutton-web/Dockerfile`
+  (classpath links, logback, `run-in-systemd.sh`, the presentation checker's links) and
+  `akka-bbb-apps/Dockerfile` (`application.conf.patch`, logback, start scripts and modes).
+- The builders do not delete files that were removed from the source outside `src/` (akka-apps)
+  or `src/` and `grails-app/` (bbb-web); pres-checker is not rebuilt, and the image files
+  (`docker/`) other than those named above take effect only with an image build.
+- `html5-dev` mounts its `node_modules` volume inside the bind-mounted source, so Docker creates
+  the empty directory `bigbluebutton-html5/node_modules` (ignored by git) in the working tree.
+  The html5 image's build context then contains it, and the next image build of the client
+  starts again from `COPY . .`.
+- `html5-dev` shares the network namespace of `html5`: when `html5` is recreated, recreate
+  `html5-dev` too (`dcdev up -d` does both).
+- `html5-dev` runs as `node` (UID 1000) and only reads the source (it must be readable for that
+  UID); `npm ci` and webpack-dev-server write to `node_modules`, which is the volume, and keep
+  their output in memory. Nothing lands in the host's `bigbluebutton-html5/node_modules` but the
+  empty mount point, which the Docker daemon creates (owned by root with a rootful daemon, by you
+  with a rootless one); remove it with `rmdir` (or `sudo rmdir`) if you want it gone.
+- The learning dashboard, the graphql services, shared notes and the other images have no
+  development loop of their own: `dcdev up -d --build <service>` rebuilds and restarts one.
+
+`docker/tests/compose/check-dev.sh` checks the override with `config` for every feature
+combination and compares each build with its bake target (`docker buildx bake --print`); it runs
+in `docker/tests/compose/run.sh`. `docker/tests/stack/dev-check.sh` runs the three loops against
+a stack started with it: it changes a visible string in each component, shows that it takes
+effect (the client bundle without a restart, bbb-web and akka-apps after the commands above),
+prints the timings and restores the source files. With `dind.sh`:
+
+```bash
+docker/tests/stack/dind.sh up                 # the stack as deployed, with the test certificate
+docker/tests/stack/dind.sh compose -f /src/compose.dev.yml up -d --wait --scale certbot=0
+docker/tests/stack/dind.sh dev-check          # or: dev-check html5 (one loop)
+```
+
+The images must be in the Engine first: `dind.sh compose -f /src/compose.dev.yml build` builds
+those of the override there (the others as in [Testing the stack](#testing-the-stack-with-docker-engine)).
+
 ## Running under an arbitrary UID/GID
 
 Every image must run under any UID/GID chosen at deploy time: Docker Compose sets

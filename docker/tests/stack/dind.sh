@@ -34,6 +34,10 @@
 #   recording-e2e [ARG...] docker/tests/stack/recording-e2e.sh against the stack: a recorded
 #                      meeting with microphone and webcam in headless Chromium, through to the
 #                      published recording (feature `recording`; ARGs passed on)
+#   dev-check [ARG...] docker/tests/stack/dev-check.sh against the stack started with
+#                      compose.dev.yml (`compose -f SRC/compose.dev.yml up -d --wait
+#                      --scale certbot=0`): the development loops of the html5 client, bbb-web
+#                      and akka-apps (ARGs passed on)
 #   diagnostics DIR    write `docker compose ps -a` and the logs of every service of the
 #                      stack to DIR (created), with the values of the secrets of fixture.env
 #                      replaced by `[redacted NAME]`
@@ -295,6 +299,11 @@ case "$cmd" in
         BBB_SHARED_SECRET="$(sed -n 's/^BBB_SHARED_SECRET=//p' "$HERE/fixture.env")" \
             "$HERE/recording-e2e.sh" --src "$SRC" --docker "$DOCKER_CMD" \
             --compose "$COMPOSE_PREFIX $COMPOSE_ARGS" --pki-volume "$PKI_VOLUME" "$@"
+        ;;
+    dev-check)
+        require_running
+        "$HERE/dev-check.sh" --docker "$DOCKER_CMD" --image "localhost/bbb-web:$TAG" \
+            --compose "$COMPOSE_PREFIX $COMPOSE_ARGS -f $SRC/compose.dev.yml" "$@"
         ;;
     diagnostics) [ $# -eq 1 ] || usage; require_running; diagnostics "$1" ;;
     compose) require_running; compose "$@" ;;

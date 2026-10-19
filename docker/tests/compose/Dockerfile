@@ -2,6 +2,8 @@
 # which stages a minimal build context:
 #   bbb-yq-go/            build.sh and bbb-yq-go.sha256sum from build/packages-template/bbb-yq-go
 #   compose/              docker/tests/compose
+#   repo/                 docker-compose.yml, compose.dev.yml and, if run.sh could resolve it,
+#                         bake.json (`docker buildx bake --print default`)
 
 # ubuntu:24.04
 FROM docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55 AS tools
@@ -39,6 +41,7 @@ FROM docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d
 
 COPY --from=tools /usr/local/bin/yq /usr/local/bin/docker-compose /usr/local/bin/
 COPY compose/ /src/docker/tests/compose/
+COPY repo/ /src/
 
 USER 65534:65534
 WORKDIR /src

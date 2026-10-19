@@ -6,7 +6,8 @@
 #   BBB_TEST_IMAGE=<name:tag>        image name (default: bbb-compose-assert-test:local)
 #
 # Runs the interface tests (test-assert-compose.sh), then the additional tests
-# (test-assert-compose-extra.sh). Exits 0 only if both pass.
+# (test-assert-compose-extra.sh), then the check of the development override with its tests
+# (test-check-dev.sh). Exits 0 only if all pass.
 
 set -euo pipefail
 
@@ -35,6 +36,19 @@ mkdir -p "$CTX/bbb-yq-go"
 cp "$HERE/Dockerfile" "$CTX/"
 cp "$YQ_PKG/build.sh" "$YQ_PKG/bbb-yq-go.sha256sum" "$CTX/bbb-yq-go/"
 cp -R "$HERE" "$CTX/compose"
+# The development override with the production file, for check-dev.sh; and the bake definition
+# as `bake --print` resolves it, where docker buildx is available (else that comparison is
+# skipped).
+mkdir -p "$CTX/repo"
+cp "$REPO/docker-compose.yml" "$REPO/compose.dev.yml" "$CTX/repo/"
+BAKE_ARGS=()
+if [ "$ENGINE" = docker ] && docker buildx version >/dev/null 2>&1; then
+    bake_files=(-f docker-bake.hcl)
+    for f in "$REPO"/docker/bake/*.hcl; do bake_files+=(-f "docker/bake/$(basename "$f")"); done
+    (cd "$REPO" && docker buildx bake "${bake_files[@]}" --print default) >"$CTX/repo/bake.json" 2>"$CTX/bake.err" \
+        || { cat "$CTX/bake.err" >&2; echo "docker buildx bake --print failed" >&2; exit 1; }
+    BAKE_ARGS=(--bake-json /src/bake.json)
+fi
 
 echo "Building $IMAGE with $ENGINE (yq $YQ_VERSION)"
 if ! "$ENGINE" build --build-arg "YQ_VERSION=$YQ_VERSION" -t "$IMAGE" "$CTX" >"$CTX/build.log" 2>&1; then
@@ -53,4 +67,6 @@ if [ -f "$HERE/test-assert-compose-extra.sh" ]; then
     echo "== test-assert-compose-extra.sh"
     "$ENGINE" run --rm "$IMAGE" /src/docker/tests/compose/test-assert-compose-extra.sh || rc=1
 fi
+echo "== test-check-dev.sh (compose.dev.yml)"
+"$ENGINE" run --rm "$IMAGE" /src/docker/tests/compose/test-check-dev.sh "${BAKE_ARGS[@]}" || rc=1
 exit "$rc"

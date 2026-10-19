@@ -132,7 +132,8 @@ docker buildx bake -f docker-bake.hcl $(printf -- '-f %s ' docker/bake/*.hcl) --
 echo 'BBB_IMAGE_REGISTRY=localhost' >> .env
 ```
 
-See `docker/README.md` in the repository for the build details.
+See `docker/README.md` in the repository for the build details, and its section
+"Development" for running the stack from the source with `compose.dev.yml`.
 
 ### 4. Start BigBlueButton
 

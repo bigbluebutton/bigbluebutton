@@ -1,0 +1,437 @@
+# Development override for docker-compose.yml; never use it in a deployment. Use both files:
+#
+#   docker compose -f docker-compose.yml -f compose.dev.yml build
+#   docker compose -f docker-compose.yml -f compose.dev.yml up -d
+#
+# with BBB_IMAGE_REGISTRY=localhost in .env, so that the images built here get the names that
+# `docker buildx bake` gives them and never those of the published images.
+#
+# 1. Every image of the stack gets a `build:` entry with the context, the named contexts and the
+#    arguments of its bake target (docker/bake/<image>.hcl). The build stages that bake builds
+#    as targets (the Java base, bbb-common-message, bbb-common-web) and the images of the two
+#    builders below are services with `scale: 0`: built with the other images (images name them
+#    as `service:<name>` contexts) and never started. A service in a disabled profile could not
+#    be named as a context.
+# 2. Three development loops, as close to the bare-metal ones of the development guide
+#    (docs/docs/development/dev-guide.md) as containers allow; docker/README.md, "Development":
+#    - html5 client: webpack-dev-server (`npm start`) with hot reload from the bind-mounted
+#      bigbluebutton-html5/, behind the html5 service's nginx with the package's development
+#      location (bbb-html5.nginx.dev), as run-dev.sh switches it on bare metal.
+#    - bbb-web: `docker compose ... run --rm bbb-web-build` builds the WAR from the
+#      bind-mounted bigbluebutton-web/ and deploys it into the volume that bbb-web runs from, as
+#      deploy_to_usr_share.sh deploys it to /usr/share/bbb-web; then restart bbb-web.
+#    - akka-apps: `docker compose ... run --rm akka-apps-build` stages the bind-mounted
+#      akka-bbb-apps/ with sbt (as run.sh does) into the volume that akka-apps runs from; then
+#      restart akka-apps.
+
+x-entrypoint-lib: &entrypoint-lib
+  entrypoint-lib: ./docker/lib
+
+services:
+  # Build stages (bake targets without an image of their own).
+  java-base:
+    scale: 0
+    build:
+      context: ./docker/java-base
+      additional_contexts:
+        <<: *entrypoint-lib
+
+  bbb-common-message:
+    scale: 0
+    build:
+      context: ./bbb-common-message
+
+  bbb-common-web:
+    scale: 0
+    build:
+      context: ./bbb-common-web
+      additional_contexts:
+        bbb-common-message: service:bbb-common-message
+
+  haproxy:
+    build:
+      context: ./docker/haproxy
+      additional_contexts:
+        <<: *entrypoint-lib
+
+  certbot:
+    build:
+      context: ./docker/certbot
+      additional_contexts:
+        <<: *entrypoint-lib
+
+  # The edge nginx passes the WebSocket of webpack-dev-server's hot reload (/html5client/ws) on
+  # to the html5 service: the image's location for /html5client proxies without the Upgrade
+  # headers, so its template is replaced by one with the headers of the package's development
+  # location (bbb-html5.nginx.dev). The entrypoint renders it as usual. Docker Compose writes an
+  # inline config into the container before it starts, which a read-only root filesystem refuses
+  # ("cannot create config ... in read-only service"), so nginx runs without one here.
+  nginx:
+    build:
+      context: ./docker/nginx
+      additional_contexts:
+        <<: *entrypoint-lib
+        packages: ./build/packages-template
+        bigbluebutton-web: ./bigbluebutton-web
+        learning-dashboard: ./bbb-learning-dashboard
+        rap-presentation: ./record-and-playback/presentation/scripts
+        bigbluebutton-config: ./bigbluebutton-config
+    read_only: false
+    configs:
+      - source: nginx-html5-dev-location
+        target: /usr/local/share/bbb/nginx/fragments/bbb-html5.nginx.static
+        mode: 0444
+
+  # The production image's nginx with the package's development location instead of the static
+  # one (run-dev.sh: bbb-html5.nginx -> bbb-html5.nginx.dev): /html5client/ goes to
+  # webpack-dev-server on localhost:3000 (html5-dev, in this container's network namespace),
+  # the locales come from the source at the path that location reads them from. Healthy once
+  # webpack-dev-server has compiled the client.
+  html5:
+    build:
+      context: ./bigbluebutton-html5
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-config: ./bigbluebutton-config
+        packages: ./build/packages-template
+      args:
+        # the client build identifier, as the bake variable (docker/README.md, "Building")
+        COMMIT_DATE: ${COMMIT_DATE:-}
+    volumes:
+      - ./build/packages-template/bbb-html5/bbb-html5.nginx.dev:/usr/share/bigbluebutton/nginx/bbb-html5.nginx:ro
+      - ./bigbluebutton-html5:/home/bigbluebutton/src/bigbluebutton-html5:ro
+    healthcheck:
+      start_period: 900s
+      start_interval: 5s
+
+  # The node_modules volume of html5-dev, owned by the node image's user `node`: a new volume
+  # mounted at a path the image does not have is owned by root. Runs once before html5-dev.
+  html5-dev-volume:
+    # node:24.22.0-slim, as html5-dev
+    image: docker.io/library/node@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5
+    restart: "no"
+    network_mode: none
+    user: "0:0"
+    cap_drop: [ALL]
+    cap_add: [CHOWN]
+    volumes:
+      - html5-dev-node-modules:/node_modules
+    command: ["chown", "node:node", "/node_modules"]
+
+  # webpack-dev-server of the html5 client (`npm start`, port 3000) on the bind-mounted source,
+  # as the node image's user `node`, with node_modules in a volume (installed from
+  # package-lock.json when it does not match). It only reads the source; the source is mounted
+  # writable so that Docker can create the volume's mount point, the empty directory
+  # bigbluebutton-html5/node_modules (ignored by git), in the working tree if it is missing.
+  # Shares the network namespace of html5, so the development location reaches it at
+  # localhost:3000 as on bare metal; recreate it when html5 is recreated.
+  html5-dev:
+    # node:24.22.0-slim, the build stage of bigbluebutton-html5/Dockerfile
+    image: docker.io/library/node@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5
+    restart: unless-stopped
+    user: node
+    network_mode: service:html5
+    depends_on:
+      html5-dev-volume:
+        condition: service_completed_successfully
+    working_dir: /home/bigbluebutton/src/bigbluebutton-html5
+    volumes:
+      - ./bigbluebutton-html5:/home/bigbluebutton/src/bigbluebutton-html5
+      - html5-dev-node-modules:/home/bigbluebutton/src/bigbluebutton-html5/node_modules
+    command:
+      - bash
+      - -ec
+      - |
+        if ! npm ls --depth=0 >/dev/null 2>&1; then
+            echo "Running npm ci..."
+            CI=true npm ci
+        fi
+        exec npm start
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 900s
+      start_interval: 5s
+      retries: 3
+
+  learning-dashboard:
+    build:
+      context: ./bbb-learning-dashboard
+      additional_contexts:
+        <<: *entrypoint-lib
+
+  playback:
+    build:
+      context: ./docker/bbb-playback
+      additional_contexts:
+        <<: *entrypoint-lib
+        packages: ./build/packages-template
+        # bbb-playback v5.4.8 (docker/bake/bbb-playback.hcl)
+        bbb-playback: https://github.com/bigbluebutton/bbb-playback.git#1e3b6c202d2a6e285db45e7f7a9e21b77309e686
+      args:
+        BBB_PLAYBACK_BUILD: 1e3b6c2
+
+  # bbb-web runs from the volumes bbb-web-dev and bbb-web-dev-prescheck, which start as copies of
+  # the image's /usr/share/bbb-web and /usr/share/prescheck and hold the last build of
+  # bbb-web-build from then on. The
+  # bigbluebutton.properties that the entrypoint renders comes from the source.
+  bbb-web:
+    build:
+      context: ./bigbluebutton-web
+      additional_contexts:
+        java-base: service:java-base
+        bbb-common-web: service:bbb-common-web
+        bbb-web-package: ./build/packages-template/bbb-web
+        slides: ./bigbluebutton-config/slides
+        html5-client: service:html5
+    volumes:
+      - bbb-web-dev:/usr/share/bbb-web:ro
+      - bbb-web-dev-prescheck:/usr/share/prescheck:ro
+      - ./bigbluebutton-web/grails-app/conf/bigbluebutton.properties:/usr/local/share/bbb/bbb-web/bigbluebutton.properties:ro
+
+  # The image of bbb-web-build: the build stage of the bbb-web image (JDK 21, Gradle,
+  # bbb-common-web in ~/.m2, the dependencies and build outputs of the image build). Built with
+  # the other images and never started. A service of its own, because `run` rebuilds the image of
+  # the service it runs, and every `service:` context of it, before starting it.
+  bbb-web-build-stage:
+    scale: 0
+    image: localhost/bbb-web-build:dev
+    build:
+      context: ./bigbluebutton-web
+      target: build
+      additional_contexts:
+        bbb-common-web: service:bbb-common-web
+
+  # Builds bbb-web from the bind-mounted source and deploys it into bbb-web-dev, as
+  # deploy_to_usr_share.sh does: `gradle assemble` (incremental over the outputs of the image
+  # build), the WAR unpacked, with the image's changes to the classpath
+  # (bigbluebutton-web/Dockerfile). The presentation checker of the image build goes into
+  # bbb-web-dev-prescheck with its jars linked to the new WAR's copies where they are the same,
+  # as the Dockerfile links them, so no link points to a jar the new WAR no longer has.
+  # Run-only: `run --rm bbb-web-build`, then restart bbb-web.
+  bbb-web-build:
+    profiles: [dev-build]
+    labels:
+      org.bigbluebutton.run-only: "true"
+    image: localhost/bbb-web-build:dev
+    volumes:
+      - ./bigbluebutton-web:/src/bigbluebutton-web:ro
+      - bbb-web-dev:/deploy
+      - bbb-web-dev-prescheck:/deploy-prescheck
+    command:
+      - bash
+      - -euo
+      - pipefail
+      - -c
+      - |
+        cd /bbb-web
+        rm -rf grails-app src
+        tar -C /src/bigbluebutton-web --exclude=./build --exclude=./.gradle --exclude=./lib \
+            --exclude=./exploded --exclude=./pres-checker --exclude=./docker --exclude=./Dockerfile \
+            -cf - . | tar -xf -
+        gradle --no-daemon assemble
+        war=/tmp/bbb-web
+        rm -rf "$$war"
+        unzip -q build/libs/bigbluebutton-0.10.0.war -d "$$war"
+        classes="$$war/WEB-INF/classes"
+        rm "$$classes/bigbluebutton.properties" "$$classes/spring/turn-stun-servers.xml"
+        ln -s /run/bbb-web/bigbluebutton.properties "$$classes/bigbluebutton.properties"
+        ln -s /run/bbb-web/spring/turn-stun-servers.xml "$$classes/spring/turn-stun-servers.xml"
+        sed -i -e '/<appender name="FILE"/,/<\/appender>/d' -e '/<appender-ref ref="FILE"/d' "$$classes/logback.xml"
+        if grep -q FILE "$$classes/logback.xml"; then echo "logback.xml: file appender not removed" >&2; exit 1; fi
+        install -m 0755 /src/bigbluebutton-web/docker/run-in-systemd.sh "$$war/run-in-systemd.sh"
+        chmod -R a+rX,go-w "$$war"
+        prescheck=/tmp/prescheck
+        rm -rf "$$prescheck"
+        cp -rL /staging/usr/share/prescheck "$$prescheck"
+        for jar in "$$prescheck"/lib/*.jar; do
+            name="$$(basename "$$jar")"
+            if cmp -s "$$jar" "$$war/WEB-INF/lib/$$name"; then
+                ln -sf "../../bbb-web/WEB-INF/lib/$$name" "$$jar"
+            fi
+        done
+        find /deploy /deploy-prescheck -mindepth 1 -delete
+        cp -a "$$war/." /deploy/
+        cp -a "$$prescheck/." /deploy-prescheck/
+        echo "bbb-web deployed; restart it: docker compose -f docker-compose.yml -f compose.dev.yml restart bbb-web"
+
+  # akka-apps runs from the volume akka-apps-dev, which starts as a copy of the image's
+  # /usr/share/bbb-apps-akka and holds the last build of akka-apps-build from then on.
+  akka-apps:
+    build:
+      context: ./akka-bbb-apps
+      additional_contexts:
+        java-base: service:java-base
+        bbb-common-message: service:bbb-common-message
+        html5-client: service:html5
+    volumes:
+      - akka-apps-dev:/usr/share/bbb-apps-akka:ro
+
+  # The image of akka-apps-build: the build stage of the akka-apps image (sbt, JDK 21,
+  # bbb-common-message in the local repositories, the dependencies and compiled classes of the
+  # image build); as bbb-web-build-stage.
+  akka-apps-build-stage:
+    scale: 0
+    image: localhost/bbb-apps-akka-build:dev
+    build:
+      context: ./akka-bbb-apps
+      target: build
+      additional_contexts:
+        bbb-common-message: service:bbb-common-message
+
+  # Stages akka-apps from the bind-mounted source into akka-apps-dev (`sbt Universal/stage`,
+  # incremental, as run.sh stages it before starting it), with the image's changes to conf/
+  # (akka-bbb-apps/Dockerfile). Run-only: `run --rm akka-apps-build`, then restart akka-apps.
+  akka-apps-build:
+    profiles: [dev-build]
+    labels:
+      org.bigbluebutton.run-only: "true"
+    image: localhost/bbb-apps-akka-build:dev
+    volumes:
+      - ./akka-bbb-apps:/src/akka-bbb-apps:ro
+      - akka-apps-dev:/deploy
+    command:
+      - bash
+      - -euo
+      - pipefail
+      - -c
+      - |
+        cd /bbb-apps-akka
+        rm -rf src target/universal/stage
+        tar -C /src/akka-bbb-apps --exclude=project/target --exclude=project/project \
+            -cf - build.sbt project src | tar -xf -
+        sbt Universal/stage
+        cd target/universal/stage/conf
+        git apply --verbose /src/akka-bbb-apps/docker/application.conf.patch
+        sed -i '/<appender name="FILE"/,/<\/appender>/d; /<appender-ref ref="FILE"/d' logback.xml
+        if grep -q FILE logback.xml; then echo "logback.xml: file appender not removed" >&2; exit 1; fi
+        rm ../bin/bbb-apps-akka.bat
+        chmod 0644 ./*
+        chmod 0755 ../bin/bbb-apps-akka
+        find /deploy -mindepth 1 -delete
+        cp -a ../. /deploy/
+        echo "akka-apps deployed; restart it: docker compose -f docker-compose.yml -f compose.dev.yml restart akka-apps"
+
+  graphql-server:
+    build:
+      context: ./bbb-graphql-server
+      additional_contexts:
+        <<: *entrypoint-lib
+        graphql-server-pkg: ./build/packages-template/bbb-graphql-server
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+
+  graphql-middleware:
+    build:
+      context: ./bbb-graphql-middleware
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+
+  graphql-actions:
+    build:
+      context: ./bbb-graphql-actions
+
+  shared-notes:
+    build:
+      context: ./bbb-shared-notes-server
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+
+  export-annotations:
+    build:
+      context: ./bbb-export-annotations
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+        fonts: ./build/packages-template/bbb-export-annotations/fonts
+        slides: ./bigbluebutton-config/slides
+
+  postgres:
+    build:
+      context: ./docker/postgres
+      additional_contexts:
+        graphql-server-pkg: ./build/packages-template/bbb-graphql-server
+
+  db-init:
+    build:
+      context: ./docker/db-init
+      additional_contexts:
+        <<: *entrypoint-lib
+        graphql-server: ./bbb-graphql-server
+        shared-notes-server: ./bbb-shared-notes-server
+
+  setup:
+    build:
+      context: ./docker/setup
+      additional_contexts:
+        <<: *entrypoint-lib
+        contract: ./docker
+
+  livekit:
+    build:
+      context: ./docker/livekit
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-livekit: ./build/packages-template/bbb-livekit
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+
+  bbb-webrtc-sfu:
+    build:
+      context: ./docker/bbb-webrtc-sfu
+      additional_contexts:
+        <<: *entrypoint-lib
+
+  bbb-webrtc-recorder:
+    build:
+      context: ./docker/bbb-webrtc-recorder
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+
+  coturn:
+    build:
+      context: ./docker/coturn
+      additional_contexts:
+        <<: *entrypoint-lib
+
+  # The four recording services run one image; each has the build so that any of them can be
+  # built or started alone.
+  recording:
+    build: &record-and-playback-build
+      context: ./record-and-playback
+      additional_contexts:
+        <<: *entrypoint-lib
+        bbb-yq-go: ./build/packages-template/bbb-yq-go
+        bbb-mkclean: ./build/packages-template/bbb-mkclean
+        bigbluebutton-config: ./bigbluebutton-config
+        bbb-web-docker: ./bigbluebutton-web/docker
+        bbb-web-conf: ./bigbluebutton-web/grails-app/conf
+
+  recording-starter:
+    build: *record-and-playback-build
+
+  recording-caption-inbox:
+    build: *record-and-playback-build
+
+  recording-cleanup:
+    build: *record-and-playback-build
+
+configs:
+  nginx-html5-dev-location:
+    content: |
+      # development (compose.dev.yml): the html5 service runs webpack-dev-server
+      location /html5client {
+          proxy_pass http://html5;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $$http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_set_header Host $$host;
+      }
+
+volumes:
+  html5-dev-node-modules:
+  bbb-web-dev:
+  bbb-web-dev-prescheck:
+  akka-apps-dev:
