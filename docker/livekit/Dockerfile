@@ -57,13 +57,14 @@ RUN grep -qE '^[[:space:]]+github.com/livekit/psrpc v0\.7\.7$' go.mod || { \
     && go mod edit -replace github.com/livekit/psrpc=./third_party/psrpc
 
 # Upstream builds with `mage`, which regenerates pkg/service/wire_gen.go and runs `go build`
-# in cmd/server. Regenerate it here too and require the committed file, then build.
+# in cmd/server. Regenerate it here too and require the committed file, then build, without
+# the symbol table and DWARF data (-s -w; panics still print stack traces).
 # DL3062: wire's version is pinned by livekit's go.mod and go.sum.
 # hadolint ignore=DL3062
 RUN cp pkg/service/wire_gen.go /tmp/wire_gen.go \
     && go run github.com/google/wire/cmd/wire gen ./pkg/service \
     && cmp /tmp/wire_gen.go pkg/service/wire_gen.go \
-    && go build -trimpath -o /build/livekit-server ./cmd/server \
+    && go build -trimpath -ldflags "-s -w" -o /build/livekit-server ./cmd/server \
     && go version -m /build/livekit-server | grep -A1 -F 'github.com/livekit/psrpc' \
     && /build/livekit-server --version
 
