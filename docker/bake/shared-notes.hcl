@@ -4,9 +4,8 @@ target "_shared-notes-tags" {
 
 target "shared-notes" {
     inherits = ["_shared-notes-tags", "docker-metadata-action", "_entrypoint-lib"]
-    # amd64 only: upstream's yq checksum file (build/packages-template/bbb-yq-go) covers amd64 only
-    # (bbb-shared-notes-server/Dockerfile, TARGETARCH check).
-    platforms = ["linux/amd64"]
+    # yq for TARGETARCH from bbb-yq-go (amd64 and arm64).
+    platforms = compact(split(",", BBB_PLATFORMS))
     context = "./bbb-shared-notes-server"
     contexts = {
         bbb-yq-go = "./build/packages-template/bbb-yq-go"

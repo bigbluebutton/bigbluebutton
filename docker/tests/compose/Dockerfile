@@ -9,25 +9,30 @@ FROM docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d
 # yq as upstream packages it: same version, verified against upstream's checksum file.
 # run.sh passes the version from build/packages-template/bbb-yq-go/build.sh.
 ARG YQ_VERSION=4.53.2
-ADD https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 /yq/yq_linux_amd64
+ARG TARGETARCH
+ADD https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${TARGETARCH} /yq/yq_linux_${TARGETARCH}
 COPY bbb-yq-go/bbb-yq-go.sha256sum /yq/
 
-# Docker Compose standalone binary (only `config` is used). Last v2 release; the checksum is the
-# docker-compose-linux-x86_64 line of the release's checksums.txt.
+# Docker Compose standalone binary (only `config` is used). Last v2 release; checksums are the
+# docker-compose-linux-{x86_64,aarch64} lines of the release's checksums.txt. Both assets are
+# ADDed so BuildKit can resolve the URL without a shell; only the matching one is installed.
 ARG COMPOSE_VERSION=2.40.3
-ARG COMPOSE_SHA256=dba9d98e1ba5bfe11d88c99b9bd32fc4a0624a30fafe68eea34d61a3e42fd372
-ADD https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64 /compose/docker-compose
+ARG COMPOSE_SHA256_AMD64=dba9d98e1ba5bfe11d88c99b9bd32fc4a0624a30fafe68eea34d61a3e42fd372
+ARG COMPOSE_SHA256_ARM64=d26373b19e89160546d15407516cc59f453030d9bc5b43ba7faf16f7b4980137
+ADD https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64 /compose/docker-compose-linux-x86_64
+ADD https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-aarch64 /compose/docker-compose-linux-aarch64
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /yq
-RUN arch="$(dpkg --print-architecture)" \
-    && if [ "$arch" != "amd64" ]; then \
-        echo "upstream bbb-yq-go.sha256sum only covers amd64, not $arch" >&2; exit 1; \
-    fi \
+RUN case "$TARGETARCH" in \
+        amd64) yq_asset="yq_linux_amd64"; compose_asset=docker-compose-linux-x86_64; compose_sha="$COMPOSE_SHA256_AMD64" ;; \
+        arm64) yq_asset="yq_linux_arm64"; compose_asset=docker-compose-linux-aarch64; compose_sha="$COMPOSE_SHA256_ARM64" ;; \
+        *) echo "unsupported TARGETARCH=$TARGETARCH" >&2; exit 1 ;; \
+    esac \
     && sha256sum -c --ignore-missing --strict bbb-yq-go.sha256sum \
-    && echo "${COMPOSE_SHA256}  /compose/docker-compose" | sha256sum -c --strict \
-    && install -m 0755 /yq/yq_linux_amd64 /usr/local/bin/yq \
-    && install -m 0755 /compose/docker-compose /usr/local/bin/docker-compose
+    && echo "${compose_sha}  /compose/${compose_asset}" | sha256sum -c --strict \
+    && install -m 0755 "/yq/${yq_asset}" /usr/local/bin/yq \
+    && install -m 0755 "/compose/${compose_asset}" /usr/local/bin/docker-compose
 
 # ubuntu:24.04
 FROM docker.io/library/ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55

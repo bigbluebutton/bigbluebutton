@@ -4,10 +4,9 @@ target "_graphql-middleware-tags" {
 
 target "graphql-middleware" {
     inherits = ["_graphql-middleware-tags", "docker-metadata-action", "_entrypoint-lib"]
-    # amd64 only in CI: the config stage runs on the build platform and needs upstream's yq,
-    # whose checksum file (build/packages-template/bbb-yq-go) covers amd64 only. Cross-building
-    # arm64 on an amd64 host works; CI builds every platform natively.
-    platforms = ["linux/amd64"]
+    # The config stage runs on BUILDPLATFORM and needs yq for BUILDARCH; bbb-yq-go covers
+    # amd64 and arm64 (build/packages-template/bbb-yq-go).
+    platforms = compact(split(",", BBB_PLATFORMS))
     context = "./bbb-graphql-middleware"
     contexts = {
         bbb-yq-go = "./build/packages-template/bbb-yq-go"

@@ -66,8 +66,9 @@ the string `true`.
 
 The test image (`Dockerfile`) is ubuntu:24.04 pinned by digest, with yq as upstream packages it
 (version from `build/packages-template/bbb-yq-go/build.sh`, checked against
-`bbb-yq-go.sha256sum`) and the Docker Compose standalone binary v2.40.3 (checked against the
-release's `checksums.txt`; only `config` is used). The image runs as nobody.
+`bbb-yq-go.sha256sum` for amd64 or arm64) and the Docker Compose standalone binary v2.40.3
+(checked against the matching `docker-compose-linux-{x86_64,aarch64}` line of the release's
+`checksums.txt`; only `config` is used). The image runs as nobody.
 
 ```bash
 docker/tests/compose/run.sh                      # docker if installed, else podman

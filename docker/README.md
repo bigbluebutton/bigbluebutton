@@ -502,9 +502,9 @@ a `dev-` prefix), `sha-<short sha>` and, for release tags, `<version>`, `<major>
 `<major>`. Pull requests that change image files build everything without pushing.
 
 **Platforms** are set per image in `docker/bake/<image>.hcl`. An image that builds only for
-amd64 sets `platforms = ["linux/amd64"]` with the reason in a comment (today graphql-server,
-graphql-middleware, livekit, shared-notes, export-annotations and record-and-playback); every
-other image sets `platforms = compact(split(",", BBB_PLATFORMS))`. The bake variable `BBB_PLATFORMS`
+amd64 sets `platforms = ["linux/amd64"]` with the reason in a comment (today graphql-server
+and record-and-playback); every other image sets `platforms = compact(split(",", BBB_PLATFORMS))`.
+The bake variable `BBB_PLATFORMS`
 is empty by default, so local builds are for the host's platform; CI sets it to
 `linux/amd64,linux/arm64` to read the list:
 

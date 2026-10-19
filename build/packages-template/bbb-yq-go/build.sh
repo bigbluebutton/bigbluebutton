@@ -13,7 +13,7 @@ YQ_VERSION=4.53.2
 # Map the build-host architecture to the upstream release asset name.
 ARCH=$(dpkg --print-architecture)
 case "$ARCH" in
-  amd64) ASSET=yq_linux_amd64 ;;
+  amd64|arm64) ASSET="yq_linux_${ARCH}" ;;
   *) echo "bbb-yq-go: unsupported architecture '$ARCH'" >&2; exit 1 ;;
 esac
 

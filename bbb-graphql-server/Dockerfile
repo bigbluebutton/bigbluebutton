@@ -60,14 +60,18 @@ RUN curl -fsSL -o hasura "https://github.com/hasura/graphql-engine/releases/down
     && HOME=/tmp ./hasura version --skip-update-check
 
 # yq as upstream packages it (bbb-yq-go): version from its build.sh, verified against its
-# checksum file (amd64 only, like upstream).
+# checksum file (amd64 and arm64). This image stays amd64-only because of the iMDT engine.
 # hadolint ignore=DL3022
 COPY --from=bbb-yq-go build.sh bbb-yq-go.sha256sum /build/yq/
 WORKDIR /build/yq
-RUN yq_version="$(sed -n 's/^YQ_VERSION=//p' build.sh)" \
-    && curl -fsSLO "https://github.com/mikefarah/yq/releases/download/v${yq_version}/yq_linux_amd64" \
-    && grep ' yq_linux_amd64$' bbb-yq-go.sha256sum | sha256sum -c - \
-    && install -m 0755 yq_linux_amd64 /usr/local/bin/yq
+RUN case "$TARGETARCH" in \
+        amd64|arm64) asset="yq_linux_${TARGETARCH}" ;; \
+        *) echo "bbb-yq-go.sha256sum has no entry for $TARGETARCH" >&2; exit 1 ;; \
+    esac \
+    && yq_version="$(sed -n 's/^YQ_VERSION=//p' build.sh)" \
+    && curl -fsSLO "https://github.com/mikefarah/yq/releases/download/v${yq_version}/${asset}" \
+    && grep " ${asset}$" bbb-yq-go.sha256sum | sha256sum -c - \
+    && install -m 0755 "$asset" /usr/local/bin/yq
 
 # The env file /etc/default/bbb-graphql-server as a template: the packaged hasura-config.env
 # with the container wiring (postgres, akka-apps, graphql-actions instead of 127.0.0.1) and

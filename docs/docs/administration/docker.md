@@ -32,10 +32,9 @@ so you never edit files inside the containers. Why the stack is built this way i
 
 - A Linux server with Docker Engine and the Docker Compose plugin **2.24.4 or later**. Check
   with `docker compose version`. The stack is tested with Docker Engine running as root.
-- An x86-64 (amd64) server. The images graphql-server, graphql-middleware, livekit,
-  shared-notes and export-annotations are built and published for amd64 only (their
-  `docker/bake/<image>.hcl` gives the reason); the other images built here are also published
-  for arm64.
+- An x86-64 (amd64) server. The graphql-server image is built and published for amd64 only
+  (its engine binary is x86-64 only; see `docker/bake/graphql-server.hcl`); the other images
+  built here are also published for arm64.
 - For building the images yourself: the Docker Buildx plugin. A build is for the platform of
   the host it runs on, except for the amd64-only images above.
 - A fully qualified domain name, for example `bbb.example.com`, with an A record that points to

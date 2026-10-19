@@ -4,9 +4,8 @@ target "_livekit-tags" {
 
 target "livekit" {
     inherits = ["_livekit-tags", "docker-metadata-action", "_entrypoint-lib"]
-    # amd64 only: upstream's yq checksum file (build/packages-template/bbb-yq-go) covers amd64 only
-    # (docker/livekit/Dockerfile, TARGETARCH check).
-    platforms = ["linux/amd64"]
+    # yq for TARGETARCH from bbb-yq-go (amd64 and arm64).
+    platforms = compact(split(",", BBB_PLATFORMS))
     context = "./docker/livekit"
     contexts = {
         bbb-livekit = "./build/packages-template/bbb-livekit"

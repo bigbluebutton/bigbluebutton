@@ -34,25 +34,26 @@ RUN CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" \
 
 
 # alpine:3.24.1. The config is the same on every architecture, so this stage runs on the
-# build platform, where upstream's yq (amd64 only) works.
+# build platform and needs a yq binary for BUILDARCH (not TARGETARCH).
 FROM --platform=$BUILDPLATFORM docker.io/library/alpine@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS config
 
 ARG BUILDARCH
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 # yq as upstream packages it (bbb-yq-go): version from its build.sh, verified against its
-# checksum file.
+# checksum file (amd64 and arm64).
 # DL3022: bbb-yq-go is a named build context, not a stage.
 # hadolint ignore=DL3022
 COPY --from=bbb-yq-go build.sh bbb-yq-go.sha256sum /build/yq/
 WORKDIR /build/yq
-RUN if [ "$BUILDARCH" != "amd64" ]; then \
-        echo "upstream bbb-yq-go.sha256sum only covers amd64, not $BUILDARCH" >&2; exit 1; \
-    fi \
+RUN case "$BUILDARCH" in \
+        amd64|arm64) asset="yq_linux_${BUILDARCH}" ;; \
+        *) echo "bbb-yq-go.sha256sum has no entry for $BUILDARCH" >&2; exit 1 ;; \
+    esac \
     && yq_version="$(sed -n 's/^YQ_VERSION=//p' build.sh)" \
-    && wget -q "https://github.com/mikefarah/yq/releases/download/v${yq_version}/yq_linux_amd64" \
-    && grep ' yq_linux_amd64$' bbb-yq-go.sha256sum | sha256sum -c - \
-    && install -m 0755 yq_linux_amd64 /usr/local/bin/yq
+    && wget -q "https://github.com/mikefarah/yq/releases/download/v${yq_version}/${asset}" \
+    && grep " ${asset}$" bbb-yq-go.sha256sum | sha256sum -c - \
+    && install -m 0755 "$asset" /usr/local/bin/yq
 
 # Container wiring: only the addresses change, keys, comments and all other values stay as
 # shipped. listen_host 0.0.0.0, because nginx (/graphql) and akka-apps connect from other

@@ -55,18 +55,19 @@ RUN mv ../src/dist/index.js bbb-shared-notes-server.js \
     && npm cache clean --force
 
 # yq as upstream packages it (bbb-yq-go): version from its build.sh, verified against its
-# checksum file (amd64 only, like upstream).
+# checksum file (amd64 and arm64).
 # DL3022: bbb-yq-go is a named build context, not a stage.
 # hadolint ignore=DL3022
 COPY --from=bbb-yq-go build.sh bbb-yq-go.sha256sum /build/yq/
 WORKDIR /build/yq
-RUN if [ "$TARGETARCH" != "amd64" ]; then \
-        echo "upstream bbb-yq-go.sha256sum only covers amd64, not $TARGETARCH" >&2; exit 1; \
-    fi \
+RUN case "$TARGETARCH" in \
+        amd64|arm64) asset="yq_linux_${TARGETARCH}" ;; \
+        *) echo "bbb-yq-go.sha256sum has no entry for $TARGETARCH" >&2; exit 1 ;; \
+    esac \
     && yq_version="$(sed -n 's/^YQ_VERSION=//p' build.sh)" \
-    && curl -fsSLO "https://github.com/mikefarah/yq/releases/download/v${yq_version}/yq_linux_amd64" \
-    && grep ' yq_linux_amd64$' bbb-yq-go.sha256sum | sha256sum -c - \
-    && install -m 0755 yq_linux_amd64 /usr/local/bin/yq
+    && curl -fsSLO "https://github.com/mikefarah/yq/releases/download/v${yq_version}/${asset}" \
+    && grep " ${asset}$" bbb-yq-go.sha256sum | sha256sum -c - \
+    && install -m 0755 "$asset" /usr/local/bin/yq
 
 # The PDF converter's network sandbox (docker/run-in-systemd.sh), statically linked.
 COPY docker/no-network.c /build/no-network/

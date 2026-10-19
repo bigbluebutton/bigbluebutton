@@ -375,9 +375,9 @@ of the image's golden case, and the list is kept short. The kinds of differences
   existing reverse proxy, Greenlight, monitoring, a preflight check and phone dial-in follow.
   The `record-and-playback` image is not yet in the bake `default` group; its Dockerfile is
   still the earlier one and is not pinned by digest.
-- Some images build for amd64 only: graphql-server (its engine binary is x86-64 only) and the
-  images that need upstream's yq checksums, which cover amd64 only (livekit, shared-notes,
-  export-annotations, graphql-middleware in CI).
+- graphql-server builds for amd64 only (its iMDT engine binary is x86-64 only). Other images
+  use `BBB_PLATFORMS` and publish for amd64 and arm64; yq comes from `bbb-yq-go`, which pins
+  both architectures.
 - The upstream images of bbb-webrtc-sfu and bbb-webhooks run Node 22, not Node 24. They are
   trusted as upstream's CI publishes them; the digest pin is the integrity anchor.
 - Meetings created while haproxy still serves its self-signed certificate start without the
