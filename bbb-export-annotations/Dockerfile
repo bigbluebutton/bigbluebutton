@@ -24,8 +24,13 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Build tools only; this stage is not part of the image.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && apt-get install -y --no-install-recommends binutils ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
+
+# The node binary of this image without its symbol table and debug sections.
+RUN install -d /build/node \
+    && strip -o /build/node/node /usr/local/bin/node \
+    && /build/node/node --version
 
 # Same steps as build/packages-template/bbb-export-annotations/build.sh: the source tree with
 # its production dependencies (`npm install --production`; npm ci installs the same from the
@@ -66,7 +71,7 @@ RUN apt-get update \
 
 # Node 24 from the official image, at the path of the distribution package that the unit runs
 # (ExecStart=/usr/bin/node).
-COPY --from=build /usr/local/bin/node /usr/bin/node
+COPY --from=build /build/node/node /usr/bin/node
 COPY --from=build /usr/local/bin/yq /usr/local/bin/yq
 COPY --from=build /build/bbb-export-annotations /usr/local/bigbluebutton/bbb-export-annotations
 
