@@ -11,8 +11,11 @@ const useUsersBasicInfoSubscription = createUseSubscription<UserBasicInfo>(
   true,
 );
 
-const useUsersBasicInfo = (fn: (c: Partial<UserBasicInfo>) => Partial<UserBasicInfo>) => {
-  const response = useUsersBasicInfoSubscription(fn);
+const useUsersBasicInfo = (
+  fn: (c: Partial<UserBasicInfo>) => Partial<UserBasicInfo>,
+  skip = false,
+) => {
+  const response = useUsersBasicInfoSubscription(fn, skip);
 
   const { data: meeting } = useMeeting((m) => ({
     meetingId: m.meetingId,
