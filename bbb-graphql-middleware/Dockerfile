@@ -28,9 +28,10 @@ RUN go mod download
 COPY cmd/ cmd/
 COPY config/ config/
 COPY internal/ internal/
-# Same build command as build/packages-template/bbb-graphql-middleware/build.sh.
+# Same build command as build/packages-template/bbb-graphql-middleware/build.sh, without the
+# symbol table and DWARF data (-s -w; panics still print stack traces).
 RUN CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" \
-        go build -o bbb-graphql-middleware cmd/bbb-graphql-middleware/main.go
+        go build -ldflags "-s -w" -o bbb-graphql-middleware cmd/bbb-graphql-middleware/main.go
 
 
 # alpine:3.24.1. The config is the same on every architecture, so this stage runs on the
