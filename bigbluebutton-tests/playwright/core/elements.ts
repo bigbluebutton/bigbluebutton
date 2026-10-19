@@ -343,8 +343,7 @@ export const elements = {
   notificationsTab: 'span[id="notificationTab"]',
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
-  // data-test moved from the <input> to the MUI Checkbox root in the settings redesign
-  userJoinPushAlerts: '[data-test="userJoinPopupAlerts"]',
+  userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
   userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',

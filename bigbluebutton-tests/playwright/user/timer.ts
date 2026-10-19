@@ -89,9 +89,17 @@ export class Timer extends MultiUsers {
     await expect
       .poll(() => this.timerInputsInSeconds(), { message: 'should count down on the timer inputs' })
       .toBeLessThan(630);
+    expect(
+      await this.timerInputsInSeconds(),
+      'should count down from the 10:30 that was set, not from the default duration',
+    ).toBeGreaterThan(600);
     await expect
       .poll(() => timeInSeconds(timerIndicatorLocator), { message: 'should count down on the timer indicator' })
       .toBeLessThan(630);
+    expect(
+      await timeInSeconds(timerIndicatorLocator),
+      'should count down on the timer indicator from the 10:30 that was set',
+    ).toBeGreaterThan(600);
 
     // stopping keeps the remaining time
     await this.clickOnTimerControl(false);
@@ -99,6 +107,7 @@ export class Timer extends MultiUsers {
     await this.checkTimeIsStopped(timerIndicatorLocator, 'should keep the timer indicator still after stopping it');
     const stoppedInputsValue = await this.timerInputsInSeconds();
     expect(stoppedInputsValue, 'should keep the remaining time on the timer inputs').toBeLessThan(630);
+    expect(stoppedInputsValue, 'should keep the remaining time on the timer inputs above 10:00').toBeGreaterThan(600);
     expect(
       Math.abs(stoppedInputsValue - (await timeInSeconds(timerIndicatorLocator))),
       'should display the same remaining time on the timer inputs and on the indicator',
@@ -118,6 +127,10 @@ export class Timer extends MultiUsers {
     await expect
       .poll(() => timeInSeconds(timerIndicatorLocator), { message: 'should count down after starting again' })
       .toBeLessThan(630);
+    expect(
+      await timeInSeconds(timerIndicatorLocator),
+      'should count down after starting again from the 10:30 it was reset to',
+    ).toBeGreaterThan(600);
     await this.modPage.waitAndClick(e.timerIndicator);
     await this.checkStartStopButtonIsStopped(
       'should switch the start/stop button to stopped after clicking on the indicator',
@@ -148,10 +161,10 @@ export class Timer extends MultiUsers {
 
   // A stopped counter must not move. Reading it once right after the stop can
   // catch the last tick before the stop lands, so allow one second of drift
-  // across a window that a running counter would exceed.
+  // across a three-second window, which a running counter would exceed.
   async checkTimeIsStopped(locator: Locator, description: string) {
     const valueWhenStopped = await timeInSeconds(locator);
-    await this.modPage.page.waitForTimeout(5000);
+    await this.modPage.page.waitForTimeout(3000);
     expect(Math.abs((await timeInSeconds(locator)) - valueWhenStopped), description).toBeLessThanOrEqual(1);
   }
 

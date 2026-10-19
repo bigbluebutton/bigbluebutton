@@ -456,7 +456,6 @@ export class LockViewers extends MultiUsers {
     // the first viewer draws a rectangle, then the moderator draws an arrow:
     // the moderator arrow reaching the second viewer proves its whiteboard is
     // receiving annotations, so the missing rectangle is the lock at work
-    await this.userPage.waitAndClick(e.wbShapesButton);
     await this.userPage.waitAndClick(e.wbRectangleShape);
     await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage.hasElementCount(e.wbDrawnShape, 1, 'should display the rectangle for the viewer who drew it');
