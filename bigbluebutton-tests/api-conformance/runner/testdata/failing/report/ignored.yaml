@@ -1,0 +1,7 @@
+id: getMeetings.report.ignored
+title: An ignored step's failure is a warning
+endpoint: getMeetings
+class: contract
+steps:
+  - {call: getMeetings, expect: {returncode: FAILED}, ignoreResult: true}
+  - {call: getMeetings, expect: {returncode: SUCCESS}}

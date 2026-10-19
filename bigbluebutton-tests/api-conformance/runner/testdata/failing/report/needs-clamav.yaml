@@ -1,0 +1,7 @@
+id: getMeetings.report.needs-clamav
+title: A case is skipped when the target lacks a capability
+endpoint: getMeetings
+class: contract
+requires: [clamav]
+steps:
+  - call: getMeetings

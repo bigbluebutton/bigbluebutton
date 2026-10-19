@@ -3,6 +3,7 @@ module github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformanc
 go 1.26.0
 
 require (
+	github.com/antchfx/xmlquery v1.5.1
 	github.com/antchfx/xpath v1.3.8
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3
 	github.com/theory/jsonpath v0.12.1
@@ -10,4 +11,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/kr/text v0.2.0 // indirect
+require (
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/kr/text v0.2.0 // indirect
+	golang.org/x/net v0.59.0 // indirect
+)

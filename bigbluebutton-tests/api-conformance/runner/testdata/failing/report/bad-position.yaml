@@ -1,0 +1,8 @@
+id: getMeetings.report.bad-position
+title: A checksum can't go in the middle of one param
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    params: {a: "1"}
+    sign: {position: middle}

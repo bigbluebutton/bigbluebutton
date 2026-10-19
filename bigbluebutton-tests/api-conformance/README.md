@@ -4,16 +4,71 @@ Black-box tests that pin down how the BigBlueButton HTTP API behaves, so that
 bbb-web and its Go replacement, bbb-api, can be checked against the same
 cases. Cases are declarative YAML; `bbb-conform` (in `runner/`) runs them.
 
-**Status:** the case format and `bbb-conform validate` are in place. `run`
-lands next; until then, use `validate` to check cases as you write them.
+**Status:** `bbb-conform` validates cases and runs HTTP steps (`call`, `url`
+and `wait`). Cases that use the other step types, `route` steps or response
+schemas are skipped until those are implemented.
 
 ```
 runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
+  testdata/smoke/          a quick check of a live server
 cases/<area>/*.yaml      the suite's cases
 fixtures/                files cases refer to (bodies, presentations, schemas)
 ```
+
+## Running cases
+
+```sh
+cd runner
+go run ./cmd/bbb-conform run --target my-server.yaml --cases ../cases \
+    --tags ci --junit ../out/junit.xml --json ../out/results.json
+```
+
+| Option | Meaning |
+|---|---|
+| `--target FILE` | The server to test (required). |
+| `--cases DIR` | Default `cases`. `--fixtures DIR` defaults to `fixtures` next to it. |
+| `--tags a,b` | Only cases with one of these tags. `--exclude-tags` drops cases with any of them. |
+| `--id glob,...` | Only cases whose ID matches, e.g. `--id 'create.*'`. |
+| `--parallel N` | Cases at once (default 4). Cases tagged `serial` run alone afterwards. |
+| `--junit FILE`, `--json FILE` | Write reports. The JSON report has every request, response and check. |
+| `-v` | List every failed check and warning on the console. |
+
+Each case ends as one of:
+- **PASS**;
+- **FAIL**: the server's behaviour didn't match, which includes a response
+  that doesn't parse and a capture that finds nothing;
+- **ERROR**: the runner couldn't do what the case asked, e.g. the server is
+  unreachable or a template didn't expand;
+- **SKIP**, with the reason: a capability the target lacks, or something the
+  runner can't do yet.
+
+The exit status is 0 when nothing failed or errored, 1 when something did,
+and 2 for a bad command line, target or case file. The salt and secret target
+vars are replaced with `<salt>` and `<secret:name>` in everything the runner
+writes.
+
+### Target files
+
+```yaml
+name: bbb-web
+baseUrl: https://bbb.example.com     # scheme and host only
+apiPrefix: /bigbluebutton/api/       # the default; bbb-api uses /meeting-api/
+saltEnv: BBB_SECRET                  # or salt: ...
+tls: {caFile: dev-ca.crt}            # relative to this file; or insecureSkipVerify: true
+capabilities: [akka]
+defaultSign: sha256
+sinkUrl: https://sink.example.com    # optional, for ${sinkUrl}
+fixtureUrl: https://files.example.com
+vars:
+  turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
+```
+
+Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
+(e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`.
+
+To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
 ## Checking cases
 
@@ -173,11 +228,11 @@ Each step has exactly one step-type key.
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
 | `params` | Query parameters, in the order written. |
 | `raw_query` | The query string exactly as written, instead of `params`. |
-| `headers` | Extra request headers. `null` removes a default header: the runner sends `Accept: */*` and `User-Agent: bbb-conform/<version>`. |
+| `headers` | Extra request headers. `null` removes a default header: the runner sends `Accept: */*` and `User-Agent: bbb-conform/<version>`. It speaks HTTP/1.1 and never asks for compression. |
 | `body` | See Bodies. |
 | `client` | A named cookie jar, for cases with several users. Each case starts with fresh jars. |
 | `followRedirects` | Default `false`: a redirect is the response. |
-| `timeout` | Per-request timeout. |
+| `timeout` | Per-request timeout; default 30s. |
 | `ignoreResult` | Don't fail on this step, typically in teardown. |
 | `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `expect` then checks the final response. |
 
@@ -249,7 +304,7 @@ must select exactly one node. Anything else is a map with one key:
 
 | Expression | Value |
 |---|---|
-| `/xpath`, `$.jsonpath` | The selected node's text. |
+| `/xpath`, `$.jsonpath` | The selected node's text (the first, if several). |
 | `header:<Name>` | A response header. |
 | `cookie:<name>` | A cookie the response set. |
 | `location:host`, `location:path`, `location:query.<key>` | Parts of the Location header. |

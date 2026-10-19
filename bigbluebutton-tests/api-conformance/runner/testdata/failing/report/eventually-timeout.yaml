@@ -1,0 +1,18 @@
+id: isMeetingRunning.report.eventually-timeout
+title: eventually fails when the condition never holds
+endpoint: isMeetingRunning
+class: contract
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Waiting}
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    eventually:
+      within: 500ms
+      every: 200ms
+      until:
+        xpath:
+          /response/running: "false"
+teardown:
+  - {call: end, params: {meetingID: "${uid}"}, ignoreResult: true}

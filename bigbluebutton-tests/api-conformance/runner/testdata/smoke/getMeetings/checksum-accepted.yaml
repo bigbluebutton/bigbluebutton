@@ -1,0 +1,18 @@
+id: getMeetings.smoke.checksum-accepted
+title: Every algorithm, upper-case hex and each placement are accepted
+endpoint: getMeetings
+class: contract
+tags: [ci]
+variants:
+  - {id: sha1, vars: {alg: sha1, mode: valid, pos: last}}
+  - {id: sha256, vars: {alg: sha256, mode: valid, pos: last}}
+  - {id: sha384, vars: {alg: sha384, mode: valid, pos: last}}
+  - {id: sha512, vars: {alg: sha512, mode: valid, pos: last}}
+  - {id: uppercase, vars: {alg: sha256, mode: uppercase, pos: last}}
+  - {id: first, vars: {alg: sha256, mode: valid, pos: first}}
+  - {id: middle, vars: {alg: sha256, mode: valid, pos: middle}}
+steps:
+  - call: getMeetings
+    params: {a: "1", b: "2"}
+    sign: {alg: "${alg}", mode: "${mode}", position: "${pos}"}
+    expect: {returncode: SUCCESS}

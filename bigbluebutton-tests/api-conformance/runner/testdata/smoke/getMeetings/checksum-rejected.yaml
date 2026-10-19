@@ -1,0 +1,12 @@
+id: getMeetings.smoke.checksum-rejected
+title: A wrong or duplicated checksum is a checksumError
+endpoint: getMeetings
+class: contract
+tags: [ci]
+variants:
+  - {id: wrong, vars: {mode: bad}}
+  - {id: duplicate, vars: {mode: duplicate}}
+steps:
+  - call: getMeetings
+    sign: ${mode}
+    expect: {returncode: FAILED, messageKey: checksumError}

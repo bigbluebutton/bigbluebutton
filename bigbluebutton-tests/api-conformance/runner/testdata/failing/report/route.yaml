@@ -1,0 +1,7 @@
+id: getMeetings.report.route
+title: Route steps are skipped until targets map routes
+endpoint: getMeetings
+class: contract
+steps:
+  - route: presentation-download
+    pathParams: {presId: p1}
