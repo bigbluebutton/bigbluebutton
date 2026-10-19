@@ -1655,7 +1655,7 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Lõpeta välise video jagamine",
     "app.legacy.unsupportedBrowser": "Paistab, et kasutad brauserit, mida ei toetata. Täielikuks toetuseks palun kasuta brauseri {supportedBrowser1} või {supportedBrowser2} viimast versiooni.",
     "app.legacy.upgradeBrowser": "Paistab, et kasutad toetatud brauseri vanemat versiooni. Täielikuks toetuseks palun uuenda oma brauser viimasele versioonile.",
-    "app.legacy.unsupportedSafari": "Please upgrade your browser to Safari 14.1 or newer for full support.",
+    "app.legacy.unsupportedSafari": "Täielikuks toetuseks uuenda oma brauser Safari versioonile 14.1 või uuemale.",
     "app.debugWindow.windowTitle": "Otsi vigu",
     "app.debugWindow.form.userAgentLabel": "Kasutaja identifikaator",
     "app.debugWindow.form.button.copy": "Kopeeri",
