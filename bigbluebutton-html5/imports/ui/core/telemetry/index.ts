@@ -100,4 +100,4 @@ export const startTelemetry = (): void => {
   }, 'Client performance telemetry started');
 };
 
-export { isTelemetryActive };
+export { isTelemetryActive, clearStore as clearTelemetry };
