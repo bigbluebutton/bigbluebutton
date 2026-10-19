@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/observe"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
@@ -56,7 +57,11 @@ func Check(e *spec.Expect, o *observe.Observation, eval Eval) ([]Result, error) 
 		}
 	}
 	for _, h := range e.Headers {
-		c.match("header "+h.Key, h.M, o.Header.Values(h.Key), true)
+		name, ok := c.expand(h.Key)
+		if !ok {
+			continue
+		}
+		c.match("header "+name, h.M, o.Header.Values(name), true)
 	}
 	for _, f := range []struct {
 		name string
@@ -115,11 +120,15 @@ func Check(e *spec.Expect, o *observe.Observation, eval Eval) ([]Result, error) 
 			c.match("redirect path", *r.Path, path, false)
 		}
 		for _, q := range r.Query {
+			key, ok := c.expand(q.Key)
+			if !ok {
+				continue
+			}
 			var vals []string
 			if o.Location != nil {
-				vals = o.Location.Query()[q.Key]
+				vals = o.Location.Query()[key]
 			}
-			c.match("redirect query "+q.Key, q.M, vals, true)
+			c.match("redirect query "+key, q.M, vals, true)
 		}
 	}
 	return c.results, c.err
@@ -304,9 +313,14 @@ func actual(vals []string) string {
 
 const maxShown = 300
 
+// truncate shortens s for messages, at a character boundary.
 func truncate(s string) string {
 	if len(s) <= maxShown {
 		return s
 	}
-	return s[:maxShown] + "…"
+	n := maxShown
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
+	}
+	return s[:n] + "…"
 }

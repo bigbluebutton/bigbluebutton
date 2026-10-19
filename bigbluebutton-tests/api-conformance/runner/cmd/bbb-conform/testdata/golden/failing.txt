@@ -17,8 +17,8 @@ FAIL  getMeetings.report.not-json (0s)
 SKIP  getMeetings.report.route
       unimplemented: route
 FAIL  getMeetings.report.salt-redacted (0s)
-      step 1 (line 6): message: expected "<salt>", got "no meetings were found on this server"
-      line 6: message: expected "<salt>", got "no meetings were found on this server"
+      step 1 (line 6): message: expected "[salt]", got "no meetings were found on this server"
+      line 6: message: expected "[salt]", got "no meetings were found on this server"
 SKIP  getMeetings.report.schema
       unimplemented: schema
 PASS  getMeetings.report.teardown-warning (0s)

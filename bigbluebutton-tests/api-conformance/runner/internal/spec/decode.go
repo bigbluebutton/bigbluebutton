@@ -15,6 +15,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// minPollInterval is the shortest eventually.every a case may use.
+const minPollInterval = 10 * time.Millisecond
+
 var headerNameRe = regexp.MustCompile("^[!#$%&'*+\\-.^_`|~0-9A-Za-z]+$")
 
 // precheck enforces the structural rules whose JSON Schema errors would be
@@ -269,8 +272,14 @@ func (d *decoder) call(n *yaml.Node, key, where string) (*CallStep, *Expect) {
 	}
 	if ev := mapGet(n, "eventually"); ev != nil {
 		cs.Eventually = &Eventually{Within: duration(mapGet(ev, "within")), Every: time.Second, Until: d.expect(mapGet(ev, "until"))}
+		if cs.Eventually.Within <= 0 {
+			d.f.errf(mapGet(ev, "within"), "%s: eventually.within must be more than 0", where)
+		}
 		if e := mapGet(ev, "every"); e != nil {
 			cs.Eventually.Every = duration(e)
+			if cs.Eventually.Every < minPollInterval {
+				d.f.errf(e, "%s: eventually.every must be at least %s, so the server isn't flooded", where, minPollInterval)
+			}
 		}
 	}
 	var exp *Expect

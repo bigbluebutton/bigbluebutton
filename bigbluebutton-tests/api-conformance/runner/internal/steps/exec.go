@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/assert"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/capture"
@@ -26,6 +27,10 @@ import (
 
 // DefaultTimeout applies to requests whose step sets no timeout.
 const DefaultTimeout = 30 * time.Second
+
+// minAttempt is the shortest timeout an eventually attempt gets, even when
+// less than that is left before its deadline.
+const minAttempt = 250 * time.Millisecond
 
 // Implemented lists the step types this runner can execute.
 var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true}
@@ -51,10 +56,10 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 		return nil, err
 	}
 	red := &tmpl.Redactor{}
-	red.Add("<salt>", t.Salt)
+	red.Add("[salt]", t.Salt)
 	for name, v := range t.Vars {
 		if v.Secret {
-			red.Add("<secret:"+name+">", v.Value)
+			red.Add("[secret:"+name+"]", v.Value)
 		}
 	}
 	return &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, Redactor: red, Version: version, NewUID: randomUID}, nil
@@ -292,30 +297,44 @@ func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
 	var o *observe.Observation
 	if ev := cs.Eventually; ev != nil {
 		deadline := time.Now().Add(ev.Within)
+		var lastUntil []assert.Result
+		var lastErr error
 		for attempt := 1; ; attempt++ {
 			sr.Attempts = attempt
-			obs, err := x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, timeout)
-			var until []assert.Result
+			// However long the request timeout, an attempt may run past the
+			// deadline by at most minAttempt.
+			t := timeout
+			if rem := time.Until(deadline); rem < t {
+				t = max(rem, minAttempt)
+			}
+			obs, err := x.session.Do(ctx, p, cs.Client, cs.FollowRedirects, t)
+			lastErr = err
 			if err == nil {
 				o = obs
-				var aerr error
-				if until, aerr = assert.Check(ev.Until, o, eval); aerr != nil {
+				until, aerr := assert.Check(ev.Until, obs, eval)
+				if aerr != nil {
 					sr.Status, sr.Message = report.Error, aerr.Error()
 					return
 				}
 				if assert.Passed(until) {
 					break
 				}
+				lastUntil = until
 			}
 			if time.Now().Add(ev.Every).After(deadline) {
-				if err != nil {
-					sr.Status, sr.Message = report.Error, x.redact(err.Error())
+				if o == nil { // the server never answered
+					sr.Status, sr.Message = report.Error, lastErr.Error()
 					return
 				}
+				// What the server last said is the result, even if a later
+				// attempt then failed to connect.
+				msg := fmt.Sprintf("eventually: not within %s (%d attempts): %s", ev.Within, attempt, assert.FirstFailure(lastUntil))
+				if lastErr != nil {
+					msg += fmt.Sprintf("; the last attempt failed: %v", lastErr)
+				}
 				sr.Response = x.responseInfo(o)
-				sr.Assertions = x.redactResults(until)
-				sr.Status = report.Fail
-				sr.Message = fmt.Sprintf("eventually: not within %s (%d attempts): %s", ev.Within, attempt, assert.FirstFailure(until))
+				sr.Assertions = x.redactResults(lastUntil)
+				sr.Status, sr.Message = report.Fail, msg
 				return
 			}
 			select {
@@ -410,9 +429,13 @@ func (x *exec) redactResults(rs []assert.Result) []assert.Result {
 	return out
 }
 
+// clip shortens s to at most n bytes, at a character boundary.
 func clip(s string, n int) string {
 	if len(s) <= n {
 		return s
+	}
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
 	}
 	return s[:n] + fmt.Sprintf("… (%d bytes more)", len(s)-n)
 }

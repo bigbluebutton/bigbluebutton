@@ -344,7 +344,7 @@
       "file": "../../testdata/failing/report/salt-redacted.yaml",
       "line": 1,
       "status": "FAIL",
-      "reason": "step 1 (line 6): message: expected \"<salt>\", got \"no meetings were found on this server\"",
+      "reason": "step 1 (line 6): message: expected \"[salt]\", got \"no meetings were found on this server\"",
       "duration_ms": 0,
       "steps": [
         {
@@ -352,11 +352,11 @@
           "kind": "call",
           "line": 6,
           "status": "FAIL",
-          "message": "message: expected \"<salt>\", got \"no meetings were found on this server\"",
+          "message": "message: expected \"[salt]\", got \"no meetings were found on this server\"",
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/getMeetings?echo=<salt>&checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?echo=[salt]&checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -381,7 +381,7 @@
             },
             {
               "what": "message",
-              "expected": "\"<salt>\"",
+              "expected": "\"[salt]\"",
               "actual": "\"no meetings were found on this server\"",
               "ok": false
             }

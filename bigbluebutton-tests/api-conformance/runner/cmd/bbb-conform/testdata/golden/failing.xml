@@ -23,7 +23,7 @@
       <skipped message="unimplemented: route"></skipped>
     </testcase>
     <testcase name="getMeetings.report.salt-redacted" classname="report" file="../../testdata/failing/report/salt-redacted.yaml" line="1" time="0.000">
-      <failure message="step 1 (line 6): message: expected &#34;&lt;salt&gt;&#34;, got &#34;no meetings were found on this server&#34;">step 1 (line 6): message: expected &#34;&lt;salt&gt;&#34;, got &#34;no meetings were found on this server&#34;&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?echo=&lt;salt&gt;&amp;checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363&#xA;  message: expected &#34;&lt;salt&gt;&#34;, got &#34;no meetings were found on this server&#34;&#xA;</failure>
+      <failure message="step 1 (line 6): message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;">step 1 (line 6): message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?echo=[salt]&amp;checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363&#xA;  message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;&#xA;</failure>
     </testcase>
     <testcase name="getMeetings.report.schema" classname="report" file="../../testdata/failing/report/schema.yaml" line="1" time="0.000">
       <skipped message="unimplemented: schema"></skipped>

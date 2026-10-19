@@ -82,7 +82,7 @@ func cmdValidate(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform validate: unexpected argument %q\n", fl.Arg(0))
 		return exitUsage
 	}
-	res, code := load(*cases, *fixtures, stderr)
+	res, _, code := load(*cases, *fixtures, stderr)
 	if res == nil {
 		return code
 	}
@@ -98,11 +98,12 @@ func cmdValidate(args []string, stdout, stderr io.Writer) int {
 }
 
 // load loads the cases, defaulting the fixtures directory to a sibling of
-// the cases directory when it exists.
-func load(cases, fixtures string, stderr io.Writer) (*spec.Result, int) {
+// the cases directory when it exists. It returns the fixtures directory it
+// used, "" for none.
+func load(cases, fixtures string, stderr io.Writer) (*spec.Result, string, int) {
 	if st, err := os.Stat(cases); err != nil || !st.IsDir() {
 		fmt.Fprintf(stderr, "bbb-conform: cases directory %q not found\n", cases)
-		return nil, exitUsage
+		return nil, "", exitUsage
 	}
 	if fixtures == "" {
 		def := filepath.Join(filepath.Dir(filepath.Clean(cases)), "fixtures")
@@ -111,14 +112,14 @@ func load(cases, fixtures string, stderr io.Writer) (*spec.Result, int) {
 		}
 	} else if st, err := os.Stat(fixtures); err != nil || !st.IsDir() {
 		fmt.Fprintf(stderr, "bbb-conform: fixtures directory %q not found\n", fixtures)
-		return nil, exitUsage
+		return nil, "", exitUsage
 	}
 	res, err := spec.LoadDir(cases, spec.Options{FixturesDir: fixtures})
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform: %v\n", err)
-		return nil, exitUsage
+		return nil, "", exitUsage
 	}
-	return res, exitOK
+	return res, fixtures, exitOK
 }
 
 // newUID lets tests make ${uid} predictable.
@@ -162,7 +163,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform: target: %v\n", err)
 		return exitUsage
 	}
-	res, code := load(*cases, *fixtures, stderr)
+	res, fixturesDir, code := load(*cases, *fixtures, stderr)
 	if res == nil {
 		return code
 	}
@@ -175,10 +176,6 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
 
-	fixturesDir := *fixtures
-	if fixturesDir == "" {
-		fixturesDir = filepath.Join(filepath.Dir(filepath.Clean(*cases)), "fixtures")
-	}
 	r, err := steps.NewRunner(tg, fixturesDir, version)
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform: target: %v\n", err)

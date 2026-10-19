@@ -46,7 +46,7 @@ Each case ends as one of:
 
 The exit status is 0 when nothing failed or errored, 1 when something did,
 and 2 for a bad command line, target or case file. The salt and secret target
-vars are replaced with `<salt>` and `<secret:name>` in everything the runner
+vars are replaced with `[salt]` and `[secret:name]` in everything the runner
 writes.
 
 ### Target files

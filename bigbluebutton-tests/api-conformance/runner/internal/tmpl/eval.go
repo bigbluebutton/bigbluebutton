@@ -3,7 +3,6 @@ package tmpl
 import (
 	"encoding/base64"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -38,7 +37,7 @@ var funcs = map[string]Func{
 		return strings.Repeat(a[0], n), nil
 	}},
 	"urlencode": {1, func(_ *Env, a []string) (string, error) {
-		return url.QueryEscape(a[0]), nil
+		return QueryEscape(a[0]), nil
 	}},
 	"base64File": {1, func(env *Env, a []string) (string, error) {
 		p, err := FixturePath(env.FixturesDir, a[0])

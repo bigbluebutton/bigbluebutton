@@ -1,2 +1,5 @@
 /runner/bbb-conform
 /out/
+
+# The repository's **/target/* rule is for build output; this is source.
+!/runner/internal/target/*

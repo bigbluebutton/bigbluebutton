@@ -31,6 +31,7 @@ func TestExpand(t *testing.T) {
 		{`${repeat("x", n)}`, "xxx"},
 		{`${repeat("x", 0)}`, ""},
 		{`${urlencode("a b&c")}`, "a+b%26c"},
+		{`${urlencode("*~.-_")}`, "*%7E.-_"},
 		{`${urlencode(repeat("é", 2))}`, "%C3%A9%C3%A9"},
 		{`${checksum("sha1", "create", "a=1")}`, "sha1|create|a=1"},
 		{`${repeat("q\"\\", 1)}`, `q"\`},
@@ -129,11 +130,23 @@ func TestBase64File(t *testing.T) {
 
 func TestRedactor(t *testing.T) {
 	var r Redactor
-	r.Add("<salt>", "abc")
-	r.Add("<secret:long>", "xxabcxx")
-	r.Add("<ignored>", "")
-	if got, want := r.Redact("abc xxabcxx abcabc"), "<salt> <secret:long> <salt><salt>"; got != want {
+	r.Add("[salt]", "abc")
+	r.Add("[secret:long]", "xxabcxx")
+	r.Add("[ignored]", "")
+	if got, want := r.Redact("abc xxabcxx abcabc"), "[salt] [secret:long] [salt][salt]"; got != want {
 		t.Errorf("Redact = %q, want %q", got, want)
+	}
+	// Encoded forms are caught too: in a query, JSON and XML.
+	r.Add("[secret:turn]", `a+b/c=d"<e>&`)
+	for _, s := range []string{
+		"x=" + QueryEscape(`a+b/c=d"<e>&`),
+		`{"k":"a+b/c=d\"<e>&"}`,
+		`{"k":"a+b/c=d\"\u003ce\u003e\u0026"}`,
+		"<k>a+b/c=d&#34;&lt;e&gt;&amp;</k>",
+	} {
+		if got := r.Redact(s); strings.Contains(got, "a+b") || strings.Contains(got, "a%2Bb") || !strings.Contains(got, "[secret:turn]") {
+			t.Errorf("Redact(%q) = %q", s, got)
+		}
 	}
 	var nilR *Redactor
 	if nilR.Redact("abc") != "abc" {

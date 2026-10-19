@@ -7,7 +7,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -147,8 +146,8 @@ func (x *exec) signing(cs *spec.CallStep, call string) (alg, mode, pos string) {
 	return alg, mode, pos
 }
 
-// encodePairs encodes params or form fields in order. Spaces become "+",
-// as with Java's URLEncoder.
+// encodePairs encodes params or form fields in order, as Java's
+// URLEncoder would.
 func (x *exec) encodePairs(kvs []spec.KV) (string, error) {
 	parts := make([]string, 0, len(kvs))
 	for _, kv := range kvs {
@@ -160,7 +159,7 @@ func (x *exec) encodePairs(kvs []spec.KV) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		parts = append(parts, url.QueryEscape(k)+"="+url.QueryEscape(v))
+		parts = append(parts, tmpl.QueryEscape(k)+"="+tmpl.QueryEscape(v))
 	}
 	return strings.Join(parts, "&"), nil
 }
