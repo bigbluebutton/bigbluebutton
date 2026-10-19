@@ -72,7 +72,7 @@ durations carry their unit in the name (`..._DAYS`).
 | `formula` | yes | how the value is computed; every `${NAME}` must be a declared variable listed in `inputs` |
 | `inputs` | yes | variables it depends on |
 | `env` | no | env variable name the images (or `.env`) carry it in; counts as declared for the drift check |
-| `env_file` | no | `true`: written into `.env.sample` as `env=formula` (e.g. `COMPOSE_PROFILES=${BBB_FEATURES}`) |
+| `env_file` | no | `true`: written into `.env.sample` as `env=formula` (e.g. `COMPOSE_PROFILES=${BBB_FEATURES-recording}`); a `${NAME-default}` default must be the variable's `default` |
 | `targets` | yes | `service: config key or env` it ends up in |
 | `description`, `status`, `sources` | yes | |
 

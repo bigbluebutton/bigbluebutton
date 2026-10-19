@@ -23,7 +23,7 @@ written, with yq). By default every subset is checked, including the empty set: 
 2^n combinations (the test fixture has 3 profiles, so 8). For more than 10 profiles the script
 refuses and asks for `--features`. For each combination both `COMPOSE_PROFILES` and
 `BBB_FEATURES` are set to the comma-separated list, as `.env` does
-(`COMPOSE_PROFILES=${BBB_FEATURES}`).
+(`COMPOSE_PROFILES=${BBB_FEATURES-recording}`).
 
 A finding that occurs in several combinations is printed once. `config-invalid` names the
 combinations in which `config` failed; the other rules are not checked for a combination whose

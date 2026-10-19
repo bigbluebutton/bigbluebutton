@@ -1,4 +1,4 @@
-# Second nginx case: BBB_FEATURES empty, the default of .env.sample (no optional feature).
+# Second nginx case: BBB_FEATURES set but empty (no optional feature; the default is recording).
 # Without `recording` the entrypoint renders neither the player location (playback.nginx, of
 # the bbb-playback package) nor the presentation format's locations (presentation.nginx, of
 # bbb-playback-presentation), and writes no playback upstream group: the playback service does

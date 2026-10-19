@@ -311,7 +311,7 @@ variables:
     tier: 1
     required: false
     secret: false
-    default: null
+    default: recording
     pattern: '((recording|greenlight|webhooks|monitoring|external-proxy)(,(recording|greenlight|webhooks|monitoring|external-proxy))*)?'
     setup: ask
     description: >-
@@ -325,9 +325,8 @@ variables:
       What each feature starts and which settings the images derive from it is listed in
       `features`. Set it in .env: Docker Compose then keeps profiles and image configuration
       consistent.
-      Unset or empty (`BBB_FEATURES=`) means no optional feature. The default is empty while the
-      recording services are not part of the stack; `recording` becomes the default again
-      when they are added, as recording is part of the default bare-metal install.
+      Unset means the default, `recording`, as recording is part of the default bare-metal
+      install; empty (`BBB_FEATURES=`) means no optional feature.
     sources:
       - build/packages-template/bigbluebutton/build.sh:16-33 @ 35cad46a9f — recording is part of the default install, webhooks is not
       - bigbluebutton-web/grails-app/conf/bigbluebutton.properties:319 @ 35cad46a9f — disableRecordingDefault, set from the recording feature
@@ -651,14 +650,16 @@ variables:
 # --------------------------------------------------------------------------------------------
 derived:
   - name: compose_profiles
-    formula: '${BBB_FEATURES}'
+    # Compose's default syntax: BBB_FEATURES's default when the line is missing from .env, as
+    # in docker-compose.yml; empty stays empty (no feature). validate.sh checks the default.
+    formula: '${BBB_FEATURES-recording}'
     inputs: [BBB_FEATURES]
     env: COMPOSE_PROFILES
     env_file: true
     targets: ['compose: COMPOSE_PROFILES (read from .env by the Compose CLI)']
     description: >-
-      Compose profiles follow the features. Written into .env as a self-reference; do not
-      change it.
+      Compose profiles follow the features. Written into .env as a self-reference (with the
+      default of BBB_FEATURES for a missing line); do not change it.
     status: draft
     sources:
       - build/packages-template/bigbluebutton/build.sh:16-33 @ 35cad46a9f — default package set (recording in, webhooks out)

@@ -89,8 +89,9 @@ bbb_require_match TURN_SECRET '[A-Za-z0-9+/=]{32,}'
 bbb_require_secret BBB_SHARED_SECRET TURN_SECRET
 reject_upstream_salt BBB_SHARED_SECRET
 
-# Unset or empty means no optional feature.
-: "${BBB_FEATURES=}"
+# Unset means the default, recording (as the default bare-metal install); empty means no
+# optional feature.
+: "${BBB_FEATURES=recording}"
 bbb_require_match BBB_FEATURES '((recording|greenlight|webhooks|monitoring|external-proxy)(,(recording|greenlight|webhooks|monitoring|external-proxy))*)?'
 
 if [ -n "${BBB_WEB_PAGE_TOKEN_SECRET:-}" ]; then

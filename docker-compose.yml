@@ -83,7 +83,7 @@ services:
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG:-4.0.1}
     restart: unless-stopped
     environment:
-      BBB_FEATURES: ${BBB_FEATURES-}
+      BBB_FEATURES: ${BBB_FEATURES-recording}
       BBB_NETWORK_SUBNET: ${BBB_NETWORK_SUBNET:-172.30.82.0/24}
     ports:
       - "80:80/tcp"
@@ -191,7 +191,7 @@ services:
       BBB_DOMAIN: ${BBB_DOMAIN}
       BBB_SHARED_SECRET: ${BBB_SHARED_SECRET}
       TURN_SECRET: ${TURN_SECRET}
-      BBB_FEATURES: ${BBB_FEATURES-}
+      BBB_FEATURES: ${BBB_FEATURES-recording}
       # The conversion service below; empty: office documents are not converted.
       BBB_WEB_CONVERSION_URL: ${BBB_WEB_CONVERSION_URL-http://conversion:9980/cool/convert-to}
       BBB_WEB_PAGE_TOKEN_SECRET: ${BBB_WEB_PAGE_TOKEN_SECRET:-}
@@ -528,7 +528,7 @@ services:
       BBB_DOMAIN: ${BBB_DOMAIN}
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
       LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
-      BBB_FEATURES: ${BBB_FEATURES-}
+      BBB_FEATURES: ${BBB_FEATURES-recording}
     read_only: true
     tmpfs:
       - /tmp

@@ -196,10 +196,11 @@ with a message naming a missing or malformed variable.
   the databases), livekit, bbb-webrtc-sfu, coturn and the office document conversion
   (`conversion`, below), the optional webhooks (profile `webhooks`, below), bbb-webrtc-recorder,
   recording processing and playback (profile `recording`, below), and the run-only `setup` that
-  writes `.env` (below). Greenlight, monitoring and preflight follow. Until then `BBB_FEATURES` is
-  empty by default and may be `webhooks`, `recording` (bbb-webrtc-recorder writes the raw media
-  into `recorder-raw`, the recording services process and publish the recordings, and playback
-  serves them), both, or empty.
+  writes `.env` (below). Greenlight, monitoring and preflight follow. Until then `BBB_FEATURES`
+  may be `webhooks`, `recording` (bbb-webrtc-recorder writes the raw media into `recorder-raw`,
+  the recording services process and publish the recordings, and playback serves them), both,
+  or empty; the default is `recording`, as on a default bare-metal install (unset in the
+  images' environment means the same).
 - **Recording processing** (profile `recording`) runs the processes of bbb-record-core's systemd
   units from one image (`record-and-playback/Dockerfile`), each as a service, as bare metal runs
   them: `recording` the resque workers (the unit `bbb-rap-resque-worker`, `RECORDING_WORKERS` of
@@ -405,6 +406,7 @@ docker/tests/stack/dind.sh config    # effective configuration of bbb-webrtc-sfu
 docker/tests/stack/dind.sh recording # a recorded meeting through the recording services (feature recording)
 docker/tests/stack/dind.sh webhooks run --auth bearer   # callbacks of a registered hook
 docker/tests/stack/dind.sh playback  # player and recording locations (feature recording)
+docker/tests/stack/dind.sh recording-e2e   # a recorded meeting with microphone and webcam (Chromium), to the published recording
 docker/tests/stack/dind.sh compose logs akka-apps   # any docker compose command
 docker/tests/stack/dind.sh diagnostics DIR   # compose ps and every service's log, secrets redacted
 docker/tests/stack/dind.sh stop      # removes the Engine container and all its data
@@ -452,6 +454,17 @@ the recording locations through haproxy and nginx: `/playback/presentation/2.3/<
 the player's `index.html` (from the `playback` service) and its bundle loads, the 2.0 URL
 redirects to it, and a file it writes below `published/presentation/<recordId>/` in `bbb-data`
 is served at `/presentation/<recordId>/` (other paths there give 404); it removes the file again.
+
+`recording-e2e.sh` (`dind.sh recording-e2e`, feature `recording`) records a meeting with media:
+upstream's Playwright helpers (`bigbluebutton-tests/playwright`, with its fake microphone and
+webcam) drive the html5 client in headless Chromium, in the official Playwright image on the
+stack's network; the moderator joins a meeting created with `record=true` and
+`autoStartRecording=true`, joins the microphone, shares the webcam, stays 20 s, and the meeting
+is ended. The test then waits until the recording is published and checks the recorder's webcam
+and audio files in the raw archive, the audio and video streams of the published
+`video/webcams.webm`, `getRecordings`, and that nginx serves the player page, `metadata.xml` and
+the video. The recorder's camera and microphone files must each hold media (packets) for at
+least half of the 20 s. A run takes about a minute once the Playwright image is pulled.
 
 `config-check.sh` (`dind.sh config`) prints and checks what node-config merged in the running
 bbb-webrtc-sfu and webhooks containers (`node -e` in each): the package's settings, the adapter
@@ -581,7 +594,7 @@ Dockerfiles, `docker-bake.hcl`, `docker-compose.yml` or the contract outputs, in
 | Compose file | `docker/tests/compose/run.sh`, then `assert-compose.sh` on `docker-compose.yml` for every feature combination |
 | Lint | `docker/tests/lint/run.sh` on the Dockerfiles the pull request changes (all of them when `docker/.hadolint.yaml` changes or on manual runs); shellcheck at severity warning on the scripts below `docker/` and `*/docker/`, including those without a `.sh` suffix |
 | Image `bbb-<image>` (one per bake target, amd64) | build with BuildKit, tagged `localhost/bbb-<image>:golden` and loaded into Docker; `docker/tests/dirmodes/check.sh`; `docker/tests/golden/run-golden.sh --engine docker --parity` for the golden cases of that image; `docker/tests/uid/check.sh` with the fixture env of its golden case, a write probe for each tmpfs and each writable named volume of its service in `docker-compose.yml` (`--no-render` for images without a golden case); the image saved for the stack job |
-| Stack (after all image jobs) | the stack of `docker-compose.yml` on the runner's Docker Engine with the images of the image jobs (`docker save` there, uploaded as artifacts `stack-image-bbb-<image>` kept for one day, loaded here), as in [Testing the stack](#testing-the-stack-with-docker-engine) with `dind.sh --host`: `up`, `test` (join path and the four restart cycles), `config`, `webhooks run --auth bearer`, `conversion`, and `notes-pdf-check.sh`. On failure, `dind.sh --host diagnostics` output (`docker compose ps -a`, the log of every service, fixture secrets redacted) is uploaded as the artifact `stack-diagnostics` |
+| Stack (after all image jobs) | the stack of `docker-compose.yml` on the runner's Docker Engine with the images of the image jobs (`docker save` there, uploaded as artifacts `stack-image-bbb-<image>` kept for one day, loaded here), as in [Testing the stack](#testing-the-stack-with-docker-engine) with `dind.sh --host`: `up`, `test` (join path and the four restart cycles), `config`, `webhooks run --auth bearer`, `conversion`, `notes-pdf-check.sh`, `playback` and `recording-e2e`. On failure, Playwright's screenshots and trace and the `dind.sh --host diagnostics` output (`docker compose ps -a`, the log of every service, fixture secrets redacted) is uploaded as the artifact `stack-diagnostics` |
 
 The stack job loads the images the image jobs built and checked rather than building them
 again: the BuildKit cache is read-only for pull requests, so a rebuild would repeat the build of

@@ -109,8 +109,8 @@ run "$d" -e BBB_DOMAIN="$DOMAIN" -e ACME_EMAIL="$EMAIL" -e BBB_PUBLIC_IPV4="$IPV
 if [ "$RC" -ne 0 ]; then fail fresh "exit $RC: $(cat "$WORK/out")"
 elif check_env fresh "$d/.env"; then
     # shellcheck disable=SC2016 # the literal line of .env.sample
-    if [ "$(value "$d/.env" BBB_DOMAIN)" = "$DOMAIN" ] && grep -qx 'BBB_FEATURES=' "$d/.env" &&
-        grep -qx 'COMPOSE_PROFILES=${BBB_FEATURES}' "$d/.env"; then
+    if [ "$(value "$d/.env" BBB_DOMAIN)" = "$DOMAIN" ] && grep -qx 'BBB_FEATURES=recording' "$d/.env" &&
+        grep -qx 'COMPOSE_PROFILES=${BBB_FEATURES-recording}' "$d/.env"; then
         ok fresh
     else fail fresh "asked values or the sample's lines not as expected"; fi
 fi
@@ -179,7 +179,7 @@ if [ "$RC" -ne 0 ] && grep -q "LIVEKIT_API_KEY in /project/.env does not match i
 else fail invalid-kept "exit $RC, output: $(cat "$WORK/out")"; fi
 
 # 7. interactive: answers on stdin, a wrong answer is asked again; Enter takes the proposal
-#    (none for IPv6 and for BBB_FEATURES, which has no default); no address is detected without
+#    (none for IPv6; BBB_FEATURES takes its default, recording); no address is detected without
 #    a network
 d="$(new_dir interactive)"
 printf '%s\n' 'bad domain' "$DOMAIN" "$IPV4" '' "$EMAIL" '' >"$WORK/answers"
@@ -187,7 +187,7 @@ run "$d" -- <"$WORK/answers"
 if [ "$RC" -ne 0 ]; then fail interactive "exit $RC: $(cat "$WORK/out")"
 elif check_env interactive "$d/.env"; then
     if [ "$(value "$d/.env" BBB_DOMAIN)" = "$DOMAIN" ] && [ "$(value "$d/.env" BBB_PUBLIC_IPV4)" = "$IPV4" ] &&
-        [ "$(value "$d/.env" ACME_EMAIL)" = "$EMAIL" ] && grep -qx 'BBB_FEATURES=' "$d/.env" &&
+        [ "$(value "$d/.env" ACME_EMAIL)" = "$EMAIL" ] && grep -qx 'BBB_FEATURES=recording' "$d/.env" &&
         [ -z "$(value "$d/.env" BBB_PUBLIC_IPV6)" ] && grep -q 'BBB_DOMAIN must match' "$WORK/out" &&
         grep -q 'BBB_PUBLIC_IPV4: no address found locally' "$WORK/out"; then
         ok interactive

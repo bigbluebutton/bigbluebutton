@@ -34,9 +34,9 @@ declare -A FEATURE_UPSTREAMS=(
     [webhooks]="webhooks.conf"
 )
 
-# 1. validate (patterns from docker/config-contract.yaml). Unset or empty BBB_FEATURES means
-# no optional feature.
-[ -n "${BBB_FEATURES+set}" ] || BBB_FEATURES=
+# 1. validate (patterns from docker/config-contract.yaml). Unset BBB_FEATURES means the
+# default, recording (as the default bare-metal install); empty means no optional feature.
+[ -n "${BBB_FEATURES+set}" ] || BBB_FEATURES=recording
 bbb_require_match BBB_FEATURES '((recording|greenlight|webhooks|monitoring|external-proxy)(,(recording|greenlight|webhooks|monitoring|external-proxy))*)?'
 bbb_default BBB_NETWORK_SUBNET 172.30.82.0/24
 bbb_require_match BBB_NETWORK_SUBNET '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])'

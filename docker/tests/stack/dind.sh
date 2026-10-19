@@ -31,6 +31,9 @@
 #                      recording; ARGs passed on)
 #   playback [ARG...]  docker/tests/stack/playback-check.sh against the stack (feature
 #                      `recording`; ARGs passed on)
+#   recording-e2e [ARG...] docker/tests/stack/recording-e2e.sh against the stack: a recorded
+#                      meeting with microphone and webcam in headless Chromium, through to the
+#                      published recording (feature `recording`; ARGs passed on)
 #   diagnostics DIR    write `docker compose ps -a` and the logs of every service of the
 #                      stack to DIR (created), with the values of the secrets of fixture.env
 #                      replaced by `[redacted NAME]`
@@ -286,6 +289,12 @@ case "$cmd" in
             "$HERE/recording-check.sh" --insecure --docker "$DOCKER_CMD" \
             --compose "$COMPOSE_PREFIX $COMPOSE_ARGS" \
             --client-image "localhost/bbb-graphql-actions:$TAG" "$@"
+        ;;
+    recording-e2e)
+        require_running
+        BBB_SHARED_SECRET="$(sed -n 's/^BBB_SHARED_SECRET=//p' "$HERE/fixture.env")" \
+            "$HERE/recording-e2e.sh" --src "$SRC" --docker "$DOCKER_CMD" \
+            --compose "$COMPOSE_PREFIX $COMPOSE_ARGS" --pki-volume "$PKI_VOLUME" "$@"
         ;;
     diagnostics) [ $# -eq 1 ] || usage; require_running; diagnostics "$1" ;;
     compose) require_running; compose "$@" ;;

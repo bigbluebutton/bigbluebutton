@@ -83,6 +83,11 @@ validate_planted bool-type '.variables[0].secret = "no"' "field 'secret' must be
 validate_planted no-citation '.variables[0].sources = ["somewhere in the code"]' "neither 'path:lines @ sha' nor UNVERIFIED"
 validate_planted bad-status '.variables[0].status = "final"' "field 'status' must be one of"
 validate_planted formula-undeclared '.derived[0].formula = "${NOPE}"' "formula references undeclared variable NOPE"
+validate_planted formula-default-undeclared '.derived[0].formula = "${NOPE-x}"' "formula references undeclared variable NOPE"
+validate_planted formula-default-mismatch '.derived[0].formula = "${BBB_FEATURES-webhooks}"' "formula default 'webhooks' of BBB_FEATURES is not its default 'recording'"
+c="$(planted_contract formula-default '.derived[0].formula = "${BBB_FEATURES-recording}"')"
+run "$TOOLS/validate.sh" "$c"
+expect_rc "validate: a formula default equal to the variable's default is valid" 0
 validate_planted two-lines '.variables[0].description = "line one\nline two"' "must be one line"
 validate_planted unbalanced-backtick '.variables[0].description = "a `b"' "unbalanced backticks"
 validate_planted decision-affects '.decisions_needed[0].affects = ["NOPE"]' "affects undeclared variable NOPE"

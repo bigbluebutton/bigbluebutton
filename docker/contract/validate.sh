@@ -220,12 +220,22 @@ for ((i = 0; i < D_n; i++)); do
                 problem "$where" "input '$input' is not a declared variable"
         done <<<"${D_inputs[$i]}"
     fi
-    # every ${NAME} in the formula is a declared variable and listed in inputs
+    # every ${NAME} or ${NAME-default} in the formula is a declared variable and listed in
+    # inputs; a default (used when NAME is unset) is the variable's own default
     rest="${D_formula[$i]}"
-    while [[ "$rest" =~ \$\{([A-Za-z_][A-Za-z0-9_]*)\}(.*)$ ]]; do
+    while [[ "$rest" =~ \$\{([A-Za-z_][A-Za-z0-9_]*)(-[^}]*)?\}(.*)$ ]]; do
         ref="${BASH_REMATCH[1]}"
-        rest="${BASH_REMATCH[2]}"
-        [ -n "${VAR_INDEX[$ref]+set}" ] || problem "$where" "formula references undeclared variable $ref"
+        fdefault="${BASH_REMATCH[2]}"
+        rest="${BASH_REMATCH[3]}"
+        if [ -z "${VAR_INDEX[$ref]+set}" ]; then
+            problem "$where" "formula references undeclared variable $ref"
+        elif [ -n "$fdefault" ]; then
+            fdefault="${fdefault#-}"
+            j="${VAR_INDEX[$ref]}"
+            if [ "${V_default_t[$j]}" = '!!null' ] || [ "${V_default[$j]}" != "$fdefault" ]; then
+                problem "$where" "formula default '$fdefault' of $ref is not its default '${V_default[$j]}'"
+            fi
+        fi
         grep -qxF -- "$ref" <<<"${D_inputs[$i]}" || problem "$where" "formula references $ref, missing in inputs"
     done
     if [ "${D_env_t[$i]}" != '!!null' ]; then

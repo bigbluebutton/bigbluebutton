@@ -281,7 +281,9 @@ jobs:
     name: Stack (join path, restarts, checks)
     needs: image
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    # At least the sum of the step timeouts (125 min), so that a step that hangs fails at its own
+    # timeout and the diagnostics steps still run; a job timeout cancels them too.
+    timeout-minutes: 130
     env:
       BBB_IMAGE_TAG: golden
     steps:
@@ -297,6 +299,7 @@ jobs:
       # About 9 GB of loaded images (collabora/code about 1.5 GB of them) and the stack's
       # volumes: removes preinstalled toolchains the job does not use.
       - name: Free disk space
+        timeout-minutes: 5
         run: |
           df -h /
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup \
@@ -333,7 +336,7 @@ jobs:
 
       - name: Join path with restart cycles
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
-        timeout-minutes: 30
+        timeout-minutes: 20
         run: docker/tests/stack/dind.sh --host test
 
       - name: Effective configuration
@@ -356,12 +359,30 @@ jobs:
         timeout-minutes: 5
         run: docker/tests/stack/notes-pdf-check.sh --docker docker "localhost/bbb-shared-notes:$BBB_IMAGE_TAG"
 
+      # The recording checks reuse the running stack: the fixture enables `recording`, and a
+      # second stack would load and start every image again.
+      - name: Recording playback locations
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 5
+        run: docker/tests/stack/dind.sh --host playback
+
+      # A recorded meeting with microphone and webcam in headless Chromium (Playwright image,
+      # upstream's Playwright helpers), through to the published recording served by nginx.
+      - name: Recording with media
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 15
+        run: >-
+          docker/tests/stack/dind.sh --host recording-e2e
+          --artifacts "$RUNNER_TEMP/stack-diagnostics/playwright"
+
       - name: Collect diagnostics
         if: ${{ failure() }}
+        timeout-minutes: 5
         run: docker/tests/stack/dind.sh --host diagnostics "$RUNNER_TEMP/stack-diagnostics"
 
       - name: Upload diagnostics
         if: ${{ failure() }}
+        timeout-minutes: 5
         uses: actions/upload-artifact@v4
         with:
           name: stack-diagnostics

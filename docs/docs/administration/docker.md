@@ -110,9 +110,10 @@ readable only by its owner (`chmod 600 .env`): it holds all secrets of the serve
 
 `BBB_FEATURES` selects optional features. Today the stack has `webhooks` (bbb-webhooks) and
 `recording` (bbb-web offers the record button, bbb-webrtc-recorder records the meetings' media,
-and recordings are processed, published and played back). Empty, the default of
-`.env.sample`, runs without optional features. Leave the line
-`COMPOSE_PROFILES=${BBB_FEATURES}` as it is.
+and recordings are processed, published and played back). The default of `.env.sample` is
+`recording`, as on a default bare-metal install, and a deleted `BBB_FEATURES` line means
+`recording` too; empty (`BBB_FEATURES=`) runs without optional features. Leave the line
+`COMPOSE_PROFILES=${BBB_FEATURES-recording}` as it is.
 
 ### 3. Get the images
 
