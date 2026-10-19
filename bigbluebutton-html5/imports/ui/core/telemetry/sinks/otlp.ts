@@ -1,6 +1,8 @@
 import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
+import type { ReproTrail } from '../actionTrail';
 import { getConfig } from '../config';
+import type { IncidentError, IncidentTrigger } from '../incident';
 import { BUCKET_BOUNDS, seriesSnapshot, totalCount } from '../store';
 import { SeriesAttributes, SeriesSnapshot } from '../types';
 
@@ -11,6 +13,7 @@ import { SeriesAttributes, SeriesSnapshot } from '../types';
 // Protocol: https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding
 
 const AGGREGATION_TEMPORALITY_CUMULATIVE = 2;
+const SEVERITY_NUMBER_WARN = 13;
 // fetch keepalive bodies are capped at 64 KiB in flight
 const KEEPALIVE_MAX_BYTES = 60_000;
 
@@ -91,6 +94,34 @@ const post = (path: string, body: string): void => {
   }).catch(() => {
     // Telemetry must never surface errors to the user; the next flush retries with cumulative data
   });
+};
+
+// The repro trail of an incident as one OTLP log record: exception.* attributes plus the trail as body
+export const sendIncidentLog = (trigger: IncidentTrigger, error: IncidentError, trail: ReproTrail): void => {
+  const now = toUnixNano(Date.now());
+  const payload = {
+    resourceLogs: [{
+      resource: { attributes: toKeyValues(resourceAttributes()) },
+      scopeLogs: [{
+        scope: { name: 'bbb-html5-client' },
+        logRecords: [{
+          timeUnixNano: now,
+          observedTimeUnixNano: now,
+          severityNumber: SEVERITY_NUMBER_WARN,
+          severityText: 'WARN',
+          body: { stringValue: JSON.stringify(trail) },
+          attributes: toKeyValues({
+            'event.name': 'bbb.repro_trail',
+            'bbb.incident.trigger': trigger,
+            'exception.type': error.errorName,
+            'exception.message': error.errorMessage,
+            'bbb.trail.actions': String(trail.actions.length),
+          }),
+        }],
+      }],
+    }],
+  };
+  post('/v1/logs', JSON.stringify(payload));
 };
 
 const startOtlpSink = (): void => {

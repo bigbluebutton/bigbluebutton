@@ -7,6 +7,7 @@ import {
   startActionTrail,
 } from './actionTrail';
 import { getConfig, isTelemetryActive, loadConfig } from './config';
+import { startIncidentTriggers } from './incident';
 import startSummaryEmitter from './emit';
 import startMainThreadObservers from './observers/mainThreadObserver';
 import startResourceObserver from './observers/resourceObserver';
@@ -90,6 +91,7 @@ export const startTelemetry = (): void => {
   startResourceObserver();
   startMainThreadObservers();
   startActionTrail();
+  startIncidentTriggers();
   if (config.logToServer) startSummaryEmitter();
   if (config.exporter === 'otlp') {
     // import() keeps the sink out of the startup path and becomes a real chunk if the build ever

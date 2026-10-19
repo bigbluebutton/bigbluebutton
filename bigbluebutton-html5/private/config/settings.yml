@@ -170,7 +170,8 @@ public:
     # Inspect it in the debug window or with window.bbbTelemetry.dump() in the console.
     telemetry:
       enabled: false
-      # Send a periodic p50/p95/max summary through clientLog.external (needs it enabled)
+      # Send a periodic p50/p95/max summary through clientLog.external (needs it enabled), and the
+      # repro trail of the last user actions when an error happens (at most once a minute, 5 per session)
       logToServer: false
       # none | otlp. otlp POSTs OTLP/HTTP JSON metrics to otlpUrl every flushIntervalMs
       exporter: none

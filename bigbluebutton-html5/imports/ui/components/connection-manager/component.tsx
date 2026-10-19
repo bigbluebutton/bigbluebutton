@@ -16,6 +16,7 @@ import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings
 import Auth from '/imports/ui/services/auth';
 import timingLink from '/imports/ui/core/telemetry/links/timingLink';
 import { recordWebsocketConnect } from '/imports/ui/core/telemetry/recorder';
+import { reportIncident } from '/imports/ui/core/telemetry/incident';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -79,6 +80,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors?.some(({ message }) => isSubscriptionLimitError(message))
     || isSubscriptionLimitError(networkError?.message)) {
     connectionStatus.setSubscriptionLimitReached();
+  }
+
+  if (graphQLErrors?.length) {
+    reportIncident('graphql_error', new Error(graphQLErrors[0].message));
+  }
+  if (networkError) {
+    reportIncident('network_error', networkError);
   }
 
   if (graphQLErrors) {
