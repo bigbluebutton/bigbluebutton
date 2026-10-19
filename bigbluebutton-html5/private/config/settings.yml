@@ -1048,6 +1048,25 @@ public:
         # muteDebounceMs: debounce time in milliseconds for mute state
         # transitions that would trigger unsubscribe operations.
         muteDebounceMs: 2500
+        # lastN: play only the most relevant microphones (speaking now, presenter,
+        # pinned, recent speech, moderator). When enabled, it replaces
+        # audioSubscriptionPoolSize and has no unmuted-user exemption.
+        #   audibleSize: microphones played at once.
+        #   standbySize: microphones kept subscribed (audible included). Standby
+        #     tracks are paused with setEnabled, so promoting one to audible
+        #     needs no renegotiation. Lifted for viewers while the user list is
+        #     locked, as other users' voice activity is hidden from them.
+        #   speechHoldMs: silence after which an audible speaker can be replaced.
+        #   minAudibleMs: minimum time a microphone stays audible, unless it is
+        #     silent and an unmuted speaker needs its slot.
+        #   standbyGraceMs: delay before an unranked standby track is unsubscribed.
+        lastN:
+          enabled: false
+          audibleSize: 3
+          standbySize: 12
+          speechHoldMs: 1500
+          minAudibleMs: 2000
+          standbyGraceMs: 5000
       logLevel: 3
       # livekit.sdkLogBridge: forward livekit-client's own logs to the client logger.
       sdkLogBridge: true
