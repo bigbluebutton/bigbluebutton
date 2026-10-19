@@ -15,6 +15,7 @@ export interface TestPublication {
 
 export interface TestRemotePublication extends TestPublication {
   isSubscribed: boolean;
+  isEnabled?: boolean;
   track?: { mediaStreamTrack?: MediaStreamTrack; receiver?: RTCRtpReceiver };
 }
 
@@ -182,8 +183,11 @@ export interface RemoteAudioState {
   micPublications: number;
   unmuted: number;
   subscribed: number;
+  // Subscribed and not paused with setEnabled(false).
+  enabled: number;
   liveTracks: number;
   packetsReceived: number;
+  trackSids: string[];
 }
 
 // What this page could hear from each remote participant. The distinctions matter:
@@ -223,8 +227,10 @@ export const getRemoteAudioStates = (page: PlaywrightPage): Promise<RemoteAudioS
           micPublications: mics.length,
           unmuted: mics.filter((pub) => !pub.isMuted).length,
           subscribed: mics.filter((pub) => pub.isSubscribed).length,
+          enabled: mics.filter((pub) => pub.isSubscribed && pub.isEnabled !== false).length,
           liveTracks: mics.filter((pub) => pub.track?.mediaStreamTrack?.readyState === 'live').length,
           packetsReceived,
+          trackSids: mics.map((pub) => pub.trackSid).filter((sid): sid is string => !!sid),
         };
       }),
     );
