@@ -71,7 +71,7 @@ The file is optional and only maintained by the administrator: packages, `bbb-in
 | `bbb-conf`, `bbb-install.sh` (Greenlight, LTI) | server URL and shared secret |
 | `apply-config.sh` (`HOST`, `PROTOCOL`) | server URL |
 
-The services load the file with `EnvironmentFile=-/etc/bigbluebutton/bigbluebutton.env` and read `BBB_URL` and `BBB_SECRET` from their environment, so a missing file never prevents them from starting. Shell scripts `source` it. Use plain `KEY=value` lines, without quotes, and write `BBB_URL` as the root URL without a trailing slash. Because the file holds the shared secret, make it readable only by `root` and the `bigbluebutton` group, then restart BigBlueButton:
+The services load the file with `EnvironmentFile=-/etc/bigbluebutton/bigbluebutton.env` and read `BBB_URL` and `BBB_SECRET` from their environment, so a missing file never prevents them from starting. Shell scripts only read the `BBB_URL` and `BBB_SECRET` lines. Use plain `KEY=value` lines, without quotes, and write `BBB_URL` as the root URL without a trailing slash. Because the file holds the shared secret, make it readable only by `root` and the `bigbluebutton` group, then restart BigBlueButton:
 
 ```bash
 $ sudo chown root:bigbluebutton /etc/bigbluebutton/bigbluebutton.env
@@ -84,7 +84,7 @@ $ sudo bbb-conf --restart
 `bbbctl` only reads `bbb-web.properties`. When `bigbluebutton.env` is set, pass its values through `bbbctl`'s own variables:
 
 ```bash
-$ sudo bash -c 'source /etc/bigbluebutton/bigbluebutton.env && BBBCTL_SERVER=$BBB_URL BBBCTL_SECRET=$BBB_SECRET bbbctl meeting list'
+$ sudo bash -c 'f=/etc/bigbluebutton/bigbluebutton.env; BBBCTL_SERVER=$(grep "^BBB_URL=" $f | cut -d= -f2-) BBBCTL_SECRET=$(grep "^BBB_SECRET=" $f | cut -d= -f2-) bbbctl meeting list'
 ```
 
 For `bbb-apps-akka` and `bbb-fsesl-akka`, the settings file are formatted as shown below. For example, the file `bbb-apps-akka.conf` overrides the settings for `/usr/share/bbb-apps-akka/conf/application.conf`.

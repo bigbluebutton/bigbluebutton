@@ -25,6 +25,8 @@ done
 
 sudo service bbb-web stop
 
-set -a; if [ -r /etc/bigbluebutton/bigbluebutton.env ]; then source /etc/bigbluebutton/bigbluebutton.env; fi; set +a
+BBB_URL=$(grep -s '^BBB_URL=' /etc/bigbluebutton/bigbluebutton.env | tail -n 1 | cut -d= -f2-)
+BBB_SECRET=$(grep -s '^BBB_SECRET=' /etc/bigbluebutton/bigbluebutton.env | tail -n 1 | cut -d= -f2-)
+export BBB_URL BBB_SECRET
 
 exec ./gradlew bootRun --args='--server.port=8090'

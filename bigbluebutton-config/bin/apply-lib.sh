@@ -36,11 +36,8 @@ BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
 tmpfile=$(mktemp /tmp/carriage-return.XXXXXX)
 echo "\n" > $tmpfile
 
-# BBB_URL from /etc/bigbluebutton/bigbluebutton.env takes precedence over the bbb-web properties. Read it in a
-# subshell so that sourcing this library does not define the file's variables (the shared secret) in apply-config.sh
-if [ -r /etc/bigbluebutton/bigbluebutton.env ]; then
-  BBB_ENV_URL=$(source /etc/bigbluebutton/bigbluebutton.env && echo "$BBB_URL")
-fi
+# BBB_URL from /etc/bigbluebutton/bigbluebutton.env takes precedence over the bbb-web properties
+BBB_ENV_URL=$(grep -s '^BBB_URL=' /etc/bigbluebutton/bigbluebutton.env | tail -n 1 | cut -d= -f2-)
 
 if [ -n "$BBB_ENV_URL" ]; then
   PROTOCOL=${BBB_ENV_URL%%://*}
