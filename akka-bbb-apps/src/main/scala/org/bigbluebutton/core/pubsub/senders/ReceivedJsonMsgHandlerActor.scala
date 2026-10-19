@@ -205,6 +205,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserDisconnectedFromGlobalAudioMsg](envelope, jsonNode)
       case MuteMeetingCmdMsg.NAME =>
         routeGenericMsg[MuteMeetingCmdMsg](envelope, jsonNode)
+      case SetRoomModeCmdMsg.NAME =>
+        routeGenericMsg[SetRoomModeCmdMsg](envelope, jsonNode)
       case IsMeetingMutedReqMsg.NAME =>
         routeGenericMsg[IsMeetingMutedReqMsg](envelope, jsonNode)
       case AudioFloorChangedVoiceConfEvtMsg.NAME =>

@@ -125,6 +125,7 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 	"getMeetingEndData",
 	"PluginConfigurationQuery",
 	"getGuestLobbyInfo",
+	"getRoomMode",
 	"userCurrentSubscription",
 	"Patched_userCurrentSubscription",
 }
