@@ -14,6 +14,8 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import Auth from '/imports/ui/services/auth';
+import timingLink from '/imports/ui/core/telemetry/links/timingLink';
+import { recordWebsocketConnect } from '/imports/ui/core/telemetry/recorder';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -324,6 +326,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               }
             },
             connected: (socket) => {
+              recordWebsocketConnect(hasEverConnectedRef.current ? 'reconnect' : 'connect', tsCurrentConnectingRef.current);
               hasEverConnectedRef.current = true;
               tsCurrentConnectingRef.current = 0;
               activeSocket.current = socket as WebSocket;
@@ -357,7 +360,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const graphWsLink = new GraphQLWsLink(
           subscription,
         );
-        wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
+        // timingLink goes first (outermost) so it measures the latency the client actually feels
+        wsLink = ApolloLink.from([timingLink, payloadSizeCheckLink, errorLink, graphWsLink]);
         wsLink.setOnError((error) => {
           loadingContextInfo.setLoading(false);
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
