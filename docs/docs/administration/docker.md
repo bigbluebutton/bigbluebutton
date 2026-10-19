@@ -110,7 +110,8 @@ readable only by its owner (`chmod 600 .env`): it holds all secrets of the serve
 
 `BBB_FEATURES` selects optional features. Today the stack has `webhooks` (bbb-webhooks). Empty,
 the default of `.env.sample`, runs without optional features. With `recording`, bbb-web offers
-the record button, but no recordings are processed yet. Leave the line
+the record button and bbb-webrtc-recorder records the meetings' media, but no recordings are
+processed yet. Leave the line
 `COMPOSE_PROFILES=${BBB_FEATURES}` as it is.
 
 ### 3. Get the images
@@ -219,6 +220,7 @@ names with the project name, `bigbluebutton_`):
 |---|---|---|
 | `bbb-data` | `/var/bigbluebutton`: presentations, learning dashboard data | yes |
 | `postgres-data` | the PostgreSQL databases (meeting state, shared notes) | optional |
+| `recorder-raw` | `/var/lib/bbb-webrtc-recorder`: raw media of recorded meetings (`recording`), the input of the recording processing | not yet (nothing processes it yet) |
 | `letsencrypt` | certbot's account, certificate and renewal settings | recommended |
 | `certs` | the certificate bundle haproxy reads | no |
 | `acme-webroot` | temporary challenge files | no |

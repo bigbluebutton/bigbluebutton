@@ -32,7 +32,8 @@ them together. Each section below states a decision and the reason for it. The d
 - **One static compose file.** `docker-compose.yml` at the repository root is committed and
   never generated. Optional parts are Compose profiles, selected through `BBB_FEATURES`.
 - **Not part of the stack yet:** recording processing (with `recording`, bbb-web offers the
-  record button, but no recordings are processed yet), a development setup with source
+  record button and bbb-webrtc-recorder writes the raw media, but no recordings are processed
+  yet), a development setup with source
   mounts, running behind an existing reverse proxy, Greenlight, monitoring, a preflight check,
   phone dial-in and Kubernetes manifests.
 
@@ -56,6 +57,7 @@ them together. Each section below states a decision and the reason for it. The d
 | `db-init` | `bbb-db-init` | `docker/db-init/` (job) |
 | `livekit` | `bbb-livekit` | `docker/livekit/` (LiveKit built from source as `bbb-livekit` builds it) |
 | `bbb-webrtc-sfu` | `bbb-webrtc-sfu` | `docker/bbb-webrtc-sfu/` (thin layer over upstream's image) |
+| `bbb-webrtc-recorder` | `bbb-webrtc-recorder` | `docker/bbb-webrtc-recorder/` (thin layer over upstream's image, profile `recording`) |
 | `coturn` | `bbb-coturn` | `docker/coturn/` (official `coturn/coturn` image plus configuration) |
 | `setup` | `bbb-setup` | `docker/setup/` (run-only, profile `setup`) |
 | `redis` | `redis:7.0.15-alpine` | used as it is |
@@ -69,8 +71,11 @@ image run from that image, pinned by tag and digest to the version BigBlueButton
 (`<component>.placeholder.sh`): bbb-webhooks unchanged, configured in the compose file through
 node-config; bbb-webrtc-sfu with one added configuration file, an entrypoint and a healthcheck.
 That file sits between upstream's configuration and the Tier 3 override; `NODE_CONFIG` would
-have been merged after the override and made those settings impossible to change there. Both
-upstream images keep their own base (Node 22).
+have been merged after the override and made those settings impossible to change there.
+bbb-webrtc-recorder gets an entrypoint and a healthcheck: the recorder loads only one
+configuration file, so the entrypoint merges the container wiring and the Tier 3 override over
+the packaged default instead of letting the override replace it. The upstream images keep their
+own base (Node 22 for the SFU and bbb-webhooks, Debian for the recorder).
 
 ## Images
 
@@ -190,7 +195,8 @@ LiveKit runs on the bridge network with a single multiplexed UDP port (`rtc.udp_
 `LIVEKIT_RTC_UDP_PORT`, default 7882), published 1:1. The packaged port range is set to 0,
 because LiveKit ignores `udp_port` while a range is configured. `rtc.tcp_port` stays 0, as
 packaged: clients without UDP use TURN. LiveKit announces `BBB_PUBLIC_IPV4` and, with
-`advertise_internal_ip`, also its bridge address, so coturn reaches it on the bridge. No host
+`advertise_internal_ip`, also its bridge address, so coturn and bbb-webrtc-recorder reach it on
+the bridge. No host
 networking and no large UDP range are needed. Signaling goes through nginx (`/livekit/`).
 
 ### Fixed addresses
@@ -367,7 +373,9 @@ of the image's golden case, and the list is kept short. The kinds of differences
   address, and turns recording off without the `recording` feature;
 - office conversion through Collabora Online instead of a container per document, and
   `run-in-systemd.sh` replaced as described above;
-- one Hasura instance, without the nginx load balancer in front of it.
+- one Hasura instance, without the nginx load balancer in front of it;
+- the Tier 3 file of bbb-webrtc-recorder is merged over the packaged default (bare metal loads
+  it instead of the default, as the recorder loads only one file).
 
 ## Known limits and follow-ups
 

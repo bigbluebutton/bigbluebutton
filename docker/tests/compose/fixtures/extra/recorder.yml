@@ -1,0 +1,36 @@
+# Extra fixture for test-assert-compose-extra.sh: the recorder volume as the stack uses it. The
+# recorder writes recorder-raw, the recording processing reads it, both as the same user.
+# shared-notes keeps the notes network in the resolved config (compose drops networks no
+# service uses).
+name: bbb-fixture-recorder
+
+networks:
+  notes:
+    internal: true
+
+volumes:
+  recorder-raw: {}
+
+services:
+  bbb-webrtc-recorder:
+    image: example.org/bbb-webrtc-recorder:1.0.0
+    user: "998:998"
+    volumes:
+      - recorder-raw:/var/lib/bbb-webrtc-recorder
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  recording:
+    image: example.org/bbb-recording:1.0.0
+    user: "998:998"
+    volumes:
+      - recorder-raw:/var/lib/bbb-webrtc-recorder:ro
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+    deploy: {resources: {limits: {cpus: "2", memory: 2g}}}
+
+  shared-notes:
+    image: example.org/bbb-shared-notes:1.0.0
+    networks: [notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}

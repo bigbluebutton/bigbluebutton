@@ -73,6 +73,7 @@ group "default" {
         "haproxy",
         "shared-notes",
         "bbb-webrtc-sfu",
+        "bbb-webrtc-recorder",
         "certbot",
         "setup",
     ]

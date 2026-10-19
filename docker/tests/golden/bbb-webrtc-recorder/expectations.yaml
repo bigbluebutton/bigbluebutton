@@ -1,0 +1,33 @@
+# The recorder reads exactly one file, the merged one; the LiveKit key pair reaches it only
+# through its own environment variables (contract derived recorder_livekit), never a file.
+# Wiring: redis and livekit-server as compose services, the recordings directory at the path of
+# the recorder volume (bbb-webrtc-sfu and the recording processing use it as it is).
+render:
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml   # the one file the recorder loads (-c)
+    format: yaml
+    checks:
+      - {path: .recorder.directory, equals: /var/lib/bbb-webrtc-recorder}
+      - {path: .pubsub.adapter, equals: redis}
+      - {path: .pubsub.adapters.redis.address, equals: "redis:6379"}
+      - {path: .pubsub.adapters.redis.network, equals: tcp}   # kept from the default by the deep merge
+      - {path: .pubsub.channels.subscribe, equals: to-bbb-webrtc-recorder}     # bbb-webrtc-sfu publishes here
+      - {path: .pubsub.channels.publish, equals: from-bbb-webrtc-recorder}
+      - {path: .livekit.host, equals: "ws://livekit:7880"}
+      - {path: .livekit.apiKey, equals: ""}
+      - {path: .livekit.apiSecret, equals: ""}
+      - {path: .livekit.healthCheck.enable, equals: false}   # as packaged
+      - {path: .http.enable, equals: false}                  # test server off, as packaged
+      - {path: .prometheus.enable, equals: false}
+      - {path: .log.level, equals: INFO}
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    format: lines
+    checks:
+      - {no_line: 'fixturelivekitapi'}   # neither key nor secret anywhere in the file
+must_fail:
+  - {unset: LIVEKIT_API_KEY, message: LIVEKIT_API_KEY}
+  - {unset: LIVEKIT_API_SECRET, message: LIVEKIT_API_SECRET}
+  - {set: {LIVEKIT_API_KEY: "devkey"}, message: LIVEKIT_API_KEY}
+  - {set: {LIVEKIT_API_KEY: "LIVEKIT_KEY"}, message: LIVEKIT_API_KEY}
+  - {set: {LIVEKIT_API_SECRET: "secret"}, message: LIVEKIT_API_SECRET}
+  - {set: {LIVEKIT_API_SECRET: "fixturelivekitapisecretnotreal00000000000\n# injected"}, message: LIVEKIT_API_SECRET}
+uid: {user: "12345:12345"}

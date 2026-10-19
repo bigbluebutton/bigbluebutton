@@ -151,6 +151,30 @@ expect_rule "recording without cpus limit: reported" resource-limits recording "
 run "$(variant nolimitrec 'del(.services.recording.deploy)')" --features webhooks
 expect_rc "recording not active (other feature): no limit finding" 0
 
+# --- recorder volume ---------------------------------------------------------------------------
+RECORDER="$EXTRA/recorder.yml"
+recorder_variant() { # name yq-expression -> path of a modified copy of the recorder fixture
+    yq "$2" "$RECORDER" >"$WORK/$1.yml"
+    printf '%s' "$WORK/$1.yml"
+}
+run "$RECORDER" --features ""
+expect_rc "recorder writes recorder-raw, recording reads it, same user: accepted" 0
+run "$(recorder_variant rawrw '.services.recording.volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder"]')" --features ""
+expect_rule "recorder-raw writable for another service: reported" recorder-raw recording "mounts recorder-raw writable"
+run "$(recorder_variant rawro '.services."bbb-webrtc-recorder".volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder:ro"]')" --features ""
+expect_rule "recorder with recorder-raw read-only: reported" recorder-raw bbb-webrtc-recorder "mounts recorder-raw read-only"
+expect_rule "recorder with recorder-raw read-only: not writable" recorder-raw bbb-webrtc-recorder "does not mount recorder-raw writable"
+run "$(recorder_variant rawnone 'del(.services."bbb-webrtc-recorder".volumes)')" --features ""
+expect_rule "recorder without recorder-raw: reported" recorder-raw bbb-webrtc-recorder "does not mount recorder-raw writable"
+run "$(recorder_variant rawpath '.services.recording.volumes = ["recorder-raw:/srv/raw:ro"]')" --features ""
+expect_rule "recorder-raw at another path: reported" recorder-raw recording "mounts recorder-raw at /srv/raw"
+run "$(recorder_variant rawuser '.services.recording.user = "1000:1000"')" --features ""
+expect_rule "reader with another user: reported" recorder-raw recording 'runs as user "1000:1000", bbb-webrtc-recorder as "998:998"'
+run "$(recorder_variant rawnouser 'del(.services.recording.user)')" --features ""
+expect_rule "reader with the image's user: reported" recorder-raw recording 'runs as user "", '
+run "$(recorder_variant rawnorec 'del(.services."bbb-webrtc-recorder") | .services.recording.user = "1000:1000"')" --features ""
+expect_rc "no recorder (feature off): readers not compared" 0
+
 # --- config-invalid ------------------------------------------------------------------------------
 run "$(variant allinvalid '.services.nginx.depends_on.redis = {}')"
 expect_count "invalid in every combination: one line" '^VIOLATION config-invalid: ' 1

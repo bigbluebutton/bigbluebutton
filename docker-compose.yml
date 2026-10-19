@@ -8,8 +8,8 @@
 #   docker compose run --rm setup     # writes .env (secrets generated, domain etc. asked)
 #   docker compose up -d
 #
-# Optional (BBB_FEATURES/profiles): webhooks. Not in the stack yet: recording, greenlight,
-# monitoring and preflight. See docker/README.md.
+# Optional (BBB_FEATURES/profiles): webhooks, recording (so far bbb-webrtc-recorder only). Not in
+# the stack yet: recording processing, greenlight, monitoring and preflight. See docker/README.md.
 
 name: bigbluebutton
 
@@ -524,6 +524,41 @@ services:
       start_period: 30s
       retries: 3
 
+  # Records the meetings' audio, cameras and screen sharing (BBB_FEATURES=recording), as on bare
+  # metal: bbb-webrtc-sfu starts and stops it through redis, it joins the LiveKit rooms itself
+  # (on the bbb network, so its media stays on the bridge) and writes the raw files into
+  # recorder-raw, which the recording processing reads. Upstream's image with an entrypoint that
+  # merges the Tier 3 override /etc/bigbluebutton/bbb-webrtc-recorder.yml over the packaged
+  # default. It publishes no port and has no listener; healthy while connected to redis.
+  bbb-webrtc-recorder:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-recorder:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [recording]
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/bbb-webrtc-recorder
+    volumes:
+      - recorder-raw:/var/lib/bbb-webrtc-recorder
+    networks:
+      - bbb
+    depends_on:
+      # The recorder exits if redis is unreachable at start.
+      redis:
+        condition: service_healthy
+      livekit:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/lib/bbb/bbb-webrtc-recorder-healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
   # TURN: 3478/udp+tcp published, TURN over TLS arrives through haproxy on 443. The
   # relay range stays internal. The base image also exposes 5349, which is not published.
   coturn:
@@ -605,6 +640,8 @@ networks:
 
 volumes:
   bbb-data:
+  # Raw recordings of bbb-webrtc-recorder, read by the recording processing.
+  recorder-raw:
   postgres-data:
   certs:
   acme-webroot:

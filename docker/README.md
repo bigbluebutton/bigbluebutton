@@ -64,6 +64,7 @@ the same way, with the bake variables `BBB_IMAGE_REGISTRY` (default `localhost`)
 |---|---|---|
 | `apps-akka` | `bbb-apps-akka` | `akka-apps` |
 | `bbb-webrtc-sfu` | `bbb-webrtc-sfu` | `bbb-webrtc-sfu` |
+| `bbb-webrtc-recorder` | `bbb-webrtc-recorder` | `bbb-webrtc-recorder` (profile `recording`) |
 | `certbot` | `bbb-certbot` | `certbot` |
 | `coturn` | `bbb-coturn` | `coturn` |
 | `db-init` | `bbb-db-init` | `db-init` |
@@ -101,10 +102,21 @@ image's `org.opencontainers.image.revision` label is that commit):
   one file between upstream's configuration and the Tier 3 override, the entrypoint (validation)
   and a healthcheck. `NODE_CONFIG` would not do: it is merged after every file, so a Tier 3
   `production.yml` could no longer change those settings.
+- **bbb-webrtc-recorder** is a thin layer over `ghcr.io/bigbluebutton/bbb-webrtc-recorder`
+  (`docker/bbb-webrtc-recorder/`): upstream's image and packaged default unchanged, plus yq, an
+  entrypoint and a healthcheck. The recorder loads exactly one configuration file (the first it
+  finds), so a Tier 3 `/etc/bigbluebutton/bbb-webrtc-recorder.yml` mounted into upstream's image
+  would replace the whole default. The entrypoint merges the container wiring (redis and
+  livekit-server by service name) and the Tier 3 file over the default into
+  `/run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml` and starts the recorder on it; the LiveKit
+  key pair reaches it as `BBBRECORDER_LIVEKIT_APIKEY`/`APISECRET`, as on bare metal. It has no
+  listener: it is healthy while it holds its redis connection and can write
+  `/var/lib/bbb-webrtc-recorder` (the volume `recorder-raw`).
 
-Both upstream images are published for amd64 and arm64. They keep upstream's Node version,
-Node 22 (`node:22-bookworm-slim` and `node:22-alpine`), not the Node 24 of the bare-metal
-packages and of our Node images. Supply chain: we trust upstream's images as its CI publishes
+These upstream images are published for amd64 and arm64. bbb-webrtc-sfu and webhooks keep
+upstream's Node version, Node 22 (`node:22-bookworm-slim` and `node:22-alpine`), not the Node
+24 of the bare-metal packages and of our Node images; bbb-webrtc-recorder is a Go binary on
+`debian:bookworm-slim`. Supply chain: we trust upstream's images as its CI publishes
 them. The digest pin is the integrity anchor; the `org.opencontainers.image.revision` label is
 upstream's claim of the commit, not something we verify by building it.
 
@@ -183,10 +195,12 @@ with a message naming a missing or malformed variable.
   learning-dashboard, bbb-web, akka-apps, graphql-server, graphql-middleware, graphql-actions,
   shared-notes, export-annotations, redis, postgres, db-init (a job that exits after setting up
   the databases), livekit, bbb-webrtc-sfu, coturn and the office document conversion
-  (`conversion`, below), and the optional webhooks (profile `webhooks`, below), and the run-only
-  `setup` that writes `.env` (below). Recording processing, greenlight, monitoring and preflight
-  follow. Until then `BBB_FEATURES` is empty by default and may be `webhooks`, `recording` (bbb-web
-  then offers the record button, but nothing processes recordings), both, or empty.
+  (`conversion`, below), the optional webhooks (profile `webhooks`, below) and
+  bbb-webrtc-recorder (profile `recording`), and the run-only `setup` that writes `.env` (below).
+  Recording processing, greenlight, monitoring and preflight follow. Until then `BBB_FEATURES` is
+  empty by default and may be `webhooks`, `recording` (bbb-web then offers the record button and
+  bbb-webrtc-recorder writes the raw media into `recorder-raw`, but nothing processes
+  recordings), both, or empty.
 - **Writing `.env`: `docker compose run --rm setup`.** The setup image writes `.env` next to
   `docker-compose.yml` from the configuration contract: it starts from the existing `.env`, else
   from `.env.sample` (built into the image from the same contract), keeps every value that is
@@ -382,7 +396,10 @@ The stack runs with `docker/tests/stack/fixture.env` (fixture values, `bbb.examp
 certbot is scaled to 0, so no ACME request is made). In its place, `up` issues a certificate for
 `bbb.example.com` from a throwaway test CA and puts it into the `certs` volume as certbot would;
 `docker/tests/stack/compose.test.yml` makes bbb-web trust that CA, as a deployment's JVM trusts
-the CA of its certificate. Its ports are published inside the Engine container only.
+the CA of its certificate, and makes bbb-webrtc-recorder join LiveKit once at start and exit if
+that fails (its LiveKit health check, off as packaged), so that a healthy recorder shows that
+its key pair and the LiveKit address work. Its ports are published inside the Engine container
+only.
 `join-path.sh` does what the html5 client does when a user joins: API create and join, the
 redirect to the client with the session token, `/api/rest/meetingStaticData` (Hasura,
 authenticated through akka-apps), the client's `index.html` and bundle (precompressed, with the

@@ -340,7 +340,7 @@ User id of every container that writes the shared data volume (/var/bigbluebutto
 - **Note:** Bare metal assigns the id per host; 998 is the id of the upstream recorder image.
 - **Sources:**
   - `build/deb-helper.sh:136-152 @ 35cad46a9f` — system user created without a fixed uid
-  - `Dockerfile:26-37 @ 1ecff54c7c` — upstream recorder image user 998
+  - `Dockerfile:26-37 @ f660264cf4` — upstream recorder image user 998
 
 ### BBB_GID
 
@@ -354,7 +354,7 @@ Group id belonging to BBB_UID.
 - **Status:** draft
 - **Sources:**
   - `build/deb-helper.sh:136-152 @ 35cad46a9f` — system group created without a fixed gid
-  - `Dockerfile:26-37 @ 1ecff54c7c` — upstream recorder image group 998
+  - `Dockerfile:26-37 @ f660264cf4` — upstream recorder image group 998
 
 ### BBB_IMAGE_REGISTRY
 
@@ -613,10 +613,9 @@ are not settings; changing them breaks the stack.
 
 | Name | Service | Value | Purpose |
 |---|---|---|---|
-| `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS` | bbb-webrtc-recorder | `redis:6379` | Redis address. Set together with BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK: one variable replaces the whole redis map. |
-| `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK` | bbb-webrtc-recorder | `tcp` | Always set with the address (one variable replaces the whole redis map); without it the recorder fails with "unknown network". |
-| `BBBRECORDER_LIVEKIT_HOST` | bbb-webrtc-recorder | `ws://livekit:7880` | LiveKit signaling for the recorder, internal (not through nginx); media stays on the bridge. |
-| `BBBRECORDER_RECORDER_DIRECTORY` | bbb-webrtc-recorder | `/var/lib/bbb-webrtc-recorder` | No code default; the SFU and the recording pipeline hard-code this path. |
+| `bbb-webrtc-recorder: pubsub.adapters.redis.address` | bbb-webrtc-recorder | `redis:6379` | Redis address, in the image's wiring file merged over the packaged default (network tcp stays as packaged). |
+| `bbb-webrtc-recorder: livekit.host` | bbb-webrtc-recorder | `ws://livekit:7880` | LiveKit signaling for the recorder, internal (not through nginx); media stays on the bridge. |
+| `bbb-webrtc-recorder: recorder.directory` | bbb-webrtc-recorder | `/var/lib/bbb-webrtc-recorder` | As packaged (no code default) and the mount point of the recorder volume; the SFU and the recording pipeline hard-code this path, so the entrypoint refuses an override that changes it. |
 | `LIVEKIT_ENABLED` | bbb-webrtc-sfu | `true` | Enables the SFU's LiveKit controller (upstream postinst sets it). |
 | `LIVEKIT_HOST` | bbb-webrtc-sfu | `http://livekit:7880` | LiveKit server API URL for the SFU. |
 | `REDIS_HOST` | bbb-webrtc-sfu | `redis` | Bare host name; livekit-server's REDIS_HOST is host:port, so env must not be shared between them. |
@@ -662,7 +661,7 @@ same as on a bare-metal server, so the existing documentation applies.
 | shared-notes | `/etc/bigbluebutton/bbb-shared-notes-server.yml` | yaml | Deep merge by the service over default.yml (objects merged, arrays and scalars replaced). The image renders its wiring into default.yml, never into this path. | supported |
 | livekit | `/etc/bigbluebutton/livekit.yaml` | yaml | yq-go deep merge (image default * override) at start, as the upstream unit does. The image must not use LIVEKIT_CONFIG, which would silently replace both files. An override that sets a port range again disables the UDP port (keep port_range_start/end at 0). | supported |
 | bbb-webrtc-sfu | `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` | yaml | node-config: merged key by key over upstream's config and the image's /usr/local/share/bbb/bbb-webrtc-sfu/production.yml, arrays replaced. The image's file drops the FreeSWITCH adapter (the SFU starts without it; LiveKit is the only media server). **Environment first:** Env variables beat this file: livekit.key, livekit.secret, livekit.bbbDomain, livekit.host, redis.host and clientHost come from the image's env and cannot be changed here. | supported |
-| bbb-webrtc-recorder | `/etc/bigbluebutton/bbb-webrtc-recorder.yml` | yaml | Upstream the recorder loads exactly one file, so this file replaces the default. Proposal: the entrypoint deep-merges it over the image default with yq-go and starts the recorder with -c on the result, matching what bbb-conf shows. | supported |
+| bbb-webrtc-recorder | `/etc/bigbluebutton/bbb-webrtc-recorder.yml` | yaml | Upstream the recorder loads exactly one file, so this file replaces the default. The entrypoint deep-merges it with yq-go over the packaged default and the container wiring, and starts the recorder with -c on the result (/run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml), matching what bbb-conf shows. recorder.directory must stay /var/lib/bbb-webrtc-recorder. **Environment first:** The recorder's BBBRECORDER_ variables beat this file: livekit.apiKey and livekit.apiSecret come from LIVEKIT_API_KEY/LIVEKIT_API_SECRET and cannot be changed here, as on bare metal (/etc/default/bbb-webrtc-recorder). | supported |
 | recording | `/etc/bigbluebutton/recording/recording.yml` | yaml | Shallow merge of top-level keys over bigbluebutton.yml (nested keys such as steps replaced as a whole). | supported |
 | recording | `/etc/bigbluebutton/recording/presentation.yml` | yaml | Loaded by the presentation scripts and merged over presentation.yml. | supported |
 | recording | `/etc/default/bigbluebutton-cron-config` | shell | Shell variables sourced by the cleanup script on bare metal. In containers the recording image writes it from RECORDING_RAW_RETENTION_DAYS; set the variable instead. | not-supported |

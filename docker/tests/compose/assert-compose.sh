@@ -10,7 +10,7 @@
 #
 # Output: one line per finding, `VIOLATION <rule>: <service or network>: <detail>`, rule one of
 #   config-invalid, image-tag, healthcheck, restart, published-port, depends-on, notes-network,
-#   resource-limits (see README.md). A summary goes to stderr.
+#   resource-limits, recorder-raw (see README.md). A summary goes to stderr.
 # Exit: 0 no finding, 1 at least one finding, 2 usage error or missing tool.
 
 set -euo pipefail
@@ -86,10 +86,11 @@ fi
 
 # One tab-separated fact line per service, port, dependency and network of a resolved config:
 #   S name run-only image has-healthcheck healthcheck-disable healthcheck-test0 restart
-#     network_mode networks cpus memory
+#     network_mode networks cpus memory user
 #   P name published target protocol
 #   D name dependency condition
 #   N name internal
+#   V name target read-only user        (mounts of the volume recorder-raw)
 # shellcheck disable=SC2016 # yq variables, not shell expansions
 FACTS='
 ((.services // {}) | to_entries | .[] | .key as $n | .value as $s | [
@@ -103,7 +104,12 @@ FACTS='
     (($s.network_mode // "") | tostring),
     (($s.networks // {}) | keys | join(",")),
     (($s.deploy.resources.limits.cpus // "") | tostring),
-    (($s.deploy.resources.limits.memory // "") | tostring)
+    (($s.deploy.resources.limits.memory // "") | tostring),
+    (($s.user // "") | tostring)
+  ] | @tsv),
+((.services // {}) | to_entries | .[] | .key as $n | .value as $s | (($s.volumes // []) | .[])
+    | select(.type == "volume" and .source == "recorder-raw") | [
+    "V", $n, ((.target // "") | tostring), ((.read_only // false) | tostring), (($s.user // "") | tostring)
   ] | @tsv),
 ((.services // {}) | to_entries | .[] | .key as $n | ((.value.ports // []) | .[]) | [
     "P", $n, ((.published // "") | tostring), ((.target // "") | tostring), ((.protocol // "tcp") | tostring)
@@ -171,6 +177,7 @@ $1 == "S" {
         if ($10 ~ /(^|,)notes(,|$)/ && !(s in notes_member)) v("notes-network", s, "attached to notes, not an allowed member")
         if ($9 == "service:shared-notes") v("notes-network", s, "shares the network namespace of shared-notes")
     }
+    if (s == "bbb-webrtc-recorder") { recorder_seen = 1; recorder_user = $13 }
     if (s == "recording") {
         miss = ""
         if ($11 == "" || $11 == "0") miss = "cpus"
@@ -188,12 +195,27 @@ $1 == "D" {
     if ($4 != "service_healthy" && $4 != "service_completed_successfully")
         v("depends-on", $2, "depends on " $3 " with condition " ($4 == "" ? "(none)" : $4) ", expected service_healthy or service_completed_successfully")
 }
+$1 == "V" {
+    # recorder-raw: written by bbb-webrtc-recorder only, at the path the SFU and the recording
+    # processing use; every service that mounts it runs as the user of the recorder.
+    if ($3 != "/var/lib/bbb-webrtc-recorder") v("recorder-raw", $2, "mounts recorder-raw at " $3 ", expected /var/lib/bbb-webrtc-recorder")
+    if ($2 == "bbb-webrtc-recorder") {
+        if ($4 == "true") v("recorder-raw", $2, "mounts recorder-raw read-only")
+        else recorder_rw = 1
+    } else {
+        if ($4 != "true") v("recorder-raw", $2, "mounts recorder-raw writable, only bbb-webrtc-recorder writes it")
+        nmount++; mount_svc[nmount] = $2; mount_user[nmount] = $5
+    }
+}
 $1 == "N" && $2 == "notes" {
     notes_seen = 1
     if ($3 != "true") v("notes-network", "notes", "network is not internal")
 }
 END {
     if (!notes_seen) v("notes-network", "notes", "network not defined")
+    if (recorder_seen && !recorder_rw) v("recorder-raw", "bbb-webrtc-recorder", "does not mount recorder-raw writable at /var/lib/bbb-webrtc-recorder")
+    if (recorder_seen) for (i = 1; i <= nmount; i++) if (mount_user[i] != recorder_user)
+        v("recorder-raw", mount_svc[i], "runs as user \"" mount_user[i] "\", bbb-webrtc-recorder as \"" recorder_user "\"")
     for (i = 1; i <= norder; i++) {
         s = byorder[i]; flush(s)
         if (badlist[s] != "") v("published-port", s, "publishes " badlist[s] ", not in the allowlist (allowed for " s ": " allowed_for(s) ")")

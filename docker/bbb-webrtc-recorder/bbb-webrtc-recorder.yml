@@ -1,0 +1,13 @@
+# Container wiring for bbb-webrtc-recorder, installed as
+# /usr/local/share/bbb/bbb-webrtc-recorder/bbb-webrtc-recorder.yml. The entrypoint merges it over
+# the packaged default /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml (unchanged) at start, and
+# the Tier 3 override /etc/bigbluebutton/bbb-webrtc-recorder.yml over both.
+#
+# redis and livekit-server are their own services on the bbb network, not on localhost. The
+# recorder joins LiveKit directly, not through nginx; its media stays on the bridge network.
+pubsub:
+  adapters:
+    redis:
+      address: redis:6379
+livekit:
+  host: ws://livekit:7880

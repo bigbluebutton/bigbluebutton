@@ -1,0 +1,35 @@
+# Parity of the rendered recorder config with the bare-metal reference (docker/tests/parity/).
+#
+# Bare metal: the recorder loads /etc/bigbluebutton/bbb-webrtc-recorder.yml if it exists, else
+# the packaged default /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml, and reads the LiveKit key
+# pair from /etc/default/bbb-webrtc-recorder (written by after-install.sh). The container renders
+# the packaged default with the container wiring merged over it, compared here with the packaged
+# default of the reference. The key pair is passed as BBBRECORDER_LIVEKIT_APIKEY/APISECRET in the
+# container, as the reference's /etc/default file sets them (contract derived recorder_livekit),
+# so that file is not compared.
+reference: ../../parity/reference/bbb-webrtc-recorder
+files:
+  - rendered: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    reference: etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+allowed:
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^$'
+    reason: "the merge (yq, as upstream packaging merges YAML) drops the blank lines between sections; keys, values and comments are unchanged"
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^      address: (:6379|redis:6379)$'
+    reason: "service names of docker-compose.yml: redis is its own service on the bbb network, not on localhost; same port as packaged"
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^  host: ws://(localhost|livekit):7880$'
+    reason: "service names of docker-compose.yml: livekit-server is its own service on the bbb network, not on localhost; same port and scheme as packaged (not through nginx)"
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^  (traceCapture:|# (Write a read trace|<recording>\.<trackID>|keyframe request|for replay tests|Skipped when the recording|BBBRECORDER_LIVEKIT_TRACECAPTURE_ENABLED).*)$'
+    reason: "packaged default of bbb-webrtc-recorder v0.17.0 (bbb-webrtc-recorder.placeholder.sh): livekit.traceCapture is new in that version; the reference install has an older recorder"
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^    (enabled: false|payload: header|maxBytesPerTrack: 16777216|# (header: VP8|payloads of up to|full: whole payloads|Compressed size cap|an eof record|value means the default|records ends with).*)$'
+    reason: "packaged default of bbb-webrtc-recorder v0.17.0: the values and comments of livekit.traceCapture, new in that version"
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^(constraints:|  diskPressure:|  # (Caps the video quality|filesystem is low).*)$'
+    reason: "packaged default of bbb-webrtc-recorder v0.17.0: the constraints section is not in the reference install's older default"
+  - file: run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+    line: '^    (enable: false|path: ""|checkInterval: 15s|engageFreeMiB: 20480|engageFreePercent: 10|releaseFreeMiB: 25600|releaseFreePercent: 15|videoQuality: LOW|sources: \[camera\]|# (Filesystem to watch|Engage when free space|Levels are whole numbers|Release when free space|LOW \| MEDIUM \| HIGH|LiveKit track sources).*)$'
+    reason: "packaged default of bbb-webrtc-recorder v0.17.0: the values and comments of constraints.diskPressure (disabled, as packaged)"

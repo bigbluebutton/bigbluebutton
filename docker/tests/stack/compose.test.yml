@@ -2,10 +2,19 @@
 # bbb-web's JVM trusts the throwaway test CA that issued the stack's certificate (dind.sh `up`),
 # as a deployment's JVM trusts the public CA of its certificate: bbb-web fetches
 # https://BBB_DOMAIN/default.pdf through haproxy and verifies the certificate.
+# bbb-webrtc-recorder (BBB_FEATURES=recording) joins LiveKit only for a recording; here it also
+# joins a probe room once at start and exits if that fails (its own LiveKit health check, off as
+# packaged), so a healthy recorder shows that its key pair and LiveKit address work.
 services:
   bbb-web:
     volumes:
       - bbb-test-truststore:/etc/ssl/certs/java:ro
+
+  bbb-webrtc-recorder:
+    environment:
+      BBBRECORDER_LIVEKIT_HEALTHCHECK_ENABLE: "true"
+      BBBRECORDER_LIVEKIT_HEALTHCHECK_ABORTBOOTONFAILURE: "true"
+      BBBRECORDER_LIVEKIT_HEALTHCHECK_INTERVAL: 24h
 
 volumes:
   bbb-test-truststore:

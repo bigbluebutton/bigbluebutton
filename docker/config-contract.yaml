@@ -8,7 +8,7 @@
 # compares it with what the compose file and the image entrypoints use.
 #
 # Sources cite upstream as `path:line @ sha`. Pins: bigbluebutton 35cad46a9f,
-# bbb-webrtc-sfu 88cb1a9a1c, bbb-webhooks 9787aea975, bbb-webrtc-recorder 1ecff54c7c,
+# bbb-webrtc-sfu 88cb1a9a1c, bbb-webhooks 9787aea975, bbb-webrtc-recorder f660264cf4,
 # bbb-install 2547823185, livekit-server 8d11efdfcd.
 
 version: 1
@@ -350,7 +350,7 @@ variables:
     notes: Bare metal assigns the id per host; 998 is the id of the upstream recorder image.
     sources:
       - build/deb-helper.sh:136-152 @ 35cad46a9f — system user created without a fixed uid
-      - Dockerfile:26-37 @ 1ecff54c7c — upstream recorder image user 998
+      - Dockerfile:26-37 @ f660264cf4 — upstream recorder image user 998
 
   - name: BBB_GID
     tier: 2
@@ -365,7 +365,7 @@ variables:
     status: draft
     sources:
       - build/deb-helper.sh:136-152 @ 35cad46a9f — system group created without a fixed gid
-      - Dockerfile:26-37 @ 1ecff54c7c — upstream recorder image group 998
+      - Dockerfile:26-37 @ f660264cf4 — upstream recorder image group 998
 
   - name: BBB_IMAGE_REGISTRY
     tier: 2
@@ -768,7 +768,7 @@ derived:
     status: draft
     sources:
       - build/packages-template/bbb-webrtc-recorder/after-install.sh:15-32 @ 35cad46a9f
-      - internal/config/loader.go:13-29,38-50 @ 1ecff54c7c
+      - internal/config/loader.go:39-51 @ f660264cf4 — BBBRECORDER_ variables after the file
 
   - name: webhooks_env
     formula: 'SERVER_DOMAIN=${BBB_DOMAIN}, SHARED_SECRET=${BBB_SHARED_SECRET}, NODE_CONFIG={"bbb":{"auth2_0":${WEBHOOKS_BEARER_AUTH}},"modules":{"../out/webhooks/index.js":{"config":{"getRaw":false}}}}'
@@ -850,40 +850,33 @@ derived:
 # drift check knows them and image tasks set them consistently.
 # --------------------------------------------------------------------------------------------
 internal:
-  - name: BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS
+  - name: 'bbb-webrtc-recorder: pubsub.adapters.redis.address'
     consumer: bbb-webrtc-recorder
     value: 'redis:6379'
     description: >-
-      Redis address. Set together with BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK: one
-      variable replaces the whole redis map.
+      Redis address, in the image's wiring file merged over the packaged default (network tcp
+      stays as packaged).
     status: draft
     sources:
-      - internal/pubsub/pubsub.go:24-31 @ 1ecff54c7c
-      - internal/config/config.go:39-105 @ 1ecff54c7c — default :6379, network tcp
+      - config/bbb-webrtc-recorder.yml:18-27 @ f660264cf4 — packaged :6379, network tcp
 
-  - name: BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK
-    consumer: bbb-webrtc-recorder
-    value: tcp
-    description: Always set with the address (one variable replaces the whole redis map); without it the recorder fails with "unknown network".
-    status: draft
-    sources:
-      - internal/pubsub/pubsub.go:24-31 @ 1ecff54c7c
-
-  - name: BBBRECORDER_LIVEKIT_HOST
+  - name: 'bbb-webrtc-recorder: livekit.host'
     consumer: bbb-webrtc-recorder
     value: 'ws://livekit:7880'
     description: LiveKit signaling for the recorder, internal (not through nginx); media stays on the bridge.
     status: draft
     sources:
-      - internal/config/config.go:39-105 @ 1ecff54c7c — default ws://localhost:7880
+      - config/bbb-webrtc-recorder.yml:52-53 @ f660264cf4 — packaged ws://localhost:7880
 
-  - name: BBBRECORDER_RECORDER_DIRECTORY
+  - name: 'bbb-webrtc-recorder: recorder.directory'
     consumer: bbb-webrtc-recorder
     value: /var/lib/bbb-webrtc-recorder
-    description: No code default; the SFU and the recording pipeline hard-code this path.
+    description: >-
+      As packaged (no code default) and the mount point of the recorder volume; the SFU and the
+      recording pipeline hard-code this path, so the entrypoint refuses an override that changes it.
     status: draft
     sources:
-      - config/bbb-webrtc-recorder.yml:18-27 @ 1ecff54c7c
+      - config/bbb-webrtc-recorder.yml:4-5 @ f660264cf4
       - lib/livekit/livekit-recorder-manager.js:441 @ 88cb1a9a1c
 
   - name: LIVEKIT_ENABLED
@@ -1250,13 +1243,18 @@ overrides:
     path: /etc/bigbluebutton/bbb-webrtc-recorder.yml
     format: yaml
     merge: >-
-      Upstream the recorder loads exactly one file, so this file replaces the default.
-      Proposal: the entrypoint deep-merges it over the image default with yq-go and starts the
-      recorder with -c on the result, matching what bbb-conf shows.
+      Upstream the recorder loads exactly one file, so this file replaces the default. The
+      entrypoint deep-merges it with yq-go over the packaged default and the container wiring,
+      and starts the recorder with -c on the result (/run/bbb-webrtc-recorder/bbb-webrtc-recorder.yml),
+      matching what bbb-conf shows. recorder.directory must stay /var/lib/bbb-webrtc-recorder.
+    env_precedence: >-
+      The recorder's BBBRECORDER_ variables beat this file: livekit.apiKey and livekit.apiSecret
+      come from LIVEKIT_API_KEY/LIVEKIT_API_SECRET and cannot be changed here, as on bare metal
+      (/etc/default/bbb-webrtc-recorder).
     support: supported
     status: draft
     sources:
-      - internal/config/loader.go:13-29,38-50 @ 1ecff54c7c
+      - internal/config/loader.go:12-51 @ f660264cf4
       - bigbluebutton-config/bin/bbb-conf:147-152 @ 35cad46a9f
 
   - component: recording
