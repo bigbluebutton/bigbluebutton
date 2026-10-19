@@ -30,7 +30,7 @@ SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 
 # Build tools only; this stage is not part of the image.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl git \
+    && apt-get install -y --no-install-recommends binutils ca-certificates curl git \
     && rm -rf /var/lib/apt/lists/*
 
 # DL3022 (here and below): named build contexts, not stages.
@@ -44,13 +44,15 @@ RUN if [ "$TARGETARCH" != "amd64" ]; then \
         echo "build/packages-template/bbb-graphql-server/build.sh no longer uses Hasura ${HASURA_VERSION}" >&2; exit 1; \
     fi
 
-# Engine: build.sh lines "git clone --branch", "cat ...part-a*", "chmod +x".
+# Engine: build.sh lines "git clone --branch", "cat ...part-a*", "chmod +x". The verified
+# binary is installed without its symbol table and debug sections (strip).
 RUN git clone -q --depth 1 --branch "$HASURA_VERSION" https://github.com/iMDT/hasura-graphql-engine.git \
     && [ "$(git -C hasura-graphql-engine rev-parse HEAD)" = "$HASURA_ENGINE_COMMIT" ] \
     && cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql \
     && rm -rf hasura-graphql-engine/ \
     && echo "${HASURA_ENGINE_SHA256}  hasura-graphql" | sha256sum -c - \
-    && install -m 0755 hasura-graphql /build/hasura-graphql-engine \
+    && strip -o /build/hasura-graphql-engine hasura-graphql \
+    && chmod 0755 /build/hasura-graphql-engine \
     && rm hasura-graphql
 
 # CLI: build.sh "Install Hasura CLI" (linux-amd64).
