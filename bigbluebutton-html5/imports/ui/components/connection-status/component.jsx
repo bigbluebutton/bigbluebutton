@@ -6,7 +6,7 @@ import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import { CONNECTION_STATUS_SUBSCRIPTION } from './queries';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
-import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
+import { getBbbWebBase } from '/imports/ui/services/url-builder';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import getStatus from '../../core/utils/getStatus';
 import logger from '/imports/startup/client/logger';
@@ -175,7 +175,7 @@ const ConnectionStatus = ({
     rttWorker.postMessage({
       type: 'init',
       payload: {
-        baseUrl: getBaseUrl(),
+        baseUrl: getBbbWebBase(),
         interval: STATS_INTERVAL,
         fetchTimeout: STATS_TIMEOUT,
         userId: user.userId,

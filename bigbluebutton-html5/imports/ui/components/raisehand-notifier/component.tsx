@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import { RaisedHandUser } from '/imports/ui/core/graphql/queries/users';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 type RaiseHandNotifierProps = {
   raiseHandUsers: RaisedHandUser[];
@@ -35,11 +36,6 @@ const RaiseHandNotifier: React.FC<RaiseHandNotifierProps> = ({
   const intl = useIntl();
   const previousUserIdsRef = useRef<string[] | null>(null);
 
-  const getRaiseHandSoundUrl = () => {
-    const { cdn, basename } = window.meetingClientSettings.public.app;
-    return `${cdn + basename}/resources/sounds/bbb-handRaise.mp3`;
-  };
-
   const buildRaisedHandMessage = (names: string[]) => {
     if (names.length === 0) return null;
 
@@ -69,7 +65,7 @@ const RaiseHandNotifier: React.FC<RaiseHandNotifierProps> = ({
 
     if (hasNewRaisedHand) {
       if (raiseHandAudioAlert) {
-        AudioService.playAlertSound(getRaiseHandSoundUrl());
+        AudioService.playAlertSound(assetUrl('resources/sounds/bbb-handRaise.mp3'));
       }
 
       if (raiseHandPushAlert) {

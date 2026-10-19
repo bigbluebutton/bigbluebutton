@@ -1,5 +1,6 @@
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
+import { assetUrl } from '/imports/ui/services/url-builder';
 import intlHolder from '../../core/singletons/intlHolder';
 
 export const updateSettings = (obj, msgDescriptor, mutation) => {
@@ -18,7 +19,7 @@ export const updateSettings = (obj, msgDescriptor, mutation) => {
   }
 };
 
-export const getAvailableLocales = () => fetch('./locales/')
+export const getAvailableLocales = () => fetch(assetUrl('locales/'))
   .then((locales) => locales.json())
   .then((locales) => locales.filter((locale) => (
     locale.name !== 'index.json' && !locale.name.endsWith('.gz')

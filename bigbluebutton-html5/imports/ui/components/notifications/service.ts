@@ -3,6 +3,7 @@ import { Notification } from './queries';
 import { expectStreamStop } from '/imports/ui/components/video-provider/state';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { throttle } from '/imports/utils/throttle';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 
@@ -25,11 +26,7 @@ function ringGuestWaitingBell() {
   const Settings = getSettingsSingletonInstance();
   // @ts-ignore - JS code
   if (Settings.application.guestWaitingAudioAlerts) {
-    const CDN = window.meetingClientSettings.public.app.cdn;
-    const BASENAME = window.meetingClientSettings.public.app.basename;
-    const HOST = CDN + BASENAME;
-
-    const audio = new Audio(`${HOST}/resources/sounds/doorbell.mp3`);
+    const audio = new Audio(assetUrl('resources/sounds/doorbell.mp3'));
     audio.play();
   }
 }
@@ -67,9 +64,7 @@ export const userJoinPushAlert = (
   if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
   if (userJoinAudioAlerts) {
-    new Audio(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename}`
-      + '/resources/sounds/userJoin.mp3').play();
+    new Audio(assetUrl('resources/sounds/userJoin.mp3')).play();
   }
 
   if (userJoinPushAlerts) {
@@ -78,9 +73,7 @@ export const userJoinPushAlert = (
 };
 
 const playLeaveAudioAlert = throttle(() => {
-  new Audio(`${window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename}`
-    + '/resources/sounds/userJoin.mp3').play();
+  new Audio(assetUrl('resources/sounds/userJoin.mp3')).play();
 }, 500, { leading: true, trailing: false });
 
 export const userLeavePushAlert = (

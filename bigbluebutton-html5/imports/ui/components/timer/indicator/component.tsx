@@ -9,6 +9,7 @@ import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 interface TimerIndicatorProps {
   timePassed: number;
@@ -39,9 +40,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [songTrackState, setSongTrackState] = useState<string>(songTrack);
   const prevElapsed = usePreviousValue<boolean | undefined>(elapsed);
 
-  const CDN = window.meetingClientSettings.public.app.cdn;
-  const BASENAME = window.meetingClientSettings.public.app.basename;
-  const HOST = CDN + BASENAME;
   const trackName = window.meetingClientSettings.public.timer.music;
   const MUSIC_VOLUME = window.meetingClientSettings.public.timer.music.volume;
 
@@ -60,7 +58,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (music.current) music.current.pause();
     }
     if (songTrack in trackName) {
-      music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
+      music.current = new Audio(assetUrl(`resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`));
       music.current.volume = MUSIC_VOLUME;
       setSongTrackState(songTrack);
       music.current.addEventListener('timeupdate', () => {
@@ -81,7 +79,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, [songTrack]);
 
   useEffect(() => {
-    alarm.current = new Audio(`${HOST}/resources/sounds/alarm.mp3`);
+    alarm.current = new Audio(assetUrl('resources/sounds/alarm.mp3'));
   }, []);
 
   useEffect(() => {
