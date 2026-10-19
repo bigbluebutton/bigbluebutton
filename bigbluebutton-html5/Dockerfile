@@ -43,8 +43,9 @@ COPY --from=bbb-config bigbluebutton-release /tmp/bigbluebutton-release
 # These edits come after webpack has written the precompressed .gz copies (CompressionPlugin in
 # webpack.config.js), and bbb-html5.nginx.static serves those copies (gzip_static on): each .gz
 # whose content no longer matches its file is written again, so browsers get the build
-# identifier as cache buster (.gz files without a sibling, the renamed safari bundles, are left
-# alone). The build fails if a placeholder is left in a served file (the JS bundles keep their
+# identifier as cache buster. A .gz file without a sibling is the compressed copy of a safari
+# bundle under its name before the renaming; nothing requests that name, so it is removed. The
+# build fails if a placeholder is left in a served file (the JS bundles keep their
 # own built-in defaults, which settings.yml overrides).
 WORKDIR /src/dist
 RUN CLIENT_BUILD="${COMMIT_DATE:-$((BUILD))}" \
@@ -65,7 +66,9 @@ RUN CLIENT_BUILD="${COMMIT_DATE:-$((BUILD))}" \
     && sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" index.html stylesheets/fonts.css \
     && find . -type f -name '*.gz' | while IFS= read -r gz; do \
          f="${gz%.gz}"; \
-         if [ -f "$f" ] && ! gzip -dc "$gz" | cmp -s - "$f"; then \
+         if [ ! -f "$f" ]; then \
+           rm -- "$gz" || exit 1; \
+         elif ! gzip -dc "$gz" | cmp -s - "$f"; then \
            gzip -9 -n -c "$f" >"$gz" || exit 1; \
          fi; \
        done \
