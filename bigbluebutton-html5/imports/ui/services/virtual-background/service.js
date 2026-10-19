@@ -2,6 +2,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -25,13 +26,6 @@ const MODELS = {
       width: 256,
     },
   },
-};
-
-const getBasePath = () => {
-  const BASE_PATH = window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename;
-
-  return BASE_PATH;
 };
 
 const getThumbnailsPath = () => {
@@ -74,10 +68,15 @@ const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, 
 
 const getVirtualBackgroundThumbnail = (name) => {
   if (name === BLUR_FILENAME) {
-    return `${getBasePath()}/resources/images/virtual-backgrounds/thumbnails/${name}`;
+    return assetUrl(`resources/images/virtual-backgrounds/thumbnails/${name}`);
   }
 
-  return (getIsStoredOnBBB() ? getBasePath() : '') + getThumbnailsPath() + name;
+  if (!getIsStoredOnBBB()) {
+    return getThumbnailsPath() + name;
+  }
+
+  const thumbPath = getThumbnailsPath().replace(/^\//, '');
+  return assetUrl(`${thumbPath}${name}`);
 };
 
 // Stores the last chosen camera effect into the session storage in the following format:
@@ -122,16 +121,19 @@ const removeSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInst
 
 const isVirtualBackgroundSupported = () => !(deviceInfo.isIos || browserInfo.isSafari);
 
-const getVirtualBgImagePath = () => {
+/** Full URL for a VB image (versioned when stored on the BBB node). */
+const getVirtualBgImageUrl = (filename) => {
   const {
     imagesPath: IMAGES_PATH = '/resources/images/virtual-backgrounds/',
   } = window.meetingClientSettings.public.virtualBackgrounds;
 
-  return (getIsStoredOnBBB() ? getBasePath() : '') + IMAGES_PATH;
+  if (!getIsStoredOnBBB()) {
+    return IMAGES_PATH + filename;
+  }
+  return assetUrl(`${IMAGES_PATH.replace(/^\//, '')}${filename}`);
 };
 
 export {
-  getBasePath,
   getImageNames,
   MODELS,
   BLUR_FILENAME,
@@ -140,11 +142,11 @@ export {
   setCameraBrightnessInfo,
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
-  getCameraBrightnessInfo,
-  getCameraBrightnessInfoWithDefault,
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
   createVirtualBackgroundStream,
   getVirtualBackgroundThumbnail,
-  getVirtualBgImagePath,
+  getCameraBrightnessInfo,
+  getCameraBrightnessInfoWithDefault,
+  getVirtualBgImageUrl,
 };

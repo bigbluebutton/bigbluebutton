@@ -4,6 +4,7 @@ import { defineMessages } from 'react-intl';
 import { toast } from 'react-toastify';
 import { notify } from '/imports/ui/services/notification';
 import Styled from './styles';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -44,7 +45,7 @@ const RequestPresenterNotification = ({
   const toastIdRef = useRef(null);
 
   useEffect(() => {
-    const alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/notify.mp3`);
+    const alert = new Audio(assetUrl('resources/sounds/notify.mp3'));
     alert.play();
 
     const title = intl.formatMessage(intlMessages.title);
