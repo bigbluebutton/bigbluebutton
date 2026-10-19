@@ -84,6 +84,10 @@ allowed:
   - file: usr/share/bigbluebutton/nginx/learning-dashboard.nginx
     line: '^([[:space:]]*location ~ "[^"]*/learning_dashboard_data[^"]*" \{|[[:space:]]*alias /var/bigbluebutton/learning-dashboard/\$1;|[[:space:]]*\}|)[[:space:]]*$'
     reason: "the bbb-data volume holds data only, so nginx has separate locations for the app and for volume content: a regex location nested in the prefix serves only <meetingId>/<token>/learning_dashboard_data.json from bbb-data, where bbb-web writes it (LearningDashboardService.java:34,40,96 @ 35cad46a9f)"
+  # recording player: served by its own image, the recordings stay on the bbb-data volume
+  - file: usr/share/bigbluebutton/nginx/playback.nginx
+    line: '^[[:space:]]*(root /var/bigbluebutton|try_files \$uri /playback/presentation/2\.3/index\.html|proxy_pass http://playback);$'
+    reason: "one image per static app, and the bbb-data volume holds data only: the player is served by the playback image (service playback, port 8080, the same location and fallback to index.html), and /var/bigbluebutton is the bbb-data volume, which holds the recordings but not the player, so the location proxies to that service. The service is an upstream group of sites-available/bbb-feature-upstreams (`server <service>:<port> resolve`, written only with the feature), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
   # fragments: services are other containers (service names of docker-compose.yml)
   # etc/nginx/conf.d/bbb-upstreams.conf has no bare-metal counterpart (there, every service is on
   # 127.0.0.1): it holds the upstream groups the fragments below name, so nginx follows restarted containers.

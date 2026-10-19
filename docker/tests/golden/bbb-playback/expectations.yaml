@@ -1,0 +1,31 @@
+# The playback image (service `playback`) serves the presentation player itself (one image per
+# static app) on port 8080, with the package's location: the player's routes
+# (/playback/presentation/2.3/<recordId>) fall back to its index.html. It reads no environment.
+# Sources: build/packages-template/bbb-playback/playback.nginx:1-4, build.sh:19-22,32,34,37-38;
+# bbb-playback.placeholder.sh (v5.4.8); bbb-playback v5.4.8 package.json:3-4 (version,
+# homepage /playback/presentation/2.3).
+render:
+  - file: usr/share/bigbluebutton/nginx/playback.nginx
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+/playback/presentation/2\.3\s*\{'}
+      - {contains_line: '^\s*try_files\s+\$uri\s+/playback/presentation/2\.3/index\.html;'}
+      - {contains_line: '^\s*root\s+/usr/share/bigbluebutton;'}   # the image's files, not the bbb-data volume
+      - {no_line: '^\s*root\s+/var/bigbluebutton'}
+  - file: etc/nginx/conf.d/playback.conf
+    format: lines
+    checks:
+      - {contains_line: '^\s*listen\s+8080(\s|;)'}                 # all interfaces: the edge is another container
+      - {no_line: '^\s*listen\s+(127\.0\.0\.1|\[::1\]|localhost):'}
+      - {contains_line: '^\s*include\s+/usr/share/bigbluebutton/nginx/playback\.nginx;'}
+      - {contains_line: '^\s*absolute_redirect\s+off;'}
+  - file: etc/nginx/nginx.conf
+    format: lines
+    checks:
+      - {no_line: '^\s*user\s'}                                     # runs as the container's UID
+      - {contains_line: '^\s*pid\s+/tmp/'}                           # read-only root filesystem
+  - file: usr/share/bigbluebutton/playback/presentation/2.3/bbb-playback-version
+    format: lines
+    checks:
+      - {contains_line: '^5\.4\.8$'}                                 # the version the release pins
+uid: {user: "12345:12345"}

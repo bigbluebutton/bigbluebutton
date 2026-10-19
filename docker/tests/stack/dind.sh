@@ -27,6 +27,8 @@
 #   conversion [ARG...] docker/tests/stack/conversion-check.sh against the stack's conversion
 #                      service, with bbb-web as the client (ARGs passed on)
 #   config [ARG...]    docker/tests/stack/config-check.sh against the stack (ARGs passed on)
+#   playback [ARG...]  docker/tests/stack/playback-check.sh against the stack (feature
+#                      `recording`; ARGs passed on)
 #   diagnostics DIR    write `docker compose ps -a` and the logs of every service of the
 #                      stack to DIR (created), with the values of the secrets of fixture.env
 #                      replaced by `[redacted NAME]`
@@ -265,6 +267,10 @@ case "$cmd" in
         require_running
         "$HERE/config-check.sh" \
             --compose "$COMPOSE_PREFIX $COMPOSE_ARGS" "$@"
+        ;;
+    playback)
+        require_running
+        "$HERE/playback-check.sh" --docker "$DOCKER_CMD" --image "localhost/bbb-nginx:$TAG" "$@"
         ;;
     conversion)
         require_running

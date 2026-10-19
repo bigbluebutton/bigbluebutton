@@ -58,6 +58,7 @@ group "default" {
         "apps-akka",
         "html5-client",
         "learning-dashboard",
+        "playback",
         "graphql-actions",
         "graphql-middleware",
         "graphql-server",

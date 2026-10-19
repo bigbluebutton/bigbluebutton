@@ -8,7 +8,7 @@
 #   docker compose run --rm setup     # writes .env (secrets generated, domain etc. asked)
 #   docker compose up -d
 #
-# Optional (BBB_FEATURES/profiles): webhooks, recording (so far bbb-webrtc-recorder only). Not in
+# Optional (BBB_FEATURES/profiles): webhooks, recording (so far bbb-webrtc-recorder and playback). Not in
 # the stack yet: recording processing, greenlight, monitoring and preflight. See docker/README.md.
 
 name: bigbluebutton
@@ -121,6 +121,10 @@ services:
       webhooks:
         condition: service_healthy
         required: false
+      # Only with the recording feature (profile); nginx then proxies the player to it.
+      playback:
+        condition: service_healthy
+        required: false
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "--haproxy-protocol", "http://127.0.0.1:81/bigbluebutton/rtt-check"]
       interval: 30s
@@ -156,6 +160,24 @@ services:
       - bbb
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/learning-analytics-dashboard/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # The player of the presentation recording format (static files, port 8080); nginx proxies
+  # /playback/presentation/2.3 to it and serves the published recordings from bbb-data itself.
+  playback:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [recording]
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/playback/presentation/2.3/"]
       interval: 30s
       timeout: 5s
       start_period: 10s

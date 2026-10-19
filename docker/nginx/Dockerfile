@@ -1,8 +1,9 @@
 # nginx: BigBlueButton's web server. Serves the landing page and the ACME webroot, and carries
 # the location fragments of the packages (/usr/share/bigbluebutton/nginx/), which proxy to the
-# services, among them the html5 client and the learning dashboard (their own images, compose
-# services `html5` and `learning-dashboard`). haproxy terminates TLS and sends HTTP to port 81
-# with the PROXY protocol; port 80 is published for ACME and the redirect to HTTPS.
+# services, among them the html5 client, the learning dashboard and the recording player (their
+# own images, compose services `html5`, `learning-dashboard` and `playback`). haproxy terminates
+# TLS and sends HTTP to port 81 with the PROXY protocol; port 80 is published for ACME and the
+# redirect to HTTPS.
 #
 # Build with bake (docker/bake/nginx.hcl) or with podman:
 #   podman build --build-context entrypoint-lib=docker/lib \
@@ -63,6 +64,7 @@ COPY --chmod=0644 default-fe.nginx bbb-html5.nginx.static /usr/local/share/bbb/n
 # sites-enabled/bbb-feature-upstreams only when the feature is enabled.
 COPY --chmod=0644 bbb-upstreams.conf /etc/nginx/conf.d/bbb-upstreams.conf
 COPY --chmod=0644 webhooks.upstream.conf /usr/local/share/bbb/nginx/upstreams/webhooks.conf
+COPY --chmod=0644 playback.upstream.conf /usr/local/share/bbb/nginx/upstreams/playback.conf
 
 # Containers: the services are reached through those upstream groups instead of 127.0.0.1:<port>
 # (the service names of docker-compose.yml); `proxy_pass http://<group>` keeps the rest of each
@@ -74,6 +76,9 @@ COPY --chmod=0644 webhooks.upstream.conf /usr/local/share/bbb/nginx/upstreams/we
 # nested regex location serves only the JSON file bbb-web writes per meeting
 # (<meetingId>/<token>/learning_dashboard_data.json) from the volume. The upstream file has CRLF
 # line endings; the added lines keep them.
+# The presentation player comes from its own image too (service playback, port 8080): its
+# location proxies there instead of serving /var/bigbluebutton/playback/presentation/2.3. The
+# recordings it plays (/presentation/<recordId>/...) stay on the volume (presentation.nginx).
 WORKDIR /usr/local/share/bbb/nginx/fragments
 # SC2016: `$1` is nginx's regex capture, written literally.
 # hadolint ignore=SC2016
@@ -84,6 +89,11 @@ RUN sed -i 's|http://127\.0\.0\.1:8090|http://bbb-web|g' web bbb-shared-notes-se
     && sed -i 's|http://127\.0\.0\.1:7880/;|http://livekit/;|g' livekit.nginx \
     && sed -i 's|http://127\.0\.0\.1:3008;|http://bbb-webrtc-sfu;|g' webrtc-sfu.nginx \
     && sed -i 's|http://127\.0\.0\.1:3005;|http://webhooks;|g' webhooks.nginx \
+    && sed -i -e 's|^  root /var/bigbluebutton;$|  proxy_pass http://playback;|' \
+              -e '\|^  try_files \$uri /playback/presentation/2\.3/index\.html;$|d' playback.nginx \
+    && if ! grep -q '^  proxy_pass http://playback;$' playback.nginx || grep -qE '^ *(root|try_files) ' playback.nginx; then \
+         echo "playback.nginx: upstream fragment changed, edit not applied" >&2; exit 1; \
+       fi \
     && printf '%s\r\n' '' \
          '    location ~ "^/learning-analytics-dashboard/([^/]+/[^/]+/learning_dashboard_data\.json)$" {' \
          '        alias /var/bigbluebutton/learning-dashboard/$1;' \

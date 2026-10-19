@@ -1,0 +1,9 @@
+# The playback image ships the package's location fragment with one change.
+reference: ../../parity/reference/nginx
+files:
+  - rendered: usr/share/bigbluebutton/nginx/playback.nginx
+    reference: usr/share/bigbluebutton/nginx/playback.nginx
+allowed:
+  - file: usr/share/bigbluebutton/nginx/playback.nginx
+    line: '^[[:space:]]*root (/var/bigbluebutton|/usr/share/bigbluebutton);$'
+    reason: "the bbb-data volume holds data only: the player is part of this image, below /usr/share/bigbluebutton (playback/presentation/2.3, as the package installs it below /var/bigbluebutton), so a volume mounted at /var/bigbluebutton cannot hide it"

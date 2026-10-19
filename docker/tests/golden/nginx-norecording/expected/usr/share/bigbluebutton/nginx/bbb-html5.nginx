@@ -1,0 +1,3 @@
+# include bbb-html5.nginx.dev;
+include /usr/share/bigbluebutton/nginx/bbb-html5.nginx.static;
+

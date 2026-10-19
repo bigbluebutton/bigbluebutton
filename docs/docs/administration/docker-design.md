@@ -46,6 +46,7 @@ them together. Each section below states a decision and the reason for it. The d
 | `nginx` | `bbb-nginx` | `docker/nginx/` (with the packages' location fragments) |
 | `html5` | `bbb-html5-client` | `bigbluebutton-html5/` |
 | `learning-dashboard` | `bbb-learning-dashboard` | `bbb-learning-dashboard/` |
+| `playback` (profile `recording`) | `bbb-playback` | `docker/bbb-playback/` (the bbb-playback release `bbb-playback.placeholder.sh` pins, built from its tag's commit: that repository publishes no image for its releases) |
 | `bbb-web` | `bbb-web` | `bigbluebutton-web/` (with `bbb-common-web/`, `bbb-common-message/`) |
 | `akka-apps` | `bbb-apps-akka` | `akka-bbb-apps/` (with `bbb-common-message/`) |
 | `graphql-server` | `bbb-graphql-server` | `bbb-graphql-server/` |

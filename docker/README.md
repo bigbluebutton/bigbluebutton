@@ -82,6 +82,7 @@ the same way, with the bake variables `BBB_IMAGE_REGISTRY` (default `localhost`)
 | `record-and-playback` | `bbb-record-and-playback` | none (not part of the stack yet) |
 | `html5-client` | `bbb-html5-client` | `html5` (also a build stage of `apps-akka` and `web`: its `settings.yml`) |
 | `learning-dashboard` | `bbb-learning-dashboard` | `learning-dashboard` |
+| `playback` | `bbb-playback` | `playback` (profile `recording`) |
 
 `bbb-common-message`, `bbb-common-web` and `_java-base` are build stages and get no tag.
 The recording image (`record-and-playback/Dockerfile`) is not built by default: its target is
@@ -195,8 +196,8 @@ with a message naming a missing or malformed variable.
   learning-dashboard, bbb-web, akka-apps, graphql-server, graphql-middleware, graphql-actions,
   shared-notes, export-annotations, redis, postgres, db-init (a job that exits after setting up
   the databases), livekit, bbb-webrtc-sfu, coturn and the office document conversion
-  (`conversion`, below), the optional webhooks (profile `webhooks`, below) and
-  bbb-webrtc-recorder (profile `recording`), and the run-only `setup` that writes `.env` (below).
+  (`conversion`, below), the optional webhooks (profile `webhooks`, below), bbb-webrtc-recorder
+  and playback (profile `recording`), and the run-only `setup` that writes `.env` (below).
   Recording processing, greenlight, monitoring and preflight follow. Until then `BBB_FEATURES` is
   empty by default and may be `webhooks`, `recording` (bbb-web then offers the record button and
   bbb-webrtc-recorder writes the raw media into `recorder-raw`, but nothing processes
@@ -284,7 +285,8 @@ with a message naming a missing or malformed variable.
   upstream groups with `server <service>:<port> resolve` in `/etc/nginx/conf.d/bbb-upstreams.conf`,
   resolved through Docker's embedded DNS server (`127.0.0.11`) every 10 seconds. The group of an
   optional feature comes with its locations: with `webhooks` in `BBB_FEATURES`, the entrypoint
-  writes the webhooks group (`/usr/local/share/bbb/nginx/upstreams/webhooks.conf`) to
+  writes the webhooks group (`/usr/local/share/bbb/nginx/upstreams/webhooks.conf`), with
+  `recording` the playback group (`playback.conf` there), to
   `/etc/nginx/sites-available/bbb-feature-upstreams`, which `sites-enabled/` includes at http
   level; otherwise that file holds only a comment. A service that was restarted or recreated
   with a new address is reached again without restarting nginx, and nginx starts even when a
@@ -370,7 +372,8 @@ docker/tests/buildkit/build.sh --tag 4.0.1 graphql-server        # then apps-akk
                                                                  # shared-notes, export-annotations,
                                                                  # bbb-webrtc-sfu, nginx,
                                                                  # (webhooks: upstream's image, pulled)
-                                                                 # html5-client, learning-dashboard
+                                                                 # html5-client, learning-dashboard,
+                                                                 # playback
 docker/tests/stack/dind.sh start     # Docker Engine in a privileged podman container
 docker/tests/stack/dind.sh load      # copies the images of docker-compose.yml from podman
 docker/tests/stack/dind.sh up        # test certificate, docker compose up -d --wait, no certbot
@@ -378,6 +381,7 @@ docker/tests/stack/dind.sh test      # join-path.sh, including four restart cycl
 docker/tests/stack/dind.sh conversion   # conversion-check.sh against the stack's conversion service
 docker/tests/stack/dind.sh config    # effective configuration of bbb-webrtc-sfu and webhooks
 docker/tests/stack/dind.sh webhooks run --auth bearer   # callbacks of a registered hook
+docker/tests/stack/dind.sh playback  # player and recording locations (feature recording)
 docker/tests/stack/dind.sh compose logs akka-apps   # any docker compose command
 docker/tests/stack/dind.sh diagnostics DIR   # compose ps and every service's log, secrets redacted
 docker/tests/stack/dind.sh stop      # removes the Engine container and all its data
@@ -419,6 +423,12 @@ services are healthy and repeats the join path, without restarting nginx (see ab
 `STEP <name>: OK|FAIL` and exits non-zero on failure. On a Docker host, run it directly in the directory of `docker-compose.yml`:
 `BBB_SHARED_SECRET=... docker/tests/stack/join-path.sh --domain <domain> --connect-ip ''`
 (add `--insecure` for a self-signed certificate; `--help` lists the options).
+
+`playback-check.sh` (`dind.sh playback`, feature `recording`, which the fixture enables) checks
+the recording locations through haproxy and nginx: `/playback/presentation/2.3/<recordId>` is
+the player's `index.html` (from the `playback` service) and its bundle loads, the 2.0 URL
+redirects to it, and a file it writes below `published/presentation/<recordId>/` in `bbb-data`
+is served at `/presentation/<recordId>/` (other paths there give 404); it removes the file again.
 
 `config-check.sh` (`dind.sh config`) prints and checks what node-config merged in the running
 bbb-webrtc-sfu and webhooks containers (`node -e` in each): the package's settings, the adapter

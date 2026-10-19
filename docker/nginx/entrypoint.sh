@@ -30,6 +30,7 @@ declare -A FEATURE_FRAGMENTS=(
 # fragments that proxy to them: a group of a service that does not run would make nginx log a
 # resolver error every few seconds.
 declare -A FEATURE_UPSTREAMS=(
+    [recording]="playback.conf"
     [webhooks]="webhooks.conf"
 )
 
