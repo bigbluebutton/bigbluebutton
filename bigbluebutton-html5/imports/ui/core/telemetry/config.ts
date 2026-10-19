@@ -15,6 +15,7 @@ export const loadConfig = (): Telemetry => {
     ...FALLBACK,
     ...fromServer,
     thresholds: { ...FALLBACK.thresholds, ...fromServer?.thresholds },
+    webrtcMonitor: { ...FALLBACK.webrtcMonitor, ...fromServer?.webrtcMonitor },
   };
   // Sampling is decided once per session so a session is either fully measured or not at all
   active = current.enabled && Math.random() < current.sampleRate;

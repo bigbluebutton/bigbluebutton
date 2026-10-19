@@ -117,6 +117,12 @@ export interface TelemetryThresholds {
   slowInteractionMs: number
 }
 
+export interface TelemetryWebrtcMonitor {
+  enabled: boolean
+  collectingPeriodMs: number
+  scriptUrl: string
+}
+
 export interface Telemetry {
   enabled: boolean
   logToServer: boolean
@@ -126,6 +132,7 @@ export interface Telemetry {
   bufferSize: number
   flushIntervalMs: number
   thresholds: TelemetryThresholds
+  webrtcMonitor: TelemetryWebrtcMonitor
 }
 
 export interface BbbTabletApp {

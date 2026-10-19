@@ -63,6 +63,15 @@ export interface KindStats {
 
 export type SeriesAttributes = Record<string, string>;
 
+// Last value of a quantity that is not a duration (e.g. the WebRTC quality score)
+export interface GaugeSnapshot {
+  metric: string;
+  unit: string;
+  attributes: SeriesAttributes;
+  value: number;
+  ts: number;
+}
+
 // Cumulative histogram of one metric + attribute set, ready to export
 export interface SeriesSnapshot {
   metric: string;

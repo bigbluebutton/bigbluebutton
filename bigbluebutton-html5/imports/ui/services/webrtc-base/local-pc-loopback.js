@@ -1,4 +1,5 @@
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { withWebrtcSource } from '/imports/ui/core/telemetry/webrtcMonitor';
 
 export default class LocalPCLoopback {
   constructor(constraints) {
@@ -10,7 +11,7 @@ export default class LocalPCLoopback {
   }
 
   _initializeLocalPC() {
-    this.localPC = new RTCPeerConnection();
+    this.localPC = withWebrtcSource('loopback', () => new RTCPeerConnection());
     this.localPC.onicecandidate = (({ candidate }) => {
       if (candidate && this.loopbackPC) {
         this.loopbackPC.addIceCandidate(new RTCIceCandidate(candidate));
@@ -20,7 +21,7 @@ export default class LocalPCLoopback {
   }
 
   _initializeLoopbackPC() {
-    this.loopbackPC = new RTCPeerConnection();
+    this.loopbackPC = withWebrtcSource('loopback', () => new RTCPeerConnection());
     this.loopbackPC.onicecandidate = (({ candidate }) => {
       if (candidate && this.localPC) {
         this.localPC.addIceCandidate(new RTCIceCandidate(candidate));

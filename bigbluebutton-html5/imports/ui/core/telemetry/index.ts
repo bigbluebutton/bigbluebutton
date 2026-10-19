@@ -11,6 +11,7 @@ import { startIncidentTriggers } from './incident';
 import startSummaryEmitter from './emit';
 import startMainThreadObservers from './observers/mainThreadObserver';
 import startResourceObserver from './observers/resourceObserver';
+import startWebrtcMonitor, { webrtcQuality, WebrtcQuality } from './webrtcMonitor';
 import {
   clearStore,
   configureStore,
@@ -36,6 +37,7 @@ export interface TelemetryDump {
   stats: Record<TelemetryKind, KindStats>;
   slowest: Record<TelemetryKind, TelemetryEntry[]>;
   series: SeriesSnapshot[];
+  webrtc: WebrtcQuality;
 }
 
 const byKind = <T>(read: (kind: TelemetryKind) => T): Record<TelemetryKind, T> => ({
@@ -52,6 +54,7 @@ export const telemetryDump = (): TelemetryDump => ({
   stats: byKind(kindStats),
   slowest: byKind((kind) => topSlowest(kind, SLOWEST_PER_KIND)),
   series: seriesSnapshot(),
+  webrtc: webrtcQuality(),
 });
 
 declare global {
@@ -92,6 +95,7 @@ export const startTelemetry = (): void => {
   startMainThreadObservers();
   startActionTrail();
   startIncidentTriggers();
+  startWebrtcMonitor();
   if (config.logToServer) startSummaryEmitter();
   if (config.exporter === 'otlp') {
     // import() keeps the sink out of the startup path and becomes a real chunk if the build ever

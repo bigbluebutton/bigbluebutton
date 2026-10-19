@@ -188,6 +188,13 @@ public:
         slowGraphqlMs: 500
         longTaskMs: 50
         slowInteractionMs: 200
+      # WebRTC quality per participant with ObserveRTC's client monitor (score 0-5 and detected issues
+      # such as frozen video or congestion). Needs telemetry.enabled. The ~68 KB gzip library lives in
+      # its own file and is downloaded only when this is on.
+      webrtcMonitor:
+        enabled: false
+        collectingPeriodMs: 5000
+        scriptUrl: compatibility/observertc-client-monitor.min.js
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.

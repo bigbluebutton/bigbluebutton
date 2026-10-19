@@ -3,8 +3,14 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import type { ReproTrail } from '../actionTrail';
 import { getConfig } from '../config';
 import type { IncidentError, IncidentTrigger } from '../incident';
-import { BUCKET_BOUNDS, seriesSnapshot, totalCount } from '../store';
-import { SeriesAttributes, SeriesSnapshot } from '../types';
+import {
+  BUCKET_BOUNDS,
+  gaugeSnapshot,
+  gaugeUpdateCount,
+  seriesSnapshot,
+  totalCount,
+} from '../store';
+import { GaugeSnapshot, SeriesAttributes, SeriesSnapshot } from '../types';
 
 // OTLP/HTTP JSON without the OpenTelemetry SDK: the store already aggregates, so this only
 // serializes. Measured at ~1 KB gzip against ~20 KB for @opentelemetry/sdk-metrics.
@@ -54,7 +60,19 @@ const toDataPoint = (item: SeriesSnapshot, now: number) => ({
   explicitBounds: BUCKET_BOUNDS,
 });
 
-export const buildMetricsPayload = (snapshot: SeriesSnapshot[], now: number) => {
+const toGaugeMetric = (item: GaugeSnapshot) => ({
+  name: item.metric,
+  unit: item.unit,
+  gauge: {
+    dataPoints: [{
+      attributes: toKeyValues(item.attributes),
+      timeUnixNano: toUnixNano(item.ts),
+      asDouble: item.value,
+    }],
+  },
+});
+
+export const buildMetricsPayload = (snapshot: SeriesSnapshot[], now: number, gauges: GaugeSnapshot[] = []) => {
   const byMetric = new Map<string, SeriesSnapshot[]>();
   snapshot.forEach((item) => {
     byMetric.set(item.metric, [...(byMetric.get(item.metric) ?? []), item]);
@@ -65,14 +83,17 @@ export const buildMetricsPayload = (snapshot: SeriesSnapshot[], now: number) => 
       resource: { attributes: toKeyValues(resourceAttributes()) },
       scopeMetrics: [{
         scope: { name: 'bbb-html5-client' },
-        metrics: Array.from(byMetric.entries()).map(([name, items]) => ({
-          name,
-          unit: 'ms',
-          histogram: {
-            aggregationTemporality: AGGREGATION_TEMPORALITY_CUMULATIVE,
-            dataPoints: items.map((item) => toDataPoint(item, now)),
-          },
-        })),
+        metrics: [
+          ...Array.from(byMetric.entries()).map(([name, items]) => ({
+            name,
+            unit: 'ms',
+            histogram: {
+              aggregationTemporality: AGGREGATION_TEMPORALITY_CUMULATIVE,
+              dataPoints: items.map((item) => toDataPoint(item, now)),
+            },
+          })),
+          ...gauges.map(toGaugeMetric),
+        ],
       }],
     }],
   };
@@ -152,10 +173,10 @@ const startOtlpSink = (): void => {
   let lastSentCount = 0;
 
   const flush = () => {
-    const count = totalCount();
+    const count = totalCount() + gaugeUpdateCount();
     if (count === lastSentCount) return;
     lastSentCount = count;
-    post('/v1/metrics', JSON.stringify(buildMetricsPayload(seriesSnapshot(), Date.now())));
+    post('/v1/metrics', JSON.stringify(buildMetricsPayload(seriesSnapshot(), Date.now(), gaugeSnapshot())));
   };
 
   window.setInterval(flush, getConfig().flushIntervalMs);

@@ -1,5 +1,6 @@
 import seriesFor from './semconv';
 import {
+  GaugeSnapshot,
   KindStats,
   SeriesAttributes,
   SeriesSnapshot,
@@ -67,6 +68,8 @@ const createKinds = (): Record<TelemetryKind, KindState> => ({
 
 let kinds = createKinds();
 const series = new Map<string, SeriesSnapshot>();
+const gauges = new Map<string, GaugeSnapshot>();
+let gaugeUpdates = 0;
 
 const seriesKey = (metric: string, attributes: SeriesAttributes) => (
   `${metric}|${Object.keys(attributes).map((key) => `${key}=${attributes[key]}`).join('|')}`
@@ -164,7 +167,27 @@ export const seriesSnapshot = (): SeriesSnapshot[] => Array.from(series.values()
   bucketCounts: item.bucketCounts.slice(),
 }));
 
+export const setGauge = (metric: string, unit: string, attributes: SeriesAttributes, value: number): void => {
+  gauges.set(seriesKey(metric, attributes), {
+    metric,
+    unit,
+    attributes,
+    value,
+    ts: Date.now(),
+  });
+  gaugeUpdates += 1;
+};
+
+export const gaugeSnapshot = (): GaugeSnapshot[] => Array.from(gauges.values()).map((item) => ({
+  ...item,
+  attributes: { ...item.attributes },
+}));
+
+// Number of gauge writes so far; sinks combine it with totalCount() to detect changes
+export const gaugeUpdateCount = (): number => gaugeUpdates;
+
 export const clearStore = (): void => {
   kinds = createKinds();
   series.clear();
+  gauges.clear();
 };

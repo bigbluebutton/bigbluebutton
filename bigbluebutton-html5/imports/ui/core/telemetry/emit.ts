@@ -3,6 +3,7 @@ import { getConfig } from './config';
 import type { LogRecordInput } from './sinks/otlp';
 import { kindStats, topSlowest } from './store';
 import { TELEMETRY_KINDS, TelemetryEntry, TelemetryKind } from './types';
+import { webrtcSummaries } from './webrtcMonitor';
 
 // Periodic summary through the existing client logger (clientLog.external) and, with exporter
 // "otlp", as OTLP log records. Never raw entries. Volume per flush: at most one record per kind,
@@ -56,6 +57,7 @@ const startSummaryEmitter = (): void => {
         },
       });
     });
+    otlpSummaries.push(...webrtcSummaries());
 
     if (otlpSummaries.length && getConfig().exporter === 'otlp') {
       import('./sinks/otlp')

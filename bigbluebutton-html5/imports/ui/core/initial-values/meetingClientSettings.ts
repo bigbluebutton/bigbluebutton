@@ -124,6 +124,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           longTaskMs: 50,
           slowInteractionMs: 200,
         },
+        webrtcMonitor: {
+          enabled: false,
+          collectingPeriodMs: 5000,
+          scriptUrl: 'compatibility/observertc-client-monitor.min.js',
+        },
       },
       breakouts: {
         allowUserChooseRoomByDefault: false,
