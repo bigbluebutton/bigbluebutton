@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import logger from '/imports/startup/client/logger';
-import { clearTelemetry, telemetryDump, TelemetryDump } from '/imports/ui/core/telemetry';
+import {
+  clearTelemetry,
+  reproTrail,
+  telemetryDump,
+  TelemetryDump,
+} from '/imports/ui/core/telemetry';
+import { TrailAction } from '/imports/ui/core/telemetry/actionTrail';
 import {
   GraphqlEntry,
   RenderEntry,
@@ -13,6 +19,7 @@ import Styled from './styles';
 
 const REFRESH_INTERVAL_MS = 2000;
 const TOP_N = 10;
+const RECENT_ACTIONS = 10;
 const REQUEST_METRIC = 'bbb.client.request.duration';
 
 const intlMessages = defineMessages({
@@ -25,6 +32,12 @@ const intlMessages = defineMessages({
   refreshLabel: { id: 'app.debugWindow.performance.refreshLabel', description: 'Button that reloads the tables' },
   copyLabel: { id: 'app.debugWindow.performance.copyLabel', description: 'Button that copies all data as JSON' },
   clearLabel: { id: 'app.debugWindow.performance.clearLabel', description: 'Button that discards the measurements' },
+  copyTrailLabel: { id: 'app.debugWindow.performance.copyTrailLabel', description: 'Button that copies the repro trail' },
+  recentActions: { id: 'app.debugWindow.performance.recentActions', description: 'Caption of the recent actions table' },
+  action: { id: 'app.debugWindow.performance.column.action', description: 'Column: click, key or mutation' },
+  control: { id: 'app.debugWindow.performance.column.control', description: 'Column: data-test of the control' },
+  detail: { id: 'app.debugWindow.performance.column.detail', description: 'Column: key or operation name' },
+  delta: { id: 'app.debugWindow.performance.column.delta', description: 'Column: ms since the previous action' },
   empty: { id: 'app.debugWindow.performance.empty', description: 'Shown when a table has no rows' },
   kind: { id: 'app.debugWindow.performance.column.kind', description: 'Column: measurement kind' },
   count: { id: 'app.debugWindow.performance.column.count', description: 'Column: number of measurements' },
@@ -110,24 +123,40 @@ const protocolRows = (dump: TelemetryDump): Row[] => {
   }));
 };
 
+const actionRow = (action: TrailAction): Row => ({
+  key: `${action.ts}-${action.type}-${action.dataTest}-${action.operationName ?? action.key ?? ''}`,
+  cells: {
+    action: action.type,
+    control: action.dataTest || action.tag,
+    detail: `${action.key ?? action.operationName ?? ''}${action.count ? ` ×${action.count}` : ''}`,
+    delta: action.deltaMs,
+  },
+});
+
 const PerformancePanel: React.FC = () => {
   const intl = useIntl();
   const [dump, setDump] = useState<TelemetryDump>(telemetryDump);
-  const refresh = () => setDump(telemetryDump());
+  const [actions, setActions] = useState<TrailAction[]>(() => reproTrail().actions);
+  const refresh = () => {
+    setDump(telemetryDump());
+    setActions(reproTrail().actions);
+  };
 
   useEffect(() => {
     const interval = window.setInterval(refresh, REFRESH_INTERVAL_MS);
     return () => window.clearInterval(interval);
   }, []);
 
-  const copy = () => {
-    navigator.clipboard.writeText(JSON.stringify(telemetryDump(), null, 2)).catch((error: Error) => {
+  const copyJson = (data: unknown) => {
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2)).catch((error: Error) => {
       logger.warn({
         logCode: 'telemetry_copy_error',
         extraInfo: { errorMessage: error.message },
       }, 'Could not copy client telemetry to the clipboard');
     });
   };
+  const copy = () => copyJson(telemetryDump());
+  const copyTrail = () => copyJson(reproTrail());
 
   const clear = () => {
     clearTelemetry();
@@ -180,6 +209,9 @@ const PerformancePanel: React.FC = () => {
           <button type="button" data-test="debugWindowPerformanceCopy" onClick={copy}>
             {label('copyLabel')}
           </button>
+          <button type="button" data-test="debugWindowPerformanceCopyTrail" onClick={copyTrail}>
+            {label('copyTrailLabel')}
+          </button>
           <button type="button" data-test="debugWindowPerformanceClear" onClick={clear}>
             {label('clearLabel')}
           </button>
@@ -219,6 +251,13 @@ const PerformancePanel: React.FC = () => {
           dataTest="debugWindowSlowGraphql"
           columns={[column('name'), column('phase'), column('duration')]}
           rows={graphqlRows}
+          emptyLabel={emptyLabel}
+        />
+        <DataTable
+          caption={label('recentActions')}
+          dataTest="debugWindowRecentActions"
+          columns={[column('action'), column('control'), column('detail'), column('delta')]}
+          rows={actions.slice(-RECENT_ACTIONS).reverse().map(actionRow)}
           emptyLabel={emptyLabel}
         />
       </Styled.Scroll>
