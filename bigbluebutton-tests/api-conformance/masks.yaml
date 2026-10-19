@@ -1,0 +1,14 @@
+# Extra normalization rules for diff (and, later, record mode), on top of the
+# built-in ones listed in the README under "Normalized responses". A rule here
+# wins over a built-in one for the same field. Add a mask when a value that
+# changes from run to run shows up as a difference.
+#
+#   masks:     [{field: name, as: time|date|internal-id|user-id|random|token}]
+#              [{path: turnServers[]/username, as: regex, regex: '^\d+:', replace: '<expiry>:'}]
+#   unordered: [{path: meetings/meeting, key: meetingID}]
+#   scope:     [{path: meetings/meeting, key: meetingID}]
+#   headers:   [User-Id, Meeting-Id]
+masks: []
+unordered: []
+scope: []
+headers: []

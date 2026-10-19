@@ -33,6 +33,8 @@ type Server struct {
 	// answers with true, so cases have something to wait for.
 	EndPolls int
 
+	api bool // behave like bbb-api, the Go port
+
 	mu       sync.Mutex
 	clock    int64
 	meetings map[string]*meeting
@@ -71,6 +73,28 @@ func New(salt string) *Server {
 		meetings: map[string]*meeting{}, sessions: map[string]*session{}}
 }
 
+// Skew shifts the fake's clock and counters, so two fakes give different
+// create times, passwords and tokens, as two real servers would.
+func (s *Server) Skew(ms int64, seq int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.clock += ms
+	s.seq += seq
+}
+
+// NewAPI returns a fake with bbb-api's response format, from the port
+// branch: calls under /meeting-api/, HTTP 202 with application/xml,
+// returnCode and moderatorPw in create, a case-sensitive checksum
+// comparison, and only the five calls bbb-api serves.
+func NewAPI(salt string) *Server {
+	s := New(salt)
+	s.api = true
+	return s
+}
+
+// apiCalls are the calls bbb-api serves (cmd/meeting-api/main.go).
+var apiCalls = map[string]bool{"create": true, "getMeetings": true, "getMeetingInfo": true, "isMeetingRunning": true, "insertDocument": true}
+
 // unsigned calls are authenticated by session token, or not at all.
 var unsigned = map[string]bool{"stuns": true, "signOut": true, "getJoinUrl": true, "learningDashboard": true}
 
@@ -84,8 +108,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mu.Unlock()
 
 	path := strings.TrimSuffix(r.URL.Path, "/")
-	if path == "/bigbluebutton/api" {
-		writeXML(w, "<returncode>SUCCESS</returncode><version>2.0</version><apiVersion>2.0</apiVersion><bbbVersion></bbbVersion>")
+	if s.api {
+		call, ok := strings.CutPrefix(path, "/meeting-api/")
+		if !ok || !apiCalls[call] {
+			http.NotFound(w, r)
+			return
+		}
+		path = "/bigbluebutton/api/" + call
+	}
+	if rest, ok := strings.CutPrefix(r.URL.EscapedPath(), "/bigbluebutton/presentation/"); ok && !s.api {
+		// Stands in for the presentation routes: it echoes the escaped path.
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprint(w, "presentation/"+rest)
+		return
+	}
+	if path == "/bigbluebutton/api" && !s.api {
+		s.writeXML(w, "<returncode>SUCCESS</returncode><version>2.0</version><apiVersion>2.0</apiVersion><bbbVersion></bbbVersion>")
 		return
 	}
 	call, ok := strings.CutPrefix(path, "/bigbluebutton/api/")
@@ -112,7 +150,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "getMeetingInfo":
 		s.getMeetingInfo(w, r, params)
 	case "getMeetings":
-		writeXML(w, "<returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message>")
+		s.writeXML(w, "<returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message>")
 	case "isMeetingRunning":
 		id := params.Get("meetingID")
 		m := s.meetings[id]
@@ -122,7 +160,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				m = nil
 			}
 		}
-		writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><running>%t</running>", m != nil))
+		s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><running>%t</running>", m != nil))
 	case "end":
 		s.end(w, r, params)
 	case "join":
@@ -140,7 +178,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			s.fail(w, r, "notFound", "We could not find a meeting with that meeting ID")
 			return
 		}
-		writeXML(w, "<returncode>SUCCESS</returncode><messageKey/><message>Presentation is being uploaded</message>")
+		s.writeXML(w, "<returncode>SUCCESS</returncode><messageKey/><message>Presentation is being uploaded</message>")
 	case "putRecordingTextTrack":
 		writeJSON(w, map[string]any{"response": map[string]any{"returncode": "SUCCESS", "messageKey": "upload_text_track_success", "message": "Text track uploaded successfully"}})
 	default:
@@ -170,6 +208,9 @@ func parseParams(r *http.Request, body string) (url.Values, error) {
 // checkChecksum is bbb-web's check: three literal removals of the
 // checksum from the raw query, the algorithm by length, hex in any case.
 func (s *Server) checkChecksum(call, rawQuery string) (key, msg string, ok bool) {
+	if s.api {
+		return s.checkChecksumAPI(call, rawQuery)
+	}
 	params, _ := url.ParseQuery(rawQuery)
 	sums := params["checksum"]
 	if len(sums) > 1 {
@@ -198,6 +239,42 @@ func (s *Server) checkChecksum(call, rawQuery string) (key, msg string, ok bool)
 	h.Write([]byte(call + q + s.Salt))
 	if !strings.EqualFold(hex.EncodeToString(h.Sum(nil)), sum) {
 		return "checksumError", "Checksums do not match", false
+	}
+	return "", "", true
+}
+
+// checkChecksumAPI compares the checksum exactly, as bbb-api does, and
+// words its error the same way.
+func (s *Server) checkChecksumAPI(call, rawQuery string) (key, msg string, ok bool) {
+	const mismatch = "Checksums do not match."
+	params, _ := url.ParseQuery(rawQuery)
+	sums := params["checksum"]
+	if len(sums) != 1 || sums[0] == "" {
+		return "checksumError", mismatch, false
+	}
+	sum := sums[0]
+	var kept []string
+	for _, entry := range strings.Split(rawQuery, "&") {
+		if k, _, _ := strings.Cut(entry, "="); k != "checksum" {
+			kept = append(kept, entry)
+		}
+	}
+	var h hash.Hash
+	switch len(sum) {
+	case 40:
+		h = sha1.New()
+	case 64:
+		h = sha256.New()
+	case 96:
+		h = sha512.New384()
+	case 128:
+		h = sha512.New()
+	default:
+		return "checksumError", mismatch, false
+	}
+	h.Write([]byte(call + strings.Join(kept, "&") + s.Salt))
+	if hex.EncodeToString(h.Sum(nil)) != sum {
+		return "checksumError", mismatch, false
 	}
 	return "", "", true
 }
@@ -252,9 +329,13 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request, p url.Values) {
 }
 
 func (s *Server) writeMeeting(w http.ResponseWriter, m *meeting, key, msg string) {
-	writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><meetingID>%s</meetingID><internalMeetingID>%s</internalMeetingID>"+
-		"<attendeePW>%s</attendeePW><moderatorPW>%s</moderatorPW><createTime>%d</createTime><messageKey>%s</messageKey><message>%s</message>",
-		esc(m.id), m.intID, esc(m.attendeePW), esc(m.moderatorPW), m.createTime, key, esc(msg)))
+	rc, mpw := "returncode", "moderatorPW"
+	if s.api {
+		rc, mpw = "returnCode", "moderatorPw" // bbb-api's CreateMeetingResponse tags
+	}
+	s.writeXML(w, fmt.Sprintf("<%s>SUCCESS</%s><meetingID>%s</meetingID><internalMeetingID>%s</internalMeetingID>"+
+		"<attendeePW>%s</attendeePW><%s>%s</%s><createTime>%d</createTime><messageKey>%s</messageKey><message>%s</message>",
+		rc, rc, esc(m.id), m.intID, esc(m.attendeePW), mpw, esc(m.moderatorPW), mpw, m.createTime, key, esc(msg)))
 }
 
 func (s *Server) getMeetingInfo(w http.ResponseWriter, r *http.Request, p url.Values) {
@@ -272,7 +353,7 @@ func (s *Server) getMeetingInfo(w http.ResponseWriter, r *http.Request, p url.Va
 	for _, k := range keys {
 		fmt.Fprintf(&meta, "<%s>%s</%s>", k, esc(m.meta[k]), k)
 	}
-	writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><meetingName>%s</meetingName><meetingID>%s</meetingID>"+
+	s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><meetingName>%s</meetingName><meetingID>%s</meetingID>"+
 		"<internalMeetingID>%s</internalMeetingID><createTime>%d</createTime><running>false</running><metadata>%s</metadata>",
 		esc(m.name), esc(m.id), m.intID, m.createTime, meta.String()))
 }
@@ -285,7 +366,7 @@ func (s *Server) end(w http.ResponseWriter, r *http.Request, p url.Values) {
 		return
 	}
 	m.ended = true
-	writeXML(w, "<returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey>"+
+	s.writeXML(w, "<returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey>"+
 		"<message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message>")
 }
 
@@ -300,7 +381,7 @@ func (s *Server) join(w http.ResponseWriter, r *http.Request, p url.Values) {
 	s.sessions[sess.token] = sess
 	http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: fmt.Sprintf("js%06d", s.seq), Path: "/bigbluebutton", Secure: true, HttpOnly: true})
 	if p.Get("redirect") == "false" {
-		writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><meeting_id>%s</meeting_id><session_token>%s</session_token>", m.intID, sess.token))
+		s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><meeting_id>%s</meeting_id><session_token>%s</session_token>", m.intID, sess.token))
 		return
 	}
 	http.Redirect(w, r, origin(r)+"/html5client/join?sessionToken="+sess.token, http.StatusFound)
@@ -322,16 +403,22 @@ func (s *Server) getJoinURL(w http.ResponseWriter, r *http.Request, p url.Values
 
 // fail answers with an error, as JSON when the client asks for it.
 func (s *Server) fail(w http.ResponseWriter, r *http.Request, key, msg string) {
-	if strings.Contains(r.Header.Get("Accept"), "application/json") {
+	if !s.api && strings.Contains(r.Header.Get("Accept"), "application/json") {
 		writeJSON(w, map[string]any{"response": map[string]any{"returncode": "FAILED", "messageKey": key, "message": msg}})
 		return
 	}
-	writeXML(w, fmt.Sprintf("<returncode>FAILED</returncode><messageKey>%s</messageKey><message>%s</message>", key, esc(msg)))
+	s.writeXML(w, fmt.Sprintf("<returncode>FAILED</returncode><messageKey>%s</messageKey><message>%s</message>", key, esc(msg)))
 }
 
-func writeXML(w http.ResponseWriter, inner string) {
-	w.Header().Set("Content-Type", "text/xml;charset=utf-8")
-	w.Header().Set("Cache-Control", "no-cache")
+func (s *Server) writeXML(w http.ResponseWriter, inner string) {
+	if s.api {
+		// bbb-api: bbbhttp.WriteXML, always 202 (internal/meeting/*/handler.go).
+		w.Header().Set("Content-Type", "application/xml")
+		w.WriteHeader(http.StatusAccepted)
+	} else {
+		w.Header().Set("Content-Type", "text/xml;charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+	}
 	fmt.Fprint(w, "<response>"+inner+"</response>")
 }
 

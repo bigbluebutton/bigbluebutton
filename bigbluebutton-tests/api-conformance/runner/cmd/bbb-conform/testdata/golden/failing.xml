@@ -20,7 +20,7 @@
       <failure message="step 1 (line 6): format: expected json, got xml">step 1 (line 6): format: expected json, got xml&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2&#xA;  format: expected json, got xml&#xA;  jsonpath $.response.returncode: expected &#34;SUCCESS&#34;, got the response is not JSON: invalid character &#39;&lt;&#39; looking for beginning of value&#xA;</failure>
     </testcase>
     <testcase name="getMeetings.report.route" classname="report" file="../../testdata/failing/report/route.yaml" line="1" time="0.000">
-      <skipped message="unimplemented: route"></skipped>
+      <skipped message="not-routed: presentation-download"></skipped>
     </testcase>
     <testcase name="getMeetings.report.salt-redacted" classname="report" file="../../testdata/failing/report/salt-redacted.yaml" line="1" time="0.000">
       <failure message="step 1 (line 6): message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;">step 1 (line 6): message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;&#xA;  GET https://fake.test/bigbluebutton/api/getMeetings?echo=[salt]&amp;checksum=fa8fbba54a691065e170c7b1d654a55a3a12ed295fab660b422282b407b95363&#xA;  message: expected &#34;[salt]&#34;, got &#34;no meetings were found on this server&#34;&#xA;</failure>

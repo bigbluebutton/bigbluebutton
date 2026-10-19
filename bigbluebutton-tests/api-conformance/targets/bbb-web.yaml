@@ -1,0 +1,28 @@
+# bbb-web, on any server. BBB_URL (e.g. https://bbb-ci.test/bigbluebutton/)
+# gives the base URL and API prefix, and BBB_SECRET the salt, as for the
+# Playwright suite.
+name: bbb-web
+capabilities: [akka]
+# Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
+# authorization hooks can't be reached through nginx, so cases call them on
+# bbb-web itself: set BBB_WEB_DIRECT_URL (e.g. http://127.0.0.1:8090) to run
+# them, or they are skipped as not-routed.
+routes:
+  presentation-upload:       {path: "/bigbluebutton/presentation/{authzToken}/upload"}
+  presentation-test-convert: {path: "/bigbluebutton/presentation/test-convert"}
+  presentation-slides:       {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/slides"}
+  presentation-thumbnails:   {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnails"}
+  presentation-thumbnail:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnail/{id}"}
+  presentation-png:          {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/png/{id}"}
+  presentation-svgs:         {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svgs"}
+  presentation-svg:          {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svg/{id}"}
+  presentation-textfiles:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles"}
+  presentation-textfile:     {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles/{id}"}
+  presentation-download:     {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
+  texttrack-file:            {path: "/bigbluebutton/textTrack/{token}/{recordId}/{track}"}
+  presentation-check:        {path: "/bigbluebutton/presentation/checkPresentation", baseEnv: BBB_WEB_DIRECT_URL}
+  presentation-authz:        {path: "/bigbluebutton/presentation/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-authz:          {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-graphql-authz:  {path: "/bigbluebutton/connection/checkGraphqlAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-legacy-authz:   {path: "/bigbluebutton/connection/legacyCheckAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  texttrack-authz:           {path: "/bigbluebutton/textTrack/validateAuthToken", baseEnv: BBB_WEB_DIRECT_URL}

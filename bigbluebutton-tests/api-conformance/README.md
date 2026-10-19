@@ -67,8 +67,63 @@ vars:
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 (e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`.
+`targets/bbb-web.yaml` and `targets/bbb-api.yaml` are set up that way.
+
+**Routes** map the route names of `route` steps to this target's paths:
+
+```yaml
+routes:
+  presentation-download: {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
+  connection-authz:      {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+```
+
+- `{name}` is filled from the step's `pathParams`, path-escaped. A missing
+  param is an error; params the path doesn't use are ignored.
+- `base` (or the variable `baseEnv` names) replaces `baseUrl`, for routes such
+  as the nginx-internal hooks that cases call on bbb-web directly.
+- A case is skipped as `not-routed` if the target doesn't map one of its
+  routes, or if the route's `baseEnv` is unset.
+
+**Profiles** are the config profiles cases can ask for with `profile:`:
+
+```yaml
+profiles:
+  short-timeouts: {command: "make -C ../env profile NAME=short-timeouts"}
+  default:        {command: "make -C ../env profile NAME=default"}
+```
+
+- Cases with a profile run after the others, one profile at a time.
+- The profile's command (`sh -c`, from the target file's directory) runs
+  before its cases.
+- `default` runs at the end, even if the run is interrupted.
+- A case whose profile the target doesn't list is skipped as `no-profile`, and
+  a failing command makes its cases ERROR.
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
+
+### Expected failures
+
+`run --expect expectations/<target>.yaml` applies a target's list of known
+failures:
+
+```yaml
+target: bbb-api
+expected:
+  - id: "join.*"            # a case ID, the base ID of a case with variants, or a glob
+    reason: join isn't implemented
+    issue: https://github.com/bigbluebutton/bigbluebutton/issues/NNN
+```
+
+| A listed case that... | is reported as | and the run |
+|---|---|---|
+| fails | XFAIL, with the entry's reason | passes |
+| passes, listed by its ID or base ID | XPASS | fails, so the stale entry gets removed |
+| passes, covered only by a glob | PASS | passes: a glob stands for a whole missing endpoint, some of whose cases pass anyway |
+| errors or is skipped | unchanged | as usual |
+
+The file's `target` must match the target's `name`. An entry that matches no
+case is reported as a warning. `expectations/bbb-api.yaml` is the bbb-api gap
+backlog; `expectations/bbb-web.yaml` lists the `defect` cases bbb-web fails.
 
 ## Checking cases
 
@@ -94,6 +149,76 @@ type. Put this first in a case file:
 The schema describes a case *after* variant expansion. If you put `${var}`
 in a field that needs a number or one of a fixed set of values, the editor
 may flag it even though `validate` accepts it.
+
+## Comparing two targets: `diff`
+
+```sh
+go run ./cmd/bbb-conform diff --a ../targets/bbb-web.yaml --b ../targets/bbb-api.yaml \
+    --cases ../cases --md ../out/diff.md --json ../out/diff.json
+```
+
+`diff` runs the cases on A, then on B, and compares every response step by
+step, after normalizing both. It shows differences no check was written for:
+missing or extra elements, tag casing, element order, status codes,
+Content-Type, error formats.
+
+- **Running:** each side gets its own `${uid}`s, since both targets may share
+  one akka-apps. Cases that call getMeetings run alone, after the others,
+  because getMeetings lists every meeting on the server.
+- **Checks don't stop a case** in diff mode, so later steps still run;
+  captures still feed them. A capture that finds nothing does stop it.
+- **What isn't compared:** teardown steps, and any step with `golden: off`.
+- **Exit status:** 0, unless `--fail-on-diff` is given and something differs.
+- **Comparing two releases:** give two bbb-web targets, e.g. 3.0 and 4.0. The
+  report lists what an integration written for one would see change on the
+  other.
+
+## The gap matrix: `gap`
+
+```sh
+go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --expect ../expectations/bbb-web.yaml --json ../out/web.json
+go run ./cmd/bbb-conform run --target ../targets/bbb-api.yaml --expect ../expectations/bbb-api.yaml --json ../out/api.json
+go run ./cmd/bbb-conform gap --results ../out/web.json --results ../out/api.json \
+    --md ../out/gap-matrix.md --html ../out/gap-matrix.html
+```
+
+`gap` combines `run` reports, one per target, into one grid:
+- a summary of passes per endpoint and target;
+- a table per endpoint with each case's outcome per target, with links to
+  expected-failure issues;
+- the reasons for every outcome other than PASS.
+
+The HTML is one self-contained page.
+
+### Normalized responses
+
+A response becomes ordered lines: `status`, the headers that matter
+(Content-Type, Cache-Control, Access-Control-*, Set-Cookie with its value
+masked, plus any listed in `masks.yaml`), `location`, then one
+`path "value"` line per XML element, attribute or JSON value. JSON numbers,
+booleans and null aren't quoted.
+
+Values that change from run to run are masked:
+
+| Field (any depth, also as a query param inside URLs) | Becomes |
+|---|---|
+| createTime, startTime, endTime | `<time>` |
+| createDate | `<date>` in Java's `Date.toString()` format, otherwise its shape (digits as 9) |
+| internalMeetingID, meeting_id, parentMeetingID, recordID | `<sha1(meetingID)>-<time>`, naming the sent param whose SHA-1 it is, or `<sha1(?)>` |
+| userID, user_id, internalUserID, existingUserID | `w_<id>` |
+| attendeePW, moderatorPW, voiceBridge | `<random>`, unless the case sent that value |
+| session and auth tokens, checksum, JSESSIONID | `<token>` |
+| stuns TURN username and password | `<expiry>:…` and `<token>` |
+
+After masking:
+- the case's `${uid}`, the target's base URLs and its API prefix are replaced
+  by placeholders;
+- getMeetings entries of other cases are dropped;
+- lists whose order isn't defined are sorted: meetings, recordings, metadata,
+  attendees, STUN and TURN servers.
+
+`masks.yaml`, next to the cases directory, adds rules or overrides the
+built-in ones.
 
 ## Case format
 

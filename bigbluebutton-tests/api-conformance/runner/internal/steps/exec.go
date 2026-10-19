@@ -8,9 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	osexec "os/exec"
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 	"unicode/utf8"
 
@@ -46,6 +48,38 @@ type Runner struct {
 	NewUID func(i int) string
 	// Area names the report group of a case, e.g. its cases/ subdirectory.
 	Area func(*spec.Case) string
+	// ContinueOnFail keeps a case going after a failed check, captures
+	// included, so every step gets a response to compare (diff mode). A
+	// capture that finds nothing still stops the case.
+	ContinueOnFail bool
+	// Observe, when set, sees every response a call step gets. It is called
+	// from the case's goroutine; cases run in parallel.
+	Observe func(Observed)
+}
+
+// Observed is one response, with what diff and record mode need about it.
+type Observed struct {
+	Case    *spec.Case
+	UID     string
+	Phase   string // "steps" or "teardown"
+	Index   int
+	Golden  string // compare | document | off, after defaults
+	Request *client.Prepared
+	Obs     *observe.Observation
+}
+
+// golden resolves a step's golden setting: off in teardown, document in
+// defect cases, compare otherwise.
+func golden(c *spec.Case, phase string, s spec.Step) string {
+	switch {
+	case s.Golden != "":
+		return s.Golden
+	case phase == "teardown":
+		return "off"
+	case c.Class == "defect":
+		return "document"
+	}
+	return "compare"
 }
 
 // NewRunner sets up a runner, registering the target's secrets for
@@ -72,7 +106,7 @@ func randomUID(int) string {
 }
 
 // Unimplemented lists what a case uses that this runner can't do yet:
-// step types, route steps and response schemas.
+// step types and response schemas.
 func Unimplemented(c *spec.Case) []string {
 	seen := map[string]bool{}
 	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
@@ -82,9 +116,6 @@ func Unimplemented(c *spec.Case) []string {
 		}
 		if s.Call == nil {
 			continue
-		}
-		if !s.Call.HasCall && s.Call.URL == "" {
-			seen["route"] = true
 		}
 		if s.Expect != nil && s.Expect.Schema != "" {
 			seen["schema"] = true
@@ -101,18 +132,78 @@ func Unimplemented(c *spec.Case) []string {
 	return out
 }
 
-// RunAll runs cases in order on up to parallel workers. Cases tagged serial
-// run afterwards, one at a time. Results keep the order of cases.
+// NotRouted lists the routes a case uses that the target can't reach.
+// Route names with templates are left to run time.
+func (r *Runner) NotRouted(c *spec.Case) []string {
+	seen := map[string]bool{}
+	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
+		if s.Call == nil || s.Call.Route == "" || tmpl.HasExpr(s.Call.Route) {
+			continue
+		}
+		if _, _, ok := r.Target.Route(s.Call.Route); !ok {
+			seen[s.Call.Route] = true
+		}
+	}
+	out := make([]string, 0, len(seen))
+	for k := range seen {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// skipReason says why a case can't run on this target, or "".
+func (r *Runner) skipReason(c *spec.Case) string {
+	if un := Unimplemented(c); len(un) > 0 {
+		return "unimplemented: " + strings.Join(un, ", ")
+	}
+	if nr := r.NotRouted(c); len(nr) > 0 {
+		return "not-routed: " + strings.Join(nr, ", ")
+	}
+	if c.Profile != "" {
+		if _, ok := r.Target.Profiles[c.Profile]; !ok {
+			return "no-profile: " + c.Profile
+		}
+	}
+	var missing []string
+	for _, capName := range c.Requires {
+		if !r.Target.Has(capName) {
+			missing = append(missing, capName)
+		}
+	}
+	if len(missing) > 0 {
+		return "target lacks " + strings.Join(missing, ", ")
+	}
+	return ""
+}
+
+// profileTimeout bounds a profile switch, which may restart services.
+const profileTimeout = 15 * time.Minute
+
+// RunAll runs cases on up to parallel workers. Then the cases tagged serial
+// run one at a time, and then each profile's cases, one profile group at a
+// time: the profile's command runs before its group, and the target's
+// "default" profile command runs at the end, even if the run is cancelled.
+// Results keep the order of cases.
 func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *report.Run {
 	run := &report.Run{Target: r.Target.Name, Started: time.Now()}
 	results := make([]*report.CaseResult, len(cases))
 	uids := make([]string, len(cases))
 	var parallelIdx, serialIdx []int
+	groups := map[string][]int{}
+	var profileOrder []string
 	for i, c := range cases {
 		uids[i] = r.NewUID(i)
-		if hasTag(c, "serial") {
+		_, hasProfile := r.Target.Profiles[c.Profile]
+		switch {
+		case c.Profile != "" && hasProfile:
+			if groups[c.Profile] == nil {
+				profileOrder = append(profileOrder, c.Profile)
+			}
+			groups[c.Profile] = append(groups[c.Profile], i)
+		case hasTag(c, "serial"):
 			serialIdx = append(serialIdx, i)
-		} else {
+		default:
 			parallelIdx = append(parallelIdx, i)
 		}
 	}
@@ -138,10 +229,72 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 	for _, i := range serialIdx {
 		results[i] = r.RunCase(ctx, cases[i], uids[i])
 	}
+	switched := false
+	defer func() {
+		// Restore the default after any switch, even if the run was cancelled.
+		def, ok := r.Target.Profiles["default"]
+		if !switched || !ok {
+			return
+		}
+		if err := r.runProfile(context.WithoutCancel(ctx), "default", def.Command); err != nil {
+			run.Warnings = append(run.Warnings, err.Error())
+			run.Tally()
+		}
+	}()
+	for _, name := range profileOrder {
+		// Switching may restart services: only do it if a case will run.
+		var err error
+		for _, i := range groups[name] {
+			if r.skipReason(cases[i]) == "" {
+				switched = true
+				err = r.runProfile(ctx, name, r.Target.Profiles[name].Command)
+				break
+			}
+		}
+		for _, i := range groups[name] {
+			if err != nil {
+				results[i] = r.skeleton(cases[i])
+				results[i].Status, results[i].Reason = report.Error, err.Error()
+				continue
+			}
+			results[i] = r.RunCase(ctx, cases[i], uids[i])
+		}
+	}
 	run.Cases = results
 	run.DurationMS = time.Since(run.Started).Milliseconds()
 	run.Tally()
 	return run
+}
+
+// runProfile runs a profile's command from the target file's directory.
+func (r *Runner) runProfile(ctx context.Context, name, command string) error {
+	ctx, cancel := context.WithTimeout(ctx, profileTimeout)
+	defer cancel()
+	cmd := osexec.CommandContext(ctx, "sh", "-c", command)
+	cmd.Dir = r.Target.Dir
+	// Kill the whole process group on cancellation; killing only sh would
+	// leave its children holding the output pipe open.
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = 5 * time.Second
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		tail := strings.TrimSpace(string(out))
+		if len(tail) > 500 {
+			tail = "…" + tail[len(tail)-500:]
+		}
+		return fmt.Errorf("profile %s: command failed: %v: %s", name, err, r.Redactor.Redact(tail))
+	}
+	return nil
+}
+
+// skeleton is the result of a case before it runs.
+func (r *Runner) skeleton(c *spec.Case) *report.CaseResult {
+	res := &report.CaseResult{ID: c.ID, Title: c.Title, Endpoint: c.Endpoint, Class: c.Class, Variant: c.Variant, File: c.File, Line: c.Line}
+	if r.Area != nil {
+		res.Area = r.Area(c)
+	}
+	return res
 }
 
 func hasTag(c *spec.Case, tag string) bool {
@@ -165,22 +318,9 @@ type exec struct {
 
 // RunCase runs one case with the given ${uid}.
 func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.CaseResult {
-	res := &report.CaseResult{ID: c.ID, Title: c.Title, Endpoint: c.Endpoint, Class: c.Class, Variant: c.Variant, File: c.File, Line: c.Line}
-	if r.Area != nil {
-		res.Area = r.Area(c)
-	}
-	if un := Unimplemented(c); len(un) > 0 {
-		res.Status, res.Reason = report.Skip, "unimplemented: "+strings.Join(un, ", ")
-		return res
-	}
-	var missing []string
-	for _, capName := range c.Requires {
-		if !r.Target.Has(capName) {
-			missing = append(missing, capName)
-		}
-	}
-	if len(missing) > 0 {
-		res.Status, res.Reason = report.Skip, "target lacks "+strings.Join(missing, ", ")
+	res := r.skeleton(c)
+	if why := r.skipReason(c); why != "" {
+		res.Status, res.Reason = report.Skip, why
 		return res
 	}
 
@@ -194,7 +334,7 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 	}
 	start := time.Now()
 	for i, s := range c.Steps {
-		sr := x.step(ctx, i, s)
+		sr := x.step(ctx, "steps", i, s)
 		res.Steps = append(res.Steps, sr)
 		if sr.Status == report.Pass {
 			continue
@@ -204,7 +344,12 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 			res.Warnings = append(res.Warnings, fmt.Sprintf("step %d (line %d), ignored: %s", i+1, s.Line, sr.Message))
 			continue
 		}
-		res.Status, res.Reason = sr.Status, fmt.Sprintf("step %d (line %d): %s", i+1, s.Line, sr.Message)
+		if res.Status == "" {
+			res.Status, res.Reason = sr.Status, fmt.Sprintf("step %d (line %d): %s", i+1, s.Line, sr.Message)
+		}
+		if r.ContinueOnFail && sr.Status == report.Fail && !sr.Stopped {
+			continue
+		}
 		break
 	}
 	// Teardown runs whatever happened; its problems are warnings. A fresh
@@ -212,7 +357,7 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 	tctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*DefaultTimeout)
 	defer cancel()
 	for i, s := range c.Teardown {
-		sr := x.step(tctx, i, s)
+		sr := x.step(tctx, "teardown", i, s)
 		if sr.Status != report.Pass {
 			sr.Ignored = true
 			res.Warnings = append(res.Warnings, fmt.Sprintf("teardown step %d (line %d): %s", i+1, s.Line, sr.Message))
@@ -259,7 +404,7 @@ func (x *exec) expand(s string) (string, error) { return tmpl.Expand(s, x.env) }
 
 func (x *exec) redact(s string) string { return x.r.Redactor.Redact(s) }
 
-func (x *exec) step(ctx context.Context, i int, s spec.Step) report.StepResult {
+func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) report.StepResult {
 	sr := report.StepResult{Index: i, Kind: string(s.Kind), Line: s.Line}
 	start := time.Now()
 	defer func() { sr.DurationMS = time.Since(start).Milliseconds() }()
@@ -272,7 +417,7 @@ func (x *exec) step(ctx context.Context, i int, s spec.Step) report.StepResult {
 			sr.Status, sr.Message = report.Error, ctx.Err().Error()
 		}
 	case spec.KindCall:
-		x.call(ctx, s, &sr)
+		x.call(ctx, phase, i, s, &sr)
 	default:
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}
@@ -280,7 +425,7 @@ func (x *exec) step(ctx context.Context, i int, s spec.Step) report.StepResult {
 	return sr
 }
 
-func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
+func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, sr *report.StepResult) {
 	cs := s.Call
 	p, err := x.prepare(cs)
 	if err != nil {
@@ -335,6 +480,10 @@ func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
 				sr.Response = x.responseInfo(o)
 				sr.Assertions = x.redactResults(lastUntil)
 				sr.Status, sr.Message = report.Fail, msg
+				x.observe(phase, index, s, p, o)
+				if x.r.ContinueOnFail {
+					x.captures(s, o, sr)
+				}
 				return
 			}
 			select {
@@ -352,6 +501,7 @@ func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
 		}
 	}
 	sr.Response = x.responseInfo(o)
+	x.observe(phase, index, s, p, o)
 
 	results, err := assert.Check(s.Expect, o, eval)
 	if err != nil {
@@ -359,10 +509,26 @@ func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
 		return
 	}
 	sr.Assertions = x.redactResults(results)
+	sr.Status = report.Pass
 	if !assert.Passed(results) {
 		sr.Status, sr.Message = report.Fail, assert.FirstFailure(results)
-		return
+		if !x.r.ContinueOnFail {
+			return
+		}
 	}
+	x.captures(s, o, sr)
+}
+
+func (x *exec) observe(phase string, index int, s spec.Step, p *client.Prepared, o *observe.Observation) {
+	if x.r.Observe != nil {
+		x.r.Observe(Observed{Case: x.c, UID: x.uid, Phase: phase, Index: index, Golden: golden(x.c, phase, s), Request: p, Obs: o})
+	}
+}
+
+// captures stores the step's captures. A capture that finds nothing makes
+// the step FAIL and stops the case, even in ContinueOnFail mode, since later
+// steps would run on a missing value.
+func (x *exec) captures(s spec.Step, o *observe.Observation, sr *report.StepResult) {
 	for _, c := range s.Capture {
 		expr, err := x.expand(c.Expr)
 		if err != nil {
@@ -377,7 +543,11 @@ func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
 			} else {
 				sr.Status = report.Error
 			}
-			sr.Message = err.Error()
+			if sr.Message != "" {
+				sr.Message += "; "
+			}
+			sr.Message += err.Error()
+			sr.Stopped = true
 			return
 		}
 		x.captured[c.Name] = v
@@ -386,7 +556,6 @@ func (x *exec) call(ctx context.Context, s spec.Step, sr *report.StepResult) {
 		}
 		sr.Captured[c.Name] = x.redact(v)
 	}
-	sr.Status = report.Pass
 }
 
 const (

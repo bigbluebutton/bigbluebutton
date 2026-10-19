@@ -4,8 +4,11 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -338,5 +341,157 @@ func TestEncodedSecretsRedacted(t *testing.T) {
 	}
 	if !strings.Contains(fake.Requests[0].RawQuery, "t0p%2Bse%2Fcr%3Dt%22x") {
 		t.Errorf("the secret should still be sent: %q", fake.Requests[0].RawQuery)
+	}
+}
+
+func TestRoutes(t *testing.T) {
+	main := httptest.NewServer(fakebbb.New(salt))
+	defer main.Close()
+	direct := fakebbb.New(salt)
+	directSrv := httptest.NewServer(direct)
+	defer directSrv.Close()
+	t.Setenv("STEPS_TEST_DIRECT", directSrv.URL)
+	t.Setenv("STEPS_TEST_UNSET", "")
+
+	tf := filepath.Join(t.TempDir(), "r.yaml")
+	body := "name: r\nbaseUrl: " + main.URL + "\nsalt: " + salt + "\nroutes:\n" +
+		"  presentation-download: {path: \"/bigbluebutton/presentation/download/{meetingId}/{presId}\"}\n" +
+		"  presentation-direct: {path: /bigbluebutton/presentation/direct, baseEnv: STEPS_TEST_DIRECT}\n" +
+		"  presentation-unset: {path: /bigbluebutton/presentation/x, baseEnv: STEPS_TEST_UNSET}\n"
+	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tg, err := target.Load(tf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := tg.Bases(); len(got) != 2 || got[1] != main.URL && got[0] != main.URL {
+		t.Errorf("Bases = %v, want baseUrl and the direct base", got)
+	}
+	run := func(src string) *report.CaseResult {
+		t.Helper()
+		cases, probs := spec.LoadBytes("case.yaml", []byte(header(src)), spec.Options{})
+		if len(probs) > 0 {
+			t.Fatal(probs)
+		}
+		return r.RunCase(context.Background(), cases[0], "uid-1")
+	}
+
+	res := run(`steps:
+  - route: presentation-download
+    pathParams: {meetingId: "m ${uid}", presId: "p/1", unused: x}
+    expect: {status: 200, body: "presentation/download/m%20uid-1/p%2F1"}
+  - route: presentation-direct
+    expect: {status: 200}
+`)
+	if res.Status != report.Pass {
+		t.Errorf("status %s: %s", res.Status, res.Reason)
+	}
+	if len(direct.Requests) != 1 || direct.Requests[0].Path != "/bigbluebutton/presentation/direct" {
+		t.Errorf("the baseEnv route should go to the other host: %+v", direct.Requests)
+	}
+	if res := run("steps:\n  - route: presentation-unset\n  - route: nowhere\n"); res.Status != report.Skip || res.Reason != "not-routed: nowhere, presentation-unset" {
+		t.Errorf("status %s, reason %q", res.Status, res.Reason)
+	}
+	if res := run("steps:\n  - route: presentation-download\n    pathParams: {meetingId: m}\n"); res.Status != report.Error || !strings.Contains(res.Reason, "needs pathParams presId") {
+		t.Errorf("status %s, reason %q", res.Status, res.Reason)
+	}
+}
+
+func TestProfiles(t *testing.T) {
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	dir := t.TempDir()
+	tg := &target.Target{Name: "p", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1", Dir: dir,
+		Profiles: map[string]target.Profile{
+			"fast":    {Command: "echo fast >> marker"},
+			"broken":  {Command: "echo broken >> marker; echo oops; exit 3"},
+			"default": {Command: "echo default >> marker"},
+		}}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []*spec.Case
+	for i, profile := range []string{"fast", "", "broken", "fast", "missing"} {
+		src := fmt.Sprintf("id: getMeetings.p.c%d\ntitle: t\nendpoint: getMeetings\nclass: contract\n", i)
+		if profile != "" {
+			src += "profile: " + profile + "\n"
+		}
+		src += "steps: [{call: getMeetings, expect: {returncode: SUCCESS}}]\n"
+		cs, probs := spec.LoadBytes("c.yaml", []byte(src), spec.Options{})
+		if len(probs) > 0 {
+			t.Fatal(probs)
+		}
+		cases = append(cases, cs...)
+	}
+	run := r.RunAll(context.Background(), cases, 2)
+	var got []string
+	for _, c := range run.Cases {
+		got = append(got, string(c.Status))
+	}
+	if want := []string{"PASS", "PASS", "ERROR", "PASS", "SKIP"}; strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Errorf("statuses = %v, want %v", got, want)
+	}
+	if !strings.Contains(run.Cases[2].Reason, "profile broken: command failed") || !strings.Contains(run.Cases[2].Reason, "oops") {
+		t.Errorf("reason = %q", run.Cases[2].Reason)
+	}
+	if run.Cases[4].Reason != "no-profile: missing" {
+		t.Errorf("reason = %q", run.Cases[4].Reason)
+	}
+	marker, _ := os.ReadFile(filepath.Join(dir, "marker"))
+	if got := strings.Fields(string(marker)); strings.Join(got, ",") != "fast,broken,default" {
+		t.Errorf("profile commands ran as %v, want fast,broken,default (one switch per group, default last)", got)
+	}
+}
+
+func TestProfileDefaultAfterCancel(t *testing.T) {
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	dir := t.TempDir()
+	tg := &target.Target{Name: "p", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1", Dir: dir,
+		Profiles: map[string]target.Profile{
+			"slow":    {Command: "sleep 5"},
+			"default": {Command: "echo default >> marker"},
+		}}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\nprofile: slow\nsteps: [{call: getMeetings}]\n"), spec.Options{})
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+	run := r.RunAll(ctx, cases, 1)
+	if run.Cases[0].Status != report.Error {
+		t.Errorf("status %s", run.Cases[0].Status)
+	}
+	if marker, _ := os.ReadFile(filepath.Join(dir, "marker")); strings.TrimSpace(string(marker)) != "default" {
+		t.Errorf("the default profile must be restored after a cancelled run; marker = %q", marker)
+	}
+}
+
+// A profile switch can restart services, so it is skipped when no case in
+// the group would run.
+func TestProfileSkippedWhenNothingRuns(t *testing.T) {
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	dir := t.TempDir()
+	tg := &target.Target{Name: "p", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1", Dir: dir,
+		Profiles: map[string]target.Profile{"slow": {Command: "echo slow >> marker"}, "default": {Command: "echo default >> marker"}}}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\nprofile: slow\nrequires: [clamav]\nsteps: [{call: getMeetings}]\n"), spec.Options{})
+	run := r.RunAll(context.Background(), cases, 1)
+	if run.Cases[0].Status != report.Skip {
+		t.Errorf("status %s", run.Cases[0].Status)
+	}
+	if marker, _ := os.ReadFile(filepath.Join(dir, "marker")); len(marker) > 0 {
+		t.Errorf("no profile command should run when every case in the group is skipped: %q", marker)
 	}
 }

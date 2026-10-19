@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/expectations"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakebbb"
 )
 
@@ -53,7 +54,7 @@ var normalizers = []struct {
 	{regexp.MustCompile(`\(\d+ attempts\)`), "(N attempts)"},
 }
 
-func normalize(s string) string {
+func scrub(s string) string {
 	// The transport-error case dials 127.0.0.1:1 on purpose; keep it.
 	s = strings.ReplaceAll(s, "127.0.0.1:1/", "PORT-ONE/")
 	for _, n := range normalizers {
@@ -66,17 +67,24 @@ func TestRunGolden(t *testing.T) {
 	newUID = func(i int) string { return fmt.Sprintf("uid-%03d", i) }
 	t.Cleanup(func() { newUID = nil })
 	for _, set := range []struct {
-		name string
-		code int
-	}{{"cases", exitOK}, {"failing", exitFailed}, {"smoke", exitOK}} {
+		name, cases string
+		code        int
+		extra       []string
+	}{
+		{"cases", "cases", exitOK, nil},
+		{"failing", "failing", exitFailed, nil},
+		{"smoke", "smoke", exitOK, nil},
+		{"failing-expected", "failing", exitFailed, []string{"--expect", "../../testdata/expectations/failing.yaml"}},
+	} {
 		t.Run(set.name, func(t *testing.T) {
 			tf := startFake(t, "akka")
 			out := t.TempDir()
 			var stdout, stderr bytes.Buffer
 			// One worker: the fake's counters (create times, tokens) then
 			// advance in case order, so reports repeat exactly.
-			code := run([]string{"run", "--target", tf, "--cases", "../../testdata/" + set.name, "--fixtures", "../../testdata/fixtures",
-				"--parallel", "1", "-v", "--junit", filepath.Join(out, "r.xml"), "--json", filepath.Join(out, "r.json")}, &stdout, &stderr)
+			args := append([]string{"run", "--target", tf, "--cases", "../../testdata/" + set.cases, "--fixtures", "../../testdata/fixtures",
+				"--parallel", "1", "-v", "--junit", filepath.Join(out, "r.xml"), "--json", filepath.Join(out, "r.json")}, set.extra...)
+			code := run(args, &stdout, &stderr)
 			if code != set.code {
 				t.Fatalf("exit %d, want %d\nstdout:\n%s\nstderr:\n%s", code, set.code, stdout.String(), stderr.String())
 			}
@@ -93,7 +101,7 @@ func TestRunGolden(t *testing.T) {
 					t.Errorf("the %s report contains the salt", ext)
 				}
 				golden := filepath.Join("testdata", "golden", set.name+"."+ext)
-				got = normalize(got)
+				got = scrub(got)
 				if *update {
 					if err := os.MkdirAll(filepath.Dir(golden), 0o755); err != nil {
 						t.Fatal(err)
@@ -157,10 +165,24 @@ func TestRunUsage(t *testing.T) {
 		{"run", "--target", "missing.yaml"},
 		{"run", "--target", tf, "--cases", "../../internal/spec/testdata/invalid"},
 		{"run", "--target", tf, "--id", "["},
+		{"run", "--target", tf, "--expect", "../../../expectations/bbb-web.yaml"}, // for another target
+		{"run", "--target", tf, "--expect", "missing.yaml"},
 	} {
 		var stdout, stderr bytes.Buffer
 		if code := run(args, &stdout, &stderr); code != exitUsage {
 			t.Errorf("%v: exit %d, want %d\n%s", args, code, exitUsage, stderr.String())
+		}
+	}
+}
+
+func TestCommittedExpectations(t *testing.T) {
+	for _, name := range []string{"bbb-web", "bbb-api"} {
+		f, err := expectations.Load("../../../expectations/" + name + ".yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if f.Target != name {
+			t.Errorf("%s.yaml is for target %q", name, f.Target)
 		}
 	}
 }

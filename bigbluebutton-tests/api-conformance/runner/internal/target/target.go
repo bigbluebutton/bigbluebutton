@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -32,6 +33,11 @@ type Target struct {
 	SinkURL     string         `yaml:"sinkUrl"`
 	FixtureURL  string         `yaml:"fixtureUrl"`
 	Vars        map[string]Var `yaml:"vars"`
+	// Routes maps the route names of non-API calls to this target's paths.
+	Routes map[string]Route `yaml:"routes"`
+	// Profiles are the config profiles cases can ask for, and the commands
+	// that switch the target to them. "default" switches back.
+	Profiles map[string]Profile `yaml:"profiles"`
 
 	// Dir is the directory of the target file; relative paths resolve there.
 	Dir string `yaml:"-"`
@@ -43,6 +49,23 @@ type TLS struct {
 	InsecureSkipVerify bool   `yaml:"insecureSkipVerify"`
 }
 
+// Route is where a non-API route lives. Path may hold {name} placeholders,
+// filled from a step's pathParams. Base, or the variable BaseEnv names,
+// replaces the target's baseUrl, e.g. to reach bbb-web's nginx-internal
+// hooks directly.
+type Route struct {
+	Path    string `yaml:"path"`
+	Base    string `yaml:"base"`
+	BaseEnv string `yaml:"baseEnv"`
+
+	unavailable bool // BaseEnv names a variable that isn't set
+}
+
+// Profile switches the target to one configuration.
+type Profile struct {
+	Command string `yaml:"command"`
+}
+
 // Var is a value cases read as ${target.<name>}. Secret values are redacted
 // from reports.
 type Var struct {
@@ -52,8 +75,10 @@ type Var struct {
 }
 
 var (
-	varNameRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
-	algs      = map[string]bool{"sha1": true, "sha256": true, "sha384": true, "sha512": true}
+	varNameRe     = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+	nameRe        = regexp.MustCompile(`^[a-z][a-z0-9-]*$`)
+	placeholderRe = regexp.MustCompile(`\{([A-Za-z_][A-Za-z0-9_]*)\}`)
+	algs          = map[string]bool{"sha1": true, "sha256": true, "sha384": true, "sha512": true}
 )
 
 // Load reads a target file. Blank fields fall back to the environment
@@ -132,7 +157,92 @@ func (t *Target) complete(getenv func(string) string) error {
 	if t.TLS.CAFile != "" && !filepath.IsAbs(t.TLS.CAFile) {
 		t.TLS.CAFile = filepath.Join(t.Dir, t.TLS.CAFile)
 	}
+	for name, r := range t.Routes {
+		if !nameRe.MatchString(name) {
+			return fmt.Errorf("routes: bad name %q (lower-case letters, digits and dashes)", name)
+		}
+		if !strings.HasPrefix(r.Path, "/") {
+			return fmt.Errorf("routes.%s: path %q must start with /", name, r.Path)
+		}
+		if rest := placeholderRe.ReplaceAllString(r.Path, ""); strings.ContainsAny(rest, "{}") {
+			return fmt.Errorf("routes.%s: path %q has a malformed {placeholder}", name, r.Path)
+		}
+		if r.Base != "" && r.BaseEnv != "" {
+			return fmt.Errorf("routes.%s: set base or baseEnv, not both", name)
+		}
+		if r.BaseEnv != "" {
+			r.Base = getenv(r.BaseEnv)
+			r.unavailable = r.Base == ""
+		}
+		if r.Base != "" {
+			u, err := url.Parse(r.Base)
+			if err != nil || u.Scheme == "" || u.Host == "" || (u.Path != "" && u.Path != "/") {
+				return fmt.Errorf("routes.%s: base %q must be scheme and host only", name, r.Base)
+			}
+			r.Base = strings.TrimSuffix(r.Base, "/")
+		}
+		t.Routes[name] = r
+	}
+	for name, p := range t.Profiles {
+		if !nameRe.MatchString(name) {
+			return fmt.Errorf("profiles: bad name %q (lower-case letters, digits and dashes)", name)
+		}
+		if strings.TrimSpace(p.Command) == "" {
+			return fmt.Errorf("profiles.%s: command is required", name)
+		}
+	}
 	return nil
+}
+
+// Route returns the base URL and path template of a route. ok is false when
+// the target doesn't map it, or maps it to a base whose variable isn't set.
+func (t *Target) Route(name string) (base, path string, ok bool) {
+	r, found := t.Routes[name]
+	if !found || r.unavailable {
+		return "", "", false
+	}
+	base = r.Base
+	if base == "" {
+		base = t.BaseURL
+	}
+	return base, r.Path, true
+}
+
+// Bases returns every base URL requests to this target can go to, longest
+// first: baseUrl and the route overrides.
+func (t *Target) Bases() []string {
+	seen := map[string]bool{t.BaseURL: true}
+	out := []string{t.BaseURL}
+	for _, r := range t.Routes {
+		if r.Base != "" && !seen[r.Base] {
+			seen[r.Base] = true
+			out = append(out, r.Base)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return len(out[i]) > len(out[j]) || (len(out[i]) == len(out[j]) && out[i] < out[j])
+	})
+	return out
+}
+
+// FillPath replaces each {name} in path with the path-escaped value of
+// params[name]. Params the path doesn't use are ignored, since another
+// target may map the same route with other placeholders.
+func FillPath(path string, params map[string]string) (string, error) {
+	var missing []string
+	out := placeholderRe.ReplaceAllStringFunc(path, func(m string) string {
+		key := m[1 : len(m)-1]
+		v, ok := params[key]
+		if !ok {
+			missing = append(missing, key)
+			return m
+		}
+		return url.PathEscape(v)
+	})
+	if len(missing) > 0 {
+		return "", fmt.Errorf("the route needs pathParams %s", strings.Join(missing, ", "))
+	}
+	return out, nil
 }
 
 // Has reports whether the target declares capability c.

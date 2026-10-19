@@ -1,0 +1,5 @@
+# Expected failures of bbb-web. `defect` cases assert the correct behaviour
+# that bbb-web gets wrong; each one gets an entry here, with the issue that
+# tracks it.
+target: bbb-web
+expected: []

@@ -40,6 +40,12 @@ func TestComplete(t *testing.T) {
 		{name: "no salt", in: Target{Name: "x", BaseURL: "https://h"}, wantErr: "no salt"},
 		{name: "bad prefix", in: Target{Name: "x", BaseURL: "https://h", APIPrefix: "api", Salt: "s"}, wantErr: "apiPrefix"},
 		{name: "bad sign", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", DefaultSign: "md5"}, wantErr: "defaultSign"},
+		{name: "route name", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", Routes: map[string]Route{"Bad_Name": {Path: "/a"}}}, wantErr: "routes: bad name"},
+		{name: "route path", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", Routes: map[string]Route{"a": {Path: "a"}}}, wantErr: "must start with /"},
+		{name: "route placeholder", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", Routes: map[string]Route{"a": {Path: "/a/{b"}}}, wantErr: "malformed"},
+		{name: "route bases", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", Routes: map[string]Route{"a": {Path: "/a", Base: "https://d", BaseEnv: "D"}}}, wantErr: "not both"},
+		{name: "route base", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", Routes: map[string]Route{"a": {Path: "/a", Base: "https://d/x"}}}, wantErr: "scheme and host only"},
+		{name: "profile command", in: Target{Name: "x", BaseURL: "https://h", Salt: "s", Profiles: map[string]Profile{"p": {}}}, wantErr: "command is required"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -87,5 +93,59 @@ func TestLoad(t *testing.T) {
 	}
 	if _, err := Load(p); err == nil || !strings.Contains(err.Error(), "baseURL") {
 		t.Errorf("an unknown key should be rejected, got %v", err)
+	}
+}
+
+func TestRouteAndFillPath(t *testing.T) {
+	tg := Target{Name: "x", BaseURL: "https://h", Salt: "s", Routes: map[string]Route{
+		"a": {Path: "/a/{id}"},
+		"b": {Path: "/b", BaseEnv: "DIRECT"},
+		"c": {Path: "/c", BaseEnv: "UNSET"},
+	}}
+	if err := tg.complete(env(map[string]string{"DIRECT": "http://direct:8090/"})); err != nil {
+		t.Fatal(err)
+	}
+	if base, path, ok := tg.Route("a"); !ok || base != "https://h" || path != "/a/{id}" {
+		t.Errorf("Route(a) = %q %q %v", base, path, ok)
+	}
+	if base, _, ok := tg.Route("b"); !ok || base != "http://direct:8090" {
+		t.Errorf("Route(b) = %q %v", base, ok)
+	}
+	if _, _, ok := tg.Route("c"); ok {
+		t.Error("a route whose baseEnv is unset should be unavailable")
+	}
+	if _, _, ok := tg.Route("zzz"); ok {
+		t.Error("an unmapped route should be unavailable")
+	}
+	got, err := FillPath("/p/{a}/{b}", map[string]string{"a": "x y", "b": "1/2", "extra": "z"})
+	if err != nil || got != "/p/x%20y/1%2F2" {
+		t.Errorf("FillPath = %q, %v", got, err)
+	}
+	if _, err := FillPath("/p/{a}", nil); err == nil || !strings.Contains(err.Error(), "needs pathParams a") {
+		t.Errorf("FillPath error = %v", err)
+	}
+}
+
+// The committed target files must load with the CI environment.
+func TestCommittedTargets(t *testing.T) {
+	t.Setenv("BBB_URL", "https://bbb-ci.test/bigbluebutton/")
+	t.Setenv("BBB_SECRET", "bbbci")
+	t.Setenv("BBB_WEB_DIRECT_URL", "")
+	web, err := Load("../../../targets/bbb-web.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if web.BaseURL != "https://bbb-ci.test" || web.APIPrefix != "/bigbluebutton/api/" || len(web.Routes) == 0 {
+		t.Errorf("bbb-web = %+v", web)
+	}
+	if _, _, ok := web.Route("connection-authz"); ok {
+		t.Error("the internal hooks should be unavailable without BBB_WEB_DIRECT_URL")
+	}
+	api, err := Load("../../../targets/bbb-api.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if api.BaseURL != "https://bbb-ci.test" || api.APIPrefix != "/meeting-api/" {
+		t.Errorf("bbb-api = %+v", api)
 	}
 }

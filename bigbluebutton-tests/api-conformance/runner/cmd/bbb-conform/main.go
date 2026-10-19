@@ -2,7 +2,11 @@
 //
 //	bbb-conform run --target FILE [--cases DIR] [--fixtures DIR] [--tags T,..]
 //	                [--exclude-tags T,..] [--id GLOB,..] [--parallel N]
-//	                [--junit FILE] [--json FILE] [-v]
+//	                [--expect FILE] [--junit FILE] [--json FILE] [-v]
+//	bbb-conform diff --a TARGET --b TARGET [--cases DIR] [--fixtures DIR] [--tags T,..]
+//	                 [--exclude-tags T,..] [--id GLOB,..] [--parallel N] [--masks FILE]
+//	                 [--md FILE] [--json FILE] [--fail-on-diff]
+//	bbb-conform gap --results FILE [--results FILE ...] [--md FILE] [--html FILE]
 //	bbb-conform validate [--cases DIR] [--fixtures DIR]
 //	bbb-conform version
 package main
@@ -19,6 +23,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/diff"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/expectations"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/gap"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/normalize"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/steps"
@@ -35,10 +43,12 @@ const (
 	exitUsage   = 2 // bad command line or configuration
 	usageString = `usage:
   bbb-conform run --target FILE [options]               run cases against a target
+  bbb-conform diff --a FILE --b FILE [options]          compare how two targets answer
+  bbb-conform gap --results FILE... [--md F] [--html F] the gap matrix of several runs
   bbb-conform validate [--cases DIR] [--fixtures DIR]   check case files
   bbb-conform version                                   print the version
 
-Run "bbb-conform run -h" for the run options.
+Run "bbb-conform run -h" or "bbb-conform diff -h" for their options.
 `
 )
 
@@ -54,6 +64,10 @@ func run(args []string, stdout, stderr io.Writer) int {
 	switch args[0] {
 	case "run":
 		return cmdRun(args[1:], stdout, stderr)
+	case "diff":
+		return cmdDiff(args[1:], stdout, stderr)
+	case "gap":
+		return cmdGap(args[1:], stdout, stderr)
 	case "validate":
 		return cmdValidate(args[1:], stdout, stderr)
 	case "version":
@@ -137,6 +151,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	parallel := fl.Int("parallel", 4, "cases to run at once (cases tagged serial always run alone)")
 	junitFile := fl.String("junit", "", "write a JUnit XML report here")
 	jsonFile := fl.String("json", "", "write a JSON report here")
+	expectFile := fl.String("expect", "", "the target's expected-failure list")
 	verbose := fl.Bool("v", false, "list every failed check and warning")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -162,6 +177,17 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform: target: %v\n", err)
 		return exitUsage
+	}
+	var expected *expectations.File
+	if *expectFile != "" {
+		if expected, err = expectations.Load(*expectFile); err != nil {
+			fmt.Fprintf(stderr, "bbb-conform: expect: %v\n", err)
+			return exitUsage
+		}
+		if expected.Target != tg.Name {
+			fmt.Fprintf(stderr, "bbb-conform: %s is for target %q, not %q\n", *expectFile, expected.Target, tg.Name)
+			return exitUsage
+		}
 	}
 	res, fixturesDir, code := load(*cases, *fixtures, stderr)
 	if res == nil {
@@ -190,6 +216,13 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	run := r.RunAll(ctx, selected, *parallel)
+	if expected != nil {
+		var loaded []expectations.Case
+		for _, c := range res.Cases {
+			loaded = append(loaded, expectations.CaseFor(c.ID, c.Variant))
+		}
+		expected.Apply(run, loaded)
+	}
 
 	report.WriteConsole(stdout, run, *verbose)
 	if err := writeReport(*junitFile, r.Redactor, func(w io.Writer) error { return report.WriteJUnit(w, run) }); err != nil {
@@ -282,4 +315,179 @@ func writeReport(name string, red *tmpl.Redactor, write func(io.Writer) error) e
 		}
 	}
 	return os.WriteFile(name, []byte(red.Redact(buf.String())), 0o644)
+}
+
+func cmdDiff(args []string, stdout, stderr io.Writer) int {
+	fl := flag.NewFlagSet("diff", flag.ContinueOnError)
+	fl.SetOutput(stderr)
+	aFile := fl.String("a", "", "first target (required)")
+	bFile := fl.String("b", "", "second target (required)")
+	cases := fl.String("cases", "cases", "directory of case files")
+	fixtures := fl.String("fixtures", "", "fixtures directory (default: fixtures next to the cases directory)")
+	tags := fl.String("tags", "", "only cases with one of these comma-separated tags")
+	exclude := fl.String("exclude-tags", "", "skip cases with any of these comma-separated tags")
+	ids := fl.String("id", "", "only cases whose ID matches one of these comma-separated globs")
+	parallel := fl.Int("parallel", 4, "cases to run at once on each target")
+	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.yaml next to the cases directory)")
+	mdFile := fl.String("md", "", "write a Markdown report here")
+	jsonFile := fl.String("json", "", "write a JSON report here")
+	failOnDiff := fl.Bool("fail-on-diff", false, "exit 1 when any case differs")
+	if err := fl.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return exitOK
+		}
+		return exitUsage
+	}
+	if fl.NArg() > 0 || *aFile == "" || *bFile == "" {
+		fmt.Fprintln(stderr, "bbb-conform diff: --a and --b are required")
+		return exitUsage
+	}
+	var tgs [2]*target.Target
+	for i, f := range []string{*aFile, *bFile} {
+		t, err := target.Load(f)
+		if err != nil {
+			fmt.Fprintf(stderr, "bbb-conform: target: %v\n", err)
+			return exitUsage
+		}
+		tgs[i] = t
+	}
+	res, fixturesDir, code := load(*cases, *fixtures, stderr)
+	if res == nil {
+		return code
+	}
+	if len(res.Problems) > 0 {
+		for _, p := range res.Problems {
+			fmt.Fprintln(stderr, p)
+		}
+		fmt.Fprintf(stderr, "bbb-conform: %d problem(s) in the cases; run validate for details\n", len(res.Problems))
+		return exitUsage
+	}
+	rules := normalize.Default()
+	masks := *masksFile
+	if masks == "" {
+		def := filepath.Join(filepath.Dir(filepath.Clean(*cases)), "masks.yaml")
+		if _, err := os.Stat(def); err == nil {
+			masks = def
+		}
+	}
+	if masks != "" {
+		var err error
+		if rules, err = normalize.Load(masks); err != nil {
+			fmt.Fprintf(stderr, "bbb-conform: masks: %v\n", err)
+			return exitUsage
+		}
+	}
+	// getMeetings lists every meeting on the server, so its cases run alone,
+	// after the others.
+	var first, last []*spec.Case
+	for _, c := range filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids)) {
+		if callsGetMeetings(c) {
+			last = append(last, c)
+		} else {
+			first = append(first, c)
+		}
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	red := &tmpl.Redactor{}
+	casesRoot := filepath.Clean(*cases)
+	var runs [2]*report.Run
+	var cols [2]*diff.Collector
+	for i, tg := range tgs {
+		r, err := steps.NewRunner(tg, fixturesDir, version)
+		if err != nil {
+			fmt.Fprintf(stderr, "bbb-conform: target: %v\n", err)
+			return exitUsage
+		}
+		red.Add("[salt]", tg.Salt)
+		for name, v := range tg.Vars {
+			if v.Secret {
+				red.Add("[secret:"+name+"]", v.Value)
+			}
+		}
+		side := string(rune('a' + i))
+		uid := r.NewUID
+		if newUID != nil {
+			uid = func(n int) string { return side + "-" + newUID(n) }
+		}
+		r.NewUID = uid
+		r.Area = func(c *spec.Case) string { return area(casesRoot, c.File) }
+		r.ContinueOnFail = true
+		cols[i] = diff.NewCollector(tg, rules)
+		r.Observe = cols[i].Observe
+		run := r.RunAll(ctx, first, *parallel)
+		r.NewUID = func(n int) string { return uid(n + len(first)) }
+		tail := r.RunAll(ctx, last, 1)
+		run.Cases = append(run.Cases, tail.Cases...)
+		run.Warnings = append(run.Warnings, tail.Warnings...)
+		run.DurationMS += tail.DurationMS
+		run.Tally()
+		runs[i] = run
+	}
+	rep := diff.Compare(runs[0], runs[1], cols[0], cols[1])
+	var console strings.Builder
+	rep.WriteConsole(&console)
+	fmt.Fprint(stdout, red.Redact(console.String()))
+	if err := writeReport(*mdFile, red, rep.WriteMarkdown); err != nil {
+		fmt.Fprintf(stderr, "bbb-conform: md: %v\n", err)
+		return exitUsage
+	}
+	if err := writeReport(*jsonFile, red, rep.WriteJSON); err != nil {
+		fmt.Fprintf(stderr, "bbb-conform: json: %v\n", err)
+		return exitUsage
+	}
+	if *failOnDiff && rep.Differs() {
+		return exitFailed
+	}
+	return exitOK
+}
+
+func callsGetMeetings(c *spec.Case) bool {
+	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
+		if s.Call != nil && s.Call.HasCall && s.Call.Call == "getMeetings" {
+			return true
+		}
+	}
+	return false
+}
+
+type listFlag []string
+
+func (l *listFlag) String() string     { return strings.Join(*l, ",") }
+func (l *listFlag) Set(v string) error { *l = append(*l, v); return nil }
+
+func cmdGap(args []string, stdout, stderr io.Writer) int {
+	fl := flag.NewFlagSet("gap", flag.ContinueOnError)
+	fl.SetOutput(stderr)
+	var results listFlag
+	fl.Var(&results, "results", "a JSON report from run --json; give one per target")
+	mdFile := fl.String("md", "", "write the matrix as Markdown here")
+	htmlFile := fl.String("html", "", "write the matrix as one HTML page here")
+	if err := fl.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return exitOK
+		}
+		return exitUsage
+	}
+	if fl.NArg() > 0 || len(results) == 0 {
+		fmt.Fprintln(stderr, "bbb-conform gap: give at least one --results file")
+		return exitUsage
+	}
+	runs, err := gap.Load(results)
+	if err != nil {
+		fmt.Fprintf(stderr, "bbb-conform: %v\n", err)
+		return exitUsage
+	}
+	m := gap.Build(runs)
+	for _, out := range []struct {
+		name  string
+		write func(io.Writer) error
+	}{{*mdFile, m.WriteMarkdown}, {*htmlFile, m.WriteHTML}} {
+		if err := writeReport(out.name, nil, out.write); err != nil {
+			fmt.Fprintf(stderr, "bbb-conform: %v\n", err)
+			return exitUsage
+		}
+	}
+	fmt.Fprintf(stdout, "gap matrix: %d endpoint(s), %d target(s)\n", len(m.Endpoints), len(m.Targets))
+	return exitOK
 }

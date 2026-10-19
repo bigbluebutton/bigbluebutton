@@ -14,6 +14,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/client"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
 )
 
@@ -48,7 +49,26 @@ func (x *exec) prepare(cs *spec.CallStep) (*client.Prepared, error) {
 		}
 		base, query, _ = strings.Cut(u, "?")
 	default:
-		return nil, fmt.Errorf("route steps need the target's routes table, which isn't supported yet")
+		name, err := x.expand(cs.Route)
+		if err != nil {
+			return nil, err
+		}
+		root, path, ok := x.r.Target.Route(name)
+		if !ok {
+			return nil, fmt.Errorf("the target doesn't map route %s", name)
+		}
+		params := map[string]string{}
+		for _, kv := range cs.PathParams {
+			v, err := x.expand(kv.Value)
+			if err != nil {
+				return nil, err
+			}
+			params[kv.Key] = v
+		}
+		if path, err = target.FillPath(path, params); err != nil {
+			return nil, fmt.Errorf("route %s: %w", name, err)
+		}
+		base = root + path
 	}
 
 	switch {

@@ -332,7 +332,7 @@
       "file": "../../testdata/failing/report/route.yaml",
       "line": 1,
       "status": "SKIP",
-      "reason": "unimplemented: route",
+      "reason": "not-routed: presentation-download",
       "duration_ms": 0
     },
     {

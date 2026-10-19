@@ -22,6 +22,8 @@ const (
 	Fail  Status = "FAIL"  // the server's behaviour didn't match
 	Error Status = "ERROR" // the runner couldn't do what the case asked
 	Skip  Status = "SKIP"
+	XFail Status = "XFAIL" // failed, as an expected-failure entry says it will
+	XPass Status = "XPASS" // passed, though an entry by its exact ID expects a failure
 )
 
 // Run is one bbb-conform run.
@@ -30,6 +32,7 @@ type Run struct {
 	Started    time.Time     `json:"started"`
 	DurationMS int64         `json:"duration_ms"`
 	Counts     Counts        `json:"counts"`
+	Warnings   []string      `json:"warnings,omitempty"`
 	Cases      []*CaseResult `json:"cases"`
 }
 
@@ -40,24 +43,37 @@ type Counts struct {
 	Failed  int `json:"failed"`
 	Errors  int `json:"errors"`
 	Skipped int `json:"skipped"`
+	XFailed int `json:"xfailed,omitempty"`
+	XPassed int `json:"xpassed,omitempty"`
 }
 
 // CaseResult is one case.
 type CaseResult struct {
-	ID         string       `json:"id"`
-	Title      string       `json:"title"`
-	Endpoint   string       `json:"endpoint"`
-	Class      string       `json:"class"`
-	Variant    string       `json:"variant,omitempty"`
-	Area       string       `json:"area"`
-	File       string       `json:"file"`
-	Line       int          `json:"line"`
-	Status     Status       `json:"status"`
-	Reason     string       `json:"reason,omitempty"`
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Endpoint string `json:"endpoint"`
+	Class    string `json:"class"`
+	Variant  string `json:"variant,omitempty"`
+	Area     string `json:"area"`
+	File     string `json:"file"`
+	Line     int    `json:"line"`
+	Status   Status `json:"status"`
+	Reason   string `json:"reason,omitempty"`
+	// Expected is the expected-failure entry that matched the case, if any.
+	Expected   *Expected    `json:"expected,omitempty"`
 	DurationMS int64        `json:"duration_ms"`
 	Steps      []StepResult `json:"steps,omitempty"`
 	Teardown   []StepResult `json:"teardown,omitempty"`
 	Warnings   []string     `json:"warnings,omitempty"`
+}
+
+// Expected is an expected-failure entry that matched a case.
+type Expected struct {
+	Entry  string `json:"entry"` // the entry's ID or glob
+	Reason string `json:"reason"`
+	Issue  string `json:"issue,omitempty"`
+	Glob   bool   `json:"glob,omitempty"`  // matched only by a glob
+	Group  bool   `json:"group,omitempty"` // matched by the base ID of the case's variants
 }
 
 // StepResult is one step.
@@ -68,6 +84,7 @@ type StepResult struct {
 	Status     Status            `json:"status"`
 	Message    string            `json:"message,omitempty"`
 	Ignored    bool              `json:"ignored,omitempty"`
+	Stopped    bool              `json:"-"` // a capture failed, so the case can't go on
 	Attempts   int               `json:"attempts,omitempty"`
 	DurationMS int64             `json:"duration_ms"`
 	Request    *Request          `json:"request,omitempty"`
@@ -106,12 +123,16 @@ func (r *Run) Tally() {
 			r.Counts.Errors++
 		case Skip:
 			r.Counts.Skipped++
+		case XFail:
+			r.Counts.XFailed++
+		case XPass:
+			r.Counts.XPassed++
 		}
 	}
 }
 
-// OK reports whether nothing failed or errored.
-func (r *Run) OK() bool { return r.Counts.Failed == 0 && r.Counts.Errors == 0 }
+// OK reports whether nothing failed, errored or unexpectedly passed.
+func (r *Run) OK() bool { return r.Counts.Failed == 0 && r.Counts.Errors == 0 && r.Counts.XPassed == 0 }
 
 // WriteConsole writes one line per case and a summary. With verbose, it
 // also lists every failed check and warning.
@@ -139,8 +160,18 @@ func WriteConsole(w io.Writer, r *Run, verbose bool) {
 			fmt.Fprintf(w, "      warning: %s\n", warn)
 		}
 	}
-	fmt.Fprintf(w, "\n%d case(s): %d passed, %d failed, %d errors, %d skipped (%s)\n",
-		r.Counts.Total, r.Counts.Passed, r.Counts.Failed, r.Counts.Errors, r.Counts.Skipped, ms(r.DurationMS))
+	for _, warn := range r.Warnings {
+		fmt.Fprintf(w, "warning: %s\n", warn)
+	}
+	extra := ""
+	if r.Counts.XFailed > 0 {
+		extra += fmt.Sprintf(", %d expected failures", r.Counts.XFailed)
+	}
+	if r.Counts.XPassed > 0 {
+		extra += fmt.Sprintf(", %d passed unexpectedly", r.Counts.XPassed)
+	}
+	fmt.Fprintf(w, "\n%d case(s): %d passed, %d failed, %d errors, %d skipped%s (%s)\n",
+		r.Counts.Total, r.Counts.Passed, r.Counts.Failed, r.Counts.Errors, r.Counts.Skipped, extra, ms(r.DurationMS))
 }
 
 func ms(v int64) string { return (time.Duration(v) * time.Millisecond).String() }
@@ -215,6 +246,12 @@ func WriteJUnit(w io.Writer, r *Run) error {
 		case Skip:
 			jc.Skipped = &junitProblem{Message: c.Reason}
 			s.Skipped++
+		case XFail:
+			jc.Skipped = &junitProblem{Message: "xfail: " + c.Reason}
+			s.Skipped++
+		case XPass:
+			jc.Failure = &junitProblem{Message: c.Reason}
+			s.Failures++
 		}
 		if len(c.Warnings) > 0 {
 			jc.SystemOut = "warning: " + strings.Join(c.Warnings, "\nwarning: ")
@@ -223,8 +260,8 @@ func WriteJUnit(w io.Writer, r *Run) error {
 		times[c.Area] += c.DurationMS
 		s.Cases = append(s.Cases, jc)
 	}
-	out := junitSuites{Name: "bbb-conform " + r.Target, Tests: r.Counts.Total, Failures: r.Counts.Failed,
-		Errors: r.Counts.Errors, Skipped: r.Counts.Skipped, Time: seconds(r.DurationMS)}
+	out := junitSuites{Name: "bbb-conform " + r.Target, Tests: r.Counts.Total, Failures: r.Counts.Failed + r.Counts.XPassed,
+		Errors: r.Counts.Errors, Skipped: r.Counts.Skipped + r.Counts.XFailed, Time: seconds(r.DurationMS)}
 	var names []string
 	for n := range byArea {
 		names = append(names, n)
