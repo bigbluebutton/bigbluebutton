@@ -1,0 +1,72 @@
+bbb_version: '3.0.17'
+raw_audio_src: /var/freeswitch/meetings
+mediasoup_video_src: /var/mediasoup/recordings
+mediasoup_screenshare_src: /var/mediasoup/screenshare
+webrtc_recorder_video_src: /var/lib/bbb-webrtc-recorder/recordings
+webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
+webrtc_recorder_audio_src: /var/lib/bbb-webrtc-recorder/audio
+raw_deskshare_src: /var/bigbluebutton/deskshare
+raw_presentation_src: /var/bigbluebutton
+bn_notes_endpoint: http://shared-notes:8787/loopback/api/documents
+# Specify the notes formats we archive. The shared notes server exports
+# html, pdf, txt, md, json and yjs.
+notes_formats:
+  - html
+  - pdf
+redis_host: redis
+redis_port: 6379
+# Uncomment and set password if redis require it.
+# redis_password: changeme
+
+# redis_workers_host: 127.0.0.1
+# redis_workers_port: 6379
+
+# Set to true to insert recording process status into
+# redis list with key "store_recording_status: true".
+# This is useful if you want to track progress status
+# and have another script process it.
+store_recording_status: false
+# Whether to anonymize the sender of chat messages in the processed
+# recordings. The settings here are the defaults; they can be overridden
+# by passing meta parameters on the meeting create call.
+# meta param: meta_bbb-anonymize-chat (true/false)
+anonymize_chat: false
+# By default only names of viewers are anonymized - if you would also
+# like to anonymize moderators, you can set this to true:
+# meta param: meta_bbb-anonymize-chat-moderators (true/false)
+anonymize_chat_moderators: false
+# By default, recordings assume the Viewer viewpoint (with all locks)
+# so when webcamsOnlyForModerator=true, only moderators webcams are included in recordings.
+# Use this option to ignore locks and assume Moderator viewpoint instead.
+show_moderator_viewpoint: false
+# Control the number of video "cuts" that will be composited in parallel. Note that each cut
+# will start up multiple ffmpeg processes, and perform multi-threaded video encoding. The actual
+# number of physical CPU threads that will be used will typically be 2-4 times this number.
+video_compositing_parallel_workers: 2
+# Sequence of recording steps. Keys are the current step, values
+# are the next step(s). Examples:
+#   current_step: next_step
+#   "current_step-format": "next_step-format"
+#   current_step:
+#     - next_step
+#     - another_step-format
+steps:
+  archive: "sanity"
+  sanity: "captions"
+  captions: "process:presentation"
+  "process:presentation": "publish:presentation"
+# For PRODUCTION
+log_dir: /var/log/bigbluebutton
+events_dir: /var/bigbluebutton/events
+recording_dir: /var/bigbluebutton/recording
+published_dir: /var/bigbluebutton/published
+captions_dir: /var/bigbluebutton/captions
+playback_host: bbb.example.com
+playback_protocol: https
+# For DEVELOPMENT
+# This allows us to run the scripts manually
+#scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
+#log_dir: /home/ubuntu/temp/log
+#recording_dir: /home/ubuntu/temp/recording
+#published_dir: /home/ubuntu/temp/published
+#playback_host: bbb.example.com

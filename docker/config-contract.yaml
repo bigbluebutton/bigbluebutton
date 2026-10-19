@@ -980,6 +980,28 @@ internal:
     sources:
       - record-and-playback/core/scripts/bigbluebutton.yml:10,13-15 @ 35cad46a9f
 
+  - name: 'recording: redis_host'
+    consumer: recording
+    value: redis
+    description: >-
+      The redis service, in bigbluebutton.yml itself: the workers, rap-starter and
+      rap-caption-inbox read it there, some scripts without the Tier 3 recording.yml.
+    status: draft
+    sources:
+      - record-and-playback/core/scripts/bigbluebutton.yml:16 @ 35cad46a9f
+      - record-and-playback/core/Rakefile:8 @ 35cad46a9f
+      - record-and-playback/core/scripts/rap-caption-inbox.rb:33 @ 35cad46a9f
+
+  - name: 'recording: render directory'
+    consumer: recording
+    value: /run/bbb-recording
+    description: >-
+      Where the entrypoint writes bigbluebutton.yml, bbb-web.properties and the cleanup's files;
+      their bare-metal paths are links into it (a tmpfs, writable for any UID).
+    status: draft
+    sources:
+      - build/packages-template/bbb-record-core/after-install.sh:24 @ 35cad46a9f — bare metal edits bigbluebutton.yml in place
+
   - name: 'livekit: log_level'
     consumer: livekit
     value: info

@@ -628,6 +628,8 @@ are not settings; changing them breaks the stack.
 | `SERVER_HOST` | graphql-actions | `0.0.0.0` | Listener reachable from Hasura. |
 | `shared-notes: expressServer.host, redis.host, postgres.host, bbbWeb.host` | shared-notes | `0.0.0.0, redis, postgres, bbb-web` | Wiring rendered by the shared-notes image into its base YAML (no env support). Not a user variable (the `notes` network fixes who reaches it); the express port stays 8787 (hard-coded loopback call). |
 | `recording: bn_notes_endpoint` | recording | `http://shared-notes:8787/loopback/api/documents` | Recording archives notes from the shared-notes loopback API over the notes network. |
+| `recording: redis_host` | recording | `redis` | The redis service, in bigbluebutton.yml itself: the workers, rap-starter and rap-caption-inbox read it there, some scripts without the Tier 3 recording.yml. |
+| `recording: render directory` | recording | `/run/bbb-recording` | Where the entrypoint writes bigbluebutton.yml, bbb-web.properties and the cleanup's files; their bare-metal paths are links into it (a tmpfs, writable for any UID). |
 | `livekit: log_level` | livekit | `info` | Never debug by default: LiveKit sends the TURN password in every join response, and debug logs contain it. |
 | `livekit: webhook.urls` | livekit | `http://bbb-webrtc-sfu:3040/livekit-webhook` | livekit-server posts room events to the SFU (YAML only, no env). |
 | `PGHOST` | db-init | `postgres` | libpq host of the db-init job: the postgres service. |

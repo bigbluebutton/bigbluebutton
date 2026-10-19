@@ -1,0 +1,44 @@
+# Recording processing (rap scripts of bbb-record-core and the presentation format). Sources:
+# contract derived playback_host and recording_shared_secret, internal 'recording:
+# bn_notes_endpoint' (notes network), RECORDING_RAW_RETENTION_DAYS (published_days of the daily
+# cleanup), docker-compose.yml (service names redis and shared-notes).
+render:
+  # Every rap script reads this file; several read only it, not the Tier 3 recording.yml
+  # (rap-caption-inbox.rb:33, rap-process-worker.rb:140), so the wiring is here.
+  - file: usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+    format: yaml
+    checks:
+      - {path: .playback_host, equals: bbb.example.com}       # after-install.sh, bbb-conf --setip
+      - {path: .playback_protocol, equals: https}
+      - {path: .redis_host, equals: redis}
+      - {path: .redis_port, equals: 6379}
+      - {path: .bn_notes_endpoint, equals: "http://shared-notes:8787/loopback/api/documents"}
+      - {path: .webrtc_recorder_video_src, equals: /var/lib/bbb-webrtc-recorder/recordings}   # recorder volume
+      - {path: .raw_presentation_src, equals: /var/bigbluebutton}                             # data volume
+      - {path: .steps.captions, equals: "process:presentation"}                              # upstream default steps
+      - {path: .log_dir, equals: /var/log/bigbluebutton}
+  # The callbacks parse this file themselves (post_publish_recording_ready_callback.rb:38,72-80):
+  # the value, not a reference.
+  - file: etc/bigbluebutton/bbb-web.properties
+    format: properties
+    checks:
+      - {key: securitySalt, equals: fixturebbbsharedsecretnotreal0000000000000000000}
+      - {key: bigbluebutton.web.serverURL, equals: "https://bbb.example.com"}
+  - file: etc/default/bigbluebutton-cron-config
+    format: lines
+    checks:
+      - {contains_line: "^published_days='14'$"}     # contract default
+  - file: etc/cron.daily/bigbluebutton
+    format: lines
+    checks:
+      - {contains_line: '^remove_raw_of_published_recordings$'}
+must_fail:
+  - {unset: BBB_DOMAIN, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "not a domain"}, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "bbb.example.com\n# injected"}, message: BBB_DOMAIN}
+  - {unset: BBB_SHARED_SECRET, message: BBB_SHARED_SECRET}
+  - {set: {BBB_SHARED_SECRET: "secret"}, message: BBB_SHARED_SECRET}
+  - {set: {BBB_SHARED_SECRET: "fixturebbbsharedsecretnotreal0000000000000000000\nsecuritySalt=x"}, message: BBB_SHARED_SECRET}
+  - {set: {RECORDING_WORKERS: "0"}, message: RECORDING_WORKERS}
+  - {set: {RECORDING_RAW_RETENTION_DAYS: "14; rm -rf /"}, message: RECORDING_RAW_RETENTION_DAYS}
+uid: {user: "12345:12345"}

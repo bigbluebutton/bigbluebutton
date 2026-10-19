@@ -1,23 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Runs bbb-config's daily cleanup (/etc/cron.daily/bigbluebutton, rendered by the entrypoint)
+# at start and then once a day, as cron.daily does on bare metal. The script removes old
+# presentations, stale recorder files, logs and the raw data of published recordings; its
+# messages go to the container log. A failed run is logged and retried the next day.
+set -uo pipefail
 
-#
-# How N days back to keep files
-# hardcoded to 5 days atm, could be made configurable
-#
-history=5
+INTERVAL_SECONDS=86400
 
-echo "Starting cleanup routine with the following settings: ENABLE_RECORDING=${ENABLE_RECORDING}, REMOVE_OLD_RECORDING=${REMOVE_OLD_RECORDING}, RECORDING_MAX_AGE_DAYS=${RECORDING_MAX_AGE_DAYS}."
+trap 'exit 0' TERM INT
 
-while :
-do
-
-  # delete presentations older than N days
-  find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -exec rm -rf '{}' +
-
-  # delete recordings older than $RECORDING_MAX_AGE_DAYS
-  if [ "$ENABLE_RECORDING" == true ] && [ "$REMOVE_OLD_RECORDING" == true ]; then
-    /usr/local/bigbluebutton/core/scripts/bbb-remove-old-recordings
-  fi
-  
-  sleep 30m
+while :; do
+    echo "recording-cleanup: running /etc/cron.daily/bigbluebutton"
+    # bash, as its #! line says: the rendered copy is on a tmpfs, which Docker mounts noexec.
+    bash /etc/cron.daily/bigbluebutton
+    echo "recording-cleanup: /etc/cron.daily/bigbluebutton exited with status $?"
+    sleep "$INTERVAL_SECONDS" &
+    wait $!
 done

@@ -1,0 +1,9 @@
+# Build context of the recording image (Dockerfile): only what it copies.
+*
+!core/Gemfile
+!core/Gemfile.lock
+!core/Rakefile
+!core/lib
+!core/scripts
+!presentation/scripts
+!docker

@@ -1,0 +1,21 @@
+# Parity of the rendered recording configuration with the bare-metal reference (docker/tests/parity/).
+#
+# Bare metal: bbb-record-core ships /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml, its
+# after-install.sh sets playback_host with yq-go and bbb-conf --setip sets it again with sed
+# (also in the commented DEVELOPMENT line); bbb-conf writes the server URL and the shared secret
+# into /etc/bigbluebutton/bbb-web.properties. The image does the same, so only the addresses of
+# redis and the shared notes server differ: they are services of the stack, not on localhost.
+# presentation.yml is shipped unchanged (not rendered), as is the cleanup script.
+reference: ../../parity/reference
+files:
+  - rendered: usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+    reference: recording/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+  - rendered: etc/bigbluebutton/bbb-web.properties
+    reference: bbb-web/etc/bigbluebutton/bbb-web.properties
+allowed:
+  - file: usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+    line: '^redis_host: (127\.0\.0\.1|redis)$'
+    reason: "design page 'Services': redis is its own service (compose service name redis), not on localhost; read directly by rap-starter, the workers and rap-caption-inbox (Rakefile resque:setup, rap-process-worker.rb:140-144)"
+  - file: usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+    line: '^bn_notes_endpoint: http://(127\.0\.0\.1|shared-notes):8787/loopback/api/documents$'
+    reason: "design page 'Internal networks': the archive step reaches the shared notes server's loopback API over the notes network (contract internal 'recording: bn_notes_endpoint')"

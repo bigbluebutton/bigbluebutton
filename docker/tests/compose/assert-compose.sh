@@ -196,14 +196,15 @@ $1 == "D" {
         v("depends-on", $2, "depends on " $3 " with condition " ($4 == "" ? "(none)" : $4) ", expected service_healthy or service_completed_successfully")
 }
 $1 == "V" {
-    # recorder-raw: written by bbb-webrtc-recorder only, at the path the SFU and the recording
-    # processing use; every service that mounts it runs as the user of the recorder.
+    # recorder-raw: written by bbb-webrtc-recorder, at the path the SFU passes to it; the recording
+    # processing deletes archived files (archive.rb) and the daily cleanup stale ones, so those two
+    # services mount it writable as well. Every service that mounts it runs as the user of the recorder.
     if ($3 != "/var/lib/bbb-webrtc-recorder") v("recorder-raw", $2, "mounts recorder-raw at " $3 ", expected /var/lib/bbb-webrtc-recorder")
     if ($2 == "bbb-webrtc-recorder") {
         if ($4 == "true") v("recorder-raw", $2, "mounts recorder-raw read-only")
         else recorder_rw = 1
     } else {
-        if ($4 != "true") v("recorder-raw", $2, "mounts recorder-raw writable, only bbb-webrtc-recorder writes it")
+        if ($4 != "true" && $2 != "recording" && $2 != "recording-cleanup") v("recorder-raw", $2, "mounts recorder-raw writable, only bbb-webrtc-recorder writes it (recording and recording-cleanup delete)")
         nmount++; mount_svc[nmount] = $2; mount_user[nmount] = $5
     }
 }

@@ -70,6 +70,9 @@ const xmlTag = (xml, tag) => (xml.match(new RegExp(`<${tag}>(?:<!\\[CDATA\\[)?([
 const redact = (s) => String(s).replace(/(sessionToken|checksum|access_token)=[^&\s"]*/g, '$1=__REDACTED__');
 
 const meetingID = `join-path-${Date.now()}`;
+// Additional create parameters (JSON object of strings), e.g. {"record":"true"} for a recorded
+// meeting (recording-check.sh).
+const createParams = JSON.parse(process.env.JOIN_PATH_CREATE_PARAMS || '{}');
 let created = false;
 
 async function run() {
@@ -86,7 +89,7 @@ async function run() {
     ok(step, `graphqlApiUrl=${index.graphqlApiUrl} graphqlWebsocketUrl=${index.graphqlWebsocketUrl}`);
 
     step = 'create';
-    res = await get(apiUrl('create', { name: 'join-path test', meetingID }));
+    res = await get(apiUrl('create', { name: 'join-path test', meetingID, ...createParams }));
     let xml = await res.text();
     if (res.status !== 200 || xmlTag(xml, 'returncode') !== 'SUCCESS') fail(`HTTP ${res.status} ${xml.slice(0, 300)}`);
     created = true;

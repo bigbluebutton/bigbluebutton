@@ -159,8 +159,10 @@ recorder_variant() { # name yq-expression -> path of a modified copy of the reco
 }
 run "$RECORDER" --features ""
 expect_rc "recorder writes recorder-raw, recording reads it, same user: accepted" 0
-run "$(recorder_variant rawrw '.services.recording.volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder"]')" --features ""
-expect_rule "recorder-raw writable for another service: reported" recorder-raw recording "mounts recorder-raw writable"
+run "$(recorder_variant rawrwrec '.services.recording.volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder"]')" --features ""
+expect_rc "recorder-raw writable for recording (deletes archived files): accepted" 0
+run "$(recorder_variant rawrw '.services.recording.volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder:ro"] | .services."export-annotations" = (.services.recording | .volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder"])')" --features ""
+expect_rule "recorder-raw writable for another service: reported" recorder-raw export-annotations "mounts recorder-raw writable"
 run "$(recorder_variant rawro '.services."bbb-webrtc-recorder".volumes = ["recorder-raw:/var/lib/bbb-webrtc-recorder:ro"]')" --features ""
 expect_rule "recorder with recorder-raw read-only: reported" recorder-raw bbb-webrtc-recorder "mounts recorder-raw read-only"
 expect_rule "recorder with recorder-raw read-only: not writable" recorder-raw bbb-webrtc-recorder "does not mount recorder-raw writable"

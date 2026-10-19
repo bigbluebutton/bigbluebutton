@@ -1,4 +1,0 @@
-redis_host: redis
-notes_endpoint: http://pads:9002/p
-playback_host: {{ .Env.DOMAIN }}
-playback_protocol: https

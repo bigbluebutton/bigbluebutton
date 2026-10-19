@@ -64,8 +64,7 @@ group "default" {
         "graphql-server",
         "export-annotations",
         "web",
-        # record-and-playback: not in the default group until the recording stack is reworked
-        # (its Dockerfile is still the PR #22894 one on Debian 11; apt fetches 404 in CI, 2026-10-19).
+        "record-and-playback",
         "nginx",
         "postgres",
         "db-init",

@@ -35,8 +35,6 @@ if [ $# -gt 0 ]; then
     done
 else
     while IFS= read -r f; do
-        # Not built until the recording stack is reworked (docker-bake.hcl default group).
-        [ "$f" = record-and-playback/Dockerfile ] && { echo "== $f: skipped (not built yet)"; continue; }
         files+=("$f")
     done < <(
         git -C "$REPO" ls-files -- '*Dockerfile' '*.Dockerfile' '*/Dockerfile.*' | sort

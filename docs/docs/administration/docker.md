@@ -15,8 +15,8 @@ keywords:
 :::note
 
 The container setup is new and still a **draft**. This page covers only what the compose file
-in the repository runs today. Recording processing, Greenlight and monitoring are not part of
-the container stack yet.
+in the repository runs today. Greenlight and monitoring are not part of the container stack
+yet.
 
 :::
 
@@ -108,10 +108,10 @@ format and its default is listed in the
 [Container Configuration Reference](/administration/docker-configuration). Keep `.env`
 readable only by its owner (`chmod 600 .env`): it holds all secrets of the server.
 
-`BBB_FEATURES` selects optional features. Today the stack has `webhooks` (bbb-webhooks). Empty,
-the default of `.env.sample`, runs without optional features. With `recording`, bbb-web offers
-the record button and bbb-webrtc-recorder records the meetings' media, but no recordings are
-processed yet. Leave the line
+`BBB_FEATURES` selects optional features. Today the stack has `webhooks` (bbb-webhooks) and
+`recording` (bbb-web offers the record button, bbb-webrtc-recorder records the meetings' media,
+and recordings are processed, published and played back). Empty, the default of
+`.env.sample`, runs without optional features. Leave the line
 `COMPOSE_PROFILES=${BBB_FEATURES}` as it is.
 
 ### 3. Get the images
@@ -186,6 +186,21 @@ services:
 
 Then apply it with `docker compose up -d`.
 
+### Recordings
+
+With `recording` in `BBB_FEATURES`, the services `recording` (the processing workers),
+`recording-starter`, `recording-caption-inbox` and `recording-cleanup` run from the
+`bbb-record-and-playback` image. `RECORDING_WORKERS` sets how many recordings are processed at the
+same time (default 1), and `RECORDING_RAW_RETENTION_DAYS` after how many days the raw data of a
+published recording is removed (default 14, `0` keeps it); published recordings are never removed
+automatically. The workers are limited to 2 CPUs and 4 GB of memory together; change
+`deploy.resources.limits` of `recording` in `docker-compose.override.yml`. Settings of the
+recording scripts go into `/etc/bigbluebutton/recording/recording.yml` and
+`/etc/bigbluebutton/recording/presentation.yml`, mounted into the recording services. Their
+messages are in the service logs (`docker compose logs recording`). `bbb-record` works in the
+container: `docker compose exec recording bbb-record --list`, and as root for the options that
+need it, for example `docker compose exec -u 0 recording bbb-record --rebuild <record id>`.
+
 ## Upgrade
 
 Check out the new release (its compose file names the new image tag), then pull the images and
@@ -220,7 +235,7 @@ names with the project name, `bigbluebutton_`):
 |---|---|---|
 | `bbb-data` | `/var/bigbluebutton`: presentations, learning dashboard data | yes |
 | `postgres-data` | the PostgreSQL databases (meeting state, shared notes) | optional |
-| `recorder-raw` | `/var/lib/bbb-webrtc-recorder`: raw media of recorded meetings (`recording`), the input of the recording processing | not yet (nothing processes it yet) |
+| `recorder-raw` | `/var/lib/bbb-webrtc-recorder`: raw media of recorded meetings (`recording`), the input of the recording processing, which moves it into `bbb-data` | only for recordings not archived yet |
 | `letsencrypt` | certbot's account, certificate and renewal settings | recommended |
 | `certs` | the certificate bundle haproxy reads | no |
 | `acme-webroot` | temporary challenge files | no |

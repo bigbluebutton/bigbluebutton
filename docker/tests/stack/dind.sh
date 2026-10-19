@@ -27,6 +27,8 @@
 #   conversion [ARG...] docker/tests/stack/conversion-check.sh against the stack's conversion
 #                      service, with bbb-web as the client (ARGs passed on)
 #   config [ARG...]    docker/tests/stack/config-check.sh against the stack (ARGs passed on)
+#   recording [ARG...] docker/tests/stack/recording-check.sh against the stack (feature
+#                      recording; ARGs passed on)
 #   playback [ARG...]  docker/tests/stack/playback-check.sh against the stack (feature
 #                      `recording`; ARGs passed on)
 #   diagnostics DIR    write `docker compose ps -a` and the logs of every service of the
@@ -277,6 +279,13 @@ case "$cmd" in
         "$HERE/conversion-check.sh" --docker "$DOCKER_CMD" \
             --listener-image "localhost/bbb-graphql-actions:$TAG" --client-image "localhost/bbb-web:$TAG" \
             --stack "$COMPOSE_PREFIX $COMPOSE_ARGS" "$@"
+        ;;
+    recording)
+        require_running
+        BBB_SHARED_SECRET="$(sed -n 's/^BBB_SHARED_SECRET=//p' "$HERE/fixture.env")" \
+            "$HERE/recording-check.sh" --insecure --docker "$DOCKER_CMD" \
+            --compose "$COMPOSE_PREFIX $COMPOSE_ARGS" \
+            --client-image "localhost/bbb-graphql-actions:$TAG" "$@"
         ;;
     diagnostics) [ $# -eq 1 ] || usage; require_running; diagnostics "$1" ;;
     compose) require_running; compose "$@" ;;

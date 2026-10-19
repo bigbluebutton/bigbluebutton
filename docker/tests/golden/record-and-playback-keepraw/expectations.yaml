@@ -1,0 +1,13 @@
+# RECORDING_RAW_RETENTION_DAYS=0 keeps the raw data of published recordings (contract): the
+# call is commented out, as docs/docs/administration/customize.md says to do on bare metal.
+render:
+  - file: etc/cron.daily/bigbluebutton
+    format: lines
+    checks:
+      - {contains_line: '^#remove_raw_of_published_recordings$'}
+      - {no_line: '^remove_raw_of_published_recordings$'}
+  - file: etc/default/bigbluebutton-cron-config
+    format: lines
+    checks:
+      - {contains_line: "^published_days='0'$"}
+uid: {user: "12345:12345"}

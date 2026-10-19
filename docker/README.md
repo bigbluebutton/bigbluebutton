@@ -79,14 +79,12 @@ the same way, with the bake variables `BBB_IMAGE_REGISTRY` (default `localhost`)
 | `shared-notes` | `bbb-shared-notes` | `shared-notes` |
 | `web` | `bbb-web` | `bbb-web` |
 | `setup` | `bbb-setup` | `setup` (profile `setup`, run-only: `docker compose run --rm setup`) |
-| `record-and-playback` | `bbb-record-and-playback` | none (not part of the stack yet) |
+| `record-and-playback` | `bbb-record-and-playback` | `recording`, `recording-starter`, `recording-caption-inbox`, `recording-cleanup` (profile `recording`) |
 | `html5-client` | `bbb-html5-client` | `html5` (also a build stage of `apps-akka` and `web`: its `settings.yml`) |
 | `learning-dashboard` | `bbb-learning-dashboard` | `learning-dashboard` |
 | `playback` | `bbb-playback` | `playback` (profile `recording`) |
 
 `bbb-common-message`, `bbb-common-web` and `_java-base` are build stages and get no tag.
-The recording image (`record-and-playback/Dockerfile`) is not built by default: its target is
-not in the `default` group, and it is not part of the stack yet.
 Third-party images (redis) are pinned by tag and digest in `docker-compose.yml`.
 
 **Upstream's images.** A component whose code lives outside this repository and whose own
@@ -196,12 +194,36 @@ with a message naming a missing or malformed variable.
   learning-dashboard, bbb-web, akka-apps, graphql-server, graphql-middleware, graphql-actions,
   shared-notes, export-annotations, redis, postgres, db-init (a job that exits after setting up
   the databases), livekit, bbb-webrtc-sfu, coturn and the office document conversion
-  (`conversion`, below), the optional webhooks (profile `webhooks`, below), bbb-webrtc-recorder
-  and playback (profile `recording`), and the run-only `setup` that writes `.env` (below).
-  Recording processing, greenlight, monitoring and preflight follow. Until then `BBB_FEATURES` is
-  empty by default and may be `webhooks`, `recording` (bbb-web then offers the record button and
-  bbb-webrtc-recorder writes the raw media into `recorder-raw`, but nothing processes
-  recordings), both, or empty.
+  (`conversion`, below), the optional webhooks (profile `webhooks`, below), bbb-webrtc-recorder,
+  recording processing and playback (profile `recording`, below), and the run-only `setup` that
+  writes `.env` (below). Greenlight, monitoring and preflight follow. Until then `BBB_FEATURES` is
+  empty by default and may be `webhooks`, `recording` (bbb-webrtc-recorder writes the raw media
+  into `recorder-raw`, the recording services process and publish the recordings, and playback
+  serves them), both, or empty.
+- **Recording processing** (profile `recording`) runs the processes of bbb-record-core's systemd
+  units from one image (`record-and-playback/Dockerfile`), each as a service, as bare metal runs
+  them: `recording` the resque workers (the unit `bbb-rap-resque-worker`, `RECORDING_WORKERS` of
+  them, its `COUNT`) with CPU and memory limits, `recording-starter` (`bbb-rap-starter`) and
+  `recording-caption-inbox` (`bbb-rap-caption-inbox`); `recording-cleanup` runs bbb-config's
+  `/etc/cron.daily/bigbluebutton` at start and then once a day, with `published_days` from
+  `RECORDING_RAW_RETENTION_DAYS` (`0` comments out the call that removes raw data, as the
+  documentation says to do on bare metal). All of them write `bbb-data` as `BBB_UID`/`BBB_GID`; the
+  workers and the cleanup also delete the recorder's files in `recorder-raw` once archived or
+  stale, so they mount it read-write; bbb-webrtc-recorder stays the only service that writes
+  files there. The workers reach the shared notes server's loopback API on
+  the `notes` network. The entrypoint renders upstream's `bigbluebutton.yml` with the host name as
+  the package scripts set it and the services' names for redis and the shared notes server,
+  `/etc/bigbluebutton/bbb-web.properties` with the shared secret that the callbacks read, and the
+  cleanup's settings; the Tier 3 files `/etc/bigbluebutton/recording/recording.yml` and
+  `presentation.yml` are read by the scripts themselves. The scripts log to the systemd journal
+  and to files below `/var/log/bigbluebutton` on bare metal; here a Ruby file loaded through
+  `RUBYOPT` (`record-and-playback/docker/journald-stdout.rb`) sends the journal messages and every
+  `Logger` on a file below `/var/log/bigbluebutton` (opened by path or as a `File`) to stdout;
+  anything written there in another way stays in that directory, a tmpfs (the scripts write no
+  such logs; the analytics callback's log file is created, but stays empty). rap-starter and
+  rap-caption-inbox use inotify, which sees only writes made on the same host.
+  `docker/tests/stack/recording-check.sh` (`dind.sh recording`) records a meeting without media
+  and follows it through archive, sanity, process and publish to `getRecordings`.
 - **Writing `.env`: `docker compose run --rm setup`.** The setup image writes `.env` next to
   `docker-compose.yml` from the configuration contract: it starts from the existing `.env`, else
   from `.env.sample` (built into the image from the same contract), keeps every value that is
@@ -380,6 +402,7 @@ docker/tests/stack/dind.sh up        # test certificate, docker compose up -d --
 docker/tests/stack/dind.sh test      # join-path.sh, including four restart cycles
 docker/tests/stack/dind.sh conversion   # conversion-check.sh against the stack's conversion service
 docker/tests/stack/dind.sh config    # effective configuration of bbb-webrtc-sfu and webhooks
+docker/tests/stack/dind.sh recording # a recorded meeting through the recording services (feature recording)
 docker/tests/stack/dind.sh webhooks run --auth bearer   # callbacks of a registered hook
 docker/tests/stack/dind.sh playback  # player and recording locations (feature recording)
 docker/tests/stack/dind.sh compose logs akka-apps   # any docker compose command
@@ -570,4 +593,4 @@ masked in the job's log.
 
 `shellcheck.yml` (upstream) also checks every `*.sh` file of the repository at severity error.
 Images that are neither in `docker-compose.yml` nor in a golden case get the directory-mode
-check only. record-and-playback is not in the `default` group, so CI does not build it.
+check only.

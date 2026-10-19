@@ -1,0 +1,4 @@
+#!/bin/sh
+# logger(1) for the cleanup script (/etc/cron.daily/bigbluebutton): a container has no syslog
+# socket, so the messages go to stderr, the container log, instead.
+exec /usr/bin/logger --no-act --stderr --socket-errors=off "$@"

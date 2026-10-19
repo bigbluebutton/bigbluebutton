@@ -31,10 +31,7 @@ them together. Each section below states a decision and the reason for it. The d
   LiveKit's controller with its FreeSWITCH adapter removed.
 - **One static compose file.** `docker-compose.yml` at the repository root is committed and
   never generated. Optional parts are Compose profiles, selected through `BBB_FEATURES`.
-- **Not part of the stack yet:** recording processing (with `recording`, bbb-web offers the
-  record button and bbb-webrtc-recorder writes the raw media, but no recordings are processed
-  yet), a development setup with source
-  mounts, running behind an existing reverse proxy, Greenlight, monitoring, a preflight check,
+- **Not part of the stack yet:** a development setup with source mounts, running behind an existing reverse proxy, Greenlight, monitoring, a preflight check,
   phone dial-in and Kubernetes manifests.
 
 ### Services
@@ -61,6 +58,7 @@ them together. Each section below states a decision and the reason for it. The d
 | `bbb-webrtc-recorder` | `bbb-webrtc-recorder` | `docker/bbb-webrtc-recorder/` (thin layer over upstream's image, profile `recording`) |
 | `coturn` | `bbb-coturn` | `docker/coturn/` (official `coturn/coturn` image plus configuration) |
 | `setup` | `bbb-setup` | `docker/setup/` (run-only, profile `setup`) |
+| `recording`, `recording-starter`, `recording-caption-inbox`, `recording-cleanup` | `bbb-record-and-playback` | `record-and-playback/` (profile `recording`) |
 | `redis` | `redis:7.0.15-alpine` | used as it is |
 | `conversion` | `collabora/code` | used as it is |
 | `webhooks` | `ghcr.io/bigbluebutton/bbb-webhooks` | used as it is (profile `webhooks`) |
@@ -375,16 +373,18 @@ of the image's golden case, and the list is kept short. The kinds of differences
 - office conversion through Collabora Online instead of a container per document, and
   `run-in-systemd.sh` replaced as described above;
 - one Hasura instance, without the nginx load balancer in front of it;
+- recording: one image runs the process of each of bbb-record-core's systemd units as its own
+  service, and bbb-config's daily cleanup in a loop; the scripts' journal messages and their
+  `Logger` log files below `/var/log/bigbluebutton` go to the container log.
 - the Tier 3 file of bbb-webrtc-recorder is merged over the packaged default (bare metal loads
   it instead of the default, as the recorder loads only one file).
 
 ## Known limits and follow-ups
 
-- Recording processing, playback of new recordings, a development setup, running behind an
+- A development setup, running behind an
   existing reverse proxy, Greenlight, monitoring, a preflight check and phone dial-in follow.
-  The `record-and-playback` image is not yet in the bake `default` group; its Dockerfile is
-  still the earlier one and is not pinned by digest.
-- graphql-server builds for amd64 only (its iMDT engine binary is x86-64 only). Other images
+- graphql-server builds for amd64 only (its iMDT engine binary is x86-64 only), and so does
+  record-and-playback (mkclean, which it runs after encoding, builds for x86-64 only). Other images
   use `BBB_PLATFORMS` and publish for amd64 and arm64; yq comes from `bbb-yq-go`, which pins
   both architectures.
 - The upstream images of bbb-webrtc-sfu and bbb-webhooks run Node 22, not Node 24. They are

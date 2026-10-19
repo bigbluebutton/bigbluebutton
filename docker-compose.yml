@@ -8,8 +8,8 @@
 #   docker compose run --rm setup     # writes .env (secrets generated, domain etc. asked)
 #   docker compose up -d
 #
-# Optional (BBB_FEATURES/profiles): webhooks, recording (so far bbb-webrtc-recorder and playback). Not in
-# the stack yet: recording processing, greenlight, monitoring and preflight. See docker/README.md.
+# Optional (BBB_FEATURES/profiles): webhooks, recording (bbb-webrtc-recorder, recording processing
+# and playback). Not in the stack yet: greenlight, monitoring and preflight. See docker/README.md.
 
 name: bigbluebutton
 
@@ -549,7 +549,7 @@ services:
   # Records the meetings' audio, cameras and screen sharing (BBB_FEATURES=recording), as on bare
   # metal: bbb-webrtc-sfu starts and stops it through redis, it joins the LiveKit rooms itself
   # (on the bbb network, so its media stays on the bridge) and writes the raw files into
-  # recorder-raw, which the recording processing reads. Upstream's image with an entrypoint that
+  # recorder-raw, which the recording processing archives. Upstream's image with an entrypoint that
   # merges the Tier 3 override /etc/bigbluebutton/bbb-webrtc-recorder.yml over the packaged
   # default. It publishes no port and has no listener; healthy while connected to redis.
   bbb-webrtc-recorder:
@@ -645,6 +645,150 @@ services:
       start_period: 20s
       retries: 3
 
+  # Recording processing (BBB_FEATURES=recording), one image for the processes of bbb-record-core's
+  # systemd units. bbb-web marks a recorded meeting done below bbb-data; recording-starter queues
+  # it in redis; the workers (`recording`) archive it (events from redis, the shared notes over
+  # the notes network, the media of the recorder volume, whose files they then delete) and
+  # process and publish it below bbb-data. All of them write bbb-data, so they run as
+  # BBB_UID/BBB_GID like bbb-web. Logs go to the container log. The limits apply to all workers
+  # of the service together; change them in docker-compose.override.yml.
+  recording:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [recording]
+    command: ["bbb-rap-resque-worker"]
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      BBB_SHARED_SECRET: ${BBB_SHARED_SECRET}
+      RECORDING_WORKERS: ${RECORDING_WORKERS:-1}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/bbb-recording
+      - /var/log/bigbluebutton
+    volumes:
+      - bbb-data:/var/bigbluebutton
+      - recorder-raw:/var/lib/bbb-webrtc-recorder
+    networks:
+      - bbb
+      - notes
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4g
+    depends_on:
+      redis:
+        condition: service_healthy
+      shared-notes:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/lib/bbb/recording-healthcheck.sh", "bbb-rap-resque-worker"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+  # Watches bbb-data for the meetings bbb-web marks recorded (inotify: it sees only writes made
+  # on this host) and queues them for the workers.
+  recording-starter:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [recording]
+    command: ["bbb-rap-starter"]
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/bbb-recording
+      - /var/log/bigbluebutton
+    volumes:
+      - bbb-data:/var/bigbluebutton
+    networks:
+      - bbb
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256m
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/lib/bbb/recording-healthcheck.sh", "bbb-rap-starter"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+  # Adds captions uploaded through the API (putRecordingTextTrack, written by bbb-web below
+  # bbb-data) to published recordings.
+  recording-caption-inbox:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [recording]
+    command: ["bbb-rap-caption-inbox"]
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/bbb-recording
+      - /var/log/bigbluebutton
+    volumes:
+      - bbb-data:/var/bigbluebutton
+    networks:
+      - bbb
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    healthcheck:
+      test: ["CMD", "/usr/local/lib/bbb/recording-healthcheck.sh", "bbb-rap-caption-inbox"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+  # bbb-config's daily cleanup (/etc/cron.daily/bigbluebutton), at start and then once a day:
+  # presentations and recorder files older than 5 days, and the raw data of recordings published
+  # more than RECORDING_RAW_RETENTION_DAYS days ago (0 keeps it). Published recordings are kept.
+  recording-cleanup:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [recording]
+    command: ["bbb-recording-cleanup"]
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      RECORDING_RAW_RETENTION_DAYS: ${RECORDING_RAW_RETENTION_DAYS:-14}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/bbb-recording
+      - /var/log/bigbluebutton
+    volumes:
+      - bbb-data:/var/bigbluebutton
+      - recorder-raw:/var/lib/bbb-webrtc-recorder
+    networks:
+      - bbb
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256m
+    healthcheck:
+      test: ["CMD", "/usr/local/lib/bbb/recording-healthcheck.sh", "bbb-recording-cleanup"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
 networks:
   bbb:
     ipam:
@@ -662,7 +806,8 @@ networks:
 
 volumes:
   bbb-data:
-  # Raw recordings of bbb-webrtc-recorder, read by the recording processing.
+  # Raw recordings of bbb-webrtc-recorder, its only writer; the recording workers archive them
+  # and then delete them, the cleanup deletes stale ones.
   recorder-raw:
   postgres-data:
   certs:
