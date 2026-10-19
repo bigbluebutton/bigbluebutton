@@ -1,0 +1,25 @@
+# Protected (written before the image). Sources: contract internal 'shared-notes: expressServer.host,
+# redis.host, postgres.host, bbbWeb.host' (notes network, container hostnames), contract
+# overrides shared-notes (wiring goes into default.yml, never into the Tier 3 path
+# /etc/bigbluebutton/bbb-shared-notes-server.yml), POSTGRES_BLOCKNOTE_PASSWORD (generated role password),
+# db-init (role and database blocknote_app). Upstream loader: src/config/index.ts:5-7,30-40 @ 35cad46a9f.
+render:
+  - file: usr/share/bbb-shared-notes-server/config/default.yml   # PRODUCTION_DEFAULT_PATH upstream
+    format: yaml
+    checks:
+      - {path: .expressServer.host, equals: 0.0.0.0}   # reachable from nginx/recording on `notes`
+      - {path: .expressServer.port, equals: 8787}      # hard-coded in the loopback call (handler.ts:212)
+      - {path: .redis.host, equals: redis}
+      - {path: .postgres.host, equals: postgres}
+      - {path: .postgres.database, equals: blocknote_app}   # what db-init creates
+      - {path: .postgres.user, equals: blocknote_app}
+      # No env support upstream (DSN built from the file, postgresql.ts:6), so the password must
+      # be in this file; never upstream's fixed `blocknote_app`.
+      - {path: .postgres.password, equals: fixturepostgresblocknotepasswordnotreal00000000}
+      - {path: .bbbWeb.host, equals: bbb-web}
+must_fail:
+  - {unset: POSTGRES_BLOCKNOTE_PASSWORD, message: POSTGRES_BLOCKNOTE_PASSWORD}
+  - {set: {POSTGRES_BLOCKNOTE_PASSWORD: "blocknote_app"}, message: POSTGRES_BLOCKNOTE_PASSWORD}   # upstream's fixed value
+  - {set: {POSTGRES_BLOCKNOTE_PASSWORD: "short"}, message: POSTGRES_BLOCKNOTE_PASSWORD}
+  - {set: {POSTGRES_BLOCKNOTE_PASSWORD: "fixturepostgresblocknotepasswordnotreal00000000\n# injected"}, message: POSTGRES_BLOCKNOTE_PASSWORD}
+uid: {user: "12345:12345"}

@@ -1,0 +1,10 @@
+# hadolint configuration for every Dockerfile of the container images.
+# Run all of them with docker/tests/lint/run.sh.
+
+ignored:
+  # DL3008 (apt) / DL3018 (apk): pin package versions. Not pinned on purpose: the base image is
+  # pinned by digest and is the reproducibility anchor, and every image records its installed
+  # package versions at build time (docs: docker/README.md "Package versions"; decided
+  # 2026-10-16). Security updates come from bumping the base digest.
+  - DL3008
+  - DL3018

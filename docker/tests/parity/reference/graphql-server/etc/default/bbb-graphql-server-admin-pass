@@ -1,0 +1,4 @@
+# This password is randomly generated during the installation of BigBlueButton.
+# It serves as the admin password for the bbb-graphql-server (Hasura).
+# The admin can change this password at any time. Only a restart of BigBlueButton is required.
+HASURA_GRAPHQL_ADMIN_SECRET=fixturehasuraadminsecretnotreal00000000000000000

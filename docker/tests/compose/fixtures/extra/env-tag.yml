@@ -1,0 +1,20 @@
+# Extra fixture for test-assert-compose-extra.sh: the image tag comes from the environment, with
+# `latest` as the default. The rules apply to the resolved (interpolated) config. shared-notes
+# keeps the notes network in the resolved config (compose drops networks no service uses).
+name: bbb-fixture-env-tag
+
+networks:
+  notes:
+    internal: true
+
+services:
+  web:
+    image: example.org/bbb-web:${BBB_TEST_WEB_TAG:-latest}
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  shared-notes:
+    image: example.org/bbb-shared-notes:1.0.0
+    networks: [notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}

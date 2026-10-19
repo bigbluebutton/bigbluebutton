@@ -1,0 +1,32 @@
+# Protected (written before the image). Sources: coturn on the bridge network, relay range internal,
+# contract derived coturn_config (corrected 2026-10-17: no external-ip, no relay-ip, allowed peer =
+# BBB_LIVEKIT_IP only, no-tcp-relay), bbb-install's turnserver.conf (parity reference).
+render:
+  - file: etc/turnserver.conf
+    format: properties
+    checks:
+      - {key: listening-port, equals: "3478"}
+      - {key: static-auth-secret, equals: fixtureturnsecretnotreal000000000000000000000000}
+      - {key: realm, equals: bbb.example.com}
+      - {key: min-port, equals: "49160"}
+      - {key: max-port, equals: "49199"}
+      - {key: allowed-peer-ip, equals: "172.30.82.20"}
+      - {key: denied-peer-ip, equals: "0.0.0.0-255.255.255.255"}
+      - {key: external-ip, absent: true}
+      - {key: relay-ip, absent: true}
+      - {key: tls-listening-port, absent: true}   # TLS ends at haproxy
+  - file: etc/turnserver.conf
+    format: lines
+    checks:
+      - {contains_line: '^use-auth-secret$'}
+      - {contains_line: '^no-tcp-relay$'}
+      - {contains_line: '^no-loopback-peers$'}
+      - {contains_line: '^no-multicast-peers$'}
+      - {no_line: '^(cert|pkey)='}
+must_fail:
+  - {unset: TURN_SECRET, message: TURN_SECRET}
+  - {set: {TURN_SECRET: "short"}, message: TURN_SECRET}
+  - {unset: BBB_DOMAIN, message: BBB_DOMAIN}
+  - {set: {BBB_LIVEKIT_IP: "not-an-ip"}, message: BBB_LIVEKIT_IP}
+  - {set: {TURN_RELAY_PORT_MIN: "49160\nexternal-ip=198.51.100.1"}, message: TURN_RELAY_PORT_MIN}
+uid: {user: "12345:12345"}

@@ -1,0 +1,19 @@
+# Container wiring for livekit-server, installed as /usr/local/share/bbb/livekit/livekit.yaml.
+# The entrypoint merges it over the packaged default /usr/share/livekit-server/livekit.yaml
+# (build/packages-template/bbb-livekit/livekit.yaml, unchanged) at start, with the same merge
+# as the bare-metal unit, so /etc/bigbluebutton/livekit.yaml still overrides everything here.
+#
+# rtc: one multiplexed UDP port instead of the packaged range, which must be 0 or LiveKit
+# ignores udp_port. udp_port is replaced by LIVEKIT_RTC_UDP_PORT at
+# start. advertise_internal_ip keeps recorder and coturn traffic on the bridge network.
+# tcp_port stays 0 as packaged: no ICE-TCP.
+rtc:
+  port_range_start: 0
+  port_range_end: 0
+  udp_port: 7882
+  advertise_internal_ip: true
+redis:
+  address: redis:6379
+webhook:
+  urls:
+    - http://bbb-webrtc-sfu:3040/livekit-webhook

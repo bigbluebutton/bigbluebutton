@@ -1,0 +1,9 @@
+location /learning-analytics-dashboard/ {
+    proxy_pass http://learning-dashboard;
+    autoindex off;
+
+    location ~ "^/learning-analytics-dashboard/([^/]+/[^/]+/learning_dashboard_data\.json)$" {
+        alias /var/bigbluebutton/learning-dashboard/$1;
+    }
+}
+

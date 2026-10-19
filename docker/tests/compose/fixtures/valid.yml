@@ -1,0 +1,87 @@
+# Protected fixture for test-assert-compose.sh: a minimal compose file that satisfies every
+# rule of docs: published ports, healthchecks, restart policy, tags, notes network, limits.
+# Images are placeholders with explicit tags; nothing here is ever started.
+name: bbb-fixture
+
+networks:
+  bbb: {}
+  notes:
+    internal: true
+
+services:
+  haproxy:
+    image: example.org/bbb-haproxy:1.0.0
+    ports: ["443:443/tcp"]
+    networks: [bbb]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  nginx:
+    image: example.org/bbb-nginx:1.0.0
+    ports: ["80:80/tcp"]
+    networks: [bbb, notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+    depends_on:
+      bbb-web: {condition: service_healthy}
+
+  bbb-web:
+    image: example.org/bbb-web:1.0.0
+    networks: [bbb, notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  redis:
+    image: example.org/redis:7.2
+    networks: [bbb, notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  postgres:
+    image: example.org/postgres:16
+    networks: [bbb, notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  shared-notes:
+    image: example.org/bbb-shared-notes:1.0.0
+    networks: [notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  livekit:
+    image: example.org/bbb-livekit:1.0.0
+    ports: ["7882:7882/udp"]
+    networks: [bbb]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  coturn:
+    image: example.org/bbb-coturn:1.0.0
+    ports: ["3478:3478/udp", "3478:3478/tcp"]
+    networks: [bbb]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  recording:
+    image: example.org/bbb-recording:1.0.0
+    profiles: [recording]
+    networks: [bbb, notes]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 4g}
+
+  webhooks:
+    image: example.org/bbb-webhooks:1.0.0
+    profiles: [webhooks]
+    networks: [bbb]
+    restart: unless-stopped
+    healthcheck: {test: ["CMD", "true"], interval: 30s}
+
+  setup:
+    image: example.org/bbb-setup:1.0.0
+    profiles: [setup]
+    labels: {org.bigbluebutton.run-only: "true"}
+    restart: "no"

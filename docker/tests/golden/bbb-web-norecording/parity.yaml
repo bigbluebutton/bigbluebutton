@@ -1,0 +1,25 @@
+# Parity of bbb-web without the recording feature (BBB_FEATURES=webhooks) with the bare-metal
+# reference (docker/tests/parity/, recording installed). Same differences as the bbb-web case, plus
+# disableRecordingDefault; see ../bbb-web/parity.yaml.
+reference: ../../parity/reference/bbb-web
+files:
+  - rendered: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    reference: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+  - rendered: usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
+    reference: usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
+allowed:
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    line: '^bigbluebutton\.web\.serverURL=https://(203\.0\.113\.10|bbb\.example\.com)$'
+    reason: "contract derived server_url: https://BBB_DOMAIN in the classpath file, the value bare metal writes into /etc/bigbluebutton/bbb-web.properties (bbb-conf --setip); the classpath file has the IP from after-install.sh"
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    line: '^securitySalt=(fixturebbbsharedsecretnotreal0+|\$\{BBB_SHARED_SECRET\})$'
+    reason: "contract BBB_SHARED_SECRET notes: the classpath file references the secret, bbb-web resolves it from the environment; no secret value in the image's files"
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    line: '^redisHost=(127\.0\.0\.1|redis)$'
+    reason: "service names of docker-compose.yml: redis is its own service on the bbb network, not on localhost"
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    line: '^fetchUrlAllowedLocalHosts=(bbb\.example\.com)?$'
+    reason: "docker-compose.yml haproxy network alias: inside the stack BBB_DOMAIN resolves to the TLS edge's private address, which bbb-web's URL fetch checks reject unless the host is listed; bare metal resolves it to the server's public address"
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    line: '^disableRecordingDefault=(false|true)$'
+    reason: "contract features.recording: disableRecordingDefault=true without the recording feature (the reference has recording installed)"

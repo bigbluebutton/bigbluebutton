@@ -1,0 +1,9 @@
+# Protected (written before the image). The certificate job: Let's Encrypt via HTTP-01 webroot served
+# by nginx on :80 (bbb-install uses certbot --webroot, parity: haproxy renewal hook). Only the
+# variables are fixed here; the render tree is the image's choice and reviewed via expected/.
+must_fail:
+  - {unset: BBB_DOMAIN, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "not a domain"}, message: BBB_DOMAIN}
+  - {unset: ACME_EMAIL, message: ACME_EMAIL}
+  - {set: {ACME_EMAIL: "not-an-email"}, message: ACME_EMAIL}
+uid: {user: "12345:12345"}

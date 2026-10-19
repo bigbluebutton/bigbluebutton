@@ -1,0 +1,17 @@
+# Protected (written before the image). akka-apps reads its contract values natively through HOCON
+# `${?VAR}` (docker/lib/README.md: native mechanism first, the entrypoint renders nothing), so
+# there is no rendered file to check: only the variables are fixed here. Sources: contract
+# server_url / akka_shared_secret / POSTGRES_BBB_CORE_PASSWORD; upstream placeholders in
+# akka-bbb-apps/src/universal/conf/application.conf:53,70 @ 35cad46a9f. /etc/bigbluebutton/bbb-apps-akka.conf
+# is the Tier 3 path (contract overrides) and must stay free for the admin.
+must_fail:
+  - {unset: BBB_DOMAIN, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "not a domain"}, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "bbb.example.com\n# injected"}, message: BBB_DOMAIN}   # ends up in services.bbbWebAPI
+  - {unset: BBB_SHARED_SECRET, message: BBB_SHARED_SECRET}
+  - {set: {BBB_SHARED_SECRET: "changeme"}, message: BBB_SHARED_SECRET}        # upstream sharedSecret default
+  - {set: {BBB_SHARED_SECRET: "short"}, message: BBB_SHARED_SECRET}
+  # Optional in the contract, but without it HOCON keeps upstream's fixed password: required here.
+  - {unset: POSTGRES_BBB_CORE_PASSWORD, message: POSTGRES_BBB_CORE_PASSWORD}
+  - {set: {POSTGRES_BBB_CORE_PASSWORD: "bbb_core"}, message: POSTGRES_BBB_CORE_PASSWORD}   # upstream's fixed value
+uid: {user: "12345:12345"}

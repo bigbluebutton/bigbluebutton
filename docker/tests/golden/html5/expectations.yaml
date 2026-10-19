@@ -1,0 +1,18 @@
+# Protected (written before the image). The html5 client image (service `html5`) serves the client
+# itself (one image per static app). `--render-only` outputs the shipped client settings (as the
+# nginx case did before): the checks moved here from the nginx case.
+# Sources: BBB's singlePeerConnection false (settings.yml:1064-1068 @ 35cad46a9f), LiveKit URL
+# default wss://<host>/livekit (public.media.livekit.url), settings.yml:51 @ 35cad46a9f
+# (learningDashboardBase), the build identifier replaced as upstream's package build does.
+render:
+  - file: usr/share/bigbluebutton/html5-client/private/config/settings.yml
+    format: yaml
+    checks:
+      - {path: .public.media.livekit.roomOptions.singlePeerConnection, equals: false}
+      - {path: .public.media.livekit.url, absent: true}
+      - {path: .public.app.learningDashboardBase, equals: /learning-analytics-dashboard}
+  - file: usr/share/bigbluebutton/html5-client/private/config/settings.yml
+    format: lines
+    checks:
+      - {no_line: 'HTML5_CLIENT_VERSION'}   # replaced at build (bbb-html5/build.sh:38 @ 35cad46a9f); upstream keeps HTML5_FULL_BBB_VERSION
+uid: {user: "12345:12345"}

@@ -7,52 +7,75 @@ on:
       - "**"
     tags:
       - "v*.*.*"
+  # Pull requests build every image for every platform without pushing (build-docker-image.yml).
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "docker/**"
+      - "**/docker/**"
+      - "**/Dockerfile"
+      - "**/.dockerignore"
+      - "docker-bake.hcl"
+      - "docker-compose.yml"
+      - ".github/workflows/build-all-images.yml"
+      - ".github/workflows/build-docker-image.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  html5-client:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-html5-client"
-      target: "html5-client"
+  # The image list comes from bake: every target of the `default` group in docker-bake.hcl, with
+  # the image name of its tag and the platforms set in its docker/bake/<image>.hcl.
+  targets:
+    name: List bake targets
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v5
 
-  learning-dashboard:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-learning-dashboard"
-      target: "learning-dashboard"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-  graphql-actions:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-graphql-actions"
-      target: "graphql-actions"
+      - name: List targets, images and platforms
+        id: targets
+        env:
+          BBB_PLATFORMS: linux/amd64,linux/arm64
+        run: |
+          files=(-f docker-bake.hcl)
+          for f in docker/bake/*.hcl; do files+=(-f "$f"); done
+          docker buildx bake "${files[@]}" --print default > "$RUNNER_TEMP/bake.json"
+          matrix="$(jq -c '. as $bake | [.group.default.targets[] | . as $t | $bake.target[$t] | {
+              target: $t,
+              image: ((.tags // [""])[0] | sub(":[^:/]*$"; "") | sub("^.*/"; "")),
+              platforms: (.platforms // [])
+            }]' "$RUNNER_TEMP/bake.json")"
+          # Every image target needs a bbb-<image> tag and its platforms (docker/README.md, "CI").
+          bad="$(jq -r '.[] | select((.image | test("^bbb-[a-z0-9-]+$") | not) or (.platforms | length) == 0)
+            | .target' <<< "$matrix")"
+          if [ -n "$bad" ]; then
+            echo "::error::bake targets without a bbb-<image> tag or platforms: $bad"
+            exit 1
+          fi
+          jq -r '.[] | "\(.target) -> \(.image) \(.platforms | join(","))"' <<< "$matrix"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
-  graphql-middleware:
+  build:
+    name: Build ${{ matrix.image }}
+    needs: targets
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.targets.outputs.matrix) }}
     uses: ./.github/workflows/build-docker-image.yml
     with:
-      image_name: "bbb-graphql-middleware"
-      target: "graphql-middleware"
-
-  graphql-server:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-graphql-server"
-      target: "graphql-server"
-
-  export-annotations:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-export-annotations"
-      target: "export-annotations"
-
-  etherpad:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-etherpad"
-      target: "etherpad"
-
-  akka-bbb-apps:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-apps-akka"
-      target: "apps-akka"
+      image_name: ${{ matrix.image }}
+      target: ${{ matrix.target }}
+      platforms: ${{ toJSON(matrix.platforms) }}

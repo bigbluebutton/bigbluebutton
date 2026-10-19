@@ -1,0 +1,31 @@
+# Protected (written before the image). Sources: LiveKit is the only media server (FreeSWITCH
+# adapter removed, the SFU starts without it; audio adapter set explicitly), contract derived
+# sfu_livekit (key/secret/domain via node-config env, upstream's placeholder credentials
+# rejected), contract internal livekit webhook.urls (http://bbb-webrtc-sfu:3040/livekit-webhook),
+# recording via bbb-webrtc-recorder.
+# LIVEKIT_ENABLED/LIVEKIT_HOST/REDIS_HOST/CLIENT_HOST and the credentials are env, not file content.
+render:
+  - file: usr/local/share/bbb/bbb-webrtc-sfu/production.yml   # the package's changes over upstream's config
+    format: yaml
+    checks:
+      - {path: .audioMediaServer, equals: mediasoup}   # explicit; factory default is Freeswitch
+      - {path: .livekit.webhook.port, equals: 3040}
+      - {path: .livekit.webhook.path, equals: /livekit-webhook}
+      - {path: .livekit.recordingAdapter, equals: bbb-webrtc-recorder}   # code default is egress
+      - {path: .livekit.secret, absent: true}   # env only; no shipped placeholder left in the file
+  - file: usr/local/share/bbb/bbb-webrtc-sfu/production.yml
+    format: lines
+    checks:
+      - {no_line: 'freeswitch/freeswitch\.js'}      # adapter entry gone (no ESL retries)
+      - {no_line: 'name:\s*Freeswitch'}
+      - {no_line: 'fixturelivekitapisecretnotreal'} # secret never rendered anywhere in the file
+must_fail:
+  - {unset: LIVEKIT_API_KEY, message: LIVEKIT_API_KEY}
+  - {unset: LIVEKIT_API_SECRET, message: LIVEKIT_API_SECRET}
+  - {unset: BBB_DOMAIN, message: BBB_DOMAIN}
+  - {set: {LIVEKIT_API_KEY: "LIVEKIT_KEY"}, message: LIVEKIT_API_KEY}         # shipped placeholder
+  - {set: {LIVEKIT_API_SECRET: "LIVEKIT_SECRET"}, message: LIVEKIT_API_SECRET} # shipped placeholder
+  - {set: {LIVEKIT_API_SECRET: "secret"}, message: LIVEKIT_API_SECRET}
+  - {set: {BBB_DOMAIN: "not a domain"}, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "bbb.example.com\n# injected"}, message: BBB_DOMAIN}
+uid: {user: "12345:12345"}

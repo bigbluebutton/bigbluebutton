@@ -1,0 +1,22 @@
+# Protected (written before the image). Sources: TLS edge as bbb-install sets it up (TLS
+# terminated, ALPN/first byte → coturn plain TCP 3478, no SNI routing, no h2), bbb-install's
+# frontend (parity reference haproxy.cfg), docker-compose.yml (80 belongs to nginx). Service names on the bbb network: nginx, coturn.
+render:
+  - file: etc/haproxy/haproxy.cfg
+    format: lines
+    checks:
+      - {contains_line: '^\s*bind \*:443\S* ssl crt /etc/haproxy/certbundle\.pem .*alpn http/1\.1,stun\.turn'}
+      - {contains_line: '^\s*use_backend turn if \{ ssl_fc_alpn stun\.turn \}'}
+      - {contains_line: 'map_str\(/etc/haproxy/protocolmap,turn\)'}
+      - {contains_line: '^\s*default_backend turn'}
+      - {contains_line: '^\s*server \S+ coturn:3478(\s|$)'}
+      - {contains_line: '^\s*server \S+ nginx:81 send-proxy'}
+      - {no_line: 'ssl_fc_sni|req_ssl_sni'}
+      - {no_line: 'alpn h2'}
+      - {no_line: '^\s*bind \S*:80(\s|,|$)'}
+  - file: etc/haproxy/protocolmap
+    format: lines
+    checks:
+      - {contains_line: '^a nginx$'}
+      - {contains_line: '^Z nginx$'}
+uid: {user: "12345:12345"}

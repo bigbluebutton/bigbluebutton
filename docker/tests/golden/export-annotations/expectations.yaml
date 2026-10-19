@@ -1,0 +1,23 @@
+# Protected (written before the image). Sources: upstream settings.json (parity reference,
+# bbb-export-annotations/config/settings.json:26-30 @ 35cad46a9f), read relative to the unit's
+# WorkingDirectory (bbb-export-annotations.service:8-9 @ 35cad46a9f; master.js:8 @ 35cad46a9f),
+# service names of docker-compose.yml (bbb-web, redis), bbb-web listens on 8090 (contract internal
+# 'bbb-web: redisHost and server.address'). The image consumes no environment variable
+# (BBB_UID/BBB_GID reach it only as compose `user:`), so fixture.env is empty and there is no
+# must_fail; the render must still succeed under an arbitrary UID.
+render:
+  - file: usr/local/bigbluebutton/bbb-export-annotations/config/settings.json   # bare-metal path
+    format: json
+    checks:
+      # export PDFs are uploaded to bbb-web (workers/notifier.js:50-63 @ 35cad46a9f)
+      - {path: .bbbWebAPI, equals: "http://bbb-web:8090"}
+      - {path: .redis.host, equals: redis}
+      - {path: .redis.port, equals: 6379}
+  - file: usr/local/bigbluebutton/bbb-export-annotations/config/settings.json
+    format: lines
+    checks:
+      - {no_line: '127\.0\.0\.1|localhost'}   # every peer is another container
+      # the stack's redis has no password (no redis secret in the contract); upstream's
+      # `"password": null` stays, no string password is baked into the file
+      - {no_line: '"password"[[:space:]]*:[[:space:]]*"'}
+uid: {user: "12345:12345"}

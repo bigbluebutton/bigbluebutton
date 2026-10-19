@@ -1,0 +1,30 @@
+# Parity of the rendered graphql-server files with the bare-metal reference (docker/tests/parity/).
+#
+# Bare metal: the package installs hasura-config.env as /etc/default/bbb-graphql-server and
+# config.yaml and the metadata in /usr/share/bbb-graphql-server; after-install.sh writes the
+# generated admin secret into config.yaml and /etc/default/bbb-graphql-server-admin-pass.
+# The container renders the same three files from the packaged ones. The admin-pass file is
+# not compared: the admin secret is passed as env only (contract derived hasura_admin_secret;
+# expectations: HASURA_GRAPHQL_ADMIN_SECRET absent from the env file). config.yaml is
+# identical (the reference holds the fixture admin secret).
+reference: ../../parity/reference/graphql-server
+files:
+  - rendered: etc/default/bbb-graphql-server
+    reference: etc/default/bbb-graphql-server
+  - rendered: usr/share/bbb-graphql-server/config.yaml
+    reference: usr/share/bbb-graphql-server/config.yaml
+  - rendered: usr/share/bbb-graphql-server/metadata/databases/databases.yaml
+    reference: usr/share/bbb-graphql-server/metadata/databases/databases.yaml
+allowed:
+  - file: etc/default/bbb-graphql-server
+    line: '^HASURA_GRAPHQL_DATABASE_URL=postgres://hasura_app:(hasura_app@127\.0\.0\.1|fixturepostgreshasuraapppasswordnotreal00000000@postgres):5432/hasura_app$'
+    reason: "contract POSTGRES_HASURA_APP_PASSWORD / contract decision postgres-role-passwords: generated role password instead of upstream's fixed one; service names of docker-compose.yml: postgres is its own service, not on localhost"
+  - file: etc/default/bbb-graphql-server
+    line: '^HASURA_GRAPHQL_AUTH_HOOK=http://(127\.0\.0\.1|akka-apps):8901/userInfo$'
+    reason: "service names of docker-compose.yml: akka-apps is its own service on the bbb network, not on localhost; same port and path as packaged"
+  - file: etc/default/bbb-graphql-server
+    line: '^HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL=http://(127\.0\.0\.1|graphql-actions):8093$'
+    reason: "service names of docker-compose.yml: graphql-actions is its own service on the bbb network, not on localhost; same port as packaged"
+  - file: usr/share/bbb-graphql-server/metadata/databases/databases.yaml
+    line: '^      database_url: postgres://bbb_hasura:(bbb_hasura@127\.0\.0\.1|fixturepostgresbbbhasurapasswordnotreal00000000@postgres):5432/bbb_graphql$'
+    reason: "contract POSTGRES_BBB_HASURA_PASSWORD / contract decision postgres-role-passwords: the image rewrites the literal DSN with the generated role password; service names of docker-compose.yml: postgres, not localhost"

@@ -1,0 +1,30 @@
+# Parity of the rendered graphql-middleware config with the bare-metal reference (docker/tests/parity/).
+#
+# Bare metal: bbb-graphql-middleware.deb ships config/config.yml unchanged as
+# /usr/share/bbb-graphql-middleware/config.yml (build.sh:41); the binary merges
+# /etc/bigbluebutton/bbb-graphql-middleware.yml over it (config/Config.go:22-23,75-96). The image
+# ships the same file with only the addresses changed; the Tier 3 override is merged by the
+# binary as on bare metal and is not part of the render.
+reference: ../../parity/reference/graphql-middleware
+files:
+  - rendered: usr/share/bbb-graphql-middleware/config.yml
+    reference: usr/share/bbb-graphql-middleware/config.yml
+allowed:
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    line: '^  listen_host: (127\.0\.0\.1|0\.0\.0\.0)$'
+    reason: "service names of docker-compose.yml: nginx (/graphql) and akka-apps connect from their own containers, so the middleware listens on all interfaces; same port as packaged"
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    line: '^  host: (127\.0\.0\.1|redis)$'
+    reason: "service names of docker-compose.yml: redis is its own service on the bbb network, not on localhost"
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    line: '^  url: ws://(127\.0\.0\.1:8185|graphql-server:8085)/v1/graphql$'
+    reason: "one Hasura service: no nginx Hasura load balancer (8185) in compose, one service name; Hasura's own port 8085 (service name graphql-server)"
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    line: '^  url: http://(127\.0\.0\.1|graphql-actions):8093$'
+    reason: "service names of docker-compose.yml: graphql-actions is its own service; same port as packaged"
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    line: '^  url: http://(127\.0\.0\.1|bbb-web):8090/bigbluebutton/connection/checkGraphqlAuthorization$'
+    reason: "service names of docker-compose.yml: bbb-web is its own service; same port and path as packaged"
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    line: '^  url: http://(127\.0\.0\.1|akka-apps):8901/userInfo$'
+    reason: "service names of docker-compose.yml: akka-apps is its own service; same port and path as packaged"

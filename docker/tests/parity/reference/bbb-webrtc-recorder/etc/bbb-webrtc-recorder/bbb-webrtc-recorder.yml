@@ -1,0 +1,62 @@
+log:
+  level: INFO
+
+recorder:
+  directory: /var/lib/bbb-webrtc-recorder
+  dirFileMode: 0700
+  fileMode: 0600
+  writeToDevNull: false
+  # Write a stats file for each recording
+  writeStatsFile: false
+  # Write a copy of the recorded video in IVF format. Used for debugging and
+  # test environments.
+  writeIVFCopy: false
+  videoPacketQueueSize: 256
+  audioPacketQueueSize: 32
+  useCustomSampler: true
+
+pubsub:
+  channels:
+    subscribe: to-bbb-webrtc-recorder
+    publish: from-bbb-webrtc-recorder
+  adapter: redis
+  adapters:
+    redis:
+      address: :6379
+      network: tcp
+      #password: foobared
+
+webrtc:
+  rtcMinPort: 24577
+  rtcMaxPort: 32768
+  jitterBuffer: 256
+  jitterBufferPktTimeout: 200
+  iceServers:
+    - urls: []
+# Example turn server
+#    - urls:
+#        - turn:turnserver.example.org:1234
+#      username: webrtc
+#      credential: turnpassword
+
+# HTTP server for testing
+# (should be disabled in production)
+http:
+  port: 8080
+  enable: false
+
+prometheus:
+  enable: false
+  listenAddress: 127.0.0.1:3200
+
+livekit:
+  host: ws://localhost:7880
+  apiKey: ""
+  apiSecret: ""
+  # Write a raw RTP dump (in rtpdump format) for recorded tracks. Used for
+  # debugging and test environments.
+  writeRTPDump: false
+  healthCheck:
+    enable: false
+    interval: 1m
+    abortBootOnFailure: false

@@ -1,0 +1,127 @@
+# Minimal valid contract for docker/tests/contract/test-contract.sh. Values are project fixtures.
+version: 1
+meta:
+  status: draft
+  upstream: 35cad46a9fb13d07df40a044834a32272be38fb8
+variables:
+  - name: BBB_DOMAIN
+    tier: 1
+    required: true
+    secret: false
+    default: null
+    pattern: '([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?'
+    setup: ask
+    description: Public hostname of the server.
+    consumers: [web]
+    example: bbb.example.com
+    status: draft
+    sources:
+      - bigbluebutton-web/grails-app/conf/bigbluebutton.properties:398 @ 35cad46a9f — serverURL
+  - name: TURN_SECRET
+    tier: 1
+    required: true
+    secret: true
+    default: null
+    pattern: '[A-Za-z0-9+/=]{32,}'
+    setup: generate
+    description: Shared TURN secret, used by `coturn` and bbb-web.
+    consumers: [web]
+    example: fixtureturnsecretnotreal000000000000000000000000
+    status: draft
+    sources:
+      - docs/docs/administration/turn-server.md:181-184 @ 35cad46a9f
+  - name: BBB_FEATURES
+    tier: 1
+    required: false
+    secret: false
+    default: recording
+    pattern: '((recording|webhooks)(,(recording|webhooks))*)?'
+    setup: ask
+    description: Optional features, comma-separated.
+    consumers: [compose]
+    example: recording
+    status: draft
+    sources:
+      - build/packages-template/bigbluebutton/build.sh:16-33 @ 35cad46a9f
+  - name: RECORDING_WORKERS
+    tier: 2
+    required: false
+    secret: false
+    default: '1'
+    pattern: '[1-9][0-9]{0,2}'
+    description: Number of recording workers.
+    consumers: [web]
+    example: '2'
+    status: draft
+    sources:
+      - record-and-playback/core/systemd/bbb-rap-resque-worker.service:11-12 @ 35cad46a9f
+  - name: BBB_PUBLIC_IPV4
+    tier: 2
+    required: false
+    secret: false
+    default: null
+    pattern: '[0-9.]+'
+    description: Pending variable that nothing uses yet; must not be reported as UNUSED.
+    consumers: [web]
+    example: 203.0.113.10
+    status: pending-g2
+    sources:
+      - pkg/routing/node.go:51-53 @ 8d11efdfcd
+derived:
+  - name: compose_profiles
+    formula: '${BBB_FEATURES}'
+    inputs: [BBB_FEATURES]
+    env: COMPOSE_PROFILES
+    env_file: true
+    targets: ['compose: COMPOSE_PROFILES']
+    description: Profiles follow the features.
+    status: draft
+    sources:
+      - build/packages-template/bigbluebutton/build.sh:16-33 @ 35cad46a9f
+internal:
+  - name: REDIS_HOST
+    consumer: web
+    value: redis
+    description: Redis host.
+    status: draft
+    sources:
+      - config/custom-environment-variables.yml:72-76 @ 88cb1a9a1c
+overrides:
+  - component: web
+    path: /etc/bigbluebutton/bbb-web.properties
+    format: properties
+    merge: Key by key over the default (later file wins).
+    support: supported
+    status: draft
+    sources:
+      - bigbluebutton-web/grails-app/conf/application.groovy:13-16 @ 35cad46a9f
+features:
+  - name: recording
+    services: [recorder]
+    settings: ['web: disableRecordingDefault from the feature']
+    description: Records meetings.
+    status: draft
+    sources:
+      - bigbluebutton-web/grails-app/conf/bigbluebutton.properties:317-319 @ 35cad46a9f
+  - name: webhooks
+    services: [webhooks]
+    settings: []
+    description: Webhooks.
+    status: draft
+    sources: []
+decided:
+  - id: sample-decided
+    date: '2026-10-17'
+    choice: a
+    decision: Keep the domain variable.
+    affects: [BBB_DOMAIN]
+decisions_needed:
+  - id: sample-decision
+    question: Keep the workers default?
+    options:
+      - id: a
+        text: Keep 1.
+      - id: b
+        text: Use 2.
+    recommendation: a.
+    affects: [RECORDING_WORKERS]

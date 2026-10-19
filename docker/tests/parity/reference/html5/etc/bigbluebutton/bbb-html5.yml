@@ -1,0 +1,3 @@
+public:
+  kurento:
+    wsUrl: wss://bbb.example.com/bbb-webrtc-sfu

@@ -1,0 +1,64 @@
+server_tokens off;
+
+server {
+  listen 80;
+  listen [::]:80;
+  server_name bbb.example.com;
+
+  location ^~ / {
+    return 301 https://$server_name$request_uri; #redirect HTTP to HTTPS
+  }
+
+  location ^~ /.well-known/acme-challenge/ {
+    allow all;
+    default_type "text/plain";
+    root /var/www/bigbluebutton-default/assets;
+  }
+
+  location = /.well-known/acme-challenge/ {
+    return 404;
+  }
+}
+
+set_real_ip_from 127.0.0.1;
+real_ip_header proxy_protocol;
+real_ip_recursive on;
+server {
+  # this double listening is intended. We terminate SSL on haproxy. HTTP2 is a
+  # binary protocol. haproxy has to decide which protocol is spoken. This is
+  # negotiated by ALPN.
+  #
+  # Depending on the ALPN value traffic is redirected to either port 82 (HTTP2,
+  # ALPN value h2) or 81 (HTTP 1.0 or HTTP 1.1, ALPN value http/1.1 or no value)
+
+  # Http2 is disabled, include http2 to the list if you want to enable it
+  # listen 127.0.0.1:82 http2 proxy_protocol;
+  # listen [::1]:82 http2;
+
+  listen 127.0.0.1:82 proxy_protocol;
+  listen [::1]:82;
+  listen 127.0.0.1:81 proxy_protocol;
+  listen [::1]:81;
+  server_name bbb.example.com;
+
+  # nginx does not know its external port/protocol behind haproxy, so use relative redirects.
+  absolute_redirect off;
+
+  # HSTS (uncomment to enable)
+  #add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+  access_log  /var/log/nginx/bigbluebutton.access.log;
+
+  # This variable is used instead of $scheme by bigbluebutton nginx include
+  # files, so $scheme can be overridden in reverse-proxy configurations.
+  set $real_scheme "https";
+
+  # BigBlueButton landing page.
+  location / {
+    root   /var/www/bigbluebutton-default/assets;
+    try_files $uri @bbb-fe;
+  }
+
+  # Include specific rules for record and playback
+  include /etc/bigbluebutton/nginx/*.nginx;
+}

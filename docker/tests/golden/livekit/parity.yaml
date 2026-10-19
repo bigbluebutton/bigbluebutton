@@ -1,0 +1,31 @@
+# Parity of the rendered livekit-server config with the bare-metal reference (docker/tests/parity/).
+#
+# Bare metal: the unit merges /usr/share/livekit-server/livekit.yaml (packaged default) with
+# /etc/bigbluebutton/livekit.yaml (key pair and webhook.api_key, written by after-install.sh)
+# into /run/livekit-server/livekit.yaml. The container renders that same merged file, compared
+# here with the packaged default. The reference override is not compared: its key pair is
+# passed as LIVEKIT_KEYS in the container (contract derived livekit_keys; expectations: .keys
+# absent), and its webhook.api_key is the allowlisted api_key line below.
+reference: ../../parity/reference/livekit
+files:
+  - rendered: run/livekit-server/livekit.yaml
+    reference: usr/share/livekit-server/livekit.yaml
+allowed:
+  - file: run/livekit-server/livekit.yaml
+    line: '^  port_range_(start|end): (16384|32768|0)$'
+    reason: "design page 'One UDP port for LiveKit': one published UDP port instead of the host range; the range must be 0 or LiveKit ignores udp_port (seen in a networking test on a VM)"
+  - file: run/livekit-server/livekit.yaml
+    line: '^  udp_port: 7882$'
+    reason: "design page 'One UDP port for LiveKit': single UDP mux port, contract LIVEKIT_RTC_UDP_PORT (default 7882), derived livekit_rtc"
+  - file: run/livekit-server/livekit.yaml
+    line: '^  advertise_internal_ip: true$'
+    reason: "design page 'One UDP port for LiveKit': advertise the bridge address next to node_ip so recorder and coturn reach LiveKit on the bridge instead of through Docker's hairpin NAT (seen in networking tests on a VM); contract derived livekit_rtc"
+  - file: run/livekit-server/livekit.yaml
+    line: '^  address: (127\.0\.0\.1|redis):6379$'
+    reason: "service names of docker-compose.yml: redis is its own service on the bbb network, not on localhost"
+  - file: run/livekit-server/livekit.yaml
+    line: '^    - http://(127\.0\.0\.1|bbb-webrtc-sfu):3040/livekit-webhook$'
+    reason: "service names of docker-compose.yml: bbb-webrtc-sfu is its own service on the bbb network, not on localhost; same path and port as packaged"
+  - file: run/livekit-server/livekit.yaml
+    line: '^  api_key: fixturelivekitapikey$'
+    reason: "bare metal writes webhook.api_key into the /etc/bigbluebutton override (after-install.sh:13-14); the container sets it from LIVEKIT_API_KEY (contract derived livekit_keys) in the merged file"

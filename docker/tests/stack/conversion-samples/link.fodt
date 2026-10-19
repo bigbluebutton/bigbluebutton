@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Text document with an image and a section linked to LINK_IMAGE and LINK_SECTION
+     (conversion-check.sh puts in the listener's URLs): the conversion service must not fetch
+     them. -->
+<office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+    office:version="1.3" office:mimetype="application/vnd.oasis.opendocument.text">
+ <office:body>
+  <office:text>
+   <text:p>linked image<draw:frame draw:name="i" svg:width="2cm" svg:height="2cm" text:anchor-type="as-char"><draw:image xlink:href="LINK_IMAGE" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame></text:p>
+   <text:section text:name="linked"><text:section-source xlink:href="LINK_SECTION" xlink:type="simple"/><text:p>linked section</text:p></text:section>
+  </office:text>
+ </office:body>
+</office:document>

@@ -1,0 +1,112 @@
+reference: ../../parity/reference/nginx
+files:
+  - rendered: etc/nginx/nginx.conf
+    reference: etc/nginx/nginx.conf
+  - rendered: etc/nginx/sites-available/bigbluebutton
+    reference: etc/nginx/sites-available/bigbluebutton
+  - rendered: etc/nginx/conf.d/bbb-graphql-client-settings-cache.conf
+    reference: etc/nginx/conf.d/bbb-graphql-client-settings-cache.conf
+  - rendered: usr/share/bigbluebutton/include_default.nginx
+    reference: usr/share/bigbluebutton/include_default.nginx
+  - rendered: usr/share/bigbluebutton/nginx/bbb-html5.nginx
+    reference: usr/share/bigbluebutton/nginx/bbb-html5.nginx
+  - rendered: usr/share/bigbluebutton/nginx/bbb-shared-notes-server.nginx
+    reference: usr/share/bigbluebutton/nginx/bbb-shared-notes-server.nginx
+  - rendered: usr/share/bigbluebutton/nginx/default-fe.nginx
+    reference: usr/share/bigbluebutton/nginx/default-fe.nginx
+  - rendered: usr/share/bigbluebutton/nginx/graphql.nginx
+    reference: usr/share/bigbluebutton/nginx/graphql.nginx
+  - rendered: usr/share/bigbluebutton/nginx/learning-dashboard.nginx
+    reference: usr/share/bigbluebutton/nginx/learning-dashboard.nginx
+  - rendered: usr/share/bigbluebutton/nginx/livekit.nginx
+    reference: usr/share/bigbluebutton/nginx/livekit.nginx
+  - rendered: usr/share/bigbluebutton/nginx/loadbalancer.nginx
+    reference: usr/share/bigbluebutton/nginx/loadbalancer.nginx
+  - rendered: usr/share/bigbluebutton/nginx/playback.nginx
+    reference: usr/share/bigbluebutton/nginx/playback.nginx
+  - rendered: usr/share/bigbluebutton/nginx/plugins-assets-cors.nginx
+    reference: usr/share/bigbluebutton/nginx/plugins-assets-cors.nginx
+  - rendered: usr/share/bigbluebutton/nginx/presentation.nginx
+    reference: usr/share/bigbluebutton/nginx/presentation.nginx
+  - rendered: usr/share/bigbluebutton/nginx/presentation-slides.nginx
+    reference: usr/share/bigbluebutton/nginx/presentation-slides.nginx
+  - rendered: usr/share/bigbluebutton/nginx/web
+    reference: usr/share/bigbluebutton/nginx/web
+  - rendered: usr/share/bigbluebutton/nginx/webrtc-sfu.nginx
+    reference: usr/share/bigbluebutton/nginx/webrtc-sfu.nginx
+allowed:
+  # nginx.conf (Ubuntu's file with bbb-config's edits)
+  - file: etc/nginx/nginx.conf
+    line: '^user www-data;$'
+    reason: "docker/README.md 'Running under an arbitrary UID/GID': the master runs as the container's non-root UID; the user switch needs root (and Alpine has no www-data)"
+  - file: etc/nginx/nginx.conf
+    line: '^pid /(run|tmp)/nginx\.pid;$'
+    reason: "read-only root filesystem (writable paths only: declared volumes and tmpfs)"
+  - file: etc/nginx/nginx.conf
+    line: '^[[:space:]]*server_names_hash_bucket_size 128;$'
+    reason: "reference host deviation: added by hand for the long VM hostname, not upstream (parity/README.md 'Known deviations')"
+  - file: etc/nginx/nginx.conf
+    line: '^([[:space:]]*##|[[:space:]]*# Temporary files below /tmp: the only writable path for an arbitrary UID|[[:space:]]*(client_body|proxy|fastcgi|uwsgi|scgi)_temp_path /tmp/nginx-[a-z]+_temp;|)$'
+    reason: "read-only root filesystem (writable paths only: declared volumes and tmpfs): the base image's compiled-in temp paths are below /var/cache/nginx"
+  # site file (bbb-install.sh, haproxy variant)
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*listen (80|\[::\]:80);$|^[[:space:]]*listen 80 default_server;$'
+    reason: "nginx behind haproxy (server_name _ / default_server behind haproxy). The [::] listener is dropped: the bbb network is IPv4 (BBB_NETWORK_SUBNET), and a [::] bind fails where the container has no IPv6 (the base image only adds one if /proc/net/if_inet6 exists, /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh:16)"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*server_name (bbb\.example\.com|_);$'
+    reason: "nginx behind haproxy: server_name _, nginx does not consume BBB_DOMAIN"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*return 301 https://\$(server_name|host)\$request_uri; #redirect HTTP to HTTPS$'
+    reason: "nginx behind haproxy: with server_name _ the bare-metal $server_name redirect would go to https://_; $host is the requested name"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^set_real_ip_from (127\.0\.0\.1|172\.30\.82\.0/24);$'
+    reason: "config-contract.yaml BBB_NETWORK_SUBNET: haproxy is another container on the bbb network, so PROXY-protocol addresses are trusted from that subnet instead of 127.0.0.1"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*# (this double listening is intended|binary protocol\. haproxy has to decide|negotiated by ALPN|Depending on the ALPN value|ALPN value h2\) or 81|Http2 is disabled|listen 127\.0\.0\.1:82 http2|listen \[::1\]:82 http2|We terminate SSL on haproxy, which sends HTTP/1\.x|protocol\. HTTP/2 is not offered)|^[[:space:]]*#$'
+    reason: "comments only: rewritten without the HTTP/2 port 82 that the container setup does not have (haproxy golden has no nginx-http2 backend)"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*listen (127\.0\.0\.1:82 proxy_protocol|\[::1\]:82);$'
+    reason: "design page 'TLS edge and TURN on 443': haproxy sends HTTP/1.1 only; no HTTP/2 port"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*listen (127\.0\.0\.1:81 proxy_protocol|\[::1\]:81|81 proxy_protocol default_server);$'
+    reason: "design page 'TLS edge and TURN on 443': haproxy is another container (server nginx nginx:81 send-proxy), so :81 is not bound to loopback; default_server and no [::] as for :80"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^[[:space:]]*(# Location fragments of the image\. On bare metal, /etc/bigbluebutton/nginx/ holds a symlink|# to this file; an include_default\.nginx placed there replaces this line\.|include /usr/share/bigbluebutton/include_default\.nginx;)$'
+    reason: "config-contract.yaml overrides (nginx, /etc/bigbluebutton/nginx/): the admin directory stays empty in the image, so the fragments are included here instead of through bbb-config's symlink there (after-install.sh:128-133); an admin include_default.nginx there replaces this line"
+  - file: etc/nginx/sites-available/bigbluebutton
+    line: '^$'
+    reason: "blank lines around the removed port 82 listeners and the added include"
+  # learning dashboard: the app is served by its own image, only the per-meeting JSON comes from
+  # the bbb-data volume. The upstream file has CRLF line endings, hence [[:space:]]*$.
+  - file: usr/share/bigbluebutton/nginx/learning-dashboard.nginx
+    line: '^[[:space:]]*(alias /var/bigbluebutton/learning-dashboard/|proxy_pass http://learning-dashboard);[[:space:]]*$'
+    reason: "one image per static app, and the bbb-data volume holds data only: the app is served by the learning-dashboard image (service learning-dashboard, port 8080), and /var/bigbluebutton is the bbb-data volume, which holds only the JSON files bbb-web writes, so the prefix proxies to that service. The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
+  - file: usr/share/bigbluebutton/nginx/learning-dashboard.nginx
+    line: '^([[:space:]]*location ~ "[^"]*/learning_dashboard_data[^"]*" \{|[[:space:]]*alias /var/bigbluebutton/learning-dashboard/\$1;|[[:space:]]*\}|)[[:space:]]*$'
+    reason: "the bbb-data volume holds data only, so nginx has separate locations for the app and for volume content: a regex location nested in the prefix serves only <meetingId>/<token>/learning_dashboard_data.json from bbb-data, where bbb-web writes it (LearningDashboardService.java:34,40,96 @ 35cad46a9f)"
+  # fragments: services are other containers (service names of docker-compose.yml)
+  # etc/nginx/conf.d/bbb-upstreams.conf has no bare-metal counterpart (there, every service is on
+  # 127.0.0.1): it holds the upstream groups the fragments below name, so nginx follows restarted containers.
+  # etc/nginx/sites-available/bbb-feature-upstreams (sites-enabled/ links it) has none either: the
+  # groups of the enabled optional features (webhooks), written with their fragments; comment-only here
+  - file: usr/share/bigbluebutton/nginx/bbb-shared-notes-server.nginx
+    line: '^[[:space:]]*proxy_pass http://(localhost:8787|shared-notes)/(collaboration|api/|sample);$'
+    reason: "service names of docker-compose.yml: shared-notes is its own container (port 8787, bbb-shared-notes-server/config/default.yml:3). The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
+  - file: usr/share/bigbluebutton/nginx/bbb-shared-notes-server.nginx
+    line: '^[[:space:]]*proxy_pass[[:space:]]+http://(127\.0\.0\.1:8090|bbb-web)/bigbluebutton/connection/checkGraphqlAuthorization;$'
+    reason: "service names of docker-compose.yml: bbb-web is its own container. The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
+  - file: usr/share/bigbluebutton/nginx/graphql.nginx
+    line: '^[[:space:]]*proxy_pass[[:space:]]+http://(127\.0\.0\.1:8378|graphql-middleware); #Graphql Middleware$'
+    reason: "service names of docker-compose.yml: graphql-middleware is its own container. The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
+  - file: usr/share/bigbluebutton/nginx/graphql.nginx
+    line: '^[[:space:]]*proxy_pass http://(127\.0\.0\.1:8185|graphql-server); #Hasura$'
+    reason: "one Hasura service: Hasura REST goes to graphql-server:8085 directly; no local load balancer (hasura-loadbalancer.conf), replicas sit behind one service name (graphql-server:8085). The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
+  - file: usr/share/bigbluebutton/nginx/livekit.nginx
+    line: '^[[:space:]]*proxy_pass http://(127\.0\.0\.1:7880|livekit)/;$'
+    reason: "design page 'One UDP port for LiveKit' (signaling through nginx): location /livekit/ to livekit:7880, as html5's default LiveKit URL wss://<host>/livekit expects; the trailing slash still strips /livekit/. The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"
+  - file: usr/share/bigbluebutton/nginx/web
+    line: '^[[:space:]]*proxy_pass[[:space:]]+http://(127\.0\.0\.1:8090|bbb-web)(\$uri\$is_args\$args)?;$'
+    reason: "service names of docker-compose.yml: bbb-web is its own container (port 8090, bbb-web.env:3). The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port; with variables, nginx also looks the name up among the upstream groups first"
+  - file: usr/share/bigbluebutton/nginx/webrtc-sfu.nginx
+    line: '^[[:space:]]*proxy_pass http://(127\.0\.0\.1:3008|bbb-webrtc-sfu);$'
+    reason: "service names of docker-compose.yml: bbb-webrtc-sfu is its own container (client port 3008, contract internal CLIENT_HOST). The service is an upstream group of /etc/nginx/conf.d/bbb-upstreams.conf (`server <service>:<port> resolve`), so nginx re-resolves the name and follows a restarted container; `proxy_pass` names the group, without the port"

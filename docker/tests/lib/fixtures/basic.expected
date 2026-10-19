@@ -1,0 +1,6 @@
+# Rendered by the shared entrypoint helper (fixture).
+server_name bbb.example.com;
+set $bbb_url https://bbb.example.com/bigbluebutton;
+listen_ip=203.0.113.10
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;

@@ -1,0 +1,9 @@
+# Protected (written before the image). Second bbb-web case: BBB_FEATURES without `recording`
+# (contract features: disableRecordingDefault=true without the feature, so bbb-web disables
+# recording when `recording` is absent). Same image as the bbb-web case.
+render:
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    format: properties
+    checks:
+      - {key: disableRecordingDefault, equals: "true"}
+uid: {user: "12345:12345"}

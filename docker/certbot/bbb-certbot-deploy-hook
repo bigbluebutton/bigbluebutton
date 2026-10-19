@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# certbot deploy hook: writes the haproxy bundle (full chain, blank line, private key) from the
+# issued certificate, as bbb-install's /etc/letsencrypt/renewal-hooks/deploy/haproxy does. The
+# bundle is replaced atomically; haproxy notices the change and reloads itself, so no
+# `systemctl reload` (and no access to the haproxy container) is needed.
+#
+# Usage: RENEWED_LINEAGE=/etc/letsencrypt/live/<name> bbb-certbot-deploy-hook   (set by certbot)
+set -euo pipefail
+
+BUNDLE=/etc/haproxy/certs/certbundle.pem
+lineage="${RENEWED_LINEAGE:?RENEWED_LINEAGE is not set (run by certbot as a deploy hook)}"
+
+tmp="$(mktemp "$(dirname "$BUNDLE")/.certbundle.pem.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+{ cat "$lineage/fullchain.pem"; echo; cat "$lineage/privkey.pem"; } >"$tmp"
+# Readable for haproxy, which shares this container's GID.
+chmod 0640 "$tmp"
+mv -f "$tmp" "$BUNDLE"
+trap - EXIT
+echo "bbb-certbot-deploy-hook: wrote $BUNDLE from $lineage"

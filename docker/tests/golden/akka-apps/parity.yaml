@@ -1,0 +1,32 @@
+# akka-apps renders no configuration (HOCON reads the contract values from the environment);
+# --render-only copies the image's application.conf, which is upstream's with the container
+# wiring of akka-bbb-apps/docker/application.conf.patch. The reference is the installed file,
+# which bbb-config's after-install edits in place (sharedSecret, bbbWebAPI).
+# Not compared: /etc/bigbluebutton/bbb-apps-akka.conf. The image never writes it: it is the
+# Tier 3 override path (contract overrides), and its two keys come from the environment here.
+reference: ../../parity/reference/akka-apps
+files:
+  - rendered: usr/share/bbb-apps-akka/conf/application.conf
+    reference: usr/share/bbb-apps-akka/conf/application.conf
+allowed:
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^    host="(127\.0\.0\.1|redis)"$'
+    reason: "service names of docker-compose.yml: redis runs in its own container (container host names instead of 127.0.0.1)"
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^            serverName = "(127\.0\.0\.1|postgres)"$'
+    reason: "service names of docker-compose.yml: postgres runs in its own container"
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^  graphqlMiddlewareAPI = "http://(127\.0\.0\.1|graphql-middleware):8378"$'
+    reason: "service names of docker-compose.yml: graphql-middleware runs in its own container"
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^  interface = "(127\.0\.0\.1|0\.0\.0\.0)"$'
+    reason: "listen addresses: graphql-server (Hasura auth hook) and graphql-middleware call akka-apps on 8901 from other containers"
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^  bbbWebAPI ?= ?("http://203\.0\.113\.10/bigbluebutton/api"|"https://"\$\{BBB_DOMAIN\}"/bigbluebutton/api")$'
+    reason: "contract derived server_url (services.bbbWebAPI = server_url + /bigbluebutton/api), read from the environment (HOCON's native env reference); bare metal writes http://<IP> here at install time and the https URL into the Tier 3 file"
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^  sharedSecret ?= ?("fixturebbbsharedsecretnotreal0000000000000000000"|"changeme"|\$\{\?BBB_SHARED_SECRET\})$'
+    reason: "contract derived akka_shared_secret (HOCON optional env reference): the secret stays out of files; the upstream default line is kept"
+  - file: usr/share/bbb-apps-akka/conf/application.conf
+    line: '^            password = \$\{\?POSTGRES_BBB_CORE_PASSWORD\}$'
+    reason: "contract POSTGRES_BBB_CORE_PASSWORD: generated role password instead of upstream's fixed bbb_core (set by db-init), read from the environment"

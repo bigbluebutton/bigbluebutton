@@ -1,0 +1,4 @@
+# Arguments to pass to daemon
+#ARGS=-d
+BBBRECORDER_LIVEKIT_APIKEY=fixturelivekitapikey
+BBBRECORDER_LIVEKIT_APISECRET=fixturelivekitapisecretnotreal000000000000000000

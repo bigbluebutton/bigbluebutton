@@ -1,0 +1,19 @@
+# Parity of the rendered bbb-export-annotations settings.json with the bare-metal reference
+# (docker/tests/parity/).
+#
+# Bare metal: the package ships config/settings.json unchanged below the unit's working
+# directory (build/packages-template/bbb-export-annotations/build.sh, bbb-export-annotations.service),
+# and the app reads only that file (master.js, workers/*.js). The container writes the same file
+# from the packaged one with the two peers set to their compose service names; nothing else
+# changes (no environment variable reaches the app, no Tier 3 file exists upstream).
+reference: ../../parity/reference/export-annotations
+files:
+  - rendered: usr/local/bigbluebutton/bbb-export-annotations/config/settings.json
+    reference: usr/local/bigbluebutton/bbb-export-annotations/config/settings.json
+allowed:
+  - file: usr/local/bigbluebutton/bbb-export-annotations/config/settings.json
+    line: '^  "bbbWebAPI": "http://(127\.0\.0\.1|bbb-web):8090",$'
+    reason: "service names of docker-compose.yml: bbb-web is its own service on the bbb network (port 8090, contract internal 'bbb-web: redisHost and server.address'); the PDF upload of an export goes there (workers/notifier.js)"
+  - file: usr/local/bigbluebutton/bbb-export-annotations/config/settings.json
+    line: '^    "host": "(127\.0\.0\.1|redis)",$'
+    reason: "service names of docker-compose.yml: redis is its own service on the bbb network, not on localhost"

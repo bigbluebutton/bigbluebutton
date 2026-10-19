@@ -4,90 +4,132 @@ on:
   workflow_call:
     inputs:
       image_name:
+        description: "Image name without registry, e.g. bbb-web"
         required: true
         type: string
       target:
+        description: "Bake target, e.g. web"
         required: true
         type: string
+      platforms:
+        description: "JSON list of platforms to build, each on a native runner"
+        required: false
+        type: string
+        default: '["linux/amd64", "linux/arm64"]'
     outputs:
       image_tag:
-        description: "SHA short tag of the built image"
-        value: ${{ jobs.build_and_publish.outputs.image_tag }}
+        description: "SHA short tag of the built image (empty when nothing was pushed)"
+        value: ${{ jobs.merge.outputs.image_tag }}
+
+# Images are pushed on every event except pull requests, which only build.
+env:
+  PUSH: ${{ github.event_name != 'pull_request' }}
 
 jobs:
   build:
-    name: Build Docker image for ${{ matrix.platform }}
-    runs-on: ${{ matrix.os }}
+    name: Build ${{ inputs.target }} for ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     permissions:
       packages: write
       contents: read
-      id-token: write
-      attestations: write
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - platform: linux/amd64
-            os: ubuntu-24.04
-          - platform: linux/arm64
-            os: ubuntu-24.04-arm
+        platform: ${{ fromJSON(inputs.platforms) }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # ghcr.io/<owner>/<repository>/<image>: ghcr.io/bigbluebutton/bigbluebutton/bbb-web upstream,
+      # the default image path of docker-compose.yml. Inside the repository's namespace, so the images
+      # never collide with those the component repositories publish (ghcr.io/bigbluebutton/bbb-webrtc-sfu …).
+      # Registry paths must be lower case.
+      # COMMIT_DATE (bake variable, docker/bake/html5-client.hcl): the html5 client's build
+      # identifier, the commit date as upstream's package build sets it (build/setup.sh). All
+      # platforms of one commit get the same value.
       - name: Prepare
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          REPOSITORY: ${{ github.repository }}
+          IMAGE_NAME: ${{ inputs.image_name }}
         run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+          {
+            echo "PLATFORM_PAIR=${PLATFORM//\//-}"
+            echo "IMAGE=ghcr.io/${REPOSITORY,,}/${IMAGE_NAME}"
+            echo "COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y%m%dT%H%M%S)"
+          } >> "$GITHUB_ENV"
 
       - name: Log in to the Container registry
+        if: env.PUSH == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      # Labels only: the platform image is pushed by digest, the merge job tags the manifest list.
+      - name: Extract metadata (labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/${{ inputs.image_name }}
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{ version }}
-            type=semver,pattern={{ major }}.{{ minor }}
-            type=semver,pattern={{ major }}
-            type=sha
-
-      - name: Print metadata outputs
-        run: |
-          echo "Docker tags: ${{ steps.meta.outputs.tags }}"
-          echo "Docker labels: ${{ steps.meta.outputs.labels }}"
+          images: ${{ env.IMAGE }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker images
+      # The root bake file first, then every per-image file (docker/README.md, "Building"), and
+      # a BuildKit layer cache per bake target and platform for every target the build needs
+      # (named `target:` contexts are built as targets of their own).
+      - name: List bake files and cache settings
+        id: bake-files
+        env:
+          TARGET: ${{ inputs.target }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          files=(-f docker-bake.hcl)
+          for f in docker/bake/*.hcl; do files+=(-f "$f"); done
+          {
+            echo 'files<<EOF'
+            echo ./docker-bake.hcl
+            ls ./docker/bake/*.hcl
+            echo 'EOF'
+            echo 'cache<<EOF'
+            # Pull requests read the cache but never write it (as automated-tests.yml does).
+            docker buildx bake "${files[@]}" --print "$TARGET" \
+              | jq -r --arg p "$PLATFORM_PAIR" --arg ev "$EVENT_NAME" '
+              .target | keys[] |
+              "\(.).cache-from=type=gha,scope=\(.)-\($p)",
+              (if $ev != "pull_request" then "\(.).cache-to=type=gha,scope=\(.)-\($p),mode=max" else empty end)'
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push Docker image
         id: push
         uses: docker/bake-action@v6
         with:
           source: .
           files: |
-            ./docker-bake.hcl
-            cwd://${{ steps.meta.outputs.bake-file-tags }}
+            ${{ steps.bake-files.outputs.files }}
             cwd://${{ steps.meta.outputs.bake-file-labels }}
           targets: ${{ inputs.target }}
-          push: ${{ github.event_name != 'pull_request' }}
           set: |
             *.platform=${{ matrix.platform }}
+            ${{ inputs.target }}.tags=${{ env.IMAGE }}
+            ${{ inputs.target }}.output=type=image,push-by-digest=true,name-canonical=true,push=${{ env.PUSH }}
+            ${{ steps.bake-files.outputs.cache }}
 
       - name: Export digest
+        if: env.PUSH == 'true'
+        env:
+          # metadata is empty when the build failed; '{}' keeps the expression valid.
+          DIGEST: ${{ fromJSON(steps.push.outputs.metadata || '{}')[inputs.target]['containerimage.digest'] }}
         run: |
-          mkdir -p ${{ runner.temp }}/digests
-          digest="${{ fromJSON(steps.push.outputs.metadata)[inputs.target]['containerimage.digest'] }}"
-          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        if: env.PUSH == 'true'
+        uses: actions/upload-artifact@v6
         with:
           name: digests-${{ inputs.target }}-${{ env.PLATFORM_PAIR }}
           path: ${{ runner.temp }}/digests/*
@@ -97,7 +139,8 @@ jobs:
   merge:
     # This job merges the Docker manifests for the different platforms built in the previous job.
     name: Merge Docker manifests
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
       contents: read
@@ -105,11 +148,17 @@ jobs:
     needs:
       - build
     steps:
-      - name: Set output for image tag
+      - name: Prepare
         id: image-output
-        run: echo "IMAGE_TAG=sha-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+        env:
+          REPOSITORY: ${{ github.repository }}
+          IMAGE_NAME: ${{ inputs.image_name }}
+        run: |
+          echo "IMAGE=ghcr.io/${REPOSITORY,,}/${IMAGE_NAME}" >> "$GITHUB_ENV"
+          # Same as metadata-action's type=sha tag below (short SHA, 7 characters).
+          echo "IMAGE_TAG=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - name: Download digests
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-${{ inputs.target }}-*
@@ -126,21 +175,26 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/${{ inputs.image_name }}
+          images: ${{ env.IMAGE }}
           tags: |
             type=ref,event=branch,prefix=dev-
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/${{ github.repository }}/${{ inputs.image_name }}@sha256:%s ' *)
+          mapfile -t tags < <(jq -r '.tags[] | "-t", .' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          sources=()
+          for digest in *; do sources+=("$IMAGE@sha256:$digest"); done
+          docker buildx imagetools create "${tags[@]}" "${sources[@]}"
       - name: Inspect Image
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          docker buildx imagetools inspect ghcr.io/${{ github.repository }}/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect "$IMAGE:$VERSION"
 
     outputs:
       image_tag: ${{ steps.image-output.outputs.IMAGE_TAG }}

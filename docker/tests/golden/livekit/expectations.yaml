@@ -1,0 +1,27 @@
+# Protected (written before the image). Sources: LiveKit on the bridge with one UDP port, contract derived
+# livekit_rtc / livekit_keys / livekit_node_ip, internal values (log level, webhook URL, redis),
+# networking test on a VM (the port range must be 0 or udp_port is ignored).
+render:
+  - file: run/livekit-server/livekit.yaml      # merged config, as the upstream unit writes it
+    format: yaml
+    checks:
+      - {path: .port, equals: 7880}
+      - {path: .log_level, equals: info}         # never debug: join responses carry turnPassword
+      - {path: .rtc.udp_port, equals: 7882}
+      - {path: .rtc.port_range_start, equals: 0}
+      - {path: .rtc.port_range_end, equals: 0}
+      - {path: .rtc.tcp_port, equals: 0}         # no ICE-TCP, as packaged
+      - {path: .rtc.use_external_ip, equals: false}
+      - {path: .rtc.advertise_internal_ip, equals: true}
+      - {path: .keys, absent: true}              # keys only via LIVEKIT_KEYS env, no secret in files
+      - {path: .webhook.api_key, equals: fixturelivekitapikey}
+      - {path: '.webhook.urls[0]', equals: "http://bbb-webrtc-sfu:3040/livekit-webhook"}
+      - {path: .redis.address, equals: "redis:6379"}
+must_fail:
+  - {unset: BBB_PUBLIC_IPV4, message: BBB_PUBLIC_IPV4}
+  - {set: {BBB_PUBLIC_IPV4: "999.1.1.1"}, message: BBB_PUBLIC_IPV4}
+  - {unset: LIVEKIT_API_SECRET, message: LIVEKIT_API_SECRET}
+  - {set: {LIVEKIT_API_SECRET: "secret"}, message: LIVEKIT_API_SECRET}
+  - {set: {LIVEKIT_API_KEY: "devkey"}, message: LIVEKIT_API_KEY}
+  - {set: {LIVEKIT_RTC_UDP_PORT: "7882\n# injected"}, message: LIVEKIT_RTC_UDP_PORT}
+uid: {user: "12345:12345"}

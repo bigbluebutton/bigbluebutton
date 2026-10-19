@@ -1,0 +1,37 @@
+# Protected (written before the image). Sources: contract HASURA_ADMIN_SECRET / derived
+# hasura_admin_secret (env + admin_secret in the CLI config.yaml), POSTGRES_HASURA_APP_PASSWORD,
+# POSTGRES_BBB_HASURA_PASSWORD and contract decision postgres-role-passwords (the image rewrites the literal
+# metadata DSN), upstream hasura-config.env / config.yaml / databases.yaml (parity references),
+# service names of docker-compose.yml (postgres, akka-apps, graphql-actions).
+render:
+  - file: usr/share/bbb-graphql-server/metadata/databases/databases.yaml   # metadata_directory of the CLI config
+    format: yaml
+    checks:
+      - {path: '.[] | select(.name == "BigBlueButton") | .configuration.connection_info.database_url', equals: "postgres://bbb_hasura:fixturepostgresbbbhasurapasswordnotreal00000000@postgres:5432/bbb_graphql"}
+  - file: usr/share/bbb-graphql-server/metadata/databases/databases.yaml
+    format: lines
+    checks:
+      - {no_line: ':(bbb_hasura|hasura_app)@'}   # upstream's fixed role passwords
+      - {no_line: '@(127\.0\.0\.1|localhost)[:/]'}
+  - file: usr/share/bbb-graphql-server/config.yaml   # hasura CLI config used by `metadata apply`
+    format: yaml
+    checks:
+      - {path: .admin_secret, equals: fixturehasuraadminsecretnotreal00000000000000000}   # never upstream's "bigbluebutton"
+  - file: etc/default/bbb-graphql-server   # Hasura env, as the systemd EnvironmentFile on bare metal
+    format: properties
+    checks:   # matches: the file may be shell-quoted (bbb_write_shell_vars writes NAME='value')
+      - {key: HASURA_GRAPHQL_DATABASE_URL, matches: "^['\"]?postgres://hasura_app:fixturepostgreshasuraapppasswordnotreal00000000@postgres:5432/hasura_app['\"]?$"}
+      - {key: HASURA_GRAPHQL_AUTH_HOOK, matches: "^['\"]?http://akka-apps:8901/userInfo['\"]?$"}
+      - {key: HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL, matches: "^['\"]?http://graphql-actions:8093['\"]?$"}
+      - {key: HASURA_GRAPHQL_ENABLE_CONSOLE, matches: "^['\"]?false['\"]?$"}
+      - {key: HASURA_GRAPHQL_ADMIN_SECRET, absent: true}   # admin secret only via env (contract hasura_admin_secret)
+must_fail:
+  - {unset: HASURA_ADMIN_SECRET, message: HASURA_ADMIN_SECRET}
+  - {set: {HASURA_ADMIN_SECRET: "secret"}, message: HASURA_ADMIN_SECRET}
+  - {set: {HASURA_ADMIN_SECRET: "bigbluebutton"}, message: HASURA_ADMIN_SECRET}   # upstream placeholder (config.yaml:3)
+  - {unset: POSTGRES_HASURA_APP_PASSWORD, message: POSTGRES_HASURA_APP_PASSWORD}
+  - {set: {POSTGRES_HASURA_APP_PASSWORD: "hasura_app"}, message: POSTGRES_HASURA_APP_PASSWORD}   # upstream's fixed value
+  - {unset: POSTGRES_BBB_HASURA_PASSWORD, message: POSTGRES_BBB_HASURA_PASSWORD}
+  - {set: {POSTGRES_BBB_HASURA_PASSWORD: "bbb_hasura"}, message: POSTGRES_BBB_HASURA_PASSWORD}   # upstream's fixed value
+  - {set: {POSTGRES_BBB_HASURA_PASSWORD: "fixturepostgresbbbhasurapasswordnotreal00000000\n# injected"}, message: POSTGRES_BBB_HASURA_PASSWORD}
+uid: {user: "12345:12345"}

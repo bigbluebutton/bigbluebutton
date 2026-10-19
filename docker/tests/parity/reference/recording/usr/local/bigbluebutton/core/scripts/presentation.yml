@@ -1,0 +1,22 @@
+video_output_width: 640
+video_output_height: 480
+video_output_framerate: 15
+# Alternate output size to use when deskshare videos are present
+# Set higher so that deskshare output is higher quality, but uses more space.
+deskshare_output_width: 1280
+deskshare_output_height: 720
+deskshare_output_framerate: 5
+# offset applied to audio in the output video file
+# audio_offset = 1200 means that the audio will be delayed by 1200ms
+audio_offset: 0
+include_deskshare: true
+
+# For PRODUCTION
+publish_dir: /var/bigbluebutton/published/presentation
+video_formats:
+- webm
+# - mp4
+
+# For DEVELOPMENT
+#publish_dir: /home/ubuntu/temp/published/presentation
+

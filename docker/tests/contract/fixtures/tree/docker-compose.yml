@@ -1,0 +1,11 @@
+# Fixture compose file: every reference is declared, ${COMMENTED_OUT} is in a comment.
+services:
+  web:
+    image: example/web:1.0
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      TURN_SECRET: ${TURN_SECRET:?set TURN_SECRET}
+      RECORDING_WORKERS: ${RECORDING_WORKERS:-1}
+      BBB_FEATURES: ${BBB_FEATURES}
+      REDIS_HOST: redis
+    command: ["sh", "-c", "echo $${NOT_INTERPOLATED}"]

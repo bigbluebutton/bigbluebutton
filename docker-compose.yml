@@ -1,375 +1,611 @@
----
+# BigBlueButton 4.0 container stack. The only production compose file: it is
+# committed, never generated. Configuration logic lives in the images (their entrypoints); this
+# file only wires them together, except for components whose upstream publishes an image
+# (webhooks, conversion), which run unchanged and are configured here. Variables:
+# docker/config-contract.yaml (.env.sample is generated from it). Each service gets only the
+# contract variables it reads.
+#
+#   docker compose run --rm setup     # writes .env (secrets generated, domain etc. asked)
+#   docker compose up -d
+#
+# Optional (BBB_FEATURES/profiles): webhooks. Not in the stack yet: recording, greenlight,
+# monitoring and preflight. See docker/README.md.
+
+name: bigbluebutton
+
 services:
-  web:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-web:${IMAGE_WEB_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-web:local"
+  # TLS edge on 443, as bbb-install sets it up: terminates TLS and routes by ALPN / first byte
+  # to nginx (PROXY protocol) or coturn. Resolves its backends at run time, so it needs no start
+  # order.
+  # Inside the stack, BBB_DOMAIN resolves to haproxy (network alias), as the server's own name
+  # resolves to the server on bare metal: bbb-web fetches https://BBB_DOMAIN/default.pdf at every
+  # create, without depending on public DNS or on the router sending the host's traffic to its
+  # own public address back in (hairpin NAT).
+  haproxy:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-haproxy:${BBB_IMAGE_TAG:-4.0.1}
     restart: unless-stopped
     environment:
-      - BBB_WEB_LOGLEVEL=INFO
-      - BBB_SERVER_URL=${BBB_SERVER_URL}
-      - SHARED_SECRET=${SHARED_SECRET}
-    volumes:
-      - ./data/bigbluebutton:/var/bigbluebutton
-    depends_on:
-      - redis
-      - etherpad
-      - pads
-      - collabora
-    healthcheck:
-      test: curl -s -o /dev/null http://localhost:8090/bigbluebutton/api || exit 1
-      start_period: 2m
-    networks:
-      bbb-net:
-
-  apps-akka:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:${IMAGE_APPS_AKKA_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:local"
-    environment:
-      - POSTGRES_PASSWORD=${BBB_POSTGRES_BBB_CORE_PASSWORD}
-    env_file:
-      - .env
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - postgres
-    volumes:
-      - ./conf/bbb-html5.yml:/etc/bigbluebutton/bbb-html5.yml:ro
-    networks:
-      bbb-net:
-
-  html5-client:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-html5-client:${IMAGE_HTML5_CLIENT_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-html5-client:local"
-    networks:
-      bbb-net:
-
-  learning-dashboard:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-learning-dashboard:${IMAGE_LEARNING_DASHBOARD_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-learning-dashboard:local"
-    networks:
-      bbb-net:
-
-  graphql-actions:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:${IMAGE_GRAPHQL_ACTIONS_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:local"
-    restart: unless-stopped
-    environment:
-      - BBB_REDIS_HOST=redis
-      - BBB_REDIS_PORT=6379
-      - SERVER_HOST=0.0.0.0
-    depends_on:
-      - redis
-      - apps-akka
-    networks:
-      bbb-net:
-
-  graphql-middleware:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:local"
-    restart: unless-stopped
-    depends_on:
-      - graphql-server
-      - graphql-actions
-      - web
-      - redis
-    networks:
-      bbb-net:
-
-  graphql-server:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:${IMAGE_GRAPHQL_SERVER_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:local"
-    restart: unless-stopped
-    environment:
-      - BBB_POSTGRES_HASURA_APP_PASSWORD=${BBB_POSTGRES_HASURA_APP_PASSWORD}
-      - BBB_POSTGRES_BBB_HASURA_PASSWORD=${BBB_POSTGRES_BBB_HASURA_PASSWORD}
-      - HASURA_GRAPHQL_ADMIN_SECRET=${HASURA_GRAPHQL_ADMIN_SECRET}
-    depends_on:
-      - postgres
-      - web
-      - apps-akka
-      - graphql-actions
-    networks:
-      bbb-net:
-
-  export-annotations:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-export-annotations:${IMAGE_EXPORT_ANNOTATIONS_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-export-annotations:local"
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - web
-      - pads
-    networks:
-      bbb-net:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+    ports:
+      - "443:443/tcp"
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    read_only: true
     tmpfs:
       - /tmp
-
-  pads:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-pads:${IMAGE_PADS_TAG:-latest}"
-    restart: unless-stopped
-    environment:
-      - ETHERPAD_API_KEY=${ETHERPAD_API_KEY}
-    depends_on:
-      - redis
-      - etherpad
-    networks:
-      bbb-net:
-
-  etherpad:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:local"
-    environment:
-      - ETHERPAD_API_KEY=${ETHERPAD_API_KEY}
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - collabora
-    networks:
-      bbb-net:
-
-  record-and-playback:
-    container_name: recording-workers
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
-    command: "resque_workers"
+      - /etc/haproxy
+      - /run/haproxy
     volumes:
-      - ./data/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder
-    depends_on:
-      - redis
-    build:
-      args:
-        TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:local"
+      - certs:/etc/haproxy/certs:ro
     networks:
-      bbb-net:
+      bbb:
+        aliases:
+          - ${BBB_DOMAIN}
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "echo 'show info' | socat -t 2 stdio UNIX-CONNECT:/run/haproxy/admin.sock | grep -q '^Name: HAProxy'"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
-  recording-starter:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
-    command: "rap_starter"
-    networks:
-      bbb-net:
-
-  recording-caption-inbox:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
-    command: "rap_caption_inbox"
-    networks:
-      bbb-net:
-
-  recording-cleanup:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
-    command: "cleanup"
-    env_file:
-      - .env
-    networks:
-      bbb-net:
-
-  webrtc-sfu:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-sfu:${IMAGE_WEBRTC_SFU_TAG:-latest}"
+  # Obtains and renews the certificate for BBB_DOMAIN (HTTP-01 through nginx on :80) and writes
+  # the haproxy bundle into `certs`; haproxy reloads it by itself.
+  certbot:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-certbot:${BBB_IMAGE_TAG:-4.0.1}
     restart: unless-stopped
     environment:
-      - LIVEKIT_ENABLED=true
-      - LIVEKIT_HOST=http://livekit:7880
-      - LIVEKIT_EVENT_SOURCE=agent
-      - CLIENT_HOST=0.0.0.0
-      - KURENTO=[]
-      - LOG_LEVEL=info
-      - LOG_FILENAME=/dev/null
-      - MCS_ADDRESS=localhost
-      - MCS_HOST=0.0.0.0
-      - MCS_PORT=3009
-      - REDIS_HOST=redis
-    env_file:
-      - .env
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /etc/bbb-certbot
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certs:/etc/haproxy/certs
+      - acme-webroot:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge
     networks:
-      bbb-net:
+      - bbb
+    depends_on:
+      nginx:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grep", "-qx", "ok", "/tmp/bbb-certbot/status"]
+      interval: 60s
+      timeout: 5s
+      start_period: 120s
+      retries: 3
 
+  # Web server: landing page, ACME webroot and the routes to the services (API, websockets, the
+  # html5 client and the learning dashboard). nginx re-resolves the upstream service names
+  # (docker/nginx/bbb-upstreams.conf), so a recreated upstream is followed without a restart.
   nginx:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_NGINX_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    environment:
+      BBB_FEATURES: ${BBB_FEATURES-}
+      BBB_NETWORK_SUBNET: ${BBB_NETWORK_SUBNET:-172.30.82.0/24}
+    ports:
+      - "80:80/tcp"
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /etc/nginx/sites-available
+      - /usr/share/bigbluebutton/nginx
     volumes:
-      - ./data/bigbluebutton:/var/bigbluebutton
-    depends_on:
-      - web
-      - etherpad
-      - html5-client
-      - webhooks
-      - webrtc-sfu
-      - graphql-server
-      - graphql-middleware
-      - livekit
+      - bbb-data:/var/bigbluebutton:ro
+      - acme-webroot:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
     networks:
-      bbb-net:
-
-  webhooks:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
-    environment:
-      - NODE_ENV=production
-      - NODE_CONFIG_DIR=/app/config/
-      - SERVER_DOMAIN=${BBB_SERVER_URL}
-      - SHARED_SECRET=${SHARED_SECRET}
-      - LOG_TO_STDOUT=true
-      - LOG_TO_FILE=false
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - SERVER_BIND_IP=0.0.0.0
+      - bbb
+      - notes
     depends_on:
-      - redis
-    networks:
-      bbb-net:
+      bbb-web:
+        condition: service_healthy
+      shared-notes:
+        condition: service_healthy
+      graphql-middleware:
+        condition: service_healthy
+      graphql-server:
+        condition: service_healthy
+      livekit:
+        condition: service_healthy
+      bbb-webrtc-sfu:
+        condition: service_healthy
+      html5:
+        condition: service_healthy
+      learning-dashboard:
+        condition: service_healthy
+      # Only with the webhooks feature (profile); nginx then proxies /bigbluebutton/api/hooks to it.
+      webhooks:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "--haproxy-protocol", "http://127.0.0.1:81/bigbluebutton/rtt-check"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
-  webrtc-recorder:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-recorder:${IMAGE_WEBRTC_RECORDER_TAG:-latest}"
+  # The html5 client (static files, port 8080); nginx proxies /html5client to it.
+  html5:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG:-4.0.1}
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/html5client/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # The learning analytics dashboard app (static files, port 8080); nginx proxies
+  # /learning-analytics-dashboard/ to it and serves the per-meeting data from bbb-data itself.
+  learning-dashboard:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/learning-analytics-dashboard/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  bbb-web:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      BBB_SHARED_SECRET: ${BBB_SHARED_SECRET}
+      TURN_SECRET: ${TURN_SECRET}
+      BBB_FEATURES: ${BBB_FEATURES-}
+      # The conversion service below; empty: office documents are not converted.
+      BBB_WEB_CONVERSION_URL: ${BBB_WEB_CONVERSION_URL-http://conversion:9980/cool/convert-to}
+      BBB_WEB_PAGE_TOKEN_SECRET: ${BBB_WEB_PAGE_TOKEN_SECRET:-}
+      BBB_WEB_MAX_HEAP_SIZE: ${BBB_WEB_MAX_HEAP_SIZE:-384m}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/bbb-web
     volumes:
-      - ./data/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder
-    environment:
-      - BBBRECORDER_RECORDER_DIRFILEMODE=0755
-      - BBBRECORDER_RECORDER_FILEMODE=0655
-      #- BBBRECORDER_RECORDER_DIRECTORY: '{{ bigbluebutton_webrtc_recorder_directory }}'
-      - BBBRECORDER_PUBSUB_ADAPTER=redis
-      - BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS=redis:6379
-      - BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK=tcp
-      - BBBRECORDER_LIVEKIT_HOST=ws://livekit:7880
-      - BBBRECORDER_LIVEKIT_APIKEY=${LIVEKIT_KEY}
-      - BBBRECORDER_LIVEKIT_APISECRET=${LIVEKIT_SECRET}
+      - bbb-data:/var/bigbluebutton
     networks:
-      bbb-net:
-
-  redis:
-    image: redis:8-alpine
-    restart: unless-stopped
+      - bbb
+      - notes
+      - conversion
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 1s
-      timeout: 3s
-      retries: 30
-    networks:
-      bbb-net:
-
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_HASURA_APP_PASSWORD: ${BBB_POSTGRES_HASURA_APP_PASSWORD}
-      POSTGRES_BBB_HASURA_PASSWORD: ${BBB_POSTGRES_BBB_HASURA_PASSWORD}
-      POSTGRES_BBB_CORE_PASSWORD: ${BBB_POSTGRES_BBB_CORE_PASSWORD}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8090/bigbluebutton/api"]
       interval: 10s
       timeout: 5s
-      retries: 5
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-      - ./docker/postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
-      - ./bbb-graphql-server/bbb_schema.sql:/bbb-graphql-server/bbb_schema.sql:ro
-    networks:
-      bbb-net:
+      start_period: 120s
+      retries: 3
 
-  collabora:
-    image: collabora/code:latest
+  # Office document conversion for bbb-web, without the Docker socket that bare metal's per-document
+  # container needs: Collabora Online (CODE), the convert-to
+  # server that bbb-libreoffice/assets/convert-cool.sh names, unchanged. bbb-web posts each
+  # document to http://conversion:9980/cool/convert-to/pdf (plain HTTP on this network: TLS off,
+  # coolwsd.xml ssl.enable/ssl.termination). Attached to the internal `conversion` network only,
+  # which it shares with bbb-web alone, with no route out (Kubernetes: a NetworkPolicy with
+  # ingress from bbb-web only and no egress). The update check is off: it could not connect.
+  # Links in documents: Collabora loads external data (an HTML stylesheet, for example) from
+  # the hosts of net.lok_allow and, while post_allow's `allow` attribute is true, of
+  # net.post_allow (coolwsd.xml). Their defaults hold the private ranges, so a document could
+  # make it fetch from bbb-web. extra_params turns post_allow's data-source role off (its filter
+  # of client addresses for convert-to stays: bbb-web's private address is accepted) and
+  # replaces the private ranges of lok_allow (entries 0, 3 and 4) by 127.0.0.1/32, which leaves
+  # only loopback.
+  # It runs as the image's user `cool` (coolforkit refuses any other user) with the
+  # capabilities its jails need (CHOWN, FOWNER and SYS_CHROOT for coolforkit-caps, which needs
+  # file capabilities, so no no-new-privileges); the jails live in tmpfs mounts that allow exec.
+  conversion:
+    image: docker.io/collabora/code:26.04.5.1.1@sha256:bb8f3c9c5c9016045f25fccb5f0649be94469ebc7c7cc379f3576e470cccf33d
     restart: unless-stopped
+    environment:
+      extra_params: >-
+        --o:ssl.enable=false --o:ssl.termination=false --o:fetch_update_check=0
+        --o:net.post_allow[@allow]=false --o:net.lok_allow.host[0]=127.0.0.1/32
+        --o:net.lok_allow.host[3]=127.0.0.1/32 --o:net.lok_allow.host[4]=127.0.0.1/32
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /opt/cool/child-roots:exec,mode=1777
+      - /opt/cool/cache:exec,mode=1777
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, SYS_CHROOT]
+    networks:
+      - conversion
+    healthcheck:
+      test: ["CMD", "/usr/bin/coolwsd", "--probe", "--use-env-vars"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+  akka-apps:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      BBB_SHARED_SECRET: ${BBB_SHARED_SECRET}
+      POSTGRES_BBB_CORE_PASSWORD: ${POSTGRES_BBB_CORE_PASSWORD}
+    read_only: true
+    tmpfs:
+      - /tmp
+    # The html5 client settings override (Tier 3) ships empty in the image; mount your file over
+    # it in a compose override (docker/README.md, "Override files").
+    networks:
+      - bbb
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8901 && printf 'GET /healthz HTTP/1.0\\r\\nHost: 127.0.0.1\\r\\n\\r\\n' >&3 && head -n 1 <&3 | grep -qE '^HTTP/1\\.[01] (200|503) '"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+
+  # Hasura. start_period covers the entrypoint's metadata apply, which waits up to 180 s for
+  # the database (the image's 120 s are shorter).
+  graphql-server:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    environment:
+      HASURA_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
+      POSTGRES_HASURA_APP_PASSWORD: ${POSTGRES_HASURA_APP_PASSWORD}
+      POSTGRES_BBB_HASURA_PASSWORD: ${POSTGRES_BBB_HASURA_PASSWORD}
+    read_only: true
+    tmpfs:
+      # exec: the hasura CLI (HOME=/tmp) unpacks its cli-ext helper below /tmp/.hasura and runs it
+      # during `metadata apply`; Docker mounts tmpfs noexec by default.
+      - /tmp:exec
+      - /run/bbb-graphql-server
+    networks:
+      - bbb
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8085/healthz"]
+      interval: 10s
+      timeout: 5s
+      start_period: 200s
+      retries: 3
+
+  graphql-middleware:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    read_only: true
     tmpfs:
       - /tmp
     networks:
-      bbb-net:
-
-  livekit:
-    image: livekit/livekit-server:v1.9.1
-    restart: unless-stopped
-    environment:
-      LIVEKIT_CONFIG: |
-        port: 7880
-        log_level: info
-        rtc:
-          port_range_start: 16384
-          port_range_end: 32768
-          use_external_ip: false
-          tcp_port: 0
-          allow_tcp_fallback: false
-          interfaces:
-            excludes:
-              - docker0
-        redis:
-          address: 'redis:6379'
-        audio:
-          active_level: 50
-          min_percentile: 10
-          update_interval: 500
-          smooth_intervals: 0
-        keys:
-          ${LIVEKIT_KEY}: ${LIVEKIT_SECRET}
-        room:
-          enabled_codecs:
-            - mime: audio/opus
-            - mime: audio/red
-            - mime: video/vp8
-            - mime: video/rtx
-          enable_remote_unmute: true
-    env_file:
-      - .env
+      - bbb
     depends_on:
-      - redis
-    networks:
-      bbb-net:
+      redis:
+        condition: service_healthy
+      graphql-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8378/metrics"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
 
-  sip:
-    image: livekit/sip:latest
+  graphql-actions:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-actions:${BBB_IMAGE_TAG:-4.0.1}
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
     depends_on:
-      - redis
-    environment:
-      SIP_CONFIG_BODY: |
-        log_level: info
-        api_key: ${LIVEKIT_KEY}
-        api_secret: ${LIVEKIT_SECRET}
-        ws_url: 'ws://livekit:7880'
-        redis:
-          address: 'redis:6379'
-        sip_port: 5062
-        sip_port_listen: 5062
-    env_file:
-      - .env
-    networks:
-      bbb-net:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:' + (process.env.SERVER_PORT || 8093) + '/').then(() => process.exit(0), () => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
 
-  caddy:
-    image: docker.io/library/caddy:latest
+  # BlockNote backend. Attached to the internal `notes` network only: its loopback API has no
+  # authentication and its public API trusts headers set by nginx (see the network below).
+  shared-notes:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes:${BBB_IMAGE_TAG:-4.0.1}
     restart: unless-stopped
     environment:
-      BBB_SERVER_URL: ${BBB_SERVER_URL}
-      SSL_MODE: ${SSL_MODE:-internal}
-    ports:
-      - "443:8443"
-      - "80:8080"
+      POSTGRES_BLOCKNOTE_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /usr/share/bbb-shared-notes-server/config
+    networks:
+      - notes
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(8787, '127.0.0.1').on('connect', () => process.exit(0)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+
+  # Whiteboard annotation export to PDF: pops jobs that akka-apps queues in redis, reads the
+  # presentation from bbb-data, writes the PDF there and uploads it to bbb-web. A writer of
+  # bbb-data, so it runs as BBB_UID/BBB_GID like bbb-web. It exits when redis goes away (as on
+  # bare metal, where systemd restarts it); the restart policy brings it back.
+  export-annotations:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /usr/local/bigbluebutton/bbb-export-annotations/config
     volumes:
-      - ./conf/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./ssl:/local/certs:ro
-    depends_on:
-      - nginx
+      - bbb-data:/var/bigbluebutton
     networks:
-      bbb-net:
+      - bbb
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/lib/bbb/export-annotations-healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # Ubuntu 24.04's version (redis-server 7.0.15), as on bare metal. A fixed address, as bare
+  # metal's 127.0.0.1: akka-apps and bbb-web (lettuce) keep the address they resolved for redis
+  # for the TTL of Docker's DNS answers (600 s) and reconnect to it, while Docker gives a
+  # restarted or recreated container a new address unless it is fixed.
+  redis:
+    image: docker.io/library/redis:7.0.15-alpine@sha256:c9d92d840fd011c908f040592857c724ae6d877f2aba5c40ad963276507386b2
+    restart: unless-stopped
+    user: "999:1000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      bbb:
+        ipv4_address: ${BBB_REDIS_IP:-172.30.82.21}
+      notes: {}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+
+  postgres:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-postgres:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - bbb
+      - notes
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-h", "127.0.0.1", "-U", "postgres", "-d", "postgres"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 5
+
+  # Run-only job: (re)creates the BBB databases and roles when the image version
+  # changes, then exits. `docker compose up` runs it before its dependents.
+  db-init:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-db-init:${BBB_IMAGE_TAG:-4.0.1}
+    restart: "no"
+    labels:
+      org.bigbluebutton.run-only: "true"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_BBB_CORE_PASSWORD: ${POSTGRES_BBB_CORE_PASSWORD}
+      POSTGRES_HASURA_APP_PASSWORD: ${POSTGRES_HASURA_APP_PASSWORD}
+      POSTGRES_BBB_HASURA_PASSWORD: ${POSTGRES_BBB_HASURA_PASSWORD}
+      POSTGRES_BLOCKNOTE_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD}
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Run-only tool, never started by `up` (profile setup): `docker compose run --rm setup` writes
+  # .env next to this file from the configuration contract (secrets generated, domain, e-mail,
+  # features and public address asked; values already in .env are kept). It has no network.
+  # It runs as root with only CHOWN and DAC_OVERRIDE, to write into a directory of any owner and
+  # give .env that owner; `--user "$(id -u):$(id -g)"` runs it as you instead. The bind mount of
+  # this directory is the compose-only part: Kubernetes keeps these values in Secrets.
+  setup:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-setup:${BBB_IMAGE_TAG:-4.0.1}
+    profiles: [setup]
+    restart: "no"
+    labels:
+      org.bigbluebutton.run-only: "true"
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE]
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - .:/project
+
+  # Media server on the bridge network: one UDP port for all WebRTC media, published 1:1;
+  # signaling through nginx (/livekit/). Fixed address on `bbb`: coturn relays only to it.
+  livekit:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-livekit:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    environment:
+      BBB_PUBLIC_IPV4: ${BBB_PUBLIC_IPV4}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      LIVEKIT_RTC_UDP_PORT: ${LIVEKIT_RTC_UDP_PORT:-7882}
+    ports:
+      - "${LIVEKIT_RTC_UDP_PORT:-7882}:${LIVEKIT_RTC_UDP_PORT:-7882}/udp"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/livekit-server
+    networks:
+      bbb:
+        ipv4_address: ${BBB_LIVEKIT_IP:-172.30.82.20}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7880/"]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+
+  # LiveKit controller, FreeSWITCH adapter removed (LiveKit is the only media server).
+  bbb-webrtc-sfu:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-sfu:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    user: "${BBB_UID:-998}:${BBB_GID:-998}"
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      BBB_FEATURES: ${BBB_FEATURES-}
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
+    depends_on:
+      redis:
+        condition: service_healthy
+      livekit:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "/usr/local/lib/bbb/bbb-webrtc-sfu-healthcheck.js"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  # TURN: 3478/udp+tcp published, TURN over TLS arrives through haproxy on 443. The
+  # relay range stays internal. The base image also exposes 5349, which is not published.
+  coturn:
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-coturn:${BBB_IMAGE_TAG:-4.0.1}
+    restart: unless-stopped
+    environment:
+      BBB_DOMAIN: ${BBB_DOMAIN}
+      TURN_SECRET: ${TURN_SECRET}
+      TURN_RELAY_PORT_MIN: ${TURN_RELAY_PORT_MIN:-49160}
+      TURN_RELAY_PORT_MAX: ${TURN_RELAY_PORT_MAX:-49199}
+      BBB_LIVEKIT_IP: ${BBB_LIVEKIT_IP:-172.30.82.20}
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/turnserver
+    networks:
+      - bbb
+    healthcheck:
+      test: ["CMD", "turnutils_stunclient", "-t", "2000", "127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # Optional, as on bare metal (BBB_FEATURES=webhooks). nginx proxies /bigbluebutton/api/hooks
+  # to it; it reads the meeting events from redis. Upstream's image, unchanged, configured here
+  # through node-config: the environment variables of its config/custom-environment-variables.yml
+  # and NODE_CONFIG (JSON merged over its config files): Bearer auth as WEBHOOKS_BEARER_AUTH
+  # selects (any non-empty BEARER_AUTH would enable it, "false" included) and getRaw as the
+  # package's postinst sets it.
+  webhooks:
+    # bbb-webhooks.placeholder.sh: v3.7.0 = 9787aea975 (the image's revision label)
+    image: ghcr.io/bigbluebutton/bbb-webhooks:3.7.0@sha256:e1c5144720b33a3959975f3dbb01e2b4d8d8728ab747c8ed5f860036f9444efb
+    profiles: [webhooks]
+    restart: unless-stopped
+    environment:
+      SERVER_DOMAIN: ${BBB_DOMAIN}
+      SHARED_SECRET: ${BBB_SHARED_SECRET}
+      NODE_CONFIG: '{"bbb":{"auth2_0":${WEBHOOKS_BEARER_AUTH:-true}},"modules":{"../out/webhooks/index.js":{"config":{"getRaw":false}}}}'
+      SERVER_BIND_IP: 0.0.0.0
+      REDIS_HOST: redis
+      # npm (the image's `npm start`) would ask the registry for a newer npm at every start.
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - bbb
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # NODE_CONFIG is valid JSON with a boolean auth2_0 (else node-config would ignore it: a
+      # WEBHOOKS_BEARER_AUTH other than true/false makes the service unhealthy), and the hooks
+      # API accepts connections (a TCP connect: the API logs every request).
+      test: ["CMD", "node", "-e", "if (typeof JSON.parse(process.env.NODE_CONFIG).bbb.auth2_0 !== 'boolean') process.exit(1); require('net').connect(3005, '127.0.0.1').on('connect', () => process.exit(0)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
 networks:
-  bbb-net:
+  bbb:
+    ipam:
+      config:
+        - subnet: ${BBB_NETWORK_SUBNET:-172.30.82.0/24}
+          # Dynamic addresses only from here; the fixed ones (livekit, redis) lie outside it.
+          ip_range: ${BBB_NETWORK_IP_RANGE:-172.30.82.128/25}
+  # shared-notes and only the services it talks to: shared-notes relies on not being reachable
+  # by anything else (docs/docs/administration/docker-design.md, "Internal networks").
+  notes:
+    internal: true
+  # bbb-web and the office conversion service only, without a route out.
+  conversion:
+    internal: true
+
+volumes:
+  bbb-data:
+  postgres-data:
+  certs:
+  acme-webroot:
+  letsencrypt:

@@ -1,0 +1,10 @@
+# The html5 client image ships the package's files unchanged. bbb-html5.nginx.static is not in
+# the bare-metal reference; it is compared with the package source by review (identical).
+# settings.yml is not compared: the reference's copy was rewritten by the package's postinst
+# (`yq-go e -i`, bbb-html5/after-install.sh:15-17, which reformats comments) and predates later
+# changes to the source file; its content is checked by expectations.yaml instead.
+reference: ../../parity/reference/nginx
+files:
+  - rendered: usr/share/bigbluebutton/nginx/bbb-html5.nginx
+    reference: usr/share/bigbluebutton/nginx/bbb-html5.nginx
+allowed: []

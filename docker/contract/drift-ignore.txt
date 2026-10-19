@@ -1,0 +1,15 @@
+# Names drift-check.sh never reports as UNDECLARED: set by the shell, the process environment
+# or the shared entrypoint helper (docker/lib/README.md), not configuration.
+# One or more names per line; '#' starts a comment.
+
+# bash and the process environment
+BASH BASH_REMATCH BASH_SOURCE BASHPID EPOCHSECONDS EPOCHREALTIME EUID FUNCNAME HOME HOSTNAME
+IFS LINENO OLDPWD OPTARG OPTIND PATH PIPESTATUS PPID PWD RANDOM SECONDS SHLVL TMPDIR UID USER
+
+# shared entrypoint helper (docker/lib/entrypoint-lib.sh)
+BBB_ARGS BBB_LOG_TAG BBB_RENDER_ROOT BBB_SECRET_PLACEHOLDERS BBB_TEMPLATE_TOOL
+
+# upstream optional hooks and upstream env files kept as shipped (not admin configuration)
+INTERFACE PORT
+ENV LISTEN_PORT HEAP_DUMP_PATH
+BBB_BLOCKNOTE_DIR

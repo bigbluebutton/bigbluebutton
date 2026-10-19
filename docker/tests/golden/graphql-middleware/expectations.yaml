@@ -1,0 +1,20 @@
+# Protected (written before the image). Sources: upstream config.yml (parity reference; keys from
+# config/Config.go), service names of docker-compose.yml (redis, graphql-server,
+# graphql-actions, bbb-web, akka-apps), no nginx Hasura load balancer in compose (one service
+# name). No contract variable is consumed, so there is no must_fail.
+render:
+  - file: usr/share/bbb-graphql-middleware/config.yml   # base file the binary reads; /etc/bigbluebutton/bbb-graphql-middleware.yml stays the Tier 3 override
+    format: yaml
+    checks:
+      - {path: .server.listen_host, equals: 0.0.0.0}   # reached by nginx (/graphql) and akka-apps
+      - {path: .server.listen_port, equals: 8378}
+      - {path: .redis.host, equals: redis}
+      - {path: .hasura.url, equals: "ws://graphql-server:8085/v1/graphql"}
+      - {path: '.["graphql-actions"].url', equals: "http://graphql-actions:8093"}
+      - {path: .auth_hook.url, equals: "http://bbb-web:8090/bigbluebutton/connection/checkGraphqlAuthorization"}
+      - {path: .session_vars_hook.url, equals: "http://akka-apps:8901/userInfo"}
+  - file: usr/share/bbb-graphql-middleware/config.yml
+    format: lines
+    checks:
+      - {no_line: '127\.0\.0\.1|localhost'}   # no loopback wiring left
+uid: {user: "12345:12345"}

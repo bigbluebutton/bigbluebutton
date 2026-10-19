@@ -1,0 +1,12 @@
+public:
+  app:
+    clientTitle: BigBlueButton
+    askForFeedbackOnLogout: true
+  media:
+    livekit:
+      url: wss://bbb.example.com/livekit
+  layout:
+    hidePresentation: false
+private:
+  allowedLanguages:
+    - en

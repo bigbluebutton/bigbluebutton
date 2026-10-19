@@ -1,0 +1,12 @@
+# Protected (written before the image). db-init (one generated secret per role). Only the
+# variables are fixed here; role/database creation is verified by a stack test against a real
+# postgres (not render-only). No password may appear in a rendered file (checked in review).
+must_fail:
+  - {unset: POSTGRES_PASSWORD, message: POSTGRES_PASSWORD}
+  - {unset: POSTGRES_BBB_CORE_PASSWORD, message: POSTGRES_BBB_CORE_PASSWORD}
+  - {unset: POSTGRES_HASURA_APP_PASSWORD, message: POSTGRES_HASURA_APP_PASSWORD}
+  - {unset: POSTGRES_BBB_HASURA_PASSWORD, message: POSTGRES_BBB_HASURA_PASSWORD}
+  - {unset: POSTGRES_BLOCKNOTE_PASSWORD, message: POSTGRES_BLOCKNOTE_PASSWORD}
+  - {set: {POSTGRES_BBB_CORE_PASSWORD: "bbb_core"}, message: POSTGRES_BBB_CORE_PASSWORD}   # upstream's fixed value
+  - {set: {POSTGRES_PASSWORD: "short"}, message: POSTGRES_PASSWORD}
+uid: {user: "12345:12345"}

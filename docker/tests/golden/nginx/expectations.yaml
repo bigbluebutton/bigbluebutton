@@ -1,0 +1,116 @@
+# Protected (written before the image). Sources: nginx behind haproxy (`server_name _` /
+# default_server, no templating, feature fragments chosen by the entrypoint), docker-compose.yml
+# (80/tcp published for ACME + redirect; haproxy → nginx with PROXY protocol; routes; service
+# names), haproxy golden (`server … nginx:81 send-proxy`), bbb-install's
+# sites-available/bigbluebutton (parity reference), upstream fragments in
+# /usr/share/bigbluebutton/nginx/, the LiveKit signaling location, the notes network.
+# nginx consumes only BBB_FEATURES: the render must succeed without BBB_DOMAIN.
+render:
+  - file: etc/nginx/sites-available/bigbluebutton      # bare-metal site file (bbb-install)
+    format: lines
+    checks:
+      - {contains_line: '^\s*server_tokens\s+off;'}
+      - {contains_line: '^\s*server_name\s+_;'}
+      - {no_line: '^\s*server_name\s+[^_[:space:]]'}  # no host name: nginx never reads BBB_DOMAIN
+      - {contains_line: '^\s*listen\s+[^;]*default_server'}
+      # :80 is published directly (ACME + redirect), no PROXY protocol there
+      - {contains_line: '^\s*listen\s+(\*:|0\.0\.0\.0:)?80(\s[^;]*)?;'}
+      - {no_line: '^\s*listen\s+\S*80\s[^;]*proxy_protocol'}
+      - {contains_line: '^\s*location\s+(\^~\s+)?/\.well-known/acme-challenge/'}
+      - {contains_line: '(^|\s)return\s+30[18]\s+https://\$host\$request_uri;'}
+      - {no_line: '(^|\s)return\s+[0-9]+\s+https://\$server_name'}  # would redirect to https://_
+      # :81 receives haproxy's PROXY protocol from another container: not bound to loopback
+      - {contains_line: '^\s*listen\s+(\*:|0\.0\.0\.0:)?81\s[^;]*proxy_protocol'}
+      - {no_line: '^\s*listen\s+(127\.0\.0\.1|\[::1\]|localhost):'}
+      - {contains_line: '^\s*real_ip_header\s+proxy_protocol;'}
+      - {contains_line: '^\s*set_real_ip_from\s+172\.30\.82\.0/24;'}   # BBB_NETWORK_SUBNET default (bare metal: 127.0.0.1)
+      - {no_line: '^\s*set_real_ip_from\s+(0\.0\.0\.0/0|::/0)'}
+      - {contains_line: '^\s*absolute_redirect\s+off;'}
+      - {no_line: '^\s*listen\s+[^;]*(443|\sssl)'}       # TLS ends at haproxy
+      - {contains_line: '^\s*include\s+/etc/bigbluebutton/nginx/\*\.nginx;'}  # Tier 3 dir
+  - file: usr/share/bigbluebutton/nginx/livekit.nginx
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+/livekit/\s*\{'}
+      - {contains_line: '^\s*proxy_pass\s+http://livekit(:7880)?/;'}   # trailing slash strips /livekit
+      - {contains_line: '^\s*proxy_set_header\s+Upgrade\s+\$http_upgrade;'}
+  - file: usr/share/bigbluebutton/nginx/bbb-shared-notes-server.nginx
+    format: lines
+    checks:
+      - {contains_line: '^\s*proxy_pass\s+http://shared-notes(:8787)?/collaboration;'}
+      - {contains_line: '^\s*proxy_pass\s+http://shared-notes(:8787)?/api/;'}
+      - {contains_line: '^\s*auth_request\s+/bigbluebutton/connection/checkHocuspocusAuthorization;'}
+      - {contains_line: '^\s*proxy_pass\s+http://bbb-web(:8090)?/bigbluebutton/connection/checkGraphqlAuthorization;'}
+      # shared notes: the unauthenticated loopback API is never reachable from outside, and the
+      # trusted header is always overwritten from the auth result
+      - {contains_line: '^\s*location\s+(\^~\s+)?/hocuspocus/loopback/\s*\{'}
+      - {no_line: '^\s*proxy_pass\s+http://shared-notes(:8787)?(/loopback|/?;)'}
+      - {contains_line: '^\s*proxy_set_header\s+User-Currently-Online\s+\$user_currently_online;'}
+      - {no_line: '^\s*proxy_pass\s+https?://(localhost|127\.0\.0\.1)[:/]'}
+  - file: usr/share/bigbluebutton/nginx/graphql.nginx
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+/graphql\s*\{'}
+      - {contains_line: '^\s*proxy_pass\s+http://graphql-middleware(:8378)?;'}
+      # Hasura REST directly to graphql-server: no local load balancer in containers; scaling is
+      # replicas behind one service name
+      - {contains_line: '^\s*proxy_pass\s+http://graphql-server(:8085)?;'}
+      - {no_line: '^\s*proxy_pass\s+https?://(localhost|127\.0\.0\.1)[:/]'}
+  - file: usr/share/bigbluebutton/nginx/web              # bare-metal name; web.nginx is a symlink to it
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+/bigbluebutton\s*\{'}
+      - {contains_line: '^\s*proxy_pass\s+http://bbb-web(:8090)?;'}
+      - {no_line: '^\s*proxy_pass\s+https?://(localhost|127\.0\.0\.1)[:/]'}
+  - file: usr/share/bigbluebutton/nginx/webrtc-sfu.nginx
+    format: lines
+    checks:
+      - {contains_line: '^\s*proxy_pass\s+http://bbb-webrtc-sfu(:3008)?;'}
+      - {contains_line: '^\s*auth_request\s+/bigbluebutton/connection/checkAuthorization;'}
+  # html5 is served by its own image (service `html5`, port 8080; one image per static app):
+  # the edge keeps upstream's location and proxies it
+  - file: usr/share/bigbluebutton/nginx/bbb-html5.nginx.static
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+/html5client\s*\{'}
+      - {contains_line: '^\s*proxy_pass\s+http://html5(:8080)?;'}
+      - {no_line: '^\s*alias\s+/usr/share/bigbluebutton/html5-client'}   # no client files in the edge
+  # recording is in the fixture's BBB_FEATURES: playback and published-recording locations present
+  - file: usr/share/bigbluebutton/nginx/presentation.nginx
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+/playback/presentation\s*\{'}
+      - {contains_line: '^\s*root\s+/var/bigbluebutton/published;'}   # bbb-data volume
+  # learning dashboard: app from its own image (service `learning-dashboard`, port
+  # 8080), per-meeting JSON from the bbb-data
+  # volume (LearningDashboardService.java:34,40,96, learning-dashboard.nginx:1-4 @ 35cad46a9f)
+  - file: usr/share/bigbluebutton/nginx/learning-dashboard.nginx   # bare-metal name (always on)
+    format: lines
+    checks:
+      - {contains_line: '^\s*location\s+(\^~\s+)?/learning-analytics-dashboard/\s*\{'}
+      - {contains_line: '^\s*proxy_pass\s+http://learning-dashboard(:8080)?;'}
+      # a regex location for exactly the JSON file, served from the bbb-data volume
+      - {contains_line: '^\s*location\s+~\*?\s+\S*learning_dashboard_data\\?\.json'}
+      - {contains_line: '^\s*(alias\s+/var/bigbluebutton/learning-dashboard/\S+|root\s+/var/bigbluebutton/learning-dashboard/?);'}
+      # not upstream's whole-prefix alias: the volume holds no app files
+      - {no_line: '^\s*alias\s+/var/bigbluebutton/learning-dashboard/?;'}
+      - {no_line: '^\s*autoindex\s+on;'}
+  # nginx re-resolves service names, so it follows restarted containers: upstream blocks with
+  # `resolve` and Docker's embedded DNS; `proxy_pass` may name the upstream instead of host:port
+  - file: etc/nginx/conf.d/bbb-upstreams.conf
+    format: lines
+    checks:
+      - {contains_line: '^\s*resolver\s+127\.0\.0\.11(\s|;)'}
+      - {contains_line: '^\s*server\s+livekit:7880\s+resolve;'}
+      - {contains_line: '^\s*server\s+shared-notes:8787\s+resolve;'}
+      - {contains_line: '^\s*server\s+bbb-web:8090\s+resolve;'}
+      - {contains_line: '^\s*server\s+graphql-middleware:8378\s+resolve;'}
+      - {contains_line: '^\s*server\s+graphql-server:8085\s+resolve;'}
+      - {contains_line: '^\s*server\s+bbb-webrtc-sfu:3008\s+resolve;'}
+      - {contains_line: '^\s*server\s+html5:8080\s+resolve;'}
+      - {contains_line: '^\s*server\s+learning-dashboard:8080\s+resolve;'}
+must_fail:
+  - {set: {BBB_NETWORK_SUBNET: "172.30.82.0/24\n# injected"}, message: BBB_NETWORK_SUBNET}
+  - {set: {BBB_FEATURES: "recording,unknown"}, message: BBB_FEATURES}
+  - {set: {BBB_FEATURES: "recording\n# injected"}, message: BBB_FEATURES}
+uid: {user: "12345:12345"}

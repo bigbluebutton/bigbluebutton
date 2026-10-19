@@ -1,0 +1,6 @@
+public:
+  app:
+    askForFeedbackOnLogout: true
+private:
+  allowedLanguages:
+    - en

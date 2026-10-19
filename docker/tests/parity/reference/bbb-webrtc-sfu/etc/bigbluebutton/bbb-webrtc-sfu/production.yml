@@ -1,0 +1,13 @@
+freeswitch:
+  esl_password: __PARITY_ESL_PASSWORD__
+  ip: 203.0.113.10
+  sip_ip: 203.0.113.10
+mediasoup:
+  webrtc:
+    listenIps:
+      - ip: 0.0.0.0
+        announcedIp: 203.0.113.10
+  plainRtp:
+    listenIp:
+      ip: 0.0.0.0
+      announcedIp: 203.0.113.10

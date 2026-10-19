@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# The certificate service: obtains the Let's Encrypt certificate for BBB_DOMAIN with certbot's
+# webroot plugin (nginx serves the challenge on :80), then checks twice a day whether it is due
+# for renewal, as bare metal does with bbb-install (certonly) and certbot.timer. After each run
+# the haproxy bundle is checked against the issued certificate and rewritten if it differs
+# (e.g. the bundle volume is new while certbot's state is kept).
+#
+# Usage: bbb-certbot-loop [CERTBOT_ARGS...]
+#   CERTBOT_ARGS are passed to every `certbot certonly` run, e.g. --staging, or --server URL for
+#   a test ACME server. Status of the last run: /tmp/bbb-certbot/status (`ok` or `failed`),
+#   read by the healthcheck.
+set -euo pipefail
+
+CONFIG=/etc/bbb-certbot/cli.ini
+LIVE="/etc/letsencrypt/live/${BBB_DOMAIN:?BBB_DOMAIN is not set}"
+BUNDLE=/etc/haproxy/certs/certbundle.pem
+STATUS_DIR=/tmp/bbb-certbot
+RENEW_INTERVAL=43200 # 12 h, as certbot.timer
+RETRY_INTERVAL=900   # 15 min after a failure: at most 4 failed validations an hour
+
+log() { echo "bbb-certbot: $*" >&2; }
+
+set_status() {
+    mkdir -p "$STATUS_DIR"
+    echo "$1" >"$STATUS_DIR/status.tmp"
+    mv -f "$STATUS_DIR/status.tmp" "$STATUS_DIR/status"
+}
+
+sync_bundle() {
+    if [ ! -r "$LIVE/fullchain.pem" ] || [ ! -r "$LIVE/privkey.pem" ]; then
+        log "no certificate in $LIVE"
+        return 1
+    fi
+    if ! cmp -s <(cat "$LIVE/fullchain.pem"; echo; cat "$LIVE/privkey.pem") "$BUNDLE"; then
+        RENEWED_LINEAGE="$LIVE" bbb-certbot-deploy-hook
+    fi
+}
+
+sleeper=""
+trap '[ -z "$sleeper" ] || kill "$sleeper" 2>/dev/null; exit 0' TERM INT
+
+while :; do
+    if certbot certonly --config "$CONFIG" "$@" && sync_bundle; then
+        set_status ok
+        delay=$RENEW_INTERVAL
+    else
+        set_status failed
+        log "certificate run failed; next attempt in $((RETRY_INTERVAL / 60)) minutes"
+        delay=$RETRY_INTERVAL
+    fi
+    sleep "$delay" &
+    sleeper=$!
+    wait "$sleeper" || true
+    sleeper=""
+done

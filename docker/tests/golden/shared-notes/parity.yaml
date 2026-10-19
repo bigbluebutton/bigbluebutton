@@ -1,0 +1,18 @@
+# Parity of the rendered bbb-shared-notes-server config with the bare-metal reference (docker/tests/parity/).
+#
+# Bare metal: the package ships /usr/share/bbb-shared-notes-server/config/default.yml unchanged
+# (build/packages-template/bbb-shared-notes-server/build.sh:41), and the server deep-merges the
+# admin's /etc/bigbluebutton/bbb-shared-notes-server.yml over it (src/config/index.ts:30-40).
+# The server reads no environment, so the container writes its wiring and the role password into
+# default.yml (contract overrides shared-notes) and leaves the override path to the admin.
+reference: ../../parity/reference/shared-notes
+files:
+  - rendered: usr/share/bbb-shared-notes-server/config/default.yml
+    reference: usr/share/bbb-shared-notes-server/config/default.yml
+allowed:
+  - file: usr/share/bbb-shared-notes-server/config/default.yml
+    line: '^  host: (127\.0\.0\.1|0\.0\.0\.0|redis|postgres|bbb-web)$'
+    reason: "design page 'Internal networks': express listens on 0.0.0.0 for nginx and recording on the notes network; redis, postgres and bbb-web are their own services there, not on localhost (contract internal 'shared-notes: expressServer.host, redis.host, postgres.host, bbbWeb.host')"
+  - file: usr/share/bbb-shared-notes-server/config/default.yml
+    line: '^  password: (blocknote_app|fixturepostgresblocknotepasswordnotreal00000000) # NOSONAR$'
+    reason: "contract decision postgres-role-passwords: POSTGRES_BLOCKNOTE_PASSWORD instead of the fixed blocknote_app (after-install.sh:12-18); the server builds its DSN from this file only (postgresql.ts:6)"

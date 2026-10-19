@@ -1,0 +1,39 @@
+# The changes of the bare-metal package to upstream's configuration, for a LiveKit-only stack.
+# node-config merges this file between upstream's /app/config/production.yml (a copy of
+# config/default.example.yml) and the Tier 3 override /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+# (NODE_CONFIG_DIR in the Dockerfile): same base name, so the later directory wins. Lists
+# replace the list they override.
+
+# build/packages-template/bbb-webrtc-sfu/after-install.sh, in its order. Not taken over: the
+# host IP for mediasoup and FreeSWITCH (media goes through LiveKit) and the LiveKit key
+# pair, which comes from the environment (LIVEKIT_KEY, LIVEKIT_SECRET).
+mediasoup:
+  workerBalancing:
+    strategy: least-loaded
+  enableWorkerTransposing: true
+  dedicatedMediaTypeWorkers:
+    audio: auto
+recordWebcams: true
+recordingAdapter: bbb-webrtc-recorder
+kurento: []
+mcs-address: 127.0.0.1
+livekit:
+  enabled: true
+  # Explicit, as LiveKit's webhook URL in the stack names them (upstream's values).
+  webhook:
+    path: /livekit-webhook
+    port: 3040
+  recordingAdapter: bbb-webrtc-recorder
+
+# No FreeSWITCH in a LiveKit-only stack: without its adapter the SFU makes no ESL connection
+# attempts. The audio adapter is the one audioMediaServer names (upstream's value).
+media-server-adapters:
+  - path: kurento/kurento.js
+    name: Kurento
+  - path: mediasoup/mediasoup-adapter.js
+    name: mediasoup
+audioMediaServer: mediasoup
+
+# Logs go to stdout only.
+log:
+  file: false

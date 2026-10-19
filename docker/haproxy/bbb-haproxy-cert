@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# Chooses the certificate haproxy serves and reloads haproxy when it changes.
+#
+#   bbb-haproxy-cert select       point /etc/haproxy/certbundle.pem at the issued bundle, or at a
+#                                 temporary self-signed one while there is none (or it is invalid)
+#   bbb-haproxy-cert watch PID    every 30 s: select again; if the served certificate changed and
+#                                 `haproxy -c` accepts it, send SIGUSR2 to the haproxy master PID
+#
+# The issued bundle (/etc/haproxy/certs/certbundle.pem) is written by the certificate service
+# into a volume that haproxy only reads. The reload is the packaged unit's ExecReload (check,
+# then SIGUSR2 to the master); nothing outside this container is needed to trigger it.
+
+set -euo pipefail
+
+LINK=/etc/haproxy/certbundle.pem
+ISSUED=/etc/haproxy/certs/certbundle.pem
+SELF_SIGNED=/run/haproxy/selfsigned.pem
+CFG=/etc/haproxy/haproxy.cfg
+INTERVAL=30
+
+log() { echo "bbb-haproxy-cert: $*" >&2; }
+
+# Content fingerprint of a file (following symlinks), "none" if it cannot be read.
+fingerprint() {
+    local sum
+    sum="$(sha256sum <"$1" 2>/dev/null)" || { echo none; return; }
+    echo "${sum%% *}"
+}
+
+# A self-signed certificate for BBB_DOMAIN, so that haproxy can listen before the first
+# certificate is issued. Kept for the life of the container.
+make_self_signed() {
+    [ -s "$SELF_SIGNED" ] && return 0
+    local tmp
+    tmp="$(mktemp -d /run/haproxy/selfsigned.XXXXXX)"
+    openssl req -x509 -newkey rsa:2048 -sha256 -days 365 -nodes \
+        -subj "/CN=${BBB_DOMAIN}" -addext "subjectAltName=DNS:${BBB_DOMAIN}" \
+        -keyout "$tmp/key.pem" -out "$tmp/cert.pem" 2>/dev/null
+    cat "$tmp/cert.pem" "$tmp/key.pem" >"$tmp/bundle.pem"
+    chmod 0600 "$tmp/bundle.pem"
+    mv -f "$tmp/bundle.pem" "$SELF_SIGNED"
+    rm -rf "$tmp"
+}
+
+# Replace the symlink atomically (rename over it).
+point_link() {
+    [ "$(readlink "$LINK" 2>/dev/null)" = "$1" ] && return 0
+    ln -s "$1" "$LINK.tmp.$$"
+    mv -f "$LINK.tmp.$$" "$LINK"
+}
+
+issued_available() { [ -s "$ISSUED" ] && [ -r "$ISSUED" ]; }
+
+# The likely deployment mistake: the bundle is there, but haproxy runs with another GID.
+log_unreadable() {
+    log "ERROR: $ISSUED exists but cannot be read as UID $(id -u) GID $(id -g) (groups: $(id -G)); serving a temporary self-signed certificate. Run haproxy with the group of the certificate service."
+}
+
+config_ok() { haproxy -c -q -f "$CFG" >/dev/null 2>&1; }
+
+select_cert() {
+    if issued_available; then
+        point_link "$ISSUED"
+        config_ok && return 0
+        log "ERROR: haproxy rejects $ISSUED; serving a temporary self-signed certificate instead"
+    elif [ -e "$ISSUED" ] && [ ! -r "$ISSUED" ]; then
+        log_unreadable
+    else
+        log "no issued certificate yet: serving a temporary self-signed certificate"
+    fi
+    make_self_signed
+    point_link "$SELF_SIGNED"
+}
+
+# The haproxy master exits only when it has no child left, and this watcher is its child
+# (forked before the entrypoint execs haproxy). So the watcher leaves as soon as the master has
+# no worker any more, i.e. when it is stopping. A reload keeps the old worker until the new one
+# runs, so there is always a worker while haproxy serves.
+workers_running() { pgrep -P "$1" -x haproxy >/dev/null; }
+
+watch_cert() {
+    local master="$1" loaded rejected="" target current previous ticks=0
+    while ! workers_running "$master"; do
+        kill -0 "$master" 2>/dev/null || exit 0
+        sleep 1
+    done
+    loaded="$(fingerprint "$LINK")"
+    while sleep 1; do
+        workers_running "$master" || exit 0
+        ticks=$((ticks + 1))
+        [ "$ticks" -ge "$INTERVAL" ] || continue
+        ticks=0
+        if issued_available; then target="$ISSUED"; else make_self_signed; target="$SELF_SIGNED"; fi
+        current="$(fingerprint "$target")"
+        if [ "$current" = "$loaded" ] || [ "$current" = "$rejected" ]; then
+            continue
+        fi
+        if [ "$target" = "$SELF_SIGNED" ] && [ -e "$ISSUED" ] && [ ! -r "$ISSUED" ]; then
+            log_unreadable
+        fi
+        previous="$(readlink "$LINK" 2>/dev/null || true)"
+        point_link "$target"
+        if config_ok; then
+            log "certificate changed ($target): reloading haproxy"
+            kill -USR2 "$master"
+            loaded="$current"
+            rejected=""
+        else
+            log "ERROR: haproxy rejects the new certificate in $target; keeping the running one"
+            [ -n "$previous" ] && point_link "$previous"
+            rejected="$current"
+        fi
+    done
+}
+
+case "${1:-}" in
+    select) select_cert ;;
+    watch)
+        [ $# -eq 2 ] || { log "usage: $0 watch PID"; exit 2; }
+        watch_cert "$2"
+        ;;
+    *) log "usage: $0 select | watch PID"; exit 2 ;;
+esac

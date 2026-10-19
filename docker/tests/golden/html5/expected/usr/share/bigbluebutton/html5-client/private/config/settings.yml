@@ -1,0 +1,1360 @@
+public:
+  app:
+    mobileFontSize: 16px
+    desktopFontSize: 14px
+    # Shows the audio modal when user joins the room. The audio modal prompts
+    # user to select an option ("Microphone" and/or "Listen only") for joining
+    # audio
+    autoJoin: true
+    # Set to false disables the listen only option in audio modal.
+    listenOnlyMode: true
+    forceListenOnly: false
+    # Skips the echo test when connecting with microphone.
+    skipCheck: false
+    # Skips the echo test when connecting with microphone right after user
+    # joins the room the first time. Subsequent joins to microphone won't
+    # have echo test skipped, for example if user leaves and joins the mic
+    # again or reloading page and joining mic again.
+    # This setting won't have effect if skipCheck = true
+    skipCheckOnJoin: false
+    #
+    # Allow users to change microphone/speaker dynamically
+    # The device is changed immediately, without the need to rejoin
+    # audio. Default value is true
+    # Firefox users: if no output devices is shown, you may set the flag
+    # "media.setsinkid.enabled" to make it work properly
+    enableDynamicAudioDeviceSelection: true
+    #
+    skipEchoTestIfPreviousDevice: false
+    clientTitle: BigBlueButton
+    bbbServerVersion: 4.0.1
+    displayBbbServerVersion: true
+    copyright: '©2026 BigBlueButton Inc.'
+    html5ClientBuild: 0
+    helpLink: https://bigbluebutton.org/html5/
+    delayForUnmountOfSharedNote: 120000
+    bbbTabletApp:
+      enabled: true
+      iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
+      iosAppUrlScheme: 'bigbluebutton-tablet'
+    cdn: ''
+    basename: '/html5client'
+    # the base location of the BBB API. If you use a cluster setup with a load
+    # balancer which hides the individual nodes, then this should be
+    # https://bbb-host/bigbluebutton
+    # If you run a traditional setup of multiple nodes behind scalelite and the
+    # users see the hostnames of the individual nodes, you can leave this at the
+    # default setting
+    bbbWebBase: '/bigbluebutton'
+    # If you run a cluster setup with a load balancer which hides the individual
+    # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
+    learningDashboardBase: '/learning-analytics-dashboard'
+    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/administration/customize
+    customStyleUrl: null
+    darkTheme:
+      enabled: true
+      # When true, the client follows the operating system's light/dark
+      # preference (prefers-color-scheme) as the initial theme, and keeps
+      # following it while the user has not chosen a theme manually. The
+      # per-user "Dark mode" toggle and the bbb_prefer_dark_theme parameter
+      # always take precedence over the detected system theme.
+      autoDetectFromSystem: true
+    # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
+    # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
+    askForConfirmationOnLeave: true
+    wakeLock:
+      enabled: true
+    allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
+    dynamicGuestPolicy: true
+    enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
+    showGuestLobbyWaitingQueuePosition: true
+    guestPolicyExtraAllowOptions: false
+    alwaysShowWaitingRoomUI: true
+    enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: true
+    enableCameraAsContent: true
+    # Allow users to open webcam video modal/preview when video is already
+    # active. This also allows to change virtual backgrounds without
+    # restarting webcam.
+    enableWebcamSelectorButton: true
+    enableTalkingIndicator: true
+    enableCameraBrightness: true
+    mirrorOwnWebcam: true
+    viewersInWebcam: 8
+    allowLogout: true
+    allowFullscreen: true
+    preloadNextSlides: 2
+    warnAboutUnsavedContentOnMeetingEnd: false
+    # Flag used to enable apollo dev tools in production
+    enableApolloDevTools: false
+    # Time used when the client connection is stale
+    # and a new connection is attempted
+    terminateAndRetryConnection: 30_000
+    # Allows users to enable automatic transcription when joining a meeting.
+    # Automatic transcription requires the browser to support the web
+    # speech API, which involves sending voice data to third-party servers!
+    # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
+    audioCaptions:
+      enabled: false
+      alwaysVisible: false
+      # mobile: <Boolean> - controls speech transcription availability on mobile
+      mobile: false
+      # provider: [webspeech, vosk, gladia]
+      provider: webspeech
+      # If true, the transcriptions and captions settings are displayed as an
+      # entry in the sidebar navigation rather than a button in the actions bar
+      showInSidebarNavigation: false
+      # Alert shown when WebSpeech is enabled and the user is on floor but nothing is being
+      # transcribed, suggesting a wrong microphone device or noisy environment.
+      microphoneAlert:
+        enabled: true
+        # URL to a knowledge base article about microphone settings (empty = no link shown)
+        helpLink: ''
+        # Audio energy threshold (dB) used to detect that the user is speaking.
+        # More negative values are more sensitive (e.g. -60 picks up quieter audio).
+        threshold: -50
+        # How long (ms) the user must be speaking with no transcription result
+        # before the alert is triggered.
+        speakingThreshold: 5000
+        # How long (ms) the alert toast stays on screen before auto-dismissing.
+        # Set to 0 to require manual dismissal.
+        duration: 10000
+        # How often (ms) the audio energy is checked to determine if the user is speaking.
+        interval: 200
+      language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
+        available:
+        # - de-DE
+          - en-US
+          - es-ES
+          - fr-FR
+        # - hi-IN
+        # - it-IT
+        # - ja-JP
+          - pt-BR
+        # - ru-RU
+        # - zh-CN
+        # If true, automatically uses the below locale field content as transcription language
+        # and the language selector in audio modal won't show up!
+        forceLocale: false
+        # If true, the default selected value for language selector in audio modal
+        # is the below locale field content
+        defaultSelectLocale: true
+        # Possible Values:
+        # browserLanguage: to set browser language
+        # [en-US, es-ES, pt-BR,...]: to set a specific locale
+        # disabled: to set disabled
+        locale: disabled
+      terms:
+        # The URL to the terms of service for the transcription service
+        # Specify the URL for each locale you want:
+        # en-US: 'https://xxx/SubtitleTerms'
+    mutedAlert:
+      enabled: true
+      interval: 200
+      threshold: -50
+      duration: 4000
+    appsGallery:
+      maxPinnedApps: 3
+    # Show the remaining time banner when the meeting has fewer than this many minutes left.
+    remainingTimeThresholdInMinutes: 6
+    remainingTimeAlertThresholdArray: [1,5]
+    enableDebugWindow: true
+    # Warning: increasing the limit of breakout rooms per meeting
+    # can generate excessive overhead to the server. We recommend
+    # this value to be kept under 16.
+    breakouts:
+      # Allow participants to pick their own breakout room instead of being assigned
+      allowUserChooseRoomByDefault: false
+      # Show the recording option (if breakout recording is enabled) when creating breakout rooms
+      offerRecordingForBreakouts: false
+      # Pre-check the "record breakout room" option
+      recordRoomByDefault: false
+      # Pre-check the "capture whiteboard when ending breakouts" option 
+      captureWhiteboardByDefault: false
+      # Pre-check the "save shared notes when ending breakouts" option
+      captureSharedNotesByDefault: false
+      # Pre-check the "send invitation to assigned moderators" option
+      sendInvitationToAssignedModeratorsByDefault: false
+      # Pre-check the "Propagate the current lock settings" option
+      inheritLockSettingsByDefault: false
+      # Minimum number of breakout rooms that can be created
+      breakoutRoomMinimum: 2
+      # Maximum number of breakout rooms that can be created
+      breakoutRoomLimit: 16
+      # Allow the presenter role to manage presentations inside breakout rooms
+      allowPresentationManagementInBreakouts: true
+      # Set to true to remove the ability for the breakout recording policy to be changed by the moderator at breakout creation time
+      lockBreakoutRecordingSetting: false
+    showAllAvailableLocales: true
+    # Show "Audio Filters for Microphone" option in settings menu.
+    # When set to true, users are able to enable/disable microphone constraints,
+    # otherwise default values for 'microphoneConstraints' option
+    # are used.
+    # For more info, see 'microphoneConstraints' option in this config.
+    # If not set, default value is true.
+    showAudioFilters: true
+    # audioFilterStorage: where the user's pick in Settings > Audio is kept.
+    # Advanced filtering is experimental, so the default deliberately keeps the
+    # pick from following the user around. Allowed values:
+    # 'session' -> sessionStorage, under a key scoped to the meeting: the pick
+    #              survives neither a new browser session nor another meeting,
+    #              whatever userSettingsStorage says
+    # 'local'   -> the pick follows userSettingsStorage like any other setting,
+    #              so with 'local' there it persists across sessions
+    audioFilterStorage: session
+    reactionsButton:
+      enabled: true
+    emojiRain:
+      # If true, new reactions will be activated
+      enabled: false
+      # Can set the throttle, the number of emojis that will be displayed and their size
+      intervalEmojis: 2000
+      numberOfEmojis: 5
+      # emojiSize: size of the emoji in 'em' units
+      emojiSize: 2
+    # Shows stats about download and upload rates, audio jitter, lost packets
+    # and turn information
+    enableNetworkStats: true
+    # Enable the button to allow users to copy network stats to clipboard
+    enableCopyNetworkStatsButton: true
+    # where should client settings be stored? if you run a single BBB server or
+    # a cluster with a reverse proxy in front of it, you may set this to 'local'
+    # See See https://docs.bigbluebutton.org/administration/cluster-proxy
+    # allowed values:
+    # 'session' -> settings are stored in browser sessionStorage
+    # 'local' -> settings are stored in browser localStorage
+    # A group with a storage flag of its own - see audioFilterStorage - only
+    # falls back to this option when that flag says 'local'.
+    userSettingsStorage: session
+    defaultSettings:
+      layout:
+        selectedLayout: 'unified'
+        pushLayout: false
+      application:
+        animations: true
+        chatAudioAlerts: false
+        chatPushAlerts: false
+        userJoinAudioAlerts: false
+        userJoinPushAlerts: false
+        userLeaveAudioAlerts: false
+        userLeavePushAlerts: false
+        raiseHandAudioAlerts: true
+        raiseHandPushAlerts: true
+        guestWaitingAudioAlerts: true
+        guestWaitingPushAlerts: true
+        muteUnmuteAudioAlerts: true
+        wakeLock: true
+        paginationEnabled: true
+        whiteboardToolbarAutoHide: false
+        # Collapse the recording button to an icon and reveal its label on hover.
+        # Off by default: the label stays put, so the button never resizes under
+        # the pointer and never shifts the nav bar around it.
+        recordingIndicatorAutoCollapse: false
+        pushToTalkEnabled: true
+        autoCloseReactionsBar: true
+        directLeaveButton: true
+        darkTheme: false
+        # set a custom color for talking highlight in webcam
+        webcamBorderHighlightColor: []
+        # fallbackLocale: if the locale the client is loaded in does not have a
+        # translation a string, it will use the translation from the locale
+        # specified in fallbackLocale. Note that fallbackLocale should be a
+        # 100% translated locale for best user experience
+        fallbackLocale: en
+        # overrideLocale (default is null): if set (for example to 'de') will
+        # force all clients to display the German translations of the strings.
+        # Users can individually set their preferred locale through Settings,
+        # but on first page load overrideLocale will trump the browser's
+        # preferred locale
+        overrideLocale: null
+      audio:
+        inputDeviceId: undefined
+        outputDeviceId: undefined
+        # processingMode: which of the 3 audio-processing options in
+        # Settings > Audio comes selected by default for a new user.
+        # Accepted values:
+        #   advanced: process the microphone through BBBA/WASM (audioWasmProcessing)
+        #   standard: process it with the browser's own filters, i.e. the
+        #             AGC/echo-cancellation/noise-suppression constraints in
+        #             media.audio.microphoneConstraints
+        #   original: no processing at all, transmit the raw microphone signal
+        # If set to 'advanced' but the browser doesn't support BBBA/WASM
+        # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
+        # it falls back to 'standard' (advanced -> standard).
+        # Unless audioFilterStorage is set to 'local', a user's own pick is
+        # kept for the browser session and current meeting only, so a new
+        # meeting or browser session starts from this default.
+        processingMode: standard
+      dataSaving:
+        viewParticipantsWebcams: true
+        viewScreenshare: true
+      # Options that are sent to the transcription backed (only Gladia is supported for now)
+      transcription:
+        # Indicates if the transcription backend should include partial results
+        partialUtterances: true
+        # The minumum length (in seconds) an utterance has to have for we to use it
+        minUtteranceLength: 1
+    shortcuts:
+      openOptions:
+        accesskey: O
+        descId: openOptions
+      toggleUserList:
+        accesskey: U
+        descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
+      toggleMute:
+        accesskey: M
+        descId: toggleMute
+      joinAudio:
+        accesskey: J
+        descId: joinAudio
+      leaveAudio:
+        accesskey: L
+        descId: leaveAudio
+      togglePublicChat:
+        accesskey: P
+        descId: togglePublicChat
+      hidePrivateChat:
+        accesskey: H
+        descId: hidePrivateChat
+      closePrivateChat:
+        accesskey: G
+        descId: closePrivateChat
+      raiseHand:
+        accesskey: R
+        descId: raiseHand
+      openActions:
+        accesskey: A
+        descId: openActions
+      openDebugWindow:
+        accesskey: K
+        descId: openDebugWindow
+    branding:
+      displayBrandingArea: true
+    connectionTimeout: 60000
+    showHelpButton: true
+    # Whether the fallback mechanism should be used
+    # when the locale string is empty. If false, the empty
+    # string will be returned.
+    fallbackOnEmptyLocaleString: true
+    # Maximum number of bytes allowed in each mutation message payload.
+    # Defaults to 10485760 (10MB)
+    maxMutationPayloadSize: 10485760
+    # Timeout before automatically redirecting users to the logout URL (or closing the window if the session is
+    # a breakout room). Either a number (in miliseconds) or null.
+    timeoutBeforeRedirectOnMeetingEnd: 20000
+  # plugins:
+  #   - name: SamplePresentationToolbarPlugin
+  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  #     settings:
+  #       isNew: true to display the new ribbon on the app gallery item of the plugin
+  #       pin: true # pin all plugin-injected items
+  #       # or: pin: ["generic-content-id", "app-gallery-item-id"] # pin only specific IDs
+  # Allowed errors to be shown on notifications bar
+    showConnectionErrors:
+      # - 3001
+      - 3002
+      # - 3003
+      - 3004
+      # - 3005
+      # - 3006
+      - 3007
+  externalVideoPlayer:
+    enabled: true
+  kurento:
+    wsUrl: HOST
+    cameraWsOptions:
+      connectionTimeout: 4000
+      maxRetries: 7
+      debug: false
+      heartbeat:
+        interval: 15000
+        delay: 3000
+        reconnectOnFailure: true
+    # Time in milis to wait for the browser to return a gUM call (used in video-preview)
+    gUMTimeout: 20000
+    # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
+    # Enable this if you want to use Kurento as the media server.
+    signalCandidates: false
+    # restartIce: controls whether ICE restarts should be signaled to bbb-webrtc-sfu
+    #   whenever peers of the selected type (audio, video, screenshare) transition
+    #   to failure states. Disabled by default (experimental).
+    # restartIce.<mediaType>.retries: number of ICE restart retries before giving up
+    #   (i.e.: throwing an error). Default is 1 for audio, 3 for video and screenshare.
+    restartIce:
+      audio:
+        enabled: false
+        retries: 1
+      video:
+        enabled: false
+        retries: 3
+      screenshare:
+        enabled: false
+        retries: 3
+    # traceLogs: <Boolean> - enable trace logs in SFU peers
+    traceLogs: false
+    cameraTimeouts:
+      # Base camera timeout: used as the camera *sharing* timeout and
+      # as the minimum camera subscribe reconnection timeout
+      baseTimeout: 30000
+      # Max timeout: used as the max camera subscribe reconnection timeout. Each
+      # subscribe reattempt increases the reconnection timer up to this
+      maxTimeout: 60000
+    screenshare:
+      showButtonForNonPresenters: false
+      # Whether volume control should be allowed if screen sharing has audio
+      enableVolumeControl: true
+      # Experimental. True is the canonical behavior. Flip to false to reverse
+      # the negotiation flow for subscribers.
+      subscriberOffering: false
+      # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+      # media server adapter should be used for screen sharing.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (screenshareMediaServer).
+      #mediaServer: Kurento
+      bitrate: 1500
+      mediaTimeouts:
+        maxConnectionAttempts: 2
+        # Base screen media timeout (send|recv) - first connections
+        baseTimeout: 20000
+        # Base screen media timeout (send|recv) - re-connections
+        baseReconnectionTimeout: 8000
+        # Max timeout: used as the max camera subscribe connection timeout. Each
+        # subscribe reattempt increases the reconnection timer up to this
+        maxTimeout: 25000
+        timeoutIncreaseFactor: 1.5
+      constraints:
+        video:
+          frameRate:
+            ideal: 5
+            max: 10
+          width:
+            max: 2560
+          height:
+            max: 1600
+        audio: true
+    # cameraProfiles is an array of:
+    # - id: profile identifier
+    #   name: human-readable profile name
+    #   bitrate
+    #   hidden: whether this profile will be hidden in the video preview dropdown
+    #   constraints: a video media constraints dictionary (without the video key)
+    cameraProfiles:
+      # id: unique identifier of the profile
+      # name: name of the profile visible to users
+      # default: if this is the default profile which is pre-selected
+      # bitrate: the average bitrate for used for a webcam stream
+      # constraints:
+      #   # Optional constraints put on the requested video a browser MAY honor
+      #   # For a detailed list on possible values see:
+      #   # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      #   # Examples:
+      #   width: requested width of the camera stream
+      #   frameRate: requested framerate
+      - id: low-u30
+        name: low-u30
+        bitrate: 30
+        hidden: true
+      - id: low-u25
+        name: low-u25
+        bitrate: 40
+        hidden: true
+      - id: low-u20
+        name: low-u20
+        bitrate: 50
+        hidden: true
+      - id: low-u15
+        name: low-u15
+        bitrate: 70
+        hidden: true
+      - id: low-u12
+        name: low-u12
+        bitrate: 90
+        hidden: true
+      - id: low-u8
+        name: low-u8
+        bitrate: 100
+        hidden: true
+      - id: low
+        name: Low
+        default: false
+        bitrate: 100
+      - id: medium
+        name: Medium
+        default: true
+        bitrate: 200
+      - id: high
+        name: High
+        default: false
+        bitrate: 500
+        constraints:
+          width: 1280
+          height: 720
+          frameRate: 15
+      - id: hd
+        name: High definition
+        default: false
+        bitrate: 800
+        constraints:
+          width: 1280
+          height: 720
+          frameRate: 30
+      - id: fhd
+        name: Camera as content
+        hidden: true
+        default: false
+        bitrate: 1500
+        constraints:
+          width: 1920
+          height: 1080
+    enableScreensharing: true
+    enableVideo: true
+    enableVideoMenu: true
+    enableVideoPin: true
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for listen only.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (listenOnlyMediaServer).
+    #listenOnlyMediaServer: mediasoup
+    # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
+    # media server adapter should be used for webcams.
+    # Default is undefined, which means the default setting in bbb-webrtc-sfu
+    # prevails (videoMediaServer).
+    #videoMediaServer: Kurento
+    autoShareWebcam: false
+    skipVideoPreview: false
+    skipVideoPreviewOnFirstJoin: false
+    skipVideoPreviewIfPreviousDevice: false
+    # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
+    # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
+    # Current implemented modes are:
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL' | 'PRESENTER_LOCAL_PINNED'
+    # The algorithm names are self-explanatory.
+    cameraSortingModes:
+      defaultSorting: LOCAL_ALPHABETICAL
+      paginationSorting: VOICE_ACTIVITY_LOCAL
+      # showAudioOnlyOnFirstPage: when enabled, shows audio-only tiles
+      # for speaking users who don't have cameras on first page. These tiles appear on the right side,
+      # bumping previous off-view tiles to the left. (only for unified layout)
+      showAudioOnlyOnFirstPage: true
+      # maxAudioOnlyUsers: maximum number of audio-only tiles to show (only for unified layout).
+      # When pagination is enabled, this limits the number of slots available for audio-only users
+      # When pagination is disabled, this is the limit for audio-only users
+      maxAudioOnlyUsers: 2
+      # If set to true (default), always show privileged streams (pinned users and local cameras)
+      partitionPrivilegedStreams: true
+    # Entry `thresholds` is an array of:
+    # - threshold: minimum number of cameras being shared for profile to applied
+    #   profile: a camera profile id from the cameraProfiles configuration array
+    #            that will be applied to all cameras when threshold is hit
+    cameraQualityThresholds:
+      enabled: true
+      # applyConstraints: whether profile constraints should be applied on profile changes
+      applyConstraints: false
+      # privilegedStreams: whether cameras should revert to their original profile on
+      # certain actions (eg floor changes, pin)
+      privilegedStreams: true
+      debounceTime: 2500
+      thresholds:
+        - threshold: 8
+          profile: low-u8
+        - threshold: 12
+          profile: low-u12
+        - threshold: 15
+          profile: low-u15
+        - threshold: 20
+          profile: low-u20
+        - threshold: 25
+          profile: low-u25
+        - threshold: 30
+          profile: low-u30
+    pagination:
+      # WARNING: the pagination.enabled setting has moved to
+      # public.app.defaultSettings.application.paginationEnabled
+      # paginationToggleEnabled: show a pagination toggle in settings for the
+      # user to enable/disable it
+      paginationToggleEnabled: true
+      # how long (in ms) the negotiation will be debounced after a page change.
+      pageChangeDebounceTime: 1000
+      # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
+      # PUBLISHERS aren't accounted for .
+      # A page size of 0 (zero) means that the page size is unlimited (disabled).
+      desktopPageSizes:
+        moderator: 0
+        viewer: 5
+      # video page sizes for MOBILE endpoints
+      mobilePageSizes:
+        moderator: 2
+        viewer: 2
+      # gridEnabled: whether the camera-less avatar grid is shown when presentation
+      # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
+      gridEnabled: true
+      # grid size for DESKTOP endpoints
+      desktopGridSizes:
+        moderator: 48
+        viewer: 48
+      # grid size for MOBILE endpoints
+      mobileGridSizes:
+        moderator: 6
+        viewer: 6
+    paginationThresholds:
+      enabled: false
+      thresholds:
+        - users: 30
+          desktopPageSizes:
+            moderator: 25
+            viewer: 25
+        - users: 40
+          desktopPageSizes:
+            moderator: 20
+            viewer: 20
+        - users: 50
+          desktopPageSizes:
+            moderator: 16
+            viewer: 16
+        - users: 60
+          desktopPageSizes:
+            moderator: 14
+            viewer: 12
+        - users: 70
+          desktopPageSizes:
+            moderator: 12
+            viewer: 10
+        - users: 80
+          desktopPageSizes:
+            moderator: 10
+            viewer: 8
+        - users: 90
+          desktopPageSizes:
+            moderator: 8
+            viewer: 6
+        - users: 100
+          desktopPageSizes:
+            moderator: 6
+            viewer: 4
+  poll:
+    enabled: true
+    allowCustomResponseInput: true
+    maxCustom: 5
+    maxTypedAnswerLength: 45
+    chatMessage: true
+    quickPollConfirmationStep: true
+    quiz:
+      enabled: true
+      quickPollCorrectAnswerSuffix: "__"
+  captions:
+    background: '#000000'
+    font:
+      color: '#ffffff'
+      family: Calibri
+      size: 24px
+    # maximum number of simultaneous captions on screen
+    captionLimit: 3
+    # maximum size of a caption line in characters
+    lineLimit: 60
+    # maximum number of lines a caption can have on screen
+    lines: 2
+    # time the captions will hang on screen after last updated
+    time: 5000
+    locales:
+      - locale: "af"
+        name: "Afrikaans"
+      - locale: "ar"
+        name: "العربية"
+      - locale: "az"
+        name: "Azərbaycan dili"
+      - locale: "bg-BG"
+        name: "Български"
+      - locale: "bn"
+        name: "বাংলা"
+      - locale: "ca"
+        name: "Català"
+      - locale: "cs-CZ"
+        name: "Čeština"
+      - locale: "da"
+        name: "Dansk"
+      - locale: "de"
+        name: "Deutsch"
+      - locale: "dv"
+        name: "ދިވެހި"
+      - locale: "el-GR"
+        name: "Ελληνικά"
+      - locale: "en"
+        name: "English"
+      - locale: "en-US"
+        name: "English"
+      - locale: "eo"
+        name: "Esperanto"
+      - locale: "es"
+        name: "Español"
+      - locale: "es-419"
+        name: "Español (Latinoamérica)"
+      - locale: "es-ES"
+        name: "Español (España)"
+      - locale: "es-MX"
+        name: "Español (México)"
+      - locale: "et"
+        name: "eesti keel"
+      - locale: "eu"
+        name: "Euskara"
+      - locale: "fa-IR"
+        name: "فارسی"
+      - locale: "fi"
+        name: "Suomi"
+      - locale: "fr"
+        name: "Français"
+      - locale: "gl"
+        name: "Galego"
+      - locale: "he"
+        name: "עברית‏"
+      - locale: "hi-IN"
+        name: "हिन्दी"
+      - locale: "hr"
+        name: "Hrvatski"
+      - locale: "hu-HU"
+        name: "Magyar"
+      - locale: "hy"
+        name: "Հայերեն"
+      - locale: "id"
+        name: "Bahasa Indonesia"
+      - locale: "it-IT"
+        name: "Italiano"
+      - locale: "ja"
+        name: "日本語"
+      - locale: "ka"
+        name: "ქართული"
+      - locale: "km"
+        name: "ភាសាខ្មែរ"
+      - locale: "kn"
+        name: "ಕನ್ನಡ"
+      - locale: "ko-KR"
+        name: "한국어 (韩国)"
+      - locale: "lo-LA"
+        name: "ລາວ"
+      - locale: "lt-LT"
+        name: "Lietuvių"
+      - locale: "lv"
+        name: "Latviešu"
+      - locale: "ml"
+        name: "മലയാളം"
+      - locale: "mn-MN"
+        name: "Монгол"
+      - locale: "nb-NO"
+        name: "Norsk (bokmål)"
+      - locale: "nl"
+        name: "Nederlands"
+      - locale: "oc"
+        name: "Occitan"
+      - locale: "pl-PL"
+        name: "Polski"
+      - locale: "pt"
+        name: "Português"
+      - locale: "pt-BR"
+        name: "Português (Brasil)"
+      - locale: "ro-RO"
+        name: "Română"
+      - locale: "ru"
+        name: "Русский"
+      - locale: "sk-SK"
+        name: "Slovenčina (Slovakia)"
+      - locale: "sl"
+        name: "Slovenščina"
+      - locale: "sr"
+        name: "Српски"
+      - locale: "sv-SE"
+        name: "Svenska"
+      - locale: "ta"
+        name: "தமிழ்"
+      - locale: "te"
+        name: "తెలుగు"
+      - locale: "th"
+        name: "ภาษาไทย"
+      - locale: "tr-TR"
+        name: "Türkçe"
+      - locale: "uk-UA"
+        name: "Українська"
+      - locale: "vi-VN"
+        name: "Tiếng Việt"
+      - locale: "zh-CN"
+        name: "中文（中国"
+      - locale: "zh-TW"
+        name: "中文（台灣"
+  timer:
+    enabled: true
+    time: 5
+    music:
+      enabled: false
+      volume: 0.4
+      track1: "RelaxingMusic"
+      track2: "CalmMusic"
+      track3: "aristocratDrums"
+    maxHours: 23
+    presets: [60, 300, 600, 900, 1200, 1800, 3600]
+    quickAddButtons: [30, 60, 300]
+    serverSyncTimeInterval: 300000
+  chat:
+    enabled: true
+    itemsPerPage: 100
+    enableSaveAndCopyPublicChat: true
+    startClosed: false
+    min_message_length: 1
+    max_message_length: 5000
+    type_system: SYSTEM_MESSAGE
+    type_public: PUBLIC_ACCESS
+    type_private: PRIVATE_ACCESS
+    system_userid: SYSTEM_MESSAGE
+    system_username: SYSTEM_MESSAGE
+    public_id: public
+    public_group_id: MAIN-PUBLIC-GROUP-CHAT
+    public_userid: public_chat_userid
+    public_username: public_chat_username
+    storage_key: UNREAD_CHATS
+    system_messages_keys:
+      chat_clear: PUBLIC_CHAT_CLEAR
+      chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
+      chat_status_message: PUBLIC_CHAT_STATUS
+    typingIndicator:
+      enabled: true
+      showNames: true
+    moderatorChatEmphasized: true
+    privateMessageReadFeedback:
+      enabled: false
+    autoConvertEmoji: true
+    emojiPicker:
+      enable: false
+    # e.g.: disableEmojis: ['grin','laughing']
+    # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
+    disableEmojis: []
+    markdownImageAllowed: false
+    # available options for toolbar: reply, edit, delete, reactions, pin
+    # example: ['reply', 'delete']
+    toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
+    announcePresenterChangeInChat: true
+  multiFunctionalMode:
+    enabled: false # Enables an auxiliary sidebar content panel in the UI.
+  userReaction:
+    enabled: true
+    expire: 30
+    reactions:
+      - id: 'smiley'
+        native: '😃'
+      - id: 'neutral_face'
+        native: '😐'
+      - id: 'slightly_frowning_face'
+        native: '🙁'
+      - id: '-1'
+        native: '👎'
+      - id: '+1'
+        native: '👍'
+      - id: 'clap'
+        native: '👏'
+  notes:
+    enabled: true
+    id: notes
+    pinnable: true
+  layout:
+    hidePresentationOnJoin: false
+    showParticipantsOnLogin: false
+    showSessionDetailsOnJoin: false
+    showScreenshareQuickSwapButton: false
+    showLeaveSessionLabel: false
+    usersPerUserListPage: 50
+    syncCameraDockSizeAndPosition: true
+  sidebarNavigation:
+    # Controls which built-in sidebar navigation buttons are rendered, in
+    # which section (top/center/bottom) and in what order. Omitting an id
+    # hides that button. This is a full replacement list, not an allow/deny
+    # list over a hidden default - if you customize it, remember to add any
+    # new ids introduced by future upstream versions.
+    buttons:
+      top:
+        - profile
+        - user-list
+        - chat
+        - notes
+      center:
+        - apps-gallery
+        - pinned-apps
+      bottom:
+        - audio-captions
+        - learning-dashboard
+        - settings
+    # Controls which apps should have the "new" label in the apps gallery.
+    # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
+    # For plugins, refer to the isNew flag in the plugin's own settings.
+    appsToLabelAsNew: []
+  sharedNotes:
+    # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
+    # e.g: `bbb-host` (only the domain without protocol and path)
+    serverHostname:
+    maxDocumentChars: 99999
+    maxLengthForContentUpdate: 1500
+    # When enabled, the formatting toolbar is rendered statically above the
+    # editor and always visible. When disabled, BlockNote's default floating
+    # toolbar appears only when text is selected.
+    staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content.
+    importMarkdownEnabled: true
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu.
+    exportMarkdownEnabled: true
+  media:
+    audio:
+      # defaultFullAudioBridge: bridge to be used by full audio mechanism.
+      # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
+      defaultFullAudioBridge: livekit
+      # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
+      # be used for microphone audio.
+      # Default is undefined, which means the default setting in bbb-webrtc-sfu
+      # prevails (fullAudioMediaServer).
+      #fullAudioMediaServer: mediasoup
+      #
+      # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
+      # Deprecated, no alternative as this audio mode will be removed.
+      defaultListenOnlyBridge: livekit
+      # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
+      # if the first attempt fails with selected errors codes (eg 1007, 1010)
+      retryThroughRelay: false
+      # allowAudioJoinCancel: allow users to cancel audio join requests by
+      # by closing the audio modal while audio is being negotiated.
+      # If false, the audio modal will be locked until the process finishes.
+      allowAudioJoinCancel: true
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, browser's built-in audio processing will be used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
+      #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured below.
+      audioWasmProcessing:
+        enabled: false
+        provider: bbba
+        constraints:
+          echoCancellation: true
+          autoGainControl: true
+          noiseSuppression: true
+      # microphoneConstraints: browser-level audio constraints (AGC/echo
+      # cancellation/noise suppression) applied when the user selects the
+      # 'standard' audio processing mode in Settings > Audio.
+      # They apply in 'standard' only, including when the user hasn't picked a
+      # mode: if app.defaultSettings.audio.processingMode is 'original' every
+      # browser filter is off, and if it is 'advanced' the browser filters come
+      # from audioWasmProcessing.constraints instead.
+      # For more details, see:
+      # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      # Currently, google chrome sets {ideal: true} for autoGainControl,
+      # echoCancellation and noiseSuppression, if not set.
+      # The accepted value for each constraint is an object of type
+      # https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+      # If not set (commented out), the browser's own default is used.
+      #microphoneConstraints:
+      #  autoGainControl:
+      #    ideal: true
+      #  echoCancellation:
+      #    ideal: true
+      #  noiseSuppression:
+      #    ideal: true
+    stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
+    cacheStunTurnServers: true
+    fallbackStunServer: ''
+    # Forces relay usage on all browsers, environments and media modules.
+    # If true, supersedes public.kurento.forceRelayOnFirefox
+    forceRelay: false
+    # Firefox has a buggy ICE implementation. With mediasoup this leads to
+    # connection problems unless all traffic is relayed through a turn server.
+    forceRelayOnFirefox: true
+    mediaTag: '#remote-media'
+    echoTestNumber: 'echo'
+    listenOnlyCallTimeout: 15000
+    # skipInitialCamEnumeration: whether to skip the initial camera enumeration
+    # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
+    skipInitialCamEnumeration: false
+    # transparentListenOnly: whether the client should use the transparent
+    # listen only mechanism.
+    # It does not remove the "Listen Only" option from the audio modal
+    # by itself, but it allows users to switch modes on the fly and
+    # improves server CPU efficiency for microphone users.
+    # To disable the dedicated listen only option in the audio modal,
+    # see `listenOnlyMode`/`userdata-bbb_transparent_listen_only_mode`
+    # userdata-bbb_transparent_listen_only supersedes this setting
+    transparentListenOnly: true
+    # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
+    fullAudioOffering: true
+    # Dev flag. Controls the WebRTC negotiation role for listen only.
+    listenOnlyOffering: false
+    # Mute/umute toggle throttle time
+    toggleMuteThrottleTime: 300
+    # localEchoTest:
+    #   enabled: Boolean => enables an experimental, simplified echo test mode
+    #   initialHearingState: Boolean => whether users should hear themselves firsthand
+    #   useRtcLoopbackInChromium: Boolean => whether a local RTC loopback should
+    #   be used in Chromium browsers. Works around the fact that Chromium has no
+    #   echo cancellation in non-rtc audio streams
+    localEchoTest:
+      enabled: true
+      initialHearingState: true
+      useRtcLoopbackInChromium: true
+      # delay: delay (seconds) to be added to the audio feedback return
+      delay:
+        enabled: true
+        delayTime: 0.5
+        maxDelayTime: 2
+    # networkPriorities: DSCP markings for each media type. Chromium only, applies
+    # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
+    # for further info.
+    #networkPriorities:
+    #  audio: high
+    #  webcam: medium
+    #  screenshare: medium
+    #
+    # audioTroubleshootingLinks: links to help users troubleshoot audio issues
+    # If no link is provided, the audio troubleshooting button will not be shown.
+    # Index is the error code:
+    #   - 7: permission denied error code
+    #   - 6: no input devices found
+    #   - 0: unknown error
+    #audioTroubleshootingLinks:
+    #  7: 'https://link.bigbluebutton.org/perm'
+    #  0: 'https://link.bigbluebutton.org/unk'
+    # muteAudioOutputWhenAway: mute output audio if user is in away mode
+    muteAudioOutputWhenAway: false
+    # Index is the error code:
+    #   - 1136: permission denied
+    screenshareTroubleshootingLinks:
+      1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again'
+    livekit:
+      # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
+      #url: wss://LIVEKIT_HOST/livekit
+      # livekit.selectiveSubscription: whether to use selective subscription for all
+      # applicable track sources. This overrides autoSubscribe.
+      selectiveSubscription:
+        enabled: true
+        # audioSubscriptionPoolSize: maximum number of simultaneously subscribed
+        # audio tracks. 0 means unlimited. Exemptions that may exceed the pool:
+        # screen audio, unmuted users.
+        audioSubscriptionPoolSize: 0
+        # muteDebounceMs: debounce time in milliseconds for mute state
+        # transitions that would trigger unsubscribe operations.
+        muteDebounceMs: 2500
+      logLevel: 3
+      # livekit.sdkLogBridge: forward livekit-client's own logs to the client logger.
+      sdkLogBridge: true
+      # reconnectOnFatalFailures: whether to trigger LK room reconnections when
+      # fatal errors occur (e.g.: unrecoverable publish timeouts).
+      reconnectOnFatalFailures: true
+      # livekit.negotiationProbe: tracks the time, via logs, that it takes
+      # for a subscriber offer to be answered, from receive to socket dispatch.
+      # Debug instrumentation, off by default
+      negotiationProbe: false
+      # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
+      forceRelay: false
+      # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
+      forceRelayOnFirefox: false
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
+        singlePeerConnection: false
+      audio:
+        # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
+        unpublishOnMute: true
+        # useLiveKitAudioState: whether to use LiveKit's client-side audio state
+        # instead of BBB's audio state. Default is false.
+        useLiveKitAudioState: false
+        # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
+        publishOptions:
+          audioPreset:
+            maxBitrate: 48000
+            networkPriority: 'high'
+            priority: 'high'
+          dtx: false
+          red: true
+          forceStereo: false
+      camera:
+        publishOptions:
+          videoCodec: 'vp8'
+        # presets: optional explicit simulcast presets. When specified,
+        # overrides automatic profile-to-layer mapping from cameraProfiles.
+        # Ordered lowest to highest quality.
+        # Array of VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        #presets: []
+      screenshare:
+        publishOptions:
+          videoCodec: 'vp8'
+        # constraints: independent from kurento.screenshare.constraints
+        constraints:
+          video:
+            frameRate:
+              ideal: 15
+              max: 15
+            width:
+              max: 2560
+            height:
+              max: 1600
+          audio: true
+        # livekit.screenshare.presets: ordered lowest to highest quality.
+        # Entries are VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        # Presets may be partially specified - missing bitrate/FPS entries will
+        # be interpolated by the client. Resolution defaults to capture resolution.
+        presets:
+          - maxBitrate: 500000
+            maxFramerate: 5
+            priority: medium
+          - maxBitrate: 1500000
+            maxFramerate: 15
+            priority: medium
+  stats:
+    enabled: true
+    interval: 10000
+    timeout: 10000
+    probes: 5
+    # Client-side WebRTC stats logging. If enabled, the client will log periodic
+    # WebRTC stats information to the configured logging transports.
+    # Disabled by default. This log is verbose and may incur in additional network
+    # usage if external logging targets are configured.
+    # The effective stats logging frequency is determined by the ratio of
+    # stats.interval to stats.probes (interval / probes).
+    logMediaStats:
+      enabled: false
+      # additionalStatsTypes: Defines additional WebRTC stats to extract from getStats(),
+      # beyond the default ones.
+      # Applied only when logMediaStats.enabled is true.
+      #   - Values must be provided as arrays.
+      #   - 'common' stats apply to all media types: audio, video, and screenshare.
+      #   - Stats under 'audio', 'video', or 'screenshare' apply only to their respective media type.
+      # Valid values: any type from https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport#the_statistic_types
+      additionalStatsTypes:
+        common: []
+        audio: []
+        video: []
+        screenshare: []
+    notification:
+      warning: false
+      error: true
+    loss:
+      warning: 0.05
+      danger: 0.1
+      critical: 0.2
+    rtt:
+      warning: 500
+      danger: 1000
+      critical: 2000
+    help: STATS_HELP_URL
+  presentation:
+    allowDownloadOriginal: true
+    allowDownloadWithAnnotations: true
+    allowSnapshotOfCurrentSlide: true
+    panZoomThrottle: 32
+    restoreOnUpdate: true
+    uploadEndpoint: '/bigbluebutton/presentation/upload'
+    fileUploadConstraintsHint: false
+    # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
+    mirroredFromBBBCore:
+      uploadSizeMax: 30000000
+      uploadPagesMax: 200
+    # If the following mime-types list is changed, please, make sure to also change:
+    # bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java: L34 (and related files.)
+    # docs/docs/development/api.md: L1222
+    uploadValidMimeTypes:
+      - extension: .pdf
+        mime: application/pdf
+      - extension: .doc
+        mime: application/msword
+      - extension: .docx
+        mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - extension: .xls
+        mime: application/vnd.ms-excel
+      - extension: .xlsx
+        mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - extension: .ppt
+        mime: application/vnd.ms-powerpoint
+      - extension: .pptx
+        mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - extension: .txt
+        mime: text/plain
+      - extension: .rtf
+        mime: application/rtf
+      - extension: .odt
+        mime: application/vnd.oasis.opendocument.text
+      - extension: .ods
+        mime: application/vnd.oasis.opendocument.spreadsheet
+      - extension: .odp
+        mime: application/vnd.oasis.opendocument.presentation
+      - extension: .odg
+        mime: application/vnd.oasis.opendocument.graphics
+      - extension: .jpg
+        mime: image/jpeg
+      - extension: .jpeg
+        mime: image/jpeg
+      - extension: .png
+        mime: image/png
+      - extension: .webp
+        mime: image/webp
+  user:
+    role_moderator: MODERATOR
+    role_viewer: VIEWER
+    label:
+      presenter: true
+      moderator: true
+      mobile: true
+      guest: true
+      sharingWebcam: true
+      bot: true
+  userList:
+    searchBar:
+      enabled: true
+  whiteboard:
+    annotationsQueueProcessInterval: 60
+    cursorInterval: 100
+    allowInfiniteWhiteboard: false
+    allowInfiniteWhiteboardInBreakouts: false
+    allowInfiniteWhiteboardPanForViewers: false
+    pointerDiameter: 5
+    maxStickyNoteLength: 1000
+    # limit number of annotations per slide
+    maxNumberOfAnnotations: 300
+    # Limit the number of users who can interact with the whiteboard
+    maxNumberOfActiveUsers: 25
+    # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
+    # default value is 400, adjusted for maxNumberOfAnnotations being 300
+    maxHistoryStackSize: 400
+    # Upper bound (ms) for waiting on a new slide's background image to decode before
+    # swapping the visible page (issue 25397). Kept short: a warm/near cache resolves in
+    # sub-frame time and gates the swap, while a cold/slow asset falls through fast to the
+    # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
+    # slide. Latency above this bound still shows the original white flash.
+    slideSwapDecodeTimeoutMs: 250
+    # Presenter mouse wheel behavior over the presentation:
+    # true  - the wheel scrolls (pans) the slide; hold Ctrl/Cmd while scrolling to zoom
+    # false - the wheel zooms directly (behavior of BBB 3.0 and earlier)
+    wheelZoomRequiresCtrl: true
+    lockToolbarTools: false
+    annotations:
+      status:
+        start: DRAW_START
+        update: DRAW_UPDATE
+        end: DRAW_END
+    styles:
+      # color is one of 'black', 'blue', 'green', 'grey', 'light-blue', 'light-green', 'light-red', 'light-violet', 'orange', 'red', 'violet', 'yellow'
+      colorStyle: 'black'
+      # dash is one of 'dashed', 'dotted', 'draw', 'solid'
+      dashStyle: 'draw'
+      # fill is one of 'none', 'pattern', 'semi', 'solid'
+      fillStyle: 'none'
+      # font is one of 'draw','mono','sans', 'serif'
+      fontStyle: 'draw'
+      # size is one of 'l', 'm', 's', 'xl'
+      sizeStyle: 'm'
+
+      # this one is obsoleted now
+      text:
+        # Initial font family.
+        # family: mono|sans|script|serif
+        family: script
+    toolbar:
+      multiUserPenOnly: false
+      initialSelectedTool: draw
+      presenterTools:
+        - select
+        - hand
+        - draw
+        - eraser
+        - arrow
+        - text
+        - note
+        - rectangle
+        - delete-selected-items
+        - highlight
+        - more
+        - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
+      multiUserTools:
+        - select
+        - hand
+        - draw
+        - eraser
+        - arrow
+        - text
+        - note
+        - rectangle
+        - delete-selected-items
+        - highlight
+        - more
+        - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
+    locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
+  clientLog:
+    console:
+      enableRuntimeErrorLogging: false
+      enabled: true
+      level: debug
+    external:
+      enabled: false
+      level: info
+      url: https://LOG_HOST/html5Log
+      method: POST
+      throttleInterval: 400
+      flushOnClose: true
+      logTag: ''
+  virtualBackgrounds:
+    enabled: true
+    enableVirtualBackgroundUpload: true
+    storedOnBBB: true
+    showThumbnails: true
+    imagesPath: /resources/images/virtual-backgrounds/
+    thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    # willReadFrequently: Defines the optimization hint for the virtual background canvas.
+    # If commented out (default), the browser decides the best strategy.
+    #willReadFrequently: true
+    fileNames:
+      - home.jpg
+      - coffeeshop.jpg
+      - board.jpg
+private:
+  analytics: {}
+  app:
+    host: 127.0.0.1
+    localesUrl: /locale-list

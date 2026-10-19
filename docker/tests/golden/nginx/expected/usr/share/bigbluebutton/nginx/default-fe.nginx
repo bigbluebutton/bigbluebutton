@@ -1,0 +1,7 @@
+# Default BigBlueButton Landing page.
+
+location @bbb-fe {
+  index  index.html index.htm;
+  expires 1m;
+}
+

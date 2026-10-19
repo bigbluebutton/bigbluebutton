@@ -1,0 +1,584 @@
+# kurento: array of Kurento configuration objects. Disabled (empty) by default.
+kurento: []
+# Example:
+#- ip: 0.0.0.0
+#  url: ws://127.0.0.1:8888/kurento
+#  # mediaType: (main|audio|content)
+#  ipClassMappings:
+#    local:
+#    private:
+#    public:
+#  options:
+#    failAfter: 5
+#    request_timeout: 30000
+#    response_timeout: 30000
+# Number of attemps of connecting to the configured kurento instances the first
+# time. Infinity means it tries forever until it's able to connect. Default is Infinity.
+kurentoStartupRetries: Infinity
+# Whether to allow Kurento to process mDNS ICE candidates
+kurentoAllowMDNSCandidates: false
+# Whether to track KMS's ICE state changes for every peer.
+# Disabled by default for now until we trace the perf. impact of it
+kurentoTrackIceStateChanges: false
+# balancing-strategy: can be either ROUND_ROBIN or MEDIA_TYPE. The MEDIA_TYPE only
+# works properly if you annotated the configured kurento instances in the
+# 'kurento' config parameter with a mediaType field (main|audio|content) which
+# will specify what will each server handle. Default is ROUND_ROBIN
+balancing-strategy: ROUND_ROBIN
+# Allow media offloading to Kurento instances with mismatched media types
+kurentoAllowMediaTypeMix: false
+video-transposing-ceiling: 50
+audio-transposing-ceiling: 100
+acceptSelfSignedCertificate: false
+redisHost: 127.0.0.1
+redisPort: "6379"
+# Uncomment to set a password if Redis requires auth.
+# redisPassword: foobared
+clientPort: "3008"
+clientHost: 127.0.0.1
+# Whether RPCs and WS conns should be rejected/shutdown on user info header
+# anomalies
+wsStrictHeaderParsing: true
+# Time (ms) between server-initiated ping-pong checks
+wsHeartbeatInterval: 20000
+# wsServerOptions: see https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketserveroptions-callback).
+# It's a passthrough mapping of all config literal (strings, booleans, numbers).
+wsServerOptions:
+  maxPayload: 51200
+mediaFlowTimeoutDuration: 30000
+mediaStateTimeoutDuration: 30000
+requestQueueTimeout: 30000
+screenshareSubscriberSpecSlave: false
+screensharePlayStartEnabled: true
+screenshareServerSideAkkaBroadcast: true
+screenshareIgnoreMediaThresholds: false
+# Whether to add the userId to the screenshare RPCs (generateScreenshareRTMPBroadcastStartedEvent2x,
+# generateScreenshareRTMPBroadcastStoppedEvent2x). Here for backwards compat.
+screenshareRpcAddUserId: true
+audioIgnoreMediaThresholds: true
+videoIgnoreMediaThresholds: false
+videoSubscriberSpecSlave: false
+# Following three configurations: see media-server-adapters config
+# to get a list of implemented adapters. The configuration values
+# here are the adapter's name of choice
+videoMediaServer: mediasoup
+screenshareMediaServer: mediasoup
+audioMediaServer: mediasoup
+fullAudioEnabled: true
+transparentListenOnly: true
+dynamicGlobalAudio: false
+# Whether global audio should be automatically restarted when it fails. If disabled,
+# the global audio will be restarted only when a new audio session is created.
+autoRestartGlobalAudio: false
+fullAudioProxyActiveDirection: true
+# restartIce: whether ICE restart signaling should be enabled.
+# If disabled, ICE restarts requests are considered invalid.
+restartIce: true
+# RTP|WebRTC. Dictates how the FS <-> [audioMediaServer] bridge is established:
+# via plain RTP or via a WebRTC-backed RTP stream
+# WebRTC should be used for environments where the bridge is between external
+# servers AND when mediasoup is being used
+fsBridgeMode: 'RTP'
+# pliOnConnect: whether to send a PLI when a new subscriber joins
+#  amount: max amount of PLIs to send. If 0, it won't send any PLIs (default)
+#  interval: interval between PLIs (in ms)
+#  (e.g.: amount: 3, interval: 2000 => send 3 PLIs every 2 seconds)
+pliOnConnect:
+  amount: 0
+  interval: 2000
+# Whether to record screen raw files
+recordScreenSharing: true
+# Whether to record camera raw files
+recordWebcams: true
+# Fire a max of 3 PLIs over 6 seconds if recording stops flowing for 500 ms
+recordingPliOnNotFlowing: false
+# recordingBasePath (DEPRECATED): Base path where recording raw files will be stored
+# WARNING => THE FOLLOWING PARROT CEASED TO BE
+recordingBasePath: /var/kurento
+# recordingAdapter: Adapter to be used to record live streams.
+# Possible values:
+#   - 'native': same adapter as the source's (eg.: Kurento -> Kurento)
+#   - Kurento: use Kurento for recording (eg.: mediasoup -> Kurento)
+#   - bbb-webrtc-recorder: use bbb-webrtc-recorder
+#     (e.g.: mediasoup -> bbb-webrtc-recorder). EXPERIMENTAL
+recordingAdapter: bbb-webrtc-recorder
+# Adapter to be used if #recordingAdapter fails and #recordingUseFallbackAdapter is true
+recordingFallbackAdapter: bbb-webrtc-recorder
+# Whether to use the fallback adapter if the main adapter fails
+recordingFallbackOnFailure: false
+# Whether a recording copy should be created with #recordingFallbackAdapter
+# regardless of whether the main adapter fails or not
+# This is a development/test feature and should not be used in production
+# environments. The generated copies will have a -copy suffix in their names,
+# won't have any recording metadata registered and should not be processed
+recordingCarbonCopy: false
+# Recording dry-run mode: always record regardless of meeting state and
+# *do not* register any recording metadata.
+# This is a development/test feature and should not be used in production envs.
+recordingDryRun: false
+# The base recording profile for video and screen sharing
+# WEBM_VIDEO_ONLY|WEBM_AUDIO_ONLY|WEBM_FULL
+recordingMediaProfile: WEBM_VIDEO_ONLY
+# The base recording container format.
+# webm|mp4
+recordingFormat: webm
+# bbb-webrtc-recorder integration configs
+bbbWebrtcRecorder:
+  channels:
+    # POV: bbb-webrtc-sfu
+    subscribe: from-bbb-webrtc-recorder
+    publish: to-bbb-webrtc-recorder
+  heartbeatInterval: 5000
+  connectionTimeout: 5000
+  debug:
+    # For heartbeat testing: artificial delay for recorderStatus responses (in ms).
+    # 0 means disabled.
+    heartbeatResponseDelay: 0
+# Recording event keys expiry time in Redis
+# 14 days is the default
+redisExpireTime: 1209600
+# Time to wait before ejecting an user which has the autoLeave flag marked
+# as true and has no more media sessions under its ownership
+mcsUserEjectionTimer: 60000
+# Time to wait before destroying a room (on all scenarios)
+mcsRoomDestructionTimer: 90000
+# mcs-core entrypoint configured on nginx
+mcs-path: /mcs
+mcs-port: 3010
+mcs-host: 127.0.0.1
+mcs-address: 127.0.0.1
+mcs-ws-timeout: 30000
+freeswitch:
+  ip: 203.0.113.10
+  sip_ip: 203.0.113.10
+  port: 5066
+  esl_ip: 127.0.0.1
+  esl_port: 8021
+  #esl_password: FOOBAR
+  handleExternalConnections: false
+  ipClassMappings:
+    local:
+    private:
+    public:
+log:
+  # trace|debug|info|warn|error
+  level: info
+  # Whether to log to stdout
+  stdout: true
+  # Whether to log to a file
+  file: true
+  filename: /var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log
+moduleSpawnDelayMs: 1000
+modules:
+  - path: ./lib/mcs-core/process.js
+    name: core
+    dedicated: true
+    # IPC can be either native|redis right now. Defaults to native
+    ipc:
+      mode: native
+      options:
+      # inboundChannel: to-mcs-core
+      # outboundChannel: from-mcs-core
+  - path: ./lib/screenshare/ScreenshareProcess.js
+    name: screenshare
+    dedicated: true
+    ipc:
+      mode: native
+      options:
+      # inboundChannel: to-sfu-screenshare
+      # outboundChannel: from-sfu-screenshare
+  - path: ./lib/video/VideoProcess.js
+    name: video
+    dedicated: true
+    ipc:
+      mode: native
+      options:
+      # inboundChannel: to-sfu-video
+      # outboundChannel: from-sfu-video
+  - path: ./lib/audio/audio-process.js
+    name: fullaudio
+    routingAliases:
+      - audio
+    dedicated: true
+    ipc:
+      mode: native
+      options:
+      # inboundChannel: to-sfu-audio
+      # outboundChannel: from-sfu-audio
+  - path: ./lib/livekit/livekit-process.js
+    name: livekit
+    dedicated: true
+    ipc:
+      mode: native
+      options:
+      # inboundChannel: to-livekit
+      # outboundChannel: from-livekit
+# media-server-adapters: path could refer to a npm module
+media-server-adapters:
+  - path: kurento/kurento.js
+    name: Kurento
+  - path: freeswitch/freeswitch.js
+    name: Freeswitch
+  - path: mediasoup/mediasoup-adapter.js
+    name: mediasoup
+# strategies: path could refer to a npm module
+strategies:
+#- path: ./voice-switching-handler.js
+# name: VOICE_SWITCHING
+
+# Codec values (codec_video_main, codec_video_content, codec_audio):
+# it'll force the specified codec.
+# Put the 'ANY' value to prevent forcing a specific codec without the _priority options.
+# For the 'ANY' option, there's a trio of optional configuration where you are
+# able to specify the priority codec to force in a lenient way (codec_*_priority).
+# If codec_*_priority is undefined or not found in the media description,
+# no specific codec will be forced (base ANY behaviour).
+# If the priority codec is found in the media description, any codec
+# that doesn't match it will be filtered out (ie it will act as if the priority
+# codec was forced).
+# If you wanna add other codecs (e.g.: VP9)
+# add it to the list with its specifiers. If the codec isn't in the list,
+# it'll default to the specifier values in codec_*_priority OR VP8,
+# but still force the entered codec option.
+# P.S.: _video_main refers to webcam/main video content, _video_content refers to
+# screenshare/content:slides streams.
+conference-media-specs:
+  codec_video_main: VP8
+  codec_video_main_priority: VP8
+  codec_video_content: VP8
+  codec_video_content_priority: VP8
+  codec_audio: ANY
+  codec_audio_priority: OPUS
+  H264:
+    profile_level_id: "42e01f"
+    packetization_mode: "1"
+    level_asymmetry_allowed: "1"
+    tias_main: "300000"
+    as_main: "300"
+    tias_content: "1500000"
+    as_content: "1500"
+    max_mbps_main: "0"
+    max_fs_main: "0"
+    max_br_main: "0"
+    max_mbps_content: "0"
+    max_fs_content: "12288"
+    max_br_content: "0"
+  VP8:
+    tias_main: "300000"
+    as_main: "300"
+    tias_content: "1500000"
+    as_content: "1500"
+  OPUS:
+    useinbandfec: "1"
+    maxaveragebitrate: "30000"
+    maxplaybackrate: "48000"
+    ptime: "20"
+    minptime: "10"
+    maxptime: "40"
+kurentoRembParams:
+  rembOnConnect: 300
+  upLosses: 12
+  decrementFactor: 0.5
+  thresholdFactor: 0.8
+# Munges/removes the SDP REMB rtcp-fb support attribute (ie tries to disable REMB)
+kurentoRemoveRembRtcpFb: false
+# kurentoAllowedCandidateIps: optional configuration. List of VALID IPs to be used
+# to define valid outbound ICE candidates.
+# This is a short-term optimization to reduce the number of candidates sent to
+# the client by filtering out anything that isn't in this list
+kurentoAllowedCandidateIps:
+#- <ipv4|ipv6>
+# mediaThresholds: mandatory configuration. Establishes type-agnostic media thresholds
+# that when hit will make the server refuse to negotiate new medias.
+# Any attemps to inject medias past the thresholds will return an error with code
+# 2002 and message MEDIA_SERVER_NO_RESOURCES.
+# The threshold priority order is global -> perRoom -> perUser. Value 0 means unlimited
+# (default). An optional API parameter may be sent on pub/sub calls (ignoreThresholds)
+# to make the media ignore the configured thresholds. This is used here for recording
+# and audio medias.
+mediaThresholds:
+  global: 0
+  perRoom: 0
+  perUser: 0
+# Whether to allow duplicate externalUserId's on join. If allowed, join requests with
+# a externalUserId specified in the optional parameters will associate the new connection
+# with a pre-existing user (if it exists), or create a new one.
+# This will create a new virtual link between the request
+# and the pre-existing user with a unique internal user ID. The user will be
+# cleared from the system when a leave call for it is sent OR it has the autoLeave
+# optional parameter set to true and all of its medias were cleared
+allowDuplicateExtUserId: true
+ejectOnUserLeft: true
+permissionProbes: true
+destroyRoomOnEject: true
+# Direct Prometheus instrumentation. Disabled by default.
+prometheus:
+  enabled: false
+  # mcs-core specific metrics, top level of prometheus dictionary for now
+  host: localhost
+  port: 3014
+  path: '/metrics'
+  collectDefaultMetrics: false
+  # Main process metrics endpoint (main == websocket entrypoint, module manager)
+  main:
+    host: localhost
+    port: 3016
+    path: '/metrics'
+    collectDefaultMetrics: false
+  # Video process metrics endpoint (video == webcam req handler, ...)
+  video:
+    host: localhost
+    port: 3026
+    path: '/metrics'
+    collectDefaultMetrics: false
+  screenshare:
+    host: localhost
+    port: 3022
+    path: '/metrics'
+    collectDefaultMetrics: false
+  audio:
+    host: localhost
+    port: 3024
+    path: '/metrics'
+    collectDefaultMetrics: false
+    holdHistograms: false
+  livekit:
+    host: localhost
+    port: 6759
+    path: '/metrics'
+    collectDefaultMetrics: false
+mediasoup:
+  # pipeLogs: whether to pipe mediasoup logs to bbb-webrtc-sfu's logger
+  pipeLogs: true
+  # mediasoup.workers: "auto"|"cores"|<Number>.
+  #   * The number of mediasoup workers for general use (media type agnostic, shared pool).
+  #   * "auto" is: ceil((min(nproc,32) * 0.8) + (max(0, nproc - 32) / 2))
+  #   * "cores" is: nproc (the host's core count as in os.cpus().length)
+  #   * Use a number if you want to override the number of workers.
+  #   * Strings other than "auto" and "cores" are ignored :).
+  #   * The default value is "auto".
+  workers: "auto"
+  # mediasoup.dedicatedMediaTypeWorkers:
+  #   audio: "auto"|"cores"|<Number>
+  #   main: "auto"|"cores"|<Number>
+  #   content: "auto"|"cores"|<Number>
+  #
+  #   * The number of mediasoup workers to use for a specific media type.
+  #     They are SEPARATED from the shared pool (mediasoup.workers). Streams
+  #     of a specific media type will always land in its dedicated pool if one is set.
+  #   * "auto" and Number semantics are the same as #mediasoup.workers.
+  dedicatedMediaTypeWorkers:
+    audio: auto
+    main: 0
+    content: 0
+  # mediasoup.enableWorkerTransposing: whether to enable worker transposing
+  # (ie: the ability to move a media stream from one worker to another).
+  enableWorkerTransposing: true
+  # mediasoup.workerBalancing: defines the strategy to distribute mediasoup
+  # elements (transports, producers, consumers) among workers.
+  workerBalancing:
+    # strategy is one of:
+    #   - round-robin: (default) Distribute *producers* in a round-robin fashion.
+    #   - least-loaded: Distribute *producers* to the least loaded worker.
+    strategy: least-loaded
+  # mediasoup.workerPriorities:
+  #   audio: <os.constants.priority> | [19,-20]
+  #   main: <os.constants.priority> | [19,-20]
+  #   content: <os.constants.priority> | [19,-20]
+  #
+  #   * Sets the NICE level for each worker type. The app needs the correct user
+  #   caps to be effective
+  #
+  #workerPriorities:
+  #  audio: PRIORITY_HIGH
+  #  main: PRIORITY_NORMAL
+  #  content: PRIORITY_LOW
+  worker:
+    # "debug", "warn", "error", "none"
+    logLevel: "warn"
+    # + svc, simulcast, srtp, ...
+    logTags:
+      - "bwe"
+      - "dtls"
+      - "ice"
+      - "info"
+      - "rtcp"
+      - "rtp"
+      - "rtx"
+      - "srtp"
+    rtcMinPort: 24577
+    rtcMaxPort: 32768
+    #dtlsCertificateFile:
+    #dtlsPrivateKeyFile:
+  promExportWorkerResourceUsage: false
+  promExportRtpScores: false
+  router:
+    # TODO fetch from conference-media-specs
+    mediaCodecs:
+      - kind: "audio"
+        mimeType: "audio/opus"
+        preferredPayloadType: 111
+        clockRate: 48000
+        channels: 2
+        parameters:
+          maxaveragebitrate: 30000
+          maxplaybackrate: 48000
+          ptime: 20
+          minptime: 10
+          maxptime: 40
+          useinbandfec: 1
+        rtcpFeedback:
+          - type: "transport-cc"
+      - kind: "audio"
+        mimeType: "audio/telephone-event"
+        preferredPayloadType: 101
+        clockRate: 8000
+      - kind: "audio"
+        mimeType: "audio/PCMU"
+        preferredPayloadType: 0
+        clockRate: 8000
+        rtcpFeedback:
+          - type: "transport-cc"
+      - kind: 'audio'
+        mimeType: 'audio/ISAC'
+        clockRate: 32000
+        preferredPayloadType: 103
+        rtcpFeedback:
+          - type: "transport-cc"
+      - kind: "video"
+        mimeType: "video/VP8"
+        preferredPayloadType: 96
+        clockRate: 90000
+        rtcpFeedback:
+          - type: "transport-cc"
+          - type: "goog-remb"
+          - type: "ccm"
+            parameter: "fir"
+          - type: "nack"
+          - type: "nack"
+            parameter: "pli"
+  webrtc:
+    # announcedIP => it's the host public IPv4 in case the machine is
+    # behind a 1:1 NAT
+    # ip => the address on which mediasoup will bind its RTC sockets
+    listenIps:
+      - ip: "0.0.0.0"
+        announcedIp: "203.0.113.10"
+        # - ip: <some-ipv6>
+    # equivalent to Kurento's/libnice's ice-udp/niceAgentIceUdp
+    enableUdp: true
+    # equivalent to Kurento's/libnice's ice-tcp/niceAgentIceTcp
+    enableTcp: false
+    # candidate priority mangling; makes sense to keep this enabled
+    # even more when ice-tcp is enabled as well
+    preferUdp: true
+    # iceConsentTimeout: ICE consent timeout (in seconds). If 0 it is disabled.
+    iceConsentTimeout: 30
+  plainRtp:
+    # announcedIP => it's the host public IPv4 in case the machine is
+    # behind a 1:1 NAT
+    # ip => the address on which mediasoup will bind its plain RTP sockets
+    # This is pretty similar in intent to webrtc.listenIps with two diffs:
+    #   - only applies to plain transports (RTP)
+    #   - it's not an array, so just one option
+    listenIp:
+      ip: "0.0.0.0"
+      announcedIp: "203.0.113.10"
+    # Whether RTCP should use RTPs transport.
+    # False probably doesn't work yet in the adapter
+    rtcpMux: true
+    # Port inference through COMEDIA
+    comedia: true
+  bitrate:
+    # Default per transport max incoming bitrate (bps)
+    defaultMaxIncomingBitrate: 1500000
+    # Default per transport max outgoing bitrate (bps)
+    defaultMaxOutgoingBitrate: 1500000
+    # Default per transport initial available outgoing bitrate (bps)
+    defaultInitialAvailableOutgoingBitrate: 600000
+  webRtcHeaderExts:
+    - uri: 'urn:ietf:params:rtp-hdrext:toffset'
+      id: 1
+    - uri: 'http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time'
+      id: 2
+    - uri: 'http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01'
+      id: 4
+    - uri: 'urn:ietf:params:rtp-hdrext:sdes:mid'
+      id: 9
+    - uri: 'urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id'
+      id: 10
+    - uri: 'urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id'
+      id: 11
+  recorder:
+    ffmpeg:
+      # UDP, internal only. Doesn't need to be open in the firewall, but should
+      # be a dedicated range.
+      recMinPort: 50000
+      recMaxPort: 51000
+      inputOptions:
+        - "-protocol_whitelist file,rtp,udp"
+        - "-probesize 1000000"
+        - "-analyzeduration 1000000"
+      outputOptions:
+        - '-f webm'
+        - '-flags +global_header'
+livekit:
+  # Whether to enable LiveKit integration
+  enabled: true
+  # LiveKit host URL
+  host: http://127.0.0.1:7880
+  # Used as `domain` in LiveKit metadata
+  bbbDomain: BBB_DOMAIN
+  tokenTTL: 14400
+  key: fixturelivekitapikey
+  secret: fixturelivekitapisecretnotreal000000000000000000
+  systemParticipantsLimit: 10
+  # Event source for LiveKit events. Possible values: 'webhook', 'agent'
+  eventSource: 'webhook'
+  rtcAgent:
+    enabled: false
+    autoSubscribe: false
+    # Additional configs (uncomment to enable):
+    #permissions: A Partial<ParticipantPermissions> object. Optional.
+  audio:
+    unpublishOnMute: false
+  # livekit.camStopGraceMs: how long (ms) a web user's camera stop is held
+  # back after LiveKit unpublishes the track in reconnection scenarios. 0 = no grace.
+  camStopGraceMs: 15000
+  webhook:
+    path: "/livekit-webhook"
+    port: 3040
+  egress:
+    enabled: false
+    # livekit.egress.startTimeout: #ms to wait for a response from LiveKit
+    # when starting an egress session. If elapsed, a retry will be attempted.
+    startTimeout: 5000
+    retryInterval: 1000
+  # livekit.recordingAdapter: recording adapter to use when LiveKit is enabled.
+  # Values: 'egress', 'bbb-webrtc-recorder'
+  recordingAdapter: 'bbb-webrtc-recorder'
+  #captureOnExternalEvents:
+  #  enabled: false
+  #  events: []
+  sip:
+    enabled: false
+    # livekit.sip.requirePin: whether to require a PIN for callers
+    requirePin: false
+    trunk:
+      # See https://docs.livekit.io/server-sdk-js/interfaces/CreateSipInboundTrunkOptions.html
+      options:
+      #allowed_addresses: []
+      #allowed_numbers: []
+      #auth_password: ''
+      #auth_username: ''
+    dispatch:
+      # See https://docs.livekit.io/reference/server-sdk-js/interfaces/CreateSipDispatchRuleOptions.html
+      options:
+        hidePhoneNumber: true
+    # dtmfActions is a key-value map of actions to be performed when a DTMF
+    # sequence is received. Currently supported actions: 'toggleMute'.
+    # Format: {
+    #   ActionName: DTMFSequence | DTMFSequence[]
+    # }
+    dtmfActions:
+      toggleMute: ["*", "0"]

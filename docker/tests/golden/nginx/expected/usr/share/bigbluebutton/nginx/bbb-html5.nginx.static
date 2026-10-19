@@ -1,0 +1,6 @@
+# running in production (static assets)
+# The html5 client image (service html5) serves the package's static locations itself
+# (/html5client with gzip_static, locales, wasm); this location passes them on unchanged.
+location /html5client {
+    proxy_pass http://html5;
+}

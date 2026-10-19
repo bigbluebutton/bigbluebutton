@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <!--
+         We need turn0 for FireFox to workaround its limited ICE implementation.
+         This is UDP connection.  Note that port 3478 must be open on this BigBlueButton
+         and reachable by the client.
+
+         Also, in 2.5, we previously defined turn:$HOST:443?transport=tcp (not 'turns')
+         to workaround a bug in Safari's handling of Let's Encrypt. This bug is now fixed
+         https://bugs.webkit.org/show_bug.cgi?id=219274, so we omit the 'turn' protocol over
+         port 443.
+     -->
+    <bean id="turn0" class="org.bigbluebutton.web.services.turn.TurnServer">
+        <constructor-arg index="0" value="${TURN_SECRET}"/>
+        <constructor-arg index="1" value="turn:${BBB_DOMAIN}:3478"/>
+        <constructor-arg index="2" value="86400"/>
+    </bean>
+    <bean id="turn1" class="org.bigbluebutton.web.services.turn.TurnServer">
+        <constructor-arg index="0" value="${TURN_SECRET}"/>
+        <constructor-arg index="1" value="turns:${BBB_DOMAIN}:443?transport=tcp"/>
+        <constructor-arg index="2" value="86400"/>
+    </bean>
+
+    <bean id="stunTurnService"
+            class="org.bigbluebutton.web.services.turn.StunTurnService">
+        <property name="stunServers">
+            <set>
+            </set>
+        </property>
+        <property name="turnServers">
+            <set>
+                <ref bean="turn0"/>
+                <ref bean="turn1"/>
+            </set>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,5 @@
+# Fixture template. Only braced upper-case names count; $host and ${lower} are not variables.
+server_name ${BBB_DOMAIN};
+url ${LOCAL_URL};
+redis ${?REDIS_HOST}
+proxy_set_header Host $host;

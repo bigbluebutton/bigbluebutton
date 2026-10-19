@@ -1,0 +1,20 @@
+reference: ../../parity/reference/coturn
+files:
+  - rendered: etc/turnserver.conf
+    reference: etc/turnserver.conf
+allowed:
+  - file: etc/turnserver.conf
+    line: '^(listening|relay)-ip=203\.0\.113\.10$'
+    reason: "contract coturn_config: no relay-ip, coturn listens and relays on its own bridge address (coturn runs on the bridge network, not on the host's)"
+  - file: etc/turnserver.conf
+    line: '^(min-port=(32769|49160)|max-port=(65535|49199))$'
+    reason: "contract TURN_RELAY_PORT_MIN/MAX: small relay range, internal only, not published (LiveKit, its only peer, is on the same bridge)"
+  - file: etc/turnserver.conf
+    line: '^no-tcp-relay$'
+    reason: "contract coturn_config: no-tcp-relay keeps TURN users from opening TCP connections into the bbb network"
+  - file: etc/turnserver.conf
+    line: '^(# we only need to allow peer connections from the machine itself.*|# Relay only to LiveKit.*|allowed-peer-ip=(203\.0\.113\.10|172\.30\.82\.20))$'
+    reason: "docker-compose.yml networks / contract BBB_LIVEKIT_IP: the only relay peer is LiveKit's fixed bridge address instead of the host address"
+  - file: etc/turnserver.conf
+    line: '^$'
+    reason: "blank lines only: around the removed listening-ip/relay-ip block (contract coturn_config) and bbb-install's empty second allowed-peer-ip line (bbb-install.sh:1941), which has no counterpart"

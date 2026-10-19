@@ -1,51 +1,99 @@
-# Build stage
-FROM golang:1.24 AS build
+# bbb-graphql-middleware as BigBlueButton packages it (build/packages-template/bbb-graphql-middleware):
+# the Go binary at /usr/bin/bbb-graphql-middleware and the shipped config/config.yml at
+# /usr/share/bbb-graphql-middleware/config.yml, with the loopback addresses replaced by the
+# container service names. /etc/bigbluebutton/bbb-graphql-middleware.yml stays the Tier 3
+# override; the binary merges it itself (config/Config.go).
+#
+# Build with bake (docker/bake/graphql-middleware.hcl):
+#   docker buildx bake -f docker-bake.hcl $(printf -- '-f %s ' docker/bake/*.hcl) graphql-middleware
+# or with podman (--format docker keeps the HEALTHCHECK):
+#   podman build --format docker \
+#       --build-context entrypoint-lib=docker/lib \
+#       --build-context bbb-yq-go=build/packages-template/bbb-yq-go \
+#       -t bbb-graphql-middleware bbb-graphql-middleware
 
-WORKDIR /app
+# golang:1.27.2-alpine3.24 (go.mod requires go 1.27.0). Runs on the build platform and
+# cross-compiles, so the stage needs no emulation.
+FROM --platform=$BUILDPLATFORM docker.io/library/golang@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build
 
-COPY go.* ./
+ARG TARGETOS
+ARG TARGETARCH
+ENV GOTOOLCHAIN=local
 
-RUN go mod tidy
+WORKDIR /src
+# Modules are verified against go.sum.
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY . .
+COPY cmd/ cmd/
+COPY config/ config/
+COPY internal/ internal/
+# Same build command as build/packages-template/bbb-graphql-middleware/build.sh.
+RUN CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" \
+        go build -o bbb-graphql-middleware cmd/bbb-graphql-middleware/main.go
 
-RUN CGO_ENABLED=0 go build -o bbb-graphql-middleware cmd/bbb-graphql-middleware/main.go
 
-# Config stage
-FROM alpine:latest AS config
-RUN apk --no-cache add yq
+# alpine:3.24.1. The config is the same on every architecture, so this stage runs on the
+# build platform, where upstream's yq (amd64 only) works.
+FROM --platform=$BUILDPLATFORM docker.io/library/alpine@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS config
 
-WORKDIR /config
+ARG BUILDARCH
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
+# yq as upstream packages it (bbb-yq-go): version from its build.sh, verified against its
+# checksum file.
+# DL3022: bbb-yq-go is a named build context, not a stage.
+# hadolint ignore=DL3022
+COPY --from=bbb-yq-go build.sh bbb-yq-go.sha256sum /build/yq/
+WORKDIR /build/yq
+RUN if [ "$BUILDARCH" != "amd64" ]; then \
+        echo "upstream bbb-yq-go.sha256sum only covers amd64, not $BUILDARCH" >&2; exit 1; \
+    fi \
+    && yq_version="$(sed -n 's/^YQ_VERSION=//p' build.sh)" \
+    && wget -q "https://github.com/mikefarah/yq/releases/download/v${yq_version}/yq_linux_amd64" \
+    && grep ' yq_linux_amd64$' bbb-yq-go.sha256sum | sha256sum -c - \
+    && install -m 0755 yq_linux_amd64 /usr/local/bin/yq
+
+# Container wiring: only the addresses change, keys, comments and all other values stay as
+# shipped. listen_host 0.0.0.0, because nginx (/graphql) and akka-apps connect from other
+# containers. Hasura is reached directly on its own port 8085; on bare metal 8185 is the nginx
+# load balancer in front of it (hasura-loadbalancer.nginx), which compose replaces by one
+# service name. The build fails if a loopback address is left, e.g. after an upstream change.
+WORKDIR /build/config
 COPY config/config.yml config.yml
+RUN yq -i ' \
+        .server.listen_host = "0.0.0.0" \
+        | .redis.host = "redis" \
+        | .hasura.url |= sub("//127[.]0[.]0[.]1:8185/", "//graphql-server:8085/") \
+        | .["graphql-actions"].url |= sub("//127[.]0[.]0[.]1:8093$", "//graphql-actions:8093") \
+        | .auth_hook.url |= sub("//127[.]0[.]0[.]1:8090/", "//bbb-web:8090/") \
+        | .session_vars_hook.url |= sub("//127[.]0[.]0[.]1:8901/", "//akka-apps:8901/") \
+    ' config.yml \
+    && if grep -nE '127[.]0[.]0[.]1|localhost' config.yml; then \
+        echo "config.yml: loopback address left after the container wiring" >&2; exit 1; \
+    fi
 
-# Coverwrite default config with docker hosts
 
-# Listen to all interfaces
-RUN yq e -i '.server.listen_host = "0.0.0.0"' config.yml
+# alpine:3.24.1
+FROM docker.io/library/alpine@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
 
-# Adjust redis host to point to redis container
-RUN yq e -i '.redis.host = "redis"' config.yml
+# bash for the entrypoint helper; the healthcheck uses busybox wget.
+RUN apk add --no-cache bash
 
-# Adjust Hasura URL to point to nginx for hasura load balancing
-RUN sed -i 's|127.0.0.1:8185|nginx:8185|g' config.yml
+COPY --from=build /src/bbb-graphql-middleware /usr/bin/bbb-graphql-middleware
+# Directories of the files below, traversable by any UID (docker/README.md).
+RUN install -d -m 0755 /usr/share/bbb-graphql-middleware /usr/local/lib/bbb
+COPY --from=config --chmod=0644 /build/config/config.yml /usr/share/bbb-graphql-middleware/config.yml
+# DL3022: entrypoint-lib is a named build context, not a stage.
+# hadolint ignore=DL3022
+COPY --from=entrypoint-lib --chmod=0644 entrypoint-lib.sh /usr/local/lib/bbb/entrypoint-lib.sh
+COPY --chmod=0755 docker/entrypoint.sh /entrypoint.sh
 
-# Adjust graphql-actions URL to point to graphql-actions container
-RUN sed -i 's|127.0.0.1:8093|graphql-actions:8093|g' config.yml
-
-# Adjust auth_hook to point to bbb-web container
-RUN sed -i 's|127.0.0.1:8090|web:8090|g' config.yml
-
-# Adjust akka-apps URL to point to akka-apps container
-RUN sed -i 's|127.0.0.1:8901|apps-akka:8901|g' config.yml
-
-# Running stage
-FROM scratch
-
-# Copy the binary to the production image from the builder stage.
-COPY --from=build /app/bbb-graphql-middleware /bbb-graphql-middleware
-COPY --from=config /config/config.yml /usr/share/bbb-graphql-middleware/config.yml
-
+# The unit runs it as bigbluebutton; here any non-root UID works (nothing is written).
+USER 998:998
 EXPOSE 8378
-
-ENTRYPOINT ["/bbb-graphql-middleware"]
+# /metrics is served on the listen port (cmd/bbb-graphql-middleware/main.go).
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
+    CMD ["wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8378/metrics"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bbb-graphql-middleware"]

@@ -1,0 +1,12 @@
+# Test-only additions to docker-compose.yml for dind.sh; never use them in a deployment.
+# bbb-web's JVM trusts the throwaway test CA that issued the stack's certificate (dind.sh `up`),
+# as a deployment's JVM trusts the public CA of its certificate: bbb-web fetches
+# https://BBB_DOMAIN/default.pdf through haproxy and verifies the certificate.
+services:
+  bbb-web:
+    volumes:
+      - bbb-test-truststore:/etc/ssl/certs/java:ro
+
+volumes:
+  bbb-test-truststore:
+    external: true

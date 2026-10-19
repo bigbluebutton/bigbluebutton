@@ -1,0 +1,8 @@
+# This file will be merged with /usr/share/livekit-server/livekit.yaml
+# on startup. Settings specified here will take  precedence.
+
+keys:
+  fixturelivekitapikey: fixturelivekitapisecretnotreal000000000000000000
+webhook:
+  api_key: fixturelivekitapikey
+

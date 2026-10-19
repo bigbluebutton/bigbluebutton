@@ -1,0 +1,55 @@
+server_tokens off;
+
+server {
+  listen 80 default_server;
+  server_name _;
+
+  location ^~ / {
+    return 301 https://$host$request_uri; #redirect HTTP to HTTPS
+  }
+
+  location ^~ /.well-known/acme-challenge/ {
+    allow all;
+    default_type "text/plain";
+    root /var/www/bigbluebutton-default/assets;
+  }
+
+  location = /.well-known/acme-challenge/ {
+    return 404;
+  }
+}
+
+set_real_ip_from ${BBB_NETWORK_SUBNET};
+real_ip_header proxy_protocol;
+real_ip_recursive on;
+server {
+  # We terminate SSL on haproxy, which sends HTTP/1.x to this port with the PROXY
+  # protocol. HTTP/2 is not offered, so there is no port 82 listener.
+  listen 81 proxy_protocol default_server;
+  server_name _;
+
+  # nginx does not know its external port/protocol behind haproxy, so use relative redirects.
+  absolute_redirect off;
+
+  # HSTS (uncomment to enable)
+  #add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+  access_log  /var/log/nginx/bigbluebutton.access.log;
+
+  # This variable is used instead of $scheme by bigbluebutton nginx include
+  # files, so $scheme can be overridden in reverse-proxy configurations.
+  set $real_scheme "https";
+
+  # BigBlueButton landing page.
+  location / {
+    root   /var/www/bigbluebutton-default/assets;
+    try_files $uri @bbb-fe;
+  }
+
+  # Location fragments of the image. On bare metal, /etc/bigbluebutton/nginx/ holds a symlink
+  # to this file; an include_default.nginx placed there replaces this line.
+  include /usr/share/bigbluebutton/include_default.nginx;
+
+  # Include specific rules for record and playback
+  include /etc/bigbluebutton/nginx/*.nginx;
+}

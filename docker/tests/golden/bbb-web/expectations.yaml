@@ -1,0 +1,45 @@
+# Protected (written before the image). Sources: contract server_url / turn_uris / page_token_secret /
+# feature_flags, BBB_SHARED_SECRET notes (the properties file references `${BBB_SHARED_SECRET}`,
+# the value never lands in it), contract overrides (/etc/bigbluebutton/bbb-web.properties and
+# /etc/bigbluebutton/turn-stun-servers.xml stay free for the admin), bbb-install's TURN XML
+# (parity reference), docker-compose.yml (service name redis).
+render:
+  # The classpath file: bbb-web reads only it and the Tier 3 file (application.groovy:13-16,
+  # doc-conversion.xml:26-35 @ 35cad46a9f); feature-derived values make it a per-start output.
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    format: properties
+    checks:
+      - {key: securitySalt, equals: '${BBB_SHARED_SECRET}'}       # reference, resolved by bbb-web from the environment
+      - {key: pageTokenSecret, matches: '^\$\{(securitySalt|BBB_SHARED_SECRET|BBB_WEB_PAGE_TOKEN_SECRET)\}$'}
+      - {key: bigbluebutton.web.serverURL, matches: '^https://(bbb\.example\.com|\$\{BBB_DOMAIN\})$'}
+      - {key: disableRecordingDefault, equals: "false"}          # recording in BBB_FEATURES
+      - {key: redisHost, equals: redis}
+  - file: usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+    format: lines
+    checks:
+      - {no_line: 'fixturebbbsharedsecretnotreal'}               # no secret value in the file
+      - {no_line: 'fixtureturnsecretnotreal'}
+  # Rendered with bbb_render --xml where bbb-install writes it; /etc/bigbluebutton/turn-stun-servers.xml
+  # would replace it as a whole (resources.groovy:10-18 @ 35cad46a9f).
+  - file: usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
+    format: lines
+    checks:
+      - {contains_line: 'value="turn:bbb\.example\.com:3478"'}
+      - {contains_line: 'value="turns:bbb\.example\.com:443\?transport=tcp"'}
+      - {contains_line: 'value="fixtureturnsecretnotreal0+"'}
+      - {contains_line: 'value="86400"'}
+      - {no_line: 'stun:'}                                       # empty STUN list (no public STUN)
+      - {no_line: 'fixturebbbsharedsecretnotreal'}
+must_fail:
+  - {unset: BBB_DOMAIN, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "not a domain"}, message: BBB_DOMAIN}
+  - {set: {BBB_DOMAIN: "bbb.example.com\n# injected"}, message: BBB_DOMAIN}
+  - {unset: BBB_SHARED_SECRET, message: BBB_SHARED_SECRET}
+  - {set: {BBB_SHARED_SECRET: "secret"}, message: BBB_SHARED_SECRET}
+  - {unset: TURN_SECRET, message: TURN_SECRET}
+  - {set: {TURN_SECRET: "short"}, message: TURN_SECRET}
+  - {set: {BBB_FEATURES: "recording,unknown"}, message: BBB_FEATURES}
+  - {set: {BBB_WEB_PAGE_TOKEN_SECRET: "short"}, message: BBB_WEB_PAGE_TOKEN_SECRET}
+  - {set: {BBB_WEB_MAX_HEAP_SIZE: "384"}, message: BBB_WEB_MAX_HEAP_SIZE}     # no unit
+  - {set: {BBB_WEB_CONVERSION_URL: "file:///etc/passwd"}, message: BBB_WEB_CONVERSION_URL}
+uid: {user: "12345:12345"}

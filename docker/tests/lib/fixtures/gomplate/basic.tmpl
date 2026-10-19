@@ -1,0 +1,6 @@
+# Rendered by the shared entrypoint helper (fixture).
+server_name {{ .Env.BBB_DOMAIN }};
+set $bbb_url https://{{ .Env.BBB_DOMAIN }}/bigbluebutton;
+listen_ip={{ .Env.BBB_PUBLIC_IPV4 }}
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;

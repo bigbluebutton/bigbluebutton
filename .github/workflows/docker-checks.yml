@@ -1,0 +1,370 @@
+name: Docker checks
+
+# Checks of the container images, the compose file and the configuration contract. The images
+# are built with BuildKit, as `docker buildx bake` builds them for users, so differences from
+# other builders (for example the directory modes of `COPY --chmod`) show up here. The scripts
+# are the ones in docker/tests/ and docker/contract/; docker/README.md, "CI".
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "docker/**"
+      - "**/docker/**"
+      - "**/Dockerfile"
+      - "**/.dockerignore"
+      - "docker-bake.hcl"
+      - "docker-compose.yml"
+      - ".env.sample"
+      - "docs/docs/administration/docker-configuration.md"
+      - "build/packages-template/bbb-yq-go/**"
+      - ".github/workflows/docker-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CONTAINER_ENGINE: docker
+
+# bash --noprofile --norc -eo pipefail {0}: a failing command in a pipeline fails the step.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  contract:
+    name: Configuration contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate the contract
+        run: docker/tests/contract/run.sh docker/contract/validate.sh
+      - name: Generated files are up to date
+        run: docker/tests/contract/run.sh docker/contract/generate.sh --check
+      - name: Contract tool tests
+        run: docker/tests/contract/run.sh docker/tests/contract/test-contract.sh
+
+  golden-runner:
+    name: Golden runner tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Golden runner and expectations tests
+        run: docker/tests/golden/run.sh
+
+  compose:
+    name: Compose file
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Compose assertion tests
+        run: docker/tests/compose/run.sh
+      - name: Check docker-compose.yml for every feature combination
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" bbb-compose-assert-test:local \
+            /src/docker/tests/compose/assert-compose.sh --compose /repo/docker-compose.yml
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      # The Dockerfiles a pull request changes; all of them when the hadolint configuration or
+      # the lint script changes, and on manual runs. Some Dockerfiles that predate the
+      # container work still have findings, so a full run fails until they are cleaned up.
+      - name: hadolint
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != pull_request ] \
+            || ! git diff --quiet HEAD^1 HEAD -- docker/.hadolint.yaml docker/tests/lint/; then
+            docker/tests/lint/run.sh
+            exit
+          fi
+          mapfile -t files < <(git diff --name-only --diff-filter=d HEAD^1 HEAD -- \
+            '*Dockerfile' '*.Dockerfile' '*/Dockerfile.*')
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "no Dockerfile changed"
+            exit 0
+          fi
+          docker/tests/lint/run.sh "${files[@]}"
+      # shellcheck.yml checks **/*.sh at severity error. This also covers the scripts of the
+      # images without a .sh suffix, at severity warning.
+      - name: shellcheck
+        run: |
+          command -v shellcheck >/dev/null || { sudo apt-get update -q && sudo apt-get install -yq shellcheck; }
+          scripts=()
+          # Rendered files (golden expected trees, bare-metal references) are not scripts.
+          while IFS= read -r f; do
+            case "$f" in
+              *.sh) scripts+=("$f") ;;
+              *) if [ -f "$f" ] && head -n 1 "$f" | grep -Eq '^#!.*[/ ](ba)?sh( |$)'; then scripts+=("$f"); fi ;;
+            esac
+          done < <(git ls-files -- 'docker/**' '*/docker/**' \
+            ':!docker/tests/golden/*/expected/**' ':!docker/tests/parity/reference/**')
+          shellcheck --version | sed -n '1,2p'
+          echo "${#scripts[@]} scripts"
+          shellcheck -x --severity=warning "${scripts[@]}"
+
+  targets:
+    name: List bake targets
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      # Every target of the bake `default` group with the image name of its tag
+      # (build-all-images.yml builds the same list for all platforms).
+      - name: List targets and images
+        id: targets
+        run: |
+          files=(-f docker-bake.hcl)
+          for f in docker/bake/*.hcl; do files+=(-f "$f"); done
+          matrix="$(docker buildx bake "${files[@]}" --print default | jq -c '. as $bake |
+            [.group.default.targets[] | . as $t | $bake.target[$t] |
+             {target: $t, image: ((.tags // [""])[0] | sub(":[^:/]*$"; "") | sub("^.*/"; ""))}]')"
+          jq -r '.[] | "\(.target) -> \(.image)"' <<< "$matrix"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  image:
+    name: Image ${{ matrix.image }}
+    needs: targets
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.targets.outputs.matrix) }}
+    env:
+      IMAGE_NAME: ${{ matrix.image }}
+      # Tag of the golden cases (docker/tests/golden/<case>/image): localhost/bbb-<image>:golden
+      IMAGE_REF: localhost/${{ matrix.image }}:golden
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Same files and cache scopes as build-docker-image.yml (linux/amd64), so both share layers.
+      - name: List bake files and cache settings
+        id: bake-files
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          files=(-f docker-bake.hcl)
+          for f in docker/bake/*.hcl; do files+=(-f "$f"); done
+          {
+            echo 'files<<EOF'
+            echo ./docker-bake.hcl
+            ls ./docker/bake/*.hcl
+            echo 'EOF'
+            echo 'cache<<EOF'
+            # Read-only: build-all-images.yml owns this cache scope (it writes it outside PRs).
+            docker buildx bake "${files[@]}" --print "$TARGET" | jq -r '
+              .target | keys[] |
+              "\(.).cache-from=type=gha,scope=\(.)-linux-amd64"'
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      # The bake variables tag the image localhost/bbb-<image>:golden; loaded into Docker.
+      # COMMIT_DATE empty: the html5 client's build identifier is then 0, the value the golden
+      # expected trees hold (settings.yml), as in local test builds. The client's npm build does
+      # not depend on it, so it still comes from build-all-images.yml's cache.
+      - name: Build with BuildKit
+        uses: docker/bake-action@v6
+        env:
+          BBB_IMAGE_REGISTRY: localhost
+          BBB_IMAGE_TAG: golden
+          COMMIT_DATE: ""
+        with:
+          source: .
+          files: ${{ steps.bake-files.outputs.files }}
+          targets: ${{ matrix.target }}
+          provenance: false
+          set: |
+            ${{ matrix.target }}.output=type=docker
+            ${{ steps.bake-files.outputs.cache }}
+
+      - name: Directory modes
+        run: docker/tests/dirmodes/check.sh "$IMAGE_REF"
+
+      # yq for --parity and expectations: the version and checksum upstream pins.
+      - name: Install yq
+        run: |
+          pkg=build/packages-template/bbb-yq-go
+          version="$(sed -n 's/^YQ_VERSION=//p' "$pkg/build.sh")"
+          dir="$RUNNER_TEMP/yq"
+          mkdir -p "$dir"
+          curl -fsSL -o "$dir/yq_linux_amd64" \
+            "https://github.com/mikefarah/yq/releases/download/v${version}/yq_linux_amd64"
+          (cd "$dir" && grep ' yq_linux_amd64$' "$GITHUB_WORKSPACE/$pkg/bbb-yq-go.sha256sum" | sha256sum -c -)
+          install -m 0755 "$dir/yq_linux_amd64" "$dir/yq"
+          rm "$dir/yq_linux_amd64"
+          echo "$dir" >> "$GITHUB_PATH"
+
+      # Every golden case whose `image` is this image.
+      - name: Golden cases (render, parity, expectations)
+        id: golden
+        run: |
+          cases=()
+          for d in docker/tests/golden/*/; do
+            if [ -f "$d/image" ] && [ "$(cat "$d/image")" = "$IMAGE_REF" ]; then
+              cases+=("$(basename "$d")")
+            fi
+          done
+          echo "cases=${cases[*]}" >> "$GITHUB_OUTPUT"
+          if [ "${#cases[@]}" -eq 0 ]; then
+            echo "no golden case uses $IMAGE_REF"
+            exit 0
+          fi
+          docker/tests/golden/run-golden.sh --engine docker --parity "${cases[@]}"
+
+      # Runs the image as an arbitrary UID/GID: the render probe with the fixture env of its
+      # golden case, and a write probe for each tmpfs and writable named volume that
+      # docker-compose.yml gives its service.
+      - name: Arbitrary UID/GID
+        env:
+          CASES: ${{ steps.golden.outputs.cases }}
+        run: |
+          args=()
+          read -r -a cases <<< "$CASES"
+          if [ "${#cases[@]}" -gt 0 ]; then
+            args+=(--env-file "docker/tests/golden/${cases[0]}/fixture.env")
+          else
+            args+=(--no-render)
+          fi
+          service="$(yq '.services | to_entries[]
+            | select((.value.image // "") | contains("/" + strenv(IMAGE_NAME) + ":")) | .key' docker-compose.yml)"
+          if [ -n "$service" ]; then
+            while IFS= read -r p; do [ -z "$p" ] || args+=(--writable "$p"); done < <(
+              SERVICE="$service" yq '.services[strenv(SERVICE)].tmpfs // [] | .[] | sub(":.*$"; "")' docker-compose.yml)
+            while IFS= read -r p; do [ -z "$p" ] || args+=(--volume "$p"); done < <(
+              SERVICE="$service" yq '.services[strenv(SERVICE)].volumes // [] | .[]
+                | select(tag == "!!str") | split(":")
+                | select(length >= 2 and (.[0] | test("^[A-Za-z0-9]")) and ((.[2] // "") | test("(^|,)ro(,|$)") | not))
+                | .[1]' docker-compose.yml)
+          fi
+          if [ "${#cases[@]}" -eq 0 ] && [ -z "$service" ]; then
+            echo "$IMAGE_REF: no golden case and no compose service, nothing to probe"
+            exit 0
+          fi
+          echo "service: ${service:-none}; check.sh ${args[*]} $IMAGE_REF"
+          docker/tests/uid/check.sh "${args[@]}" "$IMAGE_REF"
+
+      # For the stack job: the image this job built and checked, as a docker archive. Not every
+      # image is in the stack (setup is a profile of its own), but they are few MB to a few
+      # hundred MB compressed and the list stays in one place: bake's default group.
+      - name: Save the image for the stack test
+        run: docker save "$IMAGE_REF" | gzip -1 > "$RUNNER_TEMP/$IMAGE_NAME.tar.gz"
+
+      - name: Upload the image for the stack test
+        uses: actions/upload-artifact@v4
+        with:
+          name: stack-image-${{ matrix.image }}
+          path: ${{ runner.temp }}/${{ matrix.image }}.tar.gz
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+          overwrite: true
+
+  # The stack of docker-compose.yml on the runner's Docker Engine, with the images the jobs above
+  # built (loaded from their artifacts: rebuilding them here would build again every image a pull
+  # request changes, as the BuildKit cache is read-only for pull requests, and would not test the
+  # images the other jobs checked). Same steps as docker/README.md, "Testing the stack with
+  # Docker Engine", with `dind.sh --host` in place of the Engine container.
+  stack:
+    name: Stack (join path, restarts, checks)
+    needs: image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      BBB_IMAGE_TAG: golden
+    steps:
+      - uses: actions/checkout@v5
+
+      # The fixture values are public test values (docker/tests/stack/fixture.env); masked
+      # anyway, so that a log never shows a secret in clear.
+      - name: Mask the fixture secrets
+        run: |
+          grep -E '^[A-Z0-9_]+(SECRET|PASSWORD|KEY)=' docker/tests/stack/fixture.env | cut -d= -f2- |
+            while IFS= read -r value; do echo "::add-mask::$value"; done
+
+      # About 9 GB of loaded images (collabora/code about 1.5 GB of them) and the stack's
+      # volumes: removes preinstalled toolchains the job does not use.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup \
+            /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Download the images
+        timeout-minutes: 15
+        uses: actions/download-artifact@v4
+        with:
+          pattern: stack-image-*
+          path: ${{ runner.temp }}/images
+          merge-multiple: true
+
+      - name: Load the images
+        id: load
+        timeout-minutes: 15
+        run: |
+          for f in "$RUNNER_TEMP"/images/*.tar.gz; do
+            gzip -dc "$f" | docker load -q
+            rm -f "$f"
+          done
+          docker image ls --format '{{.Repository}}:{{.Tag}} {{.Size}}'
+          df -h /
+
+      # Test certificate, then docker compose up -d --wait (certbot scaled to 0, no ACME request).
+      # Pulls the images pinned by digest (redis, collabora/code, webhooks).
+      - name: Start the stack
+        id: up
+        timeout-minutes: 15
+        run: |
+          docker/tests/stack/dind.sh --host start
+          docker/tests/stack/dind.sh --host up
+
+      - name: Join path with restart cycles
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 30
+        run: docker/tests/stack/dind.sh --host test
+
+      - name: Effective configuration
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 5
+        run: docker/tests/stack/dind.sh --host config
+
+      - name: Webhooks
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 5
+        run: docker/tests/stack/dind.sh --host webhooks run --auth bearer
+
+      - name: Office conversion
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 10
+        run: docker/tests/stack/dind.sh --host conversion
+
+      - name: Shared notes PDF converter
+        if: ${{ !cancelled() && steps.load.outcome == 'success' }}
+        timeout-minutes: 5
+        run: docker/tests/stack/notes-pdf-check.sh --docker docker "localhost/bbb-shared-notes:$BBB_IMAGE_TAG"
+
+      - name: Collect diagnostics
+        if: ${{ failure() }}
+        run: docker/tests/stack/dind.sh --host diagnostics "$RUNNER_TEMP/stack-diagnostics"
+
+      - name: Upload diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: stack-diagnostics
+          path: ${{ runner.temp }}/stack-diagnostics
+          retention-days: 7
+          if-no-files-found: ignore

@@ -1,0 +1,48 @@
+--- a/application.conf
++++ b/application.conf
+@@ -36,7 +36,7 @@
+ }
+ 
+ redis {
+-    host="127.0.0.1"
++    host="redis"
+     port=6379
+     password=""
+     # recording keys should expire in 14 days
+@@ -46,11 +46,12 @@
+ postgres {
+     dataSourceClass = "org.postgresql.ds.PGSimpleDataSource"
+         properties = {
+-            serverName = "127.0.0.1"
++            serverName = "postgres"
+             portNumber = "5432"
+             databaseName = "bbb_graphql"
+             user = "bbb_core"
+             password = "bbb_core"
++            password = ${?POSTGRES_BBB_CORE_PASSWORD}
+         }
+         numThreads = 1
+         maxConnections = 1
+@@ -66,10 +67,11 @@
+ }
+ 
+ services {
+-  bbbWebAPI = "https://192.168.23.33/bigbluebutton/api"
++  bbbWebAPI = "https://"${BBB_DOMAIN}"/bigbluebutton/api"
+   sharedSecret = "changeme"
++  sharedSecret = ${?BBB_SHARED_SECRET}
+   checkSumAlgorithmForBreakouts = "sha256"
+-  graphqlMiddlewareAPI = "http://127.0.0.1:8378"
++  graphqlMiddlewareAPI = "http://graphql-middleware:8378"
+ }
+ 
+ eventBus {
+@@ -80,7 +82,7 @@
+ }
+ 
+ http {
+-  interface = "127.0.0.1"
++  interface = "0.0.0.0"
+   interface = ${?INTERFACE}
+   port = 8901
+   port = ${?PORT}
