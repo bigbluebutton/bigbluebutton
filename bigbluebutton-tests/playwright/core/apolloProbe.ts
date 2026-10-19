@@ -29,12 +29,15 @@ export const field = (name: string, selections?: FieldNode[]): FieldNode => ({
   ...(selections ? { selectionSet: { kind: 'SelectionSet', selections } } : {}),
 });
 
-export const queryDocument = (selections: FieldNode[]) => ({
+// A name is needed before joining: the middleware forwards only the operations it
+// allowlists for users who are not in the meeting.
+export const queryDocument = (selections: FieldNode[], operationName?: string) => ({
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
+      ...(operationName ? { name: { kind: 'Name', value: operationName } } : {}),
       selectionSet: { kind: 'SelectionSet', selections },
     },
   ],
