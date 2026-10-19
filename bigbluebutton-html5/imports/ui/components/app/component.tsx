@@ -54,6 +54,7 @@ import useSystemThemeSync from './hooks/useSystemThemeSync';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
 import DocumentTitleManager from './document-title-manager/component';
+import ProfiledSubtree from '/imports/ui/core/telemetry/ProfiledSubtree';
 
 interface AppProps {
   darkTheme: boolean;
@@ -120,26 +121,32 @@ const App: React.FC<AppProps> = ({
     if (hideActionsBar) return null;
 
     return (
-      <ActionsBarContainer
-        presentationIsOpen={presentationIsOpen}
-      />
+      <ProfiledSubtree id="actions-bar">
+        <ActionsBarContainer
+          presentationIsOpen={presentationIsOpen}
+        />
+      </ProfiledSubtree>
     );
   };
 
   if (selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY) {
     return (
-      <>
+      <ProfiledSubtree id="app">
         <BreakoutRoomsAppObserver />
         <WebRTCStatsObserver />
         <ScreenReaderAlertAdapter />
-        <PluginsEngineManager pluginConfig={pluginConfig} />
+        <ProfiledSubtree id="plugins">
+          <PluginsEngineManager pluginConfig={pluginConfig} />
+        </ProfiledSubtree>
         <FloatingWindowContainer />
         <Notifications />
         <PushLayoutEngine
           shouldShowScreenshare={shouldShowScreenshare}
           shouldShowExternalVideo={shouldShowExternalVideo}
         />
-        <LayoutEngine />
+        <ProfiledSubtree id="layout-engine">
+          <LayoutEngine />
+        </ProfiledSubtree>
         <LayoutObserver />
         <GlobalStyles />
         <Styled.Layout
@@ -155,23 +162,37 @@ const App: React.FC<AppProps> = ({
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />
-          <SidebarNavigationContainer />
+          <ProfiledSubtree id="sidebar-navigation">
+            <SidebarNavigationContainer />
+          </ProfiledSubtree>
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <SidebarContentAuxiliaryContainer />
-          <NavBarContainer main="new" />
-          <WebcamContainer />
-          {!isNonMediaLayout && <ExternalVideoPlayerContainer />}
+          <ProfiledSubtree id="nav-bar">
+            <NavBarContainer main="new" />
+          </ProfiledSubtree>
+          <ProfiledSubtree id="webcams">
+            <WebcamContainer />
+          </ProfiledSubtree>
+          {!isNonMediaLayout && (
+            <ProfiledSubtree id="external-video">
+              <ExternalVideoPlayerContainer />
+            </ProfiledSubtree>
+          )}
           <GenericContentMainAreaContainer
             genericMainContentId={genericMainContentId}
           />
           {shouldShowPresentation ? (
-            <PresentationContainer
-              darkTheme={darkTheme}
-              presentationIsOpen={presentationIsOpen}
-            />
+            <ProfiledSubtree id="presentation">
+              <PresentationContainer
+                darkTheme={darkTheme}
+                presentationIsOpen={presentationIsOpen}
+              />
+            </ProfiledSubtree>
           ) : null}
           {!isNonMediaLayout && (
-            <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+            <ProfiledSubtree id="screenshare">
+              <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+            </ProfiledSubtree>
           )}
           {isSharedNotesPinned ? (
             <NotesContainer
@@ -200,15 +221,17 @@ const App: React.FC<AppProps> = ({
           <LiveKitVoiceActivityAdapter />
         </Styled.Layout>
         <RequestPresenterContainer />
-      </>
+      </ProfiledSubtree>
     );
   }
 
   // Only load presentation for presentationOnly
   return (
-    <>
+    <ProfiledSubtree id="app">
       <ScreenReaderAlertAdapter />
-      <PluginsEngineManager pluginConfig={pluginConfig} />
+      <ProfiledSubtree id="plugins">
+        <PluginsEngineManager pluginConfig={pluginConfig} />
+      </ProfiledSubtree>
       {/* The plugins engine consumes voice state in this layout too. */}
       <LiveKitVoiceActivityAdapter />
       <LayoutEngine />
@@ -222,12 +245,14 @@ const App: React.FC<AppProps> = ({
         }}
       >
         <ScreenReaderAlertContainer />
-        <PresentationContainer
-          darkTheme={darkTheme}
-          presentationIsOpen={presentationIsOpen}
-        />
+        <ProfiledSubtree id="presentation">
+          <PresentationContainer
+            darkTheme={darkTheme}
+            presentationIsOpen={presentationIsOpen}
+          />
+        </ProfiledSubtree>
       </Styled.Layout>
-    </>
+    </ProfiledSubtree>
   );
 };
 

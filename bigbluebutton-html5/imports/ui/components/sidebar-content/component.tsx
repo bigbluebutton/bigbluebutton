@@ -23,6 +23,12 @@ import {
 } from '/imports/ui/components/layout/defaultValues';
 import AudioCaptionsPanel from '../audio-captions/panel/component';
 import NotesRenderMode from '/imports/ui/components/notes/constants';
+import ProfiledSubtree from '/imports/ui/core/telemetry/ProfiledSubtree';
+
+// Generic sidekick panel ids carry a plugin-provided suffix; keep the telemetry id bounded
+const profiledPanelId = (panel: string) => (
+  panel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) ? PANELS.GENERIC_CONTENT_SIDEKICK : panel
+);
 
 const SidebarContent = (props: SidebarContentProps) => {
   const {
@@ -163,32 +169,34 @@ const SidebarContent = (props: SidebarContentProps) => {
         }}
       >
         <Styled.SidebarContentPanel isRTL={isRTL} isChrome={isChrome}>
-          {sidebarContentPanel === PANELS.CHAT
-            && (
-              <ErrorBoundary
-                Fallback={FallbackView}
-              >
-                <ChatContainer />
-              </ErrorBoundary>
+          <ProfiledSubtree id={`sidebar-content:${profiledPanelId(sidebarContentPanel)}`}>
+            {sidebarContentPanel === PANELS.CHAT
+              && (
+                <ErrorBoundary
+                  Fallback={FallbackView}
+                >
+                  <ChatContainer />
+                </ErrorBoundary>
+              )}
+            {!isSharedNotesPinned && (
+              <NotesContainer
+                renderMode={NotesRenderMode.SIDEBAR}
+                isVisible={sidebarContentPanel === PANELS.SHARED_NOTES}
+              />
             )}
-          {!isSharedNotesPinned && (
-            <NotesContainer
-              renderMode={NotesRenderMode.SIDEBAR}
-              isVisible={sidebarContentPanel === PANELS.SHARED_NOTES}
-            />
-          )}
-          {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
-          {sidebarContentPanel === PANELS.USERLIST && <UserListComponent />}
-          {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-          {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
-          {sidebarContentPanel === PANELS.POLL && <PollContainer />}
-          {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
-          {sidebarContentPanel === PANELS.AUDIO_CAPTIONS && <AudioCaptionsPanel />}
-          {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
-            <GenericContentSidekickContainer
-              genericSidekickContentId={sidebarContentPanel}
-            />
-          )}
+            {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
+            {sidebarContentPanel === PANELS.USERLIST && <UserListComponent />}
+            {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
+            {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
+            {sidebarContentPanel === PANELS.POLL && <PollContainer />}
+            {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
+            {sidebarContentPanel === PANELS.AUDIO_CAPTIONS && <AudioCaptionsPanel />}
+            {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
+              <GenericContentSidekickContainer
+                genericSidekickContentId={sidebarContentPanel}
+              />
+            )}
+          </ProfiledSubtree>
         </Styled.SidebarContentPanel>
       </Resizable>
     </Styled.SidebarContentBackdrop>
