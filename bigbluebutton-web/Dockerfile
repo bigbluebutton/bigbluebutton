@@ -32,6 +32,9 @@ RUN gradle --no-daemon clean \
     && mkdir -p /staging/usr/share/bbb-web \
     && unzip -q /bbb-web/build/libs/bigbluebutton-0.10.0.war -d /staging/usr/share/bbb-web
 
+# The presentation checker's jars that bbb-web's WAR has in the same version (Apache POI and
+# its dependencies) are links to the WAR's copies; its classpath (run.sh, lib/*) reads them the
+# same way.
 WORKDIR /bbb-web/pres-checker
 
 RUN gradle --no-daemon clean \
@@ -40,7 +43,13 @@ RUN gradle --no-daemon clean \
     && mkdir -p /staging/usr/share/prescheck/lib \
     && cp lib/* /staging/usr/share/prescheck/lib \
     && cp build/libs/bbb-pres-check-*.jar /staging/usr/share/prescheck/lib \
-    && install -m 0755 run.sh /staging/usr/share/prescheck/prescheck.sh
+    && install -m 0755 run.sh /staging/usr/share/prescheck/prescheck.sh \
+    && for jar in /staging/usr/share/prescheck/lib/*.jar; do \
+         name="$(basename "$jar")"; \
+         if cmp -s "$jar" "/staging/usr/share/bbb-web/WEB-INF/lib/$name"; then \
+           ln -sf "../../bbb-web/WEB-INF/lib/$name" "$jar"; \
+         fi; \
+       done
 
 # JNA's native library (nuprocess, which runs the conversion tools, calls libc through JNA).
 # By default JNA unpacks it from its jar into a temporary directory (/tmp here) and loads it
