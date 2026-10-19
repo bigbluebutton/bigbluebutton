@@ -13,7 +13,7 @@ import { SeriesAttributes, SeriesSnapshot } from '../types';
 // Protocol: https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding
 
 const AGGREGATION_TEMPORALITY_CUMULATIVE = 2;
-const SEVERITY_NUMBER_WARN = 13;
+const SEVERITY = { INFO: 9, WARN: 13 } as const;
 // fetch keepalive bodies are capped at 64 KiB in flight
 const KEEPALIVE_MAX_BYTES = 60_000;
 
@@ -96,32 +96,56 @@ const post = (path: string, body: string): void => {
   });
 };
 
-// The repro trail of an incident as one OTLP log record: exception.* attributes plus the trail as body
-export const sendIncidentLog = (trigger: IncidentTrigger, error: IncidentError, trail: ReproTrail): void => {
+export type LogAttributes = Record<string, string | number>;
+
+// Numbers stay numbers in logs, so the backend can filter on them (e.g. bbb.p95_ms > 500)
+const toLogKeyValues = (attributes: LogAttributes) => Object.keys(attributes).map((key) => {
+  const value = attributes[key];
+  return { key, value: typeof value === 'number' ? { doubleValue: value } : { stringValue: String(value) } };
+});
+
+export interface LogRecordInput {
+  severity: keyof typeof SEVERITY;
+  body: string;
+  attributes: LogAttributes;
+}
+
+// OTLP log records, all in one request
+export const sendLogs = (records: LogRecordInput[]): void => {
+  if (!records.length) return;
   const now = toUnixNano(Date.now());
   const payload = {
     resourceLogs: [{
       resource: { attributes: toKeyValues(resourceAttributes()) },
       scopeLogs: [{
         scope: { name: 'bbb-html5-client' },
-        logRecords: [{
+        logRecords: records.map(({ severity, body, attributes }) => ({
           timeUnixNano: now,
           observedTimeUnixNano: now,
-          severityNumber: SEVERITY_NUMBER_WARN,
-          severityText: 'WARN',
-          body: { stringValue: JSON.stringify(trail) },
-          attributes: toKeyValues({
-            'event.name': 'bbb.repro_trail',
-            'bbb.incident.trigger': trigger,
-            'exception.type': error.errorName,
-            'exception.message': error.errorMessage,
-            'bbb.trail.actions': String(trail.actions.length),
-          }),
-        }],
+          severityNumber: SEVERITY[severity],
+          severityText: severity,
+          body: { stringValue: body },
+          attributes: toLogKeyValues(attributes),
+        })),
       }],
     }],
   };
   post('/v1/logs', JSON.stringify(payload));
+};
+
+// The repro trail of an incident: exception.* attributes plus the trail as body
+export const sendIncidentLog = (trigger: IncidentTrigger, error: IncidentError, trail: ReproTrail): void => {
+  sendLogs([{
+    severity: 'WARN',
+    body: JSON.stringify(trail),
+    attributes: {
+      'event.name': 'bbb.repro_trail',
+      'bbb.incident.trigger': trigger,
+      'exception.type': error.errorName,
+      'exception.message': error.errorMessage,
+      'bbb.trail.actions': trail.actions.length,
+    },
+  }]);
 };
 
 const startOtlpSink = (): void => {
