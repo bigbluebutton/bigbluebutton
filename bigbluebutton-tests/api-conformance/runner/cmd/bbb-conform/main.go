@@ -6,6 +6,9 @@
 //	bbb-conform diff --a TARGET --b TARGET [--cases DIR] [--fixtures DIR] [--tags T,..]
 //	                 [--exclude-tags T,..] [--id GLOB,..] [--parallel N] [--masks FILE]
 //	                 [--md FILE] [--json FILE] [--fail-on-diff]
+//	bbb-conform record --target FILE [--cases DIR] [--fixtures DIR] [--tags T,..]
+//	                   [--exclude-tags T,..] [--id GLOB,..] [--parallel N] [--masks FILE]
+//	                   [--out DIR] [--passes N]
 //	bbb-conform gap --results FILE [--results FILE ...] [--md FILE] [--html FILE]
 //	bbb-conform validate [--cases DIR] [--fixtures DIR]
 //	bbb-conform version
@@ -45,11 +48,12 @@ const (
 	usageString = `usage:
   bbb-conform run --target FILE [options]               run cases against a target
   bbb-conform diff --a FILE --b FILE [options]          compare how two targets answer
+  bbb-conform record --target FILE [options]            record how a target answers
   bbb-conform gap --results FILE... [--md F] [--html F] the gap matrix of several runs
   bbb-conform validate [--cases DIR] [--fixtures DIR]   check case files
   bbb-conform version                                   print the version
 
-Run "bbb-conform run -h" or "bbb-conform diff -h" for their options.
+Run "bbb-conform <command> -h" for a command's options.
 `
 )
 
@@ -67,6 +71,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdRun(args[1:], stdout, stderr)
 	case "diff":
 		return cmdDiff(args[1:], stdout, stderr)
+	case "record":
+		return cmdRecord(args[1:], stdout, stderr)
 	case "gap":
 		return cmdGap(args[1:], stdout, stderr)
 	case "validate":
@@ -363,31 +369,12 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform: %d problem(s) in the cases; run validate for details\n", len(res.Problems))
 		return exitUsage
 	}
-	rules := normalize.Default()
-	masks := *masksFile
-	if masks == "" {
-		def := filepath.Join(filepath.Dir(filepath.Clean(*cases)), "masks.yaml")
-		if _, err := os.Stat(def); err == nil {
-			masks = def
-		}
+	rules, err := loadRules(*masksFile, *cases)
+	if err != nil {
+		fmt.Fprintf(stderr, "bbb-conform: masks: %v\n", err)
+		return exitUsage
 	}
-	if masks != "" {
-		var err error
-		if rules, err = normalize.Load(masks); err != nil {
-			fmt.Fprintf(stderr, "bbb-conform: masks: %v\n", err)
-			return exitUsage
-		}
-	}
-	// getMeetings lists every meeting on the server, so its cases run alone,
-	// after the others.
-	var first, last []*spec.Case
-	for _, c := range filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids)) {
-		if callsGetMeetings(c) {
-			last = append(last, c)
-		} else {
-			first = append(first, c)
-		}
-	}
+	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	red := &tmpl.Redactor{}
@@ -406,24 +393,15 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 				red.Add("[secret:"+name+"]", v.Value)
 			}
 		}
-		side := string(rune('a' + i))
-		uid := r.NewUID
 		if newUID != nil {
-			uid = func(n int) string { return side + "-" + newUID(n) }
+			side := string(rune('a' + i))
+			r.NewUID = func(n int) string { return side + "-" + newUID(n) }
 		}
-		r.NewUID = uid
 		r.Area = func(c *spec.Case) string { return area(casesRoot, c.File) }
 		r.ContinueOnFail = true
-		cols[i] = golden.NewCollector(tg, rules)
+		cols[i] = golden.NewCollector(tg, rules, red)
 		r.Observe = cols[i].Observe
-		run := r.RunAll(ctx, first, *parallel)
-		r.NewUID = func(n int) string { return uid(n + len(first)) }
-		tail := r.RunAll(ctx, last, 1)
-		run.Cases = append(run.Cases, tail.Cases...)
-		run.Warnings = append(run.Warnings, tail.Warnings...)
-		run.DurationMS += tail.DurationMS
-		run.Tally()
-		runs[i] = run
+		runs[i] = runSelection(ctx, r, selected, *parallel)
 	}
 	rep := diff.Compare(runs[0], runs[1], cols[0], cols[1])
 	var console strings.Builder
@@ -441,6 +419,57 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		return exitFailed
 	}
 	return exitOK
+}
+
+// loadRules returns the normalization rules: the built-in ones plus those
+// of masksFile, or of masks.yaml next to the cases directory if it exists.
+func loadRules(masksFile, cases string) (*normalize.Rules, error) {
+	if masksFile == "" {
+		def := filepath.Join(filepath.Dir(filepath.Clean(cases)), "masks.yaml")
+		if _, err := os.Stat(def); err != nil {
+			return normalize.Default(), nil
+		}
+		masksFile = def
+	}
+	return normalize.Load(masksFile)
+}
+
+// runSelection runs cases as diff and record do: getMeetings lists every
+// meeting on the server, so the cases that call it run alone, after the
+// others. Results keep the order of cases, and r.NewUID still gets each
+// case's index in cases.
+func runSelection(ctx context.Context, r *steps.Runner, cases []*spec.Case, parallel int) *report.Run {
+	var first, last []int
+	for i, c := range cases {
+		if callsGetMeetings(c) {
+			last = append(last, i)
+		} else {
+			first = append(first, i)
+		}
+	}
+	uid := r.NewUID
+	defer func() { r.NewUID = uid }()
+	part := func(idx []int, parallel int) *report.Run {
+		sub := make([]*spec.Case, len(idx))
+		for j, i := range idx {
+			sub[j] = cases[i]
+		}
+		r.NewUID = func(j int) string { return uid(idx[j]) }
+		return r.RunAll(ctx, sub, parallel)
+	}
+	run, tail := part(first, parallel), part(last, 1)
+	results := make([]*report.CaseResult, len(cases))
+	for j, i := range first {
+		results[i] = run.Cases[j]
+	}
+	for j, i := range last {
+		results[i] = tail.Cases[j]
+	}
+	run.Cases = results
+	run.Warnings = append(run.Warnings, tail.Warnings...)
+	run.DurationMS += tail.DurationMS
+	run.Tally()
+	return run
 }
 
 func callsGetMeetings(c *spec.Case) bool {

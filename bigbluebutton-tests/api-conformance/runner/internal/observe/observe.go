@@ -1,6 +1,6 @@
 // Package observe holds what a step saw: for an HTTP call, the response.
 // Assertions and captures read an Observation, reports include it, and
-// record mode will store it.
+// diff and record mode normalize it.
 package observe
 
 import (

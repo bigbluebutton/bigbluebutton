@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetingInfo.smoke.json-error
+target fake
+
+== step 1: call getMeetingInfo
+status 200
+header Content-Type application/json
+body json
+$.response.message "We could not find a meeting with that meeting ID"
+$.response.messageKey "notFound"
+$.response.returncode "FAILED"

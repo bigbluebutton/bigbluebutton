@@ -10,6 +10,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/normalize"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/steps"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
 )
 
 // Key identifies a step within a case.
@@ -38,6 +39,7 @@ type Step struct {
 type Collector struct {
 	rules  *normalize.Rules
 	target *target.Target
+	red    *tmpl.Redactor
 
 	mu    sync.Mutex
 	ctxs  map[string]*normalize.Context
@@ -45,9 +47,9 @@ type Collector struct {
 }
 
 // NewCollector returns a collector; diff hooks it up with r.Observe =
-// c.Observe.
-func NewCollector(t *target.Target, rules *normalize.Rules) *Collector {
-	return &Collector{rules: rules, target: t, ctxs: map[string]*normalize.Context{}, cases: map[string]map[Key]Step{}}
+// c.Observe. Its lines are redacted with red, which may be nil.
+func NewCollector(t *target.Target, rules *normalize.Rules, red *tmpl.Redactor) *Collector {
+	return &Collector{rules: rules, target: t, red: red, ctxs: map[string]*normalize.Context{}, cases: map[string]map[Key]Step{}}
 }
 
 // Observe records one response and never fails a step.
@@ -75,6 +77,9 @@ func (c *Collector) Add(ev steps.Observed) []string {
 		return nil
 	}
 	lines := normalize.Response(ev.Obs, ctx, c.rules)
+	for i, l := range lines {
+		lines[i] = c.red.Redact(l)
+	}
 	line := 0
 	steps := ev.Case.Steps
 	if ev.Phase == "teardown" {

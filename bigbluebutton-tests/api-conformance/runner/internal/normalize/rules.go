@@ -1,7 +1,7 @@
 // Package normalize turns a response into ordered, reviewable lines in
 // which the values that change from run to run are masked, so two runs, or
 // two implementations, can be compared line by line. diff uses it, and
-// record mode will store its output as golden files.
+// record mode stores its output as recordings.
 package normalize
 
 import (

@@ -4,9 +4,10 @@ Black-box tests that pin down how the BigBlueButton HTTP API behaves, so that
 bbb-web and its Go replacement, bbb-api, can be checked against the same
 cases. Cases are declarative YAML; `bbb-conform` (in `runner/`) runs them.
 
-**Status:** `bbb-conform` validates cases and runs HTTP steps (`call`, `url`
-and `wait`). Cases that use the other step types, `route` steps or response
-schemas are skipped until those are implemented.
+**Status:** `bbb-conform` validates cases, runs HTTP steps (`call`, `route`,
+`url` and `wait`) and records what a server answers. Cases that use the
+other step types or response schemas are skipped until those are
+implemented.
 
 ```
 runner/                  the bbb-conform Go module
@@ -15,6 +16,8 @@ runner/                  the bbb-conform Go module
   testdata/smoke/          a quick check of a live server
 cases/<area>/*.yaml      the suite's cases
 fixtures/                files cases refer to (bodies, presentations, schemas)
+golden/<target>/         reviewed recordings of what a server answered
+masks.yaml               extra normalization rules for diff and recordings
 ```
 
 ## Running cases
@@ -223,6 +226,73 @@ After masking:
 `masks.yaml`, next to the cases directory, adds rules or overrides the
 built-in ones: `masks`, `unordered`, `scope`, `drop` (removes the lines a
 path names, only those with `value` if it is given) and `headers`.
+
+## Recording what a server answers: `record`
+
+Most cases need no hand-written `expect`: each step is compared with a
+reviewed recording of what bbb-web answered. `record` makes the recordings.
+
+```sh
+go run ./cmd/bbb-conform record --target ../targets/bbb-web.yaml --cases ../cases
+```
+
+- **Where:** `--out DIR`, by default `golden/<target name>` next to the cases
+  directory, one file per case: `<endpoint>/<case ID>.txt`. Take the options
+  for choosing cases from `run`.
+- **Twice:** every case runs `--passes` times (default 2), each time with its
+  own `${uid}`. A step whose normalized answer differs between passes is
+  UNSTABLE and isn't written: add a mask to `masks.yaml` and record again.
+  Hand-written checks don't stop a case, so every step is recorded.
+- **Outcomes,** one per case:
+
+  | Outcome | Written | When |
+  |---|---|---|
+  | NEW, CHANGED, UNCHANGED | yes; an unchanged file isn't touched | every pass answered alike |
+  | UNSTABLE | no | the answers or the outcome differ between passes |
+  | INCOMPLETE | no | a step wasn't reached, e.g. after a capture found nothing |
+  | SECRET | no | an answer holds the salt or a secret var: report it privately |
+  | ERROR, SKIP | no | as in `run` |
+
+  When a hand-written `expect` fails, the recording is still written and the
+  failure is shown: decide whether the case or the server is wrong. In a
+  `defect` case that is expected; a defect case that passes is flagged.
+- **Leftovers:** recordings whose case no longer exists are listed, never
+  deleted.
+- **Exit status:** 1 if a case is UNSTABLE, INCOMPLETE, SECRET or ERROR, or
+  an `expect` outside a defect case failed; otherwise 0.
+
+Record from the server CI runs against, so recordings hold its
+configuration rather than a developer's. A recording is reviewed like code
+before it is committed, and never edited by hand: change the case or
+`masks.yaml` and record again.
+
+### Recording files
+
+```
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.duplicate.same-passwords
+target bbb-web
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+...
+
+== step 3: fs (document)
+...
+```
+
+- **Sections:** one per step that takes `golden` and isn't `off`, numbered
+  like the steps in reports (`wait` steps count). `(document)` marks a step
+  that is recorded but not compared.
+- **The lines** are the normalized response (see
+  [Normalized responses](#normalized-responses)).
+- **Stale:** a case's sections follow from the case alone. When the case
+  changes so that they no longer match, record it again.
 
 ## Case format
 
@@ -469,10 +539,15 @@ In YAML flow style (`{...}` and `[...]`), quote any value that contains
 
 ### Record mode: `golden`
 
-`golden: compare | document | off` on a step says how record mode (planned)
-treats its output. Defaults: `off` in teardown and in steps with
-`ignoreResult`, whose answers may vary by design; `document` in `defect`
-cases; otherwise `compare`.
+`golden` on a step says how record mode treats its output:
+- `compare`: recorded, and compared with the recording;
+- `document`: recorded, but not compared. A `defect` case asserts the
+  correct behaviour with `expect`; its recording shows what the server does
+  today;
+- `off`: neither.
+
+Defaults: `off` in teardown and in steps with `ignoreResult`, whose answers
+may vary by design; `document` in `defect` cases; otherwise `compare`.
 
 ## Public-repo rule
 

@@ -1,4 +1,4 @@
-# Extra normalization rules for diff (and, later, record mode), on top of the
+# Extra normalization rules for diff and record mode, on top of the
 # built-in ones listed in the README under "Normalized responses". A rule here
 # wins over a built-in one for the same field. Add a mask when a value that
 # changes from run to run shows up as a difference.
