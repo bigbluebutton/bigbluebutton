@@ -431,7 +431,6 @@ func (x *exec) redact(s string) string { return x.r.Redactor.Redact(s) }
 func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) report.StepResult {
 	sr := report.StepResult{Index: i, Kind: string(s.Kind), Line: s.Line}
 	start := time.Now()
-	defer func() { sr.DurationMS = time.Since(start).Milliseconds() }()
 	switch s.Kind {
 	case spec.KindWait:
 		select {
@@ -450,6 +449,7 @@ func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) repor
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}
 	sr.Message = x.redact(sr.Message)
+	sr.DurationMS = time.Since(start).Milliseconds()
 	return sr
 }
 

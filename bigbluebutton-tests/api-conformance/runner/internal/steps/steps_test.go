@@ -759,3 +759,10 @@ func TestObservedDocuments(t *testing.T) {
 		t.Errorf("observed\n%s\nwant\n%s", got, want)
 	}
 }
+
+func TestStepDuration(t *testing.T) {
+	res, _ := runYAML(t, header("steps:\n  - wait: 30ms\n"))
+	if d := res.Steps[0].DurationMS; d < 30 {
+		t.Errorf("a 30ms wait took %dms", d)
+	}
+}
