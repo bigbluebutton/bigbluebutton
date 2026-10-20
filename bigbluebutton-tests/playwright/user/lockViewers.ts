@@ -432,9 +432,6 @@ export class LockViewers extends MultiUsers {
     // timeout to ensure that the userPage presentation is zoomed in stabilized
     await this.modPage.page.waitForTimeout(1000);
     await drawArrow(this.userPage);
-    const screenshotOptions = {
-      maxDiffPixels: 500,
-    };
     // lock the viewers annotations
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClick(e.participantPermissionsTab);
@@ -450,58 +447,43 @@ export class LockViewers extends MultiUsers {
       e.smallToastMsg,
       'should not display any toast notification for the second attendee after closing all',
     );
-    const user2WbLocator = this.userPage2.page.locator(e.whiteboard);
     await this.userPage2.hasElement(e.whiteboard, 'should display the whiteboard for the second attendee');
-    await this.modPage.page.waitForTimeout(1000); // timeout to ensure the user2 presentation is zoomed correctly
-    await this.userPage2.wasRemoved(
+    await this.userPage2.hasElementCount(
       e.wbDrawnArrow,
+      0,
       'should not display the other viewer annotation for the viewer who just joined',
     );
-    // park the cursor on a neutral element (chatButton is gone from 4.0)
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    // ensure userPage cursor won't be visible on the screenshot (chatButton is gone from 4.0)
-    await this.userPage.page.locator(e.messagesSidebarButton).hover();
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(
-      user2WbLocator,
-      'should not display the other viewer annotation for the viewer who just joined',
-    ).toHaveScreenshot('viewer2-just-joined.png', screenshotOptions);
-    // draw a rectangle and check if it is displayed
-    await this.userPage.waitAndClick(e.wbShapesButton);
+    // the first viewer draws a rectangle, then the moderator draws an arrow:
+    // the moderator arrow reaching the second viewer proves its whiteboard is
+    // receiving annotations, so the missing rectangle is the lock at work
     await this.userPage.waitAndClick(e.wbRectangleShape);
     await this.userPage.waitAndClick(e.whiteboard);
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
-    await this.userPage2.wasRemoved(e.wbDrawnShape, 'should not display the new annotation for the other viewer');
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(user2WbLocator, 'should not display the new annotation for the other viewer').toHaveScreenshot(
-      'viewer2-no-rectangle.png',
-      screenshotOptions,
+    await this.userPage.hasElementCount(e.wbDrawnShape, 1, 'should display the rectangle for the viewer who drew it');
+    await drawArrow(this.modPage);
+    await this.userPage2.hasElementCount(
+      e.wbDrawnArrow,
+      1,
+      'should display only the moderator annotation for the locked viewer',
+    );
+    await this.userPage2.hasElementCount(
+      e.wbDrawnShape,
+      0,
+      'should not display the new annotation for the other viewer',
     );
     // unlock user2
     const attendee2Row = await this.modPage.page.locator(e.userListItem).last();
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
     await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     // check if previous annotations is displayed after unlocking user
-    await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
-    await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage2.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(
-      user2WbLocator,
-      'should display the other viewer annotations when unlocking specific user',
-    ).toHaveScreenshot('viewer2-previous-shapes.png', screenshotOptions);
+    await this.userPage2.hasElementCount(
+      e.wbDrawnArrow,
+      2,
+      'should display the arrows drawn by the moderator and by the other viewer before unlocking',
+    );
+    await this.userPage2.hasElementCount(e.wbDrawnShape, 1, 'should display the rectangle drawn before unlocking user');
     // check if new annotations is displayed after unlocking user
     await drawArrow(this.userPage);
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor will be visible on the screenshot
-    await this.userPage2.hasElementCount(e.wbDrawnArrow, 2, 'should display all arrows drawn for unlocked user');
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(user2WbLocator, 'should display all arrows drawn for unlocked user').toHaveScreenshot(
-      'viewer2-new-arrow.png',
-      screenshotOptions,
-    );
+    await this.userPage2.hasElementCount(e.wbDrawnArrow, 3, 'should display all arrows drawn for unlocked user');
   }
 
   async lockSeeOtherViewersCursor() {

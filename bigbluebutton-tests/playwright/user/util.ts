@@ -41,6 +41,9 @@ export async function applyUserListLock(testPage: Page) {
   await openLockViewers(testPage);
   await testPage.waitAndClickElement(e.lockUserList);
   await testPage.waitAndClick(e.applyLockSettings);
+  // the toast confirms the lock and renders after a short delay: closing the
+  // toasts before it shows up leaves it on screen for the next assertions
+  await testPage.hasText(e.smallToastMsg, 'User list is now hidden for viewers', 'should confirm the user list lock');
   await testPage.closeAllToastNotifications();
 }
 
