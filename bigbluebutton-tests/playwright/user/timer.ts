@@ -1,7 +1,7 @@
 import { expect, type Locator } from '@playwright/test';
 
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { MultiUsers } from './multiusers';
 import { timeInSeconds } from './util';
 
@@ -138,10 +138,101 @@ export class Timer extends MultiUsers {
     await this.checkTimeIsStopped(timerIndicatorLocator, 'should stop the timer when clicking on the timer indicator');
   }
 
+  // The Timer test above reads the panel on the moderator's page; this one follows the
+  // countdown on the attendee's page as well.
+  async timerCountdownForAttendeeTest() {
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.openTimerAndStopwatch();
+    // opening the panel activates the timer, in countdown mode, for everyone
+    await this.modPage.hasElementDisabled(e.timerButton, 'should open the panel in timer mode');
+    await this.userPage.hasElement(e.timerIndicator, 'should display the timer indicator for the attendee');
+
+    // presets
+    await this.modPage.waitAndClick(e.timerOneMinutePreset);
+    await this.checkTimerInputs('00', '01', '00', 'should set the timer inputs to the one-minute preset');
+    await this.checkIndicators(/01:00/, 'should display the one-minute preset on the timer indicator');
+    await this.modPage.wasRemoved(e.timerFifteenMinutesPreset, 'should display only the first presets');
+    await this.modPage.waitAndClick(e.nextTimerPreset);
+    await this.modPage.hasElement(e.timerFifteenMinutesPreset, 'should display the next preset');
+    await this.modPage.wasRemoved(e.timerOneMinutePreset, 'should scroll the first preset out of view');
+    await this.modPage.waitAndClick(e.prevTimerPreset);
+    await this.modPage.hasElement(e.timerOneMinutePreset, 'should scroll the first preset back into view');
+
+    // quick add
+    await this.modPage.waitAndClick(e.timerAdd30s);
+    await this.checkTimerInputs('00', '01', '30', 'should add thirty seconds to the timer inputs');
+    await this.checkIndicators(/01:30/, 'should add thirty seconds to the timer indicator');
+
+    // the countdown runs in sync on both pages
+    await this.clickOnTimerControl();
+    const modIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
+    const userIndicatorLocator = this.userPage.page.locator(e.timerIndicator);
+    const modStartValue = await timeInSeconds(modIndicatorLocator);
+    const userStartValue = await timeInSeconds(userIndicatorLocator);
+    expect(modStartValue, 'should start counting down from 01:30 for the moderator').toBeLessThanOrEqual(90);
+    expect(userStartValue, 'should start counting down from 01:30 for the attendee').toBeLessThanOrEqual(90);
+    expect(
+      Math.abs(modStartValue - userStartValue),
+      'should display the same countdown for the moderator and the attendee',
+    ).toBeLessThanOrEqual(2);
+    await expect
+      .poll(() => timeInSeconds(modIndicatorLocator), {
+        message: 'should count down on the moderator indicator',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeLessThanOrEqual(modStartValue - 2);
+    await expect
+      .poll(() => timeInSeconds(userIndicatorLocator), {
+        message: 'should count down on the attendee indicator',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeLessThanOrEqual(userStartValue - 2);
+
+    // a short countdown runs out on both pages
+    // the panel overwrites its inputs with every time the server sends, so each step waits for it
+    await this.modPage.waitAndClick(e.resetTimerStopwatch);
+    await this.checkTimerInputs('00', '01', '30', 'should reset the timer inputs to the duration');
+    await this.checkIndicators(/01:30/, 'should reset the timer indicator to the duration');
+    await this.setTimerInput(e.timerSecondsInput, '5');
+    await this.checkIndicators(/01:05/, 'should display the typed seconds on the timer indicator');
+    await this.setTimerInput(e.timerMinutesInput, '0');
+    await this.checkIndicators(/00:05/, 'should display the five-second countdown on the timer indicator');
+    await this.checkTimerInputs('00', '00', '05', 'should display the five-second countdown on the timer inputs');
+    await this.clickOnTimerControl();
+    // 00:00 shows for about a second, until the server stops the finished timer and resets it
+    await Promise.all(
+      [this.modPage, this.userPage].map((testPage) =>
+        testPage.page.waitForFunction(
+          (selector) => document.querySelector(selector)?.textContent?.includes('00:00'),
+          e.timerIndicator,
+          { polling: 100, timeout: ELEMENT_WAIT_LONGER_TIME },
+        ),
+      ),
+    );
+    await this.checkIndicators(/00:05/, 'should reset the timer indicator to the duration once the countdown ran out');
+    await this.modPage.hasText(e.startStopTimer, 'Start', 'should stop the timer once the countdown ran out');
+
+    // deactivating removes the timer for everyone
+    await this.modPage.waitAndClick(e.deactivateTimer);
+    await this.userPage.wasRemoved(e.timerIndicator, 'should remove the timer indicator for the attendee');
+    await this.modPage.wasRemoved(e.timerIndicator, 'should remove the timer indicator for the moderator');
+  }
+
   async openTimerAndStopwatch() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.timerStopwatchFeature);
     await this.modPage.hasElement(e.timerHeader, 'should display the timer panel in the sidebar content');
+  }
+
+  async checkIndicators(value: RegExp, description: string, timeout: number = ELEMENT_WAIT_TIME) {
+    await this.modPage.hasText(e.timerIndicator, value, `${description} for the moderator`, timeout);
+    await this.userPage.hasText(e.timerIndicator, value, `${description} for the attendee`, timeout);
+  }
+
+  // the panel sends a typed value to the server when the input loses focus
+  async setTimerInput(selector: string, value: string) {
+    await this.modPage.fill(selector, value);
+    await this.modPage.page.locator(selector).blur();
   }
 
   async checkTimerInputs(hours: string, minutes: string, seconds: string, description: string) {

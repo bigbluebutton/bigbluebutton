@@ -6,7 +6,7 @@ import { test } from '../core/setup/fixtures';
 import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
-import { DisabledFeatures } from './disabledFeatures';
+import { AUDIO_CAPTIONS_SETTINGS, DisabledFeatures } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
 
 const iPhone11 = devices['iPhone 11'];
@@ -271,6 +271,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, {
           shouldCloseAudioModal: false,
           createParameter: c.speechRecognitionDisabled,
+          clientSettingsOverrides: AUDIO_CAPTIONS_SETTINGS,
           testInfo,
         });
         await disabledFeatures.speechRecognition();
@@ -280,6 +281,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, {
           shouldCloseAudioModal: false,
           createParameter: c.speechRecognitionExclude,
+          clientSettingsOverrides: AUDIO_CAPTIONS_SETTINGS,
           testInfo,
         });
         await disabledFeatures.speechRecognitionExclude();

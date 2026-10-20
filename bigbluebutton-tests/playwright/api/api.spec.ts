@@ -2,24 +2,27 @@ import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APIChecksum } from './checksum';
+import { APIDisabledFeatures } from './disabledFeatures';
+import { APIJoin } from './join';
+import { APILifecycle } from './lifecycle';
 
 test.describe.parallel('API', () => {
-  // fixme: getMeetingInfo fails if executed sequentially with getMeetings.
-  test.fixme('getMeetings', async ({ browser, context, page }, testInfo) => {
+  test('getMeetings', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
     const api = new API(browser, context);
-    await api.testGetMeetings(page, testInfo);
+    await api.testGetMeetings(page, testInfo, request);
   });
 
-  test.fixme('getMeetingInfo', async ({ browser, context, page }, testInfo) => {
+  test('getMeetingInfo', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
     const api = new API(browser, context);
-    await api.testGetMeetingInfo(page, testInfo);
+    await api.testGetMeetingInfo(page, testInfo, request);
   });
 
-  test('webVoiceParamIgnored', async () => {
+  test('webVoiceParamIgnored', { tag: '@ci' }, async () => {
     await API.testWebVoiceParamIgnored();
   });
 
-  test('duplicateVoiceBridgeRejected', async () => {
+  test('duplicateVoiceBridgeRejected', { tag: '@ci' }, async () => {
     await API.testDuplicateVoiceBridgeRejected();
   });
 
@@ -55,26 +58,124 @@ test.describe.parallel('API', () => {
     await API.testOverAThousandRequestParameters();
   });
 
-  test('breakoutWithoutParent', async () => {
+  test('breakoutWithoutParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });
 
-  test('breakoutWithoutSequenceNumber', async ({ browser, context, page }) => {
-    const api = new APIBreakout(browser, context);
-    await api.initModPage(page);
-    await api.testBreakoutWithoutSequenceNumber();
+  // A breakout create without `sequence` fails with HTTP 500: bbb-web parses the
+  // missing value with Integer.parseInt (ParamsProcessorUtil). The API is
+  // documented to answer errors with returncode FAILED.
+  test('breakoutWithoutSequenceNumber', { tag: ['@ci', '@known-issue'] }, async ({ request }) => {
+    await APIBreakout.testBreakoutWithoutSequenceNumber(request);
   });
 
-  test('breakoutWithNonexistentParent', async () => {
+  test('breakoutWithNonexistentParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithNonexistentParent();
   });
 
-  test.fixme('breakoutMeetingInfo', async ({ browser, context, page }, testInfo) => {
+  test('breakoutMeetingInfo', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
     const api = new APIBreakout(browser, context);
     await api.initPages(page, testInfo);
-    await api.create();
-    await api.testBreakoutMeetingInfoNoJoins();
-    await api.joinRoom();
-    await api.testBreakoutMeetingInfoOneJoin();
+    try {
+      await api.create();
+      await api.testBreakoutMeetingInfoNoJoins();
+      await api.joinRoom();
+      await api.testBreakoutMeetingInfoOneJoin();
+    } finally {
+      await api.endParentMeeting(request);
+    }
+  });
+
+  test.describe('Checksum', { tag: '@ci' }, () => {
+    test('checksumAlgorithmsAccepted', async ({ request }) => {
+      await APIChecksum.testAlgorithmsAccepted(request);
+    });
+
+    test('createChecksumRefused', async ({ request }) => {
+      await APIChecksum.testCreateRefused(request);
+    });
+
+    test('joinChecksumRefused', async ({ request }) => {
+      await APIChecksum.testJoinRefused(request);
+    });
+
+    test('getMeetingInfoChecksumRefused', async ({ request }) => {
+      await APIChecksum.testGetMeetingInfoRefused(request);
+    });
+  });
+
+  test.describe('Meeting lifecycle', { tag: '@ci' }, () => {
+    test('meetingLifecycle', async ({ browser, context, page, request }, testInfo) => {
+      const lifecycle = new APILifecycle(browser, context);
+      await lifecycle.testLifecycle(page, testInfo, request);
+    });
+
+    test('createTwice', async ({ request }) => {
+      await APILifecycle.testCreateTwice(request);
+    });
+  });
+
+  test.describe('Join', { tag: '@ci' }, () => {
+    test('joinRoleOverridesPassword', async ({ browser, context, page, request }, testInfo) => {
+      const join = new APIJoin(browser, context);
+      await join.testRoleOverridesPassword(page, testInfo, request);
+    });
+
+    test('joinPasswordAndRoleRules', async ({ request }) => {
+      await APIJoin.testPasswordAndRoleRules(request);
+    });
+
+    test('joinRedirectFalseReturnsSession', async ({ request }) => {
+      await APIJoin.testRedirectFalseReturnsSession(request);
+    });
+
+    test('joinUnknownMeetingRefused', async ({ request }) => {
+      await APIJoin.testUnknownMeetingRefused(request);
+    });
+
+    // bbb-web answers meetingForciblyEnded for a meeting that never existed.
+    test('joinUnknownMeetingErrorKey', { tag: '@known-issue' }, async ({ request }) => {
+      await APIJoin.testUnknownMeetingErrorKey(request);
+    });
+
+    // bbb-web redirects on a validation error even with redirect=false.
+    test('joinValidationErrorWithRedirectFalse', { tag: '@known-issue' }, async ({ request }) => {
+      await APIJoin.testValidationErrorWithRedirectFalse(request);
+    });
+
+    test('maxParticipantsReached', async ({ browser, context, page, request }, testInfo) => {
+      const join = new APIJoin(browser, context);
+      await join.testMaxParticipants(page, testInfo, request);
+    });
+  });
+
+  // Each feature is disabled on create and the matching GraphQL request is
+  // sent directly, as a client that ignores the hidden UI would; another
+  // participant must not see any effect.
+  test.describe('disabledFeatures enforcement', { tag: '@ci' }, () => {
+    test('disabledChatMessageDropped', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testChatMessageDropped(page, testInfo, request);
+    });
+
+    test('disabledPollNotStarted', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testPollNotStarted(page, testInfo, request);
+    });
+
+    test('disabledTimerNotActivated', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testTimerNotActivated(page, testInfo, request);
+    });
+
+    test('disabledPrivateChatNotCreated', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testPrivateChatNotCreated(page, testInfo, request);
+    });
+
+    test('enabledFeaturesControl', async ({ browser, context, page, request }, testInfo) => {
+      const disabledFeatures = new APIDisabledFeatures(browser, context);
+      await disabledFeatures.testRequestsTakeEffectWhenEnabled(page, testInfo, request);
+    });
   });
 });

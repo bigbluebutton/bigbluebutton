@@ -89,8 +89,14 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Timer', async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
-      await timer.initModPage(page, { testInfo });
+      await timer.initPages(page, testInfo);
       await timer.timerTest();
+    });
+
+    test('Timer countdown for the attendee', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initPages(page, testInfo);
+      await timer.timerCountdownForAttendeeTest();
     });
 
     test('Leave Meeting', async ({ browser, context, page }, testInfo) => {

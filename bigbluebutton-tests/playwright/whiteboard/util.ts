@@ -83,6 +83,12 @@ export async function viewerDrawsTwoStrokesAndErasesOne(modPage: Page, userPage:
   await modPage.waitUntilHaveCountSelector(e.wbDraw, 1);
 }
 
+export async function openClearAnnotations(testPage: Page) {
+  await testPage.waitAndClick(e.whiteboardOptionsButton);
+  await testPage.waitAndClick(e.clearAnnotations);
+  await testPage.hasElement(e.simpleModal, 'should display the clear annotations confirmation modal');
+}
+
 export async function snapshotComparison(modPage: Page, userPage: Page, snapshotName: string) {
   if (!CI) {
     // close all toast notifications before taking the screenshot
