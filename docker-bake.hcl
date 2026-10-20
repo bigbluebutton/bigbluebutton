@@ -54,6 +54,7 @@ target "apps-akka" {
   inherits = ["_image"]
   tags     = tags("apps-akka")
   context  = "./akka-bbb-apps"
+  args     = { CLIENT_BUILD = CLIENT_BUILD }
   contexts = {
     java-base          = "target:_java-base"
     bbb-common-message = "target:_bbb-common-message"
@@ -65,6 +66,7 @@ target "web" {
   inherits = ["_image"]
   tags     = tags("web")
   context  = "./bigbluebutton-web"
+  args     = { CLIENT_BUILD = CLIENT_BUILD }
   contexts = {
     java-base      = "target:_java-base"
     bbb-common-web = "target:_bbb-common-web"

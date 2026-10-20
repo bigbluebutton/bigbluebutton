@@ -41,6 +41,9 @@ COPY --from=slides / /usr/share/bigbluebutton/blank
 # gs reads it when PdfPageDownscaler rewrites a page
 COPY --from=slides nopdfmark.ps /etc/bigbluebutton/nopdfmark.ps
 COPY --from=html5-config settings.yml /usr/share/bigbluebutton/html5-client/private/config/settings.yml
+# The client build id, as the html5 image stamps it
+ARG CLIENT_BUILD=0
+RUN sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 
 # Log to stdout only; /var/bigbluebutton is where bbb-web stores presentations and heap dumps
 RUN sed -i '/<appender-ref ref="FILE"/d' WEB-INF/classes/logback.xml \

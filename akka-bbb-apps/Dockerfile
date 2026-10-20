@@ -12,6 +12,9 @@ WORKDIR /usr/share/bbb-apps-akka
 
 COPY --from=build --chmod=755 /bbb-apps-akka/target/universal/stage .
 COPY --from=html5-config settings.yml /usr/share/bigbluebutton/html5-client/private/config/settings.yml
+# The client build id, as the html5 image stamps it
+ARG CLIENT_BUILD=0
+RUN sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 
 # The start script reads /etc/bigbluebutton/bbb-apps-akka.conf, which must exist
 COPY ./docker/bbb-apps-akka.conf /etc/bigbluebutton/bbb-apps-akka.conf
