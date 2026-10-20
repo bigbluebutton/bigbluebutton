@@ -181,6 +181,10 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "bbb-conform run: --target is required")
 		return exitUsage
 	}
+	if *masksFile != "" && *goldenDir == "" {
+		fmt.Fprintln(stderr, "bbb-conform run: --masks needs --golden")
+		return exitUsage
+	}
 	for _, g := range splitList(*ids) {
 		if _, err := path.Match(g, ""); err != nil {
 			fmt.Fprintf(stderr, "bbb-conform run: bad --id pattern %q\n", g)
@@ -424,7 +428,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		r.ContinueOnFail = true
 		cols[i] = golden.NewCollector(tg, rules, red)
 		r.Observe = cols[i].Observe
-		runs[i] = runSelection(ctx, r, selected, *parallel)
+		runs[i] = r.RunAll(ctx, selected, *parallel)
 	}
 	rep := diff.Compare(runs[0], runs[1], cols[0], cols[1])
 	var console strings.Builder
@@ -455,53 +459,6 @@ func loadRules(masksFile, cases string) (*normalize.Rules, error) {
 		masksFile = def
 	}
 	return normalize.Load(masksFile)
-}
-
-// runSelection runs cases as diff and record do: getMeetings lists every
-// meeting on the server, so the cases that call it run alone, after the
-// others. Results keep the order of cases, and r.NewUID still gets each
-// case's index in cases.
-func runSelection(ctx context.Context, r *steps.Runner, cases []*spec.Case, parallel int) *report.Run {
-	var first, last []int
-	for i, c := range cases {
-		if callsGetMeetings(c) {
-			last = append(last, i)
-		} else {
-			first = append(first, i)
-		}
-	}
-	uid := r.NewUID
-	defer func() { r.NewUID = uid }()
-	part := func(idx []int, parallel int) *report.Run {
-		sub := make([]*spec.Case, len(idx))
-		for j, i := range idx {
-			sub[j] = cases[i]
-		}
-		r.NewUID = func(j int) string { return uid(idx[j]) }
-		return r.RunAll(ctx, sub, parallel)
-	}
-	run, tail := part(first, parallel), part(last, 1)
-	results := make([]*report.CaseResult, len(cases))
-	for j, i := range first {
-		results[i] = run.Cases[j]
-	}
-	for j, i := range last {
-		results[i] = tail.Cases[j]
-	}
-	run.Cases = results
-	run.Warnings = append(run.Warnings, tail.Warnings...)
-	run.DurationMS += tail.DurationMS
-	run.Tally()
-	return run
-}
-
-func callsGetMeetings(c *spec.Case) bool {
-	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
-		if s.Call != nil && s.Call.HasCall && s.Call.Call == "getMeetings" {
-			return true
-		}
-	}
-	return false
 }
 
 type listFlag []string

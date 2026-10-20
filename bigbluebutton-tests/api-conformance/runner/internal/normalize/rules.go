@@ -114,9 +114,10 @@ func Default() *Rules {
 		},
 		// getMeetings says noMeetings only when the whole server has none,
 		// which other cases decide. A case's own view is its scoped list.
+		// Unanchored, like the scope rule, so they match XML and JSON.
 		Drop: []Drop{
-			{Path: "/response/messageKey", Value: "noMeetings"},
-			{Path: "/response/message", Value: "no meetings were found on this server"},
+			{Path: "response/messageKey", Value: "noMeetings"},
+			{Path: "response/message", Value: "no meetings were found on this server"},
 		},
 	}
 	if err := r.compile(); err != nil {

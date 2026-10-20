@@ -32,7 +32,9 @@ type Checker struct {
 // NewChecker returns a checker for the recordings under dir. Responses are
 // normalized with rules and redacted with red, as record does.
 func NewChecker(dir string, t *target.Target, rules *normalize.Rules, red *tmpl.Redactor) *Checker {
-	return &Checker{dir: dir, col: NewCollector(t, rules, red), files: map[string]*File{}}
+	col := NewCollector(t, rules, red)
+	col.discard = true // only each answer's lines are needed, once
+	return &Checker{dir: dir, col: col, files: map[string]*File{}}
 }
 
 // Before reads c's recording. A case with something to compare needs one,

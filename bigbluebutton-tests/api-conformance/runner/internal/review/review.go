@@ -32,6 +32,8 @@ type Review struct {
 	Dir     string
 	Since   string // a git revision, or "" to show every recording
 	Entries []Entry
+
+	sources map[string]string // case files read so far; variants share one
 }
 
 // Build lists the recordings under dir of the cases whose IDs match (all
@@ -49,7 +51,7 @@ func Build(dir string, cases []*spec.Case, match func(id string) bool, since str
 	for _, c := range cases {
 		byID[c.ID] = c
 	}
-	rv := &Review{Dir: dir, Since: since}
+	rv := &Review{Dir: dir, Since: since, sources: map[string]string{}}
 	if since == "" {
 		for _, c := range cases {
 			if !match(c.ID) {
@@ -144,11 +146,17 @@ func sortedKeys(m map[string]string) []string {
 }
 
 func (rv *Review) withSource(e Entry) Entry {
-	if e.Case != nil {
-		if data, err := os.ReadFile(e.Case.File); err == nil {
-			e.Source = string(data)
-		}
+	if e.Case == nil {
+		return e
 	}
+	src, ok := rv.sources[e.Case.File]
+	if !ok {
+		if data, err := os.ReadFile(e.Case.File); err == nil {
+			src = string(data)
+		}
+		rv.sources[e.Case.File] = src
+	}
+	e.Source = src
 	return e
 }
 
@@ -273,6 +281,8 @@ type line struct {
 	Class, Text string
 }
 
+// Shown is the entry's lines as the page shows them: diff lines and section
+// headers marked.
 func (e Entry) Shown() []line {
 	out := make([]line, len(e.Lines))
 	for i, l := range e.Lines {

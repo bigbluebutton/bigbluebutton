@@ -167,8 +167,8 @@ missing or extra elements, tag casing, element order, status codes,
 Content-Type, error formats.
 
 - **Running:** each side gets its own `${uid}`s, since both targets may share
-  one akka-apps. Cases that call getMeetings run alone, after the others,
-  because getMeetings lists every meeting on the server.
+  one akka-apps. getMeetings lists every meeting on the server, but
+  normalization keeps only the case's own (see below).
 - **Checks don't stop a case** in diff mode, so later steps still run;
   captures still feed them. A capture that finds nothing does stop it.
 - **What isn't compared:** teardown steps, and any step with `golden: off`.
@@ -238,11 +238,13 @@ go run ./cmd/bbb-conform record --target ../targets/bbb-web.yaml --cases ../case
 ```
 
 - **Where:** `--out DIR`, by default `golden/<target name>` next to the cases
-  directory, one file per case: `<endpoint>/<case ID>.txt`. Take the options
-  for choosing cases from `run`.
+  directory, one file per case: `<endpoint>/<case ID>.txt`. Cases are chosen
+  with `run`'s options.
 - **Twice:** every case runs `--passes` times (default 2), each time with its
   own `${uid}`. A step whose normalized answer differs between passes is
   UNSTABLE and isn't written: add a mask to `masks.yaml` and record again.
+  Copies of a case may run at the same time, so a case that other cases
+  disturb is UNSTABLE too: tag it `serial`.
   Hand-written checks don't stop a case, so every step is recorded.
 - **Outcomes,** one per case:
 

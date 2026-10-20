@@ -109,6 +109,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 	for _, part := range strings.Split(filepath.ToSlash(filepath.Clean(out)), "/") {
 		if part == "target" {
 			fmt.Fprintf(stderr, "bbb-conform record: warning: git ignores directories named target (the repository's **/target/* rule), so %s won't be committed\n", out)
+			break
 		}
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
@@ -123,7 +124,8 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 	r.ContinueOnFail = true
 
 	// Every pass runs in one go, each copy of a case with its own ${uid},
-	// so config profiles are switched only once.
+	// so config profiles are switched only once. Copies of a case may run
+	// at the same time, which shows up a case that isn't isolated.
 	n := len(selected)
 	all := make([]*spec.Case, 0, n**passes)
 	for p := 0; p < *passes; p++ {
@@ -148,7 +150,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	run := runSelection(ctx, r, all, *parallel)
+	run := r.RunAll(ctx, all, *parallel)
 	if ctx.Err() != nil {
 		fmt.Fprintln(stderr, "bbb-conform record: interrupted; nothing written")
 		return exitFailed
@@ -201,7 +203,7 @@ func recordCase(c *spec.Case, targetName, out string, results []*report.CaseResu
 		}
 		if d := passDiff(cols[0].Steps(c.ID), cols[p+1].Steps(c.ID)); len(d) > 0 {
 			rec.outcome = recUnstable
-			rec.reason = fmt.Sprintf("passes 1 and %d answered differently; mask what changes from run to run", p+2)
+			rec.reason = fmt.Sprintf("passes 1 and %d answered differently: mask what changes from run to run, or tag the case serial if it isn't isolated from other cases", p+2)
 			rec.detail = d
 			return rec
 		}
@@ -247,39 +249,17 @@ func recordCase(c *spec.Case, targetName, out string, results []*report.CaseResu
 
 // passDiff lists how two passes' steps differ, with a heading per step.
 func passDiff(a, b []golden.Step) []string {
-	byKey := func(steps []golden.Step) map[golden.Key]golden.Step {
-		m := map[golden.Key]golden.Step{}
-		for _, s := range steps {
-			m[s.Key] = s
-		}
-		return m
-	}
-	ma, mb := byKey(a), byKey(b)
-	keys := map[golden.Key]bool{}
-	for k := range ma {
-		keys[k] = true
-	}
-	for k := range mb {
-		keys[k] = true
-	}
-	sorted := make([]golden.Key, 0, len(keys))
-	for k := range keys {
-		sorted = append(sorted, k)
-	}
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Less(sorted[j]) })
 	var out []string
-	for _, k := range sorted {
-		name := fmt.Sprintf("step %d", k.Index+1)
-		if k.Phase == "teardown" {
+	for _, p := range golden.Pairs(a, b) {
+		name := fmt.Sprintf("step %d", p.Key.Index+1)
+		if p.Key.Phase == "teardown" {
 			name = "teardown " + name
 		}
-		sa, okA := ma[k]
-		sb, okB := mb[k]
 		switch {
-		case !okA || !okB:
+		case p.A == nil || p.B == nil:
 			out = append(out, name+": reached in one pass only")
 		default:
-			if h := golden.Lines(sa.Lines, sb.Lines); len(h) > 0 {
+			if h := golden.Lines(p.A.Lines, p.B.Lines); len(h) > 0 {
 				out = append(out, name+":")
 				out = append(out, h...)
 			}

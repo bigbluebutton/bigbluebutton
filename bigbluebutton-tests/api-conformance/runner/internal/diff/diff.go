@@ -67,7 +67,6 @@ func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 		if rb != nil {
 			cd.StatusB = rb.Status
 		}
-		la, lb := byKey(ca.Steps(ra.ID)), byKey(cb.Steps(ra.ID))
 		switch {
 		case ra.Status == report.Skip || rb == nil || rb.Status == report.Skip:
 			cd.Outcome = "skipped"
@@ -76,32 +75,18 @@ func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 			rep.Cases = append(rep.Cases, cd)
 			continue
 		}
-		keys := map[golden.Key]bool{}
-		for k := range la {
-			keys[k] = true
-		}
-		for k := range lb {
-			keys[k] = true
-		}
-		sorted := make([]golden.Key, 0, len(keys))
-		for k := range keys {
-			sorted = append(sorted, k)
-		}
-		sort.Slice(sorted, func(i, j int) bool { return sorted[i].Less(sorted[j]) })
 		oneSided := false
-		for _, k := range sorted {
-			sa, okA := la[k]
-			sb, okB := lb[k]
+		for _, p := range golden.Pairs(ca.Steps(ra.ID), cb.Steps(ra.ID)) {
 			switch {
-			case okA && !okB:
-				cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sa.Line, Kind: "only-a", Hunk: prefix("-", sa.Lines)})
+			case p.B == nil:
+				cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Line: p.A.Line, Kind: "only-a", Hunk: prefix("-", p.A.Lines)})
 				oneSided = true
-			case okB && !okA:
-				cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sb.Line, Kind: "only-b", Hunk: prefix("+", sb.Lines)})
+			case p.A == nil:
+				cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Line: p.B.Line, Kind: "only-b", Hunk: prefix("+", p.B.Lines)})
 				oneSided = true
 			default:
-				if h := golden.Lines(sa.Lines, sb.Lines); len(h) > 0 {
-					cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sa.Line, Kind: "differing", Hunk: h})
+				if h := golden.Lines(p.A.Lines, p.B.Lines); len(h) > 0 {
+					cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Line: p.A.Line, Kind: "differing", Hunk: h})
 				}
 			}
 		}
@@ -132,14 +117,6 @@ func skipNote(a, b *report.CaseResult) string {
 		parts = append(parts, "B: "+b.Reason)
 	}
 	return strings.Join(parts, "; ")
-}
-
-func byKey(steps []golden.Step) map[golden.Key]golden.Step {
-	m := make(map[golden.Key]golden.Step, len(steps))
-	for _, s := range steps {
-		m[s.Key] = s
-	}
-	return m
 }
 
 func prefix(p string, lines []string) []string {

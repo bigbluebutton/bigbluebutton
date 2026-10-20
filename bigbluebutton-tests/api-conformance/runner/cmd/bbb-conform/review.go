@@ -26,7 +26,11 @@ func cmdReview(args []string, stdout, stderr io.Writer) int {
 		}
 		return exitUsage
 	}
-	if fl.NArg() > 0 || *goldenDir == "" {
+	if fl.NArg() > 0 {
+		fmt.Fprintf(stderr, "bbb-conform review: unexpected argument %q\n", fl.Arg(0))
+		return exitUsage
+	}
+	if *goldenDir == "" {
 		fmt.Fprintln(stderr, "bbb-conform review: --golden is required")
 		return exitUsage
 	}

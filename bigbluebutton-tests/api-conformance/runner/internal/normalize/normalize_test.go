@@ -162,6 +162,15 @@ body xml
 /response/returncode "SUCCESS"
 /response/meetings`)
 
+	// The same holds for JSON answers.
+	jsonEmpty := obs(200, map[string]string{"Content-Type": "application/json"},
+		`{"response":{"returncode":"SUCCESS","messageKey":"noMeetings","message":"no meetings were found on this server"}}`)
+	check(t, Response(jsonEmpty, ctx(uid), Default()), `
+status 200
+header Content-Type application/json
+body json
+$.response.returncode "SUCCESS"`)
+
 	// JSON lists and objects emptied by dropping read as [] and {}.
 	r, err := Load(writeMasks(t, "drop: [{path: \"list[]\"}, {path: obj/a}]\n"))
 	if err != nil {

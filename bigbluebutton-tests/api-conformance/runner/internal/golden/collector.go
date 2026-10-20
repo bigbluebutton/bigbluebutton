@@ -30,9 +30,38 @@ func (k Key) Less(o Key) bool {
 // Step is one step's normalized response.
 type Step struct {
 	Key
-	Golden string // compare | document
-	Line   int    // the step's line in its case file
-	Lines  []string
+	Line  int // the step's line in its case file
+	Lines []string
+}
+
+// Pair is one step of a case in two collections; A or B is nil when that
+// collection lacks it.
+type Pair struct {
+	Key  Key
+	A, B *Step
+}
+
+// Pairs lines up two collections of a case's steps, in step order.
+func Pairs(a, b []Step) []Pair {
+	idx := map[Key]int{}
+	var out []Pair
+	at := func(k Key) *Pair {
+		i, ok := idx[k]
+		if !ok {
+			i = len(out)
+			idx[k] = i
+			out = append(out, Pair{Key: k})
+		}
+		return &out[i]
+	}
+	for i := range a {
+		at(a[i].Key).A = &a[i]
+	}
+	for i := range b {
+		at(b[i].Key).B = &b[i]
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Key.Less(out[j].Key) })
+	return out
 }
 
 // Collector gathers one target's normalized responses.
@@ -40,6 +69,9 @@ type Collector struct {
 	rules  *normalize.Rules
 	target *target.Target
 	red    *tmpl.Redactor
+
+	// discard, when set, makes Add return lines without keeping them.
+	discard bool
 
 	mu    sync.Mutex
 	ctxs  map[string]*normalize.Context
@@ -76,9 +108,15 @@ func (c *Collector) Add(ev steps.Observed) []string {
 	if ev.Golden == "off" {
 		return nil
 	}
+	if c.discard && ev.Golden != "compare" {
+		return nil // nobody reads it
+	}
 	lines := normalize.Response(ev.Obs, ctx, c.rules)
 	for i, l := range lines {
 		lines[i] = c.red.Redact(l)
+	}
+	if c.discard {
+		return lines
 	}
 	line := 0
 	steps := ev.Case.Steps
@@ -90,7 +128,7 @@ func (c *Collector) Add(ev steps.Observed) []string {
 	}
 	k := Key{ev.Phase, ev.Index}
 	c.mu.Lock()
-	c.cases[ev.Case.ID][k] = Step{Key: k, Golden: ev.Golden, Line: line, Lines: lines}
+	c.cases[ev.Case.ID][k] = Step{Key: k, Line: line, Lines: lines}
 	c.mu.Unlock()
 	return lines
 }
