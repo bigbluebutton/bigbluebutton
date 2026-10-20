@@ -45,11 +45,6 @@ jobs:
       image_name: "bbb-export-annotations"
       target: "export-annotations"
 
-  etherpad:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-etherpad"
-      target: "etherpad"
 
   akka-bbb-apps:
     uses: ./.github/workflows/build-docker-image.yml
