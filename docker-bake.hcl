@@ -110,7 +110,15 @@ target "webrtc-recorder" {
     }
 }
 
+target "webhooks" {
+    inherits = ["docker-metadata-action"]
+    context = "./docker/bbb-webhooks"
+    contexts = {
+        src = "https://github.com/bigbluebutton/bbb-webhooks.git#v3.7.0"
+    }
+}
+
 group "default" {
   targets = ["apps-akka", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "shared-notes-server", "web", "record-and-playback", "nginx",
-             "webrtc-sfu", "webrtc-recorder"]
+             "webrtc-sfu", "webrtc-recorder", "webhooks"]
 }
