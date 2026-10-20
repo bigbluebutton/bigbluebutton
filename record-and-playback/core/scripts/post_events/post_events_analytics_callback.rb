@@ -56,9 +56,7 @@ raise 'Missing required -m option.' if options[:meeting_id].nil?
 
 meeting_id = options[:meeting_id]
 
-# This script lives in scripts/post_events
-# while properties.yaml lives in scripts/
-props = BigBlueButton.load_yaml('../../core/scripts/bigbluebutton.yml')
+props = BigBlueButton.read_props
 
 recording_dir = props['recording_dir']
 events_dir = props['events_dir']

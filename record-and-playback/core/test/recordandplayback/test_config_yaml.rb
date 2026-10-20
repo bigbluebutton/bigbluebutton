@@ -145,6 +145,20 @@ class TestConfigYaml < Minitest::Test
     end
   end
 
+  # bigbluebutton.yml is the shipped default; admins change it through
+  # /etc/bigbluebutton/recording/recording.yml, which only read_props merges in.
+  # A script that loads bigbluebutton.yml itself silently ignores the override.
+  def test_scripts_read_bigbluebutton_yml_through_read_props
+    direct = Dir.glob(File.join(RAP_ROOT, '**', '*.rb')).filter_map do |path|
+      next if path == File.join(RAP_ROOT, 'core/lib/recordandplayback.rb')
+
+      lines = File.foreach(path).each_with_index.select { |line, _| line.match?(/load_yaml\(.*bigbluebutton\.yml/) }
+      lines.map { |_, index| "#{path.delete_prefix("#{RAP_ROOT}/")}:#{index + 1}" } unless lines.empty?
+    end.flatten
+
+    assert_empty(direct, 'these read bigbluebutton.yml directly instead of BigBlueButton.read_props')
+  end
+
   # load_yaml must not leave the file descriptor open -- recording cleanup
   # deletes these directories, and a leaked handle breaks rmdir on NFS.
   def test_load_yaml_does_not_leak_a_file_descriptor
