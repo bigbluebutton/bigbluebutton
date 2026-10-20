@@ -213,12 +213,16 @@ Values that change from run to run are masked:
 After masking:
 - the case's `${uid}`, the target's base URLs and its API prefix are replaced
   by placeholders;
-- getMeetings entries of other cases are dropped;
+- getMeetings entries of other cases are dropped, and a list left with none
+  reads like an empty one. getMeetings' `noMeetings` messageKey and message
+  are dropped too, since they depend on whether any other case has a meeting:
+  check them with `expect`, which sees the raw response;
 - lists whose order isn't defined are sorted: meetings, recordings, metadata,
   attendees, STUN and TURN servers.
 
 `masks.yaml`, next to the cases directory, adds rules or overrides the
-built-in ones.
+built-in ones: `masks`, `unordered`, `scope`, `drop` (removes the lines a
+path names, only those with `value` if it is given) and `headers`.
 
 ## Case format
 

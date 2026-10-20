@@ -21,6 +21,7 @@ type Rules struct {
 	Masks     []Mask      `yaml:"masks"`
 	Unordered []Unordered `yaml:"unordered"`
 	Scope     []Scope     `yaml:"scope"`
+	Drop      []Drop      `yaml:"drop"`
 	// Headers are response headers to compare beyond the fixed set.
 	Headers []string `yaml:"headers"`
 }
@@ -52,6 +53,15 @@ type Unordered struct {
 type Scope struct {
 	Path string `yaml:"path"`
 	Key  string `yaml:"key"`
+
+	re *regexp.Regexp
+}
+
+// Drop removes the nodes a path names, only those with Value if it is
+// given: lines that depend on something outside the case.
+type Drop struct {
+	Path  string `yaml:"path"`
+	Value string `yaml:"value"`
 
 	re *regexp.Regexp
 }
@@ -102,6 +112,12 @@ func Default() *Rules {
 		Scope: []Scope{
 			{Path: "meetings/meeting", Key: "meetingID"},
 		},
+		// getMeetings says noMeetings only when the whole server has none,
+		// which other cases decide. A case's own view is its scoped list.
+		Drop: []Drop{
+			{Path: "/response/messageKey", Value: "noMeetings"},
+			{Path: "/response/message", Value: "no meetings were found on this server"},
+		},
 	}
 	if err := r.compile(); err != nil {
 		panic(err) // the built-in rules are fixed
@@ -130,6 +146,7 @@ func Load(name string) (*Rules, error) {
 		Masks:     append(extra.Masks, def.Masks...),
 		Unordered: append(extra.Unordered, def.Unordered...),
 		Scope:     append(extra.Scope, def.Scope...),
+		Drop:      append(extra.Drop, def.Drop...),
 		Headers:   append(extra.Headers, def.Headers...),
 	}, nil
 }
@@ -165,6 +182,12 @@ func (r *Rules) compile() error {
 			return fmt.Errorf("scope[%d]: path and key are required", i)
 		}
 		r.Scope[i].re = pathPattern(r.Scope[i].Path)
+	}
+	for i := range r.Drop {
+		if r.Drop[i].Path == "" {
+			return fmt.Errorf("drop[%d]: path is required", i)
+		}
+		r.Drop[i].re = pathPattern(r.Drop[i].Path)
 	}
 	return nil
 }

@@ -128,8 +128,6 @@ Lines starting with `-` are fake-web's, with `+` fake-api's.
   + header Content-Type application/xml
   - /response/returncode "SUCCESS"
   - /response/meetings
-  - /response/messageKey "noMeetings"
-  - /response/message "no meetings were found on this server"
   + /response/returncode "FAILED"
   + /response/messageKey "checksumError"
   + /response/message "Checksums do not match."

@@ -174,6 +174,7 @@ func bodyLines(o *observe.Observation, ctx *Context, r *Rules) []string {
 		return []string{fmt.Sprintf("body %s unparsable: %s", o.Format(), textSummary(o.Body, ctx))}
 	}
 	ctx.scope(root, r)
+	drop(root, r)
 	ctx.mask(root, r)
 	ctx.substituteTree(root)
 	sortTree(root, r)
@@ -311,6 +312,17 @@ func (c *Context) scope(root *node, r *Rules) {
 	})
 }
 
+// drop drops the nodes a drop rule names. It runs on raw values.
+func drop(root *node, r *Rules) {
+	walk(root, func(n *node) {
+		for _, d := range r.Drop {
+			if d.re.MatchString(n.path) && (d.Value == "" || n.isText && n.text == d.Value) {
+				n.drop = true
+			}
+		}
+	})
+}
+
 // mask applies masks to raw values, so they still see the real ${uid}.
 func (c *Context) mask(root *node, r *Rules) {
 	walk(root, func(n *node) {
@@ -435,6 +447,16 @@ func sortTree(root *node, r *Rules) {
 	})
 }
 
+// emptied reports whether a node had children and all were dropped.
+func emptied(n *node) bool {
+	for _, k := range n.kids {
+		if !k.drop {
+			return false
+		}
+	}
+	return len(n.kids) > 0
+}
+
 func keyOf(n *node, key string) string {
 	switch {
 	case key == "#name":
@@ -458,7 +480,9 @@ func keyOf(n *node, key string) string {
 }
 
 // flatten renders a tree as path/value lines in order. JSON paths print as
-// $.a.b; values are quoted, except JSON numbers, booleans and null.
+// $.a.b; values are quoted, except JSON numbers, booleans and null. A node
+// whose children were all dropped prints as an empty one, so a list with
+// only other cases' entries reads like an empty list.
 func flatten(root *node, jsonPaths bool) []string {
 	var out []string
 	var visit func(n *node)
@@ -472,6 +496,17 @@ func flatten(root *node, jsonPaths bool) []string {
 		}
 		for _, a := range n.attrs {
 			out = append(out, p+"/@"+a.name+" "+strconv.Quote(a.value))
+		}
+		if emptied(n) {
+			switch {
+			case !jsonPaths:
+				out = append(out, p)
+			case strings.HasSuffix(n.kids[0].name, "[]"):
+				out = append(out, p+" []")
+			default:
+				out = append(out, p+" {}")
+			}
+			return
 		}
 		if n.isText {
 			v := strconv.Quote(n.text)

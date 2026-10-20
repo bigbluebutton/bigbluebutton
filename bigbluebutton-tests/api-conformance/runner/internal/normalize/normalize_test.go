@@ -145,6 +145,38 @@ body xml
 	}
 }
 
+// getMeetings says noMeetings only when no case has a meeting, so a case
+// whose own list is empty must read the same whatever else is running.
+func TestGetMeetingsOwnView(t *testing.T) {
+	uid := "bbbc-u4"
+	empty := `<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey>` +
+		`<message>no meetings were found on this server</message></response>`
+	others := `<response><returncode>SUCCESS</returncode><meetings><meeting><meetingID>someone-else</meetingID></meeting>` +
+		`<meeting><meetingID>another</meetingID></meeting></meetings></response>`
+	a := Response(obs(200, nil, empty), ctx(uid), Default())
+	b := Response(obs(200, nil, others), ctx(uid), Default())
+	check(t, b, strings.Join(a, "\n"))
+	check(t, a, `
+status 200
+body xml
+/response/returncode "SUCCESS"
+/response/meetings`)
+
+	// JSON lists and objects emptied by dropping read as [] and {}.
+	r, err := Load(writeMasks(t, "drop: [{path: \"list[]\"}, {path: obj/a}]\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := obs(200, map[string]string{"Content-Type": "application/json"}, `{"list":[1,2],"obj":{"a":1},"keep":true}`)
+	check(t, Response(o, ctx(uid), r), `
+status 200
+header Content-Type application/json
+body json
+$.keep true
+$.list []
+$.obj {}`)
+}
+
 func TestOtherBodies(t *testing.T) {
 	c := ctx("bbbc-u0u0u0")
 	check(t, Response(obs(500, map[string]string{"Content-Type": "text/html"}, "<html><head><title>HTTP Status 500 – Internal Server Error</title></head></html>"), c, Default()), `
@@ -165,7 +197,8 @@ body text "HTTP Status 500 – Internal Server Error"`)
 func TestLoad(t *testing.T) {
 	dir := t.TempDir()
 	p := filepath.Join(dir, "masks.yaml")
-	body := "masks:\n  - {field: meetingName, as: token}\n  - {field: voiceBridge, as: time}\nunordered:\n  - {path: list/item, key: \"@id\"}\nheaders: [User-Id]\n"
+	body := "masks:\n  - {field: meetingName, as: token}\n  - {field: voiceBridge, as: time}\nunordered:\n  - {path: list/item, key: \"@id\"}\n" +
+		"drop:\n  - {path: /response/version}\n  - {path: flag, value: \"on\"}\nheaders: [User-Id]\n"
 	if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +206,8 @@ func TestLoad(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	o := obs(200, map[string]string{"User-Id": "w_abcdefghijkl"}, `<response><meetingName>Secret</meetingName><voiceBridge>71234</voiceBridge><list><item id="b"/><item id="a"/></list></response>`)
+	o := obs(200, map[string]string{"User-Id": "w_abcdefghijkl"}, `<response><meetingName>Secret</meetingName><voiceBridge>71234</voiceBridge><list><item id="b"/><item id="a"/></list>`+
+		`<version>4.0.1</version><flag>on</flag><other><flag>off</flag></other></response>`)
 	check(t, Response(o, ctx("bbbc-u0u0u0"), r), `
 status 200
 header User-Id w_abcdefghijkl
@@ -183,12 +217,14 @@ body xml
 /response/list/item/@id "a"
 /response/list/item
 /response/list/item/@id "b"
-/response/list/item`)
+/response/list/item
+/response/other/flag "off"`)
 	for body, want := range map[string]string{
 		"masks: [{field: a, as: nope}]\n":                "unknown kind",
 		"masks: [{as: token}]\n":                         "give field or path",
 		"masks: [{field: a, as: regex, regex: \"(\"}]\n": "bad regex",
 		"unordred: []\n":                                 "unordred",
+		"drop: [{value: x}]\n":                           "path is required",
 	} {
 		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
 			t.Fatal(err)

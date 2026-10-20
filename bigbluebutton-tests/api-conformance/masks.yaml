@@ -7,6 +7,7 @@
 #              [{path: turnServers[]/username, as: regex, regex: '^\d+:', replace: '<expiry>:'}]
 #   unordered: [{path: meetings/meeting, key: meetingID}]
 #   scope:     [{path: meetings/meeting, key: meetingID}]
+#   drop:      [{path: /response/messageKey, value: noMeetings}]
 #   headers:   [User-Id, Meeting-Id]
 masks:
   # With no checksum, bbb-web answers either message at random: two checks
@@ -17,4 +18,5 @@ masks:
     replace: '<missing-checksum message>'
 unordered: []
 scope: []
+drop: []
 headers: []
