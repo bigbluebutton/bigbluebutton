@@ -6,7 +6,6 @@ import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 // As of BlockNote 0.53, `collaboration` is no longer a `BlockNoteEditorOptions` field:
 // it ships as an extension behind the `@blocknote/core/yjs` subpath
 import { withCollaboration } from '@blocknote/core/yjs';
-import { SideMenuExtension } from '@blocknote/core/extensions';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
@@ -386,7 +385,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   // cancelling the default focus move on mousedown. The toolbar mounts with
   // BlockNoteView, so the effect re-runs once floatingUiElement exists.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const el = toolbarRef.current;
     if (!el) return undefined;
@@ -417,21 +415,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     };
   }, [editor, floatingUiElement]);
 
-  // TODO: Remove this workaround when BlockNote limits side-menu detection to the editor.
-  // Related upstream issues: https://github.com/TypeCellOS/BlockNote/issues/1016 and
-  // https://github.com/TypeCellOS/BlockNote/issues/351.
-  React.useEffect(() => {
-    const mousemoveHandler = (e: MouseEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) {
-        editor.getExtension(SideMenuExtension)?.hideMenuIfNotFrozen();
-      }
-    };
-    document.addEventListener('mousemove', mousemoveHandler);
-    return () => document.removeEventListener('mousemove', mousemoveHandler);
-  }, [editor]);
-
   return (
-    <div ref={wrapperRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
           /* BlockNote ships Inter and hardcodes it; inherit the client font
