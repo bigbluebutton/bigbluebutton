@@ -15,8 +15,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// minPollInterval is the shortest eventually.every a case may use.
+// minPollInterval is the shortest eventually.every a call step may use.
 const minPollInterval = 10 * time.Millisecond
+
+// A graphql step polls every 500ms unless it says otherwise, and no more
+// often than every 300ms: bbb-graphql-middleware delays a connection's
+// queries beyond 200 a minute.
+const (
+	defaultGraphQLPoll = 500 * time.Millisecond
+	minGraphQLPoll     = 300 * time.Millisecond
+)
 
 var headerNameRe = regexp.MustCompile("^[!#$%&'*+\\-.^_`|~0-9A-Za-z]+$")
 
@@ -103,6 +111,7 @@ type decoder struct {
 	vars    map[string]string // the variant's non-null vars
 	nulls   map[string]bool   // its null vars, already reported where misused
 	defined map[string]bool   // captures earlier steps define
+	joined  map[string]bool   // handles earlier presence steps joined
 }
 
 func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
@@ -125,7 +134,7 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 	c.Tags = d.names(mapGet(root, "tags"), knownTags, "tag")
 	c.Requires = d.names(mapGet(root, "requires"), knownCapabilities, "capability")
 
-	d.defined = map[string]bool{}
+	d.defined, d.joined = map[string]bool{}, map[string]bool{}
 	for i, st := range mapGet(root, "steps").Content {
 		c.Steps = append(c.Steps, d.step(st, fmt.Sprintf("steps[%d]", i)))
 	}
@@ -188,6 +197,16 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 		s.Call, s.Expect = d.call(n, key, where)
 	case KindWait:
 		s.Wait = duration(mapGet(n, "wait"))
+	case KindPresence:
+		s.Presence = d.presence(mapGet(n, key), where)
+		if e := mapGet(n, "expect"); e != nil {
+			s.Expect = d.expect(e)
+		}
+	case KindGraphQL:
+		s.GraphQL = d.graphql(n, where)
+		if e := mapGet(n, "expect"); e != nil {
+			s.Expect = d.expect(e)
+		}
 	default:
 		cfg := mapGet(n, key)
 		d.templatesIn(cfg)
@@ -271,22 +290,103 @@ func (d *decoder) call(n *yaml.Node, key, where string) (*CallStep, *Expect) {
 		cs.Timeout = duration(t)
 	}
 	if ev := mapGet(n, "eventually"); ev != nil {
-		cs.Eventually = &Eventually{Within: duration(mapGet(ev, "within")), Every: time.Second, Until: d.expect(mapGet(ev, "until"))}
-		if cs.Eventually.Within <= 0 {
-			d.f.errf(mapGet(ev, "within"), "%s: eventually.within must be more than 0", where)
-		}
-		if e := mapGet(ev, "every"); e != nil {
-			cs.Eventually.Every = duration(e)
-			if cs.Eventually.Every < minPollInterval {
-				d.f.errf(e, "%s: eventually.every must be at least %s, so the server isn't flooded", where, minPollInterval)
-			}
-		}
+		cs.Eventually = d.eventually(ev, where, time.Second, minPollInterval)
 	}
 	var exp *Expect
 	if e := mapGet(n, "expect"); e != nil {
 		exp = d.expect(e)
 	}
 	return cs, exp
+}
+
+func (d *decoder) eventually(ev *yaml.Node, where string, every, minEvery time.Duration) *Eventually {
+	e := &Eventually{Within: duration(mapGet(ev, "within")), Every: every, Until: d.expect(mapGet(ev, "until"))}
+	if e.Within <= 0 {
+		d.f.errf(mapGet(ev, "within"), "%s: eventually.within must be more than 0", where)
+	}
+	if n := mapGet(ev, "every"); n != nil {
+		e.Every = duration(n)
+		if e.Every < minEvery {
+			d.f.errf(n, "%s: eventually.every must be at least %s, so the server isn't flooded", where, minEvery)
+		}
+	}
+	return e
+}
+
+func (d *decoder) presence(n *yaml.Node, where string) *PresenceStep {
+	p := &PresenceStep{Action: mapGet(n, "action").Value, As: mapGet(n, "as").Value}
+	var sources []string
+	if v := mapGet(n, "joinUrl"); v != nil {
+		p.JoinURL = d.str(v)
+		sources = append(sources, "joinUrl")
+	}
+	if v := mapGet(n, "args"); v != nil {
+		p.Args = d.kvs(v)
+		sources = append(sources, "args")
+	}
+	if v := mapGet(n, "sessionToken"); v != nil {
+		p.SessionToken = d.str(v)
+		sources = append(sources, "sessionToken")
+	}
+	if v := mapGet(n, "timeout"); v != nil {
+		p.Timeout = duration(v)
+	}
+	if p.Action == "join" {
+		if len(sources) != 1 {
+			d.f.errf(n, "%s: join needs exactly one of joinUrl, args and sessionToken; found %s", where, describe(sources))
+		}
+		d.joined[p.As] = true
+		return p
+	}
+	if len(sources) > 0 {
+		d.f.errf(n, "%s: only join takes %s", where, strings.Join(sources, " or "))
+	}
+	d.mustHaveJoined(n, p.As, where)
+	return p
+}
+
+func (d *decoder) mustHaveJoined(n *yaml.Node, as, where string) {
+	if !d.joined[as] {
+		d.f.errf(n, "%s: %s hasn't joined in an earlier step (presence: {action: join, as: %s, ...})", where, as, as)
+	}
+}
+
+func (d *decoder) graphql(n *yaml.Node, where string) *GraphQLStep {
+	m := mapGet(n, "graphql")
+	g := &GraphQLStep{As: mapGet(m, "as").Value}
+	d.mustHaveJoined(m, g.As, where)
+	q := mapGet(m, "query")
+	given := map[string]bool{}
+	if v := mapGet(m, "variables"); v != nil {
+		d.templatesIn(v)
+		g.Variables = plain(v, true)
+		for i := 0; i+1 < len(v.Content); i += 2 {
+			given[v.Content[i].Value] = true
+		}
+	}
+	switch op, err := ParseOperation(q.Value); {
+	case tmpl.HasExpr(q.Value):
+		d.f.errf(q, "%s: put values in variables, not in the query", where)
+	case err != nil:
+		d.f.errf(q, "%s: %v", where, err)
+	default:
+		g.Op = op
+		for _, v := range op.Vars {
+			if !given[v] {
+				d.f.errf(q, "%s: the mutation passes $%s, but variables doesn't give it", where, v)
+			}
+		}
+	}
+	if v := mapGet(m, "timeout"); v != nil {
+		g.Timeout = duration(v)
+	}
+	if ev := mapGet(n, "eventually"); ev != nil {
+		g.Eventually = d.eventually(ev, where, defaultGraphQLPoll, minGraphQLPoll)
+		if g.Op != nil && g.Op.Type != "query" {
+			d.f.errf(mapKey(n, "eventually"), "%s: only a query can be repeated with eventually", where)
+		}
+	}
+	return g
 }
 
 func decodeSign(n *yaml.Node) Sign {
@@ -385,6 +485,7 @@ func (d *decoder) expect(n *yaml.Node) *Expect {
 	e.MessageKey = d.optMatcher(mapGet(n, "messageKey"))
 	e.Message = d.optMatcher(mapGet(n, "message"))
 	e.Body = d.optMatcher(mapGet(n, "body"))
+	e.Errors = d.optMatcher(mapGet(n, "errors"))
 	if v := mapGet(n, "xpath"); v != nil {
 		e.XPath = d.matcherTable(v, keyXPath)
 	}

@@ -1,0 +1,14 @@
+# want: 9: steps[0]: ann hasn't joined in an earlier step
+# want: 10: steps[1]: bob hasn't joined in an earlier step
+# want: 13: teardown[0]: eve hasn't joined in an earlier step
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+  - presence: {action: leave, as: bob}
+  - presence: {action: join, as: ann, args: {meetingID: m, fullName: Ann}}
+teardown:
+  - presence: {action: disconnect, as: eve}
+  - presence: {action: leave, as: ann}

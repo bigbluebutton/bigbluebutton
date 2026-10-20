@@ -19,7 +19,7 @@ steps:
       hash: {meetingName: Props}
       ttl: "-1"
   - presence: {action: join, as: ann, joinUrl: "${baseUrl}/join?voice=${voiceConf}"}
-  - graphql: {as: ann, query: "query { user_current { name } }"}
+  - graphql: {as: ann, query: "query Me { user_current { name } }"}
     expect:
       jsonpath:
         $.data.user_current[0].name: Ann

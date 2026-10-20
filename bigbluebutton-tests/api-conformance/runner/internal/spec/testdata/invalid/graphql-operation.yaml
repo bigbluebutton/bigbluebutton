@@ -1,0 +1,23 @@
+# want: 13: steps[1]: name the operation
+# want: 14: steps[2]: pass userId as a variable ($userId)
+# want: 15: steps[3]: put values in variables, not in the query
+# want: 16: steps[4]: the mutation passes $id, but variables doesn't give it
+# want: 20: steps[5]: only a query can be repeated with eventually
+# want: 22: steps[5]: eventually.every must be at least 300ms
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - presence: {action: join, as: ann, args: {meetingID: m, fullName: Ann}}
+  - graphql: {as: ann, query: "query { user_current { name } }"}
+  - graphql: {as: ann, query: 'mutation P { userSetPresenter(userId: "w_1") }'}
+  - graphql: {as: ann, query: "query Me { user(where: {name: {_eq: \"${uid}\"}}) { userId } }"}
+  - graphql: {as: ann, query: "mutation P($id: String!) { userSetPresenter(userId: $id) }"}
+  - graphql:
+      as: ann
+      query: "mutation Leave { userLeaveMeeting }"
+    eventually:
+      within: 1s
+      every: 100ms
+      until: {errors: absent}

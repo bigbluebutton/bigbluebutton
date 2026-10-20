@@ -66,17 +66,19 @@ type Step struct {
 	Kind StepKind
 	Line int
 
-	Call *CallStep     // KindCall
-	Wait time.Duration // KindWait
+	Call     *CallStep     // KindCall
+	Wait     time.Duration // KindWait
+	Presence *PresenceStep // KindPresence
+	GraphQL  *GraphQLStep  // KindGraphQL
 
 	// Config is the step-type mapping of the kinds implemented by later
-	// tickets (presence, graphql, bus, fs, redis, sink, env), as plain
-	// values. Their tickets give them types.
+	// tickets (bus, fs, redis, sink, env), as plain values. Their tickets
+	// give them types.
 	Config map[string]any
 	// RawExpect is the expect mapping of those kinds.
 	RawExpect map[string]any
 
-	Expect  *Expect // KindCall
+	Expect  *Expect // KindCall, KindPresence and KindGraphQL
 	Capture []Capture
 	Golden  string // compare | document | off; "" means the default
 }
@@ -103,6 +105,27 @@ type CallStep struct {
 	Timeout         time.Duration
 	IgnoreResult    bool
 	Eventually      *Eventually
+}
+
+// PresenceStep makes a headless user join a meeting, leave it, drop their
+// connection or reconnect. A join comes from exactly one of JoinURL, Args
+// and SessionToken.
+type PresenceStep struct {
+	Action       string // join | leave | disconnect | reconnect
+	As           string // the user's handle; a call step's client of that name shares its cookies
+	JoinURL      string
+	Args         []KV // join params, signed like a call step's
+	SessionToken string
+	Timeout      time.Duration
+}
+
+// GraphQLStep runs one GraphQL operation as a user who joined.
+type GraphQLStep struct {
+	As         string
+	Op         *Operation
+	Variables  any // ordered: maps are []Member, lists []any
+	Timeout    time.Duration
+	Eventually *Eventually
 }
 
 // KV is one ordered key/value pair. Values are kept as written.
@@ -158,13 +181,15 @@ type File struct {
 	ContentType string
 }
 
-// Eventually polls a call until Until passes or Within runs out.
+// Eventually polls a call or a GraphQL query until Until passes or Within
+// runs out.
 type Eventually struct {
 	Within, Every time.Duration
 	Until         *Expect
 }
 
-// Expect is what to check about an HTTP response.
+// Expect is what to check about an HTTP response, or about the document a
+// presence or graphql step returns.
 type Expect struct {
 	Status     *Matcher
 	Headers    []NamedMatcher
@@ -177,6 +202,7 @@ type Expect struct {
 	Body       *Matcher
 	Redirect   *RedirectExpect
 	Schema     string
+	Errors     *Matcher // graphql: matched against each error message
 }
 
 // RedirectExpect checks the parsed Location header.

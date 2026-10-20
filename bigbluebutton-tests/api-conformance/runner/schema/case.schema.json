@@ -214,6 +214,25 @@
       }
     },
 
+    "graphqlExpect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "jsonpath": {"$ref": "#/$defs/matcherTable"},
+        "errors": {"description": "Matched against each error message; without it, any error fails the step.", "$ref": "#/$defs/matcher"}
+      }
+    },
+    "graphqlEventually": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["within", "until"],
+      "properties": {
+        "within": {"$ref": "#/$defs/duration"},
+        "every": {"$ref": "#/$defs/duration"},
+        "until": {"$ref": "#/$defs/graphqlExpect"}
+      }
+    },
+
     "waitStep": {
       "type": "object",
       "additionalProperties": false,
@@ -228,13 +247,19 @@
           "additionalProperties": false,
           "required": ["action", "as"],
           "properties": {
-            "action": {"description": "join, leave, or a GraphQL action the driver supports.", "type": "string", "minLength": 1},
-            "as": {"description": "Handle of the user the driver acts as.", "$ref": "#/$defs/name"},
-            "joinUrl": {"type": "string", "minLength": 1},
-            "args": {"type": "object"}
+            "action": {"description": "join, leave (log out), disconnect (close the connection) or reconnect.", "enum": ["join", "leave", "disconnect", "reconnect"]},
+            "as": {"description": "Handle of the user; a call step's client of the same name shares its cookies.", "$ref": "#/$defs/name"},
+            "joinUrl": {"description": "join: an API join URL to open.", "type": "string", "minLength": 1},
+            "args": {"description": "join: join params, signed like a call step's.", "$ref": "#/$defs/scalarTable"},
+            "sessionToken": {"description": "join: the session a call step with client: <as> started.", "type": "string", "minLength": 1},
+            "timeout": {"$ref": "#/$defs/duration"}
           }
         },
-        "expect": {"description": "Keys are defined by the presence driver.", "type": "object"},
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {"jsonpath": {"$ref": "#/$defs/matcherTable"}}
+        },
         "capture": {"$ref": "#/$defs/capture"},
         "golden": {"$ref": "#/$defs/golden"}
       }
@@ -249,18 +274,13 @@
           "required": ["as", "query"],
           "properties": {
             "as": {"$ref": "#/$defs/name"},
-            "query": {"type": "string", "minLength": 1},
-            "variables": {"type": "object"}
+            "query": {"description": "One named operation; values go in variables.", "type": "string", "minLength": 1},
+            "variables": {"type": "object"},
+            "timeout": {"$ref": "#/$defs/duration"}
           }
         },
-        "expect": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "jsonpath": {"$ref": "#/$defs/matcherTable"},
-            "errors": {"$ref": "#/$defs/matcher"}
-          }
-        },
+        "eventually": {"$ref": "#/$defs/graphqlEventually"},
+        "expect": {"$ref": "#/$defs/graphqlExpect"},
         "capture": {"$ref": "#/$defs/capture"},
         "golden": {"$ref": "#/$defs/golden"}
       }
