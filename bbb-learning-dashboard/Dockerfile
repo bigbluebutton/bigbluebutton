@@ -1,24 +1,17 @@
-# Stage 1: Build
-FROM node:24-alpine AS build
+FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS build
 
 WORKDIR /app
-
-COPY package*.json ./
-# webpack and friends live in devDependencies (post-CRA); do not omit them
+COPY package.json package-lock.json ./
+# The bundler is a devDependency
 RUN npm ci
-
 COPY . .
 RUN npm run build
 
-# Stage 2: Runtime
-FROM nginx:stable-alpine
+FROM nginxinc/nginx-unprivileged:1.30-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
 
-COPY --from=build /app/build /usr/share/nginx/html
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --from=build /app/build /var/bigbluebutton/learning-dashboard
+COPY learning-dashboard.nginx /usr/share/bigbluebutton/nginx/
+COPY docker/default.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
-
-# The number of nginx workers can be overwritten
-# with the env variable BBB_LEARNING_DASHBOARD_NGINX_WORKERS
-ENTRYPOINT ["docker-entrypoint.sh", "nginx", "-g", "daemon off;"]
+EXPOSE 8080
+HEALTHCHECK CMD wget -q --spider http://127.0.0.1:8080/learning-analytics-dashboard/ || exit 1
