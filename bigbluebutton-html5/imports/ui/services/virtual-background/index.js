@@ -19,6 +19,15 @@ import logger from '/imports/startup/client/logger';
 import { simd } from 'wasm-feature-detect';
 
 const blurValue = '25px';
+const DEFAULT_CAPTURE_WIDTH = 640;
+const DEFAULT_CAPTURE_HEIGHT = 480;
+const DEFAULT_CAPTURE_FPS = 30;
+
+const getCaptureSetting = (value, fallback) => {
+    const parsedValue = parseInt(value, 10);
+
+    return Number.isFinite(parsedValue) ? parsedValue : fallback;
+};
 
 function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
     if (arguments.length === 2) {
@@ -299,8 +308,15 @@ class VirtualBackgroundService {
 
         const firstVideoTrack = stream.getVideoTracks()[0];
 
+        if (!firstVideoTrack || firstVideoTrack.readyState !== 'live') {
+            throw new Error('Cannot start virtual background without a live video track');
+        }
+
         const { height, frameRate, width }
             = firstVideoTrack.getSettings ? firstVideoTrack.getSettings() : firstVideoTrack.getConstraints();
+        const captureWidth = getCaptureSetting(width, DEFAULT_CAPTURE_WIDTH);
+        const captureHeight = getCaptureSetting(height, DEFAULT_CAPTURE_HEIGHT);
+        const captureFrameRate = getCaptureSetting(frameRate, DEFAULT_CAPTURE_FPS);
 
         this._segmentationMask = new ImageData(this._options.width, this._options.height);
         this._segmentationMaskCanvas = document.createElement('canvas');
@@ -311,11 +327,11 @@ class VirtualBackgroundService {
 
         this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d', { willReadFrequently: willReadFrequentlySetting });
 
-        this._outputCanvasElement.width = parseInt(width, 10);
-        this._outputCanvasElement.height = parseInt(height, 10);
+        this._outputCanvasElement.width = captureWidth;
+        this._outputCanvasElement.height = captureHeight;
         this._outputCanvasCtx = this._outputCanvasElement.getContext('2d');
-        this._inputVideoElement.width = parseInt(width, 10);
-        this._inputVideoElement.height = parseInt(height, 10);
+        this._inputVideoElement.width = captureWidth;
+        this._inputVideoElement.height = captureHeight;
         this._inputVideoElement.autoplay = true;
         this._inputVideoElement.srcObject = stream;
         this._inputVideoElement.onloadeddata = () => {
@@ -325,7 +341,7 @@ class VirtualBackgroundService {
             });
         };
 
-        return this._outputCanvasElement.captureStream(parseInt(frameRate, 15));
+        return this._outputCanvasElement.captureStream(captureFrameRate);
     }
 
     /**
