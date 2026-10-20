@@ -1,37 +1,31 @@
-# syntax=docker/dockerfile:1
-# 1. Build stage:
 FROM bbb-common-message AS build
 
 WORKDIR /bbb-apps-akka
 
 COPY . .
 
-# compile and unzip bin
-RUN sbt universal:packageBin \
-    && ls -la ./target/universal/ \
-    && unzip ./target/universal/bbb-apps-akka-0.0.4.zip -d /
+RUN sbt stage
 
-# 2. Runtime stage:
 FROM java-base
 
-RUN curl -L -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod a+x /usr/local/bin/yq
+WORKDIR /usr/share/bbb-apps-akka
 
-COPY --from=build --chown=bigbluebutton /bbb-apps-akka-0.0.4 /bbb-apps-akka
-COPY --chown=bigbluebutton ./docker/bbb-apps-akka-docker.conf /bbb-apps-akka/conf/docker.conf
-COPY --chown=bigbluebutton ./docker/bbb-apps-akka-overwrite.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
-COPY --chown=bigbluebutton ./docker/entrypoint.sh /entrypoint.sh
+COPY --from=build --chmod=755 /bbb-apps-akka/target/universal/stage .
+COPY --from=html5-config settings.yml /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 
-COPY --chown=bigbluebutton ./docker/logback.xml /bbb-apps-akka/conf/logback.xml
+# The start script reads /etc/bigbluebutton/bbb-apps-akka.conf, which must exist
+COPY ./docker/bbb-apps-akka.conf /etc/bigbluebutton/bbb-apps-akka.conf
 
-# Create log directory owned by bigbluebutton user
-RUN mkdir -p logs \
- && chown -R bigbluebutton:bigbluebutton logs
+# Log to stdout only
+RUN sed -i '/<appender-ref ref="FILE"/d' conf/logback.xml
 
-# Copy html5 default config
-RUN mkdir -p /usr/share/bigbluebutton/html5-client/private/config/
-COPY --chown=bigbluebutton:bigbluebutton --from=html5-config / /usr/share/bigbluebutton/html5-client/private/config/
-RUN chown -R bigbluebutton:bigbluebutton /usr/share/bigbluebutton/html5-client/private/config/
+# Listen on all interfaces instead of 127.0.0.1 (http.interface in conf/application.conf)
+ENV INTERFACE=0.0.0.0
 
-USER bigbluebutton
+USER 998:998
 
-ENTRYPOINT ["/entrypoint.sh"]
+EXPOSE 8901
+
+HEALTHCHECK CMD ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8901/healthz"]
+
+ENTRYPOINT ["bin/bbb-apps-akka"]
