@@ -620,7 +620,7 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
     - The camera should be shared with the selected device
     - The other participants should see you in the user list and see your camera
 
-    - If the join stalls, the button should come back as "Try again" with a message, instead of leaving you on the spinner
+    - If the join stalls, the "Unstable connection" screen should replace the spinner, and its "Try again" should retry the join with what the setup panel shows by then
 
 ### Joining muted and without camera [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
 
@@ -703,6 +703,57 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
 6. Guest: click "Leave session" before the countdown runs out
 
     - The guest should be taken to the same logout URL straight away
+
+### Connection loss in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Join a session and wait in the pre-flight screen
+
+2. Cut the network (e.g. DevTools "Offline"), then wait about 20 seconds: the socket stays open, so the client only notices once the server's heartbeat goes quiet
+
+    - The "Unstable connection" screen should replace the session's name and the "Join session" button: a "Connection lost" badge, the message, a help link and "Try again"
+    - The session's age and name should show above it
+    - On a phone-width window, it should open as a dialog over the pre-flight screen
+
+3. Restore the network
+
+    - Once the client reconnects, the screen should go back to the "Join session" button on its own
+
+4. Cut the network again and, once the screen is up, click "Try again"
+
+    - The page should not reload while the browser is offline, and the screen should still clear on its own once the network is back
+
+5. On the server, stop the GraphQL actions (`sudo systemctl stop bbb-graphql-actions`) so the join gets no answer, then click "Join session" and wait about 20 seconds. Throttling the network does not do it: the join still goes through
+
+    - A "Joining is taking longer than expected" screen should replace the joining spinner, with the setup panel still editable
+
+6. Mute the microphone in the panel, start the GraphQL actions again (`sudo systemctl start bbb-graphql-actions`) and click "Try again"
+
+    - The user should join muted: the retry takes the panel as it is now
+
+### Denied devices in the pre-flight [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/preFlight.spec.ts)
+
+1. Block the microphone for the site in the browser, then join a session
+
+    - The "One or more devices have no permission" screen should replace the "Join session" button, with a "Device issue" badge, the message, a help link and "Try again"
+    - The microphone selector should be outlined in red with "Device permission pending" under it
+    - If listen only is offered, "Listen only" should switch to it and bring back the "Join session" button
+    - If listen only is not offered (the LiveKit default), "Continue without microphone" should bring back the "Join session" button with a line saying you will join without audio, and the microphone toggle should be off and disabled
+    - Click "Join session": the user should land in the meeting without audio and without the audio modal
+    - On a phone-width window, the screen should open as a dialog
+
+2. Allow the microphone in the site settings, without reloading
+
+    - The screen and the red outline should go away on their own
+
+3. Block the camera for the site and turn the camera on in the pre-flight
+
+    - The same screen should come up, with the camera selector flagged, and "Continue without camera" should turn the camera off and bring back the "Join session" button
+    - Turning the camera back on and allowing it in the site settings, without reloading, should clear the screen and bring up the preview on its own
+
+4. As a guest waiting for approval, block the microphone
+
+    - The waiting message should stay, with the microphone selector flagged
+    - Once the guest is approved, the same screen should replace the "Join session" button until it is sorted out
 
 ## Audio
 
