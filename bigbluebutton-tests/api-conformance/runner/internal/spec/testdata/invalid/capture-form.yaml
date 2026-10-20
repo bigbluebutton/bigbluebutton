@@ -7,5 +7,5 @@ class: contract
 steps:
   - call: create
     capture: {a: "body:text"}
-  - bus: {name: M, within: 1s}
+  - bus: {name: M, meetingId: m, within: 1s}
     capture: {b: /x}

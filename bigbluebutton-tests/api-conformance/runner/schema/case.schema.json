@@ -305,6 +305,7 @@
           "additionalProperties": false,
           "properties": {
             "absent": {"const": true},
+            "count": {"description": "How many messages match by the end of the window.", "$ref": "#/$defs/matcher"},
             "jsonpath": {"$ref": "#/$defs/matcherTable"}
           }
         },

@@ -1,0 +1,11 @@
+# want: 9: steps[0]: fs paths are relative to the data directory
+# want: 10: steps[1]: fs paths stay inside the data directory: no ..
+# want: 11: steps[2]: bad glob
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - fs: {path: /etc/passwd}
+  - fs: {path: "recording/../../etc/passwd"}
+  - fs: {path: "recording/[x"}

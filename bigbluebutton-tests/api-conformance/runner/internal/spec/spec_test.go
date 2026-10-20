@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 const (
@@ -215,9 +216,14 @@ func TestImplicitRequires(t *testing.T) {
 	if want := []StepKind{KindCall, KindBus, KindRedis, KindPresence, KindGraphQL, KindCall, KindFS, KindSink, KindEnv}; !reflect.DeepEqual(kinds, want) {
 		t.Errorf("kinds = %v", kinds)
 	}
-	bus := c.Steps[1]
-	if bus.Config["name"] != "MeetingCreatedEvtMsg" || bus.Config["meetingId"] != "${intId}" {
-		t.Errorf("bus config = %v", bus.Config)
+	if b := c.Steps[1].Bus; b == nil || *b != (BusStep{Name: "MeetingCreatedEvtMsg", MeetingID: "${intId}", Within: 5 * time.Second}) {
+		t.Errorf("bus step = %+v", b)
+	}
+	if r := c.Steps[2]; r.Redis == nil || r.Redis.Key != "meeting:info:${intId}" || len(r.Expect.Hash) != 1 || r.Expect.TTL == nil || r.Expect.TTL.Arg != "-1" {
+		t.Errorf("redis step = %+v, expect %+v", r.Redis, r.Expect)
+	}
+	if f := c.Steps[6]; f.FS == nil || f.FS.Path != "recording/status/recorded/${intId}*.done" || f.Expect.Exists == nil || !*f.Expect.Exists {
+		t.Errorf("fs step = %+v", f.FS)
 	}
 	if c.Steps[6].Golden != "document" {
 		t.Errorf("golden = %q", c.Steps[6].Golden)

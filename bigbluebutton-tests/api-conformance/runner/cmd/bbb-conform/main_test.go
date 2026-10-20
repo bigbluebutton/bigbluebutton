@@ -13,7 +13,7 @@ func TestRun(t *testing.T) {
 		inStdout string
 	}{
 		{[]string{"validate", "--cases", "../../testdata/cases"}, exitOK, "ok: 21 case(s) in 14 file(s)"},
-		{[]string{"validate", "--cases", "../../internal/spec/testdata/invalid", "--fixtures", "../../testdata/fixtures"}, exitFailed, "problem(s) in 36 file(s)"},
+		{[]string{"validate", "--cases", "../../internal/spec/testdata/invalid", "--fixtures", "../../testdata/fixtures"}, exitFailed, "problem(s) in 39 file(s)"},
 		{[]string{"validate", "--cases", "no-such-dir"}, exitUsage, ""},
 		{[]string{"validate", "--cases", "../../testdata/cases", "--fixtures", "no-such-dir"}, exitUsage, ""},
 		{[]string{"validate", "extra"}, exitUsage, ""},

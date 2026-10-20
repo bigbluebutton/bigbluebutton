@@ -3,7 +3,9 @@ package spec
 import (
 	"fmt"
 	"os"
+	"path"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -112,6 +114,7 @@ type decoder struct {
 	nulls   map[string]bool   // its null vars, already reported where misused
 	defined map[string]bool   // captures earlier steps define
 	joined  map[string]bool   // handles earlier presence steps joined
+	serial  bool              // the case is tagged serial
 }
 
 func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
@@ -132,6 +135,10 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 		c.Profile = p.Value
 	}
 	c.Tags = d.names(mapGet(root, "tags"), knownTags, "tag")
+	d.serial = false
+	for _, t := range c.Tags {
+		d.serial = d.serial || t == "serial"
+	}
 	c.Requires = d.names(mapGet(root, "requires"), knownCapabilities, "capability")
 
 	d.defined, d.joined = map[string]bool{}, map[string]bool{}
@@ -206,6 +213,12 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 		s.GraphQL = d.graphql(n, where)
 		if e := mapGet(n, "expect"); e != nil {
 			s.Expect = d.expect(e)
+		}
+	case KindBus, KindFS, KindRedis:
+		d.sideEffect(&s, mapGet(n, key), where)
+		if e := mapGet(n, "expect"); e != nil {
+			s.Expect = d.expect(e)
+			d.sideEffectModes(n, e, s.Expect, where)
 		}
 	default:
 		cfg := mapGet(n, key)
@@ -392,6 +405,69 @@ func (d *decoder) graphql(n *yaml.Node, where string) *GraphQLStep {
 	return g
 }
 
+// sideEffect decodes a bus, fs or redis step.
+func (d *decoder) sideEffect(s *Step, n *yaml.Node, where string) {
+	within := time.Duration(0)
+	if v := mapGet(n, "within"); v != nil {
+		within = duration(v)
+	}
+	switch s.Kind {
+	case KindBus:
+		b := &BusStep{Name: d.str(mapGet(n, "name")), Within: within}
+		if v := mapGet(n, "channel"); v != nil {
+			b.Channel = d.str(v)
+		}
+		if v := mapGet(n, "meetingId"); v != nil {
+			b.MeetingID = d.str(v)
+			if t, err := tmpl.Parse(b.MeetingID); err == nil && slices.Contains(t.Refs(), "uid") {
+				d.f.errf(v, "%s: the bus carries internal meeting IDs, not ${uid}: capture /response/internalMeetingID from create", where)
+			}
+		} else if !d.serial {
+			d.f.errf(n, "%s: give the bus step a meetingId, or tag the case serial: other cases' messages would match too", where)
+		}
+		s.Bus = b
+	case KindFS:
+		p := mapGet(n, "path")
+		f := &FSStep{Path: d.str(p), Within: within}
+		switch {
+		case strings.HasPrefix(f.Path, "/"):
+			d.f.errf(p, "%s: fs paths are relative to the data directory", where)
+		case slices.Contains(strings.Split(f.Path, "/"), ".."):
+			d.f.errf(p, "%s: fs paths stay inside the data directory: no ..", where)
+		case !tmpl.HasExpr(f.Path):
+			if _, err := path.Match(f.Path, ""); err != nil {
+				d.f.errf(p, "%s: bad glob %q", where, f.Path)
+			}
+		}
+		s.FS = f
+	case KindRedis:
+		s.Redis = &RedisStep{Key: d.str(mapGet(n, "key")), Within: within}
+	}
+}
+
+// sideEffectModes checks that a side-effect step's expect asks one
+// question: whether something shows up (with filters), never shows up
+// (absent), how many times (count), or goes away (exists: false).
+func (d *decoder) sideEffectModes(step, n *yaml.Node, e *Expect, where string) {
+	if e.Absent {
+		for _, k := range []string{"count", "exists"} {
+			if mapKey(n, k) != nil {
+				d.f.errf(mapKey(n, k), "%s: absent can't go with %s", where, k)
+			}
+		}
+		if c := mapKey(step, "capture"); c != nil {
+			d.f.errf(c, "%s: an absent step has nothing to capture", where)
+		}
+	}
+	if e.Exists != nil && !*e.Exists {
+		for _, k := range []string{"jsonpath", "contents", "hash", "members", "ttl"} {
+			if mapKey(n, k) != nil {
+				d.f.errf(mapKey(n, k), "%s: exists: false checks that it goes away, so it can't go with %s", where, k)
+			}
+		}
+	}
+}
+
 func decodeSign(n *yaml.Node) Sign {
 	s := Sign{Set: true}
 	if n.Kind == yaml.ScalarNode {
@@ -489,6 +565,23 @@ func (d *decoder) expect(n *yaml.Node) *Expect {
 	e.Message = d.optMatcher(mapGet(n, "message"))
 	e.Body = d.optMatcher(mapGet(n, "body"))
 	e.Errors = d.optMatcher(mapGet(n, "errors"))
+	e.Absent = boolean(mapGet(n, "absent"))
+	if v := mapGet(n, "exists"); v != nil {
+		b := boolean(v)
+		e.Exists = &b
+	}
+	e.Count = d.optMatcher(mapGet(n, "count"))
+	e.Contents = d.optMatcher(mapGet(n, "contents"))
+	e.TTL = d.optMatcher(mapGet(n, "ttl"))
+	if v := mapGet(n, "hash"); v != nil {
+		e.Hash = d.matcherTable(v, keyPlain)
+	}
+	if v := mapGet(n, "members"); v != nil {
+		e.HasMembers = true
+		for _, m := range v.Content {
+			e.Members = append(e.Members, d.str(m))
+		}
+	}
 	if v := mapGet(n, "xpath"); v != nil {
 		e.XPath = d.matcherTable(v, keyXPath)
 	}

@@ -70,15 +70,17 @@ type Step struct {
 	Wait     time.Duration // KindWait
 	Presence *PresenceStep // KindPresence
 	GraphQL  *GraphQLStep  // KindGraphQL
+	Bus      *BusStep      // KindBus
+	FS       *FSStep       // KindFS
+	Redis    *RedisStep    // KindRedis
 
 	// Config is the step-type mapping of the kinds implemented by later
-	// tickets (bus, fs, redis, sink, env), as plain values. Their tickets
-	// give them types.
+	// tickets (sink, env), as plain values. Their tickets give them types.
 	Config map[string]any
 	// RawExpect is the expect mapping of those kinds.
 	RawExpect map[string]any
 
-	Expect  *Expect // KindCall, KindPresence and KindGraphQL
+	Expect  *Expect // every kind but wait, sink and env
 	Capture []Capture
 	Golden  string // compare | document | off; "" means the default
 }
@@ -126,6 +128,28 @@ type GraphQLStep struct {
 	Variables  any // ordered: maps are []Member, lists []any
 	Timeout    time.Duration
 	Eventually *Eventually
+}
+
+// BusStep looks for a message on the server's redis bus, through the
+// target's tap.
+type BusStep struct {
+	Name      string
+	Channel   string // any of the tap's channels when empty
+	MeetingID string // the internal meeting ID; may be empty in serial cases
+	Within    time.Duration
+}
+
+// FSStep looks for a file under the server's data directory, through the
+// target's tap.
+type FSStep struct {
+	Path   string // relative, may be a glob
+	Within time.Duration
+}
+
+// RedisStep reads a key from the server's redis, through the target's tap.
+type RedisStep struct {
+	Key    string
+	Within time.Duration
 }
 
 // KV is one ordered key/value pair. Values are kept as written.
@@ -203,6 +227,16 @@ type Expect struct {
 	Redirect   *RedirectExpect
 	Schema     string
 	Errors     *Matcher // graphql: matched against each error message
+
+	// For bus, fs and redis steps.
+	Absent     bool     // nothing matches during the whole window
+	Exists     *bool    // fs, redis: false means gone at some point in the window
+	Count      *Matcher // bus: how many messages match by the window's end
+	Contents   *Matcher // fs
+	Hash       []NamedMatcher
+	Members    []string // redis: the exact set, in any order
+	HasMembers bool
+	TTL        *Matcher // redis
 }
 
 // RedirectExpect checks the parsed Location header.

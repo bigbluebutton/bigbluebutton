@@ -1,0 +1,20 @@
+# want: 13: steps[0]: absent can't go with count
+# want: 14: steps[0]: an absent step has nothing to capture
+# want: 18: steps[1]: exists: false checks that it goes away, so it can't go with hash
+# want: 20: steps[2]: exists: false checks that it goes away, so it can't go with contents
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - bus: {name: MeetingEndedEvtMsg, meetingId: m, within: 1s}
+    expect:
+      absent: true
+      count: 0
+    capture: {x: $.core.body}
+  - redis: {key: "meeting:info:m", within: 1s}
+    expect:
+      exists: false
+      hash: {meetingName: n}
+  - fs: {path: "recording/status/ended/m.done"}
+    expect: {exists: false, contents: ""}
