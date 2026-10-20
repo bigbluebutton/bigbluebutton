@@ -20,9 +20,27 @@ test.describe.parallel('Room mode', { tag: '@ci' }, () => {
     await roomMode.refusesModeFromViewer();
   });
 
-  test('Room mode survives a reload and a rejoin', async ({ browser, context, page }, testInfo) => {
+  test('Moderator still on the pre-flight cannot set the room mode', async ({ browser, context, page }, testInfo) => {
     const roomMode = new RoomMode(browser, context);
     await roomMode.initModPage(page, { testInfo });
-    await roomMode.keepsModeAcrossReloadAndRejoin();
+    await roomMode.ignoresModeBeforeJoining();
+  });
+
+  test('Room mode cannot be set in a breakout room', async ({ browser, context, page }, testInfo) => {
+    const roomMode = new RoomMode(browser, context);
+    await roomMode.initModPage(page, { testInfo });
+    await roomMode.refusesModeInBreakout();
+  });
+
+  test('Invalid room mode is refused', async ({ browser, context, page }, testInfo) => {
+    const roomMode = new RoomMode(browser, context);
+    await roomMode.initModPage(page, { testInfo });
+    await roomMode.refusesInvalidMode();
+  });
+
+  test('Room mode survives a reload', async ({ browser, context, page }, testInfo) => {
+    const roomMode = new RoomMode(browser, context);
+    await roomMode.initModPage(page, { testInfo });
+    await roomMode.keepsModeAcrossReload();
   });
 });
