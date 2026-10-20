@@ -1,8 +1,8 @@
+# Build stage only: publishes bbb-common-web to ~/.m2 for the bbb-web build.
 FROM bbb-common-message
 
-WORKDIR /bbb-comomon-web
+WORKDIR /bbb-common-web
 
 COPY . .
 
-# build bbb-common-web
 RUN ./deploy.sh
