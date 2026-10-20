@@ -1,14 +1,7 @@
 import styled from 'styled-components';
 import VisuallyHiddenStyles from '/imports/ui/components/common/visually-hidden/styles';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ConfirmationModalStyles from '/imports/ui/components/common/modal/confirmation/styles';
 import { lgPaddingY } from '/imports/ui/stylesheets/styled-components/general';
-
-const RecordingNotifyModal = styled(ModalSimple)``;
-
-const Container = styled(ConfirmationModalStyles.Container)`
-  padding: 3.625em 0 3.625em 0;
-`;
 
 const Description = styled(ConfirmationModalStyles.Description)``;
 
@@ -21,6 +14,8 @@ const AppendDescription = styled(ConfirmationModalStyles.DescriptionText)`
 
 const Footer = styled(ConfirmationModalStyles.Footer)``;
 
+const { FooterButton } = ConfirmationModalStyles;
+
 // BBButton's aria-labelledby points at its own visible label whenever one is
 // set, which overrides its ariaLabel prop. The consent choices carry more
 // context than "Continue"/"Leave session", so that context rides on a
@@ -28,10 +23,9 @@ const Footer = styled(ConfirmationModalStyles.Footer)``;
 const { VisuallyHidden: ScreenreaderLabel } = VisuallyHiddenStyles;
 
 export default {
-  RecordingNotifyModal,
-  Container,
   Description,
   AppendDescription,
   Footer,
+  FooterButton,
   ScreenreaderLabel,
 };

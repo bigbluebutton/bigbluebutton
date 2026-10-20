@@ -43,7 +43,7 @@ function checkUnreadNotesIndicator(testPage: Page) {
   return testPage.page.evaluate((selector) => {
     const element = document.querySelector(selector);
     if (!element) return false;
-    const afterElement = getComputedStyle(element, 'after');
+    const afterElement = getComputedStyle(element, '::after');
     return !!afterElement && afterElement.content !== 'none';
   }, e.sharedNotesSidebarButton);
 }

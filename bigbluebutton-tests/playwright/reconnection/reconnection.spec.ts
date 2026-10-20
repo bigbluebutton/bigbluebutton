@@ -1,4 +1,4 @@
-import { checkRootPermission, linkIssue } from '../core/helpers';
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import {
   ANNOTATION_HISTORY_STREAM_FIELD,
@@ -7,10 +7,12 @@ import {
   OutageFlavor,
   Reconnection,
 } from './reconnection';
-import { routeGraphqlSockets } from './util';
+import { checkRootPermission, routeGraphqlSockets, routeServerConnection, SHOW_RECONNECTING_TOAST } from './util';
 
+// Hidden presentation, Chat and Audio drop the connection from inside the browser and need
+// no root permission. The webcam tests cut it with iptables on the machine running the
+// tests, which reaches every page, so the suite runs serially.
 test.describe('Reconnection', () => {
-  // drops the graphql websocket from inside the browser: no root permission needed
   test(
     'Hidden presentation stays hidden after a reconnection when the slide has annotations',
     { tag: '@ci' },
@@ -23,18 +25,18 @@ test.describe('Reconnection', () => {
     },
   );
 
-  test('Chat', async ({ browser, context, page }, testInfo) => {
-    await checkRootPermission(); // check sudo permission before starting test
+  test('Chat', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
+    const connection = await routeServerConnection(page);
     const reconnection = new Reconnection(browser, context);
-    await reconnection.initModPage(page, { testInfo });
-    await reconnection.chat();
+    await reconnection.initModPage(page, { testInfo, clientSettingsOverrides: SHOW_RECONNECTING_TOAST });
+    await reconnection.chat(connection);
   });
 
-  test('Audio', async ({ browser, context, page }, testInfo) => {
-    await checkRootPermission(); // check sudo permission before starting test
+  test('Audio', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
+    const connection = await routeServerConnection(page);
     const reconnection = new Reconnection(browser, context);
-    await reconnection.initModPage(page, { testInfo });
-    await reconnection.microphone();
+    await reconnection.initModPage(page, { testInfo, clientSettingsOverrides: SHOW_RECONNECTING_TOAST });
+    await reconnection.microphone(connection);
   });
 
   test('Webcam media after automatic republish', async ({ browser, context, page }, testInfo) => {

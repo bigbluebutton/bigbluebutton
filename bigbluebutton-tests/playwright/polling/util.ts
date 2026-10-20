@@ -17,6 +17,37 @@ export async function openPoll(testPage: Page) {
   await testPage.hasElementCount(e.pollOptionItem, 4, 'should display the poll options item for the poll answers');
 }
 
+export async function openQuiz(testPage: Page) {
+  const { quizEnabled } = testPage.settings || {};
+
+  test.skip(!quizEnabled, 'Quiz mode is disabled');
+
+  await openPoll(testPage);
+  await testPage.waitAndClick(e.pollQuizTab);
+  await testPage.hasElementCount(
+    e.quizCorrectAnswerCheckbox,
+    4,
+    'should display a correct answer checkbox for each quiz option',
+  );
+}
+
+export async function selectQuizCorrectAnswer(testPage: Page, optionIndex: number) {
+  await testPage.getLocatorByIndex(e.quizCorrectAnswerCheckbox, optionIndex).check();
+  await testPage.hasElementCount(e.correctAnswerLabel, 1, 'should label exactly one quiz option as the correct answer');
+}
+
+export async function answerPollOption(testPage: Page, optionLabel: string) {
+  await testPage.hasElement(e.pollingContainer, 'should display the polling container to answer it');
+  await testPage.page
+    .locator(e.pollAnswerOptionBtn)
+    .filter({ hasText: new RegExp(`^${optionLabel}$`) })
+    .click();
+}
+
+export function liveResultRow(testPage: Page, userName: string) {
+  return testPage.page.locator(e.pollLiveResultRow).filter({ has: testPage.page.locator(`td:text-is("${userName}")`) });
+}
+
 export async function startPoll(testPage: Page, isAnonymous = false) {
   await openPoll(testPage);
   if (isAnonymous) await testPage.page.locator(e.anonymousPoll).setChecked(true, { force: true });

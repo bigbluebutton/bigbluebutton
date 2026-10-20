@@ -2,17 +2,12 @@ import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
-  borderSizeSmall,
   mdPaddingX,
   mdPaddingY,
   jumboPaddingX,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorGrayLightest,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  lineHeightComputed,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -62,25 +57,26 @@ const LabelSmallFullWidth = styled(LabelSmall)`
   width: 100%;
 `;
 
-const EnterAudio = styled.div`
-  margin: 0 ${mdPaddingX} 0 0;
+const SettingsFooter = styled.div`
   display: flex;
   justify-content: flex-end;
+  gap: 1rem;
+  margin: 0 ${mdPaddingX};
 
   [dir="rtl"] & {
-    margin: 0 0 0 ${mdPaddingX};
+    margin: 0 ${mdPaddingX};
   }
 `;
 
-const BackButton = styled(Button)`
+const SettingsBackButton = styled(Button)`
   border: none;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${mdPaddingX};
-  }
 
   &:first-child {
     margin: 0 0.5rem 0 0 !important;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 0.5rem !important;
+    }
   }
 `;
 
@@ -109,24 +105,14 @@ const FetchingAnimation = styled.span`
   }
 `;
 
-const BottomSeparator = styled.div`
-  position: relative;
-  width: inherit;
-  height: ${borderSizeSmall};
-  background-color: ${colorGrayLightest};
-  margin: calc(${lineHeightComputed} * 1.25) ${mdPaddingX} calc(${lineHeightComputed} * 1.25) ${mdPaddingX};
-
-`;
-
 export default {
-  BottomSeparator,
   FormWrapper,
   Form,
-  EnterAudio,
+  SettingsFooter,
+  SettingsBackButton,
   AudioNote,
   FormElement,
   LabelSmall,
   LabelSmallFullWidth,
-  BackButton,
   FetchingAnimation,
 };

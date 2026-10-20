@@ -1,5 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 import Styled from './styles';
 import AudioAutoplayPrompt from '/imports/ui/components/audio/autoplay/component';
 import type { AutoplayHandler } from './hooks';
@@ -15,8 +17,7 @@ interface LKAutoplayModalProps {
   autoplayHandler: AutoplayHandler;
   isOpen: boolean;
   onRequestClose: () => void;
-  priority: string;
-  setIsOpen: (isOpen: boolean) => void;
+  priority: ModalPriority;
   isAttemptingAutoplay: boolean;
 }
 
@@ -25,20 +26,16 @@ const LKAutoplayModal: React.FC<LKAutoplayModalProps> = ({
   isOpen,
   onRequestClose,
   priority,
-  setIsOpen,
   isAttemptingAutoplay,
 }) => {
   const intl = useIntl();
 
   return (
-    <Styled.LKAutoplayModal
+    <ModalSimple
       onRequestClose={onRequestClose}
-      contentLabel={intl.formatMessage(intlMessages.title)}
       title={intl.formatMessage(intlMessages.title)}
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
       priority={priority}
-      aria-label={intl.formatMessage(intlMessages.title)}
     >
       <Styled.LKAutoplayModalContent>
         <AudioAutoplayPrompt
@@ -46,7 +43,7 @@ const LKAutoplayModal: React.FC<LKAutoplayModalProps> = ({
           disabled={isAttemptingAutoplay}
         />
       </Styled.LKAutoplayModalContent>
-    </Styled.LKAutoplayModal>
+    </ModalSimple>
   );
 };
 

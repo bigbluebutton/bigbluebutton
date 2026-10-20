@@ -7,7 +7,7 @@ import {
   VIDEO_LOADING_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { isLegacy } from '../core/livekit';
+import { isLiveKit } from '../core/livekit';
 import { Page } from '../core/page';
 import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
@@ -19,17 +19,13 @@ import {
   VideoPixelFingerprint,
 } from '../webcam/util';
 import { dragAcrossWhiteboard, viewerDrawsTwoStrokesAndErasesOne } from '../whiteboard/util';
-import { type GraphqlSockets, outage } from './util';
+import { type GraphqlSockets, outage, RECONNECTION_TIME, type ServerConnection } from './util';
 
 export const ANNOTATION_HISTORY_STREAM_FIELD = 'pres_annotation_history_curr_stream';
 
 export type BackgroundSource = 'built-in' | 'custom' | 'join-parameter';
 export type OutageFlavor = 'signaling' | 'short-media' | 'long-media' | 'reload';
 
-const RESTORING_MEDIA_TOAST =
-  '//div[@data-test="toastSmallMsg"]/span[contains(text(), "Connection issue detected. Restoring your audio and video...")]';
-const UNABLE_TO_CONNECT_TOAST =
-  '//div[@data-test="toastSmallMsg"]/span[contains(text(), "Unable to connect") and contains(text(), "code 3002")]';
 const LOCAL_VIDEO = e.currentUserLocalStreamVideo;
 const REMOTE_VIDEO = `${e.webcamVideoItem} video:not([data-local-stream="true"])`;
 const OUTAGE_SECONDS: Record<Exclude<OutageFlavor, 'reload'>, number> = {
@@ -39,7 +35,6 @@ const OUTAGE_SECONDS: Record<Exclude<OutageFlavor, 'reload'>, number> = {
 };
 // A 35s media outage can require the client's full reconnect cycle before webcam controls return.
 const LONG_MEDIA_RECOVERY_TIMEOUT = 60000;
-const LEGACY_RECONNECTION_TIMEOUT = 60000;
 
 export class Reconnection extends MultiUsers {
   private async installWebcamEffectCounters() {
@@ -116,38 +111,36 @@ export class Reconnection extends MultiUsers {
       .toBeGreaterThan(before);
   }
 
-  async chat() {
+  async chat(connection: ServerConnection) {
+    // chat enabled
     await this.modPage.waitForSelector(e.chatBox);
     const chatBoxLocator = this.modPage.page.locator(e.chatBox);
-    await expect(chatBoxLocator, 'chat should be enabled after joining').toBeEnabled();
-    await outage(30, {
-      duringOutage: async () => {
-        // bbb-webrtc-sfu does not emit the LiveKit media-recovery toasts; its disabled chat is the outage signal.
-        if (!isLegacy) {
-          await this.modPage.hasElement(
-            RESTORING_MEDIA_TOAST,
-            'should show the 4.0 connection recovery toast',
-            ELEMENT_WAIT_EXTRA_LONG_TIME,
-          );
-        }
-        await expect(chatBoxLocator, 'chat should be disabled during the outage').toBeDisabled({
-          timeout: ELEMENT_WAIT_TIME,
-        });
-        if (!isLegacy) {
-          await this.modPage.hasElement(
-            UNABLE_TO_CONNECT_TOAST,
-            'should show the 4.0 code 3002 toast',
-            ELEMENT_WAIT_EXTRA_LONG_TIME,
-          );
-        }
-      },
-    });
-    await expect(chatBoxLocator, 'chat should be enabled after reconnecting').toBeEnabled({
-      timeout: isLegacy ? LEGACY_RECONNECTION_TIMEOUT : ELEMENT_WAIT_EXTRA_LONG_TIME,
-    });
+    await expect(chatBoxLocator, 'should the chat box be enabled as soon as the user join').toBeEnabled();
+
+    expect(connection.drop().graphql, 'should drop the graphql connection').toBeGreaterThan(0);
+    await this.modPage.hasElement(
+      e.reconnectingToast,
+      'should display the reconnection in progress toast after connection lost',
+    );
+    await expect(chatBoxLocator, 'should the chat box be disabled when the connection lost').toBeDisabled();
+
+    // reconnected -> chat enabled
+    await this.modPage.wasRemoved(
+      e.reconnectingToast,
+      'reconnection in progress toast should be removed after reconnecting successfully',
+      RECONNECTION_TIME,
+    );
+    await expect(chatBoxLocator, 'chat box should be enabled again after reconnecting successfully').toBeEnabled();
+    await this.modPage.fill(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should send a public chat message after reconnecting successfully',
+    );
   }
 
-  async microphone() {
+  async microphone(connection: ServerConnection) {
     await this.modPage.page.evaluate(() => {
       const { mediaDevices } = navigator;
       const getUserMedia = mediaDevices.getUserMedia.bind(mediaDevices);
@@ -162,30 +155,34 @@ export class Reconnection extends MultiUsers {
         return stream;
       };
     });
+    // join audio
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
+
+    // mute is available
     const muteMicButtonLocator = this.modPage.page.locator(e.muteMicButton);
-    await expect(muteMicButtonLocator, 'mute should be enabled after joining audio').toBeEnabled();
-    await outage(30, {
-      duringOutage: async () => {
-        // bbb-webrtc-sfu has no equivalent user-visible reconnection toast; recovery is asserted below.
-        if (!isLegacy) {
-          await this.modPage.hasElement(
-            RESTORING_MEDIA_TOAST,
-            'should show the 4.0 connection recovery toast',
-            ELEMENT_WAIT_EXTRA_LONG_TIME,
-          );
-          await this.modPage.hasElement(
-            UNABLE_TO_CONNECT_TOAST,
-            'should show the 4.0 code 3002 toast',
-            ELEMENT_WAIT_EXTRA_LONG_TIME,
-          );
-        }
-      },
-    });
-    await expect(muteMicButtonLocator, 'mute should be enabled after reconnecting').toBeEnabled({
-      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
-    });
+    await expect(muteMicButtonLocator, 'mute button should be enabled as soon as the user join').toBeEnabled();
+
+    const dropped = connection.drop();
+    expect(dropped.graphql, 'should drop the graphql connection').toBeGreaterThan(0);
+    if (isLiveKit) {
+      expect(dropped.liveKitSignal, 'should drop the LiveKit signal connection').toBeGreaterThan(0);
+    }
+    await this.modPage.hasElement(
+      e.reconnectingToast,
+      'should display the reconnection in progress toast after connection lost',
+    );
+
+    // reconnected
+    await this.modPage.wasRemoved(
+      e.reconnectingToast,
+      'reconnection in progress toast should be removed after reconnecting successfully',
+      RECONNECTION_TIME,
+    );
+
+    // audio connection should keep connected
+    await this.modPage.hasElement(e.muteMicButton, 'user audio should keep connected after reconnection');
+    await this.modPage.hasElement(e.isTalking, 'user audio should be kept capturing after reconnection');
     await expect
       .poll(
         () =>
@@ -197,7 +194,7 @@ export class Reconnection extends MultiUsers {
           }),
         {
           message: 'the microphone capture track should remain live and enabled after reconnection',
-          timeout: isLegacy ? LEGACY_RECONNECTION_TIMEOUT : ELEMENT_WAIT_TIME,
+          timeout: ELEMENT_WAIT_TIME,
         },
       )
       .toBe(true);

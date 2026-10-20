@@ -145,7 +145,7 @@ class App extends React.Component {
         const cookieExpiresDate = new Date();
         cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
         const value = `ld-${meetingId}=${learningDashboardAccessToken};`;
-        const expire = `expires=${cookieExpiresDate.toGMTString()};`;
+        const expire = `expires=${cookieExpiresDate.toUTCString()};`;
         const args = 'path=/;SameSite=None;Secure';
         document.cookie = `${value} ${expire} ${args}`;
       }

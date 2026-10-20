@@ -44,7 +44,7 @@ BigBlueButton processes the recordings in the following order:
 
 The Capture phase involves enabling the BigBlueButton modules (chat, presentation, video, voice, etc.) to emit events over an event bus for capture on the BigBlueButton server. Components that generate media (webcam, voice, deskshare) must also store their data streams on the server.
 
-Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes and captions are taken from Etherpad.
+Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes are exported from bbb-shared-notes-server (BlockNote).
 
 ### Archive
 
@@ -107,7 +107,7 @@ Some Record and Playback phases store the media they handle in different directo
 - WEBCAM: `/var/lib/bbb-webrtc-recorder/recordings/<meetingid>`
 - SCREEN SHARING: `/var/lib/bbb-webrtc-recorder/screenshare/<meetingid>`
 - SLIDES: `/var/bigbluebutton/<meetingid>`
-- NOTES: `http://localhost:9002/p`
+- NOTES: `http://127.0.0.1:8787/loopback/api/documents`
 - EVENTS: `Redis`
 
 #### Archived files

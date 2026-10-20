@@ -1,8 +1,10 @@
 import { devices } from '@playwright/test';
+
+import { linkIssue } from '../core/helpers';
+import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { Webcam } from './webcam';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
@@ -16,6 +18,14 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.checksContent();
+  });
+
+  test('Viewer receives the shared webcam', async ({ browser, context, page }, testInfo) => {
+    await trackPeerConnections(context);
+    const webcam = new MultiUsers(browser, context);
+    await webcam.initModPage(page, { testInfo });
+    await webcam.initUserPage(context, { testInfo });
+    await webcam.viewerReceivesWebcam();
   });
 
   test('Webcam talking indicator', async ({ browser, page }, testInfo) => {

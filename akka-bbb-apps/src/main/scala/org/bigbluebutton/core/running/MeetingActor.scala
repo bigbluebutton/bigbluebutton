@@ -365,8 +365,6 @@ class MeetingActor(
     val isSharedNotesEnabled = (sharedNotesEnabledInClientSettings
       && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes"))
 
-    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesEditor == "etherpad"
-
     if (isSharedNotesEnabled) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
@@ -376,17 +374,11 @@ class MeetingActor(
       if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
         Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
       }
-      if (isEtherpadType) {
-        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(
-          outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId
-        )
-      } else {
-        PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
-          outGW, liveMeeting.props.meetingProp.intId,
-          sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson,
-          liveMeeting.props.meetingProp.sharedNotesInitialContentMarkdown
-        )
-      }
+      PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
+        outGW, liveMeeting.props.meetingProp.intId,
+        sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson,
+        liveMeeting.props.meetingProp.sharedNotesInitialContentMarkdown
+      )
     }
   }
 
@@ -509,7 +501,7 @@ class MeetingActor(
         updateUserLastActivity(m.header.userId)
       case m: ChangeUserPinStateReqMsg =>
         usersApp.handleChangeUserPinStateReqMsg(m)
-        updateUserLastActivity(m.body.changedBy)
+        updateUserLastActivity(m.header.userId)
       case m: UserConnectionAliveReqMsg    => usersApp.handleUserConnectionAliveReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg    => usersApp.handleSetUserSpeechLocaleReqMsg(m)
       case m: SetUserSpeechOptionsReqMsg   => usersApp.handleSetUserSpeechOptionsReqMsg(m)
@@ -650,21 +642,12 @@ class MeetingActor(
       case m: SetScreenshareAsContentReqMsg => handleSetScreenshareAsContentReqMsg(m)
 
       // Pads
-      case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: BNSharedNotesUpdatedEvtMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.intUserId)
-      case m: PadCreateSessionReqMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionCreatedEvtMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadUpdatedSysMsg =>
-        padsApp2x.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.body.userId)
-      case m: PadContentSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadUpdatePubMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
+      // TODO(4.1 etherpad removal, #25720)
+      case m: PadUpdatePubMsg => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPinnedReqMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
@@ -687,7 +670,7 @@ class MeetingActor(
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg =>
         state = handlePresenterChange(m, state)
-        updateUserLastActivity(m.body.assignedBy)
+        updateUserLastActivity(m.header.userId)
       case m: MakePresentationDownloadReqMsg =>
         presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)

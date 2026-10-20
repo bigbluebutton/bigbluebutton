@@ -34,7 +34,7 @@ dotenv.config();
  * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
  */
 export interface ClientSettingsOverrides {
-  [key: string]: string | number | boolean | null | ClientSettingsOverrides;
+  [key: string]: string | number | boolean | null | Array<string | number | boolean> | ClientSettingsOverrides;
 }
 
 export interface InitOptionsProps {
@@ -212,6 +212,7 @@ export class Page {
     testInfo?: TestInfo,
     timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<HandleDownloadResult> {
+    await locator.waitFor({ state: 'visible', timeout });
     const [download] = await Promise.all([this.page.waitForEvent('download', { timeout }), locator.click({ timeout })]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
@@ -486,7 +487,7 @@ export class Page {
         const element = document.querySelector(el);
         if (!element) return false;
         
-        const afterElement = getComputedStyle(element, 'after');
+        const afterElement = getComputedStyle(element, '::after');
         if (afterElement && afterElement.content !== 'none') {
           return true;
         }

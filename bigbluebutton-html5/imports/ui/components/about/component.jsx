@@ -16,22 +16,6 @@ const intlMessages = defineMessages({
     defaultMessage: (new Date().getFullYear()),
     description: 'Client copyright label',
   },
-  confirmLabel: {
-    id: 'app.about.confirmLabel',
-    description: 'Confirmation button label',
-  },
-  confirmDesc: {
-    id: 'app.about.confirmDesc',
-    description: 'adds descriptive context to confirmLabel',
-  },
-  dismissLabel: {
-    id: 'app.about.dismissLabel',
-    description: 'Dismiss button label',
-  },
-  dismissDesc: {
-    id: 'app.about.dismissDesc',
-    description: 'adds descriptive context to dissmissLabel',
-  },
   version_label: {
     id: 'app.about.version_label',
     description: 'label for version bbb',
@@ -59,17 +43,11 @@ const AboutComponent = (props) => {
 
   return (
     <ModalSimple
-      data-test="aboutModalTitleLabel"
+      dataTest="aboutModalTitleLabel"
       title={intl.formatMessage(intlMessages.title)}
-      dismiss={{
-        label: intl.formatMessage(intlMessages.dismissLabel),
-        description: intl.formatMessage(intlMessages.dismissDesc),
-      }}
-      {...{
-        isOpen,
-        onRequestClose,
-        priority,
-      }}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      priority={priority}
     >
       {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
       <br />

@@ -22,7 +22,6 @@ export interface Public {
   notes: Notes
   layout: Layout
   sidebarNavigation: SidebarNavigation
-  pads: Pads
   sharedNotes: SharedNotes
   media: Media
   stats: Stats
@@ -90,6 +89,7 @@ export interface App {
   breakouts: Breakouts
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
+  audioFilterStorage: 'session' | 'local'
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
@@ -618,10 +618,6 @@ export interface SidebarNavigationButtons {
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
   buttons: SidebarNavigationButtons
-}
-
-export interface Pads {
-  url: string
 }
 
 export interface SharedNotes {

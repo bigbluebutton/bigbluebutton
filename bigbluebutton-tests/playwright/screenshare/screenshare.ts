@@ -5,6 +5,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
 import { Page } from '../core/page';
+import { expectVideoReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
 import { viewerDrawsTwoStrokesAndErasesOne } from '../whiteboard/util';
 import { startScreenshare } from './util';
@@ -32,6 +33,17 @@ export class ScreenShare extends MultiUsers {
     }
     await startScreenshare(testPage);
     await testPage.hasElement(e.isSharingScreen, 'should display the screenshare element');
+  }
+
+  async lateJoinerReceivesScreenshare() {
+    await startScreenshare(this.modPage);
+    await this.initUserPage(this.context);
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'should display the ongoing screenshare to a user who joins after it started',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await expectVideoReceived(this.userPage.page, e.screenShareVideo, 'the late joiner should decode the screenshare');
   }
 
   async testMobileDevice() {
