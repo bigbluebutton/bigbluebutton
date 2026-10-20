@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="bbb-conform fake" tests="12" failures="0" errors="0" skipped="0" time="0.000">
-  <testsuite name="create" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+<testsuites name="bbb-conform fake" tests="13" failures="0" errors="0" skipped="0" time="0.000">
+  <testsuite name="create" tests="2" failures="0" errors="0" skipped="0" time="0.000">
     <testcase name="create.smoke.lifecycle" classname="create" file="../../testdata/smoke/create/lifecycle.yaml" line="1" time="0.000"></testcase>
+    <testcase name="create.smoke.side-effects" classname="create" file="../../testdata/smoke/create/side-effects.yaml" line="2" time="0.000"></testcase>
   </testsuite>
   <testsuite name="getMeetingInfo" tests="1" failures="0" errors="0" skipped="0" time="0.000">
     <testcase name="getMeetingInfo.smoke.json-error" classname="getMeetingInfo" file="../../testdata/smoke/getMeetingInfo/json-error.yaml" line="1" time="0.000"></testcase>

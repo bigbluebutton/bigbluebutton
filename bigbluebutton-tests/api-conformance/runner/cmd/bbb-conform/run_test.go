@@ -11,9 +11,13 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/expectations"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakebbb"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakeredis"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/resp"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tap"
 )
 
 var update = flag.Bool("update", false, "rewrite the golden reports in testdata/golden")
@@ -24,7 +28,9 @@ const fakeSalt = "fake-salt-6f1d0c9a"
 // file, so the run goes through the target's caFile like a real one.
 func startFake(t *testing.T, caps string) string {
 	t.Helper()
-	srv := httptest.NewTLSServer(fakebbb.New(fakeSalt))
+	fake := fakebbb.New(fakeSalt)
+	tapURL := startTap(t, fake)
+	srv := httptest.NewTLSServer(fake)
 	t.Cleanup(srv.Close)
 	dir := t.TempDir()
 	ca := filepath.Join(dir, "ca.pem")
@@ -32,11 +38,38 @@ func startFake(t *testing.T, caps string) string {
 		t.Fatal(err)
 	}
 	tf := filepath.Join(dir, "fake.yaml")
-	body := fmt.Sprintf("name: fake\nbaseUrl: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [%s]\nfixtureUrl: https://fixtures.test\n", srv.URL, fakeSalt, caps)
+	body := fmt.Sprintf("name: fake\nbaseUrl: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [%s]\nfixtureUrl: https://fixtures.test\ntapUrl: %s\n",
+		srv.URL, fakeSalt, caps, tapURL)
 	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return tf
+}
+
+// startTap gives the fake a redis and a data directory, as a real server
+// has, and starts a tap next to it. It returns the tap's URL.
+func startTap(t *testing.T, fake *fakebbb.Server) string {
+	t.Helper()
+	r, err := fakeredis.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(r.Close)
+	fake.Redis, fake.DataDir = r, t.TempDir()
+	for _, d := range []string{"recording/status/recorded", "recording/status/ended"} {
+		if err := os.MkdirAll(filepath.Join(fake.DataDir, d), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s, err := tap.Start(tap.Config{Redis: resp.Options{Addr: r.Addr()}, DataDir: fake.DataDir, Watch: []string{"recording/status"},
+		RedisKeys: []string{"meeting:*"}, MaxBytes: 16 << 20, MaxAge: time.Hour})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(s.Close)
+	srv := httptest.NewServer(s)
+	t.Cleanup(srv.Close)
+	return srv.URL
 }
 
 var normalizers = []struct {
@@ -131,7 +164,7 @@ func TestRunParallel(t *testing.T) {
 	if code != exitOK {
 		t.Fatalf("exit %d\n%s%s", code, stdout.String(), stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "21 case(s): 20 passed, 0 failed, 0 errors, 1 skipped") {
+	if !strings.Contains(stdout.String(), "23 case(s): 22 passed, 0 failed, 0 errors, 1 skipped") {
 		t.Errorf("summary:\n%s", stdout.String())
 	}
 }

@@ -2,7 +2,7 @@
 
 | Identical | Differing | One-sided | Skipped |
 |---|---|---|---|
-| 0 | 12 | 0 | 0 |
+| 0 | 13 | 0 | 0 |
 
 Lines starting with `-` are fake-web's, with `+` fake-api's.
 
@@ -47,6 +47,77 @@ Lines starting with `-` are fake-web's, with `+` fake-api's.
   + status 404
   + header Content-Type text/plain; charset=utf-8
   + body text 19 bytes, sha256 b16e15764b8b
+  ```
+- **create.smoke.side-effects**: differing (PASS / FAIL)
+
+  step 1 (line 8), differing:
+
+  ```diff
+  - status 200
+  - header Cache-Control no-cache
+  - header Content-Type text/xml;charset=utf-8
+  + status 202
+  + header Content-Type application/xml
+  - /response/returncode "SUCCESS"
+  + /response/returnCode "SUCCESS"
+  - /response/moderatorPW "<random>"
+  + /response/moderatorPw "<random>"
+  ```
+
+  step 2 (line 12), differing:
+
+  ```diff
+  - $.channel "from-akka-apps-redis-channel"
+  - $.core.body.props.durationProps.createdDate "<date>"
+  - $.core.body.props.durationProps.createdTime "<time>"
+  - $.core.body.props.durationProps.duration 0
+  - $.core.body.props.meetingProp.extId "${uid}"
+  - $.core.body.props.meetingProp.intId "<sha1(meetingID)>-<time>"
+  - $.core.body.props.meetingProp.isBreakout false
+  - $.core.body.props.meetingProp.name "Smoke props"
+  - $.core.body.props.metadataProp.metadata.smoke "yes"
+  - $.core.body.props.password.moderatorPass "<random>"
+  - $.core.body.props.password.viewerPass "<random>"
+  - $.core.body.props.recordProp.keepEvents true
+  - $.core.body.props.recordProp.record true
+  - $.core.body.props.voiceProp.dialNumber "613-555-1234"
+  - $.core.body.props.voiceProp.muteOnStart true
+  - $.core.body.props.voiceProp.telVoice "<random>"
+  - $.core.body.props.voiceProp.voiceConf "<random>"
+  - $.core.header.name "MeetingCreatedEvtMsg"
+  - $.envelope.name "MeetingCreatedEvtMsg"
+  - $.envelope.routing.sender "bbb-apps-akka"
+  - $.envelope.timestamp "<time>"
+  + $ null
+  ```
+
+  step 4 (line 20), differing:
+
+  ```diff
+  - status 200
+  - header Cache-Control no-cache
+  - header Content-Type text/xml;charset=utf-8
+  - body xml
+  - /response/returncode "SUCCESS"
+  - /response/messageKey "sentEndMeetingRequest"
+  - /response/message "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended."
+  + status 404
+  + header Content-Type text/plain; charset=utf-8
+  + body text 19 bytes, sha256 b16e15764b8b
+  ```
+
+  step 5 (line 23), differing:
+
+  ```diff
+  - $.found true
+  + $.found false
+  ```
+
+  step 1 (line 8), MeetingCreatedEvtMsg props, differing:
+
+  ```diff
+  - $.voiceProp.muteOnStart true
+  + $.voiceProp.muteOnStart false
   ```
 
 ## getMeetingInfo

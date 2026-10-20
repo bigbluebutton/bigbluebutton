@@ -85,8 +85,8 @@ func loadExamples(t *testing.T) map[string]*Case {
 
 func TestExampleCases(t *testing.T) {
 	byID := loadExamples(t)
-	if len(byID) != 21 {
-		t.Errorf("loaded %d example cases, want 21", len(byID))
+	if len(byID) != 23 {
+		t.Errorf("loaded %d example cases, want 23", len(byID))
 	}
 }
 

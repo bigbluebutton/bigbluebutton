@@ -1,4 +1,5 @@
 NEW        create.smoke.lifecycle
+NEW        create.smoke.side-effects
 NEW        getMeetingInfo.smoke.json-error
 NEW        getMeetings.smoke.checksum-accepted-sha1
 NEW        getMeetings.smoke.checksum-accepted-sha256
@@ -11,4 +12,4 @@ NEW        getMeetings.smoke.checksum-rejected-wrong
 NEW        getMeetings.smoke.checksum-rejected-duplicate
 NEW        version.smoke.fields
 
-OUT: 12 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 0 skipped
+OUT: 13 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 0 skipped

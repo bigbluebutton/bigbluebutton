@@ -3,8 +3,8 @@
   "started": "2026-01-01T00:00:00Z",
   "duration_ms": 0,
   "counts": {
-    "total": 21,
-    "passed": 20,
+    "total": 23,
+    "passed": 22,
     "failed": 0,
     "errors": 0,
     "skipped": 1
@@ -748,6 +748,339 @@
       "duration_ms": 0
     },
     {
+      "id": "create.side-effects.unrecorded",
+      "title": "A meeting that isn't recorded writes no metadata key or marker",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/side-effects-unrecorded.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-009&name=Plain&checksum=5ef103cc72d89b0072078ee8febb7bd60c3a657af642cc011356ff650030a9ba",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-009</meetingID><internalMeetingID>11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005</internalMeetingID><attendeePW>ap000005</attendeePW><moderatorPW>mp000005</moderatorPW><createTime>1760000000005</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "captured": {
+            "intId": "11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "bus",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000005,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-009\",\"intId\":\"11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005\",\"isBreakout\":false,\"name\":\"Plain\"},\"metadataProp\":{\"metadata\":{}},\"password\":{\"moderatorPass\":\"mp000005\",\"viewerPass\":\"ap000005\"},\"recordProp\":{\"keepEvents\":false,\"record\":false},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":false,\"telVoice\":\"70005\",\"voiceConf\":\"70005\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000005}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "redis",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "REDIS",
+            "url": "http://fake.test/redis?key=meeting%3Ainfo%3A11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005"
+          },
+          "document": "{\"key\":\"meeting:info:11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005\",\"type\":\"none\",\"ttl\":-2,\"value\":null}",
+          "assertions": [
+            {
+              "what": "redis meeting:info:11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005",
+              "expected": "absent for 1s",
+              "actual": "absent",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 17,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-009&checksum=48704c06154ff3cfee153b8f4db5e0cf4bff6552314a1091124f7dad6dfdc93b",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        },
+        {
+          "index": 4,
+          "kind": "bus",
+          "line": 19,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005&name=MeetingEndedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"meetingId\":\"11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005\"},\"header\":{\"name\":\"MeetingEndedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingEndedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000005}}",
+          "assertions": [
+            {
+              "what": "bus MeetingEndedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "kind": "fs",
+          "line": 20,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "FS",
+            "url": "http://fake.test/fs?path=recording%2Fstatus%2F%2A%2F11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005.done"
+          },
+          "document": "{\"found\":false,\"path\":\"recording/status/*/11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005.done\"}",
+          "assertions": [
+            {
+              "what": "fs recording/status/*/11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005.done",
+              "expected": "none within 1s",
+              "actual": "nothing",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create.side-effects.recorded",
+      "title": "A recorded meeting's props, metadata key and recording marker",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/side-effects.yaml",
+      "line": 5,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-010&name=Props&record=true&muteOnStart=true&meta_Color=blue&checksum=054a49b2a8ac991724e14ca7200e81c27e9b72da04cbbdd0e0dca30dcc522fee",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-010</meetingID><internalMeetingID>f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006</internalMeetingID><attendeePW>ap000006</attendeePW><moderatorPW>mp000006</moderatorPW><createTime>1760000000006</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "captured": {
+            "intId": "f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "bus",
+          "line": 13,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000006,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-010\",\"intId\":\"f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\",\"isBreakout\":false,\"name\":\"Props\"},\"metadataProp\":{\"metadata\":{\"color\":\"blue\"}},\"password\":{\"moderatorPass\":\"mp000006\",\"viewerPass\":\"ap000006\"},\"recordProp\":{\"keepEvents\":true,\"record\":true},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":true,\"telVoice\":\"70006\",\"voiceConf\":\"70006\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000006}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "voiceConf": "70006"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "redis",
+          "line": 18,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "REDIS",
+            "url": "http://fake.test/redis?key=meeting%3Ainfo%3Af853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006"
+          },
+          "document": "{\"key\":\"meeting:info:f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\",\"type\":\"hash\",\"ttl\":-1,\"value\":{\"color\":\"blue\",\"isBreakout\":\"false\",\"meetingId\":\"uid-010\",\"meetingName\":\"Props\"}}",
+          "assertions": [
+            {
+              "what": "redis meeting:info:f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006",
+              "expected": "present within 5s",
+              "actual": "a hash",
+              "ok": true
+            },
+            {
+              "what": "hash color",
+              "expected": "\"blue\"",
+              "actual": "\"blue\"",
+              "ok": true
+            },
+            {
+              "what": "hash meetingName",
+              "expected": "\"Props\"",
+              "actual": "\"Props\"",
+              "ok": true
+            },
+            {
+              "what": "ttl",
+              "expected": "\"-1\"",
+              "actual": "\"-1\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 22,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-010&checksum=5dab257ce3fb56d005a1cd7b4eebd340d93aced1e02afb4664562221f9308312",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        },
+        {
+          "index": 4,
+          "kind": "bus",
+          "line": 24,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006&name=MeetingEndedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"meetingId\":\"f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\"},\"header\":{\"name\":\"MeetingEndedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingEndedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000006}}",
+          "assertions": [
+            {
+              "what": "bus MeetingEndedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "kind": "fs",
+          "line": 25,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "FS",
+            "url": "http://fake.test/fs?path=recording%2Fstatus%2Frecorded%2Ff853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006.done"
+          },
+          "document": "{\"found\":true,\"path\":\"recording/status/recorded/f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006.done\"}",
+          "assertions": [
+            {
+              "what": "fs recording/status/recorded/f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006.done",
+              "expected": "a file within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "kind": "bus",
+          "line": 27,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000006,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-010\",\"intId\":\"f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\",\"isBreakout\":false,\"name\":\"Props\"},\"metadataProp\":{\"metadata\":{\"color\":\"blue\"}},\"password\":{\"moderatorPass\":\"mp000006\",\"viewerPass\":\"ap000006\"},\"recordProp\":{\"keepEvents\":true,\"record\":true},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":true,\"telVoice\":\"70006\",\"voiceConf\":\"70006\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000006}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg count",
+              "expected": "\"1\"",
+              "actual": "\"1\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "getMeetingInfo.fields.metadata",
       "title": "getMeetingInfo lists create's meta_ params with lower-cased keys",
       "endpoint": "getMeetingInfo",
@@ -766,7 +1099,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-009&name=Meta&meta_Color=blue&checksum=9ca27c1b72a14be8ef53751362e775ba51ec4d508dd15d455cf2e7377646d978",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-011&name=Meta&meta_Color=blue&checksum=7a4b9b098174742e1fd695fa50fd9d8cf54c5e71fc0b23dc7dd405c9b7109db9",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -780,7 +1113,7 @@
               "Content-Length": "326",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-009</meetingID><internalMeetingID>11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005</internalMeetingID><attendeePW>ap000005</attendeePW><moderatorPW>mp000005</moderatorPW><createTime>1760000000005</createTime><messageKey></messageKey><message></message></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-011</meetingID><internalMeetingID>9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007</internalMeetingID><attendeePW>ap000007</attendeePW><moderatorPW>mp000007</moderatorPW><createTime>1760000000007</createTime><messageKey></messageKey><message></message></response>"
           }
         },
         {
@@ -791,7 +1124,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/getMeetingInfo?meetingID=uid-009&checksum=0086d87c1b7b4d1375a4af08bb4c4bcb0bbd9186702a8bd902f0f4e1f30b15d7",
+            "url": "https://fake.test/bigbluebutton/api/getMeetingInfo?meetingID=uid-011&checksum=214a6f35ebd10ca9127a2420d546ebcea9a24be7bb9317b9380e0ae658e5045b",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -805,7 +1138,7 @@
               "Content-Length": "309",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingName>Meta</meetingName><meetingID>uid-009</meetingID><internalMeetingID>11e661aaee82c31b488754d80c127a9fdd4e0dae-1760000000005</internalMeetingID><createTime>1760000000005</createTime><running>false</running><metadata><color>blue</color></metadata></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingName>Meta</meetingName><meetingID>uid-011</meetingID><internalMeetingID>9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007</internalMeetingID><createTime>1760000000007</createTime><running>false</running><metadata><color>blue</color></metadata></response>"
           },
           "assertions": [
             {
@@ -826,7 +1159,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-009&name=Meta&checksum=dd416e60a67cf8067a573e6aa01f273ddef7f084629acf57c84b1ee542d0fd54",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-011&name=Meta&checksum=87899cb571871e205b27a076c2251b10fb30ee41ef649ef1d14b4d0e8d371d72",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1260,7 +1593,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-015&name=Running&checksum=aa43fd4d0c4a09c42380261155d453ebc8a40838dff9290c5be500d4fc983487",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-017&name=Running&checksum=c18ff45a676b7d88042e25556536466de3783134b3994a8493d3ba1df0bf7d98",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1274,7 +1607,7 @@
               "Content-Length": "326",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-015</meetingID><internalMeetingID>7bc2ee151851046e7bb65fc4b115a9c964b13b71-1760000000006</internalMeetingID><attendeePW>ap000006</attendeePW><moderatorPW>mp000006</moderatorPW><createTime>1760000000006</createTime><messageKey></messageKey><message></message></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-017</meetingID><internalMeetingID>1ca9a7a520c18aa86e9f2afe01a035a20f9ce124-1760000000008</internalMeetingID><attendeePW>ap000008</attendeePW><moderatorPW>mp000008</moderatorPW><createTime>1760000000008</createTime><messageKey></messageKey><message></message></response>"
           }
         },
         {
@@ -1285,7 +1618,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-015&checksum=bf70604118d3490bb79f231b5c7128ed7e1b2b2395425a26bce8131fbe051c0a",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-017&checksum=412367340131be094a830726cf6aa241aa6510b6f94e537a211096218f9b7208",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1326,7 +1659,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-015&checksum=5b9996658e141286f7bb7858e66c640ec2e85a68baa56ee2cd4690b5254c643a",
+            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-017&checksum=7439d8ea726b947e494519320ac83b881b96795aba83768145aa0ea16070c21d",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1378,7 +1711,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-016&name=Guests&guestPolicy=ASK_MODERATOR&checksum=e74fccd1f6522184312ab052d2ebc107f729d252afb16520249bb982ec521117",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-018&name=Guests&guestPolicy=ASK_MODERATOR&checksum=d7d22be3340444587561fce83e5a5386286199567b8dd8b6ee029712242e1e40",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1392,7 +1725,7 @@
               "Content-Length": "326",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-016</meetingID><internalMeetingID>f688d335bb8b436fe5339d077becdba258e79420-1760000000007</internalMeetingID><attendeePW>ap000007</attendeePW><moderatorPW>mp000007</moderatorPW><createTime>1760000000007</createTime><messageKey></messageKey><message></message></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-018</meetingID><internalMeetingID>afa2357bde13e991679055adb498fcf25c3a5ab4-1760000000009</internalMeetingID><attendeePW>ap000009</attendeePW><moderatorPW>mp000009</moderatorPW><createTime>1760000000009</createTime><messageKey></messageKey><message></message></response>"
           }
         },
         {
@@ -1403,7 +1736,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-016&fullName=Mod&role=MODERATOR&checksum=45eabe7264cd15371bc41a58a5a6d1bbe33d175727895254306383e554b71f1e",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-018&fullName=Mod&role=MODERATOR&checksum=822c5d333beeb45cc0020730b7b21f40f004b2238881e66094c7daea13f5c54e",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1415,12 +1748,12 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000008",
-              "Set-Cookie": "JSESSIONID=js000008; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000010",
+              "Set-Cookie": "JSESSIONID=js000010; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000008\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000010\">Found</a>.\n\n"
           },
-          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000008\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Mod\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000008\",\"userId\":\"w_000000000008\"}"
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000010\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Mod\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000010\",\"userId\":\"w_000000000010\"}"
         },
         {
           "index": 2,
@@ -1430,7 +1763,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-016&fullName=Eve&role=VIEWER&guest=true&checksum=7033816485380fccea608e75239159e9f55418673ab7fa4cb166be7c5953e036",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-018&fullName=Eve&role=VIEWER&guest=true&checksum=8d2da5ca88e5139728818dca1b54d9c955501e44f8a2f0316079d08128f12ade",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1442,12 +1775,12 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000009",
-              "Set-Cookie": "JSESSIONID=js000009; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000011",
+              "Set-Cookie": "JSESSIONID=js000011; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000009\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000011\">Found</a>.\n\n"
           },
-          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000009\",\"guest\":true,\"guestStatus\":\"WAIT\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":false,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000009\",\"userId\":\"w_000000000009\"}",
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000011\",\"guest\":true,\"guestStatus\":\"WAIT\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":false,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000011\",\"userId\":\"w_000000000011\"}",
           "assertions": [
             {
               "what": "jsonpath $.guestStatus",
@@ -1463,7 +1796,7 @@
             }
           ],
           "captured": {
-            "eveId": "w_000000000009"
+            "eveId": "w_000000000011"
           }
         },
         {
@@ -1475,7 +1808,7 @@
           "request": {
             "method": "GRAPHQL",
             "url": "wss://fake.test/graphql",
-            "body": "{\"query\":\"mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }\",\"variables\":{\"guests\":[{\"guest\":\"w_000000000009\",\"status\":\"ALLOW\"}]},\"operationName\":\"Approve\"}"
+            "body": "{\"query\":\"mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }\",\"variables\":{\"guests\":[{\"guest\":\"w_000000000011\",\"status\":\"ALLOW\"}]},\"operationName\":\"Approve\"}"
           },
           "document": "{\"data\":{\"guestUsersSubmitApprovalStatus\":true}}"
         },
@@ -1485,7 +1818,7 @@
           "line": 29,
           "status": "PASS",
           "duration_ms": 0,
-          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000009\",\"guest\":true,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000009\",\"userId\":\"w_000000000009\"}",
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000011\",\"guest\":true,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000011\",\"userId\":\"w_000000000011\"}",
           "assertions": [
             {
               "what": "jsonpath $.guestStatus",
@@ -1511,7 +1844,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-016&checksum=3f55399c729c03ac68d08ea7661dac6d06409a5a868c1dc5611632d26fe7553b",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-018&checksum=f089d48c34bc64cee994fac082cffacb64b22ed2448e70c6cfe5aa7a4b0c4433",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1549,7 +1882,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-017&name=Presence&checksum=878cee770fce326cc7abdef0cc8c40cb4773aff620bb891e13de9c3a1b17ebd9",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-019&name=Presence&checksum=431ddb548d7de61317761e72b73b5e14ba9540b16e49c25257ef57541af03c33",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1563,7 +1896,7 @@
               "Content-Length": "326",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-017</meetingID><internalMeetingID>1ca9a7a520c18aa86e9f2afe01a035a20f9ce124-1760000000008</internalMeetingID><attendeePW>ap000010</attendeePW><moderatorPW>mp000010</moderatorPW><createTime>1760000000008</createTime><messageKey></messageKey><message></message></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-019</meetingID><internalMeetingID>91853384d29d8830c9793327b84c87c0a0886256-1760000000010</internalMeetingID><attendeePW>ap000012</attendeePW><moderatorPW>mp000012</moderatorPW><createTime>1760000000010</createTime><messageKey></messageKey><message></message></response>"
           }
         },
         {
@@ -1574,7 +1907,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-017&fullName=Ann&role=MODERATOR&checksum=bf7cb6fac147eadb467d55a2a20cf8a62bb16dc157e412666cfe2b8c359dbdb7",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-019&fullName=Ann&role=MODERATOR&checksum=fe4d48a0262bfeb161bba4c7b3cdbb5c258a02f475d1414bbd5a281d7c1468b5",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1586,12 +1919,12 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000011",
-              "Set-Cookie": "JSESSIONID=js000011; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000013",
+              "Set-Cookie": "JSESSIONID=js000013; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000011\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000013\">Found</a>.\n\n"
           },
-          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000011\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Ann\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000011\",\"userId\":\"w_000000000011\"}",
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000013\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Ann\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000013\",\"userId\":\"w_000000000013\"}",
           "assertions": [
             {
               "what": "jsonpath $.joined",
@@ -1607,7 +1940,7 @@
             }
           ],
           "captured": {
-            "annId": "w_000000000011"
+            "annId": "w_000000000013"
           }
         },
         {
@@ -1618,7 +1951,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-017&fullName=Bob&role=VIEWER&avatarURL=https%3A%2F%2Fimg.example%2Fbob.png&checksum=4fb9b2e4c7b185219a1c98545f5b0008ac3f0dd8ab9236c2a49dff756a13a58d",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-019&fullName=Bob&role=VIEWER&avatarURL=https%3A%2F%2Fimg.example%2Fbob.png&checksum=2aaeacd6939a76ffbc39764e30928f0eb55e3489d502bd928bdb93b972985ae2",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1630,14 +1963,14 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000012",
-              "Set-Cookie": "JSESSIONID=js000012; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000014",
+              "Set-Cookie": "JSESSIONID=js000014; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000012\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000014\">Found</a>.\n\n"
           },
-          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000012\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000012\",\"userId\":\"w_000000000012\"}",
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000014\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000014\",\"userId\":\"w_000000000014\"}",
           "captured": {
-            "bobId": "w_000000000012"
+            "bobId": "w_000000000014"
           }
         },
         {
@@ -1648,7 +1981,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-017&checksum=7439d8ea726b947e494519320ac83b881b96795aba83768145aa0ea16070c21d",
+            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-019&checksum=38e819a5458e632090a8d8d6a7fed40e733cc07f92f306434d7bb93ca336e417",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1682,7 +2015,7 @@
           "request": {
             "method": "GRAPHQL",
             "url": "wss://fake.test/graphql",
-            "body": "{\"query\":\"mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }\",\"variables\":{\"id\":\"w_000000000012\"},\"operationName\":\"SetPresenter\"}"
+            "body": "{\"query\":\"mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }\",\"variables\":{\"id\":\"w_000000000014\"},\"operationName\":\"SetPresenter\"}"
           },
           "document": "{\"data\":{\"userSetPresenter\":true}}"
         },
@@ -1714,7 +2047,7 @@
           "line": 46,
           "status": "PASS",
           "duration_ms": 0,
-          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000012\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":true,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000012\",\"userId\":\"w_000000000012\"}",
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000014\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":true,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000014\",\"userId\":\"w_000000000014\"}",
           "assertions": [
             {
               "what": "jsonpath $.loggedOut",
@@ -1734,7 +2067,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-017&checksum=412367340131be094a830726cf6aa241aa6510b6f94e537a211096218f9b7208",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-019&checksum=6545b47469453c1751c42a212df9fb67cf5acc1a38815d81aa93dfb196d20120",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1772,7 +2105,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-018&name=Join+test&checksum=e344459ef3a3064eecfa8afa5f8515494632a4c5c2496cf263c7d7a13b26b651",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-020&name=Join+test&checksum=f0397b01908dd3bd690db49d8b5bfda51c7d40c16a51b1444cbbb0a82f0fcf72",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1786,7 +2119,7 @@
               "Content-Length": "326",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-018</meetingID><internalMeetingID>afa2357bde13e991679055adb498fcf25c3a5ab4-1760000000009</internalMeetingID><attendeePW>ap000013</attendeePW><moderatorPW>mp000013</moderatorPW><createTime>1760000000009</createTime><messageKey></messageKey><message></message></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-020</meetingID><internalMeetingID>e6f2fca9783894d41c3bba6dd6023b19db04e055-1760000000011</internalMeetingID><attendeePW>ap000015</attendeePW><moderatorPW>mp000015</moderatorPW><createTime>1760000000011</createTime><messageKey></messageKey><message></message></response>"
           },
           "assertions": [
             {
@@ -1805,7 +2138,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-018&fullName=Ann&role=moderator&checksum=0a4b7be879d02ea20b0e6f6a735f765822d3d333a7342693fb17d7ea1ea7853f",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-020&fullName=Ann&role=moderator&checksum=c98a3b05c6edf76c4905fe3eae69856e563b468dae23c33990c0d202df8961dd",
             "headers": {
               "User-Agent": "bbb-conform/dev",
               "X-Forwarded-For": "203.0.113.7"
@@ -1817,10 +2150,10 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000014",
-              "Set-Cookie": "JSESSIONID=js000014; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000016",
+              "Set-Cookie": "JSESSIONID=js000016; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000014\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000016\">Found</a>.\n\n"
           },
           "assertions": [
             {
@@ -1832,7 +2165,7 @@
             {
               "what": "header Set-Cookie",
               "expected": "matching /(?i);\\s*secure/",
-              "actual": "\"JSESSIONID=js000014; Path=/; HttpOnly; Secure\"",
+              "actual": "\"JSESSIONID=js000016; Path=/; HttpOnly; Secure\"",
               "ok": true
             },
             {
@@ -1844,14 +2177,14 @@
             {
               "what": "redirect query sessionToken",
               "expected": "present",
-              "actual": "\"st000014\"",
+              "actual": "\"st000016\"",
               "ok": true
             }
           ],
           "captured": {
             "clientHost": "fake.test",
-            "jsession": "js000014",
-            "sessionToken": "st000014"
+            "jsession": "js000016",
+            "sessionToken": "st000016"
           }
         },
         {
@@ -1862,7 +2195,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/getJoinUrl?sessionToken=st000014&fullName=Bob",
+            "url": "https://fake.test/bigbluebutton/api/getJoinUrl?sessionToken=st000016&fullName=Bob",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1875,7 +2208,7 @@
               "Content-Length": "269",
               "Content-Type": "application/json"
             },
-            "body": "{\"response\":{\"message\":\"Join URL provided successfully.\",\"returncode\":\"SUCCESS\",\"url\":\"https://fake.test/bigbluebutton/api/join?\\u0026fullName=Bob\\u0026meetingID=uid-018\\u0026role=VIEWER\\u0026redirect=true\\u0026checksum=37031160f6733e028519115684bbdeac107f6cf5\"}}"
+            "body": "{\"response\":{\"message\":\"Join URL provided successfully.\",\"returncode\":\"SUCCESS\",\"url\":\"https://fake.test/bigbluebutton/api/join?\\u0026fullName=Bob\\u0026meetingID=uid-020\\u0026role=VIEWER\\u0026redirect=true\\u0026checksum=ea5a10316dafcf617543cd4d8fdb74c2c3e63c40\"}}"
           },
           "assertions": [
             {
@@ -1892,7 +2225,7 @@
             }
           ],
           "captured": {
-            "joinUrl": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-018&role=VIEWER&redirect=true&checksum=37031160f6733e028519115684bbdeac107f6cf5"
+            "joinUrl": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-020&role=VIEWER&redirect=true&checksum=ea5a10316dafcf617543cd4d8fdb74c2c3e63c40"
           }
         },
         {
@@ -1903,7 +2236,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-018&role=VIEWER&redirect=true&checksum=37031160f6733e028519115684bbdeac107f6cf5",
+            "url": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-020&role=VIEWER&redirect=true&checksum=ea5a10316dafcf617543cd4d8fdb74c2c3e63c40",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1915,10 +2248,10 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000015",
-              "Set-Cookie": "JSESSIONID=js000015; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000017",
+              "Set-Cookie": "JSESSIONID=js000017; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000015\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000017\">Found</a>.\n\n"
           },
           "assertions": [
             {
@@ -1945,7 +2278,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-018&checksum=f089d48c34bc64cee994fac082cffacb64b22ed2448e70c6cfe5aa7a4b0c4433",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-020&checksum=38ee505ac4c7ddbf535ea480ae4a5f83c6f4337c57acba18f229721a46989de8",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"

@@ -19,6 +19,10 @@ import (
 // startTarget serves handler over TLS and writes a target file for it.
 func startTarget(t *testing.T, name, apiPrefix string, handler http.Handler) string {
 	t.Helper()
+	tapLine := ""
+	if fake, ok := handler.(*fakebbb.Server); ok {
+		tapLine = "tapUrl: " + startTap(t, fake) + "\n"
+	}
 	srv := httptest.NewTLSServer(handler)
 	t.Cleanup(srv.Close)
 	dir := t.TempDir()
@@ -26,8 +30,8 @@ func startTarget(t *testing.T, name, apiPrefix string, handler http.Handler) str
 		t.Fatal(err)
 	}
 	tf := filepath.Join(dir, name+".yaml")
-	body := fmt.Sprintf("name: %s\nbaseUrl: %s\napiPrefix: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [akka, presence]\nfixtureUrl: https://fixtures.test\n",
-		name, srv.URL, apiPrefix, fakeSalt)
+	body := fmt.Sprintf("name: %s\nbaseUrl: %s\napiPrefix: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [akka, presence]\nfixtureUrl: https://fixtures.test\n%s",
+		name, srv.URL, apiPrefix, fakeSalt, tapLine)
 	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -142,7 +146,7 @@ func TestDiffWebVsAPI(t *testing.T) {
 	if got != string(want) {
 		t.Errorf("the report differs from %s; run go test ./cmd/bbb-conform -update and review the diff", golden)
 	}
-	if code, _, _, _ := runDiff(t, web, api, "smoke", "--fail-on-diff"); code != exitFailed {
+	if code, _, _, _ := runDiff(t, web, api, "smoke", "--fail-on-diff", "--id", "version.*"); code != exitFailed {
 		t.Errorf("--fail-on-diff: exit %d", code)
 	}
 }

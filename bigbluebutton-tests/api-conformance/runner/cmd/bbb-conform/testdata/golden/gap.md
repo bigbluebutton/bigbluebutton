@@ -2,7 +2,7 @@
 
 | Endpoint | fake-web | fake-api |
 |---|---|---|
-| [create](#create) | 1/1 | 0/1 |
+| [create](#create) | 2/2 | 0/2 |
 | [getMeetingInfo](#getmeetinginfo) | 1/1 | 0/1 |
 | [getMeetings](#getmeetings) | 9/9 | 8/9 |
 | [version](#version) | 1/1 | 0/1 |
@@ -12,8 +12,10 @@
 | Case | fake-web | fake-api |
 |---|---|---|
 | `create.smoke.lifecycle` | PASS | [XFAIL](https://example.com/issues/2) |
+| `create.smoke.side-effects` | PASS | XFAIL |
 
 - `create.smoke.lifecycle` on fake-api: create answers returnCode, and end isn't implemented (step 1 (line 8): returncode: expected "SUCCESS", got nothing)
+- `create.smoke.side-effects` on fake-api: create answers returnCode, and end isn't implemented (step 1 (line 8): returncode: expected "SUCCESS", got nothing)
 
 ## getMeetingInfo
 
