@@ -1,169 +1,102 @@
-# Use the prebuilt package from GitHub Releases (same as bbb-presentation-video.placeholder.sh).
-# Building from source on debian:bullseye fails — Bullseye security mirrors return 404s.
-FROM debian:bookworm-slim AS bbb-presentation-video-builder
+# Recording processing: bbb-record-core with the presentation, video, notes and screenshare formats,
+# as the packages install them (build/packages-template/bbb-record-core, bbb-playback-<format>).
+# The default command runs the resque workers; the same image runs
+#   /usr/local/bigbluebutton/core/scripts/rap-starter.rb
+#   /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
+#   /etc/cron.daily/bigbluebutton   (the daily cleanup of bbb-config; schedule it from outside)
+FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac AS build
 
-ARG TAG_BBB_PRESENTATION_VIDEO="5.1.0-rc.4"
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    unzip \
+# Versions come from the pinned base image's Ubuntu release.
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential bzip2 ca-certificates curl \
+        libsystemd-dev ruby ruby-bundler ruby-dev unzip zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /out
-RUN curl -Lf -o ubuntu-22.04.zip \
-      "https://github.com/bigbluebutton/bbb-presentation-video/releases/download/${TAG_BBB_PRESENTATION_VIDEO}/ubuntu-22.04.zip" \
-    && unzip -o ubuntu-22.04.zip \
-    && mv bbb-presentation-video_*.deb bbb-presentation-video.deb \
-    && rm -f ubuntu-22.04.zip
+# As build/packages-template/bbb-mkclean/build.sh
+WORKDIR /build/mkclean
+COPY --from=bbb-mkclean mkclean.sha256sum .
+RUN curl -fsSL -o mkclean-0.8.10.tar.bz2 https://sourceforge.net/projects/matroska/files/mkclean/mkclean-0.8.10.tar.bz2/download \
+    && sha256sum -c mkclean.sha256sum \
+    && tar --no-same-owner -xjf mkclean-0.8.10.tar.bz2  # rootless builds reject the tarball's UID
+WORKDIR /build/mkclean/mkclean-0.8.10
+RUN make -C corec/tools/coremake \
+    && corec/tools/coremake/coremake "$(corec/tools/coremake/system_output.sh)" \
+    && make \
+    && install -m 0755 release/*/mkclean /usr/local/bin/mkclean
 
-# Gemfile.lock (connection_pool 3.x / activesupport 7.2) needs Ruby >= 3.2
-FROM ruby:3.2-slim-bookworm
+# The release of bbb-presentation-video.placeholder.sh, with its python3-perfect-freehand dependency
+WORKDIR /build/debs
+RUN curl -fsSL -o bbb-presentation-video.zip \
+        https://github.com/bigbluebutton/bbb-presentation-video/releases/download/5.1.0-rc.4/ubuntu-22.04.zip \
+    && curl -fsSLO https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb \
+    && printf '%s\n' "cd5636018f5de750a94a6dbbedbd1d620219beda392dfe70d9d9e6b238a4c4ee  bbb-presentation-video.zip" \
+        "35be7604c53b2cbfea0f5d19993378b7367e8241585707ba2d6c3fd3d2368419  python3-perfect-freehand_1.2.0_all.deb" > SHA256SUMS \
+    && sha256sum -c SHA256SUMS \
+    && unzip bbb-presentation-video.zip \
+    && rm bbb-presentation-video.zip
 
-# install apt dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    subversion \
-    rsync \
-    build-essential \
-    libsystemd-dev \
-    python3 \
-    python3-attr \
-    python3-cairo \
-    python3-gi \
-    python3-gi-cairo \
-    python3-lxml \
-    python3-icu \
-    python3-pyinotify \
-    python3-sortedcollections \
-    python3-packaging \
-    gir1.2-pangocairo-1.0 \
-    gir1.2-poppler-0.18 \
-    gir1.2-gtk-3.0 \
-    gir1.2-gdkpixbuf-2.0 \
-    fonts-croscore \
-    ffmpeg \
-    poppler-utils \
-    imagemagick \
-    unzip \
-    locales \
-    locales-all \
-    cmake
-# TODO: missing packages
-
-ENV LC_ALL=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
-
-# compile and install mkclean
-RUN cd /tmp \
-    && wget https://downloads.sourceforge.net/project/matroska/mkclean/mkclean-0.9.0.tar.bz2 \
-    && tar -xf mkclean-0.9.0.tar.bz2 \
-    && cd mkclean-0.9.0 \
-    && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-    && cmake --build build --target mkclean -- -j"$(nproc)" \
-    && install -m 0755 build/mkclean/mkclean /usr/local/bin/mkclean \
-    && cd / \
-    && rm -rf /tmp/mkclean-0.9.0*
-
-# add dockerize
-ENV DOCKERIZE_VERSION=v0.6.1
-RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
-# add yq for bbb-record
-ENV YQ_VERSION=v4.49.2
-RUN  wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq \
-    && chmod +x /usr/bin/yq
-
-# Prefer 998:998 to match other BBB containers / shared volumes.
-# Bookworm assigns 998 to systemd-network once systemd packages are installed;
-# reclaim it — this image does not need systemd-network.
-RUN userdel -r systemd-network 2>/dev/null || userdel systemd-network 2>/dev/null || true \
- && groupdel systemd-network 2>/dev/null || true \
- && groupadd -g 998 bigbluebutton \
- && useradd -m -u 998 -g bigbluebutton bigbluebutton
-
-RUN mkdir -p \
-    /usr/local/bigbluebutton \
-    /usr/local/bigbluebutton/core \
-    /etc/bigbluebutton \
-    /etc/bigbluebutton/recording \
-    /var/log/bigbluebutton \
-    /var/bigbluebutton/captions/ \
-    /var/bigbluebutton/events/ \
-    /var/bigbluebutton/recording/raw \
-    /var/bigbluebutton/recording/process \
-    /var/bigbluebutton/recording/publish \
-    /var/bigbluebutton/recording/status/recorded \
-    /var/bigbluebutton/recording/status/archived \
-    /var/bigbluebutton/recording/status/processed \
-    /var/bigbluebutton/recording/status/ended \
-    /var/bigbluebutton/recording/status/sanity \
-    /var/bigbluebutton/recording/status/published \
-    /var/bigbluebutton/captions/inbox
-
-# Change ownership
-RUN chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton  \
-    /etc/bigbluebutton \
-    /var/log/bigbluebutton \
-    /var/bigbluebutton
-
-# dependency for bbb-presentation-video
-ENV FREEHAND_VERSION=1.2.0
-RUN wget -q -O /tmp/python3-perfect-freehand.deb https://github.com/bigbluebutton/perfect-freehand-python/releases/download/${FREEHAND_VERSION}/python3-perfect-freehand_${FREEHAND_VERSION}_all.deb && \
-    dpkg -i /tmp/python3-perfect-freehand.deb && \
-    rm /tmp/python3-perfect-freehand.deb
-
-COPY ./core /usr/local/bigbluebutton/core
-
-# add bbb-playback-presentation scripts
-COPY ./presentation/scripts /usr/local/bigbluebutton/core/scripts/
-
-# install ruby dependencies
-RUN cd /usr/local/bigbluebutton/core \
-    && gem install builder \
-    && gem install bundler --no-document \
-    && bundle config set --local deployment true \
+# As build/packages-template/bbb-record-core/build.sh
+WORKDIR /usr/local/bigbluebutton/core
+COPY core/Gemfile core/Gemfile.lock ./
+RUN bundle config set --local deployment true \
     && bundle install \
     && bundle clean \
     && rm -r vendor/bundle/ruby/*/cache \
     && find vendor/bundle -name '*.o' -delete
 
-# log to file instead of journald
-RUN sed -i 's|Journald::Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/lib/recordandplayback.rb && \
-    sed -i 's|Journald::Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb && \
-    sed -i 's|Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/scripts/rap-process-worker.rb && \
-    sed -i 's|Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/scripts/archive/archive.rb && \
-    sed -i 's|Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/scripts/publish/presentation.rb && \
-    sed -i 's|Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/scripts/utils/captions.rb && \
-    sed -i 's|Logger\.new.*|Logger.new("/var/log/bigbluebutton/recording.log")|g' /usr/local/bigbluebutton/core/scripts/process/presentation.rb
+FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
 
-# add bbb-record with some adjustments so bbb-record works in this environment
-COPY --from=bigbluebutton-config /bin/bbb-record /usr/bin/bbb-record
-RUN cd /usr/bin \
-    && chmod +x /usr/bin/bbb-record \
-    && sed -i 's/^BBB_WEB.*/BBB_WEB=""/' /usr/bin/bbb-record \
-    && sed -i 's/systemctl.*//' /usr/bin/bbb-record
+# The user of bbb-record-core's before-install with the packages' UID 998, created first:
+# systemd, pulled in by the GTK dependencies, would take 998 otherwise.
+RUN groupadd -g 998 bigbluebutton \
+    && useradd -u 998 -g bigbluebutton -m -d /home/bigbluebutton -s /bin/false bigbluebutton
 
-# add bbb-cleanup routine
-COPY --chown=bigbluebutton:bigbluebutton ./cleanup/scripts/bbb-remove-old-recordings /usr/local/bigbluebutton/core/scripts/bbb-remove-old-recordings
-RUN chmod +x /usr/local/bigbluebutton/core/scripts/bbb-remove-old-recordings
-COPY --chown=bigbluebutton:bigbluebutton ./docker/cleanup.sh /cleanup.sh
-RUN chmod +x /cleanup.sh
+# Dependencies of bbb-record-core (opts-noble.sh) except redis-server, which runs in its own
+# container, and the two .deb files. imagemagick: the presentation format calls `convert`
+# (on a server it comes with bbb-web).
+# hadolint ignore=DL3008
+RUN --mount=type=bind,from=build,source=/build/debs,target=/tmp/debs \
+    apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg gir1.2-pango-1.0 imagemagick libcurl4 \
+        libncurses6 libsystemd0 poppler-utils python3 python3-attr python3-cairo python3-gi \
+        python3-gi-cairo python3-icu python3-lxml rsync ruby ruby-bundler zlib1g /tmp/debs/*.deb \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=bbb-presentation-video-builder /out/bbb-presentation-video.deb /tmp/bbb-presentation-video.deb
-RUN dpkg -i /tmp/bbb-presentation-video.deb && rm /tmp/bbb-presentation-video.deb
+# yq-go at the version of build/packages-template/bbb-yq-go/build.sh
+COPY --from=mikefarah/yq:4.53.2@sha256:0cb4a78491b6e62ee8a9bf4fbeacbd15b5013d19bc420591b05383a696315e60 /usr/bin/yq /usr/bin/yq-go
+COPY --from=build /usr/local/bin/mkclean /usr/bin/mkclean
+COPY --from=build /usr/local/bigbluebutton/core /usr/local/bigbluebutton/core
+COPY core/Rakefile /usr/local/bigbluebutton/core/
+COPY core/lib /usr/local/bigbluebutton/core/lib
+COPY core/scripts /usr/local/bigbluebutton/core/scripts
+COPY presentation/scripts video/scripts notes/scripts screenshare/scripts /usr/local/bigbluebutton/core/scripts/
+COPY video/playback /usr/local/bigbluebutton/core/playback
+COPY screenshare/playback /usr/local/bigbluebutton/core/playback/screenshare
+COPY --from=bigbluebutton-config bigbluebutton-release /etc/bigbluebutton/
+COPY --from=bigbluebutton-config bin/bbb-record /usr/bin/
+COPY --from=bigbluebutton-config cron.daily/bigbluebutton /etc/cron.daily/
 
-COPY --chown=bigbluebutton:bigbluebutton ./docker/bbb-web.properties /etc/bigbluebutton/bbb-web.properties.tmpl
-COPY --chown=bigbluebutton:bigbluebutton ./docker/recording.yml /etc/bigbluebutton/recording/recording.yml.tmpl
-COPY --chown=bigbluebutton:bigbluebutton ./docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# The shared logger writes to journald, which a container does not have: log to stdout instead.
+RUN sed -i "s|Journald::Logger.new('bbb-rap')|Logger.new('/dev/stdout')|" /usr/local/bigbluebutton/core/lib/recordandplayback.rb
 
-USER bigbluebutton
+# Directories as in the after-install scripts of the packages
+RUN mkdir -p /var/bigbluebutton/basic_stats /var/bigbluebutton/captions/inbox /var/bigbluebutton/deleted \
+        /var/bigbluebutton/events /var/bigbluebutton/unpublished \
+        /var/bigbluebutton/recording/raw /var/bigbluebutton/recording/process \
+        /var/bigbluebutton/recording/status/ended /var/bigbluebutton/recording/status/recorded \
+        /var/bigbluebutton/recording/status/archived /var/bigbluebutton/recording/status/processed \
+        /var/bigbluebutton/recording/status/sanity /var/bigbluebutton/recording/status/published \
+    && for f in presentation video notes screenshare; do \
+        mkdir -p "/var/bigbluebutton/published/$f" "/var/bigbluebutton/recording/publish/$f" "/var/log/bigbluebutton/$f"; \
+    done \
+    && chown -R bigbluebutton:bigbluebutton /var/bigbluebutton /var/log/bigbluebutton
 
+# Ruby reads events.xml and the yml files with the locale's encoding.
+ENV LANG=C.UTF-8
+# From bbb-rap-resque-worker.service
+ENV QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events COUNT=1
+
+USER 998:998
 WORKDIR /usr/local/bigbluebutton/core/scripts
-
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["resque_workers"]
+CMD ["bundle", "exec", "rake", "-f", "Rakefile", "resque:workers"]

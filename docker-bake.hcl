@@ -83,6 +83,7 @@ target "record-and-playback" {
     context = "./record-and-playback"
     contexts = {
         bigbluebutton-config = "./bigbluebutton-config"
+        bbb-mkclean = "./build/packages-template/bbb-mkclean"
     }
 }
 
