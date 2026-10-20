@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"sync"
 	"syscall"
 	"time"
@@ -20,9 +21,12 @@ const WatchSupported = true
 
 const watchMask = syscall.IN_CREATE | syscall.IN_MOVED_TO | syscall.IN_DELETE | syscall.IN_MOVED_FROM | syscall.IN_DELETE_SELF
 
-// retryMissing is how often a directory to watch that doesn't exist yet
-// is looked for again.
-const retryMissing = 5 * time.Second
+// retryMissing is how often a directory to watch that doesn't exist, yet
+// or any more, is looked for again.
+var retryMissing = time.Second
+
+// maxSkipped is how many directories it couldn't watch Skipped lists.
+const maxSkipped = 10
 
 // Watcher reports the files created and deleted under some directories,
 // with inotify. It sees a file even when another process deletes it
@@ -36,6 +40,8 @@ type Watcher struct {
 
 	mu   sync.Mutex
 	wds  map[int32]string // watch descriptor -> directory, relative to root
+	tops map[string]bool  // the directories asked for
+	skip []string         // directories it couldn't watch, and why
 	done chan struct{}
 	wg   sync.WaitGroup
 }
@@ -52,12 +58,13 @@ func Watch(root string, dirs []string, onEvent func(path, op string), onGap func
 	// Nonblocking, so reads go through the runtime's poller and Close
 	// ends them.
 	w := &Watcher{root: root, fd: fd, f: os.NewFile(uintptr(fd), "inotify"), onEvent: onEvent, onGap: onGap,
-		wds: map[int32]string{}, done: make(chan struct{})}
+		wds: map[int32]string{}, tops: map[string]bool{}, done: make(chan struct{})}
 	for _, d := range dirs {
 		d = path.Clean(filepath.ToSlash(d))
+		w.tops[d] = true
 		if err := w.addTree(d, false); err != nil {
 			w.wg.Add(1)
-			go w.retry(d)
+			go w.retry(d, false)
 		}
 	}
 	w.wg.Add(1)
@@ -76,6 +83,14 @@ func (w *Watcher) Watching() []string {
 	return out
 }
 
+// Skipped says which directories under those asked for it couldn't
+// watch (the first few), and why.
+func (w *Watcher) Skipped() []string {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return slices.Clone(w.skip)
+}
+
 // Close stops watching.
 func (w *Watcher) Close() error {
 	select {
@@ -90,32 +105,46 @@ func (w *Watcher) Close() error {
 
 // addTree watches dir and every directory under it. With report, the
 // files already in them are reported as created: they appeared before
-// the watch did.
+// the watch did. It fails only if dir itself can't be watched; a
+// directory under it that can't be is reported as a gap and skipped.
 func (w *Watcher) addTree(dir string, report bool) error {
-	return filepath.WalkDir(filepath.Join(w.root, dir), func(p string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+	top := filepath.Join(w.root, dir)
+	return filepath.WalkDir(top, func(p string, d fs.DirEntry, err error) error {
 		rel, _ := filepath.Rel(w.root, p)
 		rel = filepath.ToSlash(rel)
-		if !d.IsDir() {
-			if report {
-				w.onEvent(rel, "created")
+		if err == nil && d.IsDir() {
+			var wd int
+			if wd, err = syscall.InotifyAddWatch(w.fd, p, watchMask|syscall.IN_ONLYDIR); err == nil {
+				w.mu.Lock()
+				w.wds[int32(wd)] = rel
+				w.mu.Unlock()
+				return nil
 			}
-			return nil
 		}
-		wd, err := syscall.InotifyAddWatch(w.fd, p, watchMask|syscall.IN_ONLYDIR)
-		if err != nil {
+		switch {
+		case err != nil && p == top:
 			return err
+		case err != nil:
+			why := "can't watch " + rel + ": " + err.Error()
+			w.mu.Lock()
+			if len(w.skip) < maxSkipped {
+				w.skip = append(w.skip, why)
+			}
+			w.mu.Unlock()
+			w.onGap(why)
+			if d != nil && d.IsDir() {
+				return filepath.SkipDir
+			}
+		case report:
+			w.onEvent(rel, "created")
 		}
-		w.mu.Lock()
-		w.wds[int32(wd)] = rel
-		w.mu.Unlock()
 		return nil
 	})
 }
 
-func (w *Watcher) retry(dir string) {
+// retry watches dir once it exists. gap says it was watched before, so
+// files may have come and gone in it unseen.
+func (w *Watcher) retry(dir string, gap bool) {
 	defer w.wg.Done()
 	t := time.NewTicker(retryMissing)
 	defer t.Stop()
@@ -125,6 +154,9 @@ func (w *Watcher) retry(dir string) {
 			return
 		case <-t.C:
 			if w.addTree(dir, true) == nil {
+				if gap {
+					w.onGap("watching " + dir + " again: files may have come and gone in it while it wasn't")
+				}
 				return
 			}
 		}
@@ -166,6 +198,18 @@ func (w *Watcher) event(wd int32, mask uint32, name string) {
 		delete(w.wds, wd)
 	}
 	w.mu.Unlock()
+	// A directory asked for that goes away is watched again once it is
+	// back. One below it is, by its parent's create event.
+	if ok && mask&syscall.IN_IGNORED != 0 && w.tops[dir] {
+		select {
+		case <-w.done:
+		default:
+			w.onGap("stopped watching " + dir + ": it was removed")
+			w.wg.Add(1)
+			go w.retry(dir, true)
+		}
+		return
+	}
 	if !ok || name == "" {
 		return
 	}

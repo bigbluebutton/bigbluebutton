@@ -19,5 +19,8 @@ func Watch(root string, dirs []string, onEvent func(path, op string), onGap func
 // Watching lists nothing.
 func (w *Watcher) Watching() []string { return nil }
 
+// Skipped lists nothing.
+func (w *Watcher) Skipped() []string { return nil }
+
 // Close does nothing.
 func (w *Watcher) Close() error { return nil }

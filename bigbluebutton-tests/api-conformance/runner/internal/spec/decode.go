@@ -434,10 +434,11 @@ func (d *decoder) sideEffect(s *Step, n *yaml.Node, where string) {
 			d.f.errf(p, "%s: fs paths are relative to the data directory", where)
 		case slices.Contains(strings.Split(f.Path, "/"), ".."):
 			d.f.errf(p, "%s: fs paths stay inside the data directory: no ..", where)
-		case !tmpl.HasExpr(f.Path):
-			if _, err := path.Match(f.Path, ""); err != nil {
-				d.f.errf(p, "%s: bad glob %q", where, f.Path)
-			}
+		case tmpl.HasExpr(f.Path):
+		case !validGlob(f.Path):
+			d.f.errf(p, "%s: bad glob %q", where, f.Path)
+		case !d.serial:
+			d.f.errf(p, "%s: put the meeting's internal ID (e.g. ${intId}) in the fs path, or tag the case serial: other cases' files would match too", where)
 		}
 		s.FS = f
 	case KindRedis:
@@ -445,11 +446,21 @@ func (d *decoder) sideEffect(s *Step, n *yaml.Node, where string) {
 	}
 }
 
+func validGlob(p string) bool {
+	_, err := path.Match(p, "")
+	return err == nil
+}
+
 // sideEffectModes checks that a side-effect step's expect asks one
 // question: whether something shows up (with filters), never shows up
 // (absent), how many times (count), or goes away (exists: false).
 func (d *decoder) sideEffectModes(step, n *yaml.Node, e *Expect, where string) {
 	if e.Absent {
+		for _, k := range []string{"bus", "fs", "redis"} {
+			if m := mapGet(step, k); m != nil && mapGet(m, "within") == nil {
+				d.f.errf(mapKey(n, "absent"), "%s: give an absent step a within: it passes only if nothing turns up during it", where)
+			}
+		}
 		for _, k := range []string{"count", "exists"} {
 			if mapKey(n, k) != nil {
 				d.f.errf(mapKey(n, k), "%s: absent can't go with %s", where, k)

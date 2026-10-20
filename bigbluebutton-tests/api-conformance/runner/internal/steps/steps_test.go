@@ -766,3 +766,30 @@ func TestStepDuration(t *testing.T) {
 		t.Errorf("a 30ms wait took %dms", d)
 	}
 }
+
+// The hook sees a presence or graphql step's document even when the
+// step's expect can't be checked.
+func TestObservedWhenExpectErrors(t *testing.T) {
+	var kinds []string
+	res, _ := runWithUsers(t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: "Ann ("}}
+    capture: {bad: $.name}
+  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+    expect:
+      jsonpath:
+        $.data.user_current[0].name: {regex: "${bad}"}
+`, func(r *Runner) {
+		r.Observe = func(ev Observed) ([]assert.Result, error) {
+			kinds = append(kinds, string(ev.Case.Steps[ev.Index].Kind))
+			return nil, nil
+		}
+	})
+	if res.Status != report.Error || !strings.Contains(res.Reason, "regex") {
+		t.Errorf("status %s: %s", res.Status, res.Reason)
+	}
+	if got := strings.Join(kinds, " "); got != "call presence graphql" {
+		t.Errorf("observed %s", got)
+	}
+}

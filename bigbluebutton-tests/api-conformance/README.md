@@ -182,7 +182,11 @@ CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
   - a restarted tap is a new instance, so a case that took its mark before
     the restart ERRORs;
   - when the tap loses redis, it reconnects and notes the gap. A step that
-    passes by not seeing something then ERRORs instead.
+    passes by not seeing something then ERRORs instead;
+  - a watched directory that is removed is a gap too. The tap looks for it
+    every second and watches it again once it is back, as it does for a
+    directory that doesn't exist yet. A directory under a watched one that
+    it can't watch is a gap, and `/info` lists it as a `watchError`.
 - **Files** are read from the data directory, never outside it, up to 1 MiB
   each. Watching them needs Linux (inotify); elsewhere the tap sees only
   files that still exist.
@@ -613,9 +617,10 @@ These steps check what a call did outside its answer, through the target's
   before its first step. Each such step looks at everything since that mark,
   for up to `within` after the step starts. So it sees what an earlier step
   caused, even if that happened before the step began.
-  - `within` is required for `bus`. Without it, an `fs` or `redis` step
-    looks once.
-  - A `redis` step reads the key as it is now, every 250ms.
+  - `within` is required for `bus`, and for any `absent` step. Without
+    it, an `fs` or `redis` step looks once.
+  - `fs` and `redis` steps look every 250ms, and a last time at the end of
+    the window. A `redis` step reads the key as it is then.
 - **What matches:** these keys narrow what counts as a match:
   - `jsonpath`, for all three, on the step's document;
   - `contents`, for `fs`;
@@ -632,7 +637,11 @@ These steps check what a call did outside its answer, through the target's
 - **`meetingId`** is an internal meeting ID: capture it from create's
   `internalMeetingID`.
   - A bus step needs one unless the case is tagged `serial`, so that other
-    cases' messages can't match.
+    cases' messages can't match. For the same reason, an `fs` path needs a
+    template, normally the meeting's internal ID, unless the case is
+    tagged `serial`.
+  - An `fs` step counts the files that match now, whenever they were
+    written, as well as those that appeared since the mark.
   - The tap finds a message's meeting wherever the message keeps it: its
     header, its routing, or its body (`meetingId`, `props.meetingProp.intId`,
     `meetingInfo.internalId`, `recordId` or `room.breakoutMeetingId`).

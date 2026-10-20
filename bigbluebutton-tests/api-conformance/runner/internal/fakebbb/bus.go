@@ -57,8 +57,10 @@ func (s *Server) publish(channel, sender, name, meetingID string, body any) {
 }
 
 // meetingProps is the fake's MeetingCreatedEvtMsg props: a few of akka-
-// apps' DefaultProps, from the create params. The bbb-api fake drops
-// muteOnStart, the kind of difference diff's props comparison is for.
+// apps' DefaultProps, from the create params. As there, keepEvents is the
+// meetingKeepEvents param alone, though a recorded meeting keeps its
+// events too. The bbb-api fake drops muteOnStart, the kind of difference
+// diff's props comparison is for.
 func (s *Server) meetingProps(m *meeting, p url.Values) map[string]any {
 	created := time.UnixMilli(m.createTime).UTC()
 	return map[string]any{
@@ -66,7 +68,7 @@ func (s *Server) meetingProps(m *meeting, p url.Values) map[string]any {
 		"durationProps": map[string]any{"duration": 0, "createdTime": m.createTime,
 			"createdDate": created.Format("Mon Jan 02 15:04:05 MST 2006")},
 		"password":   map[string]any{"moderatorPass": m.moderatorPW, "viewerPass": m.attendeePW},
-		"recordProp": map[string]any{"record": p.Get("record") == "true", "keepEvents": m.keepEvents()},
+		"recordProp": map[string]any{"record": p.Get("record") == "true", "keepEvents": m.meetingKeepEvents},
 		"voiceProp": map[string]any{"telVoice": m.voiceConf, "voiceConf": m.voiceConf, "dialNumber": "613-555-1234",
 			"muteOnStart": p.Get("muteOnStart") == "true" && !s.api},
 		"metadataProp": map[string]any{"metadata": m.meta},

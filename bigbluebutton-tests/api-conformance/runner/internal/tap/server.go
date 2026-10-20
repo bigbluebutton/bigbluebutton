@@ -33,6 +33,9 @@ const (
 	maxList    = 10000
 	pingEvery  = 30 * time.Second
 	silenceMax = 90 * time.Second
+	// dialTimeout bounds connecting to redis and its confirming the
+	// subscriptions.
+	dialTimeout = 10 * time.Second
 )
 
 // Config configures a tap.
@@ -147,16 +150,23 @@ func (s *Server) follow() {
 
 // listen subscribes once and logs messages until the connection ends.
 func (s *Server) listen() error {
-	ctx, cancel := context.WithTimeout(s.ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(s.ctx, dialTimeout)
 	c, err := resp.Dial(ctx, s.cfg.Redis)
 	cancel()
 	if err != nil {
 		return err
 	}
 	defer c.Close()
+	// Close cancels, then closes s.sub: checking under the same lock means
+	// a connection made while it ran is either closed by it or never used.
 	s.mu.Lock()
+	if err := s.ctx.Err(); err != nil {
+		s.mu.Unlock()
+		return err
+	}
 	s.sub = c
 	s.mu.Unlock()
+	c.SetReadDeadline(time.Now().Add(dialTimeout)) // a server that never confirms
 	if err := c.Subscribe(s.cfg.Channels...); err != nil {
 		return err
 	}
@@ -230,6 +240,8 @@ func (s *Server) info() Info {
 	}
 	if s.watchErr != nil {
 		i.WatchError = s.watchErr.Error()
+	} else if s.watcher != nil {
+		i.WatchError = strings.Join(s.watcher.Skipped(), "; ")
 	}
 	return i
 }

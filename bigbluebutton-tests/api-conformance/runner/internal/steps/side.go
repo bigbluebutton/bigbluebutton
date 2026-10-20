@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/assert"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/observe"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tap"
@@ -157,7 +158,7 @@ func (x *exec) bus(ctx context.Context, phase string, index int, s spec.Step, sr
 	if !result.OK && m == modeFind {
 		results = append(results, firstMiss...)
 	}
-	x.settle(phase, index, s, nil, doc, results, sr)
+	x.settle(phase, index, s, nil, doc, sr, checked(results))
 }
 
 // busSeen describes what a bus step saw instead of a match: candidates
@@ -180,6 +181,26 @@ func (x *exec) busSeen(ctx context.Context, meetingID string, candidates int) st
 		}
 	}
 	return "none; the meeting got " + strings.Join(names, ", ")
+}
+
+// pollAgain waits until an fs or redis step should look again, and says
+// whether it should: the last look is at the window's end, not before.
+func pollAgain(ctx context.Context, deadline time.Time) bool {
+	left := time.Until(deadline)
+	if left <= 0 || ctx.Err() != nil {
+		return false
+	}
+	select {
+	case <-time.After(min(pollEvery, left)):
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
+// checked gives settle results worked out already.
+func checked(results []assert.Result) func(*observe.Observation) ([]assert.Result, error) {
+	return func(*observe.Observation) ([]assert.Result, error) { return results, nil }
 }
 
 // filters is the part of a step's expect that chooses what counts as a
@@ -263,13 +284,8 @@ func (x *exec) fs(ctx context.Context, phase string, index int, s spec.Step, sr 
 		if !found && (e == nil || (e.Contents == nil && len(e.JSONPath) == 0)) && len(res.Appeared) > 0 {
 			doc, found = fileDoc(res.Appeared[0].Path, true, nil), true
 		}
-		stop := m == modeGone && gone || m != modeGone && m != modeAbsent && found || m == modeAbsent && found
-		if stop || time.Now().Add(pollEvery).After(deadline) || ctx.Err() != nil {
+		if m == modeGone && gone || m != modeGone && found || !pollAgain(ctx, deadline) {
 			break
-		}
-		select {
-		case <-time.After(pollEvery):
-		case <-ctx.Done():
 		}
 	}
 	what := "fs " + glob
@@ -300,7 +316,7 @@ func (x *exec) fs(ctx context.Context, phase string, index int, s spec.Step, sr 
 	if !result.OK && m == modeFind {
 		results = append(results, firstMiss...)
 	}
-	x.settle(phase, index, s, nil, doc, results, sr)
+	x.settle(phase, index, s, nil, doc, sr, checked(results))
 }
 
 // fileDoc is an fs step's document: the path, whether it was found, and
@@ -361,13 +377,8 @@ func (x *exec) redis(ctx context.Context, phase string, index int, s spec.Step, 
 		}
 		matched = exists && assert.Passed(results)
 		seen = seen || matched
-		stop := m == modeGone && !exists || m != modeGone && matched
-		if stop || time.Now().Add(pollEvery).After(deadline) || ctx.Err() != nil {
+		if m == modeGone && !exists || m != modeGone && matched || !pollAgain(ctx, deadline) {
 			break
-		}
-		select {
-		case <-time.After(pollEvery):
-		case <-ctx.Done():
 		}
 	}
 	doc, _ := json.Marshal(v)
@@ -391,7 +402,7 @@ func (x *exec) redis(ctx context.Context, phase string, index int, s spec.Step, 
 	if m == modeFind && v.Type != "none" {
 		all = append(all, results...)
 	}
-	x.settle(phase, index, s, nil, doc, all, sr)
+	x.settle(phase, index, s, nil, doc, sr, checked(all))
 }
 
 // keyChecks applies a redis step's filters to the key's value.

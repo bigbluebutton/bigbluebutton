@@ -309,3 +309,22 @@ func TestDuplicateIDs(t *testing.T) {
 		t.Errorf("files=%d cases=%d problems:\n%s", res.Files, len(res.Cases), dump(res.Problems))
 	}
 }
+
+// A serial case runs alone, so its side-effect steps may look at every
+// meeting's messages and files.
+func TestSerialSideEffects(t *testing.T) {
+	src := `id: create.x.y
+title: t
+endpoint: create
+class: contract
+tags: [serial]
+steps:
+  - bus: {name: MeetingCreatedEvtMsg, within: 1s}
+  - fs: {path: "recording/status/ended/*.done", within: 1s}
+    expect: {absent: true}
+`
+	cases, probs := LoadBytes("serial.yaml", []byte(src), Options{})
+	if len(probs) != 0 || len(cases) != 1 {
+		t.Errorf("cases=%d problems:\n%s", len(cases), dump(probs))
+	}
+}

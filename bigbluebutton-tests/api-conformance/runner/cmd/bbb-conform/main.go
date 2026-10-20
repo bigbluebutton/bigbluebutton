@@ -434,10 +434,15 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		r.ContinueOnFail = true
 		cols[i] = golden.NewCollector(tg, rules, red)
 		r.Observe = cols[i].Observe
+		var props *diff.Props
 		if bothTaps {
-			r.Observe = diff.PropsObserver(cols[i], r.Tap)
+			props = diff.NewProps(ctx, cols[i], r.Tap)
+			r.Observe = props.Observe
 		}
 		runs[i] = r.RunAll(ctx, selected, *parallel)
+		if props != nil {
+			props.Wait()
+		}
 	}
 	rep := diff.Compare(runs[0], runs[1], cols[0], cols[1])
 	if (tgs[0].TapURL == "") != (tgs[1].TapURL == "") {

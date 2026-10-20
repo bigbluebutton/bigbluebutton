@@ -67,3 +67,22 @@ func TestLogWait(t *testing.T) {
 		t.Error("an append didn't wake Wait")
 	}
 }
+
+// A full log drops its oldest entries without copying the rest, so an
+// append costs the same however much the log holds; entries handed out
+// earlier stay as they were.
+func TestFullLogAppends(t *testing.T) {
+	l := NewLog(10000*128, time.Hour)
+	for range 20000 {
+		l.Append(Entry{Kind: "bus"})
+	}
+	before, _ := l.After(l.Last() - 100)
+	if a := testing.AllocsPerRun(1000, func() { l.Append(Entry{Kind: "bus"}) }); a > 1 {
+		t.Errorf("%v allocations per append to a full log: it copies its entries", a)
+	}
+	for i, e := range before {
+		if e.Seq != before[0].Seq+int64(i) {
+			t.Fatalf("an entry handed out earlier changed: %d at %d", e.Seq, i)
+		}
+	}
+}

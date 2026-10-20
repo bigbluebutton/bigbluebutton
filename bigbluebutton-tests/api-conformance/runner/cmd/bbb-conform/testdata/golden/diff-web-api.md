@@ -78,7 +78,7 @@ Lines starting with `-` are fake-web's, with `+` fake-api's.
   - $.core.body.props.metadataProp.metadata.smoke "yes"
   - $.core.body.props.password.moderatorPass "<random>"
   - $.core.body.props.password.viewerPass "<random>"
-  - $.core.body.props.recordProp.keepEvents true
+  - $.core.body.props.recordProp.keepEvents false
   - $.core.body.props.recordProp.record true
   - $.core.body.props.voiceProp.dialNumber "613-555-1234"
   - $.core.body.props.voiceProp.muteOnStart true

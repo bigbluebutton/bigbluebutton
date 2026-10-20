@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -231,5 +233,49 @@ func TestFiles(t *testing.T) {
 	}
 	if err != nil || len(r.Files) != 0 || len(r.Appeared) != 1 || !r.Watched {
 		t.Errorf("a deleted marker: %+v %v", r, err)
+	}
+}
+
+// Close returns even while the tap waits on a redis that accepts the
+// connection and never answers.
+func TestCloseWhileSubscribing(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ln.Close()
+	var mu sync.Mutex
+	var conns []net.Conn
+	defer func() {
+		mu.Lock()
+		defer mu.Unlock()
+		for _, c := range conns {
+			c.Close()
+		}
+	}()
+	go func() {
+		for {
+			c, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			mu.Lock()
+			conns = append(conns, c)
+			mu.Unlock()
+		}
+	}()
+	for i := range 30 {
+		s, err := Start(Config{Redis: resp.Options{Addr: ln.Addr().String()}, MaxBytes: 1 << 20, MaxAge: time.Hour})
+		if err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(time.Duration(i%5) * time.Millisecond)
+		done := make(chan struct{})
+		go func() { s.Close(); close(done) }()
+		select {
+		case <-done:
+		case <-time.After(3 * time.Second):
+			t.Fatalf("Close hung, try %d", i)
+		}
 	}
 }

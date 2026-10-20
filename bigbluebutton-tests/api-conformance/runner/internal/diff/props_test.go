@@ -1,6 +1,7 @@
 package diff
 
 import (
+	"context"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
@@ -63,7 +64,9 @@ func (s side) create(t *testing.T, c *spec.Case, uid, intID, voiceProp string) {
 	h := http.Header{"Content-Type": {"text/xml"}}
 	obs := &observe.Observation{Status: 200, Header: h, Body: []byte("<response><returncode>SUCCESS</returncode><internalMeetingID>" + intID + "</internalMeetingID></response>")}
 	req := &client.Prepared{Method: "GET", URL: "https://bbb.test/bigbluebutton/api/create?meetingID=" + uid, Header: http.Header{}}
-	PropsObserver(s.col, s.tap)(steps.Observed{Case: c, UID: uid, Phase: "steps", Index: 0, Golden: "compare", Request: req, Obs: obs})
+	p := NewProps(t.Context(), s.col, s.tap)
+	p.Observe(steps.Observed{Case: c, UID: uid, Phase: "steps", Index: 0, Golden: "compare", Request: req, Obs: obs})
+	p.Wait()
 }
 
 func TestPropsCompared(t *testing.T) {
@@ -100,5 +103,30 @@ func TestPropsCompared(t *testing.T) {
 	b.create(t, c2, "bbbc-ud", id("bbbc-ud", 2), "")
 	if got := b.col.Props(c2.ID); len(got) != 1 || !strings.Contains(strings.Join(got[0].Lines, " "), "no MeetingCreatedEvtMsg within") {
 		t.Errorf("an unannounced meeting: %+v", got)
+	}
+}
+
+// Reading props never holds up a case, and stops when the run does.
+func TestPropsInBackground(t *testing.T) {
+	s := startSide(t)
+	c := &spec.Case{ID: "create.x.y", Endpoint: "create", Steps: []spec.Step{{Kind: spec.KindCall, Line: 7, Call: &spec.CallStep{HasCall: true, Call: "create"}}}}
+	ctx, cancel := context.WithCancel(t.Context())
+	p := NewProps(ctx, s.col, s.tap)
+	h := http.Header{"Content-Type": {"text/xml"}}
+	obs := &observe.Observation{Status: 200, Header: h, Body: []byte("<response><internalMeetingID>never-announced-1</internalMeetingID></response>")}
+	req := &client.Prepared{Method: "GET", URL: "https://bbb.test/bigbluebutton/api/create?meetingID=u", Header: http.Header{}}
+	start := time.Now()
+	p.Observe(steps.Observed{Case: c, UID: "u", Phase: "steps", Index: 0, Golden: "compare", Request: req, Obs: obs})
+	if d := time.Since(start); d > time.Second {
+		t.Errorf("Observe took %s: it waited for the props", d)
+	}
+	cancel()
+	start = time.Now()
+	p.Wait()
+	if d := time.Since(start); d > 2*time.Second {
+		t.Errorf("Wait took %s after the run was cancelled", d)
+	}
+	if got := s.col.Props(c.ID); len(got) != 1 || !strings.Contains(strings.Join(got[0].Lines, " "), "context canceled") {
+		t.Errorf("props of a cancelled run: %+v", got)
 	}
 }

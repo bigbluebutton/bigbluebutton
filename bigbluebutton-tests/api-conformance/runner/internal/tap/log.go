@@ -62,9 +62,10 @@ func (l *Log) Append(e Entry) int64 {
 		l.bytes -= l.entries[drop].size()
 		drop++
 	}
-	if drop > 0 {
-		l.entries = append([]Entry(nil), l.entries[drop:]...)
-	}
+	// Reslicing, not copying, keeps a full log's appends cheap: append
+	// moves the live entries to a new array once the old one is used up,
+	// and readers only ever read the part of an array they were handed.
+	l.entries = l.entries[drop:]
 	close(l.wake)
 	l.wake = make(chan struct{})
 	return e.Seq

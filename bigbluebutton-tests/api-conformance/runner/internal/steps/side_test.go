@@ -171,7 +171,7 @@ func TestSideEffectFailures(t *testing.T) {
     capture: {intId: /response/internalMeetingID}
   - call: end
     params: {meetingID: "${uid}"}
-  - fs: {path: "recording/status/recorded/*.done", within: 300ms}
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 300ms}
     expect: {absent: true}
 `, "expected none within 300ms, got recording/status/recorded/"},
 		{`steps:
@@ -216,5 +216,22 @@ func TestGapIsAnError(t *testing.T) {
 `)
 	if res.Status != report.Error || !strings.Contains(res.Reason, "may have missed messages") {
 		t.Errorf("%s: %s", res.Status, res.Reason)
+	}
+}
+
+// An fs or redis step looks one last time at the end of its window: a
+// file that turns up just before then still fails an absent step.
+func TestAbsentLooksToTheEnd(t *testing.T) {
+	w := startSide(t)
+	go func() {
+		time.Sleep(590 * time.Millisecond)
+		os.WriteFile(filepath.Join(w.fake.DataDir, "recording/status/ended/uid-1.done"), nil, 0o644)
+	}()
+	res := w.run(t, `steps:
+  - fs: {path: "recording/status/ended/${uid}.done", within: 600ms}
+    expect: {absent: true}
+`)
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "got recording/status/ended/uid-1.done") {
+		t.Errorf("%s after %d step(s): %s", res.Status, len(res.Steps), res.Reason)
 	}
 }

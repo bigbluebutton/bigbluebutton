@@ -277,10 +277,10 @@ func FillPath(path string, params map[string]string) (string, error) {
 	return out, nil
 }
 
-// Has reports whether the target declares capability c.
 // tapCapabilities are what a tap gives a target.
 var tapCapabilities = []string{"bus", "fs", "redis"}
 
+// Has reports whether the target declares capability c.
 func (t *Target) Has(c string) bool {
 	for _, have := range t.Capabilities {
 		if have == c {

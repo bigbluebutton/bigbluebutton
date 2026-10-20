@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -92,4 +93,81 @@ func TestWatchClose(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("Close didn't end the read")
 	}
+}
+
+func gapsTo(ev *events) func(string) { return func(why string) { ev.add(why, "gap") } }
+
+// A directory under a watched one that can't be watched is a gap, once;
+// the files around it aren't reported as new over and over.
+func TestWatchUnwatchableDir(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can watch any directory")
+	}
+	retryMissing = 20 * time.Millisecond
+	t.Cleanup(func() { retryMissing = time.Second })
+	root := t.TempDir()
+	for _, d := range []string{"recording/status/recorded", "recording/status/locked"} {
+		if err := os.MkdirAll(filepath.Join(root, d), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(root, "recording/status/recorded/old.done"), nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	locked := filepath.Join(root, "recording/status/locked")
+	if err := os.Chmod(locked, 0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Chmod(locked, 0o755) })
+	var ev events
+	w, err := Watch(root, []string{"recording/status"}, ev.add, gapsTo(&ev))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	if err := os.WriteFile(filepath.Join(root, "recording/status/recorded/new.done"), nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ev.waitFor(t, "created recording/status/recorded/new.done")
+	time.Sleep(10 * retryMissing)
+	ev.mu.Lock()
+	defer ev.mu.Unlock()
+	if got := strings.Join(ev.seen, "\n"); got != "gap can't watch recording/status/locked: permission denied\ncreated recording/status/recorded/new.done" {
+		t.Errorf("events:\n%s", got)
+	}
+	if s := w.Skipped(); len(s) != 1 || !strings.Contains(s[0], "recording/status/locked") {
+		t.Errorf("skipped %v", s)
+	}
+}
+
+// A directory asked for that is removed is a gap, and is watched again
+// once it is back.
+func TestWatchRemovedDir(t *testing.T) {
+	retryMissing = 20 * time.Millisecond
+	t.Cleanup(func() { retryMissing = time.Second })
+	root := t.TempDir()
+	status := filepath.Join(root, "recording/status")
+	if err := os.MkdirAll(filepath.Join(status, "recorded"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var ev events
+	w, err := Watch(root, []string{"recording/status"}, ev.add, gapsTo(&ev))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	if err := os.RemoveAll(status); err != nil {
+		t.Fatal(err)
+	}
+	ev.waitFor(t, "gap stopped watching recording/status: it was removed")
+	if err := os.MkdirAll(filepath.Join(status, "recorded"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ev.waitFor(t, "gap watching recording/status again: files may have come and gone in it while it wasn't")
+	marker := filepath.Join(status, "recorded/m.done")
+	if err := os.WriteFile(marker, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	os.Remove(marker)
+	ev.waitFor(t, "created recording/status/recorded/m.done")
 }
