@@ -77,12 +77,48 @@ type Collector struct {
 	mu    sync.Mutex
 	ctxs  map[string]*normalize.Context
 	cases map[string]map[Key]Step
+	props map[string]map[Key]Step // what akka-apps made of each create, by step
 }
 
 // NewCollector returns a collector; diff hooks it up with r.Observe =
 // c.Observe. Its lines are redacted with red, which may be nil.
 func NewCollector(t *target.Target, rules *normalize.Rules, red *tmpl.Redactor) *Collector {
-	return &Collector{rules: rules, target: t, red: red, ctxs: map[string]*normalize.Context{}, cases: map[string]map[Key]Step{}}
+	return &Collector{rules: rules, target: t, red: red, ctxs: map[string]*normalize.Context{}, cases: map[string]map[Key]Step{},
+		props: map[string]map[Key]Step{}}
+}
+
+// AddProps records the meeting props akka-apps announced for the meeting
+// a create step made, normalized with the case's own context. Call it
+// after Observe or Add has seen the step.
+func (c *Collector) AddProps(ev steps.Observed, doc []byte) {
+	c.mu.Lock()
+	ctx := c.ctxs[ev.Case.ID]
+	c.mu.Unlock()
+	if ctx == nil {
+		return
+	}
+	lines := normalize.Document(doc, ctx, c.rules)
+	for i, l := range lines {
+		lines[i] = c.red.Redact(l)
+	}
+	k := Key{ev.Phase, ev.Index}
+	line := 0
+	if ev.Index < len(ev.Case.Steps) {
+		line = ev.Case.Steps[ev.Index].Line
+	}
+	c.mu.Lock()
+	if c.props[ev.Case.ID] == nil {
+		c.props[ev.Case.ID] = map[Key]Step{}
+	}
+	c.props[ev.Case.ID][k] = Step{Key: k, Line: line, Lines: lines}
+	c.mu.Unlock()
+}
+
+// Props returns the meeting props recorded for a case, in step order.
+func (c *Collector) Props(id string) []Step {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return sorted(c.props[id])
 }
 
 // Observe records one response and never fails a step.
@@ -145,8 +181,12 @@ func (c *Collector) Add(ev steps.Observed) []string {
 func (c *Collector) Steps(id string) []Step {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	out := make([]Step, 0, len(c.cases[id]))
-	for _, s := range c.cases[id] {
+	return sorted(c.cases[id])
+}
+
+func sorted(m map[Key]Step) []Step {
+	out := make([]Step, 0, len(m))
+	for _, s := range m {
 		out = append(out, s)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Less(out[j].Key) })

@@ -413,6 +413,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 	casesRoot := filepath.Clean(*cases)
 	var runs [2]*report.Run
 	var cols [2]*golden.Collector
+	bothTaps := tgs[0].TapURL != "" && tgs[1].TapURL != ""
 	for i, tg := range tgs {
 		r, err := steps.NewRunner(tg, fixturesDir, version)
 		if err != nil {
@@ -433,9 +434,15 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		r.ContinueOnFail = true
 		cols[i] = golden.NewCollector(tg, rules, red)
 		r.Observe = cols[i].Observe
+		if bothTaps {
+			r.Observe = diff.PropsObserver(cols[i], r.Tap)
+		}
 		runs[i] = r.RunAll(ctx, selected, *parallel)
 	}
 	rep := diff.Compare(runs[0], runs[1], cols[0], cols[1])
+	if (tgs[0].TapURL == "") != (tgs[1].TapURL == "") {
+		rep.Warnings = append(rep.Warnings, "the meeting props are compared only when both targets have a tap")
+	}
 	var console strings.Builder
 	rep.WriteConsole(&console)
 	fmt.Fprint(stdout, red.Redact(console.String()))

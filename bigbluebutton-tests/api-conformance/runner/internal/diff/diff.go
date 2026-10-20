@@ -43,7 +43,8 @@ type CaseDiff struct {
 // StepDiff is one step that differs.
 type StepDiff struct {
 	golden.Key
-	Line int `json:"line"`
+	Part string `json:"part,omitempty"` // what of the step differs, when not its answer
+	Line int    `json:"line"`
 	// Kind is differing, only-a or only-b.
 	Kind string   `json:"kind"`
 	Hunk []string `json:"hunk"` // "-" for A's lines, "+" for B's
@@ -76,17 +77,22 @@ func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 			continue
 		}
 		oneSided := false
-		for _, p := range golden.Pairs(ca.Steps(ra.ID), cb.Steps(ra.ID)) {
-			switch {
-			case p.B == nil:
-				cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Line: p.A.Line, Kind: "only-a", Hunk: prefix("-", p.A.Lines)})
-				oneSided = true
-			case p.A == nil:
-				cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Line: p.B.Line, Kind: "only-b", Hunk: prefix("+", p.B.Lines)})
-				oneSided = true
-			default:
-				if h := golden.Lines(p.A.Lines, p.B.Lines); len(h) > 0 {
-					cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Line: p.A.Line, Kind: "differing", Hunk: h})
+		for _, part := range []struct {
+			name   string
+			ra, rb []golden.Step
+		}{{"", ca.Steps(ra.ID), cb.Steps(ra.ID)}, {PropsPart, ca.Props(ra.ID), cb.Props(ra.ID)}} {
+			for _, p := range golden.Pairs(part.ra, part.rb) {
+				switch {
+				case p.B == nil:
+					cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Part: part.name, Line: p.A.Line, Kind: "only-a", Hunk: prefix("-", p.A.Lines)})
+					oneSided = true
+				case p.A == nil:
+					cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Part: part.name, Line: p.B.Line, Kind: "only-b", Hunk: prefix("+", p.B.Lines)})
+					oneSided = true
+				default:
+					if h := golden.Lines(p.A.Lines, p.B.Lines); len(h) > 0 {
+						cd.Steps = append(cd.Steps, StepDiff{Key: p.Key, Part: part.name, Line: p.A.Line, Kind: "differing", Hunk: h})
+					}
 				}
 			}
 		}
@@ -184,7 +190,11 @@ func (r *Report) WriteMarkdown(w io.Writer) error {
 				if s.Phase == "teardown" {
 					phase = "teardown "
 				}
-				fmt.Fprintf(w, "\n  %sstep %d (line %d), %s:\n\n  ```diff\n", phase, s.Index+1, s.Line, s.Kind)
+				part := ""
+				if s.Part != "" {
+					part = ", " + s.Part
+				}
+				fmt.Fprintf(w, "\n  %sstep %d (line %d)%s, %s:\n\n  ```diff\n", phase, s.Index+1, s.Line, part, s.Kind)
 				for _, l := range s.Hunk {
 					fmt.Fprintf(w, "  %s\n", l)
 				}
