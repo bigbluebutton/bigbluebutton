@@ -71,6 +71,25 @@ export function getHocuspocusServerHostname() {
   }
 }
 
+
+/**
+ * Absolute Learning Analytics Dashboard base (no trailing slash).
+ * Absolute settings URLs are kept; relative paths are resolved against
+ * getServerRoot() so a remote UI still opens the dashboard on the BBB node.
+ */
+export function resolveLearningDashboardBase(learningDashboardBase) {
+  const base = String(learningDashboardBase || '').replace(/\/$/, '');
+  if (!base) {
+    return '';
+  }
+  if (/^https?:\/\//i.test(base)) {
+    return base;
+  }
+  const root = getServerRoot().replace(/\/$/, '');
+  const path = base.startsWith('/') ? base : `/${base}`;
+  return `${root}${path}`;
+}
+
 /**
  * Cache-busted URL for a static file under the client asset base.
  * relativePath is relative to /html5client/ (leading slash optional).

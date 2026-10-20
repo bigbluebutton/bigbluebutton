@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { resolveLearningDashboardBase } from '/imports/ui/services/url-builder';
 
 const setLearningDashboardCookie = (token) => {
   if (token !== null) {
@@ -12,10 +13,11 @@ const setLearningDashboardCookie = (token) => {
 
 const openLearningDashboardUrl = (lang, token) => {
   const APP = window.meetingClientSettings.public.app;
+  const dashboardBase = resolveLearningDashboardBase(APP.learningDashboardBase);
   if (token && setLearningDashboardCookie(token)) {
-    window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
+    window.open(`${dashboardBase}/?meeting=${Auth.meetingID}&lang=${lang}`, '_blank');
   } else {
-    window.open(`${APP.learningDashboardBase}/?meeting=${Auth.meetingID}&sessionToken=${Auth.sessionToken}&lang=${lang}`, '_blank');
+    window.open(`${dashboardBase}/?meeting=${Auth.meetingID}&sessionToken=${Auth.sessionToken}&lang=${lang}`, '_blank');
   }
 };
 
