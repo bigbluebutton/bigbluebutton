@@ -50,7 +50,7 @@ const setRoomMode = async (page: Page, roomMode: string): Promise<SetRoomModeOut
   return { accepted: result.data?.meetingSetRoomMode === true, errors: result.errors };
 };
 
-const expectRoomMode = async (page: Page, expected: string, message: string): Promise<void> => {
+export const expectRoomMode = async (page: Page, expected: string, message: string): Promise<void> => {
   await expect(async () => {
     expect(await getRoomMode(page), message).toBe(expected);
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
@@ -75,7 +75,7 @@ const APOLLO_EXPOSURE_SKIP_REASON =
   'clientSettingsOverride on create, which the server honours only with ' +
   'allowOverrideClientSettingsOnCreateCall=true (or with a development bundle)';
 
-const ensureProbe = async (page: Page): Promise<void> => {
+export const ensureProbe = async (page: Page): Promise<void> => {
   test.skip(!(await isApolloClientExposed(page.page, ELEMENT_WAIT_LONGER_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
 };
 

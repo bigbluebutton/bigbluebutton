@@ -2,11 +2,12 @@ import { ClientSettingsOverrides, InitOptionsProps } from '../core/page';
 
 // Pinned in both directions so the suite doesn't depend on the deployment's own
 // value: with the setting on, a page expecting the regular flow never reaches it.
-const preFlightSettings = (enabled: boolean): ClientSettingsOverrides => ({
+const preFlightSettings = (enabled: boolean, roomModes?: boolean): ClientSettingsOverrides => ({
   public: {
     app: {
       preFlight: {
         enabled,
+        ...(roomModes !== undefined && { roomModes: { enabled: roomModes } }),
       },
     },
   },
@@ -15,6 +16,10 @@ const preFlightSettings = (enabled: boolean): ClientSettingsOverrides => ({
 export const PRE_FLIGHT_SETTINGS_OVERRIDE = preFlightSettings(true);
 
 export const PRE_FLIGHT_DISABLED_SETTINGS_OVERRIDE = preFlightSettings(false);
+
+export const ROOM_MODE_PANEL_SETTINGS_OVERRIDE = preFlightSettings(true, true);
+
+export const ROOM_MODE_PANEL_DISABLED_SETTINGS_OVERRIDE = preFlightSettings(true, false);
 
 // None of init()'s post-join steps (layout wait, audio modal) exist yet: they are
 // asserted by the page object once the join is confirmed.
@@ -31,6 +36,21 @@ export const PRE_FLIGHT_CREATE_PARAMETER = 'muteOnStart=false';
 export const NO_PRE_FLIGHT_INIT_OPTIONS: InitOptionsProps = {
   clientSettingsOverrides: PRE_FLIGHT_DISABLED_SETTINGS_OVERRIDE,
 };
+
+// The moderator's room mode panel sits behind its own setting, pinned like the
+// pre-flight's.
+export const ROOM_MODE_PANEL_INIT_OPTIONS: InitOptionsProps = {
+  ...PRE_FLIGHT_INIT_OPTIONS,
+  clientSettingsOverrides: ROOM_MODE_PANEL_SETTINGS_OVERRIDE,
+};
+
+export const NO_ROOM_MODE_PANEL_INIT_OPTIONS: InitOptionsProps = {
+  ...PRE_FLIGHT_INIT_OPTIONS,
+  clientSettingsOverrides: ROOM_MODE_PANEL_DISABLED_SETTINGS_OVERRIDE,
+};
+
+// A phone in portrait: below the 40em breakpoint where the panels turn into tabs.
+export const PHONE_VIEWPORT = { width: 390, height: 844 };
 
 // Listen only is off on LiveKit and on by default elsewhere: pinned off, the
 // denied microphone's way past is "Continue without microphone" on any bridge.

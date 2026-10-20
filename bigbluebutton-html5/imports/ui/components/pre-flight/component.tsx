@@ -139,6 +139,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
   // Where listen only is off, a denied microphone can still be passed over:
   // the user joins without audio and can join it from the session.
   const [microphoneSkipped, setMicrophoneSkipped] = useState(false);
+  const [roomMode, setRoomMode] = useState<string | null>(null);
   const commitCameraRef = useRef<(() => void) | null>(null);
   const audioModeTouched = useRef(false);
 
@@ -258,6 +259,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
     devicesPending,
     permissionRetry,
     joiningWithoutAudio,
+    roomMode,
+    setRoomMode,
     commitCameraRef,
     commit,
   }), [
@@ -272,6 +275,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
     devicesPending,
     permissionRetry,
     joiningWithoutAudio,
+    roomMode,
     commit,
   ]);
 
