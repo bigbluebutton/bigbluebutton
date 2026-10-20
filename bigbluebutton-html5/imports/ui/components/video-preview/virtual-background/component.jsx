@@ -13,7 +13,7 @@ import {
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
 import { ACTIONS, CustomVirtualBackgroundsContext } from './context';
-import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import VirtualBgService from '/imports/ui/services/virtual-background/custom-backgrounds';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
