@@ -270,6 +270,13 @@ runs against bbb-web's recordings, so its gaps show up the same way. A case
 with something to compare and no recording, or with a stale one, is an ERROR,
 and sends nothing.
 
+**Reviewing:** `review --golden golden/bbb-web` shows each recording beside
+its case: ID, title, class, file and the case itself. `--since REV` (a git
+revision, e.g. `HEAD` before committing or the target branch of a pull
+request) shows only the recordings added, changed or removed since then,
+changed ones as a diff, section by section. `--id` narrows it down, and
+`--html FILE` also writes it as one page.
+
 Record from the server CI runs against, so recordings hold its
 configuration rather than a developer's. A recording is reviewed like code
 before it is committed, and never edited by hand: change the case or

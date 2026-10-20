@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recording review</title>
+<style>
+:root { --bg: #fff; --fg: #1d2129; --muted: #5f6672; --line: #d7dae0; --code: #f5f6f8;
+  --add: #dff3e4; --del: #fbe0de; --head: #e8ecf5; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #16181d; --fg: #e6e8eb; --muted: #a0a6b0; --line: #343842; --code: #1e2127;
+    --add: #1d3b27; --del: #4a2321; --head: #262b38; }
+}
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, sans-serif; margin: 0; padding: 16px; }
+h1 { font-size: 20px; } h2 { font-size: 16px; margin: 28px 0 4px; word-break: break-all; }
+p.meta { color: var(--muted); margin: 0 0 8px; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+pre { background: var(--code); border: 1px solid var(--line); margin: 0; padding: 8px; overflow-x: auto;
+  font: 12px/1.5 ui-monospace, monospace; }
+pre span { display: block; white-space: pre; }
+.add { background: var(--add); } .del { background: var(--del); } .head { background: var(--head); font-weight: 600; }
+.status { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+</style>
+</head>
+<body>
+<h1>Recordings in testdata/recordings/smoke</h1>
+
+
+<h2>getMeetingInfo.smoke.json-error<span class="status">recorded</span></h2>
+<p class="meta">Errors come back as JSON when the client asks for JSON · contract · ../../testdata/smoke/getMeetingInfo/json-error.yaml:1</p>
+<div class="pair">
+<pre>id: getMeetingInfo.smoke.json-error
+title: Errors come back as JSON when the client asks for JSON
+endpoint: getMeetingInfo
+class: contract
+tags: [ci]
+steps:
+  - call: getMeetingInfo
+    params: {meetingID: &#34;${uid}&#34;}
+    headers: {Accept: application/json}
+    expect:
+      format: json
+      returncode: FAILED
+      messageKey: notFound
+</pre>
+<pre><span class=""># Recorded by bbb-conform record. Review it with bbb-conform review before committing.</span><span class="">case getMeetingInfo.smoke.json-error</span><span class="">target fake</span><span class=""></span><span class="head">== step 1: call getMeetingInfo</span><span class="">status 200</span><span class="">header Content-Type application/json</span><span class="">body json</span><span class="">$.response.message &#34;We could not find a meeting with that meeting ID&#34;</span><span class="">$.response.messageKey &#34;notFound&#34;</span><span class="">$.response.returncode &#34;FAILED&#34;</span></pre>
+</div>
+
+<h2>version.smoke.fields<span class="status">recorded</span></h2>
+<p class="meta">The version endpoint answers without a checksum · contract · ../../testdata/smoke/version/fields.yaml:1</p>
+<div class="pair">
+<pre>id: version.smoke.fields
+title: The version endpoint answers without a checksum
+endpoint: version
+class: contract
+tags: [ci]
+steps:
+  - call: &#34;&#34;
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/version: {exists: true}
+</pre>
+<pre><span class=""># Recorded by bbb-conform record. Review it with bbb-conform review before committing.</span><span class="">case version.smoke.fields</span><span class="">target fake</span><span class=""></span><span class="head">== step 1: call &#34;&#34;</span><span class="">status 200</span><span class="">header Cache-Control no-cache</span><span class="">header Content-Type text/xml;charset=utf-8</span><span class="">body xml</span><span class="">/response/returncode &#34;SUCCESS&#34;</span><span class="">/response/version &#34;2.0&#34;</span><span class="">/response/apiVersion &#34;2.0&#34;</span><span class="">/response/bbbVersion</span></pre>
+</div>
+
+</body>
+</html>

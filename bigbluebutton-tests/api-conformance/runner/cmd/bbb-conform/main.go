@@ -10,6 +10,7 @@
 //	bbb-conform record --target FILE [--cases DIR] [--fixtures DIR] [--tags T,..]
 //	                   [--exclude-tags T,..] [--id GLOB,..] [--parallel N] [--masks FILE]
 //	                   [--out DIR] [--passes N]
+//	bbb-conform review --golden DIR [--cases DIR] [--id GLOB,..] [--since REV] [--html FILE]
 //	bbb-conform gap --results FILE [--results FILE ...] [--md FILE] [--html FILE]
 //	bbb-conform validate [--cases DIR] [--fixtures DIR]
 //	bbb-conform version
@@ -50,6 +51,7 @@ const (
   bbb-conform run --target FILE [options]               run cases against a target
   bbb-conform diff --a FILE --b FILE [options]          compare how two targets answer
   bbb-conform record --target FILE [options]            record how a target answers
+  bbb-conform review --golden DIR [options]             show recordings beside their cases
   bbb-conform gap --results FILE... [--md F] [--html F] the gap matrix of several runs
   bbb-conform validate [--cases DIR] [--fixtures DIR]   check case files
   bbb-conform version                                   print the version
@@ -74,6 +76,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdDiff(args[1:], stdout, stderr)
 	case "record":
 		return cmdRecord(args[1:], stdout, stderr)
+	case "review":
+		return cmdReview(args[1:], stdout, stderr)
 	case "gap":
 		return cmdGap(args[1:], stdout, stderr)
 	case "validate":
