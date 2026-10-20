@@ -30,7 +30,6 @@
     "@playwright/test": "^1.56.0",
     "axios": "^1.20.0",
     "chalk": "^4.1.2",
-    "deep-equal": "^2.2.3",
     "dotenv": "^16.4.5",
     "playwright": "^1.56.0",
     "sha.js": "^2.4.12",
@@ -38,7 +37,6 @@
     "@swc/core": "^1.13.5"
   },
   "devDependencies": {
-    "@types/deep-equal": "^1.0.4",
     "@types/node": "^24.5.2",
     "@types/sha.js": "^2.4.4",
     "@types/xml2js": "^0.4.14",
