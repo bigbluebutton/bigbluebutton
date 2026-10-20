@@ -18,7 +18,7 @@ function "tags" {
   result = ["${BBB_IMAGE_REGISTRY}/bbb-${name}:${BBB_IMAGE_TAG}"]
 }
 
-# Every image, and every base, builds for both platforms
+# Every image and base builds for both platforms, except where a target says otherwise
 target "_image" {
   platforms = ["linux/amd64", "linux/arm64"]
   labels    = { "org.opencontainers.image.source" = "https://github.com/bigbluebutton/bigbluebutton" }
@@ -123,11 +123,13 @@ target "shared-notes-server" {
   context  = "./bbb-shared-notes-server"
 }
 
+# amd64 only: mkclean has no 64-bit ARM build target, and its package is amd64 only too
 target "record-and-playback" {
-  inherits = ["_image"]
-  tags     = tags("record-and-playback")
-  context  = "./record-and-playback"
-  contexts = {
+  inherits  = ["_image"]
+  platforms = ["linux/amd64"]
+  tags      = tags("record-and-playback")
+  context   = "./record-and-playback"
+  contexts  = {
     bigbluebutton-config = "./bigbluebutton-config"
     bbb-mkclean          = "./build/packages-template/bbb-mkclean"
   }

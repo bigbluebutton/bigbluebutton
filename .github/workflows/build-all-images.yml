@@ -60,6 +60,9 @@ jobs:
       matrix:
         target: ${{ fromJSON(needs.targets.outputs.targets) }}
         platform: ${{ fromJSON(github.event_name == 'pull_request' && '["amd64"]' || '["amd64", "arm64"]') }}
+        exclude:
+          - target: record-and-playback  # amd64 only, see docker-bake.hcl
+            platform: arm64
     steps:
       - uses: actions/checkout@v5
 
@@ -94,8 +97,11 @@ jobs:
     if: github.event_name != 'pull_request' && github.repository == 'bigbluebutton/bigbluebutton'
     runs-on: ubuntu-24.04
     permissions:
+      contents: read
       packages: write
     steps:
+      - uses: actions/checkout@v5
+
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -108,5 +114,9 @@ jobs:
         run: |
           for t in $TARGETS; do
             image="$BBB_IMAGE_REGISTRY/bbb-$t:$TAG"
-            docker buildx imagetools create -t "$image" "$image-amd64" "$image-arm64"
+            sources=()
+            for p in $(docker buildx bake --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
+              sources+=("$image-$p")
+            done
+            docker buildx imagetools create -t "$image" "${sources[@]}"
           done
