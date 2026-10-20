@@ -6,7 +6,7 @@ NEW        create.validation.name-length-1
 NEW        create.validation.name-length-2
 NEW        create.validation.name-length-256
 NEW        create.validation.name-length-257
-SKIP       create.props.mute-on-start: unimplemented: bus, env, fs, redis, sink
+SKIP       create.props.mute-on-start: unimplemented: env, sink
 NEW        getMeetingInfo.fields.metadata
 NEW        getMeetings.checksum.errors
 NEW        getMeetings.checksum.modes-sha1-last

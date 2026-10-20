@@ -25,6 +25,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tap"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
 )
@@ -37,7 +38,8 @@ const DefaultTimeout = 30 * time.Second
 const minAttempt = 250 * time.Millisecond
 
 // Implemented lists the step types this runner can execute.
-var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true, spec.KindPresence: true, spec.KindGraphQL: true}
+var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true, spec.KindPresence: true, spec.KindGraphQL: true,
+	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true}
 
 // Runner runs cases against one target.
 type Runner struct {
@@ -66,6 +68,8 @@ type Runner struct {
 	// PingEvery is how often a presence user's connection pings;
 	// presence.DefaultPingEvery when zero.
 	PingEvery time.Duration
+	// Tap is the target's tap, for bus, fs and redis steps; nil without one.
+	Tap *tap.Client
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -112,7 +116,11 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 			red.Add("[secret:"+name+"]", v.Value)
 		}
 	}
-	return &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, TLS: tlsCfg, Redactor: red, Version: version, NewUID: randomUID}, nil
+	r := &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, TLS: tlsCfg, Redactor: red, Version: version, NewUID: randomUID}
+	if t.TapURL != "" {
+		r.Tap = tap.NewClient(t.TapURL)
+	}
+	return r, nil
 }
 
 func randomUID(int) string {
@@ -331,6 +339,7 @@ type exec struct {
 	session  *client.Session
 	env      *tmpl.Env
 	users    map[string]*presence.User // presence users, by handle
+	mark     tap.Mark                  // where the case's bus and fs steps look from
 }
 
 // RunCase runs one case with the given ${uid}.
@@ -349,6 +358,15 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 
 	x := &exec{r: r, c: c, uid: uid, captured: map[string]string{}, session: client.NewSession(r.Transport), users: map[string]*presence.User{}}
 	defer x.closeUsers() // after teardown, on every path
+	if needsMark(c) {
+		// Before anything is sent, so steps see what the first one causes.
+		m, err := r.Tap.Mark(ctx)
+		if err != nil {
+			res.Status, res.Reason = report.Error, r.Redactor.Redact(err.Error())
+			return res
+		}
+		x.mark = m
+	}
 	x.env = &tmpl.Env{
 		Vars:        x.lookup,
 		FixturesDir: r.FixturesDir,
@@ -445,6 +463,12 @@ func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) repor
 		x.presence(ctx, phase, i, s, &sr)
 	case spec.KindGraphQL:
 		x.graphql(ctx, phase, i, s, &sr)
+	case spec.KindBus:
+		x.bus(ctx, phase, i, s, &sr)
+	case spec.KindFS:
+		x.fs(ctx, phase, i, s, &sr)
+	case spec.KindRedis:
+		x.redis(ctx, phase, i, s, &sr)
 	default:
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}

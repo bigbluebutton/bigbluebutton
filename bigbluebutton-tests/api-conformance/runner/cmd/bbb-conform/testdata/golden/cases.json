@@ -744,7 +744,7 @@
       "file": "../../testdata/cases/create/props-side-effects.yaml",
       "line": 3,
       "status": "SKIP",
-      "reason": "unimplemented: bus, env, fs, redis, sink",
+      "reason": "unimplemented: env, sink",
       "duration_ms": 0
     },
     {

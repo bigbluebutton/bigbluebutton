@@ -131,9 +131,19 @@ func sessionToken(o *observe.Observation) string {
 }
 
 // document checks and records what a presence or graphql step returned:
-// the hook's results first, then extra, then the step's expect, then its
-// captures. req is the HTTP join it sent, if any.
+// extra, then the step's expect. req is the HTTP join it sent, if any.
 func (x *exec) document(phase string, index int, s spec.Step, req *client.Prepared, doc []byte, extra []assert.Result, sr *report.StepResult) {
+	results, err := assert.Check(s.Expect, documentObservation(doc), assert.Eval(x.expand))
+	if err != nil {
+		sr.Status, sr.Message = report.Error, err.Error()
+		return
+	}
+	x.settle(phase, index, s, req, doc, append(extra, results...), sr)
+}
+
+// settle records a step's document and results: the hook's results
+// first, then the step's own, then its captures.
+func (x *exec) settle(phase string, index int, s spec.Step, req *client.Prepared, doc []byte, results []assert.Result, sr *report.StepResult) {
 	o := documentObservation(doc)
 	sr.Document = x.redact(clip(string(doc), maxResponseBody))
 	pre, err := x.observe(phase, index, s, req, o)
@@ -141,12 +151,7 @@ func (x *exec) document(phase string, index int, s spec.Step, req *client.Prepar
 		sr.Status, sr.Message = report.Error, err.Error()
 		return
 	}
-	results, err := assert.Check(s.Expect, o, assert.Eval(x.expand))
-	if err != nil {
-		sr.Status, sr.Message = report.Error, err.Error()
-		return
-	}
-	results = append(append(pre, extra...), results...)
+	results = append(pre, results...)
 	sr.Assertions = x.redactResults(results)
 	sr.Status = report.Pass
 	if !assert.Passed(results) {
