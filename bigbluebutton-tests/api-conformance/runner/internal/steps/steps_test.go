@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/assert"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakebbb"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
@@ -243,6 +244,12 @@ func TestTemplatedHeaderKey(t *testing.T) {
 // runAgainst runs one case against handler, as an eventually test needs.
 func runAgainst(t *testing.T, handler http.Handler, src string) *report.CaseResult {
 	t.Helper()
+	return runHooked(t, handler, src, func(*Runner) {})
+}
+
+// runHooked runs one case against handler, with the runner set up by setup.
+func runHooked(t *testing.T, handler http.Handler, src string, setup func(*Runner)) *report.CaseResult {
+	t.Helper()
 	srv := httptest.NewServer(handler)
 	defer srv.Close()
 	cases, probs := spec.LoadBytes("case.yaml", []byte(header(src)), spec.Options{})
@@ -253,6 +260,7 @@ func runAgainst(t *testing.T, handler http.Handler, src string) *report.CaseResu
 	if err != nil {
 		t.Fatal(err)
 	}
+	setup(r)
 	return r.RunCase(context.Background(), cases[0], "uid-1")
 }
 
@@ -521,5 +529,71 @@ func TestGoldenMode(t *testing.T) {
 		if got := GoldenMode(tt.c, tt.phase, tt.s); got != tt.want {
 			t.Errorf("%s: got %s, want %s", tt.name, got, tt.want)
 		}
+	}
+}
+
+// What Observe returns is checked first, as part of the step.
+func TestObserveResultsComeFirst(t *testing.T) {
+	var modes []string
+	res := runHooked(t, fakebbb.New(salt), `steps:
+  - call: getMeetings
+    expect: {returncode: SUCCESS}
+teardown:
+  - call: getMeetings
+`, func(r *Runner) {
+		r.Observe = func(ev Observed) ([]assert.Result, error) {
+			modes = append(modes, ev.Phase+":"+ev.Golden)
+			if ev.Phase == "teardown" {
+				return nil, nil
+			}
+			return []assert.Result{{What: "recording status", Expected: "201", Actual: "200"}}, nil
+		}
+	})
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "recording status: expected 201, got 200") {
+		t.Errorf("status %s, reason %q; want FAIL from the hook's result", res.Status, res.Reason)
+	}
+	if a := res.Steps[0].Assertions; len(a) != 2 || a[0].What != "recording status" || !a[1].OK {
+		t.Errorf("assertions = %+v, want the hook's, then expect's", a)
+	}
+	if strings.Join(modes, " ") != "steps:compare teardown:off" {
+		t.Errorf("observed %v", modes)
+	}
+}
+
+func TestObserveErrorIsError(t *testing.T) {
+	res := runHooked(t, fakebbb.New(salt), "steps:\n  - call: getMeetings\n  - call: getMeetings\n", func(r *Runner) {
+		r.Observe = func(Observed) ([]assert.Result, error) { return nil, fmt.Errorf("no recording (%s)", salt) }
+	})
+	if res.Status != report.Error || len(res.Steps) != 1 || !strings.Contains(res.Reason, "no recording ([salt])") {
+		t.Errorf("status %s after %d step(s), reason %q; want ERROR at step 1, redacted", res.Status, len(res.Steps), res.Reason)
+	}
+}
+
+// An eventually that runs out of time still reports the hook's results.
+func TestObserveOnEventuallyTimeout(t *testing.T) {
+	running := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/xml")
+		w.Write([]byte("<response><returncode>SUCCESS</returncode><running>true</running></response>"))
+	})
+	res := runHooked(t, running, pollCase, func(r *Runner) {
+		r.Observe = func(Observed) ([]assert.Result, error) {
+			return []assert.Result{{What: "recording /response/running", Expected: `"false"`, Actual: `"true"`}}, nil
+		}
+	})
+	if a := res.Steps[0].Assertions; res.Status != report.Fail || len(a) < 2 || a[0].What != "recording /response/running" {
+		t.Errorf("status %s, assertions %+v; want FAIL with the hook's result first", res.Status, a)
+	}
+}
+
+func TestBeforeErrorSendsNothing(t *testing.T) {
+	fake := fakebbb.New(salt)
+	res := runHooked(t, fake, "steps:\n  - call: getMeetings\nteardown:\n  - call: getMeetings\n", func(r *Runner) {
+		r.Before = func(c *spec.Case) error { return fmt.Errorf("%s: recording is stale", c.ID) }
+	})
+	if res.Status != report.Error || res.Reason != "create.x.y: recording is stale" {
+		t.Errorf("status %s, reason %q", res.Status, res.Reason)
+	}
+	if len(fake.Requests) != 0 || len(res.Steps)+len(res.Teardown) != 0 {
+		t.Errorf("sent %d request(s), ran %d step(s); want none", len(fake.Requests), len(res.Steps)+len(res.Teardown))
 	}
 }

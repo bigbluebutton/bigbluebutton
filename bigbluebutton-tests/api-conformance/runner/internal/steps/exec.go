@@ -52,9 +52,14 @@ type Runner struct {
 	// included, so every step gets a response to compare (diff mode). A
 	// capture that finds nothing still stops the case.
 	ContinueOnFail bool
-	// Observe, when set, sees every response a call step gets. It is called
-	// from the case's goroutine; cases run in parallel.
-	Observe func(Observed)
+	// Observe, when set, sees every response a call step gets, before its
+	// expect is checked. The results it returns count as the step's first
+	// checks; an error makes the step ERROR. It is called from the case's
+	// goroutine; cases run in parallel.
+	Observe func(Observed) ([]assert.Result, error)
+	// Before, when set, sees each case that will run before it sends
+	// anything; an error makes the case ERROR.
+	Before func(*spec.Case) error
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -324,6 +329,12 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 		res.Status, res.Reason = report.Skip, why
 		return res
 	}
+	if r.Before != nil {
+		if err := r.Before(c); err != nil {
+			res.Status, res.Reason = report.Error, r.Redactor.Redact(err.Error())
+			return res
+		}
+	}
 
 	x := &exec{r: r, c: c, uid: uid, captured: map[string]string{}, session: client.NewSession(r.Transport)}
 	x.env = &tmpl.Env{
@@ -479,9 +490,13 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 					msg += fmt.Sprintf("; the last attempt failed: %v", lastErr)
 				}
 				sr.Response = x.responseInfo(o)
-				sr.Assertions = x.redactResults(lastUntil)
+				pre, err := x.observe(phase, index, s, p, o)
+				if err != nil {
+					sr.Status, sr.Message = report.Error, err.Error()
+					return
+				}
+				sr.Assertions = x.redactResults(append(pre, lastUntil...))
 				sr.Status, sr.Message = report.Fail, msg
-				x.observe(phase, index, s, p, o)
 				if x.r.ContinueOnFail {
 					x.captures(s, o, sr)
 				}
@@ -502,13 +517,17 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 		}
 	}
 	sr.Response = x.responseInfo(o)
-	x.observe(phase, index, s, p, o)
-
+	pre, err := x.observe(phase, index, s, p, o)
+	if err != nil {
+		sr.Status, sr.Message = report.Error, err.Error()
+		return
+	}
 	results, err := assert.Check(s.Expect, o, eval)
 	if err != nil {
 		sr.Status, sr.Message = report.Error, err.Error()
 		return
 	}
+	results = append(pre, results...)
 	sr.Assertions = x.redactResults(results)
 	sr.Status = report.Pass
 	if !assert.Passed(results) {
@@ -520,10 +539,11 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 	x.captures(s, o, sr)
 }
 
-func (x *exec) observe(phase string, index int, s spec.Step, p *client.Prepared, o *observe.Observation) {
-	if x.r.Observe != nil {
-		x.r.Observe(Observed{Case: x.c, UID: x.uid, Phase: phase, Index: index, Golden: GoldenMode(x.c, phase, s), Request: p, Obs: o})
+func (x *exec) observe(phase string, index int, s spec.Step, p *client.Prepared, o *observe.Observation) ([]assert.Result, error) {
+	if x.r.Observe == nil {
+		return nil, nil
 	}
+	return x.r.Observe(Observed{Case: x.c, UID: x.uid, Phase: phase, Index: index, Golden: GoldenMode(x.c, phase, s), Request: p, Obs: o})
 }
 
 // captures stores the step's captures. A capture that finds nothing makes
