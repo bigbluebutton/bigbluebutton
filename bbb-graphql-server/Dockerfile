@@ -3,8 +3,10 @@ FROM hasura/graphql-engine:v2.49.3-ce.cli-migrations-v3@sha256:d3889fe021838f1a2
 
 FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
 
-# Libraries of the engine as in opts-noble.sh; netcat for Hasura's entrypoint
+# Libraries of the engine as in opts-noble.sh; netcat for Hasura's entrypoint; netbase for
+# /etc/protocols, without which the engine makes no outbound HTTP call (the auth hook)
 RUN apt-get update && apt-get install -y --no-install-recommends libpq5 libkrb5-3 libnuma1 libodbc2 netcat-openbsd \
+        netbase ca-certificates \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd -g 998 bigbluebutton && useradd -u 998 -g 998 -m bigbluebutton
 
