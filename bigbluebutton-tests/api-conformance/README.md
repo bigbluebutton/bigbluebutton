@@ -5,8 +5,9 @@ bbb-web and its Go replacement, bbb-api, can be checked against the same
 cases. Cases are declarative YAML; `bbb-conform` (in `runner/`) runs them.
 
 **Status:** `bbb-conform` validates cases, runs HTTP steps (`call`, `route`,
-`url` and `wait`) and records what a server answers. Cases that use the
-other step types or response schemas are skipped until those are
+`url` and `wait`), joins headless users to meetings (`presence`) and runs
+GraphQL as them (`graphql`), and records what a server answers. Cases that
+use the other step types or response schemas are skipped until those are
 implemented.
 
 ```
@@ -61,10 +62,11 @@ baseUrl: https://bbb.example.com     # scheme and host only
 apiPrefix: /bigbluebutton/api/       # the default; bbb-api uses /meeting-api/
 saltEnv: BBB_SECRET                  # or salt: ...
 tls: {caFile: dev-ca.crt}            # relative to this file; or insecureSkipVerify: true
-capabilities: [akka]
+capabilities: [akka, presence]
 defaultSign: sha256
 sinkUrl: https://sink.example.com    # optional, for ${sinkUrl}
 fixtureUrl: https://files.example.com
+graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql
 vars:
   turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
 ```
@@ -206,10 +208,10 @@ Values that change from run to run are masked:
 
 | Field (any depth, also as a query param inside URLs) | Becomes |
 |---|---|
-| createTime, startTime, endTime | `<time>` |
+| createTime, startTime, endTime, and GraphQL's registeredOn and registeredAt | `<time>`, for digits or an ISO-8601 time |
 | createDate | `<date>` in Java's `Date.toString()` format, otherwise its shape (digits as 9) |
-| internalMeetingID, meeting_id, parentMeetingID, recordID | `<sha1(meetingID)>-<time>`, naming the sent param whose SHA-1 it is, or `<sha1(?)>` |
-| userID, user_id, internalUserID, existingUserID | `w_<id>` |
+| internalMeetingID, meeting_id, parentMeetingID, recordID, and GraphQL's meetingId and parentMeetingId | `<sha1(meetingID)>-<time>`, naming the sent param whose SHA-1 it is, or `<sha1(?)>` |
+| userID, user_id, internalUserID, existingUserID, and GraphQL's userId and extId | `w_<id>` |
 | attendeePW, moderatorPW, voiceBridge | `<random>`, unless the case sent that value |
 | session and auth tokens, checksum, JSESSIONID | `<token>` |
 | stuns TURN username and password | `<expiry>:…` and `<token>` |
@@ -223,6 +225,9 @@ After masking:
   check them with `expect`, which sees the raw response;
 - lists whose order isn't defined are sorted: meetings, recordings, metadata,
   attendees, STUN and TURN servers.
+
+What a `presence` or `graphql` step returns is a JSON document, not a
+response: it becomes the document's lines alone, normalized the same way.
 
 `masks.yaml`, next to the cases directory, adds rules or overrides the
 built-in ones: `masks`, `unordered`, `scope`, `drop` (removes the lines a
@@ -305,8 +310,9 @@ body xml
 ```
 
 - **Sections:** one per step that takes `golden` and isn't `off`, numbered
-  like the steps in reports (`wait` steps count). `(document)` marks a step
-  that is recorded but not compared.
+  like the steps in reports (`wait` steps count) and named after what the
+  step does, e.g. `call create`, `presence join as ann` or `graphql query
+  Me as ann`. `(document)` marks a step that is recorded but not compared.
 - **The lines** are the normalized response (see
   [Normalized responses](#normalized-responses)).
 - **Stale:** a case's sections follow from the case alone. When the case
@@ -412,8 +418,8 @@ Each step has exactly one step-type key.
 |---|---|---|
 | `call`, `route`, `url` | An HTTP request; see below. | yes |
 | `wait` | A duration: `wait: 500ms`. | yes |
-| `presence` | `{action: join\|leave\|<action>, as: <user>, joinUrl, args}`: a headless user. | not yet |
-| `graphql` | `{as: <user>, query, variables}`, run as a user `presence` joined. `expect: {jsonpath, errors}`. | not yet |
+| `presence` | `{action: join\|leave\|disconnect\|reconnect, as: <user>, args\|joinUrl\|sessionToken, timeout}`: a headless user; see [Users](#users-presence-and-graphql). `expect: {jsonpath}`. | yes |
+| `graphql` | `{as: <user>, query, variables, timeout}`, run as a user `presence` joined. `expect: {jsonpath, errors}`, `eventually`. | yes |
 | `bus` | `{name, channel, meetingId, within}`: a redis message. `expect: {jsonpath, absent}`. | not yet |
 | `fs` | `{path, within}`, relative to the target's data directory; `path` may be a glob. `expect: {exists, absent, contents, jsonpath}`. | not yet |
 | `redis` | `{key, within}`. `expect: {exists, absent, hash, members, ttl}`. | not yet |
@@ -424,6 +430,87 @@ Each step has exactly one step-type key.
   `unimplemented:<type>`. This is decided before any step runs.
 - With `within`, `absent: true` means "never seen during the whole window".
 - Every step that observes something takes `expect`, `capture` and `golden`.
+
+#### Users: `presence` and `graphql`
+
+A `presence` user joins a meeting the way the HTML5 client does: over
+bbb-graphql-middleware's websocket (the target's `graphqlUrl`), with the
+JSESSIONID the join set. Targets that can do this declare the `presence`
+capability; `presence` and `graphql` steps need it.
+
+```yaml
+- presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+  capture: {annId: $.userId}
+- presence: {action: join, as: bob, joinUrl: "${joinUrl}"}         # e.g. from getJoinUrl
+- call: join                                                       # a join with its own headers
+  client: eve
+  params: {meetingID: "${uid}", fullName: Eve, redirect: "false"}
+  headers: {User-Agent: Integration/1.0}
+  capture: {eveToken: /response/session_token}
+- presence: {action: join, as: eve, sessionToken: "${eveToken}"}
+```
+
+- **Joining:** a user's first `join` takes exactly one of `args` (join
+  params, signed like a call step's), `joinUrl`, or `sessionToken` (the
+  session a `call` step with `client: <as>` began: they share cookies).
+  The user then joins the meeting, and `join` waits until their in-meeting
+  queries are answered. `timeout` defaults to 30s.
+- **Guests:** a guest who must wait for approval is left waiting: the step
+  passes and shows `guestStatus: WAIT`. A later `join` on the same user,
+  with no source, waits for the approval and joins.
+- **Other actions:** `leave` logs the user out, like the client's Leave
+  button. `disconnect` drops the connection, like a closed tab: the user is
+  removed about 10 to 20 seconds later, unless they `reconnect`.
+- **The result** is the user's state from `user_current`: `userId`, `extId`,
+  `name`, `role`, `isModerator`, `guest`, `guestStatus`, `joined`,
+  `loggedOut`, `ejected`, `ejectReasonCode`, `joinErrorCode`,
+  `joinErrorMessage`, and the `sessionToken`. A failed join stops the case.
+- **Connections close** when the case ends, whatever happened in it.
+
+A `graphql` step runs one operation as a user who joined:
+
+```yaml
+- graphql:
+    as: ann
+    query: "mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }"
+    variables: {id: "${bobId}"}
+- graphql: {as: bob, query: "query Me { user_current { presenter } }"}
+  eventually: {within: 10s, until: {jsonpath: {$.data.user_current[0].presenter: "true"}}}
+```
+
+- **The query** holds one named operation (the name is sent with it), and
+  takes values from `variables`, never from templates in the query.
+- **Mutations** must have the shape `mutation Name($a: T!) { action(arg:
+  $a) }`, with every argument a variable that `variables` gives: that is
+  all bbb-graphql-middleware can route. A mutation's `true` only means it
+  was sent on: check what it did with a later query, with `eventually`
+  (every 500ms by default, at least 300ms).
+- **Before a user joins**, the middleware answers only a few queries
+  (`userCurrentSubscription`, `getGuestLobbyInfo`, ...) and drops the rest
+  without an answer; the runner refuses to send them.
+- **The result** is GraphQL's `{data, errors}`. Errors fail the step unless
+  `expect.errors` is given; it is matched against each error's message.
+  When the server closes the connection or doesn't answer, the result holds
+  that as an error.
+- **A subscription** is read as a query: its first answer.
+
+The actions other cases need, with their signatures (from
+`bbb-graphql-server/metadata/actions.graphql`); most need a moderator, and
+`presentationRequestUploadToken` the presenter:
+
+| Action | Arguments |
+|---|---|
+| `userSetPresenter` | `userId: String!` |
+| `userSetRole` | `userId: String!, role: String!` (MODERATOR or VIEWER) |
+| `userSetLocked` | `userId: String!, locked: Boolean!` |
+| `userEjectFromMeeting` | `userId: String!, banUser: Boolean!` |
+| `guestUsersSubmitApprovalStatus` | `guests: [GuestUserApprovalStatus]!`, each `{guest: <userId>, status: ALLOW\|DENY}` |
+| `guestUsersSetPolicy` | `guestPolicy: String!` |
+| `meetingLockSettingsSetProps` | `disableCam, disableMic, disablePrivChat, disablePubChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation: Boolean!, presenterPolicy: String!`, all of them every time |
+| `meetingRecordingSetStatus` | `recording: Boolean!` |
+| `breakoutRoomCreate` | `record, captureNotes, captureSlides, sendInviteToModerators, inheritLockSettings: Boolean!, durationInSeconds: Int!, rooms: [BreakoutRoom]!` |
+| `presentationRequestUploadToken` | `podId: String!` (DEFAULT_PRESENTATION_POD), `filename: String!, uploadTemporaryId: String!` |
+| `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!` |
 
 #### HTTP requests
 

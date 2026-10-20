@@ -23,7 +23,7 @@ steps:
         $.joined: "false"
   - graphql:
       as: mod
-      query: "mutation Approve($guests: [GuestUserApprovalStatus!]!) { guestUsersSubmitApprovalStatus(guests: $guests) }"
+      query: "mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }"
       variables:
         guests: [{guest: "${eveId}", status: ALLOW}]
   - presence: {action: join, as: eve}

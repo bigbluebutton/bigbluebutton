@@ -1475,7 +1475,7 @@
           "request": {
             "method": "GRAPHQL",
             "url": "wss://fake.test/graphql",
-            "body": "{\"query\":\"mutation Approve($guests: [GuestUserApprovalStatus!]!) { guestUsersSubmitApprovalStatus(guests: $guests) }\",\"variables\":{\"guests\":[{\"guest\":\"w_000000000009\",\"status\":\"ALLOW\"}]},\"operationName\":\"Approve\"}"
+            "body": "{\"query\":\"mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }\",\"variables\":{\"guests\":[{\"guest\":\"w_000000000009\",\"status\":\"ALLOW\"}]},\"operationName\":\"Approve\"}"
           },
           "document": "{\"data\":{\"guestUsersSubmitApprovalStatus\":true}}"
         },

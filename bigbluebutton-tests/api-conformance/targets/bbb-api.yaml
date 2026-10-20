@@ -3,6 +3,8 @@
 # BBB_SECRET the salt; both servers share them.
 name: bbb-api
 apiPrefix: /meeting-api/
-capabilities: [akka]
+# presence users join through bbb-api's join and the same GraphQL server as
+# bbb-web's; bbb-api doesn't serve join yet (expectations/bbb-api.yaml).
+capabilities: [akka, presence]
 # No routes yet: bbb-api serves only API calls, so route cases are skipped
 # as not-routed.

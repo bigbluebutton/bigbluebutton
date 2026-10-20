@@ -2,7 +2,7 @@
 # gives the base URL and API prefix, and BBB_SECRET the salt, as for the
 # Playwright suite.
 name: bbb-web
-capabilities: [akka]
+capabilities: [akka, presence]
 # Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
 # authorization hooks can't be reached through nginx, so cases call them on
 # bbb-web itself: set BBB_WEB_DIRECT_URL (e.g. http://127.0.0.1:8090) to run
