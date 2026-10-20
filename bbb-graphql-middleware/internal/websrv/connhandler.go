@@ -68,9 +68,15 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	var acceptOptions websocket.AcceptOptions
 	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-transport-ws")
 
-	// Add Authorized Cross Origin Url
+	// Add Authorized Cross Origin Url(s). Comma-separated list is supported;
+	// a single hostname (classic cluster-proxy) still works.
 	if config.GetConfig().Server.AuthorizedCrossOrigin != "" {
-		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, config.GetConfig().Server.AuthorizedCrossOrigin)
+		for _, origin := range strings.Split(config.GetConfig().Server.AuthorizedCrossOrigin, ",") {
+			origin = strings.TrimSpace(origin)
+			if origin != "" {
+				acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, origin)
+			}
+		}
 	}
 
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
