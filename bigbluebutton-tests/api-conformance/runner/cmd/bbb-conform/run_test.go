@@ -77,7 +77,7 @@ func TestRunGolden(t *testing.T) {
 		{"failing-expected", "failing", exitFailed, []string{"--expect", "../../testdata/expectations/failing.yaml"}},
 	} {
 		t.Run(set.name, func(t *testing.T) {
-			tf := startFake(t, "akka")
+			tf := startFake(t, "akka, presence")
 			out := t.TempDir()
 			var stdout, stderr bytes.Buffer
 			// One worker: the fake's counters (create times, tokens) then
@@ -125,19 +125,19 @@ func TestRunGolden(t *testing.T) {
 
 // Parallel runs must give the same outcomes as the golden serial run.
 func TestRunParallel(t *testing.T) {
-	tf := startFake(t, "akka")
+	tf := startFake(t, "akka, presence")
 	var stdout, stderr bytes.Buffer
 	code := run([]string{"run", "--target", tf, "--cases", "../../testdata/cases", "--fixtures", "../../testdata/fixtures", "--parallel", "8"}, &stdout, &stderr)
 	if code != exitOK {
 		t.Fatalf("exit %d\n%s%s", code, stdout.String(), stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "19 case(s): 18 passed, 0 failed, 0 errors, 1 skipped") {
+	if !strings.Contains(stdout.String(), "21 case(s): 20 passed, 0 failed, 0 errors, 1 skipped") {
 		t.Errorf("summary:\n%s", stdout.String())
 	}
 }
 
 func TestRunFilters(t *testing.T) {
-	tf := startFake(t, "akka")
+	tf := startFake(t, "akka, presence")
 	tests := []struct {
 		args    []string
 		summary string
@@ -159,7 +159,7 @@ func TestRunFilters(t *testing.T) {
 }
 
 func TestRunUsage(t *testing.T) {
-	tf := startFake(t, "akka")
+	tf := startFake(t, "akka, presence")
 	for _, args := range [][]string{
 		{"run"},
 		{"run", "--target", "missing.yaml"},

@@ -315,7 +315,7 @@ func (c *gqlConn) mutation(id string, req gqlRequest) []push {
 		}
 		changed = append(changed, me)
 	case "userLeaveMeeting":
-		me.loggedOut, me.joined, me.presenter = true, false, false
+		me.loggedOut, me.presenter = true, false // joined stays, as on a real server
 		changed = append(changed, me)
 	case "userSetPresenter":
 		if moderator {

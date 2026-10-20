@@ -26,7 +26,7 @@ func startTarget(t *testing.T, name, apiPrefix string, handler http.Handler) str
 		t.Fatal(err)
 	}
 	tf := filepath.Join(dir, name+".yaml")
-	body := fmt.Sprintf("name: %s\nbaseUrl: %s\napiPrefix: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [akka]\nfixtureUrl: https://fixtures.test\n",
+	body := fmt.Sprintf("name: %s\nbaseUrl: %s\napiPrefix: %s\nsalt: %s\ntls: {caFile: ca.pem}\ncapabilities: [akka, presence]\nfixtureUrl: https://fixtures.test\n",
 		name, srv.URL, apiPrefix, fakeSalt)
 	if err := os.WriteFile(tf, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
@@ -148,7 +148,7 @@ func TestDiffWebVsAPI(t *testing.T) {
 }
 
 func TestDiffUsage(t *testing.T) {
-	tf := startFake(t, "akka")
+	tf := startFake(t, "akka, presence")
 	for _, args := range [][]string{
 		{"diff"},
 		{"diff", "--a", tf},

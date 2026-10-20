@@ -14,8 +14,10 @@ NEW        getMeetings.checksum.modes-sha256-first
 NEW        getMeetings.checksum.modes-sha384-middle
 NEW        getMeetings.checksum.modes-sha512-uppercase
 NEW        isMeetingRunning.lifecycle.after-end
+NEW        join.presence.guest-approved
+NEW        join.presence.two-users
 NEW        join.redirect.session-token
 NEW        stuns.session.unknown-token
 NEW        version.index.fields
 
-OUT: 18 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 1 skipped
+OUT: 20 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 1 skipped

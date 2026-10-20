@@ -332,7 +332,10 @@ func (d *decoder) presence(n *yaml.Node, where string) *PresenceStep {
 		p.Timeout = duration(v)
 	}
 	if p.Action == "join" {
-		if len(sources) != 1 {
+		switch {
+		case d.joined[p.As] && len(sources) > 0:
+			d.f.errf(n, "%s: %s joined in an earlier step; joining again continues that join (a guest's, once approved), so it takes no %s", where, p.As, strings.Join(sources, " or "))
+		case !d.joined[p.As] && len(sources) != 1:
 			d.f.errf(n, "%s: join needs exactly one of joinUrl, args and sessionToken; found %s", where, describe(sources))
 		}
 		d.joined[p.As] = true

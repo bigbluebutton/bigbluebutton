@@ -3,8 +3,8 @@
   "started": "2026-01-01T00:00:00Z",
   "duration_ms": 0,
   "counts": {
-    "total": 19,
-    "passed": 18,
+    "total": 21,
+    "passed": 20,
     "failed": 0,
     "errors": 0,
     "skipped": 1
@@ -1360,6 +1360,400 @@
       ]
     },
     {
+      "id": "join.presence.guest-approved",
+      "title": "A guest waits for a moderator's approval, then joins",
+      "endpoint": "join",
+      "class": "contract",
+      "area": "join",
+      "file": "../../testdata/cases/join/presence-guest.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 9,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-016&name=Guests&guestPolicy=ASK_MODERATOR&checksum=e74fccd1f6522184312ab052d2ebc107f729d252afb16520249bb982ec521117",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-016</meetingID><internalMeetingID>f688d335bb8b436fe5339d077becdba258e79420-1760000000007</internalMeetingID><attendeePW>ap000007</attendeePW><moderatorPW>mp000007</moderatorPW><createTime>1760000000007</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "presence",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-016&fullName=Mod&role=MODERATOR&checksum=45eabe7264cd15371bc41a58a5a6d1bbe33d175727895254306383e554b71f1e",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000008",
+              "Set-Cookie": "JSESSIONID=js000008; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000008\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000008\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Mod\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000008\",\"userId\":\"w_000000000008\"}"
+        },
+        {
+          "index": 2,
+          "kind": "presence",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-016&fullName=Eve&role=VIEWER&guest=true&checksum=7033816485380fccea608e75239159e9f55418673ab7fa4cb166be7c5953e036",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000009",
+              "Set-Cookie": "JSESSIONID=js000009; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000009\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000009\",\"guest\":true,\"guestStatus\":\"WAIT\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":false,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000009\",\"userId\":\"w_000000000009\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.guestStatus",
+              "expected": "\"WAIT\"",
+              "actual": "\"WAIT\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.joined",
+              "expected": "\"false\"",
+              "actual": "\"false\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "eveId": "w_000000000009"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "graphql",
+          "line": 24,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GRAPHQL",
+            "url": "wss://fake.test/graphql",
+            "body": "{\"query\":\"mutation Approve($guests: [GuestUserApprovalStatus!]!) { guestUsersSubmitApprovalStatus(guests: $guests) }\",\"variables\":{\"guests\":[{\"guest\":\"w_000000000009\",\"status\":\"ALLOW\"}]},\"operationName\":\"Approve\"}"
+          },
+          "document": "{\"data\":{\"guestUsersSubmitApprovalStatus\":true}}"
+        },
+        {
+          "index": 4,
+          "kind": "presence",
+          "line": 29,
+          "status": "PASS",
+          "duration_ms": 0,
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000009\",\"guest\":true,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000009\",\"userId\":\"w_000000000009\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.guestStatus",
+              "expected": "\"ALLOW\"",
+              "actual": "\"ALLOW\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.joined",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 35,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-016&checksum=3f55399c729c03ac68d08ea7661dac6d06409a5a868c1dc5611632d26fe7553b",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join.presence.two-users",
+      "title": "Users joined through the API are in the meeting, and a moderator can make another the presenter",
+      "endpoint": "join",
+      "class": "contract",
+      "area": "join",
+      "file": "../../testdata/cases/join/presence-two-users.yaml",
+      "line": 4,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-017&name=Presence&checksum=878cee770fce326cc7abdef0cc8c40cb4773aff620bb891e13de9c3a1b17ebd9",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-017</meetingID><internalMeetingID>1ca9a7a520c18aa86e9f2afe01a035a20f9ce124-1760000000008</internalMeetingID><attendeePW>ap000010</attendeePW><moderatorPW>mp000010</moderatorPW><createTime>1760000000008</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "presence",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-017&fullName=Ann&role=MODERATOR&checksum=bf7cb6fac147eadb467d55a2a20cf8a62bb16dc157e412666cfe2b8c359dbdb7",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000011",
+              "Set-Cookie": "JSESSIONID=js000011; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000011\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000011\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Ann\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000011\",\"userId\":\"w_000000000011\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.joined",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.role",
+              "expected": "\"MODERATOR\"",
+              "actual": "\"MODERATOR\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "annId": "w_000000000011"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "presence",
+          "line": 21,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-017&fullName=Bob&role=VIEWER&avatarURL=https%3A%2F%2Fimg.example%2Fbob.png&checksum=4fb9b2e4c7b185219a1c98545f5b0008ac3f0dd8ab9236c2a49dff756a13a58d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000012",
+              "Set-Cookie": "JSESSIONID=js000012; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000012\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000012\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000012\",\"userId\":\"w_000000000012\"}",
+          "captured": {
+            "bobId": "w_000000000012"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 26,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-017&checksum=7439d8ea726b947e494519320ac83b881b96795aba83768145aa0ea16070c21d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "76",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><running>true</running></response>"
+          },
+          "assertions": [
+            {
+              "what": "xpath /response/running",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "kind": "graphql",
+          "line": 31,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GRAPHQL",
+            "url": "wss://fake.test/graphql",
+            "body": "{\"query\":\"mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }\",\"variables\":{\"id\":\"w_000000000012\"},\"operationName\":\"SetPresenter\"}"
+          },
+          "document": "{\"data\":{\"userSetPresenter\":true}}"
+        },
+        {
+          "index": 5,
+          "kind": "graphql",
+          "line": 35,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GRAPHQL",
+            "url": "wss://fake.test/graphql",
+            "body": "{\"query\":\"query Me { user_current { presenter avatar } }\",\"operationName\":\"Me\"}"
+          },
+          "document": "{\"data\":{\"user_current\":[{\"avatar\":\"https://img.example/bob.png\",\"presenter\":true}]}}",
+          "assertions": [
+            {
+              "what": "jsonpath $.data.user_current[0].avatar",
+              "expected": "\"https://img.example/bob.png\"",
+              "actual": "\"https://img.example/bob.png\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "kind": "presence",
+          "line": 46,
+          "status": "PASS",
+          "duration_ms": 0,
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000012\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":true,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000012\",\"userId\":\"w_000000000012\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.loggedOut",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 51,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-017&checksum=412367340131be094a830726cf6aa241aa6510b6f94e537a211096218f9b7208",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        }
+      ]
+    },
+    {
       "id": "join.redirect.session-token",
       "title": "join redirects with a session token, and its getJoinUrl link works for another user",
       "endpoint": "join",
@@ -1378,7 +1772,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-016&name=Join+test&checksum=d7384be8f82699163b329847dc7d124bde4312949d808519e7870ee497dd6875",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-018&name=Join+test&checksum=e344459ef3a3064eecfa8afa5f8515494632a4c5c2496cf263c7d7a13b26b651",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1392,7 +1786,7 @@
               "Content-Length": "326",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-016</meetingID><internalMeetingID>f688d335bb8b436fe5339d077becdba258e79420-1760000000007</internalMeetingID><attendeePW>ap000007</attendeePW><moderatorPW>mp000007</moderatorPW><createTime>1760000000007</createTime><messageKey></messageKey><message></message></response>"
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-018</meetingID><internalMeetingID>afa2357bde13e991679055adb498fcf25c3a5ab4-1760000000009</internalMeetingID><attendeePW>ap000013</attendeePW><moderatorPW>mp000013</moderatorPW><createTime>1760000000009</createTime><messageKey></messageKey><message></message></response>"
           },
           "assertions": [
             {
@@ -1411,7 +1805,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-016&fullName=Ann&role=moderator&checksum=1515ed99b6025dd76b7d05d8bfe4b0dfc9b8fa2caeb1974b12ec8282c12ca614",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-018&fullName=Ann&role=moderator&checksum=0a4b7be879d02ea20b0e6f6a735f765822d3d333a7342693fb17d7ea1ea7853f",
             "headers": {
               "User-Agent": "bbb-conform/dev",
               "X-Forwarded-For": "203.0.113.7"
@@ -1423,10 +1817,10 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000008",
-              "Set-Cookie": "JSESSIONID=js000008; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000014",
+              "Set-Cookie": "JSESSIONID=js000014; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000008\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000014\">Found</a>.\n\n"
           },
           "assertions": [
             {
@@ -1438,7 +1832,7 @@
             {
               "what": "header Set-Cookie",
               "expected": "matching /(?i);\\s*secure/",
-              "actual": "\"JSESSIONID=js000008; Path=/; HttpOnly; Secure\"",
+              "actual": "\"JSESSIONID=js000014; Path=/; HttpOnly; Secure\"",
               "ok": true
             },
             {
@@ -1450,14 +1844,14 @@
             {
               "what": "redirect query sessionToken",
               "expected": "present",
-              "actual": "\"st000008\"",
+              "actual": "\"st000014\"",
               "ok": true
             }
           ],
           "captured": {
             "clientHost": "fake.test",
-            "jsession": "js000008",
-            "sessionToken": "st000008"
+            "jsession": "js000014",
+            "sessionToken": "st000014"
           }
         },
         {
@@ -1468,7 +1862,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/getJoinUrl?sessionToken=st000008&fullName=Bob",
+            "url": "https://fake.test/bigbluebutton/api/getJoinUrl?sessionToken=st000014&fullName=Bob",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1481,7 +1875,7 @@
               "Content-Length": "269",
               "Content-Type": "application/json"
             },
-            "body": "{\"response\":{\"message\":\"Join URL provided successfully.\",\"returncode\":\"SUCCESS\",\"url\":\"https://fake.test/bigbluebutton/api/join?\\u0026fullName=Bob\\u0026meetingID=uid-016\\u0026role=VIEWER\\u0026redirect=true\\u0026checksum=443d1d892c43f23ef89b38cd66137cd78dfbd415\"}}"
+            "body": "{\"response\":{\"message\":\"Join URL provided successfully.\",\"returncode\":\"SUCCESS\",\"url\":\"https://fake.test/bigbluebutton/api/join?\\u0026fullName=Bob\\u0026meetingID=uid-018\\u0026role=VIEWER\\u0026redirect=true\\u0026checksum=37031160f6733e028519115684bbdeac107f6cf5\"}}"
           },
           "assertions": [
             {
@@ -1498,7 +1892,7 @@
             }
           ],
           "captured": {
-            "joinUrl": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-016&role=VIEWER&redirect=true&checksum=443d1d892c43f23ef89b38cd66137cd78dfbd415"
+            "joinUrl": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-018&role=VIEWER&redirect=true&checksum=37031160f6733e028519115684bbdeac107f6cf5"
           }
         },
         {
@@ -1509,7 +1903,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-016&role=VIEWER&redirect=true&checksum=443d1d892c43f23ef89b38cd66137cd78dfbd415",
+            "url": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-018&role=VIEWER&redirect=true&checksum=37031160f6733e028519115684bbdeac107f6cf5",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
@@ -1521,10 +1915,10 @@
             "headers": {
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
-              "Location": "https://fake.test/html5client/join?sessionToken=st000009",
-              "Set-Cookie": "JSESSIONID=js000009; Path=/; HttpOnly; Secure"
+              "Location": "https://fake.test/html5client/join?sessionToken=st000015",
+              "Set-Cookie": "JSESSIONID=js000015; Path=/; HttpOnly; Secure"
             },
-            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000009\">Found</a>.\n\n"
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000015\">Found</a>.\n\n"
           },
           "assertions": [
             {
@@ -1551,7 +1945,7 @@
           "duration_ms": 0,
           "request": {
             "method": "GET",
-            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-016&checksum=3f55399c729c03ac68d08ea7661dac6d06409a5a868c1dc5611632d26fe7553b",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-018&checksum=f089d48c34bc64cee994fac082cffacb64b22ed2448e70c6cfe5aa7a4b0c4433",
             "headers": {
               "Accept": "*/*",
               "User-Agent": "bbb-conform/dev"
