@@ -3,8 +3,8 @@ ERROR getMeetings.report.bad-position (0s)
 FAIL  getMeetings.report.capture-missing (0s)
       step 1 (line 6): capture /response/nope: nothing matched
 FAIL  isMeetingRunning.report.eventually-timeout (0s)
-      step 2 (line 9): eventually: not within 500ms (N attempts): xpath /response/running: expected "false", got "true"
-      line 9: xpath /response/running: expected "false", got "true"
+      step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected "true", got "false"
+      line 10: xpath /response/running: expected "true", got "false"
 PASS  getMeetings.report.ignored (0s)
       line 6: returncode: expected "FAILED", got "SUCCESS"
       warning: step 1 (line 6), ignored: returncode: expected "FAILED", got "SUCCESS"

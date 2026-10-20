@@ -1424,7 +1424,7 @@
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
               "Location": "https://fake.test/html5client/join?sessionToken=st000008",
-              "Set-Cookie": "JSESSIONID=js000008; Path=/bigbluebutton; HttpOnly; Secure"
+              "Set-Cookie": "JSESSIONID=js000008; Path=/; HttpOnly; Secure"
             },
             "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000008\">Found</a>.\n\n"
           },
@@ -1438,7 +1438,7 @@
             {
               "what": "header Set-Cookie",
               "expected": "matching /(?i);\\s*secure/",
-              "actual": "\"JSESSIONID=js000008; Path=/bigbluebutton; HttpOnly; Secure\"",
+              "actual": "\"JSESSIONID=js000008; Path=/; HttpOnly; Secure\"",
               "ok": true
             },
             {
@@ -1522,7 +1522,7 @@
               "Content-Length": "85",
               "Content-Type": "text/html; charset=utf-8",
               "Location": "https://fake.test/html5client/join?sessionToken=st000009",
-              "Set-Cookie": "JSESSIONID=js000009; Path=/bigbluebutton; HttpOnly; Secure"
+              "Set-Cookie": "JSESSIONID=js000009; Path=/; HttpOnly; Secure"
             },
             "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000009\">Found</a>.\n\n"
           },

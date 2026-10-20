@@ -6,6 +6,7 @@ requires: [akka]
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Waiting}
+  # Nobody joins, so the meeting never runs.
   - call: isMeetingRunning
     params: {meetingID: "${uid}"}
     eventually:
@@ -13,6 +14,6 @@ steps:
       every: 200ms
       until:
         xpath:
-          /response/running: "false"
+          /response/running: "true"
 teardown:
   - {call: end, params: {meetingID: "${uid}"}, ignoreResult: true}

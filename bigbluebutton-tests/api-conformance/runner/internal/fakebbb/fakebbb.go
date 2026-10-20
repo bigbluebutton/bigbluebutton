@@ -24,6 +24,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Server is the fake. Use it as an http.Handler.
@@ -32,6 +33,9 @@ type Server struct {
 	// EndPolls is how many isMeetingRunning calls an ended meeting still
 	// answers with true, so cases have something to wait for.
 	EndPolls int
+	// IdleTimeout, when set, closes a GraphQL websocket that sends nothing
+	// for that long, as bbb-graphql-middleware does after a minute.
+	IdleTimeout time.Duration
 
 	api bool // behave like bbb-api, the Go port
 
@@ -39,6 +43,7 @@ type Server struct {
 	clock    int64
 	meetings map[string]*meeting
 	sessions map[string]*session
+	conns    map[string][]*gqlConn // GraphQL websockets by session token
 	seq      int
 	// Requests records every request's method, path and raw query, and
 	// whether it was chunked, for tests that check what the runner sent.
@@ -58,19 +63,30 @@ type meeting struct {
 	attendeePW, moderatorPW string
 	createTime              int64
 	meta                    map[string]string
+	guestPolicy             string
 	ended                   bool
 	endPolls                int
 }
 
+// session is a user who joined through the API, with the state the
+// GraphQL side shows of them.
 type session struct {
 	token, meetingID, fullName string
+	jsession                   string // the JSESSIONID join set
+	userID, extID, authToken   string
+	role, guestStatus, avatar  string
+	registeredAt               string
+	guest, presenter           bool
+	joined, loggedOut          bool
+	joinErrorCode              string
+	probeFails                 int // in-meeting queries that still fail after the join
 }
 
 // New returns a fake with the given salt. Create times start at a fixed
 // instant.
 func New(salt string) *Server {
 	return &Server{Salt: salt, EndPolls: 2, clock: 1760000000000,
-		meetings: map[string]*meeting{}, sessions: map[string]*session{}}
+		meetings: map[string]*meeting{}, sessions: map[string]*session{}, conns: map[string][]*gqlConn{}}
 }
 
 // Skew shifts the fake's clock and counters, so two fakes give different
@@ -99,6 +115,10 @@ var apiCalls = map[string]bool{"create": true, "getMeetings": true, "getMeetingI
 var unsigned = map[string]bool{"stuns": true, "signOut": true, "getJoinUrl": true, "learningDashboard": true}
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/graphql" && !s.api {
+		s.serveGraphQL(w, r) // a long-lived websocket, not a logged request
+		return
+	}
 	w.Header()["Date"] = nil // keep responses byte-for-byte repeatable
 	raw, _ := io.ReadAll(r.Body)
 	body := string(raw)
@@ -154,13 +174,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "isMeetingRunning":
 		id := params.Get("meetingID")
 		m := s.meetings[id]
+		running := m != nil && s.present(m)
 		if m != nil && m.ended {
+			running = true
 			if m.endPolls++; m.endPolls > s.EndPolls {
 				delete(s.meetings, id)
-				m = nil
+				running = false
 			}
 		}
-		s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><running>%t</running>", m != nil))
+		s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><running>%t</running>", running))
 	case "end":
 		s.end(w, r, params)
 	case "join":
@@ -318,7 +340,7 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request, p url.Values) {
 	}
 	sum := sha1.Sum([]byte(id))
 	m := &meeting{id: id, name: name, attendeePW: ap, moderatorPW: mp, createTime: s.clock, meta: map[string]string{},
-		intID: hex.EncodeToString(sum[:]) + "-" + strconv.FormatInt(s.clock, 10)}
+		intID: hex.EncodeToString(sum[:]) + "-" + strconv.FormatInt(s.clock, 10), guestPolicy: p.Get("guestPolicy")}
 	for k, vs := range p {
 		if rest, ok := strings.CutPrefix(k, "meta_"); ok && rest != "" {
 			m.meta[strings.ToLower(rest)] = vs[0]
@@ -377,14 +399,41 @@ func (s *Server) join(w http.ResponseWriter, r *http.Request, p url.Values) {
 		return
 	}
 	s.seq++
-	sess := &session{token: fmt.Sprintf("st%06d", s.seq), meetingID: m.id, fullName: p.Get("fullName")}
+	sess := &session{token: fmt.Sprintf("st%06d", s.seq), meetingID: m.id, fullName: p.Get("fullName"),
+		jsession: fmt.Sprintf("js%06d", s.seq), userID: fmt.Sprintf("w_%012d", s.seq), authToken: fmt.Sprintf("at%06d", s.seq),
+		role: strings.ToUpper(p.Get("role")), guest: p.Get("guest") == "true", guestStatus: "ALLOW", avatar: p.Get("avatarURL"),
+		registeredAt: time.UnixMilli(s.clock + int64(s.seq)).UTC().Format("2006-01-02T15:04:05.000+00:00")}
+	if sess.role != "MODERATOR" {
+		sess.role = "VIEWER"
+	}
+	sess.extID = p.Get("userID")
+	if sess.extID == "" {
+		sess.extID = sess.userID
+	}
+	if sess.guest && m.guestPolicy == "ASK_MODERATOR" {
+		sess.guestStatus = "WAIT"
+	}
 	s.sessions[sess.token] = sess
-	http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: fmt.Sprintf("js%06d", s.seq), Path: "/bigbluebutton", Secure: true, HttpOnly: true})
+	// bbb-web runs at context path /, so its session cookie covers /graphql.
+	http.SetCookie(w, &http.Cookie{Name: "JSESSIONID", Value: sess.jsession, Path: "/", Secure: true, HttpOnly: true})
+	dest := origin(r) + "/html5client/join?sessionToken=" + sess.token
 	if p.Get("redirect") == "false" {
-		s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><meeting_id>%s</meeting_id><session_token>%s</session_token>", m.intID, sess.token))
+		s.writeXML(w, fmt.Sprintf("<returncode>SUCCESS</returncode><messageKey/><message/><meeting_id>%s</meeting_id><user_id>%s</user_id>"+
+			"<auth_token>%s</auth_token><session_token>%s</session_token><guestStatus>%s</guestStatus><url>%s</url>",
+			m.intID, sess.userID, sess.authToken, sess.token, sess.guestStatus, esc(dest)))
 		return
 	}
-	http.Redirect(w, r, origin(r)+"/html5client/join?sessionToken="+sess.token, http.StatusFound)
+	http.Redirect(w, r, dest, http.StatusFound)
+}
+
+// present says whether a user is in the meeting, connected.
+func (s *Server) present(m *meeting) bool {
+	for _, u := range s.sessions {
+		if u.meetingID == m.id && u.inMeeting() && len(s.conns[u.token]) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 // getJoinURL builds its link the way bbb-web does: SHA-1, and a query

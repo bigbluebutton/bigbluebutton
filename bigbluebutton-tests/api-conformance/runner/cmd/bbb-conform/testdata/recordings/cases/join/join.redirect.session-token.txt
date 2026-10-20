@@ -19,7 +19,7 @@ body xml
 == step 2: call join
 status 302
 header Content-Type text/html; charset=utf-8
-header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/bigbluebutton; Secure
+header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
 location ${baseUrl}/html5client/join?sessionToken=<token>
 body (redirect)
 
@@ -34,6 +34,6 @@ $.response.url "${baseUrl}${apiPrefix}join?checksum=<token>&fullName=Bob&meeting
 == step 4: url ${joinUrl}
 status 302
 header Content-Type text/html; charset=utf-8
-header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/bigbluebutton; Secure
+header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
 location ${baseUrl}/html5client/join?sessionToken=<token>
 body (redirect)

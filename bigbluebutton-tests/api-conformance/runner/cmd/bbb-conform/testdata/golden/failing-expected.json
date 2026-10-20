@@ -86,7 +86,7 @@
       "file": "../../testdata/failing/report/eventually-timeout.yaml",
       "line": 1,
       "status": "FAIL",
-      "reason": "step 2 (line 9): eventually: not within 500ms (N attempts): xpath /response/running: expected \"false\", got \"true\"",
+      "reason": "step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected \"true\", got \"false\"",
       "duration_ms": 0,
       "steps": [
         {
@@ -117,9 +117,9 @@
         {
           "index": 1,
           "kind": "call",
-          "line": 9,
+          "line": 10,
           "status": "FAIL",
-          "message": "eventually: not within 500ms (N attempts): xpath /response/running: expected \"false\", got \"true\"",
+          "message": "eventually: not within 500ms (N attempts): xpath /response/running: expected \"true\", got \"false\"",
           "attempts": 0,
           "duration_ms": 0,
           "request": {
@@ -135,16 +135,16 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "76",
+              "Content-Length": "77",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><running>true</running></response>"
+            "body": "<response><returncode>SUCCESS</returncode><running>false</running></response>"
           },
           "assertions": [
             {
               "what": "xpath /response/running",
-              "expected": "\"false\"",
-              "actual": "\"true\"",
+              "expected": "\"true\"",
+              "actual": "\"false\"",
               "ok": false
             }
           ]
@@ -154,7 +154,7 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 18,
+          "line": 19,
           "status": "PASS",
           "duration_ms": 0,
           "request": {
