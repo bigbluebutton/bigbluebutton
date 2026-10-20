@@ -118,7 +118,15 @@ target "webhooks" {
     }
 }
 
+target "playback" {
+    inherits = ["docker-metadata-action"]
+    context = "./docker/bbb-playback"
+    contexts = {
+        src = "https://github.com/bigbluebutton/bbb-playback.git#v5.4.8"
+    }
+}
+
 group "default" {
   targets = ["apps-akka", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "shared-notes-server", "web", "record-and-playback", "nginx",
-             "webrtc-sfu", "webrtc-recorder", "webhooks"]
+             "webrtc-sfu", "webrtc-recorder", "webhooks", "playback"]
 }
