@@ -82,7 +82,8 @@ under these service names or mounts its own fragments at `/usr/share/bigbluebutt
 Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
 from `/var/bigbluebutton`. The backend fragments (`web`, `graphql.nginx`, `livekit.nginx`,
 `webrtc-sfu.nginx`, `bbb-shared-notes-server.nginx`, `sites-available/hasura-loadbalancer.conf`)
-use upstream's `127.0.0.1`; a deployment mounts its own. TLS and `server_name` are deployment config.
+use upstream's `127.0.0.1`; a deployment mounts its own. nginx resolves every host name in these
+files when it starts, so all of them must resolve then. TLS and `server_name` are deployment config.
 
 ## Environment variables
 
