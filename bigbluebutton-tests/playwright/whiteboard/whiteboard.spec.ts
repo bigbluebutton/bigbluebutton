@@ -5,6 +5,7 @@ import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
+import { MultiUserWhiteboard } from './multiUserWhiteboard';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
 import { SlideChangeBlank } from './slideChangeBlank';
@@ -290,5 +291,43 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
 
   test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
+  });
+});
+
+test.describe.parallel('Multi-user whiteboard', { tag: '@ci' }, () => {
+  test('Viewer annotation reaches the presenter and other viewers and stays after access is removed', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initModPage(page, { testInfo });
+    await whiteboard.initUserPage(context, { testInfo });
+    await whiteboard.initUserPage2(context, { testInfo });
+    await whiteboard.viewerAnnotationReachesEveryone();
+  });
+});
+
+test.describe.parallel('Clear annotations', { tag: '@ci' }, () => {
+  test('Presenter clears all annotations for everyone', async ({ browser, context, page }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initPages(page, testInfo);
+    await whiteboard.presenterClearsAllAnnotations();
+  });
+
+  test('Viewer with whiteboard access clears only their own annotations', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initPages(page, testInfo);
+    await whiteboard.viewerClearsOwnAnnotations();
+  });
+
+  test('Cancel keeps all annotations', async ({ browser, context, page }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initPages(page, testInfo);
+    await whiteboard.cancelClearAnnotations();
   });
 });

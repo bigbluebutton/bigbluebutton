@@ -5,6 +5,7 @@ import { elements as e } from '../core/elements';
 import { linkIssue } from '../core/helpers';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
+import { remoteWebcamContentCheck } from '../webcam/util';
 import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
@@ -388,6 +389,11 @@ export class MultiUsers {
       this.userPage.username,
       'should display the username of Attendee on the second pinned webcam for Attendee',
     );
+  }
+
+  async viewerReceivesWebcam() {
+    await this.modPage.shareWebcam();
+    await remoteWebcamContentCheck(this.userPage);
   }
 
   async focusUnfocusWebcam() {

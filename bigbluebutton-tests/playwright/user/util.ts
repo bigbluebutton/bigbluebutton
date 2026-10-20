@@ -57,6 +57,20 @@ export function talkingIndicatorLocator(testPage: Page, userName: string): Locat
   return testPage.page.locator(`${e.isTalking}, ${e.wasTalking}`).filter({ hasText: userName });
 }
 
+// The away clock on one user's user list avatar.
+export function awayIndicatorLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(e.userListItem, { hasText: userName }).locator(e.awayIndicator);
+}
+
+// Sets the user away through the status selector of the profile panel, then closes the panel.
+export async function setAway(testPage: Page) {
+  await testPage.waitAndClick(e.profileSidebarButton);
+  await testPage.waitAndClick(e.userStatusSelector);
+  await testPage.waitAndClick(e.awayStatusOption);
+  await testPage.hasText(e.userStatusSelector, 'Away', 'should show the away status in the profile panel');
+  await testPage.waitAndClick(e.profileSidebarButton);
+}
+
 // The microphone state a viewer is shown for another user on the user list.
 export async function hasUserListMicState(
   testPage: Page,

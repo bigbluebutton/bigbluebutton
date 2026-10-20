@@ -140,8 +140,8 @@ export const constants = {
     'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms',
   presentationExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation',
   customVirtualBackgroundExclude:
-    'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
-  slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
+    'disabledFeatures=presentation,chat,customVirtualBackgrounds&disabledFeaturesExclude=customVirtualBackgrounds',
+  slideSnapshotExclude: 'disabledFeatures=snapshotOfCurrentSlide,chat&disabledFeaturesExclude=snapshotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
   infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
   multiFunctionalModeDisabled: 'disabledFeatures=multiFunctionalMode',
