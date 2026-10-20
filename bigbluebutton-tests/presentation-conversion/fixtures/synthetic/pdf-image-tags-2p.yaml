@@ -15,6 +15,7 @@ pageOverrides:
 marker: false
 aspect: auto
 profiles: [defaults, low-thresholds]
+goldenProfiles: [defaults, low-thresholds]
 notes: >-
   Each image is its own 4x4 RGB Flate XObject with different samples: cairo writes one <image per
   distinct XObject (re-drawing one XObject reuses a single <image) plus one <use per drawing.

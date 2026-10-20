@@ -32,4 +32,14 @@ OBSERVED = {
     "off-ods-one-sheet": {"kind": "vector"},
     # correctness of this deck is the upright marker; a golden of today's sideways render would encode the bug
     "off-pptx-phone-photo-exif6": {"checks": ["outcome", "pages", "kind", "aspect", "exif", "text", "marker"]},
+    # tight-limits: maxBigSvgSize=200000 turns these pages into the blank substitute slide
+    "pdf-image-slide-300k": {"expectByProfile": {"tight-limits": "converted"},
+                             "kind": {"defaults": "vector", "tight-limits": "blank"},
+                             "goldenProfiles": ["defaults", "tight-limits"]},
+    "pdf-use-tags-2p": {"expectByProfile": {"tight-limits": "converted"},
+                        "pageOverrides": {1: {"kind": {"defaults": "vector", "low-thresholds": "raster", "tight-limits": "vector"}},
+                                          2: {"kind": {"defaults": "raster", "low-thresholds": "raster", "tight-limits": "blank"}}},
+                        "goldenProfiles": ["defaults", "low-thresholds", "tight-limits"]},
+    # low-thresholds rasterizes pages whose vector golden draws small images smoothed; the raster keeps them crisp
+    "pdf-image-tags-2p": {"goldenProfiles": ["defaults", "low-thresholds"]},
 }

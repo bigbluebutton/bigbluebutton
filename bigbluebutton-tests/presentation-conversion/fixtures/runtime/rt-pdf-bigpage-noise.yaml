@@ -7,6 +7,7 @@ issues: [8555, 8274]
 catalog: [Oversized single page]
 pages: 1
 expect: converted
+expectByProfile: { tight-limits: dropped }
 kind: any
 checks: [outcome, pages, kind, aspect, exif, text]
 profiles: [defaults, tight-limits]

@@ -8,3 +8,4 @@ pages: 1
 expect: converted
 kind: { defaults: vector, low-thresholds: raster }
 profiles: [defaults, low-thresholds]
+goldenProfiles: [defaults, low-thresholds]

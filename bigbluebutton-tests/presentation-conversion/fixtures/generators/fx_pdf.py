@@ -289,8 +289,8 @@ def pdf_use_tags_2p(ctx):
                        2: {"kind": "raster"}},
         marker=False, aspect="auto", profiles=prof,
         notes="cairo writes one <use per glyph, spaces included. useTagThreshold is 10000 (500 in "
-              "low-thresholds). tight-limits is `measure`: its maxBigSvgSize of 200000 bytes may turn "
-              "the dense page-2 raster (a 2048 px PNG embedded as base64) into a blank slide.")
+              "low-thresholds). Under tight-limits, maxBigSvgSize of 200000 bytes turns the dense page-2 "
+              "raster (a 2048 px PNG embedded as base64) into the blank slide (observed on 4.0.0-rc.5).")
 
 
 # --------------------------------------------------------------------------------------
@@ -731,8 +731,8 @@ def pdf_image_slide_300k(ctx):
         pages=1, expect="converted", expectByProfile={"tight-limits": "measure"}, kind="vector",
         marker=False, aspect="auto", profiles=prof,
         notes="Seeded gradients, blobs and grain so the JPEG stays between 250 and 350 KB. "
-              "tight-limits is `measure`: the page exceeds maxBigPdfPageSize (50000), so bbb-web "
-              "first downscales it, and its SVG may then exceed maxBigSvgSize (200000) and become blank.")
+              "Under tight-limits the page exceeds maxBigPdfPageSize (50000), so bbb-web first downscales "
+              "it, and its SVG exceeds maxBigSvgSize (200000) and becomes the blank slide (observed on 4.0.0-rc.5).")
 
 
 ALL = [

@@ -118,7 +118,7 @@ export function uploadName(m: Manifest, filePath: string): string {
 function resolveKind(k: PageSpec['kind'], profile: string): Kind | undefined {
   if (k === undefined) return undefined;
   if (typeof k === 'string') return profile === 'rasterize-all' && k === 'vector' ? 'raster' : k;
-  return k[profile] ?? k.defaults ?? (profile === 'rasterize-all' ? 'raster' : undefined);
+  return k[profile] ?? (profile === 'rasterize-all' ? 'raster' : k.defaults);
 }
 
 export function pageSpec(m: Manifest, page: number, profile: string): { kind: Kind; marker: false | { split: number }; aspect: 'auto' | 'none' | number } {
