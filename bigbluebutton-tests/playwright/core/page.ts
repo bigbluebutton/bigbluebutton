@@ -212,6 +212,7 @@ export class Page {
     testInfo?: TestInfo,
     timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<HandleDownloadResult> {
+    await locator.waitFor({ state: 'visible', timeout });
     const [download] = await Promise.all([this.page.waitForEvent('download', { timeout }), locator.click({ timeout })]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();

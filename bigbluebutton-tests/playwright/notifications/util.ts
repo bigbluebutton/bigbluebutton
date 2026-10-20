@@ -11,6 +11,7 @@ export async function enableChatPopup(testPage: Page) {
 export async function enableUserJoinPopup(testPage: Page) {
   await testPage.waitAndClick(e.notificationsTab);
   await testPage.waitAndClickElement(e.userJoinPushAlerts);
+  await testPage.hasElementChecked(e.userJoinPushAlerts, 'should enable the user join pop-up alerts');
 }
 
 export async function enableUserLeavePopup(testPage: Page) {
