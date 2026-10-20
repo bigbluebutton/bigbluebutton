@@ -316,3 +316,38 @@ $.sessionToken "<token>"
 $.userId "w_<id>"`)
 	check(t, Document([]byte("not json"), ctx("bbbc-u5"), Default()), `document unparsable: 8 bytes, sha256 7ccfa1fbf394`)
 }
+
+// The side-effect steps' documents: a bus message, a redis key and a
+// file, with what changes from run to run masked, internal IDs inside
+// strings included.
+func TestSideEffectDocuments(t *testing.T) {
+	uid := "bbbc-u6"
+	intID := sha(uid) + "-1792520978099"
+	bus := `{"channel":"from-akka-apps-redis-channel","envelope":{"name":"MeetingCreatedEvtMsg","timestamp":1792520978101},` +
+		`"core":{"body":{"props":{"meetingProp":{"intId":"` + intID + `","extId":"` + uid + `"},` +
+		`"durationProps":{"createdTime":1792520978099,"createdDate":"Tue Oct 20 18:29:38 UTC 2026"},` +
+		`"password":{"moderatorPass":"Xy12","viewerPass":"ap"},"voiceProp":{"voiceConf":"92410","telVoice":"92410","muteOnStart":true}}}}}`
+	check(t, Document([]byte(bus), ctx(uid), Default()), `
+$.channel "from-akka-apps-redis-channel"
+$.core.body.props.durationProps.createdDate "<date>"
+$.core.body.props.durationProps.createdTime "<time>"
+$.core.body.props.meetingProp.extId "${uid}"
+$.core.body.props.meetingProp.intId "<sha1(meetingID)>-<time>"
+$.core.body.props.password.moderatorPass "<random>"
+$.core.body.props.password.viewerPass "ap"
+$.core.body.props.voiceProp.muteOnStart true
+$.core.body.props.voiceProp.telVoice "<random>"
+$.core.body.props.voiceProp.voiceConf "<random>"
+$.envelope.name "MeetingCreatedEvtMsg"
+$.envelope.timestamp "<time>"`)
+	key := `{"key":"meeting:info:` + intID + `","type":"string","ttl":3600,"value":"x"}`
+	check(t, Document([]byte(key), ctx(uid), Default()), `
+$.key "meeting:info:<sha1(meetingID)>-<time>"
+$.ttl "<set>"
+$.type "string"
+$.value "x"`)
+	file := `{"path":"learning-dashboard/` + intID + `/zq8wmu1b2c3d/learning_dashboard_data.json","found":true}`
+	check(t, Document([]byte(file), ctx(uid), Default()), `
+$.found true
+$.path "learning-dashboard/<sha1(meetingID)>-<time>/<token>/learning_dashboard_data.json"`)
+}

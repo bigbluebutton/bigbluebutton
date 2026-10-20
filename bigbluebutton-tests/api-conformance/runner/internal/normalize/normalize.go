@@ -411,11 +411,18 @@ func (c *Context) substitute(s string) string {
 			s = strings.ReplaceAll(s, b, "${baseUrl}")
 		}
 	}
+	// An internal meeting ID inside a value, such as a redis key name or a
+	// file path, gets the internal-id mask's form.
+	s = embeddedIDRe.ReplaceAllStringFunc(s, func(id string) string {
+		return "<sha1(" + c.preimage(id[:40]) + ")>-<time>"
+	})
 	if len(c.UID) >= minUID {
 		s = strings.ReplaceAll(s, c.UID, "${uid}")
 	}
 	return s
 }
+
+var embeddedIDRe = regexp.MustCompile(`\b[0-9a-f]{40}-[0-9]{10,}\b`)
 
 // minUID is the shortest ${uid} substituted: a shorter one would match
 // ordinary text. Real ones are 17 characters.

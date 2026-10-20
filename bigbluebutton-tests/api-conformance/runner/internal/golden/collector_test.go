@@ -32,7 +32,7 @@ func event(c *spec.Case, index int, mode, query, body string) steps.Observed {
 // An off step isn't compared, but what it sent is still known, so a later
 // step that echoes it reads the same whatever the earlier step's setting.
 func TestOffStepStillSends(t *testing.T) {
-	c := &spec.Case{ID: "getMeetingInfo.x.y", Steps: []spec.Step{{Line: 5}, {Line: 9}}}
+	c := &spec.Case{ID: "getMeetingInfo.x.y", Steps: []spec.Step{{Kind: spec.KindCall, Line: 5}, {Kind: spec.KindCall, Line: 9}}}
 	col := NewCollector(testTarget(), normalize.Default(), nil)
 	col.Observe(event(c, 0, "off", "meetingID=bbbc-1a2b3c&attendeePW=Sekr3t", "<response/>"))
 	col.Observe(event(c, 1, "compare", "meetingID=bbbc-1a2b3c", "<response><attendeePW>Sekr3t</attendeePW></response>"))

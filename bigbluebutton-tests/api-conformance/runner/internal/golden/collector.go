@@ -119,7 +119,7 @@ func (c *Collector) Add(ev steps.Observed) []string {
 		steps = ev.Case.Teardown
 	}
 	var lines []string
-	if ev.Index < len(steps) && (steps[ev.Index].Kind == spec.KindPresence || steps[ev.Index].Kind == spec.KindGraphQL) {
+	if ev.Index < len(steps) && steps[ev.Index].Kind != spec.KindCall { // a document, not an HTTP response
 		lines = normalize.Document(ev.Obs.Body, ctx, c.rules)
 	} else {
 		lines = normalize.Response(ev.Obs, ctx, c.rules)

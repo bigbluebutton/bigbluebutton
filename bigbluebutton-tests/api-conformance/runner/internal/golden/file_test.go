@@ -63,12 +63,12 @@ func TestSections(t *testing.T) {
 		"create.x.sections-plain": `step 1: call create
 step 4: route presentation-download
 step 6: call ""
-step 7: fs (document)
+step 7: fs a/${uid} (document)
 teardown 2: call getMeetingInfo`,
 		"create.x.sections-defect": `step 1: call create (document)
 step 4: route presentation-download (document)
 step 6: call "" (document)
-step 7: fs (document)
+step 7: fs a/${uid} (document)
 teardown 2: call getMeetingInfo`,
 	}
 	for _, c := range cases {
