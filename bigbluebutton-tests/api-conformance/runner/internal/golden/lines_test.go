@@ -1,4 +1,4 @@
-package diff
+package golden
 
 import (
 	"reflect"

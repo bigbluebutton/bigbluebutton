@@ -8,77 +8,10 @@ import (
 	"io"
 	"sort"
 	"strings"
-	"sync"
 
-	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/normalize"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/golden"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
-	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/steps"
-	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
 )
-
-// Key identifies a step within a case.
-type Key struct {
-	Phase string `json:"phase"`
-	Index int    `json:"index"`
-}
-
-func (k Key) less(o Key) bool {
-	if k.Phase != o.Phase {
-		return k.Phase == "steps" // steps before teardown
-	}
-	return k.Index < o.Index
-}
-
-type stepLines struct {
-	lines  []string
-	golden string
-	line   int
-}
-
-// Collector gathers one target's normalized responses.
-type Collector struct {
-	rules  *normalize.Rules
-	target *target.Target
-
-	mu    sync.Mutex
-	ctxs  map[string]*normalize.Context
-	cases map[string]map[Key]stepLines
-}
-
-// NewCollector returns a collector; hook it up with r.Observe = c.Observe.
-func NewCollector(t *target.Target, rules *normalize.Rules) *Collector {
-	return &Collector{rules: rules, target: t, ctxs: map[string]*normalize.Context{}, cases: map[string]map[Key]stepLines{}}
-}
-
-// Observe records one response. A case's events arrive in order, from one
-// goroutine; cases run in parallel.
-func (c *Collector) Observe(ev steps.Observed) {
-	if ev.Golden == "off" {
-		return // never compared
-	}
-	c.mu.Lock()
-	ctx := c.ctxs[ev.Case.ID]
-	if ctx == nil {
-		ctx = normalize.NewContext(ev.UID, c.target.Bases(), c.target.APIPrefix, c.target.Salt)
-		c.ctxs[ev.Case.ID] = ctx
-		c.cases[ev.Case.ID] = map[Key]stepLines{}
-	}
-	c.mu.Unlock()
-	// The context is only touched by this case's goroutine.
-	ctx.AddSent(ev.Request.URL, ev.Request.Header.Get("Content-Type"), ev.Request.Body)
-	lines := normalize.Response(ev.Obs, ctx, c.rules)
-	line := 0
-	steps := ev.Case.Steps
-	if ev.Phase == "teardown" {
-		steps = ev.Case.Teardown
-	}
-	if ev.Index < len(steps) {
-		line = steps[ev.Index].Line
-	}
-	c.mu.Lock()
-	c.cases[ev.Case.ID][Key{ev.Phase, ev.Index}] = stepLines{lines: lines, golden: ev.Golden, line: line}
-	c.mu.Unlock()
-}
 
 // Report is the comparison of two targets.
 type Report struct {
@@ -109,7 +42,7 @@ type CaseDiff struct {
 
 // StepDiff is one step that differs.
 type StepDiff struct {
-	Key
+	golden.Key
 	Line int `json:"line"`
 	// Kind is differing, only-a or only-b.
 	Kind string   `json:"kind"`
@@ -117,7 +50,7 @@ type StepDiff struct {
 }
 
 // Compare builds the report from both runs, in the order of a's cases.
-func Compare(a, b *report.Run, ca, cb *Collector) *Report {
+func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 	rep := &Report{Sides: [2]string{a.Target, b.Target}}
 	for _, run := range []*report.Run{a, b} {
 		for _, w := range run.Warnings {
@@ -134,7 +67,7 @@ func Compare(a, b *report.Run, ca, cb *Collector) *Report {
 		if rb != nil {
 			cd.StatusB = rb.Status
 		}
-		la, lb := ca.cases[ra.ID], cb.cases[ra.ID]
+		la, lb := byKey(ca.Steps(ra.ID)), byKey(cb.Steps(ra.ID))
 		switch {
 		case ra.Status == report.Skip || rb == nil || rb.Status == report.Skip:
 			cd.Outcome = "skipped"
@@ -143,35 +76,32 @@ func Compare(a, b *report.Run, ca, cb *Collector) *Report {
 			rep.Cases = append(rep.Cases, cd)
 			continue
 		}
-		keys := map[Key]bool{}
+		keys := map[golden.Key]bool{}
 		for k := range la {
 			keys[k] = true
 		}
 		for k := range lb {
 			keys[k] = true
 		}
-		sorted := make([]Key, 0, len(keys))
+		sorted := make([]golden.Key, 0, len(keys))
 		for k := range keys {
 			sorted = append(sorted, k)
 		}
-		sort.Slice(sorted, func(i, j int) bool { return sorted[i].less(sorted[j]) })
+		sort.Slice(sorted, func(i, j int) bool { return sorted[i].Less(sorted[j]) })
 		oneSided := false
 		for _, k := range sorted {
 			sa, okA := la[k]
 			sb, okB := lb[k]
-			if (okA && sa.golden == "off") || (okB && sb.golden == "off") {
-				continue
-			}
 			switch {
 			case okA && !okB:
-				cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sa.line, Kind: "only-a", Hunk: prefix("-", sa.lines)})
+				cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sa.Line, Kind: "only-a", Hunk: prefix("-", sa.Lines)})
 				oneSided = true
 			case okB && !okA:
-				cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sb.line, Kind: "only-b", Hunk: prefix("+", sb.lines)})
+				cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sb.Line, Kind: "only-b", Hunk: prefix("+", sb.Lines)})
 				oneSided = true
 			default:
-				if h := Lines(sa.lines, sb.lines); len(h) > 0 {
-					cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sa.line, Kind: "differing", Hunk: h})
+				if h := golden.Lines(sa.Lines, sb.Lines); len(h) > 0 {
+					cd.Steps = append(cd.Steps, StepDiff{Key: k, Line: sa.Line, Kind: "differing", Hunk: h})
 				}
 			}
 		}
@@ -204,53 +134,18 @@ func skipNote(a, b *report.CaseResult) string {
 	return strings.Join(parts, "; ")
 }
 
+func byKey(steps []golden.Step) map[golden.Key]golden.Step {
+	m := make(map[golden.Key]golden.Step, len(steps))
+	for _, s := range steps {
+		m[s.Key] = s
+	}
+	return m
+}
+
 func prefix(p string, lines []string) []string {
 	out := make([]string, len(lines))
 	for i, l := range lines {
 		out[i] = p + " " + l
-	}
-	return out
-}
-
-// Lines diffs two line sequences by their longest common subsequence and
-// returns the changed lines, "-" for a and "+" for b, in order. It returns
-// nil when they are equal.
-func Lines(a, b []string) []string {
-	// Only the middle that differs goes through the quadratic table.
-	for len(a) > 0 && len(b) > 0 && a[0] == b[0] {
-		a, b = a[1:], b[1:]
-	}
-	for len(a) > 0 && len(b) > 0 && a[len(a)-1] == b[len(b)-1] {
-		a, b = a[:len(a)-1], b[:len(b)-1]
-	}
-	n, m := len(a), len(b)
-	lcs := make([][]int, n+1)
-	for i := range lcs {
-		lcs[i] = make([]int, m+1)
-	}
-	for i := n - 1; i >= 0; i-- {
-		for j := m - 1; j >= 0; j-- {
-			if a[i] == b[j] {
-				lcs[i][j] = lcs[i+1][j+1] + 1
-			} else {
-				lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
-			}
-		}
-	}
-	var out []string
-	i, j := 0, 0
-	for i < n || j < m {
-		switch {
-		case i < n && j < m && a[i] == b[j]:
-			i++
-			j++
-		case i < n && (j == m || lcs[i+1][j] >= lcs[i][j+1]):
-			out = append(out, "- "+a[i])
-			i++
-		default:
-			out = append(out, "+ "+b[j])
-			j++
-		}
 	}
 	return out
 }

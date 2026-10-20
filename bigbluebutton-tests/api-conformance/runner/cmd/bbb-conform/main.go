@@ -26,6 +26,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/diff"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/expectations"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/gap"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/golden"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/normalize"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
@@ -392,7 +393,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 	red := &tmpl.Redactor{}
 	casesRoot := filepath.Clean(*cases)
 	var runs [2]*report.Run
-	var cols [2]*diff.Collector
+	var cols [2]*golden.Collector
 	for i, tg := range tgs {
 		r, err := steps.NewRunner(tg, fixturesDir, version)
 		if err != nil {
@@ -413,7 +414,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		r.NewUID = uid
 		r.Area = func(c *spec.Case) string { return area(casesRoot, c.File) }
 		r.ContinueOnFail = true
-		cols[i] = diff.NewCollector(tg, rules)
+		cols[i] = golden.NewCollector(tg, rules)
 		r.Observe = cols[i].Observe
 		run := r.RunAll(ctx, first, *parallel)
 		r.NewUID = func(n int) string { return uid(n + len(first)) }
