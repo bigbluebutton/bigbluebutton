@@ -37,6 +37,10 @@ export interface PreFlightContextValue {
   // The user passed over a denied microphone where listen only is off: the
   // join carries no audio, and the microphone controls read as such.
   joiningWithoutAudio: boolean;
+  // The room mode a moderator picked in the room mode panel, null for none.
+  // Only staged here: nothing reaches the room before the join.
+  roomMode: string | null;
+  setRoomMode: (roomMode: string | null) => void;
   // Set by the setup panel so the join can persist the camera selections
   // (device, profile, virtual background) right before joining.
   commitCameraRef: React.MutableRefObject<(() => void) | null>;

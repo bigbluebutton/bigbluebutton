@@ -31,11 +31,19 @@ import {
   JoiningRoomHeader,
 } from '/imports/ui/components/pre-flight/joining-room/component';
 import { isPreFlightEnabled } from '/imports/ui/components/pre-flight/service';
+import {
+  RoomModeActions,
+  RoomModeLoading,
+  RoomModePanel,
+} from '/imports/ui/components/pre-flight/room-mode/component';
+import useRoomModePanelGate from '/imports/ui/components/pre-flight/room-mode/useRoomModePanelGate';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const connectionTimeout = 60000;
@@ -72,6 +80,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     guestLobbyMessage: string | null;
     positionInWaitingQueue: number | null;
     isBot: boolean;
+    isModerator: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -100,6 +109,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   guestStatus,
   positionInWaitingQueue,
   isBot,
+  isModerator,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -233,6 +243,10 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const hasLeftMeeting = meetingEnded || !!joinErrorCode || !!ejectReasonCode || loggedOut;
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
+  const roomModePanel = useRoomModePanelGate(isModerator, isBot, showPreFlight);
+  // A phone pins the panel's actions to the bottom: the join notices stay in
+  // the header there instead of in the panel's footer.
+  const isPhoneWidth = useMediaQuery(smallOnly);
   const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
   const isSettingUp = guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT;
   // The panel stays up behind a denial only for the guest who was already
@@ -259,6 +273,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     />
   );
   let preFlightActions: React.ReactNode = null;
+  let preFlightPanel: React.ReactNode = null;
   let preFlightError: PreFlightError | null = null;
 
   const retryConnection = () => {
@@ -302,14 +317,27 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         meetingName={meetingName}
         clientTitle={CLIENT_TITLE}
         isJoining={joinRequested}
+        withNotices={!roomModePanel.show || isPhoneWidth}
       />
     );
-    preFlightActions = (
-      <JoiningRoomActions
-        isJoining={joinRequested}
-        onJoin={() => setJoinRequested(true)}
-      />
-    );
+    if (roomModePanel.loading) {
+      preFlightActions = <RoomModeLoading />;
+    } else if (roomModePanel.show) {
+      preFlightPanel = <RoomModePanel />;
+      preFlightActions = (
+        <RoomModeActions
+          isJoining={joinRequested}
+          onJoin={() => setJoinRequested(true)}
+        />
+      );
+    } else {
+      preFlightActions = (
+        <JoiningRoomActions
+          isJoining={joinRequested}
+          onJoin={() => setJoinRequested(true)}
+        />
+      );
+    }
   }
 
   return (
@@ -342,6 +370,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               error={preFlightError}
               gateJoinOnDevices={isGuestAllowed && !joinRequested}
               commitRef={preFlightCommitRef}
+              panel={preFlightPanel}
             />
           )
           : null
@@ -383,6 +412,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     userId: u.userId,
     bot: u.bot,
     logoutUrl: u.logoutUrl,
+    isModerator: u.isModerator,
   }));
 
   const { error, data } = useDeduplicatedSubscription<GetGuestLobbyInfo>(getGuestLobbyInfo, {
@@ -412,6 +442,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     name,
     bot = false,
     logoutUrl,
+    isModerator = false,
   } = currentUserData;
 
   const guestStatusDetails = data?.user_current?.[0]?.guestStatusDetails;
@@ -452,6 +483,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus ?? ''}
       isBot={bot}
+      isModerator={isModerator}
     >
       {children}
     </PresenceManager>
