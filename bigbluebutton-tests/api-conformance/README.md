@@ -6,9 +6,10 @@ cases. Cases are declarative YAML; `bbb-conform` (in `runner/`) runs them.
 
 **Status:** `bbb-conform` validates cases, runs HTTP steps (`call`, `route`,
 `url` and `wait`), joins headless users to meetings (`presence`) and runs
-GraphQL as them (`graphql`), and records what a server answers. Cases that
-use the other step types or response schemas are skipped until those are
-implemented.
+GraphQL as them (`graphql`), checks what the server did on the redis bus, in
+redis and on disk (`bus`, `redis` and `fs`, through a [tap](#the-tap-tap)),
+and records what a server answers. Cases that use the other step types
+(`sink`, `env`) or response schemas are skipped until those are implemented.
 
 ```
 runner/                  the bbb-conform Go module
@@ -67,13 +68,18 @@ defaultSign: sha256
 sinkUrl: https://sink.example.com    # optional, for ${sinkUrl}
 fixtureUrl: https://files.example.com
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql
+tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
 vars:
   turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
 ```
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
-(e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`.
-`targets/bbb-web.yaml` and `targets/bbb-api.yaml` are set up that way.
+(e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`, and to
+`BBB_TAP_URL` for `tapUrl`. `targets/bbb-web.yaml` and `targets/bbb-api.yaml`
+are set up that way.
+
+A target with a tap has the `bus`, `fs` and `redis` capabilities. Listing
+them without one is an error.
 
 **Routes** map the route names of `route` steps to this target's paths:
 
@@ -131,6 +137,59 @@ The file's `target` must match the target's `name`. An entry that matches no
 case is reported as a warning. `expectations/bbb-api.yaml` is the bbb-api gap
 backlog; `expectations/bbb-web.yaml` lists the `defect` cases bbb-web fails.
 
+## The tap: `tap`
+
+`bus`, `fs` and `redis` steps see what a server did outside its answers
+through a tap: `bbb-conform tap`, running on the server itself. The tap:
+- follows the redis channels that bbb-web and akka-apps talk over;
+- reads redis keys;
+- reads files in the data directory.
+
+It serves all three over HTTP to the runner, which can run anywhere.
+
+```sh
+# A static binary for the server:
+CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
+# On the server, as a user that can read the data directory:
+./bbb-conform tap
+```
+
+| Option | Default |
+|---|---|
+| `--listen ADDR` | `127.0.0.1:8099`. |
+| `--redis URL` | `redis://127.0.0.1:6379`. `--redis-password-env NAME` names the variable that holds the password. |
+| `--data-dir DIR` | `/var/bigbluebutton`. `""` serves no files. |
+| `--watch a,b` | `recording/status,learning-dashboard`: directories under the data directory that are watched for files that come and go. |
+| `--channels a,b` | The to-akka-apps, from-akka-apps, from-akka-apps-pres and from-bbb-web redis channels. |
+| `--redis-keys a,b` | `meeting:*,recording:*,captions:*`: globs of the only keys it reads. |
+| `--max-mb N`, `--max-age D` | 128 MiB and 2h: how much of what it saw it keeps. |
+
+- **Test servers only.** The tap has no authentication: anyone who reaches
+  its port can read whatever it can read. It never writes to redis or to
+  files. It listens on 127.0.0.1 unless told otherwise. To reach it from
+  another host, listen on a private interface or use an SSH tunnel
+  (`ssh -L 8099:127.0.0.1:8099 server`). Never expose it on a public
+  interface.
+- **What it keeps:**
+  - every message on its channels, indexed by name and meeting;
+  - every file created under the watched directories, even one deleted at
+    once. On a full install, record-and-playback's rap-starter removes
+    recording markers as soon as they appear.
+
+  Each entry gets a sequence number, and a case looks only at what came
+  after its mark.
+- **Trouble:**
+  - a restarted tap is a new instance, so a case that took its mark before
+    the restart ERRORs;
+  - when the tap loses redis, it reconnects and notes the gap. A step that
+    passes by not seeing something then ERRORs instead.
+- **Files** are read from the data directory, never outside it, up to 1 MiB
+  each. Watching them needs Linux (inotify); elsewhere the tap sees only
+  files that still exist.
+
+`GET /info` on the tap shows the channels it follows, whether it is
+subscribed, its redis connection and how many directories it watches.
+
 ## Checking cases
 
 ```sh
@@ -174,6 +233,11 @@ Content-Type, error formats.
 - **Checks don't stop a case** in diff mode, so later steps still run;
   captures still feed them. A capture that finds nothing does stop it.
 - **What isn't compared:** teardown steps, and any step with `golden: off`.
+- **Meeting props:** when both targets have a tap, the props in each
+  create's `MeetingCreatedEvtMsg` are compared too, i.e. what akka-apps made
+  of the create params. The report shows them as e.g. `step 1 (line 7),
+  MeetingCreatedEvtMsg props`. This catches a param that one API drops or
+  defaults differently. When only one target has a tap, there is a warning.
 - **Exit status:** 0, unless `--fail-on-diff` is given and something differs.
 - **Comparing two releases:** give two bbb-web targets, e.g. 3.0 and 4.0. The
   report lists what an integration written for one would see change on the
@@ -208,17 +272,20 @@ Values that change from run to run are masked:
 
 | Field (any depth, also as a query param inside URLs) | Becomes |
 |---|---|
-| createTime, startTime, endTime, and GraphQL's registeredOn and registeredAt | `<time>`, for digits or an ISO-8601 time |
-| createDate | `<date>` in Java's `Date.toString()` format, otherwise its shape (digits as 9) |
-| internalMeetingID, meeting_id, parentMeetingID, recordID, and GraphQL's meetingId and parentMeetingId | `<sha1(meetingID)>-<time>`, naming the sent param whose SHA-1 it is, or `<sha1(?)>` |
+| createTime, startTime, endTime, GraphQL's registeredOn and registeredAt, and the bus's timestamp and createdTime | `<time>`, for digits or an ISO-8601 time |
+| createDate, and the bus's createdDate | `<date>` in Java's `Date.toString()` format, otherwise its shape (digits as 9) |
+| internalMeetingID, meeting_id, parentMeetingID, recordID, GraphQL's meetingId and parentMeetingId, and the bus's intId, parentId, internalId and breakoutMeetingId | `<sha1(meetingID)>-<time>`, naming the sent param whose SHA-1 it is, or `<sha1(?)>` |
 | userID, user_id, internalUserID, existingUserID, and GraphQL's userId and extId | `w_<id>` |
-| attendeePW, moderatorPW, voiceBridge | `<random>`, unless the case sent that value |
-| session and auth tokens, checksum, JSESSIONID | `<token>` |
+| attendeePW, moderatorPW, voiceBridge, and the bus's moderatorPass, viewerPass, voiceConf and telVoice | `<random>`, unless the case sent that value |
+| session and auth tokens, checksum, JSESSIONID, and the token in a learning-dashboard file's path | `<token>` |
 | stuns TURN username and password | `<expiry>:…` and `<token>` |
+| a redis key's `ttl`, when it has one | `<set>` (-1, no expiry, and -2, missing, stay) |
 
 After masking:
 - the case's `${uid}`, the target's base URLs and its API prefix are replaced
   by placeholders;
+- internal meeting IDs inside other strings, such as redis key names and
+  file paths, become `<sha1(meetingID)>-<time>` too;
 - getMeetings entries of other cases are dropped, and a list left with none
   reads like an empty one. getMeetings' `noMeetings` messageKey and message
   are dropped too, since they depend on whether any other case has a meeting:
@@ -226,8 +293,9 @@ After masking:
 - lists whose order isn't defined are sorted: meetings, recordings, metadata,
   attendees, STUN and TURN servers.
 
-What a `presence` or `graphql` step returns is a JSON document, not a
-response: it becomes the document's lines alone, normalized the same way.
+What a `presence`, `graphql`, `bus`, `fs` or `redis` step returns is a JSON
+document, not a response: it becomes the document's lines alone, normalized
+the same way.
 
 `masks.yaml`, next to the cases directory, adds rules or overrides the
 built-in ones: `masks`, `unordered`, `scope`, `drop` (removes the lines a
@@ -293,7 +361,7 @@ before it is committed, and never edited by hand: change the case or
 
 ```
 # Recorded by bbb-conform record. Review it with bbb-conform review before committing.
-case create.duplicate.same-passwords
+case create.side-effects.recorded
 target bbb-web
 
 == step 1: call create
@@ -305,14 +373,19 @@ body xml
 /response/meetingID "${uid}"
 ...
 
-== step 3: fs (document)
+== step 3: redis meeting:info:${intId}
+$.key "meeting:info:<sha1(meetingID)>-<time>"
+$.ttl -1
+$.type "hash"
+$.value.color "blue"
 ...
 ```
 
 - **Sections:** one per step that takes `golden` and isn't `off`, numbered
   like the steps in reports (`wait` steps count) and named after what the
-  step does, e.g. `call create`, `presence join as ann` or `graphql query
-  Me as ann`. `(document)` marks a step that is recorded but not compared.
+  step does, e.g. `call create`, `presence join as ann`, `graphql query
+  Me as ann`, `bus MeetingCreatedEvtMsg` or `fs <path>`. `(document)` marks
+  a step that is recorded but not compared.
 - **The lines** are the normalized response (see
   [Normalized responses](#normalized-responses)).
 - **Stale:** a case's sections follow from the case alone. When the case
@@ -420,15 +493,14 @@ Each step has exactly one step-type key.
 | `wait` | A duration: `wait: 500ms`. | yes |
 | `presence` | `{action: join\|leave\|disconnect\|reconnect, as: <user>, args\|joinUrl\|sessionToken, timeout}`: a headless user; see [Users](#users-presence-and-graphql). `expect: {jsonpath}`. | yes |
 | `graphql` | `{as: <user>, query, variables, timeout}`, run as a user `presence` joined. `expect: {jsonpath, errors}`, `eventually`. | yes |
-| `bus` | `{name, channel, meetingId, within}`: a redis message. `expect: {jsonpath, absent}`. | not yet |
-| `fs` | `{path, within}`, relative to the target's data directory; `path` may be a glob. `expect: {exists, absent, contents, jsonpath}`. | not yet |
-| `redis` | `{key, within}`. `expect: {exists, absent, hash, members, ttl}`. | not yet |
+| `bus` | `{name, channel, meetingId, within}`: a message on the redis bus. `expect: {jsonpath, absent, count}`. See [Side effects](#side-effects-bus-fs-and-redis). | yes |
+| `fs` | `{path, within}`: a file under the server's data directory; `path` may be a glob. `expect: {exists, absent, contents, jsonpath}`. | yes |
+| `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: a callback the sink received. `expect: {absent, count, method, path, query, headers}`. The callback URL the case gives bbb-web sets how the sink answers. | not yet |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
 
 - A case that uses a step type that isn't implemented yet is skipped as
   `unimplemented:<type>`. This is decided before any step runs.
-- With `within`, `absent: true` means "never seen during the whole window".
 - Every step that observes something takes `expect`, `capture` and `golden`.
 
 #### Users: `presence` and `graphql`
@@ -511,6 +583,75 @@ The actions other cases need, with their signatures (from
 | `breakoutRoomCreate` | `record, captureNotes, captureSlides, sendInviteToModerators, inheritLockSettings: Boolean!, durationInSeconds: Int!, rooms: [BreakoutRoom]!` |
 | `presentationRequestUploadToken` | `podId: String!` (DEFAULT_PRESENTATION_POD), `filename: String!, uploadTemporaryId: String!` |
 | `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!` |
+
+#### Side effects: `bus`, `fs` and `redis`
+
+These steps check what a call did outside its answer, through the target's
+[tap](#the-tap-tap):
+- `bus`: what bbb-web and akka-apps said on the redis bus;
+- `redis`: the keys bbb-web wrote for the recording scripts;
+- `fs`: the files written under the data directory.
+
+```yaml
+- call: create
+  params: {meetingID: "${uid}", name: Props, record: "true", muteOnStart: "true", meta_Color: blue}
+  capture: {intId: /response/internalMeetingID}
+- bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+  expect:
+    jsonpath: {$.core.body.props.voiceProp.muteOnStart: "true"}
+  capture: {voiceConf: $.core.body.props.voiceProp.voiceConf}
+- redis: {key: "meeting:info:${intId}", within: 5s}
+  expect: {hash: {color: blue}, ttl: "-1"}
+- call: end
+  params: {meetingID: "${uid}"}
+- fs: {path: "recording/status/recorded/${intId}.done", within: 5s}
+- bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 500ms}
+  expect: {count: 1}                     # the meeting was created once
+```
+
+- **The window:** a case with a `bus` or `fs` step takes a mark from the tap
+  before its first step. Each such step looks at everything since that mark,
+  for up to `within` after the step starts. So it sees what an earlier step
+  caused, even if that happened before the step began.
+  - `within` is required for `bus`. Without it, an `fs` or `redis` step
+    looks once.
+  - A `redis` step reads the key as it is now, every 250ms.
+- **What matches:** these keys narrow what counts as a match:
+  - `jsonpath`, for all three, on the step's document;
+  - `contents`, for `fs`;
+  - `hash`, `members` (the exact set) and `ttl`, for `redis`.
+
+  How the step uses the matches:
+  - by default, it passes at the first match;
+  - with `absent: true`, it passes if nothing matches during the whole
+    window, so it always takes the whole window;
+  - with `count` (bus), it checks how many messages matched by the end of
+    the window;
+  - with `exists: false` (fs, redis), it passes once the file or key is
+    gone.
+- **`meetingId`** is an internal meeting ID: capture it from create's
+  `internalMeetingID`.
+  - A bus step needs one unless the case is tagged `serial`, so that other
+    cases' messages can't match.
+  - The tap finds a message's meeting wherever the message keeps it: its
+    header, its routing, or its body (`meetingId`, `props.meetingProp.intId`,
+    `meetingInfo.internalId`, `recordId` or `room.breakoutMeetingId`).
+- **The documents** that `jsonpath`, `capture` and recordings see:
+  - bus: the message as published, plus `channel`, or `null` when none
+    matched;
+  - fs: `{path, found, contents}`, with contents parsed when they are JSON.
+    A file that appeared and is gone again counts as found, without
+    contents, unless the step checks its contents;
+  - redis: `{key, type, ttl, value}`. `ttl` is -1 for no expiry and -2 for a
+    missing key. `value` is an object for a hash, a sorted list for a set, a
+    list, or a string.
+- **Errors:**
+  - When the tap may have missed something during the window (it lost redis
+    or file events), a step whose outcome rests on not seeing something
+    ERRORs.
+  - So does a step whose window the tap no longer holds (raise `--max-mb`),
+    or whose tap was restarted during the case.
+- **Paths** are relative to the data directory and can't contain `..`.
 
 #### HTTP requests
 

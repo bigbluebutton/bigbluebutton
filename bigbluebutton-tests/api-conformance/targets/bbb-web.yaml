@@ -1,6 +1,8 @@
 # bbb-web, on any server. BBB_URL (e.g. https://bbb-ci.test/bigbluebutton/)
 # gives the base URL and API prefix, and BBB_SECRET the salt, as for the
-# Playwright suite.
+# Playwright suite. BBB_TAP_URL (e.g. http://10.0.0.5:8099) names the
+# server's tap (bbb-conform tap), for the bus, fs and redis steps: without
+# one, those cases are skipped.
 name: bbb-web
 capabilities: [akka, presence]
 # Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
