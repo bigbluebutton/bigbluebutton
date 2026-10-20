@@ -37,7 +37,7 @@ class GetJoinUrlSpec extends Specification implements ControllerUnitTest<ApiCont
 
   // Mirrors the shipped default in bigbluebutton.properties.
   static final String USERDATA_BLOCKLIST =
-      "bbb_record_permission,bbb_record_video,bbb_fullaudio_bridge,bbb_transparent_listen_only," +
+      "bbb_record_permission,bbb_record_video,bbb_transparent_listen_only," +
       "bbb_multi_user_pen_only,bbb_presenter_tools,bbb_multi_user_tools"
 
   ParamsProcessorUtil paramsProcessorUtil
