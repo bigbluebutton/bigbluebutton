@@ -81,6 +81,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     positionInWaitingQueue: number | null;
     isBot: boolean;
     isModerator: boolean;
+    roomMode: string | undefined;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -110,6 +111,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   positionInWaitingQueue,
   isBot,
   isModerator,
+  roomMode,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -243,7 +245,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const hasLeftMeeting = meetingEnded || !!joinErrorCode || !!ejectReasonCode || loggedOut;
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
-  const roomModePanel = useRoomModePanelGate(isModerator, isBot, showPreFlight);
+  const roomModePanel = useRoomModePanelGate(roomMode, isModerator, isBot, showPreFlight);
   // A phone pins the panel's actions to the bottom: the join notices stay in
   // the header there instead of in the panel's footer.
   const isPhoneWidth = useMediaQuery(smallOnly);
@@ -484,6 +486,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       guestStatus={guestStatus ?? ''}
       isBot={bot}
       isModerator={isModerator}
+      roomMode={meeting?.roomMode}
     >
       {children}
     </PresenceManager>

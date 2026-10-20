@@ -23,10 +23,6 @@ const ROOM_MODE_CARDS: RoomModeCard[] = [e.preFlightRoomModeClass, e.preFlightRo
 // Listed, but nothing applies them yet.
 const COMING_SOON_CARDS = [e.preFlightRoomModeEvent, e.preFlightRoomModeWebinar, e.preFlightRoomModeThesisDefense];
 
-// The client's own fallback for a room mode read that never answers
-// (useRoomModePanelGate), plus the usual budget for the screen to follow.
-const ROOM_MODE_READ_TIMEOUT = 10000 + ELEMENT_WAIT_LONGER_TIME;
-
 const readRoomModePanelSetting = (page: PlaywrightPage) =>
   page.evaluate(
     () =>
@@ -300,37 +296,6 @@ export class RoomModePanel extends RoomMode {
 
     await this.modPage.page.keyboard.press('ArrowUp');
     await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
-  }
-
-  // The middleware drops an operation it refuses before the join without
-  // answering, so the read is dropped here the same way: the screen must not
-  // wait for it forever.
-  async fallsBackWhenModeNeverArrives(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    let droppedReads = 0;
-    await page.routeWebSocket('**/graphql**', (client) => {
-      const server = client.connectToServer();
-      client.onMessage((message) => {
-        if (message.toString().includes('getRoomMode')) {
-          droppedReads += 1;
-          return;
-        }
-        server.send(message);
-      });
-      server.onMessage((message) => client.send(message));
-    });
-    await this.initModPageWithPanel(page, options);
-
-    await this.modPage.hasElement(
-      e.preFlightJoinButton,
-      'should fall back to the regular join when the room mode never arrives',
-      ROOM_MODE_READ_TIMEOUT,
-    );
-    expect(droppedReads, 'should have dropped the room mode read').toBeGreaterThan(0);
-    expect(
-      await this.modPage.checkElement(e.preFlightRoomModePanel),
-      'should not display the room mode panel without the room mode',
-    ).toBeFalsy();
-    await startsRoom(this.modPage);
   }
 
   // A phone pins the actions to the bottom of the screen, so the join's notices

@@ -58,15 +58,6 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.movesBetweenModesWithArrows();
   });
 
-  test('Falls back to the regular join when the room mode never arrives', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.fallsBackWhenModeNeverArrives(page, { testInfo });
-  });
-
   test('Keeps the join notices visible on a phone', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.showsJoinNoticesOnPhone(page, { testInfo });
