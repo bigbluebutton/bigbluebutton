@@ -21,11 +21,12 @@ FROM java-base
 # Runtime dependencies from build/packages-template/bbb-web/opts-noble.sh that bbb-web calls
 # (xpdf-utils is poppler-utils on noble; ghostscript and the magick coders are imagemagick's recommends).
 # Versions come from the pinned base image's Ubuntu release.
+# fonts-noto-cjk: bare metal gets it as a recommend of fonts-noto, needed for CJK slides.
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         imagemagick libmagickcore-6.q16-7-extra ghostscript poppler-utils potrace file \
-        fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto \
+        fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/share/bbb-web
