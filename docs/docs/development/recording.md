@@ -162,8 +162,7 @@ Administration:
    --disable <workflow>                disable a recording workflow
    --tointernal <external meetingId>   get the internal meeting ids for the given external meetingId
    --toexternal <internal meetingId>   get the external meeting id for the given internal meetingId
-   --republish <internal meetingID>    republish the recording for meetingID.
-                                       (Only for Matterhorn Integration)
+   --republish <internal meetingID>    republish the recording for meetingID
 ```
 
 #### Useful settings
