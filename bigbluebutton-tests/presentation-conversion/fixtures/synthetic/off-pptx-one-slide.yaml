@@ -1,0 +1,21 @@
+id: off-pptx-one-slide
+title: "python-pptx 16:9 slide: title, text box, red/blue/green/yellow edge rectangles"
+tier: synthetic
+file: off-pptx-one-slide.pptx
+issues: [25432]
+catalog: ["Office pre-check"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: true
+aspect: 1.7778
+profiles: [defaults, rasterize-all, office-precheck]
+notes: >-
+  Layout 'Title Only' of python-pptx's default template, slide size 12192000 x 6858000 EMU. The
+  four rectangles are laid out as the marker (red top, blue bottom, green left, yellow right,
+  solid fill, no outline, theme style removed so no shadow), with the title and the text box in
+  the white middle. A valid pptx: with skipOfficePrecheck=false (office-precheck) it must still
+  convert (#25432). LibreOffice 25.8: one 960x540 page with the marker upright, 43 <path, 68 <use,
+  no <filter.

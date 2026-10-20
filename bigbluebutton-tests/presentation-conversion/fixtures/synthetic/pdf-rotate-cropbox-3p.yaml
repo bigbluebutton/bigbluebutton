@@ -1,0 +1,22 @@
+id: pdf-rotate-cropbox-3p
+title: "Upright marker through /Rotate 90, /Rotate 270 and a CropBox"
+tier: synthetic
+file: pdf-rotate-cropbox-3p.pdf
+issues: [15035]
+catalog: ["Recording: CropBox", "Slide dimensions"]
+upload:
+  method: create
+pages: 3
+expect: converted
+kind: { defaults: vector, rasterize-all: raster }
+marker: true
+aspect: auto
+profiles: [defaults, rasterize-all]
+notes: >-
+  Pages 1 and 2 have a 540x960 MediaBox with /Rotate 90 and /Rotate 270 and draw the marker
+  through a compensating matrix, so the displayed 960x540 page is upright. Page 3 has MediaBox [0
+  0 1200 800] filled magenta and CropBox [120 130 1080 670] holding the marker; no magenta may
+  show and the page box for the aspect check is the CropBox. Measured with poppler 24.02:
+  pdftocairo -svg honours the CropBox (960x540 viewBox), but pdftoppm without -cropbox renders the
+  whole MediaBox, so bbb-web's raster path (rasterize-all, or any rasterised page) shows the
+  magenta frame at a 1.5 aspect ratio.

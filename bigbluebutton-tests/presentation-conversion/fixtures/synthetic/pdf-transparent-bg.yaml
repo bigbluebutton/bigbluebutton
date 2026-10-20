@@ -1,0 +1,18 @@
+id: pdf-transparent-bg
+title: "Black text and shapes with no background fill"
+tier: synthetic
+file: pdf-transparent-bg.pdf
+issues: [18550]
+catalog: ["Recording: transparent page background"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Nothing paints the page background: black text, a stroked rectangle, a filled triangle and a
+  filled half disc. A viewer that composites the slide on a dark or transparent canvas shows black
+  on black (#18550).

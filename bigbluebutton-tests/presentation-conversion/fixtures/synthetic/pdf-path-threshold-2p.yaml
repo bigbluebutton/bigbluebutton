@@ -1,0 +1,21 @@
+id: pdf-path-threshold-2p
+title: "700 and 850 separately filled rectangles around the 800 <path threshold"
+tier: synthetic
+file: pdf-path-threshold-2p.pdf
+issues: [24143, 11651]
+catalog: ["Path-heavy plots blurry", "SVG too complex for the client"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: { defaults: vector, low-thresholds: raster }
+pageOverrides:
+  1: { kind: { defaults: vector, low-thresholds: raster } }
+  2: { kind: raster }
+marker: false
+aspect: auto
+profiles: [defaults, low-thresholds]
+notes: >-
+  Each rectangle has its own colour and its own fill operator, so cairo writes one <path per
+  rectangle; the label adds one <path per distinct glyph. bbb-web rasterises above
+  placementsThreshold (800 <path, misnamed); low-thresholds lowers it to 100.

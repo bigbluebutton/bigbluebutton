@@ -1,0 +1,19 @@
+id: img-png-alpha
+title: "480x320 RGBA PNG: marker inside a 16 px fully transparent margin"
+tier: synthetic
+file: img-png-alpha.png
+issues: [18550]
+catalog: ["Recording: transparent page background"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: true
+aspect: 1.5
+profiles: [defaults]
+notes: >-
+  Opaque 448x288 marker centred on a transparent 480x320 canvas (alpha 0 in the margin). PNG
+  written without ancillary chunks (no tIME, no gAMA). kind is any, not vector: ImageMagick
+  6.9.12-98 (noble) stores the alpha as an /SMask, and pdftocairo 24.02 then writes 2 <filter and
+  1 <mask, so bbb-web runs its cairo-vs-splash comparison.

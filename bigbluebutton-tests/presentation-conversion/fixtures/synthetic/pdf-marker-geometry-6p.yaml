@@ -1,0 +1,17 @@
+id: pdf-marker-geometry-6p
+title: "Vector marker on six page sizes, one MediaBox with a non-zero origin"
+tier: synthetic
+file: pdf-marker-geometry-6p.pdf
+issues: [24110, 25450, 22684]
+catalog: ["Slide dimensions", "Portrait and mixed-orientation decks"]
+upload:
+  method: create
+pages: 6
+expect: converted
+kind: { defaults: vector, rasterize-all: raster }
+marker: true
+aspect: auto
+profiles: [defaults, rasterize-all]
+notes: >-
+  Pages: 960x540, 595x842 (A4 portrait), 50x50, 2384x3370 (A0), 453x225, and 960x540 with MediaBox
+  [100 100 1060 640]. Each page is a full vector marker plus a Helvetica label naming its size.

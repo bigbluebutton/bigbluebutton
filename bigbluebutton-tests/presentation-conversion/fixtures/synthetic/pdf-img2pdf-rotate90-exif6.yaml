@@ -1,0 +1,18 @@
+id: pdf-img2pdf-rotate90-exif6
+title: "img2pdf output: camera JPEG kept verbatim with EXIF 6, page /Rotate 90"
+tier: synthetic
+file: pdf-img2pdf-rotate90-exif6.pdf
+issues: [26001]
+catalog: ["EXIF orientation, JPEG inside a PDF"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: true
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Port of img2pdf-camera-exif6.pdf. img2pdf 0.6.3 with rotation=auto maps EXIF 6 to /Rotate 90 and
+  embeds the JPEG unchanged. Made with the internal engine and nodate=True, which is
+  byte-reproducible (the pikepdf engine writes a random /ID).

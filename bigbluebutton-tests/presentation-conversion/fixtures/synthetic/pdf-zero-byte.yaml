@@ -1,0 +1,17 @@
+id: pdf-zero-byte
+title: "Empty file named .pdf"
+tier: synthetic
+file: pdf-zero-byte.pdf
+issues: [4218, 9867]
+catalog: ["Empty or malformed file"]
+upload:
+  method: create
+pages: 0
+expect: dropped
+kind: any
+marker: false
+aspect: auto
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  Zero bytes. Once blocked the upload modal for minutes (#4218).

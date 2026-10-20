@@ -1,0 +1,9 @@
+Presentation conversion keeps this text as vector glyphs.
+
+Helvetica is one of the fourteen standard PDF fonts.
+
+It is not embedded, so poppler substitutes a system font.
+
+Every line on this page is a separate text object.
+
+The next page holds nothing but a number.

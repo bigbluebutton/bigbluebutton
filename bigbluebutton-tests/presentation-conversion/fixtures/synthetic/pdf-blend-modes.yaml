@@ -1,0 +1,18 @@
+id: pdf-blend-modes
+title: "Overlapping fills with /BM /Screen and /BM /Multiply"
+tier: synthetic
+file: pdf-blend-modes.pdf
+issues: [10016]
+catalog: ["Blend modes"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Two opaque base rectangles; a blue one painted with /BM /Screen and a magenta one with /BM
+  /Multiply overlap them. cairo expresses the blend modes with <filter tags, so bbb-web compares
+  the cairo and splash renders (kind any).

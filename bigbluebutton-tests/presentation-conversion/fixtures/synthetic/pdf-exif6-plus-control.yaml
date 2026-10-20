@@ -1,0 +1,18 @@
+id: pdf-exif6-plus-control
+title: "Phone photo (EXIF 6, rotated upright by the content stream) next to a control photo"
+tier: synthetic
+file: pdf-exif6-plus-control.pdf
+issues: [26001]
+catalog: ["EXIF orientation, JPEG inside a PDF"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: { defaults: vector, rasterize-all: raster }
+marker: { split: 2 }
+aspect: auto
+profiles: [defaults, rasterize-all]
+notes: >-
+  Port of slide-photo-plus-control.pdf: 720x540 slide. Left: the sideways-stored 480x320 camera
+  JPEG with EXIF Orientation 6, drawn with matrix [0 -400 266.67 0 40 470] so it appears upright.
+  Right: an EXIF-free 320x480 control photo.

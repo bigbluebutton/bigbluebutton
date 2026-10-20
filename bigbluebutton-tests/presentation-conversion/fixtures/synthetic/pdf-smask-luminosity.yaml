@@ -1,0 +1,19 @@
+id: pdf-smask-luminosity
+title: "Red and blue fills under a luminosity soft mask (white, 60 %, 30 % columns)"
+tier: synthetic
+file: pdf-smask-luminosity.pdf
+issues: [25996]
+catalog: ["Export: soft masks", "Soft mask in transparency group"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: { defaults: vector, low-thresholds: raster }
+marker: false
+aspect: auto
+profiles: [defaults, low-thresholds]
+notes: >-
+  ExtGState /SMask << /S /Luminosity /G group /BC [0] >> over two filled rectangles: three columns
+  at full, 60 % and 30 % opacity, each with a fully masked hole. The SVG has <mask and <filter
+  tags, so with the defaults bbb-web compares the cairo and splash renders (kind any);
+  low-thresholds rasterises on the first <mask.

@@ -1,0 +1,17 @@
+id: pdf-header-only
+title: "Nine bytes: a bare %PDF-1.7 header"
+tier: synthetic
+file: pdf-header-only.pdf
+issues: [4218, 9867]
+catalog: ["Empty or malformed file"]
+upload:
+  method: create
+pages: 0
+expect: "rejected:PAGE_COUNT_FAILED"
+kind: any
+marker: false
+aspect: auto
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  Detected as application/pdf by its magic bytes, but holds no objects.

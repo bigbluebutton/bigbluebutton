@@ -1,0 +1,18 @@
+id: img-tiff-2page
+title: "Two-page LZW TIFF of the marker"
+tier: synthetic
+file: img-tiff-2page.tiff
+issues: []
+catalog: ["File-type detection"]
+upload:
+  method: create
+pages: 0
+expect: dropped
+kind: any
+marker: true
+aspect: 1.5
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  tiff is not in bbb-web's supported extensions; this records how the upload is refused.
+  ImageMagick 6.9.12-98 would turn it into a 2-page PDF.

@@ -1,0 +1,18 @@
+id: pdf-201-pages
+title: "201 pages sharing one content stream, one over the default maxNumPages"
+tier: synthetic
+file: pdf-201-pages.pdf
+issues: [7202, 25817]
+catalog: ["Page-count limit"]
+upload:
+  method: create
+pages: 0
+expect: "rejected:PAGE_COUNT_EXCEEDED"
+expectByProfile:
+  tight-limits: "rejected:PAGE_COUNT_EXCEEDED"
+kind: any
+marker: false
+aspect: auto
+profiles: [defaults, tight-limits]
+notes: >-
+  maxNumPages is 200 by default and 5 in tight-limits; pdfinfo reports 201 pages.

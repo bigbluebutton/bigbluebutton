@@ -12,3 +12,52 @@
     bbb-web rejects the download and sends FILE_TOO_LARGE, but akka-apps only updates an existing pres_presentation
     row (PresPresentationDAO.updateErrors) and an insertDocument upload that fails before conversion has none, so
     the error never reaches the database or the presenter.
+
+- fixture: pdf-exif-1-to-8
+  profiles: [defaults]
+  pages: [2, 3, 4, 5, 6, 7, 8]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+  note: pdftocairo copies the JPEG into the slide SVG with its EXIF block; browsers then rotate or mirror it.
+
+- fixture: pdf-exif6-plus-control
+  profiles: [defaults]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+
+- fixture: pdf-img2pdf-rotate90-exif6
+  profiles: [defaults]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+
+- fixture: img-jpg-exif6-camera
+  profiles: "*"
+  checks: [thumb]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/13351
+  since: 2026-10-09
+  note: >-
+    The slide is auto-oriented by ImageMagick, but ThumbnailCreatorImp runs `convert -thumbnail` without
+    -auto-orient, so the thumbnail of a portrait phone photo is sideways. The golden is the correct thumbnail.
+
+- fixture: pdf-rotate-cropbox-3p
+  profiles: "*"
+  pages: [3]
+  checks: [thumb]
+  issue: "not filed yet: thumbnails ignore the PDF CropBox"
+  since: 2026-10-09
+  note: >-
+    ThumbnailCreatorImp runs pdftoppm without -cropbox, so the thumbnail of a cropped page shows the whole
+    MediaBox (content outside the crop, 3:2 instead of 16:9) while the slide itself is cropped. The golden is the
+    thumbnail with -cropbox.
+
+- fixture: off-pptx-phone-photo-exif6
+  profiles: "*"
+  checks: [marker]
+  issue: "not filed yet: LibreOffice ignores the EXIF orientation of pictures in PowerPoint decks"
+  since: 2026-10-09
+  note: >-
+    The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
+    pixels, so the slide, its thumbnail and the recording show it rotated. Compare with PowerPoint before filing.

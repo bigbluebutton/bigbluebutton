@@ -1,0 +1,19 @@
+id: pdf-jpeg-icc-smask-2p
+title: "JPEG with an APP2 sRGB ICC profile; JPEG with a horizontal-gradient /SMask"
+tier: synthetic
+file: pdf-jpeg-icc-smask-2p.pdf
+issues: [26001]
+catalog: ["EXIF orientation, JPEG inside a PDF", "Scanned / masked PDFs"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: vector
+marker: false
+aspect: auto
+profiles: [defaults]
+notes: >-
+  Page 1: JPEG carrying an APP2 ICC profile (Pillow ImageCms sRGB, header date fixed to
+  2020-01-01) embedded verbatim, colour space [/ICCBased] with the same profile. Page 2: JPEG
+  whose /SMask fades from transparent (left) to opaque (right); its SVG has <filter tags, hence
+  kind any. Guards JPEG passthrough changes that could drop the profile or the mask.
