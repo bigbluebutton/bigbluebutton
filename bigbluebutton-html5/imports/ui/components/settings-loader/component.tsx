@@ -99,7 +99,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
             const settings = clientSettings.clientSettingsJson;
             window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
             MeetingStaticDataStore.setMeetingData(staticData);
-            setMeetingSettings(settings);
+            setMeetingSettings(window.meetingClientSettings);
             setLoading(false);
             setSettingsFetched(true);
           })

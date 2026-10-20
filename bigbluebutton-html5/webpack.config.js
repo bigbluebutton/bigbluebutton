@@ -80,6 +80,7 @@ const config = {
       patterns: [
         { from: 'public', to: '.' },
         { from: 'private', to: 'private' },
+        { from: 'thin-client-entry', to: 'thin-client-entry' },
         { from: 'client/boot.js', to: 'boot.js' },
       ],
     }),

@@ -821,14 +821,8 @@ class ApiController {
   }
 
   String handleCreateUserClientUrl(String sessionToken, UserSession session) {
-    String clientUrl = paramsProcessorUtil.getDefaultHTML5ClientUrl()
-    String redirectUrl = clientUrl
-    if (!StringUtils.isEmpty(session.getEnforceLayout())) {
-      redirectUrl = redirectUrl + "?waitLayout=1&sessionToken=" + sessionToken
-    } else {
-      redirectUrl = redirectUrl + "?sessionToken=" + sessionToken
-    }
-    return redirectUrl
+    boolean waitLayout = !StringUtils.isEmpty(session.getEnforceLayout())
+    return paramsProcessorUtil.buildHTML5ClientRedirectUrl(sessionToken, waitLayout)
   }
 
   /*******************************************
