@@ -34,7 +34,7 @@ dotenv.config();
  * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
  */
 export interface ClientSettingsOverrides {
-  [key: string]: string | number | boolean | null | ClientSettingsOverrides;
+  [key: string]: string | number | boolean | null | Array<string | number | boolean> | ClientSettingsOverrides;
 }
 
 export interface InitOptionsProps {

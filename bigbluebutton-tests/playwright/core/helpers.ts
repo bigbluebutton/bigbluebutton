@@ -12,7 +12,6 @@ import * as xml2js from 'xml2js';
 import { MultiUsers } from '../user/multiusers';
 import { Page } from './page';
 import { parameters } from './parameters';
-import { runScript } from './util';
 
 dotenv.config();
 
@@ -175,18 +174,6 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const apiCall = `join${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
   return `${parameters.server}/api/join?${query}&checksum=${checksum}`;
-}
-
-export async function checkRootPermission(): Promise<void> {
-  const checkSudo = await runScript('timeout -k 1 1 sudo id', {
-    handleError: () => false,
-    handleOutput: (stdout: string) => !!stdout,
-    timeout: 5000,
-  });
-  // skip rather than fail: these tests kill TCP sessions, which needs
-  // passwordless sudo - a machine-setup precondition, not a product defect
-  // (grant it beforehand by running "sudo -v" and entering the password)
-  test.skip(!checkSudo, 'Test requires root permission: run "sudo -v" first or grant passwordless sudo');
 }
 
 async function sanitizeLog(
