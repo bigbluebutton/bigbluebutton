@@ -392,6 +392,13 @@ func (c *Conn) Do(ctx context.Context, r Request, subscription bool) (*Result, e
 	case res := <-o.result:
 		return res, nil
 	case <-c.done:
+		// The reader delivers an answer before it ends the connection, so
+		// an answer the server sent just before closing is already here.
+		select {
+		case res := <-o.result:
+			return res, nil
+		default:
+		}
 		return nil, c.Err()
 	case <-ctx.Done():
 		c.forget(id)

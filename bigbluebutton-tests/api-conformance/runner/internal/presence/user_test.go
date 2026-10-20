@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakebbb"
+	"golang.org/x/net/websocket"
 )
 
 const fakeSalt = "presence-test-salt"
@@ -243,5 +244,66 @@ func TestKeepalive(t *testing.T) {
 	time.Sleep(900 * time.Millisecond)
 	if _, err := ann.Query(ctx(t), Request{Query: "query Me { user_current { name } }", OperationName: "Me"}, "query"); err != nil {
 		t.Errorf("after a quiet spell: %v", err)
+	}
+}
+
+// scriptedUser attaches a user to a scripted server that answers
+// user_current with row, then runs more for the rest of the connection.
+func scriptedUser(t *testing.T, row string, more func(ws *websocket.Conn, subID string)) (*User, error) {
+	t.Helper()
+	s := serve(t, func(ws *websocket.Conn) {
+		ack(ws)
+		f, _ := recv(ws)
+		send(ws, `{"id":"`+f.ID+`","type":"next","payload":{"data":{"user_current":[`+row+`]}}}`)
+		more(ws, f.ID)
+	})
+	return Attach(ctx(t), s.options(), "st1")
+}
+
+// When the server stops following the user, waiting for the user fails at
+// once, with why, rather than at the timeout.
+func TestLostSubscription(t *testing.T) {
+	u, err := scriptedUser(t, `{"joined":false,"guestStatus":"ALLOW","authToken":"at1"}`, func(ws *websocket.Conn, subID string) {
+		f, _ := recv(ws) // the join
+		send(ws, `{"id":"`+f.ID+`","type":"next","payload":{"data":{"userJoinMeeting":true}}}`)
+		send(ws, `{"id":"`+f.ID+`","type":"complete"}`)
+		send(ws, `{"id":"`+subID+`","type":"error","payload":[{"message":"subscription ended"}]}`)
+		recv(ws)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer u.Close()
+	start := time.Now()
+	err = u.Join(ctx(t), false)
+	if err == nil || !strings.Contains(err.Error(), "stopped following the user") || time.Since(start) > 2*time.Second {
+		t.Errorf("after %s: %v", time.Since(start), err)
+	}
+}
+
+func TestLeaveReportsErrors(t *testing.T) {
+	u, err := scriptedUser(t, `{"joined":true,"guestStatus":"ALLOW"}`, func(ws *websocket.Conn, _ string) {
+		f, _ := recv(ws)
+		send(ws, `{"id":"`+f.ID+`","type":"error","payload":[{"message":"Mutation failed (userLeaveMeeting): nope"}]}`)
+		recv(ws)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer u.Close()
+	if err := u.Leave(ctx(t)); err == nil || !strings.Contains(err.Error(), "Mutation failed") {
+		t.Errorf("leave: %v", err)
+	}
+}
+
+func TestJoinNeedsAConnection(t *testing.T) {
+	w := newWorld(t, "")
+	ann, _ := w.join("Ann", "")
+	if err := ann.Join(ctx(t), false); err != nil {
+		t.Fatal(err)
+	}
+	ann.Disconnect()
+	if err := ann.Join(ctx(t), false); err == nil || !strings.Contains(err.Error(), "reconnect first") {
+		t.Errorf("a join after a disconnect: %v", err)
 	}
 }

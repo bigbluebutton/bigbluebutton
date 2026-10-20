@@ -44,7 +44,7 @@ func (x *exec) graphql(ctx context.Context, phase string, index int, s spec.Step
 	if timeout <= 0 {
 		timeout = graphqlTimeout
 	}
-	run := func() ([]byte, []string, error) {
+	run := func(timeout time.Duration) ([]byte, []string, error) {
 		qctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 		res, err := u.Query(qctx, req, g.Op.Type)
@@ -71,7 +71,13 @@ func (x *exec) graphql(ctx context.Context, phase string, index int, s spec.Step
 		deadline := time.Now().Add(ev.Within)
 		for attempt := 1; ; attempt++ {
 			sr.Attempts = attempt
-			doc, msgs, err = run()
+			// As for a call step, an attempt may run past the deadline by
+			// at most minAttempt.
+			t := timeout
+			if rem := time.Until(deadline); rem < t {
+				t = max(rem, minAttempt)
+			}
+			doc, msgs, err = run(t)
 			if err != nil {
 				sr.Status, sr.Message = report.Error, err.Error()
 				return
@@ -92,8 +98,10 @@ func (x *exec) graphql(ctx context.Context, phase string, index int, s spec.Step
 			}
 			if time.Now().Add(ev.Every).After(deadline) {
 				x.document(phase, index, s, nil, doc, until, sr)
-				sr.Status = report.Fail
-				sr.Message = fmt.Sprintf("eventually: not within %s (%d attempts): %s", ev.Within, attempt, assert.FirstFailure(until))
+				if sr.Status != report.Error { // a broken check stays an error
+					sr.Status = report.Fail
+					sr.Message = fmt.Sprintf("eventually: not within %s (%d attempts): %s", ev.Within, attempt, assert.FirstFailure(until))
+				}
 				return
 			}
 			select {
@@ -103,7 +111,7 @@ func (x *exec) graphql(ctx context.Context, phase string, index int, s spec.Step
 				return
 			}
 		}
-	} else if doc, msgs, err = run(); err != nil {
+	} else if doc, msgs, err = run(timeout); err != nil {
 		sr.Status, sr.Message = report.Error, err.Error()
 		return
 	}

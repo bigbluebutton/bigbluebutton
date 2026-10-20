@@ -35,7 +35,9 @@ var snapshotFields = []string{"userId", "extId", "name", "role", "isModerator", 
 const (
 	attachTries = 5
 	attachPause = 300 * time.Millisecond
-	probePause  = 200 * time.Millisecond
+	// probePause keeps the readiness probe under the middleware's 200
+	// queries a minute, past which it delays a connection's queries.
+	probePause = 300 * time.Millisecond
 )
 
 // User is a headless user: a connection to bbb-graphql-middleware for the
@@ -47,6 +49,7 @@ type User struct {
 	mu      sync.Mutex
 	conn    *Conn
 	state   map[string]any
+	lost    error         // why the server stopped user_current, if it did
 	changed chan struct{} // closed and replaced on each change
 }
 
@@ -92,7 +95,7 @@ func (u *User) connect(ctx context.Context) error {
 		return err
 	}
 	u.mu.Lock()
-	u.conn, u.state = conn, nil
+	u.conn, u.state, u.lost = conn, nil, nil
 	u.mu.Unlock()
 	_, err = conn.Subscribe(Request{
 		Query:         "subscription userCurrentSubscription { user_current { " + stateFields + " } }",
@@ -110,7 +113,12 @@ func (u *User) connect(ctx context.Context) error {
 
 // follow takes each user_current answer, on the connection's reader.
 func (u *User) follow(kind string, payload []byte) {
-	if kind != "next" {
+	if kind != "next" { // the server ended the subscription: no more changes
+		u.mu.Lock()
+		u.lost = fmt.Errorf("the server stopped following the user (%s %s)", kind, payload)
+		close(u.changed)
+		u.changed = make(chan struct{})
+		u.mu.Unlock()
 		return
 	}
 	var r struct {
@@ -133,14 +141,22 @@ func (u *User) follow(kind string, payload []byte) {
 func (u *User) waitFor(ctx context.Context, cond func(map[string]any) (bool, error)) error {
 	for {
 		u.mu.Lock()
-		st, changed, conn := u.state, u.changed, u.conn
+		st, changed, conn, lost := u.state, u.changed, u.conn, u.lost
 		u.mu.Unlock()
 		if done, err := cond(st); done || err != nil {
 			return err
 		}
+		if lost != nil {
+			return lost
+		}
 		select {
 		case <-changed:
 		case <-conn.Done():
+			// The reader applies the last change before it ends the
+			// connection: check it before giving up.
+			if done, err := cond(u.State()); done || err != nil {
+				return err
+			}
 			return conn.Err()
 		case <-ctx.Done():
 			return fmt.Errorf("%w; the user is %s", ctx.Err(), describe(st))
@@ -152,7 +168,7 @@ func describe(st map[string]any) string {
 	if st == nil {
 		return "not known yet"
 	}
-	return fmt.Sprintf("joined=%v guestStatus=%v loggedOut=%v ejected=%v joinErrorCode=%q", st["joined"], st["guestStatus"], st["loggedOut"], st["ejected"], st["joinErrorCode"])
+	return fmt.Sprintf("joined=%v guestStatus=%s loggedOut=%v ejected=%v joinErrorCode=%q", flag(st, "joined"), str(st, "guestStatus"), flag(st, "loggedOut"), flag(st, "ejected"), str(st, "joinErrorCode"))
 }
 
 func str(st map[string]any, k string) string {
@@ -186,6 +202,9 @@ func gone(st map[string]any) string {
 // approval first. Once joined, Join waits until the user's in-meeting
 // queries are answered.
 func (u *User) Join(ctx context.Context, waitForApproval bool) error {
+	if err := u.connection().Err(); err != nil {
+		return fmt.Errorf("the connection is closed, reconnect first: %w", err)
+	}
 	st := u.State()
 	if flag(st, "joined") && gone(st) == "" {
 		return nil
@@ -290,11 +309,16 @@ func (u *User) Query(ctx context.Context, r Request, kind string) (*Result, erro
 // Leave logs the user out, as the HTML5 client's Leave button does, and
 // closes the connection.
 func (u *User) Leave(ctx context.Context) error {
-	if _, err := u.connection().Do(ctx, Request{Query: "mutation UserLeaveMeeting { userLeaveMeeting }", OperationName: "UserLeaveMeeting"}, false); err != nil {
-		return fmt.Errorf("userLeaveMeeting: %w", err)
-	}
-	err := u.waitFor(ctx, func(st map[string]any) (bool, error) { return flag(st, "loggedOut"), nil })
+	res, err := u.connection().Do(ctx, Request{Query: "mutation UserLeaveMeeting { userLeaveMeeting }", OperationName: "UserLeaveMeeting"}, false)
 	var r *Rejected
+	switch {
+	case errors.As(err, &r): // the server may close the connection of a user who left
+	case err != nil:
+		return fmt.Errorf("userLeaveMeeting: %w", err)
+	case len(res.Errors) > 0:
+		return fmt.Errorf("userLeaveMeeting: %s", strings.Join(res.Messages(), "; "))
+	}
+	err = u.waitFor(ctx, func(st map[string]any) (bool, error) { return flag(st, "loggedOut"), nil })
 	if errors.As(err, &r) {
 		err = nil // the server may close the connection of a user who left
 	}

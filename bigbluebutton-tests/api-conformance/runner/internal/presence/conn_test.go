@@ -343,3 +343,26 @@ func TestServerEndsTheConnection(t *testing.T) {
 		t.Error("Done isn't closed")
 	}
 }
+
+// An answer the server sends just before it closes the connection is still
+// the operation's result.
+func TestAnswerBeforeClose(t *testing.T) {
+	for i := 0; i < 20; i++ {
+		s := serve(t, func(ws *websocket.Conn) {
+			ack(ws)
+			f, _ := recv(ws)
+			send(ws, `{"id":"`+f.ID+`","type":"next","payload":{"data":{"userLeaveMeeting":true}}}`)
+			send(ws, `{"id":"`+f.ID+`","type":"complete"}`)
+			send(ws, `{"id":"-1","type":"error","payload":[{"messageId":"user_logged_out","message":"bye"}]}`)
+		})
+		c, err := Dial(context.Background(), s.options())
+		if err != nil {
+			t.Fatal(err)
+		}
+		res, err := c.Do(context.Background(), Request{Query: "mutation L { userLeaveMeeting }", OperationName: "L"}, false)
+		c.Close()
+		if err != nil || string(res.Data) != `{"userLeaveMeeting":true}` {
+			t.Fatalf("try %d: %v, %v", i, res, err)
+		}
+	}
+}
