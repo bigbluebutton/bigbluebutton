@@ -1,16 +1,5 @@
-FROM eclipse-temurin:21-jre-jammy
+# Runtime base of the Java images: the JRE and the bigbluebutton user of the packages.
+FROM eclipse-temurin:21-jre-noble@sha256:35501d3f93173b420ac9001658eb68157e813316b865087e345c187fca422c4c
 
-RUN apt-get update && apt-get install -y \
-        wget unzip gosu locales \
-        imagemagick xpdf-utils curl \
-    && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-
-ENV LANG=en_US.UTF-8  
-ENV LANGUAGE=en_US:en  
-ENV LC_ALL=en_US.UTF-8     
-
-# add user & group
 RUN groupadd -g 998 bigbluebutton \
-    && useradd -m -u 998 -g bigbluebutton bigbluebutton \
-    && mkdir /etc/bigbluebutton \
-    && chown bigbluebutton:bigbluebutton /etc/bigbluebutton
+    && useradd -m -u 998 -g bigbluebutton bigbluebutton
