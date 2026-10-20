@@ -1,74 +1,49 @@
-FROM nginx:stable-alpine
+# The nginx of a BigBlueButton server with the site and location files the packages install, at
+# the same paths (build/packages-template/*/build.sh). Deployments mount their own files over them.
+FROM nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
 
-# Create BBB specific directories
-RUN mkdir -p /etc/bigbluebutton/nginx /var/www/bigbluebutton-default/assets /etc/nginx/vhosts.d
-COPY ./bigbluebutton-config/assets /var/www/bigbluebutton-default/assets
+USER 0
 
-# Modify nginx.conf
-RUN sed -i 's/worker_connections\s\+1024/worker_connections 10000/g' /etc/nginx/nginx.conf && \
-    sed -i '/^\s*include \/etc\/nginx\/conf\.d\/\*\.conf;/a\    include /etc/nginx/vhosts.d/*.nginx;' /etc/nginx/nginx.conf && \
-    if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then \
-      num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*'); \
-      if [[ "$num" -lt 10000 ]]; then \
-        sed -i 's/worker_rlimit_nofile [0-9 ]*;/worker_rlimit_nofile 10000;/g' /etc/nginx/nginx.conf; \
-      fi; \
-    else \
-      sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf; \
-    fi
+COPY bigbluebutton-config/assets /var/www/bigbluebutton-default/assets
+COPY build/packages-template/bbb-html5/bigbluebutton.nginx /etc/nginx/sites-available/bigbluebutton
+COPY build/packages-template/bbb-graphql-middleware/hasura-loadbalancer.nginx /etc/nginx/sites-available/hasura-loadbalancer.conf
+COPY build/packages-template/bbb-graphql-middleware/bbb-graphql-client-settings-cache.conf /etc/nginx/conf.d/
+COPY build/packages-template/bbb-config/include_default.nginx /usr/share/bigbluebutton/
+COPY bigbluebutton-web/bbb-web.nginx /usr/share/bigbluebutton/nginx/web
+COPY bigbluebutton-web/loadbalancer.nginx \
+     bigbluebutton-web/nginx-confs/presentation-slides.nginx \
+     build/packages-template/bbb-config/plugins-assets-cors.nginx \
+     build/packages-template/bbb-graphql-middleware/graphql.nginx \
+     build/packages-template/bbb-livekit/livekit.nginx \
+     build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx \
+     build/packages-template/bbb-webrtc-sfu/webrtc-sfu.nginx \
+     record-and-playback/notes/scripts/notes-playback.nginx \
+     record-and-playback/presentation/scripts/presentation.nginx \
+     record-and-playback/screenshare/scripts/recording-screenshare.nginx \
+     record-and-playback/video/scripts/playback-video.nginx \
+     /usr/share/bigbluebutton/nginx/
+# These three proxy to the static-app images (html5, dashboard, player) by their default service names.
+COPY docker/nginx/bbb-html5.nginx docker/nginx/learning-dashboard.nginx docker/nginx/playback.nginx \
+     /usr/share/bigbluebutton/nginx/
 
-# Copy nginx config-files to /etc/nginx/conf.d/
-COPY /build/packages-template/bbb-graphql-middleware/bbb-graphql-client-settings-cache.conf \
-     /etc/nginx/conf.d/
+# Links and nginx.conf tuning as in the after-install scripts of bbb-config, bbb-html5,
+# bbb-graphql-middleware and bbb-web. Container facts: an unprivileged port (8080), the Hasura
+# balancer on all interfaces, the access log to stdout.
+RUN rm /etc/nginx/conf.d/default.conf \
+    && mkdir -p /etc/nginx/sites-enabled /etc/bigbluebutton/nginx \
+    && ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton \
+    && ln -s /etc/nginx/sites-available/hasura-loadbalancer.conf /etc/nginx/sites-enabled/hasura-loadbalancer.conf \
+    && ln -s /usr/share/bigbluebutton/include_default.nginx /etc/bigbluebutton/nginx/include_default.nginx \
+    && ln -s /usr/share/bigbluebutton/nginx/web /usr/share/bigbluebutton/nginx/web.nginx \
+    && sed -i -e '/include \/etc\/nginx\/conf.d\/\*.conf;/a\    include /etc/nginx/sites-enabled/*;' \
+        -e 's/worker_connections  1024;/worker_connections 10000;/' \
+        -e 's/^events {/worker_rlimit_nofile 10000;\n\nevents {/' /etc/nginx/nginx.conf \
+    && sed -i -e 's/listen   80;/listen   8080;/' -e 's/listen \[::\]:80;/listen [::]:8080;/' \
+        /etc/nginx/sites-available/bigbluebutton \
+    && sed -i 's/listen 127.0.0.1:8185;/listen 8185;/' /etc/nginx/sites-available/hasura-loadbalancer.conf \
+    && ln -s /dev/stdout /var/log/nginx/bigbluebutton.access.log
 
-# Copy nginx config-files to /etc/nginx/vhost.d/
-COPY ./build/packages-template/bbb-html5/bigbluebutton.nginx \
-     ./build/packages-template/bbb-graphql-middleware/hasura-loadbalancer.nginx \
-     /etc/nginx/vhosts.d/
+USER 101
 
-# Copy nginx config-files to /etc/bigbluebutton/nginx/
-COPY ./docker/nginx/learning-dashboard.nginx \
-     ./bigbluebutton-web/loadbalancer.nginx \
-     ./bigbluebutton-web/nginx-confs/presentation-slides.nginx \
-     ./bigbluebutton-web/bbb-web.nginx \
-     ./build/packages-template/bbb-config/include_default.nginx \
-     ./build/packages-template/bbb-config/plugins-assets-cors.nginx \
-     ./build/packages-template/bbb-playback/playback.nginx \
-     ./build/packages-template/bbb-webhooks/webhooks.nginx \
-     ./build/packages-template/bbb-webrtc-sfu/webrtc-sfu.nginx \
-     ./build/packages-template/bbb-graphql-middleware/graphql.nginx \
-     ./build/packages-template/bbb-livekit/livekit.nginx \
-     ./build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx \
-     ./record-and-playback/notes/scripts/notes-playback.nginx \
-     ./record-and-playback/podcast/scripts/podcast.nginx \
-     ./record-and-playback/presentation/scripts/presentation.nginx \
-     ./record-and-playback/screenshare/scripts/recording-screenshare.nginx \
-     ./record-and-playback/slides/scripts/slides.nginx \
-     ./record-and-playback/video/scripts/playback-video.nginx \
-     /etc/bigbluebutton/nginx/
-
-# Copy bbb-html5.nginx.static to be bbb-html5.nginx
-COPY ./docker/nginx/bbb-html5.nginx /etc/bigbluebutton/nginx/bbb-html5.nginx
-
-# Change localhost occurrences to matching docker-compose service name
-RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/bbb-web.nginx && \
-    sed -i 's|http://127.0.0.1:3005|http://webhooks:3005|g' /etc/bigbluebutton/nginx/webhooks.nginx && \
-    sed -i 's|http://127.0.0.1:3008|http://webrtc-sfu:3008|g' /etc/bigbluebutton/nginx/webrtc-sfu.nginx && \
-    sed -i 's|http://127.0.0.1:8378|http://graphql-middleware:8378|g' /etc/bigbluebutton/nginx/graphql.nginx && \
-    sed -i 's|http://127.0.0.1:7880|http://livekit:7880|g' /etc/bigbluebutton/nginx/livekit.nginx && \
-    sed -i 's|http://localhost:8787|http://shared-notes-server:8787|g' /etc/bigbluebutton/nginx/bbb-shared-notes-server.nginx && \
-    sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/bbb-shared-notes-server.nginx && \
-    sed -i 's|127.0.0.1:8085|graphql-server:8085|g' /etc/nginx/vhosts.d/hasura-loadbalancer.nginx && \
-    sed -i 's|127.0.0.1:8185|0.0.0.0:8185|g' /etc/nginx/vhosts.d/hasura-loadbalancer.nginx
-
-# Modify bigbluebutton.nginx
-RUN sed -i 's|server_name\s\+[0-9.]*;|server_name _;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
-    sed -i 's|listen\s\+80;|listen 8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
-    sed -i 's|listen\s\+\[\:\:\]\:80;|listen [::]:8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx
-
-# Send logging to stdout/stderr
-RUN sed -i 's|^\s*access_log  /var/log/nginx/bigbluebutton.access.log;|    access_log  /dev/stdout;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx
-
-# Port 8185 for hasura load balancer, 8080 for everything else
 EXPOSE 8080 8185
-
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+HEALTHCHECK CMD ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/"]
