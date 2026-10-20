@@ -14,6 +14,7 @@ import Service from './service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { NOTES_ARE_PINNABLE } from '../service';
+import { getHocuspocusServerHostname } from '/imports/ui/services/url-builder';
 import Auth from '/imports/ui/services/auth';
 import { useSharedNotesImport } from '../../bn-shared-notes/import-context';
 
@@ -110,8 +111,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     }
 
     const { sessionToken } = Auth;
-    const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
-      || window.location.hostname;
+    const hocuspocusServerHostname = getHocuspocusServerHostname();
 
     menuItems.push(
       {

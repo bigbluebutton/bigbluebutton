@@ -2,6 +2,7 @@
 import Auth from '/imports/ui/services/auth';
 import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import { uniqueId } from '/imports/utils/string-utils';
+import { getHocuspocusServerHostname } from '/imports/ui/services/url-builder';
 
 async function convertAndUpload(
   presentations: any,
@@ -19,10 +20,9 @@ async function convertAndUpload(
   const extension = 'pdf';
   filename = `${filename}.${extension}`;
 
-  const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
-    || window.location.hostname;
-
-  const exportUrl = Auth.authenticateURL(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/${extension}`);
+  const exportUrl = Auth.authenticateURL(
+    `https://${getHocuspocusServerHostname()}/hocuspocus/api/documents/${padId}/export/${extension}`,
+  );
 
   const sharedNotesAsFile = await fetch(exportUrl, { credentials: 'include' });
 

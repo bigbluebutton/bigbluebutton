@@ -53,6 +53,24 @@ export function getBbbWebBase() {
   return window.meetingClientSettings.public.app.bbbWebBase;
 }
 
+
+/**
+ * Hostname (host[:port]) of the Hocuspocus / shared-notes server.
+ * Prefer settings.public.sharedNotes.serverHostname when set; otherwise use
+ * getServerRoot() so a remote UI still targets the BBB node.
+ */
+export function getHocuspocusServerHostname() {
+  const configured = window.meetingClientSettings?.public?.sharedNotes?.serverHostname;
+  if (configured) {
+    return configured;
+  }
+  try {
+    return new URL(getServerRoot()).host;
+  } catch (e) {
+    return window.location.host;
+  }
+}
+
 /**
  * Cache-busted URL for a static file under the client asset base.
  * relativePath is relative to /html5client/ (leading slash optional).

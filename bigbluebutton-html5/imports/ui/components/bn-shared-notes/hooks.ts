@@ -4,6 +4,7 @@ import { useIntl } from 'react-intl';
 import * as BlockNoteLocales from '@blocknote/core/locales';
 import { useEffect, useState, useRef } from 'react';
 import { GET_PAD_ID, GetPadIdQueryResponse } from '../notes/queries';
+import { getHocuspocusServerHostname } from '/imports/ui/services/url-builder';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 
@@ -61,8 +62,7 @@ const useHocuspocusProvider = () => {
         extraInfo: { documentId: documentName },
       }, 'Creating new HocuspocusProvider instance');
 
-      const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
-        || window.location.hostname;
+      const hocuspocusServerHostname = getHocuspocusServerHostname();
       const hocuspocusServerUrl = `wss://${hocuspocusServerHostname}/hocuspocus/collaboration`;
 
       const wsProvider = new HocuspocusProviderWebsocket({
