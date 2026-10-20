@@ -223,3 +223,21 @@ func TestWriteAndList(t *testing.T) {
 		t.Errorf("List(missing) = %v, %v", got, err)
 	}
 }
+
+func TestPresenceLabels(t *testing.T) {
+	c := loadCases(t, `id: create.x.labels
+title: t
+endpoint: create
+class: contract
+steps:
+  - presence: {action: join, as: ann, args: {meetingID: m, fullName: Ann}}
+  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+  - graphql: {as: ann, query: "mutation Leave { userLeaveMeeting }"}
+teardown:
+  - presence: {action: disconnect, as: ann}
+`)[0]
+	want := "step 1: presence join as ann\nstep 2: graphql query Me as ann\nstep 3: graphql mutation Leave as ann"
+	if got := titles(Sections(c)); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+}

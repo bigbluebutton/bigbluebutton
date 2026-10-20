@@ -298,3 +298,21 @@ func TestSplit(t *testing.T) {
 		}
 	}
 }
+
+// What presence and graphql steps return is normalized like a JSON body,
+// with GraphQL's names for the values that change from run to run.
+func TestDocument(t *testing.T) {
+	doc := `{"userId":"w_wvtrhafk0cny","extId":"w_wvtrhafk0cny","name":"Ann","sessionToken":"cvzzlfshg759rsff","joined":true,` +
+		`"joinErrorCode":null,"data":{"user_current":[{"registeredAt":"2026-10-20T16:13:30.947+00:00","registeredOn":1792512810947,"meetingId":"` + sha("bbbc-u5") + `-1792512810221"}]}}`
+	check(t, Document([]byte(doc), ctx("bbbc-u5"), Default()), `
+$.data.user_current[].meetingId "<sha1(meetingID)>-<time>"
+$.data.user_current[].registeredAt "<time>"
+$.data.user_current[].registeredOn "<time>"
+$.extId "w_<id>"
+$.joinErrorCode null
+$.joined true
+$.name "Ann"
+$.sessionToken "<token>"
+$.userId "w_<id>"`)
+	check(t, Document([]byte("not json"), ctx("bbbc-u5"), Default()), `document unparsable: 8 bytes, sha256 7ccfa1fbf394`)
+}

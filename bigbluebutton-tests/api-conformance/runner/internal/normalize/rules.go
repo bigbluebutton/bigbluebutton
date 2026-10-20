@@ -84,6 +84,13 @@ func Default() *Rules {
 			{Field: "user_id", As: "user-id"},
 			{Field: "internalUserID", As: "user-id"},
 			{Field: "existingUserID", As: "user-id"},
+			// GraphQL's names for them, in presence and graphql steps.
+			{Field: "userId", As: "user-id"},
+			{Field: "extId", As: "user-id"},
+			{Field: "meetingId", As: "internal-id"},
+			{Field: "parentMeetingId", As: "internal-id"},
+			{Field: "registeredOn", As: "time"},
+			{Field: "registeredAt", As: "time"},
 			{Field: "attendeePW", As: "random"},
 			{Field: "moderatorPW", As: "random"},
 			{Field: "moderatorPw", As: "random"},
@@ -229,6 +236,7 @@ var (
 	internalIDRe = regexp.MustCompile(`^([0-9a-f]{40})-([0-9]+)$`)
 	userIDRe     = regexp.MustCompile(`^w_[a-z0-9]{12}$`)
 	digitsRe     = regexp.MustCompile(`^[0-9]+$`)
+	isoTimeRe    = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[+-][0-9]{2}(:?[0-9]{2})?)?$`)
 	javaDateRe   = regexp.MustCompile(`^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Z][A-Za-z0-9+:-]{1,9} [0-9]{4}$`)
 	anyDigitRe   = regexp.MustCompile(`[0-9]`)
 )
@@ -240,7 +248,7 @@ func (m *Mask) apply(v string, ctx *Context) string {
 	}
 	switch m.As {
 	case "time":
-		if digitsRe.MatchString(v) {
+		if digitsRe.MatchString(v) || isoTimeRe.MatchString(v) {
 			return "<time>"
 		}
 	case "date":

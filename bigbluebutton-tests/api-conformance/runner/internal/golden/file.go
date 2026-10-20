@@ -72,7 +72,12 @@ func Sections(c *spec.Case) []Section {
 }
 
 func label(s spec.Step) string {
-	if s.Kind != spec.KindCall {
+	switch {
+	case s.Kind == spec.KindPresence:
+		return "presence " + s.Presence.Action + " as " + s.Presence.As
+	case s.Kind == spec.KindGraphQL && s.GraphQL.Op != nil:
+		return "graphql " + s.GraphQL.Op.Type + " " + s.GraphQL.Op.Name + " as " + s.GraphQL.As
+	case s.Kind != spec.KindCall:
 		return string(s.Kind)
 	}
 	switch c := s.Call; {

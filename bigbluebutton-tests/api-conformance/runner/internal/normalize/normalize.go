@@ -173,13 +173,29 @@ func bodyLines(o *observe.Observation, ctx *Context, r *Rules) []string {
 	if err != nil {
 		return []string{fmt.Sprintf("body %s unparsable: %s", o.Format(), textSummary(o.Body, ctx))}
 	}
-	ctx.scope(root, r)
-	drop(root, r)
-	ctx.mask(root, r)
-	ctx.substituteTree(root)
-	sortTree(root, r)
 	lines := []string{"body " + o.Format()}
-	return append(lines, flatten(root, o.Format() == "json")...)
+	return append(lines, ctx.tree(root, r, o.Format() == "json")...)
+}
+
+// tree normalizes a parsed body and renders it as lines.
+func (c *Context) tree(root *node, r *Rules, jsonPaths bool) []string {
+	c.scope(root, r)
+	drop(root, r)
+	c.mask(root, r)
+	c.substituteTree(root)
+	sortTree(root, r)
+	return flatten(root, jsonPaths)
+}
+
+// Document turns a JSON document, what a presence or graphql step returned
+// rather than an HTTP response, into ordered lines: one per value, masked
+// and sorted like a response body.
+func Document(doc []byte, ctx *Context, r *Rules) []string {
+	root, err := parseJSON(doc)
+	if err != nil {
+		return []string{"document unparsable: " + textSummary(doc, ctx)}
+	}
+	return ctx.tree(root, r, true)
 }
 
 // textSummary describes a body that isn't XML or JSON: its title, if it

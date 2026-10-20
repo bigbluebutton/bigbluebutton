@@ -2,6 +2,7 @@ package golden
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/client"
@@ -42,5 +43,16 @@ func TestOffStepStillSends(t *testing.T) {
 	want := `/response/attendeePW "Sekr3t"`
 	if last := got[0].Lines[len(got[0].Lines)-1]; last != want {
 		t.Errorf("last line = %s, want %s", last, want)
+	}
+}
+
+// A presence or graphql step's document has no status or headers.
+func TestCollectDocument(t *testing.T) {
+	c := &spec.Case{ID: "create.x.y", Steps: []spec.Step{{Kind: spec.KindGraphQL, Line: 3}}}
+	col := NewCollector(testTarget(), normalize.Default(), nil)
+	got := col.Add(steps.Observed{Case: c, UID: "bbbc-1a2b3c", Phase: "steps", Index: 0, Golden: "compare",
+		Obs: &observe.Observation{Body: []byte(`{"data":{"user_current":[{"userId":"w_abcdefghijkl"}]}}`)}})
+	if want := []string{`$.data.user_current[].userId "w_<id>"`}; strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Errorf("got %q", got)
 	}
 }

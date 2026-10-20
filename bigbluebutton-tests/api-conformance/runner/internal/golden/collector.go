@@ -8,6 +8,7 @@ import (
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/assert"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/normalize"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/steps"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
@@ -113,7 +114,16 @@ func (c *Collector) Add(ev steps.Observed) []string {
 	if c.discard && ev.Golden != "compare" {
 		return nil // nobody reads it
 	}
-	lines := normalize.Response(ev.Obs, ctx, c.rules)
+	steps := ev.Case.Steps
+	if ev.Phase == "teardown" {
+		steps = ev.Case.Teardown
+	}
+	var lines []string
+	if ev.Index < len(steps) && (steps[ev.Index].Kind == spec.KindPresence || steps[ev.Index].Kind == spec.KindGraphQL) {
+		lines = normalize.Document(ev.Obs.Body, ctx, c.rules)
+	} else {
+		lines = normalize.Response(ev.Obs, ctx, c.rules)
+	}
 	for i, l := range lines {
 		lines[i] = c.red.Redact(l)
 	}
@@ -121,10 +131,6 @@ func (c *Collector) Add(ev steps.Observed) []string {
 		return lines
 	}
 	line := 0
-	steps := ev.Case.Steps
-	if ev.Phase == "teardown" {
-		steps = ev.Case.Teardown
-	}
 	if ev.Index < len(steps) {
 		line = steps[ev.Index].Line
 	}
