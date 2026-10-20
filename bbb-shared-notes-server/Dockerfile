@@ -1,38 +1,30 @@
-# Stage 1: Build
-FROM node:24-alpine AS build
+FROM node:24@sha256:14078204b6bb268c107ceff6d3c43f45a888105e5c2b18b14c32b3409d93a1b0 AS build
 
 WORKDIR /app
-
 COPY package.json package-lock.json ./
-# Skip postinstall twemoji download (PDF export only; needs LibreOffice/systemd on host)
-RUN npm ci --no-progress --ignore-scripts
-
+# postinstall downloads the emoji images used by the PDF export
+COPY scripts scripts
+RUN npm ci --no-progress
 COPY . .
-RUN npm run build && \
-    cd /app/dist && \
-    mv index.js bbb-shared-notes-server.js && \
-    cp ../package.json ../package-lock.json . && \
-    npm ci --no-progress --omit=dev --ignore-scripts
+RUN npm run build && mv dist/index.js dist/bbb-shared-notes-server.js && npm prune --omit=dev
 
-# Stage 2: Runtime
-FROM node:24-alpine
+FROM node:24-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5
 
-ENV NODE_ENV=production
-
-RUN addgroup -g 2064 app && \
-    adduser -u 2065 -G app -D app && \
-    mkdir -p /usr/share/bbb-shared-notes-server/config \
-             /etc/bigbluebutton \
-             /tmp/shared-notes-dropbox && \
-    chown -R app:app /usr/share/bbb-shared-notes-server /tmp/shared-notes-dropbox /etc/bigbluebutton
-
-COPY --from=build --chown=app:app /app/dist /usr/share/bbb-shared-notes-server
-COPY --from=build --chown=app:app /app/config/default.yml /usr/share/bbb-shared-notes-server/config/default.yml
-COPY --chown=app:app config/docker-override.yml /etc/bigbluebutton/bbb-shared-notes-server.yml
+# wkhtmltopdf is the PDF converter of the package (not available on Alpine)
+RUN apt-get update && apt-get install -y --no-install-recommends wkhtmltopdf \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd -g 998 bigbluebutton && useradd -u 998 -g 998 -m bigbluebutton
 
 WORKDIR /usr/share/bbb-shared-notes-server
-USER app
+COPY --from=build /app/dist ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/assets ./assets
+COPY package.json package-lock.json blocknote_schema.sql run-in-systemd.sh ./
+COPY config/default.yml ./config/
+# Listen on all interfaces; deployments mount /etc/bigbluebutton/bbb-shared-notes-server.yml
+RUN sed -i '/^expressServer:/,/^[a-z]/ s/host: 127.0.0.1/host: 0.0.0.0/' config/default.yml
 
+ENV NODE_ENV=production
+USER bigbluebutton
 EXPOSE 8787
-
-CMD ["node", "/usr/share/bbb-shared-notes-server/bbb-shared-notes-server.js"]
+CMD ["node", "bbb-shared-notes-server.js"]
