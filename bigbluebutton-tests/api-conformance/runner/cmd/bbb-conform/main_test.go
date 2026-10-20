@@ -32,3 +32,16 @@ func TestRun(t *testing.T) {
 		}
 	}
 }
+
+func TestTapUsage(t *testing.T) {
+	for _, args := range [][]string{
+		{"tap", "--redis", "http://x"},
+		{"tap", "--data-dir", "no/such/dir"},
+		{"tap", "extra"},
+	} {
+		var stdout, stderr bytes.Buffer
+		if code := run(args, &stdout, &stderr); code != exitUsage {
+			t.Errorf("%v: exit %d: %s", args, code, stderr.String())
+		}
+	}
+}

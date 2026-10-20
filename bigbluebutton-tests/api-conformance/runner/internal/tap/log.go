@@ -25,6 +25,7 @@ type Entry struct {
 	Op   string // file: "created" or "deleted"
 
 	Why string // gap: what the tap may have missed
+	Of  string // gap: "bus" or "files"
 }
 
 func (e Entry) size() int { return len(e.Raw) + len(e.Path) + 128 }

@@ -13,6 +13,8 @@
 //	bbb-conform review --golden DIR [--cases DIR] [--id GLOB,..] [--since REV] [--html FILE]
 //	bbb-conform gap --results FILE [--results FILE ...] [--md FILE] [--html FILE]
 //	bbb-conform validate [--cases DIR] [--fixtures DIR]
+//	bbb-conform tap [--listen ADDR] [--redis URL] [--data-dir DIR] [--watch DIR,..]
+//	                [--channels CH,..] [--redis-keys GLOB,..] [--max-mb N] [--max-age D]
 //	bbb-conform version
 package main
 
@@ -54,6 +56,7 @@ const (
   bbb-conform review --golden DIR [options]             show recordings beside their cases
   bbb-conform gap --results FILE... [--md F] [--html F] the gap matrix of several runs
   bbb-conform validate [--cases DIR] [--fixtures DIR]   check case files
+  bbb-conform tap [options]                             serve a server's bus, redis and files to the runner
   bbb-conform version                                   print the version
 
 Run "bbb-conform <command> -h" for a command's options.
@@ -82,6 +85,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdGap(args[1:], stdout, stderr)
 	case "validate":
 		return cmdValidate(args[1:], stdout, stderr)
+	case "tap":
+		return cmdTap(args[1:], stdout, stderr)
 	case "version":
 		fmt.Fprintf(stdout, "bbb-conform %s\n", version)
 		return exitOK
