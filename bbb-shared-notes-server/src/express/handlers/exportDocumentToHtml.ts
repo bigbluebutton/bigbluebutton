@@ -1,5 +1,5 @@
 import hocuspocus from "../../hocuspocus";
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { createServerEditor } from "../../blocknote/editor";
 
 // Indentation for nested non-list blocks (issue #25585).
 // blocksToHTMLLossy() preserves real nesting only for list items; every other nested
@@ -55,8 +55,8 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
     const fragment = doc.getXmlFragment("doc");
 
     if (fragment.length > 0) {
-      // Create a ServerBlockNoteEditor instance
-      const editor = ServerBlockNoteEditor.create();
+      // Create a server editor with the shared notes schema
+      const editor = createServerEditor();
 
       // Convert Yjs XML Fragment to BlockNote blocks
       const blocks = editor.yXmlFragmentToBlocks(fragment);

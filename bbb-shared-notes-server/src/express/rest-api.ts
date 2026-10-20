@@ -8,6 +8,7 @@ import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
 import { exportHtmlToPdf } from "./handlers/exportDocumentToPdf";
 import { exportDocumentToJson } from "./handlers/exportDocumentToJson";
 import { exportDocumentToYjs } from "./handlers/exportDocumentToYjs";
+import { mathToLatexText } from "../common/math";
 import { sanitizeFilenameSegment } from "../common/filename";
 import { decodeURLEncodedString } from "./utils";
 
@@ -184,7 +185,8 @@ const documentApi: DocumentApi = {
         case 'txt': {
           const fullHtmlToBeConvertedToPlainText = await exportDocumentToHtml(documentName);
           // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
-          const plainText = fullHtmlToBeConvertedToPlainText
+          // Math keeps its LaTeX source instead of the MathML layout text
+          const plainText = mathToLatexText(fullHtmlToBeConvertedToPlainText)
             .replaceAll(/<style(?=([^>]*))\1>(?:(?!<\/style>)[\s\S])*<\/style>/gi, '') // Remove style tags and content (ReDoS-safe)
             .replaceAll(/<script(?=([^>]*))\1>(?:(?!<\/script>)[\s\S])*<\/script>/gi, '') // Remove script tags and content (ReDoS-safe)
             .replaceAll(/<title(?=([^>]*))\1>(?:(?!<\/title>)[\s\S])*<\/title>/gi, '') // Remove title tags and content (ReDoS-safe)

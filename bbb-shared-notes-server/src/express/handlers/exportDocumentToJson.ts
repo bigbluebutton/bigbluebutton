@@ -1,5 +1,5 @@
 import hocuspocus from "../../hocuspocus";
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { createServerEditor } from "../../blocknote/editor";
 
 export async function exportDocumentToJson(documentName: string): Promise<string> {
   const connection = await hocuspocus.openDirectConnection(documentName);
@@ -19,7 +19,7 @@ export async function exportDocumentToJson(documentName: string): Promise<string
       return JSON.stringify([], null, 2);
     }
 
-    const editor = ServerBlockNoteEditor.create();
+    const editor = createServerEditor();
     const blocks = editor.yXmlFragmentToBlocks(fragment);
 
     return JSON.stringify(blocks, null, 2);

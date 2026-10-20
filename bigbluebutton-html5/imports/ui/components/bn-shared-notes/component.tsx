@@ -2,7 +2,26 @@
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  defaultBlockSpecs,
+  defaultInlineContentSpecs,
+} from '@blocknote/core';
+import { filterSuggestionItems } from '@blocknote/core/extensions';
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+  getMathBlockTypeSelectItems,
+  getMathSlashMenuItems,
+  locales as mathLocales,
+} from '@blocknote/math-block';
+import {
+  createReactDiagramBlockSpec,
+  getDiagramBlockTypeSelectItems,
+  getDiagramSlashMenuItems,
+  locales as diagramLocales,
+} from '@blocknote/diagram-block';
 // As of BlockNote 0.53, `collaboration` is no longer a `BlockNoteEditorOptions` field:
 // it ships as an extension behind the `@blocknote/core/yjs` subpath
 import { withCollaboration } from '@blocknote/core/yjs';
@@ -13,10 +32,12 @@ import {
   BasicTextStyleButton,
   BlockNoteViewEditor,
   BlockTypeSelect,
+  blockTypeSelectItems,
   ColorStyleButton,
   ComponentProps,
   ComponentsContext,
   FormattingToolbar,
+  getDefaultReactSlashMenuItems,
   NestBlockButton,
   SuggestionMenuController,
   UnnestBlockButton,
@@ -206,9 +227,18 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     audio, image, file, video, ...remainingBlockSpecs
   } = defaultBlockSpecs;
 
+  // The shared notes server builds the same schema (bbb-shared-notes-server
+  // src/blocknote/schema.ts): a block type missing there is dropped from every
+  // export, recording and copied document.
   const schema = BlockNoteSchema.create({
     blockSpecs: {
       ...remainingBlockSpecs,
+      mathBlock: createReactMathBlockSpec(),
+      diagram: createReactDiagramBlockSpec(),
+    },
+    inlineContentSpecs: {
+      ...defaultInlineContentSpecs,
+      math: createReactInlineMathSpec(),
     },
   });
 
@@ -287,6 +317,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         default: '',
         heading: '',
       },
+      math: mathLocales[blockNoteLocale as keyof typeof mathLocales] ?? mathLocales.en,
+      diagram: diagramLocales[blockNoteLocale as keyof typeof diagramLocales] ?? diagramLocales.en,
     },
     _tiptapOptions: {
       extensions: [maxDocumentCharsExtension, escapeBlurExtension],
@@ -539,7 +571,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
                 onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
               >
                 <FormattingToolbar>
-                  <BlockTypeSelect key="blockTypeSelect" />
+                  <BlockTypeSelect
+                    key="blockTypeSelect"
+                    items={[
+                      ...blockTypeSelectItems(editor),
+                      ...getMathBlockTypeSelectItems(editor),
+                      ...getDiagramBlockTypeSelectItems(editor),
+                    ]}
+                  />
                   <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
                   <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
                   <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
@@ -558,6 +597,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             <SuggestionMenuController
               triggerCharacter="/"
               shouldOpen={shouldOpenSlashMenu}
+              getItems={async (query) => filterSuggestionItems(
+                combineByGroup(
+                  getDefaultReactSlashMenuItems(editor),
+                  getMathSlashMenuItems(editor),
+                  getDiagramSlashMenuItems(editor),
+                ),
+                query,
+              )}
             />
           </BlockNoteViewEditor>
         </BlockNoteView>
