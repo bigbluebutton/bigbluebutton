@@ -20,7 +20,11 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
-  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser, browserName }, testInfo) => {
+    test.skip(
+      browserName === 'firefox',
+      'Compares screenshots of a static frame fed by Chromium-only --use-file-for-fake-video-capture',
+    );
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
         ...chromiumBaseArgs,

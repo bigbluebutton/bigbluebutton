@@ -256,10 +256,14 @@ export class Webcam extends Page {
     const handleBox = await handle.boundingBox();
     if (!handleBox) throw new Error('resizeWebcamHandler boundingBox is null');
     const { x: hx, y: hy, width: hw, height: hh } = handleBox;
-    // Start drag at handle center and move down by 200px
-    await this.page.mouse.move(hx + hw / 2, hy + hh / 2);
+    // Start drag in the lower part of the handle and move down by 200px: its upper half
+    // lies under the webcam tile, and Firefox rounds the pointer to whole pixels, which
+    // puts the exact center on the tile instead of the handle
+    const grabX = hx + hw / 2;
+    const grabY = hy + hh * 0.75;
+    await this.page.mouse.move(grabX, grabY);
     await this.page.mouse.down();
-    await this.page.mouse.move(hx + hw / 2, hy + hh / 2 + 200, { steps: 10 });
+    await this.page.mouse.move(grabX, grabY + 200, { steps: 10 });
     await this.page.mouse.up();
 
     const resizedVideoBox = await this.page.locator(e.currentUserLocalStreamVideo).boundingBox();

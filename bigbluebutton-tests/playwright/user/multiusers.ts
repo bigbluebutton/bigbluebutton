@@ -490,9 +490,13 @@ export class MultiUsers {
   }
 
   async muteAllUsersExceptPresenter() {
-    // join audio
+    // join audio. Firefox holds enumerateDevices() until the tab is the selected one, and
+    // the audio modal needs it before it enables its join button
+    await this.modPage.page.bringToFront();
     await this.modPage.joinMicrophone();
+    await this.modPage2.page.bringToFront();
     await this.modPage2.joinMicrophone();
+    await this.userPage.page.bringToFront();
     await this.userPage.joinMicrophone();
     // mute all users except the presenter: a direct crowd-action button in the
     // participants panel now (the manageUsers gear dropdown is gone)

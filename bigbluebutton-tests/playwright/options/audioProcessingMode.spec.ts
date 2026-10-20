@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
 import { test } from '../core/setup/fixtures';
+import { constants as c } from '../parameters/constants';
 import {
   AudioProcessingMode,
   audioProcessingModeOverrides,
@@ -40,8 +41,12 @@ test.describe('Audio processing mode default', { tag: '@ci' }, () => {
 
     test(title, async ({ browser, context, page }, testInfo) => {
       const audioProcessingMode = new AudioProcessingMode(browser, context);
+      // Only the settings radios are checked, so audio is not joined: joining with
+      // Advanced selected needs a running AudioContext (see audioProcessingModeTrack).
       await audioProcessingMode.initModPage(page, {
         testInfo,
+        joinParameter: c.autoJoin,
+        shouldCloseAudioModal: false,
         clientSettingsOverrides: audioProcessingModeOverrides(wasmEnabled, processingMode),
       });
 
