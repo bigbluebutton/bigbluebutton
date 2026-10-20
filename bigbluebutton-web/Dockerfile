@@ -1,62 +1,58 @@
-# syntax=docker/dockerfile:1
-# 1. Build stage:
+# Build steps as in build/packages-template/bbb-web/build.sh
 FROM bbb-common-web AS build
 
 WORKDIR /bbb-web
 
 COPY . .
 
-# Grails 8 / Spring Boot 4 builds via the Gradle wrapper (see README / packaging)
 RUN ./gradlew assemble
 
 WORKDIR /bbb-web/pres-checker
 
-RUN ../gradlew resolveDeps
+RUN ../gradlew resolveDeps jar \
+    && cp build/libs/bbb-pres-check-*.jar lib/
 
-RUN unzip -q /bbb-web/build/libs/bigbluebutton-0.10.0.war -d /dist
+WORKDIR /dist
 
-# 2. Runtime stage:
+RUN jar -xf /bbb-web/build/libs/bigbluebutton-0.10.0.war
+
 FROM java-base
+
+# Runtime dependencies from build/packages-template/bbb-web/opts-noble.sh that bbb-web calls
+# (xpdf-utils is poppler-utils on noble; ghostscript and the magick coders are imagemagick's recommends).
+# Versions come from the pinned base image's Ubuntu release.
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        imagemagick libmagickcore-6.q16-7-extra ghostscript poppler-utils potrace file \
+        fonts-crosextra-carlito fonts-crosextra-caladea fonts-noto \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/share/bbb-web
 
-COPY --from=slides --chown=bigbluebutton / /usr/share/bigbluebutton/blank
+COPY --from=build /dist .
+COPY --from=build /bbb-web/pres-checker/lib /usr/share/prescheck/lib
+COPY --from=build /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
+COPY ./docker/run-in-systemd.sh /usr/share/bbb-web/run-in-systemd.sh
+COPY ./docker/entrypoint.sh /usr/local/bin/bbb-web-entrypoint
+# Office documents are converted by presOfficeConversionExec (/usr/share/bbb-libreoffice-conversion/convert.sh), which deployments provide
+COPY --from=slides / /usr/share/bigbluebutton/blank
+# gs reads it when PdfPageDownscaler rewrites a page
+COPY --from=slides nopdfmark.ps /etc/bigbluebutton/nopdfmark.ps
+COPY --from=html5-config settings.yml /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 
-COPY --from=build --chown=bigbluebutton /dist /usr/share/bbb-web
-COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/lib /usr/share/prescheck/lib
-COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
+# Log to stdout only; /var/bigbluebutton is where bbb-web stores presentations and heap dumps
+RUN sed -i '/<appender-ref ref="FILE"/d' WEB-INF/classes/logback.xml \
+    && install -d -o 998 -g 998 /var/bigbluebutton /var/bigbluebutton/diagnostics /etc/bigbluebutton
 
-# Client settings catalog (same path as apps-akka / packaging). Override is mounted at
-# /etc/bigbluebutton/bbb-html5.yml from ./conf/bbb-html5.yml in docker-compose.
-RUN mkdir -p /usr/share/bigbluebutton/html5-client/private/config
-COPY --from=html5-config --chown=bigbluebutton / /usr/share/bigbluebutton/html5-client/private/config/
+USER 998:998
 
-# Create necessary directories
-RUN mkdir -p /var/bigbluebutton/diagnostics /etc/bigbluebutton
-RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton /var/bigbluebutton /usr/share/bigbluebutton/html5-client
+EXPOSE 8090
 
-COPY --chown=bigbluebutton turn-stun-servers.xml.tmpl /etc/bigbluebutton/turn-stun-servers.xml.tmpl
+HEALTHCHECK --start-period=120s CMD ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8090/bigbluebutton/api"]
 
-# Hardcode livekit as the bridge services
-COPY --chown=bigbluebutton <<EOF /etc/bigbluebutton/bbb-web.properties
-audioBridge=livekit
-cameraBridge=livekit
-screenShareBridge=livekit
-redisHost=redis
-EOF
-
-COPY docker-entrypoint.sh /entrypoint.sh
-
-COPY --chown=bigbluebutton ./docker/logback.xml /usr/share/bbb-web/WEB-INF/classes/logback.xml
-
-# Move default application.conf file to allow overwrite
-RUN mv /usr/share/bbb-web/WEB-INF/classes/application.conf /usr/share/bbb-web/WEB-INF/classes/application-default.conf
-# Copy overwrite file
-COPY --chown=bigbluebutton ./docker/application.conf /usr/share/bbb-web/WEB-INF/classes/application.conf
-
-COPY --chown=bigbluebutton ./docker/run-in-systemd.sh /usr/share/bbb-web/run-in-systemd.sh
-RUN chmod +x /usr/share/bbb-web/run-in-systemd.sh
-
-USER bigbluebutton
-
-ENTRYPOINT ["/entrypoint.sh"]
+# As ExecStart in build/packages-template/bbb-web/bbb-web.service, listening on all interfaces;
+# the heap settings are in an environment variable so that deployments can change them.
+ENV MALLOC_ARENA_MAX=2 \
+    JDK_JAVA_OPTIONS="-Xms384m -Xmx384m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/bigbluebutton/diagnostics"
+ENTRYPOINT ["bbb-web-entrypoint", "java", "-Dgrails.env=prod", "-Dserver.address=0.0.0.0", "-Dserver.port=8090", "-Dspring.main.allow-circular-references=true", "-cp", ".", "org.springframework.boot.loader.launch.WarLauncher"]
