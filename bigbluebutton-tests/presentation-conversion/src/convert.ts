@@ -168,7 +168,10 @@ export class Converter {
   }
 
   private async unstage(): Promise<void> {
-    for (const dir of new Set(this.staged)) await sudo(['rm', '-rf', dir]);
+    for (const dir of new Set(this.staged)) {
+      await sudo(['rm', '-rf', dir]);
+      await sudo(['rmdir', '--ignore-fail-on-non-empty', path.dirname(dir), path.dirname(path.dirname(dir))]);
+    }
   }
 
   private plan(items: Prepared[]): MeetingPlan[] {
