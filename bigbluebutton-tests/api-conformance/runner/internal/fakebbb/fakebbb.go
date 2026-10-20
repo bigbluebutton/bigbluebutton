@@ -36,6 +36,13 @@ type Server struct {
 	// IdleTimeout, when set, closes a GraphQL websocket that sends nothing
 	// for that long, as bbb-graphql-middleware does after a minute.
 	IdleTimeout time.Duration
+	// Redis, when set, gets the bus messages and keys a real server would
+	// publish and write; DataDir the recording markers.
+	Redis   Redis
+	DataDir string
+	// DeleteMarkers removes markers as soon as they're written, as
+	// record-and-playback does.
+	DeleteMarkers bool
 
 	api bool // behave like bbb-api, the Go port
 
@@ -65,6 +72,9 @@ type meeting struct {
 	createTime              int64
 	meta                    map[string]string
 	guestPolicy             string
+	voiceConf               string
+	record                  bool
+	meetingKeepEvents       bool
 	ended                   bool
 	endPolls                int
 }
@@ -350,7 +360,8 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request, p url.Values) {
 	}
 	sum := sha1.Sum([]byte(id))
 	m := &meeting{id: id, name: name, attendeePW: ap, moderatorPW: mp, createTime: s.clock, meta: map[string]string{},
-		intID: hex.EncodeToString(sum[:]) + "-" + strconv.FormatInt(s.clock, 10), guestPolicy: p.Get("guestPolicy")}
+		intID: hex.EncodeToString(sum[:]) + "-" + strconv.FormatInt(s.clock, 10), guestPolicy: p.Get("guestPolicy"),
+		voiceConf: voiceBridge(s.seq), record: p.Get("record") == "true", meetingKeepEvents: p.Get("meetingKeepEvents") == "true"}
 	for k, vs := range p {
 		if rest, ok := strings.CutPrefix(k, "meta_"); ok && rest != "" {
 			m.meta[strings.ToLower(rest)] = vs[0]
@@ -358,6 +369,7 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request, p url.Values) {
 	}
 	s.meetings[id] = m
 	s.writeMeeting(w, m, "", "")
+	s.created(m, p)
 }
 
 func (s *Server) writeMeeting(w http.ResponseWriter, m *meeting, key, msg string) {
@@ -396,6 +408,9 @@ func (s *Server) end(w http.ResponseWriter, r *http.Request, p url.Values) {
 	if m == nil {
 		s.fail(w, r, "notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?")
 		return
+	}
+	if !m.ended {
+		s.ended(m)
 	}
 	m.ended = true
 	s.writeXML(w, "<returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey>"+
