@@ -10,8 +10,10 @@ import {
   useIsAudioTranscriptionEnabled,
   getLocaleName,
 } from '../service';
+import { getLocale, localeAsDefaultSelected } from '../speech/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
@@ -43,6 +45,10 @@ Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
 });
 
 const intlMessages = defineMessages(messages);
+
+// The configured default language is applied once per client session: a user who then picks
+// "Disabled" keeps that choice when the audio settings are reopened. A reload applies it again.
+const DEFAULT_LOCALE_APPLIED_KEY = 'audioCaptionsDefaultLocaleApplied';
 
 interface AudioCaptionsContainerProps {
   showTitleLabel?: boolean;
@@ -164,6 +170,27 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
     }),
   );
   const isEnabled = useIsAudioTranscriptionEnabled();
+  const fixedLocale = useFixedLocale();
+  const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+  const speechLocale = currentUser?.speechLocale ?? '';
+
+  // Pre-select the configured language (public.app.audioCaptions.language.locale, when
+  // defaultSelectLocale or forceLocale is on) the first time the select mounts for a user
+  // who has no speechLocale yet. The speech component used to do this at startup; since
+  // 7dffe4aa79 it only does so for providers other than webspeech. getLocale() is '' for
+  // locale "disabled", so the default settings keep the select on Disabled.
+  useEffect(() => {
+    if (!isEnabled || !currentUser || speechLocale !== '') return;
+    if (Session.getItem(DEFAULT_LOCALE_APPLIED_KEY)) return;
+    if (!fixedLocale && !localeAsDefaultSelected()) return;
+    Session.setItem(DEFAULT_LOCALE_APPLIED_KEY, 'true');
+    const locale = getLocale();
+    if (locale === '') return;
+    setUserLocaleProperty(locale, (value: string, provider: string) => {
+      setSpeechLocaleMutation({ variables: { locale: value, provider } });
+    });
+  }, [isEnabled, currentUser, speechLocale, fixedLocale, setSpeechLocaleMutation]);
+
   if (!currentUser || !isEnabled) return null;
 
   return (
