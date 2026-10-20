@@ -269,3 +269,23 @@ func writeMasks(t *testing.T, body string) string {
 	}
 	return p
 }
+
+func TestSplit(t *testing.T) {
+	for line, want := range map[string][2]string{
+		"status 302": {"status", "302"},
+		"header Content-Type text/xml;charset=utf-8":   {"header Content-Type", "text/xml;charset=utf-8"},
+		"header Set-Cookie JSESSIONID=<token>; Path=/": {"header Set-Cookie", "JSESSIONID=<token>; Path=/"},
+		"location ${baseUrl}/x?a=1":                    {"location", "${baseUrl}/x?a=1"},
+		"body (redirect)":                              {"body", "(redirect)"},
+		`/response/returncode "SUCCESS"`:               {"/response/returncode", `"SUCCESS"`},
+		`/response/message "a "quoted" b"`:             {"/response/message", `"a "quoted" b"`},
+		`/response/x/@id "7"`:                          {"/response/x/@id", `"7"`},
+		"/response/messageKey":                         {"/response/messageKey", ""},
+		"$.response.count 3":                           {"$.response.count", "3"},
+		"$.list []":                                    {"$.list", "[]"},
+	} {
+		if k, v := Split(line); k != want[0] || v != want[1] {
+			t.Errorf("Split(%q) = %q, %q; want %q, %q", line, k, v, want[0], want[1])
+		}
+	}
+}

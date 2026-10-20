@@ -35,6 +35,7 @@ go run ./cmd/bbb-conform run --target my-server.yaml --cases ../cases \
 | `--tags a,b` | Only cases with one of these tags. `--exclude-tags` drops cases with any of them. |
 | `--id glob,...` | Only cases whose ID matches, e.g. `--id 'create.*'`. |
 | `--parallel N` | Cases at once (default 4). Cases tagged `serial` run alone afterwards. |
+| `--golden DIR` | Compare each step with the reviewed recordings in DIR, e.g. `golden/bbb-web` (see [record](#recording-what-a-server-answers-record)). `--masks FILE` as for `diff`. |
 | `--junit FILE`, `--json FILE` | Write reports. The JSON report has every request, response and check. |
 | `-v` | List every failed check and warning on the console. |
 
@@ -260,6 +261,14 @@ go run ./cmd/bbb-conform record --target ../targets/bbb-web.yaml --cases ../case
   deleted.
 - **Exit status:** 1 if a case is UNSTABLE, INCOMPLETE, SECRET or ERROR, or
   an `expect` outside a defect case failed; otherwise 0.
+
+**Checking against recordings:** `run --golden golden/bbb-web` compares each
+`compare` step's normalized answer with its recording, before the step's
+`expect`. Each line that differs fails the step, e.g.
+`recording /response/returncode: expected "SUCCESS", got "FAILED"`. bbb-api
+runs against bbb-web's recordings, so its gaps show up the same way. A case
+with something to compare and no recording, or with a stale one, is an ERROR,
+and sends nothing.
 
 Record from the server CI runs against, so recordings hold its
 configuration rather than a developer's. A recording is reviewed like code

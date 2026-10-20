@@ -282,3 +282,133 @@ func TestRecordUsage(t *testing.T) {
 		t.Errorf("no warning about a target directory: %s", stderr.String())
 	}
 }
+
+func runGolden(t *testing.T, tf, cases, recordings string, extra ...string) (int, string) {
+	t.Helper()
+	var stdout, stderr bytes.Buffer
+	args := append([]string{"run", "--target", tf, "--cases", cases, "--fixtures", "../../testdata/fixtures",
+		"--parallel", "1", "-v", "--golden", recordings}, extra...)
+	code := run(args, &stdout, &stderr)
+	if stderr.Len() > 0 {
+		t.Logf("stderr: %s", stderr.String())
+	}
+	return code, strings.ReplaceAll(stdout.String(), recordings, "GOLDEN")
+}
+
+// What one server recorded, another answers alike, whatever its clocks and
+// tokens; bbb-api's differences become failures, here expected ones.
+func TestRecordThenRun(t *testing.T) {
+	newUID = func(i int) string { return fmt.Sprintf("uid-%03d", i) }
+	t.Cleanup(func() { newUID = nil })
+	for _, set := range []string{"cases", "smoke"} {
+		recordings := t.TempDir()
+		if code, stdout := runRecord(t, startTarget(t, "fake", "/bigbluebutton/api/", fakebbb.New(fakeSalt)), "../../testdata/"+set, recordings); code != exitOK {
+			t.Fatalf("%s: record exit %d:\n%s", set, code, stdout)
+		}
+		other := fakebbb.New(fakeSalt)
+		other.Skew(86_400_000, 500)
+		code, stdout := runGolden(t, startTarget(t, "web-b", "/bigbluebutton/api/", other), "../../testdata/"+set, recordings, "--parallel", "4")
+		if code != exitOK || !strings.Contains(stdout, " 0 failed, 0 errors") {
+			t.Errorf("%s: exit %d:\n%s", set, code, stdout)
+		}
+		if set != "smoke" {
+			continue
+		}
+		api := startTarget(t, "fake-api", "/meeting-api/", fakebbb.NewAPI(fakeSalt))
+		code, stdout = runGolden(t, api, "../../testdata/smoke", recordings, "--expect", "../../testdata/expectations/fake-api.yaml")
+		if code != exitOK {
+			t.Errorf("against fake bbb-api: exit %d:\n%s", code, stdout)
+		}
+		stdout = scrub(stdout)
+		golden := filepath.Join("testdata", "golden", "golden-api.txt")
+		if *update {
+			if err := os.WriteFile(golden, []byte(stdout), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		} else if want, err := os.ReadFile(golden); err != nil || string(want) != stdout {
+			t.Errorf("the output differs from %s; run go test ./cmd/bbb-conform -update and review the diff", golden)
+		}
+	}
+}
+
+func TestRunGoldenChecks(t *testing.T) {
+	newUID = func(i int) string { return fmt.Sprintf("uid-%03d", i) }
+	t.Cleanup(func() { newUID = nil })
+	stable := getMeetingsCase("stable", "contract", "    expect: {returncode: SUCCESS}\n")
+	cases := casesDir(t, map[string]string{
+		"a/stable.yaml": stable,
+		"a/doc.yaml":    getMeetingsCase("doc", "contract", "    expect: {returncode: SUCCESS}\n    golden: document\n"),
+	})
+	var sent sync.Map
+	inner := scripted()
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n, _ := sent.LoadOrStore(r.URL.Query().Get("tag"), new(int))
+		*n.(*int)++
+		inner.ServeHTTP(w, r)
+	})
+	tf := startTarget(t, "h", "/bigbluebutton/api/", handler)
+	out := filepath.Join(t.TempDir(), "golden")
+	if code, stdout := runRecord(t, tf, cases, out); code != exitOK {
+		t.Fatalf("record exit %d:\n%s", code, stdout)
+	}
+	if code, stdout := runGolden(t, tf, cases, out); code != exitOK {
+		t.Errorf("as recorded: exit %d:\n%s", code, stdout)
+	}
+
+	file := func(id string) string { return filepath.Join(out, "getMeetings", "getMeetings.record."+id+".txt") }
+	edit := func(id, old, new string) {
+		data, err := os.ReadFile(file(id))
+		if err != nil || !strings.Contains(string(data), old) {
+			t.Fatalf("%s: %v\n%s", id, err, data)
+		}
+		if err := os.WriteFile(file(id), []byte(strings.Replace(string(data), old, new, 1)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	edit("stable", `/response/returncode "SUCCESS"`, `/response/returncode "FAILED"`)
+	edit("doc", `/response/returncode "SUCCESS"`, `/response/returncode "FAILED"`)
+	code, stdout := runGolden(t, tf, cases, out)
+	if code != exitFailed || !strings.Contains(stdout, "FAIL  getMeetings.record.stable") ||
+		!strings.Contains(stdout, `recording /response/returncode: expected "FAILED", got "SUCCESS"`) ||
+		!strings.Contains(stdout, "PASS  getMeetings.record.doc") {
+		t.Errorf("an edited recording: exit %d:\n%s", code, stdout)
+	}
+
+	count := func(tag string) int {
+		n, _ := sent.Load(tag)
+		return *n.(*int)
+	}
+	before := count("stable")
+	if err := os.Remove(file("stable")); err != nil {
+		t.Fatal(err)
+	}
+	code, stdout = runGolden(t, tf, cases, out, "--id", "getMeetings.record.stable")
+	if code != exitFailed || !strings.Contains(stdout, "ERROR getMeetings.record.stable") || !strings.Contains(stdout, "\n      no recording: run bbb-conform record\n") || count("stable") != before {
+		t.Errorf("no recording: exit %d, %d request(s) sent:\n%s", code, count("stable")-before, stdout)
+	}
+
+	if code, stdout := runRecord(t, tf, cases, out); code != exitOK {
+		t.Fatalf("record exit %d:\n%s", code, stdout)
+	}
+	if err := os.WriteFile(filepath.Join(cases, "a", "stable.yaml"), []byte(strings.Replace(stable, "steps:\n", "steps:\n  - wait: 1ms\n", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	before = count("stable")
+	code, stdout = runGolden(t, tf, cases, out, "--id", "getMeetings.record.stable")
+	if code != exitFailed || count("stable") != before ||
+		!strings.Contains(stdout, "the recording is stale: it has step 1: call getMeetings where the case has step 2: call getMeetings. Record the case again") {
+		t.Errorf("a stale recording: exit %d:\n%s", code, stdout)
+	}
+
+	if err := os.WriteFile(filepath.Join(out, "getMeetings.record.gone.txt"), []byte("case getMeetings.record.gone\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, stdout := runGolden(t, tf, cases, out, "--id", "getMeetings.record.doc"); !strings.Contains(stdout, "warning: GOLDEN/getMeetings.record.gone.txt records getMeetings.record.gone, which is no longer a case") {
+		t.Errorf("no orphan warning:\n%s", stdout)
+	}
+
+	var o, e bytes.Buffer
+	if code := run([]string{"run", "--target", tf, "--cases", cases, "--golden", filepath.Join(out, "missing")}, &o, &e); code != exitUsage {
+		t.Errorf("a missing recordings directory: exit %d", code)
+	}
+}

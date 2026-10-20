@@ -528,3 +528,24 @@ func flatten(root *node, jsonPaths bool) []string {
 	}
 	return out
 }
+
+// Split cuts a line of Response's output into what it is about and its
+// value: "status", "header Name", "location", "body", or a path. A bare
+// path, an empty element, has the value "".
+func Split(line string) (key, value string) {
+	word, rest, _ := strings.Cut(line, " ")
+	switch word {
+	case "status", "location", "body":
+		return word, rest
+	case "header":
+		name, v, _ := strings.Cut(rest, " ")
+		return "header " + name, v
+	}
+	if i := strings.Index(line, ` "`); i >= 0 {
+		return line[:i], line[i+1:]
+	}
+	if i := strings.LastIndex(line, " "); i >= 0 {
+		return line[:i], line[i+1:] // a JSON number, boolean, null, [] or {}
+	}
+	return line, ""
+}

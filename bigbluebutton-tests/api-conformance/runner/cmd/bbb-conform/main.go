@@ -2,7 +2,8 @@
 //
 //	bbb-conform run --target FILE [--cases DIR] [--fixtures DIR] [--tags T,..]
 //	                [--exclude-tags T,..] [--id GLOB,..] [--parallel N]
-//	                [--expect FILE] [--junit FILE] [--json FILE] [-v]
+//	                [--expect FILE] [--golden DIR] [--masks FILE] [--junit FILE]
+//	                [--json FILE] [-v]
 //	bbb-conform diff --a TARGET --b TARGET [--cases DIR] [--fixtures DIR] [--tags T,..]
 //	                 [--exclude-tags T,..] [--id GLOB,..] [--parallel N] [--masks FILE]
 //	                 [--md FILE] [--json FILE] [--fail-on-diff]
@@ -159,6 +160,8 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	junitFile := fl.String("junit", "", "write a JUnit XML report here")
 	jsonFile := fl.String("json", "", "write a JSON report here")
 	expectFile := fl.String("expect", "", "the target's expected-failure list")
+	goldenDir := fl.String("golden", "", "compare each step with the recordings in this directory, e.g. golden/bbb-web")
+	masksFile := fl.String("masks", "", "with --golden: extra normalization rules (default: masks.yaml next to the cases directory)")
 	verbose := fl.Bool("v", false, "list every failed check and warning")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -219,10 +222,26 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	}
 	casesRoot := filepath.Clean(*cases)
 	r.Area = func(c *spec.Case) string { return area(casesRoot, c.File) }
+	var orphaned []string
+	if *goldenDir != "" {
+		if st, err := os.Stat(*goldenDir); err != nil || !st.IsDir() {
+			fmt.Fprintf(stderr, "bbb-conform: recordings directory %q not found\n", *goldenDir)
+			return exitUsage
+		}
+		rules, err := loadRules(*masksFile, *cases)
+		if err != nil {
+			fmt.Fprintf(stderr, "bbb-conform: masks: %v\n", err)
+			return exitUsage
+		}
+		k := golden.NewChecker(*goldenDir, tg, rules, r.Redactor)
+		r.Before, r.Observe = k.Before, k.Observe
+		orphaned = orphans(*goldenDir, res.Cases)
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	run := r.RunAll(ctx, selected, *parallel)
+	run.Warnings = append(run.Warnings, orphaned...)
 	if expected != nil {
 		var loaded []expectations.Case
 		for _, c := range res.Cases {
