@@ -45,7 +45,6 @@ jobs:
       image_name: "bbb-export-annotations"
       target: "export-annotations"
 
-
   akka-bbb-apps:
     uses: ./.github/workflows/build-docker-image.yml
     with:

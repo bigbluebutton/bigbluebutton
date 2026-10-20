@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN cd /app/dist && \
     npm ci --no-progress --omit=dev
 
 # Stage 2: Runtime
-FROM node:22-alpine
+FROM node:24-alpine
 
 RUN addgroup -g 2062 app && \
     adduser -u 2063 -G app -D app
