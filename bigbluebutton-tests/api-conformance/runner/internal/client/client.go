@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
 	"os"
 	"time"
 
@@ -23,10 +24,9 @@ import (
 // MaxBody is the most of a response body the runner reads.
 const MaxBody = 32 << 20
 
-// NewTransport returns the transport every case shares. It speaks
-// HTTP/1.1 only and never asks for compression, so what reaches the server,
-// and the headers that come back, don't depend on negotiation.
-func NewTransport(t target.TLS) (*http.Transport, error) {
+// TLSConfig returns the TLS settings for talking to the target: the system
+// roots plus the target's CA file, if it has one.
+func TLSConfig(t target.TLS) (*tls.Config, error) {
 	cfg := &tls.Config{InsecureSkipVerify: t.InsecureSkipVerify} //nolint:gosec // opt-in, for test servers
 	if t.CAFile != "" {
 		pem, err := os.ReadFile(t.CAFile)
@@ -41,6 +41,17 @@ func NewTransport(t target.TLS) (*http.Transport, error) {
 			return nil, fmt.Errorf("tls.caFile %s holds no PEM certificate", t.CAFile)
 		}
 		cfg.RootCAs = pool
+	}
+	return cfg, nil
+}
+
+// NewTransport returns the transport every case shares. It speaks
+// HTTP/1.1 only and never asks for compression, so what reaches the server,
+// and the headers that come back, don't depend on negotiation.
+func NewTransport(t target.TLS) (*http.Transport, error) {
+	cfg, err := TLSConfig(t)
+	if err != nil {
+		return nil, err
 	}
 	return &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
@@ -83,6 +94,12 @@ func (s *Session) jar(name string) *cookiejar.Jar {
 		s.jars[name] = j
 	}
 	return j
+}
+
+// Cookies returns the cookies client name would send to u. Like the rest
+// of a Session, it is for the case's own goroutine.
+func (s *Session) Cookies(name string, u *url.URL) []*http.Cookie {
+	return s.jar(name).Cookies(u)
 }
 
 // Do sends p as client name. Redirects are returned, not followed, unless
