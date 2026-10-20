@@ -17,15 +17,18 @@ import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { PreFlight } from './preFlight';
 import { NO_PRE_FLIGHT_INIT_OPTIONS } from './util';
 
-// The room mode has no UI yet, so it is read through the in-page Apollo client,
-// under the operation name the middleware lets through before joining.
-const ROOM_MODE_QUERY = queryDocument([field('meeting', [field('roomMode')])], 'getRoomMode');
+// Read the way the client reads it, before and after the join: through user_current,
+// under the operation name the middleware already lets through before joining.
+const ROOM_MODE_QUERY = queryDocument(
+  [field('user_current', [field('meeting', [field('roomMode')])])],
+  'userCurrentSubscription',
+);
 
 const getRoomMode = async (page: Page): Promise<string> => {
   const data = await runQuery(page.page, ROOM_MODE_QUERY);
-  const rows = data.meeting as { roomMode: string }[];
-  if (!rows?.length) throw new Error('meeting returned no rows');
-  return rows[0].roomMode;
+  const rows = data.user_current as { meeting: { roomMode: string } }[];
+  if (!rows?.length) throw new Error('user_current returned no rows');
+  return rows[0].meeting.roomMode;
 };
 
 interface SetRoomModeOutcome {
