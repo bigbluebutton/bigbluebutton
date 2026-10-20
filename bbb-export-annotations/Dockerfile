@@ -1,41 +1,25 @@
-FROM node:24-alpine AS base
-
-# Install sponge and jq
-RUN apk add --no-cache moreutils jq
-
-ENV NODE_ENV=production
+FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS build
 
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-progress --omit=dev
+COPY . .
 
-# Create non-root user early so we can use --chown on COPY
-RUN addgroup -g 998 -S bigbluebutton \
- && adduser -u 998 -S -G bigbluebutton bigbluebutton
+FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f
 
-FROM base AS deps
+# cairosvg and ghostscript as the package depends on; pdftocairo is set in config/settings.json
+RUN apk add --no-cache py3-cairosvg ghostscript poppler-utils \
+ && addgroup -S -g 998 bigbluebutton && adduser -S -u 998 -G bigbluebutton bigbluebutton
 
-# Copy only dependency manifests for better caching
-COPY package.json package-lock.json* ./
+COPY --from=fonts . /usr/local/share/fonts/
+COPY --from=slides blank* /usr/share/bigbluebutton/blank/
+WORKDIR /usr/local/bigbluebutton/bbb-export-annotations
+COPY --from=build /app ./
+# The entrypoint writes the service addresses into config/settings.json
+RUN chown -R bigbluebutton:bigbluebutton config
+COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Use npm ci for reproducible & faster installs; omit devDependencies
-RUN npm ci --omit=dev
-
-FROM base AS runner
-
-COPY --from=deps /app/node_modules ./node_modules
-
-COPY --chown=bigbluebutton:bigbluebutton . .
-
-# Fonts ship in the packaging tree (not under this app dir)
-COPY --from=fonts / /usr/local/share/fonts/
-RUN chmod -R a+rX /usr/local/share/fonts
-
-# Blank slide assets expected at /usr/share/bigbluebutton/blank/
-COPY --from=slides / /usr/share/bigbluebutton/blank/
-
-# Overwrite config with docker hosts
-RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' ./config/settings.json
-RUN jq '.redis.host = "redis"' ./config/settings.json | sponge ./config/settings.json
-
+ENV NODE_ENV=production
 USER bigbluebutton
-
-CMD ["npm", "start"]
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["node", "master.js"]
