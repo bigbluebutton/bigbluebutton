@@ -1,5 +1,4 @@
 import styled, { css, keyframes } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   mdPaddingX,
@@ -57,29 +56,6 @@ const LabelSmallFullWidth = styled(LabelSmall)`
   width: 100%;
 `;
 
-const SettingsFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin: 0 ${mdPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 ${mdPaddingX};
-  }
-`;
-
-const SettingsBackButton = styled(Button)`
-  border: none;
-
-  &:first-child {
-    margin: 0 0.5rem 0 0 !important;
-
-    [dir="rtl"] & {
-      margin: 0 0 0 0.5rem !important;
-    }
-  }
-`;
-
 const ellipsis = keyframes`
   to {
     width: 1.5em;
@@ -108,8 +84,6 @@ const FetchingAnimation = styled.span`
 export default {
   FormWrapper,
   Form,
-  SettingsFooter,
-  SettingsBackButton,
   AudioNote,
   FormElement,
   LabelSmall,
