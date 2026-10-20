@@ -93,6 +93,16 @@ target "nginx" {
       context = "."
 }
 
+# External components: source at the tag their <component>.placeholder.sh clones
+target "webrtc-sfu" {
+    inherits = ["docker-metadata-action"]
+    context = "./docker/bbb-webrtc-sfu"
+    contexts = {
+        src = "https://github.com/bigbluebutton/bbb-webrtc-sfu.git#v2.25.0-beta.3"
+    }
+}
+
 group "default" {
-  targets = ["apps-akka", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "shared-notes-server", "web", "record-and-playback", "nginx"]
+  targets = ["apps-akka", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "shared-notes-server", "web", "record-and-playback", "nginx",
+             "webrtc-sfu"]
 }
