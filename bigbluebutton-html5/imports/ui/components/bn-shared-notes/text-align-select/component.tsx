@@ -5,6 +5,7 @@ import {
   useComponentsContext,
   useDictionary,
   useEditorState,
+  usePortalElement,
 } from '@blocknote/react';
 import {
   blockHasType,
@@ -38,6 +39,7 @@ function TextAlignSelect(): React.ReactElement | null {
   const Components = useComponentsContext()!;
   const editor = useBlockNoteEditor();
   const dict = useDictionary();
+  const portalElement = usePortalElement();
 
   const state = useEditorState({
     editor,
@@ -124,7 +126,7 @@ function TextAlignSelect(): React.ReactElement | null {
   const TriggerButton = Components.FormattingToolbar.Button as unknown as React.ComponentType<TriggerButtonProps>;
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root portalElement={portalElement}>
       <Components.Generic.Menu.Trigger>
         <TriggerButton
           className="bn-button"

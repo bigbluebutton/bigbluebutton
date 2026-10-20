@@ -15,6 +15,7 @@ import {
   BlockNoteViewEditor,
   BlockTypeSelect,
   ColorStyleButton,
+  ComponentProps,
   ComponentsContext,
   FormattingToolbar,
   NestBlockButton,
@@ -145,11 +146,12 @@ const intlMessages = defineMessages({
 
 // Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
 // Replace Generic.Menu.Root with this to let Tab exit the menu (WAI-ARIA pattern).
-const AccessibleMenuRoot: React.FC<{
-  children: React.ReactNode;
-  onOpenChange?: (open: boolean) => void;
-  position?: string;
-}> = ({ children, onOpenChange, position }) => (
+// The dropdown stays inline in the toolbar, so the portal props are not used.
+const AccessibleMenuRoot: React.FC<ComponentProps['Generic']['Menu']['Root']> = ({
+  children,
+  onOpenChange,
+  position,
+}) => (
   <MantineMenu
     withinPortal={false}
     middlewares={{
@@ -157,8 +159,7 @@ const AccessibleMenuRoot: React.FC<{
     }}
     trapFocus={false}
     onChange={onOpenChange}
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    position={position as any}
+    position={position}
     returnFocus={false}
   >
     {children}
@@ -369,8 +370,21 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     }
   }, [editable, hocuspocusProvider.awareness, userName, userColor]);
 
+  // BlockNote's floating UI (side menu, drag handle menu, slash menu, link
+  // toolbar, table handles) is portalled into this element, so the focus
+  // handler below only sees that UI and never the toolbar or the content.
+  // BlockNoteView renders only once the element exists: switching its portal
+  // target after mount remounts the editor view, which destroys the y-undo
+  // manager and leaves undo/redo dead for the rest of the session.
+  const [floatingUiElement, setFloatingUiElement] = React.useState<HTMLDivElement | null>(null);
+  const portalElements = React.useMemo(
+    () => (floatingUiElement ? { default: floatingUiElement } : undefined),
+    [floatingUiElement],
+  );
+
   // Keep the editor's focus/selection when tapping a toolbar button by
-  // cancelling the default focus move on mousedown.
+  // cancelling the default focus move on mousedown. The toolbar mounts with
+  // BlockNoteView, so the effect re-runs once floatingUiElement exists.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -379,14 +393,13 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     const handler = (e: MouseEvent) => e.preventDefault();
     el.addEventListener('mousedown', handler);
     return () => el.removeEventListener('mousedown', handler);
-  }, [editable]);
+  }, [editable, floatingUiElement]);
 
   // Keep editor focus when clicking SideMenu/DragHandleMenu items.
   // Skip native editable controls and BlockNote form popovers so their focus is preserved.
   // Also skip draggable="true" elements — preventDefault on mousedown prevents drag.
   React.useEffect(() => {
-    const { portalElement } = editor;
-    if (!portalElement) return undefined;
+    if (!floatingUiElement) return undefined;
     const mousedownHandler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const nativeEditableSelector = '[draggable="true"], input, textarea, select, [contenteditable="true"], .bn-form-popover';
@@ -396,13 +409,13 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     };
     // dragend bubbles from the drag handle after the drop — restore focus.
     const dragendHandler = () => editor.focus();
-    portalElement.addEventListener('mousedown', mousedownHandler);
-    portalElement.addEventListener('dragend', dragendHandler);
+    floatingUiElement.addEventListener('mousedown', mousedownHandler);
+    floatingUiElement.addEventListener('dragend', dragendHandler);
     return () => {
-      portalElement.removeEventListener('mousedown', mousedownHandler);
-      portalElement.removeEventListener('dragend', dragendHandler);
+      floatingUiElement.removeEventListener('mousedown', mousedownHandler);
+      floatingUiElement.removeEventListener('dragend', dragendHandler);
     };
-  }, [editor]);
+  }, [editor, floatingUiElement]);
 
   // TODO: Remove this workaround when BlockNote limits side-menu detection to the editor.
   // Related upstream issues: https://github.com/TypeCellOS/BlockNote/issues/1016 and
@@ -521,46 +534,50 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           />
         </Styled.WarningNotificationContainer>
       )}
-      <BlockNoteView
-        editable={editable}
-        editor={editor}
-        theme="light"
-        formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
-        slashMenu={false}
-        renderEditor={false}
-      >
-        {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
-          <ToolbarWithAccessibleMenus>
-            <div
-              ref={toolbarRef}
-              role="toolbar"
-              className="bn-toolbar-row"
-              data-test="blockNoteToolbar"
-              onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
-            >
-              <FormattingToolbar>
-                <BlockTypeSelect key="blockTypeSelect" />
-                <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
-                <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
-                <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
-                <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-              </FormattingToolbar>
-              <FormattingToolbar>
-                <ColorStyleButton key="colorStyleButton" />
-                <TextAlignSelect key="textAlignSelect" />
-                <NestBlockButton key="nestBlockButton" />
-                <UnnestBlockButton key="unnestBlockButton" />
-              </FormattingToolbar>
-            </div>
-          </ToolbarWithAccessibleMenus>
-        )}
-        <BlockNoteViewEditor>
-          <SuggestionMenuController
-            triggerCharacter="/"
-            shouldOpen={shouldOpenSlashMenu}
-          />
-        </BlockNoteViewEditor>
-      </BlockNoteView>
+      {portalElements && (
+        <BlockNoteView
+          editable={editable}
+          editor={editor}
+          theme="light"
+          formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+          slashMenu={false}
+          renderEditor={false}
+          portalElements={portalElements}
+        >
+          {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
+            <ToolbarWithAccessibleMenus>
+              <div
+                ref={toolbarRef}
+                role="toolbar"
+                className="bn-toolbar-row"
+                data-test="blockNoteToolbar"
+                onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
+              >
+                <FormattingToolbar>
+                  <BlockTypeSelect key="blockTypeSelect" />
+                  <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+                  <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+                  <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+                  <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+                </FormattingToolbar>
+                <FormattingToolbar>
+                  <ColorStyleButton key="colorStyleButton" />
+                  <TextAlignSelect key="textAlignSelect" />
+                  <NestBlockButton key="nestBlockButton" />
+                  <UnnestBlockButton key="unnestBlockButton" />
+                </FormattingToolbar>
+              </div>
+            </ToolbarWithAccessibleMenus>
+          )}
+          <BlockNoteViewEditor>
+            <SuggestionMenuController
+              triggerCharacter="/"
+              shouldOpen={shouldOpenSlashMenu}
+            />
+          </BlockNoteViewEditor>
+        </BlockNoteView>
+      )}
+      <div ref={setFloatingUiElement} />
       {isImportModalOpen && editable && (
         <MarkdownImportModal
           editor={editor}
