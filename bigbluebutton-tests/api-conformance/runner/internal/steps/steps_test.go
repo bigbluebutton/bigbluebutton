@@ -597,3 +597,165 @@ func TestBeforeErrorSendsNothing(t *testing.T) {
 		t.Errorf("sent %d request(s), ran %d step(s); want none", len(fake.Requests), len(res.Steps)+len(res.Teardown))
 	}
 }
+
+// runWithUsers runs one case against a fake served over TLS, as presence
+// needs: the join's session cookie is Secure.
+func runWithUsers(t *testing.T, src string, setup func(*Runner)) (*report.CaseResult, *fakebbb.Server) {
+	t.Helper()
+	return runWithUsersCtx(context.Background(), t, src, setup)
+}
+
+func runWithUsersCtx(ctx context.Context, t *testing.T, src string, setup func(*Runner)) (*report.CaseResult, *fakebbb.Server) {
+	t.Helper()
+	fake := fakebbb.New(salt)
+	srv := httptest.NewTLSServer(fake)
+	t.Cleanup(srv.Close)
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(src)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		Capabilities: []string{"presence"}, GraphQLURL: "wss" + strings.TrimPrefix(srv.URL, "https") + "/graphql"}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Transport = srv.Client().Transport
+	r.TLS = srv.Client().Transport.(*http.Transport).TLSClientConfig
+	r.PingEvery = 100 * time.Millisecond
+	if setup != nil {
+		setup(r)
+	}
+	return r.RunCase(ctx, cases[0], "uid-1"), fake
+}
+
+// noOpenConnections waits a little for the fake to see users' connections
+// close.
+func noOpenConnections(t *testing.T, fake *fakebbb.Server) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for fake.OpenConnections() != 0 && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if n := fake.OpenConnections(); n != 0 {
+		t.Errorf("%d connection(s) still open after the case", n)
+	}
+}
+
+const twoUsers = `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}}
+    capture: {annId: $.userId}
+    expect: {jsonpath: {$.joined: "true", $.role: MODERATOR}}
+  - presence: {action: join, as: bob, args: {meetingID: "${uid}", fullName: Bob, role: VIEWER, avatarURL: "https://img.test/b.png"}}
+    capture: {bobId: $.userId}
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    expect: {xpath: {/response/running: "true"}}
+  - graphql:
+      as: ann
+      query: "mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }"
+      variables: {id: "${bobId}"}
+  - graphql: {as: bob, query: "query Me { user_current { presenter avatar } }"}
+    eventually: {within: 3s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].presenter": "true"}}}
+    expect: {jsonpath: {"$.data.user_current[0].avatar": "https://img.test/b.png"}}
+  - graphql: {as: bob, query: "query Nope { nope { x } }"}
+    expect: {errors: {contains: "not found"}}
+  - presence: {action: leave, as: bob}
+    expect: {jsonpath: {$.loggedOut: "true"}}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+`
+
+func TestPresenceAndGraphQL(t *testing.T) {
+	res, fake := runWithUsers(t, twoUsers, nil)
+	if res.Status != report.Pass {
+		t.Fatalf("status %s: %s\n%+v", res.Status, res.Reason, res.Steps)
+	}
+	if got := res.Steps[1].Captured["annId"]; !strings.HasPrefix(got, "w_") {
+		t.Errorf("annId = %q", got)
+	}
+	if res.Steps[1].Request == nil || !strings.Contains(res.Steps[1].Request.URL, "/join?") {
+		t.Errorf("the join's request isn't reported: %+v", res.Steps[1].Request)
+	}
+	if g := res.Steps[4].Request; g == nil || g.Method != "GRAPHQL" || !strings.Contains(g.Body, `"variables":{"id":"w_`) {
+		t.Errorf("the mutation's request: %+v", g)
+	}
+	if !strings.Contains(res.Steps[5].Document, `"presenter":true`) || res.Steps[5].Attempts < 1 {
+		t.Errorf("the eventually step: %+v", res.Steps[5])
+	}
+	noOpenConnections(t, fake)
+}
+
+func TestGraphQLErrorsFailByDefault(t *testing.T) {
+	res, _ := runWithUsers(t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann}}
+  - graphql: {as: ann, query: "query Nope { nope { x } }"}
+`, nil)
+	if res.Status != report.Fail || !strings.Contains(res.Reason, "errors: expected none, got \"field 'nope' not found") {
+		t.Errorf("status %s: %s", res.Status, res.Reason)
+	}
+}
+
+// A join that fails stops the case, even where failed checks don't.
+func TestFailedJoinStops(t *testing.T) {
+	res, fake := runWithUsers(t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence: {action: join, as: ann, sessionToken: nope}
+  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+`, func(r *Runner) { r.ContinueOnFail = true })
+	if res.Status != report.Fail || len(res.Steps) != 2 || !strings.Contains(res.Reason, "check_authorization_error") {
+		t.Errorf("status %s after %d step(s): %s", res.Status, len(res.Steps), res.Reason)
+	}
+	noOpenConnections(t, fake)
+}
+
+// Users' connections close when the case ends, even when it's cancelled.
+func TestUsersClosedWhenCancelled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	start := time.Now()
+	res, fake := runWithUsersCtx(ctx, t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann}}
+  - wait: 10s
+`, func(r *Runner) {
+		r.Observe = func(ev Observed) ([]assert.Result, error) {
+			if ev.Case.Steps[ev.Index].Kind == spec.KindPresence {
+				cancel()
+			}
+			return nil, nil
+		}
+	})
+	if res.Status != report.Error || time.Since(start) > 5*time.Second {
+		t.Errorf("status %s after %s: %s", res.Status, time.Since(start), res.Reason)
+	}
+	noOpenConnections(t, fake)
+}
+
+func TestObservedDocuments(t *testing.T) {
+	var seen []string
+	res, _ := runWithUsers(t, twoUsers, func(r *Runner) {
+		r.Observe = func(ev Observed) ([]assert.Result, error) {
+			kind := ev.Case.Steps[ev.Index].Kind
+			if ev.Phase == "teardown" {
+				kind = ev.Case.Teardown[ev.Index].Kind
+			}
+			seen = append(seen, fmt.Sprintf("%s:%v:%s", kind, ev.Request != nil, ev.Obs.Format()))
+			return nil, nil
+		}
+	})
+	if res.Status != report.Pass {
+		t.Fatalf("%s: %s", res.Status, res.Reason)
+	}
+	want := "call:true:xml presence:true:json presence:true:json call:true:xml graphql:false:json graphql:false:json graphql:false:json presence:false:json call:true:xml"
+	if got := strings.Join(seen, " "); got != want {
+		t.Errorf("observed\n%s\nwant\n%s", got, want)
+	}
+}

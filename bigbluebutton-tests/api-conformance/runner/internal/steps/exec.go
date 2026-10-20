@@ -4,6 +4,7 @@ package steps
 import (
 	"context"
 	"crypto/rand"
+	"crypto/tls"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -20,6 +21,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/capture"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/client"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/observe"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/presence"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
@@ -35,13 +37,14 @@ const DefaultTimeout = 30 * time.Second
 const minAttempt = 250 * time.Millisecond
 
 // Implemented lists the step types this runner can execute.
-var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true}
+var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true, spec.KindPresence: true, spec.KindGraphQL: true}
 
 // Runner runs cases against one target.
 type Runner struct {
 	Target      *target.Target
 	FixturesDir string
 	Transport   http.RoundTripper
+	TLS         *tls.Config // for the GraphQL websocket
 	Redactor    *tmpl.Redactor
 	Version     string
 	// NewUID returns the ${uid} of the i-th case. Tests make it predictable.
@@ -60,6 +63,9 @@ type Runner struct {
 	// Before, when set, sees each case that will run before it sends
 	// anything; an error makes the case ERROR.
 	Before func(*spec.Case) error
+	// PingEvery is how often a presence user's connection pings;
+	// presence.DefaultPingEvery when zero.
+	PingEvery time.Duration
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -95,6 +101,10 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 	if err != nil {
 		return nil, err
 	}
+	tlsCfg, err := client.TLSConfig(t.TLS)
+	if err != nil {
+		return nil, err
+	}
 	red := &tmpl.Redactor{}
 	red.Add("[salt]", t.Salt)
 	for name, v := range t.Vars {
@@ -102,7 +112,7 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 			red.Add("[secret:"+name+"]", v.Value)
 		}
 	}
-	return &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, Redactor: red, Version: version, NewUID: randomUID}, nil
+	return &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, TLS: tlsCfg, Redactor: red, Version: version, NewUID: randomUID}, nil
 }
 
 func randomUID(int) string {
@@ -320,6 +330,7 @@ type exec struct {
 	captured map[string]string
 	session  *client.Session
 	env      *tmpl.Env
+	users    map[string]*presence.User // presence users, by handle
 }
 
 // RunCase runs one case with the given ${uid}.
@@ -336,7 +347,8 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 		}
 	}
 
-	x := &exec{r: r, c: c, uid: uid, captured: map[string]string{}, session: client.NewSession(r.Transport)}
+	x := &exec{r: r, c: c, uid: uid, captured: map[string]string{}, session: client.NewSession(r.Transport), users: map[string]*presence.User{}}
+	defer x.closeUsers() // after teardown, on every path
 	x.env = &tmpl.Env{
 		Vars:        x.lookup,
 		FixturesDir: r.FixturesDir,
@@ -430,6 +442,10 @@ func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) repor
 		}
 	case spec.KindCall:
 		x.call(ctx, phase, i, s, &sr)
+	case spec.KindPresence:
+		x.presence(ctx, phase, i, s, &sr)
+	case spec.KindGraphQL:
+		x.graphql(ctx, phase, i, s, &sr)
 	default:
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}

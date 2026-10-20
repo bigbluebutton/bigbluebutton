@@ -89,6 +89,7 @@ type StepResult struct {
 	DurationMS int64             `json:"duration_ms"`
 	Request    *Request          `json:"request,omitempty"`
 	Response   *Response         `json:"response,omitempty"`
+	Document   string            `json:"document,omitempty"` // what a presence or graphql step returned
 	Assertions []assert.Result   `json:"assertions,omitempty"`
 	Captured   map[string]string `json:"captured,omitempty"`
 }

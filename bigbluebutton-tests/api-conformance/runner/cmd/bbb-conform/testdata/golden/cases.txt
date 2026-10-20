@@ -7,7 +7,7 @@ PASS  create.validation.name-length-2 (0s)
 PASS  create.validation.name-length-256 (0s)
 PASS  create.validation.name-length-257 (0s)
 SKIP  create.props.mute-on-start
-      unimplemented: bus, env, fs, graphql, presence, redis, sink
+      unimplemented: bus, env, fs, redis, sink
 PASS  getMeetingInfo.fields.metadata (0s)
 PASS  getMeetings.checksum.errors (0s)
 PASS  getMeetings.checksum.modes-sha1-last (0s)

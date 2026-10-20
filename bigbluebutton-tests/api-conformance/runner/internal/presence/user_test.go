@@ -88,6 +88,17 @@ func (w *world) running() bool {
 	return strings.Contains(string(body), "<running>true</running>")
 }
 
+// openConnections waits a little for the fake to see connections close.
+func (w *world) openConnections(want int) int {
+	deadline := time.Now().Add(2 * time.Second)
+	n := w.fake.OpenConnections()
+	for n != want && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+		n = w.fake.OpenConnections()
+	}
+	return n
+}
+
 func ctx(t *testing.T) context.Context {
 	c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	t.Cleanup(cancel)
@@ -132,7 +143,7 @@ func TestJoinQueryLeave(t *testing.T) {
 	if snapshot(t, ann)["loggedOut"] != true {
 		t.Error("not logged out")
 	}
-	if n := w.fake.OpenConnections(); n != 0 {
+	if n := w.openConnections(0); n != 0 {
 		t.Errorf("%d connections open after leaving", n)
 	}
 }

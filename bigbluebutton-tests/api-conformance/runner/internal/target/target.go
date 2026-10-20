@@ -29,10 +29,13 @@ type Target struct {
 	// Capabilities lists what the target supports, e.g. akka or presence.
 	Capabilities []string `yaml:"capabilities"`
 	// DefaultSign is the algorithm for signed calls; sha256 when empty.
-	DefaultSign string         `yaml:"defaultSign"`
-	SinkURL     string         `yaml:"sinkUrl"`
-	FixtureURL  string         `yaml:"fixtureUrl"`
-	Vars        map[string]Var `yaml:"vars"`
+	DefaultSign string `yaml:"defaultSign"`
+	SinkURL     string `yaml:"sinkUrl"`
+	FixtureURL  string `yaml:"fixtureUrl"`
+	// GraphQLURL is bbb-graphql-middleware's websocket; by default the base
+	// URL's host at /graphql, as nginx serves it.
+	GraphQLURL string         `yaml:"graphqlUrl"`
+	Vars       map[string]Var `yaml:"vars"`
 	// Routes maps the route names of non-API calls to this target's paths.
 	Routes map[string]Route `yaml:"routes"`
 	// Profiles are the config profiles cases can ask for, and the commands
@@ -124,6 +127,11 @@ func (t *Target) complete(getenv func(string) string) error {
 		return fmt.Errorf("baseUrl %q must be scheme and host only, e.g. https://bbb.example.com", t.BaseURL)
 	}
 	t.BaseURL = strings.TrimSuffix(t.BaseURL, "/")
+	if t.GraphQLURL == "" {
+		t.GraphQLURL = strings.Replace(t.BaseURL, "http", "ws", 1) + "/graphql"
+	} else if g, err := url.Parse(t.GraphQLURL); err != nil || (g.Scheme != "ws" && g.Scheme != "wss") || g.Host == "" {
+		return fmt.Errorf("graphqlUrl %q must be a ws:// or wss:// URL", t.GraphQLURL)
+	}
 	if t.APIPrefix == "" {
 		t.APIPrefix = "/bigbluebutton/api/"
 	}

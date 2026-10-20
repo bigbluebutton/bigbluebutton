@@ -104,7 +104,9 @@ func (c *Collector) Add(ev steps.Observed) []string {
 	}
 	c.mu.Unlock()
 	// The context is only touched by this case's goroutine.
-	ctx.AddSent(ev.Request.URL, ev.Request.Header.Get("Content-Type"), ev.Request.Body)
+	if ev.Request != nil { // a graphql step sends no HTTP request
+		ctx.AddSent(ev.Request.URL, ev.Request.Header.Get("Content-Type"), ev.Request.Body)
+	}
 	if ev.Golden == "off" {
 		return nil
 	}

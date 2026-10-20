@@ -154,6 +154,18 @@ func FirstFailure(rs []Result) string {
 	return ""
 }
 
+// Match applies m to values, any one of which may satisfy a value matcher;
+// exists, absent and count look at how many there are. what names the
+// check in the result.
+func Match(what string, m spec.Matcher, vals []string, eval Eval) (Result, error) {
+	c := &checker{eval: eval}
+	c.match(what, m, vals, true)
+	if c.err != nil {
+		return Result{}, c.err
+	}
+	return c.results[0], nil
+}
+
 type checker struct {
 	o       *observe.Observation
 	eval    Eval

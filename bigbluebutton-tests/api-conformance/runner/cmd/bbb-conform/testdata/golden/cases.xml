@@ -10,7 +10,7 @@
     <testcase name="create.validation.name-length-256" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
     <testcase name="create.validation.name-length-257" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
     <testcase name="create.props.mute-on-start" classname="create" file="../../testdata/cases/create/props-side-effects.yaml" line="3" time="0.000">
-      <skipped message="unimplemented: bus, env, fs, graphql, presence, redis, sink"></skipped>
+      <skipped message="unimplemented: bus, env, fs, redis, sink"></skipped>
     </testcase>
   </testsuite>
   <testsuite name="getMeetingInfo" tests="1" failures="0" errors="0" skipped="0" time="0.000">
