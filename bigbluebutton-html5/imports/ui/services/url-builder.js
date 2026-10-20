@@ -7,6 +7,8 @@
  * - getServerRoot: page origin + cluster path prefix before `/html5client`.
  *   Host used to resolve relative routes when the UI is path-prefixed.
  * - getBbbWebBase: settings `bbbWebBase` (configured bbb-web path or absolute URL).
+ *
+ * loader.js may stamp window.__BBB_HTML5_ASSET_VERSION__ (webpack hash) for assetUrl.
  */
 
 function ensureTrailingSlash(value) {
@@ -54,12 +56,14 @@ export function getBbbWebBase() {
 /**
  * Cache-busted URL for a static file under the client asset base.
  * relativePath is relative to /html5client/ (leading slash optional).
- * Appends ?v=html5ClientBuild when that setting is present.
+ * Prefers loader webpack hash (__BBB_HTML5_ASSET_VERSION__), else settings html5ClientBuild.
  */
 export function assetUrl(relativePath) {
   const path = String(relativePath || '').replace(/^\//, '');
   const base = getAssetBase();
-  const version = window.meetingClientSettings?.public?.app?.html5ClientBuild || '';
+  const version = (typeof window !== 'undefined' && window.__BBB_HTML5_ASSET_VERSION__)
+    || window.meetingClientSettings?.public?.app?.html5ClientBuild
+    || '';
   const url = base + path;
   if (!version) {
     return url;

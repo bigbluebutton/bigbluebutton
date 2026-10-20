@@ -1,0 +1,39 @@
+/**
+ * Sole uncached HTML5 entry script (classic index.html + thin-client).
+ * Embeds build metadata and sets:
+ *   window.__BBB_HTML5_BASE__            — directory of this script
+ *   window.__BBB_HTML5_ASSET_VERSION__   — webpack hash (?v= + React bundle name)
+ *   window.__BBB_HTML5_IS_PRODUCTION__   — production build flag
+ *   window.__bbbAssetUrl(path)           — base + path + ?v=version
+ * Then loads boot.js (page bootstrap + browser gate; ?v=-stamped, long-cached).
+ */
+(function () {
+  var me = document.currentScript;
+  if (!me || !me.src) {
+    document.body.textContent = 'loader.js must be loaded as an external script.';
+    return;
+  }
+
+  var base = new URL('.', me.src).href;
+  var assetVersion = '<%= assetVersion %>';
+  var isProduction = '<%= isProduction %>' === 'true';
+
+  window.__BBB_HTML5_BASE__ = base;
+  window.__BBB_HTML5_ASSET_VERSION__ = assetVersion;
+  window.__BBB_HTML5_IS_PRODUCTION__ = isProduction;
+
+  window.__bbbAssetUrl = function (path) {
+    var url = base + path;
+    if (!assetVersion) {
+      return url;
+    }
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(assetVersion);
+  };
+
+  var script = document.createElement('script');
+  script.src = window.__bbbAssetUrl('boot.js');
+  script.onerror = function () {
+    document.body.textContent = 'Failed to load boot.js.';
+  };
+  document.head.appendChild(script);
+})();
