@@ -4,13 +4,13 @@ name: Build docker images
 # Release branches and tags: build amd64 and arm64 on native runners and push to GHCR (forks only build).
 on:
   pull_request:
-    branches: [v4.0.x-develop, v4.0.x-release]
+    branches: ["v[4-9].*.x-develop", "v[4-9].*.x-release"]
     paths-ignore:
       - "docs/**"
       - "**/*.md"
       - "bigbluebutton-html5/public/locales/*.json"
   push:
-    branches: [v4.0.x-develop, v4.0.x-release]
+    branches: ["v[4-9].*.x-develop", "v[4-9].*.x-release"]
     tags: ["v*"]
 
 concurrency:
