@@ -178,6 +178,11 @@ func (c *gqlConn) init(payload json.RawMessage, r *http.Request) (string, string
 	s := c.s
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if len(s.rejects) > 0 {
+		id := s.rejects[0]
+		s.rejects = s.rejects[1:]
+		return id, "rejected for the test"
+	}
 	sess := s.sessions[p.Headers["X-Session-Token"]]
 	if sess == nil {
 		return "check_authorization_error", "invalid session token"
@@ -380,12 +385,18 @@ func (s *Server) user(meetingID, userID string) *session {
 // inMeeting is akka-apps' currentlyInMeeting.
 func (u *session) inMeeting() bool { return u.joined && !u.loggedOut }
 
+// row is the user's user_current row. Like Hasura's, the columns nothing
+// has set yet are null.
 func (u *session) row() map[string]any {
+	var joinError any
+	if u.joinErrorCode != "" {
+		joinError = u.joinErrorCode
+	}
 	return map[string]any{
 		"userId": u.userID, "extId": u.extID, "name": u.fullName, "role": u.role,
 		"isModerator": u.role == "MODERATOR", "presenter": u.presenter, "guest": u.guest,
 		"guestStatus": u.guestStatus, "joined": u.joined, "loggedOut": u.loggedOut,
-		"ejected": false, "ejectReasonCode": "", "joinErrorCode": u.joinErrorCode, "joinErrorMessage": "",
+		"ejected": nil, "ejectReasonCode": nil, "joinErrorCode": joinError, "joinErrorMessage": nil,
 		"currentlyInMeeting": u.inMeeting(), "authToken": u.authToken, "avatar": u.avatar,
 		"registeredAt": u.registeredAt, "locked": false,
 	}

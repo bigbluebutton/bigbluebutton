@@ -44,6 +44,7 @@ type Server struct {
 	meetings map[string]*meeting
 	sessions map[string]*session
 	conns    map[string][]*gqlConn // GraphQL websockets by session token
+	rejects  []string              // messageIds for the next connection_inits to be rejected with
 	seq      int
 	// Requests records every request's method, path and raw query, and
 	// whether it was chunked, for tests that check what the runner sent.
@@ -87,6 +88,15 @@ type session struct {
 func New(salt string) *Server {
 	return &Server{Salt: salt, EndPolls: 2, clock: 1760000000000,
 		meetings: map[string]*meeting{}, sessions: map[string]*session{}, conns: map[string][]*gqlConn{}}
+}
+
+// RejectInits makes the next GraphQL connections fail their
+// connection_init with these messageIds, one each, like a middleware that
+// hasn't heard of the user yet (user_not_found).
+func (s *Server) RejectInits(ids ...string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.rejects = append(s.rejects, ids...)
 }
 
 // Skew shifts the fake's clock and counters, so two fakes give different
