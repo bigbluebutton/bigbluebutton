@@ -495,3 +495,31 @@ func TestProfileSkippedWhenNothingRuns(t *testing.T) {
 		t.Errorf("no profile command should run when every case in the group is skipped: %q", marker)
 	}
 }
+
+func TestGoldenMode(t *testing.T) {
+	call := func(ignore bool) spec.Step {
+		return spec.Step{Kind: spec.KindCall, Call: &spec.CallStep{HasCall: true, Call: "end", IgnoreResult: ignore}}
+	}
+	explicit := call(true)
+	explicit.Golden = "compare"
+	contract, defect := &spec.Case{Class: "contract"}, &spec.Case{Class: "defect"}
+	tests := []struct {
+		name  string
+		c     *spec.Case
+		phase string
+		s     spec.Step
+		want  string
+	}{
+		{"compare by default", contract, "steps", call(false), "compare"},
+		{"document in defect cases", defect, "steps", call(false), "document"},
+		{"off in teardown", defect, "teardown", call(false), "off"},
+		{"off when the result is ignored", defect, "steps", call(true), "off"},
+		{"an explicit setting wins", contract, "teardown", explicit, "compare"},
+		{"side-effect steps too", contract, "steps", spec.Step{Kind: spec.KindFS}, "compare"},
+	}
+	for _, tt := range tests {
+		if got := GoldenMode(tt.c, tt.phase, tt.s); got != tt.want {
+			t.Errorf("%s: got %s, want %s", tt.name, got, tt.want)
+		}
+	}
+}

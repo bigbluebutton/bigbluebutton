@@ -466,8 +466,9 @@ In YAML flow style (`{...}` and `[...]`), quote any value that contains
 ### Record mode: `golden`
 
 `golden: compare | document | off` on a step says how record mode (planned)
-treats its output. Defaults: `off` in teardown, `document` in `defect`
-cases, otherwise `compare`.
+treats its output. Defaults: `off` in teardown and in steps with
+`ignoreResult`, whose answers may vary by design; `document` in `defect`
+cases; otherwise `compare`.
 
 ## Public-repo rule
 

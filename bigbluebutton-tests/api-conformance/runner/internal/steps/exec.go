@@ -68,13 +68,14 @@ type Observed struct {
 	Obs     *observe.Observation
 }
 
-// golden resolves a step's golden setting: off in teardown, document in
-// defect cases, compare otherwise.
-func golden(c *spec.Case, phase string, s spec.Step) string {
+// GoldenMode resolves a step's golden setting: off in teardown and for
+// steps whose result is ignored, whose answers may vary by design;
+// document in defect cases; compare otherwise.
+func GoldenMode(c *spec.Case, phase string, s spec.Step) string {
 	switch {
 	case s.Golden != "":
 		return s.Golden
-	case phase == "teardown":
+	case phase == "teardown", s.Call != nil && s.Call.IgnoreResult:
 		return "off"
 	case c.Class == "defect":
 		return "document"
@@ -521,7 +522,7 @@ func (x *exec) call(ctx context.Context, phase string, index int, s spec.Step, s
 
 func (x *exec) observe(phase string, index int, s spec.Step, p *client.Prepared, o *observe.Observation) {
 	if x.r.Observe != nil {
-		x.r.Observe(Observed{Case: x.c, UID: x.uid, Phase: phase, Index: index, Golden: golden(x.c, phase, s), Request: p, Obs: o})
+		x.r.Observe(Observed{Case: x.c, UID: x.uid, Phase: phase, Index: index, Golden: GoldenMode(x.c, phase, s), Request: p, Obs: o})
 	}
 }
 

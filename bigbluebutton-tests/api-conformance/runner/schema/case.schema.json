@@ -32,7 +32,7 @@
     "scalar": {"type": ["string", "number", "boolean"]},
     "scalarTable": {"type": "object", "additionalProperties": {"$ref": "#/$defs/scalar"}},
     "golden": {
-      "description": "How record mode treats this step's output. Defaults: off in teardown, document in defect cases, compare otherwise.",
+      "description": "How record mode treats this step's output. Defaults: off in teardown and in steps with ignoreResult, document in defect cases, compare otherwise.",
       "enum": ["compare", "document", "off"]
     },
 

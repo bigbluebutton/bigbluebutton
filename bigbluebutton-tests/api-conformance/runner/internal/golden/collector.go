@@ -49,11 +49,10 @@ func NewCollector(t *target.Target, rules *normalize.Rules) *Collector {
 }
 
 // Observe records one response. A case's events arrive in order, from one
-// goroutine; cases run in parallel.
+// goroutine; cases run in parallel. An off step's response isn't kept, but
+// what it sent still counts as sent, so later steps that echo it read the
+// same either way.
 func (c *Collector) Observe(ev steps.Observed) {
-	if ev.Golden == "off" {
-		return // never compared
-	}
 	c.mu.Lock()
 	ctx := c.ctxs[ev.Case.ID]
 	if ctx == nil {
@@ -64,6 +63,9 @@ func (c *Collector) Observe(ev steps.Observed) {
 	c.mu.Unlock()
 	// The context is only touched by this case's goroutine.
 	ctx.AddSent(ev.Request.URL, ev.Request.Header.Get("Content-Type"), ev.Request.Body)
+	if ev.Golden == "off" {
+		return
+	}
 	lines := normalize.Response(ev.Obs, ctx, c.rules)
 	line := 0
 	steps := ev.Case.Steps
