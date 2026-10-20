@@ -29,6 +29,38 @@ import { generateSettingsData, Settings } from './settings';
 dotenv.config();
 
 /**
+ * The init script behind `applyClientSettingsOverrides`. Exported for a whole
+ * browser context (`context.addInitScript`), so the overrides also reach pages the
+ * client opens itself, such as a breakout room tab. Runs in the browser: it must
+ * stay self-contained.
+ */
+export const installClientSettingsOverrides = (settingsOverrides: ClientSettingsOverrides) => {
+  const isPlainObject = (val: unknown): val is Record<string, unknown> =>
+    typeof val === 'object' && val !== null && !Array.isArray(val);
+  const deepMerge = (base: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+    const merged: Record<string, unknown> = { ...base };
+    Object.keys(source).forEach((key) => {
+      const sourceValue = source[key];
+      const baseValue = merged[key];
+      merged[key] =
+        isPlainObject(sourceValue) && isPlainObject(baseValue) ? deepMerge(baseValue, sourceValue) : sourceValue;
+    });
+    return merged;
+  };
+
+  let storedSettings: unknown;
+  Object.defineProperty(window, 'meetingClientSettings', {
+    configurable: true,
+    get() {
+      return storedSettings;
+    },
+    set(value: unknown) {
+      storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
+    },
+  });
+};
+
+/**
  * A deep-partial of `window.meetingClientSettings`, deep-merged into the live client
  * settings before the app reads them. Lets tests exercise config-only settings that have
  * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
@@ -180,31 +212,7 @@ export class Page {
    * Must run before `page.goto()`.
    */
   async applyClientSettingsOverrides(overrides: ClientSettingsOverrides): Promise<void> {
-    await this.page.addInitScript((settingsOverrides) => {
-      const isPlainObject = (val: unknown): val is Record<string, unknown> =>
-        typeof val === 'object' && val !== null && !Array.isArray(val);
-      const deepMerge = (base: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
-        const merged: Record<string, unknown> = { ...base };
-        Object.keys(source).forEach((key) => {
-          const sourceValue = source[key];
-          const baseValue = merged[key];
-          merged[key] =
-            isPlainObject(sourceValue) && isPlainObject(baseValue) ? deepMerge(baseValue, sourceValue) : sourceValue;
-        });
-        return merged;
-      };
-
-      let storedSettings: unknown;
-      Object.defineProperty(window, 'meetingClientSettings', {
-        configurable: true,
-        get() {
-          return storedSettings;
-        },
-        set(value: unknown) {
-          storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
-        },
-      });
-    }, overrides);
+    await this.page.addInitScript(installClientSettingsOverrides, overrides);
   }
 
   async handleDownload(
