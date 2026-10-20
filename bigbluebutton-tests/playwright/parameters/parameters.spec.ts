@@ -6,7 +6,7 @@ import { test } from '../core/setup/fixtures';
 import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
-import { AUDIO_CAPTIONS_SETTINGS, DisabledFeatures } from './disabledFeatures';
+import { AUDIO_CAPTIONS_SETTINGS, DisabledFeatures, INFINITE_WHITEBOARD_SETTINGS } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
 
 const iPhone11 = devices['iPhone 11'];
@@ -163,6 +163,13 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.initModPage(page, { createParameter: c.allowModsToEjectCameras, testInfo });
     await createParam.initUserPage(context, { testInfo });
     await createParam.allowModsToEjectCameras();
+  });
+
+  test('Moderator cannot eject cameras by default', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, { testInfo });
+    await createParam.initUserPage(context, { testInfo });
+    await createParam.modsCannotEjectCamerasByDefault();
   });
 
   test('Override default presentation on CREATE meeting API call', async ({ browser, context, page }, testInfo) => {
@@ -498,12 +505,20 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     test.describe.serial(() => {
       test('Infinite Whiteboard', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboard, testInfo });
+        await disabledFeatures.initModPage(page, {
+          createParameter: c.infiniteWhiteboard,
+          clientSettingsOverrides: INFINITE_WHITEBOARD_SETTINGS,
+          testInfo,
+        });
         await disabledFeatures.infiniteWhiteboard();
       });
       test('Infinite Whiteboard (exclude)', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboardExclude, testInfo });
+        await disabledFeatures.initModPage(page, {
+          createParameter: c.infiniteWhiteboardExclude,
+          clientSettingsOverrides: INFINITE_WHITEBOARD_SETTINGS,
+          testInfo,
+        });
         await disabledFeatures.infiniteWhiteboardExclude();
       });
     });

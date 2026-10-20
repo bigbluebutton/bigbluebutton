@@ -1,8 +1,20 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { ClientSettingsOverrides, Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+
+export const MULTI_FUNCTIONAL_MODE_SETTINGS: ClientSettingsOverrides = {
+  public: { multiFunctionalMode: { enabled: true } },
+};
+
+function checkMultiFunctionalModeEnabled(page: Page) {
+  expect(
+    page.settings?.multiFunctionalModeEnabled,
+    'multiFunctionalMode.enabled should be on (MULTI_FUNCTIONAL_MODE_SETTINGS)',
+  ).toBe(true);
+}
 
 export class MultifunctionalMode extends MultiUsers {
   private async openAuxiliarySidebar(page = this.modPage, checkForEmptyPanel = true) {
@@ -28,8 +40,7 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async openPanelInAuxiliarySidebar() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
 
     await this.openChatThenAuxiliary();
 
@@ -65,8 +76,7 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async openAuxiliarySidebarResetsCameraFromSidebarBottom() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
 
     await this.modPage.page.waitForTimeout(1000); // wait for webcam to fully initialize
     // At this point the caller has shared webcam and opened the chat panel.
@@ -97,8 +107,7 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async cannotDragCameraToSidebarBottomWithAuxiliaryOpen() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
 
     // Open auxiliary sidebar first
     await this.openChatThenAuxiliary();
@@ -120,8 +129,7 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async auxiliarySidebarRemembersLastOpenPanel() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
 
     // Place users list in auxiliary sidebar
     await this.openChatThenAuxiliary();
@@ -153,8 +161,7 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async reopeningAuxiliaryShowsEmptyPanelWhenPreviousPanelOpenedInMain() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
 
     // Place users list in auxiliary sidebar, then close auxiliary
     await this.openChatThenAuxiliary();
@@ -188,8 +195,7 @@ export class MultifunctionalMode extends MultiUsers {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    const { multiFunctionalModeEnabled } = this.userPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.userPage);
 
     // --- Setup: moderator creates breakout rooms with free join ---
     await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
@@ -223,9 +229,18 @@ export class MultifunctionalMode extends MultiUsers {
     await this.modPage.page.bringToFront();
     await this.modPage.waitAndClick(e.finishBreakoutButton);
 
-    // Attendee: auxiliary sidebar should close after breakouts end
+    // Attendee: the breakout panel and the auxiliary sidebar close once the rooms have ended; wait for
+    // that before toggling the sidebar, or the click lands first and closes it instead
     await this.userPage.page.bringToFront();
-    await this.userPage.wasRemoved(e.emptyPanelTitle, 'auxiliary sidebar should be closed after breakout rooms end');
+    await this.userPage.wasRemoved(
+      e.breakoutRoomSidebarButton,
+      'breakout rooms button should be removed for the attendee after breakout rooms end',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.wasRemoved(
+      e.sidebarContentAuxiliary,
+      'auxiliary sidebar should be closed after breakout rooms end',
+    );
 
     // Reopening auxiliary shows empty panel (breakout panel must not be restored)
     await this.userPage.waitAndClick(e.enableMultiFunctionalMode);
@@ -236,8 +251,8 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async notesPinnedToWhiteboardClosesAuxiliarySidebar() {
-    const { multiFunctionalModeEnabled, sharedNotesEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled || !sharedNotesEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
+    test.skip(!this.modPage.settings?.sharedNotesEnabled, 'Shared notes are disabled');
 
     // Open chat in main sidebar, then open auxiliary sidebar
     await this.openChatThenAuxiliary();
@@ -268,20 +283,25 @@ export class MultifunctionalMode extends MultiUsers {
   }
 
   async auxiliarySidebarRTLLayout() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
+    checkMultiFunctionalModeEnabled(this.modPage);
 
     await this.openAuxiliarySidebar();
     await this.modPage.waitAndClick(e.usersListSidebarButton);
 
     // Share webcam so the full layout (nav sidebar position, both sidebar panels, webcam) is visible
     await this.modPage.shareWebcam();
+    await this.modPage.page.mouse.move(0, 0);
+    await this.modPage.page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
 
     // Screenshot validates the RTL layout: nav sidebar on the right, main/auxiliary sidebars on the left
     await expect(this.modPage.page, 'RTL layout should mirror the sidebar arrangement').toHaveScreenshot(
       'auxiliary-sidebar-rtl-layout.png',
       {
-        mask: [this.modPage.page.locator(e.webcamMirroredVideoContainer), this.modPage.page.locator(e.whiteboard)],
+        mask: [
+          this.modPage.page.locator(e.webcamMirroredVideoContainer),
+          this.modPage.page.locator(e.whiteboard),
+          this.modPage.page.locator(e.presentationTitle),
+        ],
       },
     );
 

@@ -1,11 +1,11 @@
 import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
-import { MultifunctionalMode } from './multifunctionalMode';
+import { MULTI_FUNCTIONAL_MODE_SETTINGS, MultifunctionalMode } from './multifunctionalMode';
 
 test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
   test('Open a panel in the auxiliary sidebar', async ({ browser, context, page }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
+    await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
     await mfm.openPanelInAuxiliarySidebar();
   });
 
@@ -14,7 +14,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
     { tag: '@media' },
     async ({ browser, context, page }, testInfo) => {
       const mfm = new MultifunctionalMode(browser, context);
-      await mfm.initModPage(page, { testInfo });
+      await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
       await mfm.modPage.shareWebcam();
       await mfm.openAuxiliarySidebarResetsCameraFromSidebarBottom();
     },
@@ -25,7 +25,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
     { tag: '@media' },
     async ({ browser, context, page }, testInfo) => {
       const mfm = new MultifunctionalMode(browser, context);
-      await mfm.initModPage(page, { testInfo });
+      await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
       await mfm.modPage.shareWebcam();
       await mfm.cannotDragCameraToSidebarBottomWithAuxiliaryOpen();
     },
@@ -33,7 +33,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
 
   test('The auxiliary sidebar should remember the last open panel', async ({ browser, context, page }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
+    await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
     await mfm.auxiliarySidebarRemembersLastOpenPanel();
   });
 
@@ -43,7 +43,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
+    await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
     await mfm.reopeningAuxiliaryShowsEmptyPanelWhenPreviousPanelOpenedInMain();
   });
 
@@ -53,7 +53,8 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initPages(page, testInfo);
+    await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
+    await mfm.initUserPage(context, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
     await mfm.breakoutPanelInAuxiliaryClosesWhenBreakoutsEnd();
   });
 
@@ -63,7 +64,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
+    await mfm.initModPage(page, { testInfo, clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS });
     await mfm.notesPinnedToWhiteboardClosesAuxiliarySidebar();
   });
 
@@ -71,6 +72,7 @@ test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
     const mfm = new MultifunctionalMode(browser, context);
     await mfm.initModPage(page, {
       joinParameter: c.overrideDefaultLocaleToRTL,
+      clientSettingsOverrides: MULTI_FUNCTIONAL_MODE_SETTINGS,
       testInfo,
     });
     await mfm.auxiliarySidebarRTLLayout();

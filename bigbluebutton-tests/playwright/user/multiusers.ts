@@ -639,24 +639,27 @@ export class MultiUsers {
     );
   }
 
-  async emojiRainTest() {
-    const { settings } = this.modPage;
+  async emojiRainTest(isEmojiRainEnabled: boolean) {
+    expect(this.modPage.settings?.emojiRain, 'emojiRain.enabled should match emojiRainSettingsOverride').toBe(
+      isEmojiRainEnabled,
+    );
     const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
-
-    const isEmojiRainEnabled = settings?.emojiRain ?? true;
-
-    if (!isEmojiRainEnabled) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.waitAndClick(e.reactionsButton);
-      await this.modPage.waitAndClick(smilingEmojiReaction);
-      await this.modPage.wasRemoved(e.emojiRain, 'should not display the emoji rain when disabled');
-      return;
-    }
 
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(smilingEmojiReaction);
     const emojiRainLocator = this.modPage.page.locator(e.emojiRain);
+
+    if (!isEmojiRainEnabled) {
+      await this.modPage.hasText(
+        e.reactionsButton,
+        '😃',
+        'should display the smiling emoji on the reactions button when used',
+      );
+      await expect(emojiRainLocator, 'should not display the emoji rain when disabled').toHaveCount(0);
+      return;
+    }
+
     await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, {
       timeout: ELEMENT_WAIT_TIME,
     });

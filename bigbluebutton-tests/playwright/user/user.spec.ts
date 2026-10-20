@@ -6,7 +6,7 @@ import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
 import { Timer } from './timer';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride } from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -118,8 +118,14 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Emoji rain', async ({ browser, context, page }, testInfo) => {
       const emojiRain = new MultiUsers(browser, context);
-      await emojiRain.initModPage(page, { testInfo });
-      await emojiRain.emojiRainTest();
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(true) });
+      await emojiRain.emojiRainTest(true);
+    });
+
+    test('Emoji rain disabled', async ({ browser, context, page }, testInfo) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(false) });
+      await emojiRain.emojiRainTest(false);
     });
   });
 
