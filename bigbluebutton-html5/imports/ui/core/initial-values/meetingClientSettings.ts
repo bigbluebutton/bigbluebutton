@@ -10,6 +10,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       autoJoin: true,
       preFlight: {
         enabled: false,
+        roomModes: {
+          enabled: false,
+        },
       },
       listenOnlyMode: true,
       forceListenOnly: false,
