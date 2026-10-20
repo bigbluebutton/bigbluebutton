@@ -43,7 +43,6 @@ public class ValidationService {
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
         GET_JOIN_URL("getJoinUrl", RequestType.GET),
-        FEEDBACK("feedback", RequestType.GET),
         INSERT_DOCUMENT("insertDocument", RequestType.GET),
         SEND_CHAT_MESSAGE("sendChatMessage", RequestType.GET);
 
@@ -135,7 +134,6 @@ public class ValidationService {
                 case SIGN_OUT -> new SignOut(servletRequest);
                 case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);
                 case GET_JOIN_URL -> new GetJoinUrl(servletRequest);
-                case FEEDBACK -> new Feedback(servletRequest);
             };
         }
 
