@@ -1,0 +1,14 @@
+# Presentations where bbb-web's defaults do not give the correct result today.
+# A listed check that fails is reported as "known" and does not fail the run; a listed check that passes is
+# reported as "fixed" so the entry can be removed. Fields: fixture, profiles (list or "*"), pages (list or "*"),
+# checks (outcome, pages, kind, aspect, exif, text, marker, pixels, thumb, served), issue, since, note.
+
+- fixture: rt-pdf-oversized-31mb-insert
+  profiles: "*"
+  checks: [outcome]
+  issue: "not filed yet: FILE_TOO_LARGE from insertDocument is lost"
+  since: 2026-10-09
+  note: >-
+    bbb-web rejects the download and sends FILE_TOO_LARGE, but akka-apps only updates an existing pres_presentation
+    row (PresPresentationDAO.updateErrors) and an insertDocument upload that fails before conversion has none, so
+    the error never reaches the database or the presenter.

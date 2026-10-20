@@ -1,0 +1,25 @@
+# How the harness reaches today's bbb-web. Copy and edit for another implementation
+# (see targets/bbb-api-go.yaml). Values in ${...} come from the environment.
+name: bbb-web
+apiBase: ${BBB_URL}api/
+secret: ${BBB_SECRET}
+checksum: sha256
+presentationDir: /var/bigbluebutton
+meetingKey: internal              # internal: dirs use the internalMeetingID from the create response
+layout: "{meetingId}/{meetingId}/{presId}"
+files:
+  svg: "svgs/slide{n}.svg"
+  thumb: "thumbnails/thumb-{n}.png"
+  text: "textfiles/slide-{n}.txt"
+  png: "pngs/slide-{n}.png"
+blankSvgBytes: 317                # /usr/share/bigbluebutton/blank/blank-svg.svg
+blankText: "No text could be retrieved for the slide"
+statusSource: db                  # db | disk
+db:
+  command: "sudo -n -u postgres psql -At -d bbb_graphql -c"
+served:
+  base: ${BBB_URL}presentation/
+  token: pageToken-hmac-sha256    # pageToken = hex HMAC-SHA256(secret, "presId|n")
+urlDocuments:
+  webroot: /var/www/bigbluebutton-default/assets
+  urlPath: pcf

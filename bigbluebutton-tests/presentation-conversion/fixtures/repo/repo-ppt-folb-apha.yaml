@@ -1,0 +1,10 @@
+id: repo-ppt-folb-apha
+title: Legacy PowerPoint 97-2003 deck (504 KB) from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/folb_apha.ppt
+catalog: [LibreOffice process failures]
+pages: 37
+expect: converted
+kind: any
+tolerance: { maxDiffPixelRatio: 0.04 }
+checks: [outcome, pages, kind, aspect, text]

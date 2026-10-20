@@ -1,0 +1,11 @@
+id: var-name-brackets
+title: File name with brackets, parentheses and a hash
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "slides [a-] (draft) #2.pdf" }
+issues: [19505, 22932, 23237]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

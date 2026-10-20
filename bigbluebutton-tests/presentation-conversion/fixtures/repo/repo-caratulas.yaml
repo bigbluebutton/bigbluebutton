@@ -1,0 +1,7 @@
+id: repo-caratulas
+title: Two A4 pages of scanned-looking covers from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/CaratulasManualesNutrisol.pdf
+pages: 2
+expect: converted
+kind: any

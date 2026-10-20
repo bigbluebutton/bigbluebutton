@@ -1,0 +1,91 @@
+                                                                                                       Energy and Climate Courses at Stanford
+
+
+                                                                                                                                    Recommended for students contemplating a major in
+                                                                                                                                    Physics or interested in a more rigorous treatment of
+                                                                                                                                    physics. The structure of classical physics including
+                                                                                                        Strong                      Newtonian mechanics, Lagrangian mechanics, special
+                     Thermodynamics and                                                                math and                     relativity, and electricity and magnetism; topics in heat and
+                                                                        Lecture, 30                                                 light and an introduction to modern physics. Diagnostic quiz
+  PHYSICS 65        Foundations of Modern                  4     Spr                Science Freshmen    physics       Fetter, A                                                                        NA
+                                                                         students                                                   in calculus and conceptual Newtonian mechanics at first
+                          Physics                                                                      backgrou
+                                                                                                          nd                        meeting of 61 to help students decide if course is
+                                                                                                                                    appropriate; some students may benefit more from the 40
+                                                                                                                                    series. Prerequisites: high school physics and familiarity
+                                                                                                                                    with calculus (differentiation and integration in one variable);
+                                                                                                                                    pre- or corequsite: MATH 42. GER:DB-NatSci
+                                                                                                      Pre --                        Vector analysis, electrostatic fields, including multipole
+                                                                                                    Physics                         expansion; dielectrics. Special relativity and transformation
+                                                                                                      43/63,                        between electric and magnetic fields. Maxwell’s equations.
+                                                                                           Sophomor Pre/Co --                       Static magnetic fields, magnetic materials. Electromagnetic
+                  Intermediate Electricity and                                                                                      radiation, plane wave roblems (free space, conductors and
+  PHYSICS 120                                              4     Win     Lecture   Science    es,   Math 52          Cabrera, B
+                         Magnetism                                                                                                  dielectric materials, boundaries). Dipole and quadrupole
+                                                                                            Juniors  and 53,
+                                                                                                       Co:                          radiation. Wave guides and cavities. Prerequisites: 43 or 63;
+                                                                                                    Physics                         concurrent or prior registration in MATH 52 and 53.
+                                                                                                       112                          Recommended: concurrent or prior registration in 112
+                                                                                                                                   Vector analysis, electrostatic fields, including multipole
+                                                                                                                                   expansion. Dielectrics, static magnetic fields, magnetic
+                                                                                                    Physics                        materials. Maxwell’s equation. Electromagnetic radiation.
+                                                                         Lecture                                                   Special relativity and transformation between electric and
+                                                                                                     120,
+                                                                        and Class            Mainly                                magnetic fields. Plane wave problems (free space,
+                  Intermediate Electricity and                                                       Math
+  PHYSICS 121                                              4     Spr    discussion Science sophomor                  Petrosian, V  conductors and dielectric materials, boundaries). Dipole and
+                         Magnetism                                                                   131,
+                                                                          (25-30               e                                   quadrupole radiation and their frequency and angular
+                                                                                                    Physics
+                                                                        students)                                                  distributions. Scattering synchrotron and bremsstrahlung
+                                                                                                     112
+                                                                                                                                   processes. Energy loss in water. Wave guides and cavities.
+                                                                                                                                   Prerequisites: 120; concurrent or prior registration in MATH
+                                                                                                                      Sarah S.     131.
+                                                                                                                                   Transformative Design examines the implications of design
+                                                                                                                   Lochlann Jain, decisions: the ways in which your designs change the world,
+                                                                                                                     Cultural and  and also the ways in which the world changes your designs.
+                                                                                                                        Social     In this project-based course you will learn how to employ
+                                                                                                                    Anthropology; interactive technologies to create designs to expressly
+                                                                         Seminar                       Applicatio     Wendy Ju,    encourage behavioral transformation. Class sessions will be http://www.stanford.edu/class/engr231/
+   ENGR 231         Transformative Design                  3-5   Win                Design      All
+                                                                           (40)                            n        d.school; Bill structured around project work and interdisciplinary
+                                                                                                                     Moggridge,    discussion of topics such as self-efficacy, social support,
+                                                                                                                   IDEO; Bernard and mechanism of cultural change; accompanying lab
+                                                                                                                  Roth, Mechanical sessions will familiarize students with basic hardware and
+                                                                                                                  Engineering and software tools for interaction prototyping. To apply, please
+                                                                                                                       d.school    attend the first class.
+                                                                                                                                   Project course jointly offered by School of Engineering and
+                                                                                                                                   Graduate School of Business. Students apply engineering
+                                                                                                                                   and business skills to design product prototypes, distribution
+                                                                                                                                   systems, and business plans for entrepreneurial ventures in         http://
+                      Design for Extreme         ME206A/         Win/    Seminar   Interdisc           Applicatio James Patell; developing countries for challenges faced by the world's          extreme.stanfo
+  OIT 333/334                                              4                                 Grad only                             poor.  Topics  include  user empathy,  appropriate technology
+                         Affordability           ME206B          Spr       (40)     iplinary               n        David Beach                                                                       rd.edu/
+                                                                                                                                   design, rapid prototype engineering and testing, social          index.html
+                                                                                                                                   technology entrepreneurship, business modeling, and
+                                                                                                                                   project management. Weekly design reviews; final course
+                                                                                                                                   presentation. Industry and adviser interaction.
+                                                                                                                                This class will immerse Stanford masters students in the
+                                                                                                                                practice and theory of creating large-scale persistent
+                                                                                                                 Perry Klebahn, behavioral changes. Student teams will complete hands-on
+                                                                                                                   Timbuk2,     projects coached by design process experts and evaluated
+                                                                                                                 d.school; Bob by members of partner organizations and other business
+                                                                                                                     Sutton,    leaders, along with members of the teaching team. In                          > - Class
+                                                                                                                  Management addition, brief "thought bombs" will be presented in most                            format
+                                                                         Seminar                    Applicatio                  classes on pertinent topics including developing ideas that http://www.stanford.edu/group/dschool/participate/classes.html
+   MS&E 288       Creating Infectious Action               4     Spr               Design Grad only                Science &                                                                                    (lecture?
+                                                                           (24)                         n                       stick, leading social movements, behavioral decision theory,
+                                                                                                                  Engineering;                                                                                 seminar?
+                                                                                                               Diego Rodriguez, network theory, interpersonal persuasion, examples of ideas                    sections?)
+                                                                                                                IDEO, d.school; that have spread, and seemingly unsuccessful ideas. We
+                                                                                                               Michael Dearing, invite all Stanford graduate students to apply for the class.
+                                                                                                                    d.school    We select students for both their individual background and
+                                                                                                                                skills and, especially, to round out our multi-disciplinary
+                                                                                                                                teams. This is a high commitment class and will require
+                                                                                                                                intensive teamwork.
+
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                            Send additions and corrections to leighj@stanford.edu

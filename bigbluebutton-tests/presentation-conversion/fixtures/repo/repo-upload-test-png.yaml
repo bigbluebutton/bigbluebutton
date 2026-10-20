@@ -1,0 +1,11 @@
+id: repo-upload-test-png
+title: 1600x1200 RGBA PNG uploaded as a presentation
+tier: repo
+file: ../../../playwright/core/media/uploadTest.png
+issues: [14056, 16022]
+catalog: [Huge images]
+pages: 1
+expect: converted
+kind: vector
+profiles: [defaults, tight-limits]
+goldenProfiles: [defaults, tight-limits]

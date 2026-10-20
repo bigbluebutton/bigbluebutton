@@ -1,0 +1,11 @@
+id: repo-blur-image
+title: Image under an alpha soft mask in a transparency group with /Matrix (macOS Quartz output)
+tier: repo
+file: ../../../playwright/core/media/blurImage.pdf
+issues: [23953, 25718]
+catalog: [Soft mask in transparency group]
+pages: 1
+expect: converted
+kind: raster
+notes: pdftocairo drops the masked content; the cairo-vs-splash comparator must rasterize the slide with pdftoppm.
+profiles: [defaults, low-thresholds]

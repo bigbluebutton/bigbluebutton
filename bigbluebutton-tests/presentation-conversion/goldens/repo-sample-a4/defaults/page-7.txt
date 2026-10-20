@@ -1,0 +1,34 @@
+1.3. LATEX AND PDFLATEX CAPABILITIES                                           7
+
+1.3     LATEX and pdfLATEX capabilities
+1.3.1 Overview
+First you edit your source .tex file. In LATEX you compile it using the latex
+command to a .dvi file (which stands for device-independent). The .dvi file
+can be converted to any device-dependent format you like using an appropriate
+driver, for example dvips.
+    When producing .pdf files you should use pdflatex, which produces di-
+rectly .pdf files out of .tex sources. Note that in the .tex file you may need
+to use some PDF specific packages.
+    For viewing .tex files use your favourite text editor, for viewing .dvi files
+under X Window System use xdvi command, .ps files can be viewed with gv
+(or ghostview) and .pdf files with acroread, gv or xpdf.
+
+1.3.2 LATEX
+A lot of examples can be found in this document.
+   You should also print
+   • doc/latex/general/latex2e.dvi and
+   • doc/latex/general/lshort2e.dvi
+from your tetex distribution (usually in
+   • /usr/share/texmf or
+   • /usr/lib/texmf/texmf).
+
+1.3.3 pdfLATEX
+Consult doc/pdftex/manual.pdf from your tetex distribution for more
+details. Very useful informations can be found in the hyperref and graphics
+package manuals:
+   • doc/latex/hyperref/manual.pdf and
+   • doc/latex/graphics/grfguide.dvi.
+
+1.3.4 Examples
+References
+MIMUW

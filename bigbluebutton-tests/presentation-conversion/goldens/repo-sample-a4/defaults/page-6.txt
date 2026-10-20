@@ -1,0 +1,40 @@
+6                                                        CHAPTER 1. TEMPLATE
+
+    4. run ghostscript: “gv file.pdf” to display or:
+       “gs -dNOPAUSE -sDEVICE=pswrite -q -dBATCH -sOutputFile=file.ps file.pdf”
+       to produce a PostScript file;
+
+    5. run “fax send phone-number file.ps” as root to send a fax, or — if you
+       know how to do this — modify the fax script to be able to fax .pdf files directly
+       (you have to insert “|%PDF*” somewhere. . . ).
+
+
+
+1.2 How to write a document
+1.2.1 The main document
+Choose the name of the document, say document. Copy template.tex to
+document.tex, then edit it, change the title, the authors and set proper in-
+clude(s) for all the chapters.
+
+
+1.2.2 Chapters
+Each chapter should be included in the main document as a separate file. You can
+choose any name for the file, but we suggest adding a suffix to the name of the
+main file. For our example we use the file name document_chapter1.tex.
+   First, copy template_chapter.tex to document_chapter1.tex
+and add the line
+
+\include{document_chapter1}
+
+   in the document.tex, then edit document_chapter1.tex, change the
+chapter title and edit the body of the chapter appropriately.
+
+
+1.2.3 Spell-checking
+Do use a spell-checker, please!
+    You may also want to check grammar, style and so on. Actually you should
+do it (if you have enough spare time). But you must check spelling!
+    You can use the ispell package for this, from within emacs, or from the
+command line:
+
+ispell -t document_chapter1.tex

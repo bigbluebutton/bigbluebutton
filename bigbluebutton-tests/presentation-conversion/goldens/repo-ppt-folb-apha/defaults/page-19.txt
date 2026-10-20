@@ -1,0 +1,18 @@
+                CDC Wonder             95
+                US Census              94
+                PittCat                93
+Sites Used      CFR                    91
+ 0/month        Toxnet                 89
+                PubMed                 88
+ =Other         USDA                   86
+                PA State Data Center   85
+ =Gov Agency
+                PA Code                82
+ =Regulation
+                Federal Register       79
+ =Literature    PA Bulletin            74
+ =Phone Bk      EPA                    74
+ =Data Source   CDC not CDC Wonder     64
+                Phone Directories      51
+                PA Health Dept         50
+                Other                  25

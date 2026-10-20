@@ -1,0 +1,12 @@
+   Electronic Tutorial Interest
+
+
+n=135                          Number   Percent
+As a refresher after
+  attending a live class
+                                   74     55%
+As a substitute to attending
+  a live class
+                                   37     27%
+Not at all
+                                   24     18%

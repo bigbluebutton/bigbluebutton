@@ -1,0 +1,9 @@
+                    Overview
+• Apply lessons learned from open source theses
+• Funding from Talent First Network
+• Leader in open source unified communications platform
+  by integrating open source software into a stack that
+  allows users to collaborate in real-time
+• Lead user – TFN and TIM
+• Start - Asterisk/AppFuse/IceFaces
+• Now - Asterisk/Red5/Flex

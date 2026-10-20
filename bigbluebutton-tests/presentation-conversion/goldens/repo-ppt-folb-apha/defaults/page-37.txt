@@ -1,0 +1,9 @@
+         Acknowledgements
+ This project has been funded with Federal
+  funds from the National Library of
+  Medicine, National Institutes of Health,
+  under Contract No. N01-LM-3521.
+ Authors: Barbara Folb, MLS, Barbara
+  Epstein, MSLS
+ For further information contact Barbara
+  Folb, folb@pitt.edu

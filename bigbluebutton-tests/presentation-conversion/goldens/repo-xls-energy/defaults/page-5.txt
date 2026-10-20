@@ -1,0 +1,110 @@
+                                                                                                                   Energy and Climate Courses at Stanford
+
+
+                                                                                                                                              Operating principles and applications of emerging
+                                                                                                                                              technological solutions to the energy demands of the world.
+                  Solar Cells, Fuel Cells, and                          DB-                 Enginee                                           The scale of global energy usage and requirements for
+                                                                                                       Juniors,
+  MATSCI 156      Batteries: Materials for the   --   4     Aut      EngrAppSc               ring/                     --       Clemens, B.   possible solutions. Basic physics and chemistry of solar
+                                                                                                       Seniors
+                        Energy Solution                                  i                  Science                                           cells, fuel cells, and batteries. Performance issues,
+                                                                                                                                              including economics, from the ideal device to the installed
+                                                                                                                                              system. The promise of materials research for providing
+                                                                                                                                              next generation
+                                                                                                                                              Theory             solutions.
+                                                                                                                                                       of conventional   p-n junction and excitonic solar cells.
+                                                                                                                                               Design, fabrication, and characterization of crystalline
+                                                                                                                                              silicon, amorphous silicon, CdTe, CIGS, and tandem and
+                                                                                                                                              organic solar cells. Emerging solar cell concepts such as
+                                                                                            Enginee                                           intermediate band gap and bioinspired solar cells.
+  MATSCI 302              Solar Cells            --   3     Spr         --                   ring/      Grad           --       McGehee, M.   Emphasis is on the materials science aspects of solar cells
+                                                                                            Science                                           research. Module design and economic hurdles that must
+                                                                                                                                              be overcome for solar cell technology to generate a
+                                                                                                                                              significant fraction of the world's electricity. Group project to
+                                                                                                                                              explore one solar cell approach in depth. Class meets three
+                                                                                                                                              times a week and the workload was about 1-5 hours a week
+                                                                                                                                              Sample application areas: renewable energy including
+                                                                                                                     Ideally
+                                                                                                                                              nanoscaled photovoltaic cells, hydrogen storage, fuel cells,
+                                                                                                                   knowledg
+                                                                                                                                              and nanoelectronics. Nanofabrication techniques including:
+                                                                                                                       e of
+                                                                                                                                              self-assembly of amphiphilic molecules, block copolymers,
+                                                                                                                    organic
+                                                                                                                                              organic-inorganic mesostructures, coilloidal crystals, organic
+                                                                                                                   materials
+                                                                                                                                              monolayers, proteins, DNA and abalone shells; biologically
+                                                                                                                    (MatSci
+                                                                                                                                              inspired growth of materials; photolithography, electron
+                                                                                                                    190/210
+                                                                                                                                              beam lithography, and scanning probe lithography; and
+                                                                                                                        or
+                                                                                                                                              synthesis of carbon nanotubes, nanowire, and nanocrystals.
+                                                                                                                    ChemE
+                     Nanoscale Science,                                                     Enginee                                            Other nanotechnology topics may be explored through a
+                                                                                                                      160),
+  MATSCI 316          Engineering, and           --   3    Win          --                   ring/      Grad                      Cui, Y.     group project. Class meets twice a week and the workload
+                                                                                                                   microfrab
+                        Technology                                                          Science                                           was about 1-5 hours a week. There are about 80-90 people
+                                                                                                                    rication
+                                                                                                                                              in the class, though lectures are available online through
+                                                                                                                   (EE 212),
+                                                                                                                                              scpd.
+                                                                                                                       and
+                                                                                                                   electronic
+                                                                                                                   materials
+                                                                                                                    (MatSci
+                                                                                                                    152 and
+                                                                                                                     MatSci
+                                                                                                                      209)
+
+                                                                                                                 High                         Scientific arguments are not causing global warming versus
+                                                                                                                school                        the view that these activities are responsible for a global
+                     Global Warming and                                                               Frosh
+                                                                                                               physics,                       warming that results in significant climate change.
+    ME 25N         Climate Change: Fact or       --   3    Win          --                  Science preferenc                   Bowman, C.
+                                                                                                              chemistry                       Consequences of increased demand for energy.
+                            fiction                                                                     e
+                                                                                                                 , and
+                                                                                                               biology
+                                                                                                                MATH                          Emphasis on proton exchange membrane (PEM) and solid
+                                                                                                                   43,                        oxide fuel cells (SOFC), and principles of electrochemical
+                                                                                                              PHYSICS                         energy conversion. Topics in materials science,
+                                                                                                     Juniors,
+                                                                                            Enginee            55, and                        thermodynamics, and fluid mechanics. Class meets twice a
+                    Fuel Cell Science and                                                           Seniors,
+     ME 260                                      --   3     Spr         --                   ring/            ENGR 30             Prinz, F.   week for approximately 1 hour, and the courseload outside
+                         Technology                                                                   Grad
+                                                                                            Science             or ME                         of class is about 5-10 hours a week.
+                                                                                                    students
+                                                                                                               140, or
+                                                                                                              equivalen
+                                                                                                                    ts
+                                                                                                                                              Interdisciplinary research in engineering, chemistry, and
+                                                                                                                                              physics. Talks on fundamentals of fuel cells by speakers
+                                                                                                                                              from Stanford, other academic and research institutions,
+                                                          Alternat
+     ME 399           Fuel Cell Seminar          --   1                 --                  Science     Grad           --                     and industry. The potential to provide high efficiency and
+                                                          e years
+                                                                                                                                              zero emissions energy conversion for transportation and
+                                                                                                                                              electrical power generation. Class is a seminar style,
+                                                                                                                                              credit/no-credit grading checked for attendance.
+                                                                                                                                              For non-majors and prospective Earth Systems majors.
+                                                                                                                                              Multidisciplinary approach using the principles of geology,
+                                                                                                       Primarily                              biology, engineering, and economics to describe how the
+                                                                                 Lecture,                                                     Earth operates as an interconnected, integrated system.
+                     Introduction to Earth                                                            freshmen
+ EARTHSYS 10                                                                       with                                                       Goal is to understand global change on all time scales.
+                           Systems               --   4     Aut      DB-NatSci              Science       &            --        Ernst, G.                                                                         None
+                                                                                 sections                                                     Focus is on sciences, technological principles, and
+                                                                                                      sophomor
+                                                                                  (150)                                                       sociopolitical approaches applied to solid earth, oceans,
+                                                                                                          es
+                                                                                                                                              water, energy, and food and population. Case studies:
+                                                                                                                                              environmental degradation, loss of biodiversity, and
+                                                                                                                                              resource sustainability.
+
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                              Send additions and corrections to leighj@stanford.edu

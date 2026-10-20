@@ -1,0 +1,18 @@
+Use by ACHD Program, Grouped
+                                 11 or
+                   0-10/month    more/month   =Major
+Administration                10          4
+                                               division
+Support Services               2          9
+Environmental                 35         17   =Subdivision
+               Air            16          8
+     Water/Waste               2          6
+      Env/Housing              9          2
+             Food              8          1
+Human Health                  29         30
+       Chronic Dis             2          3
+ Injury Prevention             2          2
+            Dental             0          1
+       ID/STD/Lab             13         14
+         MCH/WIC              12         10
+  Total responses             76         60

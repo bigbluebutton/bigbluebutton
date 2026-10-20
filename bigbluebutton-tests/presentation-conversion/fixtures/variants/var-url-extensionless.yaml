@@ -1,0 +1,11 @@
+id: var-url-extensionless
+title: URL without a file extension; the filename attribute carries the type
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: create-url, name: "from-extensionless-url.pdf", servedAs: "download" }
+issues: [14134]
+catalog: [Preupload via create API]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind]

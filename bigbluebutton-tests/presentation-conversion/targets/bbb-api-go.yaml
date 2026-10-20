@@ -1,0 +1,23 @@
+# DRAFT, unverified: the Go meeting API from PRs #21718 / #25050 is not packaged yet.
+# Differences from bbb-web as read from those PRs; revisit when bbb-api ships.
+name: bbb-api-go
+apiBase: ${BBB_URL_BASE}meeting-api/api/
+secret: ${BBB_SECRET}
+checksum: sha256
+presentationDir: /var/bigbluebutton
+meetingKey: external
+layout: "{meetingId}/{meetingId}/{presId}"
+files:
+  svg: "svgs/slide-{n}"
+  thumb: "thumbnails/thumb-{n}.png"
+  text: "textfiles/slide-{n}.txt"
+  png: "pngs/slide-{n}.png"
+blankSvgBytes: 317
+blankText: "No text could be retrieved for the slide"
+statusSource: disk
+served:
+  base: ""
+  token: none
+urlDocuments:
+  webroot: /var/www/bigbluebutton-default/assets
+  urlPath: pcf

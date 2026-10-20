@@ -1,0 +1,10 @@
+id: repo-xls-energy
+title: Legacy Excel 97-2003 workbook (160 KB) from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/Energy_and_Climate_Courses.xls
+catalog: [LibreOffice process failures]
+pages: 17
+expect: converted
+kind: any
+tolerance: { maxDiffPixelRatio: 0.04 }
+checks: [outcome, pages, kind, aspect, text]

@@ -1,0 +1,10 @@
+node_modules/
+work/
+results/
+playwright-report/
+blob-report/
+test-results/
+proposed-goldens/
+fixtures/private/*
+!fixtures/private/README.md
+.env
