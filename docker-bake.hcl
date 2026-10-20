@@ -1,132 +1,168 @@
-target "docker-metadata-action" {}
+# Images of BigBlueButton. Build them all with `docker buildx bake`; see docker/README.md.
 
-target "_java-base" {
-    context = "./docker/java-base"
+variable "BBB_IMAGE_REGISTRY" {
+  default = "ghcr.io/bigbluebutton/bigbluebutton"
 }
 
-target "bbb-common-message" {
-    context = "./bbb-common-message"
+variable "BBB_IMAGE_TAG" {
+  default = "latest"
 }
 
-target "apps-akka" {
-    inherits = ["docker-metadata-action"]
-    context = "./akka-bbb-apps"
-    contexts = {
-        java-base = "target:_java-base"
-        bbb-common-message = "target:bbb-common-message"
-        html5-config = "./bigbluebutton-html5/private/config"
-    }
+# Build id of the HTML5 client (About dialog and ?v= cache buster), as COMMIT_DATE in build/setup.sh
+variable "CLIENT_BUILD" {
+  default = "0"
 }
 
-target "bbb-common-web" {
-    context = "./bbb-common-web"
-    contexts = {
-        bbb-common-message = "target:bbb-common-message"
-    }
+function "tags" {
+  params = [name]
+  result = ["${BBB_IMAGE_REGISTRY}/bbb-${name}:${BBB_IMAGE_TAG}"]
 }
 
-target "web" {
-    inherits = ["docker-metadata-action"]
-    context = "./bigbluebutton-web"
-    contexts = {
-        java-base = "target:_java-base"
-        bbb-common-web = "target:bbb-common-web"
-        slides = "./bigbluebutton-config/slides"
-        html5-config = "./bigbluebutton-html5/private/config"
-    }
-}
-
-target "html5-client" {
-    inherits = ["docker-metadata-action"]
-    context = "./bigbluebutton-html5"
-    contexts = {
-        client-build = "./build/packages-template/bbb-html5"
-    }
-}
-
-target "learning-dashboard" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-learning-dashboard"
-}
-
-target "graphql-actions" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-graphql-actions"
-}
-
-target "graphql-middleware" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-graphql-middleware"
-}
-
-target "graphql-server" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-graphql-server"
-}
-
-target "export-annotations" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-export-annotations"
-      contexts = {
-          fonts = "./build/packages-template/bbb-export-annotations/fonts"
-          slides = "./bigbluebutton-config/slides"
-      }
-}
-
-target "shared-notes-server" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-shared-notes-server"
-}
-
-target "record-and-playback" {
-    inherits = ["docker-metadata-action"]
-    context = "./record-and-playback"
-    contexts = {
-        bigbluebutton-config = "./bigbluebutton-config"
-        bbb-mkclean = "./build/packages-template/bbb-mkclean"
-    }
-}
-
-target "nginx" {
-      inherits = ["docker-metadata-action"]
-      dockerfile = "./docker/nginx/Dockerfile"
-      context = "."
-}
-
-# External components: source at the tag their <component>.placeholder.sh clones
-target "webrtc-sfu" {
-    inherits = ["docker-metadata-action"]
-    context = "./docker/bbb-webrtc-sfu"
-    contexts = {
-        src = "https://github.com/bigbluebutton/bbb-webrtc-sfu.git#v2.25.0-beta.3"
-    }
-}
-
-target "webrtc-recorder" {
-    inherits = ["docker-metadata-action"]
-    context = "./docker/bbb-webrtc-recorder"
-    contexts = {
-        src = "https://github.com/bigbluebutton/bbb-webrtc-recorder.git#v0.17.0"
-    }
-}
-
-target "webhooks" {
-    inherits = ["docker-metadata-action"]
-    context = "./docker/bbb-webhooks"
-    contexts = {
-        src = "https://github.com/bigbluebutton/bbb-webhooks.git#v3.7.0"
-    }
-}
-
-target "playback" {
-    inherits = ["docker-metadata-action"]
-    context = "./docker/bbb-playback"
-    contexts = {
-        src = "https://github.com/bigbluebutton/bbb-playback.git#v5.4.8"
-    }
+# Every image, and every base, builds for both platforms
+target "_image" {
+  platforms = ["linux/amd64", "linux/arm64"]
+  labels    = { "org.opencontainers.image.source" = "https://github.com/bigbluebutton/bigbluebutton" }
 }
 
 group "default" {
-  targets = ["apps-akka", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "shared-notes-server", "web", "record-and-playback", "nginx",
-             "webrtc-sfu", "webrtc-recorder", "webhooks", "playback"]
+  targets = [
+    "apps-akka", "web", "html5-client", "learning-dashboard",
+    "graphql-actions", "graphql-middleware", "graphql-server",
+    "export-annotations", "shared-notes-server", "record-and-playback", "nginx",
+    "webrtc-sfu", "webrtc-recorder", "webhooks", "playback",
+  ]
+}
+
+# Shared build bases, used as named contexts and not published
+target "_java-base" {
+  inherits = ["_image"]
+  context  = "./docker/java-base"
+}
+
+target "_bbb-common-message" {
+  inherits = ["_image"]
+  context  = "./bbb-common-message"
+}
+
+target "_bbb-common-web" {
+  inherits = ["_image"]
+  context  = "./bbb-common-web"
+  contexts = { bbb-common-message = "target:_bbb-common-message" }
+}
+
+target "apps-akka" {
+  inherits = ["_image"]
+  tags     = tags("apps-akka")
+  context  = "./akka-bbb-apps"
+  contexts = {
+    java-base          = "target:_java-base"
+    bbb-common-message = "target:_bbb-common-message"
+    html5-config       = "./bigbluebutton-html5/private/config"
+  }
+}
+
+target "web" {
+  inherits = ["_image"]
+  tags     = tags("web")
+  context  = "./bigbluebutton-web"
+  contexts = {
+    java-base      = "target:_java-base"
+    bbb-common-web = "target:_bbb-common-web"
+    slides         = "./bigbluebutton-config/slides"
+    html5-config   = "./bigbluebutton-html5/private/config"
+  }
+}
+
+target "html5-client" {
+  inherits = ["_image"]
+  tags     = tags("html5-client")
+  context  = "./bigbluebutton-html5"
+  contexts = { client-build = "./build/packages-template/bbb-html5" }
+  args     = { CLIENT_BUILD = CLIENT_BUILD }
+}
+
+target "learning-dashboard" {
+  inherits = ["_image"]
+  tags     = tags("learning-dashboard")
+  context  = "./bbb-learning-dashboard"
+}
+
+target "graphql-actions" {
+  inherits = ["_image"]
+  tags     = tags("graphql-actions")
+  context  = "./bbb-graphql-actions"
+}
+
+target "graphql-middleware" {
+  inherits = ["_image"]
+  tags     = tags("graphql-middleware")
+  context  = "./bbb-graphql-middleware"
+}
+
+target "graphql-server" {
+  inherits = ["_image"]
+  tags     = tags("graphql-server")
+  context  = "./bbb-graphql-server"
+}
+
+target "export-annotations" {
+  inherits = ["_image"]
+  tags     = tags("export-annotations")
+  context  = "./bbb-export-annotations"
+  contexts = {
+    fonts  = "./build/packages-template/bbb-export-annotations/fonts"
+    slides = "./bigbluebutton-config/slides"
+  }
+}
+
+target "shared-notes-server" {
+  inherits = ["_image"]
+  tags     = tags("shared-notes-server")
+  context  = "./bbb-shared-notes-server"
+}
+
+target "record-and-playback" {
+  inherits = ["_image"]
+  tags     = tags("record-and-playback")
+  context  = "./record-and-playback"
+  contexts = {
+    bigbluebutton-config = "./bigbluebutton-config"
+    bbb-mkclean          = "./build/packages-template/bbb-mkclean"
+  }
+}
+
+target "nginx" {
+  inherits   = ["_image"]
+  tags       = tags("nginx")
+  context    = "."
+  dockerfile = "docker/nginx/Dockerfile"
+}
+
+# External components: source at the tag their <component>.placeholder.sh clones (checked in CI)
+target "webrtc-sfu" {
+  inherits = ["_image"]
+  tags     = tags("webrtc-sfu")
+  context  = "./docker/bbb-webrtc-sfu"
+  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-sfu.git#v2.25.0-beta.3" }
+}
+
+target "webrtc-recorder" {
+  inherits = ["_image"]
+  tags     = tags("webrtc-recorder")
+  context  = "./docker/bbb-webrtc-recorder"
+  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-recorder.git#v0.17.0" }
+}
+
+target "webhooks" {
+  inherits = ["_image"]
+  tags     = tags("webhooks")
+  context  = "./docker/bbb-webhooks"
+  contexts = { src = "https://github.com/bigbluebutton/bbb-webhooks.git#v3.7.0" }
+}
+
+target "playback" {
+  inherits = ["_image"]
+  tags     = tags("playback")
+  context  = "./docker/bbb-playback"
+  contexts = { src = "https://github.com/bigbluebutton/bbb-playback.git#v5.4.8" }
 }

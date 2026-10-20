@@ -1,52 +1,112 @@
-name: Build all docker images
+name: Build docker images
 
+# Pull requests: build every image for amd64, without pushing.
+# Release branches and tags: build amd64 and arm64 on native runners and push to GHCR (forks only build).
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [v4.0.x-develop, v4.0.x-release]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
   push:
-    branches:
-      - "**"
-    tags:
-      - "v*.*.*"
+    branches: [v4.0.x-develop, v4.0.x-release]
+    tags: ["v*"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  BBB_IMAGE_REGISTRY: ghcr.io/bigbluebutton/bigbluebutton
+  TAG: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || github.ref_name }}
+  PUSH: ${{ github.event_name != 'pull_request' && github.repository == 'bigbluebutton/bigbluebutton' }}
 
 jobs:
-  html5-client:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-html5-client"
-      target: "html5-client"
+  targets:
+    runs-on: ubuntu-24.04
+    outputs:
+      targets: ${{ steps.list.outputs.targets }}
+    steps:
+      - uses: actions/checkout@v5
 
-  learning-dashboard:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-learning-dashboard"
-      target: "learning-dashboard"
+      - name: Check that the images build the versions the packages build
+        run: |
+          for c in bbb-webrtc-sfu bbb-webrtc-recorder bbb-webhooks bbb-playback; do
+            tag=$(sed -n 's/.*--branch \([^ ]*\) .*/\1/p' "$c.placeholder.sh")
+            grep -qF "$c.git#$tag\"" docker-bake.hcl \
+              || { echo "::error::docker-bake.hcl does not build $c at $tag ($c.placeholder.sh)"; exit 1; }
+          done
+          release=$(sed -n 's/^RELEASE=//p' bbb-presentation-video.placeholder.sh)
+          grep -qF "bbb-presentation-video/releases/download/$release/" record-and-playback/Dockerfile \
+            || { echo "::error::record-and-playback/Dockerfile does not install bbb-presentation-video $release"; exit 1; }
 
-  graphql-actions:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-graphql-actions"
-      target: "graphql-actions"
+      - name: List the images of the default bake group
+        id: list
+        run: echo "targets=$(docker buildx bake --print default | jq -c .group.default.targets)" >> "$GITHUB_OUTPUT"
 
-  graphql-middleware:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-graphql-middleware"
-      target: "graphql-middleware"
+  build:
+    needs: targets
+    name: ${{ matrix.target }} (${{ matrix.platform }})
+    runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.targets) }}
+        platform: ${{ fromJSON(github.event_name == 'pull_request' && '["amd64"]' || '["amd64", "arm64"]') }}
+    steps:
+      - uses: actions/checkout@v5
 
-  graphql-server:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-graphql-server"
-      target: "graphql-server"
+      - name: Set the HTML5 client build id as build/setup.sh does
+        run: echo "CLIENT_BUILD=$(git log -n1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S)" >> "$GITHUB_ENV"
 
-  export-annotations:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-export-annotations"
-      target: "export-annotations"
+      - uses: docker/setup-buildx-action@v3
 
-  akka-bbb-apps:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-apps-akka"
-      target: "apps-akka"
+      - if: env.PUSH == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Each platform is pushed under its own tag; the merge job joins them under $TAG.
+      # The cache is written only by pushes, pull requests read it; mode=min keeps 15 x 2 scopes in the 10 GB limit.
+      - uses: docker/bake-action@v6
+        env:
+          BBB_IMAGE_TAG: ${{ env.TAG }}-${{ matrix.platform }}
+        with:
+          source: .
+          targets: ${{ matrix.target }}
+          push: ${{ env.PUSH == 'true' }}
+          set: |
+            *.platform=linux/${{ matrix.platform }}
+            *.cache-from=type=gha,scope=${{ matrix.target }}-${{ matrix.platform }}
+            ${{ env.PUSH == 'true' && format('*.cache-to=type=gha,mode=min,scope={0}-{1}', matrix.target, matrix.platform) || '' }}
+
+  merge:
+    needs: [targets, build]
+    if: github.event_name != 'pull_request' && github.repository == 'bigbluebutton/bigbluebutton'
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Join the amd64 and arm64 images under one tag
+        env:
+          TARGETS: ${{ join(fromJSON(needs.targets.outputs.targets), ' ') }}
+        run: |
+          for t in $TARGETS; do
+            image="$BBB_IMAGE_REGISTRY/bbb-$t:$TAG"
+            docker buildx imagetools create -t "$image" "$image-amd64" "$image-arm64"
+          done
