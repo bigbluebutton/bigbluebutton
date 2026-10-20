@@ -210,7 +210,7 @@ func TestRecordOutcomes(t *testing.T) {
 		{"lines", exitFailed, []string{"UNSTABLE   getMeetings.record.lines: passes 1 and 2 answered differently", "    step 1:\n    - /response/count \"1\"\n    + /response/count \"2\"\n"}, false},
 		{"outcome", exitFailed, []string{"UNSTABLE   getMeetings.record.outcome: PASS in pass 1, FAIL in pass 2"}, false},
 		{"error", exitFailed, []string{"ERROR      getMeetings.record.error: step 1 (line 6): "}, false},
-		{"incomplete", exitFailed, []string{"INCOMPLETE getMeetings.record.incomplete: step 2: call getMeetings wasn't reached"}, false},
+		{"incomplete", exitFailed, []string{"INCOMPLETE getMeetings.record.incomplete: step 2: call getMeetings wasn't reached, after step 1 (line 6): capture /response/nothing: nothing matched\nwarning:"}, false},
 		{"echo", exitFailed, []string{"SECRET     getMeetings.record.echo: the answer holds a secret"}, false},
 		{"defect", exitOK, []string{"NEW        getMeetings.record.defect\n    expect failed, as a defect case's may: step 1 (line 6): returncode"}, true},
 		{"wrong", exitFailed, []string{"NEW        getMeetings.record.wrong\n    expect failed: step 1 (line 6): returncode: expected \"FAILED\", got \"SUCCESS\". Recorded anyway"}, true},

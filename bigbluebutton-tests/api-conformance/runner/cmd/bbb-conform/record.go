@@ -206,13 +206,16 @@ func recordCase(c *spec.Case, targetName, out string, results []*report.CaseResu
 			return rec
 		}
 	}
-	if first.Status == report.Fail {
-		rec.expect = first.Reason
-	}
 	f, err := golden.Build(c, targetName, cols[0].Steps(c.ID))
 	if err != nil {
 		rec.outcome, rec.reason = recIncomplete, err.Error()
+		if first.Status == report.Fail {
+			rec.reason += ", after " + first.Reason
+		}
 		return rec
+	}
+	if first.Status == report.Fail {
+		rec.expect = first.Reason
 	}
 	for _, s := range f.Sections {
 		if golden.Leaks(s.Lines) {
