@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Decides whether the presentation-conversion suite runs for this workflow run.
+# Inputs (env): EVENT_NAME, HAS_LABEL (true/false), DISPATCH_JOBS, REF_NAME, BEFORE_SHA.
+# Outputs ($GITHUB_OUTPUT): presentation_conversion=true|false, reason=label|paths|dispatch|release-push|unknown-base|none
+set -euo pipefail
+
+prefixes=(
+  bbb-common-web/src/main/java/org/bigbluebutton/presentation/
+  bbb-common-web/src/main/java/org/bigbluebutton/api/MeetingService.java
+  bbb-common-web/src/main/java/org/bigbluebutton/api/ParamsProcessorUtil.java
+  bbb-common-web/src/main/java/org/bigbluebutton/api/util/
+  bbb-common-web/src/main/java/org/bigbluebutton/api/service/
+  bbb-common-web/src/main/scala/org/bigbluebutton/api2/
+  bbb-common-message/src/main/scala/org/bigbluebutton/common2/msgs/PresentationMsgs.scala
+  bbb-common-message/src/main/scala/org/bigbluebutton/common2/msgs/PresentationPodsMsgs.scala
+  bigbluebutton-web/grails-app/conf/
+  bigbluebutton-web/grails-app/controllers/org/bigbluebutton/web/controllers/ApiController.groovy
+  bigbluebutton-web/grails-app/controllers/org/bigbluebutton/web/controllers/PresentationController.groovy
+  bigbluebutton-web/grails-app/services/org/bigbluebutton/web/services/PresentationService.groovy
+  bigbluebutton-web/bbb-web.nginx
+  bigbluebutton-web/nginx-confs/
+  bigbluebutton-web/pres-checker/
+  build/packages-template/bbb-web/
+  build/packages-template/bbb-libreoffice-docker/
+  bbb-libreoffice/
+  bigbluebutton-config/slides/
+  akka-bbb-apps/src/main/scala/org/bigbluebutton/core/apps/presentationpod/
+  akka-bbb-apps/src/main/scala/org/bigbluebutton/core/apps/presentation/
+  akka-bbb-apps/src/main/scala/org/bigbluebutton/core/db/PresPresentationDAO.scala
+  akka-bbb-apps/src/main/scala/org/bigbluebutton/core/db/PresPageDAO.scala
+  bbb-graphql-server/bbb_schema.sql
+  bigbluebutton-html5/imports/ui/components/presentation/presentation-toast/
+  bigbluebutton-html5/imports/ui/components/actions-bar/media-area/media-sharing/presentation/
+  bbb-api/
+  bigbluebutton-tests/presentation-conversion/
+  .github/scripts/presentation-conversion-gate.sh
+  .github/workflows/automated-tests.yml
+)
+
+decide() {
+  echo "presentation_conversion=$1" >> "${GITHUB_OUTPUT:-/dev/stdout}"
+  echo "reason=$2" >> "${GITHUB_OUTPUT:-/dev/stdout}"
+  echo "presentation-conversion suite: run=$1 ($2)"
+  exit 0
+}
+
+touches_conversion() {
+  local f p
+  while IFS= read -r f; do
+    for p in "${prefixes[@]}"; do
+      if [[ "$f" == "$p"* ]]; then
+        echo "  changed: $f"
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+case "${EVENT_NAME:-}" in
+  workflow_dispatch)
+    [[ "${DISPATCH_JOBS:-all}" == "all" || "${DISPATCH_JOBS:-}" == "presentation-conversion" ]] && decide true dispatch
+    decide false none
+    ;;
+  pull_request)
+    [[ "${HAS_LABEL:-false}" == "true" ]] && decide true label
+    if ! git rev-parse -q --verify HEAD^1 >/dev/null; then decide true unknown-base; fi
+    git diff --name-only HEAD^1 HEAD | touches_conversion && decide true paths
+    decide false none
+    ;;
+  push)
+    [[ "${REF_NAME:-}" == *-release ]] && decide true release-push
+    if [[ -z "${BEFORE_SHA:-}" || "${BEFORE_SHA}" =~ ^0+$ ]] || ! git fetch -q --depth=1 origin "$BEFORE_SHA" 2>/dev/null; then
+      decide true unknown-base
+    fi
+    git diff --name-only "$BEFORE_SHA" HEAD | touches_conversion && decide true paths
+    decide false none
+    ;;
+  *)
+    decide false none
+    ;;
+esac
