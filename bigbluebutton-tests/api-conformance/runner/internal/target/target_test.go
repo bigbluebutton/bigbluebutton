@@ -149,3 +149,30 @@ func TestCommittedTargets(t *testing.T) {
 		t.Errorf("bbb-api = %+v", api)
 	}
 }
+
+// A tap gives a target bus, fs and redis; claiming them without one is an
+// error, since every such case would fail rather than skip.
+func TestTap(t *testing.T) {
+	tg := Target{Name: "x", BaseURL: "https://h", Salt: "s", Capabilities: []string{"akka", "fs"}}
+	if err := tg.complete(env(map[string]string{"BBB_TAP_URL": "http://h:8099/"})); err != nil {
+		t.Fatal(err)
+	}
+	if tg.TapURL != "http://h:8099" || strings.Join(tg.Capabilities, ",") != "akka,fs,bus,redis" {
+		t.Errorf("tap %q, capabilities %v", tg.TapURL, tg.Capabilities)
+	}
+	tg = Target{Name: "x", BaseURL: "https://h", Salt: "s", TapURL: "http://own:1", Capabilities: []string{"akka"}}
+	if err := tg.complete(env(map[string]string{"BBB_TAP_URL": "http://env:2"})); err != nil || tg.TapURL != "http://own:1" {
+		t.Errorf("the file's tapUrl should win: %q %v", tg.TapURL, err)
+	}
+	for _, tt := range []struct {
+		in   Target
+		want string
+	}{
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s", Capabilities: []string{"bus"}}, "capability bus needs a tap"},
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s", TapURL: "h:8099"}, "must be an http:// URL"},
+	} {
+		if err := tt.in.complete(env(nil)); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%+v: %v", tt.in, err)
+		}
+	}
+}

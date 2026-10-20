@@ -34,8 +34,12 @@ type Target struct {
 	FixtureURL  string `yaml:"fixtureUrl"`
 	// GraphQLURL is bbb-graphql-middleware's websocket; by default the base
 	// URL's host at /graphql, as nginx serves it.
-	GraphQLURL string         `yaml:"graphqlUrl"`
-	Vars       map[string]Var `yaml:"vars"`
+	GraphQLURL string `yaml:"graphqlUrl"`
+	// TapURL is the tap running next to the server (bbb-conform tap), or
+	// BBB_TAP_URL when blank. It gives the target the bus, fs and redis
+	// capabilities.
+	TapURL string         `yaml:"tapUrl"`
+	Vars   map[string]Var `yaml:"vars"`
 	// Routes maps the route names of non-API calls to this target's paths.
 	Routes map[string]Route `yaml:"routes"`
 	// Profiles are the config profiles cases can ask for, and the commands
@@ -127,6 +131,26 @@ func (t *Target) complete(getenv func(string) string) error {
 		return fmt.Errorf("baseUrl %q must be scheme and host only, e.g. https://bbb.example.com", t.BaseURL)
 	}
 	t.BaseURL = strings.TrimSuffix(t.BaseURL, "/")
+	if t.TapURL == "" {
+		t.TapURL = getenv("BBB_TAP_URL")
+	}
+	t.TapURL = strings.TrimSuffix(t.TapURL, "/")
+	if t.TapURL != "" {
+		if u, err := url.Parse(t.TapURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+			return fmt.Errorf("tapUrl %q must be an http:// URL, e.g. http://bbb.example.com:8099", t.TapURL)
+		}
+		for _, c := range tapCapabilities {
+			if !t.Has(c) {
+				t.Capabilities = append(t.Capabilities, c)
+			}
+		}
+	} else {
+		for _, c := range tapCapabilities {
+			if t.Has(c) {
+				return fmt.Errorf("capability %s needs a tap: set tapUrl or BBB_TAP_URL", c)
+			}
+		}
+	}
 	if t.GraphQLURL == "" {
 		t.GraphQLURL = strings.Replace(t.BaseURL, "http", "ws", 1) + "/graphql"
 	} else if g, err := url.Parse(t.GraphQLURL); err != nil || (g.Scheme != "ws" && g.Scheme != "wss") || g.Host == "" {
@@ -254,6 +278,9 @@ func FillPath(path string, params map[string]string) (string, error) {
 }
 
 // Has reports whether the target declares capability c.
+// tapCapabilities are what a tap gives a target.
+var tapCapabilities = []string{"bus", "fs", "redis"}
+
 func (t *Target) Has(c string) bool {
 	for _, have := range t.Capabilities {
 		if have == c {
