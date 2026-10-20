@@ -8,6 +8,7 @@ import Styled from './styles';
 import SetupPanel from './setup-panel/component';
 import { PreFlightErrorDialog } from './error-screen/component';
 import PreFlightSettings from './settings/component';
+import PanelTabs from './panel-tabs/component';
 import {
   DevicePermissionActions,
   DevicePermissionHeader,
@@ -40,6 +41,14 @@ const intlMessages = defineMessages({
   title: {
     id: 'app.preFlight.title',
     description: 'Title of the pre-flight setup panel',
+  },
+  devicesTab: {
+    id: 'app.preFlight.roomMode.tabs.devices',
+    description: 'Phone tab holding the setup panel, beside the room mode tab',
+  },
+  roomModeTab: {
+    id: 'app.preFlight.roomMode.tabs.room',
+    description: 'Phone tab holding the room mode panel',
   },
 });
 
@@ -79,6 +88,10 @@ interface PreFlightProps {
   // then holds the screen on the permission error until it is sorted out. A
   // waiting guest keeps the lobby, with the device flagged in the panel.
   gateJoinOnDevices?: boolean;
+  // A second panel beside the setup one (the moderator's room mode panel): it
+  // takes the header's place, with the actions as its footer, and the two
+  // panels become tabs on a phone. An error still takes its place.
+  panel?: React.ReactNode;
 }
 
 const PreFlight: React.FC<PreFlightProps> = ({
@@ -90,6 +103,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
   error = null,
   gateJoinOnDevices = false,
   commitRef,
+  panel = null,
 }) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
@@ -291,6 +305,16 @@ const PreFlight: React.FC<PreFlightProps> = ({
     };
   }
 
+  const setupColumn = showSetupPanel ? (
+    <Styled.SetupColumn>
+      <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
+      <CustomBackgroundsProvider>
+        <SetupPanel />
+      </CustomBackgroundsProvider>
+      <PreFlightSettings />
+    </Styled.SetupColumn>
+  ) : null;
+
   return (
     <PreFlightContext.Provider value={contextValue}>
       {/* The device selectors and the virtual background controls are MUI, whose
@@ -305,29 +329,50 @@ const PreFlight: React.FC<PreFlightProps> = ({
               {header}
             </Styled.HeaderColumn>
           )}
-          {showSetupPanel && (
-            <Styled.SetupColumn>
-              <Styled.PanelTitle>{intl.formatMessage(intlMessages.title)}</Styled.PanelTitle>
-              <CustomBackgroundsProvider>
-                <SetupPanel />
-              </CustomBackgroundsProvider>
-              <PreFlightSettings />
-            </Styled.SetupColumn>
+          {isPhoneWidth && setupColumn ? (
+            <PanelTabs
+              label={intl.formatMessage(intlMessages.title)}
+              tabs={[
+                {
+                  id: 'devices',
+                  label: intl.formatMessage(intlMessages.devicesTab),
+                  dataTest: 'preFlightDevicesTab',
+                  content: setupColumn,
+                },
+                ...(panel ? [{
+                  id: 'roomMode',
+                  label: intl.formatMessage(intlMessages.roomModeTab),
+                  dataTest: 'preFlightRoomModeTab',
+                  content: panel,
+                }] : []),
+              ]}
+            />
+          ) : setupColumn}
+          {!isPhoneWidth && panel && !activeError ? (
+            <Styled.PanelColumn>
+              {/* The design leaves the session's name out beside the panel; it
+                  stays the page's heading (and sets its title) for assistive
+                  technology. */}
+              <Styled.HiddenHeader>{header}</Styled.HiddenHeader>
+              {panel}
+              {actions && <Styled.PanelFooter>{actions}</Styled.PanelFooter>}
+            </Styled.PanelColumn>
+          ) : (
+            <Styled.ContentColumn>
+              {!isPhoneWidth && activeError && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
+              {!isPhoneWidth && activeError ? (
+                <Styled.CenterStack>
+                  {activeError.header}
+                  <Styled.ActionBar>{activeError.actions}</Styled.ActionBar>
+                </Styled.CenterStack>
+              ) : (
+                <Styled.CenterStack>
+                  {!isPhoneWidth && header}
+                  {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
+                </Styled.CenterStack>
+              )}
+            </Styled.ContentColumn>
           )}
-          <Styled.ContentColumn>
-            {!isPhoneWidth && activeError && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
-            {!isPhoneWidth && activeError ? (
-              <Styled.CenterStack>
-                {activeError.header}
-                <Styled.ActionBar>{activeError.actions}</Styled.ActionBar>
-              </Styled.CenterStack>
-            ) : (
-              <Styled.CenterStack>
-                {!isPhoneWidth && header}
-                {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
-              </Styled.CenterStack>
-            )}
-          </Styled.ContentColumn>
         </Styled.Page>
         {isPhoneWidth && activeError && (
           <PreFlightErrorDialog onClose={activeError.onClose}>
