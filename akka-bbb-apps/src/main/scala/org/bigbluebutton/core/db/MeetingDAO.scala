@@ -20,6 +20,10 @@ case class MeetingBridgesDbModel(
   audioBridge: String
 )
 
+case class MeetingRoomConfigDbModel(
+  roomMode: String
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -42,7 +46,7 @@ case class MeetingDbModel(
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
-    roomMode:                              String,
+    roomConfig:                            MeetingRoomConfigDbModel,
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -68,7 +72,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endedAt,
     endedReasonCode,
     endedBy,
-    roomMode
+    roomConfig
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -103,6 +107,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
   val roomMode = column[String]("roomMode")
+
+  val roomConfig = roomMode <> (MeetingRoomConfigDbModel.apply, MeetingRoomConfigDbModel.unapply)
 }
 
 object MeetingDAO {
@@ -160,7 +166,9 @@ object MeetingDAO {
           endedAt = None,
           endedReasonCode = None,
           endedBy = None,
-          roomMode = ""
+          roomConfig = MeetingRoomConfigDbModel(
+            roomMode = ""
+          )
         )
       )
     )
