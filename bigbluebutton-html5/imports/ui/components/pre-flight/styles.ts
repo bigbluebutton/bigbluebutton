@@ -31,6 +31,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ProfileStyled from '/imports/ui/components/profile-settings/styles';
+import { visuallyHidden } from '/imports/ui/components/common/visually-hidden/styles';
 
 const Page = styled.div`
   display: flex;
@@ -125,6 +126,29 @@ const ContentColumn = styled(Card)`
     border-width: 0;
     border-radius: 0;
   }
+`;
+
+// The room mode panel in the content column's place: it fills the card, with
+// the actions as a footer instead of a centred stack.
+const PanelColumn = styled(Card)`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+`;
+
+const HiddenHeader = styled.div`
+  ${visuallyHidden}
+`;
+
+const PanelFooter = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: ${mdPaddingX};
+  padding: ${lgPaddingX};
+  border-top: 1px solid ${colorBorder};
 `;
 
 const CenterStack = styled.div`
@@ -410,6 +434,9 @@ export default {
   Page,
   SetupColumn,
   ContentColumn,
+  PanelColumn,
+  HiddenHeader,
+  PanelFooter,
   CenterStack,
   TopInfo,
   PanelTitle,
