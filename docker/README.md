@@ -71,6 +71,8 @@ deployments use their official images.
 - Shared-notes' PDF export calls a runner script (`commandExecution.runnerScript`). The default is
   upstream's systemd wrapper, which needs systemd, so a deployment configures the runner in its
   mounted `/etc/bigbluebutton/bbb-shared-notes-server.yml`.
+- bbb-graphql-middleware opens 8378 only once its Redis subscription is confirmed and exits when
+  it loses it, so a deployment restarts it (restart policy).
 - record-and-playback runs the resque workers by default. The same image runs
   `/usr/local/bigbluebutton/core/scripts/rap-starter.rb`, `rap-caption-inbox.rb` and the daily
   cleanup `/etc/cron.daily/bigbluebutton`, which the deployment schedules. Deleting published
