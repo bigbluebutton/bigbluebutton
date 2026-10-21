@@ -4,6 +4,7 @@ import * as c from '../core/constants';
 import { elements as e } from '../core/elements';
 import { createMeeting } from '../core/helpers';
 import { Page } from '../core/page';
+import { constants as p } from '../parameters/constants';
 import { checkIsPresenter } from '../user/util';
 
 export class Stress {
@@ -13,10 +14,13 @@ export class Stress {
 
   public context: BrowserContext;
 
+  public userPages: Page[];
+
   constructor(browser: Browser, context: BrowserContext, page: PlaywrightPage, testInfo: TestInfo) {
     this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
     this.context = context;
+    this.userPages = [];
   }
 
   async getNewPageTab() {
@@ -43,6 +47,71 @@ export class Stress {
       this.modPage.page = newPage;
       console.log(`Loop ${i} of ${c.JOIN_AS_MODERATOR_TEST_ROUNDS} completed`);
       await expect(failureCount).toBeLessThanOrEqual(maxFailRate);
+    }
+  }
+
+  async breakoutRoomInvitation() {
+    await this.modPage.init(true, { fullName: 'Moderator' });
+    for (let i = 1; i <= c.BREAKOUT_ROOM_INVITATION_USERS; i++) {
+      const userName = `User-${i}`;
+      const userPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
+      // without audio: joining it costs a media connection per user and is not what this test is about
+      await userPage.init(false, {
+        fullName: userName,
+        meetingId: this.modPage.meetingId,
+        joinParameter: p.autoJoin,
+        shouldCloseAudioModal: false,
+      });
+      console.log(`${userName} joined`);
+      this.userPages.push(userPage);
+    }
+
+    // users may choose their room
+    await this.modPage.page.bringToFront();
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await this.modPage.waitAndClick(e.allowChoiceRoom);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, c.ELEMENT_WAIT_LONGER_TIME);
+    await this.everyUserIsInvited(true);
+
+    // ending the rooms withdraws the invitations, so the next round cannot pass on a leftover dialog
+    await this.modPage.page.bringToFront();
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
+    for (const userPage of this.userPages) {
+      await userPage.wasRemoved(
+        e.breakoutJoinConfirmationDialog,
+        `${userPage.username} should no longer be invited after the rooms end`,
+        c.ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+    }
+
+    // users are randomly assigned
+    const createButton = this.modPage.page.locator(e.createBreakoutRoomsButton);
+    await expect(async () => {
+      if (!(await createButton.isVisible())) await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+      await expect(createButton).toBeVisible({ timeout: c.ELEMENT_WAIT_TIME });
+    }, 'should display the create breakout rooms button after ending the rooms').toPass({
+      timeout: c.ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
+    await this.modPage.waitAndClick(e.randomlyAssign);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, c.ELEMENT_WAIT_LONGER_TIME);
+    await this.everyUserIsInvited(false);
+  }
+
+  private async everyUserIsInvited(freeJoin: boolean) {
+    for (const userPage of this.userPages) {
+      await userPage.hasElement(
+        e.breakoutJoinConfirmationDialog,
+        `${userPage.username} should receive the breakout room invitation`,
+        c.ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+      await userPage.hasElementEnabled(e.modalConfirmButton, `${userPage.username} should be able to join the room`);
+      if (freeJoin) {
+        await userPage.hasElement(e.selectBreakoutRoomBtn, `${userPage.username} should be able to choose the room`);
+      } else {
+        await userPage.wasRemoved(e.selectBreakoutRoomBtn, `${userPage.username} should be assigned a room`);
+      }
     }
   }
 

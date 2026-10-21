@@ -11,6 +11,7 @@ export const LOOP_INTERVAL: number = 1200;
 // STRESS TESTS VARS
 export const JOIN_AS_MODERATOR_TEST_ROUNDS: number = 15;
 export const MAX_JOIN_AS_MODERATOR_FAIL_RATE: number = 0.05;
+export const BREAKOUT_ROOM_INVITATION_USERS: number = 20;
 export const JOIN_TWO_USERS_ROUNDS: number = 20;
 export const JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS: number = 20;
 export const JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS: number = 20;
