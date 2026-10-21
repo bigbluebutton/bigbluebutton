@@ -96,8 +96,18 @@ const MIN_CARD_TEXT_WIDTH = 150;
 declare global {
   interface Window {
     getUserMediaCalls: number;
+    preFlightSeen: boolean;
   }
 }
+
+// Init script: flags the pre-flight if it is ever attached to the page, so its
+// absence holds for the whole load and not only for the moment it is read.
+const watchForPreFlight = () => {
+  window.preFlightSeen = false;
+  new MutationObserver(() => {
+    if (document.querySelector('[data-test="preFlight"]')) window.preFlightSeen = true;
+  }).observe(document, { childList: true, subtree: true });
+};
 
 // Init script: counts the getUserMedia calls, the cost of a remounted setup
 // panel (its camera preview and audio selectors ask again).
@@ -291,8 +301,13 @@ export class RoomModePanel extends RoomMode {
   // gets a context of its own, without them.
   async noPanelInBreakout(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     await page.context().addInitScript(installClientSettingsOverrides, ROOM_MODE_PANEL_SETTINGS_OVERRIDE);
+    await page.context().addInitScript(watchForPreFlight);
     await this.initModPageWithPanel(page, { ...options, clientSettingsOverrides: undefined });
     await hasPanel(this.modPage);
+    expect(
+      await page.evaluate(() => window.preFlightSeen),
+      'should flag the pre-flight where it does show (positive control)',
+    ).toBe(true);
     await startsRoom(this.modPage);
 
     await this.initUserPage(await this.browser.newContext(), NO_PRE_FLIGHT_INIT_OPTIONS);
@@ -306,11 +321,10 @@ export class RoomModePanel extends RoomMode {
       await readRoomModePanelSetting(breakoutTab),
       'should carry the room mode panel setting into the breakout room tab',
     ).toBe(true);
-    // Read after the tab showed the room's presentation.
     expect(
-      await breakoutTab.locator(e.preFlight).count(),
-      'should not display the pre-flight, nor its room mode panel, in a breakout room',
-    ).toBe(0);
+      await breakoutTab.evaluate(() => window.preFlightSeen),
+      'should never display the pre-flight, nor its room mode panel, in a breakout room',
+    ).toBe(false);
   }
 
   // The cards are one radio group: the arrows move between the modes and wrap
