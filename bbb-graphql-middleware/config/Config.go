@@ -79,6 +79,11 @@ func (c *Config) loadConfigs() {
 		log.Fatalf("Error while loading config file (%s): %v", DefaultConfigPath, err)
 	}
 
+	// SERVER_HOST replaces the default listen address; the override file still wins
+	if host := os.Getenv("SERVER_HOST"); host != "" {
+		configDefault.Server.Host = host
+	}
+
 	// Load override config file if exists
 	if _, err := os.Stat(OverrideConfigPath); err == nil {
 		configOverride, err := loadConfigFile(OverrideConfigPath)
