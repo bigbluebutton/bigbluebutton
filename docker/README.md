@@ -86,9 +86,10 @@ static apps by their default service names on port 8080: `html5-client`, `learni
 under these service names or mounts its own fragments at `/usr/share/bigbluebutton/nginx/`.
 Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
 from `/var/bigbluebutton`. The backend fragments (`web`, `graphql.nginx`, `livekit.nginx`,
-`webrtc-sfu.nginx`, `bbb-shared-notes-server.nginx`, `sites-available/hasura-loadbalancer.conf`)
-use upstream's `127.0.0.1`; a deployment mounts its own. nginx resolves every host name in these
-files when it starts, so all of them must resolve then. TLS and `server_name` are deployment config.
+`webrtc-sfu.nginx`, `bbb-shared-notes-server.nginx`, `webhooks.nginx`,
+`sites-available/hasura-loadbalancer.conf`) use upstream's `127.0.0.1`; a deployment mounts its own.
+nginx resolves every host name in these files when it starts, so all of them must resolve then. TLS
+and `server_name` are deployment config.
 
 ## Environment variables
 

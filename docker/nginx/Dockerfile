@@ -16,6 +16,7 @@ COPY bigbluebutton-web/loadbalancer.nginx \
      build/packages-template/bbb-graphql-middleware/graphql.nginx \
      build/packages-template/bbb-livekit/livekit.nginx \
      build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx \
+     build/packages-template/bbb-webhooks/webhooks.nginx \
      build/packages-template/bbb-webrtc-sfu/webrtc-sfu.nginx \
      record-and-playback/notes/scripts/notes-playback.nginx \
      record-and-playback/presentation/scripts/presentation.nginx \
