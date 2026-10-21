@@ -11,8 +11,8 @@ Tests for BigBlueButton using Playwright.
   - [2. Run tests](#2-run-tests)
     - [2.1. Additional commands](#21-additional-commands)
     - [2.2. Useful parameters](#22-useful-parameters)
+    - [2.3. Test selections and quarantine tags](#23-test-selections-and-quarantine-tags)
 - [Skip SDK tests without the need of a new release](#skip-sdk-tests-without-the-need-of-a-new-release)
-- [Recording Meteor messages](#recording-meteor-messages)
 - [Print browser logs](#print-browser-logs)
 - [Code Formatting and Linting](#code-formatting-and-linting)
   - [Available Commands](#available-commands)
@@ -114,62 +114,27 @@ npm run test:ssh -- HOSTNAME
 
 _You can check the official documentation [here](https://playwright.dev/docs/test-cli)_
 
-#### 2.3. Quarantine tags
+#### 2.3. Test selections and quarantine tags
 
-The `test-chromium`/`test-firefox` gates run `@ci`-tagged tests minus everything tagged:
+Tags decide which tests run where:
+
+| Selection           | Tests                                                      | npm script                                               | Runs                                                                            |
+| ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Pull request gate   | `@ci` minus the quarantine tags                            | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards |
+| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | on every pull request                                                           |
+| Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`                                        |
+
+The quarantine tags are defined once, as `config.quarantine` in `package.json`; the npm scripts and the workflow read them from there. A quarantined test leaves the gate:
 
 - `@flaky` — genuinely intermittent; passes on retry or under different timing
 - `@need-update` — the covered feature changed or was removed; the test itself needs a rewrite (a comment at the test states what changed)
 - `@known-issue` — the test and its assertions are correct, but a known/suspected product issue makes it fail deterministically (a comment or `linkIssue()` at the test points to the issue)
 - `@setting-required:<setting>` — needs a non-default server setting
-- `@only-headed` — cannot run headless
+- `@only-headed` — cannot run headless (no test carries it at the moment)
 
 ## Skip SDK tests without the need of a new release
 
-Instead pushing changes with `@flaky` flag addition into the BigBlueButton SDK repository, you can simply add the flaky tests into `/bigbluebutton-tests/playwright/sdk-flaky-tests.txt` which will skip them on CI workflow runs (added on [this PR](https://github.com/bigbluebutton/bigbluebutton/pull/23656))
-
-## Recording Meteor messages
-
-A modified version of `websockify` can be used to record the Meteor messages exchanged between client and server, by inserted a WebSocket proxy between the client and server, configured to record the sessions.
-
-First, on the server, obtain the modified `websockify`:
-
-```bash
-git clone https://github.com/BrentBaccala/websockify.git
-```
-
-Install additional dependencies:
-
-```bash
-sudo apt install python3-numpy
-```
-
-Then add the following stanza to `/usr/share/bigbluebutton/nginx/bbb-html5.nginx`:
-
-```
-location ~* /html5client/.*/websocket {
-  proxy_pass http://127.0.0.1:4200;
-  proxy_http_version 1.1;
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection "Upgrade";
-}
-```
-
-From the `websockify` directory, run `websockify` configured to proxy WebSocket connections from port 4200 to port 4100, recording the sessions to files named `bbb.1`, `bbb.2`, etc.:
-
-```bash
-./run -v --record=bbb --ws-target=ws://localhost:4100{path} 4200
-```
-
-Now reload nginx:
-
-```bash
-sudo systemctl reload nginx
-```
-
-Meteor messages for Big Blue Button sessions will now be recorded for later review.
-
-It doesn't seem necessary to relay cookies, but that could be done by giving a `--ws-relay-header=Cookie` argument to `websockify`.
+Instead pushing changes with `@flaky` flag addition into the BigBlueButton SDK repository, you can simply add the flaky tests into `/bigbluebutton-tests/playwright/sdk-flaky-tests.txt` which will skip them on CI workflow runs (added on [this PR](https://github.com/bigbluebutton/bigbluebutton/pull/23656)). Put the reason, with a link to the SDK issue or pull request that fixes it, in a `#` comment line above the entries, and remove them once the SDK version that `bigbluebutton-html5/package.json` pins contains the fix.
 
 ## Print browser logs
 
@@ -227,7 +192,11 @@ VSCode settings are provided in `.vscode/settings.json` for automatic formatting
 
 ## Check test results of a pull request
 
-After opening a PR, the CI will run automated tests within your changes + target branch merged. When it finishes testing, generated files of the execution are exposed to be downloaded in the action run tab. the files / data is used mostly for exploring failures. To check the test results locally:
+After opening a PR, the CI will run automated tests within your changes + target branch merged. When it finishes testing, generated files of the execution are exposed to be downloaded in the action run tab. the files / data is used mostly for exploring failures.
+
+In CI a failed test is retried once, and a test that passes on the retry does not fail the job. Each such test is listed under "Passed only on retry" in the job's summary (the run's Summary page), with the error of its first attempt; check that list for tests your change may have made flaky.
+
+To check the test results locally:
 
 - Go to the action run link (or simply click on the link in the bot's PR comment)
 
@@ -237,7 +206,7 @@ After opening a PR, the CI will run automated tests within your changes + target
 
 ![alt text](core/docs/images/artifacts-list.png)
 
-- Click to download and extract the content, preferably, in a folder that already has Playwright installed. You can do it in the `bigbluebutton/bigbluebutton-tests/playwright` folder with the dependencies installed ([see Setup instructions](#setup-with-an-existing-bigbluebutton-server))
+- Click to download and extract the content, preferably, in a folder that already has Playwright installed. You can do it in the `bigbluebutton/bigbluebutton-tests/playwright` folder with the dependencies installed ([see Setup instructions](#setup))
   - We suggest the folder to be named with the prefix `test-results` or `pr-` as it will be ignored by git
 
 - Run the following command to serve up the reported files:
