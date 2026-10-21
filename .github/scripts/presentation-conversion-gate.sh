@@ -5,21 +5,10 @@
 set -euo pipefail
 
 prefixes=(
-  bbb-common-web/src/main/java/org/bigbluebutton/presentation/
-  bbb-common-web/src/main/java/org/bigbluebutton/api/MeetingService.java
-  bbb-common-web/src/main/java/org/bigbluebutton/api/ParamsProcessorUtil.java
-  bbb-common-web/src/main/java/org/bigbluebutton/api/util/
-  bbb-common-web/src/main/java/org/bigbluebutton/api/service/
-  bbb-common-web/src/main/scala/org/bigbluebutton/api2/
+  bbb-common-web/
   bbb-common-message/src/main/scala/org/bigbluebutton/common2/msgs/PresentationMsgs.scala
   bbb-common-message/src/main/scala/org/bigbluebutton/common2/msgs/PresentationPodsMsgs.scala
-  bigbluebutton-web/grails-app/conf/
-  bigbluebutton-web/grails-app/controllers/org/bigbluebutton/web/controllers/ApiController.groovy
-  bigbluebutton-web/grails-app/controllers/org/bigbluebutton/web/controllers/PresentationController.groovy
-  bigbluebutton-web/grails-app/services/org/bigbluebutton/web/services/PresentationService.groovy
-  bigbluebutton-web/bbb-web.nginx
-  bigbluebutton-web/nginx-confs/
-  bigbluebutton-web/pres-checker/
+  bigbluebutton-web/
   build/packages-template/bbb-web/
   build/packages-template/bbb-libreoffice-docker/
   bbb-libreoffice/
@@ -31,7 +20,6 @@ prefixes=(
   bbb-graphql-server/bbb_schema.sql
   bigbluebutton-html5/imports/ui/components/presentation/presentation-toast/
   bigbluebutton-html5/imports/ui/components/actions-bar/media-area/media-sharing/presentation/
-  bbb-api/
   bigbluebutton-tests/presentation-conversion/
   .github/scripts/presentation-conversion-gate.sh
   .github/workflows/automated-tests.yml
