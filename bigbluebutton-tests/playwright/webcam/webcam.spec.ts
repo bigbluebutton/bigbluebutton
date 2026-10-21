@@ -4,6 +4,7 @@ import { linkIssue } from '../core/helpers';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
+import { addSecondFakeCamera, CameraCaps } from './cameraCaps';
 import { Webcam } from './webcam';
 
 test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
@@ -117,6 +118,22 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
       await webcam.init(true, { testInfo });
       await webcam.virtualBackgroundToggleDisabledOnUnsupportedDevice();
       await context.close();
+    });
+  });
+
+  test.describe('Camera caps', () => {
+    test('User camera cap refuses a second camera', async ({ browser, context, page }, testInfo) => {
+      await addSecondFakeCamera(page);
+      const cameraCaps = new CameraCaps(browser, context);
+      await cameraCaps.initModPage(page, { createParameter: 'userCameraCap=1', testInfo });
+      await cameraCaps.userCameraCap();
+    });
+
+    test('Meeting camera cap refuses the camera of another user', async ({ browser, context, page }, testInfo) => {
+      const cameraCaps = new CameraCaps(browser, context);
+      await cameraCaps.initModPage(page, { createParameter: 'meetingCameraCap=1', testInfo });
+      await cameraCaps.initUserPage(context, { testInfo });
+      await cameraCaps.meetingCameraCap();
     });
   });
 });

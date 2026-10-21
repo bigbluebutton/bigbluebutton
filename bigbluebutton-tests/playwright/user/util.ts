@@ -24,6 +24,15 @@ export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverr
   return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
 }
 
+// The server expires reactions, checking every 5 seconds, so only the meeting's clientSettingsOverride
+// create module can shorten public.userReaction.expire (where bbb-web allows that module)
+export const REACTION_EXPIRY_CHECK_INTERVAL = 5000;
+export const SHORT_REACTION_EXPIRY_MODULE = [
+  '<modules><module name="clientSettingsOverride"><![CDATA[',
+  JSON.stringify({ public: { userReaction: { expire: 3 } } }),
+  ']]></module></modules>',
+].join('');
+
 // Locator for audio-only tiles (camera-less users that hold the audio floor): a webcam
 // grid item rendering the connecting/avatar placeholder instead of a <video> element.
 export function audioOnlyTilesLocator(testPage: Page): Locator {

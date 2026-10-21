@@ -140,6 +140,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.chatDisabledUserLeaves();
   });
 
+  test('Presenter change is announced in public chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.presenterChangeAnnouncement();
+  });
+
   test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
     const jumbomoji = new Jumbomoji(browser, context);
     await jumbomoji.initModPage(page, { testInfo });

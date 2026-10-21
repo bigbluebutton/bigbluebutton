@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { MultiUsers } from '../user/multiusers';
 import { checkLastMessageSent, openPrivateChat, openPublicChat } from './util';
@@ -517,6 +518,46 @@ export class Chat extends MultiUsers {
       lastMessageLocatorUser,
       'should the last message sent on private chat to be the auto converted emoji',
     ).toHaveText(e.convertedEmojiMessage);
+  }
+
+  async presenterChangeAnnouncement() {
+    const moderatorName = this.modPage.username;
+    const attendeeName = this.userPage.username;
+    const announcement = (testPage: Page, text: string | RegExp) =>
+      testPage.page.locator(e.chatNotificationMessageText).filter({ hasText: text });
+
+    await expect(
+      announcement(this.userPage, new RegExp(`^${moderatorName} is now the presenter$`)),
+      'should announce the moderator, who became presenter on joining, without anyone setting it',
+    ).toBeVisible();
+
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    const attendeeRow = this.modPage.page.locator(e.userListItem).filter({ hasText: attendeeName });
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getVisibleLocator(e.makePresenter).click();
+    const attendeeIsPresenter = `${attendeeName} is now the presenter, set by ${moderatorName}`;
+    await expect(
+      announcement(this.userPage, attendeeIsPresenter),
+      'should announce the new presenter and who set it to the attendee',
+    ).toBeVisible();
+
+    await this.modPage.page.locator(e.currentUser).locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getVisibleLocator(e.takePresenter).click();
+    const moderatorIsPresenter = `${moderatorName} is now the presenter, set by ${moderatorName}`;
+    await expect(
+      announcement(this.userPage, moderatorIsPresenter),
+      'should announce the moderator taking the presenter role back to the attendee',
+    ).toBeVisible();
+
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await expect(
+      announcement(this.modPage, attendeeIsPresenter),
+      'should announce the new presenter to the moderator',
+    ).toBeVisible();
+    await expect(
+      announcement(this.modPage, moderatorIsPresenter),
+      'should announce the moderator taking the presenter role back to the moderator',
+    ).toBeVisible();
   }
 
   async chatDisabledUserLeaves() {

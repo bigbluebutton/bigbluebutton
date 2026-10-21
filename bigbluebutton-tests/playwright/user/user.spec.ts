@@ -6,7 +6,7 @@ import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
 import { Timer } from './timer';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride } from './util';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride, SHORT_REACTION_EXPIRY_MODULE } from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -114,6 +114,19 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage(page, { testInfo });
       await multiusers.initUserPage(context, { testInfo });
       await multiusers.reactionsTest();
+    });
+
+    test('Remove reaction', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page, testInfo);
+      await multiusers.removeReaction();
+    });
+
+    test('Reaction expires', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo, createModules: SHORT_REACTION_EXPIRY_MODULE });
+      await multiusers.initUserPage(context, { testInfo });
+      await multiusers.reactionExpires();
     });
 
     test('Emoji rain', async ({ browser, context, page }, testInfo) => {
@@ -299,6 +312,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSendPublicChatMessages();
+      });
+
+      test('Cancel lock viewers changes', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.cancelLockViewersChanges();
       });
 
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-chat
