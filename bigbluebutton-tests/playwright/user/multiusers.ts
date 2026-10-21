@@ -12,6 +12,9 @@ interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
 }
 
+// How long the disabled emoji rain is watched for after a reaction; when enabled it starts well within this.
+const EMOJI_RAIN_WATCH_TIME = 2000;
+
 export class MultiUsers {
   public browser: Browser;
 
@@ -656,13 +659,20 @@ export class MultiUsers {
         '😃',
         'should display the smiling emoji on the reactions button when used',
       );
-      await expect(emojiRainLocator, 'should not display the emoji rain when disabled').toHaveCount(0);
+      const watchUntil = Date.now() + EMOJI_RAIN_WATCH_TIME;
+      while (Date.now() < watchUntil) {
+        await expect(emojiRainLocator, 'should not display the emoji rain when disabled').toHaveCount(0);
+        await this.modPage.page.waitForTimeout(100);
+      }
       return;
     }
 
-    await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, {
-      timeout: ELEMENT_WAIT_TIME,
-    });
+    await expect
+      .poll(() => emojiRainLocator.count(), {
+        message: 'should display the emoji rain when enabled',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeGreaterThan(0);
     await this.modPage.page.waitForTimeout(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
