@@ -228,7 +228,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   } = defaultBlockSpecs;
 
   // The shared notes server builds the same schema (bbb-shared-notes-server
-  // src/blocknote/schema.ts): a block type missing there is dropped from every
+  // src/blocknote/editor.ts): a block type missing there is dropped from every
   // export, recording and copied document.
   const schema = BlockNoteSchema.create({
     blockSpecs: {
