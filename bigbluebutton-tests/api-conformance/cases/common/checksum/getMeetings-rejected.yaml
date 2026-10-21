@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.checksum.rejected
+title: getMeetings rejects a wrong, duplicated, mis-signed or re-encoded checksum
+endpoint: getMeetings
+class: contract
+tags: [ci]
+defs:
+  base: &base {mode: valid, signCall: null}
+variants:
+  - {id: wrong, vars: {<<: *base, mode: bad}}
+  - {id: missing, vars: {<<: *base, mode: none}}
+  - {id: duplicate, vars: {<<: *base, mode: duplicate}}
+  - {id: wrong-length, vars: {<<: *base, mode: wrong-length}}
+  - {id: reencode, vars: {<<: *base, mode: reencode}}
+  - {id: other-call, vars: {<<: *base, signCall: isMeetingRunning}}
+steps:
+  - call: getMeetings
+    params: {a: "x y"}
+    sign: {mode: "${mode}", call: "${signCall}"}
+    expect: {returncode: FAILED, messageKey: checksumError}

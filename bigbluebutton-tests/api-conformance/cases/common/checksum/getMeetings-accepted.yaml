@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.checksum.accepted
+title: getMeetings accepts every algorithm, upper-case hex, any placement and an unknown signed param
+endpoint: getMeetings
+class: contract
+tags: [ci]
+defs:
+  base: &base {alg: sha256, mode: valid, pos: last, extra: ""}
+variants:
+  - {id: sha1, vars: {<<: *base, alg: sha1}}
+  - {id: sha256, vars: {<<: *base}}
+  - {id: sha384, vars: {<<: *base, alg: sha384}}
+  - {id: sha512, vars: {<<: *base, alg: sha512}}
+  - {id: uppercase, vars: {<<: *base, mode: uppercase}}
+  - {id: first, vars: {<<: *base, pos: first}}
+  - {id: middle, vars: {<<: *base, pos: middle}}
+  - {id: unknown-param, vars: {<<: *base, extra: value}}
+steps:
+  - call: getMeetings
+    params: {a: "1", b: "2", unknownParam: "${extra}"}
+    sign: {alg: "${alg}", mode: "${mode}", position: "${pos}"}
+    expect: {returncode: SUCCESS}

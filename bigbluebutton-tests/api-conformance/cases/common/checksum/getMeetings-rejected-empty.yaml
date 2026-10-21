@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.checksum.rejected-empty
+title: An empty checksum= is a checksumError
+endpoint: getMeetings
+class: contract
+tags: [ci]
+steps:
+  - call: getMeetings
+    sign: none
+    raw_query: "a=1&checksum="
+    expect: {returncode: FAILED, messageKey: checksumError}
