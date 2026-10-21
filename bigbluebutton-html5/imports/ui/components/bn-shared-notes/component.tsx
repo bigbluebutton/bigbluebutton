@@ -529,6 +529,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             min-height: 0;
             overflow-y: auto;
           }
+          /* The editor pads 50px on the left (side menu) and 25px on the right.
+             Equations and diagrams are drawn centered in their block, so give
+             their block the same margin on the right: centered relative to the
+             notes, not shifted right. */
+          .bn-editor .bn-block-content[data-content-type="mathBlock"],
+          .bn-editor .bn-block-content[data-content-type="diagram"] {
+            width: calc(100% - 25px);
+          }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
             .bn-collaboration-cursor__label {
