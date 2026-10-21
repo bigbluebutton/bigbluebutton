@@ -54,7 +54,10 @@ const config = {
   },
   devtool: 'source-map',
   plugins: [
-    new webpack.optimize.LimitChunkCountPlugin({
+    // The Safari 14-15 build is one file: build.sh renames it after the build
+    // and its chunks would no longer be found (#22817). The regular build
+    // keeps Mermaid out of the bundle, see `dynamicImportMode` below.
+    isSafariTarget && new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
     }),
     new HtmlWebpackPlugin({
@@ -104,10 +107,37 @@ const config = {
       '/imports': path.resolve(__dirname, '/imports/'),
       '@tiptap/core/jsx-runtime': path.resolve(__dirname, 'node_modules/@tiptap/core/dist/jsx-runtime/jsx-runtime.js'),
       yjs: path.resolve(__dirname, 'node_modules/yjs'),
+      mermaid$: path.resolve(__dirname, 'imports/ui/components/bn-shared-notes/mermaid-on-demand.ts'),
     },
   },
   module: {
+    // Dynamic imports stay in the bundle, as they have since chunks were limited
+    // to one (#22817), except Mermaid's: it loads when a diagram is first drawn
+    // (bn-shared-notes/mermaid-on-demand.ts), and its own diagram types load
+    // when used.
+    parser: {
+      javascript: {
+        dynamicImportMode: 'eager',
+      },
+    },
     rules: [
+      {
+        test: /[\\/]node_modules[\\/](mermaid|@mermaid-js[\\/][^\\/]+)[\\/]/,
+        parser: {
+          dynamicImportMode: 'lazy',
+        },
+        // Mermaid ships class static blocks, which Safari parses only from 16.4:
+        // compile its syntax down to the oldest Safari the client supports.
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: false,
+            sourceType: 'unambiguous',
+            presets: [['@babel/preset-env', { targets: { safari: '14' }, modules: false }]],
+          },
+        },
+      },
       {
         test: /\.(js|jsx|ts|tsx)$/,
         resolve: {

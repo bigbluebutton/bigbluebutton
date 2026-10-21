@@ -8,6 +8,9 @@ import { enableMarkdownNotesOptions, getBlockNoteEditorLocator, startBlockNoteSh
 
 const EQUATION = String.raw`\int_0^1 x^2 \, dx = \frac{1}{3}`;
 const DIAGRAM_LINES = ['graph TD', 'A[Agenda] --> B{Decision}', 'B -->|yes| C[Ship]'];
+// Script chunks of the client (`<id>.bundle.<hash>.js`), as opposed to the
+// bundle itself (`bundle.<hash>.js`)
+const CHUNK_URL = /\/[^/]+\.bundle\.[^/]+\.js$/;
 
 // Types placeholder lines, one per block the test inserts afterwards.
 async function typeSlots(testPage: Page, slots: string[]): Promise<void> {
@@ -71,10 +74,22 @@ export class MathDiagramSharedNotes extends MultiUsers {
     }
   }
 
+  // Mermaid is not part of the client bundle: each participant downloads it
+  // (as separate script chunks) only when a diagram is first drawn.
   async diagramRendersForEveryone() {
+    const chunkRequests = { moderator: [] as string[], attendee: [] as string[] };
+    for (const [who, testPage] of [
+      ['moderator', this.modPage],
+      ['attendee', this.userPage],
+    ] as const) {
+      testPage.page.on('response', (response) => {
+        if (CHUNK_URL.test(response.url()) && response.ok()) chunkRequests[who].push(response.url());
+      });
+    }
     await startBlockNoteSharedNotes(this.modPage);
     await startBlockNoteSharedNotes(this.userPage);
     await typeSlots(this.modPage, ['diagram slot']);
+    const chunksBeforeDiagram = { moderator: chunkRequests.moderator.length, attendee: chunkRequests.attendee.length };
     await insertDiagram(this.modPage, 'diagram slot');
 
     for (const [who, testPage] of [
@@ -85,6 +100,10 @@ export class MathDiagramSharedNotes extends MultiUsers {
         testPage.page.locator(`${e.blockNoteDiagram} svg`, { hasText: 'Decision' }),
         `the ${who} should see the diagram drawn from the new source`,
       ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+      expect(
+        chunkRequests[who].length,
+        `the ${who} should download Mermaid only once a diagram is drawn`,
+      ).toBeGreaterThan(chunksBeforeDiagram[who]);
     }
   }
 
