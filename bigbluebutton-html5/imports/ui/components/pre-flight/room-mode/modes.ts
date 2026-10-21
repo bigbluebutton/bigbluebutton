@@ -33,8 +33,8 @@ const intlMessages = defineMessages({
 
 /**
  * The modes a moderator can pick before starting a room. Data only: the
- * presets (what each mode applies) and the in-session mode change read the
- * same list. A mode joins the list with the change that makes it apply
+ * presets (what each mode applies) and the in-session mode change will both
+ * read this same list. A mode joins the list with the change that makes it apply
  * (ADR 4), so none is listed ahead of its behaviour.
  */
 const ROOM_MODES: RoomModeDefinition[] = [

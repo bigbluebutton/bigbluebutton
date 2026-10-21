@@ -11,14 +11,12 @@ import {
   colorPrimary,
   colorBorder,
   colorText,
-  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderRadiusRounded,
   mdPaddingX,
   lgPaddingX,
   smPadding,
-  lgPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
@@ -26,7 +24,7 @@ import {
   fontSizeSmall,
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import PreFlightStyled from '../styles';
 
 const Panel = styled.div`
@@ -34,6 +32,13 @@ const Panel = styled.div`
   flex-direction: column;
   flex: 1;
   min-height: 0;
+
+  /* A tablet in the phone layout: the panel fills its tab. */
+  ${PreFlightStyled.PHONE_LAYOUT} & {
+    @media ${mediumOnly} {
+      flex: 1 0 auto;
+    }
+  }
 `;
 
 // The setup column's title; the rule under it is the setup panel's own
@@ -41,20 +46,32 @@ const Panel = styled.div`
 const Title = PreFlightStyled.PanelTitle;
 
 // Cards on one side, what the pick means on the other, while both fit; stacked
-// once the column is too narrow for two (a tablet beside the setup panel, a
-// phone).
+// once the column is too narrow for two, and always in the phone layout.
 const Body = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  /* Side by side, the one row stretches and the summary is as tall as the
+     panel; stacked, the cards take what they need and the summary the rest. */
+  grid-template-rows: auto;
+  grid-auto-rows: 1fr;
   gap: ${lgPaddingX};
   flex: 1;
   min-height: 0;
   padding: ${lgPaddingX};
   overflow: auto;
 
-  @media ${smallOnly} {
+  /* A tablet in the phone layout fits two columns, but the summary goes under
+     the cards there too. */
+  ${PreFlightStyled.PHONE_LAYOUT} & {
+    grid-template-columns: 1fr;
     padding: ${mdPaddingX};
     overflow: visible;
+
+    /* On a tablet the summary takes the height left under the cards, and
+       never less than it needs once more modes fill the screen. */
+    @media ${mediumOnly} {
+      flex: 1 0 auto;
+    }
   }
 `;
 
@@ -103,7 +120,7 @@ const Card = styled.button.attrs({ type: 'button' })<{ $selected: boolean }>`
     outline-offset: 2px;
   }
 
-  &:disabled {
+  &[aria-disabled='true'] {
     cursor: default;
     opacity: 0.6;
   }
@@ -147,18 +164,23 @@ const CardHint = styled.span`
   font-size: ${fontSizeSmall};
 `;
 
-// Only as tall as what it holds: stretched beside the cards, it was a large
-// bordered box around a line of text.
 const Summary = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  align-self: start;
   gap: ${mdPaddingX};
   padding: ${lgPaddingX};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadiusRounded};
   text-align: center;
+
+  /* On a tablet the box fills the height under the cards: what it holds sits
+     in its middle. */
+  ${PreFlightStyled.PHONE_LAYOUT} & {
+    @media ${mediumOnly} {
+      justify-content: center;
+    }
+  }
 `;
 
 // The design draws it at 277x156; it shrinks with a narrow summary.

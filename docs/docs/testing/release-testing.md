@@ -778,8 +778,19 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
     - The setup panel and the room mode panel should become two tabs, "Set up devices" and "Set up room", with "Start room" reachable from both
     - There should be no "Cancel" button: picking another card changes the mode
+    - Turn the camera on, then widen the window past the tablet width (1024 px) and narrow it again: the camera preview should keep running, without restarting
 
-5. Join a breakout room as a moderator
+5. Repeat step 1 on a tablet-width window (768 px wide, portrait)
+
+    - The screen should lay out as on a phone (step 4), across the width: the session's name on top, the two tabs, and "Start room" pinned to the bottom
+    - The camera preview, on or off, should keep the phone's height and its proportion instead of stretching across the width, and the message asking for a mode should sit under the cards
+    - Join the same session as a viewer in the same window size: the setup panel and the "Join session" button should stay side by side, without tabs
+
+6. Throttle the network in the browser's developer tools and repeat step 1, picking "Class" before clicking "Start room"
+
+    - While the room starts, the cards should look dimmed, and neither clicking another card nor the arrow keys should change the pick
+
+7. Join a breakout room as a moderator
 
     - No pre-flight, and so no room mode panel, should show up in the breakout room
 

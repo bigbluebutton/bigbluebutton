@@ -12,12 +12,23 @@ import {
   smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, textFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import { mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import PreFlightStyled from '../styles';
 
 // $flat: out of the layout, the panels lay out as the page's own children.
 const Tabs = styled.div<{ $flat: boolean }>`
   display: ${({ $flat }) => ($flat ? 'contents' : 'flex')};
   flex-direction: column;
   width: 100%;
+
+  /* A tablet in the phone layout: the open panel fills the screen down to the
+     actions, so what ends it (the setup's footer, the room mode summary) sits
+     at the bottom rather than wherever its content stops. */
+  ${PreFlightStyled.PHONE_LAYOUT} & {
+    @media ${mediumOnly} {
+      flex: 1 0 auto;
+    }
+  }
 `;
 
 const TabList = styled.div`
@@ -55,6 +66,14 @@ const Tab = styled.button.attrs({ type: 'button' })<{ $selected: boolean }>`
 
 const TabPanel = styled.div<{ $flat: boolean }>`
   ${({ $flat }) => $flat && 'display: contents;'}
+
+  ${PreFlightStyled.PHONE_LAYOUT} & {
+    @media ${mediumOnly} {
+      display: flex;
+      flex: 1 0 auto;
+      flex-direction: column;
+    }
+  }
 
   &[hidden] {
     display: none;

@@ -58,9 +58,9 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.movesBetweenModesWithArrows();
   });
 
-  test('Keeps the setup panel across the phone breakpoint', async ({ browser, context, page }, testInfo) => {
+  test('Keeps the setup panel across the tabs breakpoints', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
-    await panel.keepsSetupAcrossPhoneBreakpoint(page, { testInfo });
+    await panel.keepsSetupAcrossTabsBreakpoints(page, { testInfo });
   });
 
   test('Locks the mode cards while the room is starting', async ({ browser, context, page }, testInfo) => {
@@ -68,9 +68,15 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.locksCardsWhileJoining(page, { testInfo });
   });
 
-  test('Fits the mode cards on a tablet', async ({ browser, context, page }, testInfo) => {
+  test('Turns the panels into tabs on a tablet', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
-    await panel.fitsCardsOnTablet(page, { testInfo });
+    await panel.panelsBecomeTabsOnTablet(page, { testInfo });
+  });
+
+  test('Keeps the desktop layout for a viewer on a tablet', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.initModPage(page, { testInfo });
+    await panel.viewerKeepsDesktopLayoutOnTablet();
   });
 
   test('Shows the join notices in the panel footer', async ({ browser, context, page }, testInfo) => {

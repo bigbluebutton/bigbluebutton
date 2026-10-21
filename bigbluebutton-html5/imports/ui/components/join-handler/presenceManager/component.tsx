@@ -42,7 +42,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const connectionTimeout = 60000;
@@ -245,9 +245,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
   const roomModePanel = useRoomModePanelGate(roomMode, isModerator, isBot, showPreFlight);
-  // A phone pins the panel's actions to the bottom: the join notices stay in
-  // the header there instead of in the panel's footer.
   const isPhoneWidth = useMediaQuery(smallOnly);
+  const isTabletWidth = useMediaQuery(mediumOnly);
   const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
   const isSettingUp = guestStatus === GUEST_STATUSES.ALLOW || guestStatus === GUEST_STATUSES.WAIT;
   // The panel stays up behind a denial only for the guest who was already
@@ -312,13 +311,19 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     };
   }
 
+  // A tablet has no room for the room mode panel beside the setup: with the
+  // panel up, the pre-flight lays out as on a phone. That layout pins the
+  // actions to the bottom, so the join notices stay in the header.
+  const phoneLayout = isPhoneWidth
+    || (isTabletWidth && !isGuestDenied && isGuestAllowed && roomModePanel.show);
+
   if (!isGuestDenied && isGuestAllowed) {
     preFlightHeader = (
       <JoiningRoomHeader
         meetingName={meetingName}
         clientTitle={CLIENT_TITLE}
         isJoining={joinRequested}
-        withNotices={!roomModePanel.show || isPhoneWidth}
+        withNotices={!roomModePanel.show || phoneLayout}
       />
     );
     if (roomModePanel.show) {
@@ -370,6 +375,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               gateJoinOnDevices={isGuestAllowed && !joinRequested}
               commitRef={preFlightCommitRef}
               panel={preFlightPanel}
+              phoneLayout={phoneLayout}
             />
           )
           : null
