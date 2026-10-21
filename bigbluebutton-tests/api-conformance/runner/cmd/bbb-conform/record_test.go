@@ -430,4 +430,15 @@ func TestNamesHost(t *testing.T) {
 	if got := namesHost(f, hosts); got != "" {
 		t.Errorf("namesHost = %q, want none", got)
 	}
+	// A host that is only a substring of a longer one isn't a match.
+	for _, l := range []string{`"10.0.0.50"`, `"bbb.test.other/x"`, "xbbb.test"} {
+		g := &golden.File{Sections: []golden.Section{{Label: "s", Lines: []string{l}}}}
+		if got := namesHost(g, []string{"bbb.test", "10.0.0.5"}); got != "" {
+			t.Errorf("namesHost(%q) = %q, want none", l, got)
+		}
+	}
+	g := &golden.File{Sections: []golden.Section{{Label: "s", Lines: []string{`location wss://bbb.test/graphql`}}}}
+	if got := namesHost(g, []string{"bbb.test"}); got != "bbb.test in s" {
+		t.Errorf("namesHost whole host = %q", got)
+	}
 }

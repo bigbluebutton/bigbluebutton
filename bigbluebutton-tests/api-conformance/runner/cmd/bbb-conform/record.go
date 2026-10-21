@@ -344,11 +344,36 @@ func namesHost(f *golden.File, hosts []string) string {
 	for _, s := range f.Sections {
 		for _, l := range s.Lines {
 			for _, h := range hosts {
-				if strings.Contains(l, h) {
+				if mentionsHost(l, h) {
 					return h + " in " + s.Label
 				}
 			}
 		}
 	}
 	return ""
+}
+
+// mentionsHost reports whether line contains host as a whole host name, not
+// as part of a longer one: 10.0.0.5 doesn't match 10.0.0.50, and bbb.test
+// doesn't match bbb.test.other.
+func mentionsHost(line, host string) bool {
+	for i := 0; i+len(host) <= len(line); {
+		j := strings.Index(line[i:], host)
+		if j < 0 {
+			return false
+		}
+		start, end := i+j, i+j+len(host)
+		beforeOK := start == 0 || !isHostByte(line[start-1])
+		afterOK := end == len(line) || !isHostByte(line[end])
+		if beforeOK && afterOK {
+			return true
+		}
+		i = start + 1
+	}
+	return false
+}
+
+// isHostByte reports whether b can extend a host name on either side.
+func isHostByte(b byte) bool {
+	return b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z' || b >= '0' && b <= '9' || b == '.' || b == '-'
 }
