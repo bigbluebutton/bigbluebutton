@@ -97,8 +97,8 @@ Only these are read; everything else is set in the mounted configuration.
   `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`.
 - **bbb-web** (written to `bbb-web.properties` only if that file does not exist): `SERVER_URL`,
   `SHARED_SECRET`, `REDIS_HOST`; also `JDK_JAVA_OPTIONS` (heap) and `MALLOC_ARENA_MAX`.
-- **bbb-graphql-actions**: `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `SERVER_HOST` (`0.0.0.0`),
-  `SERVER_PORT`, `MAX_BODY_SIZE`.
+- **bbb-graphql-actions**: `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `BBB_REDIS_PASSWORD`,
+  `SERVER_HOST` (`0.0.0.0`), `SERVER_PORT`, `MAX_BODY_SIZE`.
 - **bbb-graphql-server**: Hasura's `HASURA_GRAPHQL_*`, with the package's defaults set in the image.
   Usually set: `HASURA_GRAPHQL_DATABASE_URL`, `HASURA_GRAPHQL_BBB_DATABASE_URL`,
   `HASURA_GRAPHQL_AUTH_HOOK`, `HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL`. The image ships no admin
