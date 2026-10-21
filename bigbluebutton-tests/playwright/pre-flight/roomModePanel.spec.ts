@@ -63,6 +63,11 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.keepsSetupAcrossPhoneBreakpoint(page, { testInfo });
   });
 
+  test('Locks the mode cards while the room is starting', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.locksCardsWhileJoining(page, { testInfo });
+  });
+
   test('Fits the mode cards on a tablet', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.fitsCardsOnTablet(page, { testInfo });

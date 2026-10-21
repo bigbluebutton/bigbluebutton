@@ -104,6 +104,11 @@ const Card = styled.button.attrs({ type: 'button' })<{ $selected: boolean }>`
     outline: 2px solid ${itemFocusBorder};
     outline-offset: 2px;
   }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
 `;
 
 // The design's 48px tile: grey and neutral until picked, tinted once it is.

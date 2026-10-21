@@ -48,12 +48,17 @@ const cardId = (modeId: string) => `preFlightRoomMode-${modeId}`;
 
 const focusCard = (modeId: string) => document.getElementById(cardId(modeId))?.focus();
 
+interface RoomModePanelProps {
+  // Once Start room is pressed the pick is final: the cards stop taking input.
+  isJoining: boolean;
+}
+
 /**
  * The room mode cards for a moderator entering a room with no mode. The pick
  * only lives in the pre-flight's state: applying it to the room happens after
  * the join, and starting without one leaves the room as it was created.
  */
-export const RoomModePanel: React.FC = () => {
+export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
   const intl = useIntl();
   const { roomMode, setRoomMode } = usePreFlight();
   // On a phone the tab already names the panel.
@@ -67,14 +72,14 @@ export const RoomModePanel: React.FC = () => {
     const step = {
       ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1,
     }[event.key];
-    if (!step) return;
+    if (!step || isJoining) return;
     event.preventDefault();
     const modes = ROOM_MODES;
     const current = modes.findIndex((mode) => mode.id === focusableId);
     const next = modes[(current + step + modes.length) % modes.length];
     setRoomMode(next.id);
     focusCard(next.id);
-  }, [focusableId, setRoomMode]);
+  }, [focusableId, setRoomMode, isJoining]);
 
   return (
     <Styled.Panel data-test="preFlightRoomModePanel">
@@ -88,6 +93,7 @@ export const RoomModePanel: React.FC = () => {
           <Styled.Cards
             role="radiogroup"
             aria-labelledby={HEADING_ID}
+            aria-disabled={isJoining || undefined}
             onKeyDown={handleKeyDown}
           >
             {ROOM_MODES.map((mode) => {
@@ -100,6 +106,7 @@ export const RoomModePanel: React.FC = () => {
                   id={cardId(mode.id)}
                   role="radio"
                   aria-checked={isSelected}
+                  disabled={isJoining}
                   tabIndex={mode.id === focusableId ? 0 : -1}
                   $selected={isSelected}
                   onClick={() => setRoomMode(mode.id)}

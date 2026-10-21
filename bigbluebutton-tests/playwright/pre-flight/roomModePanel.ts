@@ -10,6 +10,7 @@ import {
 import { elements as e } from '../core/elements';
 import { installClientSettingsOverrides, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
+import { USER_JOIN_OPERATION } from './preFlight';
 import { ensureProbe, expectRoomMode, RoomMode } from './roomMode';
 import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
@@ -358,6 +359,33 @@ export class RoomModePanel extends RoomMode {
       await page.evaluate(() => window.getUserMediaCalls),
       'should not ask for the devices again after crossing the breakpoint',
     ).toBe(callsBefore);
+  }
+
+  // Once Start room is pressed the pick is final. The join is held back, so the
+  // joining state lasts long enough to check.
+  async locksCardsWhileJoining(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    let heldJoins = 0;
+    await page.routeWebSocket('**/graphql**', (client) => {
+      const server = client.connectToServer();
+      client.onMessage((message) => {
+        if (message.toString().includes(USER_JOIN_OPERATION)) {
+          heldJoins += 1;
+          return;
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => client.send(message));
+    });
+    await this.initModPageWithPanel(page, options);
+    await hasPanel(this.modPage);
+    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+    await this.modPage.waitAndClick(e.preFlightJoinButton);
+
+    await expect.poll(() => heldJoins, { message: 'should have held the join back' }).toBeGreaterThan(0);
+    for (const card of ROOM_MODE_CARDS) {
+      await this.modPage.hasElementDisabled(card, 'should stop taking picks once the room is starting');
+    }
+    await expectSelected(this.modPage, e.preFlightRoomModeClass);
   }
 
   // Beside the setup panel on a tablet, the cards still get room for their text.
