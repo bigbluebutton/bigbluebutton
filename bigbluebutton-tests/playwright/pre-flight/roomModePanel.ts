@@ -80,6 +80,13 @@ const isUncovered = (page: Page, selector: string) =>
 // A desktop width above the phone breakpoint, wide enough for both panels.
 const DESKTOP_VIEWPORT = { width: 1366, height: 900 };
 
+// A tablet in portrait: above the phone breakpoint, so both panels share the
+// width, but too narrow for the cards and the summary side by side.
+const TABLET_VIEWPORT = { width: 768, height: 1024 };
+
+// Narrower than this, a card's name and hint wrap a word per line.
+const MIN_CARD_TEXT_WIDTH = 150;
+
 declare global {
   interface Window {
     getUserMediaCalls: number;
@@ -351,6 +358,23 @@ export class RoomModePanel extends RoomMode {
       await page.evaluate(() => window.getUserMediaCalls),
       'should not ask for the devices again after crossing the breakpoint',
     ).toBe(callsBefore);
+  }
+
+  // Beside the setup panel on a tablet, the cards still get room for their text.
+  async fitsCardsOnTablet(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await page.setViewportSize(TABLET_VIEWPORT);
+    await this.initModPageWithPanel(page, options);
+    await hasPanel(this.modPage);
+    await expect(
+      this.modPage.page.locator(e.preFlightRoomModeTab),
+      'should keep both panels side by side above the phone breakpoint',
+    ).toHaveCount(0);
+    for (const card of ROOM_MODE_CARDS) {
+      const textWidth = await this.modPage.page.locator(card).evaluate(
+        (element) => (element.lastElementChild as HTMLElement).getBoundingClientRect().width,
+      );
+      expect(textWidth, 'should leave the card text room to read').toBeGreaterThan(MIN_CARD_TEXT_WIDTH);
+    }
   }
 
   // A phone pins the actions to the bottom of the screen, so the join's notices

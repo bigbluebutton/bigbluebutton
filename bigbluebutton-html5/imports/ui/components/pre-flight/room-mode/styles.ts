@@ -42,10 +42,12 @@ const Title = styled(PreFlightStyled.PanelTitle)`
   border-bottom: 1px solid ${colorBorder};
 `;
 
-// Cards on one side, what the pick means on the other; stacked on a phone.
+// Cards on one side, what the pick means on the other, while both fit; stacked
+// once the column is too narrow for two (a tablet beside the setup panel, a
+// phone).
 const Body = styled.div`
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   gap: ${lgPaddingX};
   flex: 1;
   min-height: 0;
@@ -53,7 +55,6 @@ const Body = styled.div`
   overflow: auto;
 
   @media ${smallOnly} {
-    grid-template-columns: minmax(0, 1fr);
     padding: ${mdPaddingX};
     overflow: visible;
   }
