@@ -1,4 +1,4 @@
-import { expect, Page as PlaywrightPage } from '@playwright/test';
+import { expect, Page as PlaywrightPage, ViewportSize } from '@playwright/test';
 
 import { Create } from '../breakout/create';
 import {
@@ -11,12 +11,7 @@ import { elements as e } from '../core/elements';
 import { installClientSettingsOverrides, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { USER_JOIN_OPERATION } from './preFlight';
-import {
-  ensureProbe,
-  expectRoomMode,
-  expectRoomModeStable,
-  RoomMode,
-} from './roomMode';
+import { ensureProbe, expectRoomMode, expectRoomModeStable, RoomMode } from './roomMode';
 import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
   NO_PRE_FLIGHT_INIT_OPTIONS,
@@ -83,15 +78,12 @@ const isUncovered = (page: Page, selector: string) =>
     return !!hit && element.contains(hit);
   });
 
-// A desktop width above the phone breakpoint, wide enough for both panels.
+// A desktop width above the tablet breakpoint, wide enough for both panels.
 const DESKTOP_VIEWPORT = { width: 1366, height: 900 };
 
-// A tablet in portrait: above the phone breakpoint, so both panels share the
-// width, but too narrow for the cards and the summary side by side.
+// A tablet in portrait: above the phone breakpoint, but too narrow for the two
+// panels side by side.
 const TABLET_VIEWPORT = { width: 768, height: 1024 };
-
-// Narrower than this, a card's name and hint wrap a word per line.
-const MIN_CARD_TEXT_WIDTH = 150;
 
 declare global {
   interface Window {
@@ -104,8 +96,16 @@ declare global {
 // absence holds for the whole load and not only for the moment it is read.
 const watchForPreFlight = () => {
   window.preFlightSeen = false;
-  new MutationObserver(() => {
-    if (document.querySelector('[data-test="preFlight"]')) window.preFlightSeen = true;
+  const selector = '[data-test="preFlight"]';
+  // Reads the added nodes rather than the document, so a pre-flight attached
+  // and dropped before the callback runs is still caught.
+  new MutationObserver((mutations) => {
+    const attached = mutations.some(({ addedNodes }) =>
+      Array.from(addedNodes).some(
+        (node) => node instanceof Element && (node.matches(selector) || node.querySelector(selector) !== null),
+      ),
+    );
+    if (attached) window.preFlightSeen = true;
   }).observe(document, { childList: true, subtree: true });
 };
 
@@ -194,6 +194,30 @@ export class RoomModePanel extends RoomMode {
     await hasNoPanel(this.userPage, 'should never display the room mode panel to a viewer');
   }
 
+  // On a tablet only the panel turns the screen into tabs: a viewer keeps the
+  // setup beside the join, as on a desktop.
+  async viewerKeepsDesktopLayoutOnTablet() {
+    await this.initUserPage(this.context, ROOM_MODE_PANEL_INIT_OPTIONS);
+    await this.userPage.page.setViewportSize(TABLET_VIEWPORT);
+    await this.userPage.hasElement(
+      e.preFlight,
+      'should display the pre-flight screen to the viewer',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await expect(
+      this.userPage.page.locator(e.preFlightDevicesTab),
+      'should keep the setup out of tabs for a viewer on a tablet',
+    ).toHaveCount(0);
+    await expect(
+      this.userPage.page.locator(e.preFlightCameraToggle),
+      'should display the device setup beside the join',
+    ).toBeVisible();
+    await expect(
+      this.userPage.page.locator(e.preFlightJoinButton),
+      'should display the join button beside the device setup',
+    ).toBeVisible();
+  }
+
   async noPanelInConfiguredRoom() {
     await ensureProbe(this.modPage);
     await this.setByModerator('class');
@@ -213,20 +237,35 @@ export class RoomModePanel extends RoomMode {
   }
 
   async startsWithoutMode() {
+    await ensureProbe(this.modPage);
     await hasPanel(this.modPage);
     await startsRoom(this.modPage);
-    await ensureProbe(this.modPage);
     // Nothing is expected to write the mode, so its absence is sampled across a
     // window rather than read once.
     await expectRoomModeStable(this.modPage, '', 'should leave the room unconfigured when started without a mode');
   }
 
   async panelsBecomeTabsOnPhone(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await page.setViewportSize(PHONE_VIEWPORT);
+    await this.panelsBecomeTabs(page, PHONE_VIEWPORT, 'a phone', options);
+  }
+
+  // A tablet has no room for the panels side by side: with the panel up, the
+  // pre-flight lays out as on a phone.
+  async panelsBecomeTabsOnTablet(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await this.panelsBecomeTabs(page, TABLET_VIEWPORT, 'a tablet', options);
+  }
+
+  private async panelsBecomeTabs(
+    page: PlaywrightPage,
+    viewport: ViewportSize,
+    device: 'a phone' | 'a tablet',
+    options: InitExtraPageOptionsProps,
+  ) {
+    await page.setViewportSize(viewport);
     await this.initModPageWithPanel(page, options);
 
-    await this.modPage.hasElement(e.preFlightDevicesTab, 'should display the devices tab on a phone');
-    await this.modPage.hasElement(e.preFlightRoomModeTab, 'should display the room mode tab on a phone');
+    await this.modPage.hasElement(e.preFlightDevicesTab, `should display the devices tab on ${device}`);
+    await this.modPage.hasElement(e.preFlightRoomModeTab, `should display the room mode tab on ${device}`);
 
     await this.modPage.waitAndClick(e.preFlightRoomModeTab);
     await expect(
@@ -351,10 +390,10 @@ export class RoomModePanel extends RoomMode {
     await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
   }
 
-  // Crossing the phone breakpoint, as a rotation does, only turns the tabs on or
+  // Crossing the tabs' breakpoints, as a rotation can, only turns the tabs on or
   // off: the setup panel stays mounted, so its camera preview is the same
   // element and nothing asks for the devices again.
-  async keepsSetupAcrossPhoneBreakpoint(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+  async keepsSetupAcrossTabsBreakpoints(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await page.addInitScript(countGetUserMedia);
     await this.initModPageWithPanel(page, options);
@@ -367,12 +406,17 @@ export class RoomModePanel extends RoomMode {
     );
     const preview = this.modPage.page.locator(e.webcamMirroredVideoPreview);
     await preview.evaluate((element) => element.setAttribute('data-test-original', 'true'));
+    // The audio selectors may still ask after the preview is up, so the count
+    // is taken once the setup has settled.
+    await page.waitForTimeout(ELEMENT_WAIT_TIME);
     const callsBefore = await page.evaluate(() => window.getUserMediaCalls);
 
     await page.setViewportSize(PHONE_VIEWPORT);
     await this.modPage.hasElement(e.preFlightRoomModeTab, 'should turn the panels into tabs on a phone');
-    await page.setViewportSize({ width: 900, height: 900 });
-    await this.modPage.wasRemoved(e.preFlightRoomModeTab, 'should drop the tabs above the phone breakpoint');
+    await page.setViewportSize(TABLET_VIEWPORT);
+    await this.modPage.hasElement(e.preFlightRoomModeTab, 'should keep the tabs on a tablet');
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await this.modPage.wasRemoved(e.preFlightRoomModeTab, 'should drop the tabs above the tablet breakpoint');
 
     await expect(preview, 'should keep the same camera preview across the breakpoint').toHaveAttribute(
       'data-test-original',
@@ -407,28 +451,21 @@ export class RoomModePanel extends RoomMode {
     await this.modPage.waitAndClick(e.preFlightRoomModeClass);
     await this.modPage.waitAndClick(e.preFlightJoinButton);
 
-    await expect.poll(() => heldJoins, { message: 'should have held the join back' }).toBeGreaterThan(0);
+    // The held join is never released: the page closes with the test.
+    await expect
+      .poll(() => heldJoins, {
+        message: 'should have held the join back',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(0);
     for (const card of ROOM_MODE_CARDS) {
       await this.modPage.hasElementDisabled(card, 'should stop taking picks once the room is starting');
     }
+    // The cards stay focusable, so the lock is the handlers': neither a click
+    // (forced past the disabled state) nor the arrow keys change the pick.
+    await this.modPage.page.locator(e.preFlightRoomModeMeeting).click({ force: true });
+    await this.modPage.page.keyboard.press('ArrowDown');
     await expectSelected(this.modPage, e.preFlightRoomModeClass);
-  }
-
-  // Beside the setup panel on a tablet, the cards still get room for their text.
-  async fitsCardsOnTablet(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await page.setViewportSize(TABLET_VIEWPORT);
-    await this.initModPageWithPanel(page, options);
-    await hasPanel(this.modPage);
-    await expect(
-      this.modPage.page.locator(e.preFlightRoomModeTab),
-      'should keep both panels side by side above the phone breakpoint',
-    ).toHaveCount(0);
-    for (const card of ROOM_MODE_CARDS) {
-      const textWidth = await this.modPage.page.locator(card).evaluate(
-        (element) => (element.lastElementChild as HTMLElement).getBoundingClientRect().width,
-      );
-      expect(textWidth, 'should leave the card text room to read').toBeGreaterThan(MIN_CARD_TEXT_WIDTH);
-    }
   }
 
   // A phone pins the actions to the bottom of the screen, so the join's notices
@@ -483,10 +520,7 @@ export class RoomModePanel extends RoomMode {
     await page.addInitScript(watchForPreFlight);
     await this.initModPage(page, { ...ROOM_MODE_PANEL_INIT_OPTIONS, joinParameter: 'bot=true', ...options });
     await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    expect(
-      await readRoomModePanelSetting(page),
-      'should have the room mode panel turned on for the bot',
-    ).toBe(true);
+    expect(await readRoomModePanelSetting(page), 'should have the room mode panel turned on for the bot').toBe(true);
     expect(
       await page.evaluate(() => window.preFlightSeen),
       'should send a bot moderator straight into the meeting',

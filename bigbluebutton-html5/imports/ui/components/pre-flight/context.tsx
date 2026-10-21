@@ -41,6 +41,9 @@ export interface PreFlightContextValue {
   // Only staged here: nothing reaches the room before the join.
   roomMode: string | null;
   setRoomMode: (roomMode: string | null) => void;
+  // The phone layout: a phone, and a tablet while the room mode panel is up,
+  // since the panel does not fit beside the setup there.
+  phoneLayout: boolean;
   // Set by the setup panel so the join can persist the camera selections
   // (device, profile, virtual background) right before joining.
   commitCameraRef: React.MutableRefObject<(() => void) | null>;

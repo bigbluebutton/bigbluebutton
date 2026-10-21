@@ -34,8 +34,6 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import { applyLocaleToDocument, getRestoredLocale } from '/imports/startup/client/intlAdapter';
 import muiThemes from '/imports/ui/services/theme/mui';
-import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const intlMessages = defineMessages({
   title: {
@@ -92,6 +90,9 @@ interface PreFlightProps {
   // takes the header's place, with the actions as its footer, and the two
   // panels become tabs on a phone. An error still takes its place.
   panel?: React.ReactNode;
+  // Lays the screen out as on a phone: the header above, the panels as tabs,
+  // the actions pinned to the bottom and an error as a dialog.
+  phoneLayout?: boolean;
 }
 
 const PreFlight: React.FC<PreFlightProps> = ({
@@ -104,6 +105,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
   gateJoinOnDevices = false,
   commitRef,
   panel = null,
+  phoneLayout = false,
 }) => {
   const intl = useIntl();
   const loadingContextInfo = useContext(LoadingContext);
@@ -116,7 +118,6 @@ const PreFlight: React.FC<PreFlightProps> = ({
   // boot script only knows what was persisted, while the setting also carries
   // bbb_prefer_dark_theme and the system preference.
   const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
-  const isPhoneWidth = useMediaQuery(smallOnly);
 
   const [audioMode, setAudioModeState] = useState<AudioMode>(
     canUseMicrophone ? AUDIO_MODES.MICROPHONE : AUDIO_MODES.LISTEN_ONLY,
@@ -261,6 +262,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
     joiningWithoutAudio,
     roomMode,
     setRoomMode,
+    phoneLayout,
     commitCameraRef,
     commit,
   }), [
@@ -276,6 +278,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
     permissionRetry,
     joiningWithoutAudio,
     roomMode,
+    phoneLayout,
     commit,
   ]);
 
@@ -326,8 +329,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
       <ThemeProvider theme={darkTheme ? muiThemes.dark : muiThemes.light}>
         {/* Carries the modal overlay, otherwise mounted by App. */}
         <GlobalStyles />
-        <Styled.Page data-test="preFlight">
-          {isPhoneWidth && (
+        <Styled.Page data-test="preFlight" data-phone-layout={phoneLayout || undefined}>
+          {phoneLayout && (
             <Styled.HeaderColumn>
               {activeError && !headerNamesSession && topInfo}
               {header}
@@ -336,7 +339,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
           {setupColumn && (
             <PanelTabs
               label={intl.formatMessage(intlMessages.title)}
-              tabbed={isPhoneWidth}
+              tabbed={phoneLayout}
               tabs={[
                 {
                   id: 'devices',
@@ -344,7 +347,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
                   dataTest: 'preFlightDevicesTab',
                   content: setupColumn,
                 },
-                ...(isPhoneWidth && panel ? [{
+                ...(phoneLayout && panel ? [{
                   id: 'roomMode',
                   label: intl.formatMessage(intlMessages.roomModeTab),
                   dataTest: 'preFlightRoomModeTab',
@@ -353,7 +356,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
               ]}
             />
           )}
-          {!isPhoneWidth && panel && !activeError ? (
+          {!phoneLayout && panel && !activeError ? (
             <Styled.PanelColumn>
               {/* The design leaves the session's name out beside the panel; it
                   stays the page's heading (and sets its title) for assistive
@@ -364,22 +367,22 @@ const PreFlight: React.FC<PreFlightProps> = ({
             </Styled.PanelColumn>
           ) : (
             <Styled.ContentColumn>
-              {!isPhoneWidth && activeError && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
-              {!isPhoneWidth && activeError ? (
+              {!phoneLayout && activeError && topInfo && <Styled.TopInfo>{topInfo}</Styled.TopInfo>}
+              {!phoneLayout && activeError ? (
                 <Styled.CenterStack>
                   {activeError.header}
                   <Styled.ActionBar>{activeError.actions}</Styled.ActionBar>
                 </Styled.CenterStack>
               ) : (
                 <Styled.CenterStack>
-                  {!isPhoneWidth && header}
+                  {!phoneLayout && header}
                   {actions && <Styled.ActionBar>{actions}</Styled.ActionBar>}
                 </Styled.CenterStack>
               )}
             </Styled.ContentColumn>
           )}
         </Styled.Page>
-        {isPhoneWidth && activeError && (
+        {phoneLayout && activeError && (
           <PreFlightErrorDialog onClose={activeError.onClose}>
             {activeError.header}
             {activeError.actions}

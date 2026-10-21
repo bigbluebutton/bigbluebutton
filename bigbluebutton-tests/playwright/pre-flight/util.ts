@@ -52,7 +52,8 @@ export const NO_ROOM_MODE_PANEL_INIT_OPTIONS: InitOptionsProps = {
   clientSettingsOverrides: ROOM_MODE_PANEL_DISABLED_SETTINGS_OVERRIDE,
 };
 
-// A phone in portrait: below the 40em breakpoint where the panels turn into tabs.
+// A phone in portrait: below the 40em breakpoint, where the pre-flight always
+// lays out as on a phone.
 export const PHONE_VIEWPORT = { width: 390, height: 844 };
 
 // Listen only is off on LiveKit and on by default elsewhere: pinned off, the

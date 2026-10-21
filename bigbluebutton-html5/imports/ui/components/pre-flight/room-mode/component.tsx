@@ -7,8 +7,6 @@ import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 import { usePreFlight } from '../context';
 import { JoiningRoomActions } from '../joining-room/component';
 import JoinNotices from '../join-notices/component';
-import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ROOM_MODES, { getRoomMode } from './modes';
 import RoomIllustration from './illustration';
 
@@ -61,9 +59,8 @@ interface RoomModePanelProps {
  */
 export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
   const intl = useIntl();
-  const { roomMode, setRoomMode } = usePreFlight();
-  // On a phone the tab already names the panel.
-  const isPhoneWidth = useMediaQuery(smallOnly);
+  // In the phone layout the tab already names the panel.
+  const { roomMode, setRoomMode, phoneLayout } = usePreFlight();
   const selected = getRoomMode(roomMode);
   // Roving focus, as a radio group: one tab stop, arrows move between the
   // cards.
@@ -84,7 +81,7 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
 
   return (
     <Styled.Panel data-test="preFlightRoomModePanel">
-      {!isPhoneWidth && (
+      {!phoneLayout && (
         <>
           <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
           <ProfileStyled.Separator />
@@ -104,16 +101,18 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
               const isSelected = mode.id === selected?.id;
               const Icon = mode.icon;
 
+              // Not disabled while joining, only locked: a disabled card would
+              // leave the tab order and stop announcing the pick.
               return (
                 <Styled.Card
                   key={mode.id}
                   id={cardId(mode.id)}
                   role="radio"
                   aria-checked={isSelected}
-                  disabled={isJoining}
+                  aria-disabled={isJoining || undefined}
                   tabIndex={mode.id === focusableId ? 0 : -1}
                   $selected={isSelected}
-                  onClick={() => setRoomMode(mode.id)}
+                  onClick={() => { if (!isJoining) setRoomMode(mode.id); }}
                   data-test={mode.dataTest}
                 >
                   <Styled.CardIcon aria-hidden $selected={isSelected}>
@@ -166,10 +165,9 @@ interface RoomModeActionsProps {
 // become tabs, still shows it under both.
 export const RoomModeActions: React.FC<RoomModeActionsProps> = ({ isJoining, onJoin }) => {
   const intl = useIntl();
-  const { roomMode, setRoomMode } = usePreFlight();
-  // A phone pins the actions to the bottom of the screen: the notices stay in
-  // the header there, and the design leaves Cancel out.
-  const isPhoneWidth = useMediaQuery(smallOnly);
+  // The phone layout pins the actions to the bottom of the screen: the notices
+  // stay in the header there, and the design leaves Cancel out.
+  const { roomMode, setRoomMode, phoneLayout } = usePreFlight();
 
   // Cancel goes away with the selection, so focus moves to the cards' tab stop
   // rather than falling back to the page.
@@ -180,12 +178,12 @@ export const RoomModeActions: React.FC<RoomModeActionsProps> = ({ isJoining, onJ
 
   return (
     <>
-      {!isPhoneWidth && <JoinNotices />}
+      {!phoneLayout && <JoinNotices />}
       <JoiningRoomActions
         isJoining={isJoining}
         onJoin={onJoin}
         label={intlMessages.startLabel}
-        secondaryAction={roomMode && !isJoining && !isPhoneWidth ? (
+        secondaryAction={roomMode && !isJoining && !phoneLayout ? (
           <BBButton
             variant="subtle"
             label={intl.formatMessage(intlMessages.cancelLabel)}
