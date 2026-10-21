@@ -100,10 +100,12 @@ Only these are read; everything else is set in the mounted configuration.
 
 - **bbb-apps-akka** (HOCON `${?VAR}` in upstream's `application.conf`): `SHARED_SECRET`,
   `BBB_WEB_API`, `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `REDIS_PASSWORD`, `POSTGRES_HOST`,
-  `POSTGRES_PASSWORD`; upstream's `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`.
+  `POSTGRES_PASSWORD`; upstream's `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`;
+  `BBB_LOG_FILE_APPENDER` (set to `STDOUT`).
 - **bbb-web**: any key of `bigbluebutton.properties`, upper case with `.` as `_` (or the key
   itself), e.g. `BIGBLUEBUTTON_WEB_SERVERURL`, `SECURITYSALT`, `REDISHOST`; they override
-  `bbb-web.properties`. Also `JDK_JAVA_OPTIONS` (heap) and `MALLOC_ARENA_MAX`.
+  `bbb-web.properties`. Also `JDK_JAVA_OPTIONS` (heap), `MALLOC_ARENA_MAX` and
+  `BBB_LOG_FILE_APPENDER` (set to `STDOUT`).
 - **bbb-graphql-actions**: `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `BBB_REDIS_PASSWORD`,
   `SERVER_HOST` (`0.0.0.0`), `SERVER_PORT`, `MAX_BODY_SIZE`.
 - **bbb-graphql-server**: Hasura's `HASURA_GRAPHQL_*`, with the package's defaults set in the image.
