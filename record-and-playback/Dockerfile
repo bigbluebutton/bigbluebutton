@@ -77,9 +77,6 @@ COPY --from=bigbluebutton-config bigbluebutton-release /etc/bigbluebutton/
 COPY --from=bigbluebutton-config bin/bbb-record /usr/bin/
 COPY --from=bigbluebutton-config cron.daily/bigbluebutton /etc/cron.daily/
 
-# The shared logger writes to journald, which a container does not have: log to stdout instead.
-RUN sed -i "s|Journald::Logger.new('bbb-rap')|Logger.new('/dev/stdout')|" /usr/local/bigbluebutton/core/lib/recordandplayback.rb
-
 # Directories as in the after-install scripts of the packages
 RUN mkdir -p /var/bigbluebutton/basic_stats /var/bigbluebutton/captions/inbox /var/bigbluebutton/deleted \
         /var/bigbluebutton/events /var/bigbluebutton/unpublished \
