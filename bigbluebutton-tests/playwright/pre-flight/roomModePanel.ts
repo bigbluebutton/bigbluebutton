@@ -1,7 +1,12 @@
 import { expect, Page as PlaywrightPage } from '@playwright/test';
 
 import { Create } from '../breakout/create';
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import {
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  VIDEO_LOADING_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { installClientSettingsOverrides, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
@@ -74,6 +79,26 @@ const isUncovered = (page: Page, selector: string) =>
     const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
     return !!hit && element.contains(hit);
   });
+
+// A desktop width above the phone breakpoint, wide enough for both panels.
+const DESKTOP_VIEWPORT = { width: 1366, height: 900 };
+
+declare global {
+  interface Window {
+    getUserMediaCalls: number;
+  }
+}
+
+// Init script: counts the getUserMedia calls, the cost of a remounted setup
+// panel (its camera preview and audio selectors ask again).
+const countGetUserMedia = () => {
+  window.getUserMediaCalls = 0;
+  const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+  navigator.mediaDevices.getUserMedia = (constraints) => {
+    window.getUserMediaCalls += 1;
+    return original(constraints);
+  };
+};
 
 export class RoomModePanel extends RoomMode {
   // The moderator under test creates the meeting through the pre-flight, so the
@@ -296,6 +321,42 @@ export class RoomModePanel extends RoomMode {
 
     await this.modPage.page.keyboard.press('ArrowUp');
     await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
+  }
+
+  // Crossing the phone breakpoint, as a rotation does, only turns the tabs on or
+  // off: the setup panel stays mounted, so its camera preview is the same
+  // element and nothing asks for the devices again.
+  async keepsSetupAcrossPhoneBreakpoint(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.addInitScript(countGetUserMedia);
+    await this.initModPageWithPanel(page, options);
+    await hasPanel(this.modPage);
+    await this.modPage.waitAndClick(e.preFlightCameraToggle);
+    await this.modPage.hasElement(
+      e.webcamMirroredVideoPreview,
+      'should display the camera preview once the camera is toggled on',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+    const preview = this.modPage.page.locator(e.webcamMirroredVideoPreview);
+    await preview.evaluate((element) => element.setAttribute('data-test-original', 'true'));
+    const callsBefore = await page.evaluate(() => window.getUserMediaCalls);
+
+    await page.setViewportSize(PHONE_VIEWPORT);
+    await this.modPage.hasElement(e.preFlightRoomModeTab, 'should turn the panels into tabs on a phone');
+    await page.setViewportSize({ width: 900, height: 900 });
+    await this.modPage.wasRemoved(e.preFlightRoomModeTab, 'should drop the tabs above the phone breakpoint');
+
+    await expect(preview, 'should keep the same camera preview across the breakpoint').toHaveAttribute(
+      'data-test-original',
+      'true',
+    );
+    // Nothing is expected to happen, so the count is read after a quiet spell
+    // long enough for a remounted preview to have asked again.
+    await page.waitForTimeout(ELEMENT_WAIT_TIME);
+    expect(
+      await page.evaluate(() => window.getUserMediaCalls),
+      'should not ask for the devices again after crossing the breakpoint',
+    ).toBe(callsBefore);
   }
 
   // A phone pins the actions to the bottom of the screen, so the join's notices
