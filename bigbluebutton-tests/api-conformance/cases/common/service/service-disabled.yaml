@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# serviceEnabled is read only by ApiController.beforeInterceptor, which the
+# Grails 8 build never runs (see §3). This records what an API call does with
+# the service turned off; T04 classifies it (triage).
+id: getMeetings.service.disabled
+title: An API call with serviceEnabled=false
+endpoint: getMeetings
+class: compat
+tags: [disruptive, triage]
+profile: service-disabled
+steps:
+  - call: getMeetings
+    golden: document

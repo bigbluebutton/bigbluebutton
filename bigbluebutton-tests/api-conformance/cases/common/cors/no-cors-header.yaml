@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.cors.no-header
+title: bbb-web adds no Access-Control-Allow-Origin header to an API response
+endpoint: getMeetings
+class: compat
+tags: [ci]
+steps:
+  - call: getMeetings
+    headers: {Origin: "https://origin.example"}
+    expect: {headers: {Access-Control-Allow-Origin: {absent: true}}}

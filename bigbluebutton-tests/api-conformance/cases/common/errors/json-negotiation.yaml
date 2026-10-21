@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: getMeetings.errors.json-negotiation
+title: Accept application/json selects the JSON error format, except for browser user agents
+endpoint: getMeetings
+class: contract
+tags: [ci]
+variants:
+  # a checksum error with Accept: application/json comes back as JSON
+  - {id: error-json, vars: {ua: "bbb-conform", fmt: json}}
+  # bbb-web ignores Accept for browser user agents, so the error stays XML
+  - {id: error-browser-ua, vars: {ua: "Mozilla/5.0 (X11; Linux) Gecko/20100101 Firefox/120.0", fmt: xml}}
+steps:
+  - call: getMeetings
+    sign: none
+    headers: {Accept: application/json, User-Agent: "${ua}"}
+    expect: {returncode: FAILED, messageKey: checksumError, format: "${fmt}"}
