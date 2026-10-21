@@ -162,7 +162,7 @@ Administration:
    --disable <workflow>                disable a recording workflow
    --tointernal <external meetingId>   get the internal meeting ids for the given external meetingId
    --toexternal <internal meetingId>   get the external meeting id for the given internal meetingId
-   --republish <internal meetingID>    republish the recording for meetingID
+   --republish [internal meetingID]    retry the publish step for meetingID (all recordings if omitted)
 ```
 
 #### Useful settings
@@ -362,11 +362,15 @@ English 102" meetingName="English 102
 
 #### Republish recordings
 
-Republish recordings.
+This option makes a recording go through the Publish phase again from its processed files, for example after you fix the cause of a failed publish.
 
 ```bash
 $ sudo bbb-record --republish 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965
 ```
+
+The processed files of a format, under `/var/bigbluebutton/recording/process/<format>/<meetingId>`, are removed once that format publishes successfully. For a recording that published correctly, `bbb-record` reports that the processed files do not exist; use `--rebuild` for it instead.
+
+Without a meeting ID, `bbb-record --republish` does this for every recording in your server.
 
 ### For Developers
 

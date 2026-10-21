@@ -214,7 +214,7 @@ usage() {
    echo "   --disable <workflow>               disable a recording workflow"
    echo "   --tointernal <external meetingId>  get the internal meeting ids for the given external meetingId"
    echo "   --toexternal <internal meetingId>  get the external meeting id for the given internal meetingId"
-   echo "   --republish <internal meetingID>   republish the recording for meetingID"
+   echo "   --republish [internal meetingID]   retry the publish step for meetingID (all recordings if omitted)"
    #echo "   --rearchive [meetingId]            rearchive the recording (created before a restart)"
    echo
 }
