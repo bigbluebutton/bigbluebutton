@@ -58,6 +58,11 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.movesBetweenModesWithArrows();
   });
 
+  test('Keeps the setup panel across the phone breakpoint', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.keepsSetupAcrossPhoneBreakpoint(page, { testInfo });
+  });
+
   test('Keeps the join notices visible on a phone', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.showsJoinNoticesOnPhone(page, { testInfo });
