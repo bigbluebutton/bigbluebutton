@@ -1,0 +1,8 @@
+# Reports bbb-web writes to /var/bigbluebutton/learning-dashboard/<meeting>/<token>/
+location ~ ^/learning-analytics-dashboard/([^/]+)/([^/]+)/learning_dashboard_data\.json$ {
+    alias /var/bigbluebutton/learning-dashboard/$1/$2/learning_dashboard_data.json;
+}
+
+location /learning-analytics-dashboard/ {
+    proxy_pass http://learning-dashboard:8080;
+}
