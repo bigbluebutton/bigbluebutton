@@ -30,6 +30,8 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
 function loadConfig(): AppSettings {
   const defaultPath = existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH;
   const config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
+  // SERVER_HOST replaces the default listen address; the override file still wins
+  if (process.env.SERVER_HOST) config.expressServer.host = process.env.SERVER_HOST;
 
   if (existsSync(OVERRIDE_PATH)) {
     const override = load(readFileSync(OVERRIDE_PATH, 'utf8')) as Partial<AppSettings>;
