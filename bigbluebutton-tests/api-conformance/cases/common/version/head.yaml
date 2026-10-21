@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: version.fields.head
+title: A HEAD request to the version endpoint has the headers and no body
+endpoint: version
+class: contract
+tags: [ci]
+steps:
+  - call: ""
+    method: HEAD
+    expect:
+      status: 200
+      headers: {Cache-Control: no-cache, Content-Type: {contains: xml}}

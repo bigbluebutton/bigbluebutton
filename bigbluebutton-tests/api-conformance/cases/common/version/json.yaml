@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: version.fields.json
+title: Content-Type application/json gets a JSON version response; a charset does not
+endpoint: version
+class: contract
+tags: [ci]
+variants:
+  - {id: json, vars: {ct: application/json, fmt: json}}
+  - {id: charset, vars: {ct: "application/json; charset=utf-8", fmt: xml}}
+steps:
+  - call: ""
+    headers: {Content-Type: "${ct}"}
+    expect:
+      returncode: SUCCESS
+      format: "${fmt}"
