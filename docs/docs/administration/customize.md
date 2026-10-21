@@ -1852,7 +1852,7 @@ The HTML5 client supports a list of parameters that can be added to the `join` A
 Useful tools for development:
 
 - A tool like (https://meyerweb.com/eric/tools/dencoder/) is useful in the encoding-decoding process for the fields expecting encoded value passed (see below).
-- The [API mate](https://mconf.github.io/api-mate/) allows you to directly experiment with these user metadata. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
+- The [API mate](https://bigbluebutton.github.io/api-mate/) allows you to directly experiment with these user metadata. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
 
 #### Application parameters
 
@@ -2000,7 +2000,7 @@ $ bbb-conf --secret
     Secret: 577fd5f05280c10fb475553d200f3322
 
     Link to the API-Mate:
-    https://mconf.github.io/api-mate/#server=https://10.0.3.132/bigbluebutton/&sharedSecret=577fd5f05280c10fb475553d200f3322
+    https://bigbluebutton.github.io/api-mate/#server=https://10.0.3.132/bigbluebutton/&sharedSecret=577fd5f05280c10fb475553d200f3322
 ```
 
 The last line gives a link API-Mate, an excellent tool provided by [Mconf Technologies](https://mconf.com/) (a company that has made many contributions to the BigBlueButton project over the years) that makes it easy to create API calls.
