@@ -761,7 +761,7 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
 1. Create a new session and join it as a moderator
 
-    - Beside the setup panel, a "Room mode" panel should show the "Class" and "Meeting" cards, the "Event", "Streamed session (Webinar)" and "Thesis defense" cards disabled with a "Coming soon" badge, and an illustration with a message asking you to pick a mode, with a "Start room" button
+    - Beside the setup panel, a "Room mode" panel should show the "Class" and "Meeting" cards and an illustration with a message asking you to pick a mode, with a "Start room" button
     - Pick "Class": the card should be marked, the panel should show it as the selected mode, and a "Cancel" button should come up
     - Click "Cancel": no card should be marked and the message should come back
     - Click "Start room" without picking a mode: you should land in the meeting

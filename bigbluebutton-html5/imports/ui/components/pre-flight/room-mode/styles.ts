@@ -15,7 +15,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderRadiusRounded,
-  lgBorderRadius,
   mdPaddingX,
   lgPaddingX,
   smPadding,
@@ -25,7 +24,6 @@ import {
   fontSizeBase,
   fontSizeLarge,
   fontSizeSmall,
-  fontSizeSmaller,
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -105,14 +103,6 @@ const Card = styled.button.attrs({ type: 'button' })<{ $selected: boolean }>`
     outline: 2px solid ${itemFocusBorder};
     outline-offset: 2px;
   }
-
-  &:disabled {
-    cursor: default;
-
-    & > :not(:last-child) {
-      opacity: 0.5;
-    }
-  }
 `;
 
 // The design's 48px tile: grey and neutral until picked, tinted once it is.
@@ -146,20 +136,6 @@ const CardName = styled.span`
     color: ${colorPrimary};
     font-size: ${fontSizeLarge};
   }
-`;
-
-// The design's pill: 20px high, 8px on the sides.
-const ComingSoon = styled.span`
-  flex: 0 0 auto;
-  margin-inline-start: auto;
-  padding: 0.125rem ${lgPadding};
-  border-radius: ${lgBorderRadius};
-  background-color: ${colorPrimary};
-  color: ${colorWhite};
-  font-size: ${fontSizeSmaller};
-  line-height: 1rem;
-  text-transform: uppercase;
-  white-space: nowrap;
 `;
 
 const CardHint = styled.span`
@@ -239,7 +215,6 @@ export default {
   CardText,
   CardName,
   CardHint,
-  ComingSoon,
   Summary,
   Illustration,
   EmptyState,

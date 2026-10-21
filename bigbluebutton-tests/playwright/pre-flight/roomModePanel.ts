@@ -25,9 +25,6 @@ type RoomModeCard = typeof e.preFlightRoomModeClass | typeof e.preFlightRoomMode
 
 const ROOM_MODE_CARDS: RoomModeCard[] = [e.preFlightRoomModeClass, e.preFlightRoomModeMeeting];
 
-// Listed, but nothing applies them yet.
-const COMING_SOON_CARDS = [e.preFlightRoomModeEvent, e.preFlightRoomModeWebinar, e.preFlightRoomModeThesisDefense];
-
 const readRoomModePanelSetting = (page: PlaywrightPage) =>
   page.evaluate(
     () =>
@@ -118,9 +115,6 @@ export class RoomModePanel extends RoomMode {
     await this.modPage.hasElement(e.preFlightRoomModeMeeting, 'should offer the meeting mode');
     await this.modPage.hasElement(e.preFlightRoomModeEmptyState, 'should show the empty state until a mode is picked');
     await this.modPage.hasElement(e.preFlightRoomModeIllustration, 'should illustrate the empty state');
-    for (const card of COMING_SOON_CARDS) {
-      await this.modPage.hasElementDisabled(card, 'should list the modes that are not available yet as disabled');
-    }
     await expectSelected(this.modPage, null);
     // Starting without a mode is allowed: the button never waits on a pick.
     await this.modPage.hasElementEnabled(e.preFlightJoinButton, 'should let the moderator start without a mode');
@@ -299,8 +293,8 @@ export class RoomModePanel extends RoomMode {
     ).toBe(0);
   }
 
-  // The cards are one radio group: the arrows move between the modes that can
-  // be picked, skipping the ones not available yet, and wrap around.
+  // The cards are one radio group: the arrows move between the modes and wrap
+  // around.
   async movesBetweenModesWithArrows() {
     await hasPanel(this.modPage);
     await this.modPage.page.locator(e.preFlightRoomModeClass).focus();
@@ -316,7 +310,7 @@ export class RoomModePanel extends RoomMode {
     await expectSelected(this.modPage, e.preFlightRoomModeClass);
     await expect(
       this.modPage.page.locator(e.preFlightRoomModeClass),
-      'should wrap past the modes that are not available yet',
+      'should wrap around to the first mode',
     ).toBeFocused();
 
     await this.modPage.page.keyboard.press('ArrowUp');
