@@ -21,6 +21,7 @@ prefixes=(
   bigbluebutton-html5/imports/ui/components/presentation/presentation-toast/
   bigbluebutton-html5/imports/ui/components/actions-bar/media-area/media-sharing/presentation/
   bigbluebutton-tests/presentation-conversion/
+  bigbluebutton-tests/playwright/core/media/
   .github/scripts/presentation-conversion-gate.sh
   .github/workflows/automated-tests.yml
 )
@@ -53,7 +54,7 @@ case "${EVENT_NAME:-}" in
   pull_request)
     [[ "${HAS_LABEL:-false}" == "true" ]] && decide true label
     if ! git rev-parse -q --verify HEAD^1 >/dev/null; then decide true unknown-base; fi
-    git diff --name-only HEAD^1 HEAD | touches_conversion && decide true paths
+    touches_conversion < <(git diff --name-only HEAD^1 HEAD) && decide true paths
     decide false none
     ;;
   push)
@@ -61,7 +62,7 @@ case "${EVENT_NAME:-}" in
     if [[ -z "${BEFORE_SHA:-}" || "${BEFORE_SHA}" =~ ^0+$ ]] || ! git fetch -q --depth=1 origin "$BEFORE_SHA" 2>/dev/null; then
       decide true unknown-base
     fi
-    git diff --name-only "$BEFORE_SHA" HEAD | touches_conversion && decide true paths
+    touches_conversion < <(git diff --name-only "$BEFORE_SHA" HEAD) && decide true paths
     decide false none
     ;;
   *)
