@@ -15,7 +15,7 @@ import java.util.zip.GZIPInputStream;
 
 public class TarGzManager {
     private static final List<String> allowedDirs = Collections.unmodifiableList(
-            Arrays.asList("thumbnails", "textfiles", "svgs", "pngs")
+            Arrays.asList("thumbnails", "textfiles", "svgs", "pngs", "speakernotes")
     );
 
     public static File compress(String sourceDirectory, String outputFileName, Integer numOfPages) throws IOException {

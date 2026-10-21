@@ -198,6 +198,7 @@ object PresPresentationDAO {
               num = page._2.num,
               urlsJson = page._2.urls.toJson,
               content = page._2.content,
+              speakerNotes = page._2.speakerNotes,
               slideRevealed = page._2.current,
               current = page._2.current,
               xOffset = page._2.xOffset,

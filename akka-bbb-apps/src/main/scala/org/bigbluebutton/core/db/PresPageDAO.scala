@@ -13,6 +13,7 @@ case class PresPageDbModel(
     num:             Int,
     urlsJson:        JsValue,
     content:         String,
+    speakerNotes:    String,
     slideRevealed:   Boolean,
     current:         Boolean,
     xOffset:         Double,
@@ -37,6 +38,7 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val num = column[Int]("num")
   val urlsJson = column[JsValue]("urlsJson")
   val content = column[String]("content")
+  val speakerNotes = column[String]("speakerNotes")
   val slideRevealed = column[Boolean]("slideRevealed")
   val current = column[Boolean]("current")
   val xOffset = column[Double]("xOffset")
@@ -54,7 +56,7 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val fitToWidth = column[Boolean]("fitToWidth")
 
   def * = (
-    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
+    pageId, presentationId, num, urlsJson, content, speakerNotes, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
   ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
@@ -76,6 +78,7 @@ object PresPageDAO {
           num = page.num,
           urlsJson = page.urls.toJson,
           content = page.content,
+          speakerNotes = page.speakerNotes,
           slideRevealed = page.current,
           current = page.current,
           xOffset = page.xOffset,

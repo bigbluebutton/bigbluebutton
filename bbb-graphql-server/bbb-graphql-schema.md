@@ -339,6 +339,15 @@ Permission: Restricted to Presenter
 ### Relationships:
 - `presentation: Object` [Type pres_presentation](#type-pres_presentation)
 
+## Type: pres_page_speakerNotes
+Permission: Restricted to presenters and moderators
+### Fields:
+- `isCurrentPage`
+- `num`
+- `pageId`
+- `presentationId`
+- `speakerNotes`
+
 ## Type: pres_page_curr
 ### Fields:
 - `content`

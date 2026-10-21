@@ -103,6 +103,7 @@ public class PresentationFileProcessor {
             if (!isNumberOfPagesOk) {
                 return;
             }
+            validateSpeakerNotesPageCount(pres);
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1);
         }
@@ -114,6 +115,16 @@ public class PresentationFileProcessor {
                 pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
         notifier.sendDocConversionProgress(started);
 
+    }
+
+    private void validateSpeakerNotesPageCount(UploadedPresentation pres) {
+        Integer visibleSlideCount = pres.getSpeakerNotesVisibleSlideCount();
+        if (visibleSlideCount != null && visibleSlideCount != pres.getNumberOfPages()) {
+            log.warn("Discarding speaker notes for meetingId={} presId={}: visible slide count {} does not match PDF page count {}",
+                    pres.getMeetingId(), pres.getId(), visibleSlideCount, pres.getNumberOfPages());
+            org.bigbluebutton.presentation.Util.deleteDirectory(
+                    new File(pres.getUploadedFile().getParentFile(), "speakernotes"));
+        }
     }
 
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {

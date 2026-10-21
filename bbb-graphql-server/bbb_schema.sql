@@ -1618,6 +1618,7 @@ CREATE UNLOGGED TABLE "pres_page" (
 	"num" integer,
 	"urlsJson" jsonb,
 	"content" TEXT,
+	"speakerNotes" TEXT,
 	"slideRevealed" boolean default false,
 	"current" boolean,
 	"xOffset" NUMERIC,
@@ -1702,6 +1703,16 @@ SELECT pres_presentation."meetingId",
     pres_page."uploadCompleted",
     pres_page."infiniteWhiteboard",
     pres_page."fitToWidth"
+FROM pres_page
+JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
+
+CREATE OR REPLACE VIEW public."v_pres_page_speakerNotes" AS
+SELECT pres_presentation."meetingId",
+    pres_page."presentationId",
+    pres_page."pageId",
+    pres_page.num,
+    CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
+    pres_page."speakerNotes"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 

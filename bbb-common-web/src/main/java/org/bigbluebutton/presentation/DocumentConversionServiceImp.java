@@ -113,6 +113,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       String fileType = pres.getFileType();
 
       if (SupportedFileTypes.isOfficeFile(fileType)) {
+        String filename = pres.getUploadedFile().getName().toLowerCase();
+        if (filename.endsWith(".pptx") || filename.endsWith(".odp")) {
+          SpeakerNotesExtractor.extract(pres.getUploadedFile(), pres.getUploadedFile().getParentFile())
+                  .ifPresent(pres::setSpeakerNotesVisibleSlideCount);
+        }
         pres = officeToPdfConversionService.convertOfficeToPdf(pres);
         OfficeToPdfConversionSuccessFilter ocsf = new OfficeToPdfConversionSuccessFilter(gw);
         if (ocsf.didConversionSucceed(pres)) {

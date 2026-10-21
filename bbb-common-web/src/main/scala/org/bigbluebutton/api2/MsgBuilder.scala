@@ -142,11 +142,27 @@ object MsgBuilder {
       }.get
     }.getOrElse("")
 
+    val speakerNotes = Try {
+      val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
+      val speakerNotesPath = presParentPath + "/speakernotes/slide-" + page.toString + ".txt"
+      Using(Source.fromFile(speakerNotesPath, StandardCharsets.UTF_8.name())) { source =>
+        val buffer = new StringBuilder
+        val iter = source.iter
+        var count = 0
+        while (iter.hasNext && count < maxChars) {
+          buffer.append(iter.next())
+          count += 1
+        }
+        buffer.toString()
+      }.get
+    }.getOrElse("")
+
     PresentationPageConvertedVO(
       id = s"$presId/$page",
       num = page,
       urls = urls,
       content = content,
+      speakerNotes = speakerNotes,
       current = page == 1,
       width = width,
       height = height,
