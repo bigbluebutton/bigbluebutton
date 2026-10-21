@@ -286,6 +286,11 @@ export class Webcam extends Page {
         message: 'should bring the webcam back to its resized height when the presentation is restored',
       })
       .toBeLessThanOrEqual(1);
+    const restoredVideoHeight = await getSettledHeight(this, e.currentUserLocalStreamVideo);
+    expect(
+      Math.abs(restoredVideoHeight - resizedVideoHeight),
+      'should keep the webcam at its resized height once the layout has settled after the restore',
+    ).toBeLessThanOrEqual(1);
   }
 
   // TODO: improve this test to check when the sidebar is expanded or collapsed
