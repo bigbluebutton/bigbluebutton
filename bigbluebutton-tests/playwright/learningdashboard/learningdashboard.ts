@@ -313,14 +313,18 @@ export class LearningDashboard extends MultiUsers {
     if (!timeContent) throw new Error('Time content is null');
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
-    await this.dashboardPage.page.waitForTimeout(10000);
-    await this.dashboardPage.reloadPage();
-    const timeContentGreater = await timeLocator.textContent();
-    if (!timeContentGreater) throw new Error('Time content is null');
-    const arrayGreater = timeContentGreater.split(':').map(Number);
-    const secondTime = arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
-
-    await expect(secondTime).toBeGreaterThan(firstTime);
+    await expect
+      .poll(
+        async () => {
+          await this.dashboardPage.reloadPage();
+          const timeContentGreater = await timeLocator.textContent();
+          if (!timeContentGreater) throw new Error('Time content is null');
+          const arrayGreater = timeContentGreater.split(':').map(Number);
+          return arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
+        },
+        { intervals: [1000], timeout: ELEMENT_WAIT_LONGER_TIME },
+      )
+      .toBeGreaterThan(firstTime);
   }
 
   async overview() {

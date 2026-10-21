@@ -174,7 +174,11 @@ export class Webcam extends Page {
     }));
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.webcamsFullscreenButton);
-    await this.page.waitForTimeout(1000); // timeout to ensure the video is in fullscreen
+    await expect
+      .poll(async () => (await this.page.locator('video').boundingBox())?.height, {
+        message: 'should show the video in fullscreen',
+      })
+      .toBe(windowHeight);
     // get fullscreen webcam size
     const boundingBox = await this.page.locator('video').boundingBox();
     if (!boundingBox) throw new Error('video boundingBox is null');

@@ -324,8 +324,8 @@ export class CreateParameters extends MultiUsers {
     await this.userPage.shareWebcam();
     await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-
-    await this.modPage.page.waitForTimeout(1000);
+    await this.modPage.hasElementCount(e.webcamVideoItem, 2, 'should display both webcams to the moderator');
+    await this.userPage.hasElementCount(e.webcamVideoItem, 2, 'should display both webcams to the attendee');
 
     await checkScreenshots(
       this,
@@ -359,7 +359,6 @@ export class CreateParameters extends MultiUsers {
 
     await this.modPage.hasElement(e.chatMessages, 'should display the chat messages for the moderator');
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
-    await this.userPage.page.waitForTimeout(1000);
 
     await checkScreenshots(
       this,

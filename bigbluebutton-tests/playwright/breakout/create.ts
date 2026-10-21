@@ -116,7 +116,8 @@ export class Create extends MultiUsers {
     // needed for better create breakout rooms button disposition
     await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.page.waitForTimeout(2000); // wait for the breakout sidebar to be fully loaded.
+    await this.modPage.hasElement(e.attendeeNotAssigned, 'should list the users not assigned to a room yet');
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the first room to assign users to');
 
     // assign user to first room
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);

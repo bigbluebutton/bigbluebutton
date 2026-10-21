@@ -4,7 +4,12 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { getMeetingInfo } from '../core/endpoints';
 import { Page } from '../core/page';
-import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
+import {
+  getCurrentSlideSrc,
+  hasCurrentPresentationToastElement,
+  uploadSinglePresentation,
+  waitForSlideChange,
+} from '../presentation/util';
 import { waitForPublishedRecording } from '../recording/recordedPlayback';
 import * as utilScreenShare from '../screenshare/util';
 import { getBlockNoteEditorLocator } from '../sharednotes/blocknote/util';
@@ -538,14 +543,15 @@ export class Join extends Create {
     });
     await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); // This checks if no other content was exported.
     const shareNotesPDFThumbnail = await this.modPage.getLocatorByIndex(e.presentationThumbnails, 1);
+    const slideBeforeSharing = await getCurrentSlideSrc(this.modPage);
     await shareNotesPDFThumbnail.click();
     await this.modPage.waitAndClick(e.sharePresentationButton);
     await hasCurrentPresentationToastElement(this.modPage, {
       description: 'should display the current presentation toast when changing to the whiteboard exported file',
     });
+    await waitForSlideChange(this.modPage, slideBeforeSharing);
 
     // visual assertion
-    await this.modPage.page.waitForTimeout(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-notes.png', {
       maxDiffPixels: 1500,
@@ -632,14 +638,15 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     const whiteboardPDFThumbnail = await this.modPage.getLocatorByIndex(e.presentationThumbnails, 1);
+    const slideBeforeSharing = await getCurrentSlideSrc(this.modPage);
     await whiteboardPDFThumbnail.click();
     await this.modPage.waitAndClick(e.sharePresentationButton);
     await this.modPage.press('Escape'); // close the media sharing menu
     await hasCurrentPresentationToastElement(this.modPage, {
       description: 'should display the current presentation toast when changing to the whiteboard exported file',
     });
+    await waitForSlideChange(this.modPage, slideBeforeSharing);
     // visual assertion
-    await this.modPage.page.waitForTimeout(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1500,

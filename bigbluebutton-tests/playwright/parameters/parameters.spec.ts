@@ -190,14 +190,14 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Meeting Layout(default)', () => {
-    test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    test('meetingLayout=CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.camerasOnly, testInfo });
       await createParam.initUserPage(context, { testInfo });
       await createParam.camerasOnly();
     });
 
-    test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('meetingLayout=PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, {
         createParameter: c.presentationOnly,
@@ -208,14 +208,14 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.presentationOnly();
     });
 
-    test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('meetingLayout=PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.participantsAndChatOnly, testInfo });
       await createParam.initUserPage(context, { testInfo });
       await createParam.participantsAndChatOnly();
     });
 
-    test('MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('meetingLayout=MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.mediaOnly, testInfo });
       await createParam.initUserPage(context, { testInfo });
@@ -224,21 +224,21 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Enforce Layout', () => {
-    test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    test('enforceLayout=CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceCamerasOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
       await customParam.enforceCamerasOnly();
     });
 
-    test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('enforceLayout=PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceParticipantsAndChatOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
       await customParam.enforceParticipantsAndChatOnly();
     });
 
-    test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('enforceLayout=PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         joinParameter: c.enforcePresentationOnly,
@@ -249,7 +249,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await customParam.enforcePresentationOnly();
     });
 
-    test('MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('enforceLayout=MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceMediaOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });

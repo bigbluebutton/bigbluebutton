@@ -314,6 +314,9 @@ test.describe('Audio processing mode - filter choice left by earlier clients', {
 const hasExactConstraint = (value: unknown): boolean =>
   typeof value === 'object' && value !== null && 'exact' in (value as Record<string, unknown>);
 
+// How long the microphone is watched after a mode change: longer than the ~5s unpublishOnMute window.
+const UNPUBLISH_ON_MUTE_WATCH_TIME = 7000;
+
 // Overall rationale of this test block: an audio filter change must not
 // disturb the microphone publication - i.e.: no mute/unmute state flap.
 test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '@media'] }, () => {
@@ -350,7 +353,7 @@ test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '
     // Covers the ~5s unpublishOnMute window the spurious mute would arm.
     // The magic 7s may need to be changed if the unpublishOnMute defaults ever change.
     // so be aware if flakiness hits this test in the future.
-    await audioProcessingMode.modPage.page.waitForTimeout(7000);
+    await audioProcessingMode.modPage.page.waitForTimeout(UNPUBLISH_ON_MUTE_WATCH_TIME);
     const samples = await stopLocalMicWatch(page);
 
     // Guarantee audio mode actually changed
@@ -428,7 +431,7 @@ test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '
 
     await startLocalMicWatch(page);
     await audioProcessingMode.selectProcessingMode('original');
-    await audioProcessingMode.modPage.page.waitForTimeout(7000);
+    await audioProcessingMode.modPage.page.waitForTimeout(UNPUBLISH_ON_MUTE_WATCH_TIME);
     const samples = await stopLocalMicWatch(page);
 
     expect(samples.length, 'the publication should have been sampled during the change').toBeGreaterThan(0);

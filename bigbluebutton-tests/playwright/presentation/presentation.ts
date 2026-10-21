@@ -39,13 +39,17 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
+      .toContain('/svg/2');
 
     await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 1' })
+      .toContain('/svg/1');
 
     await checkSvgIndex(this.modPage, '/svg/1');
   }
@@ -236,11 +240,10 @@ export class Presentation extends MultiUsers {
   }
 
   async checkVideoAfterUserJoins() {
-    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_LONGER_TIME);
-
     await this.userPage2.hasElement(
       e.externalVideo,
-      'should display the element frame for the video that is being shared for the attendee',
+      'should display the element frame for the video that is being shared for the attendee who joined later',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
     await expectExternalVideoPlaying(this.userPage2, 'should play the shared video for the attendee who joined later');
   }
@@ -660,7 +663,12 @@ export class Presentation extends MultiUsers {
     await expect(fitToWidthBorderColorOff, 'should match the white color').toBe('rgba(0, 0, 0, 0)');
 
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    await this.modPage.page.waitForTimeout(500);
+    await expect(fitToWidthButtonLocator, 'should turn fit to width on').toHaveCSS('border-color', 'rgb(6, 23, 42)');
+    await expect
+      .poll(async () => (await this.modPage.getElementBoundingBox(e.whiteboard))?.width, {
+        message: 'should widen the whiteboard',
+      })
+      .toBeGreaterThan(Number(width1));
 
     // check if its on
     const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate(
