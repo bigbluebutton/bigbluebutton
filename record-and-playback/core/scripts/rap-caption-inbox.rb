@@ -23,16 +23,15 @@ require 'bundler/setup'
 
 require File.expand_path('../lib/recordandplayback', __dir__)
 
-require 'journald/logger'
 require 'locale'
 require 'rb-inotify'
 require 'yaml'
 
 # Read configuration and set up logger
 
-props = BigBlueButton.load_yaml(File.expand_path('bigbluebutton.yml', __dir__))
+props = BigBlueButton.read_props
 
-logger = Journald::Logger.new('bbb-rap-caption-inbox')
+logger = BigBlueButton.system_logger('bbb-rap-caption-inbox')
 BigBlueButton.logger = logger
 
 captions_dir = props['captions_dir']
