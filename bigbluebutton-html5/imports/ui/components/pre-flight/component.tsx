@@ -333,9 +333,10 @@ const PreFlight: React.FC<PreFlightProps> = ({
               {header}
             </Styled.HeaderColumn>
           )}
-          {isPhoneWidth && setupColumn ? (
+          {setupColumn && (
             <PanelTabs
               label={intl.formatMessage(intlMessages.title)}
+              tabbed={isPhoneWidth}
               tabs={[
                 {
                   id: 'devices',
@@ -343,7 +344,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
                   dataTest: 'preFlightDevicesTab',
                   content: setupColumn,
                 },
-                ...(panel ? [{
+                ...(isPhoneWidth && panel ? [{
                   id: 'roomMode',
                   label: intl.formatMessage(intlMessages.roomModeTab),
                   dataTest: 'preFlightRoomModeTab',
@@ -351,7 +352,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
                 }] : []),
               ]}
             />
-          ) : setupColumn}
+          )}
           {!isPhoneWidth && panel && !activeError ? (
             <Styled.PanelColumn>
               {/* The design leaves the session's name out beside the panel; it

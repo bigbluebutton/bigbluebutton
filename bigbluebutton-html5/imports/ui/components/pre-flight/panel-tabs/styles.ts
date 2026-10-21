@@ -13,8 +13,9 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, textFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
-const Tabs = styled.div`
-  display: flex;
+// $flat: out of the layout, the panels lay out as the page's own children.
+const Tabs = styled.div<{ $flat: boolean }>`
+  display: ${({ $flat }) => ($flat ? 'contents' : 'flex')};
   flex-direction: column;
   width: 100%;
 `;
@@ -52,7 +53,9 @@ const Tab = styled.button.attrs({ type: 'button' })<{ $selected: boolean }>`
   }
 `;
 
-const TabPanel = styled.div`
+const TabPanel = styled.div<{ $flat: boolean }>`
+  ${({ $flat }) => $flat && 'display: contents;'}
+
   &[hidden] {
     display: none;
   }
