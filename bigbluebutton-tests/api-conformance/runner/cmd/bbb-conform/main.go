@@ -12,7 +12,7 @@
 //	                   [--out DIR] [--passes N]
 //	bbb-conform review --golden DIR [--cases DIR] [--id GLOB,..] [--since REV] [--html FILE]
 //	bbb-conform gap --results FILE [--results FILE ...] [--md FILE] [--html FILE]
-//	bbb-conform validate [--cases DIR] [--fixtures DIR]
+//	bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
 //	bbb-conform tap [--listen ADDR] [--redis URL] [--data-dir DIR] [--watch DIR,..]
 //	                [--channels CH,..] [--redis-keys GLOB,..] [--max-mb N] [--max-age D]
 //	bbb-conform version
@@ -24,6 +24,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/signal"
 	"path"
@@ -55,7 +56,8 @@ const (
   bbb-conform record --target FILE [options]            record how a target answers
   bbb-conform review --golden DIR [options]             show recordings beside their cases
   bbb-conform gap --results FILE... [--md F] [--html F] the gap matrix of several runs
-  bbb-conform validate [--cases DIR] [--fixtures DIR]   check case files
+  bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
+                                                        check case files, and their recordings in DIR
   bbb-conform tap [options]                             serve a server's bus, redis and files to the runner
   bbb-conform version                                   print the version
 
@@ -103,6 +105,7 @@ func cmdValidate(args []string, stdout, stderr io.Writer) int {
 	fl.SetOutput(stderr)
 	cases := fl.String("cases", "cases", "directory of case files")
 	fixtures := fl.String("fixtures", "", "fixtures directory (default: fixtures next to the cases directory)")
+	goldenDir := fl.String("golden", "", "also check the recordings in this directory, e.g. golden/bbb-web")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return exitOK
@@ -125,7 +128,56 @@ func cmdValidate(args []string, stdout, stderr io.Writer) int {
 		return exitFailed
 	}
 	fmt.Fprintf(stdout, "ok: %d case(s) in %d file(s)\n", len(res.Cases), res.Files)
+	if *goldenDir == "" {
+		return exitOK
+	}
+	probs := checkRecordings(*goldenDir, res.Cases)
+	for _, p := range probs {
+		fmt.Fprintln(stdout, p)
+	}
+	if len(probs) > 0 {
+		fmt.Fprintf(stdout, "%d problem(s) with the recordings in %s\n", len(probs), *goldenDir)
+		return exitFailed
+	}
+	fmt.Fprintf(stdout, "ok: every case's recording in %s is current\n", *goldenDir)
 	return exitOK
+}
+
+// checkRecordings checks that every case with something to record has a
+// current recording in dir holding no secret, that all of them were made
+// from one target, and that dir records nothing else.
+func checkRecordings(dir string, cases []*spec.Case) []string {
+	var out []string
+	targetName := ""
+	for _, c := range cases {
+		if len(golden.Sections(c)) == 0 {
+			continue
+		}
+		name := golden.Path(dir, c)
+		f, err := golden.Read(name)
+		switch {
+		case errors.Is(err, fs.ErrNotExist):
+			out = append(out, fmt.Sprintf("%s: no recording at %s: run bbb-conform record", c.ID, name))
+			continue
+		case err != nil:
+			out = append(out, err.Error())
+			continue
+		}
+		if targetName == "" {
+			targetName = f.Target
+		} else if f.Target != targetName {
+			out = append(out, fmt.Sprintf("%s: recorded from target %q, where the others are from %q", name, f.Target, targetName))
+		}
+		if why := golden.Stale(f, c); why != "" {
+			out = append(out, fmt.Sprintf("%s: stale: %s", name, why))
+		}
+		for _, s := range f.Sections {
+			if golden.Leaks(s.Lines) {
+				out = append(out, fmt.Sprintf("%s: %s holds a secret", name, s.Label))
+			}
+		}
+	}
+	return append(out, orphans(dir, cases)...)
 }
 
 // load loads the cases, defaulting the fixtures directory to a sibling of

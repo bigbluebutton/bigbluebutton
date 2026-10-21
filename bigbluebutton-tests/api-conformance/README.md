@@ -210,6 +210,14 @@ checks templates, variable references, capture expressions, XPath, JSONPath
 and regex syntax, fixture files, known tags and capabilities, and that case
 IDs are unique.
 
+With `--golden DIR` (e.g. `--golden ../golden/bbb-web`) it also checks the
+recordings: every case with something to record has one, none is stale or
+holds a secret, all come from one target, and none records a case that no
+longer exists. `go test ./...` runs this on the suite's `cases/` and
+`golden/bbb-web/`, and checks that every profile a case asks for is listed
+in `targets/bbb-web.yaml`; it skips that test when `cases/` is missing,
+unless `BBB_CONFORM_SUITE=1`.
+
 Editors with the YAML language server can check against the schema as you
 type. Put this first in a case file:
 
