@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { colorTextDefault } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite,
@@ -141,14 +141,21 @@ const HiddenHeader = styled.div`
   ${visuallyHidden}
 `;
 
-const PanelFooter = styled.div`
+// The bar at the foot of a card. The setup card and the room mode panel share
+// it, so their rules meet across the page.
+const cardFooter = css`
   display: flex;
+  flex: 0 0 auto;
+  padding: ${jumboPaddingY};
+  border-top: 1px solid ${colorBorder};
+`;
+
+const PanelFooter = styled.div`
+  ${cardFooter}
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: ${mdPaddingX};
-  padding: ${lgPaddingX};
-  border-top: 1px solid ${colorBorder};
 `;
 
 const CenterStack = styled.div`
@@ -431,6 +438,7 @@ const AudioModeLabel = styled.div`
 `;
 
 export default {
+  cardFooter,
   Page,
   SetupColumn,
   ContentColumn,
