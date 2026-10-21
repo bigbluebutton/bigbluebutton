@@ -73,6 +73,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
+        processLocally: false,
         showInSidebarNavigation: false,
         microphoneAlert: {
           enabled: true,

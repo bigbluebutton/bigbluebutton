@@ -1670,6 +1670,28 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
 
+Where the speech is transcribed is up to the browser. Chrome sends the audio to Google's speech recognition servers, unless the language pack for the chosen language is already installed on the computer, in which case it transcribes on the device.
+
+##### Transcribe on the user's device only
+
+To make sure the audio never leaves the user's computer, set `processLocally` (added in 4.0):
+
+```
+public:
+  app:
+    audioCaptions:
+      enabled: true
+      processLocally: true
+```
+
+With it, the browser transcribes on the user's device and never falls back to a speech recognition service:
+
+- The first time a user transcribes in a language, the browser downloads its language pack (about 300 MB with the speech engine in Chrome) before captions start.
+- Only the languages in `language.available` that the browser can transcribe on the device are offered.
+- Browsers without on-device speech recognition show live captions as unsupported. Chrome has it from version 139, on desktop.
+
+Only the transcribed text is sent to BigBlueButton, as with the default setting.
+
 #### Configuration of gladia.io
 
 To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration. _Note: The "Free Trial" plan only allows up to 1 concurrent session_

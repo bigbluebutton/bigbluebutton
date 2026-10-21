@@ -1,5 +1,13 @@
+import { expect } from '@playwright/test';
+
+import { elements as e } from '../core/elements';
 import { test } from '../core/setup/fixtures';
-import { AudioCaptions, audioCaptionsOverrides, shimSpeechSynthesisVoices } from './audioCaptions';
+import {
+  AudioCaptions,
+  audioCaptionsOverrides,
+  shimSpeechRecognition,
+  shimSpeechSynthesisVoices,
+} from './audioCaptions';
 
 const VOICES = ['en-US', 'es-ES', 'fr-FR', 'pt-BR'];
 const NO_WEBSPEECH = 'Firefox has no SpeechRecognition API, so the client never renders the webspeech language select';
@@ -49,5 +57,84 @@ test.describe('Audio captions - default transcription language', { tag: ['@ci', 
       'Disabled',
       'should open the audio settings with transcription disabled and leave it so',
     );
+  });
+});
+
+test.describe('Audio captions - on-device transcription (processLocally)', { tag: ['@ci', '@media'] }, () => {
+  const AVAILABILITY = {
+    'en-US': 'available',
+    'pt-BR': 'downloadable',
+    'es-ES': 'unavailable',
+    'fr-FR': 'unavailable',
+  } as const;
+
+  test('offers only the languages the browser can transcribe on the device', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, AVAILABILITY);
+    const audioCaptions = new AudioCaptions(browser, context);
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      shouldCloseAudioModal: false,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+    });
+
+    await audioCaptions.openAudioSettings();
+    await audioCaptions.hasTranscriptionLocales(
+      ['', 'en-US', 'pt-BR'],
+      'should list Disabled plus the languages that are available or downloadable on the device',
+    );
+  });
+
+  test('shows transcription as unsupported when the browser has no on-device recognition', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, AVAILABILITY, false);
+    const audioCaptions = new AudioCaptions(browser, context);
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      shouldCloseAudioModal: false,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+    });
+
+    await audioCaptions.openAudioSettings();
+    await audioCaptions.modPage.hasElement(
+      e.speechRecognitionUnsupported,
+      'should show transcription as unsupported instead of falling back to a speech recognition service',
+    );
+  });
+
+  test('installs the language pack and starts the recognition on the device', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, { ...AVAILABILITY, 'en-US': 'downloadable' });
+    const audioCaptions = new AudioCaptions(browser, context);
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      shouldCloseAudioModal: false,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+    });
+
+    await audioCaptions.modPage.joinMicrophone();
+    await expect
+      .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
+        message: 'should install the en-US language pack, then start an on-device recognition for en-US',
+      })
+      .toMatchObject({ installs: ['en-US'], starts: [{ lang: 'en-US', processLocally: true }] });
   });
 });

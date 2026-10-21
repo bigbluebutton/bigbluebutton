@@ -16,8 +16,10 @@ import {
   getLocale,
   hasSpeechRecognitionSupport,
   isLocaleValid,
+  isProcessLocally,
   localeAsDefaultSelected,
   mostSimilarLanguage,
+  prepareOnDeviceLanguage,
   setSpeechVoices,
   useFixedLocale,
 } from './service';
@@ -113,6 +115,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const harkInstanceRef = useRef<any>(null);
   const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onDeviceReadyRef = useRef(new Set<string>());
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
   const fixedLocaleResult = useFixedLocale();
@@ -141,6 +144,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
+    // Never falls back to a speech recognition service: the session fails instead
+    if (isProcessLocally()) speechRecognition.processLocally = true;
 
     return speechRecognition;
   };
@@ -331,6 +336,24 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
         return;
       }
 
+      if (isProcessLocally() && !onDeviceReadyRef.current.has(settedLocale)) {
+        prepareOnDeviceLanguage(settedLocale).then((ready) => {
+          if (!ready) {
+            logger.error({
+              logCode: 'captions_speech_recognition_language_pack_unavailable',
+              extraInfo: { locale: settedLocale },
+            }, 'Captions speech recognition has no on-device language pack for the locale');
+            return;
+          }
+          onDeviceReadyRef.current.add(settedLocale);
+          // The state may have changed while the language pack was downloading
+          if (connectedRef.current && !mutedRef.current && localeRef.current === settedLocale) {
+            start(settedLocale);
+          }
+        });
+        return;
+      }
+
       lastStartedAt.current = new Date().getTime();
       const track = getInputTrack(inputStreamRef.current);
       // A clone, as Chrome never ends a session whose track is stopped while it starts
@@ -496,6 +519,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       speakingTimerRef.current = setTimeout(() => {
         if (alertShownRef.current) return;
         if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
+        // Nothing is transcribed while the language pack downloads
+        if (isProcessLocally() && !onDeviceReadyRef.current.has(localeRef.current)) return;
 
         alertShownRef.current = true;
         const message = intl.formatMessage(intlMessages.microphoneAlertMessage);

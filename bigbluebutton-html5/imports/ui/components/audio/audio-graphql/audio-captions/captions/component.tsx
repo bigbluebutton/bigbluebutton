@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import {
-  getSpeechVoices,
+  useSpeechVoices,
   setUserLocaleProperty,
   useFixedLocale,
   isGladia,
@@ -154,7 +154,7 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   showTitleLabel = true,
 }) => {
   const [voicesList, setVoicesList] = React.useState<string[]>([]);
-  const voices = getSpeechVoices();
+  const voices = useSpeechVoices();
 
   useEffect(() => {
     if ((voices && voices.length > 0) && voicesList.length === 0) {
@@ -191,7 +191,8 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
     });
   }, [isEnabled, currentUser, speechLocale, fixedLocale, setSpeechLocaleMutation]);
 
-  if (!currentUser || !isEnabled) return null;
+  // Still checking which languages the browser transcribes on the device
+  if (!currentUser || !isEnabled || voices === undefined) return null;
 
   return (
     <AudioCaptionsSelect

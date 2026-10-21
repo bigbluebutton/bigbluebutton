@@ -1,10 +1,15 @@
+import { useEffect, useState } from 'react';
 import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
-import { hasSpeechRecognitionSupport } from './speech/service';
+import {
+  hasSpeechRecognitionSupport,
+  isOnDeviceLanguageSupported,
+  isProcessLocally,
+} from './speech/service';
 
 export const captionLimit = () => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
@@ -79,6 +84,28 @@ export const getSpeechVoices = () => {
   );
 };
 
+// The languages to offer: getSpeechVoices(), but with processLocally the configured languages
+// the browser can transcribe on the device. undefined while that is being checked.
+export const useSpeechVoices = (): string[] | null | undefined => {
+  const onDevice = isWebSpeechApi() && isProcessLocally() && hasSpeechRecognitionSupport();
+  const [onDeviceVoices, setOnDeviceVoices] = useState<string[]>();
+
+  useEffect(() => {
+    if (!onDevice) return () => {};
+
+    let active = true;
+    const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+    Promise.all(LANGUAGES.map(isOnDeviceLanguageSupported)).then((supported) => {
+      if (active) setOnDeviceVoices(LANGUAGES.filter((_, index) => supported[index]));
+    });
+
+    return () => { active = false; };
+  }, [onDevice]);
+
+  if (onDevice) return onDeviceVoices;
+  return getSpeechVoices();
+};
+
 export const setAudioCaptions = (value: boolean) => {
   setAudioCaptionEnable(value);
   // @ts-ignore - Exist while we have meteor in the project
@@ -126,6 +153,7 @@ export const showInSidebarNavigation = () => {
 
 export default {
   getSpeechVoices,
+  useSpeechVoices,
   useIsAudioTranscriptionEnabled,
   setUserLocaleProperty,
   setSpeechLocale,
