@@ -178,6 +178,7 @@ export const elements = {
   timeRemaining: 'span[data-test="timeRemaining"]',
   captureBreakoutSharedNotes: 'input[id="opt-captureNotes"]',
   captureBreakoutWhiteboard: 'input[id="opt-captureSlides"]',
+  recordBreakoutRooms: 'input[id="opt-record"]',
   inheritLockSettingsCheckbox: 'input[id="inheritLockSettingsCheckbox"]',
   selectBreakoutRoomBtn: '[data-test="selectBreakoutRoomBtn"]',
   roomOption: 'li[data-test="roomOption"]',
@@ -957,4 +958,9 @@ export const playbackElements = {
   seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
   progressBar: `${videoControlBar} div.vjs-play-progress`,
   mediaElement: 'div.video-js .vjs-tech',
+  webcamsVideo: 'div#webcams video',
+  screenshareVideo: 'div#screenshare video',
+  presentationShape: 'div#presentation div[data-shape-type="geo"]',
+  pollQuestion: 'div#chat div.poll-question',
+  pollResult: 'div#chat div.poll-result',
 } as const;

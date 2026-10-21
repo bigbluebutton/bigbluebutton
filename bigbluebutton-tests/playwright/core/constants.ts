@@ -22,4 +22,6 @@ export const VIDEO_LOADING_WAIT_TIME: number = 15000;
 export const UPLOAD_PDF_WAIT_TIME: number = 30000 * MULTIPLIER;
 // userLeftFlag expires after ~10s, audit tick runs every ~10s → notification can take up to ~20s
 export const USER_LEFT_NOTIFICATION_WAIT_TIME: number = 30000 * MULTIPLIER;
+// one rap worker processes every format of every ended meeting in turn
+export const RECORDING_PROCESSING_WAIT_TIME: number = 10 * 60000 * MULTIPLIER;
 export const CUSTOM_MEETING_ID: string = 'custom-meeting';

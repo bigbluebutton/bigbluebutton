@@ -109,7 +109,7 @@ export class Create extends MultiUsers {
   }
 
   // Create BreakoutRooms
-  async create(captureNotes = false, captureWhiteboard = false) {
+  async create(captureNotes = false, captureWhiteboard = false, record = false) {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
@@ -123,6 +123,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.moreOptionsToggle);
     if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
+    if (record) await this.modPage.page.check(e.recordBreakoutRooms);
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
     await this.userPage.waitAndClick(e.modalDismissButton);

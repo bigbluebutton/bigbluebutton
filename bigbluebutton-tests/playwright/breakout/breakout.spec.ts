@@ -1,3 +1,4 @@
+import { RECORDING_PROCESSING_WAIT_TIME } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ClientSettingsOverride } from './clientSettingsOverride';
@@ -319,5 +320,24 @@ test.describe.parallel('Breakout time limit', () => {
     await join.initPages(page, testInfo);
     await join.create();
     await join.roomsEndWhenTimeRunsOut();
+  });
+});
+
+test.describe.parallel('Breakout recording', { tag: '@nightly' }, () => {
+  test('Breakout room recording is published as a breakout of its parent', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    test.setTimeout(RECORDING_PROCESSING_WAIT_TIME + 3 * 60000);
+    const join = new Join(browser, context);
+    await join.initModPage(page, {
+      createParameter: 'record=true&breakoutRoomsRecord=true',
+      clientSettingsOverrides: { public: { app: { breakouts: { offerRecordingForBreakouts: true } } } },
+      testInfo,
+    });
+    await join.initUserPage(context, { testInfo });
+    await join.create(false, false, true);
+    await join.recordInBreakoutRoom();
   });
 });
