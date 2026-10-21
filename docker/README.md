@@ -58,8 +58,9 @@ deployments use their official images.
 - Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
 - Configuration is mounted at the bare-metal path. Where an image takes environment variables
-  into its default config file (bbb-apps-akka, bbb-web, export-annotations), a mounted file
-  replaces that and the variables are not used.
+  into its default config file (bbb-web, export-annotations), a mounted file replaces that and
+  the variables are not used. bbb-apps-akka reads them in upstream's `application.conf`, which a
+  mounted `bbb-apps-akka.conf` includes; keys set in that file win.
 - The entrypoint is the process, started as in its systemd unit (nginx images: the base image's).
   bbb-web and export-annotations have a few-line entrypoint that writes the variables below into
   the config unless it is mounted. graphql-server uses Hasura's entrypoint, which applies the
@@ -96,9 +97,9 @@ and `server_name` are deployment config.
 
 Only these are read; everything else is set in the mounted configuration.
 
-- **bbb-apps-akka** (HOCON `${?VAR}` in its default config): `SHARED_SECRET`, `BBB_WEB_API`,
-  `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `POSTGRES_HOST`, `POSTGRES_PASSWORD`; upstream's
-  `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`.
+- **bbb-apps-akka** (HOCON `${?VAR}` in upstream's `application.conf`): `SHARED_SECRET`,
+  `BBB_WEB_API`, `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `REDIS_PASSWORD`, `POSTGRES_HOST`,
+  `POSTGRES_PASSWORD`; upstream's `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`.
 - **bbb-web** (written to `bbb-web.properties` only if that file does not exist): `SERVER_URL`,
   `SHARED_SECRET`, `REDIS_HOST`; also `JDK_JAVA_OPTIONS` (heap) and `MALLOC_ARENA_MAX`.
 - **bbb-graphql-actions**: `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `BBB_REDIS_PASSWORD`,
