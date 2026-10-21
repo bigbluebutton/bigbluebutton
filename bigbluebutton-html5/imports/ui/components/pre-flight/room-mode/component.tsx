@@ -9,7 +9,7 @@ import { JoiningRoomActions } from '../joining-room/component';
 import JoinNotices from '../join-notices/component';
 import useMediaQuery from '/imports/ui/hooks/useMediaQuery';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import ROOM_MODES, { getRoomMode, SELECTABLE_ROOM_MODES } from './modes';
+import ROOM_MODES, { getRoomMode } from './modes';
 import RoomIllustration from './illustration';
 
 const intlMessages = defineMessages({
@@ -41,10 +41,6 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.roomMode.cancelLabel',
     description: 'Label of the button that clears the picked room mode',
   },
-  comingSoon: {
-    id: 'app.preFlight.roomMode.comingSoon',
-    description: 'Badge on a room mode card that cannot be picked yet',
-  },
   loading: {
     id: 'app.preFlight.roomMode.loading',
     description: 'Accessible label of the spinner shown while the room mode is read',
@@ -69,8 +65,8 @@ export const RoomModePanel: React.FC = () => {
   const isPhoneWidth = useMediaQuery(smallOnly);
   const selected = getRoomMode(roomMode);
   // Roving focus, as a radio group: one tab stop, arrows move between the
-  // cards that can be picked.
-  const focusableId = selected?.id ?? SELECTABLE_ROOM_MODES[0].id;
+  // cards.
+  const focusableId = selected?.id ?? ROOM_MODES[0].id;
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
     const step = {
@@ -78,7 +74,7 @@ export const RoomModePanel: React.FC = () => {
     }[event.key];
     if (!step) return;
     event.preventDefault();
-    const modes = SELECTABLE_ROOM_MODES;
+    const modes = ROOM_MODES;
     const current = modes.findIndex((mode) => mode.id === focusableId);
     const next = modes[(current + step + modes.length) % modes.length];
     setRoomMode(next.id);
@@ -109,8 +105,6 @@ export const RoomModePanel: React.FC = () => {
                   id={cardId(mode.id)}
                   role="radio"
                   aria-checked={isSelected}
-                  aria-disabled={mode.comingSoon || undefined}
-                  disabled={mode.comingSoon}
                   tabIndex={mode.id === focusableId ? 0 : -1}
                   $selected={isSelected}
                   onClick={() => setRoomMode(mode.id)}
@@ -126,9 +120,6 @@ export const RoomModePanel: React.FC = () => {
                     </Styled.CardName>
                     <Styled.CardHint>{intl.formatMessage(mode.hint)}</Styled.CardHint>
                   </Styled.CardText>
-                  {mode.comingSoon && (
-                    <Styled.ComingSoon>{intl.formatMessage(intlMessages.comingSoon)}</Styled.ComingSoon>
-                  )}
                 </Styled.Card>
               );
             })}
@@ -177,7 +168,7 @@ export const RoomModeActions: React.FC<RoomModeActionsProps> = ({ isJoining, onJ
   // rather than falling back to the page.
   const handleCancel = useCallback(() => {
     setRoomMode(null);
-    focusCard(SELECTABLE_ROOM_MODES[0].id);
+    focusCard(ROOM_MODES[0].id);
   }, [setRoomMode]);
 
   return (
