@@ -34,7 +34,6 @@ import {
   BlockTypeSelect,
   blockTypeSelectItems,
   ColorStyleButton,
-  ComponentProps,
   ComponentsContext,
   FormattingToolbar,
   getDefaultReactSlashMenuItems,
@@ -166,12 +165,11 @@ const intlMessages = defineMessages({
 
 // Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
 // Replace Generic.Menu.Root with this to let Tab exit the menu (WAI-ARIA pattern).
-// The dropdown stays inline in the toolbar, so the portal props are not used.
-const AccessibleMenuRoot: React.FC<ComponentProps['Generic']['Menu']['Root']> = ({
-  children,
-  onOpenChange,
-  position,
-}) => (
+const AccessibleMenuRoot: React.FC<{
+  children: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
+  position?: string;
+}> = ({ children, onOpenChange, position }) => (
   <MantineMenu
     withinPortal={false}
     middlewares={{
@@ -179,7 +177,8 @@ const AccessibleMenuRoot: React.FC<ComponentProps['Generic']['Menu']['Root']> = 
     }}
     trapFocus={false}
     onChange={onOpenChange}
-    position={position}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    position={position as any}
     returnFocus={false}
   >
     {children}
