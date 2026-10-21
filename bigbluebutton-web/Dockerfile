@@ -35,7 +35,6 @@ COPY --from=build /dist .
 COPY --from=build /bbb-web/pres-checker/lib /usr/share/prescheck/lib
 COPY --from=build /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
 COPY ./docker/run-in-systemd.sh /usr/share/bbb-web/run-in-systemd.sh
-COPY ./docker/entrypoint.sh /usr/local/bin/bbb-web-entrypoint
 # Office documents are converted by presOfficeConversionExec (/usr/share/bbb-libreoffice-conversion/convert.sh), which deployments provide
 COPY --from=slides / /usr/share/bigbluebutton/blank
 # gs reads it when PdfPageDownscaler rewrites a page
@@ -47,7 +46,7 @@ RUN sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/" /usr/share/bigbluebutton/ht
 
 # Log to stdout only; /var/bigbluebutton is where bbb-web stores presentations and heap dumps
 RUN sed -i '/<appender-ref ref="FILE"/d' WEB-INF/classes/logback.xml \
-    && install -d -o 998 -g 998 /var/bigbluebutton /var/bigbluebutton/diagnostics /etc/bigbluebutton
+    && install -d -o 998 -g 998 /var/bigbluebutton /var/bigbluebutton/diagnostics
 
 USER 998:998
 
@@ -59,4 +58,4 @@ HEALTHCHECK --start-period=120s CMD ["curl", "-fsS", "-o", "/dev/null", "http://
 # the heap settings are in an environment variable so that deployments can change them.
 ENV MALLOC_ARENA_MAX=2 \
     JDK_JAVA_OPTIONS="-Xms384m -Xmx384m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/bigbluebutton/diagnostics"
-ENTRYPOINT ["bbb-web-entrypoint", "java", "-Dgrails.env=prod", "-Dserver.address=0.0.0.0", "-Dserver.port=8090", "-Dspring.main.allow-circular-references=true", "-cp", ".", "org.springframework.boot.loader.launch.WarLauncher"]
+ENTRYPOINT ["java", "-Dgrails.env=prod", "-Dserver.address=0.0.0.0", "-Dserver.port=8090", "-Dspring.main.allow-circular-references=true", "-cp", ".", "org.springframework.boot.loader.launch.WarLauncher"]
