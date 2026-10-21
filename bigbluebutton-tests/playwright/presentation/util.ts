@@ -287,6 +287,90 @@ export async function uploadOversizedPresentation(testPage: Page, fileName: stri
   await testPage.waitForSelectorDetached(e.presentationFileUpload);
 }
 
+export interface GeneratedFile {
+  name: string;
+  mimeType: string;
+  buffer: Buffer;
+}
+
+// The first half of a real PDF, as an interrupted download leaves it: no trailer and no
+// cross-reference table, so the page count cannot be read.
+export function buildTruncatedPdf(): GeneratedFile {
+  const pdf = readFileSync(path.join(__dirname, '../core/media/sample.pdf'));
+  return { name: 'truncated.pdf', mimeType: 'application/pdf', buffer: pdf.subarray(0, Math.floor(pdf.length / 2)) };
+}
+
+// A Windows executable named like a PDF: the extension is allowed, the content type is not.
+export function buildExecutableNamedPdf(): GeneratedFile {
+  return {
+    name: 'program.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.concat([Buffer.from('MZ'), Buffer.alloc(510, 0x90)]),
+  };
+}
+
+// A valid PDF of blank pages, a few dozen bytes each.
+export function buildPdfWithPages(pageCount: number): GeneratedFile {
+  const objects = [
+    '<</Type/Catalog/Pages 2 0 R>>',
+    `<</Type/Pages/Kids[${Array.from({ length: pageCount }, (_, i) => `${i + 3} 0 R`).join(' ')}]/Count ${pageCount}>>`,
+    ...Array.from({ length: pageCount }, () => '<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 150]>>'),
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = objects.map((body, i) => {
+    const offset = pdf.length;
+    pdf += `${i + 1} 0 obj${body}endobj\n`;
+    return offset;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  pdf += offsets.map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`).join('');
+  pdf += `trailer<</Size ${objects.length + 1}/Root 1 0 R>>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return { name: `${pageCount}Pages.pdf`, mimeType: 'application/pdf', buffer: Buffer.from(pdf) };
+}
+
+function getCurrentSlideSrc(testPage: Page) {
+  return testPage.page.evaluate(
+    ([selector]) => (document.querySelector(selector) as HTMLElement | null)?.style?.backgroundImage ?? null,
+    [e.currentSlideImg],
+  );
+}
+
+// Sibling of uploadSinglePresentation for a file the server refuses after the upload: the
+// upload toast shows the reason on the file's row, and nothing replaces the current presentation.
+export async function uploadRefusedPresentation(testPage: Page, file: GeneratedFile, errorText: string) {
+  await testPage.hasElement(e.whiteboard, 'should display the current presentation', UPLOAD_PDF_WAIT_TIME);
+  const slideBefore = await getCurrentSlideSrc(testPage);
+  expect(slideBefore, 'should show a slide before the upload').toBeTruthy();
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(
+    e.presentationFileUpload,
+    'should display the presentation space for uploading a new file, when the manage presentations is opened',
+  );
+  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
+  const presentationsBefore = await testPage.page.locator(e.presentationNames).allInnerTexts();
+
+  await testPage.page.setInputFiles(e.presentationFileUpload, file);
+
+  await expect(
+    testPage.page.locator(e.presentationUploadProgressToast).filter({ hasText: file.name }),
+    `should show why ${file.name} was refused on the upload toast`,
+  ).toContainText(errorText, { timeout: UPLOAD_PDF_WAIT_TIME });
+  await testPage.press('Escape'); // close the media sharing menu
+  await testPage.waitForSelectorDetached(e.presentationFileUpload);
+  expect(await getCurrentSlideSrc(testPage), 'should keep the current presentation on the whiteboard').toBe(
+    slideBefore,
+  );
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await expect(
+    testPage.page.locator(e.presentationNames),
+    'should not add the refused file to the presentations',
+  ).toHaveText(presentationsBefore);
+  await testPage.press('Escape');
+}
+
 export async function uploadMultiplePresentations(
   testPage: Page,
   fileNames: string[],

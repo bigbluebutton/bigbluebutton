@@ -5,6 +5,9 @@ import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
+  buildExecutableNamedPdf,
+  buildPdfWithPages,
+  buildTruncatedPdf,
   checkSvgIndex,
   expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
@@ -18,6 +21,7 @@ import {
   isExternalVideoPaused,
   routeExternalVideo,
   uploadMultiplePresentations,
+  uploadRefusedPresentation,
   uploadSinglePresentation,
 } from './util';
 
@@ -1005,5 +1009,18 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.selectSlide('Slide 13');
     await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png');
+  }
+
+  async truncatedPdfIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildTruncatedPdf(), e.presentationPageCountFailedLabel);
+  }
+
+  async executableNamedPdfIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildExecutableNamedPdf(), e.presentationInvalidMimeTypeLabel);
+  }
+
+  // One page over maxNumPages, assumed to be the default 200
+  async tooManyPagesIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
   }
 }

@@ -79,7 +79,7 @@ export class Create extends MultiUsers {
     await this.modPage.hasElement(e.roomOptions1, 'should display the first breakout room options button');
   }
 
-  private async joinFirstBreakoutRoomAsModerator() {
+  protected async joinFirstBreakoutRoomAsModerator() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const isRoomOptionsVisible = await this.modPage.page

@@ -565,6 +565,107 @@ export class LockViewers extends MultiUsers {
     );
   }
 
+  async liftingLocksRestoresCapabilities() {
+    await this.initUserPage2();
+    await startSharedNotesBlockNote(this.userPage);
+    await this.setParticipantLocks([e.lockPublicChat, e.lockEditSharedNotes, e.lockUserList], true);
+
+    await this.userPage.hasElement(e.blockNoteReadOnly, 'should make the shared notes read-only for the attendee');
+    await this.userPage2.hasElementDisabled(e.chatBox, 'should disable the public chat for the second attendee');
+    await this.userPage2.waitAndClick(e.usersListSidebarButton);
+    await this.userPage2.hasElementCount(
+      e.userListItem,
+      1,
+      'should hide the other attendee from the second attendee, leaving only the moderator',
+    );
+
+    await this.setParticipantLocks([e.lockPublicChat, e.lockEditSharedNotes, e.lockUserList], false);
+
+    // the same pages, not reloaded, get each capability back
+    await this.userPage2.hasElementCount(
+      e.userListItem,
+      2,
+      'should show the other attendee again once the user list lock is lifted',
+    );
+    await this.userPage.hasElement(
+      e.blockNoteEditable,
+      'should make the shared notes editable again once the notes lock is lifted',
+    );
+    await this.userPage2.waitAndClick(e.messagesSidebarButton);
+    await this.userPage2.hasElementEnabled(
+      e.chatBox,
+      'should enable the public chat again once the chat lock is lifted',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.fill(e.chatBox, e.message);
+    await this.userPage2.waitAndClick(e.sendButton);
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should deliver the message the second attendee sent after the chat lock was lifted',
+    );
+  }
+
+  async unlockingOneUserOverridesTheGlobalLock() {
+    await this.initUserPage2();
+    await this.setParticipantLocks([e.lockPublicChat], true);
+    await this.userPage.hasElementDisabled(e.chatBox, 'should disable the public chat for the first attendee');
+    await this.userPage2.hasElementDisabled(e.chatBox, 'should disable the public chat for the second attendee');
+
+    const attendeeRow = this.modPage.page.locator(`${e.userListItem}[aria-label="${this.userPage.username}"]`);
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    const lockToggle = this.modPage.page.locator(`${e.unlockUserButton}:visible`).first();
+    await expect(lockToggle, 'should offer to unlock the first attendee').toHaveText(
+      `Unlock ${this.userPage.username}`,
+    );
+    await lockToggle.click();
+
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should enable the public chat for the unlocked attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await this.userPage2.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should deliver the message of the unlocked attendee to the second attendee',
+    );
+    // the message arrived after the unlock was applied, so the other attendee is checked after it
+    await this.userPage2.hasElementDisabled(
+      e.chatBox,
+      'should keep the public chat disabled for the attendee who was not unlocked',
+    );
+
+    // locking the attendee again puts the meeting-wide lock back on them
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await expect(lockToggle, 'should offer to lock the unlocked attendee again').toHaveText(
+      `Lock ${this.userPage.username}`,
+    );
+    await lockToggle.click();
+    await this.userPage.hasElementDisabled(
+      e.chatBox,
+      'should disable the public chat again for the attendee locked again',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  // sets participant locks in the lock viewers modal and applies them; a checked
+  // toggle there means the viewers are allowed, an unchecked one that they are locked
+  async setParticipantLocks(locks: string[], locked: boolean) {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    for (const lock of locks) {
+      const lockToggle = this.modPage.page.locator(lock);
+      if ((await lockToggle.isChecked()) === locked) await this.modPage.waitAndClickElement(lock);
+      await expect(lockToggle, `should ${locked ? 'lock' : 'unlock'} ${lock}`).toBeChecked({ checked: !locked });
+    }
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers modal once applied');
+  }
+
   async presenterPolicyModeratorOnly() {
     await setPresentationPermission(this.modPage, e.presModeratorOnly);
     // Moderator should see a notification that presenter requests are disabled

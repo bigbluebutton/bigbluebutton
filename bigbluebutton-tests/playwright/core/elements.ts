@@ -45,6 +45,10 @@ export const elements = {
   lowerHandUserItem: 'div[data-test="lowerHand"]',
   raiseHandWrapper: 'div[data-test="raiseHandWrapper"]',
   meetingEndedModal: 'div[data-test="meetingEndedModal"]',
+  meetingEndedByUserMessage: 'has ended this session',
+  meetingEndedBySystemMessage: 'The session has ended - terminated by the system',
+  loggedOutMessage: 'You have logged out of the conference',
+  joinedAnotherWindowMessage: 'This session seems to be opened in another browser window.',
   redirectButton: 'button[data-test="redirectButton"]',
   leaveMeetingDropdown: 'button[data-test="leaveMeetingDropdown"]',
   directLogoutButton: 'li[data-test="directLogoutButton"]',
@@ -64,6 +68,16 @@ export const elements = {
   restoreWelcomeMessages: 'li[data-test="restoreWelcomeMessages"]',
   navigationSidebarContainer: 'div[data-test="navigationSidebarContainer"]',
   appsGallerySidebarButton: 'div[data-test="appsGallerySidebarButton"]',
+  // the gallery items and their pin toggles carry no data-test: an item is the
+  // button named after the app, its pin toggle the pressable button next to it
+  appsGalleryTitle: 'header[data-test="appsGalleryTitle"]',
+  appsGallerySearch: '[data-test="sidebarContentMain"] input[aria-label="Search"]',
+  appsGalleryItem: '[data-test="sidebarContentMain"] #scroll-box [role="button"]:not([aria-pressed])',
+  appsGalleryPinToggle: '[role="button"][aria-pressed]',
+  pinnedAppsCounter: '[data-test="sidebarContentMain"] span:has-text("pinned apps")',
+  breakoutRoomsApp: 'Breakout Rooms',
+  pollingApp: 'Polling',
+  timerApp: 'Timer and Stopwatch',
 
   // Accesskey
   userListButton: 'button[accesskey="U"]',
@@ -100,6 +114,10 @@ export const elements = {
   muteMicButton: 'button[data-test="muteMicButton"]',
   speechRecognition: 'select[id="speechSelect"]',
   speechRecognitionUnsupported: 'div[data-test="speechRecognitionUnsupported"]',
+  audioHelpListenOnlyButton: 'button[data-test="helpListenOnlyBtn"]',
+  audioHelpRetryMicButton: 'button[data-test="helpRetryMicBtn"]',
+  microphonePermissionHelpLabel: 'We need access to your microphone',
+  unmuteConsentTitle: 'A moderator is asking you to unmute',
 
   // Breakout
   createBreakoutRoomsButton: 'button[data-test="createBreakoutRoomsButton"]',
@@ -177,6 +195,8 @@ export const elements = {
   listenToBreakoutRoomButton2: 'li[data-test="listenToBreakoutRoomButton2"]',
   breakoutTransferReturnButton: 'button[data-test="breakoutTransferReturnButton"]',
   breakoutListenToast: 'div[data-test="breakoutListenToast"]',
+  breakoutEndedByModeratorLabel: 'The breakout has ended - terminated by Moderator',
+  breakoutEndedAfterDurationLabel: 'The breakout has ended due to exceeding the maximum duration',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',
@@ -243,6 +263,8 @@ export const elements = {
   allowAllAuthenticatedWaiting: 'button[data-test="allowAllAuthenticated"]',
   denyAllAuthenticatedWaiting: 'button[data-test="denyAllAuthenticated"]',
   userListSearch: 'input[aria-label="Search users"]',
+  clearUserListSearch: 'button[aria-label="Clear search"]',
+  noSearchResultsMessage: 'No participants match your search. Try another name.',
   welcomeMessage: 'h1[id="welcome-message"]',
   chatMessageEditedLabel: 'span[data-test="chatMessageEditedLabel"]',
   chatEditingWarningContainer: 'div[data-test="chatEditingWarningContainer"]',
@@ -299,6 +321,7 @@ export const elements = {
   htmlPayloadEditedMessage: '<img src=x onerror=window.chatPayloadRan=8> edited',
   imageMarkdownMessage: 'look ![diagram](https://example.org/diagram.png) here',
   uniqueCharacterMessage: 'A',
+  chatMaxLengthWarning: 'The message is too long, exceeded the maximum of',
 
   // CustomParameters
   audioOptionsButtons: 'span[data-test="audioModalOptions"] > button',
@@ -317,7 +340,8 @@ export const elements = {
   recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
   webcamMirroredVideoContainer: 'video[data-test="mirroredVideoContainer"]',
   currentUserLocalStreamVideo: 'video[data-local-stream="true"]',
-  remoteStreamVideo: 'video[data-local-stream="false"]',
+  // another user's camera, not the placeholder tile of the user's own camera-less audio
+  remoteStreamVideo: 'video[data-local-stream="false"][data-current-user-stream="false"]',
   usersList: 'div[data-test="userListPanel"]',
   selectCameraQualityId: 'select[id="setQuality"]',
   virtualBackgrounds: 'div[data-test="virtualBackground"]',
@@ -422,6 +446,9 @@ export const elements = {
   callModeratorSentToast: 'Moderators have been notified.',
   callModeratorCooldownToast: 'Please wait before calling the moderators again.',
   requestingModeratorAssistance: 'is requesting moderator assistance.',
+  presenterRequestDescription: 'is asking to present in the session.',
+  presenterRequestDeniedToast: 'Your request to present was denied by the moderator.',
+  presenterRequestDisabledToast: 'Presenter request is now disabled for viewers',
   // Icons
   unmuteIcon: `${baseBbbIcon}unmute`,
   listenOnlyIcon: `${baseBbbIcon}listen`,
@@ -432,6 +459,7 @@ export const elements = {
   answerMessage: 'All good!',
   questionSlideFileName: 'mockPollSlide.pdf',
   pollSidebarButton: 'div[data-test="pollSidebarButton"]',
+  pollPaneTitle: 'header[data-test="pollPaneTitle"]',
   minimizePolling: 'button[data-test="minimizePolling"]',
   startPoll: 'button[data-test="startPoll"]',
   hidePollDesc: 'button[data-test="hidePollDesc"]',
@@ -554,6 +582,11 @@ export const elements = {
   noPresentationLabel: 'There is no currently active presentation',
   presentationDownloadEnabledLabel: 'You can now download the presentation',
   presentationTooLargeLabel: 'File is too large, exceeded the maximum of',
+  presentationPageCountFailedLabel: 'Failed to determine the number of pages.',
+  presentationInvalidMimeTypeLabel: 'Invalid format detected (extension=pdf, content type=application/x-msdownload)',
+  presentationPageCountExceededLabel: 'Number of pages exceeded maximum of 200',
+  screenCapturePermissionErrorLabel: 'Code 1136. Permission to capture the screen needs to be granted.',
+  helpLinkToastButton: 'button[data-test="helpLinkToastButton"]',
 
   // Settings
   settingsSidebarButton: 'div[data-test="settingsSidebarButton"]',
@@ -579,6 +612,8 @@ export const elements = {
   usersListSidebarButton: 'div[data-test="usersListSidebarButton"]',
   toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
   currentUser: 'div[data-test="userListItemCurrent"]',
+  raisedHandsListItem: 'div[data-test="raisedHandsListItem"]',
+  raisedHandRank: 'div[data-test="raisedHandRank"]',
   // the avatar shows a clock while the user is away (an icon when reactions are disabled)
   awayIndicator: 'em-emoji[native="⏰"], i.icon-bbb-time',
   userStatusSelector: 'div[aria-labelledby~="status-label-id"][aria-haspopup="listbox"]',
@@ -779,6 +814,8 @@ export const elements = {
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
   webcamUserStatus: 'div[data-test="webcamUserStatus"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
+  cancelSharingWebcam: 'button[data-test="cancelSharingWebcam"]',
+  webcamPermissionErrorLabel: 'Permission to access webcams needs to be granted',
   resizeWebcamHandler: 'div#cameraDock + div > div[style*="user-select: none"]',
 
   // Whiteboard
@@ -879,6 +916,7 @@ export const elements = {
   meetingDurationTimeDashboard: 'p[data-test="meetingDurationTimeDashboard"]',
   userNameDashboard: 'td[data-test="userLabelDashboard"] button',
   userWebcamTimeDashboard: 'td[data-test="userWebcamTimeDashboard"]',
+  userTalkTimeDashboard: 'td[data-test="userTotalTalkTimeDashboard"]',
   userRaiseHandDashboard: 'td[data-test="userRaiseHandDashboard"]',
   userStatusDashboard: 'td[data-test="userStatusDashboard"]',
   userActivityScoreDashboard: 'td[data-test="userActivityScoreDashboard"]',

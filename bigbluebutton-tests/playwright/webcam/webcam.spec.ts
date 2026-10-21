@@ -1,6 +1,7 @@
 import { devices } from '@playwright/test';
 
 import { linkIssue } from '../core/helpers';
+import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
@@ -27,6 +28,13 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.initModPage(page, { testInfo });
     await webcam.initUserPage(context, { testInfo });
     await webcam.viewerReceivesWebcam();
+  });
+
+  test('A refused camera shows the permission error in the preview', async ({ browser, page }, testInfo) => {
+    await refuseMedia(page, ['video']);
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, { testInfo });
+    await webcam.refusedCameraPermission();
   });
 
   test('Webcam talking indicator', async ({ browser, page }, testInfo) => {

@@ -1,9 +1,13 @@
 import { initializePages, linkIssue } from '../core/helpers';
-import { isLiveKit } from '../core/livekit';
+import { isLegacy, isLiveKit } from '../core/livekit';
+import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
+import { constants as c } from '../parameters/constants';
 import { Audio } from './audio';
 import { E2E_ECHO_TEST_SETTINGS_OVERRIDE } from './util';
+
+const UNMUTE_WITH_CONSENT = `${c.allowModsToUnmuteUsers}&requireUserConsentBeforeUnmuting=true`;
 
 test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   let audio: Audio;
@@ -110,5 +114,52 @@ test.describe.parallel('Audio reception', { tag: ['@ci', '@media'] }, () => {
     await audio.initModPage(page, { testInfo });
     await audio.initUserPage(context, { testInfo });
     await audio.listenerReceivesSpeech();
+  });
+});
+
+test.describe.parallel('Microphone permission', { tag: ['@ci', '@media'] }, () => {
+  test('A refused microphone shows the permission help and can be retried', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    await refuseMedia(page, ['audio']);
+    const audio = new Audio(browser, context);
+    await audio.initModPage(page, { joinParameter: c.autoJoin, shouldCloseAudioModal: false, testInfo });
+    await audio.refusedMicrophonePermission();
+  });
+});
+
+test.describe.parallel('Unmute consent', { tag: ['@ci', '@media'] }, () => {
+  let audio: Audio;
+
+  test.beforeEach(async ({ browser, context, page }, testInfo) => {
+    audio = new Audio(browser, context);
+    await audio.initModPage(page, { createParameter: UNMUTE_WITH_CONSENT, testInfo });
+    await audio.initUserPage(context, { testInfo });
+  });
+
+  test('An attendee who declines stays muted', async () => {
+    await audio.unmuteConsentDeclined();
+  });
+
+  test('An attendee who accepts is unmuted', async () => {
+    await audio.unmuteConsentAccepted();
+  });
+});
+
+test.describe.parallel('Mixed media bridges', { tag: '@ci' }, () => {
+  test('Audio on bbb-webrtc-sfu with cameras on the default bridge', async ({ browser, context, page }, testInfo) => {
+    test.skip(isLegacy, 'the legacy run puts every media type on bbb-webrtc-sfu');
+    await trackPeerConnections(context);
+    const modSocketUrls: string[] = [];
+    page.on('websocket', (socket) => modSocketUrls.push(socket.url()));
+    const audio = new Audio(browser, context);
+    await audio.initModPage(page, {
+      createParameter: 'audioBridge=bbb-webrtc-sfu',
+      shouldCloseAudioModal: false,
+      testInfo,
+    });
+    await audio.audioAndCameraOnDifferentBridges(modSocketUrls);
   });
 });

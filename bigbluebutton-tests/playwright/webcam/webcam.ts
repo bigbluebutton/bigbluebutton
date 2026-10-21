@@ -2,6 +2,7 @@ import { BrowserContext, expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { allowMedia } from '../core/mediaPermissions';
 import { Page } from '../core/page';
 import {
   checkBackgroundThumbnailColumns,
@@ -41,6 +42,23 @@ export class Webcam extends Page {
     );
     const respUser = await webcamContentCheck(this);
     await expect(respUser, 'should display the user webcam').toBeTruthy();
+  }
+
+  async refusedCameraPermission() {
+    await this.waitAndClick(e.joinVideo);
+    await this.hasText(
+      e.webcamSettingsModal,
+      e.webcamPermissionErrorLabel,
+      'should tell the user that the camera permission was refused',
+    );
+    await this.hasElementDisabled(e.startSharingWebcam, 'should not offer to share a camera it cannot open');
+    await this.waitAndClick(e.cancelSharingWebcam);
+    await this.wasRemoved(e.webcamSettingsModal, 'should close the webcam settings');
+    await this.wasRemoved(e.leaveVideo, 'should not show a camera as shared');
+    await this.hasElementEnabled(e.joinVideo, 'should keep the share webcam button usable');
+    // The same button shares the camera once the permission is granted, so nothing was left half started.
+    await allowMedia(this.page);
+    await this.shareWebcam();
   }
 
   async talkingIndicator() {

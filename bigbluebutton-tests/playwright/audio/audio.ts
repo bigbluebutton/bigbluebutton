@@ -2,9 +2,11 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { allowMedia } from '../core/mediaPermissions';
 import { expectAudioReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
 import { awayIndicatorLocator, hasUserListMicState, isTalkingLocator, setAway } from '../user/util';
+import { remoteWebcamContentCheck } from '../webcam/util';
 import {
   areRemoteAudioElementsPlaying,
   connectMicrophone,
@@ -17,6 +19,7 @@ import {
 
 // Long enough for an unmute that should not happen to reach the server and show as talking.
 const IGNORED_KEY_HOLD_TIME = 3000;
+const DECLINED_UNMUTE_WAIT = 3000;
 
 export class Audio extends MultiUsers {
   async muteButtonCooldown() {
@@ -428,5 +431,107 @@ export class Audio extends MultiUsers {
       this.userPage.page.locator(e.userAwayStatusMessage).last(),
       'should display the available status message to the other participant',
     ).toContainText(`${this.modPage.username} is available`);
+  }
+
+  async refusedMicrophonePermission() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.clickMicrophoneButton();
+    await this.modPage.hasText(
+      e.audioModal,
+      e.microphonePermissionHelpLabel,
+      'should tell the user that the microphone permission was refused',
+    );
+    await this.modPage.hasElement(e.audioHelpListenOnlyButton, 'should offer to join listen only instead');
+    await this.modPage.wasRemoved(e.establishingAudioLabel, 'should not stay connecting to audio');
+    await this.modPage.wasRemoved(e.audioDropdownMenu, 'should not join audio with a refused microphone');
+    // Retrying once the permission is granted joins the microphone, so nothing was left half connected.
+    await allowMedia(this.modPage.page);
+    await this.modPage.waitAndClick(e.audioHelpRetryMicButton);
+    await this.modPage.waitForSelector(e.stopHearingButton);
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.hasElement(
+      e.audioDropdownMenu,
+      'should join audio with the microphone once the permission is granted',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await ensureUnmuted(this.modPage);
+  }
+
+  // The moderator asks the muted attendee to unmute. The attendee is asked first and
+  // stays muted while the request is pending.
+  private async moderatorRequestsUnmute() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const { username } = this.userPage;
+    await joinMutedMicrophone(this.userPage);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.page.locator(e.userListItem, { hasText: username }).locator(e.unmuteUser).click();
+    await this.userPage.hasText(
+      e.simpleModal,
+      e.unmuteConsentTitle,
+      'should ask the attendee for consent before unmuting them',
+    );
+    await this.userPage.hasElement(e.unmuteMicButton, 'should keep the attendee muted until they answer');
+    await expect(
+      isTalkingLocator(this.modPage, username),
+      'the moderator should not hear the attendee before they consent',
+    ).toBeHidden();
+  }
+
+  async unmuteConsentDeclined() {
+    const { username } = this.userPage;
+    await this.moderatorRequestsUnmute();
+    await this.userPage.waitAndClick(e.denyUnmuteButton);
+    await this.userPage.wasRemoved(e.simpleModal, 'should close the consent request once the attendee declines');
+    await this.userPage.page.waitForTimeout(DECLINED_UNMUTE_WAIT);
+    await this.userPage.hasElement(e.unmuteMicButton, 'should keep the attendee muted after they decline');
+    await expect(
+      isTalkingLocator(this.modPage, username),
+      'the moderator should not hear the attendee who declined',
+    ).toBeHidden();
+    await expect(
+      this.modPage.page.locator(e.userListItem, { hasText: username }).locator(e.unmuteUser),
+      'the moderator should still see the attendee muted',
+    ).toBeVisible();
+  }
+
+  async unmuteConsentAccepted() {
+    const { username } = this.userPage;
+    await this.moderatorRequestsUnmute();
+    await this.userPage.waitAndClick(e.confirmUnmuteButton);
+    await this.userPage.wasRemoved(e.simpleModal, 'should close the consent request once the attendee accepts');
+    await this.userPage.hasElement(e.muteMicButton, 'should unmute the attendee who accepted');
+    await expect(
+      isTalkingLocator(this.modPage, username),
+      'the moderator should hear the attendee after they consent',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  // Meeting created with audioBridge=bbb-webrtc-sfu only, so cameras stay on the server default
+  async audioAndCameraOnDifferentBridges(modSocketUrls: string[]) {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    // Audio on bbb-webrtc-sfu asks to choose microphone or listen only, which LiveKit audio skips
+    await this.modPage.waitAndClick(e.microphoneButton);
+    await connectMicrophone(this.modPage);
+    await ensureUnmuted(this.modPage);
+    // Before the attendee joins: their camera-less tile would keep a connecting placeholder in the grid
+    await this.modPage.shareWebcam();
+    await this.initUserPage(this.context, { shouldCloseAudioModal: false });
+    await this.userPage.waitAndClick(e.microphoneButton);
+    await connectMicrophone(this.userPage);
+    await expectAudioReceived(this.userPage.page, 'the attendee should receive the moderator speech');
+    await remoteWebcamContentCheck(this.userPage);
+    expect(
+      modSocketUrls.some((url) => url.includes('/bbb-webrtc-sfu')),
+      'the moderator audio should be signalled through bbb-webrtc-sfu',
+    ).toBe(true);
+    expect(
+      modSocketUrls.some((url) => url.includes('/livekit')),
+      'the moderator camera should be signalled through LiveKit',
+    ).toBe(true);
   }
 }

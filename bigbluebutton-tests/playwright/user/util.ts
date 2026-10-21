@@ -75,6 +75,18 @@ export function awayIndicatorLocator(testPage: Page, userName: string): Locator 
   return testPage.page.locator(e.userListItem, { hasText: userName }).locator(e.awayIndicator);
 }
 
+// The names on the participant rows of the user list, the current user's row included.
+export async function userListRowNames(testPage: Page): Promise<string[]> {
+  return testPage.page
+    .locator(`${e.userListItem}, ${e.currentUser}`)
+    .evaluateAll((rows) => rows.map((row) => row.getAttribute('aria-label') ?? ''));
+}
+
+// The title of the raised hands section, which carries the number of hands listed.
+export function raisedHandsTitle(testPage: Page): Locator {
+  return testPage.page.locator(e.userListPanel).getByText(/^Raised Hands \(\d+\)$/);
+}
+
 // Sets the user away through the status selector of the profile panel, then closes the panel.
 export async function setAway(testPage: Page) {
   await testPage.waitAndClick(e.profileSidebarButton);
