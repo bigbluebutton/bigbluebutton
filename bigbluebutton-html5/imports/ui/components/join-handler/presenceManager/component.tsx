@@ -322,7 +322,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       />
     );
     if (roomModePanel.show) {
-      preFlightPanel = <RoomModePanel />;
+      preFlightPanel = <RoomModePanel isJoining={joinRequested} />;
       preFlightActions = (
         <RoomModeActions
           isJoining={joinRequested}

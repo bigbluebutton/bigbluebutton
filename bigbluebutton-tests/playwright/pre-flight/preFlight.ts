@@ -29,7 +29,7 @@ const GUEST_DENIED_LOGOUT_URL = /reasonCode=guest_deny_reason/;
 const GRAPHQL_RETRY_WAIT = 10000 + ELEMENT_WAIT_LONGER_TIME;
 const JOIN_RETRY_TIMEOUT = 20000 + ELEMENT_WAIT_LONGER_TIME;
 
-const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
+export const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
 
 // 1012 (service restart): graphql-ws reconnects on it, where most 1xxx codes,
 // 1011 included, are fatal to it and end the retries.
