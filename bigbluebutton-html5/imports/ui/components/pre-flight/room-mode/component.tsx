@@ -120,7 +120,8 @@ export const RoomModePanel: React.FC = () => {
             })}
           </Styled.Cards>
         </Styled.Picker>
-        <Styled.Summary aria-live="polite" $empty={!selected}>
+        {/* No live region: the checked radio already announces the pick. */}
+        <Styled.Summary>
           {selected ? (
             <Styled.Selected data-test="preFlightRoomModeSelected">
               <Styled.CardIcon aria-hidden $selected>
