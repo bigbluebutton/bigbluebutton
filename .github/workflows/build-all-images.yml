@@ -78,11 +78,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Each platform is pushed under its own tag; the merge job joins them under $TAG.
+      # Each platform is pushed under <commit>-<platform>; the merge job joins the images of this commit
+      # only under $TAG and $TAG-<commit>, so a re-run can never mix commits.
       # The cache is written only by pushes, pull requests read it; mode=min keeps 15 x 2 scopes in the 10 GB limit.
       - uses: docker/bake-action@v6
         env:
-          BBB_IMAGE_TAG: ${{ env.TAG }}-${{ matrix.platform }}
+          BBB_IMAGE_TAG: ${{ github.sha }}-${{ matrix.platform }}
         with:
           source: .
           targets: ${{ matrix.target }}
@@ -108,7 +109,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Join the amd64 and arm64 images under one tag
+      - name: Join the amd64 and arm64 images under the branch and commit tags
         env:
           TARGETS: ${{ join(fromJSON(needs.targets.outputs.targets), ' ') }}
         run: |
@@ -116,7 +117,7 @@ jobs:
             image="$BBB_IMAGE_REGISTRY/bbb-$t:$TAG"
             sources=()
             for p in $(docker buildx bake --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
-              sources+=("$image-$p")
+              sources+=("$BBB_IMAGE_REGISTRY/bbb-$t:$GITHUB_SHA-$p")
             done
-            docker buildx imagetools create -t "$image" "${sources[@]}"
+            docker buildx imagetools create -t "$image" -t "$image-${GITHUB_SHA::7}" "${sources[@]}"
           done
