@@ -73,6 +73,16 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.fitsCardsOnTablet(page, { testInfo });
   });
 
+  test('Shows the join notices in the panel footer', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.showsJoinNoticesInPanelFooter(page, { testInfo });
+  });
+
+  test('No panel for a bot moderator', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.noPanelForBot(page, { testInfo });
+  });
+
   test('Keeps the join notices visible on a phone', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.showsJoinNoticesOnPhone(page, { testInfo });

@@ -455,4 +455,41 @@ export class RoomModePanel extends RoomMode {
     ).toBe(true);
     expect(await this.modPage.getSelectorCount(e.preFlightJoiningWithoutAudio), 'should show the notice once').toBe(1);
   }
+
+  // On a desktop the panel takes the join step's place, so the join's notices
+  // move to the panel's footer, beside the start button.
+  async showsJoinNoticesInPanelFooter(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.addInitScript(refuseDevices, { audio: true, video: false });
+    await this.initModPageWithPanel(page, { joinParameter: NO_LISTEN_ONLY_JOIN_PARAMETER, ...options });
+
+    await this.modPage.hasElement(
+      e.preFlightDevicePermission,
+      'should display the device permission screen for the refused microphone',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.waitAndClick(e.preFlightWithoutMicrophoneButton);
+    await hasPanel(this.modPage);
+    await this.modPage.hasElement(e.preFlightJoiningWithoutAudio, 'should say the join carries no audio');
+    expect(
+      await isUncovered(this.modPage, e.preFlightJoiningWithoutAudio),
+      'should show the notice where it can be seen',
+    ).toBe(true);
+    expect(await this.modPage.getSelectorCount(e.preFlightJoiningWithoutAudio), 'should show the notice once').toBe(1);
+  }
+
+  // Bots never get the pre-flight, so they never get the panel either.
+  async noPanelForBot(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await page.addInitScript(watchForPreFlight);
+    await this.initModPage(page, { ...ROOM_MODE_PANEL_INIT_OPTIONS, joinParameter: 'bot=true', ...options });
+    await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    expect(
+      await readRoomModePanelSetting(page),
+      'should have the room mode panel turned on for the bot',
+    ).toBe(true);
+    expect(
+      await page.evaluate(() => window.preFlightSeen),
+      'should send a bot moderator straight into the meeting',
+    ).toBe(false);
+  }
 }
