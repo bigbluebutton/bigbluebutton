@@ -278,9 +278,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadPresentationKeepsSourceDimensions();
     });
 
-    test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      // duplicate toast notification displayed
-      linkIssue(24056);
+    test('Upload and remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadAndRemoveAllPresentations();

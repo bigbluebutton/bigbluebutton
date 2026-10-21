@@ -185,8 +185,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.camerasOnly();
     });
 
-    test('PRESENTATION_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
+    test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, {
         createParameter: c.presentationOnly,
@@ -204,8 +203,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.participantsAndChatOnly();
     });
 
-    test('MEDIA_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
+    test('MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.mediaOnly, testInfo });
       await createParam.initUserPage(context, { testInfo });
@@ -213,9 +211,8 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Enforce Layout', { tag: '@flaky' }, () => {
+  test.describe.parallel('Enforce Layout', () => {
     test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceCamerasOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
@@ -223,7 +220,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceParticipantsAndChatOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
@@ -231,7 +227,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         joinParameter: c.enforcePresentationOnly,
@@ -243,7 +238,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceMediaOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
