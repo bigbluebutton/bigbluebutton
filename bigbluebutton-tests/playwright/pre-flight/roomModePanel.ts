@@ -106,6 +106,12 @@ const countGetUserMedia = () => {
 };
 
 export class RoomModePanel extends RoomMode {
+  // Most cases only drive the panel, so they run on any server; the ones that
+  // read or write the room mode require the probe themselves.
+  async initModPage(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await this.initModPageWithProbeModule(page, options);
+  }
+
   // The moderator under test creates the meeting through the pre-flight, so the
   // room starts with no mode.
   async initModPageWithPanel(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
@@ -174,6 +180,7 @@ export class RoomModePanel extends RoomMode {
   }
 
   async noPanelInConfiguredRoom() {
+    await ensureProbe(this.modPage);
     await this.setByModerator('class');
     await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the first moderator');
 
