@@ -144,22 +144,18 @@ const CardHint = styled.span`
   font-size: ${fontSizeSmall};
 `;
 
-// Centred while it only holds the empty state; a picked mode reads from the top.
-const Summary = styled.div<{ $empty: boolean }>`
+// Only as tall as what it holds: stretched beside the cards, it was a large
+// bordered box around a line of text.
+const Summary = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: ${({ $empty }) => ($empty ? 'center' : 'flex-start')};
+  align-self: start;
   gap: ${mdPaddingX};
-  min-height: 12rem;
   padding: ${lgPaddingX};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadiusRounded};
   text-align: center;
-
-  @media ${smallOnly} {
-    min-height: auto;
-  }
 `;
 
 // The design draws it at 277x156; it shrinks with a narrow summary.
