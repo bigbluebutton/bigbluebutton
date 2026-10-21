@@ -120,5 +120,6 @@ Only these are read; everything else is set in the mounted configuration.
   `BBBRECORDER_LIVEKIT_APIKEY`, `BBBRECORDER_LIVEKIT_APISECRET`. A Redis address in
   `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS` needs `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK=tcp`
   as well.
-- **bbb-graphql-middleware**, **bbb-shared-notes-server**, **bbb-html5-client**,
-  **bbb-learning-dashboard**, **bbb-playback**, **bbb-nginx**: none.
+- **bbb-graphql-middleware**, **bbb-shared-notes-server**: `SERVER_HOST`, the listen address (the
+  image sets `0.0.0.0`); an override file cannot change it, as the environment wins.
+- **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**, **bbb-nginx**: none.
