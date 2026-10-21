@@ -6,12 +6,12 @@ import axios from 'axios';
 import path from 'path';
 import {NewPresFileAvailableMsg} from '../lib/utils/message-builder.js';
 import {workerData} from 'worker_threads';
+import config from '../lib/utils/config.js';
 const [jobType, jobId, serverSideFilename] = [workerData.jobType,
   workerData.jobId,
   workerData.serverSideFilename];
 
 const logger = new Logger('presAnn Notifier Worker');
-const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 const dropbox = `${config.shared.presAnnDropboxDir}/${jobId}`;
 const job = fs.readFileSync(path.join(dropbox, 'job'));
