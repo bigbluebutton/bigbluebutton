@@ -38,7 +38,7 @@ To run these tests with an existing BigBlueButton server, you need to find the s
 ### 2. Run tests
 
 - **IMPORTANT**: BBB automated tests rely on the default server config (based on values set in `settings.yml`). Any custom setting may cause false failures.
-- Node 20+ recommended to avoid errors in JavaScript.
+- Node 24 recommended: it is the version CI runs the suite with (see the root `.nvmrc`).
 
 Tests can be executed using `npx playwright test` or `npm test`. You can run all tests in each of 3 available browsers (`chromium`, `firefox`, `webkit`) (Note: ensure the browser you're interested in is enabled in `playwright.config.ts`) with one of the following commands:
 

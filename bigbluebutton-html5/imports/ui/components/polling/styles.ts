@@ -1,32 +1,38 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   mdPaddingY,
   smPaddingY,
   jumboPaddingY,
   smPaddingX,
   borderRadius,
+  borderRadiusRounded,
+  borderSize,
   pollWidth,
-  pollSmMargin,
   overlayIndex,
   overlayOpacity,
   pollIndex,
-  lgPaddingY,
   pollBottomOffset,
   jumboPaddingX,
   pollColAmount,
-  borderSize,
+  borderSizeSmall,
+  pollInputHeight,
+  lgPadding,
+  $2xlPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall,
   fontSizeBase,
   fontSizeLarge,
+  textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorText,
   colorBorder,
-  colorGrayDark,
   colorWhite,
   colorPrimary,
+  colorBlueDark,
+  colorGray,
+  colorGrayUserListToolbar,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
@@ -41,23 +47,58 @@ const PollingTitle = styled.h1`
   font-weight: 600;
 `;
 
+// The option box both answer modes share. A single-response option votes on click and a
+// multiple-response one toggles, but to the eye they are the same control, so height,
+// radius and resting greys live here instead of being restated per mode.
+const pollOptionBox = css`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: ${pollInputHeight};
+  padding: ${lgPadding} ${$2xlPadding};
+  border-radius: ${borderRadiusRounded};
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  line-height: 1;
+
+  background-color: ${colorGrayUserListToolbar};
+  color: ${colorGray};
+  border: ${borderSizeSmall} solid ${colorGray};
+`;
+
+// The brand fill that marks the active option: a ticked checkbox in a multiple-response
+// poll, the hovered/focused option in a single-response one.
+const pollOptionBoxActive = css`
+  background-color: ${colorBlueDark};
+  color: ${colorWhite};
+  border-color: ${colorBlueDark};
+`;
+
 const PollButtonWrapper = styled.div`
-  text-align: center;
-  padding: ${smPaddingY};
   width: 100%;
 `;
 
-// @ts-ignore Until everything in Typescript
-const PollingButton = styled(Button)`
-  width: 100%;
-  max-width: 9em;
+// A plain button rather than the common one: that component caps itself at 9em and paints
+// a solid brand pill, which is the pre-redesign look and left single-response polls
+// looking nothing like multiple-response ones.
+const PollingButton = styled.button`
+  ${pollOptionBox}
+  justify-content: center;
+  text-align: center;
+  font-family: inherit;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
-  @media ${hasPhoneDimentions} {
-    max-width: none;
+  &:hover,
+  &:focus-visible {
+    ${pollOptionBoxActive}
   }
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+  &:focus-visible {
+    outline: ${borderSize} solid ${colorPrimary};
+    outline-offset: ${borderSizeSmall};
+  }
 `;
 
 const Hidden = styled.div`
@@ -91,6 +132,7 @@ const TypedResponseInput = styled.input`
 // @ts-ignore Until everything in Typescript
 const SubmitVoteButton = styled(Button)`
   font-size: ${fontSizeBase};
+  border-radius: ${borderRadiusRounded};
 `;
 
 const PollingSecret = styled.div`
@@ -98,22 +140,99 @@ const PollingSecret = styled.div`
   max-width: ${pollWidth};
 `;
 
-const MultipleResponseAnswersTable = styled.table`
-  margin-left: auto;
-  margin-right: auto;
+// Tells a multiple-response poll apart from a single-response one at a glance: without a
+// box to tick, both render as a row of rounded option boxes and nothing says more than one
+// answer is allowed. Sits left of the label and is decorative - the real checkbox below
+// carries the semantics - so it is aria-hidden at the call site.
+const MultipleChoiceIndicator = styled.span`
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: ${borderSize} solid currentColor;
+  border-radius: ${borderRadius};
+  box-sizing: border-box;
+
+  /* The tick: two borders of an empty box, rotated into a check. Hidden rather than
+     unmounted so ticking an option doesn't reflow the row. */
+  &::after {
+    content: '';
+    width: 0.3rem;
+    height: 0.55rem;
+    margin-bottom: 0.15rem;
+    border: solid transparent;
+    border-width: 0 ${borderSize} ${borderSize} 0;
+    transform: rotate(45deg);
+  }
 `;
 
-const PollingCheckbox = styled.div`
-  display: inline-block;
-  margin-right: ${pollSmMargin};
-`;
-
-const CheckboxContainer = styled.tr`
-  margin-bottom: ${pollSmMargin};
-`;
-
-const MultipleResponseAnswersTableAnswerText = styled.td`
+// A one-line reminder that more than one answer may be picked. The container centres its
+// text and sets font-weight 600 for the question; this is help text, so it opts out of
+// both to read as a caption rather than a second heading.
+const MultipleChoiceHint = styled.div`
+  margin-bottom: ${lgPadding};
   text-align: left;
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+  color: ${colorText};
+`;
+
+// Multiple-response options are laid out two per row - a b / c d - and styled as toggle
+// boxes matching the creation panel: grey at rest, brand fill once picked. An odd option
+// count simply leaves the last one alone on its row.
+const MultipleChoiceGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${lgPadding};
+  width: 100%;
+  margin-bottom: ${jumboPaddingY};
+`;
+
+const MultipleChoiceLabel = styled.label<{ $checked: boolean }>`
+  ${pollOptionBox}
+  justify-content: flex-start;
+  gap: ${lgPadding};
+  text-align: left;
+
+  ${({ $checked }) => $checked && css`
+    ${pollOptionBoxActive}
+
+    /* Filled box with a blue tick, so the picked state still reads as a ticked checkbox
+       once the option itself is blue. */
+    ${MultipleChoiceIndicator} {
+      background-color: ${colorWhite};
+      border-color: ${colorWhite};
+
+      &::after {
+        border-color: ${colorBlueDark};
+      }
+    }
+  `}
+`;
+
+const MultipleChoiceOption = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+// A real checkbox, laid over the whole box rather than hidden: the checked state stays
+// announced natively and keyboard operation is unchanged, while a click anywhere on the
+// option toggles it. Opacity rather than display/visibility so it stays hit-testable.
+const MultipleChoiceInput = styled.input`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+
+  &:focus-visible + ${MultipleChoiceLabel} {
+    outline: ${borderSize} solid ${colorPrimary};
+    outline-offset: ${borderSizeSmall};
+  }
 `;
 
 const Overlay = styled.div`
@@ -157,8 +276,7 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
 
   z-index: ${pollIndex};
   border: 1px solid ${colorBorder};
-  border-radius: ${borderRadius};
-  box-shadow: ${colorGrayDark} 0px 0px ${lgPaddingY};
+  border-radius: ${borderRadiusRounded};
   align-items: center;
   text-align: center;
   font-weight: 600;
@@ -166,10 +284,6 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
-
-  &:focus {
-    border: 1px solid ${colorPrimary};
-  }
 
   [dir="rtl"] & {
     left: ${jumboPaddingX};
@@ -199,13 +313,11 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
 const PollingAnswers = styled.div<{ removeColumns: boolean; stacked: boolean }>`
   display: grid;
   grid-template-columns: repeat(${pollColAmount}, 1fr);
+  gap: ${lgPadding};
+  width: 100%;
 
   @media ${hasPhoneDimentions} {
     grid-template-columns: repeat(1, 1fr);
-
-    & div button {
-      grid-column: 1;
-    }
   }
 
   z-index: 1;
@@ -218,10 +330,6 @@ const PollingAnswers = styled.div<{ removeColumns: boolean; stacked: boolean }>`
   ${({ stacked }) => stacked
     && `
     grid-template-columns: repeat(1, 1fr);
-
-    & div button {
-      max-width: none !important;
-    }
   `}
 `;
 
@@ -234,10 +342,12 @@ export default {
   TypedResponseInput,
   SubmitVoteButton,
   PollingSecret,
-  MultipleResponseAnswersTable,
-  PollingCheckbox,
-  CheckboxContainer,
-  MultipleResponseAnswersTableAnswerText,
+  MultipleChoiceGrid,
+  MultipleChoiceHint,
+  MultipleChoiceIndicator,
+  MultipleChoiceOption,
+  MultipleChoiceInput,
+  MultipleChoiceLabel,
   Overlay,
   QHeader,
   QTitle,

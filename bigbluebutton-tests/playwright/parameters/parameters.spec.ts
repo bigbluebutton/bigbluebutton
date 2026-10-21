@@ -6,7 +6,7 @@ import { test } from '../core/setup/fixtures';
 import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
-import { DisabledFeatures } from './disabledFeatures';
+import { AUDIO_CAPTIONS_SETTINGS, DisabledFeatures } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
 
 const iPhone11 = devices['iPhone 11'];
@@ -85,6 +85,15 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.duration();
   });
 
+  test('Meeting Duration Above Remaining Time Threshold', async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, {
+      createParameter: c.durationAboveRemainingTimeThreshold,
+      testInfo,
+    });
+    await createParam.durationAboveRemainingTimeThreshold();
+  });
+
   test('Message Only To Moderators', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, {
@@ -105,6 +114,13 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.muteOnStart, testInfo });
     await createParam.muteOnStart();
+  });
+
+  // muteOnStart defaults to true, so the test above covers the default and this one the opt-out
+  test('Mute On Start disabled', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, { createParameter: c.muteOnStartDisabled, testInfo });
+    await createParam.muteOnStartDisabled();
   });
 
   test('Allow Mods To Unmute Users', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
@@ -255,6 +271,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, {
           shouldCloseAudioModal: false,
           createParameter: c.speechRecognitionDisabled,
+          clientSettingsOverrides: AUDIO_CAPTIONS_SETTINGS,
           testInfo,
         });
         await disabledFeatures.speechRecognition();
@@ -264,25 +281,10 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, {
           shouldCloseAudioModal: false,
           createParameter: c.speechRecognitionExclude,
+          clientSettingsOverrides: AUDIO_CAPTIONS_SETTINGS,
           testInfo,
         });
         await disabledFeatures.speechRecognitionExclude();
-      });
-    });
-
-    test.describe.serial(() => {
-      // current testing code is checking the old (write) captions
-      // this parameter should works the same way with the automatic captions
-      test.fixme();
-      test('Captions', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.captionsDisabled, testInfo });
-        await disabledFeatures.captions();
-      });
-      test('Captions (exclude)', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.captionsExclude, testInfo });
-        await disabledFeatures.captionsExclude();
       });
     });
 

@@ -20,7 +20,11 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
-  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser, browserName }, testInfo) => {
+    test.skip(
+      browserName === 'firefox',
+      'Compares screenshots of a static frame fed by Chromium-only --use-file-for-fake-video-capture',
+    );
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
         ...chromiumBaseArgs,
@@ -194,6 +198,28 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadOtherPresentationsFormat();
     });
 
+    test('Upload PDF with embedded soft-masked image renders (not blank)', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(23953);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.blurredImagePresentationRendersTest();
+    });
+
+    test('Upload PDF with an ordinary soft-masked image stays a vector slide', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(23953);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.softMaskedSlideStaysVectorTest();
+    });
+
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
@@ -223,6 +249,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
       await exportedAnnotations.initModPage(page, { testInfo });
       await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
+    });
+
+    test('Exported text annotation keeps the client line breaks', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationKeepsClientLineBreaks(testInfo);
     });
 
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {

@@ -121,6 +121,12 @@ trait HandlerHelpers extends SystemConfiguration {
             // restored. No-ops if not applicable.
             liveMeeting.voiceUserReconciler.restorePermissions(liveMeeting, outGW, newUser.intId)
 
+            // A voice session that arrived before the user record was created with a
+            // default role. Bring it in line with the user's actual role.
+            VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, newUser.intId)
+              .filter(_.role != newUser.role)
+              .foreach(_ => VoiceApp.setUserRole(liveMeeting, outGW, newUser.intId, newUser.role))
+
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 

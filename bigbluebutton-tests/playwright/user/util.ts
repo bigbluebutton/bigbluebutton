@@ -1,4 +1,4 @@
-import { Locator } from '@playwright/test';
+import { expect, Locator } from '@playwright/test';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -34,6 +34,55 @@ export async function openLockViewers(testPage: Page) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
   await testPage.waitAndClick(e.lockViewersButton);
+}
+
+// Turn on the "Hide user list" lock and dismiss the resulting toast.
+export async function applyUserListLock(testPage: Page) {
+  await openLockViewers(testPage);
+  await testPage.waitAndClickElement(e.lockUserList);
+  await testPage.waitAndClick(e.applyLockSettings);
+  // the toast confirms the lock and renders after a short delay: closing the
+  // toasts before it shows up leaves it on screen for the next assertions
+  await testPage.hasText(e.smallToastMsg, 'User list is now hidden for viewers', 'should confirm the user list lock');
+  await testPage.closeAllToastNotifications();
+}
+
+// The talking indicator of one user, while that user is talking.
+export function isTalkingLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(e.isTalking).locator(`:text-is("${userName}")`);
+}
+
+// The talking indicator of one user in either state: talking, or shown a moment after.
+export function talkingIndicatorLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(`${e.isTalking}, ${e.wasTalking}`).filter({ hasText: userName });
+}
+
+// The away clock on one user's user list avatar.
+export function awayIndicatorLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(e.userListItem, { hasText: userName }).locator(e.awayIndicator);
+}
+
+// Sets the user away through the status selector of the profile panel, then closes the panel.
+export async function setAway(testPage: Page) {
+  await testPage.waitAndClick(e.profileSidebarButton);
+  await testPage.waitAndClick(e.userStatusSelector);
+  await testPage.waitAndClick(e.awayStatusOption);
+  await testPage.hasText(e.userStatusSelector, 'Away', 'should show the away status in the profile panel');
+  await testPage.waitAndClick(e.profileSidebarButton);
+}
+
+// The microphone state a viewer is shown for another user on the user list.
+export async function hasUserListMicState(
+  testPage: Page,
+  userName: string,
+  state: 'unmuted' | 'muted',
+  description: string,
+  timeout: number = ELEMENT_WAIT_TIME,
+) {
+  const audioState = testPage.page
+    .locator(e.userListItem, { hasText: userName })
+    .locator(state === 'unmuted' ? e.audioStateUnmuted : e.audioStateMuted);
+  await expect(audioState, description).toBeVisible({ timeout });
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {

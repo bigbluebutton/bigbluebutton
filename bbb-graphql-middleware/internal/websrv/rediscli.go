@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"bbb-graphql-middleware/config"
@@ -16,13 +17,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var redisClient = redis.NewClient(&redis.Options{
-	Addr:     fmt.Sprintf("%s:%d", config.GetConfig().Redis.Host, config.GetConfig().Redis.Port),
-	Password: config.GetConfig().Redis.Password,
-	DB:       0,
-})
+var (
+	redisClient     *redis.Client
+	redisClientOnce sync.Once
+)
 
+// GetRedisConn returns the shared Redis client, building it on first use.
+//
+// Built here rather than at package initialisation so that importing this package does not read
+// the config file.
 func GetRedisConn() *redis.Client {
+	redisClientOnce.Do(func() {
+		cfg := config.GetConfig()
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
+			Password: cfg.Redis.Password,
+			DB:       0,
+		})
+	})
+
 	return redisClient
 }
 
@@ -42,17 +55,47 @@ var allowedMessages = []string{
 	"MeetingEndedEvtMsg",
 }
 
-func StartRedisListener() {
-	log := log.WithField("_routine", "StartRedisListener")
+// WaitForRedisSubscription retries with a fresh PubSub connection until Redis confirms the subscription.
+func WaitForRedisSubscription() *redis.PubSub {
+	log := log.WithField("_routine", "WaitForRedisSubscription")
+
+	ctx := context.Background()
+	const redisChannel = "from-akka-apps-redis-channel"
+
+	subscriber := GetRedisConn().Subscribe(ctx, redisChannel)
+
+	for {
+		raw, err := subscriber.Receive(ctx)
+		if err != nil {
+			log.Warnf("waiting for Redis subscription to %s, retrying in 1s: %v", redisChannel, err)
+			subscriber.Close()
+			time.Sleep(time.Second)
+			subscriber = GetRedisConn().Subscribe(ctx, redisChannel)
+			continue
+		}
+
+		if _, ok := raw.(*redis.Subscription); ok {
+			log.Infof("subscribed to %s", redisChannel)
+			break
+		}
+	}
+
+	return subscriber
+}
+
+func ListenRedisMessages(subscriber *redis.PubSub) {
+	log := log.WithField("_routine", "ListenRedisMessages")
 
 	ctx := context.Background()
 
-	subscriber := GetRedisConn().Subscribe(ctx, "from-akka-apps-redis-channel")
-
 	for {
-		msg, err := subscriber.ReceiveMessage(ctx)
+		raw, err := subscriber.Receive(ctx)
 		if err != nil {
-			log.Errorf("error: %v", err)
+			log.Fatalf("lost Redis subscription to from-akka-apps-redis-channel: %v", err)
+		}
+		msg, ok := raw.(*redis.Message)
+		if !ok {
+			continue
 		}
 
 		var receivedRedisMessageEnvelope struct {
@@ -86,7 +129,7 @@ func StartRedisListener() {
 			reason := receivedMessage.Core.Body["reason"]
 			log.Infof("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
-			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string))
+			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string), fmt.Sprintf("%v", reason))
 		}
 
 		if messageName == "ForceUserGraphqlDisconnectionSysMsg" {
@@ -115,6 +158,9 @@ func StartRedisListener() {
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 			go streamingserver.RemoveUserCursorsCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+			// The voice state row is normally cleared by the user's own voice events; a user who
+			// leaves the meeting must not stay in the replay cache if that event never arrives.
+			go streamingserver.RemoveUserUserVoiceStatesCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
 		}
 
 		if messageName == "SendCursorPositionEvtMsg" {
@@ -210,7 +256,7 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 
 	err = GetRedisConn().Publish(context.Background(), channelName, messageJSON).Err()
 	if err != nil {
-		log.Tracef("Error while sending msg to redis channel: %v\n", err)
+		log.Warnf("Error while sending msg to redis channel: %v", err)
 		return
 	}
 

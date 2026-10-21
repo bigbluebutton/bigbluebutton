@@ -39,7 +39,7 @@ interface ExternalVideoPlayerToolbarProps {
   toolbarStyle: string;
   handleReload: () => void;
   toggleSubtitle: () => void;
-  playerName: string;
+  playerName?: string;
   subtitlesOn: boolean;
   playerParent: HTMLDivElement | null;
   played: number;
@@ -96,6 +96,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 {playerName === 'YouTube' && (
                   <Subtitles
                     toggleSubtitle={toggleSubtitle}
+                    subtitlesOn={subtitlesOn}
                     label={subtitlesOn
                       ? intl.formatMessage(intlMessages.subtitlesOn)
                       : intl.formatMessage(intlMessages.subtitlesOff)}

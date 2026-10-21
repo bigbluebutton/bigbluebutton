@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -17,19 +18,22 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import { notify } from '/imports/ui/services/notification';
-import Styled from './styles';
+import Styled, { HOVER_CAPABLE_QUERY, LABEL_COLLAPSE_MS } from './styles';
 import { User } from '/imports/ui/Types/user';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import RecordingNotify from './notify/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import Service from './service';
 import { Layout } from '../../../layout/layoutTypes';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -90,6 +94,20 @@ const intlMessages = defineMessages({
   },
 });
 
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(() => globalThis.matchMedia(query).matches);
+
+  useEffect(() => {
+    const mediaQuery = globalThis.matchMedia(query);
+    const handleChange = (event: MediaQueryListEvent) => setMatches(event.matches);
+    setMatches(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [query]);
+
+  return matches;
+};
+
 interface RecordingIndicatorProps {
   allowStartStopRecording: boolean;
   // eslint-disable-next-line react/no-unused-prop-types
@@ -126,7 +144,20 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  // Reactive, so flipping either toggle in the settings modal is reflected at once.
+  // The collapse honours the same animations setting as this component's own spinner.
+  const {
+    animations,
+    recordingIndicatorAutoCollapse,
+  } = useSettings(SETTINGS.APPLICATION) as {
+    animations: boolean; recordingIndicatorAutoCollapse: boolean;
+  };
 
+  const isHoverCapable = useMediaQuery(HOVER_CAPABLE_QUERY);
+  const isSmallViewport = useMediaQuery(smallOnly);
+
+  // Open from the moment the confirmation shows until one of its buttons is
+  // clicked; the button stays expanded for that whole time.
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
   const closeRecordingConfirmation = useCallback(() => {
@@ -190,8 +221,9 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     }
   }, [shouldNotify, recordingNotificationEnabled, recording]);
 
+  // Also the button's aria-label, so it is computed on phones too even though
+  // no visible label is rendered there.
   const recordTitle = useMemo(() => {
-    if (isPhone) return '';
     if (disabled) return intl.formatMessage(intlMessages.unavailableTitle);
 
     if (!recording) {
@@ -204,24 +236,60 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         : intl.formatMessage(intlMessages.startTitle);
     }
 
-    return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled, isModerator, time, intl.locale]);
+    // Read-only viewers cannot stop anything, so the pill states what is
+    // happening instead of offering the moderator's action.
+    return showButton
+      ? intl.formatMessage(intlMessages.stopTitle)
+      : intl.formatMessage(intlMessages.recordingTitle);
+  }, [recording, disabled, showButton, time, intl.locale]);
+
+  const isLabelCollapsible = !isPhone && recordingIndicatorAutoCollapse && showButton;
+  const [collapsingTitle, setCollapsingTitle] = useState<string | null>(null);
+  const wasRecordingModalOpen = useRef(false);
+  const presentationTitleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const released = wasRecordingModalOpen.current && !isRecordingModalOpen;
+    wasRecordingModalOpen.current = isRecordingModalOpen;
+    if (!released || !isLabelCollapsible) {
+      setCollapsingTitle(null);
+      return undefined;
+    }
+    setCollapsingTitle(recordTitle);
+    const presentationTitle = presentationTitleRef.current;
+    const release = (event: TransitionEvent) => {
+      if (event.target === presentationTitle && event.propertyName === 'opacity') {
+        setCollapsingTitle(null);
+      }
+    };
+    presentationTitle?.addEventListener('transitionend', release);
+    presentationTitle?.addEventListener('transitioncancel', release);
+    const timeout = setTimeout(() => setCollapsingTitle(null), LABEL_COLLAPSE_MS * 2);
+    return () => {
+      clearTimeout(timeout);
+      presentationTitle?.removeEventListener('transitionend', release);
+      presentationTitle?.removeEventListener('transitioncancel', release);
+    };
+  }, [isRecordingModalOpen]);
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
+      // Phones keep their empty idle tooltip; only a custom one shows there.
+      const idleTitle = isPhone ? '' : recordTitle;
       return !showButton
-        ? Service.getCustomRecordTooltip(recordTitle)
-        : recordTitle;
+        ? Service.getCustomRecordTooltip(idleTitle)
+        : idleTitle;
     }
 
     return showButton
       ? intl.formatMessage(intlMessages.stopTitle)
       : intl.formatMessage(intlMessages.recordingTitle);
-  }, [recording, isModerator, recordTitle]);
+  }, [recording, isPhone, isModerator, recordTitle]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
-      titleMargin={!isPhone || recording}
+      // While recording, the timer sits right after the dot and owns that gap.
+      titleMargin={!isPhone && !recording}
       data-test="mainWhiteboard"
       isRTL={isRTL}
     >
@@ -241,6 +309,10 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       aria-describedby="recording-description"
       recording={recording}
       disabled={!showButton}
+      isPhone={isPhone}
+      animations={animations}
+      autoCollapse={recordingIndicatorAutoCollapse}
+      $expanded={isRecordingModalOpen}
       time={time}
       tabIndex={0}
       key="recording-toggle"
@@ -257,28 +329,39 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       }}
     >
       {recordingIndicatorIcon}
-      {!isPhone && (
-        <Styled.PresentationTitle>
-          <Styled.VisuallyHidden id="recording-description">
-            {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
-          </Styled.VisuallyHidden>
-          {recording ? (
-            <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
-          ) : (
-            <span>{recordTitle}</span>
-          )}
-        </Styled.PresentationTitle>
+      {recording && (
+        <Styled.RecordingTimer aria-hidden>
+          {humanizeSeconds(time)}
+        </Styled.RecordingTimer>
       )}
-      {isPhone && recording && (
-        <Styled.PresentationTitle>
-          <span aria-hidden>{humanizeSeconds(time)}</span>
+      {/* Outside the phone guard: aria-describedby above points at it. */}
+      <Styled.VisuallyHidden id="recording-description">
+        {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
+      </Styled.VisuallyHidden>
+      {!isPhone && (
+        <Styled.PresentationTitle ref={presentationTitleRef}>
+          <span aria-hidden>{collapsingTitle ?? recordTitle}</span>
         </Styled.PresentationTitle>
       )}
     </Styled.RecordingControl>
   );
 
+  // Where the label is drawn: never on phones, not in the idle circle of small
+  // viewports, and with the collapse on only under a real pointer's hover or
+  // while the confirmation holds the button open.
+  const isLabelVisible = !isPhone
+    && (recording || !isSmallViewport)
+    && (
+      !recordingIndicatorAutoCollapse
+      || !showButton
+      || isHoverCapable
+      || isRecordingModalOpen
+    );
+
+  // A visible label already says what the tooltip would, so the tooltip is
+  // dropped; a custom viewer tooltip that says something else is kept.
   const recordingButtonWithTooltip = (
-    <Tooltip title={tooltipTitle}>
+    <Tooltip title={isLabelVisible && tooltipTitle === recordTitle ? '' : tooltipTitle}>
       <span>{recordMeetingButton}</span>
     </Tooltip>
   );

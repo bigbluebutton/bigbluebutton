@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar, ReactiveVar,
@@ -14,22 +14,22 @@ const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
   sub: null,
 });
 
+// The store changes count without publishing (setCount), and sub is the
+// store's to end.
+type DeduplicatedSubscription<T> = Omit<SubscriptionStructure<T>, 'count' | 'sub'>;
+
 const useDeduplicatedSubscription = <T>(
   subscription: DocumentNode | TypedQueryDocumentNode,
   options?: SubscriptionHookOptions<NoInfer<T>, NoInfer<OperationVariables>>,
   usePatchedSubscription = false,
-) => {
+): DeduplicatedSubscription<T> => {
   // When patching is enabled, rename the operation to Patched_* so the middleware streams
   // JSON patches instead of full datasets; the subscription store applies them automatically.
   const query = useMemo(
     () => (usePatchedSubscription ? makePatchedQuery(subscription) : subscription),
     [subscription, usePatchedSubscription],
   );
-  const subscriptionHash = stringToHash(JSON.stringify({
-    subscription: query,
-    variables: options?.variables,
-    skip: options?.skip,
-  }));
+  const subscriptionHash = getSubscriptionHash(query, options?.variables);
 
   const [subVar, setSubVar] = useState<
     ReactiveVar<SubscriptionStructure<T>>>(() => initialEmptySub as ReactiveVar<SubscriptionStructure<T>>);

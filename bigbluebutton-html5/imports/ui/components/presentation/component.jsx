@@ -466,7 +466,7 @@ class Presentation extends PureComponent {
 
   zoomChanger(zoom) {
     const { currentSlide } = this.props;
-    let boundZoom = parseInt(zoom, 10);
+    let boundZoom = Math.round(zoom);
     const min = currentSlide?.infiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT;
     if (boundZoom < min) {
       boundZoom = min;
@@ -556,7 +556,7 @@ class Presentation extends PureComponent {
     zoomSlide(w, h, x, y);
   }
 
-  renderPresentationToolbar() {
+  renderPresentationToolbar(toolbarWidth) {
     const {
       currentSlide,
       fullscreenElementId,
@@ -585,6 +585,7 @@ class Presentation extends PureComponent {
           zoom,
           currentSlide,
           slidePosition,
+          toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
@@ -851,11 +852,8 @@ class Presentation extends PureComponent {
                   ref={(ref) => {
                     this.refPresentationToolbar = ref;
                   }}
-                  style={{
-                    width: toolbarWidth,
-                  }}
                 >
-                  {this.renderPresentationToolbar()}
+                  {this.renderPresentationToolbar(toolbarWidth)}
                 </Styled.PresentationToolbar>
               )}
             </Styled.SvgContainer>

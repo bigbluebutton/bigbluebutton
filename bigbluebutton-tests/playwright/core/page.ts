@@ -34,7 +34,7 @@ dotenv.config();
  * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
  */
 export interface ClientSettingsOverrides {
-  [key: string]: string | number | boolean | null | ClientSettingsOverrides;
+  [key: string]: string | number | boolean | null | Array<string | number | boolean> | ClientSettingsOverrides;
 }
 
 export interface InitOptionsProps {
@@ -212,6 +212,7 @@ export class Page {
     testInfo?: TestInfo,
     timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<HandleDownloadResult> {
+    await locator.waitFor({ state: 'visible', timeout });
     const [download] = await Promise.all([this.page.waitForEvent('download', { timeout }), locator.click({ timeout })]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
@@ -486,7 +487,7 @@ export class Page {
         const element = document.querySelector(el);
         if (!element) return false;
         
-        const afterElement = getComputedStyle(element, 'after');
+        const afterElement = getComputedStyle(element, '::after');
         if (afterElement && afterElement.content !== 'none') {
           return true;
         }
@@ -623,6 +624,9 @@ export class Page {
     while ((await toastNotificationElement.count()) > 0 && Date.now() < deadline) {
       try {
         await toastNotificationElement.first().click({ timeout: ELEMENT_WAIT_TIME });
+        // A click while the toast is still entering can be ignored, and a pointer
+        // left on it pauses its auto-close (pauseOnHover), so move the pointer away.
+        await this.page.mouse.move(0, 0);
         await expect(toastNotificationElement.first()).toBeHidden({ timeout: ELEMENT_WAIT_TIME });
       } catch {
         // ignore and retry until deadline

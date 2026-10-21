@@ -95,7 +95,6 @@ GEM
     rubocop-ast (1.33.0)
       parser (>= 3.3.1.0)
     ruby-progressbar (1.13.0)
-    rubyzip (2.3.2)
     securerandom (0.4.1)
     sinatra (4.2.1)
       logger (>= 1.6.0)
@@ -132,7 +131,6 @@ DEPENDENCIES
   redis (~> 4.1)
   resque (~> 2.6, >= 2.6.0)
   rubocop (~> 1.66.0)
-  rubyzip (~> 2.0)
   tzinfo (>= 1.2.10)
 
 BUNDLED WITH

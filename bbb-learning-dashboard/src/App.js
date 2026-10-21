@@ -18,7 +18,7 @@ import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
-import { makeUserCSVData, tsToHHmmss } from './services/UserService';
+import { makeUserCSVData, tsToHHmmss, isUserOnline } from './services/UserService';
 import normalizeActivitiesJson from './services/CompatibilityService';
 import QuizzesTable from './components/QuizzesTable';
 import QuizzesChart from './components/QuizzesChart';
@@ -146,7 +146,7 @@ class App extends React.Component {
         const cookieExpiresDate = new Date();
         cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
         const value = `ld-${meetingId}=${learningDashboardAccessToken};`;
-        const expire = `expires=${cookieExpiresDate.toGMTString()};`;
+        const expire = `expires=${cookieExpiresDate.toUTCString()};`;
         const args = 'path=/;SameSite=None;Secure';
         document.cookie = `${value} ${expire} ${args}`;
       }
@@ -395,8 +395,7 @@ class App extends React.Component {
     if (loading === false && this.getErrorMessage() !== '') return <ErrorMessage message={this.getErrorMessage()} />;
 
     const usersCount = Object.values(activitiesJson.users || {})
-      .filter((u) => activitiesJson.endedOn > 0
-        || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+      .filter((u) => activitiesJson.endedOn > 0 || isUserOnline(u))
       .length;
 
     const polls = Object.fromEntries(Object

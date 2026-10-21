@@ -84,7 +84,6 @@ const MEETING_SUBSCRIPTION = gql`
           hasSharedNotes
           hasTimer
           isSharedNotesPinned
-          isEtherpadSharedNotes
           showRemainingTime
           }
     }

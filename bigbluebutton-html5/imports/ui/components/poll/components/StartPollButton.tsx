@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.minOptionsErr',
     description: 'poll input error label',
   },
+  noTypeErr: {
+    id: 'app.poll.noTypeSelectedErr',
+    description: 'reason the start button is disabled while no response type is picked',
+  },
   yes: {
     id: 'app.poll.y',
     description: '',
@@ -122,7 +126,13 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   // Tippy on a disabled BBButton never fires (the library sets
   // pointer-events: none on disabled buttons), so the tooltip explaining why
   // the poll/quiz can't start is placed on a wrapper via TooltipContainer.
+  // The button used to live inside ResponseArea, which only rendered once a type was
+  // picked. It now sits in the panel footer and is always mounted, so the type has to be
+  // checked here - otherwise POLL_CREATE would fire with an empty pollType. Note this
+  // cannot use isDefaultPoll: that is `type !== Response`, which is true for '' as well.
+  const hasNoType = !type;
   const tooltipText = [
+    hasNoType ? intl.formatMessage(intlMessages.noTypeErr) : '',
     hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : '',
     quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : '',
   ].filter(Boolean).join('\n');
@@ -131,9 +141,10 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
       <BBButton
         variant="primary"
         dataTest="startPoll"
+        ariaDescribedBy="start-poll-button"
         // eslint-disable-next-line max-len
         label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
-        disabled={hasNotMinOptions || quizHasNoCorrectAnswer}
+        disabled={hasNoType || hasNotMinOptions || quizHasNoCorrectAnswer}
         onClick={() => {
           const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
           let hasVal = false;

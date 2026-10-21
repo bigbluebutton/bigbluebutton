@@ -100,7 +100,6 @@ const LKAutoplayModalContainer: React.FC = () => {
         setIsOpen(false);
       }}
       priority="medium"
-      setIsOpen={setIsOpen}
       isAttemptingAutoplay={autoplayState.isAttempting}
     />
   );

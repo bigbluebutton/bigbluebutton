@@ -8,6 +8,7 @@ PartOf=bigbluebutton.target
 [Service]
 Type=simple
 WorkingDirectory=/usr/share/bbb-apps-akka
+Environment="MALLOC_ARENA_MAX=2"
 EnvironmentFile=/etc/default/bbb-apps-akka
 ExecStart=/usr/share/bbb-apps-akka/bin/bbb-apps-akka
 ExecReload=/bin/kill -HUP $MAINPID

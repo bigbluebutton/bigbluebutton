@@ -67,10 +67,18 @@ async function assertDesktopLayoutActive(page: Page) {
     .toBeLessThan(0.6);
 }
 
+type LayoutMutation = {
+  presentationIsOpen: boolean;
+  cameraPosition: string;
+  presentationVideoRate: number;
+};
+
 export class Layouts extends MultiUsers {
   private layoutMutationRates: unknown[] = [];
 
   private layoutMutationErrors: string[] = [];
+
+  private layoutMutations: LayoutMutation[] = [];
 
   private injectedPresentationVideoRate = false;
 
@@ -105,6 +113,101 @@ export class Layouts extends MultiUsers {
         setTimeout(() => webSocket.send(message), delay);
       });
     });
+  }
+
+  async configureLayoutMutationProbe() {
+    await this.context.addInitScript(() => {
+      Object.defineProperty(navigator, 'userAgent', {
+        get: () => 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 Chrome/140.0.0.0 Mobile Safari/537.36',
+      });
+    });
+    await this.context.routeWebSocket('**/graphql**', (webSocket) => {
+      const server = webSocket.connectToServer();
+      webSocket.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('SetLayoutProps')) {
+          const { variables } = JSON.parse(serializedMessage).payload;
+          this.layoutMutations.push({
+            presentationIsOpen: variables.presentationIsOpen,
+            cameraPosition: variables.cameraPosition,
+            presentationVideoRate: variables.presentationVideoRate,
+          });
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => {
+        const serializedMessage = message.toString();
+        if (serializedMessage.includes('Rate limit exceeded')) {
+          this.layoutMutationErrors.push(serializedMessage);
+        }
+        webSocket.send(message);
+      });
+    });
+  }
+
+  async phoneLandscapeKeepsTheMeetingCameraDock() {
+    const PORTRAIT = { width: 412, height: 915 };
+    const LANDSCAPE = { width: 915, height: 412 };
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.page.setViewportSize(PORTRAIT);
+    await this.modPage.shareWebcam();
+    await this.modPage.page.waitForTimeout(3000);
+
+    // What the meeting holds before the phone ever rotates.
+    const baseline = this.layoutMutations[this.layoutMutations.length - 1];
+    expect(baseline, 'the presenter should publish its portrait layout').toBeDefined();
+    expect(baseline!.presentationVideoRate, 'the portrait dock should publish a real rate').toBeGreaterThan(0);
+    this.layoutMutations = [];
+
+    const ROTATIONS = 6;
+    for (let rotation = 0; rotation < ROTATIONS; rotation += 1) {
+      await this.modPage.page.setViewportSize(rotation % 2 === 0 ? LANDSCAPE : PORTRAIT);
+      await this.modPage.page.waitForTimeout(1500);
+      if (rotation === 0) {
+        // The arrangement held back from the meeting is really rendered here.
+        const dock = await this.modPage.page.locator(e.cameraDock).boundingBox();
+        expect(dock, 'the camera dock should render in landscape').not.toBeNull();
+        expect(dock!.x, 'landscape should lay the cameras beside the presentation').toBeGreaterThan(
+          LANDSCAPE.width / 2,
+        );
+      }
+    }
+    const rotationMutations = this.layoutMutations.length;
+
+    // The presentation state still propagates while the dock geometry is held back.
+    await this.modPage.page.setViewportSize(LANDSCAPE);
+    await this.modPage.page.waitForTimeout(1500);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.page.waitForTimeout(1500);
+
+    console.log(
+      `[layout-mutations] ${rotationMutations} mutations over ${ROTATIONS} rotations ` +
+        `| baseline: ${JSON.stringify(baseline)} | mutations: ${JSON.stringify(this.layoutMutations)}`,
+    );
+
+    expect(
+      rotationMutations,
+      'every return to portrait should lift the suppression and push the real dock',
+    ).toBeGreaterThanOrEqual(ROTATIONS / 2);
+    expect(
+      rotationMutations,
+      'entering landscape should push nothing, and a push should never repeat per layout pass',
+    ).toBeLessThanOrEqual(ROTATIONS);
+    expect(
+      this.layoutMutations.every(
+        ({ cameraPosition, presentationVideoRate }) =>
+          cameraPosition === baseline!.cameraPosition &&
+          Math.abs(presentationVideoRate - baseline!.presentationVideoRate) <= 0.01,
+      ),
+      'the landscape arrangement should never reach the meeting: every push keeps the portrait dock',
+    ).toBe(true);
+    expect(
+      this.layoutMutations[this.layoutMutations.length - 1]?.presentationIsOpen,
+      'minimizing the presentation in landscape should still be propagated',
+    ).toBe(false);
+    expect(this.layoutMutationErrors, 'the presenter should never be rate limited for layout mutations').toHaveLength(
+      0,
+    );
   }
 
   async configurePresentationVideoRateClampProbe() {
@@ -167,7 +270,12 @@ export class Layouts extends MultiUsers {
     await this.modPage.page.setViewportSize({ width: 915, height: 412 });
     await this.modPage.shareWebcam();
     // Five seconds covers the delayed update and leaves time for the resulting layout mutations to settle.
+    // Any push in landscape sends back the meeting's rate, which the delay leaves undefined.
     await this.modPage.page.waitForTimeout(5000);
+    // Portrait lifts the suppression: the rate is measured again, off a dock that has
+    // just left the enforced arrangement.
+    await this.modPage.page.setViewportSize({ width: 412, height: 915 });
+    await this.modPage.page.waitForTimeout(3000);
 
     // Fewer than 20 mutations catches a feedback loop while allowing the expected responsive layout updates.
     expect(this.layoutMutationRates.length, 'layout mutation count should stay bounded').toBeLessThan(20);
@@ -421,8 +529,6 @@ export class Layouts extends MultiUsers {
     await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
     await this.userPage.getVisibleLocator(e.unfocusWebcamBtn).click();
     await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
-    // Every tile keeps its dropdown menu in the DOM, so scope the probe to the
-    // visible (open) menu.
     await expect(
       this.userPage.getVisibleLocator(e.focusWebcamBtn),
       'the focused camera tile should offer focus again after the viewer unfocuses locally',
@@ -634,6 +740,83 @@ export class Layouts extends MultiUsers {
     // layout instead (mirror of issue 25590)
     await this.modPage.setHeightWidthViewPortSize(MOBILE_VIEWPORT);
     await assertMobileLayoutActive(this.modPage);
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutRestoreClearsGridAvatars() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitAndClick(e.joinVideo);
+    await this.userPage.waitAndClick(e.startSharingWebcam);
+    await this.userPage.waitForSelector(e.leaveVideo);
+    const extraAttendees: Page[] = [];
+    for (let i = 2; i <= 9; i += 1) {
+      const attendeePage = await this.context.newPage();
+      const attendee = new Page(this.browser, attendeePage, this.modPage.testInfo);
+      // eslint-disable-next-line no-await-in-loop
+      await attendee.init(false, {
+        fullName: `Attendee${i}`,
+        meetingId: this.modPage.meetingId,
+      });
+      extraAttendees.push(attendee);
+    }
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      10,
+      'the minimized presentation should show all ten participants in the grid',
+    );
+
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      1,
+      'restoring the presentation should remove stale grid avatars and keep the shared webcam',
+    );
+    await this.modPage.wasRemoved(
+      `${e.webcamVideoItem}[data-video-type="grid"]`,
+      'restoring the presentation should remove every grid avatar',
+    );
+
+    const [departingAttendee] = extraAttendees;
+    await departingAttendee.logoutFromMeeting();
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      1,
+      'a participant leaving while the presentation is open should not restore stale grid avatars',
+    );
+
+    const latePage = await this.context.newPage();
+    const lateAttendee = new Page(this.browser, latePage, this.modPage.testInfo);
+    await lateAttendee.init(false, {
+      fullName: 'LateAttendee',
+      meetingId: this.modPage.meetingId,
+    });
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      1,
+      'a participant joining while the presentation is open should not restore stale grid avatars',
+    );
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await expect
+      .poll(() => this.modPage.getVisibleLocator(e.webcamVideoItem).count(), {
+        message: 'minimizing again should restore the participant grid',
+      })
+      .toBeGreaterThanOrEqual(9);
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.hasElementCount(e.webcamVideoItem, 1, 'restoring again should keep only the shared webcam');
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone({ shouldUnmute: true });
+    await this.modPage.hasElementCount(
+      e.webcamVideoItem,
+      2,
+      'an audio-only speaking tile should remain next to the shared webcam over the open presentation',
+    );
 
     await this.attachPageVideos();
   }

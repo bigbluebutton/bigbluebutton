@@ -531,12 +531,6 @@ type Mutation {
 }
 
 type Mutation {
-  sharedNotesCreateSession(
-    sharedNotesExtId: String!
-  ): Boolean
-}
-
-type Mutation {
   sharedNotesSetPinned(
     sharedNotesExtId: String!
     pinned: Boolean!

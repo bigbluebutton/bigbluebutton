@@ -49,7 +49,7 @@ function markdownModule(markdown: string): string {
 
 // Build the create query string that seeds shared notes from a raw markdown param.
 export function markdownCreateParameter(markdown: string): string {
-  return `sharedNotesEditor=blocknote&sharedNotesInitialContentMarkdown=${encodeURIComponent(markdown)}`;
+  return `sharedNotesInitialContentMarkdown=${encodeURIComponent(markdown)}`;
 }
 
 export class MarkdownSharedNotes extends MultiUsers {
@@ -296,7 +296,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   }
 
   // Creates a meeting with the given modules/params, then joins as moderator.
-  private async createAndJoin(modulesXml: string, createParameter: string) {
+  private async createAndJoin(modulesXml: string, createParameter?: string) {
     const meetingId = await createMeetingWithModules(modulesXml, createParameter);
     const context = await this.browser.newContext();
     const page = await context.newPage();
@@ -340,7 +340,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   // string), mirroring sharedNotesInitialContentJson.
   async initFromMarkdownPayload() {
     const markdown = `# ${PAYLOAD_MARKDOWN_HEADING}\n\n- ${INIT_MARKDOWN_ITEM}`;
-    await this.createAndJoin(markdownModule(markdown), 'sharedNotesEditor=blocknote');
+    await this.createAndJoin(markdownModule(markdown));
 
     await startBlockNoteSharedNotes(this.modPage);
     const editor = getBlockNoteEditorLocator(this.modPage);

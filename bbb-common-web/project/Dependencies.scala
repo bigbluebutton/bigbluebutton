@@ -15,12 +15,12 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
-    val jackson = "2.22.1"
-    val freemarker = "2.3.31"
+    val jackson = "2.22.3"
+    val freemarker = "2.3.35"
     val awsSdkS3 = "1.12.779"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
-    val jsoup = "1.23.1"
+    val jsoup = "1.23.2"
     val semver = "0.10.2"
 
 
@@ -28,9 +28,6 @@ object Dependencies {
     val apachePoi = "5.5.1"
     val nuProcess = "2.0.6"
     val tika = "3.3.2"
-
-    // Server
-    val servlet = "4.0.1"
 
     // Apache Commons
     val io = "2.11.0"
@@ -67,8 +64,6 @@ object Dependencies {
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
     val tika = "org.apache.tika" % "tika-core" % Versions.tika
-
-    val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
@@ -108,7 +103,6 @@ object Dependencies {
     Compile.poiXml,
     Compile.nuProcess,
     Compile.tika,
-    Compile.servletApi,
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,

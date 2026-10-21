@@ -21,10 +21,13 @@ export class CreateParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecordingButton);
 
     const userRecordingButton = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    // Structural assertion, not an exact color: the palette is themeable and
+    // dark theme shifts every computed color. Only the recording state draws a
+    // border, so its presence is what marks recording as started.
     await expect(
       userRecordingButton,
       'should show recording as started for the attendee before checking the consent modal',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    ).toHaveCSS('border-top-style', 'solid', { timeout: ELEMENT_WAIT_LONGER_TIME });
 
     if (!shouldShowModal) {
       // Give the recording-change effects time to run before asserting that the gate suppressed the modal.
@@ -108,6 +111,14 @@ export class CreateParameters extends MultiUsers {
     );
   }
 
+  async durationAboveRemainingTimeThreshold() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
+    await this.modPage.wasRemoved(
+      e.timeRemaining,
+      'should not display the remaining time above the configured threshold',
+    );
+  }
+
   async moderatorOnlyMessage() {
     await this.modPage.waitForSelector(e.whiteboard);
     // check for the mod only message on the mod page
@@ -160,6 +171,14 @@ export class CreateParameters extends MultiUsers {
     await this.modPage.clickMicrophoneButton();
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the moderator');
+  }
+
+  async muteOnStartDisabled() {
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.clickMicrophoneButton();
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.hasElement(e.muteMicButton, 'should display the mute microphone button for the moderator');
+    await this.modPage.hasElement(e.isTalking, 'should display the talking indicator for the moderator');
   }
 
   async allowModsToUnmuteUsers() {

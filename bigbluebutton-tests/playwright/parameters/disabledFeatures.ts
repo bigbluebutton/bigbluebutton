@@ -1,6 +1,15 @@
+import { expect } from '@playwright/test';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { ClientSettingsOverrides } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+
+// Live transcription is off by default, and then the speech recognition option
+// is hidden whether or not the feature is disabled.
+export const AUDIO_CAPTIONS_SETTINGS: ClientSettingsOverrides = {
+  public: { app: { audioCaptions: { enabled: true } } },
+};
 
 export class DisabledFeatures extends MultiUsers {
   async breakoutRooms() {
@@ -11,22 +20,17 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async speechRecognition() {
-    const { speechRecognitionEnabled } = this.modPage.settings || {};
-
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SETTINGS)',
+    ).toBe(true);
     await this.modPage.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_LONGER_TIME);
-
-    if (speechRecognitionEnabled) {
-      await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
-    } else {
-      await this.modPage.wasRemoved(
-        e.speechRecognitionUnsupported,
-        'should not display the speech recognition message saying that is unsupported',
-      );
-    }
-  }
-
-  async captions() {
-    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.hasElement(e.joinEchoTestButton, 'should display the audio settings');
+    await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
+    await this.modPage.wasRemoved(
+      e.speechRecognitionUnsupported,
+      'should not display the speech recognition message saying that is unsupported',
+    );
   }
 
   async chat() {
@@ -149,22 +153,17 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async speechRecognitionExclude() {
-    const { speechRecognitionEnabled } = this.modPage.settings || {};
-
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SETTINGS)',
+    ).toBe(true);
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-
-    if (speechRecognitionEnabled) {
-      await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
-    } else {
-      await this.modPage.wasRemoved(
-        e.speechRecognitionUnsupported,
-        'should not display the speech recognition unsupported message',
-      );
-    }
-  }
-
-  async captionsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
+    // without speech synthesis voices (headless browsers) the option is
+    // replaced by the "unsupported" note
+    await this.modPage.hasElement(
+      `${e.speechRecognition}, ${e.speechRecognitionUnsupported}`,
+      'should display the speech recognition option',
+    );
   }
 
   async chatExclude() {

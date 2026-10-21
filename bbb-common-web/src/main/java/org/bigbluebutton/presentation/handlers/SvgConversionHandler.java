@@ -21,6 +21,9 @@ public class SvgConversionHandler extends AbstractCommandHandler {
     private static String MASK_TAG_OUTPUT = "<mask";
     private static String MASK_TAG_PATTERN = "\\d+\\s" + MASK_TAG_OUTPUT;
 
+    private static String FILTER_TAG_OUTPUT = "<filter";
+    private static String FILTER_TAG_PATTERN = "\\d+\\s" + FILTER_TAG_OUTPUT;
+
     private final String id;
 
     public SvgConversionHandler(String id) {
@@ -101,6 +104,30 @@ public class SvgConversionHandler extends AbstractCommandHandler {
                 return Integer.parseInt(m.group(0).replace(MASK_TAG_OUTPUT, "").trim());
             } catch (Exception e) {
                 log.error("Exception counting the number of mask tags", e);
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     *
+     * @return The number of &lt;filter/&gt; tags in the generated SVG. pdftocairo (poppler
+     * 24.02.0) defines its alpha/luminance feColorMatrix filters as soon as the page has a soft
+     * mask (SMask) of any kind, plain alpha images included, so a non-zero count only tells
+     * that the slide has soft masks - not that it is broken. It is used to pick the slides
+     * worth verifying for issue #23953.
+     */
+    public int numberOfFilterTags() {
+        if (stdoutContains(FILTER_TAG_OUTPUT)) {
+            try {
+                String out = stdoutBuilder.toString();
+                Pattern r = Pattern.compile(FILTER_TAG_PATTERN);
+                Matcher m = r.matcher(out);
+                m.find();
+                return Integer.parseInt(m.group(0).replace(FILTER_TAG_OUTPUT, "").trim());
+            } catch (Exception e) {
+                log.error("Exception counting the number of filter tags", e);
                 return 0;
             }
         }

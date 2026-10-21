@@ -77,7 +77,7 @@ const PluginMenuActions: React.FC<PluginMenuActionsProps> = (props) => {
         )}
         opts={{
           id: `webcam-${userId}-dropdown-menu`,
-          keepMounted: true,
+          keepMounted: false,
           transitionDuration: 0,
           elevation: 3,
           getContentAnchorEl: null,

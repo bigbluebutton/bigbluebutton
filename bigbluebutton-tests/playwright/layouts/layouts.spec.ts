@@ -19,6 +19,25 @@ test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, 
   });
 });
 
+test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' }, () => {
+  test(
+    'Restoring presentation clears participant grid avatars',
+    { tag: '@media' },
+    async ({ browser, context }, testInfo) => {
+      linkIssue(25482);
+      const layouts = new Layouts(browser, context);
+      await initializePages(layouts, browser, {
+        isMultiUser: true,
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        testInfo,
+        recordVideo: true,
+      });
+      test.setTimeout(10 * 25_000 + 60_000);
+      await layouts.unifiedLayoutRestoreClearsGridAvatars();
+    },
+  );
+});
+
 test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
   test('First minimize of presentation shows participant tiles for moderator', async ({
     browser,
@@ -166,6 +185,32 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           testInfo,
         });
         await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
+      } finally {
+        await context.close();
+      }
+    },
+  );
+
+  test(
+    'Rotating a presenting phone keeps its landscape camera dock to itself',
+    { tag: '@media' },
+    async ({ browser }, testInfo) => {
+      linkIssue(25681);
+      const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+      try {
+        const layouts = new Layouts(browser, context);
+        await layouts.configureLayoutMutationProbe();
+        const page = await context.newPage();
+        await layouts.initModPage(page, {
+          createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+          joinParameter: 'userdata-bbb_auto_join_audio=false',
+          shouldCloseAudioModal: false,
+          clientSettingsOverrides: {
+            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
+          },
+          testInfo,
+        });
+        await layouts.phoneLandscapeKeepsTheMeetingCameraDock();
       } finally {
         await context.close();
       }

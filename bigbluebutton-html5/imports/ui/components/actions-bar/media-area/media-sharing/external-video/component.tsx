@@ -98,6 +98,7 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
           }}
           disabled={!canStartSharing && !isSharingVideo}
           iconStart={isSharingVideo ? <Icon iconName="external-video_off" /> : undefined}
+          fullWidth
         />
       </ModalStyled.FooterContainer>
     </>

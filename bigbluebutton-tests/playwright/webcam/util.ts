@@ -2,9 +2,10 @@ import { expect } from '@playwright/test';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, LOOP_INTERVAL } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, LOOP_INTERVAL, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+import { expectVideoReceived } from '../core/rtcStatsProbe';
 
 export async function webcamContentCheck(testPage: Page) {
   // Verify the webcam stream is live by checking that the video's currentTime advances.
@@ -29,6 +30,13 @@ export async function webcamContentCheck(testPage: Page) {
 
   const laterTime = await testPage.page.evaluate(getVideoTime);
   return laterTime > initialTime;
+}
+
+// The receiving side: another user's page decodes the remote webcam. Needs
+// trackPeerConnections before that page loads.
+export async function remoteWebcamContentCheck(testPage: Page) {
+  await testPage.hasElement(e.remoteStreamVideo, 'should display the remote webcam', VIDEO_LOADING_WAIT_TIME);
+  await expectVideoReceived(testPage.page, e.remoteStreamVideo, 'should decode the remote webcam');
 }
 
 // NETWORK_MONITORING_INTERVAL_MS in BBB's connection-status/service.js is 2000ms.

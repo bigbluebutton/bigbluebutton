@@ -71,6 +71,8 @@ Package: bigbluebutton
 Version: $VERSION
 Maintainer: ffdixon@bigbluebutton.org
 Depends: $DEPENDENCIES
+Conflicts: bbb-etherpad, bbb-pads
+Replaces: bbb-etherpad, bbb-pads
 Architecture: amd64
 Copyright: LICENSE
 Description: Virtual Classroom

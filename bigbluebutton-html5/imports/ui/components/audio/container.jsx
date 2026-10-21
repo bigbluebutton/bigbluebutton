@@ -20,11 +20,13 @@ import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import { getAudioConstraints } from '/imports/api/audio/client/bridge/service';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+import Auth from '/imports/ui/services/auth';
 import AudioService, {
   CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
   CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
@@ -130,6 +132,7 @@ const AudioContainer = (props) => {
   const userSelectedListenOnly = !!useStorageKey(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, 'session');
   const storageMuteState = useStorageKey(Service.getStorageMuteStateKey(), 'session');
   const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
+  const { processingMode } = useSettings(SETTINGS.AUDIO);
 
   const videoPreviewModal = useModalRegistration({
     id: 'videoPreviewModal',
@@ -218,8 +221,8 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+  const { data: currentUserUnmuted } = useWhoIsUnmuted(Auth.userID);
+  const currentUserMuted = currentUser?.userId && !currentUserUnmuted;
 
   // Sync AudioManager muted/talking states when using LiveKit audio state.
   useAudioManagerStateSync();
@@ -279,11 +282,15 @@ const AudioContainer = (props) => {
     }
   }, [currentUser?.userId, toggleVoice]);
 
+  // processingMode is the record of the user's filter choice; the constraints
+  // are derived from it by getAudioConstraints(). microphoneConstraints stays
+  // in the dependency list because a pre-4.0 record, which has no mode of its
+  // own, is still the value that ladder resolves to.
   useEffect(() => {
     if (Service.isConnected() && !Service.isListenOnly()) {
-      Service.updateAudioConstraints(microphoneConstraints);
+      Service.updateAudioConstraints(getAudioConstraints());
     }
-  }, [microphoneConstraints]);
+  }, [processingMode, microphoneConstraints]);
 
   useEffect(() => {
     if (Service.isConnected() && !Service.isListenOnly()) {

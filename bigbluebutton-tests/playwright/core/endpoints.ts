@@ -36,10 +36,9 @@ interface GetMeetingInfoResponse {
     moderatorCount: string[];
     isBreakout: string[];
     parentMeetingID?: string[];
+    sequence?: string[];
     breakoutRooms?: Array<{
-      breakout: Array<{
-        length: string[];
-      }>;
+      breakout: string[];
     }>;
     attendees?: Array<{
       attendee: Array<{

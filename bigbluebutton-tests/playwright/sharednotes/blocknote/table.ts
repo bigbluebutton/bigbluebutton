@@ -50,10 +50,15 @@ export class BlockNoteTableSharedNotes extends MultiUsers {
     await this.modPage.wasRemoved(e.errorScreenMessage, 'the client should not fall back to the error screen');
     await this.modPage.hasElement(e.blockNoteEditable, 'the editor should still be mounted and editable');
 
-    const firstCell = this.modPage.page.locator(FIRST_TABLE_CELL).first();
-    await firstCell.click();
+    // Assert on the whole editor, not the cell: BlockNote's table overlay widgets can
+    // swallow the cell click and leave the caret in an adjacent block, which is caret
+    // placement, not the crash this probe guards against.
+    await this.modPage.page.locator(FIRST_TABLE_CELL).first().click();
     await this.modPage.page.keyboard.type(TYPED_AFTER_INTERACTION);
-    await expect(firstCell, 'the editor should still accept typing').toContainText(TYPED_AFTER_INTERACTION);
+    await expect(
+      this.modPage.page.locator(e.blockNoteEditor),
+      'the editor should still accept typing',
+    ).toContainText(TYPED_AFTER_INTERACTION);
   }
 
   async arrowLeftOutOfFirstTableCell() {

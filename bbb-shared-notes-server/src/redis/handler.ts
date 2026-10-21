@@ -209,7 +209,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     const outputFilename = `${sanitizedFilename}.${notesFormat}`;
     const filePath = path.join(temporarySavingDir, outputFilename);
 
-    const apiEndpoint = `http://127.0.0.1:8787/api/documents/${documentName}/export/${notesFormat}`;
+    const apiEndpoint = `http://127.0.0.1:8787/loopback/api/documents/${documentName}/export/${notesFormat}`;
 
     const controller = new AbortController();
     const fetchTimeout = setTimeout(() => controller.abort(), timeout * 1000);

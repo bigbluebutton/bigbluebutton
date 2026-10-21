@@ -1,8 +1,12 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
 import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
+import { MessageRendering } from './messageRendering';
+import { ChatPluginDomElements } from './pluginDomElements';
 import { PrivateChatListPreview } from './privateChatListPreview';
+import { ReadConfirmation } from './readConfirmation';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -169,6 +173,21 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await jumbomoji.verifyJumbomoji();
   });
 
+  test('Private message read check does not overlap the message time on hover', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25936);
+    const readConfirmation = new ReadConfirmation(browser, context);
+    await readConfirmation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { chat: { privateMessageReadFeedback: { enabled: true } } } },
+    });
+    await readConfirmation.initUserPage(context, { testInfo });
+    await readConfirmation.verifyReadCheckDoesNotOverlapMessageTime();
+  });
+
   test('Private chat preview renders at first paint', async ({ browser, context, page }, testInfo) => {
     const preview = new PrivateChatListPreview(browser, context);
     await preview.initModPage(page, { testInfo });
@@ -184,6 +203,30 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const preview = new PrivateChatListPreview(browser, context);
     await preview.initPages(page, testInfo);
     await preview.deletedLastMessageRendersDeletedLabel();
+  });
+
+  test.describe('Message rendering', () => {
+    test('Markdown formatting is rendered for the receiver', async ({ browser, context, page }, testInfo) => {
+      const rendering = new MessageRendering(browser, context);
+      await rendering.initPages(page, testInfo);
+      await rendering.markdownFormatting();
+    });
+
+    test('HTML and script payloads are displayed as text for the receiver', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const rendering = new MessageRendering(browser, context);
+      await rendering.initPages(page, testInfo);
+      await rendering.htmlPayloadsRenderAsText();
+    });
+
+    test('Image markdown is not rendered as an image', async ({ browser, context, page }, testInfo) => {
+      const rendering = new MessageRendering(browser, context);
+      await rendering.initPages(page, testInfo);
+      await rendering.imageMarkdownNotRendered();
+    });
   });
 
   test.describe('Message actions', () => {
@@ -257,6 +300,26 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
       });
     });
 
+    test.describe('Pin', () => {
+      test('Moderator pins and unpins a message for everyone', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page, testInfo);
+        await message.pinAndUnpinMessage();
+      });
+
+      test('Viewer cannot pin a message', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page, testInfo);
+        await message.viewerCannotPinMessage();
+      });
+
+      test('Pin message button is removed by disabledFeatures', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, { createParameter: 'disabledFeatures=pinChatMessage', testInfo });
+        await message.pinMessageDisabled();
+      });
+    });
+
     test.describe('Reactions', () => {
       test('Add and remove a message reaction', async ({ browser, context, page }, testInfo) => {
         const message = new MessageActions(browser, context);
@@ -276,5 +339,25 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.orderReactions();
       });
     });
+  });
+});
+
+test.describe.parallel('Chat plugin dom elements', { tag: '@ci' }, () => {
+  test('Keeps delivering dom elements after a message is deleted', async ({ browser, context, page }, testInfo) => {
+    const domElements = new ChatPluginDomElements(browser, context);
+    // Single-user scenarios: the probe, the deletion and the focus trap are all moderator-side
+    await domElements.initModPage(page, { testInfo });
+    await domElements.keepsDeliveringAfterMessageDeletion();
+  });
+
+  test('Keeps delivering dom elements after the keyboard focus re-mounts a message', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const domElements = new ChatPluginDomElements(browser, context);
+    // Single-user scenarios: the probe, the deletion and the focus trap are all moderator-side
+    await domElements.initModPage(page, { testInfo });
+    await domElements.keepsDeliveringAfterKeyboardFocus();
   });
 });

@@ -45,7 +45,6 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
 import jakarta.servlet.ServletRequest
@@ -1399,7 +1398,7 @@ class ApiController {
       String method = 'join'
       String externalMeetingId = validationService.encodeString(meeting.getExternalId())
       String fullName = validationService.encodeString(us.fullname)
-      ListHashMap<String, String> queryParameters = new ListHashMap<>();
+      LinkedHashMap<String, String> queryParameters = new LinkedHashMap<>();
       queryParameters.put("fullName", fullName);
       queryParameters.put("meetingID", externalMeetingId);
       queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
@@ -2220,8 +2219,6 @@ class ApiController {
     Boolean enabled = maxParticipants > 0;
     // Users refreshing page or reconnecting must be identified
     Boolean rejoin = meeting.getUserById(us.internalUserId) != null;
-    // Users that passed enter once, still not joined but somehow re-entered
-    Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
     // User are able to rejoin if he already joined previously with the same extId
     Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
     // Bot users should not be affected by max partiicpants limitation
@@ -2229,13 +2226,11 @@ class ApiController {
     // Users that already joined the meeting
     // It will count only unique users in order to avoid the same user from filling all slots
     int joinedUniqueUsers = meeting.countUniqueExtIds()
-    // Users that are entering the meeting
-    int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
+    log.info("Joined users - ${joinedUniqueUsers}")
 
     Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax && !isBot) {
+    if (enabled && !rejoin && !userExtIdAlreadyJoined && reachedMax && !isBot) {
       return true;
     }
 

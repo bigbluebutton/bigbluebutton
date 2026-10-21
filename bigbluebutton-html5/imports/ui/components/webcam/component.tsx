@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Resizable } from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
@@ -149,12 +151,12 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     cams?.setAttribute('data-position', cameraDock.position);
   }, [cameraDock.position, cameraDock.maxWidth, isPresenter, displayPresentation]);
 
-  const handleVideoFocus = (id: string) => {
+  const handleVideoFocus = useCallback((id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_FOCUSED_CAMERA_ID,
       value: focusedId !== id ? id : INITIAL_INPUT_STATE.cameraDock.focusedId,
     });
-  };
+  }, [focusedId, layoutContextDispatch]);
 
   const onResizeHandle = (deltaWidth: number, deltaHeight: number) => {
     if (cameraDock.resizableEdge?.top || cameraDock.resizableEdge?.bottom) {

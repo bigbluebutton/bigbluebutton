@@ -64,6 +64,14 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
   },
+  previousCameraLabel: {
+    id: 'app.videoPreview.previousCameraLabel',
+    description: 'Previous camera arrow button label',
+  },
+  nextCameraLabel: {
+    id: 'app.videoPreview.nextCameraLabel',
+    description: 'Next camera arrow button label',
+  },
   qualityLabel: {
     id: 'app.videoPreview.profileLabel',
     description: 'Quality dropdown label',
@@ -247,8 +255,13 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   });
 
   const prevWebcamDeviceId = usePreviousValue(webcamDeviceId);
+  // Switching cameras while the preview loads would race two getUserMedia calls.
+  // A preview error leaves the loading flag on, so keep switching open to recover.
+  const isCameraSwitchLocked = isCameraLoading && !previewError;
 
   useEffect(() => {
+    if (isCameraLoading) return;
+
     // fill section deviceId if empty or if only one section exists and it's different than current webcam
     if (webcamDeviceId) {
       if (!prevWebcamDeviceId) {
@@ -271,7 +284,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         });
       }
     }
-  }, [webcamDeviceId, cameraSections]);
+  }, [webcamDeviceId, cameraSections, isCameraLoading]);
 
   useEffect(() => {
     const pSharedDevices = prevSharedDevices || [];
@@ -309,11 +322,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   // Sync the active preview section with the current webcam device.
   useEffect(() => {
+    // Adding a section can render before its camera starts. Keep the requested
+    // section until loading finishes instead of selecting the previous camera.
+    if (isCameraLoading) return;
+
     const newActiveIndex = cameraSections.findIndex((s) => s.deviceId === webcamDeviceId);
     if (newActiveIndex !== -1 && newActiveIndex !== activePreviewIndex) {
       setActivePreviewIndex(newActiveIndex);
     }
-  }, [webcamDeviceId, cameraSections]);
+  }, [webcamDeviceId, cameraSections, isCameraLoading]);
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     name: user.name,
@@ -322,9 +339,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   }));
 
   const voiceToggle = useToggleVoice();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const { data: unmuted } = useWhoIsUnmuted(Auth.userID as string);
 
-  const muted = !unmutedUsers[Auth.userID as string];
+  const muted = !unmuted;
   const away = currentUserData?.away ?? false;
 
   const [setAway] = useMutation(SET_AWAY);
@@ -342,6 +359,37 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     });
   }, [muted, away, voiceToggle, setAway]);
 
+  // switch the preview to the given index and deviceId
+  const setPreviewToIndex = useCallback(async (index: number, newDeviceId: string) => {
+    if (index !== activePreviewIndex) {
+      setActivePreviewIndex(index);
+    }
+    if (newDeviceId !== webcamDeviceId) {
+      const fakeEvent = { target: { value: newDeviceId } } as unknown as React.ChangeEvent<HTMLSelectElement>;
+      const resolvedDeviceId = await handleSelectWebcam(fakeEvent);
+      const streamingDeviceId = resolvedDeviceId || newDeviceId;
+
+      // The browser may hand over a different camera than the one asked for, so point the
+      // section at what is really streaming, otherwise its label names the wrong camera.
+      // Sections hold one camera each: leave it be if another section already owns this one
+      if (streamingDeviceId !== newDeviceId) {
+        setCameraSections((prevSections) => (
+          prevSections.some((s, i) => i !== index && s.deviceId === streamingDeviceId)
+            ? prevSections
+            : prevSections.map((s, i) => (i === index ? { ...s, deviceId: streamingDeviceId } : s))
+        ));
+      }
+
+      // only set brightness if camera is not shared
+      if (!isAlreadyShared(streamingDeviceId) && cameraSections[index]) {
+        setCameraBrightness(cameraSections[index].brightness, streamingDeviceId);
+      }
+    }
+  }, [
+    cameraSections, activePreviewIndex, webcamDeviceId, handleSelectWebcam,
+    setCameraBrightness, isAlreadyShared,
+  ]);
+
   const handleAddCamera = useCallback(() => {
     const usedDeviceIds = cameraSections.map((s) => s.deviceId);
     const nextAvailableDevice = availableWebcams.find((d) => !usedDeviceIds.includes(d.deviceId));
@@ -356,22 +404,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       }]);
       setPreviewToIndex(cameraSections.length, nextAvailableDevice.deviceId);
     }
-  }, [cameraSections, availableWebcams]);
-
-  // switch the preview to the given index and deviceId
-  const setPreviewToIndex = useCallback(async (index: number, newDeviceId: string) => {
-    if (index !== activePreviewIndex) {
-      setActivePreviewIndex(index);
-    }
-    if (newDeviceId !== webcamDeviceId) {
-      const fakeEvent = { target: { value: newDeviceId } } as unknown as React.ChangeEvent<HTMLSelectElement>;
-      await handleSelectWebcam(fakeEvent);
-      // only set brightness if camera is not shared
-      if (!isAlreadyShared(newDeviceId) && cameraSections[index]) {
-        setCameraBrightness(cameraSections[index].brightness, newDeviceId);
-      }
-    }
-  }, [cameraSections, activePreviewIndex, webcamDeviceId, handleSelectWebcam, setCameraBrightness]);
+  }, [cameraSections, availableWebcams, setPreviewToIndex]);
 
   const handleCameraSectionChange = useCallback((index: number, newDeviceId: string) => {
     const newSections = [...cameraSections];
@@ -418,12 +451,14 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   }, [cameraSections, setPreviewToIndex, handleVirtualBgSelected]);
 
   const handleShareWebcams = useCallback(() => {
-    const activeSection = cameraSections[activePreviewIndex];
+    // Read the settings for the captured camera as well as sharing its stream.
+    const deviceId = PreviewService.getVideoStreamDeviceId(currentVideoStream.current)
+      || cameraSections[activePreviewIndex]?.deviceId;
+    const activeSection = cameraSections.find((s) => s.deviceId === deviceId);
 
-    if (currentVideoStream.current && activeSection.deviceId) {
+    if (currentVideoStream.current && activeSection?.deviceId) {
       const { type } = activeSection.virtualBackground;
-
-      PreviewService.changeWebcam(activeSection.deviceId);
+      PreviewService.changeWebcam(deviceId);
       PreviewService.changeProfile(selectedProfile);
 
       if (
@@ -435,9 +470,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       }
 
       // Store the stream so VideoService can find it.
-      PreviewService.storeStream(activeSection.deviceId, currentVideoStream.current);
+      PreviewService.storeStream(deviceId, currentVideoStream.current);
       // Share the video.
-      VideoService.joinVideo(activeSection.deviceId, isCamLocked);
+      VideoService.joinVideo(deviceId, isCamLocked);
     }
   }, [
     cameraSections,
@@ -475,19 +510,28 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   }, [streams, stopVideo, cameraSections, activePreviewIndex, handleSelectWebcam]);
 
   useEffect(() => {
-    const activeSection = cameraSections[activePreviewIndex];
-    if (activeSection && virtualBackgroundActive !== activeSection.virtualBackgroundChecked) {
-      const newSections = [...cameraSections];
-      newSections[activePreviewIndex].virtualBackgroundChecked = virtualBackgroundActive;
-      if (virtualBackgroundActive) {
-        newSections[activePreviewIndex].virtualBackground = {
-          type: currentVideoStream.current?.virtualBgType || EFFECT_TYPES.BLUR_TYPE,
-          name: currentVideoStream.current?.virtualBgName || 'Blur',
-          uniqueId: currentVideoStream.current?.virtualBgUniqueId,
-        };
-      }
-      setCameraSections(newSections);
-    }
+    const stream = currentVideoStream.current;
+    const deviceId = PreviewService.getVideoStreamDeviceId(stream);
+    if (!stream || !deviceId) return;
+
+    const virtualBackground = {
+      type: stream.virtualBgType || EFFECT_TYPES.BLUR_TYPE,
+      name: stream.virtualBgName || 'Blur',
+      uniqueId: stream.virtualBgUniqueId,
+    };
+
+    // The active index can still belong to the previous camera in this render.
+    // Update the section that owns the stream whose background just started.
+    setCameraSections((prevSections) => {
+      const section = prevSections.find((s) => s.deviceId === deviceId);
+      if (!section || virtualBackgroundActive === section.virtualBackgroundChecked) return prevSections;
+
+      return prevSections.map((s) => (s.deviceId === deviceId ? {
+        ...s,
+        virtualBackgroundChecked: virtualBackgroundActive,
+        virtualBackground: virtualBackgroundActive ? virtualBackground : s.virtualBackground,
+      } : s));
+    });
   }, [virtualBackgroundActive]);
 
   // restart preview if the current camera is stopped
@@ -520,7 +564,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const changePreview = useCallback((direction: number) => {
     const newIndex = (activePreviewIndex + direction + cameraSections.length) % cameraSections.length;
     setPreviewToIndex(newIndex, cameraSections[newIndex].deviceId as string);
-  }, [activePreviewIndex, cameraSections, webcamDeviceId]);
+  }, [activePreviewIndex, cameraSections, setPreviewToIndex]);
 
   function renderWebcamPreview(): React.ReactNode {
     const Settings = getSettingsSingletonInstance();
@@ -593,16 +637,20 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           {cameraSections.length > 1 && (
           <>
             <Styled.PreviewArrowButton
-              aria-label="Previous camera"
+              aria-label={formatMessage(intlMessages.previousCameraLabel)}
+              data-test="previousCameraButton"
               onClick={() => changePreview(-1)}
               position="left"
+              disabled={isCameraSwitchLocked}
             >
               <Styled.ArrowLeftIcon />
             </Styled.PreviewArrowButton>
             <Styled.PreviewArrowButton
-              aria-label="Next camera"
+              aria-label={formatMessage(intlMessages.nextCameraLabel)}
+              data-test="nextCameraButton"
               onClick={() => changePreview(1)}
               position="right"
+              disabled={isCameraSwitchLocked}
             >
               <Styled.ArrowRightIcon />
             </Styled.PreviewArrowButton>
@@ -627,7 +675,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         value={selectedProfile || ''}
         onChange={(e) => handleSelectProfile(e as unknown as React.ChangeEvent<HTMLSelectElement>)}
         IconComponent={ExpandMoreIcon}
-        disabled={isAlreadyShared(cameraSections[sectionIndex].deviceId as string)}
+        disabled={isAlreadyShared(cameraSections[sectionIndex].deviceId as string) || isCameraSwitchLocked}
+        SelectDisplayProps={{ 'data-test': `cameraQualitySelector-${sectionIndex}` } as React.HTMLAttributes<HTMLDivElement>}
       >
         {PREVIEW_CAMERA_PROFILES.map((profile: CameraProfileProps) => {
           const label = intlMessages[`${profile.id}`]
@@ -822,6 +871,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                         value={!previewError ? section.deviceId || webcamDeviceId : ''}
                         onChange={(e) => handleCameraSectionChange(sectionIndex, e.target.value as string)}
                         IconComponent={ExpandMoreIcon}
+                        disabled={isCameraSwitchLocked}
+                        SelectDisplayProps={{ 'data-test': `cameraDeviceSelector-${sectionIndex}` } as React.HTMLAttributes<HTMLDivElement>}
                       >
                         {availableDevicesForSection.map((webcam, index) => (
                           <MenuItem key={webcam.deviceId} value={webcam.deviceId}>
@@ -862,7 +913,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.AddCameraContainer>
           <Styled.AddCameraButtonAndText
             onClick={handleAddCamera}
-            disabled={cameraSections.length >= availableWebcams.length}
+            disabled={cameraSections.length >= availableWebcams.length || isCameraSwitchLocked}
+            data-test="addExtraCameraButton"
           >
             <Styled.AddCameraIcon />
             {formatMessage(intlMessages.addExtraCameraLabel)}

@@ -3,4 +3,5 @@ export interface UserInformation {
   userName: string;
   meetingId: string;
   userHasNotesEnabled: boolean;
+  userIsCurrentlyOnline: boolean;
 }

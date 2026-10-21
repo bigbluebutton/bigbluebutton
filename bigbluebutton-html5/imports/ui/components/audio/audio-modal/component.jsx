@@ -8,7 +8,9 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
+import AudioModalFooterContext from './context';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
@@ -21,7 +23,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import AudioCaptionsSpeechControls from '/imports/ui/components/audio-captions/panel/speech/component';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
-  muteAway,
+  restoreFromAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
@@ -225,6 +227,7 @@ const AudioModal = ({
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [findingDevices, setFindingDevices] = useState(false);
   const [initialJoinExecuted, setInitialJoinExecuted] = useState(false);
+  const [footerContent, setFooterContent] = useState(null);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
 
@@ -379,7 +382,7 @@ const AudioModal = ({
   const disableAwayMode = () => {
     if (!away) return;
 
-    muteAway(false, true, voiceToggle);
+    restoreFromAway(voiceToggle);
     setAway({
       variables: {
         away: false,
@@ -718,35 +721,39 @@ const AudioModal = ({
 
   return (
     <Styled.Background isBlurred={Session.getItem('audioModalIsOpen')}>
-      <Styled.AudioModal
+      <ModalSimple
         modalName="AUDIO"
         onRequestClose={closeModal}
-        data-test="audioModal"
+        dataTest="audioModal"
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={title}
-        {...{
-          setIsOpen,
-          isOpen,
-          priority,
-          modalIsOpen: isOpen,
-        }}
+        contentStyle={{ minHeight: '20rem' }}
+        showDividers={content === 'settings'}
+        noFooter={!footerContent}
+        footerContent={footerContent}
+        setIsOpen={setIsOpen}
+        isOpen={isOpen}
+        priority={priority}
+        closeButtonDataTest="closeModal"
       >
-        {isIE ? (
-          <Styled.BrowserWarning>
-            <FormattedMessage
-              id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isn't supported"
-              values={{
-                supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
-                supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
-              }}
-            />
-          </Styled.BrowserWarning>
-        ) : null}
-        <Styled.Content>
-          {renderContent()}
-        </Styled.Content>
-      </Styled.AudioModal>
+        <AudioModalFooterContext.Provider value={{ setFooterContent }}>
+          {isIE ? (
+            <Styled.BrowserWarning>
+              <FormattedMessage
+                id="app.audioModal.unsupportedBrowserLabel"
+                description="Warning when someone joins with a browser that isn't supported"
+                values={{
+                  supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
+                  supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
+                }}
+              />
+            </Styled.BrowserWarning>
+          ) : null}
+          <Styled.Content>
+            {renderContent()}
+          </Styled.Content>
+        </AudioModalFooterContext.Provider>
+      </ModalSimple>
     </Styled.Background>
   );
 };
