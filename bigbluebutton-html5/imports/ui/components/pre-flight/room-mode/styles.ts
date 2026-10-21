@@ -36,11 +36,9 @@ const Panel = styled.div`
   min-height: 0;
 `;
 
-// The setup column's title, with the rule the design draws under both panels'.
-const Title = styled(PreFlightStyled.PanelTitle)`
-  padding-bottom: ${lgPaddingX};
-  border-bottom: 1px solid ${colorBorder};
-`;
+// The setup column's title; the rule under it is the setup panel's own
+// separator, so both cards draw it at the same height.
+const Title = PreFlightStyled.PanelTitle;
 
 // Cards on one side, what the pick means on the other, while both fit; stacked
 // once the column is too narrow for two (a tablet beside the setup panel, a

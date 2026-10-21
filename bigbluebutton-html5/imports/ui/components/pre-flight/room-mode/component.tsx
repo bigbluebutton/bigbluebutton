@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
+import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 import { usePreFlight } from '../context';
 import { JoiningRoomActions } from '../joining-room/component';
 import JoinNotices from '../join-notices/component';
@@ -84,7 +85,10 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
   return (
     <Styled.Panel data-test="preFlightRoomModePanel">
       {!isPhoneWidth && (
-        <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+        <>
+          <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+          <ProfileStyled.Separator />
+        </>
       )}
       <Styled.Body>
         <Styled.Picker>
