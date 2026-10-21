@@ -2,7 +2,7 @@
 case create.body.forms
 target fake
 
-== step 1: call create
+== step 1: call create (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
@@ -16,7 +16,7 @@ body xml
 /response/messageKey
 /response/message
 
-== step 2: call create
+== step 2: call create (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
@@ -30,7 +30,7 @@ body xml
 /response/messageKey "duplicateWarning"
 /response/message "This conference was already in existence and may currently be in progress."
 
-== step 3: call create
+== step 3: call create (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
@@ -44,7 +44,7 @@ body xml
 /response/messageKey "duplicateWarning"
 /response/message "This conference was already in existence and may currently be in progress."
 
-== step 4: call create
+== step 4: call create (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
@@ -53,7 +53,7 @@ body xml
 /response/messageKey "unsupportedContentType"
 /response/message "POST request Content-Type is missing or unsupported"
 
-== step 5: call insertDocument
+== step 5: call insertDocument (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
@@ -62,7 +62,7 @@ body xml
 /response/messageKey
 /response/message "Presentation is being uploaded"
 
-== step 6: call putRecordingTextTrack
+== step 6: call putRecordingTextTrack (POST)
 status 200
 header Content-Type application/json
 body json

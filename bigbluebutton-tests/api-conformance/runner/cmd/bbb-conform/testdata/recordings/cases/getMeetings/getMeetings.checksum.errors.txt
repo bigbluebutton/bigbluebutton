@@ -29,7 +29,7 @@ body xml
 /response/messageKey "checksumError"
 /response/message "Checksums do not match"
 
-== step 4: call getMeetings
+== step 4: call getMeetings (POST)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8

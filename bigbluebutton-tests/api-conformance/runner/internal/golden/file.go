@@ -86,15 +86,22 @@ func label(s spec.Step) string {
 	case s.Kind != spec.KindCall:
 		return string(s.Kind)
 	}
-	switch c := s.Call; {
+	c := s.Call
+	var l string
+	switch {
 	case c.HasCall && c.Call == "":
-		return `call ""` // the version endpoint
+		l = `call ""` // the version endpoint
 	case c.HasCall:
-		return "call " + c.Call
+		l = "call " + c.Call
 	case c.Route != "":
-		return "route " + c.Route
+		l = "route " + c.Route
+	default:
+		l = "url " + c.URL
 	}
-	return "url " + s.Call.URL
+	if c.Method != "GET" {
+		l += " (" + c.Method + ")"
+	}
+	return l
 }
 
 // Build makes c's recording from the steps a run collected for it. It fails

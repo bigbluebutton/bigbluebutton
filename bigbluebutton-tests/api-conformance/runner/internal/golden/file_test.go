@@ -34,6 +34,7 @@ steps:
     params: {meetingID: "${uid}"}
     ignoreResult: true
   - route: presentation-download
+    method: HEAD
     pathParams: {presId: p1}
   - url: "${baseUrl}/x"
     golden: off
@@ -61,12 +62,12 @@ func TestSections(t *testing.T) {
 	cases := loadCases(t, sectionsCase)
 	want := map[string]string{
 		"create.x.sections-plain": `step 1: call create
-step 4: route presentation-download
+step 4: route presentation-download (HEAD)
 step 6: call ""
 step 7: fs a/${uid} (document)
 teardown 2: call getMeetingInfo`,
 		"create.x.sections-defect": `step 1: call create (document)
-step 4: route presentation-download (document)
+step 4: route presentation-download (HEAD) (document)
 step 6: call "" (document)
 step 7: fs a/${uid} (document)
 teardown 2: call getMeetingInfo`,
@@ -82,6 +83,7 @@ func TestFormatAndParse(t *testing.T) {
 	f := &File{Case: "create.x.y", Target: "bbb-web", Sections: []Section{
 		{Key: Key{"steps", 0}, Label: "call create", Lines: []string{"status 200", "body xml", `/response/returncode "SUCCESS"`}},
 		{Key: Key{"steps", 2}, Label: `call ""`, Document: true, Lines: []string{"status 200", "# not a comment here"}},
+		{Key: Key{"steps", 3}, Label: "call create (POST)", Document: true, Lines: []string{"status 200"}},
 		{Key: Key{"teardown", 0}, Label: "url ${baseUrl}/x", Lines: []string{"status 302", "body (redirect)"}},
 	}}
 	data, err := f.Format()
@@ -99,6 +101,9 @@ body xml
 == step 3: call "" (document)
 status 200
 # not a comment here
+
+== step 4: call create (POST) (document)
+status 200
 
 == teardown 1: url ${baseUrl}/x
 status 302
