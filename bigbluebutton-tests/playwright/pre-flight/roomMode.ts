@@ -80,8 +80,17 @@ export const ensureProbe = async (page: Page): Promise<void> => {
 };
 
 export class RoomMode extends PreFlight {
-  async initModPage(page: Parameters<PreFlight['initModPage']>[0], options: InitExtraPageOptionsProps = {}) {
+  // The meeting enables the probe on create; requiring it is up to the cases
+  // that read or write the room mode.
+  protected async initModPageWithProbeModule(
+    page: Parameters<PreFlight['initModPage']>[0],
+    options: InitExtraPageOptionsProps = {},
+  ) {
     await super.initModPage(page, { createModules: APOLLO_CLIENT_SETTINGS_MODULE, ...options });
+  }
+
+  async initModPage(page: Parameters<PreFlight['initModPage']>[0], options: InitExtraPageOptionsProps = {}) {
+    await this.initModPageWithProbeModule(page, options);
     await ensureProbe(this.modPage);
   }
 
