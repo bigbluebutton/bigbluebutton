@@ -34,6 +34,45 @@ async function insertFromSlashMenu(testPage: Page, slot: string, title: string):
   await testPage.page.keyboard.press('Enter');
 }
 
+interface DiagramColors {
+  boxLuminance: number;
+  labelLuminance: number;
+  styleKeptFromDarkReader: boolean;
+}
+
+// Relative luminance (0 dark .. 1 light) of the first node box and node label
+// of the diagram, and whether its stylesheet is kept out of DarkReader.
+async function readDiagramColors(testPage: Page): Promise<DiagramColors | null> {
+  return testPage.page.evaluate((selector) => {
+    const svg = document.querySelector(`${selector} svg`);
+    const box = svg?.querySelector('.node rect, .node polygon');
+    const label = svg?.querySelector('.nodeLabel, .node text');
+    if (!svg || !box || !label) return null;
+    const luminance = (color: string) => {
+      const [r, g, b] = (color.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map((c) => Number(c) / 255);
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    return {
+      boxLuminance: luminance(getComputedStyle(box).fill),
+      labelLuminance: luminance(getComputedStyle(label).fill),
+      // DarkReader adds its own `darkreader darkreader--*` styles next to the
+      // ones it recolors; the diagram's own sheet carries the bare class.
+      styleKeptFromDarkReader: Array.from(svg.querySelectorAll('style')).some(
+        (style) => style.getAttribute('class') === 'darkreader',
+      ),
+    };
+  }, e.blockNoteDiagram);
+}
+
+// Same steps as the dark mode option test (options/options.ts): Settings,
+// the dark mode switch, save. The settings panel replaces the notes panel.
+async function toggleDarkMode(testPage: Page): Promise<void> {
+  await testPage.waitAndClick(e.settingsSidebarButton);
+  await testPage.waitAndClick(e.darkModeToggleBtn);
+  await testPage.waitAndClick(e.saveSettingsButton);
+  if (!(await getBlockNoteEditorLocator(testPage).isVisible())) await startBlockNoteSharedNotes(testPage);
+}
+
 async function insertBlockEquation(testPage: Page, slot: string): Promise<void> {
   await insertFromSlashMenu(testPage, slot, 'Block Equation');
   await testPage.page.keyboard.type(EQUATION);
@@ -126,6 +165,43 @@ export class MathDiagramSharedNotes extends MultiUsers {
     expect(download.content, 'the export should keep the equation as LaTeX').toContain(`$$\n${EQUATION}\n$$`);
     expect(download.content, 'the export should keep the diagram as Mermaid source').toContain(
       ['```mermaid', ...DIAGRAM_LINES, '```'].join('\n'),
+    );
+  }
+
+  // DarkReader lightens SVG fills like text, which left light labels on light
+  // boxes. In dark mode a diagram is drawn with Mermaid's dark theme and its
+  // stylesheet is kept out of DarkReader (mermaid-on-demand.ts); switching the
+  // theme redraws it. Guards the DarkReader and Mermaid internals this relies on.
+  async diagramsFollowDarkMode() {
+    await startBlockNoteSharedNotes(this.modPage);
+    await typeSlots(this.modPage, ['diagram slot']);
+    await insertDiagram(this.modPage, 'diagram slot');
+    await expect(this.modPage.page.locator(`${e.blockNoteDiagram} svg`, { hasText: 'Decision' })).toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+
+    await toggleDarkMode(this.modPage);
+    await expect
+      .poll(() => readDiagramColors(this.modPage), {
+        message: 'in dark mode the diagram should have dark boxes, light labels and its own stylesheet',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toMatchObject({ styleKeptFromDarkReader: true });
+    const dark = await readDiagramColors(this.modPage);
+    expect(dark!.boxLuminance, 'dark mode boxes should be darker than their labels').toBeLessThan(
+      dark!.labelLuminance - 0.4,
+    );
+
+    await toggleDarkMode(this.modPage);
+    await expect
+      .poll(() => readDiagramColors(this.modPage), {
+        message: 'back in light mode the diagram should be redrawn with the light theme',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toMatchObject({ styleKeptFromDarkReader: false });
+    const light = await readDiagramColors(this.modPage);
+    expect(light!.boxLuminance, 'light mode boxes should be lighter than their labels').toBeGreaterThan(
+      light!.labelLuminance + 0.4,
     );
   }
 
