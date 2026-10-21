@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net/url"
 	"os"
 	"os/signal"
 	"path"
@@ -41,6 +42,7 @@ type recorded struct {
 	reason  string
 	detail  []string // the lines that differ between passes
 	expect  string   // why a hand-written expect failed, if it did
+	host    string   // where the recording names the server's host, if it does
 	defect  bool
 }
 
@@ -162,7 +164,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 		for p := range results {
 			results[p] = run.Cases[p*n+k]
 		}
-		rec := recordCase(c, tg.Name, out, results, cols)
+		rec := recordCase(c, tg.Name, out, hostNames(tg.Bases()), results, cols)
 		outcomes = append(outcomes, rec)
 	}
 
@@ -182,7 +184,7 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 
 // recordCase decides what to do with one case from its runs, and writes
 // its recording when every pass agrees.
-func recordCase(c *spec.Case, targetName, out string, results []*report.CaseResult, cols []*golden.Collector) recorded {
+func recordCase(c *spec.Case, targetName, out string, hosts []string, results []*report.CaseResult, cols []*golden.Collector) recorded {
 	rec := recorded{id: c.ID, defect: c.Class == "defect"}
 	first := results[0]
 	for _, r := range results {
@@ -226,6 +228,7 @@ func recordCase(c *spec.Case, targetName, out string, results []*report.CaseResu
 			return rec
 		}
 	}
+	rec.host = namesHost(f, hosts)
 	data, err := f.Format()
 	if err != nil {
 		rec.outcome, rec.reason = recError, err.Error()
@@ -303,6 +306,9 @@ func writeRecordConsole(w io.Writer, outcomes []recorded, runWarnings, orphanWar
 		for _, l := range o.detail {
 			fmt.Fprintf(w, "    %s\n", l)
 		}
+		if o.host != "" {
+			fmt.Fprintf(w, "    names the server's host, %s: mask it, or the recording only holds on this server\n", o.host)
+		}
 		if o.expect != "" {
 			if o.defect {
 				fmt.Fprintf(w, "    expect failed, as a defect case's may: %s\n", o.expect)
@@ -319,4 +325,30 @@ func writeRecordConsole(w io.Writer, outcomes []recorded, runWarnings, orphanWar
 	fmt.Fprintf(w, "\n%s: %d new, %d changed, %d unchanged, %d unstable, %d incomplete, %d secret, %d errors, %d skipped\n",
 		out, counts[recNew], counts[recChanged], counts[recUnchanged], counts[recUnstable], counts[recIncomplete],
 		counts[recSecret], counts[recError], counts[recSkip])
+}
+
+// hostNames returns the host names in a target's base URLs.
+func hostNames(bases []string) []string {
+	var out []string
+	for _, b := range bases {
+		if u, err := url.Parse(b); err == nil && u.Hostname() != "" {
+			out = append(out, u.Hostname())
+		}
+	}
+	return out
+}
+
+// namesHost says where f mentions one of hosts, which normalization leaves
+// only where a value holds the host without a scheme the base URLs match.
+func namesHost(f *golden.File, hosts []string) string {
+	for _, s := range f.Sections {
+		for _, l := range s.Lines {
+			for _, h := range hosts {
+				if strings.Contains(l, h) {
+					return h + " in " + s.Label
+				}
+			}
+		}
+	}
+	return ""
 }

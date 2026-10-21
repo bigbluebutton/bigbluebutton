@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakebbb"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/golden"
 )
 
 func runRecord(t *testing.T, tf, cases, out string, extra ...string) (int, string) {
@@ -410,5 +411,23 @@ func TestRunGoldenChecks(t *testing.T) {
 	var o, e bytes.Buffer
 	if code := run([]string{"run", "--target", tf, "--cases", cases, "--golden", filepath.Join(out, "missing")}, &o, &e); code != exitUsage {
 		t.Errorf("a missing recordings directory: exit %d", code)
+	}
+}
+
+func TestNamesHost(t *testing.T) {
+	hosts := hostNames([]string{"https://bbb.test", "http://10.0.0.5:8090", "::bad"})
+	if strings.Join(hosts, ",") != "bbb.test,10.0.0.5" {
+		t.Fatalf("hostNames = %q", hosts)
+	}
+	f := &golden.File{Sections: []golden.Section{
+		{Label: `call ""`, Lines: []string{`/response/graphqlWebsocketUrl "${wsBaseUrl}/graphql"`}},
+		{Label: "call getMeetings", Lines: []string{`/response/message "see bbb.test/help"`}},
+	}}
+	if got := namesHost(f, hosts); got != "bbb.test in call getMeetings" {
+		t.Errorf("namesHost = %q", got)
+	}
+	f.Sections = f.Sections[:1]
+	if got := namesHost(f, hosts); got != "" {
+		t.Errorf("namesHost = %q, want none", got)
 	}
 }

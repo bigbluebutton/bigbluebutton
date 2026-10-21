@@ -409,6 +409,9 @@ func (c *Context) substitute(s string) string {
 	for _, b := range c.Bases {
 		if b != "" {
 			s = strings.ReplaceAll(s, b, "${baseUrl}")
+			if ws := wsBase(b); ws != "" {
+				s = strings.ReplaceAll(s, ws, "${wsBaseUrl}")
+			}
 		}
 	}
 	// An internal meeting ID inside a value, such as a redis key name or a
@@ -420,6 +423,19 @@ func (c *Context) substitute(s string) string {
 		s = strings.ReplaceAll(s, c.UID, "${uid}")
 	}
 	return s
+}
+
+// wsBase is the websocket URL that goes with a base URL, such as the
+// GraphQL URL the version endpoint gives: wss:// for https://, ws:// for
+// http://.
+func wsBase(base string) string {
+	switch {
+	case strings.HasPrefix(base, "https://"):
+		return "wss://" + strings.TrimPrefix(base, "https://")
+	case strings.HasPrefix(base, "http://"):
+		return "ws://" + strings.TrimPrefix(base, "http://")
+	}
+	return ""
 }
 
 var embeddedIDRe = regexp.MustCompile(`\b[0-9a-f]{40}-[0-9]{10,}\b`)

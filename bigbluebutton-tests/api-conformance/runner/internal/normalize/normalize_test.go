@@ -100,6 +100,22 @@ $.response.returncode "SUCCESS"
 $.response.url "${baseUrl}${apiPrefix}join?checksum=<token>&existingUserID=w_<id>&fullName=Bob&meetingID=${uid}&role=VIEWER"`)
 }
 
+func TestWebsocketURL(t *testing.T) {
+	body := `<response><returncode>SUCCESS</returncode><graphqlWebsocketUrl>wss://bbb.test/graphql</graphqlWebsocketUrl>` +
+		`<graphqlApiUrl>https://bbb.test/api/rest</graphqlApiUrl></response>`
+	got := Response(obs(200, map[string]string{"Content-Type": "text/xml"}, body), ctx("bbbc-u3"), Default())
+	check(t, got, `
+status 200
+header Content-Type text/xml
+body xml
+/response/returncode "SUCCESS"
+/response/graphqlWebsocketUrl "${wsBaseUrl}/graphql"
+/response/graphqlApiUrl "${baseUrl}/api/rest"`)
+	if got := wsBase("http://h:8090"); got != "ws://h:8090" {
+		t.Errorf("wsBase(http) = %q", got)
+	}
+}
+
 func TestLocationAndCookies(t *testing.T) {
 	o := obs(302, map[string]string{
 		"Location":   base + "/html5client/join?sessionToken=abc123&b=2",

@@ -287,7 +287,10 @@ Values that change from run to run are masked:
 
 After masking:
 - the case's `${uid}`, the target's base URLs and its API prefix are replaced
-  by placeholders;
+  by placeholders, and so is the websocket form of a base URL
+  (`wss://host` for `https://host`), as `${wsBaseUrl}`. `record` warns when a
+  recording still names the server's host anywhere, since it would then hold
+  only on that server;
 - internal meeting IDs inside other strings, such as redis key names and
   file paths, become `<sha1(meetingID)>-<time>` too;
 - getMeetings entries of other cases are dropped, and a list left with none
