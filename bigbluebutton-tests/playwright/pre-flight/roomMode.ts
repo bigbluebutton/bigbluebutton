@@ -60,7 +60,7 @@ export const expectRoomMode = async (page: Page, expected: string, message: stri
 // can only be checked by sampling across a window.
 const ROOM_MODE_SAMPLE_INTERVAL = 250;
 
-const expectRoomModeStable = async (page: Page, expected: string, message: string): Promise<void> => {
+export const expectRoomModeStable = async (page: Page, expected: string, message: string): Promise<void> => {
   const start = Date.now();
   while (Date.now() - start < ELEMENT_WAIT_TIME) {
     // eslint-disable-next-line no-await-in-loop
