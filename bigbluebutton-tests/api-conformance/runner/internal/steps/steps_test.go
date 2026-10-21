@@ -538,6 +538,31 @@ func TestProfileDefaultAfterCancel(t *testing.T) {
 	}
 }
 
+// A profile command that exits 77 can't switch this server: its cases are
+// skipped, and since nothing switched, the default isn't restored.
+func TestProfileUnavailable(t *testing.T) {
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	dir := t.TempDir()
+	tg := &target.Target{Name: "p", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1", Dir: dir,
+		Profiles: map[string]target.Profile{
+			"remote":  {Command: "echo BBB_EXEC is not set; exit 77"},
+			"default": {Command: "echo default >> marker"},
+		}}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\nprofile: remote\nsteps: [{call: getMeetings}]\n"), spec.Options{})
+	run := r.RunAll(context.Background(), cases, 1)
+	if c := run.Cases[0]; c.Status != report.Skip || c.Reason != "profile-unavailable: remote: BBB_EXEC is not set" {
+		t.Errorf("status %s, reason %q", c.Status, c.Reason)
+	}
+	if marker, _ := os.ReadFile(filepath.Join(dir, "marker")); len(marker) > 0 {
+		t.Errorf("default ran though nothing switched: %q", marker)
+	}
+}
+
 // A profile switch can restart services, so it is skipped when no case in
 // the group would run.
 func TestProfileSkippedWhenNothingRuns(t *testing.T) {

@@ -109,7 +109,9 @@ profiles:
   before its cases.
 - `default` runs at the end, even if the run is interrupted.
 - A case whose profile the target doesn't list is skipped as `no-profile`, and
-  a failing command makes its cases ERROR.
+  a failing command makes its cases ERROR. A command that exits 77 says it
+  can't switch this server, e.g. because it isn't told how to reach it: its
+  cases are skipped as `profile-unavailable`.
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
@@ -436,7 +438,7 @@ One case per file.
 | `title` | One line saying what the case shows. |
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
-| `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`. |
+| `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: its steps are recorded with `golden: document` until then. |
 | `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `s3`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`. |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |

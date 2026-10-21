@@ -270,8 +270,10 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 		var err error
 		for _, i := range groups[name] {
 			if r.skipReason(cases[i]) == "" {
-				switched = true
 				err = r.runProfile(ctx, name, r.Target.Profiles[name].Command)
+				if !errors.Is(err, errProfileUnavailable) {
+					switched = true
+				}
 				break
 			}
 		}
@@ -279,6 +281,9 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 			if err != nil {
 				results[i] = r.skeleton(cases[i])
 				results[i].Status, results[i].Reason = report.Error, err.Error()
+				if errors.Is(err, errProfileUnavailable) {
+					results[i].Status = report.Skip
+				}
 				continue
 			}
 			results[i] = r.RunCase(ctx, cases[i], uids[i])
@@ -289,6 +294,15 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 	run.Tally()
 	return run
 }
+
+// errProfileUnavailable marks a profile command that exited with
+// profileUnavailable: it can't switch this server, e.g. because it isn't
+// told how to reach it. Its cases are skipped, not errors.
+var errProfileUnavailable = errors.New("profile-unavailable")
+
+// profileUnavailable is the exit status that says so: 77, which Automake
+// and Meson test harnesses also read as "skip".
+const profileUnavailable = 77
 
 // runProfile runs a profile's command from the target file's directory.
 func (r *Runner) runProfile(ctx context.Context, name, command string) error {
@@ -306,6 +320,10 @@ func (r *Runner) runProfile(ctx context.Context, name, command string) error {
 		tail := strings.TrimSpace(string(out))
 		if len(tail) > 500 {
 			tail = "…" + tail[len(tail)-500:]
+		}
+		var exit *osexec.ExitError
+		if errors.As(err, &exit) && exit.ExitCode() == profileUnavailable {
+			return fmt.Errorf("%w: %s: %s", errProfileUnavailable, name, r.Redactor.Redact(tail))
 		}
 		return fmt.Errorf("profile %s: command failed: %v: %s", name, err, r.Redactor.Redact(tail))
 	}

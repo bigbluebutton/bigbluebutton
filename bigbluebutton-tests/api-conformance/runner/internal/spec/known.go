@@ -8,7 +8,7 @@ var knownCapabilities = set(
 	"bus", "fs", "redis", "clamav", "s3", "full-stack",
 )
 
-var knownTags = set("ci", "slow", "disruptive", "full-stack", "presence", "conversion", "serial")
+var knownTags = set("ci", "slow", "disruptive", "full-stack", "presence", "conversion", "serial", "triage")
 
 // builtinVars are always defined at run time.
 var builtinVars = set("uid", "salt", "baseUrl", "sinkUrl", "fixtureUrl")
