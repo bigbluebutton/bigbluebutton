@@ -1685,7 +1685,7 @@ See the following [bigbluebutton-api-ruby](https://github.com/mconf/bigbluebutto
 
 ### Testing API Calls with API Mate
 
-To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
+To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](https://bigbluebutton.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
 
 If you're developing new API calls or adding parameters on API calls, you can still use the API Mate to test them. Just scroll the page down or type "custom" in the parameter filter and you'll see the inputs where you can add custom API calls or user metadata. New API calls will appear in the list of API links and new parameters will be added to all the API links.
 
