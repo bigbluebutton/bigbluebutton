@@ -39,7 +39,7 @@ only: mkclean, which it needs, has no 64-bit ARM build.
 | bbb-graphql-actions | `bbb-graphql-actions/` | 8093 | environment only |
 | bbb-graphql-middleware | `bbb-graphql-middleware/` | 8378 | `/etc/bigbluebutton/bbb-graphql-middleware.yml` |
 | bbb-graphql-server | `bbb-graphql-server/` | 8085 | environment (`HASURA_GRAPHQL_*`) |
-| bbb-export-annotations | `bbb-export-annotations/` | none | `/usr/local/bigbluebutton/bbb-export-annotations/config/settings.json` |
+| bbb-export-annotations | `bbb-export-annotations/` | none | `/etc/bigbluebutton/bbb-export-annotations.json` |
 | bbb-shared-notes-server | `bbb-shared-notes-server/` | 8787 | `/etc/bigbluebutton/bbb-shared-notes-server.yml` |
 | bbb-record-and-playback | `record-and-playback/` | none | `/etc/bigbluebutton/recording/recording.yml`, `presentation.yml`, `/etc/bigbluebutton/bbb-web.properties` |
 | bbb-nginx | `docker/nginx/` | 8080, 8185 | `/etc/nginx/sites-available/`, `/usr/share/bigbluebutton/nginx/` |
@@ -57,15 +57,11 @@ deployments use their official images.
   (html5-client, learning-dashboard, playback, nginx) run as the base image's `nginx` (UID 101).
 - Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
-- Configuration is mounted at the bare-metal path. Where an image takes environment variables
-  into its default config file (export-annotations), a mounted file replaces that and the
-  variables are not used. bbb-apps-akka reads them in upstream's `application.conf`, which a
-  mounted `bbb-apps-akka.conf` includes; keys set in that file win. bbb-web's environment
-  variables override its mounted files.
+- Configuration is mounted at the bare-metal path. bbb-apps-akka reads the variables below in
+  upstream's `application.conf`, which a mounted `bbb-apps-akka.conf` includes; keys set in that
+  file win. bbb-web's environment variables override its mounted files.
 - The entrypoint is the process, started as in its systemd unit (nginx images: the base image's).
-  export-annotations has a few-line entrypoint that writes the variables below into the config
-  unless it is mounted. graphql-server uses Hasura's entrypoint, which applies the
-  metadata before the engine starts.
+  graphql-server uses Hasura's entrypoint, which applies the metadata before the engine starts.
 - `/var/bigbluebutton` is shared between bbb-web, record-and-playback and nginx (presentations,
   recordings, captions, learning-dashboard reports). `/var/lib/bbb-webrtc-recorder` (recorder and
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
@@ -113,8 +109,8 @@ Only these are read; everything else is set in the mounted configuration.
   `HASURA_GRAPHQL_AUTH_HOOK`, `HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL`. The image ships no admin
   secret: `HASURA_GRAPHQL_ADMIN_SECRET` is required, and Hasura refuses to start without it
   because the image sets the auth hook.
-- **bbb-export-annotations**: `BBB_REDIS_HOST`, `BBB_WEB_HOST`; the Redis password goes in a
-  mounted `settings.json`.
+- **bbb-export-annotations**: none; a deployment mounts
+  `/etc/bigbluebutton/bbb-export-annotations.json`.
 - **bbb-record-and-playback**: resque's `QUEUE` and `COUNT` (preset as in the systemd unit).
 - **bbb-webrtc-sfu**, **bbb-webhooks**: the variables in the component's
   `config/custom-environment-variables.yml` (node-config), e.g. `REDIS_HOST`, `REDIS_PASSWORD`;

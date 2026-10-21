@@ -15,11 +15,8 @@ COPY --from=fonts . /usr/local/share/fonts/
 COPY --from=slides blank* /usr/share/bigbluebutton/blank/
 WORKDIR /usr/local/bigbluebutton/bbb-export-annotations
 COPY --from=build /app ./
-# The entrypoint writes the service addresses into config/settings.json
-RUN chown -R bigbluebutton:bigbluebutton config
-COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+# Deployments mount /etc/bigbluebutton/bbb-export-annotations.json
 ENV NODE_ENV=production
 USER bigbluebutton
-ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "master.js"]
