@@ -84,11 +84,17 @@ static apps by their default service names on port 8080: `html5-client`, `learni
 `playback`. nginx resolves these names when it starts, so a deployment either runs those images
 under these service names or mounts its own fragments at `/usr/share/bigbluebutton/nginx/`.
 Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
-from `/var/bigbluebutton`. The backend fragments (`web`, `graphql.nginx`, `livekit.nginx`,
-`webrtc-sfu.nginx`, `bbb-shared-notes-server.nginx`, `webhooks.nginx`,
-`sites-available/hasura-loadbalancer.conf`) use upstream's `127.0.0.1`; a deployment mounts its own.
-nginx resolves every host name in these files when it starts, so all of them must resolve then. TLS
-and `server_name` are deployment config.
+from `/var/bigbluebutton`. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
+by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu`,
+`shared-notes-server` and `webhooks`; Hasura is `graphql-server` in
+`sites-available/hasura-loadbalancer.conf`. A deployment uses these names or mounts its own two
+files. nginx resolves every host name in these files when it starts, so all of them must resolve
+then, except `webhooks`: it is resolved at run time through the container's DNS server, so without
+it nginx starts and answers `/bigbluebutton/api/hooks` with 502. The entrypoint renders that
+resolver at start into `/tmp/bbb-resolver.conf`, so `/tmp` must be writable, as it already must be for
+nginx's pid and temp files. With several nameservers in `/etc/resolv.conf` nginx rotates between
+them, so all of them must know the name; on Kubernetes `webhooks` needs its full service name,
+because nginx's resolver ignores search domains. TLS and `server_name` are deployment config.
 
 ## Environment variables
 
@@ -122,4 +128,5 @@ Only these are read; everything else is set in the mounted configuration.
   as well.
 - **bbb-graphql-middleware**, **bbb-shared-notes-server**: `SERVER_HOST`, the listen address (the
   image sets `0.0.0.0`); an override file cannot change it, as the environment wins.
-- **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**, **bbb-nginx**: none.
+- **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**: none.
+- **bbb-nginx**: the base image's `NGINX_ENTRYPOINT_LOCAL_RESOLVERS`, which the image sets.
