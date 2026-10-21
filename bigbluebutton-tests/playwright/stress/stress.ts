@@ -13,13 +13,10 @@ export class Stress {
 
   public context: BrowserContext;
 
-  public userPages: Page[];
-
   constructor(browser: Browser, context: BrowserContext, page: PlaywrightPage, testInfo: TestInfo) {
     this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
     this.context = context;
-    this.userPages = [];
   }
 
   async getNewPageTab() {
@@ -46,58 +43,6 @@ export class Stress {
       this.modPage.page = newPage;
       console.log(`Loop ${i} of ${c.JOIN_AS_MODERATOR_TEST_ROUNDS} completed`);
       await expect(failureCount).toBeLessThanOrEqual(maxFailRate);
-    }
-  }
-
-  async breakoutRoomInvitation() {
-    await this.modPage.init(true, { fullName: 'Moderator' });
-    for (let i = 1; i <= c.BREAKOUT_ROOM_INVITATION_TEST_ROUNDS; i++) {
-      const userName = `User-${i}`;
-      const newPage = await this.getNewPageTab();
-      const userPage = new Page(this.browser, newPage, this?.modPage?.testInfo);
-      await userPage.init(false, {
-        fullName: userName,
-        meetingId: this.modPage.meetingId,
-        testInfo: this?.modPage?.testInfo,
-      });
-      console.log(`${userName} joined`);
-      this.userPages.push(userPage);
-    }
-
-    // Create breakout rooms with the allow choice option enabled
-    await this.modPage.page.bringToFront();
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
-    await this.modPage.waitAndClick(e.allowChoiceRoom);
-    await this.modPage.waitAndClick(e.modalConfirmButton);
-
-    for (const page of this.userPages) {
-      await page.page.bringToFront();
-      await page.hasElement(
-        e.modalConfirmButton,
-        'should display the modal confirm button',
-        c.ELEMENT_WAIT_LONGER_TIME,
-      );
-      await page.hasElement(
-        e.labelGeneratingURL,
-        'should display the label generating URL',
-        c.ELEMENT_WAIT_LONGER_TIME,
-      );
-    }
-
-    // End breakout rooms
-    await this.modPage.page.bringToFront();
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.waitAndClick(e.endBreakoutRoomsButton);
-    await this.modPage.closeAudioModal();
-
-    // Create breakout rooms with the allow choice option NOT enabled (randomly assign)
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
-    await this.modPage.waitAndClick(e.randomlyAssign);
-    await this.modPage.waitAndClick(e.modalConfirmButton);
-
-    for (const page of this.userPages) {
-      await page.page.bringToFront();
-      await page.hasElement(e.modalConfirmButton, 'should display the modal confirm button');
     }
   }
 

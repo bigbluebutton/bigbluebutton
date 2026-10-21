@@ -60,6 +60,41 @@ export async function applyUserListLock(testPage: Page) {
   await testPage.closeAllToastNotifications();
 }
 
+// Keep the text of every toast the page shows from now on, so that a toast that comes and goes
+// while the test is still busy (a slow join, for example) can be checked afterwards.
+export async function recordToasts(testPage: Page) {
+  await testPage.page.evaluate((selector) => {
+    const recorded: string[] = [];
+    (window as unknown as { recordedToasts: string[] }).recordedToasts = recorded;
+    new MutationObserver(() => {
+      document.querySelectorAll(selector).forEach((toast) => {
+        const text = toast.textContent ?? '';
+        if (text && !recorded.includes(text)) recorded.push(text);
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }, e.smallToastMsg);
+}
+
+async function wasToastRecorded(testPage: Page, text: string): Promise<boolean> {
+  const recorded = await testPage.page.evaluate(
+    () => (window as unknown as { recordedToasts?: string[] }).recordedToasts ?? [],
+  );
+  return recorded.some((toast) => toast.includes(text));
+}
+
+export async function hasRecordedToast(
+  testPage: Page,
+  text: string,
+  description: string,
+  timeout: number = ELEMENT_WAIT_TIME,
+) {
+  await expect.poll(() => wasToastRecorded(testPage, text), { message: description, timeout }).toBe(true);
+}
+
+export async function hasNoRecordedToast(testPage: Page, text: string, description: string) {
+  expect(await wasToastRecorded(testPage, text), description).toBe(false);
+}
+
 // The talking indicator of one user, while that user is talking.
 export function isTalkingLocator(testPage: Page, userName: string): Locator {
   return testPage.page.locator(e.isTalking).locator(`:text-is("${userName}")`);

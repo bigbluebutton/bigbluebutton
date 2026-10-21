@@ -300,14 +300,14 @@ export class MessageActions extends Chat {
     );
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.waitAndClick(e.closeModal);
-    // :visible - menus opened earlier in this flow leave hidden duplicate
-    // menuitems in the DOM, so a plain visible-wait can land on a stale one
-    await this.modPage.page.locator(`${e.askJoinRoom1}:visible`).first().click();
-    await this.modPage.hasElement(
-      e.alreadyConnected,
+    // the moderator joins room1 from the room's options menu
+    await this.modPage.waitAndClick(e.roomOptions1, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.askJoinRoom1);
+    // both the room card and its still open menu item are marked alreadyConnected
+    await expect(
+      this.modPage.page.locator(e.alreadyConnected).first(),
       'should display the alreadyConnected element when mod join',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
     await breakoutModPage.waitAndClick(e.closeModal);
     // mod send a message
@@ -336,6 +336,10 @@ export class MessageActions extends Chat {
     await expect(
       lastMessageItemBreakoutUser.locator(e.editMessageButton),
       'should not display the edit message button when hovering a user message',
+    ).not.toBeVisible();
+    await expect(
+      lastMessageItemBreakoutUser.locator(e.deleteMessageButton),
+      'should not display the delete message button to the viewer for the moderator message',
     ).not.toBeVisible();
     // check if mod can delete own message
     const lastMessageItemBreakoutMod = breakoutModPage.page.locator(e.chatMessageItem).last();

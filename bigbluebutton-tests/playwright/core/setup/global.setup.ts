@@ -34,8 +34,12 @@ async function validateEnvironmentAndAPI(): Promise<void> {
     const createUrl = helpers.createMeetingUrl(undefined, testMeetingId);
     const createResponse = await requestContext.get(createUrl, { timeout: 15000 });
 
-    if (!createResponse.ok()) {
-      const msg = `Failed to validate /create endpoint. HTTP status: ${createResponse.status()}.`;
+    // a wrong BBB_SECRET is answered with HTTP 200 and a checksumError
+    const createBody = await createResponse.text();
+    if (!createResponse.ok() || !createBody.includes('<returncode>SUCCESS</returncode>')) {
+      const messageKey = createBody.match(/<messageKey>(.*?)<\/messageKey>/)?.[1] ?? 'none';
+      const status = createResponse.status();
+      const msg = `Failed to validate /create endpoint. HTTP status: ${status}, messageKey: ${messageKey}.`;
       console.error(msg);
       throw new Error(msg);
     }
@@ -57,6 +61,7 @@ async function validateEnvironmentAndAPI(): Promise<void> {
       console.error(msg);
       throw new Error(msg);
     }
+    await helpers.endMeetings(requestContext, [testMeetingId]);
   } catch (error) {
     console.error('Environment and API validation failed:', (error as Error).message);
     throw error;

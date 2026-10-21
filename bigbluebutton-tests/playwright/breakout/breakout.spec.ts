@@ -254,7 +254,6 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initModPage(page, { testInfo });
       await join.initUserPage(context, { testInfo });
@@ -263,7 +262,6 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(false, true);
