@@ -15,8 +15,12 @@ const RoomIllustration: React.FC = () => {
   const file = darkTheme ? 'room_mode_illustration_dark.svg' : 'room_mode_illustration.svg';
 
   return (
+    // The intrinsic size reserves the space before the file loads, so the text
+    // under it does not jump.
     <Styled.Illustration
       src={`${basename}/resources/images/${file}`}
+      width={277}
+      height={156}
       alt=""
       aria-hidden
       data-test="preFlightRoomModeIllustration"
