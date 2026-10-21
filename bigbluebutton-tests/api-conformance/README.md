@@ -113,6 +113,32 @@ profiles:
   can't switch this server, e.g. because it isn't told how to reach it: its
   cases are skipped as `profile-unavailable`.
 
+**Profiles on a full install.** `targets/bbb-web.yaml` lists the suite's
+profiles with `env/full-install/profile.sh` as their command. Each profile
+is an overlay, `env/bbb-web/profiles/<name>.properties`:
+
+```sh
+export BBB_EXEC="docker exec -i bbb40"     # or local, or "ssh root@host"
+env/full-install/profile.sh reveal-version # apply one
+env/full-install/profile.sh status         # the one in force
+env/full-install/profile.sh default        # restore the server's own file
+```
+
+- **How it applies a profile:**
+  - it keeps the server's `/etc/bigbluebutton/bbb-web.properties` aside;
+  - it writes that file plus the overlay (bbb-web takes the last value of a
+    key) and restarts bbb-web;
+  - it waits until the API answers again, about 15 seconds.
+- **Applying the profile already in force** restarts nothing.
+- **Safety:** it refuses to touch a profiled file that was edited by hand,
+  and it takes a lock, so two switches never overlap.
+- **Without `BBB_EXEC`** it exits 77, so the profile's cases are skipped
+  rather than failed: a server is never restarted by accident.
+- **`disruptive` tag:** cases with a profile have it, so
+  `--exclude-tags disruptive` leaves the server alone.
+- **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
+  same arguments.
+
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
 ### Expected failures

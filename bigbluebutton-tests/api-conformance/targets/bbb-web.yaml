@@ -28,3 +28,12 @@ routes:
   connection-graphql-authz:  {path: "/bigbluebutton/connection/checkGraphqlAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
   connection-legacy-authz:   {path: "/bigbluebutton/connection/legacyCheckAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
   texttrack-authz:           {path: "/bigbluebutton/textTrack/validateAuthToken", baseEnv: BBB_WEB_DIRECT_URL}
+# Config profiles some cases need. env/full-install/profile.sh applies one to
+# a packaged server through BBB_EXEC (local, "docker exec -i <container>" or
+# "ssh root@<host>"); without BBB_EXEC their cases are skipped. Another
+# environment points BBB_PROFILE_CMD at its own switcher.
+profiles:
+  checksum-sha256-only: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" checksum-sha256-only'}
+  reveal-version:       {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
+  service-disabled:     {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" service-disabled'}
+  default:              {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
