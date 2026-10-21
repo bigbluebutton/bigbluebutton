@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import PreFlightStyled from '../styles';
 import Styled from './styles';
 import { usePreFlight } from '../context';
 import { JoiningRoomActions } from '../joining-room/component';
@@ -40,10 +39,6 @@ const intlMessages = defineMessages({
   cancelLabel: {
     id: 'app.preFlight.roomMode.cancelLabel',
     description: 'Label of the button that clears the picked room mode',
-  },
-  loading: {
-    id: 'app.preFlight.roomMode.loading',
-    description: 'Accessible label of the spinner shown while the room mode is read',
   },
 });
 
@@ -188,20 +183,6 @@ export const RoomModeActions: React.FC<RoomModeActionsProps> = ({ isJoining, onJ
         ) : null}
       />
     </>
-  );
-};
-
-// Held in the join button's place while the room mode is read, so a moderator
-// never sees the participant layout before the panel.
-export const RoomModeLoading: React.FC = () => {
-  const intl = useIntl();
-
-  return (
-    <PreFlightStyled.Spinner
-      role="status"
-      aria-label={intl.formatMessage(intlMessages.loading)}
-      data-test="preFlightLoading"
-    />
   );
 };
 

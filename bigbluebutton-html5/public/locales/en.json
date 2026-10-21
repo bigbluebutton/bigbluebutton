@@ -253,7 +253,6 @@
     "app.preFlight.roomMode.selectedLabel": "Selected mode",
     "app.preFlight.roomMode.startLabel": "Start room",
     "app.preFlight.roomMode.cancelLabel": "Cancel",
-    "app.preFlight.roomMode.loading": "Loading the room settings",
     "app.preFlight.roomMode.modes.class.name": "Class",
     "app.preFlight.roomMode.modes.class.hint": "A presenter leads and participants follow",
     "app.preFlight.roomMode.modes.meeting.name": "Meeting",
