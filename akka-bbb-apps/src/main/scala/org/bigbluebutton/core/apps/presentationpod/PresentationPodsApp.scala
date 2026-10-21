@@ -38,6 +38,16 @@ object PresentationPodsApp {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
   }
 
+  def findPodWithPresentation(state: MeetingState2x, presentationId: String): Option[PresentationPod] = {
+    getAllPresentationPodsInMeeting(state).find(_.getPresentation(presentationId).isDefined)
+  }
+
+  // A presentation already in the pod holds its slot, so it never counts against the cap.
+  // 0 disables the cap.
+  def podIsFullFor(pod: PresentationPod, presentationId: String, maxPerPod: Int): Boolean = {
+    maxPerPod > 0 && pod.getPresentation(presentationId).isEmpty && pod.getPresentationsSize() >= maxPerPod
+  }
+
   def pageBelongsToMeeting(state: MeetingState2x, pageId: String): Boolean = {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
       .exists(_.presentations.values.exists(_.pages.contains(pageId)))
