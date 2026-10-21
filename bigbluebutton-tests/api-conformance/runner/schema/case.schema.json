@@ -83,7 +83,7 @@
         "route": {"description": "Non-API route, mapped per target.", "type": "string", "minLength": 1},
         "pathParams": {"$ref": "#/$defs/scalarTable"},
         "url": {"description": "Absolute URL, sent verbatim.", "type": "string", "minLength": 1},
-        "method": {"enum": ["GET", "POST", "PUT", "DELETE"]},
+        "method": {"enum": ["GET", "POST", "PUT", "DELETE", "HEAD"]},
         "sign": {"$ref": "#/$defs/sign"},
         "params": {"$ref": "#/$defs/scalarTable"},
         "raw_query": {"type": "string"},

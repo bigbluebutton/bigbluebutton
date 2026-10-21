@@ -666,7 +666,7 @@ These steps check what a call did outside its answer, through the target's
 
 ```yaml
 - call: join                         # or route: + pathParams:, or url:
-  method: GET                        # GET (default), POST, PUT, DELETE
+  method: GET                        # GET (default), POST, PUT, DELETE, HEAD
   sign: sha256                       # see Signing
   params: {meetingID: "${uid}", fullName: Ann, role: moderator}
   headers: {Accept: null, X-Forwarded-For: 203.0.113.7}
@@ -680,6 +680,7 @@ These steps check what a call did outside its answer, through the target's
 | `call` | An API call name, sent to the target's API prefix. `""` is the version endpoint. |
 | `route`, `pathParams` | A non-API route (presentation, connection, textTrack), mapped per target. |
 | `url` | An absolute URL sent as it is, e.g. a link getJoinUrl returned. |
+| `method` | A HEAD response has no body, so a HEAD step can only check `status`, `headers` and `redirect`, and capture headers. |
 | `params` | Query parameters, in the order written. |
 | `raw_query` | The query string exactly as written, instead of `params`. |
 | `headers` | Extra request headers. `null` removes a default header: the runner sends `Accept: */*` and `User-Agent: bbb-conform/<version>`. It speaks HTTP/1.1 and never asks for compression. |

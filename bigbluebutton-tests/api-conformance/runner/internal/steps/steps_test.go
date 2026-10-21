@@ -82,6 +82,22 @@ func TestQueryAndSigning(t *testing.T) {
 	}
 }
 
+func TestHead(t *testing.T) {
+	res, seen := runYAML(t, header(`steps:
+  - call: ""
+    method: HEAD
+    expect:
+      status: 200
+      headers: {Cache-Control: no-cache, Content-Type: {contains: xml}}
+`))
+	if res.Status != report.Pass {
+		t.Fatalf("status %s: %s", res.Status, res.Reason)
+	}
+	if seen[0].Method != "HEAD" {
+		t.Errorf("method = %q, want HEAD", seen[0].Method)
+	}
+}
+
 func TestHeaderRemoval(t *testing.T) {
 	_, seen := runYAML(t, header(`steps:
   - call: getMeetings

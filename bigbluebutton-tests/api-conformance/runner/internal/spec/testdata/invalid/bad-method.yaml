@@ -1,4 +1,4 @@
-# want: 8: steps[0].method: value must be one of 'GET', 'POST', 'PUT', 'DELETE'
+# want: 8: steps[0].method: value must be one of 'GET', 'POST', 'PUT', 'DELETE', 'HEAD'
 id: create.x.y
 title: t
 endpoint: create

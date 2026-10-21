@@ -248,7 +248,46 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 	for _, c := range s.Capture {
 		d.defined[c.Name] = true
 	}
+	if s.Kind == KindCall && s.Call.Method == "HEAD" {
+		d.headStep(n, s, where)
+	}
 	return s
+}
+
+// headStep rejects checks that need a body: a HEAD response has none, so they
+// could only fail. Status, headers, redirects and header captures still work.
+func (d *decoder) headStep(n *yaml.Node, s Step, where string) {
+	at := mapGet(n, "method")
+	exps := []*Expect{s.Expect}
+	if s.Call.Eventually != nil {
+		exps = append(exps, s.Call.Eventually.Until)
+	}
+	for _, e := range exps {
+		if e == nil {
+			continue
+		}
+		var found []string
+		for _, c := range []struct {
+			name string
+			set  bool
+		}{
+			{"format", e.Format != ""}, {"returncode", e.Returncode != nil}, {"messageKey", e.MessageKey != nil},
+			{"message", e.Message != nil}, {"xpath", len(e.XPath) > 0}, {"jsonpath", len(e.JSONPath) > 0},
+			{"body", e.Body != nil}, {"schema", e.Schema != ""},
+		} {
+			if c.set {
+				found = append(found, c.name)
+			}
+		}
+		if len(found) > 0 {
+			d.f.errf(at, "%s: a HEAD response has no body, so it can't be checked with %s", where, strings.Join(found, ", "))
+		}
+	}
+	for _, c := range s.Capture {
+		if strings.HasPrefix(c.Expr, "/") || strings.HasPrefix(c.Expr, "$") {
+			d.f.errf(at, "%s: a HEAD response has no body to capture %q from", where, c.Name)
+		}
+	}
 }
 
 func (d *decoder) call(n *yaml.Node, key, where string) (*CallStep, *Expect) {
