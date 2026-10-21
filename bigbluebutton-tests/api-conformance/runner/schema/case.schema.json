@@ -101,15 +101,16 @@
     },
     "sign": {
       "anyOf": [
-        {"enum": ["sha1", "sha256", "sha384", "sha512", "none", "bad", "duplicate", "uppercase"]},
+        {"enum": ["sha1", "sha256", "sha384", "sha512", "none", "bad", "duplicate", "uppercase", "wrong-length", "reencode"]},
         {
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
           "properties": {
             "alg": {"enum": ["sha1", "sha256", "sha384", "sha512"]},
-            "mode": {"enum": ["valid", "uppercase", "bad", "duplicate", "none"]},
-            "position": {"enum": ["first", "middle", "last"]}
+            "mode": {"enum": ["valid", "uppercase", "bad", "duplicate", "none", "wrong-length", "reencode"]},
+            "position": {"enum": ["first", "middle", "last"]},
+            "call": {"description": "Sign as this call name instead of the step's own.", "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$"}
           }
         }
       ]

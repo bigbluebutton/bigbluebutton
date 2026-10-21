@@ -17,6 +17,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/assert"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/fakebbb"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
 )
@@ -79,6 +80,45 @@ func TestQueryAndSigning(t *testing.T) {
 	}
 	if got := seen[0].Header.Get("Accept-Encoding"); got != "" {
 		t.Errorf("Accept-Encoding = %q, want none", got)
+	}
+}
+
+func TestChecksumErrorModes(t *testing.T) {
+	res, seen := runYAML(t, header(`steps:
+  - call: getMeetings
+    params: {a: "x y"}
+    sign: wrong-length
+    expect: {messageKey: checksumError}
+  - call: getMeetings
+    params: {a: "x y"}
+    sign: reencode
+    expect: {messageKey: checksumError}
+  - call: getMeetings
+    params: {a: "x y"}
+    sign: {call: isMeetingRunning}
+    expect: {messageKey: checksumError}
+  - call: getMeetings
+    params: {a: "x y"}
+    sign: {alg: sha256, mode: uppercase, call: getMeetings2}
+    expect: {messageKey: checksumError}
+`))
+	if res.Status != report.Pass {
+		t.Fatalf("status %s: %s", res.Status, res.Reason)
+	}
+	q := "a=x+y"
+	sum := func(alg, call, query string) string {
+		s, _ := signer.Checksum(alg, call, query, salt)
+		return s
+	}
+	for i, want := range []string{
+		q + "&checksum=" + sum("sha1", "getMeetings", q)[:39],
+		q + "&checksum=" + sum("sha1", "getMeetings", "a=x%20y"),
+		q + "&checksum=" + sum("sha1", "isMeetingRunning", q),
+		q + "&checksum=" + strings.ToUpper(sum("sha256", "getMeetings2", q)),
+	} {
+		if seen[i].RawQuery != want {
+			t.Errorf("step %d sent %q, want %q", i+1, seen[i].RawQuery, want)
+		}
 	}
 }
 

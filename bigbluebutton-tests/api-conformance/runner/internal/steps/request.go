@@ -92,7 +92,7 @@ func (x *exec) prepare(cs *spec.CallStep) (*client.Prepared, error) {
 			return nil, fmt.Errorf("only call steps can be signed; a url step is sent as written, so use sign: none")
 		}
 		var err error
-		query, err = signer.Sign(signer.Request{Call: call, Query: query, Salt: x.r.Target.Salt, Alg: alg, Mode: mode, Position: pos})
+		query, err = signer.Sign(signer.Request{Call: call, SignAs: cs.Sign.Call, Query: query, Salt: x.r.Target.Salt, Alg: alg, Mode: mode, Position: pos})
 		if err != nil {
 			return nil, err
 		}

@@ -308,6 +308,17 @@ func (d *decoder) call(n *yaml.Node, key, where string) (*CallStep, *Expect) {
 	}
 	if s := mapGet(n, "sign"); s != nil {
 		cs.Sign = decodeSign(s)
+		if cs.Sign.Call != "" {
+			at := mapGet(s, "call")
+			switch {
+			case !cs.HasCall:
+				d.f.errf(at, "%s: sign.call goes with call steps only, since only they are signed", where)
+			case cs.Sign.Call == cs.Call:
+				d.f.errf(at, "%s: sign.call is the step's own call; leave it out", where)
+			case cs.Sign.Mode == "none":
+				d.f.errf(at, "%s: sign.call can't go with mode none, which sends no checksum", where)
+			}
+		}
 	}
 	if p := mapGet(n, "params"); p != nil {
 		cs.Params = d.kvs(p)
@@ -537,6 +548,9 @@ func decodeSign(n *yaml.Node) Sign {
 	}
 	if v := mapGet(n, "position"); v != nil {
 		s.Position = v.Value
+	}
+	if v := mapGet(n, "call"); v != nil {
+		s.Call = v.Value
 	}
 	return s
 }

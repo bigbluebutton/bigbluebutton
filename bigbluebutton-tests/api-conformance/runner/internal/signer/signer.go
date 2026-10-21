@@ -24,6 +24,12 @@ const (
 	ModeBad       = "bad"
 	ModeDuplicate = "duplicate"
 	ModeNone      = "none"
+	// ModeWrongLength sends the valid checksum minus its last hex digit, a
+	// length no algorithm has.
+	ModeWrongLength = "wrong-length"
+	// ModeReencode signs the query with each + (an encoded space) written
+	// as %20, then sends it with +: the same params, a different string.
+	ModeReencode = "reencode"
 
 	PosFirst  = "first"
 	PosMiddle = "middle"
@@ -62,6 +68,7 @@ func Checksum(alg, call, query, salt string) (string, error) {
 // Request is one query string to sign.
 type Request struct {
 	Call     string // the API call name, e.g. getMeetings
+	SignAs   string // sign with this call name instead, if set
 	Query    string // the encoded query, without a checksum
 	Salt     string
 	Alg      string
@@ -81,16 +88,28 @@ func Sign(r Request) (string, error) {
 	if mode == ModeNone {
 		return r.Query, nil
 	}
-	sum, err := Checksum(r.Alg, r.Call, r.Query, r.Salt)
+	call, signed := r.Call, r.Query
+	if r.SignAs != "" {
+		call = r.SignAs
+	}
+	if mode == ModeReencode {
+		if !strings.Contains(r.Query, "+") {
+			return "", fmt.Errorf("sign mode reencode needs a param value with a space, which the query encodes as +")
+		}
+		signed = strings.ReplaceAll(r.Query, "+", "%20")
+	}
+	sum, err := Checksum(r.Alg, call, signed, r.Salt)
 	if err != nil {
 		return "", err
 	}
 	switch mode {
-	case ModeValid, ModeDuplicate:
+	case ModeValid, ModeDuplicate, ModeReencode:
 	case ModeUppercase:
 		sum = strings.ToUpper(sum)
 	case ModeBad:
 		sum = corrupt(sum)
+	case ModeWrongLength:
+		sum = sum[:len(sum)-1]
 	default:
 		return "", fmt.Errorf("unknown sign mode %q", mode)
 	}

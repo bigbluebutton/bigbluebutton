@@ -700,11 +700,22 @@ The checksum is `hash(callName + query + salt)` over the exact query string
 sent, without the checksum itself. Body params are never signed, as in
 bbb-web.
 
-- `sign` is a scalar (`sha1`, `sha256`, `sha384`, `sha512`, `none`, `bad`,
-  `duplicate`, `uppercase`) or a map `{alg, mode, position}`:
-  - `mode`: `valid`, `uppercase`, `bad` (right length, wrong digest),
-    `duplicate` (sent twice) or `none`;
+- `sign` is a scalar (`sha1`, `sha256`, `sha384`, `sha512`, or a mode) or a
+  map `{alg, mode, position, call}`:
+  - `mode`:
+    - `valid`;
+    - `uppercase`;
+    - `bad`: the right length, but the wrong digest;
+    - `duplicate`: the checksum is sent twice;
+    - `wrong-length`: the valid checksum minus its last hex digit, a length
+      no algorithm has;
+    - `reencode`: signed over the query with each `+` (an encoded space)
+      written as `%20`, then sent with `+`. The params are the same; the
+      string isn't. The query needs a param value with a space;
+    - `none`.
   - `position`: `last` (default), `first` or `middle`.
+  - `call`: sign as this call name instead of the step's own, e.g. a
+    getMeetingInfo request carrying isMeetingRunning's checksum.
 - The default is the target's `defaultSign` (sha256) for API calls. It's
   `none` for `url` and `route` steps, the version endpoint and the session-token
   calls (stuns, signOut, getJoinUrl, learningDashboard).

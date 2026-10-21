@@ -166,8 +166,9 @@ type Header struct {
 // Sign says how to sign a call. Empty fields mean "use the default".
 type Sign struct {
 	Alg      string // sha1 | sha256 | sha384 | sha512
-	Mode     string // valid | uppercase | bad | duplicate | none
+	Mode     string // valid | uppercase | bad | duplicate | none | wrong-length | reencode
 	Position string // first | middle | last
+	Call     string // sign as this call name instead of the step's own
 	Set      bool   // the case gave sign explicitly
 }
 

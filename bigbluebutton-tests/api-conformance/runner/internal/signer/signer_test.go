@@ -124,3 +124,33 @@ func TestModes(t *testing.T) {
 		t.Error("an unknown mode should be an error")
 	}
 }
+
+func TestWrongLengthReencodeAndSignAs(t *testing.T) {
+	base := Request{Call: "getMeetings", Query: "a=x+y&b=1", Salt: "s", Alg: "sha256"}
+	good, _ := Checksum("sha256", "getMeetings", base.Query, "s")
+
+	short := base
+	short.Mode = ModeWrongLength
+	got, err := Sign(short)
+	if err != nil || got != base.Query+"&checksum="+good[:63] {
+		t.Errorf("wrong-length = %q, %v; want the valid checksum minus its last digit", got, err)
+	}
+
+	re := base
+	re.Mode = ModeReencode
+	want, _ := Checksum("sha256", "getMeetings", "a=x%20y&b=1", "s")
+	if got, err := Sign(re); err != nil || got != base.Query+"&checksum="+want {
+		t.Errorf("reencode = %q, %v; want the + form sent, signed as %%20", got, err)
+	}
+	re.Query = "a=1"
+	if _, err := Sign(re); err == nil {
+		t.Error("reencode without a space in the query should be an error")
+	}
+
+	as := base
+	as.SignAs = "isMeetingRunning"
+	want, _ = Checksum("sha256", "isMeetingRunning", base.Query, "s")
+	if got, err := Sign(as); err != nil || got != base.Query+"&checksum="+want {
+		t.Errorf("sign as isMeetingRunning = %q, %v", got, err)
+	}
+}
