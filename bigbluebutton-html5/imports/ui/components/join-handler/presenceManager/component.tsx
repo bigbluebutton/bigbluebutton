@@ -33,7 +33,6 @@ import {
 import { isPreFlightEnabled } from '/imports/ui/components/pre-flight/service';
 import {
   RoomModeActions,
-  RoomModeLoading,
   RoomModePanel,
 } from '/imports/ui/components/pre-flight/room-mode/component';
 import useRoomModePanelGate from '/imports/ui/components/pre-flight/room-mode/useRoomModePanelGate';
@@ -322,9 +321,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         withNotices={!roomModePanel.show || isPhoneWidth}
       />
     );
-    if (roomModePanel.loading) {
-      preFlightActions = <RoomModeLoading />;
-    } else if (roomModePanel.show) {
+    if (roomModePanel.show) {
       preFlightPanel = <RoomModePanel />;
       preFlightActions = (
         <RoomModeActions

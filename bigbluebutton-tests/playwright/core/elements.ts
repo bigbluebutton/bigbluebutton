@@ -251,7 +251,6 @@ export const elements = {
   preFlightWithoutMicrophoneButton: 'button[data-test="preFlightWithoutMicrophoneButton"]',
   preFlightWithoutCameraButton: 'button[data-test="preFlightWithoutCameraButton"]',
   preFlightJoiningWithoutAudio: '[data-test="preFlightJoiningWithoutAudio"]',
-  preFlightLoading: '[data-test="preFlightLoading"]',
   preFlightRoomModePanel: '[data-test="preFlightRoomModePanel"]',
   preFlightRoomModeClass: '[data-test="preFlightRoomModeClass"]',
   preFlightRoomModeMeeting: '[data-test="preFlightRoomModeMeeting"]',
