@@ -13,7 +13,10 @@ const preFlightSettings = (enabled: boolean, roomModes?: boolean): ClientSetting
   },
 });
 
-export const PRE_FLIGHT_SETTINGS_OVERRIDE = preFlightSettings(true);
+// The room mode panel pinned off too: on a deployment with it on, the
+// moderator cases of the participant pre-flight would get the panel instead of
+// the join button.
+export const PRE_FLIGHT_SETTINGS_OVERRIDE = preFlightSettings(true, false);
 
 export const PRE_FLIGHT_DISABLED_SETTINGS_OVERRIDE = preFlightSettings(false);
 
