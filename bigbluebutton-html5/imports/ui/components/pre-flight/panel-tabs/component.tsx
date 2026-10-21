@@ -12,12 +12,17 @@ interface PanelTabsProps {
   tabs: PanelTab[];
   // Names the tab list for assistive technology.
   label: string;
+  // Off outside a phone: no tab list, and the wrappers stay out of the
+  // layout, so the panels sit in the page as if they were not wrapped.
+  tabbed: boolean;
 }
 
 /**
  * The pre-flight's panels as tabs, for a phone. Every panel stays mounted and
  * is only hidden: the setup panel holds a live camera preview and the user's
- * picks, which a remount would drop.
+ * picks, which a remount would drop. For the same reason the setup panel is
+ * always rendered through here, at every width: crossing the phone
+ * breakpoint, a rotation included, only turns the tabs on or off.
  *
  * With a single panel there are no tabs at all, neither drawn nor announced,
  * but the panel keeps its place in the tree, so a second panel arriving later
@@ -25,10 +30,10 @@ interface PanelTabsProps {
  * why the tab semantics are written here rather than taken from react-tabs,
  * whose panels always announce themselves as tab panels.
  */
-const PanelTabs: React.FC<PanelTabsProps> = ({ tabs, label }) => {
+const PanelTabs: React.FC<PanelTabsProps> = ({ tabs, label, tabbed }) => {
   const [selectedId, setSelectedId] = useState(tabs[0]?.id);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const hasTabs = tabs.length > 1;
+  const hasTabs = tabbed && tabs.length > 1;
   const selected = tabs.find((tab) => tab.id === selectedId) ?? tabs[0];
 
   // Arrow keys move along the tab list and select, as the tabs pattern does.
@@ -43,7 +48,7 @@ const PanelTabs: React.FC<PanelTabsProps> = ({ tabs, label }) => {
   }, [tabs, selected]);
 
   return (
-    <Styled.Tabs>
+    <Styled.Tabs $flat={!tabbed}>
       {hasTabs && (
         <Styled.TabList role="tablist" aria-label={label} onKeyDown={handleKeyDown}>
           {tabs.map((tab) => {
@@ -72,6 +77,7 @@ const PanelTabs: React.FC<PanelTabsProps> = ({ tabs, label }) => {
         return (
           <Styled.TabPanel
             key={tab.id}
+            $flat={!tabbed}
             id={`preFlightTabPanel-${tab.id}`}
             role={hasTabs ? 'tabpanel' : undefined}
             aria-labelledby={hasTabs ? `preFlightTab-${tab.id}` : undefined}
