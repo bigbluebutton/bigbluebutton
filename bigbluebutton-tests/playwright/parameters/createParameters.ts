@@ -290,19 +290,17 @@ export class CreateParameters extends MultiUsers {
     await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElementCount(
+      e.presentationItem,
+      1,
+      'should not upload the default presentation next to the pre-uploaded one',
+    );
     await this.modPage.hasText(
       e.presentationItem,
       'ScientificPaper.pdf',
       'should display the uploaded presentation name in the manage presentations modal',
     );
     await this.modPage.press('Escape');
-    await this.userPage.page.waitForTimeout(1500); // wait for the whiteboard zoom to stabilize
-    await expect(this.modPage.page, 'should display the overridden presentation for the mod').toHaveScreenshot(
-      'mod-page-overridden-default-presentation.png',
-    );
-    await expect(this.userPage.page, 'should display the overridden presentation for the viewer').toHaveScreenshot(
-      'viewer-page-overridden-default-presentation.png',
-    );
   }
 
   async camerasOnly() {

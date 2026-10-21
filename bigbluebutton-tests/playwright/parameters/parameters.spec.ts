@@ -7,7 +7,7 @@ import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants'
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
 import { AUDIO_CAPTIONS_SETTINGS, DisabledFeatures, INFINITE_WHITEBOARD_SETTINGS } from './disabledFeatures';
-import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
+import { encodeCustomParams, getAllShortcutParams, hexToRgb, preUploadedPresentationModule } from './util';
 
 const iPhone11 = devices['iPhone 11'];
 const iPad = devices['iPad (gen 7)'];
@@ -768,9 +768,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinScreenshare();
     });
 
-    test('After Sharing External video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      // requiring logged user to start external video on CI environment
-      linkIssue(21589);
+    test('After Sharing External video', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(context, {
@@ -822,7 +820,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         testInfo,
-        createParameter: c.preUploadedHeavyPresentation,
+        createModules: preUploadedPresentationModule('heavyPresentation.pdf'),
         joinParameter: [c.noRestorePresentationOnNewEvents, c.hidePresentationOnJoin].join('&'),
       });
       await customParam.initUserPage(context, {
@@ -854,7 +852,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         testInfo,
-        createParameter: c.preUploadedHeavyPresentation,
+        createModules: preUploadedPresentationModule('heavyPresentation.pdf'),
         joinParameter: c.noRestorePresentationOnNewEvents,
       });
       await customParam.initUserPage(context, {

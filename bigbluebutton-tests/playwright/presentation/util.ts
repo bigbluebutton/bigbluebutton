@@ -1,4 +1,5 @@
-import { expect, Locator } from '@playwright/test';
+import { BrowserContext, expect, Locator } from '@playwright/test';
+import { readFileSync } from 'fs';
 import path from 'path';
 
 import {
@@ -9,6 +10,46 @@ import {
 } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
+
+// The host never resolves: the browser only gets this video through routeExternalVideo.
+export const EXTERNAL_VIDEO_URL = 'https://bbb-test-stub.local/external-video.webm';
+
+// Serves core/media/external-video.webm to every page of the context, answering range requests so the player can seek.
+export async function routeExternalVideo(context: BrowserContext) {
+  const video = readFileSync(path.join(__dirname, '../core/media/external-video.webm'));
+  await context.route(EXTERNAL_VIDEO_URL, async (route) => {
+    // A seeking <video> asks for a byte range ("Range: bytes=START-END", END optional); range[1] and
+    // range[2] hold the two numbers, or range is null for a plain request that wants the whole file.
+    const range = /^bytes=(\d+)-(\d*)$/.exec((await route.request().headerValue('range')) ?? '');
+    if (!range) {
+      await route.fulfill({ contentType: 'video/webm', headers: { 'accept-ranges': 'bytes' }, body: video });
+      return;
+    }
+    const start = Number(range[1]);
+    const end = range[2] ? Math.min(Number(range[2]), video.length - 1) : video.length - 1;
+    await route.fulfill({
+      status: 206,
+      contentType: 'video/webm',
+      headers: { 'accept-ranges': 'bytes', 'content-range': `bytes ${start}-${end}/${video.length}` },
+      body: video.subarray(start, end + 1),
+    });
+  });
+}
+
+export async function getExternalVideoTime(testPage: Page): Promise<number> {
+  return testPage.page.locator(e.externalVideo).evaluate((video: HTMLVideoElement) => video.currentTime);
+}
+
+export async function isExternalVideoPaused(testPage: Page): Promise<boolean> {
+  return testPage.page.locator(e.externalVideo).evaluate((video: HTMLVideoElement) => video.paused);
+}
+
+export async function expectExternalVideoPlaying(testPage: Page, description: string) {
+  const startTime = await getExternalVideoTime(testPage);
+  await expect
+    .poll(() => getExternalVideoTime(testPage), { message: description, timeout: ELEMENT_WAIT_EXTRA_LONG_TIME })
+    .toBeGreaterThan(startTime + 1);
+}
 
 export async function checkSvgIndex(testPage: Page, element: string) {
   await testPage.waitForSelector(e.currentSlideImg);

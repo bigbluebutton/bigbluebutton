@@ -6,6 +6,7 @@ import { elements as e } from '../core/elements';
 import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
 import { Page } from '../core/page';
 import { expectVideoReceived } from '../core/rtcStatsProbe';
+import { EXTERNAL_VIDEO_URL, routeExternalVideo } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
 import { viewerDrawsTwoStrokesAndErasesOne } from '../whiteboard/util';
 import { startScreenshare } from './util';
@@ -61,17 +62,18 @@ export class ScreenShare extends MultiUsers {
       return;
     }
 
-    await this.modPage.waitAndClick(e.actions);
+    await routeExternalVideo(this.context);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.waitForSelector(e.closeModal);
-    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, EXTERNAL_VIDEO_URL);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
+    await this.modPage.press('Escape'); // close the media sharing menu
 
-    const modFrame = await this.modPage.getYoutubeFrame();
-    await modFrame.hasElement('video', 'should display the video frame');
+    await this.modPage.hasElement(e.externalVideo, 'should display the video frame');
 
     await startScreenshare(this.modPage);
     await this.modPage.hasElement(e.isSharingScreen, 'should display the screenshare element');
+    await this.modPage.wasRemoved(e.externalVideo, 'should stop the external video when the screenshare starts');
 
     await this.modPage.hasElement(e.stopScreenSharing, 'should display the stop screenshare button');
     await this.modPage.waitAndClick(e.stopScreenSharing);

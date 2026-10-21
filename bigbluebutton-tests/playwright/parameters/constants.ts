@@ -14,6 +14,8 @@ export const LONG_GROUP_NAMES = {
 
 const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
+export const LOGOUT_URL = `${serverOrigin}/?logout-url-test`;
+
 export const constants = {
   // Create Parameters
   bannerText: 'bannerText=some+text',
@@ -36,10 +38,7 @@ export const constants = {
   notifyRecordingIsOn: 'notifyRecordingIsOn=true',
   notifyRecordingAppendMessage: 'This meeting will be summarized using AI — <strong>plain text</strong>',
   notifyRecordingAppend: 'notifyRecordingAppend=This meeting will be summarized using AI — <strong>plain text</strong>',
-  preUploadedPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-tests/playwright/core/media/sample.pdf',
-  preUploadedHeavyPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
+  preUploadedPresentation: `preUploadedPresentation=${serverOrigin}/default.pdf`,
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   camerasOnly: 'meetingLayout=CAMERAS_ONLY',
@@ -99,7 +98,7 @@ export const constants = {
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
   webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
-  logoutURL: 'logoutURL=https://www.google.com',
+  logoutURL: `logoutURL=${encodeURIComponent(LOGOUT_URL)}`,
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
   speechRecognitionDisabled: 'disabledFeatures=liveTranscription',

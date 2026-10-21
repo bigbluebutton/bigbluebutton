@@ -1,10 +1,8 @@
-/* eslint-disable max-classes-per-file */
 import {
   Browser,
   BrowserContext,
   Download,
   expect,
-  Frame as PlaywrightFrame,
   Locator,
   Page as PlaywrightPage,
   test,
@@ -643,28 +641,5 @@ export class Page {
     await this.hoverElement(selector);
     const locatorTooltip = this.page.locator(`text=${text}`);
     await expect(locatorTooltip).toBeVisible({ timeout: 10000});
-  }
-
-  async getYoutubeFrame(): Promise<Frame> {
-    await this.waitForSelector(e.youtubeFrame);
-    const iframeElement = await this.page.locator(`${e.youtubeFrame} iframe`).elementHandle();
-    const frame = await iframeElement?.contentFrame();
-    if (!frame) throw new Error('Failed to get YouTube frame');
-    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Frame(frame);
-    return ytFrame;
-  }
-}
-
-class Frame {
-  public frame: PlaywrightFrame;
-
-  constructor(frame: PlaywrightFrame) {
-    this.frame = frame;
-  }
-
-  async hasElement(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
-    const locator = this.frame.locator(selector);
-    await expect(locator, description).toBeVisible({ timeout });
   }
 }
