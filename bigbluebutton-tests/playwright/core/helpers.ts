@@ -232,6 +232,7 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
+  // Encode before signing: bbb-web checksums the query string as it arrives, already percent-encoded.
   const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${meetingID}`
     + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
