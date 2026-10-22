@@ -7,6 +7,7 @@ import {
     WEBRTC_CALL_TYPE_SCREEN_SHARE,
     WEBRTC_CALL_TYPE_STANDARD,
 } from './constants';
+import { callNativeMethod, installNativeMethodCallResult } from './native-bridge';
 
 (function (){
     // Must run at import time: patches navigator/RTCPeerConnection before
@@ -14,54 +15,14 @@ import {
     if(browserInfo.isTabletApp) {
         logger.debug(`BBB-MOBILE - Mobile APP detected`);
 
+        installNativeMethodCallResult();
+
         // Stamped by WebRtcPeer.start({ webRtcCallType }); default is webview WebRTC.
         function resolveWebRtcCallType(peerConnection) {
             if (peerConnection.webRtcCallType === undefined) {
                 peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_STANDARD;
             }
             return peerConnection.webRtcCallType;
-        }
-        // Store the method call sequential
-        const sequenceHolder = {sequence: 0};
-
-        // Store the promise for each method call
-        const promisesHolder = {};
-
-        // Call a method in the mobile application, returning a promise for its execution
-        function callNativeMethod(method, args=[]) {
-            try {
-                const sequence = ++sequenceHolder.sequence;
-
-                return new Promise ( (resolve, reject) => {
-                    promisesHolder[sequence] = {
-                        resolve, reject
-                    };
-
-                    window.ReactNativeWebView.postMessage(JSON.stringify({
-                        sequence: sequenceHolder.sequence,
-                        method: method,
-                        arguments: args,
-                    }));
-                } );
-            } catch(e) {
-                logger.error(`Error on callNativeMethod ${e.message}`, e);
-            }
-        }
-
-        // This method is called from the mobile app to notify us about a method invocation result
-        window.nativeMethodCallResult = (sequence, isResolve, resultOrException) => {
-
-            const promise = promisesHolder[sequence];
-            if(promise) {
-                if(isResolve) {
-                    promise.resolve( resultOrException );
-                    delete promisesHolder[sequence];
-                } else {
-                    promise.reject( resultOrException );
-                    delete promisesHolder[sequence];
-                }
-            }
-            return true;
         }
 
         // WebRTC replacement functions
