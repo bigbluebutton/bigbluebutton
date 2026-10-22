@@ -83,16 +83,29 @@ export const runQuery = async (page: PlaywrightPage, queryAst: object): Promise<
 // in a plain `variables` object that the in-page Apollo client hands straight to
 // the server, so no literal (re)serialization can corrupt them.
 
+// A GraphQL type as the operation writes it in its variable definitions: 'String!',
+// 'Boolean!', '[String]!'.
+const variableType = (type: string): object => {
+  if (type.endsWith('!')) return { kind: 'NonNullType', type: variableType(type.slice(0, -1)) };
+  if (type.startsWith('[')) return { kind: 'ListType', type: variableType(type.slice(1, -1)) };
+  return { kind: 'NamedType', name: { kind: 'Name', value: type } };
+};
+
 // A single-root-field mutation (BBB fire-and-forget actions return Boolean) whose
-// arguments are all declared as non-null String variables. `document` is a plain,
+// arguments are declared as variables of the given types. `document` is a plain,
 // JSON-serializable DocumentNode so it survives the page.evaluate boundary; the
-// bare-string values travel alongside it in `variables`.
+// values travel alongside it in `variables`.
 export interface MutationRequest {
   document: object;
-  variables: Record<string, string>;
+  variables: Record<string, unknown>;
 }
 
-export const stringVarMutation = (fieldName: string, args: Record<string, string>): MutationRequest => {
+export interface TypedVariable {
+  type: string;
+  value: unknown;
+}
+
+export const typedVarMutation = (fieldName: string, args: Record<string, TypedVariable>): MutationRequest => {
   const names = Object.keys(args);
   return {
     document: {
@@ -104,7 +117,7 @@ export const stringVarMutation = (fieldName: string, args: Record<string, string
           variableDefinitions: names.map((name) => ({
             kind: 'VariableDefinition',
             variable: { kind: 'Variable', name: { kind: 'Name', value: name } },
-            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            type: variableType(args[name].type),
           })),
           selectionSet: {
             kind: 'SelectionSet',
@@ -123,9 +136,16 @@ export const stringVarMutation = (fieldName: string, args: Record<string, string
         },
       ],
     },
-    variables: { ...args },
+    variables: Object.fromEntries(names.map((name) => [name, args[name].value])),
   };
 };
+
+// Every argument a non-null String variable.
+export const stringVarMutation = (fieldName: string, args: Record<string, string>): MutationRequest =>
+  typedVarMutation(
+    fieldName,
+    Object.fromEntries(Object.entries(args).map(([name, value]) => [name, { type: 'String!', value }])),
+  );
 
 export interface MutationResult {
   data: Record<string, unknown> | null;
