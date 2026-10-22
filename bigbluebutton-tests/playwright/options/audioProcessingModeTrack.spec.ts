@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 
 import { getLocalMicState, startLocalMicWatch, stopLocalMicWatch, type TestWindow } from '../audio/liveKitProbe';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
@@ -9,6 +9,7 @@ import { test } from '../core/setup/fixtures';
 import {
   AudioProcessingMode,
   audioProcessingModeOverrides,
+  canStartAudioContext,
   CapturedAudioConstraints,
   captureGetUserMediaAudioConstraints,
   getCapturedAudioConstraints,
@@ -20,6 +21,9 @@ import {
 // 'standard' when BBBA/WASM is active ("on top of WASM"), so constraints can't
 // tell the two apart - whether the WASM processor file was actually requested
 // is the only reliable signal for that mode.
+const NO_AUDIO_CONTEXT =
+  'Advanced filtering needs a running AudioContext; headless Firefox without an audio output device cannot start one';
+
 test.describe('Audio processing mode - actual getUserMedia constraints', { tag: ['@ci', '@media'] }, () => {
   test('applies the configured media.audio.microphoneConstraints for Standard filtering', async ({
     browser,
@@ -97,7 +101,13 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     });
   });
 
-  test('loads the BBBA/WASM processor for Advanced filtering', async ({ browser, context, page }, testInfo) => {
+  test('loads the BBBA/WASM processor for Advanced filtering', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
     await audioProcessingMode.initModPage(page, {
@@ -114,9 +124,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('applies media.audio.audioWasmProcessing.constraints, not microphoneConstraints, for Advanced filtering', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await captureGetUserMediaAudioConstraints(page);
 
     const audioProcessingMode = new AudioProcessingMode(browser, context);
@@ -159,9 +171,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('loads the WorkAdventure/DTLN processor for Advanced filtering when configured', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     const audioProcessingMode = new AudioProcessingMode(browser, context);
     await audioProcessingMode.trackWasmProcessorRequests(page);
     await audioProcessingMode.initModPage(page, {
@@ -190,9 +204,11 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
 
   test('forces noiseSuppression off for Advanced filtering with the WorkAdventure/DTLN provider, even if audioWasmProcessing.constraints says otherwise', async ({
     browser,
+    browserName,
     context,
     page,
   }, testInfo) => {
+    test.skip(browserName === 'firefox' && !(await canStartAudioContext(page)), NO_AUDIO_CONTEXT);
     await captureGetUserMediaAudioConstraints(page);
 
     const audioProcessingMode = new AudioProcessingMode(browser, context);
@@ -229,8 +245,77 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
   });
 });
 
+// Earlier clients also kept the filter choice in the application group - 3.0
+// as its only record, earlier 4.0 clients next to processingMode - and that
+// group follows userSettingsStorage. This is the record 4.0 left for 'Original'.
+const LEGACY_FILTER_RECORD = {
+  microphoneConstraints: { autoGainControl: false, echoCancellation: false, noiseSuppression: false },
+};
+// Mixed values, so the configured Standard filters can't be mistaken for the
+// record above or for the browser default.
+const STANDARD_CONSTRAINTS = { autoGainControl: false, echoCancellation: true, noiseSuppression: false };
+
+const legacyFilterRecordOverrides = (audioFilterStorage: 'session' | 'local'): ClientSettingsOverrides => {
+  const overrides = audioProcessingModeOverrides(true, 'standard', STANDARD_CONSTRAINTS)
+    .public as ClientSettingsOverrides;
+
+  return {
+    public: {
+      ...overrides,
+      app: {
+        ...(overrides.app as ClientSettingsOverrides),
+        userSettingsStorage: 'local',
+        audioFilterStorage,
+      },
+    },
+  };
+};
+
+// Must run before initModPage(), so the client finds the record when it boots.
+const seedLegacyFilterRecord = (page: Page): Promise<void> =>
+  page.addInitScript((record) => {
+    window.localStorage.setItem('BBBchanged_settings_application', JSON.stringify(record));
+  }, LEGACY_FILTER_RECORD);
+
+test.describe('Audio processing mode - filter choice left by earlier clients', { tag: ['@ci', '@media'] }, () => {
+  test('ignores it when audioFilterStorage is session', async ({ browser, context, page }, testInfo) => {
+    await captureGetUserMediaAudioConstraints(page);
+    await seedLegacyFilterRecord(page);
+
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await audioProcessingMode.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: legacyFilterRecordOverrides('session'),
+    });
+
+    await audioProcessingMode.joinWithMicrophone();
+
+    const captured = await getCapturedAudioConstraints(page);
+    expect(captured[captured.length - 1]).toMatchObject(STANDARD_CONSTRAINTS);
+  });
+
+  test('still honours it when audioFilterStorage is local', async ({ browser, context, page }, testInfo) => {
+    await captureGetUserMediaAudioConstraints(page);
+    await seedLegacyFilterRecord(page);
+
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await audioProcessingMode.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: legacyFilterRecordOverrides('local'),
+    });
+
+    await audioProcessingMode.joinWithMicrophone();
+
+    const captured = await getCapturedAudioConstraints(page);
+    expect(captured[captured.length - 1]).toMatchObject(LEGACY_FILTER_RECORD.microphoneConstraints);
+  });
+});
+
 const hasExactConstraint = (value: unknown): boolean =>
   typeof value === 'object' && value !== null && 'exact' in (value as Record<string, unknown>);
+
+// How long the microphone is watched after a mode change: longer than the ~5s unpublishOnMute window.
+const UNPUBLISH_ON_MUTE_WATCH_TIME = 7000;
 
 // Overall rationale of this test block: an audio filter change must not
 // disturb the microphone publication - i.e.: no mute/unmute state flap.
@@ -268,7 +353,7 @@ test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '
     // Covers the ~5s unpublishOnMute window the spurious mute would arm.
     // The magic 7s may need to be changed if the unpublishOnMute defaults ever change.
     // so be aware if flakiness hits this test in the future.
-    await audioProcessingMode.modPage.page.waitForTimeout(7000);
+    await audioProcessingMode.modPage.page.waitForTimeout(UNPUBLISH_ON_MUTE_WATCH_TIME);
     const samples = await stopLocalMicWatch(page);
 
     // Guarantee audio mode actually changed
@@ -346,7 +431,7 @@ test.describe('Audio processing mode - publication continuity', { tag: ['@ci', '
 
     await startLocalMicWatch(page);
     await audioProcessingMode.selectProcessingMode('original');
-    await audioProcessingMode.modPage.page.waitForTimeout(7000);
+    await audioProcessingMode.modPage.page.waitForTimeout(UNPUBLISH_ON_MUTE_WATCH_TIME);
     const samples = await stopLocalMicWatch(page);
 
     expect(samples.length, 'the publication should have been sampled during the change').toBeGreaterThan(0);

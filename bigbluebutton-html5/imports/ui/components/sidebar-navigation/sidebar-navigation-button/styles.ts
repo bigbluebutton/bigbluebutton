@@ -101,7 +101,7 @@ export const ListItem = styled.div<ListItemProps>`
       border: ${borderSizeSmall} solid ${colorWhiteBorder};
       color: ${colorWhite};
       font-size: ${navigationSidebarNotificationBadgeFontSize};
-      font-weight: bold;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;

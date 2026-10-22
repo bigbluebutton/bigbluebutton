@@ -5,14 +5,23 @@ import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
+  buildExecutableNamedPdf,
+  buildPdfWithPages,
+  buildTruncatedPdf,
   checkSvgIndex,
+  expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
+  EXTERNAL_VIDEO_URL,
   getCurrentPresentationHeight,
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
   getCurrentSlideSvg,
+  getExternalVideoTime,
   getSlideOuterHtml,
+  isExternalVideoPaused,
+  routeExternalVideo,
   uploadMultiplePresentations,
+  uploadRefusedPresentation,
   uploadSinglePresentation,
 } from './util';
 
@@ -30,13 +39,17 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 2' })
+      .toContain('/svg/2');
 
     await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect
+      .poll(() => getSlideOuterHtml(this.modPage), { message: 'should change to slide 1' })
+      .toContain('/svg/1');
 
     await checkSvgIndex(this.modPage, '/svg/1');
   }
@@ -204,66 +217,65 @@ export class Presentation extends MultiUsers {
       );
       return;
     }
+    await routeExternalVideo(this.context);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.hasElement(
       e.closeIcon,
       'should display the close modal button after the moderator opens the modal for sharing external video',
     );
-    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, EXTERNAL_VIDEO_URL);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
+    await this.modPage.press('Escape'); // close the media sharing menu
 
-    const modFrame = await this.modPage.getYoutubeFrame();
-    if (!modFrame) throw Error('Failed to get video frame element for moderator');
-    const userFrame = await this.userPage.getYoutubeFrame();
-    if (!userFrame) throw Error('Failed to get video frame element for attendee');
-
-    await modFrame.hasElement(
-      'video',
+    await this.modPage.hasElement(
+      e.externalVideo,
       'should display the element frame for the video that is being shared for the moderator',
     );
-    await userFrame.hasElement(
-      'video',
+    await this.userPage.hasElement(
+      e.externalVideo,
       'should display the element frame for the video that is being shared for the attendee',
     );
+    await expectExternalVideoPlaying(this.modPage, 'should play the shared video for the moderator');
+    await expectExternalVideoPlaying(this.userPage, 'should play the shared video for the attendee');
   }
 
   async checkVideoAfterUserJoins() {
-    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_LONGER_TIME);
-
-    const user2Frame = await this.userPage2.getYoutubeFrame();
-    if (!user2Frame) throw Error('Failed to get video frame element for attendee 2');
-    await user2Frame.hasElement(
-      'video',
-      'should display the element frame for the video that is being shared for the attendee',
+    await this.userPage2.hasElement(
+      e.externalVideo,
+      'should display the element frame for the video that is being shared for the attendee who joined later',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
+    await expectExternalVideoPlaying(this.userPage2, 'should play the shared video for the attendee who joined later');
   }
 
   async pauseExternalVideo() {
-    const modFrame = await this.modPage.getYoutubeFrame();
-    if (!modFrame) throw Error('Failed to get video frame element');
+    await this.modPage.hasElement(e.externalVideo, 'should display the video element before pausing');
+    expect(await isExternalVideoPaused(this.modPage), 'should be playing before the moderator pauses it').toBe(false);
 
-    await modFrame.hasElement('video', 'should display the video element before pausing');
+    // what the player's native pause control does
+    await this.modPage.page.locator(e.externalVideo).evaluate((video: HTMLVideoElement) => video.pause());
 
-    const playButton = modFrame.frame.locator('.ytp-play-button');
-    await playButton.waitFor({ state: 'visible', timeout: 5000 });
-
-    await expect(playButton).toHaveAttribute('data-title-no-tooltip', 'Pause');
-
-    await playButton.click();
-    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
-
-    await expect(playButton).toHaveAttribute('data-title-no-tooltip', 'Play');
+    await expect
+      .poll(() => isExternalVideoPaused(this.modPage), { message: 'should pause the video for the moderator' })
+      .toBe(true);
+    await expect
+      .poll(() => isExternalVideoPaused(this.userPage), {
+        message: 'should pause the video for the attendee when the presenter pauses it',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBe(true);
   }
 
   async changePresenterWhileVideoPlaying() {
-    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.makePresenter);
     await this.userPage.closeAllToastNotifications();
 
-    const userFrame = await this.userPage.getYoutubeFrame();
-    if (!userFrame) throw Error('Failed to get video frame element');
-
-    await userFrame.hasElement('video', 'should display the element frame for the video that is being shared');
+    await this.userPage.hasElement(
+      e.externalVideo,
+      'should display the element frame for the video that is being shared',
+    );
     await this.modPage.wasRemoved(
       e.stopExternalVideoBtn,
       'should remove the stop external video button from the moderator when presenter change',
@@ -276,91 +288,79 @@ export class Presentation extends MultiUsers {
   }
 
   async endExternalVideo() {
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.stopExternalVideoBtn);
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard after stopping the external video');
+    await this.userPage.wasRemoved(e.externalVideo, 'should stop the external video for the attendee');
   }
 
   // Regression test for issue #25472: when the presenter scrubs the external video while
   // it is playing, the new position must be broadcast so viewers follow. react-player only
-  // surfaces a native seek event for FilePlayer; every hosted provider (YouTube here, plus
-  // Vimeo, Twitch, etc.) does not, so the client detects the discontinuity in onProgress and
-  // re-broadcasts it. This test drives YouTube, the common case. We assert the behaviour
-  // users actually care about: the viewer's playhead advances to the presenter's new
-  // position. That is stronger than counting outbound mutations and immune to WebSocket
-  // timing. Assumes startExternalVideo() already shared the video (chained in the spec).
+  // surfaces a native seek event for FilePlayer; every hosted provider (YouTube, Vimeo,
+  // Twitch, etc.) does not, so the client detects the discontinuity in onProgress and
+  // re-broadcasts it. The shared video here is a file, so the presenter's seeked event is
+  // swallowed before react-player sees it, leaving the onProgress detection as the only path,
+  // as with YouTube. We assert the behaviour users actually care about: the viewer's playhead
+  // advances to the presenter's new position. That is stronger than counting outbound
+  // mutations and immune to WebSocket timing. Assumes startExternalVideo() already shared the
+  // video (chained in the spec).
   async seekExternalVideoWhilePlaying() {
     const { externalVideoPlayer } = this.modPage.settings || {};
     // startExternalVideo() already asserted the share button is absent when the feature is
     // disabled; nothing to seek in that case.
     if (!externalVideoPlayer) return;
 
-    // startExternalVideo() already fetched both frames and asserted the video element is
-    // present for moderator and viewer, so we only fetch the handles we need to drive here.
-    const modFrame = await this.modPage.getYoutubeFrame();
-    if (!modFrame) throw Error('Failed to get video frame element for moderator');
-    const userFrame = await this.userPage.getYoutubeFrame();
-    if (!userFrame) throw Error('Failed to get video frame element for attendee');
-
-    const readCurrentTime = (frame: typeof modFrame) =>
-      frame.frame.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime);
-
     // Let the video play a few onProgress ticks so the presenter's baseline is seeded. Poll
     // for real advance (one tick is enough) instead of a fixed 15s wait, which cuts most of
     // that time off this @ci test.
-    const playbackStart = await readCurrentTime(modFrame);
+    const playbackStart = await getExternalVideoTime(this.modPage);
     await expect
-      .poll(() => readCurrentTime(modFrame), {
+      .poll(() => getExternalVideoTime(this.modPage), {
         message: 'moderator video should be playing before the seek',
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
       .toBeGreaterThan(playbackStart + 3);
 
-    // Derive the seek target from the real duration instead of a hardcoded value: if
-    // youtubeLink changes, a fixed target could exceed the video length, YouTube would clamp
+    // Derive the seek target from the real duration instead of a hardcoded value: if the
+    // fixture changes, a fixed target could exceed the video length, the player would clamp
     // to the end and fire onEnded, nulling the baseline (an opaque failure). The guard also
     // covers v.duration being NaN (metadata not loaded), which would otherwise yield
-    // seekTarget = NaN, a no-op seekTo, and an opaque toBeGreaterThan(NaN) failure.
-    const duration = await modFrame.frame.locator('video').evaluate((v: HTMLVideoElement) => v.duration);
+    // seekTarget = NaN, a no-op seek, and an opaque toBeGreaterThan(NaN) failure.
+    const modVideo = this.modPage.page.locator(e.externalVideo);
+    const duration = await modVideo.evaluate((video: HTMLVideoElement) => video.duration);
     expect(duration, 'fixture video must be long enough to seek within').toBeGreaterThan(120);
     const seekTarget = Math.floor(duration * 0.75);
 
     // Self-validate against a fixture swap: the seek target must be well ahead of where
     // natural playback has reached, or "the viewer followed the seek" would be satisfied by
     // ordinary playback and prove nothing.
-    const beforeSeek = await readCurrentTime(userFrame);
+    const beforeSeek = await getExternalVideoTime(this.userPage);
     expect(seekTarget - beforeSeek, 'seek target must be far ahead of natural playback').toBeGreaterThan(60);
 
-    // Scrub the YouTube player forward while it is playing. This is the path that does not
-    // emit a react-player onSeek event (the root cause of #25472). Scope the iframe lookup to
-    // the shared-video container (e.youtubeFrame) for consistency with getYoutubeFrame.
-    await this.modPage.page.evaluate(
-      ({ target, frameSelector }) => {
-        const iframe = document.querySelector<HTMLIFrameElement>(`${frameSelector} iframe`);
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage(
-            JSON.stringify({ event: 'command', func: 'seekTo', args: [target, true] }),
-            '*',
-          );
-        }
-      },
-      { target: seekTarget, frameSelector: e.youtubeFrame },
-    );
+    // Scrub the presenter's player forward while it is playing, without the seeked event
+    // that would reach react-player's onSeek (the path #25472 is about).
+    await this.modPage.page.evaluate(() => {
+      window.addEventListener('seeked', (event) => event.stopImmediatePropagation(), { capture: true });
+    });
+    await modVideo.evaluate((video: HTMLVideoElement, target: number) => {
+      // eslint-disable-next-line no-param-reassign
+      video.currentTime = target;
+    }, seekTarget);
 
-    // Assert the PRESENTER actually seeked before checking the viewer. If the postMessage
-    // silently no-ops (YouTube protocol change, enablejsapi regression, iframe not matched),
-    // failing here points at the command, not at a phantom "viewer did not follow" product bug.
+    // Assert the PRESENTER actually seeked before checking the viewer, so a seek that did
+    // not happen points at the test, not at a phantom "viewer did not follow" product bug.
     await expect
-      .poll(() => readCurrentTime(modFrame), {
+      .poll(() => getExternalVideoTime(this.modPage), {
         message: 'presenter should have seeked',
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
       .toBeGreaterThan(seekTarget - 5);
 
-    // YouTube re-buffers after a seek, so the viewer lands a little short of the target and
-    // then climbs; allow this much slack below the target when confirming the follow.
+    // The viewer buffers after the seek, so it may land a little short of the target and
+    // then climb; allow this much slack below the target when confirming the follow.
     const VIEWER_FOLLOW_TOLERANCE_SECONDS = 15;
     await expect
-      .poll(() => readCurrentTime(userFrame), {
+      .poll(() => getExternalVideoTime(this.userPage), {
         message: 'viewer should follow the presenter mid-play external video seek',
         timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       })
@@ -368,7 +368,7 @@ export class Presentation extends MultiUsers {
 
     // Upper-bound the viewer position so an overshoot to the end (which a one-sided lower
     // bound would let pass) fails the test instead of reading as a follow.
-    const viewerAfter = await readCurrentTime(userFrame);
+    const viewerAfter = await getExternalVideoTime(this.userPage);
     expect(viewerAfter, 'viewer should land near the seek target, not overshoot to the end').toBeLessThan(
       seekTarget + 30,
     );
@@ -663,7 +663,12 @@ export class Presentation extends MultiUsers {
     await expect(fitToWidthBorderColorOff, 'should match the white color').toBe('rgba(0, 0, 0, 0)');
 
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    await this.modPage.page.waitForTimeout(500);
+    await expect(fitToWidthButtonLocator, 'should turn fit to width on').toHaveCSS('border-color', 'rgb(6, 23, 42)');
+    await expect
+      .poll(async () => (await this.modPage.getElementBoundingBox(e.whiteboard))?.width, {
+        message: 'should widen the whiteboard',
+      })
+      .toBeGreaterThan(Number(width1));
 
     // check if its on
     const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate(
@@ -1012,5 +1017,18 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.selectSlide('Slide 13');
     await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png');
+  }
+
+  async truncatedPdfIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildTruncatedPdf(), e.presentationPageCountFailedLabel);
+  }
+
+  async executableNamedPdfIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildExecutableNamedPdf(), e.presentationInvalidMimeTypeLabel);
+  }
+
+  // One page over maxNumPages, assumed to be the default 200
+  async tooManyPagesIsRefused() {
+    await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
   }
 }

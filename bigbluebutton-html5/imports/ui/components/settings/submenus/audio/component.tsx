@@ -7,7 +7,7 @@ import {
 } from './types';
 import DeviceTest from './device-test/component';
 import {
-  isWasmProcessorSupported, isWasmProcessingConfigEnabled, getConstraintsForMode,
+  isWasmProcessorSupported, isWasmProcessingConfigEnabled,
   getEffectiveAudioProcessingMode,
 } from '/imports/api/audio/client/bridge/service';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
@@ -107,7 +107,13 @@ class AudioMenu extends BaseMenu {
 
   handleAudioFilterModeChange(mode: AudioFilterMode) {
     const { settings, audioSettings } = this.state;
-    settings.microphoneConstraints = getConstraintsForMode(mode);
+    // The mode is the only record of the filter choice - getAudioConstraints()
+    // derives the microphone constraints from it. Keeping a copy here would
+    // leave the choice in the application group, which follows
+    // userSettingsStorage and so can outlive the session-scoped audio group;
+    // it would also masquerade as the pre-4.0 record that same fallback
+    // exists to honour. Drop any such record: an explicit pick supersedes it.
+    delete settings.microphoneConstraints;
     audioSettings.processingMode = mode;
 
     this.handleUpdateSettings('application', settings);

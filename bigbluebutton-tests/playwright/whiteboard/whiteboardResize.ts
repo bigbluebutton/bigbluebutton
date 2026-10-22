@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import { expect, test, type Page } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { DrawShape } from './drawShape';
 import { getTldrawEditor } from './util';
@@ -49,6 +49,59 @@ async function getWrapperWidth(page: Page): Promise<number> {
   });
 }
 
+// Width of the slide on screen over the width of #presentationInnerWrapper: 1 while the camera fits the slide to the
+// presentation area, and the zoom over that fit otherwise.
+async function getSlideScale(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const wrapper = document.getElementById('presentationInnerWrapper');
+    const slide = document.querySelector('#whiteboard-element .tl-image');
+    return wrapper?.offsetWidth && slide ? slide.getBoundingClientRect().width / wrapper.offsetWidth : 0;
+  });
+}
+
+// Waits until the camera shows the slide at `scale` (see getSlideScale), in a presentation area whose width is no
+// longer `previousWidth` when that is given. It does not fail: the checks that follow tell whether the camera followed.
+async function waitForSlideScale(page: Page, scale: number, previousWidth?: number): Promise<void> {
+  await page
+    .waitForFunction(
+      ([expectedScale, widthBefore]) => {
+        const wrapper = document.getElementById('presentationInnerWrapper');
+        const slide = document.querySelector('#whiteboard-element .tl-image');
+        if (!wrapper?.offsetWidth || !slide || wrapper.offsetWidth === widthBefore) return false;
+        const current = slide.getBoundingClientRect().width / wrapper.offsetWidth;
+        return Math.abs(current - expectedScale) < 0.01 * expectedScale;
+      },
+      [scale, previousWidth ?? null] as const,
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    )
+    .catch(() => {});
+}
+
+// The presentation reserves space for its toolbar after it has measured it; until then the slide is laid out
+// against a provisional height.
+function presentationLaidOut(): boolean {
+  const slide = document.getElementById('presentationInnerWrapper');
+  if (!slide?.parentElement) return true;
+  const toolbar = document.getElementById('presentationToolbarWrapper');
+  const reservedForToolbar = parseFloat(slide.parentElement.style.height) - parseFloat(slide.style.height);
+  return Math.abs(reservedForToolbar - (toolbar?.clientHeight ?? 0)) < 0.5;
+}
+
+async function waitForPresentationLayout(page: Page): Promise<void> {
+  const laidOut = await page.waitForFunction(presentationLaidOut, undefined, { timeout: ELEMENT_WAIT_TIME }).then(
+    () => true,
+    () => false,
+  );
+  // the presentation measures its space again on a window resize, as it does when the window changes
+  if (!laidOut) await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+  await expect
+    .poll(() => page.evaluate(presentationLaidOut), {
+      message: 'should finish laying out the presentation',
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    })
+    .toBe(true);
+}
+
 // Regions that legitimately vary run-to-run (the random room title in the navbar
 // and the chat input's blinking caret) and would otherwise cause spurious diffs
 // in these full-page visual snapshots. Masked out so the comparison only covers
@@ -81,8 +134,11 @@ export class WhiteboardResize extends DrawShape {
     await modSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
     await userSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    // Let the camera-mount polling chain settle on both pages.
-    await this.modPage.page.waitForTimeout(5000);
+    // Let the camera-mount polling chain fit the slide on both pages.
+    await waitForSlideScale(this.modPage.page, 1);
+    await waitForSlideScale(this.userPage.page, 1);
+    await waitForPresentationLayout(this.modPage.page);
+    await waitForPresentationLayout(this.userPage.page);
 
     // ── 2. Record pre-resize state on both pages ───────────────────────────────
     const modInitialZoom = await getCameraZoom(this.modPage.page);
@@ -125,15 +181,16 @@ export class WhiteboardResize extends DrawShape {
       height: Math.round(viewport.height * 0.6),
     });
 
-    // Wait for the layout to settle after shrink (no assertions here — shrink is just the trigger).
-    await this.modPage.page.waitForTimeout(5000);
+    // Wait for the camera to follow the shrink (no assertions here — shrink is just the trigger).
+    await waitForSlideScale(this.modPage.page, 1, modInitialWidth);
+    const modShrunkWidth = await getWrapperWidth(this.modPage.page);
 
     // ── 4. Expand back to original size ───────────────────────────────────────
     await this.modPage.page.setViewportSize({ width: viewport.width, height: viewport.height });
 
-    // Allow time for: React re-render → RAF → pollUntilMounted → 35 stable frames
+    // Wait for: React re-render → RAF → pollUntilMounted → 35 stable frames
     // → syncCameraWithPresentationArea to complete after the expansion.
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, 1, modShrunkWidth);
 
     // ── 5. Verify moderator camera re-synced after expanding back ─────────────
     const modAfterZoom = await getCameraZoom(this.modPage.page);
@@ -213,7 +270,11 @@ export class WhiteboardResize extends DrawShape {
     await modSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
     await userSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, 1);
+    await waitForSlideScale(this.userPage.page, 1);
+    await waitForPresentationLayout(this.modPage.page);
+    await waitForPresentationLayout(this.userPage.page);
+    const fitScale = await getSlideScale(this.modPage.page);
 
     // ── 2. Zoom in 2× via direct tldraw editor access (no server round-trip) ────
     // Ctrl++ goes through zoomChanger → server → syncCamera, making the final
@@ -239,8 +300,11 @@ export class WhiteboardResize extends DrawShape {
 
     expect(zoomed, 'tldraw editor must be accessible via React fiber for direct camera zoom').toBe(true);
 
-    // Let the zoomed camera settle and broadcast to the viewer.
-    await this.modPage.page.waitForTimeout(3000);
+    // Let the zoomed camera settle.
+    await waitForSlideScale(this.modPage.page, 2 * fitScale);
+    const zoomedScale = await getSlideScale(this.modPage.page);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
 
     // ── 3. Screenshot A — write this run's zoomed state as the baseline ──────────
     // Each BBB meeting produces a slightly different settled camera.y (different vh
@@ -262,17 +326,19 @@ export class WhiteboardResize extends DrawShape {
 
     // ── 4. Shrink moderator viewport (≈ 40 % height) ──────────────────────────
     const viewport = this.modPage.page.viewportSize()!;
+    const zoomedWidth = await getWrapperWidth(this.modPage.page);
     await this.modPage.page.setViewportSize({
       width: viewport.width,
       height: Math.round(viewport.height * 0.6),
     });
 
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, zoomedScale, zoomedWidth);
+    const shrunkWidth = await getWrapperWidth(this.modPage.page);
 
     // ── 5. Expand back to original size ───────────────────────────────────────
     await this.modPage.page.setViewportSize({ width: viewport.width, height: viewport.height });
 
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, zoomedScale, shrunkWidth);
 
     // ── 7. Screenshot C — must match Screenshot A (same run) ─────────────────
     // Playwright reads the baseline we wrote in step 3. A mismatch means the
@@ -291,8 +357,10 @@ export class WhiteboardResize extends DrawShape {
 
     await modSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    // Let the camera-mount polling chain settle.
-    await this.modPage.page.waitForTimeout(5000);
+    // Let the camera-mount polling chain fit the slide.
+    await waitForSlideScale(this.modPage.page, 1);
+    await waitForPresentationLayout(this.modPage.page);
+    const fitScale = await getSlideScale(this.modPage.page);
 
     // ── 2. Record fit-zoom baseline ──────────────────────────────────────────────
     const fitZoom = await getCameraZoom(this.modPage.page);
@@ -305,14 +373,19 @@ export class WhiteboardResize extends DrawShape {
     //   pageActualZoomRatioRef cache updated.
     // This lets us verify both camera AND toolbar % are preserved after restore.
     await this.modPage.waitAndClick(e.zoomInButton);
-    // Wait longer than the zoomChanger debounce (200 ms) so the first click's
-    // setState commits before the second click reads stateZoomValue; otherwise
-    // both clicks see stateZoomValue=100 and only one +25% step is applied.
-    await this.modPage.page.waitForTimeout(600);
+    // Wait for the first click's setState to commit (the toolbar shows it) before the
+    // second click reads stateZoomValue; otherwise both clicks see stateZoomValue=100
+    // and only one +25% step is applied.
+    await this.modPage.page.waitForFunction(
+      () =>
+        (document.querySelector('[data-test="resetZoomButton"]') as HTMLElement | null)?.innerText.trim() === '125%',
+      undefined,
+      { timeout: ELEMENT_WAIT_TIME },
+    );
     await this.modPage.waitAndClick(e.zoomInButton);
 
     // Wait for: zoomChanger debounce (200 ms) + syncCameraOnPresenterZoom + store settle.
-    await this.modPage.page.waitForTimeout(3000);
+    await waitForSlideScale(this.modPage.page, 1.5 * fitScale);
 
     // ── 4. Record pre-minimize state ─────────────────────────────────────────────
     const toolbarZoomBefore = await getToolbarZoomText(this.modPage.page);
@@ -379,7 +452,10 @@ export class WhiteboardResize extends DrawShape {
     await modSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
     await userSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, 1);
+    await waitForSlideScale(this.userPage.page, 1);
+    await waitForPresentationLayout(this.modPage.page);
+    await waitForPresentationLayout(this.userPage.page);
 
     // ── 2. Screenshot A — write this run's initial state as the baseline ────────
     // Each BBB meeting renders slightly different session chrome, so comparing
@@ -418,17 +494,19 @@ export class WhiteboardResize extends DrawShape {
 
     // ── 3. Shrink moderator viewport (≈ 40 % height) ──────────────────────────
     const viewport = this.modPage.page.viewportSize()!;
+    const initialWidth = await getWrapperWidth(this.modPage.page);
     await this.modPage.page.setViewportSize({
       width: viewport.width,
       height: Math.round(viewport.height * 0.6),
     });
 
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, 1, initialWidth);
+    const shrunkWidth = await getWrapperWidth(this.modPage.page);
 
     // ── 4. Expand back to original size ───────────────────────────────────────
     await this.modPage.page.setViewportSize({ width: viewport.width, height: viewport.height });
 
-    await this.modPage.page.waitForTimeout(5000);
+    await waitForSlideScale(this.modPage.page, 1, shrunkWidth);
 
     // ── 5. Screenshot C — must match the initial baseline (Screenshot A) ───────
     // Using the same snapshot name as Screenshot A forces Playwright to compare the
