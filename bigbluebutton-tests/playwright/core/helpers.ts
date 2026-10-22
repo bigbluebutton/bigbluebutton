@@ -11,7 +11,7 @@ import {
 } from '@playwright/test';
 import axios, { AxiosResponse } from 'axios';
 // This is version 4 of chalk, not version 5, which uses ESM
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import sha from 'sha.js';
 import * as xml2js from 'xml2js';
@@ -232,7 +232,7 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
-  const baseQuery = `fullName=${fullName}&meetingID=${meetingID}`
+  const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${meetingID}`
     + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;

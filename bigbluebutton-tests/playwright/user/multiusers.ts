@@ -311,6 +311,7 @@ export class MultiUsers {
 
     const dataToCheck = [this.modPage.username, this.userPage.username, this.modPage.meetingId];
     await checkTextContent(content, dataToCheck, 'should the downloaded content match the user names');
+    expect(content, 'should not contain whitespace-only lines').not.toMatch(/^[ \t]+$/m);
   }
 
   async pinningWebcams() {
