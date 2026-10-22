@@ -4,7 +4,7 @@ import { BbbApi, documentXml, modulesXml, pageToken } from './api';
 import { Collected, CollectedFixture, CollectedPage, Outcome, PdfPageBox } from './collected';
 import { loadTarget, profileName, profileWorkDir, runId, serverHost, Target, workDir } from './env';
 import { canReadDir, copyTree, listDir, readFileBytes, run, statSize, sudo } from './host';
-import { BASE64_LIMIT, expectationFor, lintManifests, loadAllManifests, Manifest, selectedManifests, sha256, UploadMethod, uploadName } from './manifest';
+import { BASE64_LIMIT, enabledChecks, expectationFor, lintManifests, loadAllManifests, Manifest, selectedManifests, sha256, UploadMethod, uploadName } from './manifest';
 import { generateRuntimeFixture, RuntimeSpec } from './runtimeFixtures';
 import { PresentationRow, StatusDb } from './status';
 import { toolVersions } from './tools';
@@ -50,6 +50,8 @@ interface State {
   uploadResponse?: CollectedFixture['uploadResponse'];
   notes: string[];
 }
+
+type Session = Awaited<ReturnType<BbbApi['join']>>;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const log = (...a: unknown[]) => console.log(`[convert ${new Date().toISOString().slice(11, 19)}]`, ...a);
@@ -272,15 +274,13 @@ export class Converter {
       } catch (e) {
         for (const s of states) if (!s.outcome) harnessError(s, e);
       }
-      let servedDone = false;
+      let joining: Promise<Session> | undefined;
+      const session = () => (joining ??= this.api.join(plan.externalId, 'pc-suite'));
       for (const s of states) {
         try {
           const pages = s.outcome === 'converted' && s.presId ? await this.collect(s, root) : [];
           const r = this.result(plan, internal, s, pages);
-          if (!servedDone && r.outcome === 'converted' && r.pageCount > 0) {
-            r.served = await this.servedCheck(plan.externalId, key, r);
-            servedDone = true;
-          }
+          if (r.outcome === 'converted' && r.pageCount > 0 && enabledChecks(s.p.m).includes('served')) r.served = await this.servedCheck(session, key, r);
           results.push(r);
         } catch (e) {
           harnessError(s, e);
@@ -451,13 +451,16 @@ export class Converter {
     };
   }
 
-  /** Fetches slide 1 the way the client does (session cookie + sessionToken + pageToken) and compares it with the file on disk. */
-  private async servedCheck(meetingId: string, key: string, r: CollectedFixture): Promise<{ ok: boolean; detail: string }> {
+  /**
+   * Fetches slide 1 the way the client does (session cookie + sessionToken + pageToken) and compares it with the file on disk.
+   * session() joins the meeting on first use and hands every later served check of that meeting the same session.
+   */
+  private async servedCheck(session: () => Promise<Session>, key: string, r: CollectedFixture): Promise<{ ok: boolean; detail: string }> {
     if (this.target.served.token === 'none' || !this.target.served.base) return { ok: true, detail: 'not applicable for this target' };
     const svg = r.pages[0]?.svg;
     if (!svg) return { ok: false, detail: 'slide 1 SVG missing on disk' };
     try {
-      const joined = await this.api.join(meetingId, 'pc-suite');
+      const joined = await session();
       if ('error' in joined) return { ok: false, detail: joined.error };
       const token = pageToken(this.target.secret, r.presId!, 1);
       const url = `${this.target.served.base}${key}/${key}/${r.presId}/svg/1?pageToken=${token}&sessionToken=${joined.sessionToken}`;

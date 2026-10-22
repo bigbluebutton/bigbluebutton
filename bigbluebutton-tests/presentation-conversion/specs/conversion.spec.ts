@@ -5,7 +5,7 @@ import { embeddedJpegOrientations, slideKind, svgAspect } from '../src/assert/sv
 import { CheckRun } from '../src/checks';
 import { CollectedFixture, describeOutcome, loadCollected, matchesExpectation } from '../src/collected';
 import { loadTarget, profileName, profileWorkDir } from '../src/env';
-import { ALL_CHECKS, CheckName, expectationFor, goldenProfile, Manifest, pageSpec, selectedManifests } from '../src/manifest';
+import { enabledChecks, expectationFor, goldenProfile, Manifest, pageSpec, selectedManifests } from '../src/manifest';
 import { decodePng, markerOrientation, meanDifference, ORIENTATION_NAMES } from '../src/render/png';
 import { renderSvg } from '../src/render/resvg';
 
@@ -13,10 +13,6 @@ const profile = profileName();
 const target = loadTarget();
 const blessing = process.env.PC_BLESS === '1';
 const blessFromReference = process.env.PC_BLESS_FROM === 'reference';
-
-function enabledChecks(m: Manifest): CheckName[] {
-  return m.checks ?? ALL_CHECKS;
-}
 
 function fixtureResult(m: Manifest): CollectedFixture {
   const c = loadCollected().fixtures[m.id];
@@ -46,9 +42,10 @@ for (const m of selectedManifests(profile)) {
       if (expectation === 'converted') {
         await run.run('pages', () => expect(c.pageCount, 'converted page count').toBe(m.pages));
       }
-      if (c.served) {
+      if (c.outcome === 'converted' && c.pageCount > 0) {
         await run.run('served', () => {
-          if (!c.served!.ok) throw new Error(`served slide check failed: ${c.served!.detail}`);
+          if (!c.served) throw new Error('served check was not performed by the convert step');
+          if (!c.served.ok) throw new Error(`served slide check failed: ${c.served.detail}`);
         });
       }
       run.finish();

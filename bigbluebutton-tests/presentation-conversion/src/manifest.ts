@@ -55,7 +55,6 @@ export interface Manifest extends PageSpec {
   profiles?: string[];
   goldenProfiles?: string[];
   createParams?: Record<string, string>;
-  served?: boolean;
   notes?: string;
   /** resolved at load time */
   manifestPath: string;
@@ -105,6 +104,10 @@ export function selectedManifests(profile: string): Manifest[] {
       (tiers.length === 0 || tiers.includes(m.tier)) &&
       (m.tier !== 'private' || (m.filePath && fs.existsSync(m.filePath))),
   );
+}
+
+export function enabledChecks(m: Manifest): CheckName[] {
+  return m.checks ?? ALL_CHECKS;
 }
 
 export function expectationFor(m: Manifest, profile: string): string {
