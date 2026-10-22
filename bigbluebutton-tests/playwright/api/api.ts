@@ -1,11 +1,11 @@
-import { expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
+import { type APIRequestContext, expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
 import axios from 'axios';
 import * as xml2js from 'xml2js';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
-import { createMeeting, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
+import { createMeeting, endMeetings, getApiCallUrl, getJoinURL, getRandomInt } from '../core/helpers';
 import { parameters } from '../core/parameters';
 import { MultiUsers } from '../user/multiusers';
 
@@ -32,52 +32,47 @@ export class API extends MultiUsers {
     return this.browser.newPage();
   }
 
-  async testGetMeetings(page: PlaywrightPage, testInfo: TestInfo) {
+  async testGetMeetings(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
     const meetingId = await createMeeting();
-    await this.initModPage(page, { testInfo, meetingId, shouldCloseAudioModal: false });
-    await this.initUserPage(this.modPage.context, { testInfo, meetingId, shouldCloseAudioModal: false });
-    await this.modPage.joinMicrophone();
-    await this.userPage.joinMicrophone();
+    try {
+      await this.initModPage(page, { testInfo, meetingId });
+      await this.initUserPage(this.modPage.context, { testInfo, meetingId });
 
-    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns
-     * because it isn't consistently true
-     * in the API's returned data structures.
-     * Is there something we can await on the browser page that
-     * should ensure that the API will report hasJoinedVoice?
-     */
+      const expectedUsers = [
+        expect.objectContaining({
+          fullName: [`${this.modPage.username}`],
+          role: ['MODERATOR'],
+          isPresenter: ['true'],
+        }),
+        expect.objectContaining({
+          fullName: [`${this.userPage.username}`],
+          role: ['VIEWER'],
+          isPresenter: ['false'],
+        }),
+      ];
 
-    const expectedUsers = [
-      expect.objectContaining({
-        fullName: [`${this.modPage.username}`],
-        role: ['MODERATOR'],
-        isPresenter: ['true'],
-      }),
-      expect.objectContaining({
-        fullName: [`${this.userPage.username}`],
-        role: ['VIEWER'],
-        isPresenter: ['false'],
-      }),
-    ];
+      const expectedMeeting = {
+        meetingName: [meetingId],
+        running: ['true'],
+        participantCount: ['2'],
+        moderatorCount: ['1'],
+        isBreakout: ['false'],
+        attendees: [{ attendee: expect.arrayContaining(expectedUsers) }],
+      };
 
-    const expectedMeeting = {
-      meetingName: [meetingId],
-      running: ['true'],
-      participantCount: ['2'],
-      moderatorCount: ['1'],
-      isBreakout: ['false'],
-      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }],
-    };
-
-    /* check that this meeting is in the server's list of all meetings */
-    const { data } = await getMeetings();
-    expect(data.response.returncode).toEqual(['SUCCESS']);
-    const meetings = (data.response.meetings || []).flatMap(
-      (m: GetMeetingsResponse['response']['meetings'][number]) => m.meeting || [],
-    );
-    expect(meetings).toEqual(expect.arrayContaining([expect.objectContaining(expectedMeeting)]));
-
-    await this.modPage.page.close();
-    await this.userPage.page.close();
+      /* check that this meeting is in the server's list of all meetings; bbb-web
+       * learns about the joins shortly after the client shows them */
+      await expect(async () => {
+        const { data } = await getMeetings();
+        expect(data.response.returncode).toEqual(['SUCCESS']);
+        const meetings = (data.response.meetings || []).flatMap(
+          (m: GetMeetingsResponse['response']['meetings'][number]) => m.meeting || [],
+        );
+        expect(meetings).toEqual(expect.arrayContaining([expect.objectContaining(expectedMeeting)]));
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    } finally {
+      await endMeetings(request, [meetingId]);
+    }
   }
 
   // Call /create and return the parsed XML response. The BBB API speaks XML,
@@ -183,53 +178,49 @@ export class API extends MultiUsers {
     await this.modPage.page.close();
   }
 
-  async testGetMeetingInfo(page: PlaywrightPage, testInfo: TestInfo) {
+  async testGetMeetingInfo(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
     const meetingId = await createMeeting();
-    await this.initModPage(page, { testInfo, meetingId, shouldCloseAudioModal: false });
-    await this.initUserPage(this.modPage.context, { testInfo, meetingId, shouldCloseAudioModal: false });
-    await this.modPage.joinMicrophone();
-    await this.userPage.joinMicrophone();
+    try {
+      await this.initModPage(page, { testInfo, meetingId });
+      await this.initUserPage(this.modPage.context, { testInfo, meetingId });
 
-    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns
-     * because it isn't consistently true
-     * in the API's returned data structures.
-     * Is there something we can await on the browser page that
-     * should ensure that the API will report hasJoinedVoice?
-     */
+      const expectedUsers = [
+        expect.objectContaining({
+          fullName: ['Moderator'],
+          role: ['MODERATOR'],
+          isPresenter: ['true'],
+        }),
+        expect.objectContaining({
+          fullName: ['Attendee'],
+          role: ['VIEWER'],
+          isPresenter: ['false'],
+        }),
+      ];
+      const expectedMeeting = {
+        meetingName: [meetingId],
+        running: ['true'],
+        participantCount: ['2'],
+        moderatorCount: ['1'],
+        isBreakout: ['false'],
+        attendees: [{ attendee: expect.arrayContaining(expectedUsers) }],
+      };
 
-    const expectedUsers = [
-      expect.objectContaining({
-        fullName: ['Moderator'],
-        role: ['MODERATOR'],
-        isPresenter: ['true'],
-      }),
-      expect.objectContaining({
-        fullName: ['Attendee'],
-        role: ['VIEWER'],
-        isPresenter: ['false'],
-      }),
-    ];
-    const expectedMeeting = {
-      meetingName: [meetingId],
-      running: ['true'],
-      participantCount: ['2'],
-      moderatorCount: ['1'],
-      isBreakout: ['false'],
-      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }],
-    };
+      /* check that we can retrieve this meeting by its meetingId */
+      let internalMeetingId = '';
+      await expect(async () => {
+        const { data } = await getMeetingInfo(meetingId);
+        expect(data.response.returncode).toEqual(['SUCCESS']);
+        expect(data.response).toMatchObject(expectedMeeting);
+        [internalMeetingId] = data.response.internalMeetingID;
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    /* check that we can retrieve this meeting by its meetingId */
-    const { data } = await getMeetingInfo(meetingId);
-    expect(data.response.returncode).toEqual(['SUCCESS']);
-    expect(data.response).toMatchObject(expectedMeeting);
-
-    /* check that we can retrieve this meeting by its internal meeting ID */
-    const { data: data2 } = await getMeetingInfo(data.response.internalMeetingID[0]);
-    expect(data2.response).toMatchObject(expectedMeeting);
-    expect(data2.response.returncode).toEqual(['SUCCESS']);
-
-    await this.modPage.page.close();
-    await this.userPage.page.close();
+      /* check that we can retrieve this meeting by its internal meeting ID */
+      const { data: data2 } = await getMeetingInfo(internalMeetingId);
+      expect(data2.response).toMatchObject(expectedMeeting);
+      expect(data2.response.returncode).toEqual(['SUCCESS']);
+    } finally {
+      await endMeetings(request, [meetingId]);
+    }
   }
 
   // Spring Boot 4 lowered Tomcat's default parameter limit from 10000 to 1000, and Tomcat 11

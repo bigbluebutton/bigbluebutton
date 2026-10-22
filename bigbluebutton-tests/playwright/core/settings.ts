@@ -18,8 +18,10 @@ export interface Settings {
   maxMessageLength?: number;
   emojiPickerEnabled?: boolean;
   autoConvertEmojiEnabled?: boolean;
+  markdownImageAllowed?: boolean;
   // Polling
   pollEnabled?: boolean;
+  quizEnabled?: boolean;
   pollChatMessage?: boolean;
   quickPollConfirmationStep?: boolean;
   // Presentation
@@ -47,10 +49,8 @@ export interface Settings {
   multiFunctionalModeEnabled?: boolean;
 }
 
-let settings: Settings | undefined;
-
 export async function generateSettingsData(page: Page): Promise<Settings | undefined> {
-  if (settings || !page) return settings;
+  if (!page) return undefined;
 
   try {
     const settingsData = await page.evaluate(() => {
@@ -58,7 +58,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       return (window as any).meetingClientSettings.public;
     });
 
-    settings = {
+    return {
       reactionsButton: settingsData.app?.reactionsButton?.enabled,
       sharedNotesEnabled: settingsData.notes?.enabled,
       directLeaveButton: settingsData.app?.defaultSettings?.application?.directLeaveButton,
@@ -76,8 +76,10 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       maxMessageLength: settingsData.chat?.max_message_length,
       emojiPickerEnabled: settingsData.chat?.emojiPicker?.enable,
       autoConvertEmojiEnabled: settingsData.chat?.autoConvertEmoji,
+      markdownImageAllowed: settingsData.chat?.markdownImageAllowed,
       // Polling
       pollEnabled: settingsData.poll?.enabled,
+      quizEnabled: settingsData.poll?.quiz?.enabled,
       pollChatMessage: settingsData.poll?.chatMessage,
       quickPollConfirmationStep: settingsData.poll?.quickPollConfirmationStep,
       // Presentation
@@ -104,14 +106,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       // Multifunctional mode
       multiFunctionalModeEnabled: settingsData.multiFunctionalMode?.enabled,
     };
-
-    return settings;
   } catch (err) {
     console.log(`Unable to get public settings data: ${err}`);
     return undefined;
   }
-}
-
-export function getSettings(): Settings | undefined {
-  return settings;
 }

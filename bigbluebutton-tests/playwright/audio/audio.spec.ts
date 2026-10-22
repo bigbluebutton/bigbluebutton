@@ -1,5 +1,6 @@
 import { initializePages, linkIssue } from '../core/helpers';
 import { isLiveKit } from '../core/livekit';
+import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 
@@ -72,5 +73,15 @@ test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   test('Unmuting yourself from the user list removes the away status', async () => {
     linkIssue(25888);
     await audio.unmuteClearsAway('userList');
+  });
+});
+
+test.describe.parallel('Audio reception', { tag: ['@ci', '@media'] }, () => {
+  test('Listener receives the speaker audio', async ({ browser, context, page }, testInfo) => {
+    await trackPeerConnections(context);
+    const audio = new Audio(browser, context);
+    await audio.initModPage(page, { testInfo });
+    await audio.initUserPage(context, { testInfo });
+    await audio.listenerReceivesSpeech();
   });
 });

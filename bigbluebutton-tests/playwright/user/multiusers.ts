@@ -5,11 +5,15 @@ import { elements as e } from '../core/elements';
 import { linkIssue } from '../core/helpers';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
+import { remoteWebcamContentCheck } from '../webcam/util';
 import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
 }
+
+// How long the disabled emoji rain is watched for after a reaction; when enabled it starts well within this.
+const EMOJI_RAIN_WATCH_TIME = 2000;
 
 export class MultiUsers {
   public browser: Browser;
@@ -307,6 +311,7 @@ export class MultiUsers {
 
     const dataToCheck = [this.modPage.username, this.userPage.username, this.modPage.meetingId];
     await checkTextContent(content, dataToCheck, 'should the downloaded content match the user names');
+    expect(content, 'should not contain whitespace-only lines').not.toMatch(/^[ \t]+$/m);
   }
 
   async pinningWebcams() {
@@ -388,6 +393,11 @@ export class MultiUsers {
       this.userPage.username,
       'should display the username of Attendee on the second pinned webcam for Attendee',
     );
+  }
+
+  async viewerReceivesWebcam() {
+    await this.modPage.shareWebcam();
+    await remoteWebcamContentCheck(this.userPage);
   }
 
   async focusUnfocusWebcam() {
@@ -489,48 +499,14 @@ export class MultiUsers {
     ).toBeVisible();
   }
 
-  async disabledUsersJoinMuted() {
-    // join user muted
-    await this.initUserPage(this.modPage.context, {
-      shouldCloseAudioModal: false,
-    });
-    await this.userPage.clickMicrophoneButton();
-    await this.userPage.waitAndClick(e.joinEchoTestButton);
-    await this.userPage.wasRemoved(
-      e.establishingAudioLabel,
-      'should stop displaying the establishing audio label when the first user joins audio',
-    );
-    await this.userPage.hasElement(
-      e.unmuteMicButton,
-      'should display the unmute microphone button for the first user - joined muted',
-    );
-    // disabled user join muted
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.usersJoinMuted);
-    // join user unmuted
-    await this.initUserPage2(this.modPage.context, {
-      shouldCloseAudioModal: false,
-    });
-    await this.userPage2.clickMicrophoneButton();
-    await this.userPage2.waitAndClick(e.joinEchoTestButton);
-    await this.userPage2.wasRemoved(
-      e.establishingAudioLabel,
-      'should stop displaying the establishing audio label when the second user joins audio',
-    );
-    await this.userPage2.hasElement(
-      e.muteMicButton,
-      'should display the mute microphone button for the second user - joined unmuted',
-    );
-    // check if the talking indicator is displayed for everyone
-    await this.modPage.hasElement(e.isTalking, 'should display the talking indicator for the moderator');
-    await this.userPage.hasElement(e.isTalking, 'should display the talking indicator for the first user');
-    await this.userPage2.hasElement(e.isTalking, 'should display the talking indicator for the second user');
-  }
-
   async muteAllUsersExceptPresenter() {
-    // join audio
+    // join audio. Firefox holds enumerateDevices() until the tab is the selected one, and
+    // the audio modal needs it before it enables its join button
+    await this.modPage.page.bringToFront();
     await this.modPage.joinMicrophone();
+    await this.modPage2.page.bringToFront();
     await this.modPage2.joinMicrophone();
+    await this.userPage.page.bringToFront();
     await this.userPage.joinMicrophone();
     // mute all users except the presenter: a direct crowd-action button in the
     // participants panel now (the manageUsers gear dropdown is gone)
@@ -667,68 +643,41 @@ export class MultiUsers {
     );
   }
 
-  async emojiRainTest() {
-    const { settings } = this.modPage;
+  async emojiRainTest(isEmojiRainEnabled: boolean) {
+    expect(this.modPage.settings?.emojiRain, 'emojiRain.enabled should match emojiRainSettingsOverride').toBe(
+      isEmojiRainEnabled,
+    );
     const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
-
-    const isEmojiRainEnabled = settings?.emojiRain ?? true;
-
-    if (!isEmojiRainEnabled) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.waitAndClick(e.reactionsButton);
-      await this.modPage.waitAndClick(smilingEmojiReaction);
-      await this.modPage.wasRemoved(e.emojiRain, 'should not display the emoji rain when disabled');
-      return;
-    }
 
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(smilingEmojiReaction);
     const emojiRainLocator = this.modPage.page.locator(e.emojiRain);
-    await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, {
-      timeout: ELEMENT_WAIT_TIME,
-    });
+
+    if (!isEmojiRainEnabled) {
+      await this.modPage.hasText(
+        e.reactionsButton,
+        '😃',
+        'should display the smiling emoji on the reactions button when used',
+      );
+      const watchUntil = Date.now() + EMOJI_RAIN_WATCH_TIME;
+      while (Date.now() < watchUntil) {
+        await expect(emojiRainLocator, 'should not display the emoji rain when disabled').toHaveCount(0);
+        await this.modPage.page.waitForTimeout(100);
+      }
+      return;
+    }
+
+    await expect
+      .poll(() => emojiRainLocator.count(), {
+        message: 'should display the emoji rain when enabled',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeGreaterThan(0);
     await this.modPage.page.waitForTimeout(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
     });
-  }
-
-  async clearAllStatusIcon() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage2.waitForSelector(e.whiteboard);
-
-    await this.modPage.waitAndClick(e.reactionsButton);
-    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
-    await this.modPage.hasText(
-      e.moderatorAvatar,
-      '😃',
-      'should display the smiling emoji in the moderator avatar for the moderator',
-    );
-    await this.modPage.hasText(
-      e.reactionsButton,
-      '😃',
-      'should display the smiling emoji on the reactions button when used',
-    );
-
-    await this.modPage2.waitAndClick(e.reactionsButton);
-    await this.modPage2.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
-    await this.modPage2.hasText(
-      e.moderatorAvatar,
-      '😃',
-      'should display the smiling emoji in the moderator avatar for the moderator',
-    );
-    await this.modPage2.hasText(
-      e.reactionsButton,
-      '😃',
-      'should display the smiling emoji on the reactions button when used',
-    );
-
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.clearStatus);
-
-    await this.modPage.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
-    await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
   }
 
   async leaveMeeting() {

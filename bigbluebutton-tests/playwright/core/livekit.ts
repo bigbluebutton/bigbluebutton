@@ -1,4 +1,4 @@
-import type { Page as PlaywrightPage } from '@playwright/test';
+import type { Page as PlaywrightPage, WebSocketRoute } from '@playwright/test';
 
 // In BigBlueButton 4.0 LiveKit is the default media bridge; bbb-webrtc-sfu is the
 // legacy/secondary bridge. Tests therefore run with LiveKit unless MEDIA_BRIDGE
@@ -70,6 +70,9 @@ export interface LiveKitSignalRoute {
   // now; returns how many open sockets were held. Sockets opened afterwards (the
   // client's own reconnect) pass through untouched.
   hold: () => number;
+  // Closes every signal socket open now, as a lost network connection would; returns
+  // how many were open. The client resumes on a new socket, which passes through.
+  drop: () => number;
 }
 
 export const routeLiveKitSignal = async (page: PlaywrightPage): Promise<LiveKitSignalRoute> => {
@@ -77,12 +80,12 @@ export const routeLiveKitSignal = async (page: PlaywrightPage): Promise<LiveKitS
   // intercept and hold signaling messages. Must be installed before navigation.
   // E.g. use case.: Use the hold API in conjunction with dropLiveKitParticipant
   // to simulate a server-side participant drop.
-  const sockets: Array<{ held: boolean; closed: boolean }> = [];
+  const sockets: Array<{ ws: WebSocketRoute; server: WebSocketRoute; held: boolean; closed: boolean }> = [];
 
   await page.routeWebSocket(LIVEKIT_SIGNAL_URL, (ws) => {
-    const socket = { held: false, closed: false };
-    sockets.push(socket);
     const server = ws.connectToServer();
+    const socket = { ws, server, held: false, closed: false };
+    sockets.push(socket);
 
     ws.onMessage((message) => {
       try {
@@ -111,6 +114,17 @@ export const routeLiveKitSignal = async (page: PlaywrightPage): Promise<LiveKitS
       open.forEach((socket) => {
         // eslint-disable-next-line no-param-reassign
         socket.held = true;
+      });
+      return open.length;
+    },
+    drop: () => {
+      const open = sockets.filter((socket) => !socket.closed);
+      open.forEach((socket) => {
+        // eslint-disable-next-line no-param-reassign
+        socket.closed = true;
+        // the server side first, as ws.onClose forwards the 1001 and a browser cannot send it
+        socket.server.close();
+        socket.ws.close({ code: 1001, reason: 'connection dropped by the test' });
       });
       return open.length;
     },

@@ -1,7 +1,18 @@
 import { expect } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ClientSettingsOverrides, Page } from '../core/page';
+
+// the emoji picker is disabled by default (public.chat.emojiPicker.enable)
+export const EMOJI_PICKER_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    chat: {
+      emojiPicker: {
+        enable: true,
+      },
+    },
+  },
+};
 
 export async function openPublicChat(testPage: Page) {
   const { chatEnabled } = testPage.settings || {};

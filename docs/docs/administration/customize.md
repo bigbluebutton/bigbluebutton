@@ -1823,7 +1823,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends. For a breakout room's dashboard, the countdown starts when the parent meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
-| `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
+| `allowOverrideClientSettingsOnCreateCall` | Allow the `clientSettingsOverride` POST module on `/create`. Does not apply to the `clientSettingsOverrideJsonUrl` parameter, which is always accepted (see [`/create` docs](/development/api/#create)) | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
@@ -1895,7 +1895,7 @@ $ bbb-conf --secret
     Secret: 577fd5f05280c10fb475553d200f3322
 
     Link to the API-Mate:
-    https://mconf.github.io/api-mate/#server=https://10.0.3.132/bigbluebutton/&sharedSecret=577fd5f05280c10fb475553d200f3322
+    https://bigbluebutton.github.io/api-mate/#server=https://10.0.3.132/bigbluebutton/&sharedSecret=577fd5f05280c10fb475553d200f3322
 ```
 
 The last line gives a link API-Mate, an excellent tool provided by [Mconf Technologies](https://mconf.com/) (a company that has made many contributions to the BigBlueButton project over the years) that makes it easy to create API calls.

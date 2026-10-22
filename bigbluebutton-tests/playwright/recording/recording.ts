@@ -600,11 +600,29 @@ export class Recording extends MultiUsers {
     await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
       timeout: ELEMENT_WAIT_TIME,
     });
-    const progressBarPaused = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    const mediaLocator = this.playbackPage.page.locator(playbackElements.mediaElement);
+    const getPlaybackTime = () => mediaLocator.evaluate((el: HTMLMediaElement) => el.currentTime);
+    const getProgressBarWidth = () => progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    expect(
+      await mediaLocator.evaluate((el: HTMLMediaElement) => el.paused),
+      'media element should be paused',
+    ).toBeTruthy();
+    const playbackTimePaused = await getPlaybackTime();
+    // the progress bar is repainted a few frames after the pause, wait for it to settle
+    let progressBarPaused = await getProgressBarWidth();
+    await expect(async () => {
+      const previousWidth = progressBarPaused;
+      await this.playbackPage.page.waitForTimeout(250);
+      progressBarPaused = await getProgressBarWidth();
+      expect(progressBarPaused).toEqual(previousWidth);
+    }, 'progress bar should settle after pausing').toPass({ timeout: ELEMENT_WAIT_TIME });
     const screenshotBeforeWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     await this.playbackPage.page.waitForTimeout(2000);
-    expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
-      await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth),
+    expect(await getPlaybackTime(), 'playback time should not advance when playback is paused').toEqual(
+      playbackTimePaused,
+    );
+    expect(await getProgressBarWidth(), 'progress bar width should not change when playback is paused').toEqual(
+      progressBarPaused,
     );
     const screenshotAfterWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     expect(screenshotBeforeWait, 'should display the same frame when paused — screenshot should not change').toEqual(
@@ -628,9 +646,12 @@ export class Recording extends MultiUsers {
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
     await this.playbackPage.page.waitForTimeout(500);
     await this.playbackPage.waitAndClick(playbackElements.seekForwardButton);
-    await this.playbackPage.page.waitForTimeout(500); // wait for the seek action to be processed
-    const progressBarFull = await progressBarLocator.evaluate((el) => el.style.width);
-    await expect(progressBarFull, 'progress bar width should be 100% after seeking forward').toBe('100%');
+    await expect
+      .poll(() => progressBarLocator.evaluate((el: HTMLDivElement) => el.style.width), {
+        message: 'progress bar width should be 100% after seeking forward',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBe('100%');
     await expect(
       this.playbackPage.page,
       'second slide should be visible when seeking forward till the end',
@@ -640,9 +661,12 @@ export class Recording extends MultiUsers {
 
     // seek backward
     await this.playbackPage.waitAndClick(playbackElements.seekBackButton);
-    await this.playbackPage.page.waitForTimeout(500);
-    const progressBarBackward = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
-    expect(progressBarBackward, 'progress bar width should be 0 after seeking backward').toEqual(0);
+    await expect
+      .poll(() => progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth), {
+        message: 'progress bar width should be 0 after seeking backward',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toEqual(0);
     await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot(
       'seek-backward.png',
       {
@@ -688,21 +712,26 @@ export class Recording extends MultiUsers {
       })
       .toBeLessThan(1);
 
-    await button.hover();
-    await expect
-      .poll(() => indicatorLabelSpace(button), {
-        message: 'hovering the indicator should reveal its label',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
+    // The client opens the indicator on hover only under (hover: hover) and
+    // (pointer: fine); headless Firefox matches neither, so it is keyboard-only there.
+    const hoverCapable = await page.evaluate(() => window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    if (hoverCapable) {
+      await button.hover();
+      await expect
+        .poll(() => indicatorLabelSpace(button), {
+          message: 'hovering the indicator should reveal its label',
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
 
-    await page.mouse.move(0, 0);
-    await expect
-      .poll(() => indicatorLabelSpace(button), {
-        message: 'the indicator should collapse again once the pointer leaves',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBeLessThan(1);
+      await page.mouse.move(0, 0);
+      await expect
+        .poll(() => indicatorLabelSpace(button), {
+          message: 'the indicator should collapse again once the pointer leaves',
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .toBeLessThan(1);
+    }
 
     // Tab away and back, so the focus comes from the keyboard and matches
     // :focus-visible - a programmatic focus alone would not.

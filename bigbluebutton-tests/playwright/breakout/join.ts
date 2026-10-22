@@ -2,10 +2,23 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
 import { getBlockNoteEditorLocator } from '../sharednotes/blocknote/util';
 import { Create } from './create';
+
+// In a breakout, OK on the meeting-ended modal closes the tab. Firefox closes it
+// before the click returns and rejects the click, so a closed page is not an error.
+async function confirmRedirectClosesBreakout(breakoutUserPage: Page) {
+  const pageClosed = breakoutUserPage.page.waitForEvent('close');
+  try {
+    await breakoutUserPage.waitAndClick(e.redirectButton);
+  } catch (error) {
+    if (!breakoutUserPage.page.isClosed()) throw error;
+  }
+  await pageClosed;
+}
 
 export class Join extends Create {
   async joinRoom(shouldJoinAudio = false, shouldJoinVideo = false) {
@@ -103,7 +116,7 @@ export class Join extends Create {
 
     await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutUserPage.waitAndClick(e.returnToMainRoomButton);
-    await breakoutUserPage.waitAndClick(e.redirectButton);
+    await confirmRedirectClosesBreakout(breakoutUserPage);
 
     await this.userPage.hasElement(
       e.joinAudio,
@@ -140,7 +153,7 @@ export class Join extends Create {
 
     await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutUserPage.waitAndClick(e.returnToMainRoomButton);
-    await breakoutUserPage.waitAndClick(e.redirectButton);
+    await confirmRedirectClosesBreakout(breakoutUserPage);
 
     await this.userPage.hasElement(
       e.isTalking,
@@ -704,7 +717,7 @@ export class Join extends Create {
       e.meetingEndedModal,
       'should display the meeting ended modal after returning to main session',
     );
-    await breakoutUserPage.waitAndClick(e.redirectButton);
+    await confirmRedirectClosesBreakout(breakoutUserPage);
 
     await this.userPage.hasElement(
       e.joinAudio,

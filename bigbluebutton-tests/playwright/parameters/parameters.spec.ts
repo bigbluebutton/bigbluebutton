@@ -6,7 +6,7 @@ import { test } from '../core/setup/fixtures';
 import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
-import { DisabledFeatures } from './disabledFeatures';
+import { AUDIO_CAPTIONS_SETTINGS, DisabledFeatures, INFINITE_WHITEBOARD_SETTINGS } from './disabledFeatures';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
 
 const iPhone11 = devices['iPhone 11'];
@@ -116,6 +116,13 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.muteOnStart();
   });
 
+  // muteOnStart defaults to true, so the test above covers the default and this one the opt-out
+  test('Mute On Start disabled', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, { createParameter: c.muteOnStartDisabled, testInfo });
+    await createParam.muteOnStartDisabled();
+  });
+
   test('Allow Mods To Unmute Users', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.allowModsToUnmuteUsers, testInfo });
@@ -158,6 +165,13 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.allowModsToEjectCameras();
   });
 
+  test('Moderator cannot eject cameras by default', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, { testInfo });
+    await createParam.initUserPage(context, { testInfo });
+    await createParam.modsCannotEjectCamerasByDefault();
+  });
+
   test('Override default presentation on CREATE meeting API call', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, {
@@ -178,8 +192,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.camerasOnly();
     });
 
-    test('PRESENTATION_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
+    test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, {
         createParameter: c.presentationOnly,
@@ -197,8 +210,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.participantsAndChatOnly();
     });
 
-    test('MEDIA_ONLY', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
+    test('MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.mediaOnly, testInfo });
       await createParam.initUserPage(context, { testInfo });
@@ -206,9 +218,8 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Enforce Layout', { tag: '@flaky' }, () => {
+  test.describe.parallel('Enforce Layout', () => {
     test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceCamerasOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
@@ -216,7 +227,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceParticipantsAndChatOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
@@ -224,7 +234,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         joinParameter: c.enforcePresentationOnly,
@@ -236,7 +245,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('MEDIA_ONLY', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceMediaOnly, testInfo });
       await customParam.initUserPage(context, { testInfo });
@@ -264,6 +272,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, {
           shouldCloseAudioModal: false,
           createParameter: c.speechRecognitionDisabled,
+          clientSettingsOverrides: AUDIO_CAPTIONS_SETTINGS,
           testInfo,
         });
         await disabledFeatures.speechRecognition();
@@ -273,6 +282,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, {
           shouldCloseAudioModal: false,
           createParameter: c.speechRecognitionExclude,
+          clientSettingsOverrides: AUDIO_CAPTIONS_SETTINGS,
           testInfo,
         });
         await disabledFeatures.speechRecognitionExclude();
@@ -489,12 +499,20 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     test.describe.serial(() => {
       test('Infinite Whiteboard', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboard, testInfo });
+        await disabledFeatures.initModPage(page, {
+          createParameter: c.infiniteWhiteboard,
+          clientSettingsOverrides: INFINITE_WHITEBOARD_SETTINGS,
+          testInfo,
+        });
         await disabledFeatures.infiniteWhiteboard();
       });
       test('Infinite Whiteboard (exclude)', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboardExclude, testInfo });
+        await disabledFeatures.initModPage(page, {
+          createParameter: c.infiniteWhiteboardExclude,
+          clientSettingsOverrides: INFINITE_WHITEBOARD_SETTINGS,
+          testInfo,
+        });
         await disabledFeatures.infiniteWhiteboardExclude();
       });
     });
