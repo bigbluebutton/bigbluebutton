@@ -21,6 +21,8 @@ It runs on the BBB host itself, because it reads the converted files from `/var/
 | measure | the fixture expects `measure`: behaviour is recorded, not asserted | no |
 | regression | anything else that fails | yes |
 
+A fixture on which the harness itself failed (an exception while uploading, waiting or collecting) gets the outcome `error`, which matches no expectation, so it is reported as a regression that names the error, and the other fixtures still report. A test that fails outside the check runner, for example a crash or a Playwright timeout, makes the summary say ERROR and exit 2 instead of passing silently.
+
 ## Running
 
 On a BBB server, as a user with passwordless sudo (needed to switch profiles, stage URL documents and read Postgres):
@@ -36,6 +38,8 @@ PC_FIXTURES=repo-blur-image,pdf-exif-1-to-8 bin/run-pass.sh defaults   # a few f
 `BBB_URL` and `BBB_SECRET` are read from bbb-web's configuration when they are not set. Profile switches restart bbb-web, so `bin/apply-profile.sh` refuses to do it while meetings the suite did not create are running; set `PC_ALLOW_RESTART=1` to override.
 
 A single `bin/run-pass.sh <profile>` leaves that profile active until `bin/restore-profile.sh` runs, and since the profile block is always rebuilt from the live `bbb-web.properties`, edits made to that file outside the suite are kept.
+
+The documents of one meeting share a time budget, the sum of their individual budgets and at most 30 minutes, because bbb-web converts them with a shared pool and a small file can wait behind a large deck. Meetings created by the suite carry `meta_pcsuite=1`; that is how `bin/apply-profile.sh` tells them from other people's meetings before a restart. Runtime fixtures are generated once into `work/runtime/` and reused; the `work/<run>/` directories of past runs are kept for inspection, delete them when space matters. `PC_TIERS=private` adds the private tier, which is not wired in phase 1 (see `fixtures/private/README.md`).
 
 From a workstation, `bin/remote.sh user@host <command>` syncs the suite, plus the repository files its fixtures reference, to the server. It runs the command there and pulls back `results/`, `playwright-report/` and `goldens/`:
 
@@ -55,7 +59,7 @@ bin/bless.sh defaults pdf-exif-1-to-8               # only some fixtures
 bin/bless.sh defaults --from-reference repo-x       # take the poppler render instead, when the current output is wrong
 ```
 
-Review the HTML report before committing `goldens/`. In CI, the `bless` input of a manual run of the "Automated tests" workflow uploads proposed goldens as an artifact. Poppler, cairo, LibreOffice and font updates on the server can change rendering, so the summary prints the tool versions of every run.
+A bless run never replaces the golden of a check listed in `known-failures.yaml` with the server's output: the pixel and thumbnail goldens are taken from the poppler reference when it exists, the text golden is left alone, and the report says so in a `bless` annotation. Review the HTML report before committing `goldens/`. In CI, the `bless` input of a manual run of the "Automated tests" workflow uploads proposed goldens as an artifact. Poppler, cairo, LibreOffice and font updates on the server can change rendering, so the summary prints the tool versions of every run.
 
 ## Adding a fixture
 
