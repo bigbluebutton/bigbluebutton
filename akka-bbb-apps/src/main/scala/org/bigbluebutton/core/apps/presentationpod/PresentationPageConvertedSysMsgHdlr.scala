@@ -56,7 +56,8 @@ trait PresentationPageConvertedSysMsgHdlr {
       num = msg.body.page.num,
       urls = msg.body.page.urls,
       content = msg.body.page.content,
-      speakerNotes = msg.body.page.speakerNotes,
+      // Jackson leaves the field null when an older bbb-web omits it
+      speakerNotes = Option(msg.body.page.speakerNotes).getOrElse(""),
       current = msg.body.page.current,
       width = msg.body.page.width,
       height = msg.body.page.height,
