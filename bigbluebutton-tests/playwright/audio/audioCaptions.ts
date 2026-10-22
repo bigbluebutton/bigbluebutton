@@ -74,6 +74,7 @@ export async function shimSpeechRecognition(
           available: async ({ langs }: { langs: string[] }) => languages[langs[0]] ?? 'unavailable',
           install: async ({ langs }: { langs: string[] }) => {
             record.installs.push(langs[0]);
+            Object.assign(languages, { [langs[0]]: 'available' });
             return true;
           },
         });

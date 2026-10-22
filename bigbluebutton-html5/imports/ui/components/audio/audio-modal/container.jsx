@@ -23,6 +23,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import { getStoredAudioInputDeviceId } from '/imports/api/audio/client/bridge/service';
+import { useOnDeviceLanguageBlocksAudio } from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -35,6 +36,7 @@ const AudioModalContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
     isModerator: user.isModerator,
+    speechLocale: user.speechLocale,
   }));
   const usingLiveKit = meeting?.audioBridge === 'livekit';
   const getEchoTest = useStorageKey('getEchoTest', 'session');
@@ -132,6 +134,10 @@ const AudioModalContainer = (props) => {
     closeModal(callback);
   }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
+  const transcriptionNotReady = useOnDeviceLanguageBlocksAudio(
+    currentUserData?.speechLocale ?? '',
+    isTranscriptionEnabled,
+  );
 
   if (!currentUserData) return null;
 
@@ -191,6 +197,7 @@ const AudioModalContainer = (props) => {
       hasMicrophonePermission={Service.hasMicrophonePermission}
       permissionStatus={permissionStatus}
       isTranscriptionEnabled={isTranscriptionEnabled}
+      transcriptionNotReady={transcriptionNotReady}
       {...props}
     />
   );

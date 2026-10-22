@@ -1686,7 +1686,9 @@ public:
 
 With it, the browser transcribes on the user's device and never falls back to a speech recognition service:
 
-- The first time a user transcribes in a language, the browser downloads its language pack (about 300 MB with the speech engine in Chrome) before captions start.
+- A language must be downloaded to the device before it can be transcribed. Under the transcription language, the audio settings and the transcription panel show whether it is on the device and, if not, a button to download it. The download is about 300 MB the first time in Chrome (speech engine plus language pack), then once per language, and it only starts when the user clicks the button.
+- Joining audio with a transcription language waits until its data is downloaded: the join button stays disabled until then, unless the user picks "Disabled" to join without transcription.
+- If audio is joined some other way (for example with `userdata-bbb_skip_check_audio`) without the data on the device, transcription stays off and the user is told to download it in the transcription settings. It starts by itself once the download finishes.
 - Only the languages in `language.available` that the browser can transcribe on the device are offered.
 - Browsers without on-device speech recognition show live captions as unsupported. Chrome has it from version 139, on desktop.
 

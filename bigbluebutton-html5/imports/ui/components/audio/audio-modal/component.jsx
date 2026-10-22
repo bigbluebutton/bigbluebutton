@@ -90,6 +90,7 @@ const propTypes = {
   supportsTransparentListenOnly: PropTypes.bool.isRequired,
   getAudioConstraints: PropTypes.func.isRequired,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  transcriptionNotReady: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -217,6 +218,7 @@ const AudioModal = ({
   unmuteOnExit = false,
   permissionStatus = null,
   isTranscriptionEnabled,
+  transcriptionNotReady,
   updateInputDevices,
   updateOutputDevices,
 }) => {
@@ -457,7 +459,8 @@ const AudioModal = ({
                 icon="unmute"
                 circle
                 size="jumbo"
-                disabled={audioLocked}
+                // Joining right away with a transcription language waits for its on-device data
+                disabled={audioLocked || (joinFullAudioImmediately && transcriptionNotReady)}
                 onClick={
                   joinFullAudioImmediately
                     ? handleJoinMicrophone
@@ -554,6 +557,7 @@ const AudioModal = ({
         toggleVoice={voiceToggle}
         permissionStatus={permissionStatus}
         isTranscriptionEnabled={isTranscriptionEnabled}
+        transcriptionNotReady={transcriptionNotReady}
         skipAudioOptions={skipAudioOptions}
         updateInputDevices={updateInputDevices}
         updateOutputDevices={updateOutputDevices}

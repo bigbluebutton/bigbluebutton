@@ -46,6 +46,7 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  transcriptionNotReady: PropTypes.bool,
   skipAudioOptions: PropTypes.func.isRequired,
 };
 
@@ -55,6 +56,7 @@ const defaultProps = {
   withEcho: false,
   unmuteOnExit: false,
   permissionStatus: null,
+  transcriptionNotReady: false,
 };
 
 const intlMessages = defineMessages({
@@ -194,6 +196,7 @@ class AudioSettings extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const {
       permissionStatus, isConnecting, isConnected, skipAudioOptions, handleBack,
+      transcriptionNotReady,
     } = this.props;
     const { producingStreams } = this.state;
 
@@ -205,7 +208,8 @@ class AudioSettings extends React.Component {
       || prevProps.isConnected !== isConnected
       || prevState.producingStreams !== producingStreams
       || prevProps.skipAudioOptions !== skipAudioOptions
-      || prevProps.handleBack !== handleBack;
+      || prevProps.handleBack !== handleBack
+      || prevProps.transcriptionNotReady !== transcriptionNotReady;
 
     if (footerChanged) {
       this._registerFooter();
@@ -439,10 +443,11 @@ class AudioSettings extends React.Component {
   _registerFooter() {
     const { setFooterContent } = this.context;
     const {
-      intl, isConnected, isConnecting, skipAudioOptions, handleBack,
+      intl, isConnected, isConnecting, skipAudioOptions, handleBack, transcriptionNotReady,
     } = this.props;
     const { producingStreams } = this.state;
 
+    // Joining with a transcription language waits for its on-device language data
     setFooterContent(
       <Styled.SettingsFooter>
         <Styled.SettingsBackButton
@@ -461,7 +466,7 @@ class AudioSettings extends React.Component {
             ? intl.formatMessage(intlMessages.confirmLabel)
             : intl.formatMessage(intlMessages.retryLabel)}
           onClick={this.handleConfirmationClick}
-          disabled={isConnecting || producingStreams}
+          disabled={isConnecting || producingStreams || transcriptionNotReady}
         />
       </Styled.SettingsFooter>,
     );
@@ -571,7 +576,7 @@ class AudioSettings extends React.Component {
       <Styled.FormElement>
         <Styled.LabelSmall htmlFor="audioSettingsCaptionsSelector">
           {intl.formatMessage(intlMessages.captionsSelectorLabel)}
-          <AudioCaptionsSelectContainer showTitleLabel={false} />
+          <AudioCaptionsSelectContainer showTitleLabel={false} showJoinHint />
         </Styled.LabelSmall>
       </Styled.FormElement>
     );

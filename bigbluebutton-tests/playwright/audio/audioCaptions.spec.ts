@@ -114,7 +114,7 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     );
   });
 
-  test('installs the language pack and starts the recognition on the device', async ({
+  test('waits for the language data download before joining audio with transcription', async ({
     browser,
     browserName,
     context,
@@ -129,11 +129,32 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
       shouldCloseAudioModal: false,
       clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
     });
+    const { modPage } = audioCaptions;
 
-    await audioCaptions.modPage.joinMicrophone();
+    await audioCaptions.openAudioSettings();
+    await modPage.hasElement(e.onDeviceLanguageDownloadable, 'should tell that the language data must be downloaded');
+    await modPage.hasElementDisabled(
+      e.joinEchoTestButton,
+      'should not join audio with transcription before the language data is downloaded',
+    );
+    await modPage.page.selectOption(e.speechRecognition, '');
+    await modPage.hasElementEnabled(e.joinEchoTestButton, 'should join audio right away with transcription disabled');
+    await modPage.page.selectOption(e.speechRecognition, 'en-US');
+    await modPage.hasElementDisabled(e.joinEchoTestButton, 'should wait for the download again with a language');
+    expect(
+      (await audioCaptions.getSpeechRecognitionShimRecord()).installs,
+      'should not download anything before the user asks to',
+    ).toEqual([]);
+
+    await modPage.waitAndClick(e.onDeviceLanguageDownload);
+    await modPage.hasElement(e.onDeviceLanguageAvailable, 'should tell that the language is transcribed on the device');
+    await modPage.hasElementEnabled(e.joinEchoTestButton, 'should join audio once the language data is downloaded');
+    await modPage.waitAndClick(e.joinEchoTestButton);
+    await modPage.hasElement(e.unmuteMicButton, 'should display the unmute mic button after joining microphone');
+    await modPage.waitAndClick(e.unmuteMicButton);
     await expect
       .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
-        message: 'should install the en-US language pack, then start an on-device recognition for en-US',
+        message: 'should start an on-device recognition for en-US after the en-US download',
       })
       .toMatchObject({ installs: ['en-US'], starts: [{ lang: 'en-US', processLocally: true }] });
   });

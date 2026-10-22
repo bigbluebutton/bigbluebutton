@@ -105,10 +105,12 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       # Only for the webspeech provider. If true, the browser must transcribe on the user's
-      # device (SpeechRecognition.processLocally), downloading the language pack the first
-      # time, and never sends the audio to a speech recognition service. Only the languages
-      # the browser can transcribe locally are offered; browsers without on-device speech
-      # recognition (Chrome 139+ on desktop has it) show transcription as unsupported.
+      # device (SpeechRecognition.processLocally) and never sends the audio to a speech
+      # recognition service. The user downloads each language's data (a few hundred MB) from
+      # the transcription settings, and joining audio with a transcription language waits
+      # for it. Only the languages the browser can transcribe locally are offered; browsers
+      # without on-device speech recognition (Chrome 139+ on desktop has it) show
+      # transcription as unsupported.
       # If false, the browser decides where to transcribe: Chrome uses Google's servers
       # unless the language pack happens to be installed.
       processLocally: false

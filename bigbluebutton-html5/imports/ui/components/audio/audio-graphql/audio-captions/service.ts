@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { unique } from 'radash';
 import { setAudioCaptionEnable } from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
@@ -7,8 +6,8 @@ import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   hasSpeechRecognitionSupport,
-  isOnDeviceLanguageSupported,
   isProcessLocally,
+  useOnDeviceLanguages,
 } from './speech/service';
 
 export const captionLimit = () => {
@@ -88,19 +87,8 @@ export const getSpeechVoices = () => {
 // the browser can transcribe on the device. undefined while that is being checked.
 export const useSpeechVoices = (): string[] | null | undefined => {
   const onDevice = isWebSpeechApi() && isProcessLocally() && hasSpeechRecognitionSupport();
-  const [onDeviceVoices, setOnDeviceVoices] = useState<string[]>();
-
-  useEffect(() => {
-    if (!onDevice) return () => {};
-
-    let active = true;
-    const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
-    Promise.all(LANGUAGES.map(isOnDeviceLanguageSupported)).then((supported) => {
-      if (active) setOnDeviceVoices(LANGUAGES.filter((_, index) => supported[index]));
-    });
-
-    return () => { active = false; };
-  }, [onDevice]);
+  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+  const onDeviceVoices = useOnDeviceLanguages(LANGUAGES, onDevice);
 
   if (onDevice) return onDeviceVoices;
   return getSpeechVoices();

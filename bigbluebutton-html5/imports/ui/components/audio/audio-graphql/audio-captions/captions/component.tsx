@@ -15,6 +15,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
+import AudioCaptionsOnDeviceNotice from '../on-device-notice/component';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
 const messages: { [key: string]: { id: string; description?: string } } = {
@@ -52,6 +53,8 @@ const DEFAULT_LOCALE_APPLIED_KEY = 'audioCaptionsDefaultLocaleApplied';
 
 interface AudioCaptionsContainerProps {
   showTitleLabel?: boolean;
+  // In the audio modal, where joining waits for the on-device language data
+  showJoinHint?: boolean;
 }
 
 interface AudioCaptionsSelectProps {
@@ -152,6 +155,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
 const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   showTitleLabel = true,
+  showJoinHint = false,
 }) => {
   const [voicesList, setVoicesList] = React.useState<string[]>([]);
   const voices = useSpeechVoices();
@@ -195,12 +199,15 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   if (!currentUser || !isEnabled || voices === undefined) return null;
 
   return (
-    <AudioCaptionsSelect
-      isTranscriptionEnabled={isEnabled}
-      speechLocale={currentUser.speechLocale ?? ''}
-      speechVoices={voices || voicesList}
-      showTitleLabel={showTitleLabel}
-    />
+    <>
+      <AudioCaptionsSelect
+        isTranscriptionEnabled={isEnabled}
+        speechLocale={currentUser.speechLocale ?? ''}
+        speechVoices={voices || voicesList}
+        showTitleLabel={showTitleLabel}
+      />
+      <AudioCaptionsOnDeviceNotice locale={speechLocale} showJoinHint={showJoinHint} />
+    </>
   );
 };
 

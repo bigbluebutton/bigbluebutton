@@ -19,7 +19,8 @@ import {
   isProcessLocally,
   localeAsDefaultSelected,
   mostSimilarLanguage,
-  prepareOnDeviceLanguage,
+  getOnDeviceLanguageStatus,
+  useOnDeviceLanguageStatus,
   setSpeechVoices,
   useFixedLocale,
 } from './service';
@@ -45,6 +46,10 @@ const intlMessages = defineMessages({
   microphoneAlertHelpLabel: {
     id: 'app.audio.captions.speech.microphoneAlert.helpLabel',
     description: 'Label for the knowledge base link in the microphone alert toast',
+  },
+  onDeviceNotReady: {
+    id: 'app.audio.captions.speech.onDevice.notReady',
+    description: 'Toast when transcription is on but its on-device language data is not downloaded',
   },
 });
 
@@ -115,7 +120,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const harkInstanceRef = useRef<any>(null);
   const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onDeviceReadyRef = useRef(new Set<string>());
+  const onDeviceNotifiedRef = useRef(new Set<string>());
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
   const fixedLocaleResult = useFixedLocale();
@@ -336,23 +341,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
         return;
       }
 
-      if (isProcessLocally() && !onDeviceReadyRef.current.has(settedLocale)) {
-        prepareOnDeviceLanguage(settedLocale).then((ready) => {
-          if (!ready) {
-            logger.error({
-              logCode: 'captions_speech_recognition_language_pack_unavailable',
-              extraInfo: { locale: settedLocale },
-            }, 'Captions speech recognition has no on-device language pack for the locale');
-            return;
-          }
-          onDeviceReadyRef.current.add(settedLocale);
-          // The state may have changed while the language pack was downloading
-          if (connectedRef.current && !mutedRef.current && localeRef.current === settedLocale) {
-            start(settedLocale);
-          }
-        });
-        return;
-      }
+      // Never downloads the language pack by itself: an effect below starts once it is there
+      if (isProcessLocally() && getOnDeviceLanguageStatus(settedLocale) !== 'available') return;
 
       lastStartedAt.current = new Date().getTime();
       const track = getInputTrack(inputStreamRef.current);
@@ -483,6 +473,27 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [connected, muted, locale]);
 
+  const onDeviceStatus = useOnDeviceLanguageStatus(isProcessLocally() ? locale : '');
+
+  // With processLocally, starts when the language pack becomes available (e.g. downloaded
+  // from the transcription settings during the meeting), and tells the user when it is not
+  useEffect(() => {
+    if (!isProcessLocally() || !speechRecognitionRef.current || locale === '') return;
+    if (!connected || muted) return;
+
+    if (onDeviceStatus === 'available') {
+      start(locale);
+    } else if (onDeviceStatus && onDeviceStatus !== 'checking' && onDeviceStatus !== 'downloading'
+      && !onDeviceNotifiedRef.current.has(locale)) {
+      onDeviceNotifiedRef.current.add(locale);
+      logger.warn({
+        logCode: 'captions_speech_recognition_language_pack_missing',
+        extraInfo: { locale, status: onDeviceStatus },
+      }, 'Captions speech recognition is off: no on-device language pack for the locale');
+      notify(intl.formatMessage(intlMessages.onDeviceNotReady), 'warning', 'warning');
+    }
+  }, [onDeviceStatus, connected, muted, locale]);
+
   useEffect(() => {
     const MICROPHONE_ALERT_CONFIG = window.meetingClientSettings.public.app.audioCaptions.microphoneAlert;
     const {
@@ -519,8 +530,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       speakingTimerRef.current = setTimeout(() => {
         if (alertShownRef.current) return;
         if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
-        // Nothing is transcribed while the language pack downloads
-        if (isProcessLocally() && !onDeviceReadyRef.current.has(localeRef.current)) return;
+        // Not transcribing at all without the on-device language pack
+        if (isProcessLocally() && getOnDeviceLanguageStatus(localeRef.current) !== 'available') return;
 
         alertShownRef.current = true;
         const message = intl.formatMessage(intlMessages.microphoneAlertMessage);
