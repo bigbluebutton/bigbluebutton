@@ -413,6 +413,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.muteAllUsersExceptPresenter();
     });
 
+    test('Clear all status icon', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo });
+      await multiusers.initModPage2(context, { testInfo });
+      await multiusers.clearAllStatusIcon();
+    });
+
     test('End meeting', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });

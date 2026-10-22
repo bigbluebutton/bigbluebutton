@@ -621,6 +621,7 @@ export const elements = {
   // direct crowd-action button in the participants panel (replaced the
   // 3.0 gear dropdown's "mute all except presenter" item)
   muteAllUsers: 'button[data-test="muteAllUsers"]',
+  clearAllReactions: 'button[data-test="clearAllReactions"]',
 
   // Lock Viewers
   lockViewersButton: 'button[data-test="lockViewersButton"]',
