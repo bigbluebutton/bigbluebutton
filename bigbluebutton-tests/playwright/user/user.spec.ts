@@ -396,7 +396,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     test('Save user names', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo, fullName: '王小明' });
-      await multiusers.initUserPage(context, { testInfo, fullName: 'Zoë Müller' });
+      await multiusers.initUserPage(context, { testInfo, fullName: 'Zoë  Müller' });
       await multiusers.saveUserNames();
     });
 
