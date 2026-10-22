@@ -1,0 +1,471 @@
+# BigBlueButton on one server; see "Running with docker compose" in docker/README.md.
+# Configuration is mounted at the bare-metal paths: files that need values from .env are inline
+# below (configs), the others are in docker/compose/.
+name: bigbluebutton
+
+x-bbb: &bbb
+  restart: unless-stopped
+
+x-recording: &recording
+  <<: *bbb
+  profiles:
+    - recording
+  image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-record-and-playback:${BBB_IMAGE_TAG:?}
+  configs:
+    - source: bbb-web.properties
+      target: /etc/bigbluebutton/bbb-web.properties
+    - source: recording.yml
+      target: /etc/bigbluebutton/recording/recording.yml
+  volumes:
+    - ./data/bigbluebutton:/var/bigbluebutton:z
+    - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
+    - recording-logs:/var/log/bigbluebutton
+  depends_on: &redis-init
+    redis:
+      condition: service_healthy
+    init:
+      condition: service_completed_successfully
+
+services:
+  # TLS on 443 for HTTP and TURN
+  haproxy:
+    <<: *bbb
+    image: docker.io/library/haproxy:2.8.31-alpine@sha256:4ab80f6d7c64bda25a906840c181e1518a34f856df9f714582a6a4cabb3d38b2
+    # the master socket lets certbot reload haproxy
+    command:
+      - -f
+      - /usr/local/etc/haproxy/haproxy.cfg
+      - -S
+      - /var/lib/haproxy/master.sock
+    # haproxy runs as its own user, so it listens on an unprivileged port
+    ports:
+      - "443:8443"
+    volumes:
+      - ./docker/compose/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./data/letsencrypt:/etc/letsencrypt:ro,z
+      - haproxy-run:/var/lib/haproxy
+    depends_on:
+      certbot:
+        condition: service_healthy
+
+  # The certificate for haproxy: your own in ./data/certs, or else from Let's Encrypt
+  certbot:
+    <<: *bbb
+    image: docker.io/certbot/certbot:v5.8.0@sha256:f70ad0adbb7e117f0fe42a63c553f28ea451edabc0148757b6efcd9735acaa20
+    entrypoint:
+      - sh
+      - /usr/local/bin/bbb-certbot
+    init: true
+    environment:
+      BBB_DOMAIN: "${BBB_DOMAIN:?}"
+      ACME_EMAIL: "${ACME_EMAIL:-}"
+    volumes:
+      - ./docker/compose/certbot.sh:/usr/local/bin/bbb-certbot:ro
+      - ./data/certs:/certs:ro,z
+      - ./data/letsencrypt:/etc/letsencrypt:z
+      - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge
+      - haproxy-run:/var/lib/haproxy
+    healthcheck:
+      test:
+        - CMD
+        - test
+        - -s
+        - /etc/letsencrypt/certbundle.pem
+      interval: 5s
+    depends_on:
+      nginx:
+        condition: service_healthy
+
+  nginx:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-nginx:${BBB_IMAGE_TAG}
+    ports:
+      - "80:8080"
+    volumes:
+      - ./docker/compose/nginx/bigbluebutton:/etc/nginx/sites-available/bigbluebutton:ro
+      - ./docker/compose/nginx/playback.nginx:/usr/share/bigbluebutton/nginx/playback.nginx:ro
+      - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
+      - ./data/bigbluebutton:/var/bigbluebutton:ro,z
+    # nginx resolves the names of these upstreams when it starts
+    depends_on:
+      - web
+      - graphql-middleware
+      - graphql-server
+      - livekit
+      - webrtc-sfu
+      - shared-notes-server
+      - html5-client
+      - learning-dashboard
+
+  coturn:
+    <<: *bbb
+    image: docker.io/coturn/coturn:4.16.0@sha256:01fc8655e7c262fa4ccfb8dca74ff80fb372b0ee021e80370a4d3e3dd01a951e
+    # replaces the image's default arguments, which detect and announce the public IP
+    command:
+      - -c
+      - /etc/turnserver.conf
+    configs:
+      - source: turnserver.conf
+        target: /etc/turnserver.conf
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+
+  livekit:
+    <<: *bbb
+    image: docker.io/livekit/livekit-server:v1.13.11@sha256:25cd902de7cacbd5f1f779f6a6ac1eae20ba8f56b0935934ce6b0ab80d1e3d20
+    command:
+      - --config
+      - /etc/livekit.yaml
+    configs:
+      - source: livekit.yaml
+        target: /etc/livekit.yaml
+    ports:
+      - "7882:7882/udp"
+    networks:
+      # coturn relays only to this address (turnserver.conf below)
+      default:
+        ipv4_address: 172.30.82.20
+
+  redis:
+    <<: *bbb
+    image: docker.io/library/redis:7.4.11-alpine@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 10s
+
+  postgres:
+    <<: *bbb
+    image: &postgres docker.io/library/postgres:16.15-trixie@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?}"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -U
+        - postgres
+      interval: 10s
+
+  # Creates the data directories and the databases, and recreates the databases when the schemas
+  # in the images change
+  init:
+    image: *postgres
+    command:
+      - sh
+      - /init.sh
+    # the postgres image declares a volume here; init does not need it
+    tmpfs:
+      - /var/lib/postgresql/data
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BBB_CORE_PASSWORD: ${POSTGRES_BBB_CORE_PASSWORD:?}
+      BBB_HASURA_PASSWORD: ${POSTGRES_BBB_HASURA_PASSWORD:?}
+      HASURA_APP_PASSWORD: ${POSTGRES_HASURA_APP_PASSWORD:?}
+      BLOCKNOTE_PASSWORD: ${POSTGRES_BLOCKNOTE_PASSWORD:?}
+    volumes:
+      - ./docker/compose/init.sh:/init.sh:ro
+      - ./data/bigbluebutton:/var/bigbluebutton:z
+      - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
+      - recording-logs:/var/log/bigbluebutton
+      - type: image
+        source: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}
+        target: /schema/graphql
+        image:
+          subpath: usr/share/bbb-graphql-server
+      - type: image
+        source: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+        target: /schema/notes
+        image:
+          subpath: usr/share/bbb-shared-notes-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  apps-akka:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-apps-akka:${BBB_IMAGE_TAG}
+    environment:
+      SHARED_SECRET: ${BBB_SHARED_SECRET:?}
+      BBB_WEB_API: http://web:8090/bigbluebutton/api
+      GRAPHQL_MIDDLEWARE_API: http://graphql-middleware:8378
+      REDIS_HOST: redis
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_BBB_CORE_PASSWORD}
+    depends_on:
+      redis:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  web:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG}
+    # keys of bigbluebutton.properties, upper case with "." as "_"
+    environment:
+      BIGBLUEBUTTON_WEB_SERVERURL: https://${BBB_DOMAIN}
+      SECURITYSALT: ${BBB_SHARED_SECRET}
+      REDISHOST: redis
+    configs:
+      - source: turn-stun-servers.xml
+        target: /etc/bigbluebutton/turn-stun-servers.xml
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton:z
+    # the default slides are fetched from https://<domain>, through the host to haproxy
+    extra_hosts:
+      - "${BBB_DOMAIN}:host-gateway"
+    depends_on: *redis-init
+
+  graphql-server:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-server:${BBB_IMAGE_TAG}
+    environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET:?}
+      HASURA_GRAPHQL_DATABASE_URL: postgres://hasura_app:${POSTGRES_HASURA_APP_PASSWORD}@postgres:5432/hasura_app
+      HASURA_GRAPHQL_BBB_DATABASE_URL: postgres://bbb_hasura:${POSTGRES_BBB_HASURA_PASSWORD}@postgres:5432/bbb_graphql
+      HASURA_GRAPHQL_AUTH_HOOK: http://apps-akka:8901/userInfo
+      HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL: http://graphql-actions:8093
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  graphql-actions:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-actions:${BBB_IMAGE_TAG}
+    environment:
+      BBB_REDIS_HOST: redis
+
+  graphql-middleware:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-graphql-middleware:${BBB_IMAGE_TAG}
+    volumes:
+      - ./docker/compose/bbb-graphql-middleware.yml:/etc/bigbluebutton/bbb-graphql-middleware.yml:ro
+
+  shared-notes-server:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-shared-notes-server:${BBB_IMAGE_TAG}
+    configs:
+      - source: bbb-shared-notes-server.yml
+        target: /etc/bigbluebutton/bbb-shared-notes-server.yml
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  export-annotations:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
+    volumes:
+      - ./docker/compose/bbb-export-annotations.json:/etc/bigbluebutton/bbb-export-annotations.json:ro
+      - ./data/bigbluebutton:/var/bigbluebutton:z
+    depends_on: *redis-init
+
+  webrtc-sfu:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-sfu:${BBB_IMAGE_TAG}
+    environment:
+      REDIS_HOST: redis
+      LIVEKIT_HOST: http://livekit:7880
+      LIVEKIT_KEY: ${LIVEKIT_API_KEY:?}
+      LIVEKIT_SECRET: ${LIVEKIT_API_SECRET:?}
+
+  html5-client:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-html5-client:${BBB_IMAGE_TAG}
+
+  learning-dashboard:
+    <<: *bbb
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-learning-dashboard:${BBB_IMAGE_TAG}
+
+  # Profile "recording": the recorder, the processing as the systemd units of bbb-record-core
+  # run it, and the player
+  webrtc-recorder:
+    <<: *bbb
+    profiles:
+      - recording
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webrtc-recorder:${BBB_IMAGE_TAG}
+    environment:
+      BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS: redis:6379
+      BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK: tcp
+      BBBRECORDER_LIVEKIT_HOST: ws://livekit:7880
+      BBBRECORDER_LIVEKIT_APIKEY: ${LIVEKIT_API_KEY}
+      BBBRECORDER_LIVEKIT_APISECRET: ${LIVEKIT_API_SECRET}
+    volumes:
+      - ./data/recordings:/var/lib/bbb-webrtc-recorder:z
+    depends_on: *redis-init
+
+  recording-workers: *recording # the image's default command: the resque workers
+
+  recording-starter:
+    <<: *recording
+    command:
+      - /usr/local/bigbluebutton/core/scripts/rap-starter.rb
+
+  recording-caption-inbox:
+    <<: *recording
+    command:
+      - /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
+
+  # /etc/cron.daily/bigbluebutton, at start and then once a day
+  recording-cleanup:
+    <<: *recording
+    command:
+      - bash
+      - -c
+      - "while :; do /etc/cron.daily/bigbluebutton; sleep 1d; done"
+    init: true
+
+  playback:
+    <<: *bbb
+    profiles:
+      - recording
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-playback:${BBB_IMAGE_TAG}
+
+  # Profile "webhooks"
+  webhooks:
+    <<: *bbb
+    profiles:
+      - webhooks
+    image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-webhooks:${BBB_IMAGE_TAG}
+    environment:
+      SERVER_DOMAIN: ${BBB_DOMAIN}
+      SHARED_SECRET: ${BBB_SHARED_SECRET}
+      REDIS_HOST: redis
+
+networks:
+  default:
+    ipam:
+      # fixed addresses (LiveKit) are below .128, Docker assigns the others from ip_range
+      config:
+        - subnet: 172.30.82.0/24
+          ip_range: 172.30.82.128/25
+
+volumes:
+  recording-logs:
+  postgres:
+  acme-challenge:
+  haproxy-run:
+
+configs:
+  # for the recording callbacks, which read the secret from this file
+  bbb-web.properties:
+    content: |
+      securitySalt=${BBB_SHARED_SECRET}
+
+  turn-stun-servers.xml:
+    content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!-- The TURN servers bbb-install configures: coturn on 3478 and through haproxy on 443 -->
+      <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+        <bean id="turn0" class="org.bigbluebutton.web.services.turn.TurnServer">
+          <constructor-arg index="0" value="${TURN_SECRET:?}"/>
+          <constructor-arg index="1" value="turn:${BBB_DOMAIN}:3478"/>
+          <constructor-arg index="2" value="86400"/>
+        </bean>
+        <bean id="turn1" class="org.bigbluebutton.web.services.turn.TurnServer">
+          <constructor-arg index="0" value="${TURN_SECRET}"/>
+          <constructor-arg index="1" value="turns:${BBB_DOMAIN}:443?transport=tcp"/>
+          <constructor-arg index="2" value="86400"/>
+        </bean>
+        <bean id="stunTurnService" class="org.bigbluebutton.web.services.turn.StunTurnService">
+          <property name="stunServers"><set/></property>
+          <property name="turnServers"><set><ref bean="turn0"/><ref bean="turn1"/></set></property>
+        </bean>
+      </beans>
+
+  # The package's livekit.yaml merged with /etc/bigbluebutton/livekit.yaml, with the services by
+  # name, one UDP port for all media and LiveKit's bbb-network address for coturn and the recorder
+  livekit.yaml:
+    content: |
+      port: 7880
+      log_level: info
+      rtc:
+        port_range_start: 0
+        port_range_end: 0
+        udp_port: 7882
+        tcp_port: 0
+        allow_tcp_fallback: false
+        use_external_ip: false
+        node_ip: ${BBB_PUBLIC_IP:?}
+        advertise_internal_ip: true
+      redis:
+        address: redis:6379
+      keys:
+        ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+      webhook:
+        api_key: ${LIVEKIT_API_KEY}
+        urls:
+          - http://webrtc-sfu:3040/livekit-webhook
+      audio:
+        active_level: 50
+        min_percentile: 10
+        update_interval: 500
+        smooth_intervals: 0
+      room:
+        enabled_codecs:
+          - mime: audio/opus
+          - mime: audio/red
+          - mime: video/vp8
+          - mime: video/rtx
+        enable_remote_unmute: true
+
+  bbb-shared-notes-server.yml:
+    content: |
+      commandExecution:
+        # PDF export runs its converter through this command (upstream's default needs systemd)
+        runnerScript: timeout
+      bbbWeb:
+        host: web
+      redis:
+        host: redis
+      postgres:
+        host: postgres
+        password: "${POSTGRES_BLOCKNOTE_PASSWORD}"
+
+  recording.yml:
+    content: |
+      redis_host: redis
+      bn_notes_endpoint: http://shared-notes-server:8787/loopback/api/documents
+      playback_host: ${BBB_DOMAIN}
+
+  # The turnserver.conf bbb-install writes. TLS is terminated by haproxy on 443, the relay ports
+  # stay on the bbb network.
+  turnserver.conf:
+    content: |
+      listening-port=3478
+      min-port=49160
+      max-port=49199
+      log-file=stdout
+      pidfile=/tmp/turnserver.pid
+      verbose
+
+      fingerprint
+      lt-cred-mech
+      use-auth-secret
+      static-auth-secret=${TURN_SECRET}
+      realm=${BBB_DOMAIN}
+
+      keep-address-family
+
+      no-cli
+      no-tls
+      no-dtls
+
+      # Block connections to IP ranges which shouldn't be reachable
+      # (no-loopback-peers is gone: coturn 4.16 blocks loopback peers by default)
+      no-multicast-peers
+      no-tcp-relay
+
+      # Relay only to LiveKit's fixed address on the bbb network.
+      denied-peer-ip=0.0.0.0-255.255.255.255
+      denied-peer-ip=::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+      allowed-peer-ip=172.30.82.20
