@@ -12,7 +12,17 @@ import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharedn
 import { MultiUsers } from '../user/multiusers';
 import { getTldrawCamera } from '../whiteboard/util';
 
-type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+export type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+
+// A server may publish several formats (podcast, video, etc.) in any order,
+// so a format is always selected by its type.
+export function findPlaybackFormat(
+  recordingData: { playback?: { format?: RecordingPlaybackFormat[] }[] } | undefined,
+  type: string,
+): RecordingPlaybackFormat | undefined {
+  const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+  return formats.find((format) => format?.type?.[0] === type);
+}
 
 // Width the indicator takes beyond its own height: ~0 for the icon-only circle,
 // the label's width once it is revealed. Geometry rather than colour, which
@@ -23,6 +33,18 @@ async function indicatorLabelSpace(button: Locator): Promise<number> {
   const box = await button.boundingBox();
   return box ? box.width - box.height : -1;
 }
+
+// Recorded time shown by the indicator, or null while it shows none (not recording).
+async function recordingTimerSeconds(button: Locator): Promise<number | null> {
+  const match = (await button.textContent())?.match(/(\d+):(\d+)/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
+
+const RECORDED_BEFORE_PAUSE_SECONDS = 4;
+const PAUSE_TIME = 8000;
+// The resumed timer may be a little ahead of the value read just before pausing (the
+// pause takes a moment to reach the server), but far less than the pause itself.
+const RESUME_SLACK_SECONDS = 4;
 
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
@@ -36,8 +58,7 @@ export class Recording extends MultiUsers {
       // Wait for the presentation playback format specifically: a server may publish several
       // formats (podcast, video, screenshare, notes) and presentation is not guaranteed to be ready first.
       const recording = response.recordings?.[0]?.recording?.[0];
-      const formats: RecordingPlaybackFormat[] = recording?.playback?.[0]?.format ?? [];
-      const hasPresentationFormat = formats.some((format) => format?.type?.[0] === 'presentation');
+      const hasPresentationFormat = !!findPlaybackFormat(recording, 'presentation');
       if (
         response.returncode?.[0] === 'SUCCESS' &&
         response.messageKey?.[0] !== 'noRecordings' &&
@@ -140,10 +161,7 @@ export class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format — a server may publish multiple formats (podcast, video, etc.),
-    // so select the presentation format explicitly instead of relying on the array order
-    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
-    const playbackData = formats.find((format) => format?.type?.[0] === 'presentation');
+    const playbackData = findPlaybackFormat(recordingData, 'presentation');
     expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
     const playbackUrl = playbackData?.url?.[0];
@@ -196,7 +214,7 @@ export class Recording extends MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
 
     const { response } = await this.getRecordingsWithRetry();
-    const playbackUrl = response?.recordings?.[0]?.recording?.[0]?.playback?.[0]?.format?.[0]?.url?.[0];
+    const playbackUrl = findPlaybackFormat(response?.recordings?.[0]?.recording?.[0], 'presentation')?.url?.[0];
     if (!playbackUrl) {
       throw new Error('Playback URL not found in API response');
     }
@@ -758,5 +776,76 @@ export class Recording extends MultiUsers {
       this.userPage.page.locator(`${e.recordingIndicator} button`),
       'a viewer should be told the meeting is recording, not offered to pause it',
     ).toHaveAttribute('aria-label', 'Recording');
+  }
+
+  // Records for a few seconds, then pauses. Returns the recorded time read just before pausing.
+  private async recordThenPause(): Promise<number> {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect
+      .poll(() => recordingTimerSeconds(modIndicator), {
+        message: 'the recording timer should run while recording',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThanOrEqual(RECORDED_BEFORE_PAUSE_SECONDS);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasText(e.toastContainer, 'Pause recording', 'should ask the moderator to confirm the pause');
+    const recordedBeforePause = await recordingTimerSeconds(modIndicator);
+    if (recordedBeforePause === null) throw new Error('the recording timer disappeared before the pause');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    return recordedBeforePause;
+  }
+
+  async pausingShowsThePausedState() {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    const userIndicator = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    await this.recordThenPause();
+
+    await expect(modIndicator, 'the moderator should be offered to resume the paused recording').toHaveAttribute(
+      'aria-label',
+      'Resume recording',
+    );
+    await expect(userIndicator, 'a viewer should be told the recording is paused').toHaveAttribute(
+      'aria-label',
+      'Paused recording',
+    );
+    await expect(modIndicator, 'the timer should stop for the moderator').not.toHaveText(/\d+:\d+/);
+    await expect(userIndicator, 'the timer should stop for the viewer').not.toHaveText(/\d+:\d+/);
+  }
+
+  async resumingContinuesFromThePausedTime() {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    const userIndicator = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    const recordedBeforePause = await this.recordThenPause();
+    await expect(modIndicator, 'the recording should be paused').toHaveAttribute('aria-label', 'Resume recording');
+    await this.modPage.page.waitForTimeout(PAUSE_TIME);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasText(e.toastContainer, 'Resume recording', 'should ask the moderator to confirm resuming');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(modIndicator, 'the recording should run again').toHaveAttribute('aria-label', 'Pause recording');
+
+    for (const [indicator, who] of [
+      [modIndicator, 'moderator'],
+      [userIndicator, 'viewer'],
+    ] as const) {
+      await expect
+        .poll(() => recordingTimerSeconds(indicator), {
+          message: `the ${who}'s timer should run again after the resume`,
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .not.toBeNull();
+      const resumedSeconds = (await recordingTimerSeconds(indicator)) ?? Number.NaN;
+      expect(
+        resumedSeconds,
+        `the ${who}'s timer should continue from the paused value, not restart`,
+      ).toBeGreaterThanOrEqual(recordedBeforePause - 1);
+      expect(
+        resumedSeconds,
+        `the ${who}'s timer should not count the ${PAUSE_TIME / 1000} s pause`,
+      ).toBeLessThanOrEqual(recordedBeforePause + RESUME_SLACK_SECONDS);
+    }
   }
 }

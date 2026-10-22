@@ -11,7 +11,7 @@ import {
 } from '@playwright/test';
 import axios, { AxiosResponse } from 'axios';
 // This is version 4 of chalk, not version 5, which uses ESM
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import sha from 'sha.js';
 import * as xml2js from 'xml2js';
@@ -151,6 +151,25 @@ export async function endMeetings(request: APIRequestContext, meetingIDs: string
   await Promise.all(meetingIDs.map((meetingID) => request.get(getApiCallUrl('end', { meetingID }))));
 }
 
+// Meetings created while a test runs. The test fixture ends them once the test is over,
+// so they do not stay on the server until they expire.
+const meetingsCreatedByTest: string[] = [];
+
+export function startTrackingCreatedMeetings(): void {
+  meetingsCreatedByTest.length = 0;
+}
+
+export async function endMeetingsCreatedByTest(): Promise<void> {
+  const meetingIDs = meetingsCreatedByTest.splice(0);
+  await Promise.all(
+    meetingIDs.map((meetingID) =>
+      axios
+        .get(getApiCallUrl('end', { meetingID }), { adapter: 'http' })
+        .catch((error: Error) => console.warn(`could not end meeting ${meetingID} after the test: ${error.message}`)),
+    ),
+  );
+}
+
 export async function apiCall<T = unknown>(
   name: string,
   callParams?: Record<string, string>,
@@ -204,6 +223,7 @@ export async function createMeeting(
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+  meetingsCreatedByTest.push(xmlResponse.response.meetingID[0]);
   return xmlResponse.response.meetingID[0];
 }
 
@@ -222,6 +242,7 @@ export async function createMeetingWithModules(
   });
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+  meetingsCreatedByTest.push(xmlResponse.response.meetingID[0]);
   return xmlResponse.response.meetingID[0];
 }
 
@@ -232,7 +253,8 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
-  const baseQuery = `fullName=${fullName}&meetingID=${meetingID}`
+  // Encode before signing: bbb-web checksums the query string as it arrives, already percent-encoded.
+  const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${meetingID}`
     + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;

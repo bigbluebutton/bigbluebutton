@@ -261,7 +261,6 @@ class VideoService {
       || CAMERA_PROFILES[0];
     const deviceId = BBBStorage.getItem('WebcamDeviceId');
     if (deviceId) {
-      // @ts-expect-error -> Untyped object.
       cameraProfile.constraints = cameraProfile.constraints || {};
       // @ts-expect-error -> Untyped object.
       cameraProfile.constraints.deviceId = { exact: deviceId };

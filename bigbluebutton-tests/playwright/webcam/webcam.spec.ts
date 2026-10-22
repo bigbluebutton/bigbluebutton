@@ -1,10 +1,17 @@
-import { devices } from '@playwright/test';
+import { Browser, devices } from '@playwright/test';
 
 import { linkIssue } from '../core/helpers';
+import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
+import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
-import { Webcam } from './webcam';
+import { addSecondFakeCamera, CameraCaps } from './cameraCaps';
+import { CONSTRAINT_OBJECT_PROFILES_MODULE, Webcam } from './webcam';
+
+// The suite's 160x120 camera file is too small for simulcast layers (480px and
+// up); Chromium's built-in fake camera follows the profile's resolution.
+const launchWithFakeDeviceCamera = (browser: Browser) => browser.browserType().launch({ args: chromiumBaseArgs });
 
 test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
@@ -26,6 +33,13 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.initModPage(page, { testInfo });
     await webcam.initUserPage(context, { testInfo });
     await webcam.viewerReceivesWebcam();
+  });
+
+  test('A refused camera shows the permission error in the preview', async ({ browser, page }, testInfo) => {
+    await refuseMedia(page, ['video']);
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, { testInfo });
+    await webcam.refusedCameraPermission();
   });
 
   test('Webcam talking indicator', async ({ browser, page }, testInfo) => {
@@ -55,6 +69,20 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.changeVideoQuality();
   });
 
+  test('Share webcam with a quality profile using constraint objects', async ({ browser, browserName }, testInfo) => {
+    test.skip(browserName !== 'chromium', 'Uses the Chromium fake camera');
+    const cameraBrowser = await launchWithFakeDeviceCamera(browser);
+    try {
+      const page = await (await cameraBrowser.newContext()).newPage();
+      const webcam = new Webcam(cameraBrowser, page);
+      await webcam.init(true, { testInfo, createModules: CONSTRAINT_OBJECT_PROFILES_MODULE });
+      await webcam.shareWithQuality('minimal');
+      await webcam.shareWithQuality('medium');
+    } finally {
+      await cameraBrowser.close();
+    }
+  });
+
   test('Webcam fullscreen', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
@@ -75,8 +103,7 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.focusUnfocusWebcam();
   });
 
-  test('Resize webcam area', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
-    linkIssue(24367);
+  test('Resize webcam area', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.resizeWebcamArea();
@@ -118,6 +145,22 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
       await webcam.init(true, { testInfo });
       await webcam.virtualBackgroundToggleDisabledOnUnsupportedDevice();
       await context.close();
+    });
+  });
+
+  test.describe('Camera caps', () => {
+    test('User camera cap refuses a second camera', async ({ browser, context, page }, testInfo) => {
+      await addSecondFakeCamera(page);
+      const cameraCaps = new CameraCaps(browser, context);
+      await cameraCaps.initModPage(page, { createParameter: 'userCameraCap=1', testInfo });
+      await cameraCaps.userCameraCap();
+    });
+
+    test('Meeting camera cap refuses the camera of another user', async ({ browser, context, page }, testInfo) => {
+      const cameraCaps = new CameraCaps(browser, context);
+      await cameraCaps.initModPage(page, { createParameter: 'meetingCameraCap=1', testInfo });
+      await cameraCaps.initUserPage(context, { testInfo });
+      await cameraCaps.meetingCameraCap();
     });
   });
 });

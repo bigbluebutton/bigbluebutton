@@ -415,9 +415,9 @@ export interface CameraProfile {
 }
 
 export interface Constraints2 {
-  width: number
-  height: number
-  frameRate?: number
+  width?: ConstrainULong
+  height?: ConstrainULong
+  frameRate?: ConstrainDouble
 }
 
 export interface CameraSortingModes {
