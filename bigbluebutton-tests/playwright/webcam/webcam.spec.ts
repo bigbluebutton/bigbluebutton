@@ -75,8 +75,7 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     await webcam.focusUnfocusWebcam();
   });
 
-  test('Resize webcam area', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
-    linkIssue(24367);
+  test('Resize webcam area', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.resizeWebcamArea();
