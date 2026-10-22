@@ -340,8 +340,10 @@ function getCurrentSlideSrc(testPage: Page) {
 // upload toast shows the reason on the file's row, and nothing replaces the current presentation.
 export async function uploadRefusedPresentation(testPage: Page, file: GeneratedFile, errorText: string) {
   await testPage.hasElement(e.whiteboard, 'should display the current presentation', UPLOAD_PDF_WAIT_TIME);
+  await expect
+    .poll(() => getCurrentSlideSrc(testPage), { message: 'should show a slide before the upload' })
+    .toBeTruthy();
   const slideBefore = await getCurrentSlideSrc(testPage);
-  expect(slideBefore, 'should show a slide before the upload').toBeTruthy();
   await testPage.waitAndClick(e.mediaAreaButton);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(

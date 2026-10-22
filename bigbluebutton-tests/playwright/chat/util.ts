@@ -72,6 +72,7 @@ function sendPublicMessagesInBrowser(messages: string[]): Promise<void> {
     }, 60000);
     const finish = (error?: Error) => {
       clearTimeout(timer);
+      ws.onclose = null;
       ws.close();
       if (error) reject(error);
       else resolve();
@@ -86,6 +87,8 @@ function sendPublicMessagesInBrowser(messages: string[]): Promise<void> {
       send({ id: String(next), type: 'subscribe', payload: { query, variables } });
     };
     ws.onerror = () => finish(new Error('websocket error'));
+    ws.onclose = (event: CloseEvent) =>
+      finish(new Error(`websocket closed before all messages were sent (code ${event.code})`));
     ws.onopen = () =>
       send({
         type: 'connection_init',

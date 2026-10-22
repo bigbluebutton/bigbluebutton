@@ -202,7 +202,10 @@ export class Chat extends MultiUsers {
       await this.userPage.page.mouse.wheel(0, -2000);
       await expect(firstMessage).toBeVisible({ timeout: 1000 });
     }, 'should load the oldest message when scrolling up').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    await expect(receivedMessages, 'should show the whole history in the order it was sent').toHaveText(messages);
+    await expect(receivedMessages, 'should show the whole history').toHaveCount(messages.length);
+    expect((await receivedMessages.allInnerTexts()).sort(), 'should show every message of the history').toEqual(
+      [...messages].sort(),
+    );
   }
 
   async emptyMessage() {

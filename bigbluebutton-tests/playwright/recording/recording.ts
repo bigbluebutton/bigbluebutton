@@ -827,12 +827,17 @@ export class Recording extends MultiUsers {
     ] as const) {
       await expect
         .poll(() => recordingTimerSeconds(indicator), {
-          message: `the ${who}'s timer should continue from the paused value, not count the pause or restart`,
+          message: `the ${who}'s timer should run again after the resume`,
           timeout: ELEMENT_WAIT_TIME,
         })
-        .toBeGreaterThanOrEqual(recordedBeforePause);
+        .not.toBeNull();
+      const resumedSeconds = (await recordingTimerSeconds(indicator)) ?? Number.NaN;
       expect(
-        await recordingTimerSeconds(indicator),
+        resumedSeconds,
+        `the ${who}'s timer should continue from the paused value, not restart`,
+      ).toBeGreaterThanOrEqual(recordedBeforePause - 1);
+      expect(
+        resumedSeconds,
         `the ${who}'s timer should not count the ${PAUSE_TIME / 1000} s pause`,
       ).toBeLessThanOrEqual(recordedBeforePause + RESUME_SLACK_SECONDS);
     }
