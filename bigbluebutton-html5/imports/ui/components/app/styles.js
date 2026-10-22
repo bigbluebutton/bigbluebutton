@@ -8,6 +8,7 @@ import {
   colorHoverBgDark,
   colorToggleBgDisabledDarkTheme,
   colorTldrawBackground,
+  colorGrayUserListToolbarTranslucent,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Layout = styled(FlexColumn)``;
@@ -29,6 +30,7 @@ const DtfInvert = `
     --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--list-item-bg-hover: ${colorHoverBgDark} !important;
     --list-item-bg-hover: ${colorHoverBgDark} !important;
+    --darkreader-bg--color-gray-user-list-toolbar-translucent: ${colorGrayUserListToolbarTranslucent} !important;
   }
   body {
     background-color: var(--darkreader-bg-neutral-background) !important;

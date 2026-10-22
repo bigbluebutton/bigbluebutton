@@ -16,6 +16,23 @@ export const OVERFLOWED_ATTRIBUTE = 'data-overflowed';
 // item only when it fits exactly would toggle it, or a neighbour, on every 1px change.
 export const RESTORE_HYSTERESIS = 4;
 
+export const findOverflowSlot = (container: Element | null, id: string) => container?.querySelector(
+  `[data-overflow-item="${CSS.escape(id)}"]`,
+);
+
+export const focusFirstIn = (element: Element | null | undefined, selector: string): boolean => {
+  const target = element?.matches(selector) ? element : element?.querySelector(selector);
+  if (!target) return false;
+  (target as HTMLElement).focus();
+  return document.activeElement === target;
+};
+
+export const focusFirstVisibleIn = (container: Element, selector: string) => {
+  Array.from(container.querySelectorAll<HTMLElement>(selector))
+    .find((element) => !element.closest(`[${OVERFLOWED_ATTRIBUTE}]`))
+    ?.focus();
+};
+
 export const isBarItemDescriptor = (
   item: UnorderedBarItemDescriptor | false | undefined,
 ): item is UnorderedBarItemDescriptor => Boolean(item);
@@ -72,6 +89,8 @@ export const itemsSignature = (items: BarItemDescriptor[]) => JSON.stringify(
     id, priority, order, kind,
   }) => [id, priority, order, kind]),
 );
+
+export const isActiveEntry = (entry: OverflowMenuEntry) => 'active' in entry && !!entry.active;
 
 export const isSeparatorEntry = (entry: OverflowMenuEntry) => 'isSeparator' in entry && !!entry.isSeparator;
 

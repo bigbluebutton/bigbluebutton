@@ -3,7 +3,12 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import { OverflowMenuEntry, OverflowMenuOptionEntry } from '../types';
-import { isActionableEntry, isSeparatorEntry, normalizeSeparators } from '../service';
+import {
+  isActionableEntry,
+  isActiveEntry,
+  isSeparatorEntry,
+  normalizeSeparators,
+} from '../service';
 
 type MenuOptions = Record<string, unknown>;
 
@@ -18,6 +23,8 @@ interface OverflowMenuButtonTrigger {
   // Lets a caller keep its own styled Button (e.g. the nav bar's DropdownButton).
   component?: React.ElementType;
   state?: 'open' | 'closed';
+  // Hands the trigger a $hasActiveEntry prop: a styled trigger consumes it, but Button would leak it.
+  indicateActiveEntry?: boolean;
 }
 
 interface OverflowMenuButtonProps {
@@ -62,8 +69,13 @@ const OverflowMenuButton: React.FC<OverflowMenuButtonProps> = ({
   if (actionable.length === 0) return null;
 
   const {
-    label, dataTest, className, size, color, accessKey, icon = 'more', component: TriggerButton = Button, state,
+    label, dataTest, className, size, color, accessKey, icon = 'more', component: TriggerButton = Button,
+    state, indicateActiveEntry,
   } = trigger;
+  // Even an undefined prop reaches the DOM through Button, so the key itself is left out.
+  const activeEntryProps = indicateActiveEntry
+    ? { $hasActiveEntry: normalized.some(isActiveEntry) }
+    : {};
 
   const hasTextEntries = normalized.some((entry) => !isSeparatorEntry(entry) && !isActionableEntry(entry));
 
@@ -90,6 +102,8 @@ const OverflowMenuButton: React.FC<OverflowMenuButtonProps> = ({
         onClick={onlyEntry.onClick}
         icon={entryIcon}
         customIcon={customIcon}
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...activeEntryProps}
       />
     );
   }
@@ -112,6 +126,8 @@ const OverflowMenuButton: React.FC<OverflowMenuButtonProps> = ({
           hideLabel
           // BBBMenu opens from its own wrapper; Button just requires a click handler.
           onClick={noop}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...activeEntryProps}
         />
       )}
       actions={normalized}

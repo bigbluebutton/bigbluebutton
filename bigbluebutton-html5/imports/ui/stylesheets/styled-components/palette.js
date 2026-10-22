@@ -12,6 +12,7 @@ const colorGrayLighter = 'var(--color-gray-lighter, #A7B3BD)';
 const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorGrayIcons = 'var(--color-gray-icons, #909CAF)';
 const colorGrayUserListToolbar = 'var(--color-gray-user-list-toolbar, #F4F6FA)';
+const colorGrayUserListToolbarTranslucent = 'var(--color-gray-user-list-toolbar-translucent, rgba(244, 246, 250, 0.15))'; // colorGrayUserListToolbar, 15%
 
 const colorBorder = 'var(--color-border, #B8C9D8)';
 
@@ -195,6 +196,7 @@ export {
   colorGrayLightest,
   colorGrayIcons,
   colorGrayUserListToolbar,
+  colorGrayUserListToolbarTranslucent,
   colorBorder,
   colorTransparent,
   colorUserModerator,

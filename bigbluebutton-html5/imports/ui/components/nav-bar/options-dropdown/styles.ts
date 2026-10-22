@@ -7,8 +7,13 @@ import {
   btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { mobileNavbarButtonGap, mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
+import { activeEntryBadge } from '/imports/ui/components/common/bar-overflow/styles';
 
-const DropdownButton = styled(Button)`
+// @ts-ignore - JS code
+const DropdownButton = styled(Button)<{
+  state?: 'open' | 'closed';
+  $hasActiveEntry?: boolean;
+}>`
   ${({ state }) => state === 'open' && `
     @media ${smallOnly} {
       display: none;
@@ -22,6 +27,8 @@ const DropdownButton = styled(Button)`
 
   /* The other nav bar buttons are spaced by their wrappers' margins; this one has no wrapper. */
   margin-inline-start: ${mobileNavbarButtonGap};
+
+  ${activeEntryBadge}
 
   @media ${smallOnly} {
     margin-inline-start: 0;
@@ -63,7 +70,7 @@ const AwayOption = styled.div`
   }
 `;
 
-const ToggleButtonWrapper = styled.div`
+const ToggleButtonWrapper = styled.div<{ active?: boolean }>`
   border: 1px solid transparent;
   cursor: pointer;
   display: flex;
