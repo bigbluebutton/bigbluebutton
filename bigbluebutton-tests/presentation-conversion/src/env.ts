@@ -7,9 +7,11 @@ export const SUITE_ROOT = path.resolve(__dirname, '..');
 export function loadDotEnv(file = path.join(SUITE_ROOT, '.env')): void {
   if (!fs.existsSync(file)) return;
   for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
-    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=(.*?)\s*$/);
     if (!m || line.trimStart().startsWith('#')) continue;
-    const value = m[2].replace(/^(['"])(.*)\1$/, '$2');
+    // Read the value as bash does when the bin/ scripts source .env: drop one pair of quotes or an unquoted " # comment".
+    const quoted = m[2].trimStart().match(/^(['"])(.*?)\1(?:\s+#.*)?$/);
+    const value = quoted ? quoted[2] : m[2].replace(/\s+#.*$/, '').trimStart();
     if (process.env[m[1]] === undefined) process.env[m[1]] = value;
   }
 }
