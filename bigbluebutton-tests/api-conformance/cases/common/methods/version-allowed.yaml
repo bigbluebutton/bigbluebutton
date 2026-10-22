@@ -13,3 +13,4 @@ variants:
 steps:
   - call: ""
     method: "${method}"
+    expect: {returncode: SUCCESS, xpath: {/response/apiVersion: {exists: true}}}

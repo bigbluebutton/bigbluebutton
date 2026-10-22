@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
-# chosen so that the endpoint's own handler answers with one deterministic error.
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
 id: insertDocument.method.allowed
 title: insertDocument answers ${method} with its own handler
 endpoint: insertDocument
@@ -12,3 +13,4 @@ steps:
   - call: insertDocument
     method: "${method}"
     params: {meetingID: "${uid}"}
+    expect: {returncode: FAILED, message: "Meeting with id [${uid}] not found."}

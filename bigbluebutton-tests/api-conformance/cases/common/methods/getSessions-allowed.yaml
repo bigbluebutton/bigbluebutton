@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
-# chosen so that the endpoint's own handler answers with one deterministic error.
-# A valid call would list every session on the server.
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
+# A bad checksum: a valid call would list every session on the server, and the fallback doesn't check checksums.
 id: getSessions.method.allowed
 title: getSessions answers ${method} with its own handler
 endpoint: getSessions
@@ -14,3 +15,4 @@ steps:
   - call: getSessions
     method: "${method}"
     sign: bad
+    expect: {returncode: FAILED, messageKey: checksumError}

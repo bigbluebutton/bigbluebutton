@@ -1,5 +1,5 @@
 # Recorded by bbb-conform record. Review it with bbb-conform review before committing.
-case presentation.removed.delegate
+case presentation.removed.delegate-not-found
 target bbb-web
 
 == step 1: route presentation-delegate (document)

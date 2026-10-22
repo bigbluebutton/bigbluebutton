@@ -16,7 +16,7 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/common/<area>/     the suite's cases
+cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/
 fixtures/                files cases refer to (bodies, presentations, schemas)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
@@ -247,10 +247,10 @@ in `targets/bbb-web.yaml`; it skips that test when `cases/` is missing,
 unless `BBB_CONFORM_SUITE=1`.
 
 Editors with the YAML language server can check against the schema as you
-type. Put this first in a case file:
+type. Put this first in a case file under `cases/<area>/<group>/`:
 
 ```yaml
-# yaml-language-server: $schema=../../runner/schema/case.schema.json
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
 ```
 
 The schema describes a case *after* variant expansion. If you put `${var}`
@@ -293,6 +293,10 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-api.yaml --expect ../expect
 go run ./cmd/bbb-conform gap --results ../out/web.json --results ../out/api.json \
     --md ../out/gap-matrix.md --html ../out/gap-matrix.html
 ```
+
+Cases tagged `triage` only record what bbb-web answers, so they pass on every
+target. Add `--exclude-tags triage` to these runs, or the matrix counts them
+as passes.
 
 `gap` combines `run` reports, one per target, into one grid:
 - a summary of passes per endpoint and target;

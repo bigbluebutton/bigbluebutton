@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
-# Methods this route doesn't map (UrlMappings.groovy), with the same request as
-# stuns-allowed.yaml. What bbb-web answers is recorded, not compared: T04 decides
-# the intended answer (PLAN.md §3, triage).
+# Methods this route doesn't map (UrlMappings.groovy), sent with the same request as
+# stuns-allowed.yaml. What bbb-web answers is recorded, not compared: the intended
+# answer is still to be decided (the triage tag).
 id: stuns.method.unmapped
 title: stuns called with a method its route doesn't map (${method})
 endpoint: stuns

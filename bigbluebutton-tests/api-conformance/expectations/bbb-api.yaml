@@ -8,8 +8,8 @@ expected:
   - {id: "create.*", reason: "create can't succeed yet: its gRPC client is never set, and it requires attendeePW/moderatorPW"}
   - {id: "getMeetings.*", reason: "getMeetings can't succeed yet: its gRPC client is never set"}
   - {id: "getMeetingInfo.*", reason: "getMeetingInfo can't succeed yet: its gRPC client is never set"}
-  - {id: "isMeetingRunning.*", reason: "bbb-api answers every call with HTTP 202, where bbb-web answers 200"}
-  - {id: "insertDocument.*", reason: "bbb-api answers every call with HTTP 202, where bbb-web answers 200"}
+  - {id: isMeetingRunning.method.allowed, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
+  - {id: insertDocument.method.allowed, reason: "bbb-api answers HTTP 202 where bbb-web answers 200"}
   - {id: "join.*", reason: join isn't implemented}
   - {id: "end.*", reason: end isn't implemented}
   - {id: "getSessions.*", reason: getSessions isn't implemented}
