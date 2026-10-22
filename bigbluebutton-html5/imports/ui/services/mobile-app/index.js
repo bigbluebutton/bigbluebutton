@@ -2,50 +2,24 @@ import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import {
+    WEBRTC_CALL_TYPE_FULL_AUDIO,
+    WEBRTC_CALL_TYPE_SCREEN_SHARE,
+    WEBRTC_CALL_TYPE_STANDARD,
+} from './constants';
 
 (function (){
-    // This function must be executed during the import time, that's why it's not exported to the caller component.
-    // It's needed because it changes some functions provided by browser, and these functions are verified during
-    // import time (like in ScreenshareBridgeService)
+    // Must run at import time: patches navigator/RTCPeerConnection before
+    // ScreenshareBridgeService and peers inspect them.
     if(browserInfo.isTabletApp) {
         logger.debug(`BBB-MOBILE - Mobile APP detected`);
 
-        const WEBRTC_CALL_TYPE_FULL_AUDIO = 'full_audio';
-        const WEBRTC_CALL_TYPE_SCREEN_SHARE = 'screen_share';
-        const WEBRTC_CALL_TYPE_STANDARD = 'standard';
-
-        // This function detects if the call happened to publish a screenshare
-        function detectWebRtcCallType(caller, peerConnection = null, args = null) {
-            // Keep track of how many webRTC evaluations was done
-            if(!peerConnection.detectWebRtcCallTypeEvaluations)
-                peerConnection.detectWebRtcCallTypeEvaluations = 0;
-
-            peerConnection.detectWebRtcCallTypeEvaluations ++;
-
-            // If already successfully evaluated, reuse
-            if(peerConnection && peerConnection.webRtcCallType !== undefined ) {
-                logger.info(`BBB-MOBILE - detectWebRtcCallType (already evaluated as ${peerConnection.webRtcCallType})`, {caller, peerConnection});
-                return peerConnection.webRtcCallType;
+        // Stamped by WebRtcPeer.start({ webRtcCallType }); default is webview WebRTC.
+        function resolveWebRtcCallType(peerConnection) {
+            if (peerConnection.webRtcCallType === undefined) {
+                peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_STANDARD;
             }
-
-            // Evaluate context otherwise
-            const e = new Error('dummy');
-            const stackTrace = e.stack;
-            logger.info(`BBB-MOBILE - detectWebRtcCallType (evaluating)`, {caller, peerConnection, stackTrace: stackTrace.split('\n'), detectWebRtcCallTypeEvaluations: peerConnection.detectWebRtcCallTypeEvaluations, args});
-
-            // addEventListener is the first call for screensharing and it has a startScreensharing in its stackTrace
-            if( peerConnection.detectWebRtcCallTypeEvaluations == 1) {
-                if(caller == 'addEventListener' && stackTrace.indexOf('startScreensharing') !== -1) {
-                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_SCREEN_SHARE; // this uses mobile app broadcast upload extension
-                } else if(caller == 'addEventListener' && stackTrace.indexOf('invite') !== -1) {
-                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_FULL_AUDIO; // this uses mobile app webRTC
-                } else {
-                    peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_STANDARD; // this uses the webview webRTC
-                }
-
-                return peerConnection.webRtcCallType;
-            }
-
+            return peerConnection.webRtcCallType;
         }
         // Store the method call sequential
         const sequenceHolder = {sequence: 0};
@@ -135,7 +109,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalCreateOffer = prototype.createOffer;
         prototype.createOffer = async function (options) {
-            const webRtcCallType = detectWebRtcCallType('createOffer', this);
+            const webRtcCallType = resolveWebRtcCallType(this);
 
             if(webRtcCallType === WEBRTC_CALL_TYPE_STANDARD){
                 return prototype.originalCreateOffer.call(this, ...arguments);
@@ -161,7 +135,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalAddEventListener = prototype.addEventListener;
         prototype.addEventListener = function (event, callback) {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addEventListener', this, arguments)){
+            if(WEBRTC_CALL_TYPE_STANDARD === resolveWebRtcCallType(this)){
                 return prototype.originalAddEventListener.call(this, ...arguments);
             }
 
@@ -188,7 +162,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalSetLocalDescription = prototype.setLocalDescription;
         prototype.setLocalDescription = function (description, successCallback, failureCallback) {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('setLocalDescription', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === resolveWebRtcCallType(this)){
                 return prototype.originalSetLocalDescription.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - setLocalDescription called`, {description, successCallback, failureCallback});
@@ -206,7 +180,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalSetRemoteDescription = prototype.setRemoteDescription;
         prototype.setRemoteDescription = function (description, successCallback, failureCallback) {
-            const webRtcCallType = detectWebRtcCallType('setRemoteDescription', this);
+            const webRtcCallType = resolveWebRtcCallType(this);
             if(WEBRTC_CALL_TYPE_STANDARD === webRtcCallType){
                 return prototype.originalSetRemoteDescription.call(this, ...arguments);
             }
@@ -236,7 +210,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalAddTrack = prototype.addTrack;
         prototype.addTrack = function (description, successCallback, failureCallback) {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addTrack', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === resolveWebRtcCallType(this)){
                 return prototype.originalAddTrack.call(this, ...arguments);
             }
 
@@ -245,7 +219,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalGetLocalStreams = prototype.getLocalStreams;
         prototype.getLocalStreams = function() {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('getLocalStreams', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === resolveWebRtcCallType(this)){
                 return prototype.originalGetLocalStreams.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - getLocalStreams called`, arguments);
@@ -258,7 +232,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalAddTransceiver = prototype.addTransceiver;
         prototype.addTransceiver = function() {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addTransceiver', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === resolveWebRtcCallType(this)){
                 return prototype.originalAddTransceiver.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - addTransceiver called`, arguments);
@@ -266,7 +240,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         prototype.originalAddIceCandidate = prototype.addIceCandidate;
         prototype.addIceCandidate = function (candidate) {
-            if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addIceCandidate', this)){
+            if(WEBRTC_CALL_TYPE_STANDARD === resolveWebRtcCallType(this)){
                 return prototype.originalAddIceCandidate.call(this, ...arguments);
             }
             logger.info(`BBB-MOBILE - addIceCandidate called`, {candidate});
@@ -278,12 +252,6 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
                     resolve();
                 });
             } );
-        }
-
-        // Create methods to be called from the BBB component when screen share stop is requested
-        window.bbbMobileApp = {};
-        window.bbbMobileApp.onScreenshareStopRequest = () => {
-            callNativeMethod('stopScreenShare');
         }
 
         // Handle screenshare stop requested by application (i.e. stopped the broadcast extension)

@@ -1,6 +1,7 @@
 import logger from '/imports/startup/client/logger';
 import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
+import { WEBRTC_CALL_TYPE_SCREEN_SHARE } from '/imports/ui/services/mobile-app/constants';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
@@ -199,6 +200,8 @@ class ScreenshareBroker extends BaseBroker {
           trace: this.traceLogs,
           networkPriorities: this.networkPriority ? { video: this.networkPriority } : undefined,
           gatheringTimeout: this.gatheringTimeout,
+          // Tablet WebView: stamp screenshare routing in WebRtcPeer.start().
+          webRtcCallType: WEBRTC_CALL_TYPE_SCREEN_SHARE,
         };
         this.webRtcPeer = new WebRtcPeer('sendonly', options);
         this.webRtcPeer.iceQueue = [];
