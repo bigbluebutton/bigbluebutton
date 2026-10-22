@@ -100,6 +100,8 @@ There are a number of provided keyboard shortcuts which have been set up using H
 |   Right Arrow   | Next slide (Presenter)                      |
 |   Left Arrow    | Previous slide (Presenter)                  |
 
+**_Note: "Open Options" does not apply when the options menu has a single entry: the menu is then replaced by a button for that entry, which has no shortcut._**
+
 **_Note: the accessKey attribute has certain limitations like not being able to set the modifier key to activate the shortcut._**
 
 **_The benefit is the visibility it provides for screen readers about available shortcuts._**

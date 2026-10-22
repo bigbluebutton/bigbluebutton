@@ -15,6 +15,7 @@ export const elements = {
   mediaAreaButton: 'button[data-test="mediaAreaButton"]',
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
   optionsButton: 'button[data-test="optionsButton"]',
+  optionsFullscreen: 'button[data-test="optionsFullscreen"]',
   settings: 'li[data-test="settings"]',
   presenceToggle: 'div[data-test="presenceToggle"]',
   modalConfirmButton: 'button[data-test="modalConfirmButton"]',
