@@ -35,9 +35,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # -f: without it bake also reads docker-compose.yml, whose required variables are not set here
       - name: List the images of the default bake group
         id: list
-        run: echo "targets=$(docker buildx bake --print default | jq -c .group.default.targets)" >> "$GITHUB_OUTPUT"
+        run: |
+          targets=$(docker buildx bake -f docker-bake.hcl --print default | jq -c .group.default.targets)
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
 
       # The HTML5 client build id as build/setup.sh sets it: the commit date in the committer's time zone.
       # The image version adds it and the commit to the tag, e.g. v4.1.x-develop-20261026T105204-2a1b3c4
@@ -86,6 +89,7 @@ jobs:
           BBB_IMAGE_TAG: ${{ github.sha }}-${{ matrix.platform }}
         with:
           source: .
+          files: docker-bake.hcl
           targets: ${{ matrix.target }}
           push: ${{ env.PUSH == 'true' }}
           set: |
@@ -122,7 +126,7 @@ jobs:
           for t in $TARGETS; do
             image="$BBB_IMAGE_REGISTRY/bbb-$t:$TAG"
             sources=()
-            for p in $(docker buildx bake --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
+            for p in $(docker buildx bake -f docker-bake.hcl --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
               sources+=("$BBB_IMAGE_REGISTRY/bbb-$t:$GITHUB_SHA-$p")
             done
             docker buildx imagetools create -t "$image" -t "$image-${GITHUB_SHA::7}" -t "$BBB_IMAGE_REGISTRY/bbb-$t:$VERSION" "${sources[@]}"
