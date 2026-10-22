@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+# A filter for an unknown meeting: without one the answer lists every recording.
+id: getRecordings.method.allowed
+title: getRecordings answers ${method} with its own handler
+endpoint: getRecordings
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: getRecordings
+    method: "${method}"
+    params: {meetingID: "${uid}"}

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+id: deleteRecordings.method.allowed
+title: deleteRecordings answers ${method} with its own handler
+endpoint: deleteRecordings
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+steps:
+  - call: deleteRecordings
+    method: "${method}"
+    params: {recordID: "${uid}"}
