@@ -267,6 +267,10 @@ export class Options extends MultiUsers {
     );
     await openSettings(this.modPage);
     await this.modPage.hasElementChecked(e.darkModeToggleBtn, 'should show the dark mode on after a reload');
+    await expect(
+      this.modPage.page.locator('#simpleModal'),
+      'should paint the settings modal with a dark surface',
+    ).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
   }
 
   async fontSizeKeptAfterReload() {
