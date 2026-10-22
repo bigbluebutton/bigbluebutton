@@ -9,6 +9,7 @@ import {
   hasCurrentPresentationToastElement,
   uploadSinglePresentation,
   waitForSlideChange,
+  waitForSlideToSettle,
 } from '../presentation/util';
 import { waitForPublishedRecording } from '../recording/recordedPlayback';
 import * as utilScreenShare from '../screenshare/util';
@@ -550,6 +551,7 @@ export class Join extends Create {
       description: 'should display the current presentation toast when changing to the whiteboard exported file',
     });
     await waitForSlideChange(this.modPage, slideBeforeSharing);
+    await waitForSlideToSettle(this.modPage);
 
     // visual assertion
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
@@ -646,6 +648,7 @@ export class Join extends Create {
       description: 'should display the current presentation toast when changing to the whiteboard exported file',
     });
     await waitForSlideChange(this.modPage, slideBeforeSharing);
+    await waitForSlideToSettle(this.modPage);
     // visual assertion
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {

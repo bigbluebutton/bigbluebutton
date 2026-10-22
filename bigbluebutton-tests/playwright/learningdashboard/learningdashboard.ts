@@ -70,7 +70,7 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.recordingIndicator, '00:00', 'should start recording at the initial time');
 
     const timeLocator = this.dashboardPage.page.locator(e.userOnlineTime);
-    const timeContent = await (timeLocator).textContent();
+    const timeContent = await timeLocator.textContent();
     if (!timeContent) throw new Error('Time content is null');
     const time = timeInSeconds(timeContent);
     await this.dashboardPage.page.waitForTimeout(1000);
@@ -309,8 +309,8 @@ export class LearningDashboard extends MultiUsers {
 
     // Meeting Time Duration check
     const timeLocator = this.dashboardPage.page.locator(e.meetingDurationTimeDashboard);
-    const timeContent = await timeLocator.textContent();
-    if (!timeContent) throw new Error('Time content is null');
+    await expect(timeLocator, 'should display the meeting duration').toHaveText(/\d+:\d+:\d+/);
+    const timeContent = (await timeLocator.textContent()) ?? '';
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
     await expect
@@ -318,7 +318,7 @@ export class LearningDashboard extends MultiUsers {
         async () => {
           await this.dashboardPage.reloadPage();
           const timeContentGreater = await timeLocator.textContent();
-          if (!timeContentGreater) throw new Error('Time content is null');
+          if (!timeContentGreater) return Number.NaN;
           const arrayGreater = timeContentGreater.split(':').map(Number);
           return arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
         },

@@ -382,8 +382,7 @@ export class WhiteboardResize extends DrawShape {
           (document.querySelector('[data-test="resetZoomButton"]') as HTMLElement | null)?.innerText.trim() === '125%',
         undefined,
         { timeout: ELEMENT_WAIT_TIME },
-      )
-      .catch(() => {});
+      );
     await this.modPage.waitAndClick(e.zoomInButton);
 
     // Wait for: zoomChanger debounce (200 ms) + syncCameraOnPresenterZoom + store settle.

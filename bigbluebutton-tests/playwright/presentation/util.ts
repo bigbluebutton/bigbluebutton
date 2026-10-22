@@ -395,6 +395,21 @@ export async function waitForSlideChange(testPage: Page, slideBefore: string | n
     .not.toBe(slideBefore);
 }
 
+// Waits until the current slide image has stopped moving or resizing for half a second.
+export async function waitForSlideToSettle(testPage: Page) {
+  let box = '';
+  await expect
+    .poll(
+      async () => {
+        const previous = box;
+        box = JSON.stringify(await testPage.page.locator(e.currentSlideImg).boundingBox());
+        return box !== 'null' && box === previous;
+      },
+      { message: 'should settle the slide on the whiteboard', intervals: [500], timeout: ELEMENT_WAIT_LONGER_TIME },
+    )
+    .toBe(true);
+}
+
 export async function uploadMultiplePresentations(
   testPage: Page,
   fileNames: string[],
