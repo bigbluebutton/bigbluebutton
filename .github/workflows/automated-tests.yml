@@ -849,7 +849,6 @@ jobs:
       BBB_URL: https://bbb-ci.test/bigbluebutton/
       BBB_SECRET: bbbci
       CI: "true"
-      PC_PRIVATE_FIXTURES_KEY: ${{ secrets.PRESENTATION_FIXTURES_DEPLOY_KEY }}
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -882,17 +881,6 @@ jobs:
       - name: Install suite dependencies
         timeout-minutes: 10
         run: npm ci --no-audit --no-fund
-      - name: Fetch the private fixture tier
-        if: env.PC_PRIVATE_FIXTURES_KEY != ''
-        uses: actions/checkout@v5
-        with:
-          repository: bigbluebutton/presentation-conversion-fixtures-private
-          ssh-key: ${{ secrets.PRESENTATION_FIXTURES_DEPLOY_KEY }}
-          path: bigbluebutton-tests/presentation-conversion/fixtures/private/repo
-          persist-credentials: false
-      - name: Private fixture tier skipped
-        if: env.PC_PRIVATE_FIXTURES_KEY == ''
-        run: echo "::notice title=presentation conversion::private fixture tier skipped (no PRESENTATION_FIXTURES_DEPLOY_KEY secret, e.g. a pull request from a fork)"
       - name: Run the suite (defaults and every profile)
         timeout-minutes: 120
         env:

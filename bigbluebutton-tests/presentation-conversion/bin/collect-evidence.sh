@@ -13,8 +13,10 @@ node -e '
     const key = r.profile + "/" + r.fixture;
     if (!seen.has(key)) { seen.add(key); console.log(s.runId + "\t" + r.profile + "\t" + r.fixture); }
   }' | while IFS=$'\t' read -r run profile fixture; do
-  manifest=$(ls fixtures/*/"$fixture".yaml fixtures/private/*/"$fixture".yaml 2>/dev/null | head -1 || true)
-  case "$manifest" in fixtures/private/*) echo "collect-evidence: $fixture is private, skipped"; continue ;; esac
+  if [ -n "$(find fixtures/private -name "$fixture.yaml" -print -quit 2>/dev/null)" ]; then
+    echo "collect-evidence: $fixture is private, skipped"
+    continue
+  fi
   src="work/$run/$profile/fixtures/$fixture"
   [ -d "$src" ] && mkdir -p "evidence/$profile" && cp -a "$src" "evidence/$profile/"
 done
