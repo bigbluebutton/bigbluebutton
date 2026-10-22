@@ -4,6 +4,12 @@
   opacity: 0;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+/* GenericModal only: a dialog that sets its own scrim (pre-flight) keeps it. */
+.modal-low .ReactModal__Overlay,
+.modal-medium .ReactModal__Overlay,
+.modal-high .ReactModal__Overlay {
   background-color: var(--color-overlay, rgba(6, 23, 42, 0.75)) !important;
 }
 
