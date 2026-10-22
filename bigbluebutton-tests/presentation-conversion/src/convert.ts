@@ -15,6 +15,7 @@ const INSERT_GAP_MS = 3_000;
 const POLL_MS = 2_000;
 const DROP_AFTER_MS = Number(process.env.PC_DROP_AFTER_SECONDS || 90) * 1000;
 const COMPLETED_GRACE_MS = 30_000;
+const MEETING_BUDGET_CAP_MS = 30 * 60_000;
 const OFFICE_EXT = new Set(['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.odt', '.ods', '.odp', '.odg', '.rtf', '.txt']);
 
 interface Prepared {
@@ -72,6 +73,11 @@ function harnessError(s: State, e: unknown): void {
 function timeoutMs(p: Prepared): number {
   const office = OFFICE_EXT.has(path.extname(p.name).toLowerCase()) ? 120 : 0;
   return Math.min(900, 120 + 20 * Math.max(1, p.m.pages) + office) * 1000;
+}
+
+/** bbb-web converts the documents of a meeting with a shared pool, so each of them may wait for all the others. */
+function meetingBudgetMs(fixtures: Prepared[]): number {
+  return Math.min(MEETING_BUDGET_CAP_MS, fixtures.reduce((sum, p) => sum + timeoutMs(p), 0));
 }
 
 function meetingRoot(target: Target, key: string): string {
@@ -325,8 +331,33 @@ export class Converter {
 
   private async waitFor(states: State[], internal: string, root: string): Promise<void> {
     const assigned = new Map<string, State>();
+    const budget = meetingBudgetMs(states.map((s) => s.p));
+    let queryFailed = false;
+    const settle = (now: number, note?: string) => {
+      for (const s of states) {
+        if (!s.outcome && now - s.uploadedAt > budget) {
+          s.outcome = 'timeout';
+          if (note) s.notes.push(note);
+        }
+        if (s.outcome && !s.decidedAt) {
+          s.decidedAt = Date.now();
+          log(`${s.p.m.id}: ${s.outcome}${s.row?.errorKey ? ` ${s.row.errorKey}` : ''} after ${Math.round((Date.now() - s.uploadedAt) / 1000)}s`);
+        }
+      }
+    };
     while (states.some((s) => !s.outcome)) {
-      const rows = this.db ? await this.db.presentations(internal).catch((e) => (this.warnings.push(String(e)), [])) : [];
+      let rows: PresentationRow[] = [];
+      if (this.db) {
+        try {
+          rows = await this.db.presentations(internal);
+        } catch (e) {
+          if (!queryFailed) this.warnings.push(`status query for meeting ${internal} failed, its polls decide nothing until it answers: ${errorText(e)}`);
+          queryFailed = true;
+          settle(Date.now(), 'the status query was failing when the time budget ran out');
+          if (states.some((s) => !s.outcome)) await sleep(POLL_MS);
+          continue;
+        }
+      }
       for (const d of await listDir(root)) {
         if (assigned.has(d)) continue;
         for (const f of await listDir(path.join(root, d))) {
@@ -366,12 +397,8 @@ export class Converter {
           }
         } else s.dirGoneSince = undefined;
         if (!s.presId && !row && now - s.uploadedAt > DROP_AFTER_MS) s.outcome = 'dropped';
-        else if (now - s.uploadedAt > timeoutMs(s.p)) s.outcome = 'timeout';
       }
-      for (const s of states) if (s.outcome && !s.decidedAt) {
-        s.decidedAt = Date.now();
-        log(`${s.p.m.id}: ${s.outcome}${s.row?.errorKey ? ` ${s.row.errorKey}` : ''} after ${Math.round((Date.now() - s.uploadedAt) / 1000)}s`);
-      }
+      settle(now);
       if (states.some((s) => !s.outcome)) await sleep(POLL_MS);
     }
   }
@@ -446,7 +473,13 @@ export class Converter {
       dir: s.presId ? path.relative(profileWorkDir(), profileWorkDir('fixtures', s.p.m.id, 'server')) : undefined,
       pageCount: pages.length,
       pages,
-      timings: { uploadedAt: s.uploadedAt, firstSeenAt: s.firstSeenAt, doneAt: done, seconds: Math.round((done - s.uploadedAt) / 1000) },
+      timings: {
+        uploadedAt: s.uploadedAt,
+        firstSeenAt: s.firstSeenAt,
+        doneAt: done,
+        seconds: Math.round((done - s.uploadedAt) / 1000),
+        queuedSeconds: s.firstSeenAt ? Math.round((s.firstSeenAt - s.uploadedAt) / 1000) : undefined,
+      },
       notes: s.notes,
     };
   }

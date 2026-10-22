@@ -39,7 +39,8 @@ export interface CollectedFixture {
   dir?: string;
   pageCount: number;
   pages: CollectedPage[];
-  timings: { uploadedAt: number; firstSeenAt?: number; doneAt?: number; seconds?: number };
+  /** seconds: from the upload until the outcome was decided; queuedSeconds: until the presentation first appeared (directory or row) */
+  timings: { uploadedAt: number; firstSeenAt?: number; doneAt?: number; seconds?: number; queuedSeconds?: number };
   served?: { ok: boolean; detail: string };
   notes: string[];
 }
