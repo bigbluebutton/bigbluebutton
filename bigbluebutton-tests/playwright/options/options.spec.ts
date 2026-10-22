@@ -1,5 +1,6 @@
 import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
+import { constants as c } from '../parameters/constants';
 import { Options } from './options';
 
 // Shown as "Join by URL" in the session details; the client never opens it.
@@ -38,8 +39,8 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.autoHideWhiteboardToolbar();
   });
 
-  test('Options dropdown keyboard navigation', async () => {
-    await options.keyboardNavigationOptionsDropdown();
+  test('Single option replaces the options dropdown', async () => {
+    await options.singleOptionBecomesDirectButton();
   });
 
   test('Unsaved settings changes', async () => {
@@ -82,5 +83,16 @@ test.describe.parallel('Session details', { tag: '@ci' }, () => {
     const options = new Options(browser, context);
     await options.initModPage(page, { createParameter: `loginURL=${encodeURIComponent(JOIN_URL)}`, testInfo });
     await options.sessionDetails(JOIN_URL);
+  });
+});
+
+test.describe('Options dropdown with several entries', { tag: '@ci' }, () => {
+  test('Options dropdown keyboard navigation', async ({ browser, context }, testInfo) => {
+    const options = new Options(browser, context);
+    await initializePages(options, browser, {
+      testInfo,
+      joinParameter: c.disableDirectLeaveButton,
+    });
+    await options.keyboardNavigationOptionsDropdown();
   });
 });

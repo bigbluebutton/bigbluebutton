@@ -15,6 +15,7 @@ export const elements = {
   mediaAreaButton: 'button[data-test="mediaAreaButton"]',
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
   optionsButton: 'button[data-test="optionsButton"]',
+  optionsFullscreen: 'button[data-test="optionsFullscreen"]',
   settings: 'li[data-test="settings"]',
   presenceToggle: 'div[data-test="presenceToggle"]',
   modalConfirmButton: 'button[data-test="modalConfirmButton"]',
@@ -890,6 +891,7 @@ export const elements = {
   // Dark mode
   darkModeToggleBtn: 'input[data-test="darkModeToggleBtn"]',
   actionsBarBackground: 'section[id="ActionsBar"]',
+  appSettingsDropdownMenuItem: '#app-settings-dropdown-menu [role="menuitem"]',
   navbarBackground: 'header[id="Navbar"]',
   fullscreenModal: 'div[id="fsmodal"]',
   sharedNotesBackground: 'div[data-test="notes"]',

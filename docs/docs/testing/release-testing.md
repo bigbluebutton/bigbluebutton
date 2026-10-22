@@ -1456,9 +1456,9 @@ Note :
 
 1. Join meeting.
 
-2. Click on the "Options" button in the top-right corner of the client (three dots icon).
+2. Click on the "Options" button in the top-right corner of the client (three dots icon). On desktop, with the default settings, the menu would hold only the fullscreen entry, so a fullscreen button shows in its place (see [Nav bar and actions bar overflow](#nav-bar-and-actions-bar-overflow-automated)); join with `userdata-bbb_direct_leave_button=false` to get the three dots menu.
 
-3. Dropdown list should appear with a list of available options (by default only "Fullscreen Application"; Settings, Keyboard shortcuts and leaving the meeting are reached as described below).
+3. Dropdown list should appear with a list of available options ("Fullscreen Application", "Leave session" and, for moderators, "End session for all"; Settings and Keyboard shortcuts are reached as described below).
 
 ### Make Full screen
 

@@ -646,7 +646,10 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   test('Shortcuts', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     const shortcutParam = getAllShortcutParams();
-    await customParam.initModPage(page, { joinParameter: encodeCustomParams(shortcutParam) });
+    // A single-entry Options menu turns into a direct button without the openOptions shortcut.
+    await customParam.initModPage(page, {
+      joinParameter: `${encodeCustomParams(shortcutParam)}&${c.disableDirectLeaveButton}`,
+    });
     await customParam.initUserPage(context, { useModMeetingId: true, testInfo });
     await customParam.shortcuts();
   });

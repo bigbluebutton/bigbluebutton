@@ -96,6 +96,7 @@ export const constants = {
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
   overrideDefaultLocaleToRTL: 'userdata-bbb_override_default_locale=ar',
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
+  disableDirectLeaveButton: 'userdata-bbb_direct_leave_button=false',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
   webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
   logoutURL: `logoutURL=${encodeURIComponent(LOGOUT_URL)}`,
