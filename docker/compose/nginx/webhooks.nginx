@@ -1,0 +1,11 @@
+# The package's webhooks.nginx; webhooks runs only with the webhooks profile, so its name is
+# resolved per request.
+location /bigbluebutton/api/hooks {
+    resolver           127.0.0.11 valid=30s;
+    set                $webhooks http://webhooks:3005;
+    proxy_pass         $webhooks;
+    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header   X-Real-IP         $remote_addr;
+    proxy_set_header   Host              $http_host;
+    proxy_set_header   X-NginX-Proxy     true;
+}
