@@ -33,8 +33,35 @@ dotenv.config();
  * settings before the app reads them. Lets tests exercise config-only settings that have
  * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
  */
+type ClientSettingsLeaf = string | number | boolean | null;
+
 export interface ClientSettingsOverrides {
-  [key: string]: string | number | boolean | null | Array<string | number | boolean> | ClientSettingsOverrides;
+  [key: string]: ClientSettingsLeaf | ClientSettingsOverrides | Array<ClientSettingsLeaf | ClientSettingsOverrides>;
+}
+
+const isRecord = (val: unknown): val is Record<string, unknown> =>
+  typeof val === 'object' && val !== null && !Array.isArray(val);
+
+const isDeepEqual = (a: unknown, b: unknown): boolean => {
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((v, i) => isDeepEqual(v, b[i]));
+  if (isRecord(a) && isRecord(b)) {
+    const keys = Object.keys(a);
+    return keys.length === Object.keys(b).length && keys.every((k) => isDeepEqual(a[k], b[k]));
+  }
+  return false;
+};
+
+/** Lists every leaf of `expected` whose value differs in `actual`, as `a.b.c: expected X, got Y`. */
+export function collectOverrideMismatches(expected: ClientSettingsOverrides, actual: unknown, path = ''): string[] {
+  return Object.entries(expected).flatMap(([key, value]) => {
+    const keyPath = path ? `${path}.${key}` : key;
+    const actualValue = isRecord(actual) ? actual[key] : undefined;
+    if (isRecord(value) && isRecord(actualValue)) return collectOverrideMismatches(value, actualValue, keyPath);
+    return isDeepEqual(value, actualValue)
+      ? []
+      : [`${keyPath}: expected ${JSON.stringify(value)}, got ${JSON.stringify(actualValue)}`];
+  });
 }
 
 export interface InitOptionsProps {
@@ -43,6 +70,14 @@ export interface InitOptionsProps {
   meetingId?: string;
   createParameter?: string;
   createModules?: string;
+  /**
+   * Client settings to override server-side, sent as the `clientSettingsOverride` create module so
+   * they reach every participant and breakout room. bbb-web drops that module unless
+   * `allowOverrideClientSettingsOnCreateCall=true`, so init() checks the delivered settings after
+   * join and fails with the remedy when they were ignored. Prefer `clientSettingsOverrides` when
+   * patching the one page under test client-side is enough.
+   */
+  createClientSettingsOverride?: ClientSettingsOverrides;
   joinParameter?: string;
   customMeetingId?: string;
   isRecording?: boolean;
@@ -117,6 +152,7 @@ export class Page {
       meetingId,
       createParameter: callerCreateParameter,
       createModules,
+      createClientSettingsOverride,
       joinParameter,
       customMeetingId,
       skipSessionDetailsModal = true,
@@ -143,7 +179,14 @@ export class Page {
 
     await helpers.setBrowserLogs(this, forceErrorLogFailure);
 
-    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId, createModules));
+    if (createModules !== undefined && createClientSettingsOverride !== undefined) {
+      throw new Error('Pass either createModules (raw XML) or createClientSettingsOverride, not both');
+    }
+    const modules =
+      createClientSettingsOverride !== undefined
+        ? helpers.buildClientSettingsOverrideModule(createClientSettingsOverride)
+        : createModules;
+    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId, modules));
     const joinUrl = helpers.getJoinURL({
       meetingID: this.meetingId,
       fullName: this.username,
@@ -157,6 +200,7 @@ export class Page {
       hasErrorLabel,
       'should pass the authentication and the layout element should be displayed',
     ).toBeFalsy();
+    if (createClientSettingsOverride) await this.expectServerClientSettingsOverride(createClientSettingsOverride);
     if (shouldCheckAllInitialSteps !== undefined ? shouldCheckAllInitialSteps : true) {
       if (!shouldAvoidLayoutCheck) await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
       this.settings = await generateSettingsData(this.page);
@@ -201,10 +245,40 @@ export class Page {
           return storedSettings;
         },
         set(value: unknown) {
+          // Keep the unpatched server value aside for expectServerClientSettingsOverride.
+          // eslint-disable-next-line no-underscore-dangle
+          (window as unknown as { __serverMeetingClientSettings?: unknown }).__serverMeetingClientSettings = value;
           storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
         },
       });
     }, overrides);
+  }
+
+  /**
+   * Asserts that the client settings the server delivered contain every leaf of `expected`.
+   * bbb-web only logs a warning when it drops the `clientSettingsOverride` create module
+   * (allowOverrideClientSettingsOnCreateCall=false, the default), so without this check such a
+   * test runs on stock settings and fails later on an assertion that says nothing about the cause.
+   */
+  async expectServerClientSettingsOverride(expected: ClientSettingsOverrides): Promise<void> {
+    await this.page.waitForFunction(
+      () => (window as unknown as { meetingClientSettings?: unknown }).meetingClientSettings !== undefined,
+      undefined,
+      { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME },
+    );
+    const delivered = await this.page.evaluate(() => {
+      const w = window as unknown as { meetingClientSettings?: unknown; __serverMeetingClientSettings?: unknown };
+      // eslint-disable-next-line no-underscore-dangle
+      return w.__serverMeetingClientSettings ?? w.meetingClientSettings;
+    });
+    const mismatches = collectOverrideMismatches(expected, delivered);
+    expect(
+      mismatches,
+      `The clientSettingsOverride create module was not applied by ${parameters.server}:\n` +
+        `  ${mismatches.join('\n  ')}\n` +
+        'bbb-web ignores that module unless allowOverrideClientSettingsOnCreateCall=true is set in ' +
+        '/etc/bigbluebutton/bbb-web.properties (then restart bbb-web). CI sets it in .github/actions/install-bbb.',
+    ).toEqual([]);
   }
 
   async handleDownload(
