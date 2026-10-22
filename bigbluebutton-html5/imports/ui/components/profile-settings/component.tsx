@@ -108,9 +108,9 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.video.joinVideo',
     description: 'Join Video Label',
   },
-  stopSharingWebcamLabel: {
-    id: 'app.profileSettings.stopSharingWebcam',
-    description: 'Stop Sharing Webcam Button Label',
+  leaveVideoLabel: {
+    id: 'app.video.leaveVideo',
+    description: 'Leave Video Label',
   },
   addExtraCameraLabel: {
     id: 'app.profileSettings.addExtraCamera',
@@ -900,7 +900,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                     ghost
                     color="danger"
                     size="sm"
-                    label={formatMessage(intlMessages.stopSharingWebcamLabel)}
+                    label={formatMessage(intlMessages.leaveVideoLabel)}
                     onClick={() => handleStopSharing(sectionIndex, section.deviceId)}
                     data-test={`stopSharingCameraButton-${sectionIndex}`}
                   />
@@ -931,7 +931,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         {isCameraAlreadyShared ? (
           <Styled.SaveButton
             color="danger"
-            label={formatMessage(intlMessages.stopSharingWebcamLabel)}
+            label={formatMessage(intlMessages.leaveVideoLabel)}
             onClick={() => handleStopSharing(
               activePreviewIndex,
               cameraSections[activePreviewIndex].deviceId,
