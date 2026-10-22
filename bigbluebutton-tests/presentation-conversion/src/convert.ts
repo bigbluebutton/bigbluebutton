@@ -54,6 +54,19 @@ interface State {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const log = (...a: unknown[]) => console.log(`[convert ${new Date().toISOString().slice(11, 19)}]`, ...a);
 
+/** The message of an exception, with the cause fetch hides behind "fetch failed". */
+function errorText(e: unknown): string {
+  const err = e as { message?: string; cause?: { message?: string; code?: string } } | undefined;
+  const cause = err?.cause?.message ?? err?.cause?.code;
+  return `${err?.message ?? String(e)}${cause ? ` (${cause})` : ''}`;
+}
+
+function harnessError(s: State, e: unknown): void {
+  s.outcome = 'error';
+  s.notes.push(`harness error: ${errorText(e)}`);
+  log(`${s.p.m.id}: harness error: ${errorText(e)}`);
+}
+
 function timeoutMs(p: Prepared): number {
   const office = OFFICE_EXT.has(path.extname(p.name).toLowerCase()) ? 120 : 0;
   return Math.min(900, 120 + 20 * Math.max(1, p.m.pages) + office) * 1000;
@@ -94,8 +107,11 @@ export class Converter {
         for (const f of await this.runMeeting(plan)) fixtures[f.id] = f;
       }
     });
-    await Promise.all(workers);
-    await this.unstage();
+    try {
+      await Promise.all(workers);
+    } finally {
+      await this.unstage();
+    }
     const collected: Collected = {
       runId: runId(),
       profile: this.profile,
@@ -216,7 +232,15 @@ export class Converter {
         : undefined;
     const t0 = Date.now();
     const states = plan.fixtures.map<State>((p) => ({ p, uploadedAt: t0, notes: [] }));
-    const created = await this.api.create(plan.externalId, params, body);
+    let created: Awaited<ReturnType<BbbApi['create']>>;
+    try {
+      created = await this.api.create(plan.externalId, params, body);
+    } catch (e) {
+      log(`${plan.externalId}: create failed (${plan.fixtures.map((p) => p.m.id).join(', ')})`);
+      for (const s of states) harnessError(s, e);
+      await this.api.end(plan.externalId).catch(() => undefined);
+      return states.map((s) => this.result(plan, '', s, []));
+    }
     log(`${plan.externalId}: create ${created.returncode} (${plan.fixtures.map((p) => p.m.id).join(', ')})`);
     if (created.returncode !== 'SUCCESS' || !created.internalMeetingID) {
       for (const s of states) {
@@ -227,28 +251,45 @@ export class Converter {
     }
     const internal = created.internalMeetingID;
     const key = this.target.meetingKey === 'internal' ? internal : plan.externalId;
-    if (plan.kind === 'insert') {
-      for (const [i, s] of states.entries()) {
-        if (i > 0) await sleep(INSERT_GAP_MS);
-        s.uploadedAt = Date.now();
-        const r = await this.api.insertDocument(plan.externalId, modulesXml([documentXml({ name: s.p.name, base64: s.p.base64, url: s.p.url })]));
-        s.uploadResponse = { status: r.status, returncode: r.returncode, messageKey: r.messageKey, message: r.message };
-        if (r.returncode !== 'SUCCESS') s.outcome = 'upload-failed';
-      }
-    }
-    await this.waitFor(states, internal, meetingRoot(this.target, key));
+    const root = meetingRoot(this.target, key);
     const results: CollectedFixture[] = [];
-    let servedDone = false;
-    for (const s of states) {
-      const pages = s.outcome === 'converted' && s.presId ? await this.collect(s, meetingRoot(this.target, key)) : [];
-      const r = this.result(plan, internal, s, pages);
-      if (!servedDone && r.outcome === 'converted' && r.pageCount > 0) {
-        r.served = await this.servedCheck(plan.externalId, key, r);
-        servedDone = true;
+    try {
+      if (plan.kind === 'insert') {
+        for (const [i, s] of states.entries()) {
+          if (i > 0) await sleep(INSERT_GAP_MS);
+          s.uploadedAt = Date.now();
+          try {
+            const r = await this.api.insertDocument(plan.externalId, modulesXml([documentXml({ name: s.p.name, base64: s.p.base64, url: s.p.url })]));
+            s.uploadResponse = { status: r.status, returncode: r.returncode, messageKey: r.messageKey, message: r.message };
+            if (r.returncode !== 'SUCCESS') s.outcome = 'upload-failed';
+          } catch (e) {
+            harnessError(s, e);
+          }
+        }
       }
-      results.push(r);
+      try {
+        await this.waitFor(states, internal, root);
+      } catch (e) {
+        for (const s of states) if (!s.outcome) harnessError(s, e);
+      }
+      let servedDone = false;
+      for (const s of states) {
+        try {
+          const pages = s.outcome === 'converted' && s.presId ? await this.collect(s, root) : [];
+          const r = this.result(plan, internal, s, pages);
+          if (!servedDone && r.outcome === 'converted' && r.pageCount > 0) {
+            r.served = await this.servedCheck(plan.externalId, key, r);
+            servedDone = true;
+          }
+          results.push(r);
+        } catch (e) {
+          harnessError(s, e);
+          results.push(this.result(plan, internal, s, []));
+        }
+      }
+    } finally {
+      await this.api.end(plan.externalId).catch(() => undefined);
     }
-    await this.api.end(plan.externalId).catch(() => undefined);
     return results;
   }
 
@@ -413,17 +454,23 @@ export class Converter {
   /** Fetches slide 1 the way the client does (session cookie + sessionToken + pageToken) and compares it with the file on disk. */
   private async servedCheck(meetingId: string, key: string, r: CollectedFixture): Promise<{ ok: boolean; detail: string }> {
     if (this.target.served.token === 'none' || !this.target.served.base) return { ok: true, detail: 'not applicable for this target' };
-    const joined = await this.api.join(meetingId, 'pc-suite');
-    if ('error' in joined) return { ok: false, detail: joined.error };
-    const token = pageToken(this.target.secret, r.presId!, 1);
-    const url = `${this.target.served.base}${key}/${key}/${r.presId}/svg/1?pageToken=${token}&sessionToken=${joined.sessionToken}`;
-    const headers = { cookie: joined.cookie };
-    const ok = await fetch(url, { headers, signal: AbortSignal.timeout(30_000) });
-    const body = Buffer.from(await ok.arrayBuffer());
-    const disk = fs.readFileSync(path.join(profileWorkDir(), r.pages[0].svg!));
-    const denied = await fetch(url.replace(/pageToken=[0-9a-f]+/, 'pageToken=0'), { headers, signal: AbortSignal.timeout(30_000) });
-    const good = ok.status === 200 && body.equals(disk) && denied.status === 403;
-    return { ok: good, detail: `with token ${ok.status} (${body.equals(disk) ? 'same bytes as disk' : 'differs from disk'}), wrong token ${denied.status}` };
+    const svg = r.pages[0]?.svg;
+    if (!svg) return { ok: false, detail: 'slide 1 SVG missing on disk' };
+    try {
+      const joined = await this.api.join(meetingId, 'pc-suite');
+      if ('error' in joined) return { ok: false, detail: joined.error };
+      const token = pageToken(this.target.secret, r.presId!, 1);
+      const url = `${this.target.served.base}${key}/${key}/${r.presId}/svg/1?pageToken=${token}&sessionToken=${joined.sessionToken}`;
+      const headers = { cookie: joined.cookie };
+      const ok = await fetch(url, { headers, signal: AbortSignal.timeout(30_000) });
+      const body = Buffer.from(await ok.arrayBuffer());
+      const disk = fs.readFileSync(path.join(profileWorkDir(), svg));
+      const denied = await fetch(url.replace(/pageToken=[0-9a-f]+/, 'pageToken=0'), { headers, signal: AbortSignal.timeout(30_000) });
+      const good = ok.status === 200 && body.equals(disk) && denied.status === 403;
+      return { ok: good, detail: `with token ${ok.status} (${body.equals(disk) ? 'same bytes as disk' : 'differs from disk'}), wrong token ${denied.status}` };
+    } catch (e) {
+      return { ok: false, detail: `served check error: ${errorText(e)}` };
+    }
   }
 }
 

@@ -3,7 +3,7 @@ import path from 'path';
 import { expect, test } from '@playwright/test';
 import { embeddedJpegOrientations, slideKind, svgAspect } from '../src/assert/svg';
 import { CheckRun } from '../src/checks';
-import { CollectedFixture, loadCollected } from '../src/collected';
+import { CollectedFixture, describeOutcome, loadCollected, matchesExpectation } from '../src/collected';
 import { loadTarget, profileName, profileWorkDir } from '../src/env';
 import { ALL_CHECKS, CheckName, expectationFor, goldenProfile, Manifest, pageSpec, selectedManifests } from '../src/manifest';
 import { decodePng, markerOrientation, meanDifference, ORIENTATION_NAMES } from '../src/render/png';
@@ -22,19 +22,6 @@ function fixtureResult(m: Manifest): CollectedFixture {
   const c = loadCollected().fixtures[m.id];
   if (!c) throw new Error(`${m.id} was not collected by the convert step`);
   return c;
-}
-
-function describeOutcome(c: CollectedFixture): string {
-  if (c.outcome === 'rejected') return `rejected:${c.errorKey}`;
-  if (c.outcome === 'upload-failed') return `upload-failed (${c.uploadResponse?.messageKey ?? c.uploadResponse?.status})`;
-  return c.outcome;
-}
-
-function matchesExpectation(expectation: string, c: CollectedFixture): boolean {
-  if (expectation === 'converted') return c.outcome === 'converted';
-  if (expectation === 'dropped') return c.outcome === 'dropped' || c.outcome === 'upload-failed';
-  if (expectation.startsWith('rejected:')) return c.outcome === 'rejected' && c.errorKey === expectation.slice(9);
-  return true;
 }
 
 for (const m of selectedManifests(profile)) {

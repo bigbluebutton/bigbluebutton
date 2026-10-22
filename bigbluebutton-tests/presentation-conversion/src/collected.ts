@@ -2,7 +2,8 @@ import fs from 'fs';
 import { profileWorkDir } from './env';
 import { UploadMethod } from './manifest';
 
-export type Outcome = 'converted' | 'rejected' | 'dropped' | 'timeout' | 'upload-failed';
+/** 'error' is a failure of the harness itself (an exception while uploading, waiting or collecting), not a server outcome. */
+export type Outcome = 'converted' | 'rejected' | 'dropped' | 'timeout' | 'upload-failed' | 'error';
 
 export interface PdfPageBox {
   w: number;
@@ -53,6 +54,21 @@ export interface Collected {
   environment: Record<string, string>;
   warnings: string[];
   fixtures: Record<string, CollectedFixture>;
+}
+
+export function describeOutcome(c: CollectedFixture): string {
+  if (c.outcome === 'rejected') return `rejected:${c.errorKey}`;
+  if (c.outcome === 'upload-failed') return `upload-failed (${c.uploadResponse?.messageKey ?? c.uploadResponse?.status})`;
+  if (c.outcome === 'error') return `error (${c.notes.join('; ')})`;
+  return c.outcome;
+}
+
+export function matchesExpectation(expectation: string, c: CollectedFixture): boolean {
+  if (c.outcome === 'error') return false;
+  if (expectation === 'converted') return c.outcome === 'converted';
+  if (expectation === 'dropped') return c.outcome === 'dropped' || c.outcome === 'upload-failed';
+  if (expectation.startsWith('rejected:')) return c.outcome === 'rejected' && c.errorKey === expectation.slice(9);
+  return true;
 }
 
 export function collectedPath(): string {
