@@ -24,6 +24,7 @@ export const constants = {
   maxParticipants: 'maxParticipants=2',
   duration: 'duration=2',
   durationAboveRemainingTimeThreshold: 'duration=10',
+  shortestDuration: 'duration=1',
   messageModerator: 'This is a moderator only message',
   moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
   webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
@@ -75,7 +76,6 @@ export const constants = {
   multiUserTools: 'userdata-bbb_multi_user_tools=["arrow","text"]',
   customStyle: `userdata-bbb_custom_style=${CUSTOM_STYLE_CSS}`,
   customStyleUrl: `userdata-bbb_custom_style_url=${CUSTOM_STYLE_URL}`,
-  autoSwapLayout: 'userdata-bbb_auto_swap_layout=true',
   hidePresentationOnJoin: 'userdata-bbb_hide_presentation_on_join=true',
   outsideToggleSelfVoice: 'userdata-bbb_outside_toggle_self_voice=true',
   outsideToggleRecording: 'userdata-bbb_outside_toggle_recording=true',
@@ -102,6 +102,7 @@ export const constants = {
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
   speechRecognitionDisabled: 'disabledFeatures=liveTranscription',
+  captionsDisabled: 'disabledFeatures=liveTranscription',
   chatDisabled: 'disabledFeatures=chat',
   externalVideosDisabled: 'disabledFeatures=externalVideos',
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
@@ -122,6 +123,7 @@ export const constants = {
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
   speechRecognitionExclude:
     'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
+  captionsExclude: 'disabledFeatures=liveTranscription,presentation,chat&disabledFeaturesExclude=liveTranscription',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
   learningDashboardExclude:

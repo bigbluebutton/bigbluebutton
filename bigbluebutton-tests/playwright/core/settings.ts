@@ -107,7 +107,6 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       multiFunctionalModeEnabled: settingsData.multiFunctionalMode?.enabled,
     };
   } catch (err) {
-    console.log(`Unable to get public settings data: ${err}`);
-    return undefined;
+    throw new Error(`Unable to read the client settings (window.meetingClientSettings.public): ${err}`);
   }
 }

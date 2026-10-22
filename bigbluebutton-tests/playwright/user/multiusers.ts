@@ -511,13 +511,9 @@ export class MultiUsers {
   }
 
   async muteAllUsersExceptPresenter() {
-    // join audio. Firefox holds enumerateDevices() until the tab is the selected one, and
-    // the audio modal needs it before it enables its join button
-    await this.modPage.page.bringToFront();
+    // join audio
     await this.modPage.joinMicrophone();
-    await this.modPage2.page.bringToFront();
     await this.modPage2.joinMicrophone();
-    await this.userPage.page.bringToFront();
     await this.userPage.joinMicrophone();
     // mute all users except the presenter: a direct crowd-action button in the
     // participants panel now (the manageUsers gear dropdown is gone)
@@ -552,20 +548,11 @@ export class MultiUsers {
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem, 'should not display a user on the user list for the moderator');
-
-    // Will be modified when the issue is fixed and accept just one of both screens
-    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
-    try {
-      await this.modPage2.hasElement(
-        e.errorScreenMessage,
-        'should display the error screen message for the second moderator',
-      );
-    } catch {
-      await this.modPage2.hasElement(
-        e.meetingEndedModalTitle,
-        'should display the meeting ended modal for the second moderator',
-      );
-    }
+    await this.modPage2.hasText(
+      e.meetingEndedModal,
+      e.removedFromSessionMessage,
+      'should tell the second moderator that they were removed',
+    );
   }
 
   async removeUserAndPreventRejoining() {
@@ -579,19 +566,11 @@ export class MultiUsers {
       'should not display the user on the user list for the moderator',
     );
 
-    // Will be modified when the issue is fixed and accept just one of both screens
-    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
-    try {
-      await this.modPage2.hasElement(
-        e.errorScreenMessage,
-        'should display the error screen message for the second moderator',
-      );
-    } catch {
-      await this.modPage2.hasElement(
-        e.meetingEndedModalTitle,
-        'should display the meeting ended modal for the second moderator',
-      );
-    }
+    await this.modPage2.hasText(
+      e.meetingEndedModal,
+      e.removedFromSessionMessage,
+      'should tell the second moderator that they were removed',
+    );
 
     await this.initModPage2(this.modPage.context, {
       meetingId: this.modPage.meetingId,
@@ -599,13 +578,13 @@ export class MultiUsers {
       shouldCheckAllInitialSteps: false,
       shouldCloseAudioModal: false,
     });
-
-    // Due to same reason above, sometimes it displays different messages
-    try {
-      await this.modPage2.hasText('body', /banned/, 'should display the banned message for the second moderator');
-    } catch {
-      await this.modPage2.hasText('body', /removed/, 'should display the removed message for the second moderator');
-    }
+    await this.modPage2.hasText(
+      e.meetingEndedModal,
+      e.bannedFromSessionMessage,
+      'should tell the second moderator rejoining that they were removed for the rest of the session',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage2.wasRemoved(e.actionsBarBackground, 'should not let the second moderator back into the meeting');
   }
 
   // Reactions tests

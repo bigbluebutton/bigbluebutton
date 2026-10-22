@@ -27,18 +27,24 @@ async function validateEnvironmentAndAPI(): Promise<void> {
 
   // Create a request context for API validation
   const requestContext = await request.newContext();
+  const testMeetingId = `validation-test-${Date.now()}`;
+  let meetingCreated = false;
 
   try {
     // Test the /create endpoint with a temporary meeting
-    const testMeetingId = `validation-test-${Date.now()}`;
     const createUrl = helpers.createMeetingUrl(undefined, testMeetingId);
     const createResponse = await requestContext.get(createUrl, { timeout: 15000 });
 
-    if (!createResponse.ok()) {
-      const msg = `Failed to validate /create endpoint. HTTP status: ${createResponse.status()}.`;
+    // a wrong BBB_SECRET is answered with HTTP 200 and a checksumError
+    const createBody = await createResponse.text();
+    if (!createResponse.ok() || !createBody.includes('<returncode>SUCCESS</returncode>')) {
+      const messageKey = createBody.match(/<messageKey>(.*?)<\/messageKey>/)?.[1] ?? 'none';
+      const status = createResponse.status();
+      const msg = `Failed to validate /create endpoint. HTTP status: ${status}, messageKey: ${messageKey}.`;
       console.error(msg);
       throw new Error(msg);
     }
+    meetingCreated = true;
 
     // Test the /join endpoint on the meeting just created. A join redirects either to the client or,
     // when rejected (e.g. checksumError), to the logout URL with an `errors` parameter. The redirect
@@ -61,6 +67,7 @@ async function validateEnvironmentAndAPI(): Promise<void> {
     console.error('Environment and API validation failed:', (error as Error).message);
     throw error;
   } finally {
+    if (meetingCreated) await helpers.endMeetings(requestContext, [testMeetingId]);
     await requestContext.dispose();
   }
 }

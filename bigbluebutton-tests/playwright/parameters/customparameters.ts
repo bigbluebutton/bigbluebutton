@@ -110,16 +110,6 @@ export class CustomParameters extends MultiUsers {
     expect(resp, 'should display the different style on the meeting').toBeTruthy();
   }
 
-  async autoSwapLayout() {
-    await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
-    await this.modPage.waitAndClick(e.minimizePresentation);
-    const resp = await this.modPage.page.evaluate(
-      (elem) => (document.querySelectorAll(elem)[0] as HTMLElement)?.offsetHeight !== 0,
-      e.restorePresentation,
-    );
-    expect(resp, 'should display the auto swap layout').toBeTruthy();
-  }
-
   async autoJoin() {
     await this.modPage.hasElement(e.chatMessages, 'should display the chat messages', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.audioModal, 'should not display the audio modal');

@@ -8,6 +8,8 @@ import { MultiUsers } from '../user/multiusers';
 import { constants } from './constants';
 
 const { messageModerator } = constants;
+// one minute, the shortest duration a meeting can have, plus the interval of the server's expiry check
+const MEETING_DURATION_END_WAIT_TIME = 2 * 60000;
 
 export class CreateParameters extends MultiUsers {
   async recordMeeting() {
@@ -108,6 +110,16 @@ export class CreateParameters extends MultiUsers {
       e.timeRemaining,
       /[1-2]:[0-5][0-9]/,
       'should display the time remaining of the meeting decreasing',
+    );
+  }
+
+  async meetingEndsAfterDuration() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
+    await this.modPage.hasText(
+      e.meetingEndedModal,
+      e.meetingEndedByDurationMessage,
+      'should end the meeting when its duration is over',
+      MEETING_DURATION_END_WAIT_TIME,
     );
   }
 

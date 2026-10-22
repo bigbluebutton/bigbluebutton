@@ -4,6 +4,9 @@ import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { ClientSettingsOverrides, Page } from '../core/page';
 
+// How long a toast that must not appear is watched for after the matching toast reached another page.
+const TOAST_WATCH_TIME = 2000;
+
 // Client settings overrides that deterministically reproduce issue 25242 regardless of the
 // server config: the audio-only-tiles feature on, plus the equally-paginated branch
 // (partitionPrivilegedStreams: false) that used to drop audio-only tiles for non-privileged
@@ -42,7 +45,10 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
 }
 
 export async function openLockViewers(testPage: Page) {
-  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+  const isLockViewersButtonVisible = await testPage.page
+    .locator(e.lockViewersButton)
+    .isVisible({ timeout: ELEMENT_WAIT_TIME })
+    .catch(() => false);
   if (!isLockViewersButtonVisible) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
@@ -58,6 +64,45 @@ export async function applyUserListLock(testPage: Page) {
   // toasts before it shows up leaves it on screen for the next assertions
   await testPage.hasText(e.smallToastMsg, 'User list is now hidden for viewers', 'should confirm the user list lock');
   await testPage.closeAllToastNotifications();
+}
+
+// Keep the text of every toast the page shows from now on, so that a toast that comes and goes
+// while the test is still busy (a slow join, for example) can be checked afterwards.
+export async function recordToasts(testPage: Page) {
+  await testPage.page.evaluate((selector) => {
+    const recorded: string[] = [];
+    (window as unknown as { recordedToasts: string[] }).recordedToasts = recorded;
+    new MutationObserver(() => {
+      document.querySelectorAll(selector).forEach((toast) => {
+        const text = toast.textContent ?? '';
+        if (text && !recorded.includes(text)) recorded.push(text);
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }, e.smallToastMsg);
+}
+
+async function wasToastRecorded(testPage: Page, text: string): Promise<boolean> {
+  const recorded = await testPage.page.evaluate(
+    () => (window as unknown as { recordedToasts?: string[] }).recordedToasts ?? [],
+  );
+  return recorded.some((toast) => toast.includes(text));
+}
+
+export async function hasRecordedToast(
+  testPage: Page,
+  text: string,
+  description: string,
+  timeout: number = ELEMENT_WAIT_TIME,
+) {
+  await expect.poll(() => wasToastRecorded(testPage, text), { message: description, timeout }).toBe(true);
+}
+
+export async function hasNoRecordedToast(testPage: Page, text: string, description: string) {
+  const watchUntil = Date.now() + TOAST_WATCH_TIME;
+  while (Date.now() < watchUntil) {
+    expect(await wasToastRecorded(testPage, text), description).toBe(false);
+    await testPage.page.waitForTimeout(250);
+  }
 }
 
 // The talking indicator of one user, while that user is talking.

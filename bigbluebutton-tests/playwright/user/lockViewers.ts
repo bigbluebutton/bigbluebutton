@@ -15,9 +15,12 @@ import { MultiUsers } from './multiusers';
 import {
   applyUserListLock,
   drawArrow,
+  hasNoRecordedToast,
+  hasRecordedToast,
   hasUserListMicState,
   isTalkingLocator,
   openLockViewers,
+  recordToasts,
   setPresentationPermission,
   talkingIndicatorLocator,
 } from './util';
@@ -785,6 +788,10 @@ export class LockViewers extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
+    // Record toasts before Viewer2 joins: the join toast can come and go before the join finishes.
+    await recordToasts(this.modPage);
+    await recordToasts(this.userPage);
+
     // Step 5: Viewer2 joins.
     await this.initUserPage2();
 
@@ -798,18 +805,19 @@ export class LockViewers extends MultiUsers {
     // Moderator MUST still receive the join notification (per-user route after fix).
     // Assert positive first to confirm the notification was actually emitted before
     // checking the locked viewer never received it.
-    await this.modPage.hasText(
-      e.smallToastMsg,
-      `${this.userPage2.username} joined the session`,
+    const joinedMessage = `${this.userPage2.username} joined the session`;
+    await hasRecordedToast(
+      this.modPage,
+      joinedMessage,
       'Moderator must still receive the join notification when hideUserList is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
     // Locked viewer must NOT receive the join notification (regression for #24888).
-    await this.userPage.wasRemoved(
-      e.smallToastMsg,
+    await hasNoRecordedToast(
+      this.userPage,
+      joinedMessage,
       'Locked viewer must not receive a join notification when hideUserList is active',
-      ELEMENT_WAIT_TIME,
     );
   }
 
@@ -916,6 +924,11 @@ export class LockViewers extends MultiUsers {
     await this.userPage.closeAllToastNotifications();
     await unlockedViewer.closeAllToastNotifications();
 
+    // Record toasts before Viewer3 joins: the join toast can come and go before the join finishes.
+    await recordToasts(this.modPage);
+    await recordToasts(this.userPage);
+    await recordToasts(unlockedViewer);
+
     // Viewer3 joins after subscriptions are active.
     await this.initUserPage2(undefined, { fullName: 'Attendee3' });
     const viewer3 = this.userPage2;
@@ -927,24 +940,25 @@ export class LockViewers extends MultiUsers {
 
     // Assert positives first to confirm notifications were emitted before checking
     // the locked viewer never received one.
-    await this.modPage.hasText(
-      e.smallToastMsg,
-      `${viewer3.username} joined the session`,
+    const joinedMessage = `${viewer3.username} joined the session`;
+    await hasRecordedToast(
+      this.modPage,
+      joinedMessage,
       'Moderator must receive join notification when hideUserList is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await unlockedViewer.hasText(
-      e.smallToastMsg,
-      `${viewer3.username} joined the session`,
+    await hasRecordedToast(
+      unlockedViewer,
+      joinedMessage,
       'Unlocked viewer must receive join notification when hideUserList is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await this.userPage.wasRemoved(
-      e.smallToastMsg,
+    await hasNoRecordedToast(
+      this.userPage,
+      joinedMessage,
       'Locked viewer must not receive join notification when hideUserList is active',
-      ELEMENT_WAIT_TIME,
     );
   }
 
@@ -1048,6 +1062,10 @@ export class LockViewers extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
+    // Record toasts before Mod2 joins: the join toast can come and go before the join finishes.
+    await recordToasts(this.modPage);
+    await recordToasts(this.userPage);
+
     await this.initModPage2();
     const mod2Name = this.modPage2.username;
 
@@ -1056,15 +1074,15 @@ export class LockViewers extends MultiUsers {
       'Mod2 should appear in Mod1 user list after joining',
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    await this.modPage.hasText(
-      e.smallToastMsg,
+    await hasRecordedToast(
+      this.modPage,
       `${mod2Name} joined the session`,
       'Mod1 must receive join notification when a moderator joins (hideUserList active)',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await this.userPage.hasText(
-      e.smallToastMsg,
+    await hasRecordedToast(
+      this.userPage,
       `${mod2Name} joined the session`,
       'Locked viewer must receive join notification when a MODERATOR joins (hideUserList active)',
       ELEMENT_WAIT_LONGER_TIME,

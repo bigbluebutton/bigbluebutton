@@ -151,6 +151,25 @@ export async function endMeetings(request: APIRequestContext, meetingIDs: string
   await Promise.all(meetingIDs.map((meetingID) => request.get(getApiCallUrl('end', { meetingID }))));
 }
 
+// Meetings created while a test runs. The test fixture ends them once the test is over,
+// so they do not stay on the server until they expire.
+const meetingsCreatedByTest: string[] = [];
+
+export function startTrackingCreatedMeetings(): void {
+  meetingsCreatedByTest.length = 0;
+}
+
+export async function endMeetingsCreatedByTest(): Promise<void> {
+  const meetingIDs = meetingsCreatedByTest.splice(0);
+  await Promise.all(
+    meetingIDs.map((meetingID) =>
+      axios
+        .get(getApiCallUrl('end', { meetingID }), { adapter: 'http' })
+        .catch((error: Error) => console.warn(`could not end meeting ${meetingID} after the test: ${error.message}`)),
+    ),
+  );
+}
+
 export async function apiCall<T = unknown>(
   name: string,
   callParams?: Record<string, string>,
@@ -204,6 +223,7 @@ export async function createMeeting(
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+  meetingsCreatedByTest.push(xmlResponse.response.meetingID[0]);
   return xmlResponse.response.meetingID[0];
 }
 
@@ -222,6 +242,7 @@ export async function createMeetingWithModules(
   });
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+  meetingsCreatedByTest.push(xmlResponse.response.meetingID[0]);
   return xmlResponse.response.meetingID[0];
 }
 
