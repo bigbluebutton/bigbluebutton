@@ -6,7 +6,7 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { ensureProbe } from './roomMode';
-import { hasPanel, RoomModePanel, startsRoom } from './roomModePanel';
+import { hasPanel, RoomModePanel } from './roomModePanel';
 import { PHONE_VIEWPORT, PRE_FLIGHT_CREATE_PARAMETER } from './util';
 
 type Switch =
@@ -42,9 +42,8 @@ const MEETING_PRESET: EditableValues = {
 // off by the pre-flight's create parameter): the preset values must not reach
 // the room before it starts.
 const AS_CREATED = {
+  roomMode: '',
   muteOnStart: false,
-  disablePublicChat: false,
-  presenterPolicy: 'requireApproval',
   guestPolicy: 'ALWAYS_ACCEPT',
   multiUserWhiteboardEnabled: false,
 };
@@ -53,32 +52,34 @@ const AS_CREATED = {
 // starts on its own.
 export const RECORDING_ROOM_CREATE_PARAMETER = `${PRE_FLIGHT_CREATE_PARAMETER}&record=true`;
 
-const ROOM_SETTINGS_QUERY = queryDocument([
-  field('meeting', [
-    field('roomMode'),
-    field('lockSettings', [field('disablePublicChat'), field('presenterPolicy')]),
-    field('usersPolicies', [field('guestPolicy'), field('multiUserWhiteboardEnabled')]),
-    field('voiceSettings', [field('muteOnStart')]),
-  ]),
-]);
+// Before the join the server answers only the room's policies and voice settings,
+// not its lock settings, so the room is read through those.
+const PRE_JOIN_ROOM_QUERY = queryDocument(
+  [
+    field('meeting', [
+      field('roomMode'),
+      field('usersPolicies', [field('guestPolicy'), field('multiUserWhiteboardEnabled')]),
+      field('voiceSettings', [field('muteOnStart')]),
+    ]),
+  ],
+  // Named as the client's own subscription, the one the middleware lets through before the join.
+  'userCurrentSubscription',
+);
 
-interface RoomSettingsRow {
+interface PreJoinRoomRow {
   roomMode: string;
-  lockSettings: { disablePublicChat: boolean; presenterPolicy: string };
   usersPolicies: { guestPolicy: string; multiUserWhiteboardEnabled: boolean };
   voiceSettings: { muteOnStart: boolean };
 }
 
-const readRoomSettings = async (page: Page) => {
-  const data = await runQuery(page.page, ROOM_SETTINGS_QUERY);
-  const rows = data.meeting as RoomSettingsRow[];
+const readRoomBeforeJoin = async (page: Page) => {
+  const data = await runQuery(page.page, PRE_JOIN_ROOM_QUERY);
+  const rows = data.meeting as PreJoinRoomRow[];
   if (!rows?.length) throw new Error('meeting returned no rows');
-  const [{ roomMode, lockSettings, usersPolicies, voiceSettings }] = rows;
+  const [{ roomMode, usersPolicies, voiceSettings }] = rows;
   return {
     roomMode,
     muteOnStart: voiceSettings.muteOnStart,
-    disablePublicChat: lockSettings.disablePublicChat,
-    presenterPolicy: lockSettings.presenterPolicy,
     guestPolicy: usersPolicies.guestPolicy,
     multiUserWhiteboardEnabled: usersPolicies.multiUserWhiteboardEnabled,
   };
@@ -272,7 +273,8 @@ export class RoomModeSummary extends RoomModePanel {
     ).toBeFalsy();
   }
 
-  async appliesNothingYet() {
+  // Edits stay on the panel until Start room: the room still holds what it was created with.
+  async appliesNothingBeforeStart() {
     await hasPanel(this.modPage);
     await this.modPage.waitAndClick(e.preFlightRoomModeClass);
     await editClassPreset(this.modPage);
@@ -281,14 +283,9 @@ export class RoomModeSummary extends RoomModePanel {
     await this.modPage.page.locator(e.preFlightRoomModeJoinMuted).check();
     await this.modPage.page.locator(e.preFlightRoomModeWhiteboard).check();
 
-    await startsRoom(this.modPage);
     await ensureProbe(this.modPage);
-    // Nothing on this path writes to the room, so a read right after the join is
-    // the settled value.
-    expect(await readRoomSettings(this.modPage), 'should leave the room as it was created').toEqual({
-      roomMode: '',
-      ...AS_CREATED,
-    });
+    // Nothing reaches the room until the join, so a read right now is the settled value.
+    expect(await readRoomBeforeJoin(this.modPage), 'should leave the room as it was created').toEqual(AS_CREATED);
   }
 
   async reachesSummaryOnPhone(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {

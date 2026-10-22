@@ -45,10 +45,10 @@ test.describe.parallel('Room mode summary', { tag: '@ci' }, () => {
     await summary.leavesRecordingOut(page, false, { testInfo });
   });
 
-  test('Applies nothing to the room yet', async ({ browser, context, page }, testInfo) => {
+  test('Applies nothing to the room before Start room', async ({ browser, context, page }, testInfo) => {
     const summary = new RoomModeSummary(browser, context);
     await summary.initModPageWithPanel(page, { testInfo });
-    await summary.appliesNothingYet();
+    await summary.appliesNothingBeforeStart();
   });
 
   test('Edits the summary on a phone', async ({ browser, context, page }, testInfo) => {

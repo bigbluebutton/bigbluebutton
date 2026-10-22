@@ -17,6 +17,13 @@ export type RoomModeEditableId = keyof RoomModeEditableValues;
 
 export type RoomModeEdits = Partial<RoomModeEditableValues>;
 
+// The mode a moderator picked before the join, with the edits made under it:
+// what the join applies once the user is in.
+export interface RoomModeChoice {
+  modeId: string;
+  edits: RoomModeEdits;
+}
+
 // What the summary shows and the applier will apply: one value per setting
 // that something defines.
 export type ResolvedRoomModeSettings = Partial<RoomModeEditableValues>;
