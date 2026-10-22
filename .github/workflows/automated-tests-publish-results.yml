@@ -9,6 +9,7 @@ on:
 env:
   isCompleted: ${{ github.event.workflow_run.status == 'completed' }}
   AUTO_COMMENT_MARKER: "<!-- bbb-automated-tests -->"
+  IN_PROGRESS_MARKER: "<!-- bbb-automated-tests-in-progress: ${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }} -->"
 jobs:
   get-pr-data:
     runs-on: ubuntu-latest
@@ -160,8 +161,11 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: comment-pr-${{ needs.get-pr-data.outputs.pr-number }}
-      cancel-in-progress: true
+      # An in_progress event can arrive after the run completed; let it wait
+      # instead of cancelling the job that posts the final result.
+      cancel-in-progress: ${{ github.event.action != 'in_progress' }}
     permissions:
+      actions: read
       pull-requests: write
     needs: get-pr-data
     if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}
@@ -196,6 +200,31 @@ jobs:
               c.user?.login === 'github-actions[bot]' && c.body?.includes(marker)
             );
             core.info(`Auto-comment cleanup: found ${targets.length} matching comments`);
+
+            // GitHub sends several in_progress events per run, and one can
+            // arrive after the run has completed. Post the in-progress comment
+            // once per run attempt, and never over a newer state.
+            if (context.payload.action === 'in_progress') {
+              const run = context.payload.workflow_run;
+              let current = run;
+              try {
+                ({ data: current } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: run.id }));
+              } catch (e) {
+                core.warning(`Auto-comment cleanup: could not fetch run ${run.id}, assuming it is still in progress: ${e.message}`);
+              }
+              if (current.status === 'completed' || current.run_attempt !== run.run_attempt) {
+                core.info(`Auto-comment cleanup: skipping stale in_progress event (run ${run.id} attempt ${run.run_attempt} is now ${current.status}, attempt ${current.run_attempt})`);
+                core.setOutput('skip', 'true');
+                return;
+              }
+              const inProgressMarker = process.env.IN_PROGRESS_MARKER;
+              if (targets.some((c) => c.body.includes(inProgressMarker))) {
+                core.info(`Auto-comment cleanup: in-progress comment for run ${run.id} attempt ${run.run_attempt} already posted`);
+                core.setOutput('skip', 'true');
+                return;
+              }
+            }
+
             core.info(`Auto-comment cleanup summary: will delete ${targets.length} comment(s)`);
 
             for (const c of targets) {
@@ -212,12 +241,13 @@ jobs:
               }
             }
       - name: In progress tests comment
-        if: ${{ github.event.action == 'in_progress' }}
+        if: ${{ github.event.action == 'in_progress' && steps.fc.outputs.skip != 'true' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
             ${{ env.AUTO_COMMENT_MARKER }}
+            ${{ env.IN_PROGRESS_MARKER }}
             <h2><strong>:hourglass_flowing_sand:</strong> Automated tests are running...</h2>
       - name: Passing tests comment
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
