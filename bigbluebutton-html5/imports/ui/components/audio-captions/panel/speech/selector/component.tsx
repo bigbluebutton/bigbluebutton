@@ -48,7 +48,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
   speechLocale,
   speechVoices,
   speechChecked,
-  showJoinHint = false,
+  inAudioModal = false,
 }) => {
   const useLocaleHook = useFixedLocale();
   const intl = useIntl();
@@ -124,7 +124,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
           </MenuItem>
         ))}
       </Styled.CaptionsSelector>
-      <AudioCaptionsOnDeviceNotice locale={speechLocale} showJoinHint={showJoinHint} />
+      <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />
     </Styled.CaptionsSelectorContainer>
   );
 };
@@ -132,7 +132,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
 const AudioCaptionsSpeechSelectorContainer: React.FC<AudioCaptionsSpeechSelectorContainerProps> = ({
   speechChecked,
   speechVoices,
-  showJoinHint = false,
+  inAudioModal = false,
 }) => {
   const {
     data: currentUser,
@@ -149,7 +149,7 @@ const AudioCaptionsSpeechSelectorContainer: React.FC<AudioCaptionsSpeechSelector
       speechLocale={currentUser.speechLocale ?? ''}
       speechVoices={speechVoices}
       speechChecked={speechChecked}
-      showJoinHint={showJoinHint}
+      inAudioModal={inAudioModal}
     />
   );
 };

@@ -152,7 +152,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
         <AudioCaptionsSpeechSelectorContainer
           speechChecked={speechChecked}
           speechVoices={speechVoices}
-          showJoinHint={audioModal}
+          inAudioModal={audioModal}
         />
       )}
     </Styled.TranscriptionToggleContainer>

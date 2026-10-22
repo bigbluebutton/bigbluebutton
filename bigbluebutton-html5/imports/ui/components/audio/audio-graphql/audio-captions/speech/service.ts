@@ -68,10 +68,11 @@ export const checkOnDeviceLanguage = async (locale: string): Promise<void> => {
   }
 };
 
-// Downloads the language pack. Only on a user's request: it is a few hundred MB, and Chrome
-// gives no progress, so the UI can only tell that it is downloading.
-export const installOnDeviceLanguage = async (locale: string): Promise<void> => {
-  if (installing.has(locale)) return;
+// Downloads the language pack, on a user's confirmation only: it is a few hundred MB, and
+// Chrome gives no progress, so the UI can only tell that it is downloading. Resolves whether
+// the language is on the device afterwards.
+export const installOnDeviceLanguage = async (locale: string): Promise<boolean> => {
+  if (installing.has(locale)) return false;
   installing.add(locale);
   setOnDeviceLanguageStatus(locale, 'downloading');
   logger.info({
@@ -90,6 +91,7 @@ export const installOnDeviceLanguage = async (locale: string): Promise<void> => 
   }
   installing.delete(locale);
   setOnDeviceLanguageStatus(locale, installed ? 'available' : 'failed');
+  return installed;
 };
 
 export const useOnDeviceLanguageStatus = (locale: string): OnDeviceLanguageStatus | undefined => {
@@ -102,15 +104,22 @@ export const useOnDeviceLanguageStatus = (locale: string): OnDeviceLanguageStatu
   return statuses[locale];
 };
 
-// With processLocally, joining audio with a transcription language waits until its language
-// data is on the device. A language the browser cannot transcribe locally does not block:
-// nothing would ever unblock it.
-export const useOnDeviceLanguageBlocksAudio = (locale: string, isTranscriptionEnabled: boolean) => {
+// The transcription language just chosen in the audio settings, until the user's speechLocale
+// has it: confirming right after choosing must go by the new choice, not the stale locale
+export const chosenSpeechLocale = makeVar<string | null>(null);
+
+// With processLocally, joining audio with a transcription language first downloads its language
+// pack: needsDownload when confirming would start it, busy while it is checked or downloading.
+// A language the browser cannot transcribe locally needs nothing: nothing would ever get it.
+export const useOnDeviceLanguageForAudio = (locale: string, isTranscriptionEnabled: boolean) => {
   const onDevice = isTranscriptionEnabled && isWebSpeechApi() && isProcessLocally()
-    && hasSpeechRecognitionSupport();
+    && hasSpeechRecognitionSupport() && locale !== '';
   const status = useOnDeviceLanguageStatus(onDevice ? locale : '');
 
-  return onDevice && locale !== '' && status !== 'available' && status !== 'unavailable';
+  return {
+    needsDownload: onDevice && (status === 'downloadable' || status === 'failed'),
+    busy: onDevice && (!status || status === 'checking' || status === 'downloading'),
+  };
 };
 
 // The languages, out of the given ones, that can be transcribed on the device (downloaded or

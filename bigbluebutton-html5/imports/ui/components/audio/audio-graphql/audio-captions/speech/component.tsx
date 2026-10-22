@@ -54,6 +54,7 @@ const intlMessages = defineMessages({
 });
 
 const THROTTLE_TIMEOUT = 200;
+const NOT_READY_NOTIFICATION_DELAY = 1000;
 
 type SpeechRecognitionEvent = {
   resultIndex: number;
@@ -478,20 +479,29 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   // With processLocally, starts when the language pack becomes available (e.g. downloaded
   // from the transcription settings during the meeting), and tells the user when it is not
   useEffect(() => {
-    if (!isProcessLocally() || !speechRecognitionRef.current || locale === '') return;
-    if (!connected || muted) return;
+    if (!isProcessLocally() || !speechRecognitionRef.current || locale === '') return () => {};
+    if (!connected || muted) return () => {};
 
     if (onDeviceStatus === 'available') {
       start(locale);
     } else if (onDeviceStatus && onDeviceStatus !== 'checking' && onDeviceStatus !== 'downloading'
       && !onDeviceNotifiedRef.current.has(locale)) {
-      onDeviceNotifiedRef.current.add(locale);
-      logger.warn({
-        logCode: 'captions_speech_recognition_language_pack_missing',
-        extraInfo: { locale, status: onDeviceStatus },
-      }, 'Captions speech recognition is off: no on-device language pack for the locale');
-      notify(intl.formatMessage(intlMessages.onDeviceNotReady), 'warning', 'warning');
+      // Turning transcription on in the transcription panel starts the download: only tell the
+      // user when nothing is downloading it a moment later
+      const timeout = setTimeout(() => {
+        const status = getOnDeviceLanguageStatus(locale);
+        if (status === 'available' || status === 'downloading') return;
+        if (!connectedRef.current || mutedRef.current || onDeviceNotifiedRef.current.has(locale)) return;
+        onDeviceNotifiedRef.current.add(locale);
+        logger.warn({
+          logCode: 'captions_speech_recognition_language_pack_missing',
+          extraInfo: { locale, status },
+        }, 'Captions speech recognition is off: no on-device language pack for the locale');
+        notify(intl.formatMessage(intlMessages.onDeviceNotReady), 'warning', 'warning');
+      }, NOT_READY_NOTIFICATION_DELAY);
+      return () => clearTimeout(timeout);
     }
+    return () => {};
   }, [onDeviceStatus, connected, muted, locale]);
 
   useEffect(() => {

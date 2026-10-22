@@ -10,7 +10,7 @@ import {
   useIsAudioTranscriptionEnabled,
   getLocaleName,
 } from '../service';
-import { getLocale, localeAsDefaultSelected } from '../speech/service';
+import { chosenSpeechLocale, getLocale, localeAsDefaultSelected } from '../speech/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -53,8 +53,8 @@ const DEFAULT_LOCALE_APPLIED_KEY = 'audioCaptionsDefaultLocaleApplied';
 
 interface AudioCaptionsContainerProps {
   showTitleLabel?: boolean;
-  // In the audio modal, where joining waits for the on-device language data
-  showJoinHint?: boolean;
+  // In the audio modal, where confirming downloads the on-device language pack
+  inAudioModal?: boolean;
 }
 
 interface AudioCaptionsSelectProps {
@@ -101,6 +101,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
+    chosenSpeechLocale(value);
     setUserLocaleProperty(value, setUserSpeechLocale);
   };
 
@@ -155,7 +156,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
 const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   showTitleLabel = true,
-  showJoinHint = false,
+  inAudioModal = false,
 }) => {
   const [voicesList, setVoicesList] = React.useState<string[]>([]);
   const voices = useSpeechVoices();
@@ -206,7 +207,7 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
         speechVoices={voices || voicesList}
         showTitleLabel={showTitleLabel}
       />
-      <AudioCaptionsOnDeviceNotice locale={speechLocale} showJoinHint={showJoinHint} />
+      <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />
     </>
   );
 };

@@ -1686,9 +1686,9 @@ public:
 
 With it, the browser transcribes on the user's device and never falls back to a speech recognition service:
 
-- A language must be downloaded to the device before it can be transcribed. Under the transcription language, the audio settings and the transcription panel show whether it is on the device and, if not, a button to download it. The download is about 300 MB the first time in Chrome (speech engine plus language pack), then once per language, and it only starts when the user clicks the button.
-- Joining audio with a transcription language waits until its data is downloaded: the join button stays disabled until then, unless the user picks "Disabled" to join without transcription.
-- If audio is joined some other way (for example with `userdata-bbb_skip_check_audio`) without the data on the device, transcription stays off and the user is told to download it in the transcription settings. It starts by itself once the download finishes.
+- A language must be downloaded to the device before it can be transcribed. When it is not there yet, a short line under the transcription language in the audio settings says that a language pack needs to be downloaded. The download starts when the user confirms (the join audio button), and the audio settings stay open, showing that it is downloading, until it finishes; if it fails they stay open to try again. Picking "Disabled" joins audio without transcription and without downloading. The download is about 300 MB the first time in Chrome (speech engine plus language pack), then once per language.
+- In the transcription panel, turning transcription on with a language that is not on the device starts its download.
+- If audio is joined some other way (for example with `userdata-bbb_skip_check_audio`) without the language pack, transcription stays off and the user is told to turn it on in the transcription settings to download it. It starts by itself once the download finishes.
 - Only the languages in `language.available` that the browser can transcribe on the device are offered.
 - Browsers without on-device speech recognition show live captions as unsupported. Chrome has it from version 139, on desktop.
 

@@ -123,8 +123,8 @@ export const elements = {
   microphonePermissionHelpLabel: 'We need access to your microphone',
   unmuteConsentTitle: 'A moderator is asking you to unmute',
   onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
-  onDeviceLanguageAvailable: 'div[data-test="onDeviceLanguageAvailable"]',
-  onDeviceLanguageDownload: 'button[data-test="onDeviceLanguageDownload"]',
+  onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
+  onDeviceLanguageFailed: 'div[data-test="onDeviceLanguageFailed"]',
 
   // Breakout
   createBreakoutRoomsButton: 'button[data-test="createBreakoutRoomsButton"]',

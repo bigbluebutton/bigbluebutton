@@ -114,7 +114,77 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     );
   });
 
-  test('waits for the language data download before joining audio with transcription', async ({
+  test('downloads the language pack on confirmation, keeping the audio settings open until it ends', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, { ...AVAILABILITY, 'en-US': 'downloadable' }, true, { delayMs: 3000 });
+    const audioCaptions = new AudioCaptions(browser, context);
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      shouldCloseAudioModal: false,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+    });
+    const { modPage } = audioCaptions;
+
+    await audioCaptions.openAudioSettings();
+    await modPage.hasElement(e.onDeviceLanguageDownloadable, 'should tell that a language pack must be downloaded');
+    expect(
+      (await audioCaptions.getSpeechRecognitionShimRecord()).installs,
+      'should not download anything before the user confirms',
+    ).toEqual([]);
+
+    await modPage.waitAndClick(e.joinEchoTestButton);
+    await modPage.hasElement(e.onDeviceLanguageDownloading, 'should tell that the language pack is downloading');
+    await modPage.hasElement(e.audioSettingsModal, 'should keep the audio settings open while downloading');
+    await modPage.hasElementDisabled(e.joinEchoTestButton, 'should not confirm again while downloading');
+
+    await modPage.hasElement(e.unmuteMicButton, 'should join audio once the language pack is downloaded');
+    await modPage.waitAndClick(e.unmuteMicButton);
+    await expect
+      .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
+        message: 'should start an on-device recognition for en-US after the en-US download',
+      })
+      .toMatchObject({ installs: ['en-US'], starts: [{ lang: 'en-US', processLocally: true }] });
+  });
+
+  test('keeps the audio settings open when the language pack download fails', async ({
+    browser,
+    browserName,
+    context,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', NO_WEBSPEECH);
+    await shimSpeechSynthesisVoices(page, VOICES);
+    await shimSpeechRecognition(page, { ...AVAILABILITY, 'en-US': 'downloadable' }, true, { succeeds: false });
+    const audioCaptions = new AudioCaptions(browser, context);
+    await audioCaptions.initModPage(page, {
+      testInfo,
+      shouldCloseAudioModal: false,
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+    });
+    const { modPage } = audioCaptions;
+
+    await audioCaptions.openAudioSettings();
+    await modPage.waitAndClick(e.joinEchoTestButton);
+    await modPage.hasElement(e.onDeviceLanguageFailed, 'should tell that the language pack could not be downloaded');
+    await modPage.hasElement(e.audioSettingsModal, 'should keep the audio settings open after the failure');
+    await modPage.hasElementEnabled(e.joinEchoTestButton, 'should let the user confirm again to retry');
+
+    await modPage.waitAndClick(e.joinEchoTestButton);
+    await expect
+      .poll(async () => (await audioCaptions.getSpeechRecognitionShimRecord()).installs, {
+        message: 'should try the download again on the second confirmation',
+      })
+      .toEqual(['en-US', 'en-US']);
+    await modPage.hasElement(e.audioSettingsModal, 'should still keep the audio settings open');
+  });
+
+  test('joins audio right away with transcription disabled', async ({
     browser,
     browserName,
     context,
@@ -132,30 +202,10 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     const { modPage } = audioCaptions;
 
     await audioCaptions.openAudioSettings();
-    await modPage.hasElement(e.onDeviceLanguageDownloadable, 'should tell that the language data must be downloaded');
-    await modPage.hasElementDisabled(
-      e.joinEchoTestButton,
-      'should not join audio with transcription before the language data is downloaded',
-    );
+    // Right after choosing, before the user's speechLocale comes back from the server
     await modPage.page.selectOption(e.speechRecognition, '');
-    await modPage.hasElementEnabled(e.joinEchoTestButton, 'should join audio right away with transcription disabled');
-    await modPage.page.selectOption(e.speechRecognition, 'en-US');
-    await modPage.hasElementDisabled(e.joinEchoTestButton, 'should wait for the download again with a language');
-    expect(
-      (await audioCaptions.getSpeechRecognitionShimRecord()).installs,
-      'should not download anything before the user asks to',
-    ).toEqual([]);
-
-    await modPage.waitAndClick(e.onDeviceLanguageDownload);
-    await modPage.hasElement(e.onDeviceLanguageAvailable, 'should tell that the language is transcribed on the device');
-    await modPage.hasElementEnabled(e.joinEchoTestButton, 'should join audio once the language data is downloaded');
     await modPage.waitAndClick(e.joinEchoTestButton);
-    await modPage.hasElement(e.unmuteMicButton, 'should display the unmute mic button after joining microphone');
-    await modPage.waitAndClick(e.unmuteMicButton);
-    await expect
-      .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
-        message: 'should start an on-device recognition for en-US after the en-US download',
-      })
-      .toMatchObject({ installs: ['en-US'], starts: [{ lang: 'en-US', processLocally: true }] });
+    await modPage.hasElement(e.unmuteMicButton, 'should join audio without downloading anything');
+    expect((await audioCaptions.getSpeechRecognitionShimRecord()).installs, 'should not download').toEqual([]);
   });
 });

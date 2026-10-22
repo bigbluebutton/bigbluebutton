@@ -106,11 +106,11 @@ public:
       provider: webspeech
       # Only for the webspeech provider. If true, the browser must transcribe on the user's
       # device (SpeechRecognition.processLocally) and never sends the audio to a speech
-      # recognition service. The user downloads each language's data (a few hundred MB) from
-      # the transcription settings, and joining audio with a transcription language waits
-      # for it. Only the languages the browser can transcribe locally are offered; browsers
-      # without on-device speech recognition (Chrome 139+ on desktop has it) show
-      # transcription as unsupported.
+      # recognition service. Each language's pack (a few hundred MB) is downloaded when the
+      # user confirms joining audio with that transcription language, and the audio settings
+      # stay open until it ends. Only the languages the browser can transcribe locally are
+      # offered; browsers without on-device speech recognition (Chrome 139+ on desktop has it)
+      # show transcription as unsupported.
       # If false, the browser decides where to transcribe: Chrome uses Google's servers
       # unless the language pack happens to be installed.
       processLocally: false

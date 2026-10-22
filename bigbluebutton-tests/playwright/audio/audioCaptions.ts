@@ -40,9 +40,10 @@ export async function shimSpeechRecognition(
   page: PlaywrightPage,
   availability: Record<string, OnDeviceAvailability>,
   onDevice = true,
+  install: { delayMs?: number; succeeds?: boolean } = {},
 ): Promise<void> {
   await page.addInitScript(
-    ({ languages, withOnDevice }) => {
+    ({ languages, withOnDevice, installDelayMs, installSucceeds }) => {
       const record: SpeechRecognitionShimRecord = { starts: [], installs: [] };
       class FakeSpeechRecognition {
         lang = '';
@@ -74,8 +75,11 @@ export async function shimSpeechRecognition(
           available: async ({ langs }: { langs: string[] }) => languages[langs[0]] ?? 'unavailable',
           install: async ({ langs }: { langs: string[] }) => {
             record.installs.push(langs[0]);
-            Object.assign(languages, { [langs[0]]: 'available' });
-            return true;
+            await new Promise((resolve) => {
+              setTimeout(resolve, installDelayMs);
+            });
+            if (installSucceeds) Object.assign(languages, { [langs[0]]: 'available' });
+            return installSucceeds;
           },
         });
       }
@@ -85,7 +89,12 @@ export async function shimSpeechRecognition(
         speechRecognitionShim: record,
       });
     },
-    { languages: availability, withOnDevice: onDevice },
+    {
+      languages: availability,
+      withOnDevice: onDevice,
+      installDelayMs: install.delayMs ?? 0,
+      installSucceeds: install.succeeds ?? true,
+    },
   );
 }
 

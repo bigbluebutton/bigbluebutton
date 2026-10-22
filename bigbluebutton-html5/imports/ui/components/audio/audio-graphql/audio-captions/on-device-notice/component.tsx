@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import {
@@ -17,52 +17,47 @@ const intlMessages = defineMessages({
   },
   downloadable: {
     id: 'app.audio.captions.speech.onDevice.downloadable',
-    description: 'The selected transcription language needs its on-device data downloaded first',
-  },
-  download: {
-    id: 'app.audio.captions.speech.onDevice.download',
-    description: 'Button that downloads the on-device transcription language data',
+    description: 'The selected transcription language needs its on-device language pack downloaded first',
   },
   downloading: {
     id: 'app.audio.captions.speech.onDevice.downloading',
-    description: 'The on-device transcription language data is being downloaded',
+    description: 'The on-device transcription language pack is being downloaded',
   },
   failed: {
     id: 'app.audio.captions.speech.onDevice.failed',
-    description: 'The on-device transcription language data could not be downloaded',
+    description: 'The on-device transcription language pack could not be downloaded',
   },
   retry: {
     id: 'app.audio.captions.speech.onDevice.retry',
-    description: 'Button that tries the on-device language data download again',
+    description: 'Button that tries the on-device language pack download again',
   },
   unavailable: {
     id: 'app.audio.captions.speech.onDevice.unavailable',
     description: 'The browser cannot transcribe the selected language on the device',
   },
-  joinHint: {
-    id: 'app.audio.captions.speech.onDevice.joinHint',
-    description: 'Joining audio waits for the language data download, unless transcription is disabled',
-  },
 });
 
 interface AudioCaptionsOnDeviceNoticeProps {
   locale: string;
-  showJoinHint?: boolean;
+  inAudioModal?: boolean;
 }
 
-// With processLocally, tells the state of the selected language on the device and lets the user
-// download its language data: the transcription only starts once it is there
+// With processLocally, tells the state of the selected language on the device. In the audio
+// modal, confirming downloads its language pack. Elsewhere (the transcription panel, where there
+// is nothing to confirm) turning transcription on is the confirmation, so it downloads right away.
 const AudioCaptionsOnDeviceNotice: React.FC<AudioCaptionsOnDeviceNoticeProps> = ({
   locale,
-  showJoinHint = false,
+  inAudioModal = false,
 }) => {
   const intl = useIntl();
   const onDevice = isWebSpeechApi() && isProcessLocally() && hasOnDeviceSupport();
   const status = useOnDeviceLanguageStatus(onDevice ? locale : '');
 
-  if (!onDevice || !locale || !status || status === 'checking') return null;
+  useEffect(() => {
+    if (!inAudioModal && status === 'downloadable') installOnDeviceLanguage(locale);
+  }, [inAudioModal, status, locale]);
 
-  const joinHint = showJoinHint && <span>{intl.formatMessage(intlMessages.joinHint)}</span>;
+  if (!onDevice || !locale || !status || status === 'checking') return null;
 
   switch (status) {
     case 'available':
@@ -74,36 +69,28 @@ const AudioCaptionsOnDeviceNotice: React.FC<AudioCaptionsOnDeviceNoticeProps> = 
     case 'downloadable':
       return (
         <Styled.Notice data-test="onDeviceLanguageDownloadable">
-          <span>{intl.formatMessage(intlMessages.downloadable)}</span>
-          {joinHint}
-          <Button
-            data-test="onDeviceLanguageDownload"
-            label={intl.formatMessage(intlMessages.download)}
-            size="sm"
-            color="primary"
-            onClick={() => installOnDeviceLanguage(locale)}
-          />
+          {intl.formatMessage(intlMessages.downloadable)}
         </Styled.Notice>
       );
     case 'downloading':
       return (
         <Styled.Notice data-test="onDeviceLanguageDownloading" role="status">
           <Styled.Downloading>{intl.formatMessage(intlMessages.downloading)}</Styled.Downloading>
-          {joinHint}
         </Styled.Notice>
       );
     case 'failed':
       return (
         <Styled.Notice data-test="onDeviceLanguageFailed" role="alert">
           <Styled.Error>{intl.formatMessage(intlMessages.failed)}</Styled.Error>
-          {joinHint}
-          <Button
-            data-test="onDeviceLanguageDownload"
-            label={intl.formatMessage(intlMessages.retry)}
-            size="sm"
-            color="primary"
-            onClick={() => installOnDeviceLanguage(locale)}
-          />
+          {!inAudioModal && (
+            <Button
+              data-test="onDeviceLanguageRetry"
+              label={intl.formatMessage(intlMessages.retry)}
+              size="sm"
+              color="primary"
+              onClick={() => installOnDeviceLanguage(locale)}
+            />
+          )}
         </Styled.Notice>
       );
     default:

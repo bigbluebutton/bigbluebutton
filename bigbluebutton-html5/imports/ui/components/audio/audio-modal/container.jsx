@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { useReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 import browserInfo from '/imports/utils/browserInfo';
@@ -23,7 +23,11 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import { getStoredAudioInputDeviceId } from '/imports/api/audio/client/bridge/service';
-import { useOnDeviceLanguageBlocksAudio } from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
+import {
+  chosenSpeechLocale,
+  installOnDeviceLanguage,
+  useOnDeviceLanguageForAudio,
+} from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -134,9 +138,19 @@ const AudioModalContainer = (props) => {
     closeModal(callback);
   }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
-  const transcriptionNotReady = useOnDeviceLanguageBlocksAudio(
-    currentUserData?.speechLocale ?? '',
-    isTranscriptionEnabled,
+  const userSpeechLocale = currentUserData?.speechLocale ?? '';
+  const chosenLocale = useReactiveVar(chosenSpeechLocale);
+  const speechLocale = chosenLocale ?? userSpeechLocale;
+  useEffect(() => {
+    if (chosenLocale !== null && chosenLocale === userSpeechLocale) chosenSpeechLocale(null);
+  }, [chosenLocale, userSpeechLocale]);
+  const {
+    needsDownload: transcriptionNeedsDownload,
+    busy: transcriptionNotReady,
+  } = useOnDeviceLanguageForAudio(speechLocale, isTranscriptionEnabled);
+  const downloadTranscriptionLanguage = useCallback(
+    () => installOnDeviceLanguage(speechLocale),
+    [speechLocale],
   );
 
   if (!currentUserData) return null;
@@ -198,6 +212,8 @@ const AudioModalContainer = (props) => {
       permissionStatus={permissionStatus}
       isTranscriptionEnabled={isTranscriptionEnabled}
       transcriptionNotReady={transcriptionNotReady}
+      transcriptionNeedsDownload={transcriptionNeedsDownload}
+      downloadTranscriptionLanguage={downloadTranscriptionLanguage}
       {...props}
     />
   );
