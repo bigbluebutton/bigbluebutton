@@ -236,6 +236,45 @@ export class LockViewers extends MultiUsers {
     );
   }
 
+  async cancelLockViewersChanges() {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClickElement(e.lockPublicChat);
+    await this.modPage.hasElementNotChecked(e.lockPublicChat, 'should switch off the public chat permission');
+    await this.modPage.waitAndClick(e.cancelLockSettings);
+    await this.modPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers dialog on cancel');
+    await this.modPage.wasRemoved(e.unsavedChangesIgnore, 'should not warn about unsaved changes on cancel');
+
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.hasElementChecked(e.lockPublicChat, 'should not have applied the cancelled public chat lock');
+    await this.modPage.waitAndClickElement(e.lockPublicChat);
+    await this.modPage.hasElementNotChecked(e.lockPublicChat, 'should switch off the public chat permission again');
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.hasElement(
+      e.unsavedChangesIgnore,
+      'should warn about unsaved changes when closing the lock viewers dialog',
+    );
+    await this.modPage.waitAndClick(e.unsavedChangesIgnore);
+    await this.modPage.wasRemoved(
+      e.applyLockSettings,
+      'should close the lock viewers dialog when ignoring the changes',
+    );
+
+    await this.userPage.hasElementEnabled(e.chatBox, 'should keep the public chat enabled for the attendee');
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should receive the public message of the attendee, who was never locked',
+    );
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.hasElementChecked(e.lockPublicChat, 'should not have applied the ignored public chat lock');
+  }
+
   async lockSendPrivateChatMessages() {
     // user start private chat with mod and send a message
     await this.userPage.waitAndClick(e.usersListSidebarButton);

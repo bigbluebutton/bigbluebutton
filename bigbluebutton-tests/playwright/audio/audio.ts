@@ -1,13 +1,15 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { expectAudioReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
 import { awayIndicatorLocator, hasUserListMicState, isTalkingLocator, setAway } from '../user/util';
 import {
+  areRemoteAudioElementsPlaying,
   connectMicrophone,
   ensureUnmuted,
+  getRemoteAudioSinkIds,
   isAudioItemSelected,
   joinMutedMicrophone,
   releaseKeyboardFocus,
@@ -99,6 +101,90 @@ export class Audio extends MultiUsers {
     await this.modPage.hasElement(e.muteMicButton, 'should have the mute microphone button displayed');
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await isAudioItemSelected(this.modPage, e.secondInputAudioDevice);
+  }
+
+  async changeAudioOutput() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    // the attendee talks, so the moderator plays remote audio
+    await this.userPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.userPage);
+    await ensureUnmuted(this.userPage);
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+    await expect
+      .poll(() => getRemoteAudioSinkIds(this.modPage), { message: 'should play the attendee audio for the moderator' })
+      .not.toHaveLength(0);
+
+    await this.modPage.waitAndClick(e.audioDropdownMenu);
+    await isAudioItemSelected(this.modPage, e.defaultOutputAudioDevice);
+    const secondOutputLabel = (await this.modPage.page.locator(e.secondOutputAudioDevice).innerText()).trim();
+    const secondOutputDeviceId = await this.modPage.page.evaluate(
+      async (label) =>
+        (await navigator.mediaDevices.enumerateDevices()).find(
+          (device) => device.kind === 'audiooutput' && device.label === label,
+        )?.deviceId,
+      secondOutputLabel,
+    );
+    expect(secondOutputDeviceId, `should find the "${secondOutputLabel}" output device`).toBeTruthy();
+    await this.modPage.waitAndClick(e.secondOutputAudioDevice);
+    await this.modPage.waitAndClick(e.audioDropdownMenu);
+    await isAudioItemSelected(this.modPage, e.secondOutputAudioDevice);
+    await expect
+      .poll(() => getRemoteAudioSinkIds(this.modPage), {
+        message: 'should play the remote audio on the chosen output device',
+      })
+      .toEqual(expect.arrayContaining([secondOutputDeviceId]));
+    expect(
+      new Set(await getRemoteAudioSinkIds(this.modPage)),
+      'should play every remote audio element on the chosen output device',
+    ).toEqual(new Set([secondOutputDeviceId]));
+    await expect
+      .poll(() => areRemoteAudioElementsPlaying(this.modPage), {
+        message: 'should keep playing the remote audio after changing the output device',
+      })
+      .toBe(true);
+    await this.modPage.hasElement(e.audioDropdownMenu, 'should stay connected to audio after changing the output');
+  }
+
+  async echoTestShowsVolume() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.clickMicrophoneButton();
+    await this.modPage.hasElement(e.audioSettingsModal, 'should open the echo test in the audio settings');
+    await this.modPage.hasElement(e.stopHearingButton, 'should play the microphone back during the echo test');
+    await this.modPage.hasElement(
+      e.hasVolumeEchoTest,
+      'should show the volume of the fake speech during the echo test',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.wasRemoved(e.audioSettingsModal, 'should close the echo test after joining');
+    await this.modPage.hasElement(e.audioDropdownMenu, 'should join audio after the echo test');
+  }
+
+  async echoTestNotHeard() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.hasElement(e.audioModal, 'should open the audio modal on join', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.clickMicrophoneButton();
+    await this.modPage.hasElement(e.echoYesButton, 'should ask whether the echo is audible', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.echoNoButton);
+    await this.modPage.hasElement(e.audioSettingsModal, 'should open the audio settings when the echo is not heard');
+    await this.modPage.hasElement(e.selectMicrophoneButton, 'should offer to change the microphone');
+    await this.modPage.hasElement(e.selectSpeakerButton, 'should offer to change the speaker');
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.hasElement(e.echoYesButton, 'should run the echo test again', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.echoYesButton);
+    await this.modPage.wasRemoved(
+      e.audioModal,
+      'should close the audio modal once the echo is heard',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.hasElement(e.audioDropdownMenu, 'should join audio once the echo is heard');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should join audio with the microphone');
   }
 
   async keepMuteStateOnRejoin() {

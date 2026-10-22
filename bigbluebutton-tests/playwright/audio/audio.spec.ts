@@ -3,6 +3,7 @@ import { isLiveKit } from '../core/livekit';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
+import { E2E_ECHO_TEST_SETTINGS_OVERRIDE } from './util';
 
 test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   let audio: Audio;
@@ -26,6 +27,14 @@ test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   test('Change audio input and keep it connected', async ({ browserName }) => {
     test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate de audio.');
     await audio.changeAudioInput();
+  });
+
+  test('Change audio output', async () => {
+    await audio.changeAudioOutput();
+  });
+
+  test('Echo test shows the microphone volume', async () => {
+    await audio.echoTestShowsVolume();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#muteunmute
@@ -74,6 +83,24 @@ test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
     linkIssue(25888);
     await audio.unmuteClearsAway('userList');
   });
+});
+
+test.describe.parallel('Echo test through the server', { tag: '@ci' }, () => {
+  // joining audio crashes the client, as AudioManager.joinEchoTest() is called without the { muted } it destructures
+  test(
+    'Not hearing the echo leads to the audio settings and back',
+    { tag: '@known-issue' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(26130);
+      const audio = new Audio(browser, context);
+      await audio.initModPage(page, {
+        testInfo,
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: E2E_ECHO_TEST_SETTINGS_OVERRIDE,
+      });
+      await audio.echoTestNotHeard();
+    },
+  );
 });
 
 test.describe.parallel('Audio reception', { tag: ['@ci', '@media'] }, () => {

@@ -52,6 +52,23 @@ export async function getLocaleValues(
   return currentValues;
 }
 
+export async function selectLocale(testPage: Page, locale: string) {
+  await openSettings(testPage);
+  await testPage.page.locator(e.languageSelector).selectOption({ value: locale });
+  await testPage.waitAndClick(e.saveSettingsButton);
+}
+
+export async function getHtmlFontSize(testPage: Page): Promise<string> {
+  return testPage.page.locator('html').evaluate((node) => getComputedStyle(node).fontSize);
+}
+
+// Horizontal center of an element, to tell which side of the viewport it sits on.
+export async function getCenterX(testPage: Page, selector: string): Promise<number> {
+  const box = await testPage.page.locator(selector).first().boundingBox();
+  if (!box) throw new Error(`${selector} has no bounding box`);
+  return box.x + box.width / 2;
+}
+
 export async function openAboutModal(testPage: Page) {
   await testPage.waitAndClick(e.settingsSidebarButton);
   await testPage.waitAndClick(e.aboutTabButton);
