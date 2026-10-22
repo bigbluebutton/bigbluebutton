@@ -132,10 +132,6 @@ const Right = styled.div`
       display: flex;
       align-items: center;
     }
-
-    & > *:last-child {
-      margin-inline-start: calc(-1 * ${mobileNavbarButtonGap}) !important;
-    }
   }
 `;
 

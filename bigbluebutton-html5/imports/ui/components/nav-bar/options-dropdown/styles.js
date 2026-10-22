@@ -6,7 +6,7 @@ import {
   btnPrimaryColor,
   btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
+import { mobileNavbarButtonGap, mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled(Button)`
   ${({ state }) => state === 'open' && `
@@ -20,7 +20,12 @@ const DropdownButton = styled(Button)`
     z-index: 3;
   `}
 
+  /* The other nav bar buttons are spaced by their wrappers' margins; this one has no wrapper. */
+  margin-inline-start: ${mobileNavbarButtonGap};
+
   @media ${smallOnly} {
+    margin-inline-start: 0;
+
     & > span:first-of-type {
       width: ${mobileNavbarButtonSize};
       min-width: ${mobileNavbarButtonSize};
