@@ -158,7 +158,7 @@ $ sudo ./bbb-x.x-script --force
 
 #### Play recordings made with BigBlueButton 0.81 or 0.9
 
-Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default: `bbb-playback-presentation` ships only the processing scripts, and the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package:
+Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default. `bbb-playback-presentation` still ships the processing scripts and the nginx configuration that serves `/playback/presentation`, but not the players, so the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package that provides them:
 
 ```bash
 $ sudo apt-get install bbb-playback-presentation-legacy
