@@ -38,7 +38,7 @@ const readRoomModePanelSetting = (page: PlaywrightPage) =>
 
 // The panel only comes up once the room mode has been read, so the wait covers
 // that read.
-const hasPanel = async (page: Page) => {
+export const hasPanel = async (page: Page) => {
   await page.hasElement(
     e.preFlightRoomModePanel,
     'should display the room mode panel to a moderator entering a room with no mode',
@@ -63,7 +63,7 @@ const expectSelected = async (page: Page, selected: RoomModeCard | null) => {
   }
 };
 
-const startsRoom = async (page: Page) => {
+export const startsRoom = async (page: Page) => {
   await page.waitAndClick(e.preFlightJoinButton);
   await page.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
   await page.wasRemoved(e.preFlight, 'should remove the pre-flight screen after starting the room');
@@ -468,6 +468,21 @@ export class RoomModePanel extends RoomMode {
     await this.modPage.page.locator(e.preFlightRoomModeMeeting).click({ force: true });
     await this.modPage.page.keyboard.press('ArrowDown');
     await expectSelected(this.modPage, e.preFlightRoomModeClass);
+
+    // The summary of the pick follows the same lock: a forced click leaves the
+    // switch as the class preset set it, and the select does not open.
+    const joinMuted = this.modPage.page.locator(e.preFlightRoomModeJoinMuted);
+    await expect(joinMuted, 'should lock the summary once the room is starting').toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    await joinMuted.click({ force: true });
+    await expect(joinMuted, 'should keep the summary as it was while the room is starting').toBeChecked();
+    await this.modPage.page.locator(e.preFlightRoomModePresenterPolicy).click({ force: true });
+    await expect(
+      this.modPage.page.locator(e.selectMenuItem),
+      'should not open a select once the room is starting',
+    ).toHaveCount(0);
   }
 
   // A phone pins the actions to the bottom of the screen, so the join's notices

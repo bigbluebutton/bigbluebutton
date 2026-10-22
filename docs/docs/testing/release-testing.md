@@ -794,6 +794,39 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
     - No pre-flight, and so no room mode panel, should show up in the breakout room
 
+### Room mode settings summary [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeSummary.spec.ts)
+
+Same settings as the room mode panel. Nothing here is applied to the room yet.
+
+1. Create a new session and join it as a moderator, then pick "Class"
+
+    - Under "Settings summary", "You can change" should list: "Guest Policy" on the session's own policy ("Always accept" with the server defaults), "Join muted" on, "Send public messages" on, "Presentation Policy" on "Allow participants to present with moderator approval" and "Whiteboard for everyone" on
+    - "Applied automatically" should list "See other participants' webcam", "Locks also apply to people who join later" and "Recording never starts on its own"
+
+2. Pick "Meeting"
+
+    - "Presentation Policy" should be on "Allow participants to present freely" and "Whiteboard for everyone" off; the rest as for "Class"
+
+3. Change a few settings, then pick "Class" again and back to "Meeting"
+
+    - The changes should be gone: each mode starts from its own values. They should also be gone after "Cancel"
+
+4. Change every setting and click "Start room"
+
+    - In the meeting, the lock settings, the guest policy, "users join muted" and the multi-user whiteboard should be as the session was created
+
+5. Repeat step 1 on a phone-width window
+
+    - The summary should come under the mode cards in the "Set up room" tab, with every setting reachable and "Start room" visible
+
+6. Create a session with `guestPolicy=ASK_MODERATOR` and repeat step 1
+
+    - "Guest Policy" should start on "Ask moderator"
+
+7. Create a session with `record=true&autoStartRecording=true` and repeat step 1
+
+    - "Applied automatically" should not list "Recording never starts on its own"
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)

@@ -9,6 +9,8 @@ import { JoiningRoomActions } from '../joining-room/component';
 import JoinNotices from '../join-notices/component';
 import ROOM_MODES, { getRoomMode } from './modes';
 import RoomIllustration from './illustration';
+import RoomModeSummary from './summary/component';
+import { RoomModeRoomValues } from './settings';
 
 const intlMessages = defineMessages({
   title: {
@@ -26,6 +28,10 @@ const intlMessages = defineMessages({
   emptyState: {
     id: 'app.preFlight.roomMode.emptyState',
     description: 'Shown beside the room mode cards until one is picked',
+  },
+  summaryTitle: {
+    id: 'app.preFlight.roomMode.summary.title',
+    description: 'Title of the summary of what the picked room mode applies',
   },
   selectedLabel: {
     id: 'app.preFlight.roomMode.selectedLabel',
@@ -50,6 +56,8 @@ const focusCard = (modeId: string) => document.getElementById(cardId(modeId))?.f
 interface RoomModePanelProps {
   // Once Start room is pressed the pick is final: the cards stop taking input.
   isJoining: boolean;
+  // The room's current values for what a mode leaves as created.
+  roomValues: RoomModeRoomValues;
 }
 
 /**
@@ -57,7 +65,7 @@ interface RoomModePanelProps {
  * only lives in the pre-flight's state: applying it to the room happens after
  * the join, and starting without one leaves the room as it was created.
  */
-export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
+export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining, roomValues }) => {
   const intl = useIntl();
   // In the phone layout the tab already names the panel.
   const { roomMode, setRoomMode, phoneLayout } = usePreFlight();
@@ -131,7 +139,10 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
           </Styled.Cards>
         </Styled.Picker>
         {/* No live region: the checked radio already announces the pick. */}
-        <Styled.Summary>
+        <Styled.Summary $empty={!selected}>
+          {selected && (
+            <Styled.SummaryTitle>{intl.formatMessage(intlMessages.summaryTitle)}</Styled.SummaryTitle>
+          )}
           {selected ? (
             <Styled.Selected data-test="preFlightRoomModeSelected">
               <Styled.CardIcon aria-hidden $selected>
@@ -150,6 +161,7 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining }) => {
               </Styled.EmptyState>
             </>
           )}
+          {selected && <RoomModeSummary mode={selected} roomValues={roomValues} isJoining={isJoining} />}
         </Styled.Summary>
       </Styled.Body>
     </Styled.Panel>

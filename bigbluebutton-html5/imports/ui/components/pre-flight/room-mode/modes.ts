@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups';
+import { RoomModePreset } from './settings';
 
 export interface RoomModeDefinition {
   // Stored as meeting.roomMode: the server accepts ^[a-z][a-z0-9-]{0,31}$.
@@ -10,7 +11,16 @@ export interface RoomModeDefinition {
   name: MessageDescriptor;
   hint: MessageDescriptor;
   dataTest: string;
+  // What picking the mode applies.
+  preset: RoomModePreset;
 }
+
+// Both modes leave the cameras visible to everyone and keep the locks on join,
+// or the other locks would miss whoever arrives later.
+const AUTOMATIC = {
+  webcamsOnlyForModerator: false,
+  lockOnJoin: true,
+};
 
 const intlMessages = defineMessages({
   className: {
@@ -44,6 +54,18 @@ const ROOM_MODES: RoomModeDefinition[] = [
     name: intlMessages.className,
     hint: intlMessages.classHint,
     dataTest: 'preFlightRoomModeClass',
+    // The Mode values (Phase 1) matrix: a presenter leads, so presenting goes
+    // through a moderator and everyone can draw. The waiting room is left as
+    // created.
+    preset: {
+      editable: {
+        joinMuted: true,
+        publicChat: true,
+        presenterPolicy: 'requireApproval',
+        whiteboard: true,
+      },
+      automatic: AUTOMATIC,
+    },
   },
   {
     id: 'meeting',
@@ -51,6 +73,17 @@ const ROOM_MODES: RoomModeDefinition[] = [
     name: intlMessages.meetingName,
     hint: intlMessages.meetingHint,
     dataTest: 'preFlightRoomModeMeeting',
+    // Everyone takes part: anyone can present, the whiteboard stays the
+    // presenter's. The waiting room is left as created.
+    preset: {
+      editable: {
+        joinMuted: true,
+        publicChat: true,
+        presenterPolicy: 'freeForAll',
+        whiteboard: false,
+      },
+      automatic: AUTOMATIC,
+    },
   },
 ];
 

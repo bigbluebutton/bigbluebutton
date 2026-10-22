@@ -165,13 +165,15 @@ const CardHint = styled.span`
   font-size: ${fontSizeSmall};
 `;
 
-const Summary = styled.div`
+const Summary = styled.div<{ $empty: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: ${mdPaddingX};
   padding: ${lgPaddingX};
-  justify-content: center;
+  /* The empty state sits in the middle of the box; a picked mode's summary
+     reads from the top. */
+  justify-content: ${({ $empty }) => ($empty ? 'center' : 'flex-start')};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadiusRounded};
   text-align: center;
@@ -189,6 +191,15 @@ const EmptyState = styled.p`
   margin: 0;
   color: ${colorText};
   font-size: ${fontSizeBase};
+`;
+
+const SummaryTitle = styled.h3`
+  align-self: stretch;
+  margin: 0;
+  color: ${colorTextDefault};
+  font-size: ${fontSizeLarge};
+  font-weight: ${textFontWeight};
+  text-align: start;
 `;
 
 const Selected = styled.div`
@@ -232,6 +243,7 @@ export default {
   CardName,
   CardHint,
   Summary,
+  SummaryTitle,
   Illustration,
   EmptyState,
   Selected,

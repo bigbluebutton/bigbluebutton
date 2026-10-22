@@ -81,6 +81,8 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     isBot: boolean;
     isModerator: boolean;
     roomMode: string | undefined;
+    guestPolicy: string | undefined;
+    autoStartRecording: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -111,6 +113,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   isBot,
   isModerator,
   roomMode,
+  guestPolicy,
+  autoStartRecording,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -244,7 +248,14 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const hasLeftMeeting = meetingEnded || !!joinErrorCode || !!ejectReasonCode || loggedOut;
   const userCurrentlyInMeeting = allowToRender && !hasLeftMeeting;
   const showPreFlight = preFlightEnabled && !userCurrentlyInMeeting && !hasLeftMeeting;
-  const roomModePanel = useRoomModePanelGate(roomMode, isModerator, isBot, showPreFlight);
+  const roomModePanel = useRoomModePanelGate(
+    roomMode,
+    guestPolicy,
+    autoStartRecording,
+    isModerator,
+    isBot,
+    showPreFlight,
+  );
   const isPhoneWidth = useMediaQuery(smallOnly);
   const isTabletWidth = useMediaQuery(mediumOnly);
   const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
@@ -327,7 +338,9 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       />
     );
     if (roomModePanel.show) {
-      preFlightPanel = <RoomModePanel isJoining={joinRequested} />;
+      preFlightPanel = (
+        <RoomModePanel isJoining={joinRequested} roomValues={roomModePanel.roomValues} />
+      );
       preFlightActions = (
         <RoomModeActions
           isJoining={joinRequested}
@@ -490,6 +503,14 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       isBot={bot}
       isModerator={isModerator}
       roomMode={meeting?.roomMode}
+      guestPolicy={meeting?.usersPolicies?.guestPolicy}
+      // The policy row comes with the meeting: missing only before it is read,
+      // when there is no panel. False is the server's default. As the server
+      // applies it: only a room that records starts on its own.
+      autoStartRecording={
+        (meeting?.recordingPolicies?.record ?? false)
+        && (meeting?.recordingPolicies?.autoStartRecording ?? false)
+      }
     >
       {children}
     </PresenceManager>

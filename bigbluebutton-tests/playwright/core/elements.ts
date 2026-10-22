@@ -260,6 +260,17 @@ export const elements = {
   preFlightRoomModeCancelButton: 'button[data-test="preFlightRoomModeCancelButton"]',
   preFlightDevicesTab: '[data-test="preFlightDevicesTab"]',
   preFlightRoomModeTab: '[data-test="preFlightRoomModeTab"]',
+  // Room mode summary. Switches carry the data-test on their checkbox input;
+  // selects on the combobox, with the current value in data-value.
+  preFlightRoomModeSummary: '[data-test="preFlightRoomModeSummary"]',
+  preFlightRoomModeGuestPolicy: '[data-test="preFlightRoomModeGuestPolicy"]',
+  preFlightRoomModeJoinMuted: 'input[data-test="preFlightRoomModeJoinMuted"]',
+  preFlightRoomModePublicChat: 'input[data-test="preFlightRoomModePublicChat"]',
+  preFlightRoomModePresenterPolicy: '[data-test="preFlightRoomModePresenterPolicy"]',
+  preFlightRoomModeWhiteboard: 'input[data-test="preFlightRoomModeWhiteboard"]',
+  preFlightRoomModeAutomaticWebcams: '[data-test="preFlightRoomModeAutomaticWebcams"]',
+  preFlightRoomModeAutomaticLockOnJoin: '[data-test="preFlightRoomModeAutomaticLockOnJoin"]',
+  preFlightRoomModeAutomaticRecording: '[data-test="preFlightRoomModeAutomaticRecording"]',
   // Same selectors in the profile panel, which shares the component.
   profileInputDevice: '[data-test="profileInputDevice"]',
   profileOutputDevice: '[data-test="profileOutputDevice"]',
