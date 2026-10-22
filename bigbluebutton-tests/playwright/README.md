@@ -118,11 +118,11 @@ _You can check the official documentation [here](https://playwright.dev/docs/tes
 
 Tags decide which tests run where:
 
-| Selection           | Tests                                                      | npm script                                               | Runs                                                                            |
-| ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Pull request gate   | `@ci` minus the quarantine tags                            | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards |
-| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | on every pull request                                                           |
-| Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`                                        |
+| Selection           | Tests                                                      | npm script                                               | Runs                                                                                                                        |
+| ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Pull request gate   | `@ci` minus the quarantine tags                            | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                                          |
+| Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | on every pull request                                                                                                       |
+| Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`; runs nothing while the Firefox project is commented out in `playwright.config.ts` |
 
 The quarantine tags are defined once, as `config.quarantine` in `package.json`; the npm scripts and the workflow read them from there. A quarantined test leaves the gate:
 
@@ -194,7 +194,7 @@ VSCode settings are provided in `.vscode/settings.json` for automatic formatting
 
 After opening a PR, the CI will run automated tests within your changes + target branch merged. When it finishes testing, generated files of the execution are exposed to be downloaded in the action run tab. the files / data is used mostly for exploring failures.
 
-In CI a failed test is retried once, and a test that passes on the retry does not fail the job. Each such test is listed under "Passed only on retry" in the job's summary (the run's Summary page), with the error of its first attempt; check that list for tests your change may have made flaky.
+In CI a failed test is retried once, and a test that passes on the retry does not fail the job. The jobs that run this suite (`install-and-run-bbb-tests` and the legacy media job) list each such test under "Passed only on retry" in the job's summary (the run's Summary page), with the error of its first attempt; check that list for tests your change may have made flaky. The plugin SDK job runs the SDK's own tests with Playwright's reporters and has no such list.
 
 To check the test results locally:
 

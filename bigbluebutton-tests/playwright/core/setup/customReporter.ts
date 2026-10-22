@@ -45,7 +45,8 @@ export default class CustomReporter implements Reporter {
       console.log(`::error title=${logTitle}::  ${baseMessage}`.replace(/\n/g, '%0A  '));
     }
 
-    if (test.outcome() === 'flaky') {
+    const lastAttempt = test.results[test.results.length - 1];
+    if (test.outcome() === 'flaky' && test.expectedStatus === 'passed' && lastAttempt?.status === 'passed') {
       const [, project, , ...titles] = test.titlePath();
       const file = relative(this.config?.rootDir || process.cwd(), test.location.file);
       const failed = test.results.find((attempt) => attempt.status !== 'passed' && attempt.status !== 'skipped');
