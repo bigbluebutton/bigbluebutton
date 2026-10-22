@@ -213,6 +213,7 @@
     "app.profileSettings.usernameTitle": "Username",
     "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Add Extra Camera",
+    "app.profileSettings.stopSharingWebcam": "Stop sharing webcam",
     "app.user.activityCheck": "User activity check",
     "app.user.activityCheck.label": "Check if user is still in session ({responseDelay})",
     "app.user.activityCheck.check": "Check",
