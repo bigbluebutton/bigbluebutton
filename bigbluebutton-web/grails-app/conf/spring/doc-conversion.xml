@@ -59,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
         <property name="conversionRateLimiter" ref="presentationConversionRateLimiter"/>
+        <property name="extractPresentationSpeakerNotes" value="${extractPresentationSpeakerNotes:true}"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
