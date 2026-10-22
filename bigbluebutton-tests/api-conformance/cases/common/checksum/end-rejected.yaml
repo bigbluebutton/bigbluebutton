@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The checksum is checked on this call too, over its own name: a wrong, a missing or
+# another call's checksum is rejected. The full set of rejections is on getMeetings.
+id: end.checksum.rejected
+title: end rejects a wrong, missing or other call's checksum
+endpoint: end
+class: contract
+tags: [ci]
+defs:
+  base: &base {mode: valid, signCall: null, key: checksumError}
+variants:
+  - {id: wrong, vars: {<<: *base, mode: bad}}
+  - {id: missing, vars: {<<: *base, mode: none}}
+  - {id: other-call, vars: {<<: *base, signCall: getMeetings}}
+steps:
+  - call: end
+    params: {meetingID: "${uid}"}
+    sign: {mode: "${mode}", call: "${signCall}"}
+    expect: {returncode: FAILED, messageKey: "${key}"}

@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getRecordingTextTracks.checksum.rejected-missing
+target bbb-web
+
+== step 1: call getRecordingTextTracks
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "checksumError"
+/response/message "You did not pass the checksum security check"

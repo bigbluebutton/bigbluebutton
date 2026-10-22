@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A valid checksum is accepted, with the shortest and the longest digest (sha256 signs
+# every other case). The answer lists every session on the server, so it isn't recorded.
+id: getSessions.checksum.accepted
+title: getSessions accepts a valid ${alg} checksum
+endpoint: getSessions
+class: contract
+tags: [ci]
+variants:
+  - {id: sha1, vars: {alg: sha1}}
+  - {id: sha512, vars: {alg: sha512}}
+steps:
+  - call: getSessions
+    sign: "${alg}"
+    golden: off
+    expect: {returncode: SUCCESS}

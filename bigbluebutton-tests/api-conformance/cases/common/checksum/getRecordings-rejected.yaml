@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # The recording calls validate the checksum in separate code
 # (ParamsProcessorUtil.isChecksumSame) from the other calls, so the matrix
-# runs here too. The duplicate-checksum variant is held pending triage.
+# runs here too.
 id: getRecordings.checksum.rejected
 title: getRecordings rejects a wrong, mis-signed or re-encoded checksum
 endpoint: getRecordings
