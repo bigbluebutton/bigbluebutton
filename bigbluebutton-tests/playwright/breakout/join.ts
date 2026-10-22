@@ -2,11 +2,26 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { getMeetingInfo } from '../core/endpoints';
 import { Page } from '../core/page';
-import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
+import {
+  getCurrentSlideSrc,
+  hasCurrentPresentationToastElement,
+  uploadSinglePresentation,
+  waitForSlideChange,
+  waitForSlideToSettle,
+} from '../presentation/util';
+import { waitForPublishedRecording } from '../recording/recordedPlayback';
 import * as utilScreenShare from '../screenshare/util';
 import { getBlockNoteEditorLocator } from '../sharednotes/blocknote/util';
+import { isTalkingLocator } from '../user/util';
 import { Create } from './create';
+
+// Long enough for a rejoin that restored the wrong mute state to show it
+const AUDIO_REJOIN_SETTLE_TIME = 3000;
+// The running rooms accept no less than one minute left; the server checks the time
+// every few seconds after that.
+const SHORTEST_BREAKOUT_END_TIME = 90000;
 
 // In a breakout, OK on the meeting-ended modal closes the tab. Firefox closes it
 // before the click returns and rejects the click, so a closed page is not an error.
@@ -353,7 +368,11 @@ export class Join extends Create {
     if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.finishBreakoutButton);
+    await this.endAllBreakoutRoomsCheck();
+  }
 
+  // The moderator is offered to create rooms again once none is running
+  async endAllBreakoutRoomsCheck() {
     const createButton = this.modPage.page.locator(e.createBreakoutRoomsButton);
     await expect(async () => {
       if (!(await createButton.isVisible().catch(() => false))) {
@@ -363,6 +382,69 @@ export class Join extends Create {
     }, 'should display create breakout rooms button after ending all breakout rooms').toPass({
       timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
     });
+  }
+
+  async endingRoomsReturnsAudioToMain() {
+    const breakoutUserPage = await this.joinRoom(true);
+    await breakoutUserPage.hasElement(e.isTalking, 'the attendee should be talking in the breakout room');
+
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
+    await breakoutUserPage.hasText(
+      e.meetingEndedModal,
+      e.breakoutEndedByModeratorLabel,
+      'should tell the attendee that the moderator ended the breakout room',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasElement(
+      e.audioDropdownMenu,
+      'should put the attendee back in the main room audio',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(e.muteMicButton, 'should keep the attendee unmuted, as in the breakout room');
+    await expect(
+      isTalkingLocator(this.modPage, this.userPage.username),
+      'the moderator should hear the attendee in the main room',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  async endingRoomsKeepsTheBreakoutMuteState() {
+    const breakoutUserPage = await this.joinRoom(true);
+    await breakoutUserPage.hasElement(e.isTalking, 'the attendee should be talking in the breakout room');
+    await breakoutUserPage.waitAndClick(e.muteMicButton);
+    await breakoutUserPage.hasElement(e.unmuteMicButton, 'should mute the attendee in the breakout room');
+
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
+    await this.userPage.hasElement(
+      e.audioDropdownMenu,
+      'should put the attendee back in the main room audio',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.page.waitForTimeout(AUDIO_REJOIN_SETTLE_TIME);
+    await this.userPage.hasElement(e.unmuteMicButton, 'should keep the attendee muted, as in the breakout room');
+    await expect(
+      isTalkingLocator(this.modPage, this.userPage.username),
+      'the moderator should not hear the attendee who muted in the breakout room',
+    ).toBeHidden();
+  }
+
+  async roomsEndWhenTimeRunsOut() {
+    const breakoutUserPage = await this.joinRoom();
+    // Asking for no time at all leaves the shortest the timer accepts: one minute
+    await this.modPage.fill(e.breakoutRoomTimerMinutesInput, '0');
+    await breakoutUserPage.hasText(
+      e.timeRemaining,
+      /remaining: 0[01]:[0-5][0-9]/,
+      'should cut the time left in the breakout room to one minute',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await breakoutUserPage.hasText(
+      e.meetingEndedModal,
+      e.breakoutEndedAfterDurationLabel,
+      'should end the breakout room when its time runs out',
+      SHORTEST_BREAKOUT_END_TIME,
+    );
+    await this.endAllBreakoutRoomsCheck();
   }
 
   async moveUserToOtherRoom() {
@@ -462,14 +544,16 @@ export class Join extends Create {
     });
     await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); // This checks if no other content was exported.
     const shareNotesPDFThumbnail = await this.modPage.getLocatorByIndex(e.presentationThumbnails, 1);
+    const slideBeforeSharing = await getCurrentSlideSrc(this.modPage);
     await shareNotesPDFThumbnail.click();
     await this.modPage.waitAndClick(e.sharePresentationButton);
     await hasCurrentPresentationToastElement(this.modPage, {
       description: 'should display the current presentation toast when changing to the whiteboard exported file',
     });
+    await waitForSlideChange(this.modPage, slideBeforeSharing);
+    await waitForSlideToSettle(this.modPage);
 
     // visual assertion
-    await this.modPage.page.waitForTimeout(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-notes.png', {
       maxDiffPixels: 1500,
@@ -556,14 +640,16 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     const whiteboardPDFThumbnail = await this.modPage.getLocatorByIndex(e.presentationThumbnails, 1);
+    const slideBeforeSharing = await getCurrentSlideSrc(this.modPage);
     await whiteboardPDFThumbnail.click();
     await this.modPage.waitAndClick(e.sharePresentationButton);
     await this.modPage.press('Escape'); // close the media sharing menu
     await hasCurrentPresentationToastElement(this.modPage, {
       description: 'should display the current presentation toast when changing to the whiteboard exported file',
     });
+    await waitForSlideChange(this.modPage, slideBeforeSharing);
+    await waitForSlideToSettle(this.modPage);
     // visual assertion
-    await this.modPage.page.waitForTimeout(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1500,
@@ -723,5 +809,33 @@ export class Join extends Create {
       e.joinAudio,
       'should display the join audio button after returning to the main session',
     );
+  }
+
+  // The rooms must have been created with the record option.
+  async recordInBreakoutRoom() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    const { data } = await getMeetingInfo(this.modPage.meetingId);
+    const parentMeetingId = data.response.internalMeetingID[0];
+    const breakoutRoomIds = data.response.breakoutRooms?.[0]?.breakout ?? [];
+
+    const breakoutModPage = new Page(this.browser, await this.joinFirstBreakoutRoomAsModerator());
+    // toasts of the freshly joined room cover the recording indicator
+    await breakoutModPage.closeAllToastNotifications();
+    await breakoutModPage.waitAndClick(e.recordingIndicator);
+    await breakoutModPage.waitAndClick(e.confirmRecordingButton);
+    await expect(
+      breakoutModPage.page.locator(`${e.recordingIndicator} button`),
+      'the moderator should be able to record inside the breakout room',
+    ).toHaveAttribute('aria-label', 'Pause recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await breakoutModPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    await this.endAllBreakoutRooms();
+
+    const { recordId, recording } = await waitForPublishedRecording(this.modPage.page, breakoutRoomIds.join(','));
+    expect(recording.isBreakout?.[0], `record ${recordId} should be marked as a breakout recording`).toBe('true');
+    expect(recording.breakout?.[0]?.parentId?.[0], `record ${recordId} should name the parent meeting`).toBe(
+      parentMeetingId,
+    );
+    expect(recording.breakout?.[0]?.sequence?.[0], `record ${recordId} should be of the first room`).toBe('1');
   }
 }

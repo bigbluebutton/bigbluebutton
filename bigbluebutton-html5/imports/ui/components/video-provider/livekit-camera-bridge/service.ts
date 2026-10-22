@@ -21,11 +21,17 @@ interface CaptureSettings {
   frameRate: number | undefined;
 }
 
+const constraintValue = (constraint?: ConstrainULong | ConstrainDouble): number | undefined => {
+  if (typeof constraint === 'number') return constraint;
+
+  return constraint?.exact ?? constraint?.ideal ?? constraint?.max;
+};
+
 const getCameraCaptureSettings = (stream: MediaStream): CaptureSettings => {
   const profile = VideoService.getCameraProfile();
-  const profileWidth = profile?.constraints?.width ?? DEFAULT_CAM_WIDTH;
-  const profileHeight = profile?.constraints?.height ?? DEFAULT_CAM_HEIGHT;
-  const profileFps = profile?.constraints?.frameRate ?? DEFAULT_CAM_FPS;
+  const profileWidth = constraintValue(profile?.constraints?.width) ?? DEFAULT_CAM_WIDTH;
+  const profileHeight = constraintValue(profile?.constraints?.height) ?? DEFAULT_CAM_HEIGHT;
+  const profileFps = constraintValue(profile?.constraints?.frameRate) ?? DEFAULT_CAM_FPS;
 
   try {
     const track = stream.getVideoTracks()[0];
@@ -83,13 +89,15 @@ const profileToPreset = (
 ): VideoPreset => {
   const bitrate = profile?.bitrate || 0;
   const bitrateInBps = bitrate * 1000 || DEFAULT_CAM_BITRATE;
-  const fps = profile.constraints?.frameRate;
+  const width = constraintValue(profile.constraints?.width);
+  const height = constraintValue(profile.constraints?.height);
+  const fps = constraintValue(profile.constraints?.frameRate);
 
   // We have constraints with the required fields, map directly
-  if (profile.constraints?.width && profile.constraints?.height) {
+  if (width && height) {
     return new VideoPreset(
-      profile.constraints.width,
-      profile.constraints.height,
+      width,
+      height,
       bitrateInBps,
       fps,
       'medium',

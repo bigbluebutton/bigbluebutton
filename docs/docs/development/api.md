@@ -137,7 +137,7 @@ Updated in 4.0:
   - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
   - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage` and `webcamGrid`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
-  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
+  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through the `clientSettingsOverride` POST module (requires `allowOverrideClientSettingsOnCreateCall=true`) or the `clientSettingsOverrideJsonUrl` parameter (no server-side setting needed).
   - **Removed parameter:** `logoutTimer` (it had no effect; the value was stored in bbb-web but never propagated to akka-apps or the HTML5 client).
   - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
@@ -792,7 +792,7 @@ Each parameter overrides one default of the client's `settings.yml`, named in th
 
 Tools for experimenting:
 
-- [API Mate](https://mconf.github.io/api-mate/) builds `join` URLs with user metadata interactively; `sudo bbb-conf --secret` prints a link that opens it with your server and secret filled in.
+- [API Mate](https://bigbluebutton.github.io/api-mate/) builds `join` URLs with user metadata interactively; `sudo bbb-conf --secret` prints a link that opens it with your server and secret filled in.
 - A URL encoder such as [this one](https://meyerweb.com/eric/tools/dencoder/) helps with values that need encoding, like CSS or JSON arrays.
 
 ##### Application parameters
@@ -1782,7 +1782,7 @@ See the following [bigbluebutton-api-ruby](https://github.com/mconf/bigbluebutto
 
 ### Testing API Calls with API Mate
 
-To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
+To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](https://bigbluebutton.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
 
 If you're developing new API calls or adding parameters on API calls, you can still use the API Mate to test them. Just scroll the page down or type "custom" in the parameter filter and you'll see the inputs where you can add custom API calls or user metadata. New API calls will appear in the list of API links and new parameters will be added to all the API links.
 

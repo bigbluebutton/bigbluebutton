@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { uploadSinglePresentation } from '../presentation/util';
@@ -56,6 +56,16 @@ export async function startPoll(testPage: Page, isAnonymous = false) {
 
 export async function uploadSPresentationForTestingPolls(testPage: Page, fileName: string) {
   await uploadSinglePresentation(testPage, fileName);
+}
+
+// The presenter's toolbar builds the quick poll from the slide it shows, and it shows a slide once the server has
+// made it the current one.
+export async function goToSlide(testPage: Page, slideNumber: number) {
+  await testPage.selectSlide(`Slide ${slideNumber}`);
+  await expect(testPage.page.locator(e.skipSlide), `should show slide ${slideNumber} to the presenter`).toHaveValue(
+    `${slideNumber}`,
+    { timeout: ELEMENT_WAIT_LONGER_TIME },
+  );
 }
 
 export async function countingVotes(testPage: Page, selector: string, count: number, textFilter: string) {

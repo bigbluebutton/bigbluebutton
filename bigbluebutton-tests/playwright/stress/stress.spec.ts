@@ -11,7 +11,7 @@ test.describe.parallel('Stress', () => {
     await stress.moderatorAsPresenter();
   });
 
-  test.fixme('All users must receive breakout room invitations', async ({ browser, context, page }, testInfo) => {
+  test('All users must receive breakout room invitations', async ({ browser, context, page }, testInfo) => {
     test.setTimeout(15 * 60 * 1000);
     const stress = new Stress(browser, context, page, testInfo);
     await stress.breakoutRoomInvitation();
