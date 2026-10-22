@@ -132,7 +132,7 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, user
           get {
             val entityFuture = userInfoService.getUserInfo(sessionToken).map {
               case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
-                val responseMap = userInfoService.generateResponseMap(userInfos)
+                val responseMap = UserInfoService.generateResponseMap(userInfos)
                 userInfoService.createHttpResponse(StatusCodes.OK, responseMap)
 
               case ApiResponseFailure(msg, msgId, arg) =>
