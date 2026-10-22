@@ -14,4 +14,5 @@ variants:
 steps:
   - call: create
     method: "${method}"
+    params: {meetingID: "${uid}"}
     golden: document

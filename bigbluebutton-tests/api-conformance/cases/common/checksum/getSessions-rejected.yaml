@@ -1,18 +1,18 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # The checksum is checked on this call too, over its own name: a wrong, a missing or
-# another call's checksum is rejected. The full set of rejections is on getMeetings.
+# another call's checksum is rejected. More rejections are on getMeetings.
 id: getSessions.checksum.rejected
 title: getSessions rejects a wrong, missing or other call's checksum
 endpoint: getSessions
 class: contract
 tags: [ci]
 defs:
-  base: &base {mode: valid, signCall: null, key: checksumError}
+  base: &base {mode: valid, signCall: null, msg: '^Checksums do not match$'}
 variants:
   - {id: wrong, vars: {<<: *base, mode: bad}}
-  - {id: missing, vars: {<<: *base, mode: none}}
+  - {id: missing, vars: {<<: *base, mode: none, msg: '^(You must provide the checksum|Checksums do not match)$'}}
   - {id: other-call, vars: {<<: *base, signCall: getMeetings}}
 steps:
   - call: getSessions
     sign: {mode: "${mode}", call: "${signCall}"}
-    expect: {returncode: FAILED, messageKey: "${key}"}
+    expect: {returncode: FAILED, messageKey: checksumError, message: {regex: "${msg}"}}

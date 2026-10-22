@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A valid checksum is accepted, with the shortest and the longest digest (sha256 signs
-# every other case). The meeting exists, so the answer doesn't depend on which of
-# several meeting errors bbb-web reports first.
+# every other case).
+# The meeting exists, so the answer doesn't depend on which of several meeting errors
+# bbb-web reports first.
 id: join.checksum.accepted
 title: join accepts a valid ${alg} checksum
 endpoint: join

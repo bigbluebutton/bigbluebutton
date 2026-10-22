@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # The checksum is checked on this call too, over its own name: a wrong, a missing or
-# another call's checksum is rejected. The full set of rejections is on getRecordings,
+# another call's checksum is rejected. More rejections are on getRecordings,
 # whose checksum code the recording calls share.
 id: getRecordingTextTracks.checksum.rejected
 title: getRecordingTextTracks rejects a wrong, missing or other call's checksum
@@ -8,7 +8,7 @@ endpoint: getRecordingTextTracks
 class: contract
 tags: [ci]
 defs:
-  base: &base {mode: valid, signCall: null, key: checksumError}
+  base: &base {mode: valid, signCall: null}
 variants:
   - {id: wrong, vars: {<<: *base, mode: bad}}
   - {id: missing, vars: {<<: *base, mode: none}}
@@ -17,4 +17,4 @@ steps:
   - call: getRecordingTextTracks
     params: {recordID: "${uid}"}
     sign: {mode: "${mode}", call: "${signCall}"}
-    expect: {returncode: FAILED, messageKey: "${key}"}
+    expect: {returncode: FAILED, messageKey: checksumError}

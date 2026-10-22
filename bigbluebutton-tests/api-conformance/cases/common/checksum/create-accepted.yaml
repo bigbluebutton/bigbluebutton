@@ -11,5 +11,6 @@ variants:
   - {id: sha512, vars: {alg: sha512}}
 steps:
   - call: create
+    params: {meetingID: "${uid}"}
     sign: "${alg}"
     expect: {returncode: FAILED, messageKey: nullError}

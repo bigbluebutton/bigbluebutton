@@ -1,19 +1,21 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # The checksum is checked on this call too, over its own name: a wrong, a missing or
-# another call's checksum is rejected. The full set of rejections is on getMeetings.
-# A checksum error redirects, like join's other validation errors.
+# another call's checksum is rejected. More rejections are on getMeetings.
+# A checksum error redirects to the server's default logout URL, whatever
+# errorRedirectUrl or logoutURL say.
 id: join.checksum.rejected
 title: join rejects a wrong, missing or other call's checksum
 endpoint: join
 class: contract
 tags: [ci]
 defs:
-  base: &base {mode: valid, signCall: null}
+  base: &base {mode: valid, signCall: null, errors: '"message":"Checksums do not match","key":"checksumError"'}
 variants:
   - {id: wrong, vars: {<<: *base, mode: bad}}
-  - {id: missing, vars: {<<: *base, mode: none}}
+  - {id: missing, vars: {<<: *base, mode: none, errors: '"message":"(You must provide the checksum|Checksums do not match)","key":"checksumError"'}}
   - {id: other-call, vars: {<<: *base, signCall: getMeetings}}
 steps:
   - call: join
+    params: {errorRedirectUrl: "https://errors.example/", logoutURL: "https://logout.example/"}
     sign: {mode: "${mode}", call: "${signCall}"}
-    expect: {status: 302, redirect: {query: {errors: {contains: checksumError}}}}
+    expect: {status: 302, redirect: {query: {errors: {regex: "${errors}"}}}}

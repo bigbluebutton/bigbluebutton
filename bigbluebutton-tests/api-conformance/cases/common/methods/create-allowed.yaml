@@ -2,7 +2,7 @@
 # The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
 # deterministic request, which gets the endpoint's own answer rather than the fallback
 # an unmapped method gets: expect pins that answer, the recording the rest.
-# No params: the missing name is the only violation, so nothing is created.
+# No name: that is the only violation, so nothing is created.
 id: create.method.allowed
 title: create answers ${method} with its own handler
 endpoint: create
@@ -14,4 +14,5 @@ variants:
 steps:
   - call: create
     method: "${method}"
+    params: {meetingID: "${uid}"}
     expect: {returncode: FAILED, messageKey: nullError}

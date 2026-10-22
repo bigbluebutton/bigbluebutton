@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # The checksum is checked on this call too, over its own name: a wrong, a missing or
-# another call's checksum is rejected. The full set of rejections is on getRecordings,
+# another call's checksum is rejected. More rejections are on getRecordings,
 # whose checksum code the recording calls share.
 # Without a checksum, putRecordingTextTrack answers paramError rather than checksumError.
 id: putRecordingTextTrack.checksum.rejected

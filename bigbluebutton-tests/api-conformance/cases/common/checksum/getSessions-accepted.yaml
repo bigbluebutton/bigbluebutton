@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A valid checksum is accepted, with the shortest and the longest digest (sha256 signs
-# every other case). The answer lists every session on the server, so it isn't recorded.
+# every other case).
+# The answer lists every session on the server, so it isn't recorded.
 id: getSessions.checksum.accepted
 title: getSessions accepts a valid ${alg} checksum
 endpoint: getSessions

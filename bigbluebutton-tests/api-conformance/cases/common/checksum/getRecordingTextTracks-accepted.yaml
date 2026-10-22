@@ -14,4 +14,4 @@ steps:
   - call: getRecordingTextTracks
     params: {recordID: "${uid}"}
     sign: "${alg}"
-    expect: {format: json, jsonpath: {$.response.messageKey: noRecordings}}
+    expect: {format: json, messageKey: noRecordings}
