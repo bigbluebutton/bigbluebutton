@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Methods this route doesn't map (UrlMappings.groovy), with the same request as
+# learningDashboard-allowed.yaml. What bbb-web answers is recorded, not compared: T04 decides
+# the intended answer (PLAN.md §3, triage).
+id: learningDashboard.method.unmapped
+title: learningDashboard called with a method its route doesn't map (${method})
+endpoint: learningDashboard
+class: compat
+tags: [triage]
+variants:
+  - {id: put, vars: {method: PUT}}
+  - {id: delete, vars: {method: DELETE}}
+  - {id: head, vars: {method: HEAD}}
+steps:
+  - call: learningDashboard
+    method: "${method}"
+    params: {sessionToken: "${uid}"}
+    golden: document

@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+# A valid call would list every session on the server.
+id: getSessions.method.allowed
+title: getSessions answers ${method} with its own handler
+endpoint: getSessions
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: getSessions
+    method: "${method}"
+    sign: bad

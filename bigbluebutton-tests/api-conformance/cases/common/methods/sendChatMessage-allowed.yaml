@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+id: sendChatMessage.method.allowed
+title: sendChatMessage answers ${method} with its own handler
+endpoint: sendChatMessage
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+steps:
+  - call: sendChatMessage
+    method: "${method}"
+    params: {meetingID: "${uid}", message: x}

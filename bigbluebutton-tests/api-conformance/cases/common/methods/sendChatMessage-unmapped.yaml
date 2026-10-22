@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Methods this route doesn't map (UrlMappings.groovy), with the same request as
+# sendChatMessage-allowed.yaml. What bbb-web answers is recorded, not compared: T04 decides
+# the intended answer (PLAN.md §3, triage).
+id: sendChatMessage.method.unmapped
+title: sendChatMessage called with a method its route doesn't map (${method})
+endpoint: sendChatMessage
+class: compat
+tags: [triage]
+variants:
+  - {id: post, vars: {method: POST}}
+  - {id: put, vars: {method: PUT}}
+  - {id: delete, vars: {method: DELETE}}
+  - {id: head, vars: {method: HEAD}}
+steps:
+  - call: sendChatMessage
+    method: "${method}"
+    params: {meetingID: "${uid}", message: x}
+    golden: document

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Methods this route doesn't map (UrlMappings.groovy), with the same request as
+# end-allowed.yaml. What bbb-web answers is recorded, not compared: T04 decides
+# the intended answer (PLAN.md §3, triage).
+id: end.method.unmapped
+title: end called with a method its route doesn't map (${method})
+endpoint: end
+class: compat
+tags: [triage]
+variants:
+  - {id: put, vars: {method: PUT}}
+  - {id: delete, vars: {method: DELETE}}
+  - {id: head, vars: {method: HEAD}}
+steps:
+  - call: end
+    method: "${method}"
+    params: {meetingID: "${uid}"}
+    golden: document

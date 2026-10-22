@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+# No params: the missing name is the only violation, so nothing is created.
+id: create.method.allowed
+title: create answers ${method} with its own handler
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: create
+    method: "${method}"

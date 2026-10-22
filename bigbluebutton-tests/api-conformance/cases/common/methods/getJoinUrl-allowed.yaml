@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+id: getJoinUrl.method.allowed
+title: getJoinUrl answers ${method} with its own handler
+endpoint: getJoinUrl
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: getJoinUrl
+    method: "${method}"
+    params: {sessionToken: "${uid}"}

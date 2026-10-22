@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Every method sends the same request,
+# chosen so that the endpoint's own handler answers with one deterministic error.
+# A bad checksum is checked before anything else, so it is the only error.
+id: join.method.allowed
+title: join answers ${method} with its own handler
+endpoint: join
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+steps:
+  - call: join
+    method: "${method}"
+    sign: bad
