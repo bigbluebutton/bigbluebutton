@@ -11,6 +11,10 @@ export const AUDIO_CAPTIONS_SETTINGS: ClientSettingsOverrides = {
   public: { app: { audioCaptions: { enabled: true } } },
 };
 
+export const INFINITE_WHITEBOARD_SETTINGS: ClientSettingsOverrides = {
+  public: { whiteboard: { allowInfiniteWhiteboard: true } },
+};
+
 export class DisabledFeatures extends MultiUsers {
   async breakoutRooms() {
     await this.modPage.wasRemoved(
@@ -135,12 +139,13 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboard() {
-    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
-
-    if (allowInfiniteWhiteboard) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
-    }
+    expect(
+      this.modPage.settings?.allowInfiniteWhiteboard,
+      'allowInfiniteWhiteboard should be on (INFINITE_WHITEBOARD_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.hasElement(e.presentationToolbarWrapper, 'should display the presentation toolbar');
+    await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
   }
 
   // Disabled Features Exclude
@@ -263,11 +268,11 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboardExclude() {
-    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
-
-    if (allowInfiniteWhiteboard) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
-    }
+    expect(
+      this.modPage.settings?.allowInfiniteWhiteboard,
+      'allowInfiniteWhiteboard should be on (INFINITE_WHITEBOARD_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
   }
 }

@@ -236,7 +236,7 @@ export class CreateParameters extends MultiUsers {
     );
   }
 
-  async allowModsToEjectCameras() {
+  private async shareAttendeeWebcamAndOpenItsOptions() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.userPage.waitAndClick(e.joinVideo);
     await this.userPage.waitAndClick(e.startSharingWebcam);
@@ -244,9 +244,45 @@ export class CreateParameters extends MultiUsers {
       e.webcamMirroredVideoContainer,
       'should display the webcam container for the attendee',
     );
+    await this.modPage.hasElement(
+      e.webcamStreamItem,
+      'should display the attendee webcam for the moderator',
+      VIDEO_LOADING_WAIT_TIME,
+    );
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.hasElement(e.makePresenter, 'should display the options menu of the attendee');
+  }
+
+  async allowModsToEjectCameras() {
+    await this.shareAttendeeWebcamAndOpenItsOptions();
     await this.modPage.waitAndClick(e.ejectCamera);
+
+    await this.userPage.wasRemoved(
+      e.webcamMirroredVideoContainer,
+      'should stop the attendee webcam after the moderator ejects it',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+    await this.modPage.wasRemoved(
+      e.webcamStreamItem,
+      'should remove the attendee webcam for the moderator after ejecting it',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+    await this.userPage.waitAndClick(e.joinVideo);
+    await this.userPage.waitAndClick(e.startSharingWebcam);
+    await this.userPage.hasElement(
+      e.webcamMirroredVideoContainer,
+      'should let the attendee share the webcam again after it was ejected',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+  }
+
+  async modsCannotEjectCamerasByDefault() {
+    await this.shareAttendeeWebcamAndOpenItsOptions();
+    await this.modPage.wasRemoved(
+      e.ejectCamera,
+      'should not display the eject camera option without allowModsToEjectCameras',
+    );
   }
 
   async overrideDefaultPresentation() {

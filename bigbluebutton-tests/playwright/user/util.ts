@@ -20,6 +20,10 @@ export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
+export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
+  return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
+}
+
 // Locator for audio-only tiles (camera-less users that hold the audio floor): a webcam
 // grid item rendering the connecting/avatar placeholder instead of a <video> element.
 export function audioOnlyTilesLocator(testPage: Page): Locator {

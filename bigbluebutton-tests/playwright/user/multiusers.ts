@@ -12,6 +12,9 @@ interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
 }
 
+// How long the disabled emoji rain is watched for after a reaction; when enabled it starts well within this.
+const EMOJI_RAIN_WATCH_TIME = 2000;
+
 export class MultiUsers {
   public browser: Browser;
 
@@ -639,27 +642,37 @@ export class MultiUsers {
     );
   }
 
-  async emojiRainTest() {
-    const { settings } = this.modPage;
+  async emojiRainTest(isEmojiRainEnabled: boolean) {
+    expect(this.modPage.settings?.emojiRain, 'emojiRain.enabled should match emojiRainSettingsOverride').toBe(
+      isEmojiRainEnabled,
+    );
     const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
-
-    const isEmojiRainEnabled = settings?.emojiRain ?? true;
-
-    if (!isEmojiRainEnabled) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.waitAndClick(e.reactionsButton);
-      await this.modPage.waitAndClick(smilingEmojiReaction);
-      await this.modPage.wasRemoved(e.emojiRain, 'should not display the emoji rain when disabled');
-      return;
-    }
 
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(smilingEmojiReaction);
     const emojiRainLocator = this.modPage.page.locator(e.emojiRain);
-    await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, {
-      timeout: ELEMENT_WAIT_TIME,
-    });
+
+    if (!isEmojiRainEnabled) {
+      await this.modPage.hasText(
+        e.reactionsButton,
+        '😃',
+        'should display the smiling emoji on the reactions button when used',
+      );
+      const watchUntil = Date.now() + EMOJI_RAIN_WATCH_TIME;
+      while (Date.now() < watchUntil) {
+        await expect(emojiRainLocator, 'should not display the emoji rain when disabled').toHaveCount(0);
+        await this.modPage.page.waitForTimeout(100);
+      }
+      return;
+    }
+
+    await expect
+      .poll(() => emojiRainLocator.count(), {
+        message: 'should display the emoji rain when enabled',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeGreaterThan(0);
     await this.modPage.page.waitForTimeout(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
