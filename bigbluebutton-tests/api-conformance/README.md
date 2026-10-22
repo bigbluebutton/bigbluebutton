@@ -16,7 +16,7 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/<area>/*.yaml      the suite's cases
+cases/common/<area>/     the suite's cases
 fixtures/                files cases refer to (bodies, presentations, schemas)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
@@ -95,6 +95,8 @@ routes:
   as the nginx-internal hooks that cases call on bbb-web directly.
 - A case is skipped as `not-routed` if the target doesn't map one of its
   routes, or if the route's `baseEnv` is unset.
+- A route may name a path the server no longer serves, so that a case can
+  check it stays gone.
 
 **Profiles** are the config profiles cases can ask for with `profile:`:
 
@@ -849,7 +851,8 @@ In YAML flow style (`{...}` and `[...]`), quote any value that contains
 - `compare`: recorded, and compared with the recording;
 - `document`: recorded, but not compared. A `defect` case asserts the
   correct behaviour with `expect`; its recording shows what the server does
-  today;
+  today. It also suits a step whose body is incidental, such as the error page
+  of a 404, with `expect` pinning what matters;
 - `off`: neither.
 
 Defaults: `off` in teardown and in steps with `ignoreResult`, whose answers
