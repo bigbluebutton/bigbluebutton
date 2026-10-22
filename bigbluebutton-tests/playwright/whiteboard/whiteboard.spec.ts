@@ -279,11 +279,19 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
   });
 
-  test('Camera re-sync visual regression after resize with canvas zoom', async ({ browser, context, page }, testInfo) => {
+  test('Camera re-sync visual regression after resize with canvas zoom', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
   });
 
-  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
+  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
   });
 
