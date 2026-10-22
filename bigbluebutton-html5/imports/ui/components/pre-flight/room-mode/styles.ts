@@ -63,7 +63,8 @@ const Body = styled.div`
   /* A tablet in the phone layout fits two columns, but the summary goes under
      the cards there too. */
   ${PreFlightStyled.PHONE_LAYOUT} & {
-    grid-template-columns: 1fr;
+    /* minmax(0, …): the summary's controls must not widen the column past the screen. */
+    grid-template-columns: minmax(0, 1fr);
     padding: ${mdPaddingX};
     overflow: visible;
 
