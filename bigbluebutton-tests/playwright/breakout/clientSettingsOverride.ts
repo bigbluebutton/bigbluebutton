@@ -1,5 +1,6 @@
 import { expect, Page as PlaywrightPage, test, TestInfo } from '@playwright/test';
 
+import { CI } from '../core/constants';
 import { Join } from './join';
 
 const CLIENT_SETTINGS_OVERRIDE_MODULE = [
@@ -22,10 +23,15 @@ function getShowScreenshareQuickSwapButton(page: PlaywrightPage): Promise<boolea
 export class ClientSettingsOverride extends Join {
   async testClientSettingsOverrideInheritedByBreakout(page: PlaywrightPage, testInfo: TestInfo): Promise<void> {
     await this.initModPage(page, { createModules: CLIENT_SETTINGS_OVERRIDE_MODULE, testInfo });
-    test.skip(
-      (await getShowScreenshareQuickSwapButton(this.modPage.page)) !== true,
-      'the server ignored the clientSettingsOverride create module: set allowOverrideClientSettingsOnCreateCall=true',
-    );
+    const parentHasOverride = (await getShowScreenshareQuickSwapButton(this.modPage.page)) === true;
+    if (CI) {
+      expect(parentHasOverride, 'the parent meeting should apply the clientSettingsOverride create module').toBe(true);
+    } else {
+      test.skip(
+        !parentHasOverride,
+        'the server ignored the clientSettingsOverride create module: set allowOverrideClientSettingsOnCreateCall=true',
+      );
+    }
     await this.initUserPage(this.context, { testInfo });
 
     await this.create();

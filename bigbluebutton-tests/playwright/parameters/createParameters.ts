@@ -288,6 +288,7 @@ export class CreateParameters extends MultiUsers {
   async overrideDefaultPresentation() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage.hasElement(e.currentSlideImg, 'should display the pre-uploaded slide for the attendee');
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.hasElementCount(
