@@ -4,5 +4,5 @@ target bbb-web
 
 == step 1: call join
 status 302
-location ${baseUrl}?errors=[{"message":"Checksums do not match","key":"checksumError"}]
+location ${baseUrl}?errors=[{"message":"<missing-checksum message>","key":"checksumError"}]
 body (redirect)
