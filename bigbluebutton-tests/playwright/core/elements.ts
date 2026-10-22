@@ -514,6 +514,7 @@ export const elements = {
   // external video share moved into the media area)
   startShareVideoBtn: 'button[data-test="ShareExternalVideo"]',
   videoPlayer: 'div[data-test="videoPlayer"]',
+  externalVideo: 'div[data-test="videoPlayer"] video',
   presentationTitle: 'h1[data-test="presentationTitle"]',
   fitToWidthButton: 'button[data-test="fitToWidthButton"]',
   presentationsList: 'div[id="upload-modal"] tbody',
@@ -530,12 +531,6 @@ export const elements = {
   confirmClearAnnotationsButton: 'div[id="simpleModal"] button:has-text("Clear")',
   modClearAnnotationsDescription: 'Are you sure you want to clear all whiteboard annotations?',
   viewerClearAnnotationsDescription: 'Are you sure you want to clear all of your whiteboard annotations?',
-
-  // YouTube frame
-  youtubeLink: 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_channel=BigBlueButton',
-  // The title we match for here is the title of the test video specified by youtubeLink
-  youtubeFrame: 'div[data-test="videoPlayer"]',
-  ytFrameTitle: 'a[class^="ytp-title-link"]',
 
   // Toasts
   statingUploadPresentationToast: 'To be uploaded ...',
