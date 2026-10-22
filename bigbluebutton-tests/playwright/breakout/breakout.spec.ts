@@ -216,6 +216,29 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.endAllBreakoutRooms();
     });
 
+    test(
+      'Ending the rooms returns the attendee to main room audio',
+      { tag: '@media' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.endingRoomsReturnsAudioToMain();
+      },
+    );
+
+    // Back in the main room the attendee is unmuted: the rejoin uses the mute state stored before the breakout.
+    test(
+      'Ending the rooms keeps an attendee who muted in the breakout muted',
+      { tag: '@known-issue' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.endingRoomsKeepsTheBreakoutMuteState();
+      },
+    );
+
     test('Invite user after creating rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
@@ -286,5 +309,15 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       const override = new ClientSettingsOverride(browser, context);
       await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
     });
+  });
+});
+
+// About two minutes: the running rooms cannot be given less than one minute.
+test.describe.parallel('Breakout time limit', () => {
+  test('Rooms end by themselves when their time runs out', async ({ browser, context, page }, testInfo) => {
+    const join = new Join(browser, context);
+    await join.initPages(page, testInfo);
+    await join.create();
+    await join.roomsEndWhenTimeRunsOut();
   });
 });

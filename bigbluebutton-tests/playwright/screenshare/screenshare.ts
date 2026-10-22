@@ -4,6 +4,7 @@ import { connectMicrophone } from '../audio/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { dropLiveKitParticipant, getPrimaryRoomState } from '../core/livekit';
+import { allowMedia } from '../core/mediaPermissions';
 import { Page } from '../core/page';
 import { expectVideoReceived } from '../core/rtcStatsProbe';
 import { EXTERNAL_VIDEO_URL, routeExternalVideo } from '../presentation/util';
@@ -45,6 +46,23 @@ export class ScreenShare extends MultiUsers {
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
     await expectVideoReceived(this.userPage.page, e.screenShareVideo, 'the late joiner should decode the screenshare');
+  }
+
+  async refusedScreenCapture() {
+    await this.modPage.waitAndClick(e.startScreenSharing);
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      e.screenCapturePermissionErrorLabel,
+      'should tell the presenter that the screen capture permission was refused',
+    );
+    await this.modPage.hasElement(e.helpLinkToastButton, 'should offer help with the refused screen capture');
+    await this.modPage.wasRemoved(e.screenshareConnecting, 'should not stay connecting to a screenshare');
+    await this.modPage.wasRemoved(e.isSharingScreen, 'should not show the screen as shared');
+    await this.modPage.hasElementEnabled(e.startScreenSharing, 'should keep the start screenshare button usable');
+    // The same button shares the screen once the capture is allowed, so nothing was left half started.
+    await allowMedia(this.modPage.page);
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'should share the screen once the capture is allowed');
   }
 
   async testMobileDevice() {

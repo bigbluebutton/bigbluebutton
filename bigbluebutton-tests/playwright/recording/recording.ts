@@ -24,6 +24,18 @@ async function indicatorLabelSpace(button: Locator): Promise<number> {
   return box ? box.width - box.height : -1;
 }
 
+// Recorded time shown by the indicator, or null while it shows none (not recording).
+async function recordingTimerSeconds(button: Locator): Promise<number | null> {
+  const match = (await button.textContent())?.match(/(\d+):(\d+)/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
+
+const RECORDED_BEFORE_PAUSE_SECONDS = 4;
+const PAUSE_TIME = 8000;
+// The resumed timer may be a little ahead of the value read just before pausing (the
+// pause takes a moment to reach the server), but far less than the pause itself.
+const RESUME_SLACK_SECONDS = 4;
+
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
 
@@ -758,5 +770,76 @@ export class Recording extends MultiUsers {
       this.userPage.page.locator(`${e.recordingIndicator} button`),
       'a viewer should be told the meeting is recording, not offered to pause it',
     ).toHaveAttribute('aria-label', 'Recording');
+  }
+
+  // Records for a few seconds, then pauses. Returns the recorded time read just before pausing.
+  private async recordThenPause(): Promise<number> {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect
+      .poll(() => recordingTimerSeconds(modIndicator), {
+        message: 'the recording timer should run while recording',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThanOrEqual(RECORDED_BEFORE_PAUSE_SECONDS);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasText(e.toastContainer, 'Pause recording', 'should ask the moderator to confirm the pause');
+    const recordedBeforePause = await recordingTimerSeconds(modIndicator);
+    if (recordedBeforePause === null) throw new Error('the recording timer disappeared before the pause');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    return recordedBeforePause;
+  }
+
+  async pausingShowsThePausedState() {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    const userIndicator = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    await this.recordThenPause();
+
+    await expect(modIndicator, 'the moderator should be offered to resume the paused recording').toHaveAttribute(
+      'aria-label',
+      'Resume recording',
+    );
+    await expect(userIndicator, 'a viewer should be told the recording is paused').toHaveAttribute(
+      'aria-label',
+      'Paused recording',
+    );
+    await expect(modIndicator, 'the timer should stop for the moderator').not.toHaveText(/\d+:\d+/);
+    await expect(userIndicator, 'the timer should stop for the viewer').not.toHaveText(/\d+:\d+/);
+  }
+
+  async resumingContinuesFromThePausedTime() {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    const userIndicator = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    const recordedBeforePause = await this.recordThenPause();
+    await expect(modIndicator, 'the recording should be paused').toHaveAttribute('aria-label', 'Resume recording');
+    await this.modPage.page.waitForTimeout(PAUSE_TIME);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasText(e.toastContainer, 'Resume recording', 'should ask the moderator to confirm resuming');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(modIndicator, 'the recording should run again').toHaveAttribute('aria-label', 'Pause recording');
+
+    for (const [indicator, who] of [
+      [modIndicator, 'moderator'],
+      [userIndicator, 'viewer'],
+    ] as const) {
+      await expect
+        .poll(() => recordingTimerSeconds(indicator), {
+          message: `the ${who}'s timer should run again after the resume`,
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .not.toBeNull();
+      const resumedSeconds = (await recordingTimerSeconds(indicator)) ?? Number.NaN;
+      expect(
+        resumedSeconds,
+        `the ${who}'s timer should continue from the paused value, not restart`,
+      ).toBeGreaterThanOrEqual(recordedBeforePause - 1);
+      expect(
+        resumedSeconds,
+        `the ${who}'s timer should not count the ${PAUSE_TIME / 1000} s pause`,
+      ).toBeLessThanOrEqual(recordedBeforePause + RESUME_SLACK_SECONDS);
+    }
   }
 }

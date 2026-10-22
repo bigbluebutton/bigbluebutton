@@ -43,10 +43,16 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.saveChat();
   });
 
-  test.fixme('Verify character limit', async ({ browser, context, page }, testInfo) => {
+  test('Verify character limit', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.characterLimit();
+  });
+
+  test('Late joiner loads older messages by scrolling up', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo });
+    await chat.lateJoinerLoadsOlderMessages();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sending-empty-chat-message-automated
