@@ -14,7 +14,12 @@ import {
   DevicePermissionHeader,
 } from './error-screen/device-permission/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
-import { RoomModeEditableId, RoomModeEditableValues, RoomModeEdits } from './room-mode/settings';
+import {
+  RoomModeChoice,
+  RoomModeEditableId,
+  RoomModeEditableValues,
+  RoomModeEdits,
+} from './room-mode/settings';
 import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
@@ -83,6 +88,10 @@ interface PreFlightProps {
   // Returns false, committing nothing, while a denied device holds the join
   // or the browser has yet to answer for one.
   commitRef?: React.MutableRefObject<(() => boolean) | null>;
+  // Set on each commit to the room mode picked, with its edits, so the join can
+  // apply them once the user is in. Null while no mode is picked or while the
+  // room mode panel is not on screen.
+  roomModeChoiceRef?: React.MutableRefObject<RoomModeChoice | null>;
   // On once the user may join, until the join is underway: a denied device
   // then holds the screen on the permission error until it is sorted out. A
   // waiting guest keeps the lobby, with the device flagged in the panel.
@@ -105,6 +114,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
   error = null,
   gateJoinOnDevices = false,
   commitRef,
+  roomModeChoiceRef,
   panel = null,
   phoneLayout = false,
 }) => {
@@ -223,6 +233,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
   const devicesPending = (microphonePending && audioMode === AUDIO_MODES.MICROPHONE
     && !microphoneSkipped) || (cameraPending && shareCamera);
 
+  const hasRoomModePanel = panel !== null;
+
   const commit = useCallback(() => {
     const listenOnly = audioMode === AUDIO_MODES.LISTEN_ONLY;
 
@@ -238,8 +250,26 @@ const PreFlight: React.FC<PreFlightProps> = ({
     setPreFlightShareCamera(willShareCamera);
     if (willShareCamera) commitCameraRef.current?.();
 
+    if (roomModeChoiceRef) {
+      // A pick whose panel went away (another moderator set the mode) is not applied.
+      // eslint-disable-next-line no-param-reassign
+      roomModeChoiceRef.current = hasRoomModePanel && roomMode
+        ? { modeId: roomMode, edits: roomModeEdits }
+        : null;
+    }
+
     setPreFlightCompleted(true);
-  }, [audioMode, joinMuted, shareCamera, cameraFailed, joiningWithoutAudio]);
+  }, [
+    audioMode,
+    joinMuted,
+    shareCamera,
+    cameraFailed,
+    joiningWithoutAudio,
+    roomMode,
+    roomModeEdits,
+    roomModeChoiceRef,
+    hasRoomModePanel,
+  ]);
 
   useEffect(() => {
     if (!commitRef) return undefined;

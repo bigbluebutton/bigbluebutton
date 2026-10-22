@@ -36,6 +36,9 @@ import {
   RoomModePanel,
 } from '/imports/ui/components/pre-flight/room-mode/component';
 import useRoomModePanelGate from '/imports/ui/components/pre-flight/room-mode/useRoomModePanelGate';
+import RoomModeApplyOnJoin from '/imports/ui/components/pre-flight/room-mode/apply-on-join';
+import { getRoomMode } from '/imports/ui/components/pre-flight/room-mode/modes';
+import { RoomModeChoice } from '/imports/ui/components/pre-flight/room-mode/settings';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -132,6 +135,9 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const [joinFailed, setJoinFailed] = useState(false);
   const joinRetryRef = React.useRef<ReturnType<typeof setTimeout>>();
   const preFlightCommitRef = React.useRef<(() => boolean) | null>(null);
+  // The room mode picked before the join, applied to the room once the user is in.
+  const roomModeChoiceRef = React.useRef<RoomModeChoice | null>(null);
+  const [applyingRoomMode, setApplyingRoomMode] = useState(false);
   const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   // A socket that stops carrying messages stays "connected" until the
   // heartbeat watchdog terminates it, about 45 s into the silence.
@@ -234,9 +240,23 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       // with. A device denied meanwhile commits nothing, as on a retry.
       if (joinFailed) preFlightCommitRef.current?.();
       clearTimeout(timeoutRef.current);
-      setAllowToRender(true);
+      const roomModeChoice = roomModeChoiceRef.current;
+      if (roomModeChoice && getRoomMode(roomModeChoice.modeId)) {
+        // A join that landed after it stalled shows the panel as joining while
+        // the mode is applied, not as delayed.
+        setJoinFailed(false);
+        setApplyingRoomMode(true);
+      } else {
+        setAllowToRender(true);
+      }
     }
   }, [joined]);
+
+  const finishRoomModeApply = () => {
+    roomModeChoiceRef.current = null;
+    setApplyingRoomMode(false);
+    setAllowToRender(true);
+  };
 
   useEffect(() => {
     if (joinErrorCode) {
@@ -259,6 +279,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     isBot,
     showPreFlight,
   );
+  // The panel stays up while its choice is applied, though the room shows the
+  // mode by then.
+  const showRoomModePanel = roomModePanel.show || applyingRoomMode;
+  // Joining lasts until the room opens: a stalled join that landed late is no
+  // longer requested, but its room mode is still being applied.
+  const isJoining = joinRequested || applyingRoomMode;
   const isPhoneWidth = useMediaQuery(smallOnly);
   const isTabletWidth = useMediaQuery(mediumOnly);
   const isGuestDenied = guestStatus === GUEST_STATUSES.DENY;
@@ -329,31 +355,31 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   // panel up, the pre-flight lays out as on a phone. That layout pins the
   // actions to the bottom, so the join notices stay in the header.
   const phoneLayout = isPhoneWidth
-    || (isTabletWidth && !isGuestDenied && isGuestAllowed && roomModePanel.show);
+    || (isTabletWidth && !isGuestDenied && isGuestAllowed && showRoomModePanel);
 
   if (!isGuestDenied && isGuestAllowed) {
     preFlightHeader = (
       <JoiningRoomHeader
         meetingName={meetingName}
         clientTitle={CLIENT_TITLE}
-        isJoining={joinRequested}
-        withNotices={!roomModePanel.show || phoneLayout}
+        isJoining={isJoining}
+        withNotices={!showRoomModePanel || phoneLayout}
       />
     );
-    if (roomModePanel.show) {
+    if (showRoomModePanel) {
       preFlightPanel = (
-        <RoomModePanel isJoining={joinRequested} roomValues={roomModePanel.roomValues} />
+        <RoomModePanel isJoining={isJoining} roomValues={roomModePanel.roomValues} />
       );
       preFlightActions = (
         <RoomModeActions
-          isJoining={joinRequested}
+          isJoining={isJoining}
           onJoin={() => setJoinRequested(true)}
         />
       );
     } else {
       preFlightActions = (
         <JoiningRoomActions
-          isJoining={joinRequested}
+          isJoining={isJoining}
           onJoin={() => setJoinRequested(true)}
         />
       );
@@ -388,10 +414,22 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               headerNamesSession={!isGuestDenied && isGuestAllowed}
               actions={preFlightActions}
               error={preFlightError}
-              gateJoinOnDevices={isGuestAllowed && !joinRequested}
+              gateJoinOnDevices={isGuestAllowed && !isJoining}
               commitRef={preFlightCommitRef}
+              roomModeChoiceRef={roomModeChoiceRef}
               panel={preFlightPanel}
               phoneLayout={phoneLayout}
+            />
+          )
+          : null
+      }
+      {
+        applyingRoomMode && roomModeChoiceRef.current
+          ? (
+            <RoomModeApplyOnJoin
+              choice={roomModeChoiceRef.current}
+              roomValues={roomModePanel.roomValues}
+              onDone={finishRoomModeApply}
             />
           )
           : null

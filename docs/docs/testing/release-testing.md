@@ -796,7 +796,7 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
 ### Room mode settings summary [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeSummary.spec.ts)
 
-Same settings as the room mode panel. Nothing here is applied to the room yet.
+Same settings as the room mode panel. Nothing here reaches the room before "Start room" is clicked: what is applied after the join is in "Room mode applied after the join" below.
 
 1. Create a new session with `record=true` and join it as a moderator, then pick "Class"
 
@@ -811,9 +811,9 @@ Same settings as the room mode panel. Nothing here is applied to the room yet.
 
     - The changes should be gone: each mode starts from its own values. They should also be gone after "Cancel"
 
-4. Change every setting and click "Start room"
+4. Change every setting, without clicking "Start room" (automated only: the room is read before the join)
 
-    - In the meeting, the lock settings, the guest policy, "users join muted" and the multi-user whiteboard should be as the session was created
+    - Nothing should change in the session: the lock settings, the guest policy, "users join muted" and the multi-user whiteboard should be as the session was created
 
 5. Repeat step 1 on a phone-width window
 
@@ -828,6 +828,51 @@ Same settings as the room mode panel. Nothing here is applied to the room yet.
     - "Applied automatically" should not list "Recording never starts on its own"
 
     - It should not be listed either for a session created with `record=false`
+
+### Room mode applied after the join [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeApply.spec.ts)
+
+"Start room" joins the moderator first, then applies the picked mode with the moderator's own actions, and only then opens the room. The room mode is recorded last, so a room that shows a mode already has its settings.
+
+1. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true` and join it as a moderator, then pick "Class" and click "Start room"
+
+    - The room should open with public messages allowed, "Presentation Policy" on "Allow participants to present with moderator approval", the locks also applying to people who join later, users joining muted, "Whiteboard for everyone" on, and the webcams visible to everyone
+    - Recording should not have started
+
+2. Join the same session as a viewer after step 1
+
+    - The viewer should get the same settings as in step 1, and should be able to write on the whiteboard
+
+3. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&multiUserWhiteboardEnabled=true`, join it as a moderator, pick "Class", switch "Whiteboard for everyone" off and click "Start room"
+
+    - The room should open with "Whiteboard for everyone" off, the other settings as in step 1
+
+4. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=requireApproval&multiUserWhiteboardEnabled=true&muteOnStart=false`, join it as a moderator, pick "Meeting" and click "Start room"
+
+    - The room should open with "Presentation Policy" on "Allow participants to present freely", "Whiteboard for everyone" off, public messages allowed, the locks also applying to people who join later, and users joining muted
+
+5. Right after the room opens with "Class", lock public messages in "Lock viewers", then reload the page
+
+    - Public messages should still be locked after the reload: the room mode should not be applied again
+
+6. Repeat step 1 with the pre-flight waiting for the room mode to be recorded (automated only: the client's room mode request is held back)
+
+    - The pre-flight should stay on screen while the room mode is not recorded, and the room should open only after it is recorded
+
+7. Repeat step 1 with the applying request refused by the server (automated only: the mute request is answered with an error)
+
+    - The room should still open, and the room should show no room mode
+
+8. Repeat step 1 with the room mode request never answered (automated only: the request is held back and never released)
+
+    - The room should open within about 15 seconds with no room mode, and the pre-flight should be gone
+
+9. Repeat step 1 with the lock settings request held until the room has opened, then released (automated only)
+
+    - The room should keep no room mode, and users should not join muted: nothing after the held request is sent once the 15 seconds pass
+
+10. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator and pick "Class" without clicking "Start room". Then join the same session as a second moderator and set the mode to "Meeting" while the first moderator's panel is still open (automated only: nothing in the client sets a room mode yet). Back on the first moderator, click the join button
+
+    - The panel should go away once the mode is set. Joining should keep "Meeting" and the presentation policy the session was created with, not the "Class" settings
 
 ## Audio
 
