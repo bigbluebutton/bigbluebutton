@@ -9,14 +9,8 @@ import { test } from '../core/setup/fixtures';
 import { getSpeakerNotesRows } from './speakerNotesProbe';
 import { hasCurrentPresentationToastElement } from './util';
 
-const pptxFixturePath = path.resolve(
-  __dirname,
-  '../../../bbb-common-web/src/test/resources/presentation/speaker-notes.pptx',
-);
-const odpFixturePath = path.resolve(
-  __dirname,
-  '../../../bbb-common-web/src/test/resources/presentation/speaker-notes.odp',
-);
+const pptxFixturePath = path.resolve(__dirname, '../core/media/speaker-notes.pptx');
+const odpFixturePath = path.resolve(__dirname, '../core/media/speaker-notes.odp');
 
 const uploadPresentation = async (presenter: Page, fixturePath: string): Promise<void> => {
   await presenter.waitAndClick(e.mediaAreaButton);
