@@ -262,6 +262,7 @@ export const elements = {
   guestWaitingUsers: '[data-test="guestWaitingUsers"]',
   allowAllAuthenticatedWaiting: 'button[data-test="allowAllAuthenticated"]',
   denyAllAuthenticatedWaiting: 'button[data-test="denyAllAuthenticated"]',
+  denyAllGuestWaiting: 'button[data-test="denyAllGuests"]',
   userListSearch: 'input[aria-label="Search users"]',
   clearUserListSearch: 'button[aria-label="Clear search"]',
   noSearchResultsMessage: 'No participants match your search. Try another name.',
