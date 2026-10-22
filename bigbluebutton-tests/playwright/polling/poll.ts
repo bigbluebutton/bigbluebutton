@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { skipSlide } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
 import * as util from './util';
 
@@ -287,9 +288,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.waitAndClick(e.nextSlide);
+    await skipSlide(this.modPage);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button when the presentation finishes uploading',
@@ -317,9 +317,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 3');
+    await util.goToSlide(this.modPage, 3);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -350,11 +349,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 4');
-    // avoid error when the tooltip is in front of the button due to layout shift
-    await this.modPage.page.waitForTimeout(500);
+    await util.goToSlide(this.modPage, 4);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -377,11 +373,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 5');
-    // avoid error when the tooltip is in front of the button due to layout shift
-    await this.modPage.page.waitForTimeout(500);
+    await util.goToSlide(this.modPage, 5);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -404,9 +397,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 6');
+    await util.goToSlide(this.modPage, 6);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(
@@ -426,9 +418,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 8');
+    await util.goToSlide(this.modPage, 8);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button when the presentation finishes uploading',
@@ -455,9 +446,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 9');
+    await util.goToSlide(this.modPage, 9);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button when the presentation finishes uploading',
@@ -491,10 +481,9 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
     // Slide 1 — lettered poll: "What is the dose (one per day) for adults?"
-    await this.modPage.selectSlide('Slide 1');
+    await util.goToSlide(this.modPage, 1);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button once the smart slides deck is converted',
@@ -526,18 +515,14 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
     // Slide 4 — typed response: "How long (in min) for a 2 mg/m3 sample?"
-    await this.modPage.selectSlide('Slide 4');
+    await util.goToSlide(this.modPage, 4);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button once the smart slides deck is converted',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
-    // Let the current slide propagate to the quick-poll dropdown before triggering it, otherwise
-    // the click can capture the previous slide's (stale) parsed question.
-    await this.modPage.page.waitForTimeout(3000);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     const typedQuestion = this.modPage.page.locator(e.pollQuestionArea);
     await expect(

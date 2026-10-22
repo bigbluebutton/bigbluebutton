@@ -721,7 +721,6 @@ export class MultiUsers {
         timeout: ELEMENT_WAIT_TIME,
       })
       .toBeGreaterThan(0);
-    await this.modPage.page.waitForTimeout(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
     });

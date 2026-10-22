@@ -192,6 +192,18 @@ export async function hasCurrentPresentationToastElement(
   ).toBeVisible({ timeout });
 }
 
+// The presentation manager lists the presentations from a subscription that can start when it opens: while a
+// presentation is shown or minimized, wait until the list has it.
+async function waitForPresentationList(testPage: Page) {
+  const hasPresentation =
+    (await testPage.checkElement(e.currentSlideImg)) || (await testPage.checkElement(e.restorePresentation));
+  if (!hasPresentation) return;
+  await expect(
+    testPage.page.locator(e.presentationThumbnails).first(),
+    'should list the current presentation in the presentation manager',
+  ).toBeVisible();
+}
+
 export async function uploadSinglePresentation(
   testPage: Page,
   fileName: string,
@@ -211,7 +223,7 @@ export async function uploadSinglePresentation(
     e.presentationFileUpload,
     'should display the presentation space for uploading a new file, when the manage presentations is opened',
   );
-  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
+  await waitForPresentationList(testPage);
   const numPresentationsBefore = await testPage.getSelectorCount(e.presentationThumbnails);
 
   await testPage.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
@@ -269,7 +281,7 @@ export async function uploadOversizedPresentation(testPage: Page, fileName: stri
     e.presentationFileUpload,
     'should display the presentation space for uploading a new file, when the manage presentations is opened',
   );
-  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
+  await waitForPresentationList(testPage);
 
   await testPage.page.setInputFiles(e.presentationFileUpload, {
     name: fileName,
@@ -329,7 +341,7 @@ export function buildPdfWithPages(pageCount: number): GeneratedFile {
   return { name: `${pageCount}Pages.pdf`, mimeType: 'application/pdf', buffer: Buffer.from(pdf) };
 }
 
-function getCurrentSlideSrc(testPage: Page) {
+export function getCurrentSlideSrc(testPage: Page) {
   return testPage.page.evaluate(
     ([selector]) => (document.querySelector(selector) as HTMLElement | null)?.style?.backgroundImage ?? null,
     [e.currentSlideImg],
@@ -371,6 +383,31 @@ export async function uploadRefusedPresentation(testPage: Page, file: GeneratedF
     'should not add the refused file to the presentations',
   ).toHaveText(presentationsBefore);
   await testPage.press('Escape');
+}
+
+// The whiteboard swaps in a new slide once its image is decoded, so the slide it shows next can be painted at once.
+export async function waitForSlideChange(testPage: Page, slideBefore: string | null) {
+  await expect
+    .poll(() => getCurrentSlideSrc(testPage), {
+      message: 'should show the new slide on the whiteboard',
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    })
+    .not.toBe(slideBefore);
+}
+
+// Waits until the current slide image has stopped moving or resizing for half a second.
+export async function waitForSlideToSettle(testPage: Page) {
+  let box = '';
+  await expect
+    .poll(
+      async () => {
+        const previous = box;
+        box = JSON.stringify(await testPage.page.locator(e.currentSlideImg).boundingBox());
+        return box !== 'null' && box === previous;
+      },
+      { message: 'should settle the slide on the whiteboard', intervals: [500], timeout: ELEMENT_WAIT_LONGER_TIME },
+    )
+    .toBe(true);
 }
 
 export async function uploadMultiplePresentations(

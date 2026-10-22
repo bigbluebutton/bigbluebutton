@@ -19,7 +19,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.changeNumberOfRooms();
     });
 
-    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+    test('Change duration time in the creation form', async ({ browser, context, page }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.changeDurationTime();
@@ -189,7 +189,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.messageToAllRooms();
     });
 
-    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+    test('Change duration time of running rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();

@@ -4,7 +4,7 @@ import { test } from '../core/setup/fixtures';
 import { Layouts, MOBILE_VIEWPORT } from './layouts';
 
 test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({
+  test('First minimize of presentation shows participant tiles for moderator without audio', async ({
     browser,
     context,
   }, testInfo) => {
@@ -39,7 +39,7 @@ test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' },
 });
 
 test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({
+  test('First minimize of presentation shows participant tiles for moderator in audio', async ({
     browser,
     context,
   }, testInfo) => {

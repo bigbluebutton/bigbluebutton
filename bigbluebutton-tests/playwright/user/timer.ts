@@ -15,20 +15,21 @@ export class Timer extends MultiUsers {
     const timerCurrentLocator = this.modPage.page.locator(e.stopwatchCurrent);
     const timerIndicatorLocator = this.modPage.page.locator(e.timerIndicator);
 
-    // compare initial values of the stopwatch elements after 2 seconds running
+    // compare initial values of the stopwatch elements with the running ones
     const initialValueStopWatch = await timeInSeconds(timerCurrentLocator);
     const initialValueStopWatchIndicator = await timeInSeconds(timerIndicatorLocator);
     await this.modPage.hasText(e.stopwatchCurrent, /00:00/, 'should display the initial value of the stopwatch');
     await this.clickOnTimerControl();
-    await this.modPage.page.waitForTimeout(2000);
-    await expect(
-      await timeInSeconds(timerCurrentLocator),
-      'should be the current value of the stopwatch timer greater than the initial value',
-    ).toBeGreaterThan(initialValueStopWatch);
-    await expect(
-      await timeInSeconds(timerIndicatorLocator),
-      'should be the current value of the stopwatch indicator greater than the initial value',
-    ).toBeGreaterThan(initialValueStopWatchIndicator);
+    await expect
+      .poll(() => timeInSeconds(timerCurrentLocator), {
+        message: 'should be the current value of the stopwatch timer greater than the initial value',
+      })
+      .toBeGreaterThan(initialValueStopWatch);
+    await expect
+      .poll(() => timeInSeconds(timerIndicatorLocator), {
+        message: 'should be the current value of the stopwatch indicator greater than the initial value',
+      })
+      .toBeGreaterThan(initialValueStopWatchIndicator);
 
     // stop the stopwatch and check that both counters stay still
     await this.clickOnTimerControl(false);

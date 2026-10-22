@@ -435,7 +435,6 @@ export class LockViewers extends MultiUsers {
       1,
       'should contain one user on the user list for the second attendee',
     );
-    await this.modPage.page.waitForTimeout(1000);
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElementCount(
       e.userListItem,
