@@ -127,35 +127,8 @@ object MsgBuilder {
         logger.warn(s"SVG dimensions unresolved from probe (width/height/viewBox absent or unparseable); using defaults ${width.toInt}x${height.toInt} for $pageAbsoluteSvgPath")
     }
 
-    val content = Try {
-      val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
-      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
-      Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
-        val buffer = new StringBuilder
-        val iter = source.iter
-        var count = 0
-        while (iter.hasNext && count < maxChars) {
-          buffer.append(iter.next())
-          count += 1
-        }
-        buffer.toString()
-      }.get
-    }.getOrElse("")
-
-    val speakerNotes = Try {
-      val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
-      val speakerNotesPath = presParentPath + "/speakernotes/slide-" + page.toString + ".txt"
-      Using(Source.fromFile(speakerNotesPath, StandardCharsets.UTF_8.name())) { source =>
-        val buffer = new StringBuilder
-        val iter = source.iter
-        var count = 0
-        while (iter.hasNext && count < maxChars) {
-          buffer.append(iter.next())
-          count += 1
-        }
-        buffer.toString()
-      }.get
-    }.getOrElse("")
+    val content = readPageTextFile(presParentPath + "/textfiles/slide-" + page.toString + ".txt")
+    val speakerNotes = readPageTextFile(presParentPath + "/speakernotes/slide-" + page.toString + ".txt")
 
     PresentationPageConvertedVO(
       id = s"$presId/$page",
@@ -168,6 +141,23 @@ object MsgBuilder {
       height = height,
       pageToken = pageToken
     )
+  }
+
+  /** Reads a per-page UTF-8 text file, capped at ~1 MB to avoid OOM; a missing or unreadable file yields "". */
+  private def readPageTextFile(path: String): String = {
+    Try {
+      val maxChars: Int = 1024 * 1024
+      Using(Source.fromFile(path, StandardCharsets.UTF_8.name())) { source =>
+        val buffer = new StringBuilder
+        val iter = source.iter
+        var count = 0
+        while (iter.hasNext && count < maxChars) {
+          buffer.append(iter.next())
+          count += 1
+        }
+        buffer.toString()
+      }.get
+    }.getOrElse("")
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
