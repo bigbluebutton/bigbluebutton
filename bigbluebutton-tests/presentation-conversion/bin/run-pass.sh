@@ -18,4 +18,7 @@ npx playwright test "$@"
 rc=$?
 echo "$rc" > "results/$profile/status"
 cp -f "work/$PC_RUN_ID/$profile/collected.json" "results/$profile/" 2>/dev/null || true
+if [ "$profile" != defaults ]; then
+  echo "run-pass: profile $profile is still active on this server; bin/restore-profile.sh puts bbb-web.properties back" >&2
+fi
 exit $rc

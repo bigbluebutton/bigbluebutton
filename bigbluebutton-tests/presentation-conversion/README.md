@@ -35,6 +35,8 @@ PC_FIXTURES=repo-blur-image,pdf-exif-1-to-8 bin/run-pass.sh defaults   # a few f
 
 `BBB_URL` and `BBB_SECRET` are read from bbb-web's configuration when they are not set. Profile switches restart bbb-web, so `bin/apply-profile.sh` refuses to do it while meetings the suite did not create are running; set `PC_ALLOW_RESTART=1` to override.
 
+A single `bin/run-pass.sh <profile>` leaves that profile active until `bin/restore-profile.sh` runs, and since the profile block is always rebuilt from the live `bbb-web.properties`, edits made to that file outside the suite are kept.
+
 From a workstation, `bin/remote.sh user@host <command>` syncs the suite, plus the repository files its fixtures reference, to the server. It runs the command there and pulls back `results/`, `playwright-report/` and `goldens/`:
 
 ```bash
