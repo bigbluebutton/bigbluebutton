@@ -93,7 +93,7 @@ jobs:
         run: |
           BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
           echo "Including build dirs: $BUILD_DIRS"
-          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh"
+          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh build/setup.sh build/setup-inside-docker.sh build/package-names.inc.sh build/opts-global.sh build/get_external_dependencies.sh"
           TREE_HASHES=$(echo $LIST | tr ' ' '\n' | xargs -I {} git rev-parse HEAD:{} 2>/dev/null)
           CACHE_DIGEST=$(printf "%s" "$TREE_HASHES" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')
           echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV

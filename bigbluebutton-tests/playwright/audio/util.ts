@@ -41,6 +41,17 @@ export async function isAudioItemSelected(testPage: Page, audioSelector: string)
   expect(isSelected).toBeTruthy();
 }
 
+export async function joinMutedMicrophone(testPage: Page) {
+  await testPage.waitAndClick(e.joinAudio);
+  await connectMicrophone(testPage);
+  await testPage.hasElement(e.unmuteMicButton, 'should join audio with the microphone muted');
+}
+
+// Push-to-talk ignores the key while a text field has the keyboard focus.
+export async function releaseKeyboardFocus(testPage: Page) {
+  await testPage.page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+}
+
 export async function ensureUnmuted(testPage: Page) {
   const isMuted = await testPage.checkElement(e.unmuteMicButton);
   if (isMuted) await testPage.waitAndClick(e.unmuteMicButton);

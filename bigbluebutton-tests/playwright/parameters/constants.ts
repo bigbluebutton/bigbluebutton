@@ -2,7 +2,7 @@ import { elements as e } from '../core/elements';
 import { parameters } from '../core/parameters';
 
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
-export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+export const CUSTOM_STYLE_URL = 'https://bbb-test-stub.local/css-test-file.css';
 
 // group names around the old varchar(100) limit of meeting_group (issue 25676)
 export const LONG_GROUP_NAMES = {
@@ -26,6 +26,7 @@ export const constants = {
   moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
   webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
   muteOnStart: 'muteOnStart=true',
+  muteOnStartDisabled: 'muteOnStart=false',
   allowModsToUnmuteUsers: 'allowModsToUnmuteUsers=true',
   lockSettingsDisableCam: 'lockSettingsDisableCam=true',
   lockSettingsDisableMic: 'lockSettingsDisableMic=true',
@@ -139,8 +140,8 @@ export const constants = {
     'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms',
   presentationExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation',
   customVirtualBackgroundExclude:
-    'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
-  slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
+    'disabledFeatures=presentation,chat,customVirtualBackgrounds&disabledFeaturesExclude=customVirtualBackgrounds',
+  slideSnapshotExclude: 'disabledFeatures=snapshotOfCurrentSlide,chat&disabledFeaturesExclude=snapshotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
   infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
   multiFunctionalModeDisabled: 'disabledFeatures=multiFunctionalMode',

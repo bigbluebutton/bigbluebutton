@@ -137,7 +137,7 @@ def post_process(meeting_id)
 end
 
 begin
-  props = BigBlueButton.load_yaml('bigbluebutton.yml')
+  props = BigBlueButton.read_props
   redis_host = props['redis_host']
   redis_port = props['redis_port']
   redis_password = props['redis_password']

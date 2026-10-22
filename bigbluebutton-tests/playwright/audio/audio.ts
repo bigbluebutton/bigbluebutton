@@ -2,8 +2,19 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { expectAudioReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
-import { connectMicrophone, ensureUnmuted, isAudioItemSelected } from './util';
+import { awayIndicatorLocator, hasUserListMicState, isTalkingLocator, setAway } from '../user/util';
+import {
+  connectMicrophone,
+  ensureUnmuted,
+  isAudioItemSelected,
+  joinMutedMicrophone,
+  releaseKeyboardFocus,
+} from './util';
+
+// Long enough for an unmute that should not happen to reach the server and show as talking.
+const IGNORED_KEY_HOLD_TIME = 3000;
 
 export class Audio extends MultiUsers {
   async muteButtonCooldown() {
@@ -151,6 +162,83 @@ export class Audio extends MultiUsers {
     ).toBeVisible();
     await this.userPage.wasRemoved(e.talkingIndicator, 'attendee should be muted', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.talkingIndicator, 'moderator should be muted');
+  }
+
+  async listenerReceivesSpeech() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+    await this.userPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.userPage);
+    await ensureUnmuted(this.modPage);
+    await expectAudioReceived(this.userPage.page, 'the attendee should receive the moderator speech');
+  }
+
+  async pushToTalk() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await joinMutedMicrophone(this.modPage);
+    await releaseKeyboardFocus(this.modPage);
+    await this.modPage.down('m');
+    await this.modPage.hasElement(e.muteMicButton, 'should unmute the microphone while M is held');
+    await expect(
+      isTalkingLocator(this.modPage, this.modPage.username),
+      'should show the moderator talking while M is held',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await this.modPage.up('m');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should mute the microphone again when M is released');
+    await expect(
+      isTalkingLocator(this.modPage, this.modPage.username),
+      'should stop showing the moderator talking once M is released',
+    ).toBeHidden({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  async pushToTalkIgnoredInChatInput() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await joinMutedMicrophone(this.modPage);
+    const chatBox = this.modPage.page.locator(e.chatBox);
+    await chatBox.focus();
+    await this.modPage.down('m');
+    await expect(chatBox, 'should type the M into the chat input').toHaveValue('m');
+    await this.modPage.page.waitForTimeout(IGNORED_KEY_HOLD_TIME);
+    await this.modPage.hasElement(e.unmuteMicButton, 'should keep the microphone muted while M is typed in the chat');
+    await expect(
+      isTalkingLocator(this.modPage, this.modPage.username),
+      'should not show the moderator talking while M is typed in the chat',
+    ).toBeHidden();
+    await this.modPage.up('m');
+    // The same key outside the chat input does unmute, so the hold above was ignored on purpose.
+    await chatBox.fill('');
+    await releaseKeyboardFocus(this.modPage);
+    await this.modPage.down('m');
+    await this.modPage.hasElement(e.muteMicButton, 'should unmute with M once the chat input has no focus');
+    await this.modPage.up('m');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should mute the microphone again when M is released');
+  }
+
+  async setAwayWhileTalking() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const { username } = this.userPage;
+    await this.userPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.userPage);
+    await ensureUnmuted(this.userPage);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await setAway(this.userPage);
+    await this.userPage.hasElement(e.unmuteMicButton, 'should mute the microphone of a user who goes away');
+    await expect(
+      this.userPage.page.locator(e.unmuteMicButton),
+      'should offer the away user to unmute and become active again',
+    ).toHaveAttribute('aria-label', 'Unmute and set yourself active');
+    await expect(
+      awayIndicatorLocator(this.modPage, username),
+      'the moderator should see the attendee away',
+    ).toBeVisible();
+    await hasUserListMicState(this.modPage, username, 'muted', 'the moderator should see the away attendee muted');
   }
 
   async setAwayFromProfile() {

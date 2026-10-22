@@ -21,9 +21,10 @@ export const elements = {
   screenshareConnecting: 'div[data-test="screenshareConnecting"]',
   screenShareVideo: 'video[id="screenshareVideo"]',
   simpleModal: 'div[id="simpleModal"]',
-  sessionDetailsModal: 'div[data-test="sessionDetailsModal"]',
+  sessionDetailsModal: 'div[data-testid="sessionDetailsModal"]',
   modalDismissButton: 'button[data-test="modalDismissButton"]',
   closeModal: 'button[data-test="closeModal"]',
+  confirmationModalCancel: 'button[data-test="confirmationModalCancel"]',
   isSharingScreen: 'div[data-test="isSharingScreen"]',
   pdfFileName: '100PagesFile.pdf',
   reactionsButton,
@@ -61,7 +62,7 @@ export const elements = {
 
   // Audio
   joinAudio: 'button[data-test="joinAudio"]',
-  audioModal: 'div[data-test="audioModal"]',
+  audioModal: 'div[data-testid="audioModal"]',
   audioSettingsModal: 'div[data-test="audioSettingsModal"]',
   listenOnlyButton: 'button[data-test="listenOnlyBtn"]',
   testSpeakerButton: 'button[data-test="testSpeakerButton"]',
@@ -199,6 +200,13 @@ export const elements = {
   typingIndicator: 'span[data-test="typingIndicator"]',
   errorTypingIndicator: 'div[data-test="errorTypingIndicator"]',
   chatUserMessageText: 'div[data-test="messageContent"] p',
+  // markup the server renders from chat markdown
+  chatMessageBold: 'strong',
+  chatMessageItalic: 'em',
+  chatMessageCode: 'code',
+  chatMessageLink: 'a',
+  chatMessageImage: 'img',
+  chatMessageInjectedElements: 'img, script, iframe, svg, b',
   chatNotificationMessageText: 'div[data-test="chatMessageNotificationContent"] p',
   secondChatUserMessageText: 'p[data-test="chatUserMessageText"]>>nth=1',
   chatWelcomeMessageText: 'div[data-test="welcomeMessage"]',
@@ -230,6 +238,11 @@ export const elements = {
   closeChatReplyIntentionButton: 'button[data-test="closeChatReplyIntentionButton"]',
   chatMessageReplied: 'div[data-test="chatMessageReplied"]',
   messageReactionItem: 'button[data-test="messageReactionItem"]',
+  // the pinned message banner and its confirmation buttons carry no data-test
+  pinnedMessage: 'div[role="region"][aria-label="Pinned messages"]',
+  unpinPinnedMessageButton: 'div[role="region"][aria-label="Pinned messages"] button[aria-label="Unpin message"]',
+  confirmPinMessageButton: 'div[id="simpleModal"] button:has-text("Pin")',
+  confirmUnpinMessageButton: 'div[id="simpleModal"] button:has-text("Unpin")',
 
   // Message toolbar
   messageToolbar: 'div[data-test="chatMessageToolbar"]',
@@ -237,6 +250,7 @@ export const elements = {
   reactMessageButton: 'button[data-test="reactMessageButton"]',
   editMessageButton: 'button[data-test="editMessageButton"]',
   deleteMessageButton: 'button[data-test="deleteMessageButton"]',
+  pinMessageButton: 'button[data-test="pinMessageButton"]',
 
   // Emoji picker
   emojiPickerButton: 'button[data-test="emojiPickerButton"]',
@@ -257,6 +271,19 @@ export const elements = {
   messageWithTextBeforeLink: 'Hello https://example.com',
   publicMessage1: 'This is a Public Message from User1',
   publicMessage2: 'This is a Public Message from User2',
+  markdownMessage: '**bold text** _italic text_ `inline code` https://example.org/docs',
+  markdownLinkUrl: 'https://example.org/docs',
+  htmlPayloadMessages: [
+    '<img src=x onerror=window.chatPayloadRan=1>',
+    '<script>window.chatPayloadRan=2</script>',
+    '<b onmouseover="window.chatPayloadRan=3">hover</b>',
+    '<a href="javascript:window.chatPayloadRan=4">html link</a>',
+    '[markdown link](javascript:window.chatPayloadRan=5)',
+    '[mixed case link](JaVaScRiPt:window.chatPayloadRan=6)',
+    '[vbscript link](vbscript:msgbox)',
+  ],
+  htmlPayloadEditedMessage: '<img src=x onerror=window.chatPayloadRan=8> edited',
+  imageMarkdownMessage: 'look ![diagram](https://example.org/diagram.png) here',
   uniqueCharacterMessage: 'A',
 
   // CustomParameters
@@ -266,35 +293,40 @@ export const elements = {
   brandingAreaLogo: 'div[data-test="brandingArea"]',
   toolbarToolsList: 'div[data-test="toolbarToolsList"]',
   notificationBannerBar: 'div[data-test="notificationBannerBar"]',
-  reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
+  reconnectingToast: '//div[@data-test="toastSmallMsg"]/span[contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
   recordingIndicatorAutoCollapseToggleBtn: 'input[data-test="recordingIndicatorAutoCollapseToggleBtn"]',
-  recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
+  recordingNotifyModal: 'div[data-testid="recordingNotifyModal"]',
   recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
   recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
   recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
   webcamMirroredVideoContainer: 'video[data-test="mirroredVideoContainer"]',
   currentUserLocalStreamVideo: 'video[data-local-stream="true"]',
+  remoteStreamVideo: 'video[data-local-stream="false"]',
   usersList: 'div[data-test="userListPanel"]',
   selectCameraQualityId: 'select[id="setQuality"]',
   virtualBackgrounds: 'div[data-test="virtualBackground"]',
   virtualBackgroundToggle: 'input[data-test="virtualBackgroundToggle"]',
 
   // Timer
-  timerContainer: 'div[data-test="timerContainer"]',
-  stopwatchContainer: 'div[data-test="stopwatchContainer"]',
   timerStopwatchFeature: 'div[data-test="timerSidebarButton"]',
   stopwatchCurrent: 'span[data-test="stopwatchCurrent"]',
-  timerCurrent: 'div[data-test="timerCurrent"]',
   startStopTimer: 'button[data-test="startStopTimer"]',
   resetTimerStopwatch: 'button[data-test="resetTimerStopWatch"]',
+  deactivateTimer: 'button[data-test="deactivateTimer"]',
   timerButton: 'button[data-test="timerButton"]',
   timerIndicator: 'div[data-test="timeIndicator"]',
   stopwatch: 'button[data-test="stopwatchButton"]',
-  hoursInput: 'input[data-test="hoursInput"]',
-  minutesInput: 'input[data-test="minutesInput"]',
-  secondsInput: 'input[data-test="secondsInput"]',
+  timerHoursInput: 'input[data-test="timerHoursInput"]',
+  timerMinutesInput: 'input[data-test="timerMinutesInput"]',
+  timerSecondsInput: 'input[data-test="timerSecondsInput"]',
+  timerPreset10min: 'button[data-test="preset-600"]',
+  timerAdd30s: 'button[data-test="add30s"]',
+  timerOneMinutePreset: 'button[data-test="preset-60"]',
+  timerFifteenMinutesPreset: 'button[data-test="preset-900"]',
+  nextTimerPreset: 'button[data-test="nextPreset"]',
+  prevTimerPreset: 'button[data-test="prevPreset"]',
   timerHeader: 'header[data-test="timerHeader"]',
 
   // Notes
@@ -310,7 +342,7 @@ export const elements = {
   notesImportMarkdownTextarea: 'textarea[data-test="notesImportMarkdownTextarea"]',
   notesImportMarkdownConfirm: 'button[data-test="notesImportMarkdownConfirm"]',
   notesImportMarkdownCancel: 'button[data-test="notesImportMarkdownCancel"]',
-  notesImportMarkdownModal: '[data-test="notesImportMarkdownModal"]',
+  notesImportMarkdownModal: '[data-testid="notesImportMarkdownModal"]',
   notesImportMarkdownModeGroup: '[data-test="notesImportMarkdownModeGroup"]',
   notesImportMarkdownAppendMode: 'input[data-test="notesImportMarkdownAppendMode"]',
   notesImportMarkdownReplaceMode: 'input[data-test="notesImportMarkdownReplaceMode"]',
@@ -344,9 +376,8 @@ export const elements = {
   notificationsTab: 'span[id="notificationTab"]',
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
-  // data-test moved from the <input> to the MUI Checkbox root in the settings redesign
-  userJoinPushAlerts: '[data-test="userJoinPopupAlerts"]',
-  userLeavePushAlerts: '[data-test="userLeavePopupAlerts"]',
+  userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
+  userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
@@ -430,6 +461,17 @@ export const elements = {
   yesNoAbstentionOption: 'li[role="menuitem"]>>nth=1',
   pollAnswerOptionD: 'button[data-test="pollAnswerOption"]>>nth=3',
   pollAnswerOptionE: 'button[data-test="pollAnswerOption"]>>nth=4',
+  // Quiz
+  pollQuizTab: 'button[id="quiz"]',
+  // its tooltip replaces the id, so it is found next to the option input
+  quizCorrectAnswerCheckbox: 'div:has(input[data-test="pollOptionItem"]) > input[type="checkbox"]',
+  correctAnswerLabel: 'div[data-test="correctAnswerLabel"]',
+  showCorrectAnswerCheckbox: 'label[data-test="showCorrectAnswerCheckbox"] input',
+  pollLiveResultRow: 'tr:has(td[data-test="userVoteLiveResult"])',
+  quizCorrectResultMark: 'span[aria-label="Correct Answer"]',
+  quizIncorrectResultMark: 'span[aria-label="Incorrect Answer"]',
+  quizNoCorrectAnswerError: 'Quiz has not correct answers selected. Please select at least one correct answer.',
+  quizResultsChatSender: 'Quiz Results',
 
   // Presentation
   currentSlideImg: '[id="whiteboard-element"] [class="tl-image"]',
@@ -484,6 +526,10 @@ export const elements = {
   presentationFullscreen: 'li[data-test="presentationFullscreen"]',
   presentationSnapshot: 'li[data-test="presentationSnapshot"]',
   toolVisibility: 'li[data-test="toolVisibility"]',
+  clearAnnotations: 'li[data-test="clearAnnotations"]',
+  confirmClearAnnotationsButton: 'div[id="simpleModal"] button:has-text("Clear")',
+  modClearAnnotationsDescription: 'Are you sure you want to clear all whiteboard annotations?',
+  viewerClearAnnotationsDescription: 'Are you sure you want to clear all of your whiteboard annotations?',
 
   // YouTube frame
   youtubeLink: 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_channel=BigBlueButton',
@@ -522,12 +568,15 @@ export const elements = {
   usersListSidebarButton: 'div[data-test="usersListSidebarButton"]',
   toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
   currentUser: 'div[data-test="userListItemCurrent"]',
-  manageUsers: 'button[data-test="manageUsers"]',
+  // the avatar shows a clock while the user is away (an icon when reactions are disabled)
+  awayIndicator: 'em-emoji[native="⏰"], i.icon-bbb-time',
+  userStatusSelector: 'div[aria-labelledby~="status-label-id"][aria-haspopup="listbox"]',
+  awayStatusOption: 'li[role="option"][data-value="away"]',
   presenterClassName: 'presenter--',
   mobileUser: 'span[data-test="mobileUser"]',
   userNameSubs: 'span[data-test="userNameSubs"]',
   connectionStatusBtn: 'button[data-test="connectionStatusButton"]',
-  connectionStatusModal: 'div[data-test="connectionStatusModal"]',
+  connectionStatusModal: 'div[data-testid="connectionStatusModal"]',
   copyStats: 'span[data-test="copyStats"]',
   dataSavingScreenshare: 'input[data-test="dataSavingScreenshare"]',
   screenshareLocked: 'button[data-test="screenshareLocked"]',
@@ -541,7 +590,7 @@ export const elements = {
   connectionDataContainer: networkDataContainer,
   avatarsWrapperAvatar: 'div[data-test="avatarsWrapperAvatar"]',
   guestPolicyLabel: 'li[data-test="guestPolicyLabel"]',
-  downloadUserNamesList: 'li[data-test="downloadUserNamesList"]',
+  downloadUserNamesList: 'button[data-test="downloadUserNamesList"]',
   joinMeetingDemoPage: 'div[class^="join-meeting"]',
   askModerator: 'li[data-test="askModerator"]',
   alwaysAccept: 'li[data-test="alwaysAccept"]',
@@ -552,7 +601,6 @@ export const elements = {
   demoteToViewer: 'li[data-test="demoteToViewer"]',
   makePresenter: 'li[data-test="makePresenter"]',
   takePresenter: 'li[data-test="takePresenter"]',
-  usersJoinMuted: 'li[data-test="usersJoinMuted"]',
   muteAllExceptPresenter: 'li[data-test="muteAllExceptPresenter"]',
   error403removedLabel: 'You have been removed from the meeting',
   removeUser: 'li[data-test="removeUser"]',
@@ -570,9 +618,8 @@ export const elements = {
   ejectCamera: 'li[data-test="ejectCamera"]',
   closeUserList: 'button[data-test="closeUserList"]',
   userListPanel: 'div[data-test="userListPanel"]',
-  clearStatus: 'li[data-test="clearStatus"]',
   // direct crowd-action button in the participants panel (replaced the
-  // manageUsers gear dropdown's "mute all except presenter" item)
+  // 3.0 gear dropdown's "mute all except presenter" item)
   muteAllUsers: 'button[data-test="muteAllUsers"]',
 
   // Lock Viewers
@@ -713,7 +760,7 @@ export const elements = {
   webcamItem: 'div[data-test="webcamItem"]',
   webcamItemTalkingUser: 'div[data-test="webcamItemTalkingUser"]',
   webcamItemRaisedHand: 'div[data-test="webcamItemRaisedHand"]',
-  webcamSettingsModal: 'div[data-test="webcamSettingsModal"]',
+  webcamSettingsModal: 'div[data-testid="webcamSettingsModal"]',
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
   webcamUserStatus: 'div[data-test="webcamUserStatus"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
@@ -772,7 +819,7 @@ export const elements = {
 
   // About modal
   aboutTabButton: 'li[data-test="aboutTabButton"]',
-  aboutModal: 'div[data-test="aboutModalTitleLabel"]',
+  aboutModal: 'div[data-testid="aboutModalTitleLabel"]',
 
   // Help button
   helpLinkButton: 'a[data-test="helpLinkButton"]',
@@ -855,4 +902,5 @@ export const playbackElements = {
   seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
   seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
   progressBar: `${videoControlBar} div.vjs-play-progress`,
+  mediaElement: 'div.video-js .vjs-tech',
 } as const;

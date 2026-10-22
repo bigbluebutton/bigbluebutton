@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 
@@ -78,15 +79,40 @@ class ConfirmationModal extends Component {
     const handleClose = onRequestClose || (() => setIsOpen(false));
 
     return (
-      <Styled.ConfirmationModal
+      <ModalSimple
         onRequestClose={handleClose}
         onAfterOpen={this.focusCancelButton}
         contentLabel={title}
         title={title}
-        {...{
-          isOpen,
-          priority,
-        }}
+        isOpen={isOpen}
+        priority={priority}
+        noFooter={false}
+        footerContent={(
+          <Styled.Footer>
+            {!hideCancelButton && (
+              <Styled.FooterButton
+                id={this.cancelButtonId}
+                variant="secondary"
+                dataTest="confirmationModalCancel"
+                label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
+                onClick={handleClose}
+              />
+            )}
+            {!hideConfirmButton && (
+              <Styled.FooterButton
+                variant="primary"
+                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
+                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
+                disabled={disableConfirmButton}
+                dataTest={confirmButtonDataTest}
+                onClick={() => {
+                  onConfirm(confirmParam, checked);
+                  setIsOpen(false);
+                }}
+              />
+            )}
+          </Styled.Footer>
+        )}
       >
         <Styled.Container>
           <Styled.Description>
@@ -106,33 +132,8 @@ class ConfirmationModal extends Component {
               </Styled.Label>
             ) : null }
           </Styled.Description>
-
-          <Styled.Footer>
-            {!hideConfirmButton && (
-              <Styled.FooterButton
-                variant="primary"
-                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
-                label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
-                disabled={disableConfirmButton}
-                dataTest={confirmButtonDataTest}
-                onClick={() => {
-                  onConfirm(confirmParam, checked);
-                  setIsOpen(false);
-                }}
-              />
-            )}
-            {!hideCancelButton && (
-              <Styled.FooterButton
-                id={this.cancelButtonId}
-                variant="secondary"
-                dataTest="confirmationModalCancel"
-                label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
-                onClick={handleClose}
-              />
-            )}
-          </Styled.Footer>
         </Styled.Container>
-      </Styled.ConfirmationModal>
+      </ModalSimple>
     );
   }
 }

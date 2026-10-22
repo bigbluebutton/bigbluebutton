@@ -6,7 +6,7 @@ import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
 import { Timer } from './timer';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride } from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -87,13 +87,16 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.stopwatchTest();
     });
 
-    // needs a rewrite for the redesigned timer panel: timer mode no longer renders an
-    // in-panel countdown (div[data-test="timerCurrent"]) and the duration inputs were
-    // renamed (timerHoursInput/timerMinutesInput/timerSecondsInput, plus preset buttons)
-    test('Timer', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
+    test('Timer', async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
-      await timer.initModPage(page, { testInfo });
+      await timer.initPages(page, testInfo);
       await timer.timerTest();
+    });
+
+    test('Timer countdown for the attendee', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initPages(page, testInfo);
+      await timer.timerCountdownForAttendeeTest();
     });
 
     test('Leave Meeting', async ({ browser, context, page }, testInfo) => {
@@ -115,8 +118,14 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Emoji rain', async ({ browser, context, page }, testInfo) => {
       const emojiRain = new MultiUsers(browser, context);
-      await emojiRain.initModPage(page, { testInfo });
-      await emojiRain.emojiRainTest();
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(true) });
+      await emojiRain.emojiRainTest(true);
+    });
+
+    test('Emoji rain disabled', async ({ browser, context, page }, testInfo) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(false) });
+      await emojiRain.emojiRainTest(false);
     });
   });
 
@@ -313,10 +322,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      // its unguarded whiteboard toHaveScreenshot compares fail wherever canvas
-      // rendering diverges from the committed baseline (e.g. 983x553 vs 993x559
-      // canvas across machines) - needs the suite-wide canvas-size normalization
-      test('Lock see other viewers annotations', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
+      test('Lock see other viewers annotations', async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersAnnotations();
@@ -337,11 +343,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.hideUserListSuppressesJoinNotification();
       });
 
-      // @known-issue: with the hide-user-list lock active, user-LEAVE toast
-      // notifications stop arriving for everyone (moderators included) while
-      // join toasts and plain leave notifications work - suspected 4.0 client
-      // regression, reproduced consistently; the assertion here is correct
-      test('Hide user list suppresses leave notification for locked viewer', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
+      test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesLeaveNotification();
@@ -356,13 +358,8 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         },
       );
 
-      // @known-issue: with the hide-user-list lock active, user-LEAVE toast
-      // notifications stop arriving for everyone (moderators included) while
-      // join toasts and plain leave notifications work - suspected 4.0 client
-      // regression, reproduced consistently; the assertion here is correct
       test(
         'Hide user list leave notification is shown only to moderator and unlocked viewer',
-        { tag: '@known-issue' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -379,13 +376,8 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         },
       );
 
-      // @known-issue: with the hide-user-list lock active, user-LEAVE toast
-      // notifications stop arriving for everyone (moderators included) while
-      // join toasts and plain leave notifications work - suspected 4.0 client
-      // regression, reproduced consistently; the assertion here is correct
       test(
         'Hide user list leave notification is visible to locked viewer when a moderator leaves',
-        { tag: '@known-issue' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -413,21 +405,11 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
-    // blocked: clicking downloadUserNamesList produces no download event and no
-    // client error on 4.0 - needs interactive debugging of the GET_USER_NAMES flow
-    test('Save user names', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
+    test('Save user names', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page, testInfo);
+      await multiusers.initModPage(page, { testInfo, fullName: '王小明' });
+      await multiusers.initUserPage(context, { testInfo, fullName: 'Zoë  Müller' });
       await multiusers.saveUserNames();
-    });
-
-    // the "users join muted" toggle is gone from the 4.0 client (only orphaned
-    // app.userList.userOptions.usersJoinMuted* locale strings remain) - needs a
-    // decision upstream: restore the UI or drop this test
-    test('Disable users join muted', { tag: ['@need-update', '@media'] }, async ({ browser, context, page }, testInfo) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, { testInfo });
-      await multiusers.disabledUsersJoinMuted();
     });
 
     test('Mute all users except presenter', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
@@ -436,16 +418,6 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage2(context, { shouldCloseAudioModal: false, testInfo });
       await multiusers.initUserPage(context, { shouldCloseAudioModal: false, testInfo });
       await multiusers.muteAllUsersExceptPresenter();
-    });
-
-    // "clear all reactions" is gone from the 4.0 client (only orphaned
-    // app.userList.userOptions.clearAllReactions* locale strings remain), and
-    // reactions no longer render inside div[data-test="moderatorAvatar"]
-    test('Clear all status icon', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, { testInfo });
-      await multiusers.initModPage2(context, { testInfo });
-      await multiusers.clearAllStatusIcon();
     });
 
     test('End meeting', async ({ browser, context, page }, testInfo) => {

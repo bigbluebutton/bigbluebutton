@@ -630,6 +630,115 @@ export class Polling extends MultiUsers {
     await this.modPage.hasElement(e.wbPollShape, 'should display the poll shape on the whiteboard');
   }
 
+  async quizLiveResults() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.initUserPage2();
+    await util.openQuiz(this.modPage);
+    await util.selectQuizCorrectAnswer(this.modPage, 1);
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await util.answerPollOption(this.userPage, 'B');
+    await util.answerPollOption(this.userPage2, 'C');
+    await this.modPage.hasText(e.pollStatus, 'Done', 'should display the quiz as done after both attendees answered');
+
+    const correctRow = util.liveResultRow(this.modPage, this.userPage.username);
+    await expect(correctRow.locator(e.userVoteLiveResult), 'should display the first attendee answer').toHaveText('B');
+    await expect(
+      correctRow.locator(e.quizCorrectResultMark),
+      'should mark the first attendee answer as correct',
+    ).toBeVisible();
+    await expect(
+      correctRow.locator(e.quizIncorrectResultMark),
+      'should not mark the first attendee answer as incorrect',
+    ).toHaveCount(0);
+
+    const incorrectRow = util.liveResultRow(this.modPage, this.userPage2.username);
+    await expect(incorrectRow.locator(e.userVoteLiveResult), 'should display the second attendee answer').toHaveText(
+      'C',
+    );
+    await expect(
+      incorrectRow.locator(e.quizIncorrectResultMark),
+      'should mark the second attendee answer as incorrect',
+    ).toBeVisible();
+    await expect(
+      incorrectRow.locator(e.quizCorrectResultMark),
+      'should not mark the second attendee answer as correct',
+    ).toHaveCount(0);
+  }
+
+  async quizWithoutCorrectAnswer() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await util.openQuiz(this.modPage);
+    await this.modPage.hasElementCount(e.correctAnswerLabel, 0, 'should not label any option as correct by default');
+    await this.modPage.hasElementDisabled(
+      e.startPoll,
+      'should display the start quiz button disabled while no correct answer is selected',
+    );
+    // the disabled button ignores the pointer, so the reason shows in a tooltip on its wrapper
+    const startQuizLocator = this.modPage.page.locator(e.startPoll);
+    await startQuizLocator.hover({ force: true });
+    await expect(
+      this.modPage.page.getByText(e.quizNoCorrectAnswerError),
+      'should explain that the quiz needs a correct answer',
+    ).toBeVisible();
+    await startQuizLocator.click({ force: true });
+    await this.modPage.wasRemoved(e.publishPollingLabel, 'should not start the quiz without a correct answer');
+    await this.userPage.wasRemoved(e.pollingContainer, 'should not display a quiz to the attendee');
+
+    await util.selectQuizCorrectAnswer(this.modPage, 0);
+    await this.modPage.hasElementEnabled(
+      e.startPoll,
+      'should enable the start quiz button once a correct answer is set',
+    );
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the quiz to the attendee once started');
+  }
+
+  async quizResultsOnChat() {
+    const { pollChatMessage } = this.modPage.settings || {};
+    test.skip(!pollChatMessage, 'Poll results are not published to the chat');
+
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await util.openQuiz(this.modPage);
+    await util.selectQuizCorrectAnswer(this.modPage, 1);
+    await this.modPage.waitAndClick(e.startPoll);
+    await util.answerPollOption(this.userPage, 'B');
+
+    await this.modPage.page.locator(e.showCorrectAnswerCheckbox).setChecked(true);
+    await this.modPage.hasElementChecked(
+      e.showCorrectAnswerCheckbox,
+      'should have the option to display the correct answer to all participants checked',
+    );
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
+    const quizResultMessage = this.userPage.page
+      .locator(e.chatMessageItem)
+      .filter({ has: this.userPage.page.locator(e.chatPollMessageText) })
+      .last();
+    await expect(
+      quizResultMessage,
+      'should label the published results as quiz results for the attendee',
+    ).toContainText(e.quizResultsChatSender);
+    const quizResultChart = quizResultMessage.locator(e.chatPollMessageText);
+    await expect(quizResultChart, 'should mark the correct answer in the published quiz results').toContainText('✅ B');
+    await expect(
+      quizResultChart,
+      'should mark only the correct answer in the published quiz results',
+    ).not.toContainText(/✅ [ACD]/);
+  }
+
   async startNewPoll() {
     const hasPollStarted = await this.modPage.checkElement(e.cancelPollBtn);
     if (hasPollStarted) {

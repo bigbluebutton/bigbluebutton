@@ -204,15 +204,7 @@ export class Chat extends MultiUsers {
   }
 
   async sendEmoji() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPublicChat(this.modPage);
-
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the chat box element');
-      await this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button element');
-      return;
-    }
 
     const message = this.modPage.page.locator(e.chatUserMessageText);
     await expect(message, 'should not display any messages on the public chat').toHaveCount(0);
@@ -223,21 +215,12 @@ export class Chat extends MultiUsers {
 
     await this.modPage.waitForSelector(e.chatUserMessageText);
     await expect(message, 'should display only one message that contains an emoji on the public chat').toHaveCount(1);
+    await checkLastMessageSent(this.modPage, e.thumbsUpEmoji);
   }
 
   async emojiCopyChat() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPublicChat(this.modPage);
 
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the chat box element on the public chat');
-      await this.modPage.wasRemoved(
-        e.emojiPickerButton,
-        'should not display the emoji picker button on the public chat',
-      );
-      return;
-    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
@@ -299,14 +282,7 @@ export class Chat extends MultiUsers {
   }
 
   async emojiSaveChat() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPublicChat(this.modPage);
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
-      await this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button');
-      return;
-    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
@@ -324,8 +300,6 @@ export class Chat extends MultiUsers {
   }
 
   async emojiSendPrivateChat() {
-    const { emojiPickerEnabled } = this.modPage.settings || {};
-
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(
       e.hidePrivateChat,
@@ -334,14 +308,6 @@ export class Chat extends MultiUsers {
     // prevent a race condition when running on a deployed server
     await this.modPage.page.waitForTimeout(500);
     // modPage send message
-    if (!emojiPickerEnabled) {
-      await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
-      await this.modPage.wasRemoved(
-        e.emojiPickerButton,
-        'should not display the emoji picker button on the public chat',
-      );
-      return;
-    }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);

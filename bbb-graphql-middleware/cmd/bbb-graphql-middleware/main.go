@@ -43,8 +43,9 @@ func main() {
 
 	log.Infof("Logger level=%v", log.Logger.Level)
 
-	// Listen msgs from akka (for example to invalidate connection)
-	go websrv.StartRedisListener()
+	// Keep the HTTP port closed until Redis is subscribed so clients keep retrying.
+	subscriber := websrv.WaitForRedisSubscription()
+	go websrv.ListenRedisMessages(subscriber)
 
 	if cfg.Server.JsonPatchDisabled {
 		log.Infof("Json Patch Disabled!")
