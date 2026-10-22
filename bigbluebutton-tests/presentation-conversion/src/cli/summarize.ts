@@ -16,7 +16,7 @@ const runId =
   (fs.existsSync(workRoot)
     ? fs
         .readdirSync(workRoot)
-        .filter((d) => fs.statSync(path.join(workRoot, d)).isDirectory())
+        .filter((d) => d !== 'runtime' && fs.statSync(path.join(workRoot, d)).isDirectory())
         .sort()
         .pop()
     : undefined);

@@ -1,10 +1,12 @@
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 
 /**
  * Fixtures too big to commit, generated deterministically at run time from the parameters in their manifest.
- * Every generator returns the same bytes for the same parameters.
+ * Every generator returns the same bytes for the same parameters, so a generated file is kept for later runs under a
+ * name that carries a hash of those parameters.
  */
 
 function prng(seed: number): () => number {
@@ -154,7 +156,8 @@ export function runtimeExtension(spec: RuntimeSpec): string {
 }
 
 export function generateRuntimeFixture(id: string, spec: RuntimeSpec, outDir: string): string {
-  const file = path.join(outDir, `${id}${runtimeExtension(spec)}`);
+  const hash = crypto.createHash('sha256').update(id + JSON.stringify(spec)).digest('hex').slice(0, 12);
+  const file = path.join(outDir, `${id}-${hash}${runtimeExtension(spec)}`);
   if (fs.existsSync(file)) return file;
   fs.mkdirSync(outDir, { recursive: true });
   let data: Buffer;
@@ -171,6 +174,8 @@ export function generateRuntimeFixture(id: string, spec: RuntimeSpec, outDir: st
     default:
       throw new Error(`${id}: unknown runtime fixture kind "${spec.kind}"`);
   }
-  fs.writeFileSync(file, data);
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, data);
+  fs.renameSync(tmp, file);
   return file;
 }

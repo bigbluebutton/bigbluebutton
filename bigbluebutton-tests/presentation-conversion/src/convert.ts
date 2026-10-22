@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BbbApi, documentXml, modulesXml, pageToken } from './api';
 import { Collected, CollectedFixture, CollectedPage, Outcome, PdfPageBox } from './collected';
-import { loadTarget, profileName, profileWorkDir, runId, serverHost, Target, workDir } from './env';
+import { loadTarget, profileName, profileWorkDir, runId, serverHost, SUITE_ROOT, Target, workDir } from './env';
 import { canReadDir, copyTree, listDir, readFileBytes, run, statSize, sudo } from './host';
 import { BASE64_LIMIT, enabledChecks, expectationFor, lintManifests, loadAllManifests, Manifest, selectedManifests, sha256, UploadMethod, uploadName } from './manifest';
 import { generateRuntimeFixture, RuntimeSpec } from './runtimeFixtures';
@@ -159,7 +159,7 @@ export class Converter {
     const out: Prepared[] = [];
     for (const m of manifests) {
       const sourcePath =
-        m.tier === 'runtime' ? generateRuntimeFixture(m.id, m.generate as RuntimeSpec, workDir('runtime')) : (m.filePath as string);
+        m.tier === 'runtime' ? generateRuntimeFixture(m.id, m.generate as RuntimeSpec, path.join(SUITE_ROOT, 'work', 'runtime')) : (m.filePath as string);
       let data = fs.readFileSync(sourcePath);
       if (m.upload.uniqueBytes ?? m.tier === 'variant') data = Buffer.concat([data, Buffer.from(`\n% pc-variant ${m.id}\n`, 'latin1')]);
       const name = uploadName(m, sourcePath);
@@ -196,6 +196,7 @@ export class Converter {
       await sudo(['rm', '-rf', dir]);
       await sudo(['rmdir', '--ignore-fail-on-non-empty', path.dirname(dir), path.dirname(path.dirname(dir))]);
     }
+    fs.rmSync(workDir('staging'), { recursive: true, force: true });
   }
 
   private plan(items: Prepared[]): MeetingPlan[] {
