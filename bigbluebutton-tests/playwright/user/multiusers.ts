@@ -253,6 +253,11 @@ export class MultiUsers {
       audioOnlyTiles.filter({ has: this.modPage.page.locator(e.webcamItemRaisedHand) }),
       'should display the raised hand indicator on the audio-only tile',
     ).toHaveCount(1);
+    // The indicator also shows the user's position in the raised-hand queue.
+    await expect(
+      audioOnlyTiles.locator(e.webcamItemRaisedHand),
+      'should display the raised hand position on the audio-only tile',
+    ).toHaveText(/^1(?!\d)/);
   }
 
   async audioOnlyTileVisibleForAttendee() {

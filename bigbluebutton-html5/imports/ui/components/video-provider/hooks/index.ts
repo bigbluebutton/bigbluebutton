@@ -167,10 +167,24 @@ export const useCanOnlySeeModeratorCameras = () => {
   return !!meeting?.usersPolicies?.webcamsOnlyForModerator && !!currentUser?.locked;
 };
 
-export const useVideoStreamsCount = () => {
-  const streams = useStreams();
+// Only the set of streams matters for a count: the projection drops the user
+// and voice fields, so floor changes and reactions do not re-render its readers.
+const projectStreamIdentity = (s: Partial<StreamSubscriptionData>) => ({
+  meetingId: s.meetingId,
+  streamId: s.streamId,
+});
 
-  return streams.length;
+export const useVideoStreamsCount = () => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const { data, loading } = useVideoStreamsSubscription(projectStreamIdentity);
+
+  if (loading || !meeting?.meetingId) return 0;
+
+  return filterByMeetingId(
+    data as StreamSubscriptionData[],
+    meeting.meetingId,
+    VIDEO_STREAMS_SUBSCRIPTION,
+  ).length;
 };
 
 export const useLocalVideoStreamsCount = () => {
