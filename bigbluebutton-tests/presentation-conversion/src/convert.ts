@@ -208,6 +208,7 @@ export class Converter {
       meetingExpireIfNoUserJoinedInMinutes: '60',
       meetingExpireWhenLastUserLeftInMinutes: '60',
       ...plan.createParams,
+      meta_pcsuite: '1',
     };
     const body =
       plan.kind === 'create'
