@@ -170,17 +170,10 @@ const Summary = styled.div`
   align-items: center;
   gap: ${mdPaddingX};
   padding: ${lgPaddingX};
+  justify-content: center;
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadiusRounded};
   text-align: center;
-
-  /* On a tablet the box fills the height under the cards: what it holds sits
-     in its middle. */
-  ${PreFlightStyled.PHONE_LAYOUT} & {
-    @media ${mediumOnly} {
-      justify-content: center;
-    }
-  }
 `;
 
 // The design draws it at 277x156; it shrinks with a narrow summary.

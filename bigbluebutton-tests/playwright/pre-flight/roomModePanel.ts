@@ -204,10 +204,12 @@ export class RoomModePanel extends RoomMode {
       'should display the pre-flight screen to the viewer',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
+    // A viewer has a single panel, so no tabs either way: the layout itself is
+    // what the tablet rule must leave alone.
     await expect(
-      this.userPage.page.locator(e.preFlightDevicesTab),
-      'should keep the setup out of tabs for a viewer on a tablet',
-    ).toHaveCount(0);
+      this.userPage.page.locator(e.preFlight),
+      'should keep the desktop layout for a viewer on a tablet',
+    ).not.toHaveAttribute('data-phone-layout');
     await expect(
       this.userPage.page.locator(e.preFlightCameraToggle),
       'should display the device setup beside the join',
