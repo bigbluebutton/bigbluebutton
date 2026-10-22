@@ -1460,6 +1460,35 @@ Note :
 
 3. Dropdown list should appear with a list of available options ("Fullscreen Application", "Leave session" and, for moderators, "End session for all"; Settings and Keyboard shortcuts are reached as described below).
 
+### Nav bar and actions bar overflow [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-tests/playwright/bars-overflow/barsOverflow.spec.ts)
+
+1. Join meeting as moderator, with `public.layout.barsOverflow.enabled` set to `true` (the default). Use a plugin that adds buttons to the nav bar and to the actions bar, and a selector or toggle group to the actions bar.
+
+2. At full width, nothing collapses. If the Options menu would hold a single entry (e.g. fullscreen), the three dots button is replaced by a button for that entry. "Leave meeting" and "End meeting" are never promoted that way: alone, they stay behind the three dots.
+
+3. Narrow the window step by step.
+
+    - Plugin items leave each bar first, last declared first; then native items: connection status and recording in the nav bar, swap presentation, raise hand, reactions, screen share and captions in the actions bar.
+    - Nav bar items move to the top of the Options menu; actions bar items move to a "More actions" button at the start of the center group, right before the microphone (on the right in RTL). An actions bar item never collapses alone, so the button never turns into a single item: items leave in pairs or more (e.g. with the default items, raise hand and reactions leave together). The button is a light translucent vertical oval with a white icon, as tall as its neighbors, also in dark mode.
+    - Screen share is only hidden, with no menu entry: the Media Area panel, opened by the (+) button, always offers a "Screen share" option, so screen sharing stays one click away. When it is the only collapsed item, no overflow button appears (e.g. with `disabledFeatures=raiseHand,userReactions`). Check it as presenter; viewers have no screen share button.
+    - Leave meeting, Options, audio, video, the minimize/restore presentation button and the media area button never collapse, and with the default font size no bar scrolls or spills off-screen at 360px.
+    - The entries work like the buttons they replace and follow their state (e.g. "Raise your hand" becomes "Lower your hand"). "Share a reaction" opens the picker inside the viewport, also on mobile.
+    - Tab and access keys (e.g. Alt + R) do not reach collapsed items.
+    - While a collapsed item is on (hand raised, a reaction set, captions on or, in the nav bar, a recording in progress), a red notification dot shows on the button that holds it ("More actions", or the Options button in the nav bar). It goes away when the item turns off or returns to the bar.
+
+4. Narrow the window until the plugin selector or toggle group collapses, and select "More tools" (or the button itself, when it is the only collapsed item).
+
+    - The actions bar shows the collapsed selectors and toggle groups in place of its other items, with focus on the first of them, and a "Back" button at the start of the center group.
+    - A plugin icon separator collapsed with them (e.g. the whiteboard icon of the sample actions bar plugin) shows in place too, next to its tools. An icon separator alone in the overflow never offers "More tools".
+    - "Back" shows the notification dot while an item it hides is on (e.g. a raised hand).
+    - "Back" or `Escape` restores the bar and focus goes back to the overflow button.
+    - An access key of a hidden item (e.g. Alt + A for the media area) restores the bar and acts on the now visible button.
+    - Widening the window while expanded restores the bar on its own.
+
+5. Widen the window back: every item returns to its place. Repeat steps 3 and 4 in a right-to-left language and on a mobile device.
+
+6. With `public.layout.barsOverflow.enabled: false`, both bars behave as in previous versions; with an item set to `100` under `priority.navBar` or `priority.actionsBar`, that item never collapses.
+
 ### Make Full screen
 
 1. Click "Fullscreen Application".
