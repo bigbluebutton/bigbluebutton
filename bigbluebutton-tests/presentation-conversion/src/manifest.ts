@@ -101,7 +101,7 @@ export function selectedManifests(profile: string): Manifest[] {
     (m) =>
       m.profiles!.includes(profile) &&
       (only.length === 0 || only.includes(m.id)) &&
-      (tiers.length === 0 || tiers.includes(m.tier)) &&
+      (tiers.length === 0 ? m.tier !== 'private' : tiers.includes(m.tier)) &&
       (m.tier !== 'private' || (m.filePath && fs.existsSync(m.filePath))),
   );
 }

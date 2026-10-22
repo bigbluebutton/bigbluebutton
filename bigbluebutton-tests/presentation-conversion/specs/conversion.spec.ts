@@ -150,8 +150,10 @@ for (const m of selectedManifests(profile)) {
         const ref = abs(page!.ref);
         if (rendered && ref) {
           run.info('reference', meanDifference({ data: rendered.rgba, width: rendered.width, height: rendered.height }, decodePng(ref)), 'mean RGB difference to the poppler render');
-          await testInfo.attach(`page-${n}-rendered.png`, { body: rendered.png, contentType: 'image/png' });
-          await testInfo.attach(`page-${n}-poppler.png`, { path: ref, contentType: 'image/png' });
+          if (m.tier !== 'private') {
+            await testInfo.attach(`page-${n}-rendered.png`, { body: rendered.png, contentType: 'image/png' });
+            await testInfo.attach(`page-${n}-poppler.png`, { path: ref, contentType: 'image/png' });
+          }
         }
         run.finish();
       });
