@@ -20,6 +20,7 @@ import { ActiveCaptionsResponse, GET_ACTIVE_CAPTIONS } from './queries';
 import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
+import { useBarPriorityEntries } from '/imports/ui/core/hooks/useBarPriorityEntries';
 
 const messages: { [key: string]: { id: string; description?: string } } = {
   start: {
@@ -218,19 +219,35 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     ...getAvailableCaptions(),
     ];
   };
-  const onToggleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleCaptions = () => {
     if (!currentCaptionLocale && !active) {
       setUserCaptionLocale(availableVoices[0], PROVIDER);
     }
     setAudioCaptions(!active);
   };
 
+  const onToggleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleCaptions();
+  };
+
+  const toggleIcon = active ? 'closed_caption' : 'closed_caption_stop';
+  const toggleLabel = intl.formatMessage(active ? intlMessages.stop : intlMessages.start);
+
+  useBarPriorityEntries('actionsBar', 'audioCaptions', [{
+    key: 'audioCaptions',
+    label: toggleLabel,
+    icon: toggleIcon,
+    onClick: toggleCaptions,
+    dataTest: 'audioCaptionsOption',
+    active,
+  }]);
+
   const startStopCaptionsButton = (
     <Styled.ClosedCaptionToggleButton
       active={active}
-      icon={active ? 'closed_caption' : 'closed_caption_stop'}
-      label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
+      icon={toggleIcon}
+      label={toggleLabel}
       color={active ? 'primary' : 'default'}
       hideLabel
       circle

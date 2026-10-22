@@ -332,6 +332,7 @@ class OptionsDropdown extends PureComponent<OptionsDropdownProps, OptionsDropdow
             accessKey: OPEN_OPTIONS_AK,
             component: Styled.DropdownButton,
             state: isDropdownOpen ? 'open' : 'closed',
+            indicateActiveEntry: true,
           }}
           customStyles={!isMobile ? customStyles : null}
           overrideMobileStyles

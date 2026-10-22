@@ -319,11 +319,13 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         disabled,
         dataTest: 'recordingOption',
         onClick: () => recordingToggle(micUser, recording),
+        active: recording,
       }]
       : [{
         key: 'recording',
         label: title,
         dataTest: 'recordingStatusOption',
+        active: recording,
       }];
   }
   useBarPriorityEntries('navBar', 'recording', overflowEntries);

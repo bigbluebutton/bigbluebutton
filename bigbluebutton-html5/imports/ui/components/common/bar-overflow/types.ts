@@ -16,6 +16,8 @@ export type OverflowMenuOptionEntry = MenuOptionItemType & {
   icon?: PluginIconType | string;
   // Never promoted to a direct button when it is the only entry (e.g. leaving the meeting).
   keepInMenu?: boolean;
+  // The item is on (a raised hand, captions running), which a collapsed item would otherwise hide.
+  active?: boolean;
 };
 
 export type OverflowMenuEntry = OverflowMenuOptionEntry
