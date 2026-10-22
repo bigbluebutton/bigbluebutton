@@ -4,6 +4,9 @@ import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { ClientSettingsOverrides, Page } from '../core/page';
 
+// How long a toast that must not appear is watched for after the matching toast reached another page.
+const TOAST_WATCH_TIME = 2000;
+
 // Client settings overrides that deterministically reproduce issue 25242 regardless of the
 // server config: the audio-only-tiles feature on, plus the equally-paginated branch
 // (partitionPrivilegedStreams: false) that used to drop audio-only tiles for non-privileged
@@ -42,7 +45,10 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
 }
 
 export async function openLockViewers(testPage: Page) {
-  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+  const isLockViewersButtonVisible = await testPage.page
+    .locator(e.lockViewersButton)
+    .isVisible({ timeout: ELEMENT_WAIT_TIME })
+    .catch(() => false);
   if (!isLockViewersButtonVisible) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
@@ -92,7 +98,11 @@ export async function hasRecordedToast(
 }
 
 export async function hasNoRecordedToast(testPage: Page, text: string, description: string) {
-  expect(await wasToastRecorded(testPage, text), description).toBe(false);
+  const watchUntil = Date.now() + TOAST_WATCH_TIME;
+  while (Date.now() < watchUntil) {
+    expect(await wasToastRecorded(testPage, text), description).toBe(false);
+    await testPage.page.waitForTimeout(250);
+  }
 }
 
 // The talking indicator of one user, while that user is talking.

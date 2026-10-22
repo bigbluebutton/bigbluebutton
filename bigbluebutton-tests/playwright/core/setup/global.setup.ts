@@ -27,10 +27,11 @@ async function validateEnvironmentAndAPI(): Promise<void> {
 
   // Create a request context for API validation
   const requestContext = await request.newContext();
+  const testMeetingId = `validation-test-${Date.now()}`;
+  let meetingCreated = false;
 
   try {
     // Test the /create endpoint with a temporary meeting
-    const testMeetingId = `validation-test-${Date.now()}`;
     const createUrl = helpers.createMeetingUrl(undefined, testMeetingId);
     const createResponse = await requestContext.get(createUrl, { timeout: 15000 });
 
@@ -43,6 +44,7 @@ async function validateEnvironmentAndAPI(): Promise<void> {
       console.error(msg);
       throw new Error(msg);
     }
+    meetingCreated = true;
 
     // Test the /join endpoint on the meeting just created. A join redirects either to the client or,
     // when rejected (e.g. checksumError), to the logout URL with an `errors` parameter. The redirect
@@ -61,11 +63,11 @@ async function validateEnvironmentAndAPI(): Promise<void> {
       console.error(msg);
       throw new Error(msg);
     }
-    await helpers.endMeetings(requestContext, [testMeetingId]);
   } catch (error) {
     console.error('Environment and API validation failed:', (error as Error).message);
     throw error;
   } finally {
+    if (meetingCreated) await helpers.endMeetings(requestContext, [testMeetingId]);
     await requestContext.dispose();
   }
 }

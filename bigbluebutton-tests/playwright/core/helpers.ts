@@ -163,7 +163,9 @@ export async function endMeetingsCreatedByTest(): Promise<void> {
   const meetingIDs = meetingsCreatedByTest.splice(0);
   await Promise.all(
     meetingIDs.map((meetingID) =>
-      axios.get(getApiCallUrl('end', { meetingID }), { adapter: 'http' }).catch(() => undefined),
+      axios
+        .get(getApiCallUrl('end', { meetingID }), { adapter: 'http' })
+        .catch((error: Error) => console.warn(`could not end meeting ${meetingID} after the test: ${error.message}`)),
     ),
   );
 }
