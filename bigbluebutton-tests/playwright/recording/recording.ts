@@ -12,7 +12,17 @@ import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharedn
 import { MultiUsers } from '../user/multiusers';
 import { getTldrawCamera } from '../whiteboard/util';
 
-type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+export type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+
+// A server may publish several formats (podcast, video, etc.) in any order,
+// so a format is always selected by its type.
+export function findPlaybackFormat(
+  recordingData: { playback?: { format?: RecordingPlaybackFormat[] }[] } | undefined,
+  type: string,
+): RecordingPlaybackFormat | undefined {
+  const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+  return formats.find((format) => format?.type?.[0] === type);
+}
 
 // Width the indicator takes beyond its own height: ~0 for the icon-only circle,
 // the label's width once it is revealed. Geometry rather than colour, which
@@ -48,8 +58,7 @@ export class Recording extends MultiUsers {
       // Wait for the presentation playback format specifically: a server may publish several
       // formats (podcast, video, screenshare, notes) and presentation is not guaranteed to be ready first.
       const recording = response.recordings?.[0]?.recording?.[0];
-      const formats: RecordingPlaybackFormat[] = recording?.playback?.[0]?.format ?? [];
-      const hasPresentationFormat = formats.some((format) => format?.type?.[0] === 'presentation');
+      const hasPresentationFormat = !!findPlaybackFormat(recording, 'presentation');
       if (
         response.returncode?.[0] === 'SUCCESS' &&
         response.messageKey?.[0] !== 'noRecordings' &&
@@ -152,10 +161,7 @@ export class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format — a server may publish multiple formats (podcast, video, etc.),
-    // so select the presentation format explicitly instead of relying on the array order
-    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
-    const playbackData = formats.find((format) => format?.type?.[0] === 'presentation');
+    const playbackData = findPlaybackFormat(recordingData, 'presentation');
     expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
     const playbackUrl = playbackData?.url?.[0];
@@ -208,7 +214,7 @@ export class Recording extends MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
 
     const { response } = await this.getRecordingsWithRetry();
-    const playbackUrl = response?.recordings?.[0]?.recording?.[0]?.playback?.[0]?.format?.[0]?.url?.[0];
+    const playbackUrl = findPlaybackFormat(response?.recordings?.[0]?.recording?.[0], 'presentation')?.url?.[0];
     if (!playbackUrl) {
       throw new Error('Playback URL not found in API response');
     }

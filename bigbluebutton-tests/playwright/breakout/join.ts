@@ -2,8 +2,10 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { getMeetingInfo } from '../core/endpoints';
 import { Page } from '../core/page';
 import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
+import { waitForPublishedRecording } from '../recording/recordedPlayback';
 import * as utilScreenShare from '../screenshare/util';
 import { getBlockNoteEditorLocator } from '../sharednotes/blocknote/util';
 import { isTalkingLocator } from '../user/util';
@@ -797,5 +799,33 @@ export class Join extends Create {
       e.joinAudio,
       'should display the join audio button after returning to the main session',
     );
+  }
+
+  // The rooms must have been created with the record option.
+  async recordInBreakoutRoom() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    const { data } = await getMeetingInfo(this.modPage.meetingId);
+    const parentMeetingId = data.response.internalMeetingID[0];
+    const breakoutRoomIds = data.response.breakoutRooms?.[0]?.breakout ?? [];
+
+    const breakoutModPage = new Page(this.browser, await this.joinFirstBreakoutRoomAsModerator());
+    // toasts of the freshly joined room cover the recording indicator
+    await breakoutModPage.closeAllToastNotifications();
+    await breakoutModPage.waitAndClick(e.recordingIndicator);
+    await breakoutModPage.waitAndClick(e.confirmRecordingButton);
+    await expect(
+      breakoutModPage.page.locator(`${e.recordingIndicator} button`),
+      'the moderator should be able to record inside the breakout room',
+    ).toHaveAttribute('aria-label', 'Pause recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await breakoutModPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    await this.endAllBreakoutRooms();
+
+    const { recordId, recording } = await waitForPublishedRecording(this.modPage.page, breakoutRoomIds.join(','));
+    expect(recording.isBreakout?.[0], `record ${recordId} should be marked as a breakout recording`).toBe('true');
+    expect(recording.breakout?.[0]?.parentId?.[0], `record ${recordId} should name the parent meeting`).toBe(
+      parentMeetingId,
+    );
+    expect(recording.breakout?.[0]?.sequence?.[0], `record ${recordId} should be of the first room`).toBe('1');
   }
 }

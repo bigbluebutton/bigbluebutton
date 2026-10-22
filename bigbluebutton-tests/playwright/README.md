@@ -132,6 +132,8 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@setting-required:<setting>` — needs a non-default server setting
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
+Tests tagged `@nightly` wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. Their tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+
 ## Skip SDK tests without the need of a new release
 
 Instead pushing changes with `@flaky` flag addition into the BigBlueButton SDK repository, you can simply add the flaky tests into `/bigbluebutton-tests/playwright/sdk-flaky-tests.txt` which will skip them on CI workflow runs (added on [this PR](https://github.com/bigbluebutton/bigbluebutton/pull/23656)). Put the reason, with a link to the SDK issue or pull request that fixes it, in a `#` comment line above the entries, and remove them once the SDK version that `bigbluebutton-html5/package.json` pins contains the fix.
