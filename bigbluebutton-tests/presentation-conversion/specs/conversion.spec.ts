@@ -5,6 +5,7 @@ import { embeddedJpegOrientations, slideKind, svgAspect } from '../src/assert/sv
 import { CheckRun } from '../src/checks';
 import { CollectedFixture, describeOutcome, loadCollected, matchesExpectation } from '../src/collected';
 import { loadTarget, profileName, profileWorkDir } from '../src/env';
+import { findKnown } from '../src/knownFailures';
 import { enabledChecks, expectationFor, goldenProfile, Manifest, pageSpec, selectedManifests } from '../src/manifest';
 import { decodePng, markerOrientation, meanDifference, ORIENTATION_NAMES } from '../src/render/png';
 import { renderSvg } from '../src/render/resvg';
@@ -67,6 +68,15 @@ for (const m of selectedManifests(profile)) {
         testInfo.annotations.push({ type: 'kind', description: kind });
         const run = new CheckRun(m.id, profile, n, enabledChecks(m), measureOnly, testInfo);
         const golden = (file: string) => [m.id, gp, file];
+        // A bless run must not replace the golden of a known failure, which holds the correct output, with the server's:
+        // the file to bless from (the poppler render), null to leave the golden alone, undefined when nothing is known.
+        const knownGolden = (check: 'text' | 'pixels' | 'thumb', reference?: string): string | null | undefined => {
+          const known = blessing ? findKnown(m.id, profile, n, check) : undefined;
+          if (!known) return undefined;
+          const description = `${reference ? 'golden blessed from the poppler reference' : 'golden kept'}: known failure ${known.issue}`;
+          testInfo.annotations.push({ type: 'bless', description });
+          return reference ?? null;
+        };
 
         await run.run('kind', () => {
           if (!svg) throw new Error('slide SVG missing');
@@ -92,7 +102,7 @@ for (const m of selectedManifests(profile)) {
         await run.run('text', () => {
           const file = abs(page!.text);
           if (!file) throw new Error('text file missing');
-          if (!snapshotsAllowed) return;
+          if (!snapshotsAllowed || knownGolden('text') === null) return;
           expect(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).toMatchSnapshot(golden(`page-${n}.txt`));
         });
 
@@ -122,8 +132,9 @@ for (const m of selectedManifests(profile)) {
           if (!rendered) throw new Error(`nothing rendered ${renderError}`);
           if (!snapshotsAllowed) return;
           const ref = abs(page!.ref);
-          const actual = blessing && blessFromReference && ref ? fs.readFileSync(ref) : rendered.png;
-          expect(actual).toMatchSnapshot(golden(`page-${n}.png`), tolerance(kind === 'raster'));
+          const from = blessing && blessFromReference && ref ? ref : knownGolden('pixels', ref);
+          if (from === null) return;
+          expect(from ? fs.readFileSync(from) : rendered.png).toMatchSnapshot(golden(`page-${n}.png`), tolerance(kind === 'raster'));
         });
 
         await run.run('thumb', () => {
@@ -131,8 +142,9 @@ for (const m of selectedManifests(profile)) {
           if (!file) throw new Error('thumbnail missing');
           if (!snapshotsAllowed) return;
           const refThumb = abs(page!.refThumb);
-          const actual = blessing && blessFromReference && refThumb ? fs.readFileSync(refThumb) : fs.readFileSync(file);
-          expect(actual).toMatchSnapshot(golden(`thumb-${n}.png`), tolerance(true));
+          const from = blessing && blessFromReference && refThumb ? refThumb : knownGolden('thumb', refThumb);
+          if (from === null) return;
+          expect(fs.readFileSync(from ?? file)).toMatchSnapshot(golden(`thumb-${n}.png`), tolerance(true));
         });
 
         const ref = abs(page!.ref);
