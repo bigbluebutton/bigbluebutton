@@ -17,7 +17,7 @@ import sha from 'sha.js';
 import * as xml2js from 'xml2js';
 
 import { MultiUsers } from '../user/multiusers';
-import { Page } from './page';
+import { type ClientSettingsOverrides, Page } from './page';
 import { parameters } from './parameters';
 
 dotenv.config();
@@ -212,6 +212,13 @@ export function createMeetingPromise(
     });
   }
   return axios.get(url, { adapter: 'http' });
+}
+
+// Wraps a client-settings override as the `clientSettingsOverride` create module (POST
+// body). bbb-web drops the module unless allowOverrideClientSettingsOnCreateCall=true, so
+// Page.init checks the delivered settings after join (expectServerClientSettingsOverride).
+export function buildClientSettingsOverrideModule(overrides: ClientSettingsOverrides): string {
+  return `<modules><module name="clientSettingsOverride"><![CDATA[${JSON.stringify(overrides)}]]></module></modules>`;
 }
 
 export async function createMeeting(
