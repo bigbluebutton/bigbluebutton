@@ -89,9 +89,11 @@ export async function copyTree(src: string, dest: string): Promise<void> {
   await fs.promises.mkdir(path.dirname(dest), { recursive: true });
   const r = await run('cp', ['-a', src, dest], { timeoutMs: 120_000 });
   if (r.code === 0) return;
-  const s = await sudo(['cp', '-a', src, dest], 120_000);
-  if (s.code !== 0) throw new Error(`copy ${src} -> ${dest} failed: ${s.stderr}`);
-  await sudo(['chown', '-R', `${process.getuid?.()}:${process.getgid?.()}`, dest]);
+  const owner = `${process.getuid?.()}:${process.getgid?.()}`;
+  for (const args of [['rm', '-rf', dest], ['cp', '-a', src, dest], ['chown', '-R', owner, dest], ['chmod', '-R', 'u+rwX', dest]]) {
+    const s = await sudo(args, 120_000);
+    if (s.code !== 0) throw new Error(`copy ${src} -> ${dest} failed at sudo ${args[0]}: ${s.stderr.trim()}`);
+  }
 }
 
 export async function commandVersion(cmd: string, args: string[]): Promise<string> {
