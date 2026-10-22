@@ -71,3 +71,11 @@ export async function getRemoteAudioSinkIds(testPage: Page): Promise<string[]> {
       .map((audio) => audio.sinkId),
   );
 }
+
+// Whether every remote audio element is playing (not paused, not muted) with a stream attached.
+export async function areRemoteAudioElementsPlaying(testPage: Page): Promise<boolean> {
+  return testPage.page.evaluate(() => {
+    const remote = Array.from(document.querySelectorAll('audio')).filter((audio) => audio.srcObject);
+    return remote.length > 0 && remote.every((audio) => !audio.paused && !audio.muted);
+  });
+}

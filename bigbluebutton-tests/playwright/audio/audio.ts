@@ -6,6 +6,7 @@ import { expectAudioReceived } from '../core/rtcStatsProbe';
 import { MultiUsers } from '../user/multiusers';
 import { awayIndicatorLocator, hasUserListMicState, isTalkingLocator, setAway } from '../user/util';
 import {
+  areRemoteAudioElementsPlaying,
   connectMicrophone,
   ensureUnmuted,
   getRemoteAudioSinkIds,
@@ -139,6 +140,11 @@ export class Audio extends MultiUsers {
       new Set(await getRemoteAudioSinkIds(this.modPage)),
       'should play every remote audio element on the chosen output device',
     ).toEqual(new Set([secondOutputDeviceId]));
+    await expect
+      .poll(() => areRemoteAudioElementsPlaying(this.modPage), {
+        message: 'should keep playing the remote audio after changing the output device',
+      })
+      .toBe(true);
     await this.modPage.hasElement(e.audioDropdownMenu, 'should stay connected to audio after changing the output');
   }
 
