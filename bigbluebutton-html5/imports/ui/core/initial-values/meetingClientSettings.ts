@@ -635,6 +635,22 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       hidePresentationOnJoin: false,
       showParticipantsOnLogin: true,
       showScreenshareQuickSwapButton: true,
+      barsOverflow: {
+        enabled: true,
+        priority: {
+          navBar: {
+            recording: 50,
+            connectionStatus: 50,
+          },
+          actionsBar: {
+            audioCaptions: 50,
+            screenshare: 50,
+            reactions: 50,
+            raiseHand: 50,
+            swapPresentation: 50,
+          },
+        },
+      },
       showLeaveSessionLabel: false,
     },
     sidebarNavigation: {

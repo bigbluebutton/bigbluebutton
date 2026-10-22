@@ -885,6 +885,24 @@ public:
     showParticipantsOnLogin: false
     showSessionDetailsOnJoin: false
     showScreenshareQuickSwapButton: false
+    barsOverflow:
+      # When space runs out, items move into a "more" menu, lowest priority first
+      # (ties: last item first); 100 or more never moves. Plugin items (0) always move first.
+      # Configurable:
+      # navBar: recording, connectionStatus.
+      # actionsBar: audioCaptions, screenshare(exception: it is hidden because it can be accessed via media area button),
+      #             reactions, raiseHand, swapPresentation.
+      enabled: true
+      priority:
+        navBar:
+          recording: 50
+          connectionStatus: 50
+        actionsBar:
+          audioCaptions: 50
+          screenshare: 50
+          reactions: 50
+          raiseHand: 50
+          swapPresentation: 50
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
