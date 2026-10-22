@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# presentation/delegate was removed (#26119). The 404 is the contract; the error page
+# that carries it isn't, so the step is recorded but not compared.
+id: presentation.removed.delegate
+title: The removed presentation/delegate action answers 404
+endpoint: presentation
+class: contract
+tags: [ci]
+steps:
+  - route: presentation-delegate
+    golden: document
+    expect: {status: 404}

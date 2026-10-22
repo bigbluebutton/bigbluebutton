@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case presentation.removed.delegate
+target bbb-web
+
+== step 1: route presentation-delegate (document)
+status 404
+header Content-Type application/json
+body json
+$.error "Not Found"
+$.path "/bigbluebutton/presentation/delegate"
+$.status 404
+$.timestamp "<time>"

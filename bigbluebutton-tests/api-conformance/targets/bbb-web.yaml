@@ -21,6 +21,8 @@ routes:
   presentation-textfiles:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles"}
   presentation-textfile:     {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles/{id}"}
   presentation-download:     {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
+  # Removed (#26119); cases check that it stays gone.
+  presentation-delegate:     {path: "/bigbluebutton/presentation/delegate"}
   texttrack-file:            {path: "/bigbluebutton/textTrack/{token}/{recordId}/{track}"}
   presentation-check:        {path: "/bigbluebutton/presentation/checkPresentation", baseEnv: BBB_WEB_DIRECT_URL}
   presentation-authz:        {path: "/bigbluebutton/presentation/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
