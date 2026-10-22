@@ -98,6 +98,7 @@ export class Converter {
   private readonly staged: string[] = [];
 
   async run(): Promise<Collected> {
+    fs.rmSync(profileWorkDir('collected.json'), { force: true });
     const startedAt = new Date().toISOString();
     const problems = lintManifests(loadAllManifests());
     if (problems.length) throw new Error(`manifest lint failed:\n${problems.join('\n')}`);

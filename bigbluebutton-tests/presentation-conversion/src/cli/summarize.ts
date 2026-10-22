@@ -7,7 +7,7 @@ import { expectationFor, loadAllManifests } from '../manifest';
 
 /**
  * Combines the per-profile check records into results/summary.md (for $GITHUB_STEP_SUMMARY) and results/summary.json.
- * Exit code: 0 no regressions, 1 regressions, 2 a profile could not run.
+ * Exit code: 0 no regressions, 1 regressions, 2 a profile could not run or a test failed outside the check runner.
  */
 const resultsDir = path.join(SUITE_ROOT, 'results');
 const workRoot = path.join(SUITE_ROOT, 'work');
@@ -17,8 +17,9 @@ const runId =
     ? fs
         .readdirSync(workRoot)
         .filter((d) => d !== 'runtime' && fs.statSync(path.join(workRoot, d)).isDirectory())
-        .sort()
-        .pop()
+        .map((d) => ({ d, mtime: fs.statSync(path.join(workRoot, d)).mtimeMs }))
+        .sort((a, b) => a.mtime - b.mtime)
+        .pop()?.d
     : undefined);
 const order = ['defaults', 'rasterize-all', 'low-thresholds', 'tight-limits', 'office-precheck'];
 const profiles = (fs.existsSync(resultsDir) ? fs.readdirSync(resultsDir) : [])
@@ -33,6 +34,37 @@ const measured: string[][] = [];
 const warnings: string[] = [];
 let environment: Record<string, string> = {};
 const perProfile: Record<string, Record<string, number>> = {};
+
+interface ReportSuite {
+  title: string;
+  specs?: { title: string; tests: { results: { status: string; errors?: { message?: string }[] }[] }[] }[];
+  suites?: ReportSuite[];
+}
+
+const firstLine = (s?: string) => (s ?? '').replace(/\u001b\[[0-9;]*m/g, '').split('\n').find((l) => l.trim())?.trim() ?? '';
+
+/**
+ * Tests of the Playwright JSON report that neither passed nor were skipped and left no regression record: a test that
+ * throws outside CheckRun (a truncated PNG, a failed attach) or times out writes nothing to checks.jsonl.
+ */
+function failedOutsideChecks(profile: string, file: string, rows: CheckRecord[]): string[] {
+  const report = JSON.parse(fs.readFileSync(file, 'utf8')) as { suites?: ReportSuite[]; errors?: { message?: string }[] };
+  const out = (report.errors ?? []).map((e) => `${profile}: Playwright reported an error outside the tests: ${firstLine(e.message)}`);
+  const walk = (suite: ReportSuite) => {
+    for (const spec of suite.specs ?? [])
+      for (const t of spec.tests) {
+        const last = t.results[t.results.length - 1];
+        if (!last || last.status === 'passed' || last.status === 'skipped') continue;
+        const page = spec.title === 'outcome' ? 0 : Number(spec.title.match(/^page (\d+)$/)?.[1] ?? NaN);
+        if (rows.some((r) => r.outcome === 'regression' && r.profile === profile && r.fixture === suite.title && r.page === page)) continue;
+        const how = last.status === 'failed' ? '' : ` (${last.status})`;
+        out.push(`${profile}: ${suite.title} ${spec.title} failed outside the check runner${how}: ${firstLine(last.errors?.[0]?.message) || 'no error message'}`);
+      }
+    for (const s of suite.suites ?? []) walk(s);
+  };
+  for (const s of report.suites ?? []) walk(s);
+  return out;
+}
 
 for (const profile of profiles) {
   const status = fs.existsSync(path.join(resultsDir, profile, 'status')) ? fs.readFileSync(path.join(resultsDir, profile, 'status'), 'utf8').trim() : '';
@@ -60,6 +92,12 @@ for (const profile of profiles) {
       if (m && expectationFor(m, profile) === 'measure')
         measured.push([profile, f.id, `${f.outcome}${f.errorKey ? ` ${f.errorKey}` : ''}`, `${f.pageCount}`, `${f.timings.seconds}s`]);
     }
+  }
+  const reportFile = path.join(resultsDir, profile, 'report.json');
+  if (status !== 'setup-failed') {
+    if (fs.existsSync(reportFile)) errors.push(...failedOutsideChecks(profile, reportFile, rows));
+    else if (status && status !== '0' && !rows.some((r) => r.outcome === 'regression'))
+      errors.push(`${profile}: Playwright exited ${status} but recorded no regression, and results/${profile}/report.json is missing`);
   }
   perProfile[profile] = counts;
 }
