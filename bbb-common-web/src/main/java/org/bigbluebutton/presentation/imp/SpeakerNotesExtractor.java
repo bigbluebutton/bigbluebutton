@@ -1,5 +1,6 @@
 package org.bigbluebutton.presentation.imp;
 
+import com.google.gson.Gson;
 import org.apache.poi.sl.usermodel.Placeholder;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFNotes;
@@ -8,6 +9,7 @@ import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.bigbluebutton.presentation.Util;
+import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -24,8 +26,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -41,8 +45,9 @@ public final class SpeakerNotesExtractor {
     private SpeakerNotesExtractor() {
     }
 
-    public static OptionalInt extract(File sourceFile, File presentationDirectory) {
-        File outputDirectory = new File(presentationDirectory, "speakernotes");
+    public static OptionalInt extract(UploadedPresentation pres) {
+        File sourceFile = pres.getUploadedFile();
+        File outputDirectory = new File(sourceFile.getParentFile(), "speakernotes");
         try {
             String filename = sourceFile.getName().toLowerCase();
             List<String> notes;
@@ -64,8 +69,14 @@ public final class SpeakerNotesExtractor {
             if (outputDirectory.exists()) {
                 Util.deleteDirectory(outputDirectory);
             }
-            log.warn("Speaker notes extraction failed for file type {}: {}",
-                    extensionOf(sourceFile), exception.getClass().getSimpleName());
+            Map<String, Object> logData = new HashMap<>();
+            logData.put("meetingId", pres.getMeetingId());
+            logData.put("presId", pres.getId());
+            logData.put("filename", pres.getName());
+            logData.put("logCode", "pptx_notes_extraction_failed");
+            logData.put("message", "Could not extract speaker notes from a ." + extensionOf(sourceFile)
+                    + " presentation, continuing without them: " + exception.getClass().getSimpleName());
+            log.warn(" --analytics-- data={}", new Gson().toJson(logData));
             return OptionalInt.empty();
         }
     }
