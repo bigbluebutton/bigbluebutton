@@ -14,6 +14,7 @@ import {
   DevicePermissionHeader,
 } from './error-screen/device-permission/component';
 import PreFlightContext, { AUDIO_MODES, AudioMode } from './context';
+import { RoomModeEditableId, RoomModeEditableValues, RoomModeEdits } from './room-mode/settings';
 import { setPreFlightCompleted, setPreFlightShareCamera } from './service';
 import { getAudioModeAvailability } from './audio-options';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
@@ -140,7 +141,20 @@ const PreFlight: React.FC<PreFlightProps> = ({
   // Where listen only is off, a denied microphone can still be passed over:
   // the user joins without audio and can join it from the session.
   const [microphoneSkipped, setMicrophoneSkipped] = useState(false);
-  const [roomMode, setRoomMode] = useState<string | null>(null);
+  const [roomMode, setRoomModeState] = useState<string | null>(null);
+  const [roomModeEdits, setRoomModeEdits] = useState<RoomModeEdits>({});
+  // Edits belong to the mode they were made under: switching mode, or clearing
+  // it, starts the next one from its preset.
+  const setRoomMode = useCallback((next: string | null) => {
+    if (next !== roomMode) setRoomModeEdits({});
+    setRoomModeState(next);
+  }, [roomMode]);
+  const setRoomModeEdit = useCallback(<K extends RoomModeEditableId>(
+    id: K,
+    value: RoomModeEditableValues[K],
+  ) => {
+    setRoomModeEdits((edits) => ({ ...edits, [id]: value }));
+  }, []);
   const commitCameraRef = useRef<(() => void) | null>(null);
   const audioModeTouched = useRef(false);
 
@@ -263,6 +277,8 @@ const PreFlight: React.FC<PreFlightProps> = ({
     roomMode,
     setRoomMode,
     phoneLayout,
+    roomModeEdits,
+    setRoomModeEdit,
     commitCameraRef,
     commit,
   }), [
@@ -278,7 +294,10 @@ const PreFlight: React.FC<PreFlightProps> = ({
     permissionRetry,
     joiningWithoutAudio,
     roomMode,
+    setRoomMode,
     phoneLayout,
+    roomModeEdits,
+    setRoomModeEdit,
     commit,
   ]);
 

@@ -70,6 +70,9 @@ export const userComparator = (a?: Partial<User>, b?: Partial<User>): boolean =>
   if ((am?.logoutUrl ?? '') !== (bm?.logoutUrl ?? '')) return false;
   // Not loaded yet (undefined) and not configured ('') must stay apart.
   if (am?.roomMode !== bm?.roomMode) return false;
+  if (am?.usersPolicies?.guestPolicy !== bm?.usersPolicies?.guestPolicy) return false;
+  if (am?.recordingPolicies?.record !== bm?.recordingPolicies?.record) return false;
+  if (am?.recordingPolicies?.autoStartRecording !== bm?.recordingPolicies?.autoStartRecording) return false;
 
   const albr = a.lastBreakoutRoom;
   const blbr = b.lastBreakoutRoom;

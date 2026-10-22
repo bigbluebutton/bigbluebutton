@@ -1,4 +1,5 @@
 import React from 'react';
+import { RoomModeEditableId, RoomModeEditableValues, RoomModeEdits } from './room-mode/settings';
 
 export const AUDIO_MODES = {
   MICROPHONE: 'microphone',
@@ -40,10 +41,14 @@ export interface PreFlightContextValue {
   // The room mode a moderator picked in the room mode panel, null for none.
   // Only staged here: nothing reaches the room before the join.
   roomMode: string | null;
+  // Picking a different mode drops the edits made under the previous one.
   setRoomMode: (roomMode: string | null) => void;
   // The phone layout: a phone, and a tablet while the room mode panel is up,
   // since the panel does not fit beside the setup there.
   phoneLayout: boolean;
+  // The moderator's changes to the picked mode's settings, staged the same way.
+  roomModeEdits: RoomModeEdits;
+  setRoomModeEdit: <K extends RoomModeEditableId>(id: K, value: RoomModeEditableValues[K]) => void;
   // Set by the setup panel so the join can persist the camera selections
   // (device, profile, virtual background) right before joining.
   commitCameraRef: React.MutableRefObject<(() => void) | null>;

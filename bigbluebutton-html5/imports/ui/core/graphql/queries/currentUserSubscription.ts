@@ -49,6 +49,13 @@ subscription userCurrentSubscription {
       endedByUserName
       logoutUrl
       roomMode
+      usersPolicies {
+        guestPolicy
+      }
+      recordingPolicies {
+        record
+        autoStartRecording
+      }
     }
     lastBreakoutRoom {
       isUserCurrentlyInRoom

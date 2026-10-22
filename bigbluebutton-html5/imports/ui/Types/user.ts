@@ -25,6 +25,13 @@ export interface UserMeeting {
   endedByUserName: string;
   logoutUrl: string;
   roomMode: string;
+  usersPolicies: {
+    guestPolicy: string;
+  } | null;
+  recordingPolicies: {
+    record: boolean;
+    autoStartRecording: boolean;
+  } | null;
 }
 
 export interface Voice {

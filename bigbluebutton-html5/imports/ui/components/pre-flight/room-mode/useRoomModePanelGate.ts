@@ -1,7 +1,11 @@
+import { useMemo } from 'react';
 import { isRoomModePanelEnabled } from '../service';
+import { RoomModeRoomValues } from './settings';
 
 interface RoomModePanelGate {
   show: boolean;
+  // The room's current values for what a mode leaves as created.
+  roomValues: RoomModeRoomValues;
 }
 
 /**
@@ -10,16 +14,24 @@ interface RoomModePanelGate {
  * the moderator flag, and the screen waits for that payload, so the mode is
  * there whenever the gate runs. Should it ever be missing (no meeting row),
  * the regular join step is the fallback rather than a wait with no way out.
+ * The room's guest policy and auto-start recording come along the same read.
  */
 const useRoomModePanelGate = (
   roomMode: string | undefined,
+  guestPolicy: string | undefined,
+  autoStartRecording: boolean,
   isModerator: boolean,
   isBot: boolean,
   active: boolean,
 ): RoomModePanelGate => {
   const enabled = active && isModerator && !isBot && isRoomModePanelEnabled();
+  const roomValues = useMemo<RoomModeRoomValues>(() => {
+    const values: RoomModeRoomValues = { autoStartRecording };
+    if (guestPolicy) values.guestPolicy = guestPolicy;
+    return values;
+  }, [guestPolicy, autoStartRecording]);
 
-  return { show: enabled && roomMode === '' };
+  return { show: enabled && roomMode === '', roomValues };
 };
 
 export default useRoomModePanelGate;
