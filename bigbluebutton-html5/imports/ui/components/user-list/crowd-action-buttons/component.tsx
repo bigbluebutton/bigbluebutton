@@ -42,7 +42,7 @@ const intlMessages = defineMessages({
     description: 'Toast notification shown after reactions have been cleared',
   },
   failedToClearReactions: {
-    id: 'app.failedMessage',
+    id: 'app.userList.userOptions.clearReactionsFailed',
     description: 'Toast notification shown when clearing reactions fails',
   },
 });

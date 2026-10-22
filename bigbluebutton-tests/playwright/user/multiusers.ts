@@ -639,6 +639,50 @@ export class MultiUsers {
     );
   }
 
+  async clearAllStatusIcon() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.hasText(
+      e.moderatorAvatar,
+      '😃',
+      'should display the smiling emoji in the moderator avatar for the moderator',
+    );
+    await this.modPage.hasText(
+      e.reactionsButton,
+      '😃',
+      'should display the smiling emoji on the reactions button when used',
+    );
+
+    await this.modPage2.waitAndClick(e.reactionsButton);
+    await this.modPage2.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage2.waitAndClick(e.usersListSidebarButton);
+    await this.modPage2.hasText(
+      e.moderatorAvatar,
+      '😃',
+      'should display the smiling emoji in the moderator avatar for the second moderator',
+    );
+    await this.modPage2.hasText(
+      e.reactionsButton,
+      '😃',
+      'should display the smiling emoji on the reactions button when used',
+    );
+
+    await this.modPage.waitAndClick(e.clearAllReactions);
+
+    await expect(
+      this.modPage.page.locator(e.moderatorAvatar).filter({ hasText: '😃' }),
+      'should remove the emoji from the moderator avatar after clearing all reactions',
+    ).toHaveCount(0);
+    await expect(
+      this.modPage2.page.locator(e.moderatorAvatar).filter({ hasText: '😃' }),
+      'should remove the emoji from the second moderator avatar after clearing all reactions',
+    ).toHaveCount(0);
+  }
+
   async emojiRainTest() {
     const { settings } = this.modPage;
     const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
