@@ -12,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: bigbluebutton/bbb-build:v3.0.x-release--2026-08-28-130955
+  image: bigbluebutton/bbb-build:v3.0.x-release--2026-10-21-124047
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of
@@ -151,6 +151,11 @@ bbb-playback-presentation-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-playback-presentation
+
+bbb-playback-presentation-legacy-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-playback-presentation-legacy
 
 bbb-playback-screenshare-build:
   extends: .build_job

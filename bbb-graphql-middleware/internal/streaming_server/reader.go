@@ -46,6 +46,12 @@ func ReadNewStreamingSubscription(
 		if !sendStreamReplay(browserConnection, browserMessage.Payload.OperationName, queryId) {
 			browserConnection.MarkStreamReplayPending(browserMessage.Payload.OperationName, queryId)
 			browserConnection.Logger.Debugf("Deferred %s replay: connection is not in the meeting yet", browserMessage.Payload.OperationName)
+
+			// Membership may have arrived between the check and the mark. The refresh that brought it
+			// has then already drained the pending replays and will not come back for this one.
+			if recipient := snapshotStreamingRecipient(browserConnection); recipient.inMeeting(recipient.MeetingId) {
+				ReplayPendingStreams(browserConnection)
+			}
 		}
 	}
 
