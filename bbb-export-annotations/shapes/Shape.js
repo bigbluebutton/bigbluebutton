@@ -3,6 +3,7 @@ import {radToDegree} from '../shapes/helpers.js';
 import * as harfbuzz from 'harfbuzzjs';
 import wawoff2 from 'wawoff2';
 import fs from 'fs';
+import config from '../lib/utils/config.js';
 
 // Text is measured by shaping it with HarfBuzz, which applies the same
 // OpenType features browsers apply (kerning, contextual alternates,
@@ -444,11 +445,6 @@ export class Shape {
    * @return {Promise<string[]>} An array of strings, each being a line.
   */
   async wrapText(text, width) {
-    const config = JSON.parse(
-        fs.readFileSync(
-            './config/settings.json',
-            'utf8'));
-
     const fontName = this.props?.font || 'draw';
     const font = await loadShapingFont(config.fonts[fontName]);
     const fontSize = Shape.determineFontSize(this.size, this.type);

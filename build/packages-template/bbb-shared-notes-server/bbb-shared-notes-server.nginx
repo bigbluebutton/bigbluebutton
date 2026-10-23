@@ -15,7 +15,7 @@ location /hocuspocus/collaboration {
   auth_request_set $user_currently_online $sent_http_user_currently_online;
 
   gzip_static on;
-  proxy_pass http://localhost:8787/collaboration;
+  proxy_pass http://bbb-shared-notes-server/collaboration;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
@@ -30,7 +30,7 @@ location /hocuspocus/collaboration {
 
 location /bigbluebutton/connection/checkHocuspocusAuthorization {
   internal;
-  proxy_pass               http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization;
+  proxy_pass               http://bbb-web/bigbluebutton/connection/checkGraphqlAuthorization;
   proxy_pass_request_body  off;
   proxy_set_header         Content-Length "";
   proxy_set_header         X-Original-URI $request_uri;
@@ -69,7 +69,7 @@ location /hocuspocus/api/ {
   auth_request_set $meeting_create_time $sent_http_meeting_create_time;
 
   gzip_static on;
-  proxy_pass http://localhost:8787/api/;
+  proxy_pass http://bbb-shared-notes-server/api/;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
@@ -84,7 +84,7 @@ location /hocuspocus/api/ {
 
 location /hocuspocus/sample {
   gzip_static on;
-  proxy_pass http://localhost:8787/sample;
+  proxy_pass http://bbb-shared-notes-server/sample;
   proxy_http_version 1.1;
   proxy_set_header Host $host;
 }

@@ -22,10 +22,10 @@ import {StickyNote} from '../shapes/StickyNote.js';
 import {createGeoObject} from '../shapes/geoFactory.js';
 import {Frame} from '../shapes/Frame.js';
 import {Poll} from '../shapes/Poll.js';
+import config from '../lib/utils/config.js';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
-const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 
 logger.info('Processing PDF for job ' + jobId);
 
