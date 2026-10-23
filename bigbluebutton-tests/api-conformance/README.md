@@ -22,6 +22,7 @@ cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/
 fixtures/                files cases refer to (bodies, presentations, schemas); none yet
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
+env/                     the Tier 1 stack (make -C env up) and config profiles
 ```
 
 ## Running cases
@@ -149,7 +150,7 @@ env/full-install/profile.sh default        # restore the server's own file
 - **`disruptive` tag:** a case with a profile must have it (`validate`
   says so), so `--exclude-tags disruptive` leaves the server alone.
 - **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
-  same arguments.
+  same arguments. The Tier 1 stack's is `env/tier1/profile.sh` (see below).
 
 To smoke-test a server, point a target at it and run `--cases testdata/smoke`.
 
@@ -177,6 +178,64 @@ expected:
 The file's `target` must match the target's `name`. An entry that matches no
 case is reported as a warning. `expectations/bbb-api.yaml` is the bbb-api gap
 backlog; `expectations/bbb-web.yaml` lists the `defect` cases bbb-web fails.
+
+## Tier 1: a stack to run against
+
+`env/` brings up bbb-web and what it needs as a Docker Compose stack, built
+from this tree: the server CI runs the suite against, and that recordings
+come from.
+
+```sh
+make -C env debs              # build the packages (see below)
+make -C env up                # build the images, start, wait until healthy
+eval "$(make -s -C env env)"  # BBB_URL, BBB_SECRET, BBB_TAP_URL, ...
+cd runner
+go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases --golden ../golden/bbb-web
+```
+
+| Target | Does |
+|---|---|
+| `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
+| `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
+| `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
+| `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. |
+| `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log. |
+
+It needs Linux on amd64, Docker with Compose 2.17 or later, and network
+access for the first build.
+
+- **The packages.** `make debs` builds from a snapshot of the tree: the
+  tracked files, with their uncommitted changes, so nothing gitignored gets
+  in. Rebuild after changing bbb-web, akka-apps or the GraphQL side; a
+  change to the suite or `env/` needs only `make up`. `DEBS_DIR` points at
+  debs built elsewhere, such as CI's.
+- **The stack.** Each image unpacks its package rather than installing it,
+  and does what the package's install script would have. All the services
+  share one network namespace, so they reach each other on 127.0.0.1 as on
+  a single-server install:
+  - bbb-web and akka-apps; redis; Postgres with the GraphQL schema; Hasura,
+    the GraphQL middleware and the actions server; nginx; the tap;
+  - nginx serves `https://localhost:8443`, with a certificate from a CA
+    `make up` creates in `env/.state/` (`SSL_CERT_FILE` trusts it); bbb-web
+    itself answers on `http://localhost:8090` (`BBB_WEB_DIRECT_URL`), and
+    the tap on `http://localhost:8099`. All three are bound to the host's
+    loopback only.
+- **Its configuration** is a packaged server's, with what bbb-install sets:
+  the host and a test salt (`env/tier1/tier1.env`, published on purpose),
+  and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
+  stock ones.
+- **Where it differs from a packaged server:**
+  - converters run without systemd's memory limit and sandbox, and
+    LibreOffice (the build the packages use) runs in bbb-web's container,
+    without its own container's limits;
+  - nginx terminates TLS itself, on port 8443;
+  - there is no FreeSWITCH, LiveKit, shared notes or recording processing:
+    messages for them go unanswered, and recording markers stay where
+    bbb-web writes them;
+  - bbb-api isn't part of it yet.
+- **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
+  it; the `clamav-scan` profile turns scanning on.
 
 ## The tap: `tap`
 

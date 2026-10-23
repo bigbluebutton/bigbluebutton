@@ -2,7 +2,8 @@
 # gives the base URL and API prefix, and BBB_SECRET the salt, as for the
 # Playwright suite. BBB_TAP_URL (e.g. http://10.0.0.5:8099) names the
 # server's tap (bbb-conform tap), for the bus, fs and redis steps: without
-# one, those cases are skipped.
+# one, those cases are skipped. On the Tier 1 stack (make -C env up),
+# eval "$(make -s -C env env)" sets all of them.
 name: bbb-web
 capabilities: [akka, presence, presentation-conversion]
 # Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
@@ -33,7 +34,8 @@ routes:
 # Config profiles some cases need. env/full-install/profile.sh applies one to
 # a packaged server through BBB_EXEC (local, "docker exec -i <container>" or
 # "ssh root@<host>"); without BBB_EXEC their cases are skipped. Another
-# environment points BBB_PROFILE_CMD at its own switcher.
+# environment points BBB_PROFILE_CMD at its own switcher: the Tier 1 stack's
+# conform.env points it at env/tier1/profile.sh.
 profiles:
   checksum-sha256-only: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" checksum-sha256-only'}
   reveal-version:       {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
