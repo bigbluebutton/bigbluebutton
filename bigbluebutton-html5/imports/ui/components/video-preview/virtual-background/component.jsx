@@ -164,30 +164,11 @@ const VirtualBgSelector = ({
 
       if (!index || index < 0) return null;
 
-      if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
-        // eslint-disable-next-line react/no-find-dom-node
-        findDOMNode(inputElementsRef.current[index]).focus();
-      } else {
-        if (customParams) {
-          dispatch({
-            type: ACTIONS.UPDATE,
-            background: {
-              uniqueId: customParams.uniqueId,
-              lastActivityDate: Date.now(),
-            },
-          });
-        } else {
-          dispatch({
-            type: ACTIONS.UPDATE,
-            background: {
-              uniqueId: name,
-              lastActivityDate: Date.now(),
-            },
-          });
-        }
-        // eslint-disable-next-line react/no-find-dom-node
-        findDOMNode(inputElementsRef.current[0]).focus();
-      }
+      // Selecting a background doesn't change the list order (as in the profile
+      // settings), so give focus back to the clicked button, which loses it while
+      // disabled during the switch, without scrolling the list
+      // eslint-disable-next-line react/no-find-dom-node
+      findDOMNode(inputElementsRef.current[index])?.focus({ preventScroll: true });
 
       return null;
     });
@@ -297,7 +278,7 @@ const VirtualBgSelector = ({
 
     const renderDefaultButton = (imageName, index) => {
       const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
-        index: index + 1,
+        index: IMAGE_NAMES.indexOf(imageName) + 1,
         background: intl.formatMessage(intlMessages.background),
       });
 
