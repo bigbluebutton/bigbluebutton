@@ -194,6 +194,7 @@ RETIRED_BBB_WEB_PROPERTIES=(
     textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
     insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
     insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+    serviceEnabled                    # Removed in BBB 4.0.1 (no effect since BBB 2.2)
     clientLogoutTimerInMinutes        # Removed in BBB 4.0
     enteredUsersTimeout               # Removed in BBB 4.0
 )
