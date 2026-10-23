@@ -105,10 +105,14 @@ export const getLocaleName = (locale: string) => {
     return '';
   }
 
-  const languageNames = new Intl.DisplayNames([locale], {
-    type: 'language',
-  });
-  return languageNames.of(locale);
+  try {
+    const languageNames = new Intl.DisplayNames([locale], {
+      type: 'language',
+    });
+    return languageNames.of(locale) ?? locale;
+  } catch {
+    return locale;
+  }
 };
 
 export const getCaptionsTermsLink = (locale: string) => {
