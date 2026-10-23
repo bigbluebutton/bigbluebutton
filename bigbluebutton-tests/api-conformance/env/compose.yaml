@@ -65,6 +65,7 @@ services:
   akka-apps:
     <<: *pod
     build: {<<: *build, target: akka-apps}
+    init: true
     volumes:
       - ./.state/conform:/etc/bigbluebutton/conform:ro
     depends_on:
@@ -109,6 +110,7 @@ services:
   middleware:
     <<: *pod
     build: {<<: *build, target: middleware}
+    init: true
     depends_on:
       net: {condition: service_started}
       redis: {condition: service_healthy}
@@ -117,6 +119,7 @@ services:
   actions:
     <<: *pod
     build: {<<: *build, target: actions}
+    init: true
     depends_on:
       net: {condition: service_started}
       redis: {condition: service_healthy}
@@ -125,6 +128,7 @@ services:
   tap:
     <<: *pod
     build: {<<: *build, target: tap}
+    init: true
     volumes:
       - data:/var/bigbluebutton:ro
     depends_on:

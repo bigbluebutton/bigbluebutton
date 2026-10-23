@@ -25,9 +25,10 @@ debs:
 images:
 	$(COMPOSE) build
 
-# Write the configuration and certificates the services mount.
+# Write the configuration and certificates the services mount, under the
+# profile switcher's lock.
 render:
-	$(TIER1)/render.sh
+	mkdir -p $(STATE) && flock $(STATE)/profile.lock $(TIER1)/render.sh
 
 # Start the stack and wait until it answers, rebuilding what changed.
 up: render
@@ -41,8 +42,7 @@ down:
 # Start again from nothing: no meetings, an empty data directory, no
 # profile in force.
 reset:
-	rm -f $(STATE)/profile
-	$(TIER1)/render.sh
+	mkdir -p $(STATE) && flock $(STATE)/profile.lock sh -c 'rm -f $(STATE)/profile && $(TIER1)/render.sh'
 	$(COMPOSE) --profile clamav down --volumes
 	$(COMPOSE) up -d --build --wait $(SERVICES)
 

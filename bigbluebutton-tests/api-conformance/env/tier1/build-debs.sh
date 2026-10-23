@@ -36,7 +36,9 @@ fi
 rev=$(git -C "$repo" stash create)
 rev=${rev:-$(git -C "$repo" rev-parse HEAD)}
 commit_date=$(git -C "$repo" log -n 1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S HEAD)
-git_rev="conform-$(git -C "$repo" rev-parse --short=10 "$rev")"
+# Named after the tree, which the same source always has; a stash commit's
+# hash changes with every run.
+git_rev="conform-$(git -C "$repo" rev-parse --short=10 "$rev^{tree}")"
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
