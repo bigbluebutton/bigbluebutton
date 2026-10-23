@@ -3,6 +3,7 @@ import {radToDegree} from '../shapes/helpers.js';
 import opentype from 'opentype.js';
 import wawoff2 from 'wawoff2';
 import fs from 'fs';
+import config from '../lib/utils/config.js';
 /**
  * Represents a basic Tldraw shape on the whiteboard.
  *
@@ -413,11 +414,6 @@ export class Shape {
    * @return {Promise<string[]>} An array of strings, each being a line.
   */
   async wrapText(text, width) {
-    const config = JSON.parse(
-        fs.readFileSync(
-            './config/settings.json',
-            'utf8'));
-
     const font = this.props?.font || 'draw';
     const fontPath = config.fonts[font];
 

@@ -32,6 +32,7 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
+| /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json    | /etc/bigbluebutton/bbb-export-annotations.json   | JSON; arrays are merged by replacement           |
 | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       |
 | /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    |
 | /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
@@ -82,7 +83,7 @@ Redis has no password by default. To require one, set `requirepass` in `/etc/red
 | bbb-shared-notes-server    | /etc/bigbluebutton/bbb-shared-notes-server.yml               | `redis.password`                        |
 | bbb-webrtc-sfu             | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml             | `redisPassword`                         |
 | Recording processing       | /etc/bigbluebutton/recording/recording.yml                   | `redis_password`                        |
-| bbb-export-annotations     | /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json | `redis.password` (no override file; reapply after package upgrades) |
+| bbb-export-annotations     | /etc/bigbluebutton/bbb-export-annotations.json               | `redis.password`                        |
 | bbb-webrtc-recorder        | /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml             | `pubsub.adapters.redis.password`        |
 | bbb-transcription-controller | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `redis.password`                      |
 | livekit-server             | /etc/bigbluebutton/livekit.yaml                              | `redis.password`                        |
