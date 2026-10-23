@@ -200,7 +200,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 | `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. |
-| `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log. |
+| `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
 
 It needs Linux on amd64, Docker with Compose 2.17 or later, and network
 access for the first build.
@@ -236,15 +236,18 @@ access for the first build.
   - bbb-api isn't part of it yet.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
-- **In CI.** `.github/workflows/api-conformance.yml` does all of the above on
-  every pull request that touches the suite or what Tier 1 is built from, and
-  runs every case Tier 1 can (all but `full-stack` and `slow`) against the
-  recordings. A change to an answer fails it until the PR re-records the
-  cases it changes (`record`, then review the diff). The debs are cached
-  under `build-debs.sh --key`, which changes only with what they're built
-  from, so a PR that doesn't touch bbb-web, akka-apps or the GraphQL side
-  skips the build. The reports and the gap matrix are uploaded as
-  `api-conformance-bbb-web`, and the matrix is the job's summary.
+- **In CI.** `.github/workflows/api-conformance.yml` builds and starts the
+  stack, without ClamAV, for every pull request that touches the suite or
+  what Tier 1 is built from, and for every such push to a base branch. It
+  runs every case Tier 1 can (all but `full-stack` and `slow`; the
+  `clamav-scan` ones are skipped) against the recordings. A change to an
+  answer fails it until the PR re-records the cases it changes (`record`,
+  then review the diff). The debs are cached under `build-debs.sh --key`, a
+  hash of what they're built from: the five packages' sources and build
+  scripts, the release file, `build-debs.sh` and the build image. A PR that
+  changes none of them skips the build. The reports, the gap matrix and, when
+  the job fails, the services' logs are uploaded as `api-conformance-bbb-web`,
+  and the matrix is the job's summary.
 
 ## The tap: `tap`
 

@@ -46,11 +46,14 @@ reset:
 	$(COMPOSE) --profile clamav down --volumes
 	$(COMPOSE) up -d --build --wait $(SERVICES)
 
+# The services' last lines (TAIL=200, or TAIL=all), or just SERVICE's;
+# like ps, ClamAV's too when it runs.
+TAIL := 200
 logs:
-	$(COMPOSE) logs --tail=200 $(SERVICE)
+	$(COMPOSE) --profile clamav logs --tail=$(TAIL) $(SERVICE)
 
 ps:
-	$(COMPOSE) ps --all
+	$(COMPOSE) --profile clamav ps --all
 
 # Switch bbb-web to a profile in bbb-web/profiles/ (or default), or print
 # the one in force: make profile NAME=reveal-version, make profile.

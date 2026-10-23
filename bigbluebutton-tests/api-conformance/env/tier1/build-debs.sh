@@ -15,10 +15,14 @@
 set -eu
 
 ALL="bbb-web bbb-apps-akka bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions"
-# What the five build from (build/package-names.inc.sh), plus build/ itself
-# and the release file the version comes from.
-SOURCES="build bigbluebutton-config/bigbluebutton-release bigbluebutton-web bbb-common-web
-	bbb-common-message akka-bbb-apps bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions"
+# What the five build from (build/package-names.inc.sh), the parts of build/
+# their builds use, and the release file the version comes from.
+SOURCES="build/setup-inside-docker.sh build/package-names.inc.sh build/opts-global.sh
+	build/deb-helper.sh build/packages-template/bbb-web build/packages-template/bbb-apps-akka
+	build/packages-template/bbb-graphql-server build/packages-template/bbb-graphql-middleware
+	build/packages-template/bbb-graphql-actions bigbluebutton-config/bigbluebutton-release
+	bigbluebutton-web bbb-common-web bbb-common-message akka-bbb-apps bbb-graphql-server
+	bbb-graphql-middleware bbb-graphql-actions"
 here=$(cd "$(dirname "$0")" && pwd)
 env_dir=$(dirname "$here")
 repo=$(git -C "$here" rev-parse --show-toplevel)
@@ -34,14 +38,17 @@ fi
 rev=$(git -C "$repo" stash create)
 rev=${rev:-$(git -C "$repo" rev-parse HEAD)}
 
+# The key: the snapshot's SOURCES, this script and the image. The inputs are
+# gathered first, so that a failure fails the script rather than the hash.
+inputs=$(
+	for s in $SOURCES; do
+		git -C "$repo" rev-parse "$rev:$s"
+	done
+	git -C "$repo" hash-object "$here/build-debs.sh"
+)
+key=$(printf '%s\n%s\n' "$inputs" "$BUILD_IMAGE" | sha256sum | cut -c1-16)
 if [ "${1:-}" = --key ]; then
-	{
-		for s in $SOURCES; do
-			git -C "$repo" rev-parse "$rev:$s"
-		done
-		git -C "$repo" hash-object "$here/build-debs.sh"
-		echo "$BUILD_IMAGE"
-	} | sha256sum | cut -c1-16
+	echo "$key"
 	exit 0
 fi
 
@@ -53,9 +60,9 @@ for p in $packages; do
 	esac
 done
 commit_date=$(git -C "$repo" log -n 1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S HEAD)
-# Named after the tree, which the same source always has; a stash commit's
-# hash changes with every run.
-git_rev="conform-$(git -C "$repo" rev-parse --short=10 "$rev^{tree}")"
+# Named after the key, so a deb's name says what it was built from (a stash
+# commit's hash changes with every run). The date is HEAD's when it was built.
+git_rev="conform-$key"
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT

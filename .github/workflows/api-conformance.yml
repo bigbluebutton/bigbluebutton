@@ -22,16 +22,36 @@ on:
       - "build/**"
       - ".gitlab-ci.yml"
       - ".github/workflows/api-conformance.yml"
+  # And on pushes to the base branches, which tests what was merged and keeps
+  # their deb cache, which PRs restore from, current. The same paths as
+  # pull_request (keep the two in step).
   push:
     branches:
       - "develop"
       - "v[3-9].*.x-release"
       - "v[3-9].*.x-develop"
+    paths:
+      - "bigbluebutton-tests/api-conformance/**"
+      - "bigbluebutton-web/**"
+      - "bbb-common-web/**"
+      - "bbb-common-message/**"
+      - "akka-bbb-apps/**"
+      - "bbb-graphql-server/**"
+      - "bbb-graphql-middleware/**"
+      - "bbb-graphql-actions/**"
+      - "bigbluebutton-config/**"
+      - "bigbluebutton-html5/private/config/settings.yml"
+      - "bbb-libreoffice/docker/**"
+      - "build/**"
+      - ".gitlab-ci.yml"
+      - ".github/workflows/api-conformance.yml"
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # A new push to a PR cancels its last run; any other commit has a group,
+  # and so a run, of its own.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 jobs:
   bbb-web:
@@ -59,23 +79,34 @@ jobs:
       # so a change that doesn't touch them reuses the last build's.
       - name: Key the debs
         id: debs
-        run: echo "key=tier1-debs-$(env/tier1/build-debs.sh --key)" >> "$GITHUB_OUTPUT"
+        run: |
+          key=$(env/tier1/build-debs.sh --key)
+          echo "key=tier1-debs-$key" >> "$GITHUB_OUTPUT"
       - name: Restore the debs
         id: debs-cache
-        uses: actions/cache@v5
+        uses: actions/cache/restore@v5
         with:
           path: bigbluebutton-tests/api-conformance/env/.state/debs
           key: ${{ steps.debs.outputs.key }}
       - name: Build the debs
         if: steps.debs-cache.outputs.cache-hit != 'true'
         run: make -C env debs
+      # Saved as soon as they're built, so a run that fails later (as one
+      # whose recordings are out of date does) still leaves them for the next.
+      - name: Save the debs
+        if: steps.debs-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: bigbluebutton-tests/api-conformance/env/.state/debs
+          key: ${{ steps.debs.outputs.key }}
       - name: Bring up Tier 1
         run: make -C env up
       # Everything Tier 1 can run; full-stack and slow cases are for the
       # nightly job.
       - name: Run the suite
         run: |
-          eval "$(make -s -C env env)"
+          vars=$(make -s -C env env)
+          eval "$vars"
           mkdir -p out
           cd runner
           go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases \
@@ -94,7 +125,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p out
-          docker compose -f env/compose.yaml --profile clamav logs --no-color > out/services.log 2>&1 || true
+          make -s -C env logs TAIL=all > out/services.log 2>&1 || true
       - uses: actions/upload-artifact@v6
         if: always()
         with:
