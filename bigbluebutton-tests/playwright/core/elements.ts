@@ -830,6 +830,7 @@ export const elements = {
   wbToolbar: 'div[class^="tlui-toolbar__tools tlui-toolbar__tools__mobile"]',
   wbShapesButton: 'button[data-testid="tools.more"]',
   wbHandButton: 'button[data-testid="tools.hand"]',
+  wbSelectTool: 'button[data-testid="tools.select"]',
   wbRectangleShape: 'button[data-testid$=".rectangle"]',
   wbEllipseShape: 'button[data-testid="tools.more.ellipse"]',
   wbTriangleShape: 'button[data-testid="tools.more.triangle"]',
