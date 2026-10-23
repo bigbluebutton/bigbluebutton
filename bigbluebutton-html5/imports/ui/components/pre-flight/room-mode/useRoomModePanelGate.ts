@@ -14,11 +14,13 @@ interface RoomModePanelGate {
  * the moderator flag, and the screen waits for that payload, so the mode is
  * there whenever the gate runs. Should it ever be missing (no meeting row),
  * the regular join step is the fallback rather than a wait with no way out.
- * The room's guest policy and auto-start recording come along the same read.
+ * The room's guest policy comes along the same read; its recording policy,
+ * fixed at creation, comes from the meeting's static data.
  */
 const useRoomModePanelGate = (
   roomMode: string | undefined,
   guestPolicy: string | undefined,
+  record: boolean,
   autoStartRecording: boolean,
   isModerator: boolean,
   isBot: boolean,
@@ -26,10 +28,10 @@ const useRoomModePanelGate = (
 ): RoomModePanelGate => {
   const enabled = active && isModerator && !isBot && isRoomModePanelEnabled();
   const roomValues = useMemo<RoomModeRoomValues>(() => {
-    const values: RoomModeRoomValues = { autoStartRecording };
+    const values: RoomModeRoomValues = { record, autoStartRecording };
     if (guestPolicy) values.guestPolicy = guestPolicy;
     return values;
-  }, [guestPolicy, autoStartRecording]);
+  }, [guestPolicy, record, autoStartRecording]);
 
   return { show: enabled && roomMode === '', roomValues };
 };

@@ -52,10 +52,6 @@ subscription userCurrentSubscription {
       usersPolicies {
         guestPolicy
       }
-      recordingPolicies {
-        record
-        autoStartRecording
-      }
     }
     lastBreakoutRoom {
       isUserCurrentlyInRoom

@@ -82,6 +82,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     isModerator: boolean;
     roomMode: string | undefined;
     guestPolicy: string | undefined;
+    record: boolean;
     autoStartRecording: boolean;
 }
 
@@ -114,6 +115,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   isModerator,
   roomMode,
   guestPolicy,
+  record,
   autoStartRecording,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
@@ -251,6 +253,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const roomModePanel = useRoomModePanelGate(
     roomMode,
     guestPolicy,
+    record,
     autoStartRecording,
     isModerator,
     isBot,
@@ -504,13 +507,10 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       isModerator={isModerator}
       roomMode={meeting?.roomMode}
       guestPolicy={meeting?.usersPolicies?.guestPolicy}
-      // The policy row comes with the meeting: missing only before it is read,
-      // when there is no panel. False is the server's default. As the server
-      // applies it: only a room that records starts on its own.
-      autoStartRecording={
-        (meeting?.recordingPolicies?.record ?? false)
-        && (meeting?.recordingPolicies?.autoStartRecording ?? false)
-      }
+      // Fixed at creation, so read from the meeting's static data rather than
+      // polled with the user. False is the server's default.
+      record={meetingStaticStore?.recordingPolicies?.record ?? false}
+      autoStartRecording={meetingStaticStore?.recordingPolicies?.autoStartRecording ?? false}
     >
       {children}
     </PresenceManager>
