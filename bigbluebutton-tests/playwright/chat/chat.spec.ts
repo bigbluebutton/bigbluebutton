@@ -1,4 +1,5 @@
 import { test } from '../core/setup/fixtures';
+import { ChatAttachmentRendering } from './attachmentRendering';
 import { Chat } from './chat';
 import { ChatImagePaste } from './imagePaste';
 import { Jumbomoji } from './jumbomoji';
@@ -301,6 +302,41 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.initPages(page, testInfo);
         await message.orderReactions();
       });
+    });
+  });
+
+  // Needs markdownImageAllowed for the image body, like image paste.
+  test.describe('Attachment rendering', { tag: imagePasteTags }, () => {
+    test('Draw an image attachment as a full-width card with the text below', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.rendersImageCard();
+    });
+
+    test('Download an attachment from the message toolbar', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.downloadsFromToolbar();
+    });
+
+    test('Draw a non-image attachment as a file row that downloads it', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.rendersFileRow();
+    });
+
+    test('Show the attachment in the reply and pinned previews', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.showsAttachmentInPreviews();
     });
   });
 

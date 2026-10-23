@@ -175,10 +175,10 @@ export const Container = styled.div<{ $sequence: number }>`
   }
 `;
 
-export const MessageItemWrapper = styled.div`
+export const MessageItemWrapper = styled.div<{ $empty?: boolean }>`
   display: flex;
   flex-direction: row;
-  padding: calc(${lgPadding} + 2px) ${$3xlPadding};
+  padding: ${({ $empty }) => ($empty ? '0' : `calc(${lgPadding} + 2px) ${$3xlPadding}`)};
 `;
 
 export const PluginInformationMetadata = styled.div`

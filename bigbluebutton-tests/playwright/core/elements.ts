@@ -196,7 +196,9 @@ export const elements = {
   typingIndicator: 'span[data-test="typingIndicator"]',
   errorTypingIndicator: 'div[data-test="errorTypingIndicator"]',
   chatUserMessageText: 'div[data-test="messageContent"] p',
-  chatUserMessageImage: 'div[data-test="messageContent"] img',
+  // An image sent as an attachment is drawn as a card above the text; one
+  // written as markdown still renders inside the text.
+  chatUserMessageImage: 'div[data-test="messageContent"] img, img[data-test="chatAttachmentImage"]',
   chatUserMessageLink: 'div[data-test="messageContent"] a',
   chatAttachments: 'div[data-test="chatAttachments"]',
   chatAttachment: 'li[data-test="chatAttachment"]',
@@ -273,9 +275,20 @@ export const elements = {
   chatEditingWarningContainer: 'div[data-test="chatEditingWarningContainer"]',
   cancelEditingButton: 'button[data-test="cancelEditingButton"]',
   confirmDeleteChatMessageButton: 'button[data-test="confirmDeleteChatMessageButton"]',
+  chatReplyIntentionContainer: 'div[data-test="chatReplyIntentionContainer"]',
   chatReplyIntentionContainerContent: 'div[data-test="chatReplyIntentionContainer"] p',
   closeChatReplyIntentionButton: 'button[data-test="closeChatReplyIntentionButton"]',
   chatMessageReplied: 'div[data-test="chatMessageReplied"]',
+  chatMessageContentWrapper: 'div.chat-message-content',
+  chatAttachmentImage: 'img[data-test="chatAttachmentImage"]',
+  chatAttachmentImageButton: 'button[data-test="chatAttachmentImageButton"]',
+  chatAttachmentFile: 'div[data-test="chatAttachmentFile"]',
+  chatAttachmentFileName: 'span[data-test="chatAttachmentFileName"]',
+  chatAttachmentFileMeta: 'span[data-test="chatAttachmentFileMeta"]',
+  chatAttachmentDownloadButton: 'button[data-test="chatAttachmentDownloadButton"]',
+  attachmentPreviewThumbnail: 'img[data-test="attachmentPreviewThumbnail"]',
+  attachmentPreviewLabel: 'span[data-test="attachmentPreviewLabel"]',
+  imageLightbox: 'div[data-test="imageLightbox"]',
   messageReactionItem: 'button[data-test="messageReactionItem"]',
 
   // Message toolbar
@@ -284,6 +297,8 @@ export const elements = {
   reactMessageButton: 'button[data-test="reactMessageButton"]',
   editMessageButton: 'button[data-test="editMessageButton"]',
   deleteMessageButton: 'button[data-test="deleteMessageButton"]',
+  pinMessageButton: 'button[data-test="pinMessageButton"]',
+  downloadMessageAttachmentButton: 'button[data-test="downloadMessageAttachmentButton"]',
 
   // Emoji picker
   emojiPickerButton: 'button[data-test="emojiPickerButton"]',

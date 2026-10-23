@@ -1,10 +1,10 @@
 import React, {
-  useMemo, useState, useCallback, useEffect,
+  useMemo, useState, useCallback,
 } from 'react';
-import { createPortal } from 'react-dom';
 import Auth from '/imports/ui/services/auth';
 import Styled from './styles';
 import { isJumbomoji } from './jumbomoji';
+import ImageLightbox from '../image-lightbox/component';
 import { authenticateUploadedImages } from '/imports/ui/components/chat/chat-graphql/service';
 
 interface ChatMessageTextContentProps {
@@ -44,15 +44,6 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
 
   const closeLightbox = useCallback(() => setLightboxSrc(null), []);
 
-  useEffect(() => {
-    if (!lightboxSrc) return undefined;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeLightbox();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [lightboxSrc, closeLightbox]);
-
   return (
     <>
       <Styled.ChatMessage
@@ -63,28 +54,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
         onClick={handleClick}
         $currentUserId={Auth.userID as string | undefined}
       />
-      {/* The lightbox is a position:fixed full-viewport overlay, but it is
-          rendered deep inside the chat message list, whose panel wrapper carries
-          a `transform` (from the sliding-panel animation). Any transform makes an
-          ancestor the containing block for position:fixed descendants, so the
-          overlay would be positioned/clipped to the narrow, overflow:hidden chat
-          panel instead of the viewport (black sliver, image clipped out of view).
-          Portal it to document.body so it escapes that containing block, matching
-          how other BBB overlays (e.g. polling) render. */}
-      {lightboxSrc && createPortal(
-        <Styled.ImageLightbox
-          onClick={closeLightbox}
-          data-test="imageLightbox"
-          role="dialog"
-          aria-modal="true"
-        >
-          {/* tabIndex lets keyboard users land on the enlarged image (and its
-              Escape-to-close), since the lightbox has no other focusable child */}
-          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-          <img src={lightboxSrc} alt="" tabIndex={0} />
-        </Styled.ImageLightbox>,
-        document.body,
-      )}
+      {lightboxSrc && <ImageLightbox src={lightboxSrc} onClose={closeLightbox} />}
     </>
   );
 };

@@ -5,7 +5,12 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
 import { CHAT_SET_PINNED_MUTATION } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/mutations';
-import { authenticateUploadedImages } from '/imports/ui/components/chat/chat-graphql/service';
+import {
+  authenticateUploadedImages,
+  parseAttachment,
+  removeAttachmentFromHtml,
+} from '/imports/ui/components/chat/chat-graphql/service';
+import AttachmentPreview from '/imports/ui/components/chat/chat-graphql/attachment-preview/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
@@ -130,7 +135,10 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
 
   const pinnedByName = pinnedBy?.name || '';
   const formattedTime = message.createdAt ? intl.formatTime(message.createdAt) : '';
-  const messageAsHtml = message.messageAsHtml ?? '';
+  const attachment = parseAttachment(message.messageMetadata);
+  const messageAsHtml = attachment
+    ? removeAttachmentFromHtml(message.messageAsHtml ?? '', attachment)
+    : message.messageAsHtml ?? '';
 
   return (
     <Styled.Wrapper role="region" aria-label={intl.formatMessage(intlMessages.pinnedMessagesTitle)}>
@@ -165,6 +173,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
         </Styled.Controls>
       </Styled.Header>
 
+      {attachment && isExpanded && <AttachmentPreview attachment={attachment} />}
       <Styled.MessagePreview
         ref={messagePreviewRef}
         $collapsed={!isExpanded}

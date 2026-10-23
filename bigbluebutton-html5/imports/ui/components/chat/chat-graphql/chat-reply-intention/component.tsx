@@ -6,7 +6,13 @@ import KEYS from '/imports/utils/keys';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
-import { authenticateUploadedImages, getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
+import {
+  ChatAttachment,
+  authenticateUploadedImages,
+  getFirstVisibleLineHtml,
+  removeAttachmentFromHtml,
+} from '/imports/ui/components/chat/chat-graphql/service';
+import AttachmentPreview from '/imports/ui/components/chat/chat-graphql/attachment-preview/component';
 import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
@@ -22,6 +28,7 @@ const ChatReplyIntention = () => {
   const [username, setUsername] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [sequence, setSequence] = useState<number>();
+  const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
   const intl = useIntl();
   const { animations } = useSettings(SETTINGS.APPLICATION) as {
     animations: boolean;
@@ -35,6 +42,7 @@ const ChatReplyIntention = () => {
         setUsername(e.detail.username);
         setMessage(e.detail.message);
         setSequence(e.detail.sequence);
+        setAttachment(e.detail.attachment ?? null);
       }
     };
 
@@ -43,6 +51,7 @@ const ChatReplyIntention = () => {
         setUsername(undefined);
         setMessage(undefined);
         setSequence(undefined);
+        setAttachment(null);
       }
     };
 
@@ -87,9 +96,14 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
+        {attachment && <AttachmentPreview attachment={attachment} inline />}
         <Styled.HtmlContent
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(getFirstVisibleLineHtml(message || '')) }}
+          dangerouslySetInnerHTML={{
+            __html: authenticateUploadedImages(getFirstVisibleLineHtml(
+              attachment ? removeAttachmentFromHtml(message || '', attachment) : message || '',
+            )),
+          }}
           $currentUserId={Auth.userID as string | undefined}
         />
       </Styled.Message>

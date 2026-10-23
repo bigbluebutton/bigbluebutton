@@ -48,6 +48,10 @@ const intlMessages = defineMessages({
     description: '',
     defaultMessage: 'React to message',
   },
+  downloadTooltip: {
+    id: 'app.chat.header.tooltipDownload',
+    description: 'download the file attached to a message',
+  },
 });
 
 interface ChatMessageToolbarProps {
@@ -69,6 +73,8 @@ interface ChatMessageToolbarProps {
   onEdit: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onDelete: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   togglePin: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  // Set only for a message with a file attached.
+  onDownload?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   isPublicChat: boolean;
 }
 
@@ -77,7 +83,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     isCustomPluginMessage, deleted, isPinned, messageSequence, own, amIModerator,
     locked, onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
-    onDelete, onEdit, onReply, togglePin, isPublicChat,
+    onDelete, onEdit, onReply, togglePin, onDownload, isPublicChat,
   } = props;
   const intl = useIntl();
   const chatPinEnabled = useIsPinChatMessageEnabled();
@@ -89,6 +95,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     chatEditEnabled,
     chatDeleteEnabled,
     chatPinEnabled,
+    !!onDownload,
   ].every((config) => !config) || !hasToolbar || locked || deleted) return null;
 
   const showReplyButton = chatReplyEnabled;
@@ -97,8 +104,9 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
   const showPinMessageButton = chatPinEnabled && SHOW_PIN_MESSAGE_TOOL
     && amIModerator && !isCustomPluginMessage && isPublicChat;
+  const showDownloadButton = !!onDownload;
   const showDivider = (showReplyButton || showReactionsButton || showPinMessageButton)
-    && (showEditButton || showDeleteButton);
+    && (showDownloadButton || showEditButton || showDeleteButton);
 
   const container = (
     <Container className="chat-message-toolbar" data-test="chatMessageToolbar">
@@ -143,6 +151,17 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         </Tooltip>
       )}
       {showDivider && <Divider role="separator" />}
+      {showDownloadButton && (
+        <Tooltip title={intl.formatMessage(intlMessages.downloadTooltip)}>
+          <EmojiButton
+            aria-label={intl.formatMessage(intlMessages.downloadTooltip)}
+            onClick={onDownload}
+            icon="download"
+            color="light"
+            data-test="downloadMessageAttachmentButton"
+          />
+        </Tooltip>
+      )}
       {showEditButton && (
         <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
           <EmojiButton
