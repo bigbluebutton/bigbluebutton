@@ -1,9 +1,11 @@
 <!-- omit from toc -->
+
 ## BigBlueButton Playwright Tests
 
 Tests for BigBlueButton using Playwright.
 
 <!-- omit from toc -->
+
 ## Table of content
 
 - [Setup](#setup)
@@ -180,7 +182,7 @@ npm run typecheck
 
 ### Pre-commit Hooks
 
-The project uses Husky to run formatting checks and type checking before commits. This ensures that all committed code follows the established style guidelines.
+The project uses Husky to run the formatting check, the linter and the type check (`npm run format:check && npm run lint && npm run typecheck`) before commits. This ensures that all committed code follows the established style guidelines. The workflow `.github/workflows/playwright-code-validation.yml` runs the same three checks on every pull request that changes this directory.
 
 ### Editor Integration
 

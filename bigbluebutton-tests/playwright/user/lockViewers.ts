@@ -6,11 +6,7 @@ import { elements as e } from '../core/elements';
 import { linkIssue } from '../core/helpers';
 import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../notifications/util';
 import { openSettings } from '../options/util';
-import {
-  getBlockNoteEditorLocator,
-  getBlockNoteReadOnlyLocator,
-  startSharedNotesBlockNote,
-} from '../sharednotes/blocknote/util';
+import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from './multiusers';
 import {
   applyUserListLock,
@@ -556,8 +552,10 @@ export class LockViewers extends MultiUsers {
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
     await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     await this.modPage.page.waitForTimeout(1000); // ensure the unlock settings are applied
-    await this.modPage.page.locator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
-    await this.modPage.page.locator(e.messagesSidebarButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
+    // hover modPage cursor on the whiteboard to ensure a new location
+    await this.modPage.page.locator(e.whiteboard).hover();
+    // ensure modPage cursor WILL NOT be visible on the screenshot
+    await this.modPage.page.locator(e.messagesSidebarButton).hover();
     await this.userPage.page.locator(e.whiteboard).hover(); // ensure userPage cursor WILL be visible on the screenshot
     await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage2.hasElementCount(
@@ -902,7 +900,11 @@ export class LockViewers extends MultiUsers {
     await this.initUserPage2();
 
     const unlockedViewerName = this.userPage2.username;
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page
+      .locator(e.userListItem)
+      .filter({ hasText: unlockedViewerName })
+      .locator(e.moreOptionsUserItemButton)
+      .click();
     // :visible - stale unmounted menus leave hidden duplicate menuitems; nth=1 can land on one
     await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     const unlockedViewer = this.userPage2;
@@ -977,7 +979,11 @@ export class LockViewers extends MultiUsers {
     // Viewer2 joins locked, then is explicitly unlocked.
     await this.initUserPage2();
     const unlockedViewerName = this.userPage2.username;
-    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.page
+      .locator(e.userListItem)
+      .filter({ hasText: unlockedViewerName })
+      .locator(e.moreOptionsUserItemButton)
+      .click();
     // :visible - stale unmounted menus leave hidden duplicate menuitems; nth=1 can land on one
     await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     const unlockedViewer = this.userPage2;
