@@ -53,8 +53,7 @@ deployments use their official images.
 
 - Processes run as `bigbluebutton` (UID/GID 998, as in the packages). The nginx-based images
   (html5-client, learning-dashboard, playback, nginx) run as the base image's `nginx` (UID 101).
-- Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`; the
-  caption publish script `caption/presentation` still logs to journald only).
+- Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
 - Configuration is mounted at the bare-metal path. Where an image takes environment variables
   into its default config file (bbb-apps-akka, bbb-web, export-annotations), a mounted file
