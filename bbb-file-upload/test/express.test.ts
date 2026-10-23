@@ -80,6 +80,33 @@ function post(userId: string, parts: string[]): Promise<Response> {
   });
 }
 
+test('a UTF-8 file name comes back intact in the upload response', async () => {
+  // Browsers send the multipart filename as raw UTF-8; read as latin1 (the
+  // multer default) "Aula de revisão.pdf" would come back as mojibake.
+  const part = [
+    `--${BOUNDARY}`,
+    'Content-Disposition: form-data; name="file"; filename="Aula de revisão.pdf"',
+    'Content-Type: application/pdf',
+    '',
+    '%PDF-1.7',
+    '',
+  ].join('\r\n');
+  const body = Buffer.concat([Buffer.from(part, 'utf8'), Buffer.from(`--${BOUNDARY}--\r\n`)]);
+  const res = await fetch(`${baseUrl}/upload`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': `multipart/form-data; boundary=${BOUNDARY}`,
+      'meeting-id': 'meeting-express-test',
+      'user-id': 'user-utf8',
+    },
+    body,
+  });
+  assert.equal(res.status, 201);
+  const json = await res.json() as { name: string; mime: string };
+  assert.equal(json.name, 'Aula de revisão.pdf');
+  assert.equal(json.mime, 'application/pdf');
+});
+
 test('a file above the multer size cap yields 413 with code file_too_large', async () => {
   const res = await post('user-413', [filePart(Buffer.alloc(2048, 1))]);
   assert.equal(res.status, 413);

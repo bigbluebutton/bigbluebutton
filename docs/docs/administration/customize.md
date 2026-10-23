@@ -1775,9 +1775,9 @@ Image paste is controlled by HTML5 client settings. They live under `public:` in
 | `public.chat.markdownImageAllowed` | Render `![](url)` markdown as sanitized `<img>` in chat messages. **Note:** since image paste was introduced, only same-origin URLs (`/bigbluebutton/fileUpload/...`) render; external URLs are stripped to prevent IP-leak / tracking-pixel attacks | true/false | false |
 | `public.app.sharedNotes.imagePaste.enabled` | Allow pasting/dropping images into the BlockNote shared notes editor | true/false | false |
 | `public.whiteboard.imagePaste.enabled` | Allow pasting/dropping images onto the whiteboard (presenter or write-access only) | true/false | false |
-| `public.fileUpload.maxFileSizeKb` | Maximum size per uploaded image (shared across all three surfaces) | Integer (KB) | 5120 |
+| `public.fileUpload.maxFileSizeKb` | Maximum size per uploaded file (shared across all three surfaces) | Integer (KB) | 5120 |
 | `public.fileUpload.maxImageDimensionPx` | Maximum width or height per uploaded image (anti pixel-bomb) | Integer (px) | 4096 |
-| `public.fileUpload.allowedMimeTypes` | Allowed image MIME types (validated by magic bytes) | List | `['image/png','image/jpeg','image/gif','image/webp']` |
+| `public.fileUpload.allowedMimeTypes` | Allowed MIME types (validated by magic bytes). Remove entries to restrict; only the listed defaults can be verified, so other types are ignored. Shared notes and the whiteboard only take the image types; `application/pdf`, `video/mp4` and `audio/mpeg` are chat attachments, always served as downloads | List | `['image/png','image/jpeg','image/gif','image/webp','application/pdf','video/mp4','audio/mpeg']` |
 
 For example, to enable image paste in the chat:
 
@@ -1789,7 +1789,7 @@ yq-go e -i '.public.chat.markdownImageAllowed = true' /etc/bigbluebutton/bbb-htm
 
 Restart BigBlueButton (`sudo bbb-conf --restart`) for the change to take effect. Each surface can also be disabled per meeting through the `disabledFeatures` [`/create`](/development/api/#create) parameter (`chatImagePaste`, `sharedNotesImagePaste`, `whiteboardImagePaste`).
 
-**Note:** the client only uses the `public.fileUpload.*` limits for fast, friendly feedback; the authoritative limits are enforced by the `bbb-file-upload` service and live in its own config (override in `/etc/bigbluebutton/bbb-file-upload.yml`, defaults in `/usr/share/bbb-file-upload/config/default.yml`). When raising a limit, raise it in both places, otherwise uploads pass the client pre-check and are still rejected by the service.
+**Note:** the client only uses the `public.fileUpload.*` limits for fast, friendly feedback; the authoritative limits are enforced by the `bbb-file-upload` service and live in its own config (override in `/etc/bigbluebutton/bbb-file-upload.yml`, defaults in `/usr/share/bbb-file-upload/config/default.yml`). Keep `limits.allowedMimeTypes` and `limits.maxFileSizeKb` there in step with `public.fileUpload.*`: a limit raised only on the client makes uploads pass the client pre-check and still be rejected by the service. The service only accepts the types it verifies by magic bytes, so its list can also only be shrunk. When raising `maxFileSizeKb` above 6 MB, the `client_max_body_size` of the upload location (`/usr/share/bigbluebutton/nginx/bbb-file-upload.nginx`) must grow with it. The server also drops a chat attachment that does not point at an upload of the same meeting, or whose type is not in `public.fileUpload.allowedMimeTypes`.
 
 ### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.

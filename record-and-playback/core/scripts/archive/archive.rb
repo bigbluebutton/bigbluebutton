@@ -175,7 +175,7 @@ def breakout_room_ids(meeting_id, raw_archive_dir)
   BigBlueButton::Events.get_breakout_room_ids(Nokogiri::XML(File.open(events_file)))
 end
 
-# Copy the images pasted into chat/notes/whiteboard (served live by
+# Copy the images and files uploaded to chat/notes/whiteboard (served live by
 # bbb-file-upload from {base_dir}/{meetingId}/file-uploads) into the recording,
 # whose playback cannot use the live urls (they only answer for a running
 # meeting). The meeting's own uploads plus every breakout room's are

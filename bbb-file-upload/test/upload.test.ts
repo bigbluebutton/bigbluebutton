@@ -64,7 +64,12 @@ function png(width: number, height: number): Buffer {
 
 // Minimal Express stubs. handleUpload only reads req.header(name) and req.file,
 // and only writes res.status(code).json(payload).
-function makeReq(headers: Record<string, string | undefined>, buffer?: Buffer) {
+function makeReq(
+  headers: Record<string, string | undefined>,
+  buffer?: Buffer,
+  originalname = 'pasted.png',
+  mimetype = 'image/png',
+) {
   const req = {
     header(name: string): string | undefined {
       return headers[name.toLowerCase()];
@@ -72,7 +77,8 @@ function makeReq(headers: Record<string, string | undefined>, buffer?: Buffer) {
     file: buffer === undefined ? undefined : {
       buffer,
       size: buffer.length,
-      mimetype: 'image/png',
+      originalname,
+      mimetype,
     },
   };
   return req as unknown as import('express').Request;
@@ -109,12 +115,87 @@ test('handleUpload rejects an invalid meeting id in the identity header (401)', 
   assert.deepEqual(captured.body, { code: 'unauthorized' });
 });
 
-test('handleUpload rejects content that is not a supported image (415)', () => {
-  const notAnImage = Buffer.from('this is definitely not an image, even if it claims to be a png');
+// Fixtures for the non-image types: only the leading signature matters, and
+// none of them goes through the pixel-dimension check.
+function mp4(): Buffer {
+  const b = Buffer.alloc(32);
+  b.writeUInt32BE(32, 0);
+  b.write('ftypisom', 4, 'ascii');
+  return b;
+}
+
+const pdf = Buffer.from('%PDF-1.7\n1 0 obj\n');
+
+test('handleUpload rejects content that is not a supported file type (415)', () => {
+  const notAFile = Buffer.from('this is definitely not an image, even if it claims to be a png');
   const { res, captured } = makeRes();
-  handleUpload(makeReq(validIdentity, notAnImage), res);
+  handleUpload(makeReq(validIdentity, notAFile), res);
   assert.equal(captured.statusCode, 415);
-  assert.deepEqual(captured.body, { code: 'unsupported_image_type' });
+  assert.deepEqual(captured.body, { code: 'unsupported_file_type' });
+});
+
+test('handleUpload rejects a spoofed mp4 (right name and type, wrong bytes) with 415', () => {
+  const html = Buffer.from('<html><script>alert(1)</script></html>');
+  const { res, captured } = makeRes();
+  handleUpload(makeReq(validIdentity, html, 'clip.mp4', 'video/mp4'), res);
+  assert.equal(captured.statusCode, 415);
+  assert.deepEqual(captured.body, { code: 'unsupported_file_type' });
+});
+
+test('handleUpload stores an mp4 without reading image dimensions (201)', () => {
+  const { res, captured } = makeRes();
+  handleUpload(makeReq(validIdentity, mp4(), 'Lecture 1.mp4', 'video/mp4'), res);
+
+  assert.equal(captured.statusCode, 201);
+  const body = captured.body as { url: string; name: string; size: number; mime: string };
+  assert.match(body.url, /^\/bigbluebutton\/fileUpload\/meeting-upload-1\/[0-9a-f-]{36}\.mp4$/);
+  assert.deepEqual({ name: body.name, size: body.size, mime: body.mime }, {
+    name: 'Lecture 1.mp4', size: 32, mime: 'video/mp4',
+  });
+  assert.equal(fs.existsSync(path.join(storage.uploadsDir('meeting-upload-1'), path.basename(body.url))), true);
+});
+
+test('handleUpload stores a pdf (201)', () => {
+  const { res, captured } = makeRes();
+  handleUpload(makeReq(validIdentity, pdf, 'notes.pdf', 'application/pdf'), res);
+  assert.equal(captured.statusCode, 201);
+  assert.equal((captured.body as { mime: string }).mime, 'application/pdf');
+});
+
+test('handleUpload gives the returned name the extension of the detected type', () => {
+  // The name is what a download is saved as: a pdf must never come back as
+  // "page.html", whatever the client called it.
+  const cases: Array<[string, string]> = [
+    ['page.html', 'page.html.pdf'],
+    ['report', 'report.pdf'],
+    ['REPORT.PDF', 'REPORT.PDF'],
+    ['../../etc/passwd.pdf', 'passwd.pdf'],
+    ['C:\\Users\\me\\a.pdf', 'a.pdf'],
+    ['bad\u0000\u001fname.pdf', 'badname.pdf'],
+    ['', 'file.pdf'],
+  ];
+  for (const [sent, expected] of cases) {
+    const { res, captured } = makeRes();
+    handleUpload(makeReq(validIdentity, pdf, sent, 'application/pdf'), res);
+    assert.equal((captured.body as { name: string }).name, expected, sent);
+  }
+});
+
+test('handleUpload accepts .jpeg as a name for a jpeg', () => {
+  const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+  const { res, captured } = makeRes();
+  handleUpload(makeReq(validIdentity, jpeg, 'photo.jpeg', 'image/jpeg'), res);
+  // image-size cannot read dimensions from this stub, so the image path stops
+  // at 422: what matters is that jpeg went down the image branch.
+  assert.equal(captured.statusCode, 422);
+});
+
+test('handleUpload caps the returned name length, keeping the extension', () => {
+  const { res, captured } = makeRes();
+  handleUpload(makeReq(validIdentity, pdf, `${'a'.repeat(400)}.pdf`, 'application/pdf'), res);
+  const { name } = captured.body as { name: string };
+  assert.equal(name.length, 255);
+  assert.match(name, /^a+\.pdf$/);
 });
 
 test('handleUpload rejects a PNG whose dimensions exceed the maximum (422)', () => {
@@ -138,12 +219,16 @@ test('handleUpload rejects an upload that would push the meeting over quota (413
   assert.deepEqual(captured.body, { code: 'meeting_quota_exceeded' });
 });
 
-test('handleUpload stores a valid small PNG and returns a 201 with its url', () => {
+test('handleUpload stores a valid small PNG and returns a 201 with url, name, size and mime', () => {
   const { res, captured } = makeRes();
   handleUpload(makeReq(validIdentity, png(10, 10)), res);
 
   assert.equal(captured.statusCode, 201);
-  const body = captured.body as { url: string };
+  const body = captured.body as { url: string; name: string; size: number; mime: string };
+  assert.deepEqual(Object.keys(body).sort(), ['mime', 'name', 'size', 'url']);
+  assert.deepEqual({ name: body.name, size: body.size, mime: body.mime }, {
+    name: 'pasted.png', size: 33, mime: 'image/png',
+  });
   const urlPattern = /^\/bigbluebutton\/fileUpload\/meeting-upload-1\/[0-9a-f-]{36}\.png$/;
   assert.match(body.url, urlPattern);
 

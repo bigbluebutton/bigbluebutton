@@ -679,7 +679,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     fileUpload: {
       maxFileSizeKb: 5120,
       maxImageDimensionPx: 4096,
-      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      allowedMimeTypes: [
+        'image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'audio/mpeg',
+      ],
     },
     userReaction: {
       enabled: true,

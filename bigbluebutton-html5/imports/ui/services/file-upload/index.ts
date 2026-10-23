@@ -47,8 +47,10 @@ const getLimits = (): FileUploadLimits => {
 // Client-side checks are for UX only (fail fast, friendly message). The
 // bbb-file-upload service enforces the same limits authoritatively via magic
 // bytes and pixel dimensions, so a crafted request cannot bypass them here.
+// allowedMimeTypes also lists the non-image types a chat message can carry, so
+// an image upload checks for an image type as well.
 export const isAllowedImage = (file: File): boolean => {
-  return getLimits().allowedMimeTypes.includes(file.type);
+  return file.type.startsWith('image/') && getLimits().allowedMimeTypes.includes(file.type);
 };
 
 export const isWithinSizeLimit = (file: File): boolean => {
@@ -59,7 +61,7 @@ export const isWithinSizeLimit = (file: File): boolean => {
 // to the client's UploadImageErrorReason. The server is the source of truth;
 // the client decides the localized message via the reason + details.
 const SERVER_CODE_TO_REASON: Record<string, UploadImageErrorReason> = {
-  unsupported_image_type: 'unsupported-type',
+  unsupported_file_type: 'unsupported-type',
   file_too_large: 'too-large',
   meeting_quota_exceeded: 'quota-exceeded',
   image_dimensions_exceed_maximum: 'image-too-large',
