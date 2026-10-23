@@ -6,6 +6,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -44,7 +45,7 @@ const RequestUnmuteComponent = ({
   handleDeny,
 }) => {
   useEffect(() => {
-    const alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/notify.mp3`);
+    const alert = new Audio(assetUrl('resources/sounds/notify.mp3'));
     alert.play();
   }, []);
 

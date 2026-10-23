@@ -1,9 +1,8 @@
 import AudioService from '/imports/ui/components/audio/service';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const playAlertSound = () => {
-  AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename}`
-    + '/resources/sounds/notify.mp3');
+  AudioService.playAlertSound(assetUrl('resources/sounds/notify.mp3'));
 };
 
 export default {
