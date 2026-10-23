@@ -3,3 +3,6 @@
 
 # The repository's **/target/* rule is for build output; this is source.
 !/runner/internal/target/*
+
+# The Tier 1 stack's builds, certificates and rendered config.
+/env/.state/
