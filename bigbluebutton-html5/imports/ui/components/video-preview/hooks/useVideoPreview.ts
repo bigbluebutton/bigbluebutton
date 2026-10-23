@@ -102,12 +102,32 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   },
 });
 
+// Resolves into null when the browser can't tell, e.g. it lacks the Permissions API
+// or doesn't know the 'camera' permission name
+const queryCameraPermission = async (): Promise<PermissionStatus | null> => {
+  if (navigator?.permissions?.query == null) return null;
+
+  try {
+    return await navigator.permissions.query({ name: 'camera' as PermissionName });
+  } catch (error) {
+    logger.warn({
+      logCode: 'video_preview_camera_permission_query_failure',
+      extraInfo: {
+        errorName: (error as Error).name,
+        errorMessage: (error as Error).message,
+      },
+    }, 'Could not query the camera permission');
+    return null;
+  }
+};
+
 export const useVideoPreview = ({
   initialDeviceId,
   initialProfileId,
   isCameraAsContent = false,
   isCameraShared = false,
   forceOpen,
+  waitForCameraPermission = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -124,6 +144,8 @@ export const useVideoPreview = ({
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [skipPreviewFailed, setSkipPreviewFailed] = useState(false);
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
+  const [isAwaitingCameraPermission, setIsAwaitingCameraPermission] = useState<boolean>(false);
+  const isPreviewStarted = useRef(false);
   const [brightness, setBrightness] = useState<number>(DEFAULT_BRIGHTNESS_STATE.brightness);
   const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(
     DEFAULT_BRIGHTNESS_STATE.wholeImageBrightness,
@@ -716,13 +738,45 @@ export const useVideoPreview = ({
     }
   }, [populatePreview, webcamDeviceId.current, handleDeviceError]);
 
+  // Opens the camera, so the browser prompts for access if it wasn't granted yet
+  const startPreview = useCallback(() => {
+    if (isPreviewStarted.current) return;
+    isPreviewStarted.current = true;
+    setIsAwaitingCameraPermission(false);
+    initializeCameras();
+  }, [initializeCameras]);
+
   useEffect(() => {
     isMounted.current = true;
+    let permissionStatus: PermissionStatus | null = null;
 
-    initializeCameras();
+    // Access may be granted elsewhere while waiting, e.g. by sharing a webcam
+    const handlePermissionChange = () => {
+      if (isMounted.current && permissionStatus?.state === 'granted') startPreview();
+    };
+
+    if (!waitForCameraPermission) {
+      startPreview();
+    } else {
+      // Don't prompt for camera access out of the blue: open the camera right away
+      // only if access was already granted, otherwise wait for startPreview
+      queryCameraPermission().then((status) => {
+        if (!isMounted.current) return;
+
+        if (status?.state === 'granted') {
+          startPreview();
+          return;
+        }
+
+        permissionStatus = status;
+        permissionStatus?.addEventListener('change', handlePermissionChange);
+        setIsAwaitingCameraPermission(true);
+      });
+    }
 
     return () => {
       isMounted.current = false;
+      permissionStatus?.removeEventListener('change', handlePermissionChange);
       terminateCameraStream(currentVideoStream.current);
       cleanupStreamAndVideo();
     };
@@ -836,12 +890,14 @@ export const useVideoPreview = ({
     deviceError,
     previewError,
     isCameraLoading,
+    isAwaitingCameraPermission,
     brightness,
     wholeImageBrightness,
     videoRef,
     currentVideoStream,
     // functions
     initializeCameras,
+    startPreview,
     displayPreview,
     handleSelectWebcam,
     handleSelectProfile,
