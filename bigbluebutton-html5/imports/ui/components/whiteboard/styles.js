@@ -264,7 +264,31 @@ const EditableWBWrapper = styled.div`
   }
 `;
 
+const LaserContextMenu = styled.div`
+  position: fixed !important;
+  height: auto !important;
+  background: #1e1e1e;
+  color: #fff;
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 99999;
+`;
+
+const LaserMenuItem = styled.div`
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: center;
+
+  &:hover {
+    background: #333;
+  }
+`;
+
 export default {
   TldrawV2GlobalStyle,
   EditableWBWrapper,
+  LaserContextMenu,
+  LaserMenuItem,
 };
