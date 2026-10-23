@@ -856,16 +856,21 @@ public:
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
   fileUpload:
-    # Shared limits for pasted-image uploads (chat, shared notes, whiteboard).
-    # The client only reads these for UX (fail fast, friendly message); the
-    # authoritative limits live in the bbb-file-upload service config
+    # Shared limits for uploads: images pasted into chat, shared notes and the
+    # whiteboard, and files attached to chat messages. The client reads these
+    # for UX (fail fast, friendly message) and the server (akka-apps) drops a
+    # chat attachment whose type is not listed here; the authoritative limits
+    # live in the bbb-file-upload service config
     # (/etc/bigbluebutton/bbb-file-upload.yml, defaults in
-    # /usr/share/bbb-file-upload/config/default.yml). When raising a limit,
-    # change it in BOTH places: raising it only here makes uploads pass the
-    # client pre-check and still be rejected by the service.
+    # /usr/share/bbb-file-upload/config/default.yml). Keep both in step: a type
+    # or size allowed only here passes the client pre-check and is still
+    # rejected by the service.
     maxFileSizeKb: 5120
     maxImageDimensionPx: 4096 # cap on image width/height, guards against pixel bombs
-    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+    # Only types bbb-file-upload verifies by magic bytes can be listed; remove
+    # entries to restrict. Shared notes and the whiteboard only ever take the
+    # image types; pdf, mp4 and mp3 are chat attachments, served as downloads.
+    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'audio/mpeg']
   multiFunctionalMode:
     enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:

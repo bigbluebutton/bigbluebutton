@@ -127,7 +127,9 @@ const extractClipboardImageFile = async (items) => {
   const allowed = window.meetingClientSettings.public.fileUpload.allowedMimeTypes;
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
-    const type = item.types.find((t) => allowed.includes(t));
+    // allowedMimeTypes also lists non-image types (chat attachments); the
+    // whiteboard only takes images.
+    const type = item.types.find((t) => t.startsWith('image/') && allowed.includes(t));
     if (type) {
       // eslint-disable-next-line no-await-in-loop
       const blob = await item.getType(type);
@@ -727,7 +729,8 @@ const Whiteboard = React.memo((props) => {
     if (!(isPresenterRef.current || hasWBAccessRef.current)) return;
 
     const allowed = window.meetingClientSettings.public.fileUpload.allowedMimeTypes;
-    const imageFiles = Array.from(files || []).filter((f) => f?.type && allowed.includes(f.type));
+    const imageFiles = Array.from(files || [])
+      .filter((f) => f?.type?.startsWith('image/') && allowed.includes(f.type));
     if (imageFiles.length === 0) return;
 
     const position = point ?? editor.getViewportPageCenter();
