@@ -14,6 +14,8 @@ grails.config.locations = [ "classpath:bigbluebutton.properties"]
 if (new File("/etc/bigbluebutton/bbb-web.properties").canRead()) {
     grails.config.locations << "file:/etc/bigbluebutton/bbb-web.properties"
 }
+// Must stay last: BBB_URL and BBB_SECRET from /etc/bigbluebutton/bigbluebutton.env take precedence
+grails.config.locations << "classpath:bigbluebutton-env.groovy"
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 

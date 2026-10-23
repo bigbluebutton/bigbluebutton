@@ -36,15 +36,24 @@ BBB_WEB_ETC_CONFIG=/etc/bigbluebutton/bbb-web.properties
 tmpfile=$(mktemp /tmp/carriage-return.XXXXXX)
 echo "\n" > $tmpfile
 
-PROTOCOL=http
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
-    PROTOCOL=https
-  fi
-fi
+# BBB_URL from /etc/bigbluebutton/bigbluebutton.env takes precedence over the bbb-web properties
+BBB_ENV_URL=$(grep -s '^BBB_URL=' /etc/bigbluebutton/bigbluebutton.env | tail -n 1 | cut -d= -f2-)
 
-HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+if [ -n "$BBB_ENV_URL" ]; then
+  PROTOCOL=${BBB_ENV_URL%%://*}
+  SERVER_URL=${BBB_ENV_URL#*://}
+  HOST=$SERVER_URL
+else
+  PROTOCOL=http
+  if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
+    SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+    if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | grep ^bigbluebutton.web.serverURL | tail -n 1 | grep -q https; then
+      PROTOCOL=https
+    fi
+  fi
+
+  HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
+fi
 
 HTML5_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ ! -f "${HTML5_CONFIG}" ]; then

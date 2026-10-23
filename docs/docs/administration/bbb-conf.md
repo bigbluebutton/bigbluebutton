@@ -68,6 +68,8 @@ or, if you want to use the hostname bbb.mybbbserver.com, then use the command
 $ sudo bbb-conf --setip bbb.mybbbserver.com
 ```
 
+If `BBB_URL` is set in [`/etc/bigbluebutton/bigbluebutton.env`](/administration/configuration-files#server-url-and-shared-secret-etcbigbluebuttonbigbluebuttonenv), BigBlueButton keeps using that value for the server URL and `bbb-conf` prints a warning. The settings derived from the hostname (recordings, HTML5 client) are still updated.
+
 ### `--clean`
 
 Restarts BigBlueButton and clears all the log files during the restart.  This is good for debugging as it clears away previous errors in the log files.
@@ -97,7 +99,7 @@ $ bbb-conf --secret
 
 ### `--setsecret <new_secret>`
 
-Assigns a new security secret for the BigBlueButton API.
+Assigns a new security secret for the BigBlueButton API. If `BBB_SECRET` is set in [`/etc/bigbluebutton/bigbluebutton.env`](/administration/configuration-files#server-url-and-shared-secret-etcbigbluebuttonbigbluebuttonenv), BigBlueButton keeps using that value and `bbb-conf` prints a warning.
 
 ### `--start`
 

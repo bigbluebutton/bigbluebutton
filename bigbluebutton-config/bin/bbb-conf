@@ -68,6 +68,7 @@
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
 #   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
 #   2021-07-16 JFS  Add defaultMeetingLayout information
+#   2026-10-19 GTR  Read bigbluebutton.env administrator file
 
 #set -x
 #set -e
@@ -129,6 +130,10 @@ get_properties_value() {
 }
 get_bbb_web_config_value() {
     key="$1"
+    case "$key" in
+        bigbluebutton.web.serverURL) [[ -n $BBB_URL ]] && echo "$BBB_URL" && return 0 ;;
+        securitySalt) [[ -n $BBB_SECRET ]] && echo "$BBB_SECRET" && return 0 ;;
+    esac
     val="$(get_properties_value "$key" "$BBB_WEB_ETC_CONFIG")"
     if [[ -n $val ]]; then
         echo "$val"
@@ -176,6 +181,9 @@ fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
+BBB_ENV_FILE="/etc/bigbluebutton/bigbluebutton.env"
+BBB_URL=$(grep -s '^BBB_URL=' "$BBB_ENV_FILE" | tail -n 1 | cut -d= -f2-)
+BBB_SECRET=$(grep -s '^BBB_SECRET=' "$BBB_ENV_FILE" | tail -n 1 | cut -d= -f2-)
 
 # Properties that have been retired and should no longer be set by administrators.
 # bbb-conf --check will warn if any of these are found in $BBB_WEB_ETC_CONFIG.
@@ -568,6 +576,10 @@ while [ $# -gt 0 ]; do
     if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
         SECRET="${2}"
         if [ -z "$SECRET" ]; then
+            if [ -f "$BBB_ENV_FILE" ] && [ ! -r "$BBB_ENV_FILE" ]; then
+                echo "Cannot read $BBB_ENV_FILE, run: sudo bbb-conf --secret"
+                exit 1
+            fi
             BBB_WEB_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL)
             SECRET=$(get_bbb_web_config_value securitySalt)
             echo
@@ -633,6 +645,8 @@ if [[ $SECRET ]]; then
     if [ -f /etc/bigbluebutton/bbb-apps-akka.conf ]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /etc/bigbluebutton/bbb-apps-akka.conf
     fi
+
+    [[ -n $BBB_SECRET ]] && echo "Warning: BigBlueButton keeps using BBB_SECRET from $BBB_ENV_FILE, which overrides this secret"
 
     echo
     echo "BigBlueButton's shared secret is now $SECRET"
@@ -749,16 +763,16 @@ check_configuration() {
     fi
 
 
-    BBB_SECRET="$(get_bbb_web_config_value securitySalt)"
+    BBB_WEB_SECRET="$(get_bbb_web_config_value securitySalt)"
 
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
         WEBHOOKS_SECRET=$(yq-go e '.bbb.sharedSecret' $WEBHOOKS_CONF)
 
-        if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
+        if [ -z "$BBB_SECRET" ] && [ "$BBB_WEB_SECRET" != "$WEBHOOKS_SECRET" ]; then
             echo "# Warning: Webhooks API Shared Secret mismatch: "
-            echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties = $BBB_SECRET"
+            echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties = $BBB_WEB_SECRET"
             echo "#  $WEBHOOKS_CONF                       = $WEBHOOKS_SECRET"
             echo
         fi
@@ -944,6 +958,33 @@ check_state() {
 
 
     #
+    # Settings that do not read /etc/bigbluebutton/bigbluebutton.env must match it
+    #
+    if [ -n "$BBB_URL" ]; then
+        BBB_ENV_MISMATCH=
+        for setting in "$RECORD_CONFIG playback_protocol://playback_host|$(yq-go e '.playback_protocol' $RECORD_CONFIG 2>/dev/null)://$(yq-go e '.playback_host' $RECORD_CONFIG 2>/dev/null)|$BBB_URL" \
+                       "bbb-html5 public.kurento.wsUrl|$(echo "$HTML5_CONFIG" | yq-go e '.public.kurento.wsUrl' -)|${BBB_URL/#http/ws}/bbb-webrtc-sfu" \
+                       "$BBB_WEB_ETC_CONFIG bigbluebutton.web.serverURL (bbbctl)|$(get_properties_value bigbluebutton.web.serverURL "$BBB_WEB_ETC_CONFIG")|$BBB_URL"; do
+            IFS='|' read -r name value expected <<< "$setting"
+            if [ "$value" != "$expected" ]; then
+                echo "# Warning: $name is '$value', BBB_URL in $BBB_ENV_FILE expects '$expected'"
+                BBB_ENV_MISMATCH=1
+            fi
+        done
+        if [ -n "$BBB_ENV_MISMATCH" ]; then
+            echo "#"
+            echo "#   $SUDO bbb-conf --setip ${BBB_URL#*://}"
+            echo "#"
+        fi
+    fi
+    if [ -n "$BBB_SECRET" ] && [ "$(get_properties_value securitySalt "$BBB_WEB_ETC_CONFIG")" != "$BBB_SECRET" ]; then
+        echo "# Warning: securitySalt in $BBB_WEB_ETC_CONFIG (bbbctl) differs from BBB_SECRET in $BBB_ENV_FILE"
+        echo "#"
+        echo "#   $SUDO bbb-conf --setsecret <BBB_SECRET>"
+        echo "#"
+    fi
+
+    #
     # Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
     # a firewall
     #
@@ -1014,7 +1055,7 @@ check_state() {
         fi
     fi
 
-    if [ "$(cat /etc/bigbluebutton/bbb-apps-akka.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
+    if [ -z "$BBB_SECRET" ] && [ "$(cat /etc/bigbluebutton/bbb-apps-akka.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
         BBB_WEB_IP="$(get_bbb_web_config_value bigbluebutton.web.serverURL|sed -n '{s/.*\///;p}')"
         echo "# Error: Detected that /etc/bigbluebutton/bbb-apps-akka.conf has the default"
         echo "# configuration values.  To update, run"
@@ -1498,6 +1539,8 @@ if [ -n "$HOST" ]; then
         echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
+    [[ -n $BBB_URL ]] && echo "Warning: BigBlueButton keeps using BBB_URL=$BBB_URL from $BBB_ENV_FILE, which overrides this URL"
+
     # Populate /etc/bigbluebutton/bbb-web.properties with the shared secret
     if ! grep -q "^securitySalt" "$BBB_WEB_ETC_CONFIG"; then
         echo "securitySalt=$(get_bbb_web_config_value securitySalt)" >> "$BBB_WEB_ETC_CONFIG"
@@ -1525,6 +1568,7 @@ if [ -n "$HOST" ]; then
     if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
         echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
         change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml playback_host $HOST
+        change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml playback_protocol $PROTOCOL
     fi
 
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
