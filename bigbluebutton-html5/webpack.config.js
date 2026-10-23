@@ -61,20 +61,17 @@ const config = {
       template: './client/main.html',
       filename: 'index.html',
       inject: false,
-      templateParameters: (compilation, assets, assetTags, options) => {
-        const fullhash = compilation.hash;
-        return {
-          compilation,
-          webpackConfig: compilation.options,
-          htmlWebpackPlugin: {
-            tags: assetTags,
-            files: assets,
-            options,
-          },
-          bundleHash: fullhash,
-          isProduction: env === prodEnv,
-        };
-      },
+    }),
+    // Sole templated/uncached entry: embeds hash + isProduction for the rest.
+    new HtmlWebpackPlugin({
+      template: './client/loader.ejs',
+      filename: 'loader.js',
+      inject: false,
+      minify: false,
+      templateParameters: (compilation) => ({
+        assetVersion: compilation.hash,
+        isProduction: env === prodEnv,
+      }),
     }),
     new MiniCssExtractPlugin({
       filename: 'styles.css',
@@ -83,6 +80,8 @@ const config = {
       patterns: [
         { from: 'public', to: '.' },
         { from: 'private', to: 'private' },
+        { from: 'thin-client-entry', to: 'thin-client-entry' },
+        { from: 'client/boot.js', to: 'boot.js' },
       ],
     }),
     new webpack.DefinePlugin({

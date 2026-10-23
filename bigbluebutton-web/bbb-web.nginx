@@ -109,6 +109,8 @@ location = /bigbluebutton/connection/checkGraphqlAuthorization {
 	proxy_set_header         X-Original-URI $request_uri;
 	# this is required for CORS preflight checks in cluster setup
 	proxy_set_header         X-Original-Method $request_method;
+	# Thin-client / cross-origin GraphQL REST: forward session token header
+	proxy_set_header         x-session-token $http_x_session_token;
 }
 
 location = /bigbluebutton/connection/legacyCheckAuthorization {

@@ -1,4 +1,5 @@
 import { IndexResponse } from './types';
+import { getServerRoot } from '/imports/ui/services/url-builder';
 
 class BBBWebApi {
   private lastResponse : IndexResponse['response'] | null = null;
@@ -12,11 +13,7 @@ class BBBWebApi {
   };
 
   private static buildURL(route: string) {
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
-    const serverPathPrefix = pathMatch ? `${pathMatch[1]}/` : '';
-    const { hostname, protocol } = window.location;
-
-    return new URL(route, `${protocol}//${hostname}${serverPathPrefix}`);
+    return new URL(route, getServerRoot());
   }
 
   public async index(signal?: AbortSignal): Promise<{

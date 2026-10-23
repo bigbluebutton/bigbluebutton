@@ -1,0 +1,118 @@
+/**
+ * Base styles for the BigBlueButton HTML5 client.
+ */
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  position: fixed;
+  height: 100%;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem;
+  background-color: var(--color-background);
+}
+
+body.lang-fa {
+  font-family: Tahoma, 'Source Sans Pro', Arial, sans-serif;
+}
+
+:-webkit-full-screen {
+  background-color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+#app {
+  height: 100%;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.set-z-index {
+  z-index: 15;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.remove-z-index {
+  z-index: 0;
+}
+
+[hidden]:not([hidden="false"]) {
+  display: none !important;
+}
+
+::-webkit-input-placeholder {
+  color: var(--palette-placeholder-text);
+  opacity: 1;
+}
+
+:-moz-placeholder,
+::-moz-placeholder {
+  color: var(--palette-placeholder-text);
+  opacity: 1;
+}
+
+main {
+  display: initial;
+}
+
+.overrideSelect {
+  background-color: #FFF !important;
+  color: #000 !important;
+}
+
+.select {
+  background-color: rgba(66, 133, 244, 1) !important;
+  color: #FFF !important;
+}
+
+.fade-in {
+  opacity: 1 !important;
+}
+
+.fade-out {
+  opacity: 0 !important;
+}
+
+.browserWarning {
+  border: 5px solid #F3F6F9;
+  border-radius: 0.5rem;
+  color: #F3F6F9;
+  text-align: center;
+  width: 500px;
+  position: fixed;
+  left: 50%;
+  margin-left: -250px;
+  top: 50%;
+  margin-top: -4rem;
+  font-size: 1.5rem;
+  padding: 10px;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+
+@media only screen and (max-width: 40em) {
+  .browserWarning {
+    width: 95%;
+    left: 2.5%;
+    margin-left: 0;
+  }
+}

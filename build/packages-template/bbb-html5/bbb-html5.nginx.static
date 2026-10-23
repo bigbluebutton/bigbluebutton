@@ -1,15 +1,30 @@
 # running in production (static assets)
+# Access-Control-Allow-Origin * lets thin-client entry pages on another origin load JS/CSS/wasm/fonts.
+
+# Sole uncached entry: embeds the build hash and stamps ?v= onto boot / CSS / React assetUrl().
+location = /html5client/loader.js {
+    alias /usr/share/bigbluebutton/html5-client/loader.js;
+    add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+    add_header Access-Control-Allow-Origin "*" always;
+}
+
+# Versioned via loader.js ?v=, packaging sed on fonts.css ?v=VERSION, React assetUrl() ?v=,
+# and hashed bundle filenames. Classic index.html only loads uncached loader.js.
 location /html5client {
     gzip_static on;
     alias /usr/share/bigbluebutton/html5-client/;
     index index.html;
     try_files $uri $uri/ =404;
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
 }
 
 location /html5client/locales {
   alias /usr/share/bigbluebutton/html5-client/locales;
   autoindex on;
   autoindex_format json;
+  add_header Access-Control-Allow-Origin "*" always;
+  add_header Cache-Control "public, max-age=31536000, immutable" always;
 }
 
 location /html5client/wasm {
@@ -18,4 +33,6 @@ location /html5client/wasm {
     }
     gzip_static on;
     alias /usr/share/bigbluebutton/html5-client/wasm;
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
 }

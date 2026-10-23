@@ -1135,6 +1135,58 @@ public class ParamsProcessorUtil {
 		return defaultHTML5ClientUrl;
 	}
 
+	/**
+	 * Build the HTML5 client redirect URL after a successful join.
+	 * When defaultHTML5ClientUrl is on a different origin than this node
+	 * (thin-client entry, or a cross-origin HTML5 URL), append
+	 * {@code server=<node origin>} so a thin-client entry can load loader.js.
+	 * Same-origin redirects omit it. Classic index.html ignores unknown params
+	 * if {@code server} is present (e.g. some cluster-proxy layouts).
+	 */
+	public String buildHTML5ClientRedirectUrl(String sessionToken, boolean waitLayout) {
+		String redirectUrl = defaultHTML5ClientUrl;
+		if (waitLayout) {
+			redirectUrl = appendQueryParam(redirectUrl, "waitLayout=1");
+		}
+		redirectUrl = appendQueryParam(redirectUrl, "sessionToken=" + sessionToken);
+
+		String serverOrigin = originOf(defaultServerUrl);
+		String clientOrigin = originOf(defaultHTML5ClientUrl);
+		if (!StringUtils.isEmpty(serverOrigin) && !serverOrigin.equals(clientOrigin)) {
+			redirectUrl = appendQueryParam(redirectUrl,
+					"server=" + URLEncoder.encode(serverOrigin, StandardCharsets.UTF_8));
+		}
+		return redirectUrl;
+	}
+
+	public static String appendQueryParam(String url, String param) {
+		if (StringUtils.isEmpty(url) || StringUtils.isEmpty(param)) {
+			return url;
+		}
+		return url + (url.contains("?") ? "&" : "?") + param;
+	}
+
+	public static String originOf(String absoluteUrl) {
+		if (StringUtils.isEmpty(absoluteUrl)) {
+			return null;
+		}
+		try {
+			URI uri = URI.create(absoluteUrl.trim());
+			if (StringUtils.isEmpty(uri.getScheme()) || StringUtils.isEmpty(uri.getHost())) {
+				return null;
+			}
+			StringBuilder origin = new StringBuilder();
+			origin.append(uri.getScheme()).append("://").append(uri.getHost());
+			int port = uri.getPort();
+			if (port != -1) {
+				origin.append(':').append(port);
+			}
+			return origin.toString();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
     public String getGraphqlWebsocketUrl() {
         return graphqlWebsocketUrl;
     }

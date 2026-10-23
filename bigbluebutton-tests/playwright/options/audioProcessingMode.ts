@@ -125,7 +125,9 @@ export class AudioProcessingMode extends MultiUsers {
   // be registered before initModPage() too, so it's armed before the join.
   async trackWasmProcessorRequests(page: PlaywrightPage): Promise<void> {
     page.on('request', (request) => {
-      if (request.url().toLowerCase().endsWith('.wasm')) {
+      // assetUrl() appends ?v=html5ClientBuild - strip the query before matching.
+      const url = request.url().split('?')[0].toLowerCase();
+      if (url.endsWith('.wasm')) {
         this.wasmRequestUrls.push(request.url());
       }
     });

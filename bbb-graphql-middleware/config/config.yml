@@ -20,9 +20,12 @@ server:
   # Maximum length of the mutation body.
   # A high number is recommended because the whiteboard annotations can be large.
   max_mutation_length: 10000
-  # If you are running a cluster proxy setup, you need to allow the url of the Frontend
-  # Add an Authorized Cross Origin. See https://docs.bigbluebutton.org/administration/cluster-proxy
+  # If you are running a cluster proxy or thin-client setup, allow the Frontend origin(s).
+  # Hostname only (no protocol). Comma-separated list is supported.
+  # See https://docs.bigbluebutton.org/administration/cluster-proxy
+  # and https://docs.bigbluebutton.org/administration/thin-client
   #authorized_cross_origin: 'bbb-proxy.example.com'
+  #authorized_cross_origin: 'meet.example.com,other-ui.example.com'
   json_patch_disabled: false
   subscriptions_allowed_list:
   subscriptions_denied_list:

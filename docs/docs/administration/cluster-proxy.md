@@ -28,6 +28,10 @@ scalability media traffic and web socket connections are directly exchanged
 between the user and the BigBlueButton server which runs the conference. This
 is achieved by relaying only the HTML5 client UI through a common proxy server.
 
+For a stable UI hostname where the browser loads HTML5 assets from the BBB node
+directly (no reverse-proxy of `/html5client/` on the UI host), see
+[Thin-Client Configuration](/administration/thin-client).
+
 Before diving into the details, it is important to emphasize what this solution
 is not:
 

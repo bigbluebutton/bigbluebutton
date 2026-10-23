@@ -1,3 +1,5 @@
+import { resolveLearningDashboardBase } from '/imports/ui/services/url-builder';
+
 export const JoinErrorCodeTable = {
   NOT_EJECT: 'not_eject_reason',
   DUPLICATE_USER: 'duplicate_user_in_meeting_eject_reason',
@@ -65,27 +67,30 @@ const findCommonDomain = (url1: string, url2: string): string => {
 export const openLearningDashboardUrl = (
   accessToken: string,
   mId: string,
-  sToken:string,
+  sToken: string,
   learningDashboardBase: string,
   lang: string,
 ) => {
-  if (accessToken && setLearningDashboardCookie(accessToken, mId, learningDashboardBase)) {
-    window.open(`${learningDashboardBase}/?meeting=${mId}&lang=${lang}`, '_blank');
+  const dashboardBase = resolveLearningDashboardBase(learningDashboardBase);
+  if (accessToken && setLearningDashboardCookie(accessToken, mId, dashboardBase)) {
+    window.open(`${dashboardBase}/?meeting=${mId}&lang=${lang}`, '_blank');
   } else {
-    window.open(`${learningDashboardBase}/?meeting=${mId}&sessionToken=${sToken}&lang=${lang}`, '_blank');
+    window.open(`${dashboardBase}/?meeting=${mId}&sessionToken=${sToken}&lang=${lang}`, '_blank');
   }
 };
 
 export const setLearningDashboardCookie = (accessToken: string, mId: string, learningDashboardBase: string) => {
   if (accessToken !== null) {
+    const dashboardBase = resolveLearningDashboardBase(learningDashboardBase);
     const lifetime = new Date();
     lifetime.setTime(lifetime.getTime() + (3600000)); // 1h (extends 7d when open Dashboard)
     let cookieString = `ld-${mId}=${accessToken}; expires=${lifetime.toUTCString()}; path=/`;
 
-    // In a cluster setup it will be necessary to specify the root domain
-    // because the Dashboard might be in a different subdomain
-    if (learningDashboardBase && learningDashboardBase.startsWith('http')) {
-      const commonDomain = findCommonDomain(learningDashboardBase, window.location.href);
+    // Shared parent domain (cluster-proxy / thin-client on same cookie domain), e.g.
+    // bbb-proxy.example.com + bbb-01.example.com → Domain=example.com.
+    // Cross-domain without a shared parent is out of scope.
+    if (dashboardBase && dashboardBase.startsWith('http')) {
+      const commonDomain = findCommonDomain(dashboardBase, window.location.href);
       if (commonDomain !== '') {
         cookieString += `;domain=${commonDomain}`;
       }
