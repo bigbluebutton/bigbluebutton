@@ -443,6 +443,7 @@ export interface Threshold {
 
 export interface Pagination {
   paginationToggleEnabled: boolean
+  paginationToggleModeratorOnly?: boolean
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes

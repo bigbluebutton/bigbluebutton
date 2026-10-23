@@ -426,6 +426,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       pagination: {
         paginationToggleEnabled: true,
+        paginationToggleModeratorOnly: false,
         pageChangeDebounceTime: 2500,
         desktopPageSizes: {
           moderator: 0,
