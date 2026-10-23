@@ -8,6 +8,8 @@ XFAIL create.smoke.lifecycle (0s)
       line 8: recording /response/returnCode: expected nothing, got "SUCCESS"
       line 8: recording /response/moderatorPw: expected nothing, got "<random>"
       line 8: returncode: expected "SUCCESS", got nothing
+      line 28: messageKey: expected "notFound", got a text response has no messageKey field
+      warning: teardown step 1 (line 28): eventually: not within 2s (N attempts): messageKey: expected "notFound", got a text response has no messageKey field
 XFAIL create.smoke.side-effects (0s)
       create answers returnCode, and end isn't implemented (step 1 (line 8): recording status: expected 200, got 202)
       line 8: recording status: expected 200, got 202
@@ -18,6 +20,8 @@ XFAIL create.smoke.side-effects (0s)
       line 8: recording /response/returnCode: expected nothing, got "SUCCESS"
       line 8: recording /response/moderatorPw: expected nothing, got "<random>"
       line 8: returncode: expected "SUCCESS", got nothing
+      line 28: messageKey: expected "notFound", got a text response has no messageKey field
+      warning: teardown step 1 (line 28): eventually: not within 2s (N attempts): messageKey: expected "notFound", got a text response has no messageKey field
 XFAIL getMeetingInfo.smoke.json-error (0s)
       errors are always XML (step 1 (line 7): recording status: expected 200, got 202)
       line 7: recording status: expected 200, got 202

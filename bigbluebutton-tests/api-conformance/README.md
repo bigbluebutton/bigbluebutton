@@ -498,10 +498,19 @@ steps:
       xpath:
         /response/createTime: "${createTime}"
 teardown:
-  - {call: end, params: {meetingID: "${uid}"}, ignoreResult: true}
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
 ```
 
-One case per file.
+One case per file. A case that creates a meeting ends it in its teardown,
+like this. bbb-web answers an `end` that reaches akka-apps before the
+meeting's create with SUCCESS, but the meeting goes on running (seen
+about once in ten when the two are sent back to back). So the teardown
+sends `end` until bbb-web no longer knows the meeting, which takes one or
+two tries. On a target with no `end`, such as bbb-api today, it gives up
+after 2s with a warning.
 
 | Key | Meaning |
 |---|---|

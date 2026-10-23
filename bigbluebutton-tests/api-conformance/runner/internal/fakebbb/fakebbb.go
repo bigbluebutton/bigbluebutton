@@ -53,6 +53,7 @@ type Server struct {
 	conns       map[string][]*gqlConn // GraphQL websockets by session token
 	rejects     []string              // messageIds for the next connection_inits to be rejected with
 	stateErrors string                // what user_current changes answer instead, when set
+	loseEnds    int                   // how many ends to acknowledge and drop
 	seq         int
 	// Requests records every request's method, path and raw query, and
 	// whether it was chunked, for tests that check what the runner sent.
@@ -108,6 +109,14 @@ func (s *Server) RejectInits(ids ...string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.rejects = append(s.rejects, ids...)
+}
+
+// LoseEnds makes the next n ends answer as usual but do nothing, as on a
+// real server when an end reaches akka-apps before the meeting's create.
+func (s *Server) LoseEnds(n int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.loseEnds = n
 }
 
 // FailUserState makes later changes to users' user_current
@@ -424,14 +433,18 @@ func (s *Server) getMeetingInfo(w http.ResponseWriter, r *http.Request, p url.Va
 func (s *Server) end(w http.ResponseWriter, r *http.Request, p url.Values) {
 	id := p.Get("meetingID")
 	m := s.meetings[id]
-	if m == nil {
+	// bbb-web forgets an ended meeting a moment after the end; isMeetingRunning
+	// still sees it for EndPolls calls.
+	if m == nil || m.ended {
 		s.fail(w, r, "notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?")
 		return
 	}
-	if !m.ended {
+	if s.loseEnds > 0 {
+		s.loseEnds--
+	} else {
 		s.ended(m)
+		m.ended = true
 	}
-	m.ended = true
 	s.writeXML(w, "<returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey>"+
 		"<message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message>")
 }

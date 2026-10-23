@@ -48,5 +48,9 @@ steps:
       jsonpath:
         $.loggedOut: "true"
 teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
   - call: end
     params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

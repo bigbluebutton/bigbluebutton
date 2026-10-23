@@ -152,8 +152,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 26,
+          "line": 28,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -168,10 +169,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -327,6 +328,34 @@
               "ok": true
             }
           ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 28,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-001&checksum=876b44210170af4978c14aeb31bd72f47d61d915d4b49484788b4c47dde10c89",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
         }
       ]
     },

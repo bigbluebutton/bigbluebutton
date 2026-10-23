@@ -539,6 +539,44 @@ func TestProfileDefaultAfterCancel(t *testing.T) {
 	}
 }
 
+// The suite's teardown sends end again until bbb-web no longer knows the
+// meeting, so a lost end (one that reached akka-apps before the create)
+// doesn't leave the meeting running.
+func TestTeardownAfterALostEnd(t *testing.T) {
+	fake := fakebbb.New(salt)
+	fake.LoseEnds(1)
+	srv := httptest.NewServer(fake)
+	defer srv.Close()
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Lost}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 5s, every: 50ms, until: {messageKey: notFound}}
+`)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1"}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	var ends int
+	for _, q := range fake.Requests {
+		if strings.HasSuffix(q.Path, "/end") {
+			ends++
+		}
+	}
+	// The lost end, the one that ends it, and the one that finds it gone.
+	if res.Status != report.Pass || len(res.Warnings) != 0 || ends != 3 {
+		t.Errorf("%s, warnings %v, %d end(s)", res.Status, res.Warnings, ends)
+	}
+}
+
 // A second Ctrl-C (Abort) stops a teardown that would otherwise run on.
 func TestAbortStopsTheTeardown(t *testing.T) {
 	srv := httptest.NewServer(fakebbb.New(salt))

@@ -188,8 +188,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 38,
+          "line": 40,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -204,10 +205,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -321,8 +322,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 23,
+          "line": 25,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -337,10 +339,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -489,8 +491,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 21,
+          "line": 23,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -563,8 +566,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 21,
+          "line": 23,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -579,10 +583,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -637,8 +641,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 21,
+          "line": 23,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -653,10 +658,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -711,8 +716,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 21,
+          "line": 23,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -890,6 +896,34 @@
               "ok": true
             }
           ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 25,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-009&checksum=48704c06154ff3cfee153b8f4db5e0cf4bff6552314a1091124f7dad6dfdc93b",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
         }
       ]
     },
@@ -1078,6 +1112,34 @@
             }
           ]
         }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 32,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-010&checksum=5dab257ce3fb56d005a1cd7b4eebd340d93aced1e02afb4664562221f9308312",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
       ]
     },
     {
@@ -1154,8 +1216,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 21,
+          "line": 23,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -1170,10 +1233,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -1690,6 +1753,34 @@
             }
           ]
         }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 28,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-017&checksum=412367340131be094a830726cf6aa241aa6510b6f94e537a211096218f9b7208",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
       ]
     },
     {
@@ -1839,8 +1930,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 35,
+          "line": 37,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -1855,10 +1947,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -2062,8 +2154,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 51,
+          "line": 53,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -2078,10 +2171,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]
@@ -2281,8 +2374,9 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 45,
+          "line": 47,
           "status": "PASS",
+          "attempts": 0,
           "duration_ms": 0,
           "request": {
             "method": "GET",
@@ -2297,10 +2391,10 @@
             "format": "xml",
             "headers": {
               "Cache-Control": "no-cache",
-              "Content-Length": "275",
+              "Content-Length": "194",
               "Content-Type": "text/xml;charset=utf-8"
             },
-            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
           }
         }
       ]

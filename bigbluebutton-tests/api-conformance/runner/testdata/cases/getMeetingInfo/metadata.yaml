@@ -18,6 +18,9 @@ steps:
       xpath:
         /response/metadata/color: blue
 teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
   - call: end
     params: {<<: *meeting}
     ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
