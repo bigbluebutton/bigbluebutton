@@ -17,8 +17,10 @@ BBB_IMAGE_REGISTRY=registry.example.com/bbb BBB_IMAGE_TAG=dev docker buildx bake
 
 Images are named `${BBB_IMAGE_REGISTRY}/bbb-<target>:${BBB_IMAGE_TAG}` (defaults
 `ghcr.io/bigbluebutton/bigbluebutton` and `latest`). `CLIENT_BUILD` sets the build id of the
-HTML5 client. `bbb-webrtc-sfu`, `bbb-webrtc-recorder`, `bbb-webhooks` and `bbb-playback` are
-built from their repositories at the tag in their `*.placeholder.sh`; CI checks that the two match.
+HTML5 client. `bbb-webrtc-sfu`, `bbb-webrtc-recorder`, `bbb-webhooks`, `bbb-playback` and
+`bbb-presentation-video` (in `bbb-record-and-playback`) are fetched by running their
+`*.placeholder.sh` at the repository root, the same scripts the package build runs, so the images
+and the packages build the version pinned in one place.
 
 CI (`.github/workflows/build-all-images.yml`) builds every image for amd64 on pull requests. On
 pushes to the develop and release branches and on tags, it builds amd64 and arm64 and pushes
