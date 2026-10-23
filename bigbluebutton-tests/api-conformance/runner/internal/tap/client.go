@@ -20,7 +20,8 @@ type Client struct {
 	hc   *http.Client
 }
 
-// NewClient talks to the tap at base, e.g. http://bbb.example.com:8099.
+// NewClient talks to the tap at base, e.g. http://10.0.0.5:8099. A host
+// name works only if the tap was started with --hosts naming it.
 // A tap that doesn't accept the connection within 5s isn't waited for.
 func NewClient(base string) *Client {
 	tr := http.DefaultTransport.(*http.Transport).Clone()

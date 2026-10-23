@@ -301,8 +301,9 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		orphaned = orphans(*goldenDir, res.Cases)
 	}
 
-	ctx, stop := interruptible(stderr)
+	ctx, abort, stop := interruptible(stderr)
 	defer stop()
+	r.Abort = abort
 	run := r.RunAll(ctx, selected, *parallel)
 	run.Warnings = append(run.Warnings, orphaned...)
 	if expected != nil {
@@ -328,23 +329,36 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	return exitOK
 }
 
-// interruptible returns a context the first Ctrl-C cancels: cases that
-// haven't started are skipped, and those running stop and clean up after
-// themselves. A second Ctrl-C ends the process at once.
-func interruptible(stderr io.Writer) (context.Context, func()) {
-	ctx, cancel := context.WithCancel(context.Background())
+// interruptible returns the contexts Ctrl-C cancels. The first cancels
+// run: cases that haven't started are skipped, those running stop and run
+// their teardowns, and a profile switch under way is stopped. The second
+// cancels abort, which stops the teardowns too. Restoring the default
+// profile after a switch always finishes, so the server isn't left on
+// another one.
+func interruptible(stderr io.Writer) (run, abort context.Context, stop func()) {
+	run, cancelRun := context.WithCancel(context.Background())
+	abort, cancelAbort := context.WithCancel(context.Background())
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
+	done := make(chan struct{})
 	go func() {
-		select {
-		case <-sig:
-			signal.Stop(sig) // the next one isn't caught
-			fmt.Fprintln(stderr, "bbb-conform: interrupted; running cases are cleaning up (Ctrl-C again to quit now)")
-			cancel()
-		case <-ctx.Done():
+		for n := 0; ; n++ {
+			select {
+			case <-sig:
+			case <-done:
+				return
+			}
+			switch n {
+			case 0:
+				fmt.Fprintln(stderr, "bbb-conform: interrupted; running cases are cleaning up (Ctrl-C again to skip that)")
+				cancelRun()
+			case 1:
+				fmt.Fprintln(stderr, "bbb-conform: skipping the clean-up; restoring the default profile, if one was switched, still finishes")
+				cancelAbort()
+			}
 		}
 	}()
-	return ctx, func() { signal.Stop(sig); cancel() }
+	return run, abort, func() { signal.Stop(sig); close(done); cancelRun(); cancelAbort() }
 }
 
 func splitList(s string) []string {
@@ -476,7 +490,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
-	ctx, stop := interruptible(stderr)
+	ctx, abort, stop := interruptible(stderr)
 	defer stop()
 	red := &tmpl.Redactor{}
 	casesRoot := filepath.Clean(*cases)
@@ -501,6 +515,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		}
 		r.Area = func(c *spec.Case) string { return area(casesRoot, c.File) }
 		r.ContinueOnFail = true
+		r.Abort = abort
 		cols[i] = golden.NewCollector(tg, rules, red)
 		r.Observe = cols[i].Observe
 		var props *diff.Props

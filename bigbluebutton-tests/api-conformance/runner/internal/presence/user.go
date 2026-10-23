@@ -51,6 +51,7 @@ type User struct {
 	conn    *Conn
 	state   map[string]any
 	lost    error         // why the server stopped user_current, if it did
+	refused error         // the errors its last answer held instead of the state
 	changed chan struct{} // closed and replaced on each change
 }
 
@@ -96,7 +97,7 @@ func (u *User) connect(ctx context.Context) error {
 		return err
 	}
 	u.mu.Lock()
-	u.conn, u.state, u.lost = conn, nil, nil
+	u.conn, u.state, u.lost, u.refused = conn, nil, nil, nil
 	u.mu.Unlock()
 	_, err = conn.Subscribe(Request{
 		Query:         "subscription userCurrentSubscription { user_current { " + stateFields + " } }",
@@ -133,15 +134,15 @@ func (u *User) follow(kind string, payload []byte) {
 	}
 	u.mu.Lock()
 	if len(r.Errors) > 0 {
-		// Waiting on the state would time out: say why instead, until an
-		// answer comes with the state again.
+		// A wait may still see the state in a later answer; if it times out
+		// instead, this says why.
 		var msgs []string
 		for _, e := range r.Errors {
 			msgs = append(msgs, e.Message)
 		}
-		u.lost = fmt.Errorf("the server answered the user's state with errors: %s", strings.Join(msgs, "; "))
+		u.refused = fmt.Errorf("the server's last answer about the user held errors instead: %s", strings.Join(msgs, "; "))
 	} else {
-		u.state, u.lost = r.Data.UserCurrent[0], nil
+		u.state, u.refused = r.Data.UserCurrent[0], nil
 	}
 	close(u.changed)
 	u.changed = make(chan struct{})
@@ -152,7 +153,7 @@ func (u *User) follow(kind string, payload []byte) {
 func (u *User) waitFor(ctx context.Context, cond func(map[string]any) (bool, error)) error {
 	for {
 		u.mu.Lock()
-		st, changed, conn, lost := u.state, u.changed, u.conn, u.lost
+		st, changed, conn, lost, refused := u.state, u.changed, u.conn, u.lost, u.refused
 		u.mu.Unlock()
 		if done, err := cond(st); done || err != nil {
 			return err
@@ -170,6 +171,9 @@ func (u *User) waitFor(ctx context.Context, cond func(map[string]any) (bool, err
 			}
 			return conn.Err()
 		case <-ctx.Done():
+			if refused != nil {
+				return fmt.Errorf("%w; the user is %s; %v", ctx.Err(), describe(st), refused)
+			}
 			return fmt.Errorf("%w; the user is %s", ctx.Err(), describe(st))
 		}
 	}

@@ -2,18 +2,6 @@ package tap
 
 import "encoding/json"
 
-// idPaths are where a message keeps the meeting IDs it is about, most
-// specific first.
-var idPaths = [][]string{
-	{"core", "header", "meetingId"},
-	{"envelope", "routing", "meetingId"},
-	{"core", "body", "meetingId"},
-	{"core", "body", "props", "meetingProp", "intId"},
-	{"core", "body", "meetingInfo", "internalId"},
-	{"core", "body", "recordId"},
-	{"core", "body", "room", "breakoutMeetingId"},
-}
-
 // index reads a message's name and the meeting IDs it is about, from
 // {"envelope":{"name","routing"},"core":{"header":{"name","meetingId"},"body"}}.
 // Where a message keeps its meeting ID depends on the message: in the
@@ -21,35 +9,50 @@ var idPaths = [][]string{
 // MeetingCreatedEvtMsg (props.meetingProp.intId) or MeetingEndedEvtMsg
 // (meetingId). A breakout room's creation is about both the parent and
 // the room. Each field is read on its own, so one of another type doesn't
-// hide the rest; a payload that isn't a JSON object gets no name and no
-// IDs.
+// hide the rest, and only the objects on the way to them are parsed; a
+// payload that isn't a JSON object gets no name and no IDs.
 func index(raw []byte) (name string, ids []string) {
-	var m map[string]any
-	if json.Unmarshal(raw, &m) != nil {
+	top := object(raw)
+	if top == nil {
 		return "", nil
 	}
-	name = field(m, "envelope", "name")
+	env, core := object(top["envelope"]), object(top["core"])
+	header, body := object(core["header"]), object(core["body"])
+	name = str(env["name"])
 	if name == "" {
-		name = field(m, "core", "header", "name")
+		name = str(header["name"])
 	}
-	for _, p := range idPaths {
-		if id := field(m, p...); id != "" && !contains(ids, id) {
+	for _, id := range []string{
+		str(header["meetingId"]),
+		str(object(env["routing"])["meetingId"]),
+		str(body["meetingId"]),
+		str(object(object(body["props"])["meetingProp"])["intId"]),
+		str(object(body["meetingInfo"])["internalId"]),
+		str(body["recordId"]),
+		str(object(body["room"])["breakoutMeetingId"]),
+	} {
+		if id != "" && !contains(ids, id) {
 			ids = append(ids, id)
 		}
 	}
 	return name, ids
 }
 
-// field is the string at path in v, or "" when there is none.
-func field(v any, path ...string) string {
-	for _, k := range path {
-		o, ok := v.(map[string]any)
-		if !ok {
-			return ""
-		}
-		v = o[k]
+// object is a JSON object's members, unparsed, or nil when raw isn't one.
+func object(raw []byte) map[string]json.RawMessage {
+	var o map[string]json.RawMessage
+	if len(raw) == 0 || json.Unmarshal(raw, &o) != nil {
+		return nil
 	}
-	s, _ := v.(string)
+	return o
+}
+
+// str is a JSON string's value, or "" when raw isn't one.
+func str(raw []byte) string {
+	var s string
+	if len(raw) == 0 || json.Unmarshal(raw, &s) != nil {
+		return ""
+	}
 	return s
 }
 

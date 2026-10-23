@@ -237,9 +237,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	enc.Encode(v)
 }
 
-// answersTo says whether a request for host is for the tap: one sent to
-// an IP address, localhost or a name it was given. A page that points
-// another name at the tap's address gets nothing.
+// answersTo says whether a request for host is addressed to the tap: to
+// an IP address, localhost or a name it was given.
 func (s *Server) answersTo(host string) bool {
 	h, _, err := net.SplitHostPort(host)
 	if err != nil {
@@ -493,14 +492,20 @@ func (s *Server) files(r *http.Request) (any, int, error) {
 // pattern can match and, when it was asked to watch there but can't, why.
 func (s *Server) watched(pattern string) (bool, string) {
 	if s.watcher != nil {
-		return s.watcher.Covers(pattern)
+		if ok, why := s.watcher.Covers(pattern); ok || why != "" {
+			return ok, why
+		}
 	}
 	for _, d := range s.cfg.Watch {
-		if underDir(pattern, path.Clean(filepath.ToSlash(d))) {
+		d = path.Clean(filepath.ToSlash(d))
+		switch {
+		case s.watcher == nil && underDir(pattern, d):
 			if s.watchErr != nil {
 				return false, "can't watch files: " + s.watchErr.Error()
 			}
 			return false, "the tap watches no files"
+		case mayMatchUnder(pattern, d):
+			return false, fmt.Sprintf("%s may match under %s, which the tap watches, without naming it: start the path with %s/", pattern, d, d)
 		}
 	}
 	return false, ""
@@ -509,6 +514,23 @@ func (s *Server) watched(pattern string) (bool, string) {
 // underDir says whether every path glob matches is under dir.
 func underDir(glob, dir string) bool {
 	return dir == "." || strings.HasPrefix(glob, dir+"/")
+}
+
+// mayMatchUnder says whether glob can match a path under dir.
+func mayMatchUnder(glob, dir string) bool {
+	if dir == "." {
+		return true
+	}
+	gs, ds := strings.Split(glob, "/"), strings.Split(dir, "/")
+	if len(gs) <= len(ds) {
+		return false
+	}
+	for i, d := range ds {
+		if ok, _ := path.Match(gs[i], d); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // readFile reads a regular file, up to MaxFile.

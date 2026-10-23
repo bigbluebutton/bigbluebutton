@@ -226,6 +226,68 @@ func TestWatchUnwatchableTop(t *testing.T) {
 	ev.waitFor(t, "created recording/status/recorded/m.done")
 }
 
+// A directory asked for that appears later is watched, with a gap: files
+// may have come and gone in it before the watch did.
+func TestWatchAppearingTop(t *testing.T) {
+	retryMissing = 20 * time.Millisecond
+	t.Cleanup(func() { retryMissing = time.Second })
+	root := t.TempDir()
+	var ev events
+	w, err := Watch(root, []string{"learning-dashboard"}, ev.add, gapsTo(&ev))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	if ok, why := w.Covers("learning-dashboard/m/t/d.json"); !ok {
+		t.Errorf("not yet there, but covered: %q", why)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "learning-dashboard/m"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ev.waitFor(t, "gap watching learning-dashboard now: files may have come and gone in it before")
+}
+
+// What couldn't be watched under a directory that is removed is forgotten,
+// so once the directory is back without it, nothing there is missed.
+func TestWatchForgetsWhatWentAway(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can watch any directory")
+	}
+	retryMissing = 20 * time.Millisecond
+	t.Cleanup(func() { retryMissing = time.Second })
+	root := t.TempDir()
+	status := filepath.Join(root, "recording/status")
+	locked := filepath.Join(status, "locked")
+	if err := os.MkdirAll(locked, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(locked, 0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Chmod(locked, 0o755) })
+	var ev events
+	w, err := Watch(root, []string{"recording/status"}, ev.add, gapsTo(&ev))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	if ok, _ := w.Covers("recording/status/*/x.done"); ok {
+		t.Fatal("covered though locked can't be watched")
+	}
+	os.Chmod(locked, 0o755)
+	if err := os.RemoveAll(status); err != nil {
+		t.Fatal(err)
+	}
+	ev.waitFor(t, "gap stopped watching recording/status: it was removed")
+	if err := os.MkdirAll(filepath.Join(status, "recorded"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ev.waitFor(t, "gap watching recording/status again: files may have come and gone in it while it wasn't")
+	if ok, why := w.Covers("recording/status/*/x.done"); !ok {
+		t.Errorf("once it is back without locked: %q", why)
+	}
+}
+
 // A directory asked for that is removed is a gap, and is watched again
 // once it is back.
 func TestWatchRemovedDir(t *testing.T) {

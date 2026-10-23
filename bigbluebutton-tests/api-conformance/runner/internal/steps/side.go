@@ -45,9 +45,10 @@ func needsMark(c *spec.Case) bool {
 	return false
 }
 
-// usesTap says whether a case has a step the tap answers.
+// usesTap says whether a case's steps, not counting its teardown, have
+// one the tap answers.
 func usesTap(c *spec.Case) bool {
-	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
+	for _, s := range c.Steps {
 		if s.Kind == spec.KindBus || s.Kind == spec.KindFS || s.Kind == spec.KindRedis {
 			return true
 		}

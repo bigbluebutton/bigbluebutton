@@ -112,11 +112,20 @@ func (s *Server) RejectInits(ids ...string) {
 
 // FailUserState makes later changes to users' user_current
 // subscriptions arrive as GraphQL errors with this message, as Hasura
-// sends after a permission change; "" puts things back.
+// sends after a permission change. "" puts things back, and sends each
+// user's row again, as Hasura's next poll would.
 func (s *Server) FailUserState(msg string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	was := s.stateErrors
 	s.stateErrors = msg
+	var out []push
+	if msg == "" && was != "" {
+		for _, u := range s.sessions {
+			out = append(out, s.pushUser(u)...)
+		}
+	}
+	s.mu.Unlock()
+	sendAll(out)
 }
 
 // Skew shifts the fake's clock and counters, so two fakes give different

@@ -71,6 +71,9 @@ type Runner struct {
 	PingEvery time.Duration
 	// Tap is the target's tap, for bus, fs and redis steps; nil without one.
 	Tap *tap.Client
+	// Abort, when done, stops teardowns too, as a second Ctrl-C does.
+	// Restoring the default profile still finishes.
+	Abort context.Context
 	// tapDown is why the tap didn't answer before the run, so its cases
 	// don't each wait for it.
 	tapDown error
@@ -241,7 +244,7 @@ const profileTimeout = 15 * time.Minute
 func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *report.Run {
 	run := &report.Run{Target: r.Target.Name, Started: time.Now()}
 	r.tapDown = nil
-	if r.Tap != nil && slices.ContainsFunc(cases, usesTap) {
+	if r.Tap != nil && slices.ContainsFunc(cases, func(c *spec.Case) bool { return usesTap(c) && r.skipReason(c) == "" }) {
 		pctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		if _, err := r.Tap.Info(pctx); err != nil {
 			r.tapDown = fmt.Errorf("the tap at %s didn't answer before the run: %w", r.Target.TapURL, err)
@@ -463,6 +466,9 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 	// context lets it clean up after a cancelled run.
 	tctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*DefaultTimeout)
 	defer cancel()
+	if r.Abort != nil {
+		defer context.AfterFunc(r.Abort, cancel)()
+	}
 	for i, s := range c.Teardown {
 		sr := x.step(tctx, "teardown", i, s)
 		if sr.Status != report.Pass {

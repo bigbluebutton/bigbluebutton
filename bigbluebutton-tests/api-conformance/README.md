@@ -57,7 +57,9 @@ Each case ends as one of:
 The exit status is 0 when nothing failed or errored, 1 when something did
 or the run was interrupted, and 2 for a bad command line, target or case
 file. Ctrl-C stops the run: cases that haven't started are skipped, and
-those running stop and run their teardowns. A second Ctrl-C quits at once. The salt and secret target
+those running stop and run their teardowns. A second Ctrl-C skips the
+teardowns too. Restoring the default profile after a switch always
+finishes, so the server isn't left on another profile. The salt and secret target
 vars are replaced with `[salt]` and `[secret:name]` in everything the runner
 writes. Nothing else is: the JSON and JUnit reports hold the live
 `JSESSIONID` and session tokens the server handed out, so treat them like

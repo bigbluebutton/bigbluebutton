@@ -118,7 +118,8 @@ func (w *Watcher) Skipped() []string {
 
 // Covers says whether the files that come and go where pattern, a glob
 // relative to root, can match are seen: pattern is under a directory
-// asked for that is watched, or will be once it exists. When pattern is
+// asked for that is watched, or doesn't exist yet (once it does, it is
+// watched, with a gap for what came and went before). When pattern is
 // under one but may match where a directory can't be watched, why says
 // so; it is "" for a pattern under none of them.
 func (w *Watcher) Covers(pattern string) (ok bool, why string) {
@@ -137,23 +138,6 @@ func (w *Watcher) Covers(pattern string) (ok bool, why string) {
 		}
 	}
 	return true, ""
-}
-
-// mayMatchUnder says whether glob can match a path under dir.
-func mayMatchUnder(glob, dir string) bool {
-	if dir == "." {
-		return true
-	}
-	gs, ds := strings.Split(glob, "/"), strings.Split(dir, "/")
-	if len(gs) <= len(ds) {
-		return false
-	}
-	for i, d := range ds {
-		if ok, _ := path.Match(gs[i], d); !ok {
-			return false
-		}
-	}
-	return true
 }
 
 // Close stops watching.
@@ -224,9 +208,10 @@ func (w *Watcher) cannot(dir string, err error) {
 	}
 }
 
-// retry watches dir once it exists. gap says it was watched before, so
-// files may have come and gone in it unseen.
-func (w *Watcher) retry(dir string, gap bool) {
+// retry watches dir once it can: it exists and can be watched. That is a
+// gap, since files may have come and gone in it before; again says it was
+// watched before.
+func (w *Watcher) retry(dir string, again bool) {
 	defer w.wg.Done()
 	t := time.NewTicker(retryMissing)
 	defer t.Stop()
@@ -240,8 +225,10 @@ func (w *Watcher) retry(dir string, gap bool) {
 			w.tops[dir] = err
 			w.mu.Unlock()
 			if err == nil {
-				if gap {
+				if again {
 					w.onGap("watching " + dir + " again: files may have come and gone in it while it wasn't")
+				} else {
+					w.onGap("watching " + dir + " now: files may have come and gone in it before")
 				}
 				return
 			}
@@ -284,6 +271,15 @@ func (w *Watcher) event(wd int32, mask uint32, name string) {
 	removed := ok && top && mask&syscall.IN_IGNORED != 0
 	if mask&syscall.IN_IGNORED != 0 {
 		delete(w.wds, wd)
+		// What it couldn't watch under a directory that is gone is gone too;
+		// watching it again finds out afresh.
+		if ok {
+			for d := range w.failed {
+				if strings.HasPrefix(d, dir+"/") {
+					delete(w.failed, d)
+				}
+			}
+		}
 	}
 	if removed {
 		w.tops[dir] = fs.ErrNotExist

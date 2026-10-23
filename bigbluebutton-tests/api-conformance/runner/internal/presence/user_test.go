@@ -195,8 +195,8 @@ func TestWaitingGuestLeaves(t *testing.T) {
 	}
 }
 
-// When the user's state comes back as GraphQL errors, waiting on it ends
-// at once with the server's message, not at the deadline.
+// When the user's state comes back as GraphQL errors, a wait that times
+// out says so. One that sees the state in a later answer succeeds.
 func TestStateErrors(t *testing.T) {
 	w := newWorld(t, "")
 	ann, _ := w.join("Ann", "")
@@ -204,10 +204,21 @@ func TestStateErrors(t *testing.T) {
 		t.Fatal(err)
 	}
 	w.fake.FailUserState("field 'loggedOut' not found in type: 'user_current'")
-	start := time.Now()
-	err := ann.Leave(ctx(t))
-	if err == nil || !strings.Contains(err.Error(), "field 'loggedOut' not found") || time.Since(start) > time.Second {
-		t.Errorf("leave: %v after %s", err, time.Since(start))
+	short, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	defer cancel()
+	if err := ann.Leave(short); err == nil || !strings.Contains(err.Error(), "field 'loggedOut' not found") {
+		t.Errorf("leave: %v", err)
+	}
+
+	w.fake.FailUserState("")
+	bob, _ := w.join("Bob", "")
+	if err := bob.Join(ctx(t), false); err != nil {
+		t.Fatal(err)
+	}
+	w.fake.FailUserState("for a moment")
+	time.AfterFunc(100*time.Millisecond, func() { w.fake.FailUserState("") })
+	if err := bob.Leave(ctx(t)); err != nil {
+		t.Errorf("leave after a passing error: %v", err)
 	}
 }
 

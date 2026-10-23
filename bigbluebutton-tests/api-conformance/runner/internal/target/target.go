@@ -146,7 +146,7 @@ func (t *Target) complete(getenv func(string) string) error {
 	t.TapURL = strings.TrimSuffix(t.TapURL, "/")
 	if t.TapURL != "" {
 		if u, err := url.Parse(t.TapURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-			return fmt.Errorf("tapUrl %q must be an http:// URL, e.g. http://bbb.example.com:8099", t.TapURL)
+			return fmt.Errorf("tapUrl %q must be an http:// URL, e.g. http://10.0.0.5:8099", t.TapURL)
 		}
 		for _, c := range tapCapabilities {
 			if !t.Has(c) {

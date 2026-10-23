@@ -148,8 +148,9 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 	}
 	r.Observe = func(ev steps.Observed) ([]assert.Result, error) { return cols[passOf[ev.UID]].Observe(ev) }
 
-	ctx, stop := interruptible(stderr)
+	ctx, abort, stop := interruptible(stderr)
 	defer stop()
+	r.Abort = abort
 	run := r.RunAll(ctx, all, *parallel)
 	if ctx.Err() != nil {
 		fmt.Fprintln(stderr, "bbb-conform record: interrupted; nothing written")

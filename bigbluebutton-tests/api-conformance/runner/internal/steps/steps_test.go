@@ -539,6 +539,29 @@ func TestProfileDefaultAfterCancel(t *testing.T) {
 	}
 }
 
+// A second Ctrl-C (Abort) stops a teardown that would otherwise run on.
+func TestAbortStopsTheTeardown(t *testing.T) {
+	srv := httptest.NewServer(fakebbb.New(salt))
+	defer srv.Close()
+	tg := &target.Target{Name: "p", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1"}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	abort, cancel := context.WithCancel(context.Background())
+	r.Abort = abort
+	cases, probs := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.a\ntitle: t\nendpoint: getMeetings\nclass: contract\nsteps: [{call: getMeetings}]\nteardown: [{wait: 5s}]\n"), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatal(probs)
+	}
+	time.AfterFunc(200*time.Millisecond, cancel)
+	start := time.Now()
+	res := r.RunCase(context.Background(), cases[0], "uid-1")
+	if time.Since(start) > 2*time.Second || res.Status != report.Pass || len(res.Warnings) != 1 {
+		t.Errorf("%s after %s, warnings %v", res.Status, time.Since(start), res.Warnings)
+	}
+}
+
 // After an interrupt, cases that haven't started are skipped: nothing is
 // sent, no teardown runs, and no profile is switched to, so none is
 // restored either.

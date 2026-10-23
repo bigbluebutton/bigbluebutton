@@ -280,8 +280,22 @@ func TestFilesLimit(t *testing.T) {
 	if _, err := w.client.FS(ctx(t), m, "f*"); !errors.As(err, &te) || te.Status != http.StatusBadRequest || !strings.Contains(te.Msg, "narrow it") {
 		t.Errorf("too many files: %v", err)
 	}
-	if r, err := w.client.FS(ctx(t), m, "f1?"); err != nil || len(r.Files) != 10 || r.Watched {
+	if r, err := w.client.FS(ctx(t), m, "f1?"); err != nil || len(r.Files) != 10 || r.Watched || r.WatchError != "" {
 		t.Errorf("ten files outside the watched directories: %+v %v", r, err)
+	}
+}
+
+// A glob that may match under a watched directory without naming it isn't
+// covered, and the answer says why.
+func TestFilesPartlyWatched(t *testing.T) {
+	w := startWorld(t)
+	m, err := w.client.Mark(ctx(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := w.client.FS(ctx(t), m, "recording/*/recorded/m.done")
+	if err != nil || r.Watched || !strings.Contains(r.WatchError, "may match under recording/status, which the tap watches") {
+		t.Errorf("%+v %v", r, err)
 	}
 }
 
