@@ -856,17 +856,19 @@ module BigBlueButton
       html.to_html
     end
 
-    # Live images pasted into chat, shared notes or the whiteboard are served by
-    # the bbb-file-upload service at /bigbluebutton/fileUpload/{meetingId}/{file},
-    # an endpoint that only answers during the meeting (auth by live session, and
-    # the files are cleaned up afterwards). The archive copies those files into the
-    # recording package's file-uploads/ directory, so every reference to them (chat
-    # message HTML, tldraw shape data) must be rewritten to the recording-relative
-    # path before it is written to the playback files, or the images 404 on
-    # playback. The meetingId in the source URL is dropped on purpose: uploads of
-    # the whole meeting family are flattened into one file-uploads/ directory (the
-    # file names are uuids, so they never collide) - see the archive step.
-    FILE_UPLOAD_URL_REGEX = %r{/bigbluebutton/fileUpload/[A-Za-z0-9-]+/([A-Za-z0-9][A-Za-z0-9-]*\.(?:png|jpe?g|gif|webp))}i.freeze
+    # Images pasted into chat, shared notes or the whiteboard, and files attached
+    # to chat messages, are served by the bbb-file-upload service at
+    # /bigbluebutton/fileUpload/{meetingId}/{file}, an endpoint that only answers
+    # during the meeting (auth by live session, and the files are cleaned up
+    # afterwards). The archive copies those files into the recording package's
+    # file-uploads/ directory, so every reference to them (chat message HTML,
+    # tldraw shape data) must be rewritten to the recording-relative path before
+    # it is written to the playback files, or they 404 on playback. The
+    # extensions are the types bbb-file-upload accepts. The meetingId in the
+    # source URL is dropped on purpose: uploads of the whole meeting family are
+    # flattened into one file-uploads/ directory (the file names are uuids, so
+    # they never collide) - see the archive step.
+    FILE_UPLOAD_URL_REGEX = %r{/bigbluebutton/fileUpload/[A-Za-z0-9-]+/([A-Za-z0-9][A-Za-z0-9-]*\.(?:png|jpe?g|gif|webp|pdf|mp4|mp3))}i.freeze
 
     def self.rewrite_file_upload_urls(text, record_id)
       return text if text.nil?

@@ -249,8 +249,8 @@ class TestEvents < Minitest::Test
     )
   end
 
-  def test_rewrite_file_upload_urls_all_image_types
-    %w[png jpg jpeg gif webp].each do |ext|
+  def test_rewrite_file_upload_urls_all_file_types
+    %w[png jpg jpeg gif webp pdf mp4 mp3].each do |ext|
       url = "/bigbluebutton/fileUpload/m1/abcdef.#{ext}"
       assert_equal(
         "/presentation/r/file-uploads/abcdef.#{ext}",
@@ -269,6 +269,14 @@ class TestEvents < Minitest::Test
                  BigBlueButton::Events.rewrite_file_upload_urls(parent, 'rec'))
     assert_equal('<img src="/presentation/rec/file-uploads/bbb.png">',
                  BigBlueButton::Events.rewrite_file_upload_urls(breakout, 'rec'))
+  end
+
+  def test_rewrite_file_upload_urls_chat_file_link
+    message = '<p><a href="/bigbluebutton/fileUpload/mtg-abc/9f8b7c6d-1234.pdf">notes.pdf</a></p>'
+    assert_equal(
+      '<p><a href="/presentation/rec-123/file-uploads/9f8b7c6d-1234.pdf">notes.pdf</a></p>',
+      BigBlueButton::Events.rewrite_file_upload_urls(message, 'rec-123')
+    )
   end
 
   def test_rewrite_file_upload_urls_multiple_occurrences
