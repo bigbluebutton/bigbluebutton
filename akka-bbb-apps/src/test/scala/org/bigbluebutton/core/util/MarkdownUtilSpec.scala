@@ -33,6 +33,17 @@ class MarkdownUtilSpec extends AnyFlatSpec {
     }
   }
 
+  it should "not render a non-image upload as an image, but keep a link to it" in {
+    // Chat attachments can be pdf/mp4/mp3 now, but those travel in metadata.attachment
+    // and are rendered by the client as a file row; an <img> pointing at them would only
+    // show a broken image, so the image gate stays image-only.
+    List("pdf", "mp4", "mp3").foreach { ext =>
+      val src = s"/bigbluebutton/fileUpload/meeting-abc/0a1b2c3d-4e5f.$ext"
+      assert(!renderWithImages(s"![alt]($src)").contains("<img"), s"'.$ext' must not render as <img>")
+      assert(renderWithImages(s"[notes.$ext]($src)").contains(s"""href="$src""""), s"'.$ext' link must stay")
+    }
+  }
+
   it should "drop a backslash-authority bypass the browser would load cross-origin" in {
     // A browser folds the backslash to a slash, so `/\evil.com/pixel.png` loads
     // from https://evil.com/... . The old "starts with / but not //" check let

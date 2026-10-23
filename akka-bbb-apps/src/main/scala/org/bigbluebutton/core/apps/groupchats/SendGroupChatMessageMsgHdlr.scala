@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsListOfStringOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.checkPermission
@@ -129,8 +129,9 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             }
 
             // The client asks for mentions, the server decides them: never persist either key
-            // as it arrived.
-            val baseMetadata = gcMessageRaw.metadata - "mentionedUserIds" - "mentions"
+            // as it arrived. Same for the attachment: only one describing a real upload of
+            // this meeting is kept.
+            val baseMetadata = sanitizeAttachment(gcMessageRaw.metadata - "mentionedUserIds" - "mentions", liveMeeting)
             val gcMessage = if (mentionedUserIds.nonEmpty) {
               val updatedMetadata = baseMetadata + ("mentionedUserIds" -> mentionedUserIds)
               gcMessageRaw.copy(messageAsHtml = mentionedHtml, metadata = updatedMetadata)
@@ -171,6 +172,21 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
         }
       } else { state }
     }
+  }
+
+  private def sanitizeAttachment(metadata: Map[String, Any], liveMeeting: LiveMeeting): Map[String, Any] = {
+    val allowedMimeTypes = getConfigPropertyValueByPathAsListOfStringOrElse(
+      liveMeeting.clientSettings,
+      "public.fileUpload.allowedMimeTypes",
+      ChatAttachment.DefaultAllowedMimeTypes
+    )
+    val maxFileSizeKb = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.fileUpload.maxFileSizeKb", 5120)
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val sanitized = ChatAttachment.sanitize(metadata, meetingId, allowedMimeTypes, maxFileSizeKb.toLong * 1024)
+    if (metadata.contains(ChatAttachment.MetadataKey) && !sanitized.contains(ChatAttachment.MetadataKey)) {
+      log.warning(s"Removed an invalid chat attachment in meeting $meetingId")
+    }
+    sanitized
   }
 
   private def getAllowSendPluginMessage(pluginInstance: PluginModel, chatMessage: GroupChatMessage, user: UserState): Boolean = {
