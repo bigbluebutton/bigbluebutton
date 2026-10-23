@@ -81,7 +81,11 @@ export const useRoomModeApplier = (): RoomModeApplier => {
   const [setRoomModeMutation] = useMutation(SET_ROOM_MODE);
 
   const lockSettings = meeting?.lockSettings;
-  const usersPolicies = meeting?.usersPolicies;
+  // The static snapshot carries usersPolicies too, without the whiteboard flag:
+  // wait for the subscription's, which has it and is live.
+  const usersPolicies = meeting?.usersPolicies && 'multiUserWhiteboardEnabled' in meeting.usersPolicies
+    ? meeting.usersPolicies
+    : undefined;
   const isBreakout = !!meeting?.isBreakout;
   const ready = !!lockSettings && !!usersPolicies;
 
