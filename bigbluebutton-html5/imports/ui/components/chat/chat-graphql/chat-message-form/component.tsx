@@ -666,7 +666,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       window.dispatchEvent(sentMessageEvent);
     };
 
-    const dispatchSendMessage = (markdown: string, metadata: { mentions: { userId: string; name: string }[] } | null) => {
+    const dispatchSendMessage = (
+      markdown: string,
+      metadata: { mentions: { userId: string; name: string }[] } | null,
+    ) => {
       chatSendMessage({
         variables: {
           chatMessageInMarkdownFormat: markdown,

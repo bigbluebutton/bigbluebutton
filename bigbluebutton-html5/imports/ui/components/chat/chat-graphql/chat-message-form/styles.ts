@@ -10,6 +10,7 @@ import {
   colorGrayLighterSurface,
   colorPrimary,
   colorText,
+  colorWhite,
   colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
