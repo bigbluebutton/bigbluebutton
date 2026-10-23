@@ -1,0 +1,25 @@
+#!/bin/sh
+# Starts bbb-web as bbb-web.service does, as bigbluebutton, once the
+# stack's CA is trusted: bbb-web fetches the default presentation from the
+# stack's nginx over https at every create.
+set -eu
+ca=/etc/bigbluebutton/conform/certs/ca.crt
+if [ -f "$ca" ]; then
+	cp "$ca" /usr/local/share/ca-certificates/bbb-conform-ca.crt
+	update-ca-certificates >/dev/null
+fi
+set -a
+. /etc/default/bbb-web
+set +a
+# On all interfaces, so the host reaches it through the published port, for
+# the auth-hook cases. A packaged server listens on 127.0.0.1 only.
+LISTEN_ADDRESS=0.0.0.0
+export MALLOC_ARENA_MAX=2
+# setpriv keeps root's environment; the converters' font cache goes in HOME.
+export HOME=/home/bigbluebutton USER=bigbluebutton
+cd /usr/share/bbb-web
+exec setpriv --reuid=bigbluebutton --regid=bigbluebutton --init-groups \
+	java -Dgrails.env="$ENV" -Dserver.address="$LISTEN_ADDRESS" -Dserver.port="$LISTEN_PORT" \
+	-Dspring.main.allow-circular-references=true -Xms"$INITIAL_HEAP_SIZE" -Xmx"$MAX_HEAP_SIZE" \
+	-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="$HEAP_DUMP_PATH" \
+	-cp . org.springframework.boot.loader.launch.WarLauncher

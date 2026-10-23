@@ -1,0 +1,93 @@
+# The Tier 1 stack: bbb-web and akka-apps with what they need, built from
+# the debs of the tree under test. make -C env up brings it up; see the
+# README, "Tier 1".
+name: bbb-conform-tier1
+
+x-build: &build
+  context: .
+  dockerfile: images/Dockerfile
+  additional_contexts:
+    debs: ${DEBS_DIR:-./.state/debs}
+    config: ../../../bigbluebutton-config
+    html5config: ../../../bigbluebutton-html5/private/config
+
+# Every service but net joins net's network namespace, so they reach each
+# other on 127.0.0.1, where the packages' defaults expect each other, as on
+# a single-server install.
+x-pod: &pod
+  network_mode: service:net
+  depends_on:
+    net:
+      condition: service_started
+
+services:
+  # Owns the namespace and publishes the ports the runner uses, on the host's
+  # loopback only: the stack's salt is public. Never restarted: the services
+  # in its namespace would lose the published ports.
+  net:
+    image: registry.k8s.io/pause:3.10
+    restart: "no"
+    ports:
+      - 127.0.0.1:8443:8443 # nginx
+      - 127.0.0.1:8090:8090 # bbb-web itself, for the auth hooks
+
+  init:
+    build: {<<: *build, target: init}
+    network_mode: none
+    volumes:
+      - data:/var/bigbluebutton
+
+  redis:
+    <<: *pod
+    image: redis:7
+    command: [redis-server, --save, "", --appendonly, "no"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Its data is on tmpfs: the schema is loaded on every start, never left
+  # over from an earlier build.
+  postgres:
+    <<: *pod
+    build: {<<: *build, target: postgres}
+    command: [postgres, -c, max_connections=300]
+    environment:
+      POSTGRES_PASSWORD: postgres
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  akka-apps:
+    <<: *pod
+    build: {<<: *build, target: akka-apps}
+    volumes:
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+    depends_on:
+      net: {condition: service_started}
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+
+  bbb-web:
+    <<: *pod
+    build: {<<: *build, target: bbb-web}
+    init: true
+    environment:
+      - JAVA_TOOL_OPTIONS # e.g. a coverage agent; unset by default
+    volumes:
+      - data:/var/bigbluebutton
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+    depends_on:
+      net: {condition: service_started}
+      init: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  nginx:
+    <<: *pod
+    build: {<<: *build, target: nginx}
+    volumes:
+      - data:/var/bigbluebutton:ro
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+
+volumes:
+  data:

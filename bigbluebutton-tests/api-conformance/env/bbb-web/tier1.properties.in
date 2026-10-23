@@ -1,0 +1,6 @@
+# /etc/bigbluebutton/bbb-web.properties on the Tier 1 stack: what bbb-install
+# and bbb-conf set on a packaged server, the host and the salt. Everything
+# else keeps the package's value. A suite profile (env/bbb-web/profiles/) is
+# appended below this when one is in force.
+bigbluebutton.web.serverURL=https://localhost:8443
+securitySalt=@SALT@
