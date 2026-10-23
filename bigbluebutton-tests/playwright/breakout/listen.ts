@@ -2,7 +2,7 @@ import { type ConsoleMessage, expect, type Page as PlaywrightPage, type TestInfo
 
 import { connectMicrophone } from '../audio/util';
 import {
-  APOLLO_CLIENT_SETTINGS_MODULE,
+  APOLLO_CLIENT_SETTINGS_OVERRIDE,
   expectLiveKitMembership,
   field,
   getLiveKitMembershipRows,
@@ -54,7 +54,7 @@ interface BreakoutRoomInfo {
 
 export class Listen extends Join {
   async initModAndUser(page: PlaywrightPage, testInfo: TestInfo): Promise<void> {
-    await this.initModPage(page, { testInfo, createModules: APOLLO_CLIENT_SETTINGS_MODULE });
+    await this.initModPage(page, { testInfo, createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE });
     await this.initUserPage(this.context, { testInfo });
   }
 
