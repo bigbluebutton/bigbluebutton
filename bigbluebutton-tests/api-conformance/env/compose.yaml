@@ -91,6 +91,33 @@ services:
       - data:/var/bigbluebutton:ro
       - ./.state/conform:/etc/bigbluebutton/conform:ro
 
+  # The GraphQL side the client, and the suite's presence users, talk to:
+  # Hasura on Postgres, the middleware in front of it (behind nginx's
+  # /graphql), and the actions server its mutations go to.
+  hasura:
+    <<: *pod
+    build: {<<: *build, target: hasura}
+    platform: linux/amd64 # BBB builds the engine for amd64 only
+    init: true
+    depends_on:
+      net: {condition: service_started}
+      postgres: {condition: service_healthy}
+
+  middleware:
+    <<: *pod
+    build: {<<: *build, target: middleware}
+    depends_on:
+      net: {condition: service_started}
+      redis: {condition: service_healthy}
+      hasura: {condition: service_healthy}
+
+  actions:
+    <<: *pod
+    build: {<<: *build, target: actions}
+    depends_on:
+      net: {condition: service_started}
+      redis: {condition: service_healthy}
+
   # The suite's tap, for the bus, redis and fs steps.
   tap:
     <<: *pod

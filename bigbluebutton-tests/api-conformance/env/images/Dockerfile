@@ -92,6 +92,47 @@ COPY --chmod=755 images/postgres/10-bbb-graphql.sh /docker-entrypoint-initdb.d/1
 HEALTHCHECK --interval=2s --timeout=5s --start-period=60s \
   CMD pg_isready -h 127.0.0.1 -U postgres -d bbb_graphql
 
+# Hasura, as bbb-graphql-server@.service runs it: the engine BBB builds
+# (from its fork), with the libraries the package depends on, and BBB's
+# metadata applied at start. netbase, which every server has, gives the
+# engine's HTTP client the tcp protocol (/etc/protocols) for its webhook.
+FROM base AS hasura
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libkrb5-3 libpq5 libnuma1 unixodbc-dev netbase \
+ && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=bind,from=debs,target=/debs unpack 'bbb-graphql-server_*.deb' \
+ && chmod -R 755 /usr/share/bbb-graphql-server \
+ && if ldd /usr/bin/hasura-graphql-engine | grep 'not found'; then exit 1; fi
+COPY --chmod=755 images/hasura/start /usr/local/bin/start-hasura
+CMD ["start-hasura"]
+HEALTHCHECK --interval=2s --timeout=5s --start-period=120s \
+  CMD test -f /tmp/hasura-ready && curl -fsS -o /dev/null http://127.0.0.1:8085/healthz
+
+# The GraphQL middleware, as bbb-graphql-middleware.service runs it.
+FROM base AS middleware
+RUN --mount=type=bind,from=debs,target=/debs unpack 'bbb-graphql-middleware_*.deb'
+COPY graphql/bbb-graphql-middleware.yml /etc/bigbluebutton/bbb-graphql-middleware.yml
+USER bigbluebutton
+WORKDIR /usr/bin
+CMD ["/usr/bin/bbb-graphql-middleware"]
+# Its port opens once its redis subscription is up.
+HEALTHCHECK --interval=2s --timeout=5s --start-period=60s \
+  CMD curl -fsS -o /dev/null http://127.0.0.1:8378/metrics
+
+# The GraphQL actions server, as bbb-graphql-actions.service runs it, on
+# Node 24 as the package requires.
+FROM node:24-bookworm-slim AS node
+FROM base AS actions
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+RUN --mount=type=bind,from=debs,target=/debs unpack 'bbb-graphql-actions_*.deb'
+USER bigbluebutton
+WORKDIR /usr/local/bigbluebutton/bbb-graphql-actions
+ENV NODE_ENV=production
+CMD ["node", "bbb-graphql-actions.js"]
+# Any answer will do: it serves only the actions' POSTs.
+HEALTHCHECK --interval=2s --timeout=5s --start-period=60s \
+  CMD curl -sS -o /dev/null http://127.0.0.1:8093/
+
 # The suite's tap (bbb-conform tap), built from the runner in this tree.
 FROM golang:1.26 AS tap-build
 WORKDIR /src
@@ -109,17 +150,24 @@ CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
   CMD curl -fsS http://127.0.0.1:8099/info | grep -q '"subscribed":true'
 
-# nginx as Ubuntu 24.04 packages it, with the packages' location snippets.
+# nginx as Ubuntu 24.04 packages it, with the packages' nginx files:
+# bbb-web's locations, and the middleware's /graphql location, its cache
+# zone and the Hasura load balancer on 127.0.0.1:8185.
 FROM base AS nginx
 RUN apt-get update \
  && apt-get install -y --no-install-recommends nginx \
  && rm -rf /var/lib/apt/lists/* /etc/nginx/sites-enabled/default
 RUN --mount=type=bind,from=debs,target=/debs \
-    mkdir /tmp/web && UNPACK_TO=/tmp/web unpack 'bbb-web_*.deb' \
+    mkdir /tmp/web /tmp/middleware \
+ && UNPACK_TO=/tmp/web unpack 'bbb-web_*.deb' \
+ && UNPACK_TO=/tmp/middleware unpack 'bbb-graphql-middleware_*.deb' \
  && mkdir -p /usr/share/bigbluebutton/nginx \
- && cp -a /tmp/web/usr/share/bigbluebutton/nginx/. /usr/share/bigbluebutton/nginx/ \
+ && cp -a /tmp/web/usr/share/bigbluebutton/nginx/. /tmp/middleware/usr/share/bigbluebutton/nginx/. \
+      /usr/share/bigbluebutton/nginx/ \
  && ln -s /usr/share/bigbluebutton/nginx/web /usr/share/bigbluebutton/nginx/web.nginx \
- && rm -rf /tmp/web
+ && cp -a /tmp/middleware/etc/nginx/. /etc/nginx/ \
+ && ln -s /etc/nginx/sites-available/hasura-loadbalancer.conf /etc/nginx/sites-enabled/hasura-loadbalancer.conf \
+ && rm -rf /tmp/web /tmp/middleware
 COPY --from=config assets/ /var/www/bigbluebutton-default/assets/
 COPY nginx/bigbluebutton.conf /etc/nginx/sites-enabled/bigbluebutton
 CMD ["nginx", "-g", "daemon off;"]
