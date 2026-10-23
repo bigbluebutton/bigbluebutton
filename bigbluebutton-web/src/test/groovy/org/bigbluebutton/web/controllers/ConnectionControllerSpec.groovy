@@ -8,9 +8,9 @@ import spock.lang.Specification
 
 /**
  * Covers checkFileUploadAuthorization, the auth_request endpoint that decides
- * whether an uploaded image may be served. Authorization is by meeting family:
+ * whether an uploaded file may be served. Authorization is by meeting family:
  * the meetingId in the requested path and the caller's session must share the
- * same root meeting (a breakout's root is its parent), so an image is reachable
+ * same root meeting (a breakout's root is its parent), so a file is reachable
  * from the main room and from any of its breakouts, but never across unrelated
  * meetings.
  */
@@ -49,9 +49,55 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
     return m
   }
 
-  private void requestUri(String meetingIdInPath) {
+  private void requestUri(String meetingIdInPath, String ext = 'png') {
     request.addHeader('x-original-uri',
-      "/bigbluebutton/fileUpload/${meetingIdInPath}/deadbeef-0000.png?sessionToken=tok123")
+      "/bigbluebutton/fileUpload/${meetingIdInPath}/deadbeef-0000.${ext}?sessionToken=tok123")
+  }
+
+  def "every file type the upload service accepts is authorized in its own meeting (200)"() {
+    given:
+    withValidSession(MAIN_MEETING_ID)
+    meetingService.getMeeting(MAIN_MEETING_ID) >> meetingStub(false, MAIN_MEETING_ID, null)
+
+    when:
+    requestUri(MAIN_MEETING_ID, ext)
+    controller.checkFileUploadAuthorization()
+
+    then:
+    response.status == 200
+
+    where:
+    ext << ['png', 'jpg', 'jpeg', 'gif', 'webp', 'pdf', 'mp4', 'mp3']
+  }
+
+  def "a non-image file from another meeting family is forbidden (403)"() {
+    given:
+    withValidSession('main-a')
+    meetingService.getMeeting('main-a') >> meetingStub(false, 'main-a', null)
+    meetingService.getMeeting('main-b') >> meetingStub(false, 'main-b', null)
+
+    when:
+    requestUri('main-b', 'mp4')
+    controller.checkFileUploadAuthorization()
+
+    then:
+    response.status == 403
+  }
+
+  def "an extension the upload service never produces is forbidden (403)"() {
+    given:
+    withValidSession(MAIN_MEETING_ID)
+
+    when:
+    requestUri(MAIN_MEETING_ID, ext)
+    controller.checkFileUploadAuthorization()
+
+    then:
+    response.status == 403
+    0 * meetingService.getMeeting(_)
+
+    where:
+    ext << ['svg', 'html', 'mp4.html', 'PDF']
   }
 
   def "valid token and same-meeting path is authorized (200)"() {

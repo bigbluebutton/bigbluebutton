@@ -34,8 +34,10 @@ class ConnectionController {
   MeetingService meetingService
   ParamsProcessorUtil paramsProcessorUtil
 
+  // The extensions are the types bbb-file-upload verifies by magic bytes; keep
+  // them in step with the serving locations in the bbb-file-upload nginx template.
   private static final Pattern FILE_UPLOAD_URI_PATTERN = Pattern.compile(
-    '/bigbluebutton/fileUpload/([A-Za-z0-9\\-]+)/([a-f0-9\\-]+\\.(png|jpe?g|gif|webp))'
+    '/bigbluebutton/fileUpload/([A-Za-z0-9\\-]+)/([a-f0-9\\-]+\\.(png|jpe?g|gif|webp|pdf|mp4|mp3))'
   )
 
   def checkAuthorization = {
