@@ -798,7 +798,7 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
 Same settings as the room mode panel. Nothing here is applied to the room yet.
 
-1. Create a new session and join it as a moderator, then pick "Class"
+1. Create a new session with `record=true` and join it as a moderator, then pick "Class"
 
     - Under "Settings summary", "You can change" should list: "Guest policy" on the session's own policy ("Always accept" with the server defaults), "Join muted" on, "Send public messages" on, "Presentation Policy" on "Allow participants to present with moderator approval" and "Whiteboard for everyone" on
     - "Applied automatically" should list "See other participants' webcam", "Locks also apply to people who join later" and "Recording never starts on its own"

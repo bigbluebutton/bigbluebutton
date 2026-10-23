@@ -49,6 +49,10 @@ const AS_CREATED = {
   multiUserWhiteboardEnabled: false,
 };
 
+// A room that may record: only there does the summary say a recording never
+// starts on its own.
+export const RECORDING_ROOM_CREATE_PARAMETER = `${PRE_FLIGHT_CREATE_PARAMETER}&record=true`;
+
 const ROOM_SETTINGS_QUERY = queryDocument([
   field('meeting', [
     field('roomMode'),
@@ -145,9 +149,33 @@ export class RoomModeSummary extends RoomModePanel {
     await this.modPage.hasElement(e.preFlightRoomModeAutomaticWebcams, 'should list cameras visible to everyone');
     await this.modPage.hasElement(e.preFlightRoomModeAutomaticLockOnJoin, 'should list locks reaching later arrivals');
     await this.modPage.hasElement(e.preFlightRoomModeAutomaticRecording, 'should say recording never starts by itself');
+    await expectSelectValue(
+      this.modPage,
+      e.preFlightRoomModeGuestPolicy,
+      AS_CREATED.guestPolicy,
+      "should start the class waiting room from the room's guest policy",
+    );
 
     await this.modPage.waitAndClick(e.preFlightRoomModeMeeting);
     await expectEditables(this.modPage, MEETING_PRESET, 'should start from the meeting preset');
+    await expectSelectValue(
+      this.modPage,
+      e.preFlightRoomModeGuestPolicy,
+      AS_CREATED.guestPolicy,
+      "should start the meeting waiting room from the room's guest policy",
+    );
+    await this.modPage.hasElement(
+      e.preFlightRoomModeAutomaticWebcams,
+      'should list cameras visible to everyone in a meeting',
+    );
+    await this.modPage.hasElement(
+      e.preFlightRoomModeAutomaticLockOnJoin,
+      'should list locks reaching later arrivals in a meeting',
+    );
+    await this.modPage.hasElement(
+      e.preFlightRoomModeAutomaticRecording,
+      'should say recording never starts by itself in a meeting',
+    );
   }
 
   async keepsEditsWhileModeStaysPicked() {
@@ -195,6 +223,18 @@ export class RoomModeSummary extends RoomModePanel {
       guestPolicy,
       "should start the waiting room from the room's guest policy",
     );
+    if (guestPolicy !== 'ALWAYS_ACCEPT_AUTH') {
+      await this.modPage.waitAndClick(e.preFlightRoomModeGuestPolicy);
+      await this.modPage.hasElement(
+        `${e.selectMenuItem}[data-value="ASK_MODERATOR"]`,
+        'should open the guest policies',
+      );
+      await expect(
+        this.modPage.page.locator(`${e.selectMenuItem}[data-value="ALWAYS_ACCEPT_AUTH"]`),
+        'should not offer a policy the list leaves out in a room without it',
+      ).toHaveCount(0);
+      await this.modPage.page.keyboard.press('Escape');
+    }
   }
 
   // A policy the list does not offer is shown while it is the room's value,
@@ -211,10 +251,12 @@ export class RoomModeSummary extends RoomModePanel {
   }
 
   // A room created to record on its own starts recording as the moderator
-  // enters, whatever the mode: the summary must not say otherwise.
-  async leavesRecordingOutWhenAutoStarted(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+  // enters, whatever the mode, and a room that cannot record has nothing to
+  // say about it: the summary leaves the line out of both. The second room is
+  // not set to record on its own either, so only record decides.
+  async leavesRecordingOut(page: PlaywrightPage, record: boolean, options: InitExtraPageOptionsProps = {}) {
     await this.initModPageWithPanel(page, {
-      createParameter: `${PRE_FLIGHT_CREATE_PARAMETER}&record=true&autoStartRecording=true`,
+      createParameter: `${PRE_FLIGHT_CREATE_PARAMETER}&record=${record}&autoStartRecording=${record}`,
       ...options,
     });
     await hasPanel(this.modPage);
@@ -226,7 +268,7 @@ export class RoomModeSummary extends RoomModePanel {
     );
     expect(
       await this.modPage.checkElement(e.preFlightRoomModeAutomaticRecording),
-      'should not say recording never starts by itself in a room that records on its own',
+      'should not say recording never starts by itself in this room',
     ).toBeFalsy();
   }
 
@@ -254,6 +296,13 @@ export class RoomModeSummary extends RoomModePanel {
     await this.initModPageWithPanel(page, options);
     await this.modPage.waitAndClick(e.preFlightRoomModeTab);
     await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+
+    // A wide control must not push the summary past the screen's edge.
+    const box = await this.modPage.page.locator(e.preFlightRoomModeSummary).boundingBox();
+    if (!box) throw new Error('the summary has no layout box');
+    expect(box.x + box.width, 'should keep the summary within the phone screen').toBeLessThanOrEqual(
+      PHONE_VIEWPORT.width,
+    );
 
     const whiteboard = this.modPage.page.locator(e.preFlightRoomModeWhiteboard);
     await whiteboard.scrollIntoViewIfNeeded();

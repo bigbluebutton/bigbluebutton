@@ -1,10 +1,10 @@
 import { test } from '../core/setup/fixtures';
-import { RoomModeSummary } from './roomModeSummary';
+import { RECORDING_ROOM_CREATE_PARAMETER, RoomModeSummary } from './roomModeSummary';
 
 test.describe.parallel('Room mode summary', { tag: '@ci' }, () => {
   test('Shows what each room mode applies', async ({ browser, context, page }, testInfo) => {
     const summary = new RoomModeSummary(browser, context);
-    await summary.initModPageWithPanel(page, { testInfo });
+    await summary.initModPageWithPanel(page, { createParameter: RECORDING_ROOM_CREATE_PARAMETER, testInfo });
     await summary.showsWhatEachModeApplies();
   });
 
@@ -37,7 +37,12 @@ test.describe.parallel('Room mode summary', { tag: '@ci' }, () => {
 
   test('Leaves recording out for a room that records on its own', async ({ browser, context, page }, testInfo) => {
     const summary = new RoomModeSummary(browser, context);
-    await summary.leavesRecordingOutWhenAutoStarted(page, { testInfo });
+    await summary.leavesRecordingOut(page, true, { testInfo });
+  });
+
+  test('Leaves recording out for a room that cannot record', async ({ browser, context, page }, testInfo) => {
+    const summary = new RoomModeSummary(browser, context);
+    await summary.leavesRecordingOut(page, false, { testInfo });
   });
 
   test('Applies nothing to the room yet', async ({ browser, context, page }, testInfo) => {
