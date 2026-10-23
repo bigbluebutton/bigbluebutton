@@ -9,6 +9,8 @@ import {
   createWasmProcessorStream,
   destroyWasmProcessor,
   getProviderForcedMicrophoneConstraints,
+  getWasmProcessorDefaultIntensity,
+  isVoiceIsolationSupported,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
@@ -20,7 +22,9 @@ const DEFAULT_INPUT_DEVICE_ID = '';
 const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
-const AUDIO_PROCESSING_MODES = ['advanced', 'standard', 'original'];
+const AUDIO_PROCESSING_MODES = ['voiceIsolation', 'advanced', 'standard', 'original'];
+const MIN_WASM_PROCESSING_INTENSITY = 0;
+const MAX_WASM_PROCESSING_INTENSITY = 100;
 
 const DISABLED_MICROPHONE_CONSTRAINTS = {
   autoGainControl: false,
@@ -209,15 +213,19 @@ const getConstraintsForMode = (mode) => {
 
 // Validates a mode and resolves it against actual browser support.
 // Unknown values and unsupported 'advanced' both land on 'standard'.
+// 'voiceIsolation' on a provider that cannot do it lands on 'advanced'.
 const resolveAudioProcessingMode = (mode) => {
   const validMode = AUDIO_PROCESSING_MODES.includes(mode) ? mode : 'standard';
 
-  if (validMode === 'advanced' && !isAdvancedProcessingSupported()) return 'standard';
+  if ((validMode === 'advanced' || validMode === 'voiceIsolation') && !isAdvancedProcessingSupported()) return 'standard';
+
+  // A provider without an intensity knob can still run 'advanced'
+  if (validMode === 'voiceIsolation' && !isVoiceIsolationSupported()) return 'advanced';
 
   return validMode;
 };
 
-// Resolves defaultSettings.audio.processingMode (advanced/standard/original)
+// Resolves defaultSettings.audio.processingMode (voiceIsolation/advanced/standard/original)
 // against actual browser support. Only used as a last resort, when the user
 // has made no choice of their own.
 const getDefaultAudioProcessingMode = () => resolveAudioProcessingMode(
@@ -249,6 +257,26 @@ const getEffectiveAudioProcessingMode = () => {
   return getDefaultAudioProcessingMode();
 };
 
+// media.audio.audioWasmProcessing.intensity is admin-only config: there is no
+// user-facing control for it, so it is read fresh per processor rather than
+// tracked in Settings. Unset or unparseable falls back to whatever the
+// provider ships. Clamped because the value is free-form YAML and
+// _mapi_set_parameter takes whatever it is handed.
+const getWasmProcessingIntensity = () => {
+  if (getEffectiveAudioProcessingMode() === 'voiceIsolation') {
+    return MAX_WASM_PROCESSING_INTENSITY;
+  }
+
+  const parsed = Number(getWasmProcessingSettings().intensity);
+
+  if (!Number.isFinite(parsed)) return getWasmProcessorDefaultIntensity();
+
+  return Math.min(
+    MAX_WASM_PROCESSING_INTENSITY,
+    Math.max(MIN_WASM_PROCESSING_INTENSITY, parsed),
+  );
+};
+
 const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
   const Settings = getSettingsSingletonInstance();
@@ -277,7 +305,7 @@ const getAudioConstraints = (constraintFields = {}) => {
 };
 
 // check if wasm processing is enabled
-const isWasmProcessingEnabled = () => getEffectiveAudioProcessingMode() === 'advanced';
+const isWasmProcessingEnabled = () => (getEffectiveAudioProcessingMode() === 'advanced' || getEffectiveAudioProcessingMode() === 'voiceIsolation') && isWasmProcessingConfigEnabled();
 
 const loadWasmProcessor = async () => {
   if (isAdvancedProcessingSupported()) {
@@ -470,7 +498,9 @@ const doGUM = async (
     // device IDs that don't correspond to any real device.
     const realDeviceId = stream.getAudioTracks()[0]?.getSettings()?.deviceId;
 
-    const wasmProcessorStream = await createWasmProcessorStream(stream);
+    const configuredIntensity = getWasmProcessingSettings().intensity;
+    const intensity = getWasmProcessingIntensity();
+    const wasmProcessorStream = await createWasmProcessorStream(stream, { intensity });
 
     // Register the per-stream mapping from the processed tracks to the real
     // device ID for later resolution
@@ -490,6 +520,11 @@ const doGUM = async (
         originalTrackDeviceId: realDeviceId ?? 'N/A',
         processedTrackDeviceId: wasmProcessorStream.getAudioTracks()[0]?.getSettings()?.deviceId ?? 'N/A',
         registeredRealDeviceId: realDeviceId ?? 'N/A',
+        // `configured` undefined means the key never reached the browser:
+        // client settings are snapshotted into the meeting at creation, so an
+        // edited settings.yml needs a bbb-web restart AND a new meeting.
+        intensity,
+        configuredIntensity: configuredIntensity ?? 'unset (using provider default)',
       },
     }, 'Audio: createWasmProcessorStream succeeded');
 
@@ -543,9 +578,11 @@ export {
   destroyWasmProcessor,
   stereoUnsupported,
   isAdvancedProcessingSupported,
+  isVoiceIsolationSupported,
   isWasmProcessorSupported,
   isWasmProcessingConfigEnabled,
   isWasmProcessingEnabled,
   getConstraintsForMode,
   getEffectiveAudioProcessingMode,
+  getWasmProcessingIntensity,
 };

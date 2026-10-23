@@ -1,6 +1,6 @@
 import { IntlShape, MessageDescriptor } from 'react-intl';
 
-export type AudioFilterMode = 'advanced' | 'standard' | 'original';
+export type AudioFilterMode = 'advanced' | 'voiceIsolation' | 'standard' | 'original';
 
 export type ConstraintValue = boolean | string | { exact?: boolean; ideal?: boolean };
 
@@ -25,6 +25,7 @@ export interface AudioFilterOption {
   value: AudioFilterMode;
   titleMsg: MessageDescriptor;
   descMsg: MessageDescriptor;
+  idealForMsg: MessageDescriptor;
   disabled: boolean;
   disabledReasonMsg?: MessageDescriptor;
   dataTest: string;

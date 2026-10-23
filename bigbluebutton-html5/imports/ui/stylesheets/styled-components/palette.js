@@ -30,6 +30,7 @@ const colorUserYou = 'var(--color-user-you, #19237C)';
 const colorUserViewer = 'var(--color-user-viewer, #2296C9)';
 
 const colorPrimary = 'var(--color-primary, #0F70D7)';
+const colorStandout = 'var(--color-standout, #A16207)';
 const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
@@ -208,6 +209,7 @@ export {
   colorBlueAux,
   colorBlueDark,
   colorPrimary,
+  colorStandout,
   colorDanger,
   colorDangerDark,
   colorSuccess,
