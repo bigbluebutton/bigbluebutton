@@ -51,6 +51,8 @@ securitySalt=UsanRxRk938d02cTWfAqSM9Cvin7bnzsREfqFfzpf2U
 
 This override will ensure that `bbb-web` uses the above values regardless of changes the packaging scripts make to the upgrade.
 
+Settings can also be given as `-D` system properties or environment variables. The order, highest first, is: `-D` > environment > `/etc/bigbluebutton/bbb-web.properties` > `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`. An environment variable uses the key in upper case with `.` as `_` (for example `BIGBLUEBUTTON_WEB_SERVERURL` or `SECURITYSALT`), or the exact key name.
+
 For `bbb-apps-akka` and `bbb-fsesl-akka`, the settings file are formatted as shown below. For example, the file `bbb-apps-akka.conf` overrides the settings for `/usr/share/bbb-apps-akka/conf/application.conf`.
 
 ```
