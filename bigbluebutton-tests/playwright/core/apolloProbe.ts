@@ -86,8 +86,50 @@ export const runQuery = async (page: PlaywrightPage, queryAst: object): Promise<
 // bare-string values travel alongside it in `variables`.
 export interface MutationRequest {
   document: object;
-  variables: Record<string, string>;
+  variables: Record<string, unknown>;
 }
+
+// The same, for actions whose arguments are not all strings (Int / Boolean / Float
+// variables, e.g. captionSubmitText). Each argument names its GraphQL scalar type.
+export interface TypedVariable {
+  type: 'String' | 'Int' | 'Boolean' | 'Float';
+  value: string | number | boolean;
+}
+
+export const typedVarMutation = (fieldName: string, args: Record<string, TypedVariable>): MutationRequest => {
+  const names = Object.keys(args);
+  return {
+    document: {
+      kind: 'Document',
+      definitions: [
+        {
+          kind: 'OperationDefinition',
+          operation: 'mutation',
+          variableDefinitions: names.map((name) => ({
+            kind: 'VariableDefinition',
+            variable: { kind: 'Variable', name: { kind: 'Name', value: name } },
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: args[name].type } } },
+          })),
+          selectionSet: {
+            kind: 'SelectionSet',
+            selections: [
+              {
+                kind: 'Field',
+                name: { kind: 'Name', value: fieldName },
+                arguments: names.map((name) => ({
+                  kind: 'Argument',
+                  name: { kind: 'Name', value: name },
+                  value: { kind: 'Variable', name: { kind: 'Name', value: name } },
+                })),
+              },
+            ],
+          },
+        },
+      ],
+    },
+    variables: Object.fromEntries(names.map((name) => [name, args[name].value])),
+  };
+};
 
 export const stringVarMutation = (fieldName: string, args: Record<string, string>): MutationRequest => {
   const names = Object.keys(args);

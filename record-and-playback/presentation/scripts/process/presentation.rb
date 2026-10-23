@@ -196,8 +196,9 @@ unless FileTest.directory?(target_dir)
     end
 
     BigBlueButton.logger.info('Generating closed captions')
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+    ret = BigBlueButton.generate_webvtt(raw_archive_dir, target_dir, @doc, props)
     raise 'Generating closed caption files failed' if ret != 0
+    BigBlueButton.add_uploaded_captions(File.join(props['captions_dir'], meeting_id), target_dir)
     captions = JSON.parse(File.read("#{target_dir}/captions.json"))
 
     unless presentation_text.empty?

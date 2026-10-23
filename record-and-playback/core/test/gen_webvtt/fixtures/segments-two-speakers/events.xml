@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="fixture" bbb_version="4.1.0">
+  <meeting id="fixture" externalId="fixture" name="fixture" breakout="false"/>
+  <metadata isBreakout="false" meetingId="fixture" meetingName="fixture"/>
+  <event timestamp="1000" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Alice</name>
+    <role>MODERATOR</role>
+    <userId>w_alice</userId>
+    <externalUserId>alice-ext</externalUserId>
+  </event>
+  <event timestamp="1000" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <status>true</status>
+    <userId>system</userId>
+  </event>
+  <event timestamp="1100" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Bob</name>
+    <role>VIEWER</role>
+    <userId>w_bob</userId>
+    <externalUserId>bob-ext</externalUserId>
+  </event>
+  <!-- Alice and Bob speak at the same time: their interim results interleave -->
+  <event timestamp="2000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_alice-1</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>the</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="2200" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-1</captionId>
+    <userId>w_bob</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>glue</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="2400" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_alice-1</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>the birch canoe</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="2600" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-1</captionId>
+    <userId>w_bob</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>glue the sheet</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="3000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_alice-1</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>the birch canoe slid on the smooth planks</text>
+    <isFinal>true</isFinal>
+  </event>
+  <event timestamp="3300" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-1</captionId>
+    <userId>w_bob</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>glue the sheet to the dark blue background</text>
+    <isFinal>true</isFinal>
+  </event>
+  <!-- a second utterance of Alice; browsers prefix follow-up results with a space -->
+  <event timestamp="5000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_alice-2</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text> it is easy to tell</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="5600" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_alice-2</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text> it is easy to tell the depth of a well</text>
+    <isFinal>true</isFinal>
+  </event>
+  <!-- a typed caption (plugin / caption writer) in the same language -->
+  <event timestamp="7000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_alice-typed-1</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>TYPED</captionType>
+    <text>typed caption one</text>
+    <isFinal>true</isFinal>
+  </event>
+  <!-- another language: its own track -->
+  <event timestamp="7500" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-pt-1</captionId>
+    <userId>w_bob</userId>
+    <locale>pt-BR</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>o rato roeu a roupa do rei de roma</text>
+    <isFinal>true</isFinal>
+  </event>
+  <event timestamp="9000" module="PARTICIPANT" eventname="EndAndKickAllEvent">
+    <reason>MEETING_ENDED</reason>
+  </event>
+</recording>

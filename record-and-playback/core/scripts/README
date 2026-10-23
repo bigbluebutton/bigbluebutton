@@ -78,13 +78,18 @@ playback_host: 127.0.0.1
 
 8. Assuming the recording passed the sanity check, it's time to process the recording.
 
-   Set the path of the captions generation script by changing the line
+   Set the path of the captions generation script. The recording scripts run it through
+   BigBlueButton.generate_webvtt (core/lib/recordandplayback/generators/captions.rb), which
+   also passes the speaker names, anonymized as configured. Change the line there
 
-   ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+   exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', out_dir, '--speaker-names', speaker_names.path)
 
    to
 
-   ret = BigBlueButton.exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
+   exec_ret('/home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts/utils/gen_webvtt', '-i', raw_archive_dir, '-o', out_dir, '--speaker-names', speaker_names.path)
+
+   A custom recording format should call BigBlueButton.generate_webvtt too: run directly,
+   utils/gen_webvtt writes captions without speaker names.
 
    Now, you can run the presentation processing script:
 

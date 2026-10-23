@@ -23,6 +23,8 @@ require 'bundler/setup'
 
 require File.expand_path('../../../core/lib/boot', __dir__)
 
+require 'fileutils'
+require 'json'
 require 'optparse'
 require 'recordandplayback'
 
@@ -75,11 +77,9 @@ begin
   playback_captions_path = File.join(publish_dir, recording_id, 'captions.json')
   playback_captions = JSON.parse(File.read(playback_captions_path))
 rescue Errno::ENOENT
-  logger.info("Playback doesn't have a captions.json - old playback format version?")
-  logger.info('Triggering recording reprocessing.')
-  archive_done_file = ''
-  File.write(archive_done_file, 'Reprocessing for captions')
-  # Treat this as success, the captions will be integrated during reprocessing
+  # Only playbacks of a very old format have none. A rebuild generates a current
+  # playback, and it includes the uploaded captions (BigBlueButton.add_uploaded_captions).
+  logger.warn("Playback doesn't have a captions.json (old playback format): rebuild the recording to show the captions")
   exit(0)
 end
 
@@ -109,10 +109,11 @@ captions.each do |caption|
               else kind
               end
 
-  FileUtils.cp(
-    File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt"),
-    File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt")
-  )
+  src = File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt")
+  # Older recordings stored their live captions as caption_<lang>.vtt
+  legacy_src = File.join(captions_dir, recording_id, "caption_#{lang}.vtt")
+  src = legacy_src if kind == 'captions' && !File.exist?(src) && File.exist?(legacy_src)
+  FileUtils.cp(src, File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt"))
 
   # Remove any existing matching tracks from the playback captions list...
   playback_captions.reject! do |playback_caption|
@@ -133,5 +134,5 @@ end
 
 logger.info('Saving updated playback captions list')
 # Sort the list by label so the selection menu looks nice
-playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
+playback_captions.sort_by! { |caption| caption['localeName'].to_s }
 File.write(playback_captions_path, JSON.pretty_generate(playback_captions))
