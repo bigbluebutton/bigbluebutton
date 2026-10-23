@@ -76,6 +76,8 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
         // BBBToggle puts aria-labelledby and aria-describedby on the switch's
         // span, not its input, so the helper reads as part of the name: pointed
         // at the ids it renders until the library fixes it.
+        // From 0.9.0 BBBToggle takes slotProps.input instead of inputProps:
+        // data-test and aria-disabled move there, and the two pointers go.
         inputProps={{
           'data-test': setting.dataTest,
           'aria-labelledby': `${id}-label`,
