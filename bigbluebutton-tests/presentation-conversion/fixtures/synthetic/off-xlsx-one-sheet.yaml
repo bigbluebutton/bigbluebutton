@@ -1,0 +1,18 @@
+id: off-xlsx-one-sheet
+title: "openpyxl sheet: 6x4 table with a bold header row, A4 portrait"
+tier: synthetic
+file: off-xlsx-one-sheet.xlsx
+issues: []
+catalog: ["Office conversion"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 0.7071
+profiles: [defaults]
+notes: >-
+  Header row plus five data rows (strings, integers, decimals). openpyxl writes
+  [Content_Types].xml last and stamps the current time; the package is rewritten sorted with fixed
+  dates. LibreOffice 25.8: one A4 page, no <image or <filter.

@@ -1,0 +1,10 @@
+id: rt-pdf-oversized-31mb-insert
+title: 31 MB PDF uploaded by URL with insertDocument
+tier: runtime
+generate: { kind: padded-pdf, bytes: 31000000, seed: 4, label: 31 MB via insertDocument }
+upload: { method: insertDocument-url }
+issues: [25129, 25210]
+catalog: [Upload size limit]
+pages: 0
+expect: "rejected:FILE_TOO_LARGE"
+checks: [outcome]

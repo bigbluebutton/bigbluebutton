@@ -1,0 +1,91 @@
+                                                                                                                       Energy and Climate Courses at Stanford
+
+
+                                                                                           Class
+                                               Cross-Listed           Quarte                        General
+Course Number            Course Title                         Units              GER     format/siz           Level    Prereqs      Professor                               Description                              Web Link   Comments
+                                                 Classes                r                            Area
+                                                                                             e
+                                                                                                                                                   An overall energy assessment, projections, and
+                                                                                                                                                   technologies. How to assess good and bad potential
+                                                                                                                                                   impacts of leading renewable energy candidates: benefit
+                                                                                                                                                   versus impact ratio using quantitative cradle-to-grave
+                                                                                                   Science/ Frosh                                  approach. Technologies suitable for near-term application
+                   Renewable Energy for a                                                                                                          in developing economic systems. Governmental policies,
+ CHEMENG 35N                                        --         3       Aut         --              Enginee preferenc      --        Swartz, J.                                                                          --
+                     Sustainable World                                                                                                             governmental versus private sector investments, raw
+                                                                                                     ring   e, Soph
+                                                                                                                                                   materials supply issues, and impact of cultural influences on
+                                                                                                                                                   technology choices and speed of implementation. Classes
+                                                                                                                                                   are ~20 in size. 1 hour lectures three times a week. Covers
+                                                                                                                                                   basics about renewable energies from an engineering
+                                                                                                                                                   assessment perspective.
+                                                                                                                                                   How environmental policy is formulated in the US. How and
+                                                                                                                                                   what type of scientific research is incorporated into
+                                                                                                                                                   decisions. How to determine acceptable risk, the public's
+                                                                                                                                                   right to know of chemical hazards, waste disposal and clean
+                                                                                                                                                   manufacturing, brownfield development, and new source
+                                                                                                                                                   review regulations. the proper use of science and
+                                                                                                                                                   engineering including media presentation and
+                                                                                  DB-               Environ  Soph                                  misrepresentation, public scientific and technical literacy,
+                  Environmental Regulation                                                Lecture/                                Robertson, C.;   and emotional reactions. Alternative models to formulation
+ CHEMENG 60Q                                        --         3       Aut     EngrAppSc            mental preferenc      --                                                                                            --
+                         and Policy                                                      Discussion                                 Libicki, S.    of environmental policy. Political and economic forces, and
+                                                                                   i                 Policy    e
+                                                                                                                                                   stakeholder discussions. Classes are ~20 in size and is co-
+                                                                                                                                                   taught by Shari Libicki, a partner at Environ, an
+                                                                                                                                                   environmental consultancy. The focus is how science can
+                                                                                                                                                   inform policy. Class session occurs once a week and is 2
+                                                                                                                                                   hours, 50 minutes long; the format is part lecture part group
+                                                                                                                                                   work. There is a heavy emphasis on group presentation
+                                                                                                                                                   and a project at the end of the term. There are no midterms
+                                                                                                                                                   or a final. The average workload is 5-10 hours a week.
+                                                                                                                                                   Survey of urban- through global-scale air pollution. Topics:
+                                                                                                                                                   the evolution of the Earth's atmosphere, indoor air pollution,
+                                                                                                                                                   urban smog formation, history of discovery of atmosphere
+                   Air Pollution: From Urban                                                                                                       chemicals, visibility, acid rain, the greenhouse effect,
+     CEE 64                                     CEE 263D       3       Win                                                         Jacobson, M     historical climate, global warming, stratospheric ozone
+                   Smog to Global Change
+                                                                                                                                                   reduction, Antarctic ozone destruction, air pollution transport
+                                                                                                                                                   across political boundaries, the effects of air pollution on
+                                                                                                                                                   ultraviolet radiation, and impacts of energy systems on the
+                                                                                                                                                   atmosphere. GER: DB-NatSci
+                                                                                                                                                   Managing the life cycle of buildings from the owner,
+                                                                                                                                                   designer, and contractor perspectives emphasizing
+                                                                                                                                                   sustainability goals; methods to define, communicate,
+                                                                                                                                                   coordinate, and manage multidisciplinary project objectives
+                    Managing Sustainable                                                                                                           including scope, quality, life cycle cost and value, schedule,
+    CEE 100                                                    4       Spr                                                          Fischer, M     safety, energy, and social concerns; roles, responsibilities,
+                      Building Projects
+                                                                                                                                                   and risks for project participants; virtual design and
+                                                                                                                                                   construction methods for product, organization, and process
+                                                                                                                                                   modeling; lifecycle assessment methods; individual writing
+                                                                                                                                                   assignment related to a real world project. GER:DB-
+                                                                                                                                                   EngrAppSci
+                                                                                                                                                   Goals related to sustainable sites, water efficiency, energy
+                                                                                                                                                   and atmosphere, materials and resources, indoor
+                    Goals and Methods of                                                                                                           environmental quality, and economic and social
+    CEE 115         Sustainable Building         CEE 215       4       Aut                                                         Haymaker, J     sustainability. Methods to integrate these goals and
+                          Projects                                                                                                                 enhance the economic, ecological, and equitable value of
+                                                                                                                                                   building projects. Industry and academic rating systems,
+                                                                                                                                                   project case studies, guest lecturers, and group project.
+                                                                                                                                                   Preference to Architectural Design and CEE majors; others
+                                                                                                                                                   by consent of instructor. An architectural design studio
+                                                                                                                                                   exploring the Stanford Green Dorm project. Initial sessions
+    CEE 136           Green Architecture         CEE 236       4                                                                                   develop a working definition of sustainable design and
+                                                                                                                                                   strategies for greening the built environment in preparation
+                                                                                                                                                   for design studio work. Enrollment limited to 14.
+                                                                                                                                                   Prerequisites: 31 or 31Q, and 110 and 130. GER:DB-
+                                                                                                                                                   EngrAppSci
+                                                                                                                                                   How the built environment influences the way people
+                                                                                                                                                   interact with each other in communities. Case studies. How
+                     Creating Sustainable                                                                                                          tradeoffs among economic, ecological, and social benefits
+   CEE 142A                                     CEE 242A       3       Win                                                        Christensen, S
+                        Development                                                                                                                can be managed. Frameworks for managing stakeholder
+                                                                                                                                                   processes including negotiating multiparty processes.
+                                                                                                                                                   Group project. Enrollment limited to 50.
+
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                                         Send additions and corrections to leighj@stanford.edu

@@ -1,0 +1,18 @@
+id: off-docx-lorem-a4
+title: "python-docx A4 page: a heading and three paragraphs of lorem ipsum"
+tier: synthetic
+file: off-docx-lorem-a4.docx
+issues: [21954, 25432]
+catalog: ["docx text rasterized", "Office pre-check"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 0.7071
+profiles: [defaults, office-precheck]
+notes: >-
+  Text-only portrait page. LibreOffice embeds TrueType subsets, so the slide must stay vector: a
+  raster slide here is #21954. office-precheck must still convert it (#25432). LibreOffice 25.8:
+  one A4 page, Carlito and Caladea subsets, 42 <path, 887 <use, no <image.

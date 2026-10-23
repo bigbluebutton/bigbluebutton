@@ -1,0 +1,17 @@
+id: img-webp-lossless
+title: "480x320 lossless WebP marker"
+tier: synthetic
+file: img-webp-lossless.webp
+issues: []
+catalog: ["File-type detection"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: true
+aspect: 1.5
+profiles: [defaults]
+notes: >-
+  webp is in bbb-web's image list. Measured locally: ImageMagick 6.9.12-98 (noble, libwebp 1.3.2)
+  turns it into a 480x320 one-image PDF (1 <image, no <filter).

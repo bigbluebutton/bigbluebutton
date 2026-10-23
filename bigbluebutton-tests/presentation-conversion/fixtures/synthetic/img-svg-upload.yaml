@@ -1,0 +1,19 @@
+id: img-svg-upload
+title: "Small hand-written SVG: marker bands, a circle, a triangle and text"
+tier: synthetic
+file: img-svg-upload.svg
+issues: []
+catalog: ["File-type detection"]
+upload:
+  method: create
+pages: 0
+expect: dropped
+kind: any
+marker: true
+aspect: 1.5
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  Under 1 KB. svg is in bbb-web's image list, so it goes through ImageMagick (librsvg or MSVG,
+  whichever delegate the server has). Measured with 6.9.12-98 (noble): a 480x320 page whose image
+  carries an /SMask (2 <filter, 1 <mask in the SVG).

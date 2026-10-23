@@ -1,0 +1,18 @@
+id: pdf-truncated-1000b
+title: "First 1000 bytes of pdf-base14-text-3p"
+tier: synthetic
+file: pdf-truncated-1000b.pdf
+issues: [4218, 9867]
+catalog: ["Empty or malformed file"]
+upload:
+  method: create
+pages: 0
+expect: "rejected:PAGE_COUNT_FAILED"
+kind: any
+marker: false
+aspect: auto
+checks: [outcome]
+profiles: [defaults]
+notes: >-
+  Cut inside the first page's objects: no xref table, no trailer. poppler 24.02 pdfinfo fails with
+  'Couldn't find trailer dictionary'.

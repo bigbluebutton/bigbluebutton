@@ -1,0 +1,11 @@
+Colour - Bad
+
+ Using a font colour that does not contrast with
+  the background colour is hard to read
+ Using colour for decoration is distracting and
+  annoying.
+ Using a different colour for each point is
+  unnecessary
+  – Using a different colour for secondary points is also
+    unnecessary
+ Trying to be creative can also be bad

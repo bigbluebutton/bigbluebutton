@@ -1,0 +1,9 @@
+id: repo-one-big-page
+title: Three letter pages, one of them heavy, from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/OneBigPagePresentation.pdf
+issues: [8555]
+catalog: [Oversized single page]
+pages: 3
+expect: converted
+kind: any

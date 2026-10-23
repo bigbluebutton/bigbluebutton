@@ -1,0 +1,11 @@
+id: repo-sample-with-mask
+title: Ordinary soft-masked image that converts fine as a vector slide
+tier: repo
+file: ../../../playwright/core/media/sample-with-mask.pdf
+issues: [25513]
+catalog: [Scanned / masked PDFs]
+pages: 1
+expect: converted
+kind: { defaults: vector, low-thresholds: raster }
+profiles: [defaults, low-thresholds]
+goldenProfiles: [defaults, low-thresholds]
