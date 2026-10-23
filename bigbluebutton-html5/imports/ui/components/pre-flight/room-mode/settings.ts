@@ -42,7 +42,7 @@ export interface RoomModePreset {
 
 const intlMessages = defineMessages({
   guestPolicy: {
-    id: 'app.lock-viewers.guestPolicy.title',
+    id: 'app.guest-policy.title',
     description: 'Guest policy title',
   },
   askModerator: {

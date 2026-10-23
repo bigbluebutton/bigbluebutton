@@ -800,7 +800,7 @@ Same settings as the room mode panel. Nothing here is applied to the room yet.
 
 1. Create a new session and join it as a moderator, then pick "Class"
 
-    - Under "Settings summary", "You can change" should list: "Guest Policy" on the session's own policy ("Always accept" with the server defaults), "Join muted" on, "Send public messages" on, "Presentation Policy" on "Allow participants to present with moderator approval" and "Whiteboard for everyone" on
+    - Under "Settings summary", "You can change" should list: "Guest policy" on the session's own policy ("Always accept" with the server defaults), "Join muted" on, "Send public messages" on, "Presentation Policy" on "Allow participants to present with moderator approval" and "Whiteboard for everyone" on
     - "Applied automatically" should list "See other participants' webcam", "Locks also apply to people who join later" and "Recording never starts on its own"
 
 2. Pick "Meeting"
@@ -821,7 +821,7 @@ Same settings as the room mode panel. Nothing here is applied to the room yet.
 
 6. Create a session with `guestPolicy=ASK_MODERATOR` and repeat step 1
 
-    - "Guest Policy" should start on "Ask moderator"
+    - "Guest policy" should start on "Ask moderator"
 
 7. Create a session with `record=true&autoStartRecording=true` and repeat step 1
 
