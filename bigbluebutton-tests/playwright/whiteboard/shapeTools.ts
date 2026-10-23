@@ -38,6 +38,8 @@ export class ShapeTools extends DrawShape {
       mask: [this.modPage.page.locator(e.presentationTitle)],
       maxDiffPixels: 1000,
     });
+    // the idle viewer keeps the chat input's on-join focus or not depending on timing; drop it
+    await this.userPage.page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     await expect(this.userPage.page).toHaveScreenshot('viewer-pan.png', {
       mask: [this.userPage.page.locator(e.presentationTitle)],
       maxDiffPixels: 1000,
