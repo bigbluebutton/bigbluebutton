@@ -31,6 +31,7 @@ export interface Message {
     messageSequence: number;
     message: string | null;
     messageAsHtml: string | null;
+    messageMetadata: string | null;
     chatEmphasizedText: boolean;
     user: {
       name: string;

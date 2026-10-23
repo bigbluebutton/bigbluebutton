@@ -62,10 +62,15 @@ const Message = styled.div`
   line-height: 1rlh;
   flex-grow: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: ${smPaddingX};
 `;
 
 const HtmlContent = styled.div<ChatMentionStylesProps>`
   color: ${colorText};
+  flex: 1;
+  min-width: 0;
 
   & img {
     max-width: 100%;

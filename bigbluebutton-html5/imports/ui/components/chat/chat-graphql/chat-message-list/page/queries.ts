@@ -22,6 +22,7 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         messageSequence
         message
         messageAsHtml
+        messageMetadata
         user {
           name
           color
@@ -80,6 +81,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         messageSequence
         message
         messageAsHtml
+        messageMetadata
         user {
           name
           color
