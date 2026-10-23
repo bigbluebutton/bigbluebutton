@@ -23,7 +23,7 @@ interface EditableValues {
   whiteboard: boolean;
 }
 
-// The Mode values (Phase 1) matrix, as the summary must show it before any edit.
+// What each mode sets, as the summary must show it before any edit.
 const CLASS_PRESET: EditableValues = {
   joinMuted: true,
   publicChat: true,
