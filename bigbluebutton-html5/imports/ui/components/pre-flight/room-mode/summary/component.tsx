@@ -133,7 +133,7 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
           <EditIcon aria-hidden />
           {intl.formatMessage(intlMessages.editable)}
         </Styled.GroupHeading>
-        <Styled.Controls>
+        <Styled.Controls $locked={isJoining}>
           {EDITABLE_SETTINGS.map((setting) => {
             const value = values[setting.id];
             // A setting the mode leaves as created, and whose value the room

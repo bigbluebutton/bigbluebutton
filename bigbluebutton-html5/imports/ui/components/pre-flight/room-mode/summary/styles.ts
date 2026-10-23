@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   colorBorder,
   colorGrayLabel,
@@ -52,10 +52,20 @@ const GroupHeading = styled.h4`
   }
 `;
 
-const Controls = styled.div`
+const Controls = styled.div<{ $locked: boolean }>`
   display: flex;
   flex-direction: column;
   gap: ${smPaddingX};
+
+  /* Locked while the room starts, dimmed as the mode cards are. */
+  ${({ $locked }) => $locked && css`
+    opacity: 0.6;
+
+    &,
+    & * {
+      cursor: default;
+    }
+  `}
 `;
 
 const AutomaticList = styled.ul`
