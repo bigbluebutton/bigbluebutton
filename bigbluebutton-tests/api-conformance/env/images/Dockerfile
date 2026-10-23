@@ -92,6 +92,23 @@ COPY --chmod=755 images/postgres/10-bbb-graphql.sh /docker-entrypoint-initdb.d/1
 HEALTHCHECK --interval=2s --timeout=5s --start-period=60s \
   CMD pg_isready -h 127.0.0.1 -U postgres -d bbb_graphql
 
+# The suite's tap (bbb-conform tap), built from the runner in this tree.
+FROM golang:1.26 AS tap-build
+WORKDIR /src
+COPY --from=runner go.mod go.sum ./
+RUN go mod download
+COPY --from=runner . .
+RUN CGO_ENABLED=0 go build -o /bbb-conform ./cmd/bbb-conform
+
+# Follows the bus and reads redis and the data directory for the bus, redis
+# and fs steps. It only reads.
+FROM base AS tap
+COPY --from=tap-build /bbb-conform /usr/local/bin/bbb-conform
+USER bigbluebutton
+CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099"]
+HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
+  CMD curl -fsS http://127.0.0.1:8099/info | grep -q '"subscribed":true'
+
 # nginx as Ubuntu 24.04 packages it, with the packages' location snippets.
 FROM base AS nginx
 RUN apt-get update \

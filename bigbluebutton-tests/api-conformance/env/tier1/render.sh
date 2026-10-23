@@ -36,5 +36,6 @@ cat > "$out/conform.env" <<END
 export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
 export BBB_WEB_DIRECT_URL=http://localhost:8090
+export BBB_TAP_URL=http://localhost:8099
 export SSL_CERT_FILE=$out/certs/bundle.pem
 END

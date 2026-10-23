@@ -10,6 +10,7 @@ x-build: &build
     debs: ${DEBS_DIR:-./.state/debs}
     config: ../../../bigbluebutton-config
     html5config: ../../../bigbluebutton-html5/private/config
+    runner: ../runner
 
 # Every service but net joins net's network namespace, so they reach each
 # other on 127.0.0.1, where the packages' defaults expect each other, as on
@@ -30,6 +31,7 @@ services:
     ports:
       - 127.0.0.1:8443:8443 # nginx
       - 127.0.0.1:8090:8090 # bbb-web itself, for the auth hooks
+      - 127.0.0.1:8099:8099 # the tap
 
   init:
     build: {<<: *build, target: init}
@@ -88,6 +90,17 @@ services:
     volumes:
       - data:/var/bigbluebutton:ro
       - ./.state/conform:/etc/bigbluebutton/conform:ro
+
+  # The suite's tap, for the bus, redis and fs steps.
+  tap:
+    <<: *pod
+    build: {<<: *build, target: tap}
+    volumes:
+      - data:/var/bigbluebutton:ro
+    depends_on:
+      net: {condition: service_started}
+      init: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
 
 volumes:
   data:

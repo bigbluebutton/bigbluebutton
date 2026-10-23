@@ -5,7 +5,7 @@ STATE := $(CURDIR)/.state
 export DEBS_DIR ?= $(STATE)/debs
 COMPOSE := docker compose -f $(CURDIR)/compose.yaml
 # The long-running services; up waits for them to be healthy.
-SERVICES := redis postgres akka-apps bbb-web nginx
+SERVICES := redis postgres akka-apps bbb-web nginx tap
 
 .PHONY: debs images render up down reset logs ps env
 
