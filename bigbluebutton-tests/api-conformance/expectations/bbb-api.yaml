@@ -1,4 +1,4 @@
-# Expected failures of bbb-api: what the Go port doesn't do yet (PLAN.md §3).
+# Expected failures of bbb-api: what the Go port doesn't do yet.
 # This file is the bbb-api gap backlog. Globs stand for whole endpoints; when
 # an endpoint lands, replace its glob by entries for the cases that still
 # fail. Issue links are added as the gap tickets are filed.

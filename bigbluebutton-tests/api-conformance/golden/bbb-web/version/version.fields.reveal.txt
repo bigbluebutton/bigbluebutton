@@ -11,6 +11,6 @@ body xml
 /response/version "2.0"
 /response/apiVersion "2.0"
 /response/bbbVersion "<version>"
-/response/html5PluginSdkVersion "1.0.0-beta.3"
+/response/html5PluginSdkVersion "<version>"
 /response/graphqlWebsocketUrl "${wsBaseUrl}/graphql"
 /response/graphqlApiUrl "${baseUrl}/api/rest"

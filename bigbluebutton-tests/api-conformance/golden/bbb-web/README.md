@@ -7,9 +7,9 @@ server answers"). `bbb-conform run --golden` compares against them.
 ## Provenance
 
 These recordings are **provisional**. They were recorded from a developer
-server, not the hermetic Tier 1 stack (T02) CI will use, so they only pin the
-mechanism, not Tier 1's exact configuration. They are re-recorded from Tier 1
-once it exists, and the re-recording's diff is reviewed like any other.
+server, not the hermetic stack CI will use, so they only pin the mechanism,
+not that stack's exact configuration. They are re-recorded from it once it
+exists, and the re-recording's diff is reviewed like any other.
 
 - **Server:** the `bbb40` dev container (`imdt/bigbluebutton:4.0.x-develop`),
   serving `bbb40.test`.

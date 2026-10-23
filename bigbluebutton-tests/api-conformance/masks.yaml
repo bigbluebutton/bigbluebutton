@@ -27,6 +27,12 @@ masks:
     as: regex
     regex: '^[0-9][0-9A-Za-z.+-]*$'
     replace: '<version>'
+  # The plugin SDK version the version endpoint returns changes with the
+  # SDK (bigbluebutton.properties), in XML and JSON answers alike.
+  - field: html5PluginSdkVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
 unordered: []
 scope: []
 drop: []

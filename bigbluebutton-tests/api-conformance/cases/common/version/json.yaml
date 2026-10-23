@@ -4,9 +4,12 @@ title: Content-Type application/json gets a JSON version response; a charset doe
 endpoint: version
 class: contract
 tags: [ci]
+# bbb-web compares the Content-Type exactly, so a charset gets XML. That is a
+# quirk, not documented behaviour (compat): bbb-api answers the same unless
+# it is decided otherwise.
 variants:
   - {id: json, vars: {ct: application/json, fmt: json}}
-  - {id: charset, vars: {ct: "application/json; charset=utf-8", fmt: xml}}
+  - {id: charset, class: compat, vars: {ct: "application/json; charset=utf-8", fmt: xml}}
 steps:
   - call: ""
     headers: {Content-Type: "${ct}"}
