@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { styled as materialStyled } from '@mui/material/styles';
@@ -524,7 +524,10 @@ const ButtonRow = styled.div`
   gap: 1rem;
 `;
 
-const ButtonWrapper = ButtonWrappers.FullWidthFlexItem;
+// The row's buttons share its width equally.
+const ActionButton = styled(BBButton)`
+  flex: 1;
+`;
 
 const FooterSeparator = styled(BaseSeparator)`
   margin-top: auto;
@@ -556,7 +559,7 @@ export default {
   MaterialSwitch,
   ControlsContainer,
   ButtonRow,
-  ButtonWrapper,
+  ActionButton,
   FooterSeparator,
   TimerPresetsRow,
   TimerPresetButton,
