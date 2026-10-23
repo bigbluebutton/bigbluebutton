@@ -412,6 +412,9 @@ export const elements = {
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',
 
+  // Plugins
+  e2ePluginMainContent: 'div[data-test="container-e2ePluginMainContent"]',
+
   // Notifications
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
