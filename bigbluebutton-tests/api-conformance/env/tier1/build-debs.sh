@@ -7,25 +7,23 @@
 # in a package; it needs no sudo; and its output belongs to you.
 #
 #   build-debs.sh [package...]   default: all five
+#   build-debs.sh --key           print a key for what the five build from:
+#                                 the same key, the same debs (CI caches them)
 #
 # Environment: DEBS_DIR (default env/.state/debs), CACHE_DIR (default
 # env/.state/cache), BUILD_IMAGE (default: the one .gitlab-ci.yml names).
 set -eu
 
 ALL="bbb-web bbb-apps-akka bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions"
+# What the five build from (build/package-names.inc.sh), plus build/ itself
+# and the release file the version comes from.
+SOURCES="build bigbluebutton-config/bigbluebutton-release bigbluebutton-web bbb-common-web
+	bbb-common-message akka-bbb-apps bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions"
 here=$(cd "$(dirname "$0")" && pwd)
 env_dir=$(dirname "$here")
 repo=$(git -C "$here" rev-parse --show-toplevel)
 DEBS_DIR=${DEBS_DIR:-$env_dir/.state/debs}
 CACHE_DIR=${CACHE_DIR:-$env_dir/.state/cache}
-
-packages=${*:-$ALL}
-for p in $packages; do
-	case " $ALL " in
-	*" $p "*) ;;
-	*) echo "build-debs: unknown package $p (known: $ALL)" >&2; exit 2 ;;
-	esac
-done
 
 if [ -z "${BUILD_IMAGE:-}" ]; then
 	BUILD_IMAGE=$(sed -n '/^default:/,/^[^ ]/s/^  image: *//p' "$repo/.gitlab-ci.yml" | head -n 1)
@@ -35,6 +33,25 @@ fi
 # The snapshot: HEAD plus uncommitted changes to tracked files.
 rev=$(git -C "$repo" stash create)
 rev=${rev:-$(git -C "$repo" rev-parse HEAD)}
+
+if [ "${1:-}" = --key ]; then
+	{
+		for s in $SOURCES; do
+			git -C "$repo" rev-parse "$rev:$s"
+		done
+		git -C "$repo" hash-object "$here/build-debs.sh"
+		echo "$BUILD_IMAGE"
+	} | sha256sum | cut -c1-16
+	exit 0
+fi
+
+packages=${*:-$ALL}
+for p in $packages; do
+	case " $ALL " in
+	*" $p "*) ;;
+	*) echo "build-debs: unknown package $p (known: $ALL)" >&2; exit 2 ;;
+	esac
+done
 commit_date=$(git -C "$repo" log -n 1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S HEAD)
 # Named after the tree, which the same source always has; a stash commit's
 # hash changes with every run.
@@ -44,11 +61,8 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 src="$work/src"
 mkdir -p "$src" "$DEBS_DIR"
-# Only what the five packages build from (build/package-names.inc.sh),
-# plus build/ itself and the release file the version comes from.
-git -C "$repo" archive "$rev" build bigbluebutton-config/bigbluebutton-release \
-	bigbluebutton-web bbb-common-web bbb-common-message akka-bbb-apps \
-	bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions | tar -x -C "$src"
+# shellcheck disable=SC2086 # SOURCES is a list
+git -C "$repo" archive "$rev" $SOURCES | tar -x -C "$src"
 
 for d in gradle grails ivy2 m2 sbt cache go npm; do
 	mkdir -p "$CACHE_DIR/$d"
