@@ -6,14 +6,16 @@
 #   certs/               the CA and nginx's certificate (certs.sh)
 #   conform.env          the variables the runner reads
 #
-#   render.sh [profile]  the profile is a name in env/bbb-web/profiles/
+#   render.sh [profile]  a name in env/bbb-web/profiles/, or default; without
+#                        one, the profile profile.sh last put in force
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
 env_dir=$(dirname "$here")
 out=$env_dir/.state/conform
 . "$here/tier1.env"
 
-profile=${1:-}
+profile=${1:-$(cat "$env_dir/.state/profile" 2>/dev/null || true)}
+[ "$profile" != default ] || profile=
 mkdir -p "$out"
 "$here/certs.sh" "$out/certs"
 
@@ -37,5 +39,6 @@ export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
 export BBB_WEB_DIRECT_URL=http://localhost:8090
 export BBB_TAP_URL=http://localhost:8099
+export BBB_PROFILE_CMD=$here/profile.sh
 export SSL_CERT_FILE=$out/certs/bundle.pem
 END

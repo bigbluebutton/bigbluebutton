@@ -9,7 +9,7 @@ export LIBREOFFICE_IMAGE := $(shell sed -n 's/^FROM //p' $(CURDIR)/../../../bbb-
 # The long-running services; up waits for them to be healthy.
 SERVICES := redis postgres hasura akka-apps bbb-web middleware actions nginx tap
 
-.PHONY: debs images render up down reset logs ps env
+.PHONY: debs images render up down reset logs ps env profile
 
 # Build the five debs the stack runs, from a snapshot of the tree.
 # PKGS=bbb-web rebuilds just that one.
@@ -32,8 +32,11 @@ up: render
 down:
 	$(COMPOSE) down
 
-# Start again from nothing: no meetings, an empty data directory.
-reset: render
+# Start again from nothing: no meetings, an empty data directory, no
+# profile in force.
+reset:
+	rm -f $(STATE)/profile
+	$(TIER1)/render.sh
 	$(COMPOSE) down --volumes
 	$(COMPOSE) up -d --build --wait $(SERVICES)
 
@@ -42,6 +45,11 @@ logs:
 
 ps:
 	$(COMPOSE) ps --all
+
+# Switch bbb-web to a profile in bbb-web/profiles/ (or default), or print
+# the one in force: make profile NAME=reveal-version, make profile.
+profile:
+	@$(TIER1)/profile.sh $(or $(NAME),status)
 
 # The variables the runner reads, for eval.
 env:
