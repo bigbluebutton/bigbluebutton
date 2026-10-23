@@ -689,6 +689,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       muteAudioOutputWhenAway: false,
       screenshare: {
         showButtonForNonPresenters: false,
+        enableOnMobile: false,
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
