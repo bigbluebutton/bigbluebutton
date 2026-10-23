@@ -6,19 +6,18 @@ server answers"). `bbb-conform run --golden` compares against them.
 
 ## Provenance
 
-These recordings are **provisional**. They were recorded from a developer
-server, not the hermetic stack CI will use, so they only pin the mechanism,
-not that stack's exact configuration. They are re-recorded from it once it
-exists, and the re-recording's diff is reviewed like any other.
+These recordings come from the Tier 1 stack (`make -C env up`; see the
+main README, "Tier 1"), the server CI runs the suite against, so a run
+there compares like with like.
 
-- **Server:** the `bbb40` dev container (`imdt/bigbluebutton:4.0.x-develop`),
-  serving `bbb40.test`.
-- **bbb-web:** built from this branch and deployed to that container, so the
-  recordings match the merged tree (`bbb-common-web` 0.0.5-SNAPSHOT).
-- **Settings:** the repository defaults, except where a case names a profile
-  (`env/bbb-web/profiles/`). The salt is the repository default and is never
-  recorded.
-- **Recorded:** 2026-10-22.
+- **Server:** Tier 1, with bbb-web, akka-apps and the GraphQL side built
+  from this tree's debs (`make -C env debs`).
+- **Settings:** Tier 1's: a packaged server's, with the host, a test salt
+  and a TURN server set as bbb-install sets them, except where a case names
+  a profile (`env/bbb-web/profiles/`). The salt is never recorded.
+- **Recorded:** 2026-10-23, from a reset stack, two passes per case with no
+  unstable field. A developer server (the bbb40 container, bbb-web from the
+  same tree) recorded the same files before.
 
 ## Reviewing
 
