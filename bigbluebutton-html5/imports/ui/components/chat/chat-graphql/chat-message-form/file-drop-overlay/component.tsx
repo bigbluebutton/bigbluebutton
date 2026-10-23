@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import { fileTypeLabel, formatFileSize } from '../attachments/service';
+import { fileTypeLabel, formatFileSize } from '../../service';
 
 const intlMessages = defineMessages({
   title: {

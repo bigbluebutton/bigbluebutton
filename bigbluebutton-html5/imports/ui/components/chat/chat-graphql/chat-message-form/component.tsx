@@ -50,7 +50,6 @@ import FileDropOverlay from './file-drop-overlay/component';
 import {
   StagedFile,
   attachmentMarkdown,
-  formatFileSize,
   isImageFile,
   maxAttachmentMarkdownLength,
 } from './attachments/service';
@@ -61,6 +60,7 @@ import {
   remapDismissedIndexes,
   syncPickedMentions,
   PickedMention,
+  formatFileSize,
 } from '../service';
 import { MentionUser } from '../chat-mention-picker/queries';
 import { ChatEvents } from '/imports/ui/core/enums/chat';

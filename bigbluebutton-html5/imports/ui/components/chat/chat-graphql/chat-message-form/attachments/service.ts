@@ -1,4 +1,3 @@
-import { IntlShape } from 'react-intl';
 import { UploadedFile } from '/imports/ui/services/file-upload';
 
 export interface StagedFile {
@@ -8,31 +7,7 @@ export interface StagedFile {
   previewUrl: string | null;
 }
 
-const BYTES_PER_KB = 1024;
-const BYTES_PER_MB = 1024 * 1024;
-
-// The short name users know each allowed type by. A type missing here falls
-// back to its mime subtype, so an admin-added type still gets a readable label.
-const TYPE_LABELS: Record<string, string> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpeg',
-  'image/gif': 'gif',
-  'image/webp': 'webp',
-  'application/pdf': 'pdf',
-  'video/mp4': 'mp4',
-  'audio/mpeg': 'mp3',
-};
-
-export const fileTypeLabel = (mime: string): string => TYPE_LABELS[mime] ?? mime.split('/').pop() ?? mime;
-
 export const isImageFile = (file: File): boolean => file.type.startsWith('image/');
-
-export const formatFileSize = (intl: IntlShape, bytes: number): string => {
-  if (bytes >= BYTES_PER_MB) {
-    return intl.formatNumber(bytes / BYTES_PER_MB, { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
-  }
-  return intl.formatNumber(Math.max(1, Math.ceil(bytes / BYTES_PER_KB)), { style: 'unit', unit: 'kilobyte' });
-};
 
 const escapeLinkText = (text: string): string => text.replace(/[\\[\]]/g, '\\$&');
 
@@ -56,9 +31,7 @@ export const maxAttachmentMarkdownLength = (file: File, meetingId: string): numb
 };
 
 export default {
-  fileTypeLabel,
   isImageFile,
-  formatFileSize,
   attachmentMarkdown,
   maxAttachmentMarkdownLength,
 };

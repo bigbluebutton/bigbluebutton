@@ -390,8 +390,8 @@ export class ChatImagePaste extends MultiUsers {
     await this.modPage.hasText(e.chatAttachmentName, IMAGE_FIXTURE, 'should stage the dropped file');
   }
 
-  // A file that is not an image travels as a link to it, next to the
-  // attachment metadata. Only runs where the meeting allows such a type.
+  // A file that is not an image is drawn as a file row with its name. Only
+  // runs where the meeting allows such a type.
   async sendNonImageFile() {
     const { imagePasteEnabled } = this.modPage.settings || {};
     if (!imagePasteEnabled) return;
@@ -402,7 +402,7 @@ export class ChatImagePaste extends MultiUsers {
     await this.modPage.hasText(e.chatAttachmentMeta, /pdf/, 'should show the size and type of the staged pdf');
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.wasRemoved(e.chatAttachments, 'should clear the staged pdf after sending');
-    await this.userPage.hasText(e.chatUserMessageLink, 'sample.pdf', 'should deliver a link to the pdf');
+    await this.userPage.hasText(e.chatAttachmentFileName, 'sample.pdf', 'should deliver the pdf as a file row');
   }
 
   // A dropped connection mid-upload must not cost the user their image: the

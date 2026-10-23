@@ -4,11 +4,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import Tooltip from '@mui/material/Tooltip';
 import Styled from './styles';
-import {
-  StagedFile,
-  fileTypeLabel,
-  formatFileSize,
-} from './service';
+import { StagedFile } from './service';
+import { fileTypeLabel, formatFileSize } from '../../service';
 
 // Past this many files the rest collapse into a "+N" counter; each one shows
 // again as the visible ones are removed.
