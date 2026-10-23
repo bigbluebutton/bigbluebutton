@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	osexec "os/exec"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -70,6 +71,9 @@ type Runner struct {
 	PingEvery time.Duration
 	// Tap is the target's tap, for bus, fs and redis steps; nil without one.
 	Tap *tap.Client
+	// tapDown is why the tap didn't answer before the run, so its cases
+	// don't each wait for it.
+	tapDown error
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -211,6 +215,14 @@ const profileTimeout = 15 * time.Minute
 // Results keep the order of cases.
 func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *report.Run {
 	run := &report.Run{Target: r.Target.Name, Started: time.Now()}
+	r.tapDown = nil
+	if r.Tap != nil && slices.ContainsFunc(cases, usesTap) {
+		pctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		if _, err := r.Tap.Info(pctx); err != nil {
+			r.tapDown = fmt.Errorf("the tap at %s didn't answer before the run: %w", r.Target.TapURL, err)
+		}
+		cancel()
+	}
 	results := make([]*report.CaseResult, len(cases))
 	uids := make([]string, len(cases))
 	var parallelIdx, serialIdx []int
@@ -372,6 +384,11 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 			res.Status, res.Reason = report.Error, r.Redactor.Redact(err.Error())
 			return res
 		}
+	}
+
+	if r.tapDown != nil && usesTap(c) {
+		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.tapDown.Error())
+		return res
 	}
 
 	x := &exec{r: r, c: c, uid: uid, captured: map[string]string{}, session: client.NewSession(r.Transport), users: map[string]*presence.User{}}

@@ -187,6 +187,7 @@ CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
 | Option | Default |
 |---|---|
 | `--listen ADDR` | `127.0.0.1:8099`. |
+| `--hosts a,b` | None: host names the runner reaches it by, such as a compose service name. It always answers requests sent to an IP address or `localhost`. |
 | `--redis URL` | `redis://127.0.0.1:6379`. `--redis-password-env NAME` names the variable that holds the password. |
 | `--data-dir DIR` | `/var/bigbluebutton`. `""` serves no files. |
 | `--watch a,b` | `recording/status,learning-dashboard`: directories under the data directory that are watched for files that come and go. |
@@ -199,7 +200,8 @@ CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
   files. It listens on 127.0.0.1 unless told otherwise. To reach it from
   another host, listen on a private interface or use an SSH tunnel
   (`ssh -L 8099:127.0.0.1:8099 server`). Never expose it on a public
-  interface.
+  interface. It answers only requests addressed to an IP address,
+  `localhost` or one of its `--hosts`; any other host name gets HTTP 421.
 - **What it keeps:**
   - every message on its channels, indexed by name and meeting;
   - every file created under the watched directories, even one deleted at
@@ -215,14 +217,21 @@ CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
     passes by not seeing something then ERRORs instead;
   - a watched directory that is removed is a gap too. The tap looks for it
     every second and watches it again once it is back, as it does for a
-    directory that doesn't exist yet. A directory under a watched one that
-    it can't watch is a gap, and `/info` lists it as a `watchError`.
-- **Files** are read from the data directory, never outside it, up to 1 MiB
-  each. Watching them needs Linux (inotify); elsewhere the tap sees only
-  files that still exist.
+    directory that doesn't exist yet;
+  - a directory it can't watch (no permission, or the system's inotify
+    watch limit reached) is a gap, and `/info` lists it as a `watchError`.
+    It tries a directory asked for with `--watch` again every second. An
+    `fs` step that looks there and rests on not finding a file ERRORs
+    meanwhile, since a file that came and went would be missed.
+- **Files** are read from the data directory, never outside it: up to 1 MiB
+  of each, and up to 100 files and 16 MiB in all per query. Watching them
+  needs Linux (inotify); elsewhere the tap sees only files that still
+  exist.
 
 `GET /info` on the tap shows the channels it follows, whether it is
-subscribed, its redis connection and how many directories it watches.
+subscribed, its redis connection, the directories it watches and why it
+can't watch any others. Before a run, the runner checks that the tap
+answers; if it doesn't, the cases that use it ERROR at once.
 
 ## Checking cases
 
@@ -702,7 +711,9 @@ These steps check what a call did outside its answer, through the target's
 - **Errors:**
   - When the tap may have missed something during the window (it lost redis
     or file events), a step whose outcome rests on not seeing something
-    ERRORs.
+    ERRORs. So does an `fs` step like that whose path is under a directory
+    the tap was asked to watch but can't. Elsewhere the tap doesn't watch,
+    so only the files there now count.
   - So does a step whose window the tap no longer holds (raise `--max-mb`),
     or whose tap was restarted during the case.
 - **Paths** are relative to the data directory and can't contain `..`.

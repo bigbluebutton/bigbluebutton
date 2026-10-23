@@ -6,10 +6,12 @@ import (
 	"bytes"
 	"errors"
 	"io/fs"
+	"maps"
 	"os"
 	"path"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -25,7 +27,7 @@ const watchMask = syscall.IN_CREATE | syscall.IN_MOVED_TO | syscall.IN_DELETE | 
 // or any more, is looked for again.
 var retryMissing = time.Second
 
-// maxSkipped is how many directories it couldn't watch Skipped lists.
+// maxSkipped is how many directories it can't watch Skipped lists.
 const maxSkipped = 10
 
 // Watcher reports the files created and deleted under some directories,
@@ -38,18 +40,19 @@ type Watcher struct {
 	onEvent func(path, op string)
 	onGap   func(why string)
 
-	mu   sync.Mutex
-	wds  map[int32]string // watch descriptor -> directory, relative to root
-	tops map[string]bool  // the directories asked for
-	skip []string         // directories it couldn't watch, and why
-	done chan struct{}
-	wg   sync.WaitGroup
+	mu     sync.Mutex
+	wds    map[int32]string  // watch descriptor -> directory, relative to root
+	tops   map[string]error  // the directories asked for: nil once watched, else why not
+	failed map[string]string // directories it can't watch, and why
+	done   chan struct{}
+	wg     sync.WaitGroup
 }
 
 // Watch watches dirs, relative to root, and everything under them.
 // onEvent gets each file created or deleted, with its path relative to
-// root; onGap is told when events were lost. A directory that doesn't
-// exist yet is watched once it does.
+// root; onGap is told when events were lost, and when a directory can't
+// be watched. A directory that doesn't exist yet, or can't be watched
+// yet, is watched once it can be.
 func Watch(root string, dirs []string, onEvent func(path, op string), onGap func(why string)) (*Watcher, error) {
 	fd, err := syscall.InotifyInit1(syscall.IN_CLOEXEC | syscall.IN_NONBLOCK)
 	if err != nil {
@@ -58,11 +61,14 @@ func Watch(root string, dirs []string, onEvent func(path, op string), onGap func
 	// Nonblocking, so reads go through the runtime's poller and Close
 	// ends them.
 	w := &Watcher{root: root, fd: fd, f: os.NewFile(uintptr(fd), "inotify"), onEvent: onEvent, onGap: onGap,
-		wds: map[int32]string{}, tops: map[string]bool{}, done: make(chan struct{})}
+		wds: map[int32]string{}, tops: map[string]error{}, failed: map[string]string{}, done: make(chan struct{})}
 	for _, d := range dirs {
 		d = path.Clean(filepath.ToSlash(d))
-		w.tops[d] = true
-		if err := w.addTree(d, false); err != nil {
+		err := w.addTree(d, false)
+		w.mu.Lock()
+		w.tops[d] = err
+		w.mu.Unlock()
+		if err != nil {
 			w.wg.Add(1)
 			go w.retry(d, false)
 		}
@@ -83,12 +89,71 @@ func (w *Watcher) Watching() []string {
 	return out
 }
 
-// Skipped says which directories under those asked for it couldn't
-// watch (the first few), and why.
+// Tops lists the directories asked for that are watched now.
+func (w *Watcher) Tops() []string {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	var out []string
+	for d, err := range w.tops {
+		if err == nil {
+			out = append(out, d)
+		}
+	}
+	slices.Sort(out)
+	return out
+}
+
+// Skipped says which directories it can't watch (the first few), and
+// why.
 func (w *Watcher) Skipped() []string {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	return slices.Clone(w.skip)
+	var out []string
+	for _, why := range w.failed {
+		out = append(out, why)
+	}
+	slices.Sort(out)
+	return out[:min(len(out), maxSkipped)]
+}
+
+// Covers says whether the files that come and go where pattern, a glob
+// relative to root, can match are seen: pattern is under a directory
+// asked for that is watched, or will be once it exists. When pattern is
+// under one but may match where a directory can't be watched, why says
+// so; it is "" for a pattern under none of them.
+func (w *Watcher) Covers(pattern string) (ok bool, why string) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	under := false
+	for top := range w.tops {
+		under = under || underDir(pattern, top)
+	}
+	if !under {
+		return false, ""
+	}
+	for _, dir := range slices.Sorted(maps.Keys(w.failed)) {
+		if mayMatchUnder(pattern, dir) {
+			return false, w.failed[dir]
+		}
+	}
+	return true, ""
+}
+
+// mayMatchUnder says whether glob can match a path under dir.
+func mayMatchUnder(glob, dir string) bool {
+	if dir == "." {
+		return true
+	}
+	gs, ds := strings.Split(glob, "/"), strings.Split(dir, "/")
+	if len(gs) <= len(ds) {
+		return false
+	}
+	for i, d := range ds {
+		if ok, _ := path.Match(gs[i], d); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // Close stops watching.
@@ -106,32 +171,32 @@ func (w *Watcher) Close() error {
 // addTree watches dir and every directory under it. With report, the
 // files already in them are reported as created: they appeared before
 // the watch did. It fails only if dir itself can't be watched; a
-// directory under it that can't be is reported as a gap and skipped.
+// directory under it that can't be is skipped. Both are gaps, unless
+// the directory doesn't exist.
 func (w *Watcher) addTree(dir string, report bool) error {
 	top := filepath.Join(w.root, dir)
 	return filepath.WalkDir(top, func(p string, d fs.DirEntry, err error) error {
 		rel, _ := filepath.Rel(w.root, p)
 		rel = filepath.ToSlash(rel)
-		if err == nil && d.IsDir() {
+		switch {
+		case err == nil && d.IsDir():
 			var wd int
 			if wd, err = syscall.InotifyAddWatch(w.fd, p, watchMask|syscall.IN_ONLYDIR); err == nil {
 				w.mu.Lock()
 				w.wds[int32(wd)] = rel
+				delete(w.failed, rel)
 				w.mu.Unlock()
 				return nil
 			}
+		case err == nil && p == top:
+			err = syscall.ENOTDIR
 		}
 		switch {
-		case err != nil && p == top:
-			return err
 		case err != nil:
-			why := "can't watch " + rel + ": " + err.Error()
-			w.mu.Lock()
-			if len(w.skip) < maxSkipped {
-				w.skip = append(w.skip, why)
+			w.cannot(rel, err)
+			if p == top {
+				return err
 			}
-			w.mu.Unlock()
-			w.onGap(why)
 			if d != nil && d.IsDir() {
 				return filepath.SkipDir
 			}
@@ -140,6 +205,23 @@ func (w *Watcher) addTree(dir string, report bool) error {
 		}
 		return nil
 	})
+}
+
+// cannot records that dir can't be watched, as a gap the first time for
+// each reason. One that doesn't exist isn't: there is nothing in it to
+// miss.
+func (w *Watcher) cannot(dir string, err error) {
+	if errors.Is(err, fs.ErrNotExist) {
+		return
+	}
+	why := "can't watch " + dir + ": " + err.Error()
+	w.mu.Lock()
+	again := w.failed[dir] == why
+	w.failed[dir] = why
+	w.mu.Unlock()
+	if !again {
+		w.onGap(why)
+	}
 }
 
 // retry watches dir once it exists. gap says it was watched before, so
@@ -153,7 +235,11 @@ func (w *Watcher) retry(dir string, gap bool) {
 		case <-w.done:
 			return
 		case <-t.C:
-			if w.addTree(dir, true) == nil {
+			err := w.addTree(dir, true)
+			w.mu.Lock()
+			w.tops[dir] = err
+			w.mu.Unlock()
+			if err == nil {
 				if gap {
 					w.onGap("watching " + dir + " again: files may have come and gone in it while it wasn't")
 				}
@@ -194,13 +280,18 @@ func (w *Watcher) event(wd int32, mask uint32, name string) {
 	}
 	w.mu.Lock()
 	dir, ok := w.wds[wd]
+	_, top := w.tops[dir]
+	removed := ok && top && mask&syscall.IN_IGNORED != 0
 	if mask&syscall.IN_IGNORED != 0 {
 		delete(w.wds, wd)
+	}
+	if removed {
+		w.tops[dir] = fs.ErrNotExist
 	}
 	w.mu.Unlock()
 	// A directory asked for that goes away is watched again once it is
 	// back. One below it is, by its parent's create event.
-	if ok && mask&syscall.IN_IGNORED != 0 && w.tops[dir] {
+	if removed {
 		select {
 		case <-w.done:
 		default:
@@ -217,6 +308,15 @@ func (w *Watcher) event(wd int32, mask uint32, name string) {
 	switch {
 	case mask&syscall.IN_ISDIR != 0 && mask&(syscall.IN_CREATE|syscall.IN_MOVED_TO) != 0:
 		_ = w.addTree(rel, true) // it may be gone already
+	case mask&syscall.IN_ISDIR != 0 && mask&(syscall.IN_DELETE|syscall.IN_MOVED_FROM) != 0:
+		// What it couldn't watch there is gone: nothing there to miss now.
+		w.mu.Lock()
+		for d := range w.failed {
+			if d == rel || strings.HasPrefix(d, rel+"/") {
+				delete(w.failed, d)
+			}
+		}
+		w.mu.Unlock()
 	case mask&syscall.IN_ISDIR != 0:
 	case mask&(syscall.IN_CREATE|syscall.IN_MOVED_TO) != 0:
 		w.onEvent(rel, "created")

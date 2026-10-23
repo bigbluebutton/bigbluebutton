@@ -236,6 +236,55 @@ func TestFiles(t *testing.T) {
 	}
 }
 
+// The tap answers only requests sent to an IP address, localhost or a
+// host name it was given.
+func TestHosts(t *testing.T) {
+	s, err := Start(Config{Redis: resp.Options{Addr: "127.0.0.1:1"}, Hosts: []string{"tap"}, MaxBytes: 1 << 20, MaxAge: time.Hour})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	srv := httptest.NewServer(s)
+	defer srv.Close()
+	for host, want := range map[string]int{
+		"127.0.0.1:8099": http.StatusOK, "[::1]:8099": http.StatusOK, "localhost:8099": http.StatusOK,
+		"LOCALHOST.": http.StatusOK, "tap:8099": http.StatusOK, "10.0.0.5": http.StatusOK,
+		"bbb.example.com:8099": http.StatusMisdirectedRequest, "tap.example.com": http.StatusMisdirectedRequest,
+	} {
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/info", nil)
+		req.Host = host
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		res.Body.Close()
+		if res.StatusCode != want {
+			t.Errorf("Host %s: HTTP %d", host, res.StatusCode)
+		}
+	}
+}
+
+// One /fs answer reads a bounded number of files.
+func TestFilesLimit(t *testing.T) {
+	w := startWorld(t)
+	for i := range maxFiles + 1 {
+		if err := os.WriteFile(filepath.Join(w.dataDir, fmt.Sprintf("f%d", i)), []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	m, err := w.client.Mark(ctx(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var te *Error
+	if _, err := w.client.FS(ctx(t), m, "f*"); !errors.As(err, &te) || te.Status != http.StatusBadRequest || !strings.Contains(te.Msg, "narrow it") {
+		t.Errorf("too many files: %v", err)
+	}
+	if r, err := w.client.FS(ctx(t), m, "f1?"); err != nil || len(r.Files) != 10 || r.Watched {
+		t.Errorf("ten files outside the watched directories: %+v %v", r, err)
+	}
+}
+
 // Close returns even while the tap waits on a redis that accepts the
 // connection and never answers.
 func TestCloseWhileSubscribing(t *testing.T) {

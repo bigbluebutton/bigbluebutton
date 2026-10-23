@@ -67,11 +67,12 @@ type Options struct {
 	DB       int
 }
 
-// ParseURL reads redis://[user:password@]host[:port][/db].
+// ParseURL reads redis://[user:password@]host[:port][/db]. Its errors
+// don't repeat the URL, which may hold a password.
 func ParseURL(s string) (Options, error) {
 	u, err := url.Parse(s)
 	if err != nil || u.Scheme != "redis" || u.Host == "" {
-		return Options{}, fmt.Errorf("%q isn't a redis://host:port URL", s)
+		return Options{}, errors.New("the redis URL must look like redis://[user:password@]host[:port][/db]")
 	}
 	o := Options{Addr: u.Host}
 	if u.Port() == "" {
@@ -86,7 +87,7 @@ func ParseURL(s string) (Options, error) {
 	}
 	if db := strings.Trim(u.Path, "/"); db != "" {
 		if o.DB, err = strconv.Atoi(db); err != nil {
-			return Options{}, fmt.Errorf("%q: the database must be a number", s)
+			return Options{}, fmt.Errorf("the redis URL's database must be a number, not %q", db)
 		}
 	}
 	return o, nil

@@ -59,9 +59,11 @@ func TestParseURL(t *testing.T) {
 			t.Errorf("%s: %+v, %v", in, got, err)
 		}
 	}
-	for _, in := range []string{"http://h:1", "redis://", "redis://h:1/x"} {
+	for _, in := range []string{"http://h:1", "redis://", "redis://h:1/x", "redis://secret@h:port", "redis://:secret@h:1/x"} {
 		if _, err := ParseURL(in); err == nil {
 			t.Errorf("%s: no error", in)
+		} else if strings.Contains(err.Error(), "secret") {
+			t.Errorf("%s: the error shows the password: %v", in, err)
 		}
 	}
 }

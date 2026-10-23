@@ -30,14 +30,25 @@ const pollEvery = 250 * time.Millisecond
 // By default the step passes at the first match; absent passes if nothing
 // matches in the whole window; count checks how many messages matched by
 // its end; exists: false passes once the file or key is gone. What the
-// tap may have missed (a lost subscription, lost file events) makes a
-// step that depends on not seeing something an ERROR.
+// tap may have missed (a lost subscription, lost file events, a
+// directory it can't watch) makes a step whose result rests on not
+// seeing something an ERROR.
 
 // needsMark says whether a case looks at the bus or files, which it does
 // from a mark taken before its first step.
 func needsMark(c *spec.Case) bool {
 	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
 		if s.Kind == spec.KindBus || s.Kind == spec.KindFS {
+			return true
+		}
+	}
+	return false
+}
+
+// usesTap says whether a case has a step the tap answers.
+func usesTap(c *spec.Case) bool {
+	for _, s := range append(append([]spec.Step{}, c.Steps...), c.Teardown...) {
+		if s.Kind == spec.KindBus || s.Kind == spec.KindFS || s.Kind == spec.KindRedis {
 			return true
 		}
 	}
@@ -248,8 +259,11 @@ func (x *exec) fs(ctx context.Context, phase string, index int, s spec.Step, sr 
 	}
 	sr.Request = &report.Request{Method: "FS", URL: x.redact(x.r.Target.TapURL + "/fs?" + url.Values{"path": {glob}}.Encode())}
 	m := modeOf(e)
+	// A file that came and went counts when nothing is asked of its
+	// contents; only then does what the tap may miss matter.
+	appeared := e == nil || (e.Contents == nil && len(e.JSONPath) == 0)
 	deadline := time.Now().Add(f.Within)
-	gap := false
+	gap, unwatched := false, ""
 	var doc []byte
 	var firstMiss []assert.Result
 	var found, gone bool
@@ -263,6 +277,9 @@ func (x *exec) fs(ctx context.Context, phase string, index int, s spec.Step, sr 
 			return
 		}
 		gap = gap || res.Gap
+		if res.WatchError != "" {
+			unwatched = res.WatchError
+		}
 		gone = len(res.Files) == 0
 		for _, file := range res.Files {
 			d := fileDoc(file.Path, true, &file)
@@ -279,9 +296,7 @@ func (x *exec) fs(ctx context.Context, phase string, index int, s spec.Step, sr 
 				firstMiss = results
 			}
 		}
-		// A file that appeared and is gone again counts when nothing is
-		// asked of its contents.
-		if !found && (e == nil || (e.Contents == nil && len(e.JSONPath) == 0)) && len(res.Appeared) > 0 {
+		if !found && appeared && len(res.Appeared) > 0 {
 			doc, found = fileDoc(res.Appeared[0].Path, true, nil), true
 		}
 		if m == modeGone && gone || m != modeGone && found || !pollAgain(ctx, deadline) {
@@ -308,9 +323,15 @@ func (x *exec) fs(ctx context.Context, phase string, index int, s spec.Step, sr 
 			doc = fileDoc(glob, false, nil)
 		}
 	}
-	if gap && m == modeAbsent && result.OK {
-		sr.Status, sr.Message = report.Error, "the tap lost file events during the window, so it may have missed a file"
-		return
+	if appeared && (m == modeAbsent && result.OK || m == modeFind && !result.OK) {
+		switch {
+		case unwatched != "":
+			sr.Status, sr.Message = report.Error, "the tap would miss a file that came and went: "+unwatched
+			return
+		case gap:
+			sr.Status, sr.Message = report.Error, "the tap lost file events during the window, so it may have missed a file"
+			return
+		}
 	}
 	results := []assert.Result{result}
 	if !result.OK && m == modeFind {

@@ -19,8 +19,15 @@ func Watch(root string, dirs []string, onEvent func(path, op string), onGap func
 // Watching lists nothing.
 func (w *Watcher) Watching() []string { return nil }
 
+// Tops lists nothing.
+func (w *Watcher) Tops() []string { return nil }
+
 // Skipped lists nothing.
 func (w *Watcher) Skipped() []string { return nil }
+
+// Covers says no files are seen coming and going; Server.watched says
+// why.
+func (w *Watcher) Covers(pattern string) (bool, string) { return false, "" }
 
 // Close does nothing.
 func (w *Watcher) Close() error { return nil }

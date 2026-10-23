@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -20,8 +21,11 @@ type Client struct {
 }
 
 // NewClient talks to the tap at base, e.g. http://bbb.example.com:8099.
+// A tap that doesn't accept the connection within 5s isn't waited for.
 func NewClient(base string) *Client {
-	return &Client{base: strings.TrimSuffix(base, "/"), hc: &http.Client{Timeout: maxWait + 15*time.Second}}
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr.DialContext = (&net.Dialer{Timeout: 5 * time.Second, KeepAlive: 30 * time.Second}).DialContext
+	return &Client{base: strings.TrimSuffix(base, "/"), hc: &http.Client{Transport: tr, Timeout: maxWait + 15*time.Second}}
 }
 
 // Error is the tap refusing a query, with its HTTP status.

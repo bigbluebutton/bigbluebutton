@@ -24,7 +24,8 @@ import (
 func cmdTap(args []string, stdout, stderr io.Writer) int {
 	fl := flag.NewFlagSet("tap", flag.ContinueOnError)
 	fl.SetOutput(stderr)
-	listen := fl.String("listen", "127.0.0.1:8099", "where to serve; 0.0.0.0:8099 to reach it from another host")
+	listen := fl.String("listen", "127.0.0.1:8099", "where to serve; 0.0.0.0:8099 to reach it from another host on a private network")
+	hosts := fl.String("hosts", "", "host names the runner reaches it by, e.g. tap in a compose network; IP addresses and localhost always work")
 	redisURL := fl.String("redis", "redis://127.0.0.1:6379", "the server's redis")
 	passwordEnv := fl.String("redis-password-env", "", "the environment variable that holds redis's password")
 	dataDir := fl.String("data-dir", "/var/bigbluebutton", `the server's data directory, or "" to serve no files`)
@@ -63,7 +64,7 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	s, err := tap.Start(tap.Config{Redis: ropts, Channels: splitList(*channels), DataDir: *dataDir, Watch: splitList(*watch),
-		RedisKeys: splitList(*keys), MaxBytes: *maxMB << 20, MaxAge: *maxAge})
+		RedisKeys: splitList(*keys), Hosts: splitList(*hosts), MaxBytes: *maxMB << 20, MaxAge: *maxAge})
 	if err != nil {
 		ln.Close()
 		fmt.Fprintf(stderr, "bbb-conform tap: %v\n", err)

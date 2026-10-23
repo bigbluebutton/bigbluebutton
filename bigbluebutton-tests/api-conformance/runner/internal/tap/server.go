@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net"
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -31,6 +33,8 @@ var DefaultChannels = []string{"to-akka-apps-redis-channel", "from-akka-apps-red
 const (
 	maxWait    = 30 * time.Second
 	maxList    = 10000
+	maxFiles   = 100      // the most files one /fs answer reads
+	maxFSBytes = 16 << 20 // and the most it sends of them
 	pingEvery  = 30 * time.Second
 	silenceMax = 90 * time.Second
 	// dialTimeout bounds connecting to redis and its confirming the
@@ -45,6 +49,7 @@ type Config struct {
 	DataDir   string   // "" serves no files
 	Watch     []string // directories under DataDir to watch for new files
 	RedisKeys []string // globs of the keys it may read
+	Hosts     []string // host names it answers to, besides IP addresses and localhost
 	MaxBytes  int
 	MaxAge    time.Duration
 }
@@ -206,16 +211,18 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var v any
 	var status int
 	var err error
-	switch r.URL.Path {
-	case "/info":
+	switch {
+	case !s.answersTo(r.Host):
+		status, err = http.StatusMisdirectedRequest, fmt.Errorf("the tap doesn't answer to %q: start it with --hosts naming it", r.Host)
+	case r.URL.Path == "/info":
 		v = s.info()
-	case "/mark":
+	case r.URL.Path == "/mark":
 		v, status, err = s.mark()
-	case "/bus":
+	case r.URL.Path == "/bus":
 		v, status, err = s.bus(r)
-	case "/redis":
+	case r.URL.Path == "/redis":
 		v, status, err = s.redis(r)
-	case "/fs":
+	case r.URL.Path == "/fs":
 		v, status, err = s.files(r)
 	default:
 		status, err = http.StatusNotFound, errors.New("no such endpoint: try /info, /mark, /bus, /redis or /fs")
@@ -230,13 +237,33 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	enc.Encode(v)
 }
 
+// answersTo says whether a request for host is for the tap: one sent to
+// an IP address, localhost or a name it was given. A page that points
+// another name at the tap's address gets nothing.
+func (s *Server) answersTo(host string) bool {
+	h, _, err := net.SplitHostPort(host)
+	if err != nil {
+		h = host
+	}
+	h = strings.TrimSuffix(strings.Trim(h, "[]"), ".")
+	if net.ParseIP(h) != nil || strings.EqualFold(h, "localhost") {
+		return true
+	}
+	for _, name := range s.cfg.Hosts {
+		if strings.EqualFold(h, name) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Server) info() Info {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	i := Info{Instance: s.instance, Channels: s.cfg.Channels, Subscribed: s.subscribed, Redis: s.cfg.Redis.Addr,
 		RedisError: s.redisErr, DataDir: s.cfg.DataDir, Watch: "none", Seq: s.log.Last()}
 	if s.watcher != nil {
-		i.Watch, i.Watching, i.WatchDirs = "inotify", s.cfg.Watch, len(s.watcher.Watching())
+		i.Watch, i.Watching, i.WatchDirs = "inotify", s.watcher.Tops(), len(s.watcher.Watching())
 	}
 	if s.watchErr != nil {
 		i.WatchError = s.watchErr.Error()
@@ -428,13 +455,21 @@ func (s *Server) files(r *http.Request) (any, int, error) {
 	if pattern == "" || path.IsAbs(pattern) || strings.Contains("/"+pattern+"/", "/../") {
 		return nil, http.StatusBadRequest, fmt.Errorf("bad path %q: give a glob relative to the data directory", pattern)
 	}
-	res := FSResult{Seq: s.log.Last(), Watched: s.watcher != nil, Files: []File{}, Appeared: []Appeared{}}
+	res := FSResult{Seq: s.log.Last(), Files: []File{}, Appeared: []Appeared{}}
+	res.Watched, res.WatchError = s.watched(pattern)
 	matches, err := fs.Glob(s.root.FS(), pattern)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
+	if len(matches) > maxFiles {
+		return nil, http.StatusBadRequest, fmt.Errorf("%s matches %d files, more than the %d the tap reads at once: narrow it", pattern, len(matches), maxFiles)
+	}
+	size := 0
 	for _, m := range matches {
 		if f, ok := s.readFile(m); ok {
+			if size += len(f.Contents); size > maxFSBytes {
+				return nil, http.StatusBadRequest, fmt.Errorf("the files %s matches hold more than the %d MiB the tap sends at once: narrow it", pattern, maxFSBytes>>20)
+			}
 			res.Files = append(res.Files, f)
 		}
 	}
@@ -452,6 +487,28 @@ func (s *Server) files(r *http.Request) (any, int, error) {
 		}
 	}
 	return res, 0, nil
+}
+
+// watched says whether the tap sees the files that come and go where
+// pattern can match and, when it was asked to watch there but can't, why.
+func (s *Server) watched(pattern string) (bool, string) {
+	if s.watcher != nil {
+		return s.watcher.Covers(pattern)
+	}
+	for _, d := range s.cfg.Watch {
+		if underDir(pattern, path.Clean(filepath.ToSlash(d))) {
+			if s.watchErr != nil {
+				return false, "can't watch files: " + s.watchErr.Error()
+			}
+			return false, "the tap watches no files"
+		}
+	}
+	return false, ""
+}
+
+// underDir says whether every path glob matches is under dir.
+func underDir(glob, dir string) bool {
+	return dir == "." || strings.HasPrefix(glob, dir+"/")
 }
 
 // readFile reads a regular file, up to MaxFile.

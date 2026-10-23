@@ -199,6 +199,39 @@ func TestMarkFailureSendsNothing(t *testing.T) {
 	}
 }
 
+// A tap that doesn't answer before the run makes each of its cases an
+// ERROR at once, before anything is sent; other cases run.
+func TestTapDownBeforeTheRun(t *testing.T) {
+	w := startSide(t)
+	srv := httptest.NewServer(w.fake)
+	defer srv.Close()
+	var cases []*spec.Case
+	for _, src := range []string{header(sideEffects), "id: getMeetings.x.y\ntitle: t\nendpoint: getMeetings\nclass: contract\nsteps:\n  - call: getMeetings\n"} {
+		c, probs := spec.LoadBytes("case.yaml", []byte(src), spec.Options{})
+		if len(probs) > 0 {
+			t.Fatalf("problems: %v", probs)
+		}
+		cases = append(cases, c...)
+	}
+	tg := &target.Target{Name: "fake", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1",
+		TapURL: "http://127.0.0.1:1", Capabilities: []string{"bus", "fs", "redis"}}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	start := time.Now()
+	run := r.RunAll(context.Background(), cases, 2)
+	if c := run.Cases[0]; c.Status != report.Error || !strings.Contains(c.Reason, "didn't answer before the run") || len(c.Steps) != 0 {
+		t.Errorf("the tap's case: %s %s", c.Status, c.Reason)
+	}
+	if c := run.Cases[1]; c.Status != report.Pass {
+		t.Errorf("the other case: %s %s", c.Status, c.Reason)
+	}
+	if len(w.fake.Requests) != 1 || time.Since(start) > 5*time.Second {
+		t.Errorf("%d request(s) in %s", len(w.fake.Requests), time.Since(start))
+	}
+}
+
 // When the tap loses its subscription during an absent step's window, it
 // can't say nothing was published.
 func TestGapIsAnError(t *testing.T) {
@@ -215,6 +248,61 @@ func TestGapIsAnError(t *testing.T) {
     expect: {absent: true}
 `)
 	if res.Status != report.Error || !strings.Contains(res.Reason, "may have missed messages") {
+		t.Errorf("%s: %s", res.Status, res.Reason)
+	}
+}
+
+// Where the tap was asked to watch but can't, a file that came and went
+// would be missed, so an fs step that rests on finding nothing is an
+// ERROR. Elsewhere only the files there now count, so it fails as usual.
+func TestUnwatchedIsAnError(t *testing.T) {
+	w := startSide(t)
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "recording"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "recording/status"), nil, 0o644); err != nil { // not a directory
+		t.Fatal(err)
+	}
+	tp, err := tap.Start(tap.Config{Redis: resp.Options{Addr: w.redis.Addr()}, DataDir: dir, Watch: []string{"recording/status"},
+		MaxBytes: 1 << 20, MaxAge: time.Hour})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(tp.Close)
+	ts := httptest.NewServer(tp)
+	t.Cleanup(ts.Close)
+	w.tapURL = ts.URL
+	for _, tt := range []struct {
+		src    string
+		status report.Status
+		want   string
+	}{
+		{"  - fs: {path: \"recording/status/recorded/${uid}.done\", within: 300ms}\n", report.Error, "the tap would miss a file that came and went: "},
+		{"  - fs: {path: \"recording/status/recorded/${uid}.done\", within: 300ms}\n    expect: {absent: true}\n", report.Error, "the tap would miss a file that came and went: "},
+		{"  - fs: {path: \"published/${uid}/metadata.xml\", within: 300ms}\n", report.Fail, "expected a file within 300ms, got none"},
+	} {
+		res := w.run(t, "steps:\n"+tt.src)
+		if res.Status != tt.status || !strings.Contains(res.Reason, tt.want) {
+			t.Errorf("%s: %s, want %s %q", tt.src, res.Status, tt.status, tt.want)
+		}
+	}
+}
+
+// File events lost during a find's window make finding nothing an ERROR.
+func TestFileGapIsAnError(t *testing.T) {
+	if !tap.WatchSupported {
+		t.Skip("needs inotify")
+	}
+	w := startSide(t)
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		os.RemoveAll(filepath.Join(w.fake.DataDir, "recording/status"))
+	}()
+	res := w.run(t, `steps:
+  - fs: {path: "recording/status/ended/${uid}.done", within: 1s}
+`)
+	if res.Status != report.Error || !strings.Contains(res.Reason, "lost file events") {
 		t.Errorf("%s: %s", res.Status, res.Reason)
 	}
 }

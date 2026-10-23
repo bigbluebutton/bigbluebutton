@@ -19,7 +19,10 @@ func TestIndex(t *testing.T) {
 		// The middleware's messages name no meeting, and the header name
 		// stands in for a missing envelope name.
 		`{"envelope":{"routing":{"sender":"bbb-graphql-middleware"}},"core":{"header":{"name":"UserGraphqlConnectionClosedSysMsg"},"body":{"sessionToken":"t"}}}`: "UserGraphqlConnectionClosedSysMsg []",
-		`not json`: " []",
+		// A field of another type hides nothing else.
+		`{"envelope":{"name":"SomeEvtMsg","routing":{"meetingId":"m6"}},"core":{"header":{"name":"SomeEvtMsg","meetingId":7},"body":{"meetingId":"m7","room":"r","props":[1]}}}`: "SomeEvtMsg [m6 m7]",
+		`not json`:   " []",
+		`["a list"]`: " []",
 	} {
 		name, ids := index([]byte(raw))
 		if got := fmt.Sprintf("%s %v", name, ids); got != want {

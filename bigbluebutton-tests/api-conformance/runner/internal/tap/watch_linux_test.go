@@ -138,6 +138,92 @@ func TestWatchUnwatchableDir(t *testing.T) {
 	if s := w.Skipped(); len(s) != 1 || !strings.Contains(s[0], "recording/status/locked") {
 		t.Errorf("skipped %v", s)
 	}
+	// Files under it aren't seen coming and going, and that is said;
+	// those beside it are. Outside the directories asked for, nothing is
+	// seen and nothing needs saying.
+	for pattern, want := range map[string]string{
+		"recording/status/recorded/x.done": "covered",
+		"recording/status/locked/x.done":   "can't watch recording/status/locked: permission denied",
+		"recording/status/*/x.done":        "can't watch recording/status/locked: permission denied",
+		"recording/status/x.done":          "covered",
+		"published/x":                      "",
+	} {
+		ok, why := w.Covers(pattern)
+		if ok {
+			why = "covered"
+		}
+		if why != want {
+			t.Errorf("Covers(%s) = %t, %q", pattern, ok, why)
+		}
+	}
+	// Once it is gone, there is nothing there to miss.
+	os.Chmod(locked, 0o755)
+	if err := os.Remove(locked); err != nil {
+		t.Fatal(err)
+	}
+	for deadline := time.Now().Add(3 * time.Second); len(w.Skipped()) > 0 && time.Now().Before(deadline); {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if ok, why := w.Covers("recording/status/locked/x.done"); !ok {
+		t.Errorf("after it was removed: %q, skipped %v", why, w.Skipped())
+	}
+}
+
+// A directory asked for that can't be watched is a gap once, isn't
+// covered, and is watched once it can be. One that doesn't exist yet is
+// covered: it is watched, and its files reported, as soon as it does.
+func TestWatchUnwatchableTop(t *testing.T) {
+	retryMissing = 20 * time.Millisecond
+	t.Cleanup(func() { retryMissing = time.Second })
+	root := t.TempDir()
+	status := filepath.Join(root, "recording/status")
+	if err := os.MkdirAll(filepath.Dir(status), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(status, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var ev events
+	w, err := Watch(root, []string{"recording/status", "learning-dashboard"}, ev.add, gapsTo(&ev))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	time.Sleep(10 * retryMissing)
+	ev.mu.Lock()
+	got := strings.Join(ev.seen, "\n")
+	ev.mu.Unlock()
+	if got != "gap can't watch recording/status: not a directory" {
+		t.Errorf("events:\n%s", got)
+	}
+	status1, why := w.Covers("recording/status/recorded/m.done")
+	dashboard, _ := w.Covers("learning-dashboard/m/t/data.json")
+	if status1 || why != "can't watch recording/status: not a directory" || !dashboard || len(w.Tops()) != 0 {
+		t.Errorf("covers status %t (%q), dashboard %t, tops %v", status1, why, dashboard, w.Tops())
+	}
+	if s := w.Skipped(); len(s) != 1 || !strings.Contains(s[0], "not a directory") {
+		t.Errorf("skipped %v", s)
+	}
+
+	if err := os.Remove(status); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(status, "recorded"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	covered := func() bool { ok, _ := w.Covers("recording/status/recorded/m.done"); return ok }
+	for deadline := time.Now().Add(3 * time.Second); !covered() && time.Now().Before(deadline); {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if !covered() || !slices.Equal(w.Tops(), []string{"recording/status"}) || len(w.Skipped()) != 0 {
+		t.Errorf("once it is a directory: tops %v, skipped %v", w.Tops(), w.Skipped())
+	}
+	marker := filepath.Join(status, "recorded/m.done")
+	if err := os.WriteFile(marker, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	os.Remove(marker)
+	ev.waitFor(t, "created recording/status/recorded/m.done")
 }
 
 // A directory asked for that is removed is a gap, and is watched again

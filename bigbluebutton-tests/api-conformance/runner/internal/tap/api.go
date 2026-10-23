@@ -17,7 +17,7 @@ type Info struct {
 	RedisError string   `json:"redisError,omitempty"`
 	DataDir    string   `json:"dataDir,omitempty"`
 	Watch      string   `json:"watch"`              // inotify or none
-	Watching   []string `json:"watching,omitempty"` // the directories watched with all below them
+	Watching   []string `json:"watching,omitempty"` // the directories asked for that are watched now, with all below them
 	WatchDirs  int      `json:"watchDirs,omitempty"`
 	WatchError string   `json:"watchError,omitempty"`
 	Seq        int64    `json:"seq"`
@@ -80,15 +80,18 @@ type Appeared struct {
 }
 
 // FSResult answers GET /fs: the files matching a glob now, and those
-// that appeared after the given seq. Watched says the tap watches files
-// at all; Gap that it may have missed file events.
+// that appeared after the given seq. Watched says the tap sees the files
+// that come and go where the glob can match, so Appeared lists them;
+// without it only Files counts. WatchError says why not, when the tap was
+// asked to watch there. Gap says it may have missed file events.
 type FSResult struct {
-	Seq       int64      `json:"seq"`
-	Watched   bool       `json:"watched"`
-	Gap       bool       `json:"gap,omitempty"`
-	Truncated bool       `json:"truncated,omitempty"`
-	Files     []File     `json:"files"`
-	Appeared  []Appeared `json:"appeared"`
+	Seq        int64      `json:"seq"`
+	Watched    bool       `json:"watched"`
+	WatchError string     `json:"watchError,omitempty"`
+	Gap        bool       `json:"gap,omitempty"`
+	Truncated  bool       `json:"truncated,omitempty"`
+	Files      []File     `json:"files"`
+	Appeared   []Appeared `json:"appeared"`
 }
 
 // MaxFile is the most of a file the tap sends.
