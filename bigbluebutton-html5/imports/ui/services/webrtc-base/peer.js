@@ -319,6 +319,13 @@ export default class WebRtcPeer extends EventEmitter2 {
       this.peerConnection = new RTCPeerConnection(this.configuration);
     }
 
+    // Tablet WebView: stamp routing on the PC before any patched WebRTC APIs run.
+    // Brokers pass options.webRtcCallType ('screen_share' | 'full_audio'); omit for
+    // standard webview WebRTC. See mobile-app RTCPeerConnection patches.
+    if (this.options.webRtcCallType) {
+      this.peerConnection.webRtcCallType = this.options.webRtcCallType;
+    }
+
     if (this.isPeerConnectionClosed()) {
       this.logger.trace('BBB::WebRtcPeer::start - peer connection closed');
       throw new Error('Invalid peer state: closed');
