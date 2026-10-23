@@ -667,6 +667,20 @@ public:
 HERE
 ```
 
+In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To keep the switch for moderators only, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
+
+```
+public:
+    kurento:
+        pagination:
+            paginationToggleEnabled: true
+            paginationToggleModeratorOnly: true
+```
+
+A user who cannot see the switch always gets the default from `public.app.defaultSettings.application.paginationEnabled`, even if they changed it earlier (for example, before being demoted from moderator).
+
+The switch only shows when the user's page size is above `0`. With the default `desktopPageSizes.moderator: 0`, moderators on desktop see every webcam and get no switch; set a moderator page size to give it to them.
+
 #### Use custom images for virtual background
 
 Starting from version 2.4 BigBlueButton offers virtual background for webcams.
