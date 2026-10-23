@@ -17,8 +17,10 @@ BBB_IMAGE_REGISTRY=registry.example.com/bbb BBB_IMAGE_TAG=dev docker buildx bake
 
 Images are named `${BBB_IMAGE_REGISTRY}/bbb-<target>:${BBB_IMAGE_TAG}` (defaults
 `ghcr.io/bigbluebutton/bigbluebutton` and `latest`). `CLIENT_BUILD` sets the build id of the
-HTML5 client. `bbb-webrtc-sfu`, `bbb-webrtc-recorder`, `bbb-webhooks` and `bbb-playback` are
-built from their repositories at the tag in their `*.placeholder.sh`; CI checks that the two match.
+HTML5 client. `bbb-webrtc-sfu`, `bbb-webrtc-recorder`, `bbb-webhooks`, `bbb-playback` and
+`bbb-presentation-video` (in `bbb-record-and-playback`) are fetched by running their
+`*.placeholder.sh` at the repository root, the same scripts the package build runs, so the images
+and the packages build the version pinned in one place.
 
 CI (`.github/workflows/build-all-images.yml`) builds every image for amd64 on pull requests. On
 pushes to the develop and release branches and on tags, it builds amd64 and arm64 and pushes
@@ -53,8 +55,7 @@ deployments use their official images.
 
 - Processes run as `bigbluebutton` (UID/GID 998, as in the packages). The nginx-based images
   (html5-client, learning-dashboard, playback, nginx) run as the base image's `nginx` (UID 101).
-- Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`; the
-  caption publish script `caption/presentation` still logs to journald only).
+- Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
 - Configuration is mounted at the bare-metal path. Where an image takes environment variables
   into its default config file (bbb-apps-akka, bbb-web, export-annotations), a mounted file

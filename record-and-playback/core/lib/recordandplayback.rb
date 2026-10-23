@@ -104,12 +104,18 @@ module BigBlueButton
 
   # Stdout logger with the journald-specific methods the recording scripts use.
   class StdoutLogger < Logger
+    # Like Journald::Logger#tag: with a block the fields apply inside it only,
+    # without one they stay.
     def tag(**fields)
       saved = @tags
       @tags = (saved || {}).merge(fields)
-      yield
-    ensure
-      @tags = saved
+      return unless block_given?
+
+      begin
+        yield
+      ensure
+        @tags = saved
+      end
     end
 
     def exception(exc)

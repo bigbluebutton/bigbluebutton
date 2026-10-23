@@ -62,6 +62,18 @@ class TestLogger < Minitest::Test
     assert_match(/outside$/, lines[1])
   end
 
+  def test_tag_without_block_keeps_the_fields
+    logger = stdout_logger
+
+    logger.tag(record_id: 'rec-1')
+    logger.info('first')
+    logger.info('second')
+
+    lines = @out.string.lines
+    assert_equal(2, lines.size)
+    lines.each { |line| assert_match(/ record_id=rec-1$/, line) }
+  end
+
   def test_exception_logs_class_message_and_backtrace
     logger = stdout_logger
     begin
