@@ -81,6 +81,7 @@ services:
     volumes:
       - data:/var/bigbluebutton
       - ./.state/conform:/etc/bigbluebutton/conform:ro
+      - ./bbb-web/turn-stun-servers.xml:/etc/bigbluebutton/turn-stun-servers.xml:ro
     depends_on:
       net: {condition: service_started}
       init: {condition: service_completed_successfully}
@@ -130,6 +131,17 @@ services:
       net: {condition: service_started}
       init: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
+
+  # Optional (make up CLAMAV=1): the ClamAV daemon on localhost:3310, where
+  # bbb-web looks for one when the clamav-scan profile turns scanning on.
+  # bbb-web asks it to scan a path, so it reads the data volume, as a daemon
+  # on the same server would.
+  clamav:
+    <<: *pod
+    image: clamav/clamav:1.4
+    profiles: [clamav]
+    volumes:
+      - data:/var/bigbluebutton:ro
 
 volumes:
   data:

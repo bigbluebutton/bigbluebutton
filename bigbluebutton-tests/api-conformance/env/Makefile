@@ -6,8 +6,13 @@ export DEBS_DIR ?= $(STATE)/debs
 COMPOSE := docker compose -f $(CURDIR)/compose.yaml
 # The LibreOffice image the packages convert with.
 export LIBREOFFICE_IMAGE := $(shell sed -n 's/^FROM //p' $(CURDIR)/../../../bbb-libreoffice/docker/Dockerfile)
-# The long-running services; up waits for them to be healthy.
+# The long-running services; up waits for them to be healthy. CLAMAV=1 adds
+# the ClamAV daemon.
 SERVICES := redis postgres hasura akka-apps bbb-web middleware actions nginx tap
+ifeq ($(CLAMAV),1)
+COMPOSE += --profile clamav
+SERVICES += clamav
+endif
 
 .PHONY: debs images render up down reset logs ps env profile
 
@@ -29,15 +34,16 @@ up: render
 	$(COMPOSE) up -d --build --wait $(SERVICES)
 	@echo "Tier 1 is up. For the runner: eval \"\$$(make -s -C $(CURDIR) env)\""
 
+# Every service, the optional ones included.
 down:
-	$(COMPOSE) down
+	$(COMPOSE) --profile clamav down
 
 # Start again from nothing: no meetings, an empty data directory, no
 # profile in force.
 reset:
 	rm -f $(STATE)/profile
 	$(TIER1)/render.sh
-	$(COMPOSE) down --volumes
+	$(COMPOSE) --profile clamav down --volumes
 	$(COMPOSE) up -d --build --wait $(SERVICES)
 
 logs:
