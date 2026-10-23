@@ -110,7 +110,13 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
     `&attendeePW=${ap}&moderatorPW=${mp}` +
     `&allowStartStopRecording=true&autoStartRecording=false` +
     `&welcome=${parameters.welcome}`;
-  const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
+  // A key the caller passes replaces the default: bbb-web refuses a repeated one.
+  const overridden = new Set((createParameter ?? '').split('&').map((pair) => pair.split('=')[0]));
+  const defaults = baseQuery
+    .split('&')
+    .filter((pair) => !overridden.has(pair.split('=')[0]))
+    .join('&');
+  const query = createParameter !== undefined ? `${defaults}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
   const url = `${parameters.server}/api/create?${query}&checksum=${checksum}`;
