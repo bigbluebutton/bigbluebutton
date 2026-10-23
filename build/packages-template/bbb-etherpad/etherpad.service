@@ -8,12 +8,18 @@ PartOf=bigbluebutton.target
 Type=simple
 User=etherpad
 Group=etherpad
-WorkingDirectory=/usr/share/etherpad-lite
+# Etherpad 3.x is started from its src/ workspace package (see upstream Dockerfile)
+WorkingDirectory=/usr/share/etherpad-lite/src
 Environment=NODE_ENV=production
-ExecStart=/usr/bin/node node_modules/ep_etherpad-lite/node/server.js
+Environment=ETHERPAD_PRODUCTION=true
+# Etherpad 3.x requires Node >= 24; bbb-etherpad ships its own runtime under
+# node-runtime/ so the system-wide Node used by the other BBB components is untouched.
+Environment=PATH=/usr/share/etherpad-lite/node-runtime/bin:/usr/local/bin:/usr/bin:/bin
+# Holds BBB_PADS_CLIENT_SECRET, the OAuth2 client secret bbb-pads uses on the HTTP API
+EnvironmentFile=-/usr/share/etherpad-lite/APIKEY.env
+ExecStart=/usr/share/etherpad-lite/node-runtime/bin/node --require tsx/cjs node/server.ts
 Restart=always
 # use mysql plus a complete settings.json to avoid Service hold-off time over, scheduling restart.
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
-

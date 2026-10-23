@@ -11,9 +11,14 @@ if [ ! -f /usr/share/etherpad-lite/APIKEY.txt ]; then
   chmod 644 /usr/share/etherpad-lite/APIKEY.txt
 fi
 
-if [ -d /usr/share/etherpad-lite/node_modules ]; then
-  rm -r /usr/share/etherpad-lite/node_modules
-fi
+# Drop the previous code tree so no stale files survive an upgrade.
+# (Etherpad 1.x kept everything in node_modules/, 3.x in src/ + node-runtime/.)
+for dir in node_modules src bin node-runtime; do
+  if [ -d "/usr/share/etherpad-lite/$dir" ]; then
+    rm -r "/usr/share/etherpad-lite/$dir"
+  fi
+done
+rm -f /usr/share/etherpad-lite/var/minified_*
 
 # Clean out old pads before upgrade
 redis-cli keys pad:*            | xargs -r redis-cli del

@@ -8,63 +8,127 @@ VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 TAG=$(echo $TARGET | cut -d'_' -f4)
 
-#
-# Harden static asset path resolution in Minify.js (upstream fix, back-ported).
-patch -p1 -F0 --forward -i fix-etherpad-static-serving.patch
+ETHERPAD_HOME=/usr/share/etherpad-lite
 
 #
 # Clean up directories
 rm -rf staging
 
 #
-# package
+# Private Node.js runtime
+#
+# Etherpad 3.x requires Node >= 24 (engineStrict), while BigBlueButton 3.0 ships
+# Node 22 for every other component. Rather than moving the whole server to a
+# newer Node, bbb-etherpad carries its own runtime under $ETHERPAD_HOME/node-runtime
+# and the systemd unit starts Etherpad with it.
+NODE_VERSION=24.21.0
+NODE_DIST="node-v${NODE_VERSION}-linux-x64"
+rm -rf node-runtime "${NODE_DIST}" "${NODE_DIST}.tar.xz"
+curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_DIST}.tar.xz"
+curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt" | grep " ${NODE_DIST}.tar.xz$" | sha256sum -c -
+tar -xJf "${NODE_DIST}.tar.xz"
+mv "${NODE_DIST}" node-runtime
+rm -f "${NODE_DIST}.tar.xz"
+export PATH="$PWD/node-runtime/bin:$PATH"
+node -v
 
-set +e
+# pnpm, pinned to the version Etherpad's package.json asks for; it lives inside
+# the private runtime so the plugin manager can find it at run time as well.
+PNPM_VERSION=$(node -p "require('./package.json').packageManager.split('@')[1]")
+npm install -g "pnpm@${PNPM_VERSION}"
+pnpm -v
 
-# as of March 12, 2022, circa BigBlueButton 2.5-alpha4, we set npm by default to 8.5.0
-# however, it seems bbb-etherpad has troubles building with npm as high.
-# Setting npm to 6.14.11 which was used successfully for building in BigBlueButton 2.4.x
-npm -v
-npm i -g npm@6.14.11
-npm -v
+#
+# Production workspace: admin UI, docs and the OIDC login pages (ui) are
+# development-only workspace packages. Mirrors upstream's Dockerfile.
+python3 - <<'PYEOF'
+lines = open('pnpm-workspace.yaml').read().splitlines()
+dev_only = {'- admin', '- doc', '- ui', '- admin/tools/openapi-codegen'}
+lines = [l for l in lines if l.strip() not in dev_only]
+open('pnpm-workspace.yaml', 'w').write('\n'.join(lines) + '\n')
+PYEOF
 
-ls -l node_modules/
-ls -l node_modules/ep_etherpad-lite
-ls -l src/
-# rm -f node_modules/ep_etherpad-lite/package.json # Was preventing npm ci running, see https://github.com/ether/etherpad-lite/issues/4962#issuecomment-916642078
+export NODE_ENV=production
+export ETHERPAD_PRODUCTION=true
+# settings.json (ours, copied from packages-template) is already in place, so
+# installDeps.sh does not copy the template over it.
 bin/installDeps.sh
-set -e
 
-rm -rf ep_pad_ttl
-git clone https://github.com/mconf/ep_pad_ttl.git
-npm pack ./ep_pad_ttl
-npm install ./ep_pad_ttl-*.tgz
+#
+# Plugins. Etherpad 3.x installs plugins through its own plugin manager into
+# src/plugin_packages (tracked in var/installed_plugins.json) and links them into
+# src/node_modules; `npm install ep_...` from the 1.x days no longer registers them.
+PLUGINS_SRC="$PWD/bbb-plugins-src"
+rm -rf "$PLUGINS_SRC"
+mkdir -p "$PLUGINS_SRC"
 
-rm -rf bbb-etherpad-plugin
-git clone https://github.com/alangecker/bbb-etherpad-plugin.git
-npm pack ./bbb-etherpad-plugin
-npm install ./ep_bigbluebutton_patches-*.tgz
+clone_plugin() {
+  # $1 = plugin name (directory), $2 = repo, $3 = commit/tag
+  git clone "$2" "$PLUGINS_SRC/$1"
+  git -C "$PLUGINS_SRC/$1" checkout --quiet "$3"
+  rm -rf "$PLUGINS_SRC/$1/.git"
+}
 
-rm -rf ep_redis_publisher
-git clone https://github.com/mconf/ep_redis_publisher.git
-npm pack ./ep_redis_publisher
-npm install ./ep_redis_publisher-*.tgz
+clone_plugin ep_pad_ttl               https://github.com/mconf/ep_pad_ttl.git            360136cd38493dd698435631f2373cbb7089082d
+clone_plugin ep_bigbluebutton_patches https://github.com/alangecker/bbb-etherpad-plugin.git 4dbc28d62c44742ffae79ce88c069802bc533068
+clone_plugin ep_redis_publisher       https://github.com/mconf/ep_redis_publisher.git    2b6e47c1c59362916a0b2961a29b259f2977b694
+clone_plugin ep_cursortrace           https://github.com/mconf/ep_cursortrace.git        v3.1.20-2
 
-rm -rf ep_cursortrace
-git clone --branch v3.1.20-2 --depth 1 https://github.com/mconf/ep_cursortrace.git
-npm pack ./ep_cursortrace
-npm install ./ep_cursortrace-*.tgz
+# Etherpad >= 2 opens the socket.io connection before the documentReady hook
+# fires, so the sessionToken wrapper has to be installed at module load.
+patch -p1 -F0 --forward -d "$PLUGINS_SRC/ep_bigbluebutton_patches" \
+  -i "$PWD/ep_bigbluebutton_patches-socket-session-token.patch"
 
-npm install ep_disable_chat
-npm install --no-save --legacy-peer-deps ep_auth_session
+# registry plugins, pinned
+pushd "$PLUGINS_SRC"
+for spec in ep_disable_chat@0.0.55 ep_auth_session@1.1.2; do
+  name="${spec%@*}"
+  mkdir -p "$name"
+  tar -xzf "$(npm pack "$spec" --silent)" -C "$name" --strip-components=1
+done
+rm -f ./*.tgz
+popd
 
-mkdir -p staging/usr/share/etherpad-lite
+pnpm run plugins i --path \
+  "$PLUGINS_SRC/ep_pad_ttl" \
+  "$PLUGINS_SRC/ep_bigbluebutton_patches" \
+  "$PLUGINS_SRC/ep_redis_publisher" \
+  "$PLUGINS_SRC/ep_cursortrace" \
+  "$PLUGINS_SRC/ep_disable_chat" \
+  "$PLUGINS_SRC/ep_auth_session"
+pnpm run plugins ls
+cat var/installed_plugins.json
 
-cp -r CHANGELOG.md CONTRIBUTING.md LICENSE README.md bin doc src tests var node_modules staging/usr/share/etherpad-lite
+#
+# Skin
+rm -rf src/static/skins/bigbluebutton
+git clone https://github.com/alangecker/bbb-etherpad-skin.git src/static/skins/bigbluebutton
+git -C src/static/skins/bigbluebutton checkout --quiet 91b052c2cc4c169f2e381538e4342e894f944dbe
+rm -rf src/static/skins/bigbluebutton/.git
 
-cp settings.json staging/usr/share/etherpad-lite
-git clone https://github.com/alangecker/bbb-etherpad-skin.git staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton
-chmod -R a+rX staging/usr/share/etherpad-lite
+#
+# Staging
+mkdir -p staging$ETHERPAD_HOME
+
+cp -r CHANGELOG.md LICENSE README.md bin src var node_modules \
+      package.json pnpm-workspace.yaml pnpm-lock.yaml settings.json node-runtime \
+      staging$ETHERPAD_HOME
+
+# The plugin manager links plugins with absolute symlinks pointing into this
+# build directory; rewrite them relative so they survive the move to $ETHERPAD_HOME.
+find staging$ETHERPAD_HOME -type l | while read -r link; do
+  target=$(readlink "$link")
+  case "$target" in
+    "$PWD"/*)
+      rel=$(realpath -s --relative-to="$(dirname "$link")" "staging$ETHERPAD_HOME/${target#$PWD/}")
+      ln -sfn "$rel" "$link"
+      ;;
+  esac
+done
+# Nothing may still point outside the package
+! find staging$ETHERPAD_HOME -type l -lname '/*' | grep .
+
+chmod -R a+rX staging$ETHERPAD_HOME
 
 mkdir -p staging/usr/lib/systemd/system
 cp etherpad.service staging/usr/lib/systemd/system
@@ -72,14 +136,13 @@ cp etherpad.service staging/usr/lib/systemd/system
 mkdir -p staging/usr/share/bigbluebutton/nginx
 cp notes.nginx staging/usr/share/bigbluebutton/nginx
 
-rm -rf staging/usr/share/etherpad-lite/src/static/skins/bigbluebutton/.git
-
 ##
 
 . ./opts-$DISTRO.sh
 
 #
 # Build RPM package
+# No dependency on the system nodejs: the package carries its own runtime.
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --before-install before-install.sh \
@@ -88,6 +151,4 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-remove after-remove.sh \
     --description "The EtherPad Lite components for BigBlueButton" \
     $DIRECTORIES \
-    $OPTS \
-    -d 'nodejs (>= 18)' -d 'nodejs (<< 23)'
-
+    $OPTS
