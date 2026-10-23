@@ -9,6 +9,7 @@ import { BBBSelect } from '@bigbluebutton/bbb-ui-components-react';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
 import Styled from './styles';
 import { usePreFlight } from '../../context';
+import { isChatAvailable } from '../../features';
 import { RoomModeDefinition } from '../modes';
 import {
   AUTOMATIC_SETTINGS,
@@ -133,6 +134,9 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
             // A setting the mode leaves as created, and whose value the room
             // did not give, cannot be shown truthfully.
             if (value === undefined) return null;
+            // As in the lock viewers modal, a room without chat has no public
+            // chat to lock.
+            if (setting.id === 'publicChat' && !isChatAvailable()) return null;
             return setting.kind === 'switch'
               ? renderSwitch(setting)
               : renderSelect(setting, String(value));
