@@ -87,11 +87,14 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
   };
 
   const renderSelect = (setting: SelectSetting, value: string) => {
-    // A value the room has but this list does not offer stays on offer, so the
-    // moderator can go back to it after picking another.
+    // A value this list does not offer stays on offer while it is the room's
+    // or the picked one: the moderator can go back to it, and the select never
+    // shows a value it has no option for.
     const options = [
       ...setting.options,
-      ...(setting.hiddenOptions ?? []).filter((option) => option.value === roomValues[setting.id]),
+      ...(setting.hiddenOptions ?? []).filter(
+        (option) => option.value === roomValues[setting.id] || option.value === value,
+      ),
     ];
 
     return (
