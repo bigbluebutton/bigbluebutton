@@ -6,12 +6,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends build-essential
  && rm -rf /var/lib/apt/lists/*
 COPY --from=mikefarah/yq:4.53.2@sha256:0cb4a78491b6e62ee8a9bf4fbeacbd15b5013d19bc420591b05383a696315e60 /usr/bin/yq /usr/local/bin/yq
 
+# The source at the tag the package builds, cloned by the same script (build/get_external_dependencies.sh)
+WORKDIR /usr/local/bigbluebutton
+RUN --mount=type=bind,from=placeholders,source=bbb-webrtc-sfu.placeholder.sh,target=/placeholder.sh \
+    sh /placeholder.sh
 WORKDIR /usr/local/bigbluebutton/bbb-webrtc-sfu
-COPY --from=src . .
 # Always build the mediasoup worker from source instead of fetching a prebuilt binary
 ENV MEDIASOUP_SKIP_WORKER_PREBUILT_DOWNLOAD=true
-# npm install expects a git repository; drop the worker's build objects as the package does
-RUN git init -q && npm install --unsafe-perm --omit=dev && rm -rf .git \
+# Drop the clone's history and the worker's build objects as the package does
+RUN npm install --unsafe-perm --omit=dev && rm -rf .git \
     node_modules/mediasoup/worker/out/Release/subprojects \
     node_modules/mediasoup/worker/out/Release/mediasoup-worker.p \
     node_modules/mediasoup/worker/out/Release/deps

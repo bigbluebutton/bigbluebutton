@@ -33,17 +33,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Check that the images build the versions the packages build
-        run: |
-          for c in bbb-webrtc-sfu bbb-webrtc-recorder bbb-webhooks bbb-playback; do
-            tag=$(sed -n 's/.*--branch \([^ ]*\) .*/\1/p' "$c.placeholder.sh")
-            grep -qF "$c.git#$tag\"" docker-bake.hcl \
-              || { echo "::error::docker-bake.hcl does not build $c at $tag ($c.placeholder.sh)"; exit 1; }
-          done
-          release=$(sed -n 's/^RELEASE=//p' bbb-presentation-video.placeholder.sh)
-          grep -qF "bbb-presentation-video/releases/download/$release/" record-and-playback/Dockerfile \
-            || { echo "::error::record-and-playback/Dockerfile does not install bbb-presentation-video $release"; exit 1; }
-
       - name: List the images of the default bake group
         id: list
         run: echo "targets=$(docker buildx bake --print default | jq -c .group.default.targets)" >> "$GITHUB_OUTPUT"

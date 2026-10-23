@@ -132,6 +132,7 @@ target "record-and-playback" {
   contexts  = {
     bigbluebutton-config = "./bigbluebutton-config"
     bbb-mkclean          = "./build/packages-template/bbb-mkclean"
+    placeholders         = "."
   }
 }
 
@@ -142,31 +143,32 @@ target "nginx" {
   dockerfile = "docker/nginx/Dockerfile"
 }
 
-# External components: source at the tag their <component>.placeholder.sh clones (checked in CI)
+# External components: their Dockerfiles run <component>.placeholder.sh, the script the package build
+# runs to fetch the component, so the image and the package build the same version from one place
 target "webrtc-sfu" {
   inherits = ["_image"]
   tags     = tags("webrtc-sfu")
   context  = "./docker/bbb-webrtc-sfu"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-sfu.git#v2.25.0-beta.2" }
+  contexts = { placeholders = "." }
 }
 
 target "webrtc-recorder" {
   inherits = ["_image"]
   tags     = tags("webrtc-recorder")
   context  = "./docker/bbb-webrtc-recorder"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-recorder.git#v0.14.0" }
+  contexts = { placeholders = "." }
 }
 
 target "webhooks" {
   inherits = ["_image"]
   tags     = tags("webhooks")
   context  = "./docker/bbb-webhooks"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-webhooks.git#v3.7.0" }
+  contexts = { placeholders = "." }
 }
 
 target "playback" {
   inherits = ["_image"]
   tags     = tags("playback")
   context  = "./docker/bbb-playback"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-playback.git#v5.4.7" }
+  contexts = { placeholders = "." }
 }
