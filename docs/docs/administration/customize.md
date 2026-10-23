@@ -1670,6 +1670,33 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
 
+Where the speech is transcribed is up to the browser. Chrome sends the audio to Google's speech recognition servers, unless the language pack for the chosen language is already installed on the computer, in which case it transcribes on the device.
+
+##### Where the speech is transcribed
+
+`speechProcessing` (added in 4.0) sets where the browser transcribes the speaker's audio:
+
+```
+public:
+  app:
+    audioCaptions:
+      enabled: true
+      speechProcessing: local
+```
+
+- `cloud` (default): the browser decides, as described above. This does not guarantee that the audio goes to a speech recognition service: Chrome transcribes on the device when the language pack is already installed.
+- `local`: the browser always transcribes on the user's device and never falls back to a speech recognition service.
+- `auto`: as `local`, but a language the browser cannot transcribe on the device, or every language in a browser without on-device speech recognition, is transcribed as with `cloud`. Under the transcription language, a line tells the user that the browser may send the audio to its speech recognition service.
+
+With `local` and `auto`:
+
+- A language must be downloaded to the device before it can be transcribed. When it is not there yet, a short line under the transcription language in the audio settings says that a language pack will be downloaded. The download starts when the user confirms (the join audio button), and the audio settings stay open, showing that it is downloading, until it finishes; if it fails they stay open to try again. Picking "Disabled" joins audio without transcription and without downloading. The download is about 300 MB the first time in Chrome (speech engine plus language pack), then once per language.
+- In the transcription panel, turning transcription on with a language that is not on the device starts its download.
+- If audio is joined some other way (for example with `userdata-bbb_skip_check_audio`) without the language pack, transcription stays off and the user is told to turn it on in the transcription settings to download it. It starts by itself once the download finishes.
+- With `local`, only the languages in `language.available` that the browser can transcribe on the device are offered, and browsers without on-device speech recognition show live captions as unsupported. Chrome has it from version 139, on desktop.
+
+Only the transcribed text is sent to BigBlueButton, as with the default setting.
+
 #### Configuration of gladia.io
 
 To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration. _Note: The "Free Trial" plan only allows up to 1 concurrent session_

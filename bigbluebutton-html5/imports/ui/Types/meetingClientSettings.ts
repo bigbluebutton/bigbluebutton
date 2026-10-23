@@ -128,6 +128,7 @@ export interface AudioCaptions {
   enabled: boolean
   mobile: boolean
   provider: string
+  speechProcessing: 'cloud' | 'local' | 'auto'
   showInSidebarNavigation: boolean
   microphoneAlert: MicrophoneAlert
   language: Language
