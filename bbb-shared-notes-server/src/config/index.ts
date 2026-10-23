@@ -29,14 +29,15 @@ function deepMerge<T extends object>(base: T, override: Partial<T>): T {
 
 function loadConfig(): AppSettings {
   const defaultPath = existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH;
-  const config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
-  // SERVER_HOST replaces the default listen address; the override file still wins
-  if (process.env.SERVER_HOST) config.expressServer.host = process.env.SERVER_HOST;
+  let config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
 
   if (existsSync(OVERRIDE_PATH)) {
     const override = load(readFileSync(OVERRIDE_PATH, 'utf8')) as Partial<AppSettings>;
-    return deepMerge(config, override);
+    config = deepMerge(config, override);
   }
+
+  // SERVER_HOST, if set, wins over the default and the override file
+  if (process.env.SERVER_HOST) config.expressServer.host = process.env.SERVER_HOST;
 
   return config;
 }

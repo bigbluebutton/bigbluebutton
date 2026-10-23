@@ -79,11 +79,6 @@ func (c *Config) loadConfigs() {
 		log.Fatalf("Error while loading config file (%s): %v", DefaultConfigPath, err)
 	}
 
-	// SERVER_HOST replaces the default listen address; the override file still wins
-	if host := os.Getenv("SERVER_HOST"); host != "" {
-		configDefault.Server.Host = host
-	}
-
 	// Load override config file if exists
 	if _, err := os.Stat(OverrideConfigPath); err == nil {
 		configOverride, err := loadConfigFile(OverrideConfigPath)
@@ -98,6 +93,11 @@ func (c *Config) loadConfigs() {
 		if err != nil {
 			log.Fatalf("Erro ao mesclar as configurações: %v", err)
 		}
+	}
+
+	// SERVER_HOST, if set, wins over the default and the override file
+	if host := os.Getenv("SERVER_HOST"); host != "" {
+		configDefault.Server.Host = host
 	}
 
 	// Update the singleton instance with the merged config
