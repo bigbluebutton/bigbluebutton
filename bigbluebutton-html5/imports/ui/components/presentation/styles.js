@@ -16,6 +16,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
+import { Resizable } from 're-resizable';
 
 const VisuallyHidden = styled.span`
   position: absolute;
@@ -164,7 +165,9 @@ const PresentationToolbar = styled.div`
   order: 2;
   position: absolute;
   bottom: 0;
-  z-index: 0;
+  // has to be 1 for showing dropdown on the popupWindow,
+  //  as both presentationInnerWrapper and presentationToolbarWrapper are 'z-index: 1'.
+  z-index: ${({ isPresentationDetached }) => (isPresentationDetached ? 1 : 0)};
 `;
 
 const ToastSeparator = styled(ToastStyled.Separator)``;
@@ -214,6 +217,281 @@ const IconWithMask = styled.div.attrs({
   mask: url(${({ mask }) => mask})  center 100% / 100% no-repeat;
 `;
 
+const PresenterToolSlidesResizable = styled(Resizable)`
+  position: relative;
+  flex: 0 0 auto;
+
+  height: 100%;
+  min-width: 0;
+
+  box-sizing: border-box;
+`;
+
+const PresenterToolResizeHandle = styled.div`
+  position: absolute;
+
+  width: 10px;
+  height: 100%;
+
+  top: 0;
+  right: -5px;
+
+  cursor: col-resize;
+  z-index: 10;
+  user-select: none;
+  touch-action: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+    left: 4px;
+
+    width: 2px;
+    background: ${({ theme }) => theme.colorGray};
+  }
+`;
+
+const PresenterToolCurrentSlideResizable = styled(Resizable).attrs({
+  handleStyles: {
+    bottom: {
+      height: '10px',
+      bottom: '-5px',
+      left: '0',
+      width: '100%',
+      cursor: 'row-resize',
+      zIndex: 20,
+      userSelect: 'none',
+      touchAction: 'none',
+    },
+  },
+})`
+  position: relative;
+  flex: 0 0 auto;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+`;
+
+const PresenterToolContainer = styled.div`
+  position: absolute;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+`;
+
+const PresenterToolSlidesColumn = styled.div`
+  width: 100%;
+  height: 100%;
+  
+  min-width: 0;
+  min-height: 0;
+  
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+`;
+
+const PresenterToolSlidePane = styled.div`
+  position: relative;
+
+  flex: 1 1 0;
+  width: 100%;
+
+  height: auto;
+
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  ${({ $withBorder }) => $withBorder && `
+    border-bottom: 1px solid #444;
+  `}
+`;
+
+const PresenterToolSlideFrame = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+`;
+
+const PresenterToolSlideLabel = styled.div`
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  z-index: 1;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.85rem;
+`;
+
+const PresenterToolSlideImage = styled.img`
+  width: auto;
+  height: auto;
+
+  max-width: ${({ $compact }) => ($compact ? '90%' : '100%')};
+  max-height: ${({ $compact }) => ($compact ? '90%' : '100%')};
+
+  background: #fff;
+  display: block;
+
+  pointer-events: none;
+  user-select: none;
+`;
+
+const PresenterToolEmptySlide = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 1rem;
+`;
+
+const PresenterToolNotesPanel = styled.div`
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  border-left: 1px solid #444;
+  color: white;
+  background: #1e1e1e;
+`;
+
+const PresenterToolSlideContent = styled.div`
+  position: relative;
+  flex: 1 1 0;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  container-type: size;
+`;
+
+const PresenterToolSlideViewport = styled.div`
+  --viewport-ratio: ${({ $aspectRatio }) => (
+    Number.isFinite($aspectRatio) && $aspectRatio > 0
+      ? $aspectRatio
+      : (16 / 9)
+  )};
+
+  position: relative;
+
+  width: min(
+    100cqw,
+    calc(100cqh * var(--viewport-ratio))
+  );
+
+  height: min(
+    100cqh,
+    calc(100cqw / var(--viewport-ratio))
+  );
+
+  aspect-ratio: var(--viewport-ratio);
+
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #000;
+`;
+
+const PresenterToolTransformedSlideLayer = styled.div`
+  position: absolute;
+
+  left: ${({ $leftRatio }) => `${$leftRatio * 100}%`};
+  top: ${({ $topRatio }) => `${$topRatio * 100}%`};
+
+  width: ${({ $widthRatio }) => `${$widthRatio * 100}%`};
+  height: ${({ $heightRatio }) => `${$heightRatio * 100}%`};
+
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+`;
+
+const PresenterToolTransformedSlide = styled.img`
+  position: absolute;
+  inset: 0;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  max-width: none;
+  max-height: none;
+
+  pointer-events: none;
+  user-select: none;
+  background: #fff;
+`;
+
+const PresenterToolCursorDot = styled.div`
+  position: absolute;
+
+  left: ${({ $leftRatio }) => `${$leftRatio * 100}%`};
+  top: ${({ $topRatio }) => `${$topRatio * 100}%`};
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+  background: #ff0000;
+
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+`;
+
+const PresenterToolAnnotationsOverlay = styled.img`
+  position: absolute;
+  inset: 0;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  max-width: none;
+  max-height: none;
+
+  pointer-events: none;
+  user-select: none;
+
+  z-index: 1;
+`;
+
 export default {
   VisuallyHidden,
   PresentationSvg,
@@ -233,4 +511,21 @@ export default {
   Button,
   ExtraTools,
   IconWithMask,
+  PresenterToolSlidesResizable,
+  PresenterToolResizeHandle,
+  PresenterToolCurrentSlideResizable,
+  PresenterToolContainer,
+  PresenterToolSlidesColumn,
+  PresenterToolSlidePane,
+  PresenterToolSlideFrame,
+  PresenterToolSlideLabel,
+  PresenterToolSlideImage,
+  PresenterToolEmptySlide,
+  PresenterToolNotesPanel,
+  PresenterToolSlideContent,
+  PresenterToolSlideViewport,
+  PresenterToolTransformedSlideLayer,
+  PresenterToolTransformedSlide,
+  PresenterToolAnnotationsOverlay,
+  PresenterToolCursorDot,
 };
