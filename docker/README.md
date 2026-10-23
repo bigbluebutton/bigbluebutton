@@ -194,5 +194,5 @@ is described in [Install with Docker Compose](../docs/docs/administration/docker
 page of the administration documentation.
 
 To run it on your own machine and replace an image with your own build (and the HTML5 client
-with the webpack dev server), see "Develop with Docker Compose" in the
+with the Vite dev server), see "Develop with Docker Compose" in the
 [development guide](../docs/docs/development/dev-guide.md).

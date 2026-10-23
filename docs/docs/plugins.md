@@ -387,7 +387,7 @@ Start with the plugin template provided by the BigBlueButton organization, avail
 
 [https://github.com/bigbluebutton/plugin-template](https://github.com/bigbluebutton/plugin-template)
 
-While it's possible to build a plugin from scratch, doing so requires specific configurations in files like `package.json` and `webpack.config.js` (if you're using Webpack), which can be tricky to get right. The official template saves time by providing all the necessary boilerplate so you can focus on writing your plugin logic.
+While it's possible to build a plugin from scratch, doing so requires specific configurations in files like `package.json` and `webpack.config.js` (if you're using Webpack) or an equivalent Vite config, which can be tricky to get right. The official template currently ships Webpack boilerplate; a Vite-based template is planned as the HTML5 client itself now builds with Vite 8 (Rolldown / Oxc). Until that lands, follow the template's Webpack instructions.
 
 To get started:
 
@@ -411,7 +411,7 @@ Clone your new repository locally and begin making the necessary modifications. 
 Replace all `<plugin-name>` placeholders in the following files:
 
 - `package.json`
-- `webpack.config.js` (use PascalCase)
+- `webpack.config.js` (use PascalCase; or `vite.config` if using a Vite plugin template)
 - `manifest.json` (use PascalCase)
 
 **Check SDK Version Compatibility**

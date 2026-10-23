@@ -8,7 +8,7 @@
 # The bake target is the image name without "bbb-". The image in .env is enough to run it;
 # pull_policy: never below lets `docker compose pull` skip the local image.
 #
-# For the HTML5 client from the webpack dev server instead of an image, uncomment the HTML5 block
+# For the HTML5 client from the Vite dev server instead of an image, uncomment the HTML5 block
 # at the end (see "Develop with Docker Compose" in the development guide).
 
 # services:
@@ -75,7 +75,7 @@
   # nginx:
   #   pull_policy: never # only with a local nginx image
   #
-  #   # HTML5 block: nginx serves /html5client/ from the webpack dev server and the locales from
+  #   # HTML5 block: nginx serves /html5client/ from the Vite dev server and the locales from
   #   # the source tree. The html5-client image keeps running (nginx depends on it) but gets no
   #   # requests.
   #   configs:

@@ -1,6 +1,6 @@
 import type { Mermaid, MermaidConfig } from 'mermaid';
 
-// Stands in for `mermaid` (webpack alias) so the diagram block downloads Mermaid
+// Stands in for `mermaid` (Vite alias) so the diagram block downloads Mermaid
 // only when a diagram is first drawn; the block only calls initialize, parse and
 // render. The Safari 14-15 build is a single file, with Mermaid inside.
 
@@ -21,7 +21,7 @@ const configure = (mermaid: Mermaid): Mermaid => {
 };
 
 const loadMermaid = (): Promise<Mermaid> => {
-  loading ??= import(/* webpackMode: "lazy" */ 'mermaid/dist/mermaid.core.mjs')
+  loading ??= import('mermaid/dist/mermaid.core.mjs')
     .then(({ default: mermaid }) => mermaid)
     .catch((error) => {
       // Let the next diagram try again (e.g. after a network hiccup)

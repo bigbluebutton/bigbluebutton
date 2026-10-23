@@ -6,6 +6,13 @@ location /html5client {
     try_files $uri $uri/ =404;
 }
 
+# index.html names the current bundle, so browsers must revalidate it on every load
+location = /html5client/index.html {
+    gzip_static on;
+    alias /usr/share/bigbluebutton/html5-client/index.html;
+    add_header Cache-Control "no-cache";
+}
+
 location /html5client/locales {
   alias /usr/share/bigbluebutton/html5-client/locales;
   autoindex on;

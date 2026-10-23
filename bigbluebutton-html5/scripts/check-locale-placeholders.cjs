@@ -2,7 +2,7 @@
 // Fails when a locale file is not valid JSON, or when a translation does not parse or
 // uses a placeholder that its en.json string does not have: react-intl renders such a
 // message raw, braces included.
-// Usage: node scripts/check-locale-placeholders.js [--base <dir>] [<locales dir>]
+// Usage: node scripts/check-locale-placeholders.cjs [--base <dir>] [<locales dir>]
 // With --base, problems that the locale files in <dir> already have only get counted.
 const fs = require('fs');
 const path = require('path');

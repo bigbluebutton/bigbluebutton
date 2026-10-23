@@ -1,3 +1,4 @@
 Gruntfile.js
 public/compatibility/*
 public/wasm/*
+dist/*

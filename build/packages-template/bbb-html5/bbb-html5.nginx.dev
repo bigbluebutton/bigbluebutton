@@ -1,7 +1,16 @@
-# running from source (npm start)
+# running from source (npm start / Vite)
 location /html5client/ {
   gzip_static on;
-  proxy_pass http://localhost:3000/;
+  # Preserve the /html5client/ prefix so Vite base + HMR paths match.
+  proxy_pass http://localhost:3000;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  proxy_set_header Host $host;
+}
+
+location /html5client/ws {
+  proxy_pass http://localhost:3000/html5client/ws;
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";

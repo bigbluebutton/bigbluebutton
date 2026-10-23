@@ -6,7 +6,8 @@ location /learning-analytics-dashboard {
 }
 
 location /learning-analytics-dashboard/ws {
-    proxy_pass http://127.0.0.1:3100/ws;
+    # Vite HMR listens on the same path the browser uses (no URI rewrite).
+    proxy_pass http://127.0.0.1:3100/learning-analytics-dashboard/ws;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";
