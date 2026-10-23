@@ -345,10 +345,38 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
       await chat.rejectsImageExceedingDimensionCap();
     });
 
-    test('Stage a single image when the clipboard carries several', async ({ browser, context, page }, testInfo) => {
+    test('Stage every file of the clipboard and send one message per file', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.stagesEveryFileAndSendsOneMessageEach();
+    });
+
+    test('Remove one of several staged files', async ({ browser, context, page }, testInfo) => {
       const chat = new ChatImagePaste(browser, context);
       await chat.initModPage(page, { testInfo });
-      await chat.stagesOnlyOneImageFromMultiImageClipboard();
+      await chat.removeOneOfSeveralFiles();
+    });
+
+    test('Attach a file with the file picker', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.attachWithFilePicker();
+    });
+
+    test('Drop a file on the chat panel', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropOnChatPanel();
+    });
+
+    test('Send a file that is not an image as a link', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.sendNonImageFile();
     });
 
     test('Keep the image staged when the upload fails, and send it on retry', async ({

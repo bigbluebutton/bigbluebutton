@@ -15,7 +15,8 @@ interface SyntheticFile {
   fileName: string;
   dataUrl?: string;
   sizeBytes?: number;
-  eventType?: 'paste' | 'drop';
+  // 'dragenter' leaves the drag hovering over the target, without dropping.
+  eventType?: 'paste' | 'drop' | 'dragenter';
 }
 
 function fixtureAsDataUrl(fileName: string, mimeType: string): string {
@@ -91,11 +92,16 @@ async function dispatchFiles(testPage: Page, selector: string, files: SyntheticF
       }
       const element = document.querySelector(sel);
       if (!element) throw new Error(`element not found: ${sel}`);
-      const event =
-        eventType === 'drop'
-          ? new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer })
-          : new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dataTransfer });
-      element.dispatchEvent(event);
+      if (eventType === 'paste') {
+        element.dispatchEvent(
+          new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dataTransfer }),
+        );
+        return;
+      }
+      // A real drag enters the panel and moves over it before the drop.
+      ['dragenter', 'dragover', eventType].forEach((type) => {
+        element.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer }));
+      });
     },
     {
       selector,
@@ -108,6 +114,26 @@ async function dispatchFiles(testPage: Page, selector: string, files: SyntheticF
       eventType: files[0]?.eventType ?? 'paste',
     },
   );
+}
+
+// The chat panel content under the header: files dropped anywhere on it are staged.
+const CHAT_PANEL = '#scroll-box';
+
+interface FileUploadSettings {
+  maxFileSizeKb: number;
+  allowedMimeTypes: string[];
+}
+
+async function fileUploadSettings(testPage: Page): Promise<FileUploadSettings> {
+  return testPage.page.evaluate(
+    () =>
+      (window as unknown as { meetingClientSettings: { public: { fileUpload: FileUploadSettings } } })
+        .meetingClientSettings.public.fileUpload,
+  );
+}
+
+async function allowedMimeTypes(testPage: Page): Promise<string[]> {
+  return (await fileUploadSettings(testPage)).allowedMimeTypes;
 }
 
 async function dispatchFile(testPage: Page, selector: string, file: SyntheticFile): Promise<void> {
@@ -138,10 +164,7 @@ export class ChatImagePaste extends MultiUsers {
         fileName: IMAGE_FIXTURE,
         dataUrl: fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'),
       });
-      await this.modPage.wasRemoved(
-        e.chatImagePreview,
-        'should not show an image preview when image paste is disabled',
-      );
+      await this.modPage.wasRemoved(e.chatAttachments, 'should not show an image preview when image paste is disabled');
       return;
     }
 
@@ -152,10 +175,10 @@ export class ChatImagePaste extends MultiUsers {
       fileName: IMAGE_FIXTURE,
       dataUrl: fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'),
     });
-    await this.modPage.hasElement(e.chatImagePreview, 'should show the pasted image preview above the input');
+    await this.modPage.hasElement(e.chatAttachments, 'should show the pasted image preview above the input');
 
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.wasRemoved(e.chatImagePreview, 'should clear the preview after sending');
+    await this.modPage.wasRemoved(e.chatAttachments, 'should clear the preview after sending');
     await this.modPage.hasElement(e.chatUserMessageImage, 'should render the sent image for the sender');
     await expectChatImageRendered(
       this.modPage,
@@ -175,9 +198,9 @@ export class ChatImagePaste extends MultiUsers {
       fileName: IMAGE_FIXTURE,
       dataUrl: fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'),
     });
-    await this.modPage.hasElement(e.chatImagePreview, 'should show the pasted image preview');
-    await this.modPage.waitAndClick(e.removeChatImageButton);
-    await this.modPage.wasRemoved(e.chatImagePreview, 'should remove the preview when clicking remove');
+    await this.modPage.hasElement(e.chatAttachments, 'should show the pasted image preview');
+    await this.modPage.waitAndClick(e.removeChatAttachmentButton);
+    await this.modPage.wasRemoved(e.chatAttachments, 'should remove the preview when clicking remove');
   }
 
   async rejectsOversizeImage() {
@@ -189,7 +212,7 @@ export class ChatImagePaste extends MultiUsers {
       sizeBytes: 6 * 1024 * 1024,
     });
     await this.modPage.hasElement(e.errorTypingIndicator, 'should show an error for an oversize image');
-    await this.modPage.wasRemoved(e.chatImagePreview, 'should not stage an oversize image');
+    await this.modPage.wasRemoved(e.chatAttachments, 'should not stage an oversize image');
   }
 
   async rejectsUnsupportedType() {
@@ -201,7 +224,7 @@ export class ChatImagePaste extends MultiUsers {
       sizeBytes: 128,
     });
     await this.modPage.hasElement(e.errorTypingIndicator, 'should show an error for an unsupported image type');
-    await this.modPage.wasRemoved(e.chatImagePreview, 'should not stage an unsupported image type');
+    await this.modPage.wasRemoved(e.chatAttachments, 'should not stage an unsupported image type');
   }
 
   // rejectsUnsupportedType declares image/svg+xml, so the client's allowlist
@@ -224,7 +247,7 @@ export class ChatImagePaste extends MultiUsers {
     });
     // The client stages it: its declared type is allowlisted. That is what makes
     // the server the only thing standing between this file and other users.
-    await this.modPage.hasElement(e.chatImagePreview, 'the client should stage a file whose declared type is allowed');
+    await this.modPage.hasElement(e.chatAttachments, 'the client should stage a file whose declared type is allowed');
 
     await this.modPage.waitAndClick(e.sendButton);
     await expect(async () => {
@@ -254,7 +277,7 @@ export class ChatImagePaste extends MultiUsers {
       dataUrl: bytesAsDataUrl(pngHeaderClaiming(10000, 10000)),
     });
     // Well under the size cap, so nothing client-side objects to it.
-    await this.modPage.hasElement(e.chatImagePreview, 'the client should stage a small file with an allowed type');
+    await this.modPage.hasElement(e.chatAttachments, 'the client should stage a small file with an allowed type');
 
     await this.modPage.waitAndClick(e.sendButton);
     await expect(async () => {
@@ -268,38 +291,118 @@ export class ChatImagePaste extends MultiUsers {
     );
   }
 
-  // A clipboard can carry several files at once. The handler takes the first
-  // image and ignores the rest, and the form stages a single preview - so the
-  // user sends exactly what they were shown, never a surprise second upload.
-  async stagesOnlyOneImageFromMultiImageClipboard() {
+  // A clipboard can carry several files at once. Every one of them is staged,
+  // and sending delivers one message per file, in order; the typed text goes
+  // with the first one only.
+  async stagesEveryFileAndSendsOneMessageEach() {
     const { imagePasteEnabled } = this.modPage.settings || {};
     if (!imagePasteEnabled) return;
     await openPublicChat(this.modPage);
     const uploadStatuses = recordUploadStatuses(this.modPage);
+    const text = 'three files at once';
 
     const image = fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png');
+    await this.modPage.page.locator(e.chatBox).fill(text);
     await dispatchFiles(this.modPage, e.chatBox, [
       { mimeType: 'image/png', fileName: 'first.png', dataUrl: image },
       { mimeType: 'image/png', fileName: 'second.png', dataUrl: image },
+      { mimeType: 'image/png', fileName: 'third.png', dataUrl: image },
     ]);
-    await this.modPage.hasElementCount(
-      e.chatImagePreview,
-      1,
-      'should stage a single preview when the clipboard carries two images',
-    );
+    await this.modPage.hasElementCount(e.chatAttachment, 3, 'should stage every file of the clipboard');
+    await this.modPage.hasText(e.chatAttachmentMeta, /3 files/, 'should summarize the staged files');
 
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.hasElement(e.chatUserMessageImage, 'should deliver the staged image');
-    await expectChatImageRendered(this.modPage, 'the delivered image should actually load (naturalWidth > 0)');
-    await this.modPage.hasElementCount(
-      e.chatUserMessageImage,
-      1,
-      'should deliver exactly one image for a two-image clipboard',
-    );
+    await this.modPage.wasRemoved(e.chatAttachments, 'should clear the staged files once all are sent');
+    await this.userPage.hasElementCount(e.chatUserMessageImage, 3, 'should deliver one image message per file');
+    await expectChatImageRendered(this.userPage, 'the delivered images should actually load (naturalWidth > 0)');
+    const messages = this.userPage.page.locator('div[data-test="messageContent"]');
+    await expect(messages.nth(0), 'the text should go with the first file').toContainText(text);
+    await expect(messages.nth(1), 'the text should not repeat on the next files').not.toContainText(text);
+    await expect(messages.nth(2), 'the text should not repeat on the next files').not.toContainText(text);
     expect(
       uploadStatuses.filter((s) => s === 201),
-      'only the staged image should have been uploaded',
-    ).toHaveLength(1);
+      'each staged file should have been uploaded once',
+    ).toHaveLength(3);
+  }
+
+  async removeOneOfSeveralFiles() {
+    const { imagePasteEnabled } = this.modPage.settings || {};
+    if (!imagePasteEnabled) return;
+    await openPublicChat(this.modPage);
+    const image = fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png');
+    await dispatchFiles(this.modPage, e.chatBox, [
+      { mimeType: 'image/png', fileName: 'keep.png', dataUrl: image },
+      { mimeType: 'image/png', fileName: 'drop.png', dataUrl: image },
+    ]);
+    await this.modPage.hasElementCount(e.chatAttachment, 2, 'should stage both files');
+    await this.modPage.page.getByRole('button', { name: 'Remove drop.png' }).click();
+    await this.modPage.hasElementCount(e.chatAttachment, 1, 'should unstage only the removed file');
+    await this.modPage.hasText(e.chatAttachmentName, 'keep.png', 'should keep the other file staged');
+  }
+
+  // The attach button opens the browser file picker with the allowed types.
+  async attachWithFilePicker() {
+    const { imagePasteEnabled } = this.modPage.settings || {};
+    if (!imagePasteEnabled) {
+      await openPublicChat(this.modPage);
+      await this.modPage.wasRemoved(e.attachFileButton, 'should not offer to attach files when the feature is off');
+      return;
+    }
+    await openPublicChat(this.modPage);
+    const accept = await this.modPage.page.locator(e.chatFileInput).getAttribute('accept');
+    expect(accept?.split(','), 'the picker should offer exactly the allowed types').toEqual(
+      await allowedMimeTypes(this.modPage),
+    );
+
+    const chooser = this.modPage.page.waitForEvent('filechooser');
+    await this.modPage.waitAndClick(e.attachFileButton);
+    await (await chooser).setFiles(path.join(__dirname, `../core/media/${IMAGE_FIXTURE}`));
+    await this.modPage.hasText(e.chatAttachmentName, IMAGE_FIXTURE, 'should stage the picked file');
+
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.wasRemoved(e.chatAttachments, 'should clear the staged file after sending');
+    await expectChatImageRendered(this.modPage, 'the picked image should be delivered and load');
+  }
+
+  // Dragging files over the chat panel shows the drop overlay with the limits
+  // of the meeting settings; dropping stages the files.
+  async dropOnChatPanel() {
+    const { imagePasteEnabled } = this.modPage.settings || {};
+    if (!imagePasteEnabled) return;
+    await openPublicChat(this.modPage);
+    const image = fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png');
+
+    await dispatchFiles(this.modPage, CHAT_PANEL, [
+      { mimeType: 'image/png', fileName: IMAGE_FIXTURE, dataUrl: image, eventType: 'dragenter' },
+    ]);
+    await this.modPage.hasElement(e.chatFileDropOverlay, 'should show the drop overlay while dragging files');
+    const { maxFileSizeKb } = await fileUploadSettings(this.modPage);
+    await this.modPage.hasText(
+      e.chatFileDropOverlay,
+      `${Math.round(maxFileSizeKb / 1024)} MB`,
+      'should state the configured size limit',
+    );
+
+    await dispatchFiles(this.modPage, CHAT_PANEL, [
+      { mimeType: 'image/png', fileName: IMAGE_FIXTURE, dataUrl: image, eventType: 'drop' },
+    ]);
+    await this.modPage.wasRemoved(e.chatFileDropOverlay, 'should hide the overlay on drop');
+    await this.modPage.hasText(e.chatAttachmentName, IMAGE_FIXTURE, 'should stage the dropped file');
+  }
+
+  // A file that is not an image travels as a link to it, next to the
+  // attachment metadata. Only runs where the meeting allows such a type.
+  async sendNonImageFile() {
+    const { imagePasteEnabled } = this.modPage.settings || {};
+    if (!imagePasteEnabled) return;
+    await openPublicChat(this.modPage);
+    if (!(await allowedMimeTypes(this.modPage)).includes('application/pdf')) return;
+
+    await this.modPage.page.locator(e.chatFileInput).setInputFiles(path.join(__dirname, '../core/media/sample.pdf'));
+    await this.modPage.hasText(e.chatAttachmentMeta, /pdf/, 'should show the size and type of the staged pdf');
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.wasRemoved(e.chatAttachments, 'should clear the staged pdf after sending');
+    await this.userPage.hasText(e.chatUserMessageLink, 'sample.pdf', 'should deliver a link to the pdf');
   }
 
   // A dropped connection mid-upload must not cost the user their image: the
@@ -318,18 +421,18 @@ export class ChatImagePaste extends MultiUsers {
       fileName: IMAGE_FIXTURE,
       dataUrl: fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'),
     });
-    await this.modPage.hasElement(e.chatImagePreview, 'should stage the pasted image');
+    await this.modPage.hasElement(e.chatAttachments, 'should stage the pasted image');
     await this.modPage.waitAndClick(e.sendButton);
 
     await this.modPage.hasElement(e.errorTypingIndicator, 'should report the failed upload');
-    await this.modPage.hasElement(e.chatImagePreview, 'should keep the image staged so the user can retry');
+    await this.modPage.hasElement(e.chatAttachments, 'should keep the image staged so the user can retry');
     await this.modPage.hasElementCount(e.chatUserMessageImage, 0, 'should not deliver a message for a failed upload');
 
     // Connection restored: the same staged image goes through on a plain retry,
     // with no need to paste it again.
     await this.modPage.page.unroute(uploadRoute);
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.wasRemoved(e.chatImagePreview, 'should clear the preview once the retry succeeds');
+    await this.modPage.wasRemoved(e.chatAttachments, 'should clear the preview once the retry succeeds');
     await this.modPage.hasElement(e.chatUserMessageImage, 'should deliver the image on retry');
     await expectChatImageRendered(this.modPage, 'the retried image should actually load (naturalWidth > 0)');
   }

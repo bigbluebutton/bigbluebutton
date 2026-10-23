@@ -21,7 +21,7 @@ BigBlueButton 4.1 lets a moderator **ask a participant to turn on their webcam**
 
 #### Image paste in chat, shared notes, and whiteboard
 
-Participants can now **paste (Ctrl+V) or drag-and-drop images** into the chat input, the BlockNote shared notes editor, and the whiteboard. Pasted images are uploaded once to a meeting-scoped storage, served behind the same authorization used for presentation slides, and survive recording/playback.
+Participants can now **paste (Ctrl+V) or drag-and-drop images** into the chat input, the BlockNote shared notes editor, and the whiteboard. Pasted images are uploaded once to a meeting-scoped storage, served behind the same authorization used for presentation slides, and survive recording/playback. In the chat, an attach button next to the emoji picker opens the file picker, and dropping files anywhere on the chat panel stages them too; several files can be staged at once, each is sent as its own message, and the typed text goes with the first one.
 
 The feature is **disabled by default** on all three surfaces. Enable them via the per-surface client settings:
 

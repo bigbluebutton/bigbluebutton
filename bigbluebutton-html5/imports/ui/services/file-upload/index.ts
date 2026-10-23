@@ -74,14 +74,28 @@ const SERVER_CODE_TO_REASON: Record<string, UploadImageErrorReason> = {
   rate_limited: 'upload-failed',
 };
 
+export interface UploadedFile {
+  url: string;
+  name: string;
+  size: number;
+  mime: string;
+}
+
+export const isAllowedFileType = (file: File): boolean => {
+  return getLimits().allowedMimeTypes.includes(file.type);
+};
+
 /**
- * Uploads an image to the meeting-scoped bbb-file-upload service and returns the
- * relative URL to reference it (e.g. /bigbluebutton/fileUpload/{meetingId}/{uuid}.png).
+ * Uploads a file to the meeting-scoped bbb-file-upload service and returns what
+ * a chat attachment needs: the relative URL to reference it
+ * (e.g. /bigbluebutton/fileUpload/{meetingId}/{uuid}.png), the file name, its
+ * size in bytes and its mime type. The service answers with the name/size/mime
+ * it settled on; any it leaves out are taken from the local file.
  * The session is authenticated by the nginx auth_request, which reads the
  * sessionToken from the query string, exactly like the presentation upload.
  */
-export const uploadImage = async (file: File): Promise<string> => {
-  if (!isAllowedImage(file)) {
+export const uploadFile = async (file: File): Promise<UploadedFile> => {
+  if (!isAllowedFileType(file)) {
     throw new UploadImageError('unsupported-type');
   }
   if (!isWithinSizeLimit(file)) {
@@ -117,9 +131,25 @@ export const uploadImage = async (file: File): Promise<string> => {
     throw new UploadImageError(reason, code || `status ${response.status}`, dimensions);
   }
 
-  const body = await response.json();
+  const body = await response.json() as Partial<UploadedFile> | null;
   if (typeof body?.url !== 'string') {
     throw new UploadImageError('upload-failed', 'missing url in response');
   }
-  return body.url;
+  return {
+    url: body.url,
+    name: typeof body.name === 'string' ? body.name : file.name,
+    size: typeof body.size === 'number' ? body.size : file.size,
+    mime: typeof body.mime === 'string' ? body.mime : file.type,
+  };
+};
+
+/**
+ * Uploads an image (shared notes, whiteboard) and returns its relative URL.
+ */
+export const uploadImage = async (file: File): Promise<string> => {
+  if (!isAllowedImage(file)) {
+    throw new UploadImageError('unsupported-type');
+  }
+  const { url } = await uploadFile(file);
+  return url;
 };

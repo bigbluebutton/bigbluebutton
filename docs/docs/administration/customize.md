@@ -1771,7 +1771,7 @@ Image paste is controlled by HTML5 client settings. They live under `public:` in
 
 | Setting | Description | Options | Default value |
 |---|---|---|---|
-| `public.chat.imagePaste.enabled` | Allow pasting/dropping images into the chat input. Only takes effect when `markdownImageAllowed` below is also on (the pasted image is rendered server-side as markdown) | true/false | false |
+| `public.chat.imagePaste.enabled` | Allow pasting, dropping or attaching (attach button) files in the chat input. Only takes effect when `markdownImageAllowed` below is also on (the pasted image is rendered server-side as markdown) | true/false | false |
 | `public.chat.markdownImageAllowed` | Render `![](url)` markdown as sanitized `<img>` in chat messages. **Note:** since image paste was introduced, only same-origin URLs (`/bigbluebutton/fileUpload/...`) render; external URLs are stripped to prevent IP-leak / tracking-pixel attacks | true/false | false |
 | `public.app.sharedNotes.imagePaste.enabled` | Allow pasting/dropping images into the BlockNote shared notes editor | true/false | false |
 | `public.whiteboard.imagePaste.enabled` | Allow pasting/dropping images onto the whiteboard (presenter or write-access only) | true/false | false |

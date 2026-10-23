@@ -22,14 +22,15 @@ import {
 } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
-import CloseIcon from '@mui/icons-material/Close';
+import FilePresentIcon from '@mui/icons-material/FilePresent';
 import SendIcon from '@mui/icons-material/Send';
 import Tooltip from '@mui/material/Tooltip';
 import {
-  uploadImage,
-  isAllowedImage,
+  uploadFile,
+  isAllowedFileType,
   isWithinSizeLimit,
   UploadImageError,
+  UploadedFile,
 } from '/imports/ui/services/file-upload';
 
 import Styled from './styles';
@@ -44,6 +45,15 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
+import ChatAttachments from './attachments/component';
+import FileDropOverlay from './file-drop-overlay/component';
+import {
+  StagedFile,
+  attachmentMarkdown,
+  formatFileSize,
+  isImageFile,
+  maxAttachmentMarkdownLength,
+} from './attachments/service';
 import ChatMentionPicker, { MENTION_PICKER_ID } from '../chat-mention-picker/component';
 import {
   isMentionLeftBoundary,
@@ -117,33 +127,29 @@ const messages = defineMessages({
   errorOnSendMessage: {
     id: 'app.chat.errorOnSendMessage',
   },
-  errorImageType: {
-    id: 'app.chat.imagePaste.errorType',
-    description: 'error shown when a pasted file is not an accepted image type',
+  errorFileType: {
+    id: 'app.chat.fileUpload.errorType',
+    description: 'error shown when a pasted, dropped or picked file is not an accepted type',
   },
-  errorImageTooLarge: {
-    id: 'app.chat.imagePaste.errorTooLarge',
-    description: 'error shown when a pasted image exceeds the size limit',
+  errorFileTooLarge: {
+    id: 'app.chat.fileUpload.errorTooLarge',
+    description: 'error shown when a file exceeds the size limit',
   },
   errorImageDimensions: {
-    id: 'app.chat.imagePaste.errorDimensions',
-    description: 'error shown when a pasted image exceeds the maximum dimensions',
+    id: 'app.chat.fileUpload.errorDimensions',
+    description: 'error shown when an image exceeds the maximum dimensions',
   },
-  errorImageQuota: {
-    id: 'app.chat.imagePaste.errorQuota',
+  errorUploadQuota: {
+    id: 'app.chat.fileUpload.errorQuota',
     description: 'error shown when the meeting storage quota is exceeded',
   },
-  errorImageUpload: {
-    id: 'app.chat.imagePaste.errorUpload',
-    description: 'error shown when the image upload fails',
+  errorUpload: {
+    id: 'app.chat.fileUpload.errorUpload',
+    description: 'error shown when a file upload fails',
   },
-  imagePreviewAlt: {
-    id: 'app.chat.imagePaste.previewAlt',
-    description: 'alt text for the pasted image preview thumbnail',
-  },
-  removeImageLabel: {
-    id: 'app.chat.imagePaste.removeLabel',
-    description: 'label for the button that removes the pasted image preview',
+  attachFileLabel: {
+    id: 'app.chat.attachFileLabel',
+    description: 'label of the button that opens the file picker to attach files to a message',
   },
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
@@ -172,6 +178,11 @@ const messages = defineMessages({
     description: 'Private chat title displayed on a conversation with another user',
   },
 });
+
+type ChatMessageMetadata = {
+  mentions?: { userId: string; name: string }[];
+  attachment?: UploadedFile;
+};
 
 type EditingMessage = { chatId: string; messageId: string, message: string, messageAsHtml?: string };
 
@@ -210,8 +221,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
-  const [pendingImage, setPendingImage] = React.useState<{ file: File; previewUrl: string } | null>(null);
-  const [imageUploading, setImageUploading] = React.useState(false);
+  const [pendingFiles, setPendingFiles] = React.useState<StagedFile[]>([]);
+  const [fileUploading, setFileUploading] = React.useState(false);
+  const [isDraggingFiles, setIsDraggingFiles] = React.useState(false);
+  const [dropHost, setDropHost] = React.useState<HTMLElement | null>(null);
+  const pendingFilesRef = useRef<StagedFile[]>([]);
+  pendingFilesRef.current = pendingFiles;
+  const stagedFileCounterRef = useRef(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
@@ -246,46 +263,113 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
   const ENABLE_IMAGE_PASTE = useIsChatImagePasteEnabled();
 
-  const clearPendingImage = useCallback(() => {
-    setPendingImage((prev) => {
-      if (prev) URL.revokeObjectURL(prev.previewUrl);
-      return null;
+  const { maxFileSizeKb, allowedMimeTypes } = window.meetingClientSettings.public.fileUpload;
+  const canAttachFiles = ENABLE_IMAGE_PASTE && !disabled && !partnerIsLoggedOut;
+
+  const clearPendingFiles = useCallback(() => {
+    pendingFilesRef.current.forEach((staged) => {
+      if (staged.previewUrl) URL.revokeObjectURL(staged.previewUrl);
     });
+    setPendingFiles([]);
   }, []);
 
-  // Validates and stages a captured image for preview. Client-side checks are
-  // for fast, friendly feedback only; the upload service enforces them for real.
-  const captureImageFile = (file: File | null): void => {
-    if (!ENABLE_IMAGE_PASTE || !file) return;
-    if (!isAllowedImage(file)) {
-      setError(intl.formatMessage(messages.errorImageType));
-      setHasErrors(true);
-      return;
-    }
-    if (!isWithinSizeLimit(file)) {
-      setError(intl.formatMessage(messages.errorImageTooLarge));
-      setHasErrors(true);
-      return;
-    }
-    setPendingImage((prev) => {
-      if (prev) URL.revokeObjectURL(prev.previewUrl);
-      return { file, previewUrl: URL.createObjectURL(file) };
+  const removePendingFile = useCallback((id: string) => {
+    const staged = pendingFilesRef.current.find((f) => f.id === id);
+    if (staged?.previewUrl) URL.revokeObjectURL(staged.previewUrl);
+    setPendingFiles((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  // Validates and stages files for sending; nothing is uploaded until submit.
+  // Client-side checks are for fast, friendly feedback only; the upload service
+  // enforces them for real. A rejected file is reported and the others staged.
+  const stageFiles = (files: File[]): void => {
+    if (!canAttachFiles || files.length === 0) return;
+    let rejection: string | null = null;
+    const accepted: StagedFile[] = [];
+    files.forEach((file) => {
+      if (!isAllowedFileType(file)) {
+        rejection = rejection ?? intl.formatMessage(messages.errorFileType, { fileName: file.name });
+        return;
+      }
+      if (!isWithinSizeLimit(file)) {
+        rejection = rejection ?? intl.formatMessage(messages.errorFileTooLarge, {
+          fileName: file.name,
+          maxSize: formatFileSize(intl, maxFileSizeKb * 1024),
+        });
+        return;
+      }
+      stagedFileCounterRef.current += 1;
+      accepted.push({
+        id: String(stagedFileCounterRef.current),
+        file,
+        previewUrl: isImageFile(file) ? URL.createObjectURL(file) : null,
+      });
     });
-    setError(null);
-    setHasErrors(false);
+    if (accepted.length > 0) {
+      setPendingFiles((prev) => [...prev, ...accepted]);
+    }
+    setError(rejection);
+    setHasErrors(rejection !== null);
   };
+  // The drag listeners are bound once; this keeps them on the latest closure.
+  const stageFilesRef = useRef(stageFiles);
+  stageFilesRef.current = stageFiles;
 
-  const getImageFromDataTransfer = (data: DataTransfer | null): File | null => {
-    if (!data) return null;
-    const files = Array.from(data.files || []);
-    return files.find((f) => f.type.startsWith('image/')) || null;
-  };
+  const getFilesFromDataTransfer = (data: DataTransfer | null): File[] => Array.from(data?.files || []);
 
-  // Revoke any staged preview URL on unmount, and drop it when switching chats.
-  useEffect(() => () => clearPendingImage(), []);
+  // Revoke any staged preview URL on unmount, and drop them when switching chats.
+  useEffect(() => () => clearPendingFiles(), []);
   useEffect(() => {
-    clearPendingImage();
+    clearPendingFiles();
   }, [chatId]);
+
+  // Dropping files anywhere on the chat panel stages them. The panel element
+  // (the content box under the header) hosts the "drop the file here" overlay.
+  useEffect(() => {
+    setDropHost(inputWrapperRef.current?.closest<HTMLElement>('#scroll-box') ?? null);
+  }, []);
+
+  useEffect(() => {
+    if (!dropHost || !ENABLE_IMAGE_PASTE) return undefined;
+    // dragenter/dragleave fire for every child crossed; count them so the
+    // overlay only goes away when the drag really leaves the panel.
+    let depth = 0;
+    const carriesFiles = (e: DragEvent) => Array.from(e.dataTransfer?.types || []).includes('Files');
+    const handleDragEnter = (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      e.preventDefault();
+      depth += 1;
+      setIsDraggingFiles(true);
+    };
+    const handleDragOver = (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      // Without this the browser would not fire drop and would open the file
+      // instead, kicking the user out of the meeting.
+      e.preventDefault();
+    };
+    const handleDragLeave = (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setIsDraggingFiles(false);
+    };
+    const handleDrop = (e: DragEvent) => {
+      if (!carriesFiles(e)) return;
+      e.preventDefault();
+      depth = 0;
+      setIsDraggingFiles(false);
+      stageFilesRef.current(getFilesFromDataTransfer(e.dataTransfer));
+    };
+    dropHost.addEventListener('dragenter', handleDragEnter);
+    dropHost.addEventListener('dragover', handleDragOver);
+    dropHost.addEventListener('dragleave', handleDragLeave);
+    dropHost.addEventListener('drop', handleDrop);
+    return () => {
+      dropHost.removeEventListener('dragenter', handleDragEnter);
+      dropHost.removeEventListener('dragover', handleDragOver);
+      dropHost.removeEventListener('dragleave', handleDragLeave);
+      dropHost.removeEventListener('drop', handleDrop);
+    };
+  }, [dropHost, ENABLE_IMAGE_PASTE]);
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -668,29 +752,106 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const dispatchSendMessage = (
       markdown: string,
-      metadata: { mentions: { userId: string; name: string }[] } | null,
+      metadata: ChatMessageMetadata | null,
+      replyToMessageId: string | null = repliedMessageId,
+    ) => chatSendMessage({
+      variables: {
+        chatMessageInMarkdownFormat: markdown,
+        chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+        replyToMessageId,
+        metadata,
+      },
+    }).then(() => {
+      sendCancelEvents();
+    });
+
+    const uploadErrorMessage = (err: unknown, fileName: string): string => {
+      const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+      const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+      switch (reason) {
+        case 'too-large':
+          return intl.formatMessage(messages.errorFileTooLarge, {
+            fileName,
+            maxSize: formatFileSize(intl, maxFileSizeKb * 1024),
+          });
+        case 'image-too-large':
+          return dims
+            ? intl.formatMessage(messages.errorImageDimensions, dims)
+            : intl.formatMessage(messages.errorUpload, { fileName });
+        case 'quota-exceeded':
+          return intl.formatMessage(messages.errorUploadQuota);
+        case 'unsupported-type':
+          return intl.formatMessage(messages.errorFileType, { fileName });
+        default:
+          return intl.formatMessage(messages.errorUpload, { fileName });
+      }
+    };
+
+    // One message per staged file, sent in order; the typed text, the reply
+    // and the mentions go with the first one. Each file is uploaded right
+    // before its message, so giving up before sending never leaves an orphan
+    // upload on the server. A failed upload stops the run and keeps that file
+    // and the ones after it staged, so pressing send again retries them.
+    const sendStagedFiles = async (
+      files: StagedFile[],
+      text: string,
+      mentionMetadata: ChatMessageMetadata | null,
     ) => {
-      chatSendMessage({
-        variables: {
-          chatMessageInMarkdownFormat: markdown,
-          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-          replyToMessageId: repliedMessageId,
-          metadata,
-        },
-      }).then(() => {
-        sendCancelEvents();
-      });
+      setFileUploading(true);
+      try {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [index, staged] of files.entries()) {
+          const isFirst = index === 0;
+          let uploaded: UploadedFile;
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            uploaded = await uploadFile(staged.file);
+          } catch (err) {
+            setError(uploadErrorMessage(err, staged.file.name));
+            setHasErrors(true);
+            logger.error({
+              logCode: 'chat_file_upload_error',
+              extraInfo: { reason: err instanceof UploadImageError ? err.reason : 'upload-failed' },
+            }, `Chat file upload failed: ${(err as Error)?.message}`);
+            return;
+          }
+          const markdown = [isFirst ? text : '', attachmentMarkdown(uploaded)].filter(Boolean).join('\n\n');
+          if (markdown.length > maxMessageLength) {
+            // Unreachable while the pre-upload reserve in handleSubmit matches
+            // the URL shape; kept so shape drift rejects the message here
+            // instead of letting the server truncate it into broken markdown.
+            setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
+            setHasErrors(true);
+            return;
+          }
+          const metadata: ChatMessageMetadata = {
+            ...(isFirst ? mentionMetadata : null),
+            attachment: uploaded,
+          };
+          // eslint-disable-next-line no-await-in-loop
+          await dispatchSendMessage(markdown, metadata, isFirst ? repliedMessageId : null);
+          removePendingFile(staged.id);
+          if (isFirst) clearAfterSend();
+        }
+      } catch (err) {
+        logger.error({
+          logCode: 'chat_file_message_send_error',
+          extraInfo: { errorMessage: (err as Error)?.message },
+        }, `Sending a chat message with a file failed: ${(err as Error)?.message}`);
+      } finally {
+        setFileUploading(false);
+      }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
       const msg = message;
-      const hasImage = pendingImage != null;
+      const hasFiles = pendingFiles.length > 0;
 
-      if (chatSendMessageLoading || imageUploading) return;
-      // A staged image is enough to submit even with an empty text body.
-      if (msg.length < minMessageLength && !hasImage) return;
+      if (chatSendMessageLoading || fileUploading) return;
+      // A staged file is enough to submit even with an empty text body.
+      if (msg.length < minMessageLength && !hasFiles) return;
 
       if (disabled
         || msg.length > maxMessageLength) {
@@ -705,10 +866,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         .map(({ userId, name }) => ({ userId, name }));
       const mentionMetadata = pickedMentions.length > 0 ? { mentions: pickedMentions } : null;
       if (editingMessage.current && !chatEditMessageLoading) {
-        // Message edits are text-only: a staged image cannot be attached to an
+        // Message edits are text-only: a staged file cannot be attached to an
         // existing message, so unstage it (removing its preview) instead of
         // silently keeping it staged for the next unrelated send.
-        clearPendingImage();
+        clearPendingFiles();
         chatEditMessage({
           variables: {
             chatId: editingMessage.current.chatId,
@@ -731,67 +892,22 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      // The image is uploaded on submit (not on paste) so that pasting and then
-      // giving up never leaves an orphan file on the server. Only after the
-      // upload resolves do we build the markdown and send the message.
-      if (hasImage) {
-        const { file } = pendingImage;
-        // The sent markdown appends `![image](<upload-url>)` to the text, and the
-        // upload URL shape is deterministic (/bigbluebutton/fileUpload/<meetingId>/
-        // <36-char uuid>.<up to 4-char ext>), so its length is known before
-        // uploading. Checking the combined length here — the msg.length check
-        // above only covers the text — keeps the server-side maxMessageLength
-        // truncation from cutting the image URL in half, which would deliver
-        // broken markdown and leave an orphan upload counting against the quota.
-        const imageMarkdownLength = '![image]()'.length
-          + '/bigbluebutton/fileUpload/'.length + String(Auth.meetingID ?? '').length + '/'.length
-          + 36 + '.webp'.length;
+      if (hasFiles) {
+        // Each message appends its file (image or link markdown) to the text,
+        // and the longest that can be is known before uploading. Checking the
+        // first message, the one that carries the text, here (the msg.length
+        // check above only covers the text) keeps the server-side
+        // maxMessageLength truncation from cutting the upload URL in half,
+        // which would deliver broken markdown and leave an orphan upload
+        // counting against the quota.
+        const attachmentLength = maxAttachmentMarkdownLength(pendingFiles[0].file, String(Auth.meetingID ?? ''));
         const separatorLength = msg.length > 0 ? '\n\n'.length : 0;
-        if (msg.length + separatorLength + imageMarkdownLength > maxMessageLength) {
+        if (msg.length + separatorLength + attachmentLength > maxMessageLength) {
           setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
           setHasErrors(true);
           return;
         }
-        setImageUploading(true);
-        uploadImage(file)
-          .then((url) => {
-            const imageMarkdown = `![image](${url})`;
-            const markdown = msg.length > 0 ? `${msg}\n\n${imageMarkdown}` : imageMarkdown;
-            if (markdown.length > maxMessageLength) {
-              // Unreachable while the pre-upload reserve above matches the URL
-              // shape; kept so shape drift rejects the message here instead of
-              // letting the server truncate it into broken markdown.
-              setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
-              setHasErrors(true);
-              return;
-            }
-            dispatchSendMessage(markdown, mentionMetadata);
-            clearPendingImage();
-            clearAfterSend();
-          })
-          .catch((err) => {
-            const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
-            const errorByReason = {
-              'too-large': messages.errorImageTooLarge,
-              'image-too-large': messages.errorImageDimensions,
-              'quota-exceeded': messages.errorImageQuota,
-              'unsupported-type': messages.errorImageType,
-              'upload-failed': messages.errorImageUpload,
-            } as const;
-            const dims = err instanceof UploadImageError ? err.dimensions : undefined;
-            setError(
-              reason === 'image-too-large' && dims
-                ? intl.formatMessage(messages.errorImageDimensions, dims)
-                : intl.formatMessage(errorByReason[reason] ?? messages.errorImageUpload),
-            );
-            logger.error({
-              logCode: 'chat_image_upload_error',
-              extraInfo: { reason },
-            }, `Chat image upload failed: ${err?.message}`);
-          })
-          .finally(() => {
-            setImageUploading(false);
-          });
+        sendStagedFiles(pendingFiles, msg, mentionMetadata);
         return;
       }
 
@@ -968,28 +1084,18 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             />
           </Styled.EmojiPickerWrapper>
         ) : null}
-        {pendingImage ? (
-          <Styled.ImagePreview data-test="chatImagePreview">
-            <Styled.ImageThumb
-              src={pendingImage.previewUrl}
-              alt={intl.formatMessage(messages.imagePreviewAlt)}
-            />
-            <Tooltip title={intl.formatMessage(messages.removeImageLabel)}>
-              <Styled.RemoveImageButton
-                type="button"
-                onClick={clearPendingImage}
-                aria-label={intl.formatMessage(messages.removeImageLabel)}
-                data-test="removeChatImageButton"
-                disabled={imageUploading}
-              >
-                <CloseIcon fontSize="small" />
-              </Styled.RemoveImageButton>
-            </Tooltip>
-          </Styled.ImagePreview>
+        {isDraggingFiles && canAttachFiles && dropHost ? (
+          <FileDropOverlay host={dropHost} />
         ) : null}
         <Styled.Wrapper>
+          <ChatAttachments
+            files={pendingFiles}
+            onRemove={removePendingFile}
+            disabled={fileUploading}
+          />
           <Styled.InputWrapper
             ref={inputWrapperRef}
+            $hasAttachments={pendingFiles.length > 0}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 textAreaRef.current?.textarea.focus();
@@ -1033,26 +1139,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               onKeyDown={handleMessageKeyDown}
               onPaste={(e) => {
                 e.stopPropagation();
-                const image = getImageFromDataTransfer(e.clipboardData);
-                if (ENABLE_IMAGE_PASTE && image) {
+                const files = getFilesFromDataTransfer(e.clipboardData);
+                if (ENABLE_IMAGE_PASTE && files.length > 0) {
                   e.preventDefault();
-                  captureImageFile(image);
-                }
-              }}
-              onDrop={(e) => {
-                if (!ENABLE_IMAGE_PASTE) return;
-                // Always prevent the default drop: onDragOver accepts any file
-                // drag, and without this a non-image drop would navigate the tab
-                // to the file, kicking the user out of the meeting.
-                e.preventDefault();
-                const image = getImageFromDataTransfer(e.dataTransfer);
-                if (image) {
-                  captureImageFile(image);
-                }
-              }}
-              onDragOver={(e) => {
-                if (ENABLE_IMAGE_PASTE && Array.from(e.dataTransfer?.types || []).includes('Files')) {
-                  e.preventDefault();
+                  stageFiles(files);
                 }
               }}
               onCut={(e) => { e.stopPropagation(); }}
@@ -1086,6 +1176,43 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                 </Styled.EmojiButton>
               </Tooltip>
             ) : null}
+            {ENABLE_IMAGE_PASTE ? (
+              <>
+                <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.attachFileLabel)}</span>} arrow>
+                  <span style={{ alignSelf: 'center', height: '100%', display: 'flex' }}>
+                    <Styled.AttachButton
+                      sx={{
+                        alignSelf: 'center',
+                        height: '100%',
+                        minWidth: 'auto',
+                        padding: '6px 2px',
+                        color: 'action.active',
+                      }}
+                      onClick={() => fileInputRef.current?.click()}
+                      type="button"
+                      data-test="attachFileButton"
+                      aria-label={intl.formatMessage(messages.attachFileLabel)}
+                      disabled={!canAttachFiles || chatSendMessageLoading || fileUploading}
+                    >
+                      <FilePresentIcon />
+                    </Styled.AttachButton>
+                  </span>
+                </Tooltip>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={allowedMimeTypes.join(',')}
+                  style={{ display: 'none' }}
+                  data-test="chatFileInput"
+                  onChange={(e) => {
+                    stageFiles(Array.from(e.target.files || []));
+                    // Picking the same file again must fire onChange again.
+                    e.target.value = '';
+                  }}
+                />
+              </>
+            ) : null}
             <div style={{ zIndex: 10 }}>
               <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.submitLabel)}</span>} arrow>
                 <Styled.SendButton
@@ -1099,7 +1226,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     backgroundColor: btnPrimaryBg,
                   }}
                   variant="contained"
-                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading || imageUploading}
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading || fileUploading}
                   type="submit"
                   data-test="sendMessageButton"
                   aria-label={intl.formatMessage(messages.submitLabel)}
