@@ -51,7 +51,7 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h /
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
           cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
