@@ -53,19 +53,50 @@ var allowedMessages = []string{
 	"UserVoiceStateEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
+	"LockSettingsInMeetingChangedEvtMsg",
 }
 
-func StartRedisListener() {
-	log := log.WithField("_routine", "StartRedisListener")
+// WaitForRedisSubscription retries with a fresh PubSub connection until Redis confirms the subscription.
+func WaitForRedisSubscription() *redis.PubSub {
+	log := log.WithField("_routine", "WaitForRedisSubscription")
+
+	ctx := context.Background()
+	const redisChannel = "from-akka-apps-redis-channel"
+
+	subscriber := GetRedisConn().Subscribe(ctx, redisChannel)
+
+	for {
+		raw, err := subscriber.Receive(ctx)
+		if err != nil {
+			log.Warnf("waiting for Redis subscription to %s, retrying in 1s: %v", redisChannel, err)
+			subscriber.Close()
+			time.Sleep(time.Second)
+			subscriber = GetRedisConn().Subscribe(ctx, redisChannel)
+			continue
+		}
+
+		if _, ok := raw.(*redis.Subscription); ok {
+			log.Infof("subscribed to %s", redisChannel)
+			break
+		}
+	}
+
+	return subscriber
+}
+
+func ListenRedisMessages(subscriber *redis.PubSub) {
+	log := log.WithField("_routine", "ListenRedisMessages")
 
 	ctx := context.Background()
 
-	subscriber := GetRedisConn().Subscribe(ctx, "from-akka-apps-redis-channel")
-
 	for {
-		msg, err := subscriber.ReceiveMessage(ctx)
+		raw, err := subscriber.Receive(ctx)
 		if err != nil {
-			log.Errorf("error: %v", err)
+			log.Fatalf("lost Redis subscription to from-akka-apps-redis-channel: %v", err)
+		}
+		msg, ok := raw.(*redis.Message)
+		if !ok {
+			continue
 		}
 
 		var receivedRedisMessageEnvelope struct {
@@ -93,6 +124,11 @@ func StartRedisListener() {
 		}
 
 		messageName := receivedRedisMessageEnvelope.Envelope.Name
+
+		// Lock changes are no longer pushed into the sessions; the stream replays read them from the
+		// per-meeting state. Updated here, synchronously and in publish order, before any handler
+		// goroutine is started, so the latest message carrying a lock always wins.
+		streamingserver.RecordMeetingLocks(messageName, receivedMessage)
 
 		if messageName == "ForceUserGraphqlReconnectionSysMsg" {
 			sessionTokenToInvalidate := receivedMessage.Core.Body["sessionToken"]
@@ -124,6 +160,7 @@ func StartRedisListener() {
 			go common.RemoveMeetingHasuraMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingPatchedMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingStreamCursorValueCache(receivedMessage.Core.Body["meetingId"].(string))
+			streamingserver.RemoveMeetingLockSettings(receivedMessage.Core.Body["meetingId"].(string))
 		}
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
@@ -226,7 +263,7 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 
 	err = GetRedisConn().Publish(context.Background(), channelName, messageJSON).Err()
 	if err != nil {
-		log.Tracef("Error while sending msg to redis channel: %v\n", err)
+		log.Warnf("Error while sending msg to redis channel: %v", err)
 		return
 	}
 

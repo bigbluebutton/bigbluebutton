@@ -32,7 +32,6 @@ import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 type withValidProp = {
   valid: boolean;
@@ -517,24 +516,6 @@ const ActionButton = styled(Button)`
   margin: 1.5rem auto;
 `;
 
-const Modal = styled(ModalSimple)`
-  padding: 0;
-  border-radius: 1rem;
-  min-width: 50vw;
-  max-width: 80vw;
-  max-height: 95vh;
-
-  @media ${smallOnly} {
-    min-width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: 90vh;
-    margin: 5vh auto;
-    display: flex;
-    flex-direction: column;
-  }
-`;
-
 const ModalContentWrapper = styled.div`
   padding: 1rem;
 `;
@@ -676,7 +657,6 @@ export default {
   BreakoutSlideLabel,
   ActionButtonContainer,
   ActionButton,
-  Modal,
   ModalContentWrapper,
   RandomAssignLabel,
   RandomAssignButton,

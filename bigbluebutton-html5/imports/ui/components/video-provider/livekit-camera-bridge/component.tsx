@@ -2,7 +2,6 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { toast } from 'react-toastify';
@@ -17,7 +16,6 @@ import {
   Track,
 } from 'livekit-client';
 import { useConnectionState, useTracks } from '@livekit/components-react';
-import { debounce } from '/imports/utils/debounce';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { getCameraPublishOptions } from './service';
 import VideoListContainer from '/imports/ui/components/video-provider/video-list/container';
@@ -62,6 +60,12 @@ const intlClientErrors = defineMessages({
 });
 
 const CAMERA_STOPPED_TOAST_ID = 'livekit-camera-stopped';
+// Cameras that appear within this window subscribe in one batch, so the server
+// renegotiates once for them; renders cannot hold a connect past the cap.
+const CONNECT_COALESCE_MS = 150;
+const CONNECT_MAX_WAIT_MS = 1000;
+// A pending subscribe request is re-sent only after this long, in case it was lost.
+const SUBSCRIBE_RETRY_MS = 5000;
 
 const intlSFUErrors = defineMessages({
   2000: {
@@ -153,6 +157,8 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   // Streams whose failures were already surfaced to the end user. Avoids trailing toasts.
   const announcedFailures = useRef(new Set<string>());
+  // When each pending camera subscription was last requested, by track sid.
+  const subscribeRequestedAt = useRef(new Map<string, number>());
 
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;
@@ -356,7 +362,13 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       }
 
       if (withSelectiveSubscription) {
-        publication.setSubscribed(true);
+        const requestedAt = subscribeRequestedAt.current.get(publication.trackSid);
+        const now = Date.now();
+
+        if (!publication.isDesired || requestedAt === undefined || now - requestedAt > SUBSCRIBE_RETRY_MS) {
+          subscribeRequestedAt.current.set(publication.trackSid, now);
+          publication.setSubscribed(true);
+        }
       }
     }
   };
@@ -378,10 +390,15 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
       bridgeRefs.current.localVideoStreams[stream] = localBBBStream;
       const { mediaStream } = localBBBStream;
+      const publishRoom = liveKitRoomRegistry.getPrimary();
+
+      if (!publishRoom) throw new Error('LiveKit room not available');
+
       const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
       const basePubOptions = {
         dtx: true,
         videoCodec: 'vp8' as const,
+        degradationPreference: publishRoom.options.publishDefaults?.degradationPreference ?? 'balanced',
         ...LIVEKIT_SETTINGS?.publishOptions,
       };
       const simulcastOptions = getCameraPublishOptions(mediaStream);
@@ -391,10 +408,6 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
         source: Track.Source.Camera,
         name: stream,
       };
-
-      const publishRoom = liveKitRoomRegistry.getPrimary();
-
-      if (!publishRoom) throw new Error('LiveKit room not available');
 
       const publishers: Promise<LocalTrackPublication>[] = mediaStream
         .getTracks()
@@ -482,6 +495,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     if (!lkIsCameraSource(track)) return;
 
     bridgeRefs.current.subscriptions.set(trackSid, { track, publication });
+    subscribeRequestedAt.current.delete(trackSid);
 
     if (track?.kind === 'video' && publication) {
       const stream = publication.trackName;
@@ -555,6 +569,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
     bridgeRefs.current.publications.delete(trackName);
     bridgeRefs.current.subscriptions.delete(trackSid);
+    subscribeRequestedAt.current.delete(trackSid);
   };
 
   const syncLiveKitRefs = useCallback((clearRefs = true) => {
@@ -637,38 +652,63 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     streamsToDisconnect.forEach(destroyStream);
   };
 
-  // We're using a ref to avoid recreating the debounced function on every render
-  // If that were the case, we'd lose the timer reference for the debounce and
-  // it wouldn't work as expected (ie.: no debounce) - prlanzarin
+  // Connects run from one timer. A page change waits the page change delay,
+  // restarted by further page changes, so quick paging does not subscribe to the
+  // pages flipped past; nothing else postpones it. Other passes wait the
+  // coalescing window. The flush connects the streams current when it fires.
+  const connectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectTimerForPageChange = useRef(false);
+  const connectDeadline = useRef(0);
+  const lastPageIndex = useRef(currentVideoPageIndex);
   const connectStreamsRef = useRef(connectStreams);
   connectStreamsRef.current = connectStreams;
-  const debouncedConnectStreams = useMemo(
-    () => debounce(
-      (streamsToConnect: string[]) => connectStreamsRef.current(streamsToConnect),
-      VideoService.getPageChangeDebounceTime(),
-      { leading: false, trailing: true },
-    ),
-    [],
-  );
 
-  const updateStreams = useCallback((streamsList: VideoItem[], shouldDebounce = false) => {
-    const connectedStreamIds = [
-      ...Object.keys(bridgeRefs.current.localTracks),
-      ...Object.keys(bridgeRefs.current.remoteTracks),
-    ];
+  const getConnectedStreamIds = () => [
+    ...Object.keys(bridgeRefs.current.localTracks),
+    ...Object.keys(bridgeRefs.current.remoteTracks),
+  ];
+
+  const flushConnects = () => {
+    connectTimer.current = null;
+    connectTimerForPageChange.current = false;
+    const [pendingStreams] = VideoService.getStreamsToConnectAndDisconnect(
+      streamsRef.current,
+      getConnectedStreamIds(),
+    );
+    connectStreamsRef.current(pendingStreams);
+  };
+
+  const updateStreams = useCallback((streamsList: VideoItem[], pageChanged = false) => {
     const [
       streamsToConnect,
       streamsToDisconnect,
-    ] = VideoService.getStreamsToConnectAndDisconnect(streamsList, connectedStreamIds);
+    ] = VideoService.getStreamsToConnectAndDisconnect(streamsList, getConnectedStreamIds());
 
-    if (shouldDebounce) {
-      debouncedConnectStreams(streamsToConnect);
-    } else {
-      connectStreams(streamsToConnect);
+    if (pageChanged) {
+      if (connectTimer.current) clearTimeout(connectTimer.current);
+      connectTimerForPageChange.current = true;
+      connectTimer.current = setTimeout(flushConnects, VideoService.getPageChangeDebounceTime());
+    } else if (streamsToConnect.length > 0 && !connectTimerForPageChange.current) {
+      const now = Date.now();
+
+      if (connectTimer.current) {
+        clearTimeout(connectTimer.current);
+      } else {
+        connectDeadline.current = now + CONNECT_MAX_WAIT_MS;
+      }
+
+      connectTimer.current = setTimeout(
+        flushConnects,
+        Math.max(0, Math.min(CONNECT_COALESCE_MS, connectDeadline.current - now)),
+      );
     }
 
     destroyStreams(streamsToDisconnect);
-  }, [connectStreams, debouncedConnectStreams]);
+  }, [connectStreams]);
+
+  useEffect(() => () => {
+    if (connectTimer.current) clearTimeout(connectTimer.current);
+  }, []);
 
   const replaceVideoTracks = (streamId: string, mediaStream: MediaStream) => {
     const track = bridgeRefs.current.localTracks[streamId];
@@ -735,11 +775,11 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   useEffect(() => {
     const isLiveKitConnected = connectionState === ConnectionState.Connected;
+    const pageChanged = currentVideoPageIndex !== lastPageIndex.current;
+    lastPageIndex.current = currentVideoPageIndex;
 
     if (isClientConnected && isLiveKitConnected) {
-      const shouldDebounce = VideoService.isPaginationEnabled()
-        && currentVideoPageIndex !== undefined;
-      updateStreams(streams, shouldDebounce);
+      updateStreams(streams, pageChanged && VideoService.isPaginationEnabled());
     }
   }, [
     connectionState,

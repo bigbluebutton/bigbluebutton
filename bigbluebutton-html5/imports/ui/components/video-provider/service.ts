@@ -1,4 +1,3 @@
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -147,8 +146,8 @@ class VideoService {
   }
 
   static isPaginationEnabled() {
-    const Settings = getSettingsSingletonInstance();
-    return Settings.application.paginationEnabled;
+    const { paginationEnabled } = getVideoState();
+    return paginationEnabled;
   }
 
   static setCurrentVideoPageIndex(newVideoPageIndex: number) {
@@ -261,7 +260,6 @@ class VideoService {
       || CAMERA_PROFILES[0];
     const deviceId = BBBStorage.getItem('WebcamDeviceId');
     if (deviceId) {
-      // @ts-expect-error -> Untyped object.
       cameraProfile.constraints = cameraProfile.constraints || {};
       // @ts-expect-error -> Untyped object.
       cameraProfile.constraints.deviceId = { exact: deviceId };

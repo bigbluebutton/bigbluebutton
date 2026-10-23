@@ -6,6 +6,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.PresPageCursorDAO
 import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
@@ -17,7 +18,12 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       val envelope = BbbCoreEnvelope(SendCursorPositionEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendCursorPositionEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, userIsViewer, msg.body.xPercent, msg.body.yPercent)
+      // The lock state travels with each event (instead of being frozen into the
+      // receivers' sessions) so a hideViewersCursor change takes effect immediately
+      // without reconnecting anyone: the middleware only checks whether the
+      // receiving connection belongs to a locked viewer.
+      val hiddenForLockedViewers = userIsViewer && MeetingStatus2x.getPermissions(liveMeeting.status).hideViewersCursor
+      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, userIsViewer, hiddenForLockedViewers, msg.body.xPercent, msg.body.yPercent)
       val event = SendCursorPositionEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
