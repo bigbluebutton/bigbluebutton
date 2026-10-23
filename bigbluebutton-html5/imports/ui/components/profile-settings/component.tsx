@@ -108,9 +108,9 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.video.joinVideo',
     description: 'Join Video Label',
   },
-  stopSharingLabel: {
-    id: 'app.videoPreview.stopSharingLabel',
-    description: 'Stop Sharing Label',
+  leaveVideoLabel: {
+    id: 'app.video.leaveVideo',
+    description: 'Leave Video Label',
   },
   addExtraCameraLabel: {
     id: 'app.profileSettings.addExtraCamera',
@@ -894,13 +894,17 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
               <Styled.VirtualBackgroundContainer extraPadding={cameraSections.length > 1}>
                 {isVirtualBackgroundsEnabled && renderVirtualBgSelector(sectionIndex)}
               </Styled.VirtualBackgroundContainer>
-              {isAlreadyShared(section.deviceId) && (
-                <Styled.StopSharingButtonText
-                  extraPadding={cameraSections.length > 1}
-                  onClick={() => handleStopSharing(sectionIndex, section.deviceId)}
-                >
-                  {formatMessage(intlMessages.stopSharingLabel)}
-                </Styled.StopSharingButtonText>
+              {cameraSections.length > 1 && isAlreadyShared(section.deviceId) && (
+                <Styled.StopSharingButtonContainer>
+                  <Styled.StopSharingButton
+                    ghost
+                    color="danger"
+                    size="sm"
+                    label={formatMessage(intlMessages.leaveVideoLabel)}
+                    onClick={() => handleStopSharing(sectionIndex, section.deviceId)}
+                    data-test={`stopSharingCameraButton-${sectionIndex}`}
+                  />
+                </Styled.StopSharingButtonContainer>
               )}
               {sectionIndex < cameraSections.length - 1 && <Styled.Separator />}
             </React.Fragment>
@@ -924,13 +928,25 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       )}
       <Styled.Separator />
       <Styled.SaveButtonContainer>
-        <Styled.SaveButton
-          disabled={isCameraAlreadyShared || isCameraLoading || !!(deviceError || previewError)}
-          color="primary"
-          label={formatMessage(intlMessages.joinVideoLabel)}
-          onClick={handleShareWebcams}
-          data-test="saveProfileSettings"
-        />
+        {isCameraAlreadyShared ? (
+          <Styled.SaveButton
+            color="danger"
+            label={formatMessage(intlMessages.leaveVideoLabel)}
+            onClick={() => handleStopSharing(
+              activePreviewIndex,
+              cameraSections[activePreviewIndex].deviceId,
+            )}
+            data-test="stopSharingProfileSettings"
+          />
+        ) : (
+          <Styled.SaveButton
+            disabled={isCameraLoading || !!(deviceError || previewError)}
+            color="primary"
+            label={formatMessage(intlMessages.joinVideoLabel)}
+            onClick={handleShareWebcams}
+            data-test="saveProfileSettings"
+          />
+        )}
       </Styled.SaveButtonContainer>
     </Styled.RootContainer>
   );
