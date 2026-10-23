@@ -755,6 +755,45 @@ The pre-flight (setup) screen is disabled by default. Enable it with `public.app
     - The waiting message should stay, with the microphone selector flagged
     - Once the guest is approved, the same screen should replace the "Join session" button until it is sorted out
 
+### Room mode panel for moderators [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModePanel.spec.ts)
+
+The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: true` (or `userdata-bbb_pre_flight_room_modes=true` on the join URL).
+
+1. Create a new session and join it as a moderator
+
+    - Beside the setup panel, a "Room mode" panel should show the "Class" and "Meeting" cards and an illustration with a message asking you to pick a mode, with a "Start room" button
+    - Pick "Class": the card should be marked, the panel should show it as the selected mode, and a "Cancel" button should come up
+    - Click "Cancel": no card should be marked and the message should come back
+    - Click "Start room" without picking a mode: you should land in the meeting
+
+2. Join the same session as a viewer, with the same settings
+
+    - The pre-flight should show the session's name and a "Join session" button, without the room mode panel
+
+3. A session whose room mode is already set (automated only: nothing in the client sets a room mode yet)
+
+    - A moderator joining it should not see the room mode panel
+
+4. Repeat step 1 on a phone-width window
+
+    - The setup panel and the room mode panel should become two tabs, "Set up devices" and "Set up room", with "Start room" reachable from both
+    - There should be no "Cancel" button: picking another card changes the mode
+    - Turn the camera on, then widen the window past the tablet width (1024 px) and narrow it again: the camera preview should keep running, without restarting
+
+5. Repeat step 1 on a tablet-width window (768 px wide, portrait)
+
+    - The screen should lay out as on a phone (step 4), across the width: the session's name on top, the two tabs, and "Start room" pinned to the bottom
+    - The camera preview, on or off, should keep the phone's height and its proportion instead of stretching across the width, and the message asking for a mode should sit under the cards
+    - Join the same session as a viewer in the same window size: the setup panel and the "Join session" button should stay side by side, without tabs
+
+6. Throttle the network in the browser's developer tools and repeat step 1, picking "Class" before clicking "Start room"
+
+    - While the room starts, the cards should look dimmed, and neither clicking another card nor the arrow keys should change the pick
+
+7. Join a breakout room as a moderator
+
+    - No pre-flight, and so no room mode panel, should show up in the breakout room
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)

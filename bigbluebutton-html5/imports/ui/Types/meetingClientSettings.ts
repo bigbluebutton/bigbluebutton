@@ -36,8 +36,12 @@ export interface Locales {
   locale: string
   name: string
 }
+export interface PreFlightRoomModes {
+  enabled: boolean
+}
 export interface PreFlight {
   enabled: boolean
+  roomModes: PreFlightRoomModes
 }
 export interface App {
   mobileFontSize: string
