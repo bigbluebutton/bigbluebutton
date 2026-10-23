@@ -10,6 +10,8 @@ GraphQL as them (`graphql`), checks what the server did on the redis bus, in
 redis and on disk (`bus`, `redis` and `fs`, through a [tap](#the-tap-tap)),
 and records what a server answers. Cases that use the other step types
 (`sink`, `env`) or response schemas are skipped until those are implemented.
+bbb-api isn't in this tree yet; `targets/bbb-api.yaml` and
+`expectations/bbb-api.yaml` are ready for it.
 
 ```
 runner/                  the bbb-conform Go module
@@ -57,7 +59,9 @@ or the run was interrupted, and 2 for a bad command line, target or case
 file. Ctrl-C stops the run: cases that haven't started are skipped, and
 those running stop and run their teardowns. A second Ctrl-C quits at once. The salt and secret target
 vars are replaced with `[salt]` and `[secret:name]` in everything the runner
-writes.
+writes. Nothing else is: the JSON and JUnit reports hold the live
+`JSESSIONID` and session tokens the server handed out, so treat them like
+the server's logs on a shared server. Recordings mask those.
 
 ### Target files
 
@@ -336,7 +340,7 @@ Values that change from run to run are masked:
 
 | Field (any depth, also as a query param inside URLs) | Becomes |
 |---|---|
-| createTime, startTime, endTime, GraphQL's registeredOn and registeredAt, and the bus's timestamp and createdTime | `<time>`, for digits or an ISO-8601 time |
+| createTime, startTime, endTime, GraphQL's registeredOn and registeredAt, and the bus's timestamp and createdTime | `<time>`, for digits or an ISO-8601 time; 0 too, since startTime turns from 0 to a time a moment after create |
 | createDate, and the bus's createdDate | `<date>` in Java's `Date.toString()` format, otherwise its shape (digits as 9) |
 | internalMeetingID, meeting_id, parentMeetingID, recordID, GraphQL's meetingId and parentMeetingId, and the bus's intId, parentId, internalId and breakoutMeetingId | `<sha1(meetingID)>-<time>`, naming the sent param whose SHA-1 it is, or `<sha1(?)>` |
 | userID, user_id, internalUserID, existingUserID, and GraphQL's userId and extId | `w_<id>` |
@@ -364,9 +368,14 @@ What a `presence`, `graphql`, `bus`, `fs` or `redis` step returns is a JSON
 document, not a response: it becomes the document's lines alone, normalized
 the same way.
 
-`masks.yaml`, next to the cases directory, adds rules or overrides the
-built-in ones: `masks`, `unordered`, `scope`, `drop` (removes the lines a
-path names, only those with `value` if it is given) and `headers`.
+`masks.yaml`, next to the cases directory, adds rules to the built-in ones:
+`masks`, `unordered`, `scope`, `drop` (removes the lines a path names, only
+those with `value` if it is given) and `headers`. Only a mask can override a
+built-in rule, for the same field; the others only add, so the built-in
+`noMeetings` drop can't be turned off. The suite's `masks.yaml` masks the
+missing-checksum message bbb-web picks at random, and the version
+endpoint's `bbbVersion` and `html5PluginSdkVersion`, which change with each
+release.
 
 ## Recording what a server answers: `record`
 
@@ -623,12 +632,15 @@ A `graphql` step runs one operation as a user who joined:
   takes values from `variables`, never from templates in the query.
 - **Mutations** must have the shape `mutation Name($a: T!) { action(arg:
   $a) }`, with every argument a variable that `variables` gives: that is
-  all bbb-graphql-middleware can route. A mutation's `true` only means it
+  what bbb-graphql-middleware routes correctly. It takes an alias for the
+  action's name, and passes a literal argument on as text. A mutation's `true` only means it
   was sent on: check what it did with a later query, with `eventually`
   (every 500ms by default, at least 300ms).
-- **Before a user joins**, the middleware answers only a few queries
-  (`userCurrentSubscription`, `getGuestLobbyInfo`, ...) and drops the rest
-  without an answer; the runner refuses to send them.
+- **While a user isn't in the meeting** (before they join, or after they
+  leave, are removed or are denied), the middleware answers only a few
+  queries (`userCurrentSubscription`, `getGuestLobbyInfo`, ...) and drops
+  the rest without an answer; the runner refuses to send them, with an
+  ERROR. To join again after `leave`, join as a new user (another `as`).
 - **The result** is GraphQL's `{data, errors}`. Errors fail the step unless
   `expect.errors` is given; it is matched against each error's message.
   When the server closes the connection or doesn't answer, the result holds
@@ -637,7 +649,8 @@ A `graphql` step runs one operation as a user who joined:
 
 The actions other cases need, with their signatures (from
 `bbb-graphql-server/metadata/actions.graphql`); most need a moderator, and
-`presentationRequestUploadToken` the presenter:
+`presentationRequestUploadToken` the presenter. `presence` steps send
+`userJoinMeeting` and `userLeaveMeeting` themselves.
 
 | Action | Arguments |
 |---|---|
@@ -651,7 +664,7 @@ The actions other cases need, with their signatures (from
 | `meetingRecordingSetStatus` | `recording: Boolean!` |
 | `breakoutRoomCreate` | `record, captureNotes, captureSlides, sendInviteToModerators, inheritLockSettings: Boolean!, durationInSeconds: Int!, rooms: [BreakoutRoom]!` |
 | `presentationRequestUploadToken` | `podId: String!` (DEFAULT_PRESENTATION_POD), `filename: String!, uploadTemporaryId: String!` |
-| `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!` |
+| `chatSendMessage` | `chatId: String!` (MAIN-PUBLIC-GROUP-CHAT), `chatMessageInMarkdownFormat: String!`; optional `replyToMessageId: String`, `metadata: json` |
 
 #### Side effects: `bus`, `fs` and `redis`
 
@@ -705,7 +718,7 @@ These steps check what a call did outside its answer, through the target's
     cases' messages can't match. For the same reason, an `fs` path needs a
     template, normally the meeting's internal ID, unless the case is
     tagged `serial`.
-  - An `fs` step counts the files that match now, whenever they were
+  - An `fs` step considers the files that match now, whenever they were
     written, as well as those that appeared since the mark.
   - The tap finds a message's meeting wherever the message keeps it: its
     header, its routing, or its body (`meetingId`, `props.meetingProp.intId`,
@@ -764,8 +777,9 @@ The checksum is `hash(callName + query + salt)` over the exact query string
 sent, without the checksum itself. Body params are never signed, as in
 bbb-web.
 
-- `sign` is a scalar (`sha1`, `sha256`, `sha384`, `sha512`, or a mode) or a
-  map `{alg, mode, position, call}`:
+- `sign` is a scalar (`sha1`, `sha256`, `sha384`, `sha512`, or a mode other
+  than `valid`, which is the default anyway) or a map `{alg, mode, position,
+  call}`:
   - `mode`:
     - `valid`;
     - `uppercase`;
@@ -777,7 +791,9 @@ bbb-web.
       written as `%20`, then sent with `+`. The params are the same; the
       string isn't. The query needs a param value with a space;
     - `none`.
-  - `position`: `last` (default), `first` or `middle`.
+  - `position`: `last` (default), `first` or `middle`. `middle` needs at
+  least two other params, or the step ERRORs; with no params at all, the
+  checksum is the whole query whatever the position.
   - `call`: sign as this call name instead of the step's own, e.g. a
     getMeetingInfo request carrying isMeetingRunning's checksum.
 - The default is the target's `defaultSign` (sha256) for API calls. It's

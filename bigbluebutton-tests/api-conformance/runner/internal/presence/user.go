@@ -19,9 +19,10 @@ var PreJoinOps = map[string]bool{
 	"getGuestLobbyInfo": true, "userCurrentSubscription": true, "Patched_userCurrentSubscription": true,
 }
 
-// ErrNotJoined refuses a query the middleware wouldn't answer yet.
-var ErrNotJoined = errors.New("the user isn't in the meeting yet, so bbb-graphql-middleware would drop this query without an answer until they join; join first, or name the operation as one it answers before a join (" +
-	"getUserInfo, getGuestLobbyInfo, userCurrentSubscription, ...)")
+// ErrNotJoined refuses a query the middleware wouldn't answer: the user
+// hasn't joined, or has left, been removed or been denied.
+var ErrNotJoined = errors.New("the user isn't in the meeting (not yet, or not any more), so bbb-graphql-middleware would drop this query without an answer; " +
+	"join first, or name the operation as one it answers outside the meeting (getUserInfo, getGuestLobbyInfo, userCurrentSubscription, ...)")
 
 // stateFields is what the driver follows of its user. Each is visible to
 // the user both before and after the join.
@@ -307,7 +308,7 @@ func (u *User) InMeeting() bool {
 }
 
 // Query runs one operation as the user. A query the middleware wouldn't
-// answer yet is refused with ErrNotJoined. A subscription is read as a
+// answer is refused with ErrNotJoined. A subscription is read as a
 // query: its first answer.
 func (u *User) Query(ctx context.Context, r Request, kind string) (*Result, error) {
 	if kind != "mutation" && !u.InMeeting() && !PreJoinOps[r.OperationName] {
