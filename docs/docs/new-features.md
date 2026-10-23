@@ -35,6 +35,8 @@ Shared limits (`public.fileUpload`) apply to all three surfaces: max file size 5
 
 **Breaking change to `markdownImageAllowed`:** before this feature, setting `public.chat.markdownImageAllowed` to `true` rendered any `![](url)` markdown as an `<img>`, including external URLs. To prevent IP-leak / tracking-pixel attacks against chat readers, external image URLs are now stripped on the server (only same-origin `/bigbluebutton/fileUpload/...` URLs render). Deployments that relied on external images in chat should host them on the BBB server instead.
 
+In the chat, a message that carries a file shows it above its text: an image spans the message, with gray bands when its shape is not wide, and opens enlarged on click; any other file shows as a row with its name, size, type and a download button. Hovering any message with a file adds a download action to its toolbar, which saves the file under its original name. Replies and the pinned message show a thumbnail of the image, or an *[Attached file]* label for other files.
+
 ### bbb-web properties changes
 
 #### Added
