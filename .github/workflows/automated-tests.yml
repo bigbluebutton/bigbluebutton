@@ -165,7 +165,7 @@ jobs:
           ref: ${{ github.ref }}
       - name: LIBREOFFICE CACHE - Set cache-key vars
         run: |
-          echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
+          echo "BBB_LIBREOFFICE_IMAGE_NAME=$(cat bbb-libreoffice/docker-image)" >> $GITHUB_ENV
       - name: LIBREOFFICE CACHE - Restore docker image from cache
         id: libreoffice-cache
         uses: actions/cache@v5

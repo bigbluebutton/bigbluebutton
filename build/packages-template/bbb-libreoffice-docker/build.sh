@@ -15,9 +15,15 @@ done
 
 ##
 
+IMAGE="$(cat docker-image)"
+
 if [ $DISTRO != "amzn2" ]; then 
   mkdir -p staging/etc/sudoers.d
-  cp assets/zzz-bbb-docker-libreoffice  staging/etc/sudoers.d/zzz-bbb-docker-libreoffice
+  # same rendering as after-install.sh, so the packaged conffile matches what it writes
+  IMAGE_SUDOERS="${IMAGE//:/\\:}"
+  TEMPLATE="$(cat assets/zzz-bbb-docker-libreoffice)"
+  echo "${TEMPLATE//@BBB_LIBREOFFICE_IMAGE@/$IMAGE_SUDOERS}" > staging/etc/sudoers.d/zzz-bbb-docker-libreoffice
+  chmod 0440 staging/etc/sudoers.d/zzz-bbb-docker-libreoffice
 fi
 
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-cool.sh
@@ -29,7 +35,8 @@ chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
 chmod +x staging/usr/share/bbb-libreoffice-conversion/convert-remote.sh
 
 
-cp -r docker staging/usr/share/bbb-libreoffice
+cp docker-image                      staging/usr/share/bbb-libreoffice/docker-image
+cp assets/zzz-bbb-docker-libreoffice staging/usr/share/bbb-libreoffice/zzz-bbb-docker-libreoffice.template
 
 ##
 
