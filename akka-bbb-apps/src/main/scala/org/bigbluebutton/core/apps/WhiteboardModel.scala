@@ -69,7 +69,7 @@ object WhiteboardModel {
     annotationInfo.get("type") match {
       case Some(annotationType: String) if DisallowedAnnotationTypes.contains(annotationType) => false
       case Some(ImageAnnotationType) => imagePasteEnabled && isValidImageAnnotation(annotationInfo, meetingId)
-      case _                         => true
+      case _ => true
     }
   }
 
