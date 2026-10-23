@@ -28,10 +28,6 @@ export interface UserMeeting {
   usersPolicies: {
     guestPolicy: string;
   } | null;
-  recordingPolicies: {
-    record: boolean;
-    autoStartRecording: boolean;
-  } | null;
 }
 
 export interface Voice {

@@ -24,6 +24,7 @@ export type ResolvedRoomModeSettings = Partial<RoomModeEditableValues>;
 // What the room has right now, as far as it can be read before the join: the
 // editable values, plus what decides an automatic item.
 export interface RoomModeRoomValues extends Partial<RoomModeEditableValues> {
+  record: boolean;
   autoStartRecording: boolean;
 }
 
