@@ -85,6 +85,8 @@ jobs:
         if: always()
         run: |
           [ -f out/results.json ] || exit 0
+          # The counts, as an annotation on the run.
+          jq -r '"::notice title=bbb-web on Tier 1::" + ([.counts | to_entries[] | "\(.value) \(.key)"] | join(", "))' out/results.json
           cd runner
           go run ./cmd/bbb-conform gap --results ../out/results.json --md ../out/gap.md --html ../out/gap.html
           cat ../out/gap.md >> "$GITHUB_STEP_SUMMARY"
