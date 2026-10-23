@@ -16,10 +16,11 @@ import {
   getLocale,
   hasSpeechRecognitionSupport,
   isLocaleValid,
-  isProcessLocally,
+  isOnDeviceTranscription,
   localeAsDefaultSelected,
   mostSimilarLanguage,
   getOnDeviceLanguageStatus,
+  usesCloudFallback,
   useOnDeviceLanguageStatus,
   setSpeechVoices,
   useFixedLocale,
@@ -150,10 +151,19 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
-    // Never falls back to a speech recognition service: the session fails instead
-    if (isProcessLocally()) speechRecognition.processLocally = true;
 
     return speechRecognition;
+  };
+
+  // With local or auto the session is processLocally: it never falls back to a speech
+  // recognition service by itself (it fails instead). auto leaves a language the browser cannot
+  // transcribe on the device without processLocally, as with cloud
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const setSessionLocale = (speechRecognition: any, settedLocale: string) => {
+    /* eslint-disable no-param-reassign */
+    speechRecognition.lang = settedLocale;
+    if (isOnDeviceTranscription()) speechRecognition.processLocally = !usesCloudFallback(settedLocale);
+    /* eslint-enable no-param-reassign */
   };
 
   const initSpeechRecognition = () => {
@@ -331,7 +341,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const start = (settedLocale: string) => {
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
       logger.debug('Starting browser speech recognition for locale: ', settedLocale);
-      speechRecognitionRef.current.lang = settedLocale;
+      setSessionLocale(speechRecognitionRef.current, settedLocale);
 
       if (settedLocale !== localeRef.current) {
         localeRef.current = settedLocale;
@@ -343,7 +353,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       }
 
       // Never downloads the language pack by itself: an effect below starts once it is there
-      if (isProcessLocally() && getOnDeviceLanguageStatus(settedLocale) !== 'available') return;
+      if (isOnDeviceTranscription() && !usesCloudFallback(settedLocale)
+        && getOnDeviceLanguageStatus(settedLocale) !== 'available') return;
 
       lastStartedAt.current = new Date().getTime();
       const track = getInputTrack(inputStreamRef.current);
@@ -373,7 +384,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
             unbindHandlers();
             speechRecognitionRef.current.abort();
             speechRecognitionRef.current = createSpeechRecognition();
-            speechRecognitionRef.current.lang = settedLocale;
+            setSessionLocale(speechRecognitionRef.current, settedLocale);
             bindHandlers();
             hadTrackRef.current = false;
           }
@@ -474,15 +485,15 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [connected, muted, locale]);
 
-  const onDeviceStatus = useOnDeviceLanguageStatus(isProcessLocally() ? locale : '');
+  const onDeviceStatus = useOnDeviceLanguageStatus(isOnDeviceTranscription() ? locale : '');
 
-  // With processLocally, starts when the language pack becomes available (e.g. downloaded
+  // With local or auto, starts when the language pack becomes available (e.g. downloaded
   // from the transcription settings during the meeting), and tells the user when it is not
   useEffect(() => {
-    if (!isProcessLocally() || !speechRecognitionRef.current || locale === '') return () => {};
+    if (!isOnDeviceTranscription() || !speechRecognitionRef.current || locale === '') return () => {};
     if (!connected || muted) return () => {};
 
-    if (onDeviceStatus === 'available') {
+    if (onDeviceStatus === 'available' || usesCloudFallback(locale)) {
       start(locale);
     } else if (onDeviceStatus && onDeviceStatus !== 'checking' && onDeviceStatus !== 'downloading'
       && !onDeviceNotifiedRef.current.has(locale)) {
@@ -541,7 +552,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
         if (alertShownRef.current) return;
         if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
         // Not transcribing at all without the on-device language pack
-        if (isProcessLocally() && getOnDeviceLanguageStatus(localeRef.current) !== 'available') return;
+        if (isOnDeviceTranscription() && !usesCloudFallback(localeRef.current)
+          && getOnDeviceLanguageStatus(localeRef.current) !== 'available') return;
 
         alertShownRef.current = true;
         const message = intl.formatMessage(intlMessages.microphoneAlertMessage);

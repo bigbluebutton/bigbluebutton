@@ -4,7 +4,8 @@ import Button from '/imports/ui/components/common/button/component';
 import {
   hasOnDeviceSupport,
   installOnDeviceLanguage,
-  isProcessLocally,
+  isOnDeviceTranscription,
+  usesCloudFallback,
   useOnDeviceLanguageStatus,
 } from '../speech/service';
 import { isWebSpeechApi } from '../service';
@@ -35,6 +36,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.onDevice.unavailable',
     description: 'The browser cannot transcribe the selected language on the device',
   },
+  cloudFallback: {
+    id: 'app.audio.captions.speech.onDevice.cloudFallback',
+    description: 'The selected language is transcribed by the browser speech recognition service, not on the device',
+  },
 });
 
 interface AudioCaptionsOnDeviceNoticeProps {
@@ -42,7 +47,7 @@ interface AudioCaptionsOnDeviceNoticeProps {
   inAudioModal?: boolean;
 }
 
-// With processLocally, tells the state of the selected language on the device. In the audio
+// With local or auto, tells the state of the selected language on the device. In the audio
 // modal, confirming downloads its language pack. Elsewhere (the transcription panel, where there
 // is nothing to confirm) turning transcription on is the confirmation, so it downloads right away.
 const AudioCaptionsOnDeviceNotice: React.FC<AudioCaptionsOnDeviceNoticeProps> = ({
@@ -50,12 +55,21 @@ const AudioCaptionsOnDeviceNotice: React.FC<AudioCaptionsOnDeviceNoticeProps> = 
   inAudioModal = false,
 }) => {
   const intl = useIntl();
-  const onDevice = isWebSpeechApi() && isProcessLocally() && hasOnDeviceSupport();
+  const onDevice = isWebSpeechApi() && isOnDeviceTranscription() && hasOnDeviceSupport();
   const status = useOnDeviceLanguageStatus(onDevice ? locale : '');
+  const cloudFallback = isWebSpeechApi() && !!locale && usesCloudFallback(locale);
 
   useEffect(() => {
     if (!inAudioModal && status === 'downloadable') installOnDeviceLanguage(locale);
   }, [inAudioModal, status, locale]);
+
+  if (cloudFallback) {
+    return (
+      <Styled.Notice data-test="onDeviceLanguageCloudFallback">
+        {intl.formatMessage(intlMessages.cloudFallback)}
+      </Styled.Notice>
+    );
+  }
 
   if (!onDevice || !locale || !status || status === 'checking') return null;
 

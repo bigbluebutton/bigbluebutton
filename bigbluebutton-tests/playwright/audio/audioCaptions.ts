@@ -9,7 +9,7 @@ import { MultiUsers } from '../user/multiusers';
 export function audioCaptionsOverrides(
   locale: string,
   defaultSelectLocale = true,
-  processLocally = false,
+  speechProcessing: 'cloud' | 'local' | 'auto' = 'cloud',
 ): ClientSettingsOverrides {
   return {
     public: {
@@ -17,7 +17,7 @@ export function audioCaptionsOverrides(
         audioCaptions: {
           enabled: true,
           provider: 'webspeech',
-          processLocally,
+          speechProcessing,
           language: { defaultSelectLocale, locale },
         },
       },

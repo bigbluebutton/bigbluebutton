@@ -15,13 +15,24 @@ export const SpeechRecognitionAPI = (window as any).SpeechRecognition
 
 export const generateId = () => `${Auth.userID}-${Date.now()}`;
 
-export const isProcessLocally = () => (
-  window.meetingClientSettings.public.app.audioCaptions.processLocally === true
-);
+type SpeechProcessing = 'cloud' | 'local' | 'auto';
+
+// Where the browser transcribes (speechProcessing): cloud for anything but local or auto
+export const getSpeechProcessing = (): SpeechProcessing => {
+  const value = window.meetingClientSettings.public.app.audioCaptions.speechProcessing;
+  return value === 'local' || value === 'auto' ? value : 'cloud';
+};
+
+// local and auto transcribe on the device: processLocally, with the language pack downloaded
+// on the user's confirmation
+export const isOnDeviceTranscription = () => getSpeechProcessing() !== 'cloud';
 
 // On-device recognition (Chrome 139+) exposes the static available() and install()
 export const hasOnDeviceSupport = () => typeof SpeechRecognitionAPI?.available === 'function'
   && typeof SpeechRecognitionAPI?.install === 'function';
+
+// auto: what cannot be transcribed on the device is transcribed as with cloud
+export const isCloudFallbackAllowed = () => getSpeechProcessing() === 'auto';
 
 export const hasSpeechRecognitionSupport = () => {
   const CONFIG = window.meetingClientSettings.public.app.audioCaptions;
@@ -29,7 +40,7 @@ export const hasSpeechRecognitionSupport = () => {
 
   return typeof SpeechRecognitionAPI !== 'undefined'
   && typeof window.speechSynthesis !== 'undefined'
-  && (!isProcessLocally() || hasOnDeviceSupport())
+  && (!isOnDeviceTranscription() || hasOnDeviceSupport() || isCloudFallbackAllowed())
   && VALID_ENVIRONMENT;
 };
 
@@ -47,6 +58,11 @@ const setOnDeviceLanguageStatus = (locale: string, status: OnDeviceLanguageStatu
 };
 
 export const getOnDeviceLanguageStatus = (locale: string) => onDeviceLanguageStatus()[locale];
+
+// With auto, a language the browser cannot transcribe on the device is transcribed as with cloud:
+// a session without processLocally
+export const usesCloudFallback = (locale: string) => isCloudFallbackAllowed()
+  && (!hasOnDeviceSupport() || getOnDeviceLanguageStatus(locale) === 'unavailable');
 
 export const checkOnDeviceLanguage = async (locale: string): Promise<void> => {
   if (installing.has(locale)) return;
@@ -98,7 +114,7 @@ export const useOnDeviceLanguageStatus = (locale: string): OnDeviceLanguageStatu
   const statuses = useReactiveVar(onDeviceLanguageStatus);
 
   useEffect(() => {
-    if (locale && isProcessLocally() && hasOnDeviceSupport()) checkOnDeviceLanguage(locale);
+    if (locale && isOnDeviceTranscription() && hasOnDeviceSupport()) checkOnDeviceLanguage(locale);
   }, [locale]);
 
   return statuses[locale];
@@ -108,12 +124,12 @@ export const useOnDeviceLanguageStatus = (locale: string): OnDeviceLanguageStatu
 // has it: confirming right after choosing must go by the new choice, not the stale locale
 export const chosenSpeechLocale = makeVar<string | null>(null);
 
-// With processLocally, joining audio with a transcription language first downloads its language
+// With local or auto, joining audio with a transcription language first downloads its language
 // pack: needsDownload when confirming would start it, busy while it is checked or downloading.
 // A language the browser cannot transcribe locally needs nothing: nothing would ever get it.
 export const useOnDeviceLanguageForAudio = (locale: string, isTranscriptionEnabled: boolean) => {
-  const onDevice = isTranscriptionEnabled && isWebSpeechApi() && isProcessLocally()
-    && hasSpeechRecognitionSupport() && locale !== '';
+  const onDevice = isTranscriptionEnabled && isWebSpeechApi() && isOnDeviceTranscription()
+    && hasOnDeviceSupport() && hasSpeechRecognitionSupport() && locale !== '';
   const status = useOnDeviceLanguageStatus(onDevice ? locale : '');
 
   return {
@@ -195,7 +211,10 @@ export const isLocaleValid = (locale: string) => {
 
 export default {
   generateId,
-  isProcessLocally,
+  getSpeechProcessing,
+  isOnDeviceTranscription,
+  isCloudFallbackAllowed,
+  usesCloudFallback,
   checkOnDeviceLanguage,
   installOnDeviceLanguage,
   getOnDeviceLanguageStatus,

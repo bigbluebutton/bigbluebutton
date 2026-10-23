@@ -125,6 +125,7 @@ export const elements = {
   onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
   onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
   onDeviceLanguageFailed: 'div[data-test="onDeviceLanguageFailed"]',
+  onDeviceLanguageCloudFallback: 'div[data-test="onDeviceLanguageCloudFallback"]',
 
   // Breakout
   createBreakoutRoomsButton: 'button[data-test="createBreakoutRoomsButton"]',

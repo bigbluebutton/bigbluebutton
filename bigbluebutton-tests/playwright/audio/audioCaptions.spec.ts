@@ -60,7 +60,7 @@ test.describe('Audio captions - default transcription language', { tag: ['@ci', 
   });
 });
 
-test.describe('Audio captions - on-device transcription (processLocally)', { tag: ['@ci', '@media'] }, () => {
+test.describe("Audio captions - on-device transcription (speechProcessing 'local')", { tag: ['@ci', '@media'] }, () => {
   const AVAILABILITY = {
     'en-US': 'available',
     'pt-BR': 'downloadable',
@@ -81,7 +81,7 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     await audioCaptions.initModPage(page, {
       testInfo,
       shouldCloseAudioModal: false,
-      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local'),
     });
 
     await audioCaptions.openAudioSettings();
@@ -104,7 +104,7 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     await audioCaptions.initModPage(page, {
       testInfo,
       shouldCloseAudioModal: false,
-      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local'),
     });
 
     await audioCaptions.openAudioSettings();
@@ -127,7 +127,7 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     await audioCaptions.initModPage(page, {
       testInfo,
       shouldCloseAudioModal: false,
-      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local'),
     });
     const { modPage } = audioCaptions;
 
@@ -165,7 +165,7 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     await audioCaptions.initModPage(page, {
       testInfo,
       shouldCloseAudioModal: false,
-      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local'),
     });
     const { modPage } = audioCaptions;
 
@@ -197,7 +197,7 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     await audioCaptions.initModPage(page, {
       testInfo,
       shouldCloseAudioModal: false,
-      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, true),
+      clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'local'),
     });
     const { modPage } = audioCaptions;
 
@@ -209,3 +209,171 @@ test.describe('Audio captions - on-device transcription (processLocally)', { tag
     expect((await audioCaptions.getSpeechRecognitionShimRecord()).installs, 'should not download').toEqual([]);
   });
 });
+
+test.describe(
+  "Audio captions - browser default transcription (speechProcessing 'cloud')",
+  { tag: ['@ci', '@media'] },
+  () => {
+    test('never checks, offers or downloads a language pack', async ({
+      browser,
+      browserName,
+      context,
+      page,
+    }, testInfo) => {
+      test.skip(browserName === 'firefox', NO_WEBSPEECH);
+      await shimSpeechSynthesisVoices(page, VOICES);
+      await shimSpeechRecognition(page, { 'en-US': 'downloadable', 'es-ES': 'unavailable' });
+      const audioCaptions = new AudioCaptions(browser, context);
+      await audioCaptions.initModPage(page, {
+        testInfo,
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'cloud'),
+      });
+      const { modPage } = audioCaptions;
+
+      await audioCaptions.openAudioSettings();
+      await audioCaptions.hasTranscriptionLocales(
+        ['', 'en-US', 'es-ES', 'fr-FR', 'pt-BR'],
+        'should list the configured languages that have a voice, as without on-device transcription',
+      );
+      await modPage.wasRemoved(e.onDeviceLanguageDownloadable, 'should not mention a language pack');
+      await modPage.waitAndClick(e.joinEchoTestButton);
+      await modPage.hasElement(e.unmuteMicButton, 'should join audio right away');
+      await modPage.waitAndClick(e.unmuteMicButton);
+      await expect
+        .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
+          message: 'should start a recognition without processLocally and download nothing',
+        })
+        .toMatchObject({ installs: [], starts: [{ lang: 'en-US', processLocally: false }] });
+    });
+  },
+);
+
+test.describe(
+  "Audio captions - on-device transcription with fallback (speechProcessing 'auto')",
+  { tag: ['@ci', '@media'] },
+  () => {
+    const AVAILABILITY = {
+      'en-US': 'downloadable',
+      'pt-BR': 'downloadable',
+      'es-ES': 'unavailable',
+      'fr-FR': 'unavailable',
+    } as const;
+
+    test('also offers the languages the browser cannot transcribe on the device', async ({
+      browser,
+      browserName,
+      context,
+      page,
+    }, testInfo) => {
+      test.skip(browserName === 'firefox', NO_WEBSPEECH);
+      await shimSpeechSynthesisVoices(page, VOICES);
+      await shimSpeechRecognition(page, AVAILABILITY);
+      const audioCaptions = new AudioCaptions(browser, context);
+      await audioCaptions.initModPage(page, {
+        testInfo,
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'auto'),
+      });
+
+      await audioCaptions.openAudioSettings();
+      await audioCaptions.hasTranscriptionLocales(
+        ['', 'en-US', 'es-ES', 'fr-FR', 'pt-BR'],
+        'should list the on-device languages and, as with cloud, the others',
+      );
+    });
+
+    test('downloads the language pack of a language the browser can transcribe on the device', async ({
+      browser,
+      browserName,
+      context,
+      page,
+    }, testInfo) => {
+      test.skip(browserName === 'firefox', NO_WEBSPEECH);
+      await shimSpeechSynthesisVoices(page, VOICES);
+      await shimSpeechRecognition(page, AVAILABILITY);
+      const audioCaptions = new AudioCaptions(browser, context);
+      await audioCaptions.initModPage(page, {
+        testInfo,
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'auto'),
+      });
+      const { modPage } = audioCaptions;
+
+      await audioCaptions.openAudioSettings();
+      await modPage.hasElement(e.onDeviceLanguageDownloadable, 'should tell that a language pack will be downloaded');
+      await modPage.waitAndClick(e.joinEchoTestButton);
+      await modPage.hasElement(e.unmuteMicButton, 'should join audio once the language pack is downloaded');
+      await modPage.waitAndClick(e.unmuteMicButton);
+      await expect
+        .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
+          message: 'should download en-US and start an on-device recognition',
+        })
+        .toMatchObject({ installs: ['en-US'], starts: [{ lang: 'en-US', processLocally: true }] });
+    });
+
+    test('transcribes a language unavailable on the device without processLocally', async ({
+      browser,
+      browserName,
+      context,
+      page,
+    }, testInfo) => {
+      test.skip(browserName === 'firefox', NO_WEBSPEECH);
+      await shimSpeechSynthesisVoices(page, VOICES);
+      await shimSpeechRecognition(page, AVAILABILITY);
+      const audioCaptions = new AudioCaptions(browser, context);
+      await audioCaptions.initModPage(page, {
+        testInfo,
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: audioCaptionsOverrides('es-ES', true, 'auto'),
+      });
+      const { modPage } = audioCaptions;
+
+      await audioCaptions.openAudioSettings();
+      await modPage.hasElement(
+        e.onDeviceLanguageCloudFallback,
+        'should tell that the browser may send the audio to its speech recognition service',
+      );
+      await modPage.waitAndClick(e.joinEchoTestButton);
+      await modPage.hasElement(e.unmuteMicButton, 'should join audio without any download');
+      await modPage.waitAndClick(e.unmuteMicButton);
+      await expect
+        .poll(async () => audioCaptions.getSpeechRecognitionShimRecord(), {
+          message: 'should start a recognition for es-ES without processLocally and download nothing',
+        })
+        .toMatchObject({ installs: [], starts: [{ lang: 'es-ES', processLocally: false }] });
+    });
+
+    test('transcribes without processLocally in a browser without on-device recognition', async ({
+      browser,
+      browserName,
+      context,
+      page,
+    }, testInfo) => {
+      test.skip(browserName === 'firefox', NO_WEBSPEECH);
+      await shimSpeechSynthesisVoices(page, VOICES);
+      await shimSpeechRecognition(page, AVAILABILITY, false);
+      const audioCaptions = new AudioCaptions(browser, context);
+      await audioCaptions.initModPage(page, {
+        testInfo,
+        shouldCloseAudioModal: false,
+        clientSettingsOverrides: audioCaptionsOverrides('en-US', true, 'auto'),
+      });
+      const { modPage } = audioCaptions;
+
+      await audioCaptions.openAudioSettings();
+      await modPage.hasElement(
+        e.onDeviceLanguageCloudFallback,
+        'should tell that the browser may send the audio to its speech recognition service',
+      );
+      await modPage.waitAndClick(e.joinEchoTestButton);
+      await modPage.hasElement(e.unmuteMicButton, 'should join audio');
+      await modPage.waitAndClick(e.unmuteMicButton);
+      await expect
+        .poll(async () => (await audioCaptions.getSpeechRecognitionShimRecord()).starts, {
+          message: 'should start a recognition for en-US without processLocally',
+        })
+        .toEqual([{ lang: 'en-US', processLocally: false }]);
+    });
+  },
+);

@@ -104,16 +104,20 @@ public:
       mobile: false
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
-      # Only for the webspeech provider. If true, the browser must transcribe on the user's
-      # device (SpeechRecognition.processLocally) and never sends the audio to a speech
-      # recognition service. Each language's pack (a few hundred MB) is downloaded when the
-      # user confirms joining audio with that transcription language, and the audio settings
-      # stay open until it ends. Only the languages the browser can transcribe locally are
-      # offered; browsers without on-device speech recognition (Chrome 139+ on desktop has it)
-      # show transcription as unsupported.
-      # If false, the browser decides where to transcribe: Chrome uses Google's servers
-      # unless the language pack happens to be installed.
-      processLocally: false
+      # speechProcessing: [cloud, local, auto] - only for the webspeech provider, where the
+      # browser transcribes the speaker's audio.
+      # cloud: the browser decides, as it always did. Chrome sends the audio to Google's servers,
+      #   unless the language pack happens to be installed: then it transcribes on the device.
+      # local: always on the user's device (SpeechRecognition.processLocally); the audio is never
+      #   sent to a speech recognition service. Each language's pack (a few hundred MB) is
+      #   downloaded when the user confirms joining audio with that transcription language, and
+      #   the audio settings stay open until it ends. Only the languages the browser can
+      #   transcribe locally are offered; browsers without on-device speech recognition
+      #   (Chrome 139+ on desktop has it) show transcription as unsupported.
+      # auto: as local, but a language the browser cannot transcribe on the device (or every
+      #   language, in a browser without on-device speech recognition) is still offered and
+      #   transcribed as with cloud.
+      speechProcessing: cloud
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
