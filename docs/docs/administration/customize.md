@@ -1539,6 +1539,26 @@ public:
 
 Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new threshold applies to meetings created after the restart.
 
+#### Configure the length of poll texts
+
+Three settings in `public.poll` limit how long the texts of a poll can be:
+
+| Setting | Default | Limits |
+|---|---|---|
+| `maxQuestionLength` | 500 | the poll question |
+| `maxOptionLength` | 100 | each option the presenter writes (typed, pasted or loaded from a text file) |
+| `maxTypedAnswerLength` | 100 | the answer a user types in a response poll |
+
+The client stops input at these lengths, and `bbb-apps-akka` cuts longer texts it receives, so the limits hold even for requests that do not come from the client. Previously the question allowed 1200 characters, and options and typed answers 45. For example, to give the question its former limit back, set in `/etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
+public:
+  poll:
+    maxQuestionLength: 1200
+```
+
+Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new limits apply to meetings created after the restart.
+
 #### Change the default welcome message
 
 The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.

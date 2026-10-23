@@ -9,7 +9,8 @@ import logger from '/imports/startup/client/logger';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutSelect, layoutSelectOutput } from '../../layout/context';
 import useCurrentPoll from '../useCurrentPoll';
-import CustomizedAxisTick from './CustomizedAxisTick';
+import CustomizedAxisTick, { isAxisLabelCut } from './CustomizedAxisTick';
+import PollOptionsLegend from './PollOptionsLegend';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import Tooltip from '../../common/tooltip/component';
 import { Layout, Output } from '../../layout/layoutTypes';
@@ -109,6 +110,10 @@ const LiveResult: React.FC<LiveResultProps> = ({
     };
   });
 
+  const yAxisWidth = type === 'R-' ? (sidebarContent.width / 3) : 70;
+  const hasCutLabels = translatedResponses
+    .some(({ optionDesc }) => isAxisLabelCut(optionDesc, yAxisWidth, fontSize));
+
   return (
     <div>
       <Styled.Instructions>
@@ -136,10 +141,13 @@ const LiveResult: React.FC<LiveResultProps> = ({
             layout="vertical"
           >
             <XAxis type="number" allowDecimals={false} />
-            <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
+            <YAxis width={yAxisWidth} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
             <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
           </BarChart>
         </ResponsiveContainer>
+        {hasCutLabels && (
+          <PollOptionsLegend options={translatedResponses.map(({ optionDesc }) => optionDesc)} />
+        )}
       </Styled.Stats>
       <Styled.Separator />
       {

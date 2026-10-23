@@ -648,7 +648,12 @@ public:
     enabled: true
     allowCustomResponseInput: true
     maxCustom: 5
-    maxTypedAnswerLength: 45
+    # maximum length of the poll question (also enforced by the server)
+    maxQuestionLength: 500
+    # maximum length of each poll option (also enforced by the server)
+    maxOptionLength: 100
+    # maximum length of the answer a user types in a response poll
+    maxTypedAnswerLength: 100
     chatMessage: true
     quickPollConfirmationStep: true
     quiz:
