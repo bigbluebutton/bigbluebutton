@@ -69,6 +69,8 @@ const getStoredAudioOutputDeviceId = () => getStorageSingletonInstance()
   .getItem(OUTPUT_DEVICE_ID_KEY);
 const storeAudioOutputDeviceId = (deviceId) => getStorageSingletonInstance()
   .setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const removeStoredAudioOutputDeviceId = () => getStorageSingletonInstance()
+  .removeItem(OUTPUT_DEVICE_ID_KEY);
 const getStoredAudioInputDeviceId = () => getStorageSingletonInstance()
   .getItem(INPUT_DEVICE_ID_KEY);
 const storeAudioInputDeviceId = (deviceId) => {
@@ -462,11 +464,9 @@ const doGUM = async (
 
     const wasmProcessorStream = await createWasmProcessorStream(stream);
 
-    // Register the per-stream mapping from synthetic WebAudio-* device ID
-    // to the real device ID for later resolution
-    const syntheticDeviceId = wasmProcessorStream.getAudioTracks()[0]
-      ?.getSettings()?.deviceId;
-    MediaStreamUtils.registerWasmDeviceId(syntheticDeviceId, realDeviceId);
+    // Register the per-stream mapping from the processed tracks to the real
+    // device ID for later resolution
+    MediaStreamUtils.registerWasmDeviceId(wasmProcessorStream, realDeviceId);
 
     // Promote this processor as the primary for runtime control
     // (setWasmProcessorEnabled/Parameter/Destruction). E.g.: preview calls (audio-settings
@@ -531,6 +531,7 @@ export {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  removeStoredAudioOutputDeviceId,
   doGUM,
   destroyWasmProcessor,
   stereoUnsupported,

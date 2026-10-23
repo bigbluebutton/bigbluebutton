@@ -38,6 +38,11 @@ object PresentationPodsApp {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
   }
 
+  def pageBelongsToMeeting(state: MeetingState2x, pageId: String): Boolean = {
+    state.presentationPodManager.getAllPresentationPodsInMeeting()
+      .exists(_.presentations.values.exists(_.pages.contains(pageId)))
+  }
+
   def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()
 
   def translatePresentationPodToVO(pod: PresentationPod): PresentationPodVO = {

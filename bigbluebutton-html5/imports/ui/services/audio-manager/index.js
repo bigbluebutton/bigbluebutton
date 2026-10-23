@@ -15,6 +15,7 @@ import {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  removeStoredAudioOutputDeviceId,
   getAudioConstraints,
   doGUM,
   destroyWasmProcessor,
@@ -24,7 +25,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
-import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
+import GrahqlSubscriptionStore, { getSubscriptionHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
   setUserSelectedMicrophone,
@@ -56,6 +57,18 @@ const checkMediaDevicesTarget = () => {
       },
     }, 'navigator.mediaDevices EventTarget unavailable');
   }
+};
+
+const isOutputDeviceGone = async (deviceId) => {
+  if (typeof navigator.mediaDevices?.enumerateDevices !== 'function') return false;
+
+  const devices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+  const outputDevices = devices.filter((device) => device.kind === 'audiooutput');
+
+  // Anonymised device lists (no permission granted yet) carry empty IDs: they
+  // cannot be used to judge a stored device.
+  return outputDevices.some((device) => device.deviceId)
+    && !outputDevices.some((device) => device.deviceId === deviceId);
 };
 
 class AudioManager {
@@ -199,26 +212,37 @@ class AudioManager {
     }
   }
 
-  _applyCachedOutputDeviceId() {
+  async _applyCachedOutputDeviceId() {
     const cachedId = getStoredAudioOutputDeviceId();
 
-    if (typeof cachedId === 'string') {
-      this.changeOutputDevice(cachedId, false)
-        .then(() => {
-          this.outputDeviceId = cachedId;
-        })
-        .catch((error) => {
-          logger.warn({
-            logCode: 'audiomanager_output_device_storage_failed',
-            extraInfo: {
-              bridge: this.bridgeName,
-              deviceId: cachedId,
-              errorMessage: error.message,
-              errorName: error.name,
-              errorStack: error?.stack,
-            },
-          }, `Failed to apply output audio device from storage: ${error.message}`);
-        });
+    if (typeof cachedId !== 'string') return;
+
+    try {
+      if (await isOutputDeviceGone(cachedId)) {
+        logger.warn({
+          logCode: 'audiomanager_stored_output_device_gone',
+          extraInfo: { bridge: this.bridgeName, deviceId: cachedId },
+        }, 'Stored output audio device is gone, keeping the default one');
+        removeStoredAudioOutputDeviceId();
+        return;
+      }
+
+      // The equality check is bypassed: the media element's sinkId may already
+      // carry the stored device - the pre-flight speaker selector sets it
+      // before any bridge exists - while the bridge never got it.
+      await this.changeOutputDevice(cachedId, false, true);
+      this.outputDeviceId = cachedId;
+    } catch (error) {
+      logger.warn({
+        logCode: 'audiomanager_output_device_storage_failed',
+        extraInfo: {
+          bridge: this.bridgeName,
+          deviceId: cachedId,
+          errorMessage: error.message,
+          errorName: error.name,
+          errorStack: error?.stack,
+        },
+      }, `Failed to apply output audio device from storage: ${error.message}`);
     }
   }
 
@@ -334,9 +358,7 @@ class AudioManager {
     // Observe voice activity changes to update any relevant *local* states
     // (see onVoiceUserChanges)
     if (!this._voiceActivityObserver) {
-      const subHash = stringToHash(JSON.stringify({
-        subscription: VOICE_ACTIVITY,
-      }));
+      const subHash = getSubscriptionHash(VOICE_ACTIVITY);
       this._voiceActivityObserver = GrahqlSubscriptionStore.makeSubscription(VOICE_ACTIVITY);
       window.addEventListener('graphqlSubscription', (e) => {
         const { subscriptionHash, response } = e.detail;
@@ -676,10 +698,14 @@ class AudioManager {
 
     let newMuteState;
 
-    // when user leaves voice conf, set muted = false
-    // as the user might have been transfered to a breakout room
+    // On the FreeSWITCH bridge a voice-conf leave means a transfer may be under
+    // way, so the user is unmuted. Under LiveKit it can only be a reconnect or a
+    // disconnect, and the event carries no observed voice state at all: akka
+    // builds it from an empty voice user, whose mute field is a hard-coded
+    // placeholder. Neither half of it says anything about this user, so the
+    // whole event is ignored rather than just its unmute.
     if (leftVoiceConf !== undefined && leftVoiceConf) {
-      newMuteState = false;
+      if (!this.isUsingLiveKit) newMuteState = false;
     } else if (muted !== undefined && muted !== this.isMuted) {
       newMuteState = muted;
     }
@@ -1138,7 +1164,7 @@ class AudioManager {
       });
   }
 
-  async changeOutputDevice(deviceId, isLive) {
+  async changeOutputDevice(deviceId, isLive, force = false) {
     const targetDeviceId = deviceId;
     const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
 
@@ -1147,7 +1173,7 @@ class AudioManager {
     const audioElement = document.querySelector(MEDIA_TAG);
     const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 
-    if (typeof deviceId === 'string' && sinkIdSupported && currentDeviceId !== targetDeviceId) {
+    if (typeof deviceId === 'string' && sinkIdSupported && (force || currentDeviceId !== targetDeviceId)) {
       try {
         if (typeof this.bridge?.changeOutputDevice === 'function') {
           // If the bridge supports changing the output device, use it

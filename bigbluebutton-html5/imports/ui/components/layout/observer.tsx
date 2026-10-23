@@ -4,11 +4,11 @@ import {
   ACTIONS, DEVICE_TYPE, LAYOUT_TYPE, PANELS,
 } from './enums';
 import {
-  isMobile,
   getDeviceType,
   getInitialSidebarContentPanel,
 } from './utils';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getInitialFontSize } from '/imports/ui/components/settings/service';
 import { Input, Layout } from './layoutTypes';
 import { throttle } from '/imports/utils/throttle';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -82,8 +82,12 @@ const LayoutObserver: React.FC = () => {
     // case when the presentation has been manually removed in the media area drop up
     // or when defaultUploadedPresentation is null in bigbluebutton.properties
     if (loadingPresentationPageData || loadingMeeting) return;
+    // presentationLastState is what the presentation-area pile restores to when a
+    // screen share or external video ends; keep it in step with the automatic
+    // close/reopen so that ending a share does not reopen an empty media area.
     if (!currentPageId && !currentMeeting?.isBreakout) {
       closedDueToAbsentPresentation.current = true;
+      Session.setItem('presentationLastState', false);
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: false,
@@ -92,6 +96,7 @@ const LayoutObserver: React.FC = () => {
       // restore presentation when a page becomes available after having been absent
       // (e.g. preUploadedPresentationOverrideDefault=true on a slow server)
       closedDueToAbsentPresentation.current = false;
+      Session.setItem('presentationLastState', true);
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: true,
@@ -154,10 +159,7 @@ const LayoutObserver: React.FC = () => {
       value: document.documentElement.getAttribute('dir') === 'rtl',
     });
 
-    const APP_CONFIG = window.meetingClientSettings.public.app;
-    const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
-    const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-    const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    const fontSize = getInitialFontSize();
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
     layoutContextDispatch({

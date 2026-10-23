@@ -21,7 +21,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import AudioCaptionsSpeechControls from '/imports/ui/components/audio-captions/panel/speech/component';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
-  muteAway,
+  restoreFromAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
@@ -379,7 +379,7 @@ const AudioModal = ({
   const disableAwayMode = () => {
     if (!away) return;
 
-    muteAway(false, true, voiceToggle);
+    restoreFromAway(voiceToggle);
     setAway({
       variables: {
         away: false,

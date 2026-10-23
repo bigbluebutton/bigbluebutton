@@ -6,8 +6,9 @@ import {
   colorText,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
-interface ChatMessageProps {
+interface ChatMessageProps extends ChatMentionStylesProps {
   systemMsg?: boolean;
   $jumbomoji?: boolean;
 }
@@ -41,9 +42,8 @@ export const ChatMessage = styled.div<ChatMessageProps>`
     /* An image with an alpha channel shows whatever is behind it, so dark artwork
        on a transparent background is nearly unreadable on a dark surface. Give the
        element an opaque light backdrop of its own. It is invisible under an opaque
-       image, so it never reads as a frame. Dark mode needs the companion override in
-       app/styles.js: DarkReader rewrites this declaration, and only the fix CSS it
-       injects verbatim survives. */
+       image, so it never reads as a frame. The dark theme keeps --color-white at
+       #FFFFFF, so the backdrop stays light there too. */
     background-color: ${colorWhite};
   }
 
@@ -88,6 +88,8 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   & h6 {
     margin: 0;
   }
+
+  ${chatMentionStyles}
 `;
 
 const ImageLightbox = styled.div`

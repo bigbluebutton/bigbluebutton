@@ -25,10 +25,6 @@ export class DisabledFeatures extends MultiUsers {
     }
   }
 
-  async captions() {
-    await this.modPage.waitAndClick(e.manageUsers);
-  }
-
   async chat() {
     await this.modPage.wasRemoved(
       e.hidePublicChat,
@@ -41,14 +37,6 @@ export class DisabledFeatures extends MultiUsers {
     await this.modPage.wasRemoved(
       e.shareExternalVideoBtn,
       'should not display the share external video option when opening the actions button',
-    );
-  }
-
-  async layouts() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.wasRemoved(
-      e.manageLayoutBtn,
-      'should not display manage layout option when the actions is open',
     );
   }
 
@@ -171,10 +159,6 @@ export class DisabledFeatures extends MultiUsers {
     }
   }
 
-  async captionsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-  }
-
   async chatExclude() {
     await this.modPage.hasElement(
       e.hidePublicChat,
@@ -185,11 +169,6 @@ export class DisabledFeatures extends MultiUsers {
   async externalVideosExclude() {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.hasElement(e.shareExternalVideoBtn, 'should display the share external video button');
-  }
-
-  async layoutsExclude() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.hasElement(e.manageLayoutBtn, 'should display the manage layout button');
   }
 
   async learningDashboardExclude() {

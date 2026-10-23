@@ -2,6 +2,7 @@ import React, {
   useMemo, useState, useCallback, useEffect,
 } from 'react';
 import { createPortal } from 'react-dom';
+import Auth from '/imports/ui/services/auth';
 import Styled from './styles';
 import { isJumbomoji } from './jumbomoji';
 import { authenticateUploadedImages } from '/imports/ui/components/chat/chat-graphql/service';
@@ -60,6 +61,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
         data-test={dataTest}
         $jumbomoji={jumbomoji}
         onClick={handleClick}
+        $currentUserId={Auth.userID as string | undefined}
       />
       {/* The lightbox is a position:fixed full-viewport overlay, but it is
           rendered deep inside the chat message list, whose panel wrapper carries

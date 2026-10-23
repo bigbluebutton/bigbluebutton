@@ -42,11 +42,19 @@ const hocuspocus = new Hocuspocus({
       meetingId,
       intUserId,
       userHasNotesEnabled,
+      userIsCurrentlyOnline,
     } = userInformation;
 
     if (meetingId !== meetingIdFromClient) {
       const message = "Meeting Id divergent"
       websocket.close(3000, message);
+      return null;
+    }
+
+    // A valid session token does not imply current meeting membership.
+    if (!userIsCurrentlyOnline) {
+      const message = 'User is not a member of the meeting';
+      websocket.close(4001, message);
       return null;
     }
 

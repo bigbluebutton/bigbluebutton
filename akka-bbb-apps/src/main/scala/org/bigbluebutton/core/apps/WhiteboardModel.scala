@@ -72,10 +72,43 @@ object WhiteboardModel {
       case _                         => true
     }
   }
+
+  // Bind the annotation author to the authenticated requester rather than
+  // trusting the client-supplied annotation.userId. Without this a participant
+  // could submit an annotation carrying another participant's (or a fabricated)
+  // userId and have it stored and broadcast under that identity. The requester
+  // id is the server-side session identity resolved by the handler, so it is
+  // the authoritative owner. Lives in the companion object so it is unit
+  // testable without instantiating the model.
+  def bindAnnotationAuthor(annotation: AnnotationVO, requesterId: String): AnnotationVO =
+    annotation.copy(userId = requesterId)
+
+  // The tldraw shape also carries its own creator marker in
+  // annotationInfo.meta.createdBy, which the client uses to decide who may
+  // select and edit the shape. Bind it to the requester on creation for the
+  // same reason as the top-level userId; a legitimate client always sends its
+  // own id, so this is a no-op for real drawing. Left untouched when absent.
+  def bindAnnotationCreator(annotationInfo: Map[String, Any], requesterId: String): Map[String, Any] =
+    annotationInfo.get("meta") match {
+      case Some(meta: Map[String, Any] @unchecked) if meta.contains("createdBy") =>
+        annotationInfo.updated("meta", meta.updated("createdBy", requesterId))
+      case _ => annotationInfo
+    }
+
+  // On update the creator marker is immutable: any client-supplied
+  // meta.createdBy is rebound to the original creator (or the stored author
+  // when the original had none), so an editor cannot re-attribute a shape.
+  def preserveAnnotationCreator(oldAnnotation: AnnotationVO, newInfo: Map[String, Any]): Map[String, Any] = {
+    val originalCreator = oldAnnotation.annotationInfo.get("meta") match {
+      case Some(meta: Map[String, Any] @unchecked) => meta.get("createdBy").map(_.toString)
+      case _                                       => None
+    }
+    bindAnnotationCreator(newInfo, originalCreator.getOrElse(oldAnnotation.userId))
+  }
 }
 
 class WhiteboardModel extends SystemConfiguration {
-  import WhiteboardModel.isAllowedAnnotation
+  import WhiteboardModel.{ bindAnnotationAuthor, bindAnnotationCreator, isAllowedAnnotation, preserveAnnotationCreator }
 
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -115,10 +148,12 @@ class WhiteboardModel extends SystemConfiguration {
       k -> newValue
     }).toMap
 
-  // Resolves one incoming annotation to the value to store: the merge into the
-  // existing annotation when the user may edit it, or the annotation itself when
-  // new. None when it is rejected (no permission, disallowed type, no type).
-  private def resolveAnnotation(wb: Whiteboard, annotation: AnnotationVO, meetingId: String, userId: String, isPresenter: Boolean, isModerator: Boolean, imagePasteEnabled: Boolean): Option[AnnotationVO] = {
+  // Resolves one incoming annotation to the pair (value to store, diff to record
+  // and broadcast): the merge into the existing annotation when the user may
+  // edit it, or the annotation itself when new. None when it is rejected (no
+  // permission, disallowed type, no type). The creator marker is bound to the
+  // requester on creation and kept immutable on update.
+  private def resolveAnnotation(wb: Whiteboard, annotation: AnnotationVO, meetingId: String, userId: String, isPresenter: Boolean, isModerator: Boolean, imagePasteEnabled: Boolean): Option[(AnnotationVO, AnnotationVO)] = {
     wb.annotationsMap.get(annotation.id) match {
       case Some(oldAnnotation) =>
         val hasPermission = isPresenter || isModerator || oldAnnotation.userId == userId
@@ -129,14 +164,18 @@ class WhiteboardModel extends SystemConfiguration {
           val mergedAnnotationInfo = deepMerge(oldAnnotation.annotationInfo, annotation.annotationInfo)
 
           // Apply cleaning if it's an arrow annotation
-          val finalAnnotationInfo = if (oldAnnotation.annotationInfo.get("type").contains("arrow")) {
+          val cleanedAnnotationInfo = if (oldAnnotation.annotationInfo.get("type").contains("arrow")) {
             cleanArrowAnnotationProps(mergedAnnotationInfo)
           } else {
             mergedAnnotationInfo
           }
+          val finalAnnotationInfo = preserveAnnotationCreator(oldAnnotation, cleanedAnnotationInfo)
 
           if (isAllowedAnnotation(finalAnnotationInfo, meetingId, imagePasteEnabled)) {
-            Some(oldAnnotation.copy(annotationInfo = finalAnnotationInfo))
+            Some((
+              oldAnnotation.copy(annotationInfo = finalAnnotationInfo),
+              annotation.copy(annotationInfo = preserveAnnotationCreator(oldAnnotation, annotation.annotationInfo))
+            ))
           } else {
             log.warn(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
             None
@@ -147,7 +186,8 @@ class WhiteboardModel extends SystemConfiguration {
         None
       case None =>
         if (isAllowedAnnotation(annotation.annotationInfo, meetingId, imagePasteEnabled)) {
-          Some(annotation)
+          val newAnnotation = annotation.copy(annotationInfo = bindAnnotationCreator(annotation.annotationInfo, userId))
+          Some((newAnnotation, newAnnotation))
         } else {
           log.warn(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
           None
@@ -163,12 +203,16 @@ class WhiteboardModel extends SystemConfiguration {
     var annotationsDiffAdded = Array[AnnotationVO]()
     var newAnnotationsMap = wb.annotationsMap
 
-    for (annotation <- annotations) {
-      resolveAnnotation(wb, annotation, meetingId, userId, isPresenter, isModerator, imagePasteEnabled).foreach { newAnnotation =>
-        newAnnotationsMap += (annotation.id -> newAnnotation)
-        annotationsAdded :+= newAnnotation
-        annotationsDiffAdded :+= annotation
-        log.debug(s"Stored annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+    for (rawAnnotation <- annotations) {
+      // Author is always the authenticated requester, never the client-supplied
+      // annotation.userId (see WhiteboardModel.bindAnnotationAuthor).
+      val annotation = bindAnnotationAuthor(rawAnnotation, userId)
+      resolveAnnotation(wb, annotation, meetingId, userId, isPresenter, isModerator, imagePasteEnabled).foreach {
+        case (newAnnotation, diffAnnotation) =>
+          newAnnotationsMap += (annotation.id -> newAnnotation)
+          annotationsAdded :+= newAnnotation
+          annotationsDiffAdded :+= diffAnnotation
+          log.debug(s"Stored annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       }
     }
 
@@ -245,7 +289,7 @@ class WhiteboardModel extends SystemConfiguration {
 
     val annotationUpdatedAt = System.currentTimeMillis()
     PresAnnotationHistoryDAO.deleteAnnotations(meetingId, wb.id, userId, annotationsIdsRemoved, annotationUpdatedAt)
-    PresAnnotationDAO.deleteAnnotations(meetingId, userId, annotationsIdsRemoved, annotationUpdatedAt)
+    PresAnnotationDAO.deleteAnnotations(meetingId, wb.id, userId, annotationsIdsRemoved, annotationUpdatedAt)
 
     annotationsIdsRemoved
   }

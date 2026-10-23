@@ -3,8 +3,9 @@ import Button from '/imports/ui/components/common/button/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import MenuItem from '@mui/material/MenuItem';
 import {
-  colorWhite,
   colorPrimary,
+  colorWhiteBorder,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
@@ -103,14 +104,14 @@ const CloseButton = styled(Button)`
   justify-content: center;
   width: 100%;
   height: 5rem;
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   padding: 1rem;
 
   border-radius: 0;
   z-index: 1011;
   font-size: calc(${fontSizeLarge} * 1.1);
-  box-shadow: 0 0 0 2rem ${colorWhite} !important;
-  border: ${colorWhite} !important;
+  box-shadow: 0 0 0 2rem ${colorWhiteSurface} !important;
+  border: ${colorWhiteBorder} !important;
   cursor: pointer !important;
 
   @media ${mediumUp} {
@@ -168,7 +169,7 @@ const BBBMenuItem = styled(MenuItem)`
     @media (hover: hover) {
       &:focus,
       &:hover {
-        background-color: ${colorWhite} !important;
+        background-color: ${colorWhiteSurface} !important;
         div div div {
           background-color: ${colorPrimary} !important;
           border: 1px solid ${colorPrimary} !important;
@@ -178,10 +179,10 @@ const BBBMenuItem = styled(MenuItem)`
 
     @media (hover: none) {
       &:focus {
-        background-color: ${colorWhite} !important;
+        background-color: ${colorWhiteSurface} !important;
       }
       &:hover {
-        background-color: ${colorWhite} !important;
+        background-color: ${colorWhiteSurface} !important;
         div div div {
           background-color: none !important;
         }

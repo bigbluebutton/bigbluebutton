@@ -85,6 +85,15 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.duration();
   });
 
+  test('Meeting Duration Above Remaining Time Threshold', async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, {
+      createParameter: c.durationAboveRemainingTimeThreshold,
+      testInfo,
+    });
+    await createParam.durationAboveRemainingTimeThreshold();
+  });
+
   test('Message Only To Moderators', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, {
@@ -267,22 +276,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
           testInfo,
         });
         await disabledFeatures.speechRecognitionExclude();
-      });
-    });
-
-    test.describe.serial(() => {
-      // current testing code is checking the old (write) captions
-      // this parameter should works the same way with the automatic captions
-      test.fixme();
-      test('Captions', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.captionsDisabled, testInfo });
-        await disabledFeatures.captions();
-      });
-      test('Captions (exclude)', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.captionsExclude, testInfo });
-        await disabledFeatures.captionsExclude();
       });
     });
 
@@ -667,6 +660,18 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       testInfo,
     });
     await customParam.predefinedGroups();
+  });
+
+  test('Predefined groups with names longer than 100 characters', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25676);
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, { createParameter: `${encodeCustomParams(c.groupsWithLongNames)}`, testInfo });
+    await customParam.initUserPage(context, {
+      fullName: `Attendee-1235`,
+      joinParameter: 'userID=1235',
+      testInfo,
+    });
+    await customParam.predefinedGroupsWithLongNames();
   });
 
   test.describe.parallel('Audio', () => {

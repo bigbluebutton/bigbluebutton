@@ -286,21 +286,27 @@ export default class WebRtcPeer extends EventEmitter2 {
   }
 
   getRemoteStream() {
-    if (this.remoteStream) {
-      return this.remoteStream;
-    }
-
     if (this.peerConnection) {
-      this.remoteStream = new MediaStream();
-      this.peerConnection.getReceivers().forEach(({ track }) => {
-        if (track) {
+      if (this.remoteStream == null) this.remoteStream = new MediaStream();
+      const receivers = this.peerConnection.getReceivers();
+      const oldTracks = this.remoteStream.getTracks();
+
+      // A viewer peer has no receivers until it applies the remote offer, so a
+      // stream created before then gets its tracks on a later call.
+      receivers.forEach(({ track }) => {
+        if (track && !oldTracks.includes(track)) {
           this.remoteStream.addTrack(track);
         }
       });
-      return this.remoteStream;
+
+      oldTracks.forEach((oldTrack) => {
+        if (!receivers.some(({ track }) => track === oldTrack)) {
+          this.remoteStream.removeTrack(oldTrack);
+        }
+      });
     }
 
-    return null;
+    return this.remoteStream || null;
   }
 
   isPeerConnectionClosed() {

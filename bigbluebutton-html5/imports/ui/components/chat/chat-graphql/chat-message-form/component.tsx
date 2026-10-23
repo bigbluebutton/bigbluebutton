@@ -41,8 +41,18 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
+import ChatMentionPicker, { MENTION_PICKER_ID } from '../chat-mention-picker/component';
+import {
+  isMentionLeftBoundary,
+  pickedMentionsFromHtml,
+  remapDismissedIndexes,
+  syncPickedMentions,
+  PickedMention,
+} from '../service';
+import { MentionUser } from '../chat-mention-picker/queries';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
@@ -65,6 +75,7 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
+const MENTIONS_FALLBACK = meetingClientSettingsInitialValues.public.chat.mentions;
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -74,6 +85,7 @@ interface ChatMessageFormProps {
   idChatOpen: string,
   isRTL: boolean,
   chatId: string,
+  isPublicChat: boolean,
   connected: boolean,
   disabled: boolean,
   locked: boolean,
@@ -161,7 +173,9 @@ const messages = defineMessages({
   },
 });
 
-type EditingMessage = { chatId: string; messageId: string, message: string };
+type EditingMessage = { chatId: string; messageId: string, message: string, messageAsHtml?: string };
+
+type MentionCandidate = { atIndex: number; search: string };
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   title,
@@ -170,6 +184,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   minMessageLength,
   maxMessageLength,
   chatId,
+  isPublicChat,
   connected,
   locked,
   isRTL,
@@ -180,6 +195,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [mentionCandidate, setMentionCandidate] = React.useState<MentionCandidate | null>(null);
+  const [activeMentionOptionId, setActiveMentionOptionId] = React.useState<string | null>(null);
+  const pickedMentionsRef = useRef<PickedMention[]>([]);
+  const dismissedMentionIndexesRef = useRef<Set<number>>(new Set());
+  const resetMentionState = () => {
+    pickedMentionsRef.current = [];
+    dismissedMentionIndexesRef.current = new Set();
+    setMentionCandidate(null);
+  };
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
   const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
@@ -190,6 +214,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [imageUploading, setImageUploading] = React.useState(false);
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
+  const inputWrapperRef = useRef<HTMLDivElement>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
@@ -217,6 +242,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
   const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
+  const MENTION_MAX_WORDS = CHAT_CONFIG.mentions?.maxWords ?? MENTIONS_FALLBACK.maxWords;
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
   const ENABLE_IMAGE_PASTE = useIsChatImagePasteEnabled();
 
@@ -334,6 +360,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const unsentMessage = unsentMessages[chatId] || '';
     setMessage(unsentMessage);
+    resetMentionState();
 
     if (!isMobile) {
       if (textAreaRef?.current) textAreaRef.current.textarea.focus();
@@ -426,6 +453,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     return result;
   };
 
+  const getMentionCandidateAtCursor = (text: string, cursorPos: number): MentionCandidate | null => {
+    // A private chat has a single addressee, so there is nobody to disambiguate with a mention.
+    if (!isPublicChat) return null;
+    // Both popovers sit in the same box above the textarea, so only one of them opens at a time.
+    if (showEmojiPicker) return null;
+    const textBeforeCursor = text.slice(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+    if (atIndex === -1) return null;
+    if (dismissedMentionIndexesRef.current.has(atIndex)) return null;
+    if (pickedMentionsRef.current.some((mention) => mention.atIndex === atIndex)) return null;
+    if (!isMentionLeftBoundary(textBeforeCursor[atIndex - 1])) return null;
+    const search = textBeforeCursor.slice(atIndex + 1);
+    if (/^\s/.test(search)) return null;
+    if (/[\r\n]/.test(search)) return null;
+    const words = search.split(/\s+/).filter((word) => word !== '');
+    if (words.length > MENTION_MAX_WORDS) return null;
+    return { atIndex, search };
+  };
+
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newMessage = null;
     let newError = null;
@@ -445,7 +491,58 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setMessage(newMessage);
     setError(newError);
     throttleHandleUserTyping(newError != null);
+
+    const cursorPos = e.target.selectionStart ?? newMessage.length;
+
+    // Both are derived from the text, so editing a mention away re-arms the picker on its own.
+    pickedMentionsRef.current = syncPickedMentions(newMessage, pickedMentionsRef.current);
+    dismissedMentionIndexesRef.current = remapDismissedIndexes(
+      message,
+      newMessage,
+      dismissedMentionIndexesRef.current,
+    );
+
+    setMentionCandidate(getMentionCandidateAtCursor(newMessage, cursorPos));
   };
+
+  const handleMentionSelect = (user: MentionUser) => {
+    const txtArea = textAreaRef?.current?.textarea;
+    const cursorPos = txtArea?.selectionStart ?? message.length;
+    // The caret can have moved since the candidate was computed, so it is recomputed here:
+    // replacing from a stale '@' would eat unrelated text.
+    const candidate = getMentionCandidateAtCursor(message, cursorPos);
+    if (!candidate) {
+      setMentionCandidate(null);
+      return;
+    }
+
+    const { atIndex } = candidate;
+    const { name } = user;
+    const newMessage = `${message.slice(0, atIndex)}@${name} ${message.slice(cursorPos)}`;
+
+    pickedMentionsRef.current = [
+      ...syncPickedMentions(newMessage, pickedMentionsRef.current)
+        .filter((mention) => mention.atIndex !== atIndex),
+      { userId: user.userId, name, atIndex },
+    ];
+
+    setMessage(newMessage);
+    setMentionCandidate(null);
+    setTimeout(() => {
+      if (txtArea) {
+        const newPos = atIndex + name.length + 2;
+        txtArea.focus();
+        txtArea.setSelectionRange(newPos, newPos);
+      }
+    }, 0);
+  };
+
+  const handleMentionClose = () => {
+    if (mentionCandidate) dismissedMentionIndexesRef.current.add(mentionCandidate.atIndex);
+    setMentionCandidate(null);
+  };
+
+  const handleMentionDismiss = () => setMentionCandidate(null);
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT, {
@@ -460,6 +557,21 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       textAreaRef.current?.dispatchEvent?.('autosize:update');
     }
   }, [message]);
+
+  useEffect(() => {
+    const wrapper = inputWrapperRef.current;
+    if (!wrapper) return undefined;
+    let lastWidth = wrapper.clientWidth;
+    // autosize re-measures on input and on window resize only; dragging the
+    // panel edge changes the textarea's width with neither.
+    const observer = new ResizeObserver(() => {
+      if (wrapper.clientWidth === lastWidth) return;
+      lastWidth = wrapper.clientWidth;
+      textAreaRef.current?.dispatchEvent('autosize:update');
+    });
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleReplyIntention = (e: Event) => {
@@ -477,6 +589,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           }
           editingMessage.current = e.detail;
           setMessage(e.detail.message);
+          resetMentionState();
+          pickedMentionsRef.current = pickedMentionsFromHtml(e.detail.message, e.detail.messageAsHtml ?? '');
           textAreaRef.current?.textarea.focus();
         }
       }
@@ -489,6 +603,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             setMessage(messageBeforeEditingRef.current);
             messageBeforeEditingRef.current = null;
           }
+          resetMentionState();
           editingMessage.current = null;
         }
       }
@@ -543,6 +658,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       setMessage('');
       updateUnsentMessages(chatId, '');
+      resetMentionState();
       setError(null);
       setHasErrors(false);
       setShowEmojiPicker(false);
@@ -550,12 +666,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       window.dispatchEvent(sentMessageEvent);
     };
 
-    const dispatchSendMessage = (markdown: string) => {
+    const dispatchSendMessage = (markdown: string, metadata: { mentions: { userId: string; name: string }[] } | null) => {
       chatSendMessage({
         variables: {
           chatMessageInMarkdownFormat: markdown,
           chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
           replyToMessageId: repliedMessageId,
+          metadata,
         },
       }).then(() => {
         sendCancelEvents();
@@ -578,6 +695,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
+      // The ids the sender picked, in message order: the server resolves the mentions against
+      // the participant list and ignores anything it can't confirm.
+      const pickedMentions = [...pickedMentionsRef.current]
+        .sort((a, b) => a.atIndex - b.atIndex)
+        .map(({ userId, name }) => ({ userId, name }));
+      const mentionMetadata = pickedMentions.length > 0 ? { mentions: pickedMentions } : null;
       if (editingMessage.current && !chatEditMessageLoading) {
         // Message edits are text-only: a staged image cannot be attached to an
         // existing message, so unstage it (removing its preview) instead of
@@ -588,6 +711,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             chatId: editingMessage.current.chatId,
             messageId: editingMessage.current.messageId,
             chatMessageInMarkdownFormat: msg,
+            metadata: mentionMetadata,
           },
         }).then(() => {
           sendCancelEvents();
@@ -638,7 +762,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               setHasErrors(true);
               return;
             }
-            dispatchSendMessage(markdown);
+            dispatchSendMessage(markdown, mentionMetadata);
             clearPendingImage();
             clearAfterSend();
           })
@@ -668,7 +792,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      dispatchSendMessage(msg);
+      dispatchSendMessage(msg, mentionMetadata);
       clearAfterSend();
     };
 
@@ -693,6 +817,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   messageId: msg.messageId,
                   chatId: msg.chatId,
                   message: msg.message,
+                  messageAsHtml: msg.messageAsHtml,
                 },
               }),
             );
@@ -821,6 +946,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         onSubmit={handleSubmit}
         isRTL={isRTL}
       >
+        {mentionCandidate !== null ? (
+          <ChatMentionPicker
+            searchText={mentionCandidate.search}
+            inputElement={textAreaRef.current?.textarea ?? null}
+            onSelect={handleMentionSelect}
+            onClose={handleMentionClose}
+            onDismiss={handleMentionDismiss}
+            onActiveOptionChange={setActiveMentionOptionId}
+          />
+        ) : null}
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
@@ -851,6 +986,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         ) : null}
         <Styled.Wrapper>
           <Styled.InputWrapper
+            ref={inputWrapperRef}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 textAreaRef.current?.textarea.focus();
@@ -863,6 +999,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
+              role="combobox"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              aria-expanded={mentionCandidate !== null}
+              aria-controls={mentionCandidate !== null ? MENTION_PICKER_ID : undefined}
+              aria-activedescendant={mentionCandidate !== null ? activeMentionOptionId ?? undefined : undefined}
               autoCorrect="off"
               autoComplete="off"
               spellCheck="true"
@@ -926,6 +1068,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   onClick={() => {
                     if (!showEmojiPicker) {
                       emojiPickerPreviousFocusRef.current = document.activeElement as HTMLElement;
+                      // It would render underneath the emoji picker, with the textarea still
+                      // announcing it as an open listbox.
+                      setMentionCandidate(null);
                     }
                     setShowEmojiPicker(!showEmojiPicker);
                   }}
@@ -1066,6 +1211,7 @@ const ChatMessageFormContainer: React.FC = () => {
         maxMessageLength: CHAT_CONFIG.max_message_length,
         idChatOpen,
         chatId: idChatOpen,
+        isPublicChat: isPublicChat ?? false,
         connected: true, // TODO: monitoring network status
         disabled: ((isPublicChat ? locked : disabled) || !isConnected) ?? false,
         title,
@@ -1079,4 +1225,5 @@ const ChatMessageFormContainer: React.FC = () => {
   );
 };
 
-export default ChatMessageFormContainer;
+// Takes no props: the memo keeps re-renders of the chat panel from reaching it.
+export default React.memo(ChatMessageFormContainer);

@@ -108,6 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="useTagThreshold" value="${useTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="maskTagThreshold" value="${maskTagThreshold:0}"/>
+        <property name="filterTagThreshold" value="${filterTagThreshold:1}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
         <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
         <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>

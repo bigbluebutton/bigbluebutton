@@ -4,13 +4,13 @@ import {
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorPrimary,
-  colorWhite,
-  colorGrayLighter,
   colorBlueAux,
-  colorText,
-  colorGray,
   colorBorder,
+  colorGray,
+  colorGrayLighter,
+  colorPrimary,
+  colorText,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmall,

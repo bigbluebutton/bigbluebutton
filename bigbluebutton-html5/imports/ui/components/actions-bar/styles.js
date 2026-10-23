@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
-  colorBackground,
   btnDefaultBg,
   btnDefaultColor,
+  colorBackground,
+  colorWhite,
   defaultBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';

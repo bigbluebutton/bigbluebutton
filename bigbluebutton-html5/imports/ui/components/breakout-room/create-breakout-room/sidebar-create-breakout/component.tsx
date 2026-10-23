@@ -318,6 +318,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     breakoutRoomLimit: BREAKOUT_LIM,
     breakoutRoomMinimum: MIN_BREAKOUT_ROOMS,
     sendInvitationToAssignedModeratorsByDefault: inviteModsByDefault,
+    inheritLockSettingsByDefault,
   } = BREAKOUT_SETTINGS;
 
   const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
@@ -345,7 +346,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>(
     () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
   );
-  const [inheritLockSettings, setInheritLockSettings] = useState(false);
+  const [inheritLockSettings, setInheritLockSettings] = useState(inheritLockSettingsByDefault);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 

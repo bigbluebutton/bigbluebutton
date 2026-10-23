@@ -1,6 +1,7 @@
 import React, {
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { UserCameraHelperButton, UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
@@ -15,6 +16,7 @@ import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import propsEqualIgnoringFloor from './utils';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -70,10 +72,13 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     );
   }, [domElementManipulationIdentifiers, userCamerasRequestedFromPlugin]);
 
-  let pluginUserCameraHelperPerPosition: UserCameraHelperAreas = {} as UserCameraHelperAreas;
-  if (pluginsExtensibleAreasAggregatedState.userCameraHelperItems) {
-    pluginUserCameraHelperPerPosition = [
-      ...pluginsExtensibleAreasAggregatedState.userCameraHelperItems,
+  const { userCameraHelperItems } = pluginsExtensibleAreasAggregatedState;
+  // Every tile takes this object: a new one per render would re-render them all.
+  const pluginUserCameraHelperPerPosition = useMemo<UserCameraHelperAreas>(() => {
+    if (!userCameraHelperItems) return {} as UserCameraHelperAreas;
+
+    return [
+      ...userCameraHelperItems,
     ].reduce((acc, current: UserCameraHelperInterface) => {
       const state = { ...acc };
       const currentButton = current as UserCameraHelperButton;
@@ -100,7 +105,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
       userCameraHelperBottomLeft: [] as UserCameraHelperButton[],
       userCameraHelperBottomRight: [] as UserCameraHelperButton[],
     });
-  }
+  }, [userCameraHelperItems]);
 
   return (
     !streams.length
@@ -130,4 +135,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   );
 };
 
-export default VideoListContainer;
+export default React.memo(
+  VideoListContainer,
+  propsEqualIgnoringFloor<VideoListContainerProps>(['streams', 'overflowUsers']),
+);

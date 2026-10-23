@@ -1,8 +1,7 @@
 import { test } from '../../core/setup/fixtures';
 import { BlockNoteImagePaste } from './imagePaste';
 
-// The BlockNote editor is opt-in per meeting (sharedNotesEditor=blockNote), and
-// image paste is off by default, so these run under the setting-required tag.
+// Image paste is off by default, so these run under the setting-required tag.
 test.describe('Shared Notes - BlockNote image paste', { tag: '@setting-required:app.sharedNotes.imagePaste' }, () => {
   test('Paste an image and render it as a block for every participant', async ({
     browser,

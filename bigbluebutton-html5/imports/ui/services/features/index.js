@@ -187,7 +187,7 @@ export function useIsChatImagePasteEnabled() {
  * This hook returns `true` if pasting/dropping images into the BlockNote shared
  * notes editor is enabled. Requires both the `sharedNotesImagePaste` feature (not
  * disabled via API) and the `public.app.sharedNotes.imagePaste.enabled` client
- * setting. Only applies when the meeting uses `sharedNotesEditor=blockNote`.
+ * setting.
  * @returns {boolean}
  */
 export function useIsSharedNotesImagePasteEnabled() {

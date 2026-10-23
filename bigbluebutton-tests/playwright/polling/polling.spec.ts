@@ -60,6 +60,10 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
     test('Poll results in a different presentation', async () => {
       await polling.pollResultsInDifferentPresentation();
     });
+
+    test('Publishing poll results restores a hidden presentation', async () => {
+      await polling.publishingResultsRestoresHiddenPresentation();
+    });
   });
 
   // sometimes fails in 3.1

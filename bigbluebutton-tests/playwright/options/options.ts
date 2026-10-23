@@ -96,7 +96,9 @@ export class Options extends MultiUsers {
       await navigationSidebarContainerLocator.evaluate(getBackgroundColorComputed);
     const whiteboardOptionsButtonBackground = await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed);
     const joinAudioBackgroundColor = await joinAudioLocator.evaluate(getBackgroundColorComputed);
-    const leaveMeetingDropdownBackgroundColor = await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed);
+    // brand-group tokens (danger, success, warning, primary) are deliberately not
+    // re-emitted in the dark theme, so a branded client keeps reaching every role
+    const leaveMeetingDropdownBrandColor = await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed);
     // text colors that should be changed (light mode)
     const settingsSidebarButtonColor = await settingsSidebarButtonLocator.evaluate(getBackgroundColorComputed);
     const chatMessagesBackgroundColor = await chatNotificationMessageItemLocator.evaluate(getTextColorComputed);
@@ -117,8 +119,8 @@ export class Options extends MultiUsers {
       .soft(joinAudioBackgroundColor, 'should the join audio button background color be changed')
       .not.toEqual(await joinAudioLocator.evaluate(getBackgroundColorComputed));
     expect
-      .soft(leaveMeetingDropdownBackgroundColor, 'should the minimize presentation button background color be changed')
-      .not.toEqual(await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed));
+      .soft(leaveMeetingDropdownBrandColor, 'should the leave meeting button keep its brand background color')
+      .toEqual(await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed));
     expect
       .soft(chatMessagesBackgroundColor, 'should the chat notification message color be changed')
       .not.toEqual(await chatNotificationMessageItemLocator.evaluate(getTextColorComputed));

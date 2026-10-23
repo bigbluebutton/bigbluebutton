@@ -14,8 +14,10 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
-    val logback = "1.5.38"
-    val jackson = "2.18.9"
+    val logback = "1.6.3"
+    val jackson = "2.22.3"
+    // jackson-annotations drops the patch component from 2.20 on: the 2.22.3 suite pins it at 2.22.
+    val jacksonAnnotations = "2.22"
     val netty = "4.2.17.Final"
     val slf4j = "2.0.17"
 
@@ -91,7 +93,7 @@ object Dependencies {
   val overrides = Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % Versions.jackson,
     "com.fasterxml.jackson.core" % "jackson-core" % Versions.jackson,
-    "com.fasterxml.jackson.core" % "jackson-annotations" % Versions.jackson,
+    "com.fasterxml.jackson.core" % "jackson-annotations" % Versions.jacksonAnnotations,
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jackson,
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson,
     "io.netty" % "netty-handler" % Versions.netty,

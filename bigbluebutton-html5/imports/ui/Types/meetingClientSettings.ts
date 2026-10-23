@@ -23,7 +23,6 @@ export interface Public {
   notes: Notes
   layout: Layout
   sidebarNavigation: SidebarNavigation
-  pads: Pads
   sharedNotes: SharedNotes
   media: Media
   stats: Stats
@@ -38,10 +37,14 @@ export interface Locales {
   locale: string
   name: string
 }
+export interface PreFlight {
+  enabled: boolean
+}
 export interface App {
   mobileFontSize: string
   desktopFontSize: string
   autoJoin: boolean
+  preFlight: PreFlight
   listenOnlyMode: boolean
   forceListenOnly: boolean
   skipCheck: boolean
@@ -87,6 +90,7 @@ export interface App {
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
   appsGallery: AppsGallery
+  remainingTimeThresholdInMinutes: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
@@ -180,6 +184,7 @@ export interface Breakouts {
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
+  inheritLockSettingsByDefault: boolean
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
@@ -235,6 +240,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  recordingIndicatorAutoCollapse: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   directLeaveButton: boolean
@@ -581,6 +587,7 @@ export interface Chat {
   storage_key: string
   system_messages_keys: SystemMessagesKeys
   typingIndicator: TypingIndicator
+  mentions: Mentions
   moderatorChatEmphasized: boolean
   privateMessageReadFeedback: MessageReadFeedback
   autoConvertEmoji: boolean
@@ -616,6 +623,12 @@ export interface SystemMessagesKeys {
 export interface TypingIndicator {
   enabled: boolean
   showNames: boolean
+}
+
+export interface Mentions {
+  pickerLimit: number
+  pickerDebounceMs: number
+  maxWords: number
 }
 
 export interface MessageReadFeedback {
@@ -664,10 +677,6 @@ export interface SidebarNavigation {
   buttons: SidebarNavigationButtons
 }
 
-export interface Pads {
-  url: string
-}
-
 export interface SharedNotes {
   serverHostname: string
   maxDocumentChars: number
@@ -698,6 +707,9 @@ export interface Media {
   networkPriorities?: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
   skipInitialCamEnumeration: boolean
+  // Commented out in settings.yml: keyed by audio error code, absent unless
+  // the deployment sets it.
+  audioTroubleshootingLinks?: Record<string, string>
   screenshareTroubleshootingLinks: Record<string, string>
   livekit: LiveKitSettings
 }
@@ -738,8 +750,10 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  sdkLogBridge?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  negotiationProbe?: boolean
   forceRelay?: boolean
   forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings

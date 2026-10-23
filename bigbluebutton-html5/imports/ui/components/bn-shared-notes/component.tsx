@@ -35,6 +35,8 @@ import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { User } from '../../Types/user';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
@@ -248,6 +250,7 @@ interface BlockNoteAppProps {
 }
 
 function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
   const {
     hocuspocusProvider,
     currentUser,
@@ -671,7 +674,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       <BlockNoteView
         editable={editable}
         editor={editor}
-        theme="light"
+        theme={darkTheme ? 'dark' : 'light'}
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
         filePanel={false}
         slashMenu={false}
@@ -751,10 +754,9 @@ function BlockNoteContainer({ isVisible, isOnMediaArea }: BlockNoteContainerProp
   const renderBlockNote = !error && !isAuthenticating
     && hocuspocusProvider && !connectionClosed && isSynced && !!currentUser;
 
-  // The notes are read when the synced editor is on screen. Mirror the
-  // etherpad pad (pads-graphql/component.tsx): mark as read on show and on
-  // hide - the panel stays mounted for NOTES_UNMOUNT_DELAY after closing,
-  // and edits arriving in that window must stay unread.
+  // The notes are read when the synced editor is on screen: mark as read on
+  // show and on hide - the panel stays mounted for NOTES_UNMOUNT_DELAY after
+  // closing, and edits arriving in that window must stay unread.
   React.useEffect(() => {
     if (!renderBlockNote) return () => {};
     if (isVisible) markNotesAsRead();

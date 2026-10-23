@@ -1,16 +1,18 @@
 import styled from 'styled-components';
 import {
-  colorPrimary,
-  listItemBgHover,
-  itemFocusBorder,
-  colorGray,
-  colorWhite,
+  btnPrimaryBg,
   colorDanger,
+  colorGray,
+  colorGrayDark,
+  colorGrayUserListToolbar,
+  colorOffWhiteBorder,
+  colorPrimary,
   colorSuccess,
   colorText,
-  colorGrayDark,
-  colorOffWhite,
-  btnPrimaryBg,
+  colorWhite,
+  colorWhiteSurface,
+  itemFocusBorder,
+  listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -106,7 +108,7 @@ const Users = styled.div`
 `;
 
 const Panel = styled.div<PanelProps>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
@@ -156,7 +158,7 @@ const GuestNumberIndicator = styled.div`
 const GuestOptionsContainer = styled.div`
   flex-shrink: 0;
   display: flex;
-  background: #F4F6FA;
+  background: ${colorGrayUserListToolbar};
   padding: 0.25rem 0.5rem;
   align-items: center;
   border-radius: 1.5rem;
@@ -290,7 +292,7 @@ export const ToggleButton = styled(ButtonBase)`
   border-radius: ${contentSidebarBorderRadius};
 
   &:focus {
-    outline: 2px solid ${colorOffWhite};
+    outline: 2px solid ${colorOffWhiteBorder};
     border-radius: ${contentSidebarBorderRadius};
     outline-offset: -2px;
   }

@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, Locator } from '@playwright/test';
 
 import { openPublicChat } from '../chat/util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
@@ -10,6 +10,16 @@ import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharedn
 import { MultiUsers } from '../user/multiusers';
 
 type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+
+// Width the indicator takes beyond its own height: ~0 for the icon-only circle,
+// the label's width once it is revealed. Geometry rather than colour, which
+// the dark theme would shift.
+const RECORDING_LABEL_SPACE_PX = 20;
+
+async function indicatorLabelSpace(button: Locator): Promise<number> {
+  const box = await button.boundingBox();
+  return box ? box.width - box.height : -1;
+}
 
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
@@ -55,10 +65,13 @@ export class Recording extends MultiUsers {
       e.recordingIndicator,
       'should the recording indicator to be displayed once the user join the meeting',
     );
+    // Structural assertions, not exact colors: the palette is themeable and
+    // dark theme shifts every computed color.
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should not have any background color when not recording',
-    ).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.1)');
+      'recording indicator button should have no visible border when not recording',
+    ).toHaveCSS('border-top-style', 'none');
+    const idleBackground = await recordingIndicatorButton.evaluate((el) => getComputedStyle(el).backgroundColor);
 
     // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
@@ -68,8 +81,13 @@ export class Recording extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecordingButton);
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should have a red background color when recording',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+      'recording indicator button should gain a 1px outline when recording',
+    ).toHaveCSS('border-top-style', 'solid');
+    await expect(recordingIndicatorButton, 'recording outline should be 1px wide').toHaveCSS('border-top-width', '1px');
+    await expect(
+      recordingIndicatorButton,
+      'recording indicator button background should change when recording starts',
+    ).not.toHaveCSS('background-color', idleBackground);
 
     // send chat message
     await openPublicChat(this.modPage);
@@ -146,8 +164,8 @@ export class Recording extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecordingButton);
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should have a red background color when recording',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+      'recording indicator button should gain a 1px outline when recording',
+    ).toHaveCSS('border-top-style', 'solid');
 
     // keep the fake audio flowing so the recording captures several seconds of audio
     await expect(async () => {
@@ -466,5 +484,85 @@ export class Recording extends MultiUsers {
         mask: [titleLocator],
       },
     );
+  }
+
+  // Records an explicit per-user choice, so these checks hold whatever the
+  // server's recordingIndicatorAutoCollapse default is.
+  async setRecordingIndicatorAutoCollapse(enabled: boolean) {
+    await this.modPage.waitAndClick(e.settingsSidebarButton);
+    const toggle = this.modPage.page.locator(e.recordingIndicatorAutoCollapseToggleBtn);
+    await expect(toggle, 'the collapse switch should be in the application settings').toBeAttached({
+      timeout: ELEMENT_WAIT_TIME,
+    });
+    if ((await toggle.isChecked()) !== enabled) await toggle.click();
+    await this.modPage.waitAndClick(e.saveSettingsButton);
+  }
+
+  async recordingIndicatorKeepsLabelAtRest() {
+    const button = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.setRecordingIndicatorAutoCollapse(false);
+    await this.modPage.page.mouse.move(0, 0);
+    await expect
+      .poll(() => indicatorLabelSpace(button), {
+        message: 'with the collapse off, the indicator should show its label at rest',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
+  }
+
+  async recordingIndicatorCollapsesAtRest() {
+    const { page } = this.modPage;
+    const button = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.setRecordingIndicatorAutoCollapse(true);
+
+    await page.mouse.move(0, 0);
+    await expect
+      .poll(() => indicatorLabelSpace(button), {
+        message: 'with the collapse on, the indicator should rest as an icon-only circle',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeLessThan(1);
+
+    await button.hover();
+    await expect
+      .poll(() => indicatorLabelSpace(button), {
+        message: 'hovering the indicator should reveal its label',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
+
+    await page.mouse.move(0, 0);
+    await expect
+      .poll(() => indicatorLabelSpace(button), {
+        message: 'the indicator should collapse again once the pointer leaves',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeLessThan(1);
+
+    // Tab away and back, so the focus comes from the keyboard and matches
+    // :focus-visible - a programmatic focus alone would not.
+    await button.focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    await expect(button, 'the indicator should take keyboard focus').toBeFocused();
+    await expect
+      .poll(() => indicatorLabelSpace(button), {
+        message: 'keyboard focus should reveal the label with no pointer involved',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
+  }
+
+  async recordingIndicatorIsReadOnlyForViewers() {
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(
+      this.modPage.page.locator(`${e.recordingIndicator} button`),
+      'the moderator should be offered the pause action while recording',
+    ).toHaveAttribute('aria-label', 'Pause recording');
+    await expect(
+      this.userPage.page.locator(`${e.recordingIndicator} button`),
+      'a viewer should be told the meeting is recording, not offered to pause it',
+    ).toHaveAttribute('aria-label', 'Recording');
   }
 }

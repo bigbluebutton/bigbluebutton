@@ -1,0 +1,123 @@
+name: Build docker images
+
+# Pull requests: build every image for amd64, without pushing.
+# Release branches and tags: build amd64 and arm64 on native runners and push to GHCR (forks only build).
+on:
+  pull_request:
+    branches: ["v[4-9].*.x-develop", "v[4-9].*.x-release"]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "bigbluebutton-html5/public/locales/*.json"
+  push:
+    branches: ["v[4-9].*.x-develop", "v[4-9].*.x-release"]
+    tags: ["v*"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  BBB_IMAGE_REGISTRY: ghcr.io/bigbluebutton/bigbluebutton
+  TAG: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || github.ref_name }}
+  PUSH: ${{ github.event_name != 'pull_request' && github.repository == 'bigbluebutton/bigbluebutton' }}
+
+jobs:
+  targets:
+    runs-on: ubuntu-24.04
+    outputs:
+      targets: ${{ steps.list.outputs.targets }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check that the images build the versions the packages build
+        run: |
+          for c in bbb-webrtc-sfu bbb-webrtc-recorder bbb-webhooks bbb-playback; do
+            tag=$(sed -n 's/.*--branch \([^ ]*\) .*/\1/p' "$c.placeholder.sh")
+            grep -qF "$c.git#$tag\"" docker-bake.hcl \
+              || { echo "::error::docker-bake.hcl does not build $c at $tag ($c.placeholder.sh)"; exit 1; }
+          done
+          release=$(sed -n 's/^RELEASE=//p' bbb-presentation-video.placeholder.sh)
+          grep -qF "bbb-presentation-video/releases/download/$release/" record-and-playback/Dockerfile \
+            || { echo "::error::record-and-playback/Dockerfile does not install bbb-presentation-video $release"; exit 1; }
+
+      - name: List the images of the default bake group
+        id: list
+        run: echo "targets=$(docker buildx bake --print default | jq -c .group.default.targets)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: targets
+    name: ${{ matrix.target }} (${{ matrix.platform }})
+    runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.targets) }}
+        platform: ${{ fromJSON(github.event_name == 'pull_request' && '["amd64"]' || '["amd64", "arm64"]') }}
+        exclude:
+          - target: record-and-playback  # amd64 only, see docker-bake.hcl
+            platform: arm64
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set the HTML5 client build id as build/setup.sh does
+        run: echo "CLIENT_BUILD=$(git log -n1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S)" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - if: env.PUSH == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Each platform is pushed under <commit>-<platform>; the merge job joins the images of this commit
+      # only under $TAG and $TAG-<commit>, so a re-run can never mix commits.
+      # The cache is written only by pushes, pull requests read it; mode=min keeps 15 x 2 scopes in the 10 GB limit.
+      - uses: docker/bake-action@v6
+        env:
+          BBB_IMAGE_TAG: ${{ github.sha }}-${{ matrix.platform }}
+        with:
+          source: .
+          targets: ${{ matrix.target }}
+          push: ${{ env.PUSH == 'true' }}
+          set: |
+            *.platform=linux/${{ matrix.platform }}
+            *.cache-from=type=gha,scope=${{ matrix.target }}-${{ matrix.platform }}
+            ${{ env.PUSH == 'true' && format('*.cache-to=type=gha,mode=min,scope={0}-{1}', matrix.target, matrix.platform) || '' }}
+
+  merge:
+    needs: [targets, build]
+    if: github.event_name != 'pull_request' && github.repository == 'bigbluebutton/bigbluebutton'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Join the amd64 and arm64 images under the branch and commit tags
+        env:
+          TARGETS: ${{ join(fromJSON(needs.targets.outputs.targets), ' ') }}
+        run: |
+          for t in $TARGETS; do
+            image="$BBB_IMAGE_REGISTRY/bbb-$t:$TAG"
+            sources=()
+            for p in $(docker buildx bake --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
+              sources+=("$BBB_IMAGE_REGISTRY/bbb-$t:$GITHUB_SHA-$p")
+            done
+            docker buildx imagetools create -t "$image" -t "$image-${GITHUB_SHA::7}" "${sources[@]}"
+          done

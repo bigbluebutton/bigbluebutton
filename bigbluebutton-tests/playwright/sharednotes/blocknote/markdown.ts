@@ -4,7 +4,12 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { createMeetingWithModules } from '../../core/helpers';
 import { MultiUsers } from '../../user/multiusers';
-import { enableMarkdownNotesOptions, getBlockNoteEditorLocator, startBlockNoteSharedNotes } from './util';
+import {
+  enableMarkdownNotesOptions,
+  expectedSharedNotesFilename,
+  getBlockNoteEditorLocator,
+  startBlockNoteSharedNotes,
+} from './util';
 
 // Markdown seeded through the sharedNotesInitialContentMarkdown create parameter.
 // Kept in sync with the value passed in markdown.spec.ts.
@@ -44,7 +49,7 @@ function markdownModule(markdown: string): string {
 
 // Build the create query string that seeds shared notes from a raw markdown param.
 export function markdownCreateParameter(markdown: string): string {
-  return `sharedNotesEditor=blocknote&sharedNotesInitialContentMarkdown=${encodeURIComponent(markdown)}`;
+  return `sharedNotesInitialContentMarkdown=${encodeURIComponent(markdown)}`;
 }
 
 export class MarkdownSharedNotes extends MultiUsers {
@@ -60,6 +65,9 @@ export class MarkdownSharedNotes extends MultiUsers {
     await expect(editor, 'the typed note should be visible in the editor').toContainText(noteText);
 
     await this.modPage.waitAndClick(e.notesOptions);
+    const exportRequestPromise = this.modPage.page.context().waitForEvent('request', {
+      predicate: (request) => request.url().includes('/export/md'),
+    });
     const download = await this.modPage.handleDownload(
       this.modPage.page.locator(e.exportNotesAsMarkdown),
       undefined,
@@ -67,8 +75,19 @@ export class MarkdownSharedNotes extends MultiUsers {
     );
 
     if (!download?.download) throw new Error('Markdown export download did not start');
-    const extension = download.download.suggestedFilename().split('.').pop();
-    expect(extension, 'the exported file should have a .md extension').toBe('md');
+    const filename = download.download.suggestedFilename();
+    const exportRequest = await exportRequestPromise;
+    expect(
+      new URL(exportRequest.url()).searchParams.has('meetingName'),
+      'meeting data should not be exposed in the export URL',
+    ).toBeFalsy();
+
+    // The filename uses the server-local rendering of createTime. Tests must run
+    // in the same timezone as the BBB server for this deterministic comparison.
+    const expectedFilename = await expectedSharedNotesFilename(this.modPage.meetingId, 'md');
+    expect(filename, 'the exported filename should identify the meeting and use its create time').toBe(
+      expectedFilename,
+    );
     expect(download.content, 'the exported markdown should contain the typed note').toContain(noteText);
   }
 
@@ -277,7 +296,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   }
 
   // Creates a meeting with the given modules/params, then joins as moderator.
-  private async createAndJoin(modulesXml: string, createParameter: string) {
+  private async createAndJoin(modulesXml: string, createParameter?: string) {
     const meetingId = await createMeetingWithModules(modulesXml, createParameter);
     const context = await this.browser.newContext();
     const page = await context.newPage();
@@ -321,7 +340,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   // string), mirroring sharedNotesInitialContentJson.
   async initFromMarkdownPayload() {
     const markdown = `# ${PAYLOAD_MARKDOWN_HEADING}\n\n- ${INIT_MARKDOWN_ITEM}`;
-    await this.createAndJoin(markdownModule(markdown), 'sharedNotesEditor=blocknote');
+    await this.createAndJoin(markdownModule(markdown));
 
     await startBlockNoteSharedNotes(this.modPage);
     const editor = getBlockNoteEditorLocator(this.modPage);

@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import { Select as SelectMui, type SelectProps } from '@mui/material';
 import {
-  colorWhite,
-  colorGrayLighter,
   colorGrayDark,
+  colorGrayLighter,
   colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Overlay = styled.div`
@@ -18,7 +18,7 @@ const Overlay = styled.div`
 `;
 
 const Dialog = styled.div`
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border-radius: 0.75rem;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
   width: 32rem;
@@ -90,7 +90,7 @@ const Select = styled(SelectMui)<SelectProps>`
   .MuiSelect-select {
     padding: 0.625rem;
     font-size: 1rem;
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
   }
 `;
 

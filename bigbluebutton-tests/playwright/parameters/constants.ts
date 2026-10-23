@@ -4,6 +4,14 @@ import { parameters } from '../core/parameters';
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
 export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
 
+// group names around the old varchar(100) limit of meeting_group (issue 25676)
+export const LONG_GROUP_NAMES = {
+  control: 'Control Group',
+  chars150: 'G'.repeat(150),
+  boundary100: 'H'.repeat(100),
+  boundary101: 'I'.repeat(101),
+};
+
 const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
 export const constants = {
@@ -13,6 +21,7 @@ export const constants = {
   bannerColor: `bannerColor=${'#FFFF00'}`,
   maxParticipants: 'maxParticipants=2',
   duration: 'duration=2',
+  durationAboveRemainingTimeThreshold: 'duration=10',
   messageModerator: 'This is a moderator only message',
   moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
   webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
@@ -27,29 +36,27 @@ export const constants = {
   notifyRecordingAppendMessage: 'This meeting will be summarized using AI — <strong>plain text</strong>',
   notifyRecordingAppend: 'notifyRecordingAppend=This meeting will be summarized using AI — <strong>plain text</strong>',
   preUploadedPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedHeavyPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-develop/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
-  customLayout: 'meetingLayout=CUSTOM_LAYOUT',
-  smartLayout: 'meetingLayout=SMART_LAYOUT',
-  presentationFocus: 'meetingLayout=PRESENTATION_FOCUS',
-  videoFocus: 'meetingLayout=VIDEO_FOCUS',
   camerasOnly: 'meetingLayout=CAMERAS_ONLY',
   presentationOnly: 'meetingLayout=PRESENTATION_ONLY',
   participantsAndChatOnly: 'meetingLayout=PARTICIPANTS_AND_CHAT_ONLY',
   mediaOnly: 'meetingLayout=MEDIA_ONLY',
-  enforceCustomLayout: 'enforceLayout=CUSTOM_LAYOUT',
-  enforcePresentationFocus: 'enforceLayout=PRESENTATION_FOCUS',
-  enforceSmartLayout: 'enforceLayout=SMART_LAYOUT',
-  enforceVideoFocus: 'enforceLayout=VIDEO_FOCUS',
   enforceCamerasOnly: 'enforceLayout=CAMERAS_ONLY',
   enforcePresentationOnly: 'enforceLayout=PRESENTATION_ONLY',
   enforceParticipantsAndChatOnly: 'enforceLayout=PARTICIPANTS_AND_CHAT_ONLY',
   enforceMediaOnly: 'enforceLayout=MEDIA_ONLY',
   groups:
     'groups=[{"id":"1","name":"Room 1","roster":["1235"]},{"id":"2","name":"Room 2","roster":["2333","2335"]},{"id":"3","roster":[]}]',
+  groupsWithLongNames: `groups=${JSON.stringify([
+    { id: 'groupControl', name: LONG_GROUP_NAMES.control, roster: ['1235'] },
+    { id: 'g'.repeat(150), name: LONG_GROUP_NAMES.chars150, roster: [] },
+    { id: 'groupBoundary100', name: LONG_GROUP_NAMES.boundary100, roster: [] },
+    { id: 'groupBoundary101', name: LONG_GROUP_NAMES.boundary101, roster: [] },
+  ])}`,
   // Custom Parameters
   autoJoin: 'userdata-bbb_auto_join_audio=false',
   listenOnlyMode: 'userdata-bbb_listen_only_mode=false',
@@ -95,7 +102,6 @@ export const constants = {
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
   speechRecognitionDisabled: 'disabledFeatures=liveTranscription',
-  captionsDisabled: 'disabledFeatures=captions',
   chatDisabled: 'disabledFeatures=chat',
   externalVideosDisabled: 'disabledFeatures=externalVideos',
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
@@ -107,7 +113,6 @@ export const constants = {
   importPresentationWithAnnotationsFromBreakoutRoomsDisabled:
     'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms',
   importSharedNotesFromBreakoutRoomsDisabled: 'disabledFeatures=importSharedNotesFromBreakoutRooms',
-  layoutsDisabled: 'disabledFeatures=layouts',
   presentationDisabled: 'disabledFeatures=presentation',
   customVirtualBackgroundDisabled: 'disabledFeatures=customVirtualBackgrounds',
   slideSnapshotDisabled: 'disabledFeatures=snapshotOfCurrentSlide',
@@ -117,10 +122,8 @@ export const constants = {
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
   speechRecognitionExclude:
     'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
-  captionsExclude: 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
-  layoutsExclude: 'disabledFeatures=presentation,chat,layouts&disabledFeaturesExclude=layouts',
   learningDashboardExclude:
     'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard',
   pollsExclude: 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls',

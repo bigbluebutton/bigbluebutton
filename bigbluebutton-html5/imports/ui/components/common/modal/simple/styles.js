@@ -5,8 +5,8 @@ import {
   mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
   colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import ModalHeader from '/imports/ui/components/common/modal/header/component';
 
@@ -20,7 +20,7 @@ const SimpleModal = styled(Styled.BaseModal)`
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
   width: ${({ width }) => width};
   height: ${({ height }) => height};
-  background-color: ${colorWhite} !important;
+  background-color: ${colorWhiteSurface} !important;
 `;
 
 const Header = styled(ModalHeader)``;

@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import {
   colorWhite,
   webcamBackgroundColor,
+  webcamBackgroundColorBorder,
   webcamPlaceholderBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -79,7 +80,7 @@ const Avatar = styled.div<{ $color: string; $avatar?: string; $moderator?: boole
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid ${webcamBackgroundColor};
+  border: 2px solid ${webcamBackgroundColorBorder};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 

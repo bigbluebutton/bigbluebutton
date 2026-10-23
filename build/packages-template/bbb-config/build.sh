@@ -64,12 +64,6 @@ for unit in freeswitch nginx redis-server postgresql; do
   cp bigbluebutton.conf "staging/usr/lib/systemd/system/${unit}.service.d/"
 done
 
-# MALLOC_ARENA_MAX=2 for JVM services - reduces glibc malloc arena overhead
-for svc in bbb-web bbb-apps-akka; do
-  mkdir -p "staging/usr/lib/systemd/system/${svc}.service.d"
-  cp malloc-arena.conf "staging/usr/lib/systemd/system/${svc}.service.d/"
-done
-
 . ./opts-$DISTRO.sh
 
 #
@@ -80,5 +74,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-remove after-remove.sh \
     --before-install before-install.sh \
     --description "BigBlueButton configuration utilities" \
+    --conflicts bbb-etherpad --conflicts bbb-pads \
+    --replaces bbb-etherpad --replaces bbb-pads \
     $DIRECTORIES \
     $OPTS

@@ -35,7 +35,6 @@ gem 'rake', '>= 12.3', '<14'
 gem 'rb-inotify', '~> 0.10'
 gem 'redis', '~> 4.1'
 gem 'resque', '~> 2.6', '>= 2.6.0'
-gem 'rubyzip', '~> 2.0'
 gem 'tzinfo', '>= 1.2.10'
 
 group :test, optional: true do

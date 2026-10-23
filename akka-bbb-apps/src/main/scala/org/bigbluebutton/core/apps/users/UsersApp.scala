@@ -13,6 +13,7 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.db.{ChatMessageDAO, MediaGroupUserDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
@@ -159,13 +160,10 @@ object UsersApp {
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
-    for {
+    val ejectedRegUser = for {
       regUser <- RegisteredUsers.eject(userId, liveMeeting.registeredUsers, ban)
       user <- Users2x.ejectFromMeeting(liveMeeting.users2x, userId)
     } yield {
-      // Force reconnection with graphql to refresh permissions
-      GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, reason)
-
       // Update database
       UserDAO.update(regUser)
 
@@ -178,6 +176,11 @@ object UsersApp {
       }
       UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
       removeUserLiveKitMemberships(liveMeeting, meetingId, userId, outGW)
+      Webcams.findWebcamsForUser(liveMeeting.webcams, userId) foreach { webcam =>
+        CameraHdlrHelpers.stopBroadcastedCam(liveMeeting, meetingId, userId, webcam.streamId, outGW)
+      }
+
+      regUser
     }
 
     for {
@@ -188,6 +191,17 @@ object UsersApp {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
       )
+    }
+
+    // Signal the membership change to bbb-graphql-middleware, which re-reads the user's session
+    // state on this request. Every path that ends a user's membership sends it.
+    //
+    // Last, after the voice ejection too: the request blocks until it times out when the
+    // middleware is unreachable, and no part of the removal should wait on it.
+    for {
+      regUser <- ejectedRegUser
+    } yield {
+      GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, reason)
     }
   }
 

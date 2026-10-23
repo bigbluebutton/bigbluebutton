@@ -201,10 +201,11 @@ object PresPresentationDAO {
     )
   }
 
-  def setPresentationUploadCompletionNotified(presentationId: String) = {
+  def setPresentationUploadCompletionNotified(meetingId: String, presentationId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
         .filter(_.presentationId === presentationId)
+        .filter(_.meetingId === meetingId)
         .map(p => p.uploadCompletionNotified)
         .update(true)
     )

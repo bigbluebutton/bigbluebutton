@@ -163,6 +163,7 @@ type Mutation {
     chatId: String!
     messageId: String!
     chatMessageInMarkdownFormat: String!
+    metadata: json
   ): Boolean
 }
 
@@ -527,12 +528,6 @@ type Mutation {
     yOffset: Float!
     widthRatio: Float!
     heightRatio: Float!
-  ): Boolean
-}
-
-type Mutation {
-  sharedNotesCreateSession(
-    sharedNotesExtId: String!
   ): Boolean
 }
 

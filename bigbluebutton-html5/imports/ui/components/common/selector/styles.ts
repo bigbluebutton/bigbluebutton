@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Select as SelectMui, SelectProps } from '@mui/material';
 import FormControlMui from '@mui/material/FormControl';
-import { colorWhite, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGrayDark, colorWhite, colorWhiteSurface } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface StyledSelectProps {
   hasTitle?: boolean;
@@ -24,7 +24,7 @@ const FormControl = styled(FormControlMui)`
 `;
 
 const Select = styled(SelectMui)<StyledSelectProps & SelectProps>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   flex: 1;
   border-radius: 0.5rem !important;
   overflow: hidden;

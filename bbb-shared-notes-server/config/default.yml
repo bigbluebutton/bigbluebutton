@@ -31,7 +31,6 @@ redis:
       - to-akka-apps-redis-channel
     subscribe:
       - from-akka-apps-redis-channel
-      - from-etherpad-redis-channel
 
 rateLimit:
   maxRequestsPerWindow: 60

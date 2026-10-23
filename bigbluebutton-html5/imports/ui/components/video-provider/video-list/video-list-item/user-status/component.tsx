@@ -1,24 +1,25 @@
 import React from 'react';
 import Styled from './styles';
 import { User, VideoItem } from '/imports/ui/components/video-provider/types';
+import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 interface UserStatusProps {
   user: Partial<User>;
   stream: VideoItem;
-  voiceUser: {
-    muted: boolean;
+  voiceUser?: {
     listenOnly: boolean;
     joined: boolean;
-    deafened: boolean;
+    deafened?: boolean;
   };
 }
 
 const UserStatus: React.FC<UserStatusProps> = (props) => {
   const { voiceUser, user, stream } = props;
   const data = { ...user, ...stream };
+  const { data: unmuted } = useWhoIsUnmuted(stream.userId);
 
   const listenOnly = voiceUser?.listenOnly;
-  const muted = voiceUser?.muted;
+  const muted = !unmuted;
   const deafened = voiceUser?.deafened;
   const voiceUserJoined = voiceUser?.joined && !deafened;
   const emoji = data?.reactionEmoji;

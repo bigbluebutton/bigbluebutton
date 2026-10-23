@@ -1,10 +1,11 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { openPublicChat } from '../chat/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
+import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
 import { openPoll, rowFilter, timeInSeconds } from './util';
 
@@ -37,6 +38,24 @@ export class LearningDashboard extends MultiUsers {
       'should display the correct amount of messages sent',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
+  }
+
+  async editSharedNotes() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    test.skip(!sharedNotesEnabled, 'Shared notes are disabled');
+
+    await startSharedNotesBlockNote(this.modPage);
+    await getBlockNoteEditorLocator(this.modPage).pressSequentially(e.message);
+
+    await this.dashboardPage.reloadPage();
+    const moderatorSharedNotes = await rowFilter(this.dashboardPage, /Moderator/, e.sharedNotesLearningDashboard);
+    await expect(moderatorSharedNotes, 'should count the shared notes edits of the moderator').toHaveText(
+      /^[1-9]\d*$/,
+      { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME },
+    );
+    // the dashboard leaves the cell empty when the count is 0
+    const attendeeSharedNotes = await rowFilter(this.dashboardPage, /Attendee/, e.sharedNotesLearningDashboard);
+    await expect(attendeeSharedNotes, 'should not count shared notes edits for the attendee').toHaveText('');
   }
 
   async userTimeOnMeeting() {

@@ -9,6 +9,7 @@ import { authenticateUploadedImages } from '/imports/ui/components/chat/chat-gra
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
+import Auth from '/imports/ui/services/auth';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -179,6 +180,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
         }}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(messageAsHtml) }}
+        $currentUserId={Auth.userID as string | undefined}
       />
       {isExpanded && (
         <Styled.Footer>

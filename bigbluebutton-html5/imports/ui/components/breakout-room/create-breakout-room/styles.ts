@@ -8,16 +8,18 @@ import HoldButton from '/imports/ui/components/presentation/presentation-toolbar
 import Button from '/imports/ui/components/common/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
+  appsGalleryOutlineColor,
+  colorBlueLight,
   colorBorder,
   colorDanger,
+  colorDisabledSurface,
   colorGray,
   colorGrayLight,
-  colorWhite,
-  colorPrimary,
-  colorBlueLight,
-  appsGalleryOutlineColor,
   colorGrayUserListToolbar,
+  colorPrimary,
   colorText,
+  colorWhite,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -234,7 +236,7 @@ const InputRoomsLabel = styled.label<withValidProp>`
 `;
 
 const GeneralSelect = `
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   color: ${colorGray};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
@@ -290,7 +292,7 @@ const LabelText = styled.p<LabelTextProps>`
 `;
 
 const DurationInput = styled.input`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   color: ${colorGray};
   border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
@@ -602,7 +604,7 @@ const FooterButton = styled.button`
   }
 
   &:disabled {
-    background-color: #aaa;
+    background-color: ${colorDisabledSurface};
     cursor: not-allowed;
   }
 `;

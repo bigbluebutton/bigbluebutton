@@ -19,7 +19,6 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
-import AppService from '/imports/ui/components/app/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useVideoPreview } from './hooks/useVideoPreview';
 import { CameraProfileProps } from './hooks/types';
@@ -39,6 +38,8 @@ interface VideoPreviewProps {
   cameraAsContentDeviceId?: string;
   isCamLocked?: boolean;
   forceOpen?: boolean;
+  // Shares the stored camera straight away, skipping this modal's UI.
+  skipPreview?: boolean;
   isOpen: boolean;
   priority?: number;
   isVirtualBackgroundsEnabled: boolean;
@@ -166,6 +167,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   cameraAsContentDeviceId,
   isCamLocked = false,
   forceOpen = false,
+  skipPreview = false,
   isOpen,
   priority,
   isVirtualBackgroundsEnabled,
@@ -214,6 +216,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     isCameraAsContent: cameraAsContent,
     isCameraShared: !!isAlreadyShared(initialWebcamDeviceId),
     forceOpen,
+    skipPreview,
     startSharing,
     startSharingCameraAsContent,
   });
@@ -282,7 +285,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       stopVirtualBackground(currentVideoStream.current);
     }
 
-    terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+    terminateCameraStream(currentVideoStream.current);
     closeModal();
     if (resolve) resolve();
   }, [
@@ -652,7 +655,6 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   const BASE_NAME = window.meetingClientSettings.public.app.basename;
   const WebcamSettingsImg = `${BASE_NAME}/resources/images/webcam_settings.svg`;
   const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
-  const darkThemeState = AppService.isDarkThemeEnabled();
 
   return (
     <Styled.VideoPreviewModal
@@ -669,14 +671,14 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           <Styled.WebcamTabs onSelect={setSelectedTab} selectedIndex={selectedTab}>
             <Styled.WebcamTabList>
               <Styled.WebcamTabSelector selectedClassName="is-selected">
-                <Styled.IconSvg src={WebcamSettingsImg} darkThemeState={darkThemeState} />
+                <Styled.IconSvg src={WebcamSettingsImg} />
                 <span id="webcam-settings-title">{getModalTitle()}</span>
               </Styled.WebcamTabSelector>
               {shouldShowVirtualBackgroundsTab && (
                 <>
                   <Styled.HeaderSeparator />
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
-                    <Styled.IconSvg src={WebcamBackgroundImg} darkThemeState={darkThemeState} />
+                    <Styled.IconSvg src={WebcamBackgroundImg} />
                     <span id="backgrounds-title">{intl.formatMessage(intlMessages.webcamVirtualBackgroundTitle)}</span>
                   </Styled.WebcamTabSelector>
                 </>

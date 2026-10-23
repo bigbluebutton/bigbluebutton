@@ -2,12 +2,15 @@ import styled from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import { smallOnly, hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
-  colorPrimary,
+  appsGalleryOutlineColorSurface,
+  colorBlueLightestBorder,
+  colorControlBorder,
+  colorGrayDarkBorder,
+  colorGrayDarkSurface,
   colorOffWhite,
-  toolbarButtonColor,
+  colorPrimary,
   colorWhite,
-  colorGrayDark,
-  colorBlueLightest,
+  toolbarButtonColor,
   toolbarButtonColorDisabled,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -22,29 +25,42 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
 
+const COMPACT_ATTRIBUTE = 'data-compact';
+const OVERFLOWING_ATTRIBUTE = 'data-overflowing';
+const OUT_OF_ROOM_ATTRIBUTE = 'data-out-of-room';
+
 const PresentationToolbarWrapper = styled.div`
-  position: absolute;
-  align-self: center;
+  position: relative;
   z-index: 1;
+  pointer-events: auto;
   background-color: ${colorOffWhite};
-  border-top: 1px solid ${colorBlueLightest};
+  border-top: 1px solid ${colorBlueLightestBorder};
   border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
-  width: 100%;
-  bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
-  min-width: fit-content;
+  box-sizing: border-box;
 
-  // Only where dropdown/content becomes a full-screen overlay - keep both in sync, or
-  // this ~40px box clips a dropdown left in flow above it.
+  width: var(--slide-width, 100%);
+  max-width: 100%;
+
+  &[${OVERFLOWING_ATTRIBUTE}="true"] {
+    width: min-content;
+  }
+
+  &[${OUT_OF_ROOM_ATTRIBUTE}="true"] {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
   @media ${smallOnly}, ${hasPhoneDimentions} {
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
+    &[${OUT_OF_ROOM_ATTRIBUTE}="true"] {
+      overflow-x: auto;
+      scrollbar-width: none;
 
-    &::-webkit-scrollbar {
-      display: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 
@@ -158,13 +174,13 @@ const SkipSlideSelect = styled.select`
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
-    background-color: #DCE4EC;
+    background-color: ${appsGalleryOutlineColorSurface};
     border-radius: 4px;
   }
 
   &:focus {
     outline-style: solid;
-    box-shadow: 0 0 0 1px #cdd6e0 !important;
+    box-shadow: 0 0 0 1px ${colorControlBorder} !important;
   }
 `;
 
@@ -186,6 +202,15 @@ const PresentationZoomControls = styled.div`
 
   i {
     font-size: 1.2rem;
+  }
+`;
+
+const ZoomToolWrapper = styled.span`
+  display: flex;
+  align-items: center;
+
+  [${COMPACT_ATTRIBUTE}="true"] & {
+    display: none;
   }
 `;
 
@@ -216,7 +241,7 @@ const FitToWidthButton = styled(Button)`
 
   ${({ $fitToWidth }) => $fitToWidth && `
     & > span {
-      border: solid ${borderSizeLarge} ${colorGrayDark};
+      border: solid ${borderSizeLarge} ${colorGrayDarkBorder};
     }
   `}
 
@@ -238,7 +263,7 @@ const MultiUserTool = styled.span`
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
+  box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDarkSurface};
   font-size: ${smPaddingX};
   user-select: none;
   cursor: pointer;
@@ -330,8 +355,11 @@ const InfiniteWhiteboardButton = styled(Button)`
   }
 `;
 
+export { COMPACT_ATTRIBUTE, OVERFLOWING_ATTRIBUTE, OUT_OF_ROOM_ATTRIBUTE };
+
 export default {
   PresentationToolbarWrapper,
+  ZoomToolWrapper,
   QuickPollButton,
   QuickPollButtonWrapper,
   PresentationSlideControls,
