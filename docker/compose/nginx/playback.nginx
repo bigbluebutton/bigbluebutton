@@ -1,0 +1,6 @@
+# playback runs only with the recording profile, so its name is resolved per request.
+location /playback/presentation/2.3 {
+    resolver 127.0.0.11 valid=30s;
+    set $playback http://playback:8080;
+    proxy_pass $playback;
+}
