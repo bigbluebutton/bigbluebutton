@@ -215,9 +215,10 @@ export const AUTOMATIC_SETTINGS: AutomaticSetting[] = [
     id: 'recording',
     label: intlMessages.recording,
     dataTest: 'preFlightRoomModeAutomaticRecording',
-    // No mode starts the recording, but a room created to record on its own
-    // starts as the moderator enters: only said when the room does not.
-    appliesTo: (_preset, room) => !room.autoStartRecording,
+    // No mode starts the recording. Said only in a room that may record and is
+    // not set to start recording as the moderator enters; a recording already
+    // running cannot be read before the join.
+    appliesTo: (_preset, room) => room.record && !room.autoStartRecording,
   },
 ];
 

@@ -904,6 +904,8 @@ Same settings as the room mode panel. Nothing here is applied to the room yet.
 
     - "Applied automatically" should not list "Recording never starts on its own"
 
+    - It should not be listed either for a session created with `record=false`
+
 ## Audio
 
 ### Join audio [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/audio/audio.spec.ts)
