@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import Button from '/imports/ui/components/common/button/component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -62,7 +62,7 @@ const PresentationOptionsContainer = ({
     && !hasPinnedSharedNotes && !hasGenericContent
     && !hasCameraAsContent;
   return (
-    <Styled.PresentationButton
+    <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
       label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel
         : intlMessages.minimizePresentationLabel)}

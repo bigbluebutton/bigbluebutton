@@ -392,7 +392,7 @@ const IconSvg = styled.img`
   border-radius: 5px;
   margin: 5px;
 
-  :root[data-theme='dark'] & {
+  html[data-theme='dark'] & {
     filter: invert(1);
   }
 `;
