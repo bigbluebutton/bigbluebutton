@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { detectImage, readDimensions } from '../src/upload/imageValidation.ts';
+import {
+  detectFileType, isImageMime, readDimensions, resolveAllowedMimeTypes, SUPPORTED_MIME_TYPES,
+} from '../src/upload/imageValidation.ts';
 
 // Minimal, hand-crafted fixtures. detectImage only inspects the leading magic
 // bytes, so tiny buffers are enough for it; readDimensions needs a header the
@@ -39,6 +41,28 @@ function png(width: number, height: number): Buffer {
   return b;
 }
 
+function pdf(): Buffer {
+  return Buffer.from('%PDF-1.7\n%\xe2\xe3\xcf\xd3\n1 0 obj', 'binary');
+}
+
+// ISO base media file: a 4-byte box size, then "ftyp" and the major brand.
+function mp4(brand: string): Buffer {
+  const b = Buffer.alloc(32);
+  b.writeUInt32BE(32, 0);
+  b.write('ftyp', 4, 'ascii');
+  b.write(brand, 8, 'ascii');
+  return b;
+}
+
+function mp3WithId3(): Buffer {
+  return Buffer.from([0x49, 0x44, 0x33, 0x04, 0x00, 0x00, 0, 0, 0, 0]);
+}
+
+function mp3FrameOnly(): Buffer {
+  // MPEG-1 Layer III frame header: 128 kbit/s, 44.1 kHz.
+  return Buffer.from([0xff, 0xfb, 0x90, 0x64, 0, 0, 0, 0]);
+}
+
 // A file whose *content* is not an allowed image. It stands in for the classic
 // attack of naming a non-image "photo.png": the service never looks at the
 // filename, only at these bytes, so the spoofed extension cannot help it.
@@ -46,33 +70,33 @@ const svgText = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>ale
 const plainText = Buffer.from('this is definitely not an image, even if it is called photo.png');
 
 test('detectImage accepts PNG by magic bytes', () => {
-  assert.deepEqual(detectImage(png(1, 1)), { mime: 'image/png', ext: 'png' });
+  assert.deepEqual(detectFileType(png(1, 1)), { mime: 'image/png', ext: 'png' });
 });
 
 test('detectImage accepts JPEG by magic bytes', () => {
-  assert.deepEqual(detectImage(jpeg()), { mime: 'image/jpeg', ext: 'jpg' });
+  assert.deepEqual(detectFileType(jpeg()), { mime: 'image/jpeg', ext: 'jpg' });
 });
 
 test('detectImage accepts GIF by magic bytes', () => {
-  assert.deepEqual(detectImage(gif(1, 1)), { mime: 'image/gif', ext: 'gif' });
+  assert.deepEqual(detectFileType(gif(1, 1)), { mime: 'image/gif', ext: 'gif' });
 });
 
 test('detectImage accepts WEBP by magic bytes', () => {
-  assert.deepEqual(detectImage(webp()), { mime: 'image/webp', ext: 'webp' });
+  assert.deepEqual(detectFileType(webp()), { mime: 'image/webp', ext: 'webp' });
 });
 
 test('detectImage bars SVG (XSS vector) even though it is an image format', () => {
-  assert.equal(detectImage(svgText), null);
+  assert.equal(detectFileType(svgText), null);
 });
 
 test('detectImage rejects a non-image regardless of its (spoofed) extension', () => {
   // Content-based detection: a text blob named photo.png never reaches an
   // allowed mime, so the caller answers 415.
-  assert.equal(detectImage(plainText), null);
+  assert.equal(detectFileType(plainText), null);
 });
 
 test('detectImage rejects a truncated buffer without matching a signature', () => {
-  assert.equal(detectImage(Buffer.from([0x89, 0x50])), null);
+  assert.equal(detectFileType(Buffer.from([0x89, 0x50])), null);
 });
 
 test('readDimensions reads real width/height from a GIF header', () => {

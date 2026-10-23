@@ -16,11 +16,22 @@ limits:
   # decoding the bitmap) exceeds this value. Guards downstream consumers
   # (wkhtmltopdf, export-annotations) against decompression bombs.
   maxImageDimensionPx: 4096
+  # Every type here is verified by its magic bytes, never by the file name or
+  # the declared Content-Type. The list can be shrunk in
+  # /etc/bigbluebutton/bbb-file-upload.yml; a type the service has no signature
+  # for is ignored (with a warning in the log), so it cannot be widened. Keep
+  # public.fileUpload.allowedMimeTypes in bbb-html5.yml in step with it.
+  # Supported: image/png, image/jpeg, image/gif, image/webp, application/pdf,
+  # video/mp4, audio/mpeg. Non-image files are served as downloads
+  # (Content-Disposition: attachment).
   allowedMimeTypes:
     - image/png
     - image/jpeg
     - image/gif
     - image/webp
+    - application/pdf
+    - video/mp4
+    - audio/mpeg
   quotaPerMeetingMb: 100
 
 rateLimit:

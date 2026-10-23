@@ -9,11 +9,14 @@ const logger = new Logger('express');
 
 const maxFileSizeBytes = config.limits.maxFileSizeKb * 1024;
 
-// Files are held in memory (capped by fileSize) so magic bytes and pixel
-// dimensions can be validated before anything touches the disk.
+// Files are held in memory (capped by fileSize) so magic bytes and, for images,
+// pixel dimensions can be validated before anything touches the disk.
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: maxFileSizeBytes, files: 1 },
+  // Browsers send the multipart filename as raw UTF-8; the latin1 default would
+  // turn every accented name into mojibake.
+  defParamCharset: 'utf8',
 });
 
 // Rate limit keyed by user+meeting, using the headers injected by the nginx

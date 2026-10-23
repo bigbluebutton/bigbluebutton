@@ -2,7 +2,7 @@
   "name": "bbb-file-upload",
   "homepage": "https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-file-upload#readme",
   "version": "0.0.1",
-  "description": "Meeting-scoped file upload service for BigBlueButton. Receives multipart image uploads, validates them (size, pixel dimension, magic bytes) and stores them per meeting for nginx to serve.",
+  "description": "Meeting-scoped file upload service for BigBlueButton. Receives multipart file uploads, validates them (size, magic bytes, pixel dimension for images) and stores them per meeting for nginx to serve.",
   "main": "index.ts",
   "type": "module",
   "scripts": {
@@ -22,7 +22,8 @@
   "keywords": [
     "bigbluebutton",
     "file-upload",
-    "image"
+    "image",
+    "file"
   ],
   "author": "BigBlueButton Inc.",
   "license": "LGPL-3.0",
