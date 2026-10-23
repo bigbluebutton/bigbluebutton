@@ -315,10 +315,13 @@ export class ChatImagePaste extends MultiUsers {
     await this.modPage.wasRemoved(e.chatAttachments, 'should clear the staged files once all are sent');
     await this.userPage.hasElementCount(e.chatUserMessageImage, 3, 'should deliver one image message per file');
     await expectChatImageRendered(this.userPage, 'the delivered images should actually load (naturalWidth > 0)');
-    const messages = this.userPage.page.locator('div[data-test="messageContent"]');
-    await expect(messages.nth(0), 'the text should go with the first file').toContainText(text);
-    await expect(messages.nth(1), 'the text should not repeat on the next files').not.toContainText(text);
-    await expect(messages.nth(2), 'the text should not repeat on the next files').not.toContainText(text);
+    const messageWith = (fileName: string) =>
+      this.userPage.page
+        .locator('.chat-message-container')
+        .filter({ has: this.userPage.page.locator(`${e.chatAttachmentImage}[alt="${fileName}"]`) });
+    await expect(messageWith('first.png'), 'the text should go with the first file').toContainText(text);
+    await expect(messageWith('second.png'), 'the text should not repeat on the next files').not.toContainText(text);
+    await expect(messageWith('third.png'), 'the text should not repeat on the next files').not.toContainText(text);
     expect(
       uploadStatuses.filter((s) => s === 201),
       'each staged file should have been uploaded once',
