@@ -236,6 +236,15 @@ access for the first build.
   - bbb-api isn't part of it yet.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
+- **In CI.** `.github/workflows/api-conformance.yml` does all of the above on
+  every pull request that touches the suite or what Tier 1 is built from, and
+  runs every case Tier 1 can (all but `full-stack` and `slow`) against the
+  recordings. A change to an answer fails it until the PR re-records the
+  cases it changes (`record`, then review the diff). The debs are cached
+  under `build-debs.sh --key`, which changes only with what they're built
+  from, so a PR that doesn't touch bbb-web, akka-apps or the GraphQL side
+  skips the build. The reports and the gap matrix are uploaded as
+  `api-conformance-bbb-web`, and the matrix is the job's summary.
 
 ## The tap: `tap`
 

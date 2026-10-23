@@ -1,0 +1,104 @@
+name: API conformance - bbb-web on Tier 1
+# Runs the API conformance suite (bigbluebutton-tests/api-conformance) against
+# bbb-web on the Tier 1 stack, built from the change, and compares every
+# answer with the committed recordings. A change to bbb-web's answers fails
+# this job until its PR re-records the cases it changes (see the suite's
+# README, "Recording what a server answers").
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bigbluebutton-tests/api-conformance/**"
+      - "bigbluebutton-web/**"
+      - "bbb-common-web/**"
+      - "bbb-common-message/**"
+      - "akka-bbb-apps/**"
+      - "bbb-graphql-server/**"
+      - "bbb-graphql-middleware/**"
+      - "bbb-graphql-actions/**"
+      - "bigbluebutton-config/**"
+      - "bigbluebutton-html5/private/config/settings.yml"
+      - "bbb-libreoffice/docker/**"
+      - "build/**"
+      - ".gitlab-ci.yml"
+      - ".github/workflows/api-conformance.yml"
+  push:
+    branches:
+      - "develop"
+      - "v[3-9].*.x-release"
+      - "v[3-9].*.x-develop"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  bbb-web:
+    name: bbb-web on Tier 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: bigbluebutton-tests/api-conformance
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      # The build image, the stack's images and the build caches need more
+      # room than the runner leaves free.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
+          cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
+      # The debs depend only on the five packages' sources and build scripts,
+      # so a change that doesn't touch them reuses the last build's.
+      - name: Key the debs
+        id: debs
+        run: echo "key=tier1-debs-$(env/tier1/build-debs.sh --key)" >> "$GITHUB_OUTPUT"
+      - name: Restore the debs
+        id: debs-cache
+        uses: actions/cache@v5
+        with:
+          path: bigbluebutton-tests/api-conformance/env/.state/debs
+          key: ${{ steps.debs.outputs.key }}
+      - name: Build the debs
+        if: steps.debs-cache.outputs.cache-hit != 'true'
+        run: make -C env debs
+      - name: Bring up Tier 1
+        run: make -C env up
+      # Everything Tier 1 can run; full-stack and slow cases are for the
+      # nightly job.
+      - name: Run the suite
+        run: |
+          eval "$(make -s -C env env)"
+          mkdir -p out
+          cd runner
+          go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases \
+            --golden ../golden/bbb-web --expect ../expectations/bbb-web.yaml \
+            --exclude-tags full-stack,slow --junit ../out/junit.xml --json ../out/results.json
+      - name: Write the gap matrix and the summary
+        if: always()
+        run: |
+          [ -f out/results.json ] || exit 0
+          cd runner
+          go run ./cmd/bbb-conform gap --results ../out/results.json --md ../out/gap.md --html ../out/gap.html
+          cat ../out/gap.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Collect the services' logs
+        if: failure()
+        run: |
+          mkdir -p out
+          docker compose -f env/compose.yaml --profile clamav logs --no-color > out/services.log 2>&1 || true
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: api-conformance-bbb-web
+          path: bigbluebutton-tests/api-conformance/out/
+          if-no-files-found: ignore
+      - name: Take Tier 1 down
+        if: always()
+        run: make -C env down
