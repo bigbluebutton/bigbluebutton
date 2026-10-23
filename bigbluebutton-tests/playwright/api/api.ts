@@ -259,6 +259,23 @@ export class API extends MultiUsers {
     }
   }
 
+  // Grails makes every public method and closure property of a controller an action, reachable
+  // through the generic /bigbluebutton/$controller/$action mapping without a checksum.
+  static async testControllerHelpersNotReachable() {
+    const server = parameters.server!.replace(/\/$/, '');
+    const index = await axios.get(`${server}/api/index`, { adapter: 'http' });
+    expect(String(index.data), 'an action should be reachable through the generic mapping').toContain('SUCCESS');
+    for (const helper of [
+      'api/handleCreateUserClientUrl',
+      'api/initResponseBuilder',
+      'api/beforeInterceptor',
+      'recording/initResponseBuilder',
+    ]) {
+      const response = await axios.get(`${server}/${helper}`, { adapter: 'http', validateStatus: () => true });
+      expect(response.status, `${helper} should not be an action`).toBe(404);
+    }
+  }
+
   // An LMS-style page on another origin frames the join URL: the join redirect carries
   // X-Frame-Options, but the client it redirects to is served by nginx without it, so the
   // meeting still loads. A document rendered by bbb-web itself is refused in such a frame.
