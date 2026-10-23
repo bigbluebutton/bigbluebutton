@@ -9,7 +9,7 @@ header Content-Type text/xml;charset=utf-8
 body xml
 /response/returncode "FAILED"
 /response/messageKey "checksumError"
-/response/message "Checksums do not match"
+/response/message "<missing-checksum message>"
 
 == step 2: call getMeetings
 status 200
@@ -18,7 +18,7 @@ header Content-Type text/xml;charset=utf-8
 body xml
 /response/returncode "FAILED"
 /response/messageKey "checksumError"
-/response/message "Checksums do not match"
+/response/message "<missing-checksum message>"
 
 == step 3: call getMeetings
 status 200
@@ -27,7 +27,7 @@ header Content-Type text/xml;charset=utf-8
 body xml
 /response/returncode "FAILED"
 /response/messageKey "checksumError"
-/response/message "Checksums do not match"
+/response/message "<missing-checksum message>"
 
 == step 4: call getMeetings (POST)
 status 200
@@ -44,4 +44,4 @@ header Content-Type text/xml;charset=utf-8
 body xml
 /response/returncode "FAILED"
 /response/messageKey "checksumError"
-/response/message "You must provide the checksum"
+/response/message "<missing-checksum message>"

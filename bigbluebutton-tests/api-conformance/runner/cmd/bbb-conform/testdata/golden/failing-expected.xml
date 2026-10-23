@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="bbb-conform fake" tests="13" failures="4" errors="3" skipped="5" time="0.000">
-  <testsuite name="report" tests="13" failures="4" errors="3" skipped="5" time="0.000">
+<testsuites name="bbb-conform fake" tests="14" failures="4" errors="3" skipped="6" time="0.000">
+  <testsuite name="report" tests="14" failures="4" errors="3" skipped="6" time="0.000">
     <testcase name="getMeetings.report.bad-position" classname="report" file="../../testdata/failing/report/bad-position.yaml" line="1" time="0.000">
       <error message="step 1 (line 6): position middle needs at least two other params, got 1">step 1 (line 6): position middle needs at least two other params, got 1&#xA;</error>
     </testcase>
@@ -16,6 +16,9 @@
     </testcase>
     <testcase name="getMeetings.report.needs-clamav" classname="report" file="../../testdata/failing/report/needs-clamav.yaml" line="1" time="0.000">
       <skipped message="target lacks clamav"></skipped>
+    </testcase>
+    <testcase name="getMeetings.report.no-sink" classname="report" file="../../testdata/failing/report/no-sink.yaml" line="1" time="0.000">
+      <skipped message="not-configured: sinkUrl"></skipped>
     </testcase>
     <testcase name="getMeetings.report.not-json" classname="report" file="../../testdata/failing/report/not-json.yaml" line="1" time="0.000">
       <skipped message="xfail: a glob over a failing case (step 1 (line 6): format: expected json, got xml)"></skipped>
@@ -35,8 +38,8 @@
     <testcase name="getMeetings.report.transport-error" classname="report" file="../../testdata/failing/report/transport-error.yaml" line="1" time="0.000">
       <error message="step 1 (line 6): Get &#34;http://127.0.0.1:1/bigbluebutton/api&#34;: dial tcp 127.0.0.1:1: connect: connection refused">step 1 (line 6): Get &#34;http://127.0.0.1:1/bigbluebutton/api&#34;: dial tcp 127.0.0.1:1: connect: connection refused&#xA;  GET http://127.0.0.1:1/bigbluebutton/api&#xA;</error>
     </testcase>
-    <testcase name="getMeetings.report.no-sink" classname="report" file="../../testdata/failing/report/undefined-at-run-time.yaml" line="1" time="0.000">
-      <error message="step 1 (line 6): undefined variable sinkUrl">step 1 (line 6): undefined variable sinkUrl&#xA;</error>
+    <testcase name="getMeetings.report.undefined-target-var" classname="report" file="../../testdata/failing/report/undefined-at-run-time.yaml" line="1" time="0.000">
+      <error message="step 1 (line 6): undefined variable target.sinkHost">step 1 (line 6): undefined variable target.sinkHost&#xA;</error>
     </testcase>
     <testcase name="getMeetings.report.wrong-value" classname="report" file="../../testdata/failing/report/wrong-value.yaml" line="1" time="0.000">
       <skipped message="xfail: an exact entry for a failing case (step 1 (line 6): returncode: expected &#34;FAILED&#34;, got &#34;SUCCESS&#34;)"></skipped>

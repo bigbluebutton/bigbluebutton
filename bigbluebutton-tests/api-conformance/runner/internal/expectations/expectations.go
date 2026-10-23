@@ -136,8 +136,8 @@ func matchGlob(pattern, id string) bool {
 //   - A listed case that fails is XFAIL.
 //   - One listed by its own ID that passes is XPASS.
 //   - Variants listed by their base ID are a group: a passing variant is XPASS
-//     only when every variant passes, since the entry still covers the ones
-//     that fail.
+//     only when every variant ran and passed, since the entry still covers
+//     the ones that fail or didn't run.
 //   - A passing case a glob covers stays PASS.
 //
 // loaded holds every case the run loaded, selected or not: an entry that
@@ -150,6 +150,15 @@ func (f *File) Apply(run *report.Run, loaded []Case) {
 				groupPasses[e] = true
 			}
 			groupPasses[e] = groupPasses[e] && c.Status == report.Pass
+		}
+	}
+	ran := map[string]bool{}
+	for _, c := range run.Cases {
+		ran[c.ID] = true
+	}
+	for _, c := range loaded {
+		if e, how := f.Match(c); how == byBase && !ran[c.ID] {
+			groupPasses[e] = false
 		}
 	}
 	for _, c := range run.Cases {

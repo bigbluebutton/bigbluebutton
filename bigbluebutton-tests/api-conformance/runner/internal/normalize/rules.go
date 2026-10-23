@@ -263,6 +263,9 @@ func (m *Mask) apply(v string, ctx *Context) string {
 	}
 	switch m.As {
 	case "time":
+		// 0 too: startTime turns from 0 to a time a moment after create
+		// answers, so a step may read either. Check that a running
+		// meeting's endTime is 0 with expect.
 		if digitsRe.MatchString(v) || isoTimeRe.MatchString(v) {
 			return "<time>"
 		}

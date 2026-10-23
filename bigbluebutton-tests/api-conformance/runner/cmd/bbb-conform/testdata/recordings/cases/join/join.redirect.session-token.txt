@@ -23,7 +23,23 @@ header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
 location ${baseUrl}/html5client/join?sessionToken=<token>
 body (redirect)
 
-== step 3: call getJoinUrl
+== step 3: presence join as ann
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest false
+$.guestStatus "ALLOW"
+$.isModerator true
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut false
+$.name "Ann"
+$.role "MODERATOR"
+$.sessionToken "<token>"
+$.userId "w_<id>"
+
+== step 4: call getJoinUrl
 status 200
 header Content-Type application/json
 body json
@@ -31,7 +47,7 @@ $.response.message "Join URL provided successfully."
 $.response.returncode "SUCCESS"
 $.response.url "${baseUrl}${apiPrefix}join?checksum=<token>&fullName=Bob&meetingID=${uid}&redirect=true&role=VIEWER"
 
-== step 4: url ${joinUrl}
+== step 5: url ${joinUrl}
 status 302
 header Content-Type text/html; charset=utf-8
 header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure

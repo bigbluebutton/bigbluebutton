@@ -87,7 +87,7 @@ expected:
 }
 
 // Variants listed by their base ID: one passing while another fails stays
-// PASS; only when every variant passes is the entry stale.
+// PASS; only when every variant runs and passes is the entry stale.
 func TestBaseIDGroup(t *testing.T) {
 	f, err := Load(write(t, "target: web\nexpected:\n  - {id: create.v.n, reason: some lengths fail}\n"))
 	if err != nil {
@@ -108,6 +108,13 @@ func TestBaseIDGroup(t *testing.T) {
 	f.Apply(allPass, []Case{CaseOf(allPass.Cases[0]), CaseOf(allPass.Cases[1])})
 	if allPass.Cases[0].Status != report.XPass || allPass.Cases[1].Status != report.XPass || allPass.OK() {
 		t.Errorf("all-pass group: %s %s", allPass.Cases[0].Status, allPass.Cases[1].Status)
+	}
+	// Running one variant (--id) says nothing about the others: the entry
+	// may still be needed.
+	one := &report.Run{Cases: []*report.CaseResult{{ID: "create.v.n-2", Variant: "2", Status: report.Pass}}}
+	f.Apply(one, []Case{CaseFor("create.v.n-1", "1"), CaseFor("create.v.n-2", "2")})
+	if one.Cases[0].Status != report.Pass || !one.OK() {
+		t.Errorf("one variant of the group: %s", one.Cases[0].Status)
 	}
 	if CaseFor("a.b.c-x", "x") != (Case{ID: "a.b.c-x", BaseID: "a.b.c"}) || CaseFor("a.b.c", "") != (Case{ID: "a.b.c"}) {
 		t.Error("CaseFor")

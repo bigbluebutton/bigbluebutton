@@ -1,0 +1,8 @@
+# want: 7: a case with a profile restarts the server: tag it disruptive
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+tags: [ci]
+profile: reveal-version
+steps: [{call: create}]

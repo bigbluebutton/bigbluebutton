@@ -1,8 +1,8 @@
 # fake-web vs fake-api
 
-| Identical | Differing | One-sided | Skipped |
-|---|---|---|---|
-| 0 | 13 | 0 | 0 |
+| Identical | Differing | One-sided | Errored | Skipped |
+|---|---|---|---|---|
+| 0 | 13 | 0 | 0 | 0 |
 
 Lines starting with `-` are fake-web's, with `+` fake-api's.
 
@@ -235,7 +235,7 @@ Lines starting with `-` are fake-web's, with `+` fake-api's.
   - header Content-Type text/xml;charset=utf-8
   + status 202
   + header Content-Type application/xml
-  - /response/message "Checksums do not match"
+  - /response/message "<missing-checksum message>"
   + /response/message "Checksums do not match."
   ```
 - **getMeetings.smoke.checksum-rejected-duplicate**: differing (PASS / PASS)
@@ -248,7 +248,7 @@ Lines starting with `-` are fake-web's, with `+` fake-api's.
   - header Content-Type text/xml;charset=utf-8
   + status 202
   + header Content-Type application/xml
-  - /response/message "Checksums do not match"
+  - /response/message "<missing-checksum message>"
   + /response/message "Checksums do not match."
   ```
 

@@ -315,8 +315,10 @@ func (c *gqlConn) mutation(id string, req gqlRequest) []push {
 		}
 		changed = append(changed, me)
 	case "userLeaveMeeting":
-		me.loggedOut, me.presenter = true, false // joined stays, as on a real server
-		changed = append(changed, me)
+		if me.joined { // akka-apps acts only on users in the meeting
+			me.loggedOut, me.presenter = true, false // joined stays, as on a real server
+			changed = append(changed, me)
+		}
 	case "userSetPresenter":
 		if moderator {
 			for _, u := range s.sessions {
@@ -357,6 +359,10 @@ func (s *Server) pushUser(u *session) []push {
 	var out []push
 	for _, c := range s.conns[u.token] {
 		for id, fields := range c.subs {
+			if s.stateErrors != "" {
+				out = append(out, push{c, gqlFrame{ID: id, Type: "next", Payload: mustJSON(map[string]any{"errors": []any{map[string]string{"message": s.stateErrors}}})}})
+				continue
+			}
 			row := project(u.row(), strings.Fields(fields))
 			out = append(out, push{c, gqlFrame{ID: id, Type: "next", Payload: mustJSON(map[string]any{"data": map[string]any{"user_current": []any{row}}})}})
 		}

@@ -216,8 +216,18 @@ type node struct {
 	text   string
 	isText bool // a leaf: XML text or a JSON scalar
 	raw    bool // a JSON scalar that is not a string (number, bool, null)
+	list   bool // a JSON array
+	item   bool // one of its elements
 	kids   []*node
 	drop   bool
+}
+
+// ruleMatch says whether a scope or unordered rule's pattern names n. A
+// JSON array's elements also go by the array's path, like repeated XML
+// elements, so {"meetings":{"meeting":[...]}} is scoped and sorted as
+// meetings/meeting; the array itself never is.
+func (n *node) ruleMatch(re *regexp.Regexp) bool {
+	return !n.list && (re.MatchString(n.path) || n.item && re.MatchString(strings.TrimSuffix(n.path, "[]")))
 }
 
 type attr struct{ name, value string }
@@ -291,8 +301,10 @@ func jsonNode(name, path string, v any) *node {
 			n.text, n.isText, n.raw = "{}", true, true
 		}
 	case []any:
+		n.list = true
 		for _, item := range t {
 			child := jsonNode(name+"[]", path+"[]", item)
+			child.item = true
 			n.kids = append(n.kids, child)
 		}
 		if len(t) == 0 {
@@ -321,7 +333,7 @@ func (c *Context) scope(root *node, r *Rules) {
 	}
 	walk(root, func(n *node) {
 		for _, s := range r.Scope {
-			if s.re.MatchString(n.path) && !strings.Contains(keyOf(n, s.Key), c.UID) {
+			if n.ruleMatch(s.re) && !strings.Contains(keyOf(n, s.Key), c.UID) {
 				n.drop = true
 			}
 		}
@@ -460,7 +472,7 @@ func sortTree(root *node, r *Rules) {
 		for _, u := range r.Unordered {
 			var idx []int
 			for i, k := range parent.kids {
-				if u.re.MatchString(k.path) {
+				if k.ruleMatch(u.re) {
 					idx = append(idx, i)
 				}
 			}

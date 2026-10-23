@@ -23,6 +23,9 @@ type Case struct {
 	Profile  string
 	Variant  string            // the variant ID, or "" for a case without variants
 	Vars     map[string]string // the variant's vars; null vars are absent
+	// Uses lists the target URLs it refers to, sinkUrl and fixtureUrl,
+	// in its steps or its fixtures: a target that sets none skips it.
+	Uses     []string
 	Steps    []Step
 	Teardown []Step
 	File     string

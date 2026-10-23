@@ -5,13 +5,19 @@ package spec
 
 var knownCapabilities = set(
 	"akka", "presence", "recordings-fs", "callbacks", "presentation-conversion",
-	"bus", "fs", "redis", "clamav", "s3", "full-stack",
+	"bus", "fs", "redis", "clamav", "full-stack",
 )
+
+// KnownCapabilities lists the capabilities cases can require, sorted.
+func KnownCapabilities() []string { return sortedKeys(knownCapabilities) }
 
 var knownTags = set("ci", "slow", "disruptive", "full-stack", "presence", "conversion", "serial", "triage")
 
 // builtinVars are always defined at run time.
 var builtinVars = set("uid", "salt", "baseUrl", "sinkUrl", "fixtureUrl")
+
+// targetURLs are the built-in variables a target may leave unset.
+var targetURLs = set("sinkUrl", "fixtureUrl")
 
 // stepKeys maps each key that names a step type to its kind.
 var stepKeys = map[string]StepKind{

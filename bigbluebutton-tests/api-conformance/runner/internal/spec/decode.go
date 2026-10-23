@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -114,6 +113,7 @@ type decoder struct {
 	nulls   map[string]bool   // its null vars, already reported where misused
 	defined map[string]bool   // captures earlier steps define
 	joined  map[string]bool   // handles earlier presence steps joined
+	uses    map[string]bool   // the target URLs the case refers to
 	serial  bool              // the case is tagged serial
 }
 
@@ -141,13 +141,32 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 	}
 	c.Requires = d.names(mapGet(root, "requires"), knownCapabilities, "capability")
 
-	d.defined, d.joined = map[string]bool{}, map[string]bool{}
+	d.defined, d.joined, d.uses = map[string]bool{}, map[string]bool{}, map[string]bool{}
 	for i, st := range mapGet(root, "steps").Content {
 		c.Steps = append(c.Steps, d.step(st, fmt.Sprintf("steps[%d]", i)))
 	}
 	if td := mapGet(root, "teardown"); td != nil {
 		for i, st := range td.Content {
 			c.Teardown = append(c.Teardown, d.step(st, fmt.Sprintf("teardown[%d]", i)))
+		}
+	}
+
+	c.Uses = sortedKeys(d.uses)
+
+	// A profile restarts the server, which --exclude-tags disruptive must
+	// be able to avoid. A triage case's answers aren't decided yet, so
+	// they are recorded but not compared.
+	tagged := func(tag string) bool { return slices.Contains(c.Tags, tag) }
+	if c.Profile != "" && !tagged("disruptive") {
+		d.f.errf(mapGet(root, "profile"), "a case with a profile restarts the server: tag it disruptive")
+	}
+	if tagged("triage") && c.Class != "defect" {
+		for i, st := range mapGet(root, "steps").Content {
+			s := c.Steps[i]
+			ignored := s.Call != nil && s.Call.IgnoreResult
+			if s.Kind != KindWait && !ignored && s.Golden != "document" && s.Golden != "off" {
+				d.f.errf(st, "steps[%d]: a triage case records what the server answers without comparing it: give the step golden: document", i)
+			}
 		}
 	}
 
@@ -367,11 +386,17 @@ func (d *decoder) eventually(ev *yaml.Node, where string, every, minEvery time.D
 	if e.Within <= 0 {
 		d.f.errf(mapGet(ev, "within"), "%s: eventually.within must be more than 0", where)
 	}
-	if n := mapGet(ev, "every"); n != nil {
-		e.Every = duration(n)
+	n, of := mapGet(ev, "every"), " (the default)"
+	if n != nil {
+		e.Every, of = duration(n), ""
 		if e.Every < minEvery {
 			d.f.errf(n, "%s: eventually.every must be at least %s, so the server isn't flooded", where, minEvery)
 		}
+	} else {
+		n = mapGet(ev, "within")
+	}
+	if e.Within > 0 && e.Every >= e.Within {
+		d.f.errf(n, "%s: eventually.every%s must be shorter than within, %s, or it tries only once", where, of, e.Within)
 	}
 	return e
 }
@@ -733,7 +758,7 @@ func (d *decoder) matcher(n *yaml.Node) Matcher {
 	case "contains":
 		m.Arg = d.str(v)
 	case "count":
-		m.N, _ = strconv.Atoi(v.Value)
+		_ = v.Decode(&m.N) // as YAML reads it; the schema checked it is an integer
 	case "oneOf":
 		for _, item := range v.Content {
 			m.Args = append(m.Args, d.str(item))
@@ -860,8 +885,15 @@ func (d *decoder) checkTemplate(n *yaml.Node, text, in string) {
 		}
 	}
 	for _, ref := range t.Refs() {
-		if !d.isDefined(ref) {
+		switch {
+		case !d.isDefined(ref):
 			d.f.errf(n, "%sundefined variable %s", prefix, ref)
+		case in != "" && d.nulls[ref]:
+			// A null var removes what holds it, which a fixture's text can't do.
+			d.f.errf(n, "%svariant var %s is null, so a fixture can't use it", prefix, ref)
+		}
+		if targetURLs[ref] && d.uses != nil {
+			d.uses[ref] = true
 		}
 	}
 }

@@ -125,13 +125,23 @@ func (u *User) follow(kind string, payload []byte) {
 		Data struct {
 			UserCurrent []map[string]any `json:"user_current"`
 		}
-		Errors []json.RawMessage
+		Errors []struct{ Message string }
 	}
-	if json.Unmarshal(payload, &r) != nil || len(r.Errors) > 0 || len(r.Data.UserCurrent) == 0 {
+	if json.Unmarshal(payload, &r) != nil || len(r.Errors) == 0 && len(r.Data.UserCurrent) == 0 {
 		return
 	}
 	u.mu.Lock()
-	u.state = r.Data.UserCurrent[0]
+	if len(r.Errors) > 0 {
+		// Waiting on the state would time out: say why instead, until an
+		// answer comes with the state again.
+		var msgs []string
+		for _, e := range r.Errors {
+			msgs = append(msgs, e.Message)
+		}
+		u.lost = fmt.Errorf("the server answered the user's state with errors: %s", strings.Join(msgs, "; "))
+	} else {
+		u.state, u.lost = r.Data.UserCurrent[0], nil
+	}
 	close(u.changed)
 	u.changed = make(chan struct{})
 	u.mu.Unlock()
@@ -307,8 +317,14 @@ func (u *User) Query(ctx context.Context, r Request, kind string) (*Result, erro
 }
 
 // Leave logs the user out, as the HTML5 client's Leave button does, and
-// closes the connection.
+// closes the connection. A user who isn't in the meeting, such as a guest
+// still waiting or one removed, only has the connection closed: the
+// server ignores a leave from them.
 func (u *User) Leave(ctx context.Context) error {
+	if !u.InMeeting() {
+		u.Disconnect()
+		return nil
+	}
 	res, err := u.connection().Do(ctx, Request{Query: "mutation UserLeaveMeeting { userLeaveMeeting }", OperationName: "UserLeaveMeeting"}, false)
 	var r *Rejected
 	switch {

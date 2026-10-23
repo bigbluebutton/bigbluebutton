@@ -9,9 +9,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"gopkg.in/yaml.v3"
 )
 
@@ -112,6 +114,13 @@ func Load(path string) (*Target, error) {
 func (t *Target) complete(getenv func(string) string) error {
 	if t.Name == "" {
 		return fmt.Errorf("name is required")
+	}
+	// A misspelt capability would silently skip every case that needs it.
+	known := spec.KnownCapabilities()
+	for _, c := range t.Capabilities {
+		if !slices.Contains(known, c) {
+			return fmt.Errorf("unknown capability %q (known: %s)", c, strings.Join(known, ", "))
+		}
 	}
 	if bbbURL := getenv("BBB_URL"); bbbURL != "" && t.BaseURL == "" {
 		u, err := url.Parse(bbbURL)

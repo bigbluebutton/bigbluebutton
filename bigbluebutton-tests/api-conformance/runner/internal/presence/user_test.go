@@ -177,6 +177,40 @@ func TestGuestApproval(t *testing.T) {
 	}
 }
 
+// A guest who leaves while still waiting only closes the connection: the
+// server ignores a leave from a user who isn't in.
+func TestWaitingGuestLeaves(t *testing.T) {
+	w := newWorld(t, "&guestPolicy=ASK_MODERATOR")
+	eve, _ := w.join("Eve", "&guest=true")
+	if err := eve.Join(ctx(t), false); err != nil {
+		t.Fatal(err)
+	}
+	start := time.Now()
+	if err := eve.Leave(ctx(t)); err != nil || time.Since(start) > time.Second {
+		t.Fatalf("leave: %v after %s", err, time.Since(start))
+	}
+	// A mutation goes straight to the connection, which is closed.
+	if _, err := eve.Query(ctx(t), Request{Query: "mutation M { userLeaveMeeting }", OperationName: "M"}, "mutation"); err == nil {
+		t.Error("the connection is still open")
+	}
+}
+
+// When the user's state comes back as GraphQL errors, waiting on it ends
+// at once with the server's message, not at the deadline.
+func TestStateErrors(t *testing.T) {
+	w := newWorld(t, "")
+	ann, _ := w.join("Ann", "")
+	if err := ann.Join(ctx(t), false); err != nil {
+		t.Fatal(err)
+	}
+	w.fake.FailUserState("field 'loggedOut' not found in type: 'user_current'")
+	start := time.Now()
+	err := ann.Leave(ctx(t))
+	if err == nil || !strings.Contains(err.Error(), "field 'loggedOut' not found") || time.Since(start) > time.Second {
+		t.Errorf("leave: %v after %s", err, time.Since(start))
+	}
+}
+
 func TestGuestDenied(t *testing.T) {
 	w := newWorld(t, "&guestPolicy=ASK_MODERATOR")
 	mod, _ := w.join("Mod", "&role=MODERATOR")

@@ -181,18 +181,16 @@ func checkRecordings(dir string, cases []*spec.Case) []string {
 }
 
 // load loads the cases, defaulting the fixtures directory to a sibling of
-// the cases directory when it exists. It returns the fixtures directory it
-// used, "" for none.
+// the cases directory. That one needn't exist until a case refers to a
+// fixture, which is then reported as not found. It returns the fixtures
+// directory it used.
 func load(cases, fixtures string, stderr io.Writer) (*spec.Result, string, int) {
 	if st, err := os.Stat(cases); err != nil || !st.IsDir() {
 		fmt.Fprintf(stderr, "bbb-conform: cases directory %q not found\n", cases)
 		return nil, "", exitUsage
 	}
 	if fixtures == "" {
-		def := filepath.Join(filepath.Dir(filepath.Clean(cases)), "fixtures")
-		if st, err := os.Stat(def); err == nil && st.IsDir() {
-			fixtures = def
-		}
+		fixtures = filepath.Join(filepath.Dir(filepath.Clean(cases)), "fixtures")
 	} else if st, err := os.Stat(fixtures); err != nil || !st.IsDir() {
 		fmt.Fprintf(stderr, "bbb-conform: fixtures directory %q not found\n", fixtures)
 		return nil, "", exitUsage
@@ -303,7 +301,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		orphaned = orphans(*goldenDir, res.Cases)
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := interruptible(stderr)
 	defer stop()
 	run := r.RunAll(ctx, selected, *parallel)
 	run.Warnings = append(run.Warnings, orphaned...)
@@ -324,10 +322,29 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform: json: %v\n", err)
 		return exitUsage
 	}
-	if !run.OK() {
+	if !run.OK() || ctx.Err() != nil {
 		return exitFailed
 	}
 	return exitOK
+}
+
+// interruptible returns a context the first Ctrl-C cancels: cases that
+// haven't started are skipped, and those running stop and clean up after
+// themselves. A second Ctrl-C ends the process at once.
+func interruptible(stderr io.Writer) (context.Context, func()) {
+	ctx, cancel := context.WithCancel(context.Background())
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt)
+	go func() {
+		select {
+		case <-sig:
+			signal.Stop(sig) // the next one isn't caught
+			fmt.Fprintln(stderr, "bbb-conform: interrupted; running cases are cleaning up (Ctrl-C again to quit now)")
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
+	return ctx, func() { signal.Stop(sig); cancel() }
 }
 
 func splitList(s string) []string {
@@ -422,7 +439,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 	masksFile := fl.String("masks", "", "extra normalization rules (default: masks.yaml next to the cases directory)")
 	mdFile := fl.String("md", "", "write a Markdown report here")
 	jsonFile := fl.String("json", "", "write a JSON report here")
-	failOnDiff := fl.Bool("fail-on-diff", false, "exit 1 when any case differs")
+	failOnDiff := fl.Bool("fail-on-diff", false, "exit 1 when any case differs, or couldn't be compared because a side ERRORed")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return exitOK
@@ -459,7 +476,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := interruptible(stderr)
 	defer stop()
 	red := &tmpl.Redactor{}
 	casesRoot := filepath.Clean(*cases)
@@ -511,7 +528,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform: json: %v\n", err)
 		return exitUsage
 	}
-	if *failOnDiff && rep.Differs() {
+	if *failOnDiff && rep.Differs() || ctx.Err() != nil {
 		return exitFailed
 	}
 	return exitOK

@@ -3,11 +3,11 @@
   "started": "2026-01-01T00:00:00Z",
   "duration_ms": 0,
   "counts": {
-    "total": 13,
+    "total": 14,
     "passed": 1,
     "failed": 3,
     "errors": 3,
-    "skipped": 3,
+    "skipped": 4,
     "xfailed": 2,
     "xpassed": 1
   },
@@ -280,6 +280,18 @@
       "duration_ms": 0
     },
     {
+      "id": "getMeetings.report.no-sink",
+      "title": "A case that needs a sink the target doesn't have is skipped",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "report",
+      "file": "../../testdata/failing/report/no-sink.yaml",
+      "line": 1,
+      "status": "SKIP",
+      "reason": "not-configured: sinkUrl",
+      "duration_ms": 0
+    },
+    {
       "id": "getMeetings.report.not-json",
       "title": "A response in the wrong format fails",
       "endpoint": "getMeetings",
@@ -538,15 +550,15 @@
       ]
     },
     {
-      "id": "getMeetings.report.no-sink",
-      "title": "A variable the target doesn't define is an error",
+      "id": "getMeetings.report.undefined-target-var",
+      "title": "A target var the target doesn't define is an error",
       "endpoint": "getMeetings",
       "class": "contract",
       "area": "report",
       "file": "../../testdata/failing/report/undefined-at-run-time.yaml",
       "line": 1,
       "status": "ERROR",
-      "reason": "step 1 (line 6): undefined variable sinkUrl",
+      "reason": "step 1 (line 6): undefined variable target.sinkHost",
       "duration_ms": 0,
       "steps": [
         {
@@ -554,7 +566,7 @@
           "kind": "call",
           "line": 6,
           "status": "ERROR",
-          "message": "undefined variable sinkUrl",
+          "message": "undefined variable target.sinkHost",
           "duration_ms": 0
         }
       ]

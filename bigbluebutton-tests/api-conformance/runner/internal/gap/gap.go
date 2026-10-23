@@ -145,7 +145,7 @@ func (m *Matrix) WriteMarkdown(w io.Writer) error {
 			for i, c := range r.Cells {
 				label := c.label()
 				if c.Issue != "" {
-					label = fmt.Sprintf("[%s](%s)", label, c.Issue)
+					label = fmt.Sprintf("[%s](%s)", label, mdURL(c.Issue))
 				}
 				cells = append(cells, label)
 				if c.Present && c.Status != report.Pass && c.Reason != "" {
@@ -163,6 +163,11 @@ func (m *Matrix) WriteMarkdown(w io.Writer) error {
 
 func mdEscape(s string) string {
 	return strings.NewReplacer("|", `\|`, "\n", " ", "<", "&lt;", ">", "&gt;").Replace(s)
+}
+
+// mdURL percent-encodes what would end a Markdown link or a table cell.
+func mdURL(s string) string {
+	return strings.NewReplacer(" ", "%20", "(", "%28", ")", "%29", "|", "%7C", "<", "%3C", ">", "%3E", "\n", "").Replace(s)
 }
 
 var page = template.Must(template.New("gap").Parse(`<!doctype html>

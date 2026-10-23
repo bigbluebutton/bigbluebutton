@@ -24,6 +24,9 @@ steps:
       sessionToken: location:query.sessionToken
       clientHost: location:host
       jsession: cookie:JSESSIONID
+  # getJoinUrl needs someone in the meeting, and the redirect alone puts
+  # nobody there: Ann's client joins as the HTML5 client would.
+  - presence: {action: join, as: ann, sessionToken: "${sessionToken}"}
   - call: getJoinUrl
     params: {sessionToken: "${sessionToken}", fullName: Bob}
     client: ann

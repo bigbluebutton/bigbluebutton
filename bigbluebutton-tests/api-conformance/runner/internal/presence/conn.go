@@ -89,9 +89,8 @@ type Conn struct {
 	rejected *Rejected     // the server's last word, if it said one
 	done     chan struct{} // closed when the connection ends
 
-	wg        sync.WaitGroup
-	closeOnce sync.Once
-	failOnce  sync.Once
+	wg       sync.WaitGroup
+	failOnce sync.Once
 }
 
 // op is one operation waiting for answers.
@@ -130,7 +129,8 @@ func Dial(ctx context.Context, o Options) (*Conn, error) {
 	}
 	ws, err := cfg.DialContext(ctx)
 	if err != nil {
-		if errors.Is(err, websocket.ErrBadStatus) {
+		// DialError doesn't unwrap: errors.Is can't see ErrBadStatus.
+		if de := (*websocket.DialError)(nil); errors.As(err, &de) && de.Err == websocket.ErrBadStatus {
 			return nil, fmt.Errorf("%s didn't accept a websocket (check the target's graphqlUrl, and that its host matches the base URL's, which is sent as Origin): %w", o.URL, err)
 		}
 		return nil, fmt.Errorf("%w (websockets are dialled directly, not through HTTPS_PROXY)", err)
@@ -162,9 +162,14 @@ func (c *Conn) init(ctx context.Context, headers map[string]string) error {
 	}
 	c.ws.SetReadDeadline(deadline)
 	defer c.ws.SetReadDeadline(time.Time{})
+	// A cancelled ctx (Ctrl-C) ends the wait as its deadline would.
+	defer context.AfterFunc(ctx, func() { c.ws.SetReadDeadline(time.Now()) })()
 	for {
 		f, err := c.receive()
 		if err != nil {
+			if ctx.Err() != nil {
+				return fmt.Errorf("no connection_ack: %w", ctx.Err())
+			}
 			return fmt.Errorf("no connection_ack: %w", err)
 		}
 		switch f.Type {
@@ -311,13 +316,19 @@ func (c *Conn) keepalive(every time.Duration) {
 	}
 }
 
-// fail ends the connection for everyone waiting on it.
+// fail ends the connection for everyone waiting on it, and closes the
+// socket: a connection the server closed, or that can't be written to,
+// isn't kept open until the case ends.
 func (c *Conn) fail(err error) {
 	c.failOnce.Do(func() {
 		c.mu.Lock()
 		c.err = err
 		c.mu.Unlock()
 		close(c.done)
+		c.wmu.Lock()
+		c.ws.SetWriteDeadline(time.Now().Add(2 * time.Second))
+		c.ws.Close() // sends the close frame; the reader then stops
+		c.wmu.Unlock()
 	})
 }
 
@@ -419,13 +430,7 @@ func (c *Conn) Unsubscribe(id string) { c.forget(id) }
 // Close closes the connection and waits for its goroutines. It may be
 // called more than once.
 func (c *Conn) Close() error {
-	c.closeOnce.Do(func() {
-		c.fail(ErrClosed)
-		c.wmu.Lock()
-		c.ws.SetWriteDeadline(time.Now().Add(2 * time.Second))
-		c.ws.Close() // sends the close frame; the reader then stops
-		c.wmu.Unlock()
-	})
+	c.fail(ErrClosed)
 	c.wg.Wait()
 	return nil
 }

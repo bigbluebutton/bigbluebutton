@@ -26,6 +26,7 @@ type Counts struct {
 	Identical int `json:"identical"`
 	Differing int `json:"differing"`
 	OneSided  int `json:"one_sided"`
+	Errored   int `json:"errored"`
 	Skipped   int `json:"skipped"`
 }
 
@@ -33,7 +34,7 @@ type Counts struct {
 type CaseDiff struct {
 	ID       string        `json:"id"`
 	Endpoint string        `json:"endpoint"`
-	Outcome  string        `json:"outcome"` // identical | differing | one-sided | skipped
+	Outcome  string        `json:"outcome"` // identical | differing | one-sided | errored | skipped
 	StatusA  report.Status `json:"status_a"`
 	StatusB  report.Status `json:"status_b"`
 	Note     string        `json:"note,omitempty"`
@@ -103,6 +104,11 @@ func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 		case len(cd.Steps) > 0:
 			cd.Outcome = "differing"
 			rep.Counts.Differing++
+		case ra.Status == report.Error || rb.Status == report.Error:
+			// Nothing differs in what both got, but a side stopped short:
+			// the steps after it weren't compared.
+			cd.Outcome, cd.Note = "errored", errorNote(ra, rb)
+			rep.Counts.Errored++
 		default:
 			cd.Outcome = "identical"
 			rep.Counts.Identical++
@@ -110,6 +116,19 @@ func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 		rep.Cases = append(rep.Cases, cd)
 	}
 	return rep
+}
+
+func errorNote(a, b *report.CaseResult) string {
+	var parts []string
+	for _, side := range []struct {
+		name string
+		r    *report.CaseResult
+	}{{"A", a}, {"B", b}} {
+		if side.r.Status == report.Error {
+			parts = append(parts, side.name+": "+side.r.Reason)
+		}
+	}
+	return strings.Join(parts, "; ")
 }
 
 func skipNote(a, b *report.CaseResult) string {
@@ -133,21 +152,25 @@ func prefix(p string, lines []string) []string {
 	return out
 }
 
-// Differs reports whether any case differs or was one-sided.
-func (r *Report) Differs() bool { return r.Counts.Differing+r.Counts.OneSided > 0 }
+// Differs reports whether any case differs, was one-sided, or couldn't be
+// compared to its end because a side ERRORed.
+func (r *Report) Differs() bool { return r.Counts.Differing+r.Counts.OneSided+r.Counts.Errored > 0 }
 
 // WriteConsole writes the summary and the cases that differ.
 func (r *Report) WriteConsole(w io.Writer) {
 	for _, c := range r.Cases {
-		if c.Outcome == "differing" || c.Outcome == "one-sided" {
+		switch c.Outcome {
+		case "differing", "one-sided":
 			fmt.Fprintf(w, "%-9s %s (%s / %s)\n", strings.ToUpper(c.Outcome), c.ID, c.StatusA, c.StatusB)
+		case "errored":
+			fmt.Fprintf(w, "%-9s %s (%s / %s): %s\n", strings.ToUpper(c.Outcome), c.ID, c.StatusA, c.StatusB, c.Note)
 		}
 	}
 	for _, warn := range r.Warnings {
 		fmt.Fprintf(w, "warning: %s\n", warn)
 	}
-	fmt.Fprintf(w, "\n%s vs %s: %d identical, %d differing, %d one-sided, %d skipped\n",
-		r.Sides[0], r.Sides[1], r.Counts.Identical, r.Counts.Differing, r.Counts.OneSided, r.Counts.Skipped)
+	fmt.Fprintf(w, "\n%s vs %s: %d identical, %d differing, %d one-sided, %d errored, %d skipped\n",
+		r.Sides[0], r.Sides[1], r.Counts.Identical, r.Counts.Differing, r.Counts.OneSided, r.Counts.Errored, r.Counts.Skipped)
 }
 
 // WriteJSON writes the whole report.
@@ -162,8 +185,8 @@ func (r *Report) WriteJSON(w io.Writer) error {
 // per differing step.
 func (r *Report) WriteMarkdown(w io.Writer) error {
 	fmt.Fprintf(w, "# %s vs %s\n\n", r.Sides[0], r.Sides[1])
-	fmt.Fprintf(w, "| Identical | Differing | One-sided | Skipped |\n|---|---|---|---|\n| %d | %d | %d | %d |\n\n",
-		r.Counts.Identical, r.Counts.Differing, r.Counts.OneSided, r.Counts.Skipped)
+	fmt.Fprintf(w, "| Identical | Differing | One-sided | Errored | Skipped |\n|---|---|---|---|---|\n| %d | %d | %d | %d | %d |\n\n",
+		r.Counts.Identical, r.Counts.Differing, r.Counts.OneSided, r.Counts.Errored, r.Counts.Skipped)
 	fmt.Fprintf(w, "Lines starting with `-` are %s's, with `+` %s's.\n", r.Sides[0], r.Sides[1])
 	for _, warn := range r.Warnings {
 		fmt.Fprintf(w, "\n> Warning: %s\n", warn)

@@ -170,6 +170,7 @@ func TestTap(t *testing.T) {
 	}{
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", Capabilities: []string{"bus"}}, "capability bus needs a tap"},
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", TapURL: "h:8099"}, "must be an http:// URL"},
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s", Capabilities: []string{"akka", "presense"}}, `unknown capability "presense" (known: akka, bus,`},
 	} {
 		if err := tt.in.complete(env(nil)); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("%+v: %v", tt.in, err)

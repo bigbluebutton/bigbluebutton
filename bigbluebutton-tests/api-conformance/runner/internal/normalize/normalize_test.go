@@ -71,6 +71,32 @@ body xml
 /response/message`)
 }
 
+// A JSON list is scoped and sorted like the XML one it mirrors: its
+// elements go by the list's path, and the list itself is never dropped.
+func TestJSONListScope(t *testing.T) {
+	uid := "bbbc-j1"
+	body := `{"response":{"returncode":"SUCCESS","meetings":{"meeting":[{"meetingID":"other"},{"meetingID":"` + uid + `-b"},{"meetingID":"` + uid + `-a"}]}}}`
+	got := Response(obs(200, map[string]string{"Content-Type": "application/json"}, body), ctx(uid), Default())
+	check(t, got, `
+status 200
+header Content-Type application/json
+body json
+$.response.meetings.meeting[].meetingID "${uid}-a"
+$.response.meetings.meeting[].meetingID "${uid}-b"
+$.response.returncode "SUCCESS"`)
+}
+
+// A time of 0 is masked too: bbb-web sets startTime a moment after create
+// answers, so getMeetingInfo right after create reads 0 or a time.
+func TestZeroTime(t *testing.T) {
+	got := Response(obs(200, nil, `<response><startTime>0</startTime><endTime>0</endTime></response>`), ctx("bbbc-u0"), Default())
+	check(t, got, `
+status 200
+body xml
+/response/startTime "<time>"
+/response/endTime "<time>"`)
+}
+
 func TestSentValuesFromEarlierSteps(t *testing.T) {
 	c := ctx("bbbc-u1")
 	// getMeetingInfo sends no attendeePW, but create did.

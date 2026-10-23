@@ -104,9 +104,16 @@ func (x *exec) attach(ctx context.Context, p *spec.PresenceStep, sr *report.Step
 	// The jar keeps Secure cookies for https, not wss.
 	page := *gql
 	page.Scheme = strings.Replace(gql.Scheme, "ws", "http", 1)
+	cookies := x.session.Cookies(p.As, &page)
+	// The server would turn the connection away for want of the session's
+	// cookies, which is the target file's doing, not the server's.
+	if base, err := url.Parse(x.r.Target.BaseURL); err == nil && len(cookies) == 0 && len(x.session.Cookies(p.As, base)) > 0 {
+		return nil, req, report.Error, fmt.Errorf("the session's cookies for %s wouldn't be sent to %s: give graphqlUrl the base URL's host, and wss:// for https://",
+			x.r.Target.BaseURL, x.r.Target.GraphQLURL)
+	}
 	u, err := presence.Attach(ctx, presence.Options{
 		URL: x.r.Target.GraphQLURL, Origin: x.r.Target.BaseURL, TLS: x.r.TLS,
-		Cookies: x.session.Cookies(p.As, &page), UserAgent: "bbb-conform/" + x.r.Version, PingEvery: x.r.PingEvery,
+		Cookies: cookies, UserAgent: "bbb-conform/" + x.r.Version, PingEvery: x.r.PingEvery,
 	}, token)
 	if err != nil {
 		var rej *presence.Rejected

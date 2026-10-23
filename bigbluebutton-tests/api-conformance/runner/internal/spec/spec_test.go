@@ -162,6 +162,38 @@ steps:
 	if p := cases[0].Steps[0].Call.Params; p[0].Value != "1.0" || p[1].Value != "1.0" {
 		t.Errorf("params = %+v", p)
 	}
+
+	// A var keeps the type it has in vars: an empty string stays a string,
+	// not null, and a quoted "0x10" isn't a number.
+	src = `id: create.x.y
+title: t
+endpoint: create
+class: contract
+variants:
+  - {id: a, vars: {v: "", n: 0x10}}
+steps:
+  - call: create
+    headers:
+      Accept: ${v}
+    expect:
+      xpath:
+        /response/x:
+          count: ${n}
+`
+	cases, probs = LoadBytes("typing.yaml", []byte(src), Options{})
+	if len(probs) > 0 {
+		t.Fatalf("problems:\n%s", dump(probs))
+	}
+	if h := cases[0].Steps[0].Call.Headers; len(h) != 1 || h[0].Remove || h[0].Value != "" {
+		t.Errorf("headers = %+v", h)
+	}
+	if n := cases[0].Steps[0].Expect.XPath[0].M.N; n != 16 {
+		t.Errorf("count = %d", n)
+	}
+	src = strings.Replace(src, "n: 0x10", `n: "0x10"`, 1)
+	if _, probs = LoadBytes("typing.yaml", []byte(src), Options{}); !strings.Contains(dump(probs), "count: got string, want integer") {
+		t.Errorf("a quoted number as a count: %s", dump(probs))
+	}
 }
 
 func TestMergeKeys(t *testing.T) {
@@ -243,7 +275,7 @@ func TestCallDecoding(t *testing.T) {
 	if len(caps) != 3 || caps[0] != (Capture{Name: "sessionToken", Expr: "location:query.sessionToken", Line: caps[0].Line}) {
 		t.Errorf("captures = %+v", caps)
 	}
-	if u := byID["join.redirect.session-token"].Steps[3].Call; u.URL != "${joinUrl}" || u.HasCall {
+	if u := byID["join.redirect.session-token"].Steps[4].Call; u.URL != "${joinUrl}" || u.HasCall {
 		t.Errorf("url step = %+v", u)
 	}
 	version := byID["version.index.fields"].Steps[0].Call

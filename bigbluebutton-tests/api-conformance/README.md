@@ -17,7 +17,7 @@ runner/                  the bbb-conform Go module
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
 cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/
-fixtures/                files cases refer to (bodies, presentations, schemas)
+fixtures/                files cases refer to (bodies, presentations, schemas); none yet
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
 ```
@@ -47,11 +47,15 @@ Each case ends as one of:
   that doesn't parse and a capture that finds nothing;
 - **ERROR**: the runner couldn't do what the case asked, e.g. the server is
   unreachable or a template didn't expand;
-- **SKIP**, with the reason: a capability the target lacks, or something the
-  runner can't do yet.
+- **SKIP**, with the reason: a capability the target lacks, a URL the case
+  uses that the target doesn't set (`not-configured: sinkUrl` or
+  `fixtureUrl`), something the runner can't do yet, or an interrupt before
+  the case started.
 
-The exit status is 0 when nothing failed or errored, 1 when something did,
-and 2 for a bad command line, target or case file. The salt and secret target
+The exit status is 0 when nothing failed or errored, 1 when something did
+or the run was interrupted, and 2 for a bad command line, target or case
+file. Ctrl-C stops the run: cases that haven't started are skipped, and
+those running stop and run their teardowns. A second Ctrl-C quits at once. The salt and secret target
 vars are replaced with `[salt]` and `[secret:name]` in everything the runner
 writes.
 
@@ -63,11 +67,11 @@ baseUrl: https://bbb.example.com     # scheme and host only
 apiPrefix: /bigbluebutton/api/       # the default; bbb-api uses /meeting-api/
 saltEnv: BBB_SECRET                  # or salt: ...
 tls: {caFile: dev-ca.crt}            # relative to this file; or insecureSkipVerify: true
-capabilities: [akka, presence]
+capabilities: [akka, presence]       # names a case can require; a misspelt one is an error
 defaultSign: sha256
 sinkUrl: https://sink.example.com    # optional, for ${sinkUrl}
 fixtureUrl: https://files.example.com
-graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql
+graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
 vars:
   turnSecret: {env: TURN_SECRET, secret: true}   # ${target.turnSecret}
@@ -136,8 +140,8 @@ env/full-install/profile.sh default        # restore the server's own file
   and it takes a lock, so two switches never overlap.
 - **Without `BBB_EXEC`** it exits 77, so the profile's cases are skipped
   rather than failed: a server is never restarted by accident.
-- **`disruptive` tag:** cases with a profile have it, so
-  `--exclude-tags disruptive` leaves the server alone.
+- **`disruptive` tag:** a case with a profile must have it (`validate`
+  says so), so `--exclude-tags disruptive` leaves the server alone.
 - **Another switcher:** set `BBB_PROFILE_CMD` to a command that takes the
   same arguments.
 
@@ -159,7 +163,8 @@ expected:
 | A listed case that... | is reported as | and the run |
 |---|---|---|
 | fails | XFAIL, with the entry's reason | passes |
-| passes, listed by its ID or base ID | XPASS | fails, so the stale entry gets removed |
+| passes, listed by its ID | XPASS | fails, so the stale entry gets removed |
+| passes, listed by its base ID | XPASS if every variant ran and passed, else PASS | fails on XPASS, as above |
 | passes, covered only by a glob | PASS | passes: a glob stands for a whole missing endpoint, some of whose cases pass anyway |
 | errors or is skipped | unchanged | as usual |
 
@@ -245,7 +250,8 @@ go run ./cmd/bbb-conform validate --cases testdata/cases      # the examples
 if there is anything. It checks each case against the JSON Schema, then
 checks templates, variable references, capture expressions, XPath, JSONPath
 and regex syntax, fixture files, known tags and capabilities, and that case
-IDs are unique.
+IDs are unique. A fixture a case names must exist in the fixtures
+directory, which needn't exist until one does.
 
 With `--golden DIR` (e.g. `--golden ../golden/bbb-web`) it also checks the
 recordings: every case with something to record has one, none is stale or
@@ -289,7 +295,10 @@ Content-Type, error formats.
   of the create params. The report shows them as e.g. `step 1 (line 7),
   MeetingCreatedEvtMsg props`. This catches a param that one API drops or
   defaults differently. When only one target has a tap, there is a warning.
-- **Exit status:** 0, unless `--fail-on-diff` is given and something differs.
+- **Errored cases:** a case that ERRORs on a side before anything differs is
+  reported as errored, not identical: what came after wasn't compared.
+- **Exit status:** 0, unless `--fail-on-diff` is given and a case differs,
+  is one-sided or errored, or the run is interrupted.
 - **Comparing two releases:** give two bbb-web targets, e.g. 3.0 and 4.0. The
   report lists what an integration written for one would see change on the
   other.
@@ -487,8 +496,8 @@ One case per file.
 | `title` | One line saying what the case shows. |
 | `endpoint` | The endpoint the case is about. |
 | `class` | `contract` (documented or relied-on behaviour), `compat` (a bbb-web quirk clients may depend on) or `defect` (asserts the *correct* behaviour that bbb-web gets wrong). |
-| `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: its steps are recorded with `golden: document` until then. |
-| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `s3`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`. |
+| `tags` | Any of `ci`, `slow`, `disruptive`, `full-stack`, `presence`, `conversion`, `serial`, `triage`. `triage` marks behaviour still to be classified as contract, compat or defect: until then each of its steps (outside teardown) must say `golden: document` or `off`, which `validate` checks. |
+| `requires` | Capabilities the target must declare, or the case is skipped: `akka`, `presence`, `recordings-fs`, `callbacks`, `presentation-conversion`, `bus`, `fs`, `redis`, `clamav`, `full-stack`. Step types add their own: `presence` and `graphql` add `presence`; `bus`, `fs` and `redis` add themselves; `sink` adds `callbacks`. |
 | `profile` | A named config overlay the target must run with, e.g. one with short timeouts. |
 | `variants` | See below. |
 | `defs` | Ignored. A place to define YAML anchors. |
@@ -589,7 +598,9 @@ capability; `presence` and `graphql` steps need it.
   passes and shows `guestStatus: WAIT`. A later `join` on the same user,
   with no source, waits for the approval and joins.
 - **Other actions:** `leave` logs the user out, like the client's Leave
-  button. `disconnect` drops the connection, like a closed tab: the user is
+  button; for a user who isn't in the meeting, such as a guest still
+  waiting, it only closes the connection, since the server ignores their
+  leave. `disconnect` drops the connection, like a closed tab: the user is
   removed about 10 to 20 seconds later, unless they `reconnect`.
 - **The result** is the user's state from `user_current`: `userId`, `extId`,
   `name`, `role`, `isModerator`, `guest`, `guestStatus`, `joined`,
@@ -745,7 +756,7 @@ These steps check what a call did outside its answer, through the target's
 | `followRedirects` | Default `false`: a redirect is the response. |
 | `timeout` | Per-request timeout; default 30s. |
 | `ignoreResult` | Don't fail on this step, typically in teardown. |
-| `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `expect` then checks the final response. |
+| `eventually` | `{within, every, until}`: repeat the request every `every` (default 1s) until `until` passes, or fail after `within`. `every` must be shorter than `within`. Each attempt gets the step's `timeout`, cut to what is left of `within` (at least 250ms), so a server too slow for that ERRORs. `expect` then checks the final response. |
 
 #### Signing
 

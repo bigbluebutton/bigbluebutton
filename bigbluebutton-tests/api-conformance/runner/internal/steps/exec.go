@@ -202,7 +202,32 @@ func (r *Runner) skipReason(c *spec.Case) string {
 	if len(missing) > 0 {
 		return "target lacks " + strings.Join(missing, ", ")
 	}
+	var unset []string
+	for _, name := range c.Uses {
+		if v, _ := r.lookupTarget(name); v == "" {
+			unset = append(unset, name)
+		}
+	}
+	if len(unset) > 0 {
+		return "not-configured: " + strings.Join(unset, ", ")
+	}
 	return ""
+}
+
+// lookupTarget resolves a built-in variable the target supplies.
+func (r *Runner) lookupTarget(name string) (string, bool) {
+	t := r.Target
+	switch name {
+	case "salt":
+		return t.Salt, true
+	case "baseUrl":
+		return t.BaseURL, true
+	case "sinkUrl":
+		return t.SinkURL, t.SinkURL != ""
+	case "fixtureUrl":
+		return t.FixtureURL, t.FixtureURL != ""
+	}
+	return "", false
 }
 
 // profileTimeout bounds a profile switch, which may restart services.
@@ -281,16 +306,17 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 		// Switching may restart services: only do it if a case will run.
 		var err error
 		for _, i := range groups[name] {
-			if r.skipReason(cases[i]) == "" {
+			if r.skipReason(cases[i]) == "" && ctx.Err() == nil {
 				err = r.runProfile(ctx, name, r.Target.Profiles[name].Command)
 				if !errors.Is(err, errProfileUnavailable) {
-					switched = true
+					switched = true // even if it failed part way
 				}
 				break
 			}
 		}
 		for _, i := range groups[name] {
-			if err != nil {
+			// A case skipped anyway, or after an interrupt, says so.
+			if err != nil && r.skipReason(cases[i]) == "" && ctx.Err() == nil {
 				results[i] = r.skeleton(cases[i])
 				results[i].Status, results[i].Reason = report.Error, err.Error()
 				if errors.Is(err, errProfileUnavailable) {
@@ -379,6 +405,10 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 		res.Status, res.Reason = report.Skip, why
 		return res
 	}
+	if ctx.Err() != nil { // nothing sent, so nothing to clean up
+		res.Status, res.Reason = report.Skip, "interrupted before it started"
+		return res
+	}
 	if r.Before != nil {
 		if err := r.Before(c); err != nil {
 			res.Status, res.Reason = report.Error, r.Redactor.Redact(err.Error())
@@ -451,17 +481,11 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 // lookup resolves a template variable.
 func (x *exec) lookup(name string) (string, bool) {
 	t := x.r.Target
-	switch name {
-	case "uid":
+	if name == "uid" {
 		return x.uid, true
-	case "salt":
-		return t.Salt, true
-	case "baseUrl":
-		return t.BaseURL, true
-	case "sinkUrl":
-		return t.SinkURL, t.SinkURL != ""
-	case "fixtureUrl":
-		return t.FixtureURL, t.FixtureURL != ""
+	}
+	if v, ok := x.r.lookupTarget(name); ok {
+		return v, true
 	}
 	if v, ok := x.captured[name]; ok {
 		return v, true

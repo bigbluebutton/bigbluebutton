@@ -2189,8 +2189,16 @@
         },
         {
           "index": 2,
+          "kind": "presence",
+          "line": 29,
+          "status": "PASS",
+          "duration_ms": 0,
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000016\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Ann\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000016\",\"userId\":\"w_000000000016\"}"
+        },
+        {
+          "index": 3,
           "kind": "call",
-          "line": 27,
+          "line": 30,
           "status": "PASS",
           "duration_ms": 0,
           "request": {
@@ -2229,9 +2237,9 @@
           }
         },
         {
-          "index": 3,
+          "index": 4,
           "kind": "call",
-          "line": 35,
+          "line": 38,
           "status": "PASS",
           "duration_ms": 0,
           "request": {
@@ -2273,7 +2281,7 @@
         {
           "index": 0,
           "kind": "call",
-          "line": 42,
+          "line": 45,
           "status": "PASS",
           "duration_ms": 0,
           "request": {

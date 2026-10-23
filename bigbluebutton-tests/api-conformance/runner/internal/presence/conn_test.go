@@ -366,3 +366,28 @@ func TestAnswerBeforeClose(t *testing.T) {
 		}
 	}
 }
+
+// A URL that answers without a websocket gets the hint about graphqlUrl.
+func TestDialNotAWebsocket(t *testing.T) {
+	srv := httptest.NewTLSServer(http.NotFoundHandler())
+	defer srv.Close()
+	o := (&script{srv: srv}).options()
+	if _, err := Dial(context.Background(), o); err == nil || !strings.Contains(err.Error(), "didn't accept a websocket") {
+		t.Errorf("error %v", err)
+	}
+}
+
+// Cancelling ctx ends the wait for connection_ack, though ctx has no
+// deadline.
+func TestInitCancelled(t *testing.T) {
+	s := serve(t, func(ws *websocket.Conn) {
+		recv(ws) // never acknowledged
+		recv(ws)
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	time.AfterFunc(100*time.Millisecond, cancel)
+	start := time.Now()
+	if _, err := Dial(ctx, s.options()); !errors.Is(err, context.Canceled) || time.Since(start) > 2*time.Second {
+		t.Errorf("error %v after %s", err, time.Since(start))
+	}
+}

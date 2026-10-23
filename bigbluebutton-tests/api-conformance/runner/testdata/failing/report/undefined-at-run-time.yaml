@@ -1,7 +1,7 @@
-id: getMeetings.report.no-sink
-title: A variable the target doesn't define is an error
+id: getMeetings.report.undefined-target-var
+title: A target var the target doesn't define is an error
 endpoint: getMeetings
 class: contract
 steps:
   - call: getMeetings
-    params: {callback: "${sinkUrl}/x"}
+    params: {callback: "${target.sinkHost}/x"}

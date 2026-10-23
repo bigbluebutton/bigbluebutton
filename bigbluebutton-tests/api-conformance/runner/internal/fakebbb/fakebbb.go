@@ -46,13 +46,14 @@ type Server struct {
 
 	api bool // behave like bbb-api, the Go port
 
-	mu       sync.Mutex
-	clock    int64
-	meetings map[string]*meeting
-	sessions map[string]*session
-	conns    map[string][]*gqlConn // GraphQL websockets by session token
-	rejects  []string              // messageIds for the next connection_inits to be rejected with
-	seq      int
+	mu          sync.Mutex
+	clock       int64
+	meetings    map[string]*meeting
+	sessions    map[string]*session
+	conns       map[string][]*gqlConn // GraphQL websockets by session token
+	rejects     []string              // messageIds for the next connection_inits to be rejected with
+	stateErrors string                // what user_current changes answer instead, when set
+	seq         int
 	// Requests records every request's method, path and raw query, and
 	// whether it was chunked, for tests that check what the runner sent.
 	Requests []Seen
@@ -107,6 +108,15 @@ func (s *Server) RejectInits(ids ...string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.rejects = append(s.rejects, ids...)
+}
+
+// FailUserState makes later changes to users' user_current
+// subscriptions arrive as GraphQL errors with this message, as Hasura
+// sends after a permission change; "" puts things back.
+func (s *Server) FailUserState(msg string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.stateErrors = msg
 }
 
 // Skew shifts the fake's clock and counters, so two fakes give different
@@ -467,6 +477,16 @@ func (s *Server) getJoinURL(w http.ResponseWriter, r *http.Request, p url.Values
 	sess := s.sessions[p.Get("sessionToken")]
 	if sess == nil {
 		writeJSON(w, map[string]any{"response": map[string]any{"returncode": "FAILED", "message": "Invalid session token"}})
+		return
+	}
+	// As bbb-web's Meeting.isRunning: someone is in the meeting. A join
+	// redirect alone puts nobody there.
+	running := false
+	for _, u := range s.sessions {
+		running = running || u.meetingID == sess.meetingID && u.inMeeting()
+	}
+	if !running {
+		writeJSON(w, map[string]any{"response": map[string]any{"returncode": "FAILED", "message": "Meeting not found", "sessionToken": p.Get("sessionToken")}})
 		return
 	}
 	q := "&fullName=" + url.QueryEscape(p.Get("fullName")) + "&meetingID=" + url.QueryEscape(sess.meetingID) + "&role=VIEWER&redirect=true"

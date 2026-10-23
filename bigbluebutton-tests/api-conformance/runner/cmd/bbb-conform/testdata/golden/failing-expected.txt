@@ -11,6 +11,8 @@ XPASS getMeetings.report.ignored (0s)
       warning: step 1 (line 6), ignored: returncode: expected "FAILED", got "SUCCESS"
 SKIP  getMeetings.report.needs-clamav
       target lacks clamav
+SKIP  getMeetings.report.no-sink
+      not-configured: sinkUrl
 XFAIL getMeetings.report.not-json (0s)
       a glob over a failing case (step 1 (line 6): format: expected json, got xml)
       line 6: format: expected json, got xml
@@ -27,12 +29,12 @@ PASS  getMeetings.report.teardown-warning (0s)
       warning: teardown step 1 (line 8): returncode: expected "FAILED", got "SUCCESS"
 ERROR getMeetings.report.transport-error (0s)
       step 1 (line 6): Get "http://127.0.0.1:1/bigbluebutton/api": dial tcp 127.0.0.1:1: connect: connection refused
-ERROR getMeetings.report.no-sink (0s)
-      step 1 (line 6): undefined variable sinkUrl
+ERROR getMeetings.report.undefined-target-var (0s)
+      step 1 (line 6): undefined variable target.sinkHost
 XFAIL getMeetings.report.wrong-value (0s)
       an exact entry for a failing case (step 1 (line 6): returncode: expected "FAILED", got "SUCCESS")
       line 6: returncode: expected "FAILED", got "SUCCESS"
       line 6: messageKey: expected one of "a", "b", got "noMeetings"
 warning: ../../testdata/expectations/failing.yaml: getMeetings.report.never-written matches no case
 
-13 case(s): 1 passed, 3 failed, 3 errors, 3 skipped, 2 expected failures, 1 passed unexpectedly (0s)
+14 case(s): 1 passed, 3 failed, 3 errors, 4 skipped, 2 expected failures, 1 passed unexpectedly (0s)

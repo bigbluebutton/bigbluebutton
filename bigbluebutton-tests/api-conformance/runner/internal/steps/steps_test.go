@@ -248,8 +248,9 @@ func TestOutcomes(t *testing.T) {
       headers: {Set-Cookie: {regex: Secure}}
       redirect: {path: /html5client/join, query: {sessionToken: {regex: "^st"}}}
     capture: {tok: location:query.sessionToken, js: cookie:JSESSIONID, st: status}
-  - {call: getJoinUrl, params: {sessionToken: "${tok}", fullName: Bob}, capture: {link: $.response.url}}
-  - {url: "${link}", expect: {status: 302}}
+  # The session works, but getJoinUrl needs someone in the meeting, and
+  # the redirect alone puts nobody there.
+  - {call: getJoinUrl, params: {sessionToken: "${tok}", fullName: Bob}, expect: {jsonpath: {$.response.message: Meeting not found}}}
 `, report.Pass, ""},
 	}
 	for _, tt := range tests {
@@ -484,7 +485,7 @@ func TestProfiles(t *testing.T) {
 	for i, profile := range []string{"fast", "", "broken", "fast", "missing"} {
 		src := fmt.Sprintf("id: getMeetings.p.c%d\ntitle: t\nendpoint: getMeetings\nclass: contract\n", i)
 		if profile != "" {
-			src += "profile: " + profile + "\n"
+			src += "tags: [disruptive]\nprofile: " + profile + "\n"
 		}
 		src += "steps: [{call: getMeetings, expect: {returncode: SUCCESS}}]\n"
 		cs, probs := spec.LoadBytes("c.yaml", []byte(src), spec.Options{})
@@ -526,15 +527,56 @@ func TestProfileDefaultAfterCancel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\nprofile: slow\nsteps: [{call: getMeetings}]\n"), spec.Options{})
+	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\ntags: [disruptive]\nprofile: slow\nsteps: [{call: getMeetings}]\n"), spec.Options{})
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	defer cancel()
 	run := r.RunAll(ctx, cases, 1)
-	if run.Cases[0].Status != report.Error {
-		t.Errorf("status %s", run.Cases[0].Status)
+	if c := run.Cases[0]; c.Status != report.Skip || c.Reason != "interrupted before it started" {
+		t.Errorf("status %s, reason %q", c.Status, c.Reason)
 	}
 	if marker, _ := os.ReadFile(filepath.Join(dir, "marker")); strings.TrimSpace(string(marker)) != "default" {
 		t.Errorf("the default profile must be restored after a cancelled run; marker = %q", marker)
+	}
+}
+
+// After an interrupt, cases that haven't started are skipped: nothing is
+// sent, no teardown runs, and no profile is switched to, so none is
+// restored either.
+func TestInterruptedBeforeTheStart(t *testing.T) {
+	fake := fakebbb.New(salt)
+	srv := httptest.NewServer(fake)
+	defer srv.Close()
+	dir := t.TempDir()
+	tg := &target.Target{Name: "p", BaseURL: srv.URL, APIPrefix: "/bigbluebutton/api/", Salt: salt, DefaultSign: "sha1", Dir: dir,
+		Profiles: map[string]target.Profile{"slow": {Command: "echo slow >> marker"}, "default": {Command: "echo default >> marker"}}}
+	r, err := NewRunner(tg, "", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []*spec.Case
+	for _, src := range []string{
+		"id: getMeetings.p.a\ntitle: t\nendpoint: getMeetings\nclass: contract\nsteps: [{call: getMeetings}]\nteardown: [{call: end, ignoreResult: true}]\n",
+		"id: getMeetings.p.b\ntitle: t\nendpoint: getMeetings\nclass: contract\ntags: [disruptive]\nprofile: slow\nsteps: [{call: getMeetings}]\n",
+	} {
+		c, probs := spec.LoadBytes("c.yaml", []byte(src), spec.Options{})
+		if len(probs) > 0 {
+			t.Fatal(probs)
+		}
+		cases = append(cases, c...)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	run := r.RunAll(ctx, cases, 2)
+	for _, c := range run.Cases {
+		if c.Status != report.Skip || c.Reason != "interrupted before it started" || len(c.Steps) != 0 {
+			t.Errorf("%s: %s %q", c.ID, c.Status, c.Reason)
+		}
+	}
+	if len(fake.Requests) != 0 {
+		t.Errorf("%d request(s) sent", len(fake.Requests))
+	}
+	if marker, _ := os.ReadFile(filepath.Join(dir, "marker")); len(marker) > 0 {
+		t.Errorf("profile commands ran: %q", marker)
 	}
 }
 
@@ -553,7 +595,7 @@ func TestProfileUnavailable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\nprofile: remote\nsteps: [{call: getMeetings}]\n"), spec.Options{})
+	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\ntags: [disruptive]\nprofile: remote\nsteps: [{call: getMeetings}]\n"), spec.Options{})
 	run := r.RunAll(context.Background(), cases, 1)
 	if c := run.Cases[0]; c.Status != report.Skip || c.Reason != "profile-unavailable: remote: BBB_EXEC is not set" {
 		t.Errorf("status %s, reason %q", c.Status, c.Reason)
@@ -575,7 +617,7 @@ func TestProfileSkippedWhenNothingRuns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\nprofile: slow\nrequires: [clamav]\nsteps: [{call: getMeetings}]\n"), spec.Options{})
+	cases, _ := spec.LoadBytes("c.yaml", []byte("id: getMeetings.p.c\ntitle: t\nendpoint: getMeetings\nclass: contract\ntags: [disruptive]\nprofile: slow\nrequires: [clamav]\nsteps: [{call: getMeetings}]\n"), spec.Options{})
 	run := r.RunAll(context.Background(), cases, 1)
 	if run.Cases[0].Status != report.Skip {
 		t.Errorf("status %s", run.Cases[0].Status)
@@ -749,6 +791,24 @@ teardown:
   - call: end
     params: {meetingID: "${uid}"}
 `
+
+// A graphqlUrl the session's cookies wouldn't be sent to is the target
+// file's mistake: an ERROR before connecting, not a FAIL of the server.
+func TestGraphQLURLWithoutTheCookies(t *testing.T) {
+	res, fake := runWithUsers(t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann}}
+`, func(r *Runner) {
+		r.Target.GraphQLURL = strings.Replace(r.Target.GraphQLURL, "127.0.0.1", "localhost", 1)
+	})
+	if res.Status != report.Error || !strings.Contains(res.Reason, "wouldn't be sent to wss://localhost") {
+		t.Errorf("%s: %s", res.Status, res.Reason)
+	}
+	if fake.OpenConnections() != 0 {
+		t.Error("it connected")
+	}
+}
 
 func TestPresenceAndGraphQL(t *testing.T) {
 	res, fake := runWithUsers(t, twoUsers, nil)

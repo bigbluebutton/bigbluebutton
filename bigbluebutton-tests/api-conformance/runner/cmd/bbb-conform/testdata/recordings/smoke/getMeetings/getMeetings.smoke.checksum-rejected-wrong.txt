@@ -9,4 +9,4 @@ header Content-Type text/xml;charset=utf-8
 body xml
 /response/returncode "FAILED"
 /response/messageKey "checksumError"
-/response/message "Checksums do not match"
+/response/message "<missing-checksum message>"

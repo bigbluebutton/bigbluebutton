@@ -75,13 +75,13 @@ XFAIL getMeetings.smoke.checksum-rejected-wrong (0s)
       line 10: recording status: expected 200, got 202
       line 10: recording header Cache-Control: expected no-cache, got nothing
       line 10: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
-      line 10: recording /response/message: expected "Checksums do not match", got "Checksums do not match."
+      line 10: recording /response/message: expected "<missing-checksum message>", got "Checksums do not match."
 XFAIL getMeetings.smoke.checksum-rejected-duplicate (0s)
       checksums are compared case-sensitively (step 1 (line 10): recording status: expected 200, got 202)
       line 10: recording status: expected 200, got 202
       line 10: recording header Cache-Control: expected no-cache, got nothing
       line 10: recording header Content-Type: expected text/xml;charset=utf-8, got application/xml
-      line 10: recording /response/message: expected "Checksums do not match", got "Checksums do not match."
+      line 10: recording /response/message: expected "<missing-checksum message>", got "Checksums do not match."
 XFAIL version.smoke.fields (0s)
       the version endpoint isn't served (step 1 (line 7): recording status: expected 200, got 404)
       line 7: recording status: expected 200, got 404

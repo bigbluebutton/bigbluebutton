@@ -10,6 +10,7 @@ import (
 type variant struct {
 	id       string
 	vars     map[string]*string // nil value: a null var
+	varTags  map[string]string  // each var's YAML type, e.g. !!str or !!int
 	profile  *yaml.Node
 	class    *yaml.Node
 	requires []*yaml.Node
@@ -43,7 +44,7 @@ func (f *fileCtx) variants(root *yaml.Node) (vs []variant, ok bool) {
 			ok = false
 			continue
 		}
-		v := variant{vars: map[string]*string{}, line: vn.Line}
+		v := variant{vars: map[string]*string{}, varTags: map[string]string{}, line: vn.Line}
 		for i := 0; i+1 < len(vn.Content); i += 2 {
 			k, val := vn.Content[i], vn.Content[i+1]
 			if !variantKeys[k.Value] {
@@ -96,7 +97,7 @@ func (f *fileCtx) variants(root *yaml.Node) (vs []variant, ok bool) {
 						v.vars[name.Value] = nil
 					} else {
 						s := value.Value
-						v.vars[name.Value] = &s
+						v.vars[name.Value], v.varTags[name.Value] = &s, value.ShortTag()
 					}
 				}
 			}
@@ -122,7 +123,7 @@ func (f *fileCtx) variants(root *yaml.Node) (vs []variant, ok bool) {
 func (f *fileCtx) expand(root *yaml.Node, v variant) *yaml.Node {
 	c := deepCopy(root)
 	mapDelete(c, "variants")
-	f.subst(c, v.vars)
+	f.subst(c, v)
 	if id := mapGet(c, "id"); id != nil && id.Kind == yaml.ScalarNode {
 		id.Value += "-" + v.id
 	}
@@ -161,10 +162,12 @@ func addNames(c *yaml.Node, key string, names []*yaml.Node) {
 
 // subst replaces variant vars in n. A string that is exactly ${v} takes v's
 // value, and its YAML type when unquoted, so a variant can set a number or
-// a method. When v is null, the mapping entry or list item holding it is
+// a method: "" stays an empty string and "0x10" a string, as written in
+// vars. When v is null, the mapping entry or list item holding it is
 // removed, which is how a variant leaves a param out. It reports whether n
 // itself should be removed.
-func (f *fileCtx) subst(n *yaml.Node, vars map[string]*string) (remove bool) {
+func (f *fileCtx) subst(n *yaml.Node, v variant) (remove bool) {
+	vars := v.vars
 	switch n.Kind {
 	case yaml.ScalarNode:
 		if !tmpl.HasExpr(n.Value) || n.ShortTag() != "!!str" {
@@ -181,7 +184,7 @@ func (f *fileCtx) subst(n *yaml.Node, vars map[string]*string) (remove bool) {
 				}
 				n.Value = tmpl.Escape(*val)
 				if n.Style == 0 {
-					n.Tag = ""
+					n.Tag = v.varTags[name]
 				}
 				return false
 			}
@@ -200,21 +203,21 @@ func (f *fileCtx) subst(n *yaml.Node, vars map[string]*string) (remove bool) {
 	case yaml.MappingNode:
 		kept := n.Content[:0]
 		for i := 0; i+1 < len(n.Content); i += 2 {
-			k, v := n.Content[i], n.Content[i+1]
-			if f.subst(k, vars) {
+			k, val := n.Content[i], n.Content[i+1]
+			if f.subst(k, v) {
 				f.errf(k, "a mapping key can't be a null variant var")
 				continue
 			}
-			if f.subst(v, vars) {
+			if f.subst(val, v) {
 				continue
 			}
-			kept = append(kept, k, v)
+			kept = append(kept, k, val)
 		}
 		n.Content = kept
 	case yaml.SequenceNode:
 		kept := n.Content[:0]
 		for _, item := range n.Content {
-			if !f.subst(item, vars) {
+			if !f.subst(item, v) {
 				kept = append(kept, item)
 			}
 		}
