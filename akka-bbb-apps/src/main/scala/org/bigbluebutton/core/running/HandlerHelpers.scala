@@ -121,6 +121,12 @@ trait HandlerHelpers extends SystemConfiguration {
             // restored. No-ops if not applicable.
             liveMeeting.voiceUserReconciler.restorePermissions(liveMeeting, outGW, newUser.intId)
 
+            // A voice session that arrived before the user record was created with a
+            // default role. Bring it in line with the user's actual role.
+            VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, newUser.intId)
+              .filter(_.role != newUser.role)
+              .foreach(_ => VoiceApp.setUserRole(liveMeeting, outGW, newUser.intId, newUser.role))
+
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
@@ -372,7 +378,7 @@ trait HandlerHelpers extends SystemConfiguration {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageEditedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageEditedEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message, msg.messageAsHtml)
+    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message, msg.messageAsHtml, msg.metadata)
     val event = GroupChatMessageEditedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -438,6 +444,16 @@ trait HandlerHelpers extends SystemConfiguration {
     LiveKitParticipantMetadata(
       meetingId = liveMeeting.props.meetingProp.intId,
       voiceConf = liveMeeting.props.voiceProp.voiceConf
+    )
+  }
+
+  def buildLiveKitParticipantMetadata(
+    meetingId:  String,
+    voiceConf:  String,
+  ): LiveKitParticipantMetadata = {
+    LiveKitParticipantMetadata(
+      meetingId = meetingId,
+      voiceConf = voiceConf
     )
   }
 }

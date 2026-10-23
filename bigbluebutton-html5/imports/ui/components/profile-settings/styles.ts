@@ -1,7 +1,17 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary, colorDanger,
-  colorGrayDark, colorLink, colorBorder, colorSuccess, colorGrayLight,
+  colorBorder,
+  colorDanger,
+  colorGrayDark,
+  colorGrayLight,
+  colorInfoSurfaceAlt,
+  colorLink,
+  colorPrimary,
+  colorSuccess,
+  colorText,
+  colorWhite,
+  colorWhiteSurface,
+  palettePlaceholderText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
@@ -32,7 +42,7 @@ const RootContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
 `;
 
 const ProfileSettings = styled(ScrollboxVertical)`
@@ -42,7 +52,7 @@ const ProfileSettings = styled(ScrollboxVertical)`
   flex-direction: column;
   gap: 0.75rem;
   border-radius: ${contentSidebarBorderRadius};
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   overflow-y: auto;
   overflow-x: hidden;
 `;
@@ -103,6 +113,11 @@ const PreviewArrowButton = styled.button<{ position: 'left' | 'right' }>`
       opacity: 0.8;
     }
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 const VideoPreviewContent = styled.div`
@@ -110,7 +125,7 @@ const VideoPreviewContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
 
   color: ${colorText};
   font-weight: normal;
@@ -328,6 +343,26 @@ const DeviceSelector = styled(Select)`
   border-radius: 0.5rem !important;
   overflow: hidden;
   width: 100%;
+
+  /* Doubled: MUI's own error outline has the same specificity and its
+     stylesheet is injected after this one. */
+  &&.Mui-error .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorDanger};
+  }
+`;
+
+const DevicePlaceholder = styled.span`
+  color: ${palettePlaceholderText};
+`;
+
+// Under the selector it flags, past the row's icon: the row's 1rem gap would
+// read as the next row's caption.
+const DeviceFieldError = styled.div`
+  margin-top: -0.5rem;
+  padding-inline-start: 2.5rem;
+  color: ${colorDanger};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
 `;
 
 const CameraQualityContainer = styled.div`
@@ -498,7 +533,7 @@ const AddCameraButtonAndText = styled.div<{ disabled?: boolean }>`
   gap: 1rem;
   &:hover {
     border-radius: 0.5rem;
-    background: #E9F0FF;
+    background: ${colorInfoSurfaceAlt};
   }
 
   ${({ disabled }) => disabled && `
@@ -565,6 +600,8 @@ export default {
   ArrowRightIcon,
   AddCameraIcon,
   DeviceSelector,
+  DevicePlaceholder,
+  DeviceFieldError,
   CameraQualityContainer,
   CameraQualityText,
   CameraQualitySelector,

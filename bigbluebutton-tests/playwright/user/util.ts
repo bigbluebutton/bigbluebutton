@@ -1,4 +1,4 @@
-import { Locator } from '@playwright/test';
+import { expect, Locator } from '@playwright/test';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -34,6 +34,38 @@ export async function openLockViewers(testPage: Page) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
   await testPage.waitAndClick(e.lockViewersButton);
+}
+
+// Turn on the "Hide user list" lock and dismiss the resulting toast.
+export async function applyUserListLock(testPage: Page) {
+  await openLockViewers(testPage);
+  await testPage.waitAndClickElement(e.lockUserList);
+  await testPage.waitAndClick(e.applyLockSettings);
+  await testPage.closeAllToastNotifications();
+}
+
+// The talking indicator of one user, while that user is talking.
+export function isTalkingLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(e.isTalking).locator(`:text-is("${userName}")`);
+}
+
+// The talking indicator of one user in either state: talking, or shown a moment after.
+export function talkingIndicatorLocator(testPage: Page, userName: string): Locator {
+  return testPage.page.locator(`${e.isTalking}, ${e.wasTalking}`).filter({ hasText: userName });
+}
+
+// The microphone state a viewer is shown for another user on the user list.
+export async function hasUserListMicState(
+  testPage: Page,
+  userName: string,
+  state: 'unmuted' | 'muted',
+  description: string,
+  timeout: number = ELEMENT_WAIT_TIME,
+) {
+  const audioState = testPage.page
+    .locator(e.userListItem, { hasText: userName })
+    .locator(state === 'unmuted' ? e.audioStateUnmuted : e.audioStateMuted);
+  await expect(audioState, description).toBeVisible({ timeout });
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {

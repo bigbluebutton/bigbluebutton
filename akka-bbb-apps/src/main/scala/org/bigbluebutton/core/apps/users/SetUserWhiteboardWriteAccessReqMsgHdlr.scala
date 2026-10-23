@@ -16,7 +16,11 @@ trait SetUserWhiteboardWriteAccessReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleSetUserWhiteboardWriteAccessReqMsg(msg: SetUserWhiteboardWriteAccessReqMsg): Unit = {
-    log.info("handleSetUserWhiteboardWriteAccessReqMsg: userIds={} allUsers={}, whiteboardWriteAccess={}", msg.body.userIds, msg.body.allUsers, msg.body.whiteboardWriteAccess)
+    log.info(
+      s"handleSetUserWhiteboardWriteAccessReqMsg: meetingId=${msg.header.meetingId} requestedBy=${msg.header.userId}" +
+        s" userIds=${msg.body.userIds} allUsers=${msg.body.allUsers}," +
+        s" whiteboardWriteAccess=${msg.body.whiteboardWriteAccess}"
+    )
 
     def broadcast(user: UserState): Unit = {
       val routingChange = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)

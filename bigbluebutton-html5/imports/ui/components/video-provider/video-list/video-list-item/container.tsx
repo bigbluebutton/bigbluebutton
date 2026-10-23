@@ -6,19 +6,18 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { layoutSelect, layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { Meeting } from '/imports/ui/Types/meeting';
 import { Layout, Input } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
-import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { RaisedHandUser } from '/imports/ui/Types/user';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import propsEqualIgnoringFloor from '../utils';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -32,9 +31,15 @@ interface VideoListItemContainerProps {
   stream: VideoItem;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   onVideoItemUnmount: (stream: string) => void;
-  onVirtualBgDrop: (type: string, name: string, data: string) => void;
-  onVideoItemMount: (ref: HTMLVideoElement) => void;
+  onVirtualBgDrop: (stream: string | null, type: string, name: string, data: string) => Promise<unknown>;
+  onVideoItemMount: (stream: string | null, ref: HTMLVideoElement) => void;
 }
+
+// A stable projection lets useMeeting reuse its result across renders.
+const projectMeeting = (m: Pick<Partial<Meeting>, 'lockSettings' | 'meetingId'>) => ({
+  lockSettings: m.lockSettings,
+  meetingId: m.meetingId,
+});
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
   const {
@@ -66,23 +71,13 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     locked: user.locked,
   }));
 
-  const { data: currentMeeting } = useMeeting((m) => ({
-    lockSettings: m.lockSettings,
-    meetingId: m.meetingId,
-  }));
+  const { data: currentMeeting } = useMeeting(projectMeeting);
 
   const hideUserList = currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList;
 
   const amIModerator = currentUserData?.isModerator;
 
   const disabledCams = useStorageKey('disabledCams') || [];
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const voiceUser = stream.type !== VIDEO_TYPES.CONNECTING && stream.voice ? {
-    ...stream.voice,
-    talking: talkingUsers[userId],
-    muted: !unmutedUsers[userId],
-  } : {};
 
   const {
     data: usersData,
@@ -120,16 +115,20 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       name={name}
       numOfStreams={numOfStreams}
       onHandleVideoFocus={onHandleVideoFocus}
-      onVideoItemMount={onVideoItemMount}
+      onVideoItemMount={(ref: HTMLVideoElement) => onVideoItemMount(cameraId, ref)}
       onVideoItemUnmount={onVideoItemUnmount}
-      onVirtualBgDrop={onVirtualBgDrop}
+      onVirtualBgDrop={(type: string, fileName: string, data: string) => (
+        onVirtualBgDrop(cameraId, type, fileName, data)
+      )}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
-      voiceUser={voiceUser}
       raisedHandPosition={raisedHandIndex}
       hideNotificationToasts={hideNotifications}
     />
   );
 };
 
-export default VideoListItemContainer;
+export default React.memo(
+  VideoListItemContainer,
+  propsEqualIgnoringFloor<VideoListItemContainerProps>(['stream']),
+);

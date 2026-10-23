@@ -1,5 +1,10 @@
 import styled from 'styled-components';
-import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  btnPrimaryBg,
+  colorSurfaceMuted,
+  colorTextEmphasis,
+  colorTextSecondary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -42,7 +47,7 @@ const ConfirmationButton = styled.button`
 
 const CancelButton = styled.button`
   background-color: transparent;
-  color: #333;
+  color: ${colorTextEmphasis};
   padding: 10px 24px;
   font-size: 1rem;
   font-weight: 400;
@@ -52,20 +57,20 @@ const CancelButton = styled.button`
   border: none;
 
   &:hover {
-    background-color: #f4f4f4;
+    background-color: ${colorSurfaceMuted};
   }
 `;
 
 const TitleText = styled.h3`
   font-size: 1.125rem;
-  color: #333;
+  color: ${colorTextEmphasis};
   font-weight: 700;
   margin-bottom: 8px;
 `;
 
 const DescriptionText = styled.p`
   font-size: 1rem;
-  color: #666;
+  color: ${colorTextSecondary};
   text-align: left;
   margin: 0;
 `;

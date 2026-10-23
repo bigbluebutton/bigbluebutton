@@ -66,7 +66,6 @@ const UserNotesListItemContainerGraphql: React.FC = () => {
   );
 
   const padId = padIdData?.sharedNotes[0]?.padId;
-  const sharedNotesEditor = padIdData?.sharedNotes[0]?.sharedNotesEditor;
 
   const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
 
@@ -78,14 +77,13 @@ const UserNotesListItemContainerGraphql: React.FC = () => {
     : intl.formatMessage(isPinned ? intlMessages.sharedNotesPinned : intlMessages.sharedNotes);
   if (!isEnabled) return null;
 
-  if (!padIdLoading && (!padId || !sharedNotesEditor)) {
+  if (!padIdLoading && !padId) {
     logger.error({
       logCode: 'shared_notes_not_configured',
       extraInfo: {
         padId,
-        sharedNotesEditor,
       },
-    }, 'No padId or shared-notes editor found, ignoring...');
+    }, 'No padId found, ignoring...');
     return null;
   }
   if (padIdLoading) return null;

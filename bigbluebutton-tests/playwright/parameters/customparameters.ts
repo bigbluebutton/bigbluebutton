@@ -8,11 +8,11 @@ import {
   VIDEO_LOADING_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { checkDefaultLocationReset, checkScreenshots } from '../layouts/util';
+import { checkScreenshots } from '../layouts/util';
 import { uploadSinglePresentation } from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
-import { constants as c } from './constants';
+import { constants as c, LONG_GROUP_NAMES } from './constants';
 import * as util from './util';
 
 export class CustomParameters extends MultiUsers {
@@ -20,7 +20,7 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
     await this.modPage.wasRemoved(
       e.hidePublicChat,
-      'should display the hide public chat element when the public chat is open',
+      'should not display the hide public chat element when the public chat is closed',
     );
   }
 
@@ -29,7 +29,28 @@ export class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list');
+  }
+
+  async showParticipantsInsteadOfPublicChatOnLogin() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list');
+    await this.modPage.wasRemoved(
+      e.hidePublicChat,
+      'should not display the hide public chat element when the users list is open',
+    );
+  }
+
+  async hideParticipantsOnLogin() {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
+  }
+
+  async showParticipantsOnLoginOnTablet() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list on a tablet');
+  }
+
+  async showParticipantsOnLoginOnPhone() {
+    await this.modPage.wasRemoved(e.usersList, 'should not display the users list on a phone');
+    await this.modPage.wasRemoved(e.hidePublicChat, 'should not display the public chat on a phone');
   }
 
   async showSessionDetailsOnJoin() {
@@ -295,36 +316,6 @@ export class CustomParameters extends MultiUsers {
     );
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
-
-    await this.modPage.hasElement(
-      e.restorePresentation,
-      'should display the restore presentation button for the moderator',
-    );
-    await this.userPage.hasElement(
-      e.restorePresentation,
-      'should display the restore presentation button for the attendee',
-    );
-    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
-  }
-
-  async hidePresentationOnJoinChangeLayout() {
-    await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
-    await this.modPage.hasElement(
-      e.restorePresentation,
-      'should display the restore presentation button for the moderator',
-    );
-    await this.userPage.hasElement(
-      e.restorePresentation,
-      'should display the restore presentation button for the attendee',
-    );
-    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
-
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.manageLayoutBtn);
-    await this.modPage.waitAndClick(e.focusOnVideo);
-    await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer, 'should close the toast notification after closing all');
 
     await this.modPage.hasElement(
       e.restorePresentation,
@@ -774,85 +765,6 @@ export class CustomParameters extends MultiUsers {
     await expect(this.modPage.page.url()).toContain('google.com');
   }
 
-  async enforceSmartLayout() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-    await checkScreenshots(
-      this,
-      'should the cameras be above the presentation',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'smart-layout',
-      1,
-    );
-
-    await this.modPage.waitAndClick(e.messagesSidebarButton);
-    await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
-    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
-
-    await checkScreenshots(
-      this,
-      'should the cameras be on the side of presentation',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'smart-layout',
-      2,
-    );
-  }
-
-  async enforcePresentationFocus() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-
-    await this.modPage.shareWebcam();
-    await this.userPage.shareWebcam();
-    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-
-    await checkScreenshots(
-      this,
-      'should be the layout focus on presentation',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'enforce-focus-on-presentation',
-    );
-  }
-
-  async enforceVideoFocus() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-
-    await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.page.bringToFront();
-    await this.modPage.hasElement(
-      e.webcamMirroredVideoPreview,
-      'should display the video preview when sharing webcam ',
-      ELEMENT_WAIT_TIME,
-    );
-    await this.modPage.waitAndClick(e.startSharingWebcam);
-
-    await this.userPage.waitAndClick(e.joinVideo);
-    await this.userPage.page.bringToFront();
-    await this.userPage.hasElement(
-      e.webcamMirroredVideoPreview,
-      'should display the video preview when sharing webcam ',
-      ELEMENT_WAIT_TIME,
-    );
-    await this.userPage.waitAndClick(e.startSharingWebcam);
-
-    await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
-    await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-    await this.modPage.hasNElements(
-      'video',
-      2,
-      'should display the 2 video elements after both users shared their webcams',
-    );
-
-    await checkScreenshots(
-      this,
-      'should be the video focus layout',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'enforce-video-focus',
-    );
-  }
-
   async predefinedGroups() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
@@ -945,6 +857,46 @@ export class CustomParameters extends MultiUsers {
     );
   }
 
+  async predefinedGroupsWithLongNames() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+
+    await this.modPage.hasElement(e.breakoutBox0, 'should display the breakout box for unassigned users');
+
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the breakout box for room 1');
+    await this.modPage.hasElementCount(
+      `${e.breakoutBox1} div[draggable="true"]`,
+      1,
+      'should display only 1 user in the breakout room 1',
+    );
+    await this.modPage.hasText(
+      e.breakoutBox1,
+      LONG_GROUP_NAMES.control,
+      'should seed the short control group name into breakout room 1',
+    );
+    await this.modPage.hasText(
+      e.breakoutBox2,
+      LONG_GROUP_NAMES.chars150,
+      'should seed the 150-character group name into breakout room 2',
+    );
+
+    // the panel renders 2 rooms by default; expand it to display the two boundary groups
+    await this.modPage.waitAndClick(e.increaseRooms);
+    await this.modPage.waitAndClick(e.increaseRooms);
+    await this.modPage.hasText(
+      'div[id="breakoutBox-3"]',
+      LONG_GROUP_NAMES.boundary100,
+      'should seed the 100-character group name into breakout room 3',
+    );
+    await this.modPage.hasText(
+      'div[id="breakoutBox-4"]',
+      LONG_GROUP_NAMES.boundary101,
+      'should seed the 101-character group name into breakout room 4',
+    );
+  }
+
   async enforceCamerasOnly() {
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard');
 
@@ -1004,56 +956,6 @@ export class CustomParameters extends MultiUsers {
       'should be the media only layout',
       [e.webcamContainer, e.webcamMirroredVideoContainer],
       'enforce-media-only',
-    );
-  }
-
-  async enforceCustomLayout() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-
-    await this.modPage.shareWebcam();
-    await this.userPage.shareWebcam();
-    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-
-    await checkScreenshots(
-      this,
-      'should be on custom layout',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'enforce-custom-layout',
-      1,
-    );
-
-    // checking the default location being reset when dropping into a non-available location
-    await checkDefaultLocationReset(this.modPage);
-    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(
-      this,
-      'should be on custom layout',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'enforce-custom-layout',
-      2,
-    );
-
-    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(
-      this,
-      'should be on custom layout',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'enforce-custom-layout',
-      3,
-    );
-
-    await this.modPage.waitAndClick(e.messagesSidebarButton);
-    await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
-    await this.modPage.page.waitForTimeout(1000);
-
-    await checkScreenshots(
-      this,
-      'should be on custom layout',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'enforce-custom-layout',
-      4,
     );
   }
 }

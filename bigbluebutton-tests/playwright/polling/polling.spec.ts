@@ -60,10 +60,14 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
     test('Poll results in a different presentation', async () => {
       await polling.pollResultsInDifferentPresentation();
     });
+
+    test('Publishing poll results restores a hidden presentation', async () => {
+      await polling.publishingResultsRestoresHiddenPresentation();
+    });
   });
 
   // sometimes fails in 3.1
-  test.describe('Smart Slides', { tag: '@flaky-3.1' }, () => {
+  test.describe('Smart Slides', { tag: '@flaky' }, () => {
     test('A/B/C/D/E - One option answer', async () => {
       await polling.oneOptionAnswer();
     });

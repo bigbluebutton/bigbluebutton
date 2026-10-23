@@ -128,7 +128,6 @@ class BbbWebApiGWApp(
                     allowStartStopRecording: java.lang.Boolean,
                     sharedNotesInitialContentJson: java.util.ArrayList[AnyRef],
                     sharedNotesInitialContentMarkdown: java.lang.String,
-                    sharedNotesEditor:         java.lang.String,
                     recordFullDurationMedia: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
                     multiUserWhiteboardEnabled: java.lang.Boolean,
@@ -163,6 +162,7 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     requireUserConsentBeforeUnmuting:       java.lang.Boolean,
                     allowModsToEjectCameras:                java.lang.Boolean,
+                    allowModsToRequestCameraShare:  java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
                     lockSettingsParams:                     LockSettingsParams,
@@ -175,6 +175,7 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
+                    notifyRecordingAppend:                  String,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
@@ -191,7 +192,6 @@ class BbbWebApiGWApp(
       meetingCameraCap = meetingCameraCap.intValue(),
       sharedNotesInitialContentJson = sharedNotesInitialContentJsonVector,
       sharedNotesInitialContentMarkdown = sharedNotesInitialContentMarkdown,
-      sharedNotesEditor = sharedNotesEditor,
       maxPinnedCameras = maxPinnedCameras.intValue(),
       cameraBridge,
       screenShareBridge,
@@ -199,6 +199,7 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
+      notifyRecordingAppend,
       presentationUploadExternalDescription,
       presentationUploadExternalUrl
     )
@@ -244,6 +245,7 @@ class BbbWebApiGWApp(
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting.booleanValue(), allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
+      allowModsToRequestCameraShare = allowModsToRequestCameraShare.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(),
       allowPromoteGuestToModerator = allowPromoteGuestToModerator.booleanValue(),
       waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()

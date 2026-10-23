@@ -4,7 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import AudioService from '/imports/ui/components/audio/service';
 import KEYS from '/imports/utils/keys';
-import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
@@ -277,18 +276,6 @@ const isMeetingLocked = (lockSettings, usersPolicies) => {
   return isLocked;
 };
 
-const toggleVoice = (userId, voiceToggle) => {
-  if (userId === Auth.userID) {
-    AudioService.toggleMuteMicrophone(voiceToggle);
-  } else {
-    voiceToggle(userId);
-    logger.info({
-      logCode: 'usermenu_option_mute_toggle_audio',
-      extraInfo: { logType: 'moderator_action', userId },
-    }, 'moderator muted user microphone');
-  }
-};
-
 const focusFirstDropDownItem = () => {
   const dropdownContent = document.querySelector('div[data-test="dropdownContent"][style="visibility: visible;"]');
   if (!dropdownContent) return;
@@ -490,6 +477,14 @@ export const getUsersPerUserListPage = () => window.meetingClientSettings?.publi
   ?.usersPerUserListPage
   || DEFAULT_USERS_PER_USER_LIST_PAGE;
 
+/**
+ * The avatar image to show for a participant: a reaction or the away state takes it over.
+ * Shared so the user list, the avatar content and the mention picker can't drift apart.
+ */
+export const getFilteredAvatar = (user) => (
+  (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar
+);
+
 export const makeUserSearchWhere = (searchQuery) => {
   const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
   const escapeTerm = (term) => term.replace(/[\\%_]/g, '\\$&');
@@ -501,7 +496,6 @@ export const makeUserSearchWhere = (searchQuery) => {
 export default {
   sortUsersByName,
   sortUsers,
-  toggleVoice,
   getActiveChats,
   isMeetingLocked,
   isPublicChat,
@@ -512,5 +506,6 @@ export default {
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
+  getFilteredAvatar,
   makeUserSearchWhere,
 };

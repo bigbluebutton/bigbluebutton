@@ -1,0 +1,3 @@
+location /playback/presentation/2.3 {
+    proxy_pass http://playback:8080;
+}

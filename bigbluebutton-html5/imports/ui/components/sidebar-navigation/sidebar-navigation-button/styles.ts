@@ -11,13 +11,14 @@ import {
   navigationSidebarNotificationBadgeRight,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
-  notificationBadgeBg,
-  colorPrimary,
-  listItemBgHover,
-  itemFocusBorder,
   colorGrayIcons,
   colorGrayLightest,
+  colorPrimary,
+  colorWhite,
+  colorWhiteBorder,
+  itemFocusBorder,
+  listItemBgHover,
+  notificationBadgeBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ListItemProps } from './types';
 
@@ -83,7 +84,7 @@ export const ListItem = styled.div<ListItemProps>`
       bottom: ${navigationSidebarNotificationBadgeBottom};
       right: ${navigationSidebarNotificationBadgeRight};
       background-color: ${notificationBadgeBg};
-      border: ${borderSizeSmall} solid ${colorWhite};
+      border: ${borderSizeSmall} solid ${colorWhiteBorder};
     }
   `}
 
@@ -97,7 +98,7 @@ export const ListItem = styled.div<ListItemProps>`
       bottom: ${navigationSidebarNotificationBadgeBottom};
       right: ${navigationSidebarNotificationBadgeRight};
       background-color: ${notificationBadgeBg};
-      border: ${borderSizeSmall} solid ${colorWhite};
+      border: ${borderSizeSmall} solid ${colorWhiteBorder};
       color: ${colorWhite};
       font-size: ${navigationSidebarNotificationBadgeFontSize};
       font-weight: bold;

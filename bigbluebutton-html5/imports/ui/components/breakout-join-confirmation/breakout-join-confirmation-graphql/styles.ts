@@ -1,14 +1,11 @@
 import styled from 'styled-components';
 import { Select as SelectMui, type SelectProps } from '@mui/material';
 import {
-  colorWhite,
-  colorGrayLighter,
-  colorGray,
   colorGrayDark,
-  colorPrimary,
+  colorGrayLighter,
   colorText,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
 const Overlay = styled.div`
   position: fixed;
@@ -21,7 +18,7 @@ const Overlay = styled.div`
 `;
 
 const Dialog = styled.div`
-  background: ${colorWhite};
+  background: ${colorWhiteSurface};
   border-radius: 0.75rem;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
   width: 32rem;
@@ -43,22 +40,12 @@ const Title = styled.h2`
   color: ${colorGrayDark};
 `;
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${colorGray};
-  font-size: 1.25rem;
-  line-height: 1;
-  border-radius: ${borderRadius};
-
-  &:hover {
-    color: ${colorGrayDark};
-    background: ${colorGrayLighter};
+// BBButton's circle layout is hardcoded to 3rem, much larger than this
+// dialog's original close glyph. Shrink it back to the previous footprint.
+const CloseButtonWrapper = styled.div`
+  button {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
   }
 `;
 
@@ -85,41 +72,6 @@ const Footer = styled.div`
   padding: 0 1.5rem 1.5rem 1.5rem;
 `;
 
-const EnterButton = styled.button`
-  background: ${colorPrimary};
-  color: ${colorWhite};
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
-const CancelButton = styled.button`
-  background: ${colorWhite};
-  color: ${colorText};
-  border: 1px solid ${colorGrayLighter};
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover {
-    background: ${colorGrayLighter};
-  }
-`;
-
 const SelectParent = styled.div`
   display: flex;
   flex-direction: column;
@@ -138,7 +90,7 @@ const Select = styled(SelectMui)<SelectProps>`
   .MuiSelect-select {
     padding: 0.625rem;
     font-size: 1rem;
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
   }
 `;
 
@@ -147,12 +99,10 @@ export default {
   Dialog,
   Header,
   Title,
-  CloseButton,
+  CloseButtonWrapper,
   Body,
   BodyText,
   Footer,
-  EnterButton,
-  CancelButton,
   SelectParent,
   Select,
 };

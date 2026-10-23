@@ -4,12 +4,14 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
+  colorBorder,
+  colorDisabledSurface,
   colorGrayDark,
   colorPrimary,
   colorText,
   colorWhite,
+  colorWhiteSurface,
   settingsModalTabSelected,
-  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -96,7 +98,7 @@ const SettingsTabSelector = styled(Tab)`
     font-size: 0.85rem;
     min-height: 3rem;
     border-radius: 8px;
-    background: ${colorWhite};
+    background: ${colorWhiteSurface};
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
     margin: 0 2px;
@@ -216,7 +218,7 @@ const ActionButton = styled.button`
   }
 
   &:disabled {
-    background-color: #aaa;
+    background-color: ${colorDisabledSurface};
     cursor: not-allowed;
   }
 `;

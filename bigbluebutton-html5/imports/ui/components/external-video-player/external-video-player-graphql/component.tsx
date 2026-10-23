@@ -73,6 +73,24 @@ const SEEK_CONFIRMATION_THRESHOLD_SECONDS = SEEK_DETECTION_THRESHOLD_SECONDS;
 // insurance against a provider whose getCurrentTime oscillates and would otherwise fan out a
 // mutation (a DB write plus a recording event) to every participant every tick.
 const MIN_SEEK_BROADCAST_INTERVAL_SECONDS = 2;
+// When the browser blocks autoplay with sound, YouTube's embed does not surface the failure: it
+// mutes itself and plays anyway. That mute happens inside the iframe, so the `muted` prop here
+// stays false, and react-player only calls unmute() when that prop *changes* -- nothing ever
+// undoes it. A viewer joining a session that already has a video shared therefore gets a silent
+// video until they nudge the volume slider (changeVolume calls unMute) or remount the player with
+// the reload button. Chrome gates unmuted autoplay on user activation OR the per-profile Media
+// Engagement Index, so this is invisible on an established profile and reproduces in incognito.
+// The existing autoplay warning (showUnsynchedMsg) cannot cover it: that triggers on
+// `reactPlayerPlaying !== playing`, and muted playback IS playback, so it never fires.
+// Recovery: on the first tick where the provider reports itself muted while the UI says it is
+// not, unmute it -- immediately if the document already has user activation, and in any case on
+// the viewer's next real gesture, which is the only moment the browser is guaranteed to honour an
+// unmute rather than answering it by pausing the media. That is one automatic attempt plus one
+// gesture-anchored attempt, so it can never ping-pong with the viewer-side auto-resume in
+// handleOnStop, and no retry budget is needed.
+// Both mouse/touch (pointerup) and keyboard (keydown) count as activation triggers, so a
+// keyboard-only viewer is covered too.
+const GESTURE_EVENTS_FOR_UNMUTE = ['pointerup', 'keydown'];
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -95,6 +113,11 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.stopShareExternalVideo',
   },
 });
+
+interface AutoplayMuteRecovery {
+  armed: boolean;
+  releaseGestureListener: (() => void) | null;
+}
 
 interface ExternalVideoPlayerProps {
   currentVolume: React.MutableRefObject<number>;
@@ -244,6 +267,12 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   // Monotonic tick counter: getPlaybackRate can be async (Vimeo), so two handleProgress
   // invocations can be in flight; a stale tick must not emit or seed the baseline.
   const tickSeqRef = useRef(0);
+  // Autoplay-mute recovery: armed until the provider's muted state has been reconciled once,
+  // re-armed per player mount in handleOnStart (see GESTURE_EVENTS_FOR_UNMUTE).
+  const autoplayMuteRecoveryRef = useRef<AutoplayMuteRecovery>({
+    armed: true,
+    releaseGestureListener: null,
+  });
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   // Keep the synchronous mirror ref and the state in sync so the ref never drifts from
@@ -381,6 +410,49 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return 1;
   }, []);
 
+  // Returns the muted flag the *provider* is actually honouring, or null when it does not report
+  // one. Read from the provider rather than from the `mute` state on purpose: detecting where the
+  // two have diverged is the whole point (see GESTURE_EVENTS_FOR_UNMUTE).
+  const getInternalPlayerMuted = useCallback(async (player: ReactPlayer) => {
+    const internalPlayer = player?.getInternalPlayer?.();
+    if (!internalPlayer) return null;
+
+    if (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement) {
+      return internalPlayer.muted;
+    }
+
+    try {
+      // YouTube exposes isMuted(); Vimeo and Twitch expose getMuted() (Vimeo's returns a promise).
+      if (typeof internalPlayer.isMuted === 'function') return await internalPlayer.isMuted();
+      if (typeof internalPlayer.getMuted === 'function') return await internalPlayer.getMuted();
+    } catch (e) {
+      // Player not ready or torn down mid-call: treat as unknown.
+      return null;
+    }
+
+    return null;
+  }, []);
+
+  const unmuteInternalPlayer = useCallback((player: ReactPlayer) => {
+    const internalPlayer = player?.getInternalPlayer?.();
+    if (!internalPlayer) return;
+
+    try {
+      if (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement) {
+        internalPlayer.muted = false;
+      } else if (typeof internalPlayer.unMute === 'function') {
+        internalPlayer.unMute(); // YouTube
+      } else if (typeof internalPlayer.unmute === 'function') {
+        internalPlayer.unmute(); // Facebook, Kaltura, Wistia
+      } else if (typeof internalPlayer.setMuted === 'function') {
+        internalPlayer.setMuted(false); // Vimeo, Twitch, DailyMotion
+      }
+    } catch (e) {
+      // Player torn down mid-call. Nothing to retry here: by the time this runs the automatic
+      // attempt is already spent, and the gesture listener is the remaining fallback.
+    }
+  }, []);
+
   useEffect(() => {
     if (playerUrl !== videoUrl && isPresenter) {
       setPlayerUrl(addTimeParamToTwitchUrl(videoUrl, getServerCurrentTime()));
@@ -485,7 +557,73 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   }, [isPresenter]);
 
+  // Unmute on the viewer's next gesture. Runs synchronously inside the event handler on purpose:
+  // that is what makes the browser treat the unmute as user-initiated, so it cannot be answered
+  // with a pause. Deliberately not re-checking the muted state first -- an await would leave the
+  // handler, and unmuting something already unmuted is a no-op anyway.
+  const armGestureUnmute = () => {
+    const recovery = autoplayMuteRecoveryRef.current;
+    recovery.releaseGestureListener?.();
+
+    const handleGesture = () => {
+      // Release through the captured object, not the ref: a player remount swaps the ref's
+      // contents, and this listener must always be able to detach itself.
+      recovery.releaseGestureListener?.();
+      if (mute || isEchoTest || !playerRef.current) return;
+      unmuteInternalPlayer(playerRef.current);
+    };
+
+    // Capture phase, so this still runs for gestures whose target stops propagation. Note a click
+    // inside the provider's cross-origin iframe never reaches this window at all -- that is fine,
+    // it activates the iframe itself, so the provider's own unmute control works there.
+    GESTURE_EVENTS_FOR_UNMUTE.forEach((e) => window.addEventListener(e, handleGesture, true));
+    recovery.releaseGestureListener = () => {
+      GESTURE_EVENTS_FOR_UNMUTE.forEach((e) => window.removeEventListener(e, handleGesture, true));
+      recovery.releaseGestureListener = null;
+    };
+  };
+
+  // Undo a mute the provider applied to itself to get around a blocked autoplay
+  // (see GESTURE_EVENTS_FOR_UNMUTE). Called on play and on every progress tick while armed, so a
+  // provider that reports its muted state a beat after the play event is still caught.
+  const recoverFromAutoplayMute = async () => {
+    const recovery = autoplayMuteRecoveryRef.current;
+    if (!recovery.armed || !playing || mute || isEchoTest) return;
+
+    const player = playerRef.current;
+    if (!player) return;
+
+    // Disarm before the await, not after: onPlay and a progress tick can both be in flight, and
+    // both would otherwise clear the guard above and run the recovery twice. Every path below
+    // ends up disarmed anyway, so hoisting it costs nothing.
+    recovery.armed = false;
+
+    const internalMuted = await getInternalPlayerMuted(player);
+    // Either autoplay with sound worked or this provider does not report a muted state. Leave it
+    // alone rather than unmuting blindly: a viewer who mutes through the provider's own controls
+    // must not be overridden a tick later.
+    if (internalMuted !== true) return;
+
+    // Sticky activation is enough for most browsers and avoids making the viewer click for their
+    // audio. Where it is not, this unmute is refused (and may cost one pause that handleOnStop
+    // resumes); the gesture listener below is what actually guarantees recovery.
+    if (!navigator.userActivation || navigator.userActivation.hasBeenActive) {
+      unmuteInternalPlayer(player);
+    }
+    armGestureUnmute();
+  };
+
+  useEffect(() => () => autoplayMuteRecoveryRef.current.releaseGestureListener?.(), []);
+
   const handleOnStart = async () => {
+    // A start means a fresh player (new video, or a remount via playerKey), so the previous
+    // player's autoplay-mute verdict must not carry over, and a gesture listener still waiting on
+    // that player is stale. Done before the first await: react-player invokes onStart then onPlay
+    // synchronously, and onPlay runs the recovery -- re-arming from this function's async tail
+    // would undo that attempt's result.
+    autoplayMuteRecoveryRef.current.releaseGestureListener?.();
+    autoplayMuteRecoveryRef.current = { armed: true, releaseGestureListener: null };
+
     const currentTime = getServerCurrentTime();
     const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
     if (isPresenter && !playing) {
@@ -552,6 +690,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       lastProgressRef.current = null;
       pendingSeekRef.current = null;
     }
+
+    // Playback just started: if the provider muted itself to get past a blocked autoplay, undo
+    // it now rather than making the viewer discover the volume slider.
+    recoverFromAutoplayMute();
   };
 
   const handleOnStop = async () => {
@@ -682,6 +824,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (storedVolume !== playerVolume) {
       storage.setItem('externalVideoVolume', playerVolume);
     }
+
+    // Second chance for the autoplay mute: covers a provider that only reports its muted state a
+    // beat after the play event. No-ops from the first reconciled tick onwards.
+    recoverFromAutoplayMute();
   };
 
   const handleOnSeek = async (cursor: { position: number } | number) => {

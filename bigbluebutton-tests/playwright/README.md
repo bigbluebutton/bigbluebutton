@@ -38,7 +38,7 @@ To run these tests with an existing BigBlueButton server, you need to find the s
 ### 2. Run tests
 
 - **IMPORTANT**: BBB automated tests rely on the default server config (based on values set in `settings.yml`). Any custom setting may cause false failures.
-- Node 20+ recommended to avoid errors in JavaScript.
+- Node 24 recommended: it is the version CI runs the suite with (see the root `.nvmrc`).
 
 Tests can be executed using `npx playwright test` or `npm test`. You can run all tests in each of 3 available browsers (`chromium`, `firefox`, `webkit`) (Note: ensure the browser you're interested in is enabled in `playwright.config.ts`) with one of the following commands:
 
@@ -113,6 +113,16 @@ npm run test:ssh -- HOSTNAME
 ```
 
 _You can check the official documentation [here](https://playwright.dev/docs/test-cli)_
+
+#### 2.3. Quarantine tags
+
+The `test-chromium`/`test-firefox` gates run `@ci`-tagged tests minus everything tagged:
+
+- `@flaky` — genuinely intermittent; passes on retry or under different timing
+- `@need-update` — the covered feature changed or was removed; the test itself needs a rewrite (a comment at the test states what changed)
+- `@known-issue` — the test and its assertions are correct, but a known/suspected product issue makes it fail deterministically (a comment or `linkIssue()` at the test points to the issue)
+- `@setting-required:<setting>` — needs a non-default server setting
+- `@only-headed` — cannot run headless
 
 ## Skip SDK tests without the need of a new release
 

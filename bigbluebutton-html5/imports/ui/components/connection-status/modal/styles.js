@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
-  colorBorder,
-  colorOffWhite,
-  colorGrayDark,
-  colorPrimary,
-  colorWhite,
   btnPrimaryActiveBg,
+  colorBorder,
   colorDanger,
+  colorGrayDark,
+  colorOffWhite,
+  colorPrimary,
+  colorWhiteBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -386,7 +386,7 @@ const ConnectionTabSelector = styled(Tab)`
   }
 
   span {
-    border-bottom: 2px solid ${colorWhite};
+    border-bottom: 2px solid ${colorWhiteBorder};
   }
 
   &.is-selected {

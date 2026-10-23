@@ -27,7 +27,7 @@ class BigBlueButtonFilters {
   	  	response.setHeader("Access-Control-Allow-Origin", "${grailsApplication.config.accessControlAllowOrigin}")
   	  }
   	}
-  	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
+  	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|signOut)') {
   		before = {
   			if (keepAliveService.isDown()) {
 				render(view: "error", status: 503)

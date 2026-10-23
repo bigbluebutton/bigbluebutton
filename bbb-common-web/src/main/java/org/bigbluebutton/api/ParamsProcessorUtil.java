@@ -94,7 +94,6 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
-    private String defaultSharedNotesEditor;
     private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
     private int learningDashboardCleanupDelayInMinutes;
@@ -106,6 +105,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private boolean defaultAllowModsToRequestCameraShare = false;
     private String defaultCameraBridge = "livekit";
     private String defaultScreenShareBridge = "livekit";
     private String defaultAudioBridge = "livekit";
@@ -145,14 +145,11 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
-    private Integer clientLogoutTimerInMinutes = 0;
     private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;
     private Integer defaultMeetingExpireWhenLastUserLeftInMinutes = 1;
   	private Integer userInactivityInspectTimerInMinutes = 120;
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
-    private Boolean defaultAllowDuplicateExtUserid = true;
-
     private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
@@ -247,7 +244,7 @@ public class ParamsProcessorUtil {
 		Map<String, Object> newParams = new HashMap<>();
 
         String[] createParams = { ApiParams.NAME, ApiParams.ATTENDEE_PW, ApiParams.MODERATOR_PW, ApiParams.VOICE_BRIDGE,
-                ApiParams.WEB_VOICE, ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
+                ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
                 ApiParams.MAX_PARTICIPANTS, ApiParams.DURATION, ApiParams.WELCOME };
 
         for (String paramName : createParams) {
@@ -594,16 +591,6 @@ public class ParamsProcessorUtil {
         // If none is provided, generate one.
         String telVoice = processTelVoice(params.get(ApiParams.VOICE_BRIDGE));
 
-        // Get the voice conference digits/chars for users joing through VOIP on
-        // the client.
-        // If none is provided, make it the same as the telVoice. If one has
-        // been provided,
-        // we expect that the users will be joined in the same voice conference.
-        String webVoice = params.get(ApiParams.WEB_VOICE);
-        if (StringUtils.isEmpty(webVoice)) {
-            webVoice = telVoice;
-        }
-
         // Get all the other relevant parameters and generate defaults if none
         // has been provided.
         String dialNumber = processDialNumber(params.get(ApiParams.DIAL_NUMBER));
@@ -612,7 +599,6 @@ public class ParamsProcessorUtil {
         boolean record = processRecordMeeting(params.get(ApiParams.RECORD));
         int maxUsers = processMaxUser(params.get(ApiParams.MAX_PARTICIPANTS));
         int meetingDuration = processMeetingDuration(params.get(ApiParams.DURATION));
-        int logoutTimer = processLogoutTimer(params.get(ApiParams.LOGOUT_TIMER));
 
         // Banner parameters
         String bannerText = params.get(ApiParams.BANNER_TEXT);
@@ -671,18 +657,6 @@ public class ParamsProcessorUtil {
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL))) {
             sharedNotesInitialContentMarkdownUrl = params
                     .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
-        }
-
-        String sharedNotesEditor = defaultSharedNotesEditor;
-        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_EDITOR))) {
-            try {
-                sharedNotesEditor = params
-                        .get(ApiParams.SHARED_NOTES_EDITOR);
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [sharedNotesEditor] for meeting=[{}]",
-                        internalMeetingId);
-            }
         }
 
         boolean allowStartStoptRec = allowStartStopRecording;
@@ -784,11 +758,6 @@ public class ParamsProcessorUtil {
 
         }
 
-        // Learning Dashboard not allowed for Breakout Rooms
-        if(isBreakout) {
-		listOfDisabledFeatures.add("learningDashboard");
-	}
-
 	//Set Learning Dashboard configs
         String learningDashboardAccessToken = "";
 	int learningDashboardCleanupMins = 0;
@@ -811,6 +780,11 @@ public class ParamsProcessorUtil {
         Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
         if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
             notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
+        String notifyRecordingAppend = "";
+        if (!StringUtils.isBlank(params.get(ApiParams.NOTIFY_RECORDING_APPEND))) {
+            notifyRecordingAppend = ParamsUtil.stripControlChars(params.get(ApiParams.NOTIFY_RECORDING_APPEND));
         }
 
         boolean multiUserWhiteboardEnabled = false;
@@ -982,11 +956,6 @@ public class ParamsProcessorUtil {
         String botAvatarURL = defaultBotAvatarURL;
         String webcamBackgroundURL = useDefaultWebcamBackground ? defaultWebcamBackgroundURL : "";
 
-        if(defaultAllowDuplicateExtUserid == false) {
-            log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
-            maxUserConcurrentAccesses = 1;
-        }
-
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -995,16 +964,14 @@ public class ParamsProcessorUtil {
                 .withDuration(meetingDuration)
                 .withLoginUrl(loginUrl)
                 .withLogoutUrl(logoutUrl)
-                .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
-                .withTelVoice(telVoice).withWebVoice(webVoice)
+                .withTelVoice(telVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
                 .withDefaultBotAvatarURL(botAvatarURL)
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
-                .withSharedNotesEditor(sharedNotesEditor)
                 .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
                 .withSharedNotesInitialContentMarkdown(sharedNotesInitialContentMarkdown)
                 .withSharedNotesInitialContentMarkdownUrl(sharedNotesInitialContentMarkdownUrl)
@@ -1039,6 +1006,7 @@ public class ParamsProcessorUtil {
                 .withHtml5PluginSdkVersion(html5PluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
+                .withNotifyRecordingAppend(notifyRecordingAppend)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();
@@ -1133,6 +1101,12 @@ public class ParamsProcessorUtil {
       allowModsToEjectCameras = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS));
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
+
+    Boolean allowModsToRequestCameraShare = defaultAllowModsToRequestCameraShare;
+    if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_REQUEST_CAMERA_SHARE))) {
+      allowModsToRequestCameraShare = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_REQUEST_CAMERA_SHARE));
+    }
+    meeting.setAllowModsToRequestCameraShare(allowModsToRequestCameraShare);
 
         int maxNumPages = defaultMaxNumPages;
         if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
@@ -1363,18 +1337,6 @@ public class ParamsProcessorUtil {
 
     return mDuration;
   }
-
-	public int processLogoutTimer(String logoutTimer) {
-		int mDuration = clientLogoutTimerInMinutes;
-
-		try {
-			mDuration = Integer.parseInt(logoutTimer);
-		} catch(Exception ex) {
-			mDuration = clientLogoutTimerInMinutes;
-		}
-
-		return mDuration;
-	}
 
     public boolean isTestMeeting(String telVoice) {
         return ((!StringUtils.isEmpty(telVoice)) && (!StringUtils.isEmpty(testVoiceBridge))
@@ -1690,10 +1652,6 @@ public class ParamsProcessorUtil {
 		this.defaultMeetingLayout =  meetingLayout;
 	}
 
-	public void setClientLogoutTimerInMinutes(Integer value) {
-		clientLogoutTimerInMinutes = value;
-	}
-
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
         defaultMeetingExpireWhenLastUserLeftInMinutes = value;
 	}
@@ -1792,6 +1750,14 @@ public class ParamsProcessorUtil {
 
   public Boolean getAllowModsToEjectCameras() {
     return defaultAllowModsToEjectCameras;
+  }
+
+  public void setAllowModsToRequestCameraShare(Boolean value) {
+    defaultAllowModsToRequestCameraShare = value;
+  }
+
+  public Boolean getAllowModsToRequestCameraShare() {
+    return defaultAllowModsToRequestCameraShare;
   }
 
 	public List<String> decodeIds(String encodeid) {
@@ -1905,10 +1871,6 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsPresenterPolicy = lockSettingsPresenterPolicy;
 	}
 
-	public void setAllowDuplicateExtUserid(Boolean allow) {
-		this.defaultAllowDuplicateExtUserid = allow;
-	}
-
     public void setMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
 		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
 	}
@@ -2011,10 +1973,6 @@ public class ParamsProcessorUtil {
 
     public void setPluginUtils(PluginUtils pluginUtils) {
         this.pluginUtils = pluginUtils;
-    }
-
-    public void setSharedNotesEditor(String sharedNotesEditor) {
-        this.defaultSharedNotesEditor = sharedNotesEditor;
     }
 
     /**

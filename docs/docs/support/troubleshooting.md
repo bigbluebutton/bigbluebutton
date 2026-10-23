@@ -421,6 +421,7 @@ Here are the following lists the possible WebRTC error messages that a user may 
 | **3004**       | Connection is unstable. Please check your internet connection   | GraphQL is connected but not receiving data, and RTT is critically high.               |
 | **3005**       | Data is loading slowly. Reconnection in progress                | GraphQL is connected and receiving data, but the Hasura PING signal is missing.        |
 | **3006**       | Some live data could not be loaded. Please refresh your client  | One or more GraphQL subscriptions returned an error.                                  |
+| **3007**       | Too much live data is open at once. Please refresh your client  | The server refused a subscription because the connection reached `max_connection_concurrent_subscriptions` in bbb-graphql-middleware. New data cannot load until the client reconnects. |
 
 #### Additional Notes
 

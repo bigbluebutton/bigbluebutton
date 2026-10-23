@@ -20,13 +20,14 @@ const LoadedChatMessagesHookContainer = (props: GeneralHookManagerProps) => {
     message: message.message,
     messageId: message.messageId,
     user: message.user,
+    senderRole: message.senderRole,
     messageMetadata: message.messageMetadata,
   }));
 
   const { version } = props;
   const previousVersion = usePreviousValue(version);
 
-  const updateLoadedChatMessagesForPlugin = () => {
+  const updateLoadedChatMessagesForPlugin: () => void = () => {
     window.dispatchEvent(new CustomEvent<
       UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<LoadedChatMessage[]>>
     >(HookEvents.BBB_CORE_SENT_NEW_DATA, {

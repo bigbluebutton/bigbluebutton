@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { IntlProvider } from 'react-intl';
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import { UserDetailsProvider } from './components/UserDetails/context';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
@@ -47,7 +48,7 @@ class Dashboard extends React.Component {
     };
 
     this.setMessages();
-    this.setRtl();
+    this.setLocaleAttributes();
   }
 
   setMessages() {
@@ -76,8 +77,14 @@ class Dashboard extends React.Component {
       }).catch(() => {});
   }
 
-  setRtl() {
+  setLocaleAttributes() {
     const { intlLocale } = this.state;
+
+    // index.html ships lang="en"; leaving it there while rendering another locale
+    // makes browsers offer to auto-translate the page. Update it.
+    if (isValidLocale(intlLocale)) {
+      document.body.parentNode.setAttribute('lang', intlLocale);
+    }
 
     if (RTL_LANGUAGES.includes(intlLocale.substring(0, 2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
@@ -94,7 +101,9 @@ class Dashboard extends React.Component {
     return (
       <UserDetailsProvider>
         <IntlProvider defaultLocale="en" locale={locale} messages={intlMessages}>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </IntlProvider>
       </UserDetailsProvider>
     );

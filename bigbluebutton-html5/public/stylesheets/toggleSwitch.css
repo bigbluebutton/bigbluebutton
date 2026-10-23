@@ -99,7 +99,7 @@
   width: 1.35rem;
   height: 1.35rem;
   border-radius: 50%;
-  background-color: #FAFAFA;
+  background-color: var(--color-switch-thumb, #FAFAFA);
   box-sizing: border-box;
   transition: opacity calc(var(--enableAnimation) * 0.25s) ease;
   box-shadow: 2px 0px 10px -1px rgba(0,0,0,0.4);

@@ -32,7 +32,7 @@ module BigBlueButton
     BigBlueButton.logger.info("Processing webcam videos")
 
     # raw_archive_dir already contains meeting_id
-    events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+    events = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
 
     # Process user video (camera)
     start_time = BigBlueButton::Events.first_event_timestamp(events)
@@ -96,7 +96,7 @@ module BigBlueButton
     BigBlueButton.logger.info("Processing deskshare videos")
 
     # raw_archive_dir already contains meeting_id
-    events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+    events = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
 
     start_time = BigBlueButton::Events.first_event_timestamp(events)
     end_time = BigBlueButton::Events.last_event_timestamp(events)

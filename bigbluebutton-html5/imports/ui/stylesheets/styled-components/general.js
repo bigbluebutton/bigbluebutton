@@ -44,6 +44,9 @@ const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
+const mobileNavbarButtonSize = '1.75rem';
+const mobileNavbarButtonGap = '0.5rem';
+const mobileNavigationSidebarToggleButtonSize = '2rem';
 const navigationSidebarLogoPadding = '15%';
 const navigationSidebarListItemsContainerGap = 'calc(18rem / 14)';
 const navigationSidebarListItemsContainerGapSmallHeight = 'calc(9rem / 14)';
@@ -105,7 +108,7 @@ const pollStatsElementWidth = '17%';
 const pollSmMargin = '0.3125rem';
 const pollMdMargin = '0.7rem';
 const pollResultWidth = '15rem';
-const pollInputHeight = '2.5rem';
+const pollInputHeight = '3.5rem';
 const pollWidth = '18rem';
 const overlayIndex = '999';
 const overlayOpacity = '0.349';
@@ -160,6 +163,9 @@ export {
   descriptionMargin,
   navbarHeight,
   barsPadding,
+  mobileNavbarButtonSize,
+  mobileNavbarButtonGap,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarLogoPadding,
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsContainerGapSmallHeight,

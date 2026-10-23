@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorWhite,
-  colorBackground,
   btnDefaultBg,
   btnDefaultColor,
+  colorBackground,
+  colorWhite,
   defaultBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
@@ -72,11 +72,6 @@ const Right = styled.div`
     left: 0;
     display: contents;
   }
-  > *:not(span) {
-    @media ${smallOnly} {
-      margin: 0 ${smPaddingY};
-    }
-  }
   height: 100%;
 `;
 
@@ -88,6 +83,15 @@ const PresentationButtonsWrapper = styled.div`
   gap: .2rem;
   align-items: center;
   height: 100%;
+
+  @media ${smallOnly} {
+    height: 2.5rem;
+    margin-left: ${smPaddingX};
+    [dir="rtl"] & {
+      margin-left: 0;
+      margin-right: ${smPaddingX};
+    }
+  }
 `;
 
 const Divider = styled.div`

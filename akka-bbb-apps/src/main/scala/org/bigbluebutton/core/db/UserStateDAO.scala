@@ -34,6 +34,7 @@ case class UserStateDbModel(
     inactivityWarningDisplay:     Boolean = false,
     inactivityWarningTimeoutSecs: Option[Long],
     requestedUnmuteByMod:         Boolean = false,
+    requestedCameraByMod:         Boolean = false,
     requestedPresenter:           Boolean = false,
     echoTestRunningAt:            Option[java.sql.Timestamp],
 )
@@ -44,7 +45,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
     guestColumns,
     mobile,clientType,disconnected,
     expired,ejectColumns,presenter,whiteboardWriteAccess,pinned,locked,speechLocale, captionLocale,
-    inactivityWarningDisplay, inactivityWarningTimeoutSecs, requestedUnmuteByMod, requestedPresenter, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
+    inactivityWarningDisplay, inactivityWarningTimeoutSecs, requestedUnmuteByMod, requestedCameraByMod, requestedPresenter, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val away = column[Boolean]("away")
@@ -71,6 +72,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val inactivityWarningDisplay = column[Boolean]("inactivityWarningDisplay")
   val inactivityWarningTimeoutSecs = column[Option[Long]]("inactivityWarningTimeoutSecs")
   val requestedUnmuteByMod = column[Boolean]("requestedUnmuteByMod")
+  val requestedCameraByMod = column[Boolean]("requestedCameraByMod")
   val requestedPresenter = column[Boolean]("requestedPresenter")
   val echoTestRunningAt = column[Option[java.sql.Timestamp]]("echoTestRunningAt")
 }
@@ -81,7 +83,7 @@ object UserStateDAO {
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === userState.meetingId)
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.whiteboardWriteAccess, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected, u.requestedUnmuteByMod, u.requestedPresenter))
+        .map(u => (u.presenter, u.whiteboardWriteAccess, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected, u.requestedUnmuteByMod, u.requestedCameraByMod, u.requestedPresenter))
         .update((
           userState.presenter,
           userState.whiteboardWriteAccess,
@@ -95,6 +97,7 @@ object UserStateDAO {
           userState.clientType,
           userState.userLeftFlag.left,
           userState.requestedUnmuteByMod,
+          userState.requestedCameraByMod,
           userState.requestedPresenter
         ))
     )
@@ -153,6 +156,16 @@ object UserStateDAO {
         .filter(_.userId === userId)
         .map(u => (u.requestedUnmuteByMod))
         .update((requestedUnmuteByMod))
+    )
+  }
+
+  def updateRequestedCameraByMod(meetingId: String, userId: String, requestedCameraByMod: Boolean) = {
+    DatabaseConnection.enqueue(
+      TableQuery[UserStateDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.userId === userId)
+        .map(u => (u.requestedCameraByMod))
+        .update((requestedCameraByMod))
     )
   }
 

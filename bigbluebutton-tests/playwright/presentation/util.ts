@@ -57,6 +57,85 @@ export async function getCurrentPresentationHeight(locator: Locator) {
   return locator.evaluate((element) => window.getComputedStyle(element).getPropertyValue('height'));
 }
 
+// Returns the content of the current slide image: the server-generated SVG referenced
+// by the tl-image background, fetched through the authenticated browser context.
+export async function getCurrentSlideSvg(testPage: Page): Promise<string> {
+  await testPage.waitForSelector(e.currentSlideImg);
+  const slideUrl = await testPage.page.evaluate(
+    ([selector]) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      return el?.style?.backgroundImage?.split('"')[1] ?? null;
+    },
+    [e.currentSlideImg],
+  );
+  expect(slideUrl, 'should resolve the current slide image URL from the whiteboard').toBeTruthy();
+
+  const response = await testPage.page.request.get(slideUrl as string);
+  expect(response.ok(), `should fetch the current slide image (HTTP ${response.status()})`).toBeTruthy();
+  return response.text();
+}
+
+// Rasterizes the current slide image onto an off-screen canvas and returns the fraction
+// of near-black pixels. Used to detect slides that converted to a blank image, e.g.
+// when an embedded figure is silently dropped during conversion (issue #23953).
+export async function getCurrentSlideDarkPixelRatio(testPage: Page): Promise<number> {
+  // Rasterize the SVG in-page via a same-origin blob URL so the canvas is not tainted.
+  const svg = await getCurrentSlideSvg(testPage);
+
+  return testPage.page.evaluate(async (svgText) => {
+    const blob = new Blob([svgText], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    try {
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('failed to load slide image'));
+        img.src = url;
+      });
+      const width = 400;
+      const height = Math.max(1, Math.round((width * (img.height || 595)) / (img.width || 842)));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('failed to get canvas 2d context');
+      // Composite over white so transparent regions read as white, matching the client.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      const { data } = ctx.getImageData(0, 0, width, height);
+      let dark = 0;
+      const total = width * height;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] + data[i + 1] + data[i + 2] < 150) dark += 1;
+      }
+      return dark / total;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }, svg);
+}
+
+// The rendered slide image (a tldraw shape) keeps the aspect ratio of the source page,
+// independent of the current zoom. Reading it lets a test assert that bbb-web sized the
+// slide from the SVG's real dimensions instead of silently falling back to the 1440x1080
+// (4:3) default. Returns null while the slide image has not laid out yet.
+export async function getCurrentSlideAspectRatio(testPage: Page): Promise<number | null> {
+  await testPage.waitForSelector(e.currentSlideImg);
+  return testPage.page.evaluate(
+    ([slideImg]) => {
+      const node = document.querySelector(slideImg) as HTMLElement | null;
+      if (!node) return null;
+      const style = window.getComputedStyle(node);
+      const width = parseFloat(style.width);
+      const height = parseFloat(style.height);
+      if (!width || !height) return null;
+      return width / height;
+    },
+    [e.currentSlideImg],
+  );
+}
+
 export async function getCurrentPresentationToastLocator(testPage: Page) {
   return testPage.page.locator(e.smallToastMsg).filter({ hasText: e.defaultCurrentPresentationLabel });
 }
@@ -121,6 +200,50 @@ export async function uploadSinglePresentation(
     },
   );
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
+}
+
+// The browser sends the whole file and bbb-web refuses it on size (maxFileSizeUpload, 30 MB
+// by default) before the PDF is ever parsed, so the payload only has to be big enough, not a
+// valid document. Building it in memory keeps a file that large out of the repo.
+const OVERSIZED_PRESENTATION_BYTES = 31 * 1000 * 1000;
+
+function buildOversizedPdf(sizeInBytes: number): Buffer {
+  const header = Buffer.from(
+    '%PDF-1.4\n' +
+      '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n' +
+      '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n' +
+      '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj\n',
+  );
+  const trailer = Buffer.from('\ntrailer<</Root 1 0 R/Size 4>>\n%%EOF\n');
+  const padding = Buffer.alloc(sizeInBytes - header.length - trailer.length, 0x25); // '%' - a PDF comment
+  return Buffer.concat([header, padding, trailer]);
+}
+
+// Sibling of uploadSinglePresentation for the rejected path: that one asserts a successful
+// upload (new thumbnail and slide change), which never happens for a rejected file.
+export async function uploadOversizedPresentation(testPage: Page, fileName: string) {
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(
+    e.presentationFileUpload,
+    'should display the presentation space for uploading a new file, when the manage presentations is opened',
+  );
+  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
+
+  await testPage.page.setInputFiles(e.presentationFileUpload, {
+    name: fileName,
+    mimeType: 'application/pdf',
+    buffer: buildOversizedPdf(OVERSIZED_PRESENTATION_BYTES),
+  });
+
+  await testPage.hasText(
+    e.presentationUploadProgressToast,
+    e.presentationTooLargeLabel,
+    'should display the size rejection on the presentation upload toast',
+    UPLOAD_PDF_WAIT_TIME,
+  );
+  await testPage.press('Escape'); // close the media sharing menu
+  await testPage.waitForSelectorDetached(e.presentationFileUpload);
 }
 
 export async function uploadMultiplePresentations(

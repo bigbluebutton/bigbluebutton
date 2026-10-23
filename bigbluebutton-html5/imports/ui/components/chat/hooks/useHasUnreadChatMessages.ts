@@ -1,3 +1,4 @@
+import { makeVar } from '@apollo/client';
 import {
   useEffect, useMemo, useState, useCallback,
 } from 'react';
@@ -6,6 +7,19 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+
+/** Chats with an unread mention, so reading one chat doesn't clear another one's badge. */
+export const unreadMentionChatIdsVar = makeVar<string[]>([]);
+
+export const addUnreadMentionChat = (chatId: string) => {
+  const current = unreadMentionChatIdsVar();
+  if (!current.includes(chatId)) unreadMentionChatIdsVar([...current, chatId]);
+};
+
+export const clearUnreadMentionChat = (chatId: string) => {
+  const current = unreadMentionChatIdsVar();
+  if (current.includes(chatId)) unreadMentionChatIdsVar(current.filter((id) => id !== chatId));
+};
 
 interface UseUnreadChatMessagesProps {
   isChatPanelOpened: boolean;

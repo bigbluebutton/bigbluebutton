@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -24,6 +24,11 @@ export class Polling extends MultiUsers {
     );
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer, 'should not display the received answer for the attendee');
+    await this.modPage.hasText(
+      e.pollStatus,
+      'Done',
+      'should display the anonymous poll as done after each attendee has answered',
+    );
   }
 
   async quickPoll() {
@@ -74,6 +79,42 @@ export class Polling extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
     await this.userPage.hasElement(e.wbPollShape, 'should display the whiteboard poll shape for the attendee');
+  }
+
+  // Publishing the results draws on the whiteboard as the presenter, while the
+  // presentation is hidden: with restoreOnUpdate it must bring the presentation
+  // back for everyone, the presenter included.
+  async publishingResultsRestoresHiddenPresentation() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    const restoreOnUpdate = await this.modPage.page.evaluate(
+      () =>
+        (window as unknown as { meetingClientSettings?: { public?: { presentation?: { restoreOnUpdate?: boolean } } } })
+          .meetingClientSettings?.public?.presentation?.restoreOnUpdate,
+    );
+    test.skip(!restoreOnUpdate, 'presentation.restoreOnUpdate is disabled');
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer, 'should hide the presentation for the presenter');
+
+    await util.startPoll(this.modPage);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'should restore the presentation for the presenter once the results are published',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.hasElement(e.wbPollShape, 'should display the whiteboard poll shape for the presenter');
+    await this.userPage.hasElement(
+      e.wbPollShape,
+      'should display the whiteboard poll shape for the attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
   }
 
   async stopPoll() {
@@ -221,6 +262,11 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
+    await this.modPage.hasText(
+      e.pollStatus,
+      'Done',
+      'should display the poll as done after each attendee has submitted multiple answers',
+    );
     await this.modPage.hasText(
       e.userVoteLiveResult,
       '1',
@@ -440,6 +486,9 @@ export class Polling extends MultiUsers {
   async parentheticalQuestionLetterPoll() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.page.waitForTimeout(5000);
@@ -472,6 +521,9 @@ export class Polling extends MultiUsers {
   async parentheticalQuestionTypedResponse() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    // join-sync barrier: the participants panel is closed by default on 4.0,
+    // so open it before asserting the attendee's list item
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.page.waitForTimeout(5000);

@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import {
   borderSize,
   borderSizeSmall,
+  mobileNavbarButtonSize,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarBorderRadius,
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsContainerGapSmallHeight,
@@ -14,15 +16,17 @@ import {
   navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorGrayDark,
-  colorWhite,
-  colorDanger,
-  notificationBadgeBg,
   colorBackground,
+  colorDanger,
+  colorGrayDarkBorder,
+  colorWhiteBorder,
+  colorWhiteSurface,
+  notificationBadgeBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { Separator as BaseSeparator } from '/imports/ui/components/sidebar-content/styles';
 import Button from '/imports/ui/components/common/button/component';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const smallHeight = '(max-height: 40em)';
 
@@ -40,7 +44,7 @@ const NavigationSidebarBackdrop = styled.div<{animations: boolean, isMobile: boo
 `;
 
 const NavigationSidebar = styled.div<{animations: boolean, isMobile: boolean, isExpanded: boolean}>`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   border-radius: ${navigationSidebarBorderRadius};
   display: flex;
   flex-direction: column;
@@ -62,6 +66,22 @@ const NavigationToggleButton = styled(Button)`
   margin: 0;
   z-index: 3;
   align-self: center;
+
+  @media ${smallOnly} {
+    margin-top: calc((${mobileNavbarButtonSize} - ${mobileNavigationSidebarToggleButtonSize}) / 2);
+
+    & > span:first-of-type {
+      width: ${mobileNavigationSidebarToggleButtonSize};
+      height: ${mobileNavigationSidebarToggleButtonSize};
+      min-width: ${mobileNavigationSidebarToggleButtonSize};
+      padding: 0 !important;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   ${({ hasNotification }) => hasNotification && `
     position: relative;
 
@@ -74,7 +94,7 @@ const NavigationToggleButton = styled(Button)`
       bottom: ${navigationSidebarNotificationBadgeBottom};
       right: ${navigationSidebarNotificationBadgeRight};
       background-color: ${notificationBadgeBg};
-      border: ${borderSizeSmall} solid ${colorWhite};
+      border: ${borderSizeSmall} solid ${colorWhiteBorder};
     }
   `}
 `;
@@ -151,7 +171,7 @@ const BadgeCircle = styled.div`
   bottom: ${borderSize};
   right: 3px;
   background-color: ${colorDanger};
-  border: ${borderSize} solid ${colorGrayDark};
+  border: ${borderSize} solid ${colorGrayDarkBorder};
   display: flex;
   justify-content: center;
   align-items: center;

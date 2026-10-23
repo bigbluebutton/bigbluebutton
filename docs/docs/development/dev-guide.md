@@ -9,13 +9,13 @@ keywords:
 - developer
 ---
 
-Welcome to the BigBlueButton Developer's Guide for BigBlueButton 4.0.
+Welcome to the BigBlueButton Developer's Guide for BigBlueButton 4.1.
 
-This document gives you an overview of how to set up a development environment for BigBlueButton 4.0.
+This document gives you an overview of how to set up a development environment for BigBlueButton 4.1.
 
 ## Before you begin
 
-You first need to set up a BigBlueButton 4.0 server. See the instructions at [Install BigBlueButton 4.0](/administration/install).
+You first need to set up a BigBlueButton 4.1 server. See the instructions at [Install BigBlueButton 4.1](/administration/install).
 
 ## Overview
 
@@ -37,13 +37,11 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-graphql-actions -- handles requests from the clients on their way to the core
 - bbb-webrtc-sfu -- manages media connections
 - bbb-webrtc-recorder -- handles recording of the media
-- bbb-pads -- manages the control to Etherpad
 - bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
-- bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
-- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (serving as the Shared Notes component and replacing Etherpad)
+- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (the Shared Notes component)
 - bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
-This document describes how to set up a development environment using an existing BigBlueButton 4.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
+This document describes how to set up a development environment using an existing BigBlueButton 4.1 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
 
 The instructions in this guide are step-by-step so you can understand each step needed to modify a component. If you encounter problems or errors at any section, don't ignore the errors. Stop and double-check that you have done the step correctly. If you are unable to determine the cause of the error, do the following
 
@@ -55,7 +53,7 @@ The instructions in this guide are step-by-step so you can understand each step 
 
 Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/administration/install)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
 
-We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v3/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url (just run the command `bbb-conf --salt` to obtain a link for API MATE).
+We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v3/install) or navigate to [API MATE](https://bigbluebutton.github.io/api-mate/) using your server's secret and url (just run the command `bbb-conf --salt` to obtain a link for API MATE).
 
 By starting with a working BigBlueButton server, you have the ability to switch back-and-forth between the default-packaged components and any modifications you make.
 
@@ -164,8 +162,8 @@ curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 sdk install gradle 8.14.3 
-sdk install grails 7.0.0
-sdk install sbt 1.6.2
+sdk install grails 7.0.12
+sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
 
@@ -188,20 +186,20 @@ After cloning, you'll have the following directory (make sure the `bigbluebutton
 /home/bigbluebutton/dev/bigbluebutton
 ```
 
-Confirm that you are working on the `v4.0.x-release` branch.
+Confirm that you are working on the `v4.1.x-release` branch.
 
 ```bash
 cd /home/bigbluebutton/dev/bigbluebutton
 git status
 ```
 
-BigBlueButton 4.0 source code lives on branch `v4.0.x-release`. This is where any patches to 4.0 will be merged. If you are looking to customize your BigBlueButton 4.0 clone to fit your needs, this is the branch to use.
+BigBlueButton 4.1 source code lives on branch `v4.1.x-release`. This is where any patches to 4.1 will be merged. If you are looking to customize your BigBlueButton 4.1 clone to fit your needs, this is the branch to use.
 
-For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v4.0.x-release`.
+For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v4.1.x-release`.
 
 ```
-On branch v4.0.x-release
-Your branch is up-to-date with 'origin/v4.0.x-release'.
+On branch v4.1.x-release
+Your branch is up-to-date with 'origin/v4.1.x-release'.
 nothing to commit, working directory clean
 ```
 
@@ -223,10 +221,10 @@ After, we need to fetch the most up to date version of the remote repository.
 git fetch upstream
 ```
 
-You are now ready to create a new branch to start your work and base the `v4.0.x-release` release branch
+You are now ready to create a new branch to start your work and base the `v4.1.x-release` release branch
 
 ```bash
-git checkout -b my-changes-branch upstream/v4.0.x-release
+git checkout -b my-changes-branch upstream/v4.1.x-release
 ```
 
 "checkout" switches branches
@@ -235,7 +233,7 @@ git checkout -b my-changes-branch upstream/v4.0.x-release
 
 "my-changes-branch" will be the name of the new branch
 
-"upstream/v4.0.x-release" is where you want to start your new branch
+"upstream/v4.1.x-release" is where you want to start your new branch
 
 You should now confirm that you are in the correct branch.
 
@@ -416,6 +414,27 @@ to begin exporting presentations with annotations. If you run into permission is
 and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
 
 Use `journalctl -u bbb-export-annotations -e` to see recent logs.
+
+## Developing the Learning Dashboard
+
+The Learning Analytics Dashboard is a React application bundled with [webpack](https://webpack.js.org/), the same bundler the HTML5 client uses. It is served as static files by nginx under `/learning-analytics-dashboard/`.
+
+To work on it with hot reload, run (as user `bigbluebutton` on your development server):
+
+```bash
+cd ~/dev/bigbluebutton/bbb-learning-dashboard
+./run-dev.sh
+```
+
+This starts webpack-dev-server on port 3100 and installs an nginx location that proxies `/learning-analytics-dashboard/` to it, including the hot-module-reload websocket, which connects back through nginx on port 443.
+
+To build the production bundle and have nginx serve the static files instead, run:
+
+```bash
+./deploy.sh
+```
+
+Environment variables for the dashboard (for example `REACT_APP_EXTERNAL_HELP_PAGE_URL`, which adds an external help link) are read from `bbb-learning-dashboard/.env`; copy `.env.example` to `.env` to get started. Setting `REACT_APP_STANDALONE_MODE=true` at build time produces a build that loads `learning_dashboard_data.json`, locales, and the presentation from paths relative to the exported dashboard, for serving outside of a BigBlueButton server.
 
 ## Troubleshooting
 

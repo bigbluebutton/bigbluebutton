@@ -4,8 +4,10 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import {
+  clickBlockNoteLink,
   getBlockNoteEditorLocator,
   getBlockNoteLinkLocator,
+  openBlockNoteLinkEditor,
   readLinkAndCursorState,
   startBlockNoteSharedNotes,
   WORD_JOINER,
@@ -15,6 +17,165 @@ import {
 const LINK_URL = 'https://github.com/bigbluebutton/bigbluebutton/issues/25175';
 
 export class BlockNoteSharedNotes extends MultiUsers {
+  async sideMenuMustHideOutsideEditor() {
+    await startBlockNoteSharedNotes(this.modPage);
+
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type('First block');
+    await this.modPage.page.keyboard.press('Enter');
+    await this.modPage.page.keyboard.type('Second block');
+
+    const firstBlock = editor.locator('.bn-block-outer').first();
+    const editorBox = await editor.boundingBox();
+    const firstBlockBox = await firstBlock.boundingBox();
+    expect(editorBox, 'BlockNote editor should have a bounding box').not.toBeNull();
+    expect(firstBlockBox, 'first BlockNote block should have a bounding box').not.toBeNull();
+    if (!editorBox || !firstBlockBox) return;
+
+    const blockY = firstBlockBox.y + firstBlockBox.height / 2;
+    await this.modPage.page.mouse.move(firstBlockBox.x + firstBlockBox.width / 2, blockY);
+    const sideMenu = this.modPage.page.locator(e.blockNoteSideMenu);
+    await expect(sideMenu, 'should display the side menu while hovering a block').toBeVisible();
+
+    // Regression test for #25575: BlockNote listens for mouse movement on the
+    // whole document and used to re-open the menu near a block, outside the editor.
+    await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 120, blockY);
+    await expect(sideMenu, 'should hide the side menu outside the editor').toBeHidden();
+
+    await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 130, blockY);
+    await expect(sideMenu, 'should keep the side menu hidden on later mouse movement outside the editor').toBeHidden();
+
+    await this.modPage.page.mouse.move(firstBlockBox.x + firstBlockBox.width / 2, blockY);
+    const dragHandle = sideMenu.getByRole('button', { name: 'Open block menu' });
+    await expect(dragHandle, 'should display the drag handle inside the editor').toBeVisible();
+    await dragHandle.click();
+    const blockMenu = this.modPage.page.getByRole('menu');
+    await expect(blockMenu, 'should open the block menu from the drag handle').toBeVisible();
+
+    await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 120, blockY);
+    await expect(sideMenu, 'should keep the frozen side menu visible outside the editor').toBeVisible();
+    await expect(blockMenu, 'should keep the frozen block menu open outside the editor').toBeVisible();
+    await this.modPage.page.keyboard.press('Escape');
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+  }
+
+  async linksOpenOnlyOnCtrlOrCmdClick() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startBlockNoteSharedNotes(this.modPage);
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type(`${LINK_URL} `);
+
+    const link = getBlockNoteLinkLocator(this.modPage);
+    await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    const context = this.modPage.page.context();
+    await context.route(LINK_URL, (route) => route.fulfill({ contentType: 'text/html', body: '' }));
+    const plainClickPage = await Promise.all([
+      context.waitForEvent('page', { timeout: 3000 }).catch(() => null),
+      clickBlockNoteLink(this.modPage),
+    ]).then(([page]) => page);
+    expect(plainClickPage, 'a plain click must not open the link').toBeNull();
+    const caretInsideLink = await link.evaluate((anchor) => {
+      const selection = window.getSelection();
+      return !!selection?.anchorNode && anchor.contains(selection.anchorNode);
+    });
+    expect(caretInsideLink, 'a plain click should leave the caret inside the link').toBe(true);
+    await this.modPage.page.keyboard.press('Escape');
+    const [newPage] = await Promise.all([context.waitForEvent('page'), clickBlockNoteLink(this.modPage, true)]);
+    await expect.poll(() => newPage.url()).toBe(LINK_URL);
+    await newPage.close();
+  }
+
+  async linkUrlAndTextCanBeEdited() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startBlockNoteSharedNotes(this.modPage);
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type(`${LINK_URL} `);
+
+    const link = getBlockNoteLinkLocator(this.modPage);
+    await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await openBlockNoteLinkEditor(this.modPage);
+
+    const form = this.modPage.page.locator(e.blockNoteLinkForm);
+    const urlInput = form.locator('input[name="url"]');
+    const textInput = form.locator('input[name="title"]');
+    const editedUrl = `${LINK_URL}/bigbluebutton`;
+    const editedText = 'BigBlueButton repository';
+
+    await expect(urlInput, 'URL input should receive initial focus').toBeFocused();
+    await urlInput.click();
+    await expect(urlInput, 'URL input should retain focus when clicked').toBeFocused();
+    await urlInput.fill(editedUrl);
+    await textInput.click();
+    await expect(textInput, 'text input should retain focus when clicked').toBeFocused();
+    await textInput.fill(editedText);
+    await textInput.press('Enter');
+
+    await expect(link, 'should update the link text').toHaveText(editedText);
+    await expect(link, 'should update the link URL').toHaveAttribute('href', editedUrl);
+    await expect(editor, 'edited values should not be inserted as document text').not.toContainText(
+      `${LINK_URL} /bigbluebutton`,
+    );
+  }
+
+  async linkEditorMustNotOverflowNotesPanel() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startBlockNoteSharedNotes(this.modPage);
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type(`${LINK_URL} `);
+
+    const link = getBlockNoteLinkLocator(this.modPage);
+    await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    const notesPanel = this.modPage.page.locator(e.sharedNotesBackground);
+    const panelX = (await notesPanel.boundingBox())?.x;
+    expect(panelX, 'shared notes panel should be visible').toBeDefined();
+
+    await openBlockNoteLinkEditor(this.modPage);
+    const form = this.modPage.page.locator(e.blockNoteLinkForm);
+    const urlInput = form.locator('input[name="url"]');
+    const textInput = form.locator('input[name="title"]');
+
+    expect((await notesPanel.boundingBox())?.x, 'opening the link editor must not move the notes panel').toBe(panelX);
+    await urlInput.click();
+    expect((await notesPanel.boundingBox())?.x, 'focusing the URL input must not move the notes panel').toBe(panelX);
+    await textInput.click();
+    expect((await notesPanel.boundingBox())?.x, 'focusing the text input must not move the notes panel').toBe(panelX);
+
+    const { scrollWidth, clientWidth } = await form.evaluate((element) => ({
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth,
+    }));
+    expect(scrollWidth, 'link editor content must fit within the popover').toBeLessThanOrEqual(clientWidth);
+  }
+
   // Reproduces issue #25225: when a remote user's caret sits inside a link, that
   // user's collaboration-cursor name (and the U+2060 word-joiner separators around
   // it) must NOT be embedded in the link's text or href as seen by other users.
@@ -22,7 +183,7 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const { sharedNotesEnabled } = this.modPage.settings || {};
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
       return;
     }
 

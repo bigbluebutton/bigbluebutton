@@ -1,20 +1,16 @@
-import styled, { css } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
+import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
-  colorPrimary,
-  colorDanger,
-  colorWhite,
-  colorText,
-  btnPrimaryHoverBg,
-  btnDangerBgHover,
   btnPrimaryBg,
+  colorSurfaceMuted,
+  colorText,
+  colorTextEmphasis,
+  colorTextSecondary,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  jumboPaddingY,
   $2xlPadding,
-  borderSizeSmall,
   appsButtonsBorderRadius,
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -23,7 +19,7 @@ const RequestModal = styled(ModalSimple)`
   padding: ${$2xlPadding};
 
   border-radius: ${appsButtonsBorderRadius};
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   button[class*="close"] {
@@ -69,50 +65,6 @@ const RequestModalContent = styled.div`
   padding: 1rem;
 `;
 
-const RequestModalButton = styled(Button)`
-  margin: 0;
-  font-weight: 400;
-
-  font-size: 1.125rem;
-  padding: ${$2xlPadding} ${jumboPaddingY};
-  border-radius: 1.25rem;
-  flex-grow: 0;
-
-  i {
-    font-size: 1.5rem;
-  }
-
-  ${({ color }) => color === 'primary' && css`
-    background-color: ${colorPrimary};
-    color: ${colorWhite};
-    border: ${borderSizeSmall} solid ${colorPrimary};
-
-    &:hover, &:focus {
-      background-color: ${btnPrimaryHoverBg};
-      border-color: ${btnPrimaryHoverBg};
-    }
-  `}
-
-  ${({ ghost, color }) => ghost && color === 'danger' && css`
-    background-color: transparent;
-    border: ${borderSizeSmall} solid ${colorDanger};
-    color: ${colorDanger};
-
-    i {
-      color: ${colorDanger};
-    }
-
-    &:hover, &:focus {
-      background-color: ${btnDangerBgHover};
-      border-color: ${btnDangerBgHover};
-      color: ${colorWhite};
-      i {
-        color: ${colorWhite};
-      }
-    }
-  `}
-`;
-
 const NotificationContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -147,7 +99,7 @@ const ConfirmationButton = styled.button`
 
 const CancelButton = styled.button`
   background-color: transparent;
-  color: #333;
+  color: ${colorTextEmphasis};
   padding: 10px 24px;
   font-size: 1rem;
   font-weight: 400;
@@ -157,20 +109,20 @@ const CancelButton = styled.button`
   border: none;
 
   &:hover {
-    background-color: #f4f4f4;
+    background-color: ${colorSurfaceMuted};
   }
 `;
 
 const TitleText = styled.h3`
   font-size: 1.125rem;
-  color: #333;
+  color: ${colorTextEmphasis};
   font-weight: 700;
   margin-bottom: 8px;
 `;
 
 const DescriptionText = styled.p`
   font-size: 1rem;
-  color: #666;
+  color: ${colorTextSecondary};
   text-align: left;
   margin: 0;
 `;
@@ -195,7 +147,6 @@ export default {
   UserInfo,
   UserName,
   RequestModalContent,
-  RequestModalButton,
   NotificationContent,
   NotificationActions,
   ConfirmationButton,

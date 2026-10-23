@@ -128,12 +128,6 @@ public:
     uploadEndpoint: 'https://bbb-01.example.com/bigbluebutton/presentation/upload'
   sharedNotes:
     serverHostname: bbb-01.example.com
-  # for BBB 2.4:
-  note:
-    url: 'https://bbb-01.example.com/pad'
-  # for BBB 2.5 or later
-  pads:
-    url: 'https://bbb-01.example.com/pad'
 ```
 
 ---
@@ -176,18 +170,6 @@ Add a route for the locales handler for the guest lobby. The guest lobby is serv
 # /etc/bigbluebutton/nginx/bbb-cluster.nginx
 location =/html5client/locale {
   return 301 /bbb-01$request_uri;
-}
-```
-
----
-
-Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
-
-```json
-{
-	"cluster_proxies": [
-		"https://bbb-proxy.example.com"
-	]
 }
 ```
 

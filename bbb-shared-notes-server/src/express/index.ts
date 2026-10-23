@@ -80,14 +80,25 @@ const startExpressApp = () => {
   app.use(express.json());
   app.use(limiter);
   app.use('/api/documents', express.raw({ type: 'application/octet-stream', limit: '10mb' }));
+  app.use('/loopback/api/documents', express.raw({ type: 'application/octet-stream', limit: '10mb' }));
   app.use('/api/documents/:documentName', (req, res, next) => {
+    if (req.get('user-currently-online') !== 'true') {
+      logger.warn(`Blocked document access for non-member at ${req.originalUrl}`);
+      res.sendStatus(403);
+      return;
+    }
+    next();
+  });
+  const validateDocumentMeeting: express.RequestHandler = (req, res, next) => {
     const meetingIdHeader = req.get('meeting-id');
     if (!meetingIdHeader) {
       next();
       return;
     }
 
-    const { documentName } = req.params;
+    const documentName = Array.isArray(req.params.documentName)
+      ? req.params.documentName[0]
+      : req.params.documentName;
     const meetingIdFromUrl = extractMeetingId(documentName);
 
     if (meetingIdHeader !== meetingIdFromUrl) {
@@ -96,7 +107,9 @@ const startExpressApp = () => {
       return;
     }
     next();
-  });
+  };
+  app.use('/api/documents/:documentName', validateDocumentMeeting);
+  app.use('/loopback/api/documents/:documentName', validateDocumentMeeting);
 
   // Websocket APIs
   app.ws("/collaboration", websocketApi.collaboration);
@@ -104,6 +117,8 @@ const startExpressApp = () => {
   // Rest APIs
   app.get("/api/documents/:documentName/export/:format", documentApi.export);
   app.get("/api/documents/:documentName", documentApi.get);
+  app.get("/loopback/api/documents/:documentName/export/:format", documentApi.export);
+  app.get("/loopback/api/documents/:documentName", documentApi.get);
 
   runDevelopmentRoutes();
 

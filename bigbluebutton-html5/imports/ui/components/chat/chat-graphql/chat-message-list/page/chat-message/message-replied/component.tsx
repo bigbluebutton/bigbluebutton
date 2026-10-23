@@ -1,5 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Auth from '/imports/ui/services/auth';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
@@ -46,6 +47,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
           <Styled.HtmlContent
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message) }}
+            $currentUserId={Auth.userID as string | undefined}
           />
         </Styled.Message>
       )}
