@@ -2412,6 +2412,7 @@ CREATE UNLOGGED TABLE "layout" (
 	"cameraWithFocus" 		varchar(255),
 	"propagateLayout" 		boolean,
 	"screenshareAsContent" 	boolean,
+	"hideUsersWithoutCamera" boolean default false,
     "setByUserId"           varchar(50),
 	"updatedAt" 			timestamp with time zone
 );

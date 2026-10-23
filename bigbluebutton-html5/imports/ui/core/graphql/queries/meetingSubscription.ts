@@ -48,6 +48,7 @@ const MEETING_SUBSCRIPTION = gql`
           cameraDockPlacement
           cameraWithFocus
           currentLayoutType
+          hideUsersWithoutCamera
           presentationMinimized
           propagateLayout
           setByUserId

@@ -31,3 +31,11 @@ case class SetScreenshareAsContentReqMsgBody(screenshareAsContent: Boolean)
 object SetScreenshareAsContentEvtMsg { val NAME = "SetScreenshareAsContentEvtMsg" }
 case class SetScreenshareAsContentEvtMsg(header: BbbClientMsgHeader, body: SetScreenshareAsContentEvtMsgBody) extends StandardMsg
 case class SetScreenshareAsContentEvtMsgBody(screenshareAsContent: Boolean)
+
+object SetHideUsersWithoutCameraReqMsg { val NAME = "SetHideUsersWithoutCameraReqMsg" }
+case class SetHideUsersWithoutCameraReqMsg(header: BbbClientMsgHeader, body: SetHideUsersWithoutCameraReqMsgBody) extends StandardMsg
+case class SetHideUsersWithoutCameraReqMsgBody(hideUsersWithoutCamera: Boolean)
+
+object SetHideUsersWithoutCameraEvtMsg { val NAME = "SetHideUsersWithoutCameraEvtMsg" }
+case class SetHideUsersWithoutCameraEvtMsg(header: BbbClientMsgHeader, body: SetHideUsersWithoutCameraEvtMsgBody) extends BbbCoreMsg
+case class SetHideUsersWithoutCameraEvtMsgBody(hideUsersWithoutCamera: Boolean, setByUserId: String)
