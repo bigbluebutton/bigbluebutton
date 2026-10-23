@@ -4,7 +4,7 @@
 # server's tap (bbb-conform tap), for the bus, fs and redis steps: without
 # one, those cases are skipped.
 name: bbb-web
-capabilities: [akka, presence]
+capabilities: [akka, presence, presentation-conversion]
 # Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
 # authorization hooks can't be reached through nginx, so cases call them on
 # bbb-web itself: set BBB_WEB_DIRECT_URL (e.g. http://127.0.0.1:8090) to run

@@ -4,6 +4,12 @@
 # instead of installing it: the packages' install scripts need systemd and
 # a running database. What those scripts would have set up is done here.
 
+# The LibreOffice the bbb-libreoffice-docker package converts Office
+# documents with; make -C env passes the tag bbb-libreoffice/docker/Dockerfile
+# names.
+ARG LIBREOFFICE_IMAGE=bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+FROM ${LIBREOFFICE_IMAGE} AS libreoffice
+
 # Ubuntu 24.04, as packaged servers run, with the bigbluebutton user every
 # image shares, so files on the data volume belong to the same user. Its
 # home is where bbb-record-core's install puts it.
@@ -28,12 +34,20 @@ CMD ["init-data"]
 FROM base AS bbb-web
 # The package's Depends (opts-noble.sh), minus the bbb-* and redis ones,
 # plus the converters' tools that a default install pulls in as
-# Recommends (poppler, ghostscript).
+# Recommends (poppler, ghostscript); bbb-libreoffice-docker's fonts, which
+# its converter uses from the host; and the libraries LibreOffice needs
+# that its image installs.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends openjdk-21-jre-headless zip unzip imagemagick \
       libmagickcore-6.q16-7-extra poppler-utils ghostscript psmisc fonts-crosextra-carlito \
       fonts-crosextra-caladea fonts-noto file potrace \
+      fonts-arkpandora fonts-noto-cjk fonts-liberation \
+      libcairo2 libx11-xcb1 libxinerama1 libxslt1.1 libxt6 \
  && rm -rf /var/lib/apt/lists/*
+COPY --from=libreoffice /opt/ /opt/
+COPY --chmod=755 images/bbb-web/convert.sh /usr/share/bbb-libreoffice-conversion/convert.sh
+RUN missing=$(ldd /opt/libreoffice*/program/soffice.bin /opt/libreoffice*/program/libmergedlo.so | grep 'not found' || true) \
+ && if [ -n "$missing" ]; then echo "LibreOffice is missing: $missing" >&2; exit 1; fi
 RUN --mount=type=bind,from=debs,target=/debs unpack 'bbb-web_*.deb' \
  # What after-install.sh does to the packaged properties, but the host and
  # salt, which the stack's /etc/bigbluebutton/bbb-web.properties sets.

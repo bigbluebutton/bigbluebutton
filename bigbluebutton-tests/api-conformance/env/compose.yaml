@@ -6,6 +6,8 @@ name: bbb-conform-tier1
 x-build: &build
   context: .
   dockerfile: images/Dockerfile
+  args:
+    - LIBREOFFICE_IMAGE # from make; else the Dockerfile's default
   additional_contexts:
     debs: ${DEBS_DIR:-./.state/debs}
     config: ../../../bigbluebutton-config

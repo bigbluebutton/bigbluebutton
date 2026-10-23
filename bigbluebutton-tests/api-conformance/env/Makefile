@@ -4,6 +4,8 @@ TIER1 := $(CURDIR)/tier1
 STATE := $(CURDIR)/.state
 export DEBS_DIR ?= $(STATE)/debs
 COMPOSE := docker compose -f $(CURDIR)/compose.yaml
+# The LibreOffice image the packages convert with.
+export LIBREOFFICE_IMAGE := $(shell sed -n 's/^FROM //p' $(CURDIR)/../../../bbb-libreoffice/docker/Dockerfile)
 # The long-running services; up waits for them to be healthy.
 SERVICES := redis postgres hasura akka-apps bbb-web middleware actions nginx tap
 
