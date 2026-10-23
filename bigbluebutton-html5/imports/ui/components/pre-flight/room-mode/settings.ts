@@ -148,7 +148,7 @@ export interface AutomaticSetting {
   appliesTo: (preset: RoomModePreset, room: RoomModeRoomValues) => boolean;
 }
 
-// In the order of the Mode values (Phase 1) matrix.
+// In the order the summary lists them.
 export const EDITABLE_SETTINGS: EditableSetting[] = [
   {
     id: 'guestPolicy',

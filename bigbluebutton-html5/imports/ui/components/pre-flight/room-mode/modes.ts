@@ -54,9 +54,8 @@ const ROOM_MODES: RoomModeDefinition[] = [
     name: intlMessages.className,
     hint: intlMessages.classHint,
     dataTest: 'preFlightRoomModeClass',
-    // The Mode values (Phase 1) matrix: a presenter leads, so presenting goes
-    // through a moderator and everyone can draw. The waiting room is left as
-    // created.
+    // A presenter leads, so presenting goes through a moderator and everyone
+    // can draw. The waiting room is left as created.
     preset: {
       editable: {
         joinMuted: true,
