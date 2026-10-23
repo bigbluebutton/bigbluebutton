@@ -263,7 +263,9 @@ holds a secret, all come from one target, and none records a case that no
 longer exists. `go test ./...` runs this on the suite's `cases/` and
 `golden/bbb-web/`, and checks that every profile a case asks for is listed
 in `targets/bbb-web.yaml`; it skips that test when `cases/` is missing,
-unless `BBB_CONFORM_SUITE=1`.
+unless `BBB_CONFORM_SUITE=1`. CI runs gofmt, `go vet` and these tests on
+every pull request that touches the suite
+(`.github/workflows/api-conformance-runner.yml`).
 
 Editors with the YAML language server can check against the schema as you
 type. Put this first in a case file under `cases/<area>/<group>/`:
