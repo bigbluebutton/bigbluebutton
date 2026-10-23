@@ -11,11 +11,17 @@ export async function enableChatPopup(testPage: Page) {
 export async function enableUserJoinPopup(testPage: Page) {
   await testPage.waitAndClick(e.notificationsTab);
   await testPage.waitAndClickElement(e.userJoinPushAlerts);
+  await testPage.hasElementChecked(e.userJoinPushAlerts, 'should enable the user join pop-up alerts');
 }
 
 export async function enableUserLeavePopup(testPage: Page) {
   await testPage.waitAndClick(e.notificationsTab);
   await testPage.waitAndClickElement(e.userLeavePushAlerts);
+  // waitAndClickElement does not fail when the click has no effect
+  await expect(
+    testPage.page.locator(e.userLeavePushAlerts),
+    'should turn on the user leave popup alerts',
+  ).toBeChecked();
 }
 
 export async function saveSettings(testPage: Page) {

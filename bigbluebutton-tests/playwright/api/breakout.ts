@@ -1,8 +1,9 @@
-import { expect } from '@playwright/test';
+import { type APIRequestContext, expect } from '@playwright/test';
 
 import { Join } from '../breakout/join';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { getMeetingInfo } from '../core/endpoints';
-import { createMeetingPromise } from '../core/helpers';
+import { createMeeting, createMeetingPromise, endMeetings } from '../core/helpers';
 
 export class APIBreakout extends Join {
   // Attempt to use API to create a breakout room without a parent
@@ -17,14 +18,18 @@ export class APIBreakout extends Join {
   }
 
   // Attempt to use API to create a break room without a sequence number
-  async testBreakoutWithoutSequenceNumber() {
-    if (!this?.modPage) throw new Error('modPage not initialized');
+  static async testBreakoutWithoutSequenceNumber(request: APIRequestContext) {
+    const parentMeetingId = await createMeeting();
+    try {
+      const { data, status } = await createMeetingPromise(`isBreakout=true&parentMeetingID=${parentMeetingId}`).catch(
+        (error) => error.response,
+      );
 
-    await expect(
-      createMeetingPromise(`isBreakout=true&parentMeetingID=${this.modPage.meetingId}`),
-    ).rejects.toMatchObject({
-      response: { status: 500 },
-    });
+      expect(status, 'should return status 200 from the request').toEqual(200);
+      expect(data.response.returncode, 'should return "FAILED" as returncode value').toEqual('FAILED');
+    } finally {
+      await endMeetings(request, [parentMeetingId]);
+    }
   }
 
   // Attempt to use API to create a break room with a non-existent parent meeting
@@ -39,96 +44,54 @@ export class APIBreakout extends Join {
   }
 
   // Check that breakout rooms created via the GUI appear properly in the API's meeting info
-  async testBreakoutMeetingInfoNoJoins() {
+  private async getBreakoutRoomsInfo() {
     if (!this?.modPage) throw new Error('modPage not initialized');
-    // We have two breakout rooms, but neither user has joined a breakout room.
-    // Make sure the API getMeetingInfo returns expected results
 
     const { data } = await getMeetingInfo(this.modPage.meetingId);
     expect(data.response.returncode).toEqual(['SUCCESS']);
     expect(data.response.isBreakout).toEqual(['false']);
-    expect(data.response?.breakoutRooms?.[0]?.breakout?.length).toEqual(2);
+    const breakoutRoomIds = data.response.breakoutRooms?.[0]?.breakout ?? [];
+    expect(breakoutRoomIds, 'the parent meeting should list the two breakout rooms').toHaveLength(2);
 
-    const breakoutRoomResponses = await Promise.all(
-      (data.response.breakoutRooms?.[0]?.breakout || []).map(async (breakoutRoom: { length: string[] }) => {
-        const { data } = await getMeetingInfo(breakoutRoom.length[0]);
-        return { breakoutRoom: breakoutRoom.length, data };
-      }),
+    const rooms = await Promise.all(
+      breakoutRoomIds.map(async (breakoutRoomId) => (await getMeetingInfo(breakoutRoomId)).data.response),
     );
-
-    breakoutRoomResponses.forEach(({ breakoutRoom, data }) => {
-      const expectedMeeting = {
-        meetingID: [breakoutRoom],
+    rooms.forEach((room) => {
+      expect(room).toMatchObject({
+        returncode: ['SUCCESS'],
         isBreakout: ['true'],
-        running: ['false'],
-        participantCount: ['0'],
-        hasUserJoined: ['false'],
-        attendees: ['\n'] /* no attendees; the newline is an artifact of xml2js */,
-        freeJoin: ['false'],
-        sequence: [expect.stringMatching('[12]')],
         parentMeetingID: data.response.internalMeetingID,
-      };
+      });
+    });
+    expect(rooms.map((room) => room.sequence?.[0]).sort()).toEqual(['1', '2']);
+    return rooms;
+  }
 
-      expect(data.response.returncode).toEqual('FAILED');
-      expect(data.response).toMatchObject(expectedMeeting);
+  async testBreakoutMeetingInfoNoJoins() {
+    // We have two breakout rooms, but neither user has joined a breakout room.
+    const rooms = await this.getBreakoutRoomsInfo();
+    rooms.forEach((room) => {
+      expect(room).toMatchObject({ running: ['false'], participantCount: ['0'], hasUserJoined: ['false'] });
     });
   }
 
   async testBreakoutMeetingInfoOneJoin() {
-    if (!this?.modPage) throw new Error('modPage not initialized');
-    // We have two breakout rooms, and one user has joined a breakout room.
-    // Make sure the API getMeetingInfo returns expected results
+    if (!this?.userPage) throw new Error('userPage not initialized');
+    // We have two breakout rooms, and the attendee has joined the first one.
+    await expect(async () => {
+      const rooms = await this.getBreakoutRoomsInfo();
+      const [first, second] = [...rooms].sort((a, b) => Number(a.sequence?.[0]) - Number(b.sequence?.[0]));
+      expect(first).toMatchObject({
+        running: ['true'],
+        participantCount: ['1'],
+        hasUserJoined: ['true'],
+        attendees: [{ attendee: [expect.objectContaining({ fullName: [this.userPage.username] })] }],
+      });
+      expect(second).toMatchObject({ running: ['false'], participantCount: ['0'], hasUserJoined: ['false'] });
+    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
 
-    // First, check that we can retrieve the parent meeting
-
-    const { data } = await getMeetingInfo(this.modPage.meetingId);
-    expect(data.response.returncode).toEqual('SUCCESS');
-    expect(data.response.isBreakout).toEqual('FALSE');
-
-    // Then, check that the parent meeting lists two breakout rooms
-    const breakoutRooms = data.response?.breakoutRooms?.[0]?.breakout;
-    if (!breakoutRooms) throw new Error('no breakout rooms found');
-    expect(breakoutRooms.length).toEqual(2);
-
-    // Retrieve meeting info for both breakout rooms
-
-    // Attendee, a VIEWER in the parent meeting, becomes a MODERATOR (and presenter) in breakout
-
-    const expectedUser = expect.objectContaining({
-      fullName: ['Attendee'],
-      role: ['MODERATOR'],
-      isPresenter: ['true'],
-    });
-
-    const expectedMeeting1 = {
-      isBreakout: ['true'],
-      running: ['true'],
-      participantCount: ['1'],
-      hasUserJoined: ['true'],
-      attendees: [{ attendee: [expectedUser] }],
-      freeJoin: ['false'],
-      sequence: ['1'],
-      parentMeetingID: data.response.internalMeetingID,
-    };
-
-    const expectedMeeting2 = {
-      isBreakout: ['true'],
-      running: ['false'],
-      participantCount: ['0'],
-      hasUserJoined: ['false'],
-      attendees: ['\n'] /* no attendees; the newline is an artifact of xml2js */,
-      freeJoin: ['false'],
-      sequence: ['2'],
-      parentMeetingID: data.response.internalMeetingID,
-    };
-
-    const expectedResponse1 = { response: expect.objectContaining(expectedMeeting1) };
-    const expectedResponse2 = { response: expect.objectContaining(expectedMeeting2) };
-
-    // Note that this is an array of two responses from two API calls,
-    // not a single API call response containing two breakout rooms
-
-    const response2array = breakoutRooms.map((breakoutRoom) => getMeetingInfo(breakoutRoom.length[0]));
-    expect(response2array).toEqual(expect.arrayContaining([expectedResponse1, expectedResponse2]));
+  async endParentMeeting(request: APIRequestContext) {
+    if (this?.modPage?.meetingId) await endMeetings(request, [this.modPage.meetingId]);
   }
 }

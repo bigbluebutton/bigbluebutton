@@ -729,6 +729,7 @@ class PresentationUploader extends Component {
             label={intl.formatMessage(intlMessages.shareLabel)}
             onClick={this.handleConfirm}
             disabled={currentPresentation === activeThumbnailId || !activeThumbnailId}
+            fullWidth
           />
         </ModalStyled.FooterContainer>
       </div>
