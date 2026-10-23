@@ -409,7 +409,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
       await chat.dropOnChatPanel();
     });
 
-    test('Send a file that is not an image as a link', async ({ browser, context, page }, testInfo) => {
+    test('Send a file that is not an image as a file row', async ({ browser, context, page }, testInfo) => {
       const chat = new ChatImagePaste(browser, context);
       await chat.initPages(page, testInfo);
       await chat.sendNonImageFile();
