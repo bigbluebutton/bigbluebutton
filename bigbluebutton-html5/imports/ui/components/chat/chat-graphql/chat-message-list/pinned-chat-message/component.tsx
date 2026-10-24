@@ -81,7 +81,11 @@ const setPinnedMessageCollapsed = (chatId: string, messageId: string, collapsed:
   } else {
     delete collapsedPinnedMessages[chatId];
   }
-  Storage.setItem(COLLAPSED_PINNED_MESSAGES_KEY, collapsedPinnedMessages);
+  try {
+    Storage.setItem(COLLAPSED_PINNED_MESSAGES_KEY, collapsedPinnedMessages);
+  } catch (e) {
+    // Storage unavailable or full: the toggle still works, it just isn't remembered
+  }
 };
 
 interface PinnedMessageComponentProps {
@@ -102,12 +106,18 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
   const [unpinMessage] = useMutation(CHAT_SET_PINNED_MUTATION);
 
   useLayoutEffect(() => {
-    setIsExpanded(!isPinnedMessageCollapsed(message.chatId, message.messageId));
+    const collapsedMessageId = getCollapsedPinnedMessages()[message.chatId];
+    const isCollapsed = collapsedMessageId === message.messageId;
+    // A different message is pinned now, so forget the one collapsed before
+    if (collapsedMessageId && !isCollapsed) {
+      setPinnedMessageCollapsed(message.chatId, message.messageId, false);
+    }
+    setIsExpanded(!isCollapsed);
   }, [message.chatId, message.messageId]);
 
   const handleToggleExpanded = () => {
-    setPinnedMessageCollapsed(message.chatId, message.messageId, isExpanded);
     setIsExpanded(!isExpanded);
+    setPinnedMessageCollapsed(message.chatId, message.messageId, isExpanded);
   };
 
   const handleUnpin = () => {
