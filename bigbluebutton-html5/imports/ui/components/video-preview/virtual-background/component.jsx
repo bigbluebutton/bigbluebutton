@@ -162,7 +162,7 @@ const VirtualBgSelector = ({
 
       setCurrentVirtualBg({ type, name, uniqueId: customParams?.uniqueId });
 
-      if (!index || index < 0) return null;
+      if (index == null || index < 0) return null;
 
       // Selecting a background doesn't change the list order (as in the profile
       // settings), so give focus back to the clicked button, which loses it while
