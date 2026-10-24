@@ -116,6 +116,14 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.profileSettings.addExtraCamera',
     description: 'Add Extra Camera Button Label',
   },
+  enableWebcamLabel: {
+    id: 'app.profileSettings.enableWebcam',
+    description: 'Button label to open the webcam preview, prompting for camera access',
+  },
+  enableWebcamHint: {
+    id: 'app.profileSettings.enableWebcamHint',
+    description: 'Hint telling the webcam must be enabled before sharing it',
+  },
 });
 
 interface CameraSection {
@@ -214,6 +222,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   // @ts-ignore
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
   const lastUsedWebcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage) as string || null;
+  // @ts-ignore
+  const { userProfileEagerCameraPrompt = true } = window.meetingClientSettings.public.kurento;
 
   const [cameraSections, setCameraSections] = React.useState<CameraSection[]>([]);
   const [activePreviewIndex, setActivePreviewIndex] = React.useState(0);
@@ -238,6 +248,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     deviceError,
     previewError,
     isCameraLoading,
+    isAwaitingCameraPermission,
     videoRef,
     currentVideoStream,
     VIEW_STATES,
@@ -247,11 +258,14 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     setCameraBrightness,
     stopVirtualBackground,
     applyStoredVirtualBg,
+    startPreview,
   } = useVideoPreview({
     initialDeviceId: initialWebcamDeviceId,
     initialProfileId: PreviewService.getDefaultProfile().id,
     isCameraShared: isAlreadyShared(initialWebcamDeviceId),
     forceOpen: true,
+    // A shared webcam means access was already granted, no need to wait for it
+    waitForCameraPermission: !userProfileEagerCameraPrompt && sharedDevices.length === 0,
   });
 
   const prevWebcamDeviceId = usePreviousValue(webcamDeviceId);
@@ -319,6 +333,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       return newSections;
     });
   }, [sharedDevices, lastUsedWebcamDeviceId, activePreviewIndex, webcamDeviceId]);
+
+  // Sharing a webcam elsewhere grants camera access, even when the browser
+  // can't report permission changes
+  useEffect(() => {
+    if (isAwaitingCameraPermission && sharedDevices.length > 0) startPreview();
+  }, [isAwaitingCameraPermission, sharedDevices, startPreview]);
 
   // Sync the active preview section with the current webcam device.
   useEffect(() => {
@@ -577,6 +597,27 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       justifyContent: 'center',
       alignItems: 'center',
     };
+
+    // Opening the panel shouldn't prompt for camera access, which would look like the
+    // webcam is about to be shared. Let the user ask for the preview instead.
+    if (isAwaitingCameraPermission) {
+      return (
+        <Styled.VideoPreviewContainer>
+          <Styled.CameraPreviewPlaceholder data-test="cameraPreviewPlaceholder">
+            <Styled.CameraPreviewPlaceholderIcon />
+            <Styled.EnableWebcamButton
+              color="primary"
+              label={formatMessage(intlMessages.enableWebcamLabel)}
+              onClick={startPreview}
+              data-test="enableWebcamButton"
+            />
+            <Styled.CameraPreviewHint>
+              {formatMessage(intlMessages.enableWebcamHint)}
+            </Styled.CameraPreviewHint>
+          </Styled.CameraPreviewPlaceholder>
+        </Styled.VideoPreviewContainer>
+      );
+    }
 
     const activeSection = cameraSections[activePreviewIndex];
 
@@ -852,8 +893,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.DevicesSettingsContainer>
           <AudioSelectors inAudio={!!currentUserData?.voice} />
         </Styled.DevicesSettingsContainer>
-        <Styled.Separator />
-        {cameraSections.map((section: CameraSection, sectionIndex) => {
+        {!isAwaitingCameraPermission && <Styled.Separator />}
+        {!isAwaitingCameraPermission && cameraSections.map((section: CameraSection, sectionIndex) => {
           const usedDeviceIds = cameraSections
             .map((s) => s.deviceId)
             .filter((id) => id !== section.deviceId);
@@ -907,7 +948,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           );
         })}
       </Styled.ProfileSettings>
-      {availableWebcams && availableWebcams.length > 1 && (
+      {!isAwaitingCameraPermission && availableWebcams && availableWebcams.length > 1 && (
       <>
         <Styled.Separator />
         <Styled.AddCameraContainer>
@@ -924,13 +965,23 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       )}
       <Styled.Separator />
       <Styled.SaveButtonContainer>
-        <Styled.SaveButton
-          disabled={isCameraAlreadyShared || isCameraLoading || !!(deviceError || previewError)}
-          color="primary"
-          label={formatMessage(intlMessages.joinVideoLabel)}
-          onClick={handleShareWebcams}
-          data-test="saveProfileSettings"
-        />
+        {isAwaitingCameraPermission ? (
+          // Sharing needs the preview stream, so enable the webcam first
+          <Styled.SaveButton
+            color="primary"
+            label={formatMessage(intlMessages.enableWebcamLabel)}
+            onClick={startPreview}
+            data-test="enableWebcamFooterButton"
+          />
+        ) : (
+          <Styled.SaveButton
+            disabled={isCameraAlreadyShared || isCameraLoading || !!(deviceError || previewError)}
+            color="primary"
+            label={formatMessage(intlMessages.joinVideoLabel)}
+            onClick={handleShareWebcams}
+            data-test="saveProfileSettings"
+          />
+        )}
       </Styled.SaveButtonContainer>
     </Styled.RootContainer>
   );

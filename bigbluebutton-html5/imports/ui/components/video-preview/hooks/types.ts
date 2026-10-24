@@ -49,6 +49,8 @@ export interface UseVideoPreviewProps {
   isCameraAsContent?: boolean;
   isCameraShared?: boolean;
   forceOpen?: boolean;
+  // Only open the camera on mount if the browser already granted access to it
+  waitForCameraPermission?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;
@@ -63,12 +65,14 @@ export interface UseVideoPreviewReturn {
   deviceError: string | null;
   previewError: string | null;
   isCameraLoading: boolean;
+  isAwaitingCameraPermission: boolean;
   brightness: number;
   wholeImageBrightness: boolean;
   videoRef: React.RefObject<HTMLVideoElement>;
   currentVideoStream: React.MutableRefObject<BBBVideoStream | null>;
   getInitialCameraStream: (deviceId: string | null) => Promise<string | null>;
   initializeCameras: () => void;
+  startPreview: () => void;
   displayPreview: () => void;
   handleSelectWebcam: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<string | null>;
   handleSelectProfile: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;
