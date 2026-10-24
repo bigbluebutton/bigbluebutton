@@ -223,7 +223,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
   const lastUsedWebcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage) as string || null;
   // @ts-ignore
-  const { preventUnexpectedCameraPermissionPrompt = false } = window.meetingClientSettings.public.kurento;
+  const { userProfileEagerCameraPrompt = true } = window.meetingClientSettings.public.kurento;
 
   const [cameraSections, setCameraSections] = React.useState<CameraSection[]>([]);
   const [activePreviewIndex, setActivePreviewIndex] = React.useState(0);
@@ -265,7 +265,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     isCameraShared: isAlreadyShared(initialWebcamDeviceId),
     forceOpen: true,
     // A shared webcam means access was already granted, no need to wait for it
-    waitForCameraPermission: preventUnexpectedCameraPermissionPrompt && sharedDevices.length === 0,
+    waitForCameraPermission: !userProfileEagerCameraPrompt && sharedDevices.length === 0,
   });
 
   const prevWebcamDeviceId = usePreviousValue(webcamDeviceId);
