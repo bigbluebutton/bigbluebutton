@@ -37,12 +37,15 @@ function loadConfig(): AppSettings {
     return load(readFileSync(EXPLICIT_CONFIG_PATH, 'utf8')) as AppSettings;
   }
   const defaultPath = existsSync(PRODUCTION_DEFAULT_PATH) ? PRODUCTION_DEFAULT_PATH : DEV_DEFAULT_PATH;
-  const config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
+  let config = load(readFileSync(defaultPath, 'utf8')) as AppSettings;
 
   if (existsSync(OVERRIDE_PATH)) {
     const override = load(readFileSync(OVERRIDE_PATH, 'utf8')) as Partial<AppSettings>;
-    return deepMerge(config, override);
+    config = deepMerge(config, override);
   }
+
+  // SERVER_HOST, if set, wins over the default and the override file
+  if (process.env.SERVER_HOST) config.expressServer.host = process.env.SERVER_HOST;
 
   return config;
 }

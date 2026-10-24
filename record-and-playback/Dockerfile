@@ -25,16 +25,11 @@ RUN make -C corec/tools/coremake \
     && make \
     && install -m 0755 release/*/mkclean /usr/local/bin/mkclean
 
-# The release of bbb-presentation-video.placeholder.sh, with its python3-perfect-freehand dependency
-WORKDIR /build/debs
-RUN curl -fsSL -o bbb-presentation-video.zip \
-        https://github.com/bigbluebutton/bbb-presentation-video/releases/download/5.1.0-rc.4/ubuntu-22.04.zip \
-    && curl -fsSLO https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb \
-    && printf '%s\n' "cd5636018f5de750a94a6dbbedbd1d620219beda392dfe70d9d9e6b238a4c4ee  bbb-presentation-video.zip" \
-        "35be7604c53b2cbfea0f5d19993378b7367e8241585707ba2d6c3fd3d2368419  python3-perfect-freehand_1.2.0_all.deb" > SHA256SUMS \
-    && sha256sum -c SHA256SUMS \
-    && unzip bbb-presentation-video.zip \
-    && rm bbb-presentation-video.zip
+# bbb-presentation-video and its python3-perfect-freehand dependency, downloaded by the script the
+# package build runs (build/get_external_dependencies.sh), so the image installs the package's release
+WORKDIR /build
+RUN --mount=type=bind,from=placeholders,source=bbb-presentation-video.placeholder.sh,target=/placeholder.sh \
+    sh /placeholder.sh
 
 # As build/packages-template/bbb-record-core/build.sh
 WORKDIR /usr/local/bigbluebutton/core
@@ -56,7 +51,7 @@ RUN groupadd -g 998 bigbluebutton \
 # container, and the two .deb files. imagemagick: the presentation format calls `convert`
 # (on a server it comes with bbb-web).
 # hadolint ignore=DL3008
-RUN --mount=type=bind,from=build,source=/build/debs,target=/tmp/debs \
+RUN --mount=type=bind,from=build,source=/build/bbb-presentation-video,target=/tmp/debs \
     apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg gir1.2-pango-1.0 imagemagick libcurl4 \
         libncurses6 libsystemd0 poppler-utils python3 python3-attr python3-cairo python3-gi \

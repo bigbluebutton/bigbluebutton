@@ -56,6 +56,9 @@ cp include_default.nginx staging/usr/share/bigbluebutton/
 
 cp plugins-assets-cors.nginx staging/usr/share/bigbluebutton/nginx/
 
+mkdir -p staging/etc/nginx/conf.d
+cp bbb-upstreams.conf staging/etc/nginx/conf.d/
+
 cp bigbluebutton.target staging/usr/lib/systemd/system/
 
 # inject dependency to bigbluebutton.target

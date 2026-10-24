@@ -6,12 +6,12 @@ import sanitize from 'sanitize-filename';
 import WorkerStarter from '../lib/utils/worker-starter.js';
 import {PresAnnStatusMsg} from '../lib/utils/message-builder.js';
 import {workerData} from 'worker_threads';
+import config from '../lib/utils/config.js';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Collector');
 logger.info(`Collecting job ${jobId}`);
 
-const config = JSON.parse(fs.readFileSync('./config/settings.json', 'utf8'));
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // Takes the Job from the dropbox
