@@ -24,8 +24,9 @@ if (
     if (prop === 'renderers' || prop === 'rendererInterfaces') {
       //  @ts-ignore
       // prevents console error when dev tools try to iterate of renderers
-      // rendererInterfaces must stay a Map as well: newer react-dom reads
-      // hook.rendererInterfaces.values() on every log call, and null crashes it
+      // rendererInterfaces must stay a Map as well: the React DevTools
+      // (>= 6.0) hook's console override reads hook.rendererInterfaces.values()
+      // on every console.warn/error/trace once the panel is open, and null crashes it
       window.__REACT_DEVTOOLS_GLOBAL_HOOK__[prop] = new Map();
       continue;
     }
