@@ -1779,9 +1779,17 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
-#### Change the default user avatar colors
+#### Use a different color for each user avatar
 
-Each user who joins a meeting gets an avatar color. Colors are picked in order from a palette, one per user, and the palette starts over when it runs out. Each meeting has its own sequence. To use your own palette, add a `users.colors` list to `/etc/bigbluebutton/bbb-apps-akka.conf`:
+By default, user avatars are colored by role: one color for moderators, one for viewers and one for yourself. You can instead give each user their own color, as in BigBlueButton 3.0, which makes it easier to tell users apart, especially when they share the same initials. Set `public.app.useUserColorForAvatars` to `true` in `/etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
+public:
+  app:
+    useUserColorForAvatars: true
+```
+
+Each user gets a color when they join. Colors are picked in order from a palette, one per user, and the palette starts over when it runs out. Each meeting has its own sequence. To use your own palette, add a `users.colors` list to `/etc/bigbluebutton/bbb-apps-akka.conf`:
 
 ```properties
 users {
@@ -1790,9 +1798,9 @@ users {
 }
 ```
 
-Use hex colors in the `#rgb` or `#rrggbb` format. Invalid entries are ignored. If the option is missing or contains no valid colors, the built-in palette is used. Avatar initials are rendered in white, so prefer colors with good contrast against white.
+Use hex colors in the `#rgb` or `#rrggbb` format. Invalid entries are ignored. If the option is missing or contains no valid colors, the built-in palette is used. Avatar initials are rendered in white, so prefer colors with good contrast against white. A longer palette lets more users in the same meeting keep a distinct color.
 
-Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect. Colors are assigned when a user joins, so users already in a running meeting keep their current color.
+Restart BigBlueButton with `sudo bbb-conf --restart` for the changes to take effect. Colors are assigned when a user joins, so users already in a running meeting keep their current color.
 
 ### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.

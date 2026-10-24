@@ -83,6 +83,9 @@ public:
     enableTalkingIndicator: true
     enableCameraBrightness: true
     mirrorOwnWebcam: true
+    # Color user avatars with each user's own color (assigned by akka-apps, as in
+    # BBB 3.0) instead of the role colors (moderator, viewer and you).
+    useUserColorForAvatars: false
     viewersInWebcam: 8
     allowLogout: true
     allowFullscreen: true

@@ -35,6 +35,7 @@ const UserAvatar = ({
   isSkeleton = false,
 }) => {
   const { animations } = useSettings(SETTINGS.APPLICATION);
+  const { useUserColorForAvatars } = window.meetingClientSettings.public.app;
 
   return (
     <>
@@ -53,6 +54,7 @@ const UserAvatar = ({
           isFirefox={isFirefox}
           isEdge={isEdge}
           color={color}
+          $userColor={useUserColorForAvatars ? color : null}
         >
 
           <Styled.Talking talking={talking && !muted} animations={animations} />
