@@ -377,7 +377,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 #### Added
 
 - `public.kurento.pagination.gridEnabled` (default `true`) - whether the camera-less avatar grid (the "webcam grid") is shown while the presentation is minimized. The grid can also be disabled per meeting with `disabledFeatures=webcamGrid`.
-- `public.kurento.userProfileEagerCameraPrompt` (default `true`) - whether the Profile panel opens the camera, prompting for camera access, as soon as it's opened. When `false` and the browser hasn't granted camera access yet, the panel shows a "Show camera preview" button instead. The camera is opened, and access requested, only after the user clicks it.
+- `public.kurento.userProfileEagerCameraPrompt` (default `true`) - whether the Profile panel opens the camera, prompting for camera access, as soon as it's opened. When `false` and the browser hasn't granted camera access yet, the panel shows an "Enable webcam" button instead. The camera is opened, and access requested, only after the user clicks it.
 - `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - shows the "Video pagination" switch in Settings to moderators only. A user who cannot see the switch, whether because of this setting or `paginationToggleEnabled: false`, always gets the default from `public.app.defaultSettings.application.paginationEnabled`. See [Limit overall media streams](/administration/customize#limit-overall-media-streams).
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.

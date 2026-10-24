@@ -93,7 +93,7 @@ const CameraPreviewPlaceholderIcon = styled(CameraIcon)`
 `;
 
 // @ts-ignore - JS code
-const ShowCameraPreviewButton = styled(Button)`
+const EnableWebcamButton = styled(Button)`
   border-radius: ${lgBorderRadius};
 `;
 
@@ -581,7 +581,7 @@ export default {
   VideoPreview,
   CameraPreviewPlaceholder,
   CameraPreviewPlaceholderIcon,
-  ShowCameraPreviewButton,
+  EnableWebcamButton,
   CameraPreviewHint,
   VideoPreviewContainer,
   VideoPreviewWrapper,

@@ -535,7 +535,7 @@ public:
     skipVideoPreviewIfPreviousDevice: false
     # userProfileEagerCameraPrompt: open the camera (and prompt for access) as soon as the Profile
     # panel is opened. When false and the browser hasn't granted camera access yet, the panel shows
-    # a "Show camera preview" button instead and only opens the camera after the user clicks it.
+    # an "Enable webcam" button instead and only opens the camera after the user clicks it.
     userProfileEagerCameraPrompt: true
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
