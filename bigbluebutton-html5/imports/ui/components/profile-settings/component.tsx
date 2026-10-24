@@ -213,7 +213,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     name: user.name,
     away: user.away,
-    inAudio: user.voice,
+    voice: user.voice,
   }));
   const stopVideo = useStopVideo();
   const streams = useStreams();
