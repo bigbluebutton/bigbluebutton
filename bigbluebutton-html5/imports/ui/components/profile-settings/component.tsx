@@ -112,6 +112,10 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.videoPreview.stopSharingLabel',
     description: 'Stop Sharing Label',
   },
+  videoLockedLabel: {
+    id: 'app.video.videoLocked',
+    description: 'Label shown when webcam sharing is locked',
+  },
   addExtraCameraLabel: {
     id: 'app.profileSettings.addExtraCamera',
     description: 'Add Extra Camera Button Label',
@@ -252,6 +256,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     initialProfileId: PreviewService.getDefaultProfile().id,
     isCameraShared: isAlreadyShared(initialWebcamDeviceId),
     forceOpen: true,
+    cameraDisabled: isCamLocked,
   });
 
   const prevWebcamDeviceId = usePreviousValue(webcamDeviceId);
@@ -580,7 +585,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
     const activeSection = cameraSections[activePreviewIndex];
 
-    if (!activeSection) return null;
+    if (isCamLocked || !activeSection) return null;
 
     const currentDevice = availableWebcams.find((d) => d.deviceId === activeSection.deviceId);
     const cameraName = currentDevice?.label || `${formatMessage(intlMessages.cameraLabel)} ${activePreviewIndex + 1}`;
@@ -852,8 +857,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.DevicesSettingsContainer>
           <AudioSelectors inAudio={!!currentUserData?.voice} />
         </Styled.DevicesSettingsContainer>
-        <Styled.Separator />
-        {cameraSections.map((section: CameraSection, sectionIndex) => {
+        {!isCamLocked && <Styled.Separator />}
+        {!isCamLocked && cameraSections.map((section: CameraSection, sectionIndex) => {
           const usedDeviceIds = cameraSections
             .map((s) => s.deviceId)
             .filter((id) => id !== section.deviceId);
@@ -907,7 +912,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           );
         })}
       </Styled.ProfileSettings>
-      {availableWebcams && availableWebcams.length > 1 && (
+      {!isCamLocked && availableWebcams && availableWebcams.length > 1 && (
       <>
         <Styled.Separator />
         <Styled.AddCameraContainer>
@@ -925,9 +930,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       <Styled.Separator />
       <Styled.SaveButtonContainer>
         <Styled.SaveButton
-          disabled={isCameraAlreadyShared || isCameraLoading || !!(deviceError || previewError)}
+          disabled={isCamLocked || isCameraAlreadyShared || isCameraLoading || !!(deviceError || previewError)}
           color="primary"
-          label={formatMessage(intlMessages.joinVideoLabel)}
+          label={formatMessage(isCamLocked ? intlMessages.videoLockedLabel : intlMessages.joinVideoLabel)}
           onClick={handleShareWebcams}
           data-test="saveProfileSettings"
         />

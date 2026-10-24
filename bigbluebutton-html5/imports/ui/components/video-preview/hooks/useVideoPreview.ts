@@ -108,6 +108,7 @@ export const useVideoPreview = ({
   isCameraAsContent = false,
   isCameraShared = false,
   forceOpen,
+  cameraDisabled = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -719,14 +720,24 @@ export const useVideoPreview = ({
   useEffect(() => {
     isMounted.current = true;
 
-    initializeCameras();
-
     return () => {
       isMounted.current = false;
       terminateCameraStream(currentVideoStream.current);
       cleanupStreamAndVideo();
     };
   }, []);
+
+  // A disabled camera (e.g. locked webcam sharing) must not be opened, and is
+  // released if it gets disabled while open
+  useEffect(() => {
+    if (cameraDisabled) {
+      terminateCameraStream(currentVideoStream.current);
+      cleanupStreamAndVideo();
+      return;
+    }
+
+    initializeCameras();
+  }, [cameraDisabled]);
 
   useEffect(() => {
     if (viewState === VIEW_STATES.found && !videoRef.current?.srcObject) {
