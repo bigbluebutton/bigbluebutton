@@ -6,6 +6,7 @@ import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 
 case class Whiteboard(
     id:             String,
@@ -29,7 +30,11 @@ class WhiteboardApp2x(implicit val context: ActorContext)
       isPresenter:  Boolean,
       isModerator:  Boolean
   ): Array[AnnotationVO] = {
+    //    println("Received whiteboard annotation. status=[" + status + "], annotationType=[" + annotationType + "]")
     val meetingId = liveMeeting.props.meetingProp.intId
+    val imagePasteEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+      liveMeeting.clientSettings, "public.whiteboard.imagePaste.enabled", false
+    )
 
     if (!PresentationPodsApp.pageBelongsToMeeting(state, whiteboardId)) {
       log.warning(
@@ -51,7 +56,7 @@ class WhiteboardApp2x(implicit val context: ActorContext)
 
       ownedAnnotations.map(_.wbId).distinct.flatMap { pageId =>
         liveMeeting.wbModel.addAnnotations(
-          pageId, meetingId, requesterId, ownedAnnotations.filter(_.wbId == pageId), isPresenter, isModerator
+          pageId, meetingId, requesterId, ownedAnnotations.filter(_.wbId == pageId), isPresenter, isModerator, imagePasteEnabled
         )
       }
     }

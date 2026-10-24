@@ -40,6 +40,11 @@ public:
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
+    sharedNotes:
+      imagePaste:
+        # Enables pasting/dropping images into the BlockNote shared notes editor.
+        # Limits are shared under public.fileUpload.
+        enabled: false
     bbbTabletApp:
       enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
@@ -831,11 +836,41 @@ public:
     # e.g.: disableEmojis: ['grin','laughing']
     # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
+    # Renders `![](url)` markdown as sanitized <img> in messages (server-side).
+    # Required for pasted images to be visible; imagePaste below only adds the
+    # capture UI. Kept as a separate key on purpose (not merged/renamed).
+    # IMPORTANT: since image paste was introduced, only same-origin URLs
+    # (/bigbluebutton/fileUpload/...) are rendered. External URLs in markdown
+    # are stripped on the server (MarkdownUtil) to prevent IP-leak / tracking
+    # pixels against chat readers. This is a privacy-first breaking change from
+    # the previous behavior where markdownImageAllowed rendered any URL.
     markdownImageAllowed: false
+    imagePaste:
+      # Enables capturing pasted/dropped images in the chat input. Only takes
+      # effect when markdownImageAllowed above is also on (the pasted image is
+      # rendered server-side as markdown, so without it the upload would only
+      # produce a blank message). Limits are shared under public.fileUpload.
+      enabled: false
     # available options for toolbar: reply, edit, delete, reactions, pin
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+  fileUpload:
+    # Shared limits for uploads: images pasted into chat, shared notes and the
+    # whiteboard, and files attached to chat messages. The client reads these
+    # for UX (fail fast, friendly message) and the server (akka-apps) drops a
+    # chat attachment whose type is not listed here; the authoritative limits
+    # live in the bbb-file-upload service config
+    # (/etc/bigbluebutton/bbb-file-upload.yml, defaults in
+    # /usr/share/bbb-file-upload/config/default.yml). Keep both in step: a type
+    # or size allowed only here passes the client pre-check and is still
+    # rejected by the service.
+    maxFileSizeKb: 5120
+    maxImageDimensionPx: 4096 # cap on image width/height, guards against pixel bombs
+    # Only types bbb-file-upload verifies by magic bytes can be listed; remove
+    # entries to restrict. Shared notes and the whiteboard only ever take the
+    # image types; pdf, mp4 and mp3 are chat attachments, served as downloads.
+    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'audio/mpeg']
   multiFunctionalMode:
     enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
@@ -1210,6 +1245,11 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 100
+    imagePaste:
+      # Enables pasting/dropping images onto the whiteboard. Uploaded images are
+      # served same-origin from public.fileUpload (limits shared there) and only
+      # users with whiteboard write access (or the presenter) can paste.
+      enabled: false
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
     allowInfiniteWhiteboardPanForViewers: false

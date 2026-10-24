@@ -259,6 +259,7 @@ livekit-server ———————————————► [✔ - active]
 livekit-sip ——————————————————► [✔ - active]
 bbb-web ——————————————————————► [✔ - active]
 bbb-export-annotations ———————► [✔ - active]
+bbb-file-upload ——————————————► [✔ - active]
 bbb-rap-caption-inbox ————————► [✔ - active]
 bbb-rap-resque-worker ————————► [✔ - active]
 bbb-rap-starter ——————————————► [✔ - active]
@@ -272,6 +273,7 @@ You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packag
 ii  bbb-apps-akka                        2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f all          BigBlueButton Apps (Akka)
 ii  bbb-config                           2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f amd64        BigBlueButton configuration utilities
 ii  bbb-export-annotations               2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f amd64        BigBlueButton Export Annotations
+ii  bbb-file-upload                      2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f amd64        BigBlueButton File Upload Service
 ii  bbb-freeswitch-core                  2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f amd64        BigBlueButton build of FreeSWITCH
 ii  bbb-freeswitch-sounds                2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f amd64        FreeSWITCH Sounds
 ii  bbb-fsesl-akka                       2:4.1.0~alpha.1+20260806T120000-git.local-build-d288a67f8f all          BigBlueButton FS-ESL (Akka)

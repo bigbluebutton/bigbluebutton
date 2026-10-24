@@ -38,7 +38,7 @@ const Form = styled.form<FormProps>`
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   border-radius: 0.75rem;
 `;
 
@@ -134,6 +134,12 @@ const EmojiButton = styled(Button)`
   }
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
+const AttachButton = styled(Button)`
+  margin: 0;
+  background: transparent !important;
+`;
+
 const EmojiPickerWrapper = styled.div`
 position: absolute;
 bottom: calc(100% + 0.5rem);
@@ -182,7 +188,11 @@ const EmojiPicker = styled(EmojiPickerComponent)`
   position: relative;
 `;
 
-const InputWrapper = styled.div`
+interface InputWrapperProps {
+  $hasAttachments: boolean;
+}
+
+const InputWrapper = styled.div<InputWrapperProps>`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
@@ -201,8 +211,15 @@ const InputWrapper = styled.div`
 
   overflow-y: hidden;
   align-items: center;
-  margin: auto;
+  /* An auto margin in the column Wrapper would size the box to its content
+     instead of stretching it to the panel width. */
+  margin: 0;
   padding: 0.75rem !important;
+
+  ${({ $hasAttachments }) => $hasAttachments && `
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  `}
 `;
 
 export default {
@@ -216,4 +233,5 @@ export default {
   EmojiPickerWrapper,
   ChatMessageError,
   InputWrapper,
+  AttachButton,
 };

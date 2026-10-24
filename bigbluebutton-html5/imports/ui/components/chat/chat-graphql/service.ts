@@ -1,3 +1,19 @@
+import { IntlShape } from 'react-intl';
+import Auth from '/imports/ui/services/auth';
+import logger from '/imports/startup/client/logger';
+
+// Uploaded images are served behind an auth_request that reads the sessionToken
+// from the query string (same as presentation slides). The markdown stores the
+// bare relative path, so we append the token at render time, mirroring
+// Auth.authenticateURL used for slides. The regex only touches our own
+// fileUpload paths; every other message is left untouched.
+const FILE_UPLOAD_IMG_SRC = /(<img\b[^>]*?\bsrc=")(\/bigbluebutton\/fileUpload\/[^"]+)(")/g;
+
+export const authenticateUploadedImages = (html: string): string => html.replace(
+  FILE_UPLOAD_IMG_SRC,
+  (_match, prefix, url, suffix) => `${prefix}${Auth.authenticateURL(url)}${suffix}`,
+);
+
 const lineBreakingTags = new Set(['P', 'DIV', 'PRE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'TABLE', 'TR', 'TD']);
 
 // Truncates the subtree at the first visual line break: a newline inside a
@@ -45,7 +61,22 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
   const root = doc.body.firstElementChild;
   if (!root) return '';
 
+  // Collect any <img> elements from the full content before truncating, so
+  // that a message with text + image still shows the image in the reply
+  // preview (the truncation drops everything after the first line, which
+  // would lose the image when it follows the text paragraph).
+  const images = Array.from(doc.body.querySelectorAll('img')).map((img) => img.cloneNode(true) as Element);
+
   truncateAtFirstLineBreak(root);
+
+  // Re-append collected images that are no longer in the truncated root.
+  // CSS.escape keeps a src containing quotes or backslashes from breaking out
+  // of the attribute selector (a malformed selector throws in querySelector).
+  images.forEach((img) => {
+    if (!root.querySelector(`img[src="${CSS.escape(img.getAttribute('src') || '')}"]`)) {
+      root.appendChild(img);
+    }
+  });
 
   return root.outerHTML;
 };
@@ -172,11 +203,120 @@ export const parseMessageMetadata = (metadata: unknown): Record<string, unknown>
   }
 };
 
+/** The file a message carries, as the server keeps it in metadata.attachment. */
+export interface ChatAttachment {
+  url: string;
+  name: string;
+  size: number;
+  mime: string;
+}
+
+const FILE_UPLOAD_PATH = /^\/bigbluebutton\/fileUpload\//;
+
+/**
+ * The attachment of a message, or null when it has none. The server already
+ * drops an attachment that is not a valid upload of the meeting; this only
+ * guards the shape, so a message from an older server still renders as text.
+ */
+export const parseAttachment = (metadata: unknown): ChatAttachment | null => {
+  const parsed = parseMessageMetadata(metadata);
+  const attachment = parsed?.attachment as Partial<ChatAttachment> | undefined;
+  if (!attachment || typeof attachment !== 'object') return null;
+  const {
+    url, name, size, mime,
+  } = attachment;
+  if (typeof url !== 'string' || !FILE_UPLOAD_PATH.test(url)) return null;
+  if (typeof name !== 'string' || typeof mime !== 'string') return null;
+  if (typeof size !== 'number' || !Number.isFinite(size) || size < 0) return null;
+  return {
+    url, name, size, mime,
+  };
+};
+
+export const isImageAttachment = (attachment: ChatAttachment): boolean => attachment.mime.startsWith('image/');
+
+/**
+ * The message html without the image or link that stands for its attachment.
+ * The body carries them so the message still reads right where the attachment
+ * is not drawn (an older client, the recording); where it is drawn, they would
+ * show the file twice. A paragraph left empty goes too.
+ */
+export const removeAttachmentFromHtml = (html: string, attachment: ChatAttachment): string => {
+  if (!html.trim()) return '';
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.body.querySelectorAll('img[src], a[href]').forEach((el) => {
+    const ref = el.getAttribute(el.tagName === 'IMG' ? 'src' : 'href');
+    if (ref === attachment.url) el.remove();
+  });
+  doc.body.querySelectorAll('p').forEach((p) => {
+    if (!p.textContent?.trim() && !p.querySelector('img')) p.remove();
+  });
+  return doc.body.innerHTML.trim();
+};
+
+const BYTES_PER_KB = 1024;
+const BYTES_PER_MB = 1024 * 1024;
+
+// The short name users know each allowed type by; any other type falls back
+// to its mime subtype.
+const FILE_TYPE_LABELS: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpeg',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'application/pdf': 'pdf',
+  'video/mp4': 'mp4',
+  'audio/mpeg': 'mp3',
+};
+
+export const fileTypeLabel = (mime: string): string => FILE_TYPE_LABELS[mime] ?? mime.split('/').pop() ?? mime;
+
+export const formatFileSize = (intl: IntlShape, bytes: number): string => {
+  if (bytes >= BYTES_PER_MB) {
+    return intl.formatNumber(bytes / BYTES_PER_MB, { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+  }
+  return intl.formatNumber(Math.max(1, Math.ceil(bytes / BYTES_PER_KB)), { style: 'unit', unit: 'kilobyte' });
+};
+
+/**
+ * Saves the attachment under its original name. The upload is served under a
+ * random name, so a plain link would save it as <uuid>.<ext>; fetching it and
+ * saving the blob keeps the name the sender chose.
+ */
+export const downloadAttachment = async (attachment: ChatAttachment): Promise<void> => {
+  try {
+    const response = await fetch(Auth.authenticateURL(attachment.url));
+    if (!response.ok) throw new Error(`status ${response.status}`);
+    const objectUrl = URL.createObjectURL(await response.blob());
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = attachment.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Safari reads the blob after the click returns, so revoking right away can
+    // cancel the download; a minute later it has long been taken.
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  } catch (error) {
+    logger.error({
+      logCode: 'chat_attachment_download_error',
+      extraInfo: { url: attachment.url, mime: attachment.mime },
+    }, `Chat attachment download failed: ${(error as Error)?.message}`);
+  }
+};
+
 export default {
+  authenticateUploadedImages,
+  downloadAttachment,
+  fileTypeLabel,
+  formatFileSize,
   getFirstVisibleLineHtml,
+  isImageAttachment,
   isMentionLeftBoundary,
+  parseAttachment,
   parseMessageMetadata,
   pickedMentionsFromHtml,
   remapDismissedIndexes,
+  removeAttachmentFromHtml,
   syncPickedMentions,
 };

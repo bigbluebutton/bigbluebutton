@@ -30,17 +30,22 @@ object PostgresProfile extends PostgresProfile
 object JsonUtils {
   implicit object AnyJsonWriter extends JsonWriter[Any] {
     def write(x: Any): JsValue = x match {
-      case n: Int             => JsNumber(n)
-      case s: String          => JsString(s)
-      case b: Boolean         => JsBoolean(b)
-      case f: Float           => JsNumber(f)
-      case d: Double          => JsNumber(d)
-      case m: Map[_, _]       => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
-      case l: List[_]         => JsArray(l.map(write).toVector)
-      case a: Array[_]        => JsArray(a.map(write).toVector)
-      case v: SimpleVoteOutVO => JsObject("id" -> JsNumber(v.id), "key" -> JsString(v.key), "numVotes" -> JsNumber(v.numVotes))
-      case null               => JsNull
-      case _                  => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
+      case n: Int                  => JsNumber(n)
+      case n: Long                 => JsNumber(n)
+      case n: BigInt               => JsNumber(n)
+      case n: java.math.BigInteger => JsNumber(BigInt(n))
+      case n: BigDecimal           => JsNumber(n)
+      case n: java.math.BigDecimal => JsNumber(BigDecimal(n))
+      case s: String               => JsString(s)
+      case b: Boolean              => JsBoolean(b)
+      case f: Float                => JsNumber(f)
+      case d: Double               => JsNumber(d)
+      case m: Map[_, _]            => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
+      case l: List[_]              => JsArray(l.map(write).toVector)
+      case a: Array[_]             => JsArray(a.map(write).toVector)
+      case v: SimpleVoteOutVO      => JsObject("id" -> JsNumber(v.id), "key" -> JsString(v.key), "numVotes" -> JsNumber(v.numVotes))
+      case null                    => JsNull
+      case _                       => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
       //      case _            => JsNull
     }
   }

@@ -4,6 +4,7 @@ import {
   colorBorder,
   colorOffWhite,
   colorText,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
@@ -32,8 +33,18 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   ${({ $jumbomoji }) => $jumbomoji && jumbomojiStyles}
 
   & img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: min(100%, 400px);
+    max-height: 300px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    /* An image with an alpha channel shows whatever is behind it, so dark artwork
+       on a transparent background is nearly unreadable on a dark surface. Give the
+       element an opaque light backdrop of its own. It is invisible under an opaque
+       image, so it never reads as a frame. The dark theme keeps --color-white at
+       #FFFFFF, so the backdrop stays light there too. */
+    background-color: ${colorWhite};
   }
 
   & p {

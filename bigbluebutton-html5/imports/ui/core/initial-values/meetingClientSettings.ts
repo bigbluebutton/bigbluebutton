@@ -24,6 +24,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,
+      sharedNotes: {
+        imagePaste: {
+          enabled: false,
+        },
+      },
       enableApolloDevTools: false,
       bbbTabletApp: {
         enabled: true,
@@ -665,8 +670,18 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       disableEmojis: [],
       markdownImageAllowed: false,
+      imagePaste: {
+        enabled: false,
+      },
       toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin'],
       announcePresenterChangeInChat: true,
+    },
+    fileUpload: {
+      maxFileSizeKb: 5120,
+      maxImageDimensionPx: 4096,
+      allowedMimeTypes: [
+        'image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'audio/mpeg',
+      ],
     },
     userReaction: {
       enabled: true,
@@ -972,6 +987,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     whiteboard: {
       annotationsQueueProcessInterval: 60,
       cursorInterval: 100,
+      imagePaste: {
+        enabled: false,
+      },
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,

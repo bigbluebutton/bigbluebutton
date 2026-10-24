@@ -269,13 +269,6 @@ interface MessageBody {
   [key: string]: any;
 }
 
-interface Message {
-  core: {
-    header: MessageHeader;
-    body: MessageBody;
-  };
-}
-
 const check = (object: any, property: string): boolean => {
   if (Object.prototype.hasOwnProperty.call(object, property)) return true;
 

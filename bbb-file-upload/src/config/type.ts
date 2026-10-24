@@ -1,0 +1,33 @@
+export interface ExpressServerConfig {
+  host: string;
+  port: number;
+}
+
+export interface StorageConfig {
+  basePath: string;
+  uploadsDirName: string;
+}
+
+export interface LimitsConfig {
+  maxFileSizeKb: number;
+  maxImageDimensionPx: number;
+  allowedMimeTypes: string[];
+  quotaPerMeetingMb: number;
+}
+
+export interface RateLimitConfig {
+  windowInSeconds: number;
+  maxRequestsPerWindow: number;
+}
+
+export interface LogConfig {
+  level: string;
+}
+
+export interface AppSettings {
+  expressServer: ExpressServerConfig;
+  storage: StorageConfig;
+  limits: LimitsConfig;
+  rateLimit: RateLimitConfig;
+  log: LogConfig;
+}

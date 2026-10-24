@@ -92,6 +92,7 @@ const CircularProgressContainer = styled(CircularProgress)`
 `;
 
 const ContentWrapper = styled.div`
+  position: relative;
   padding: ${contentSidebarPadding} ${contentSidebarPadding} 0;
   flex-grow: 1;
   display: flex;

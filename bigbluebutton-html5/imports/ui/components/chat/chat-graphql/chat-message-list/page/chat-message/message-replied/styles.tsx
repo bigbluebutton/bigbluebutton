@@ -47,8 +47,12 @@ export const HtmlContent = styled.div<ChatMentionStylesProps>`
   color: ${colorText};
 
   & img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 100px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    vertical-align: middle;
   }
 
   & p {

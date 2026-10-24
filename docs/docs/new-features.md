@@ -19,6 +19,24 @@ Here's a breakdown of what's new in 4.1 so far.
 
 BigBlueButton 4.1 lets a moderator **ask a participant to turn on their webcam**. With the new `allowModsToRequestCameraShare` option set to `true`, moderators get an *Ask to share camera* entry in the user list; the participant is prompted and may accept or decline. Accepting takes them through the regular camera sharing flow, so the webcam is never started without their consent — a moderator cannot turn on someone's camera remotely. The default (`false`) hides the option entirely. This can be set server-wide in bbb-web's properties or per meeting on the `create` call.
 
+#### Image paste in chat, shared notes, and whiteboard
+
+Participants can now **paste (Ctrl+V) or drag-and-drop images** into the chat input, the BlockNote shared notes editor, and the whiteboard. Pasted images are uploaded once to a meeting-scoped storage, served behind the same authorization used for presentation slides, and survive recording/playback. In the chat, an attach button next to the emoji picker opens the file picker, and dropping files anywhere on the chat panel stages them too; several files can be staged at once, each is sent as its own message, and the typed text goes with the first one.
+
+The feature is **disabled by default** on all three surfaces. Enable them via the per-surface client settings:
+
+- `public.chat.imagePaste.enabled` (also requires `public.chat.markdownImageAllowed` for the server-side image rendering)
+- `public.app.sharedNotes.imagePaste.enabled`
+- `public.whiteboard.imagePaste.enabled`
+
+…or disable any of them per meeting with the `chatImagePaste`, `sharedNotesImagePaste`, and `whiteboardImagePaste` values of `disabledFeatures`.
+
+Shared limits (`public.fileUpload`) apply to all three surfaces: max file size 5 MB, max image dimensions 4096x4096 (anti pixel-bomb), allowed image types PNG/JPEG/GIF/WebP (SVG is rejected as an XSS vector), rate limit 60 uploads per 60 seconds per user+meeting, and 100 MB quota per meeting. Chat messages can also carry a PDF, MP4 or MP3 file: like images, its type is verified by magic bytes, and it is always served as a download. Administrators can restrict the list, never extend it.
+
+**Breaking change to `markdownImageAllowed`:** before this feature, setting `public.chat.markdownImageAllowed` to `true` rendered any `![](url)` markdown as an `<img>`, including external URLs. To prevent IP-leak / tracking-pixel attacks against chat readers, external image URLs are now stripped on the server (only same-origin `/bigbluebutton/fileUpload/...` URLs render). Deployments that relied on external images in chat should host them on the BBB server instead.
+
+In the chat, a message that carries a file shows it above its text: an image spans the message, with gray bands when its shape is not wide, and opens enlarged on click; any other file shows as a row with its name, size, type and a download button. Hovering any message with a file adds a download action to its toolbar, which saves the file under its original name. Replies and the pinned message show a thumbnail of the image, or an *[Attached file]* label for other files.
+
 ### bbb-web properties changes
 
 #### Added

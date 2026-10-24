@@ -182,46 +182,87 @@ const PresentationMenu = (props) => {
       svgElem.appendChild(pollShapeImage);
     }
 
-    // Embed the slide background as a credentialed data URL before rasterizing.
-    // tldraw's getSvg fetches image assets WITHOUT credentials, so under a
-    // cluster-proxy (client on the proxy origin, slide served by the BBB node
-    // origin) the slide request is answered with 401 and tldraw inlines the
-    // error page instead of the slide - the exported snapshot then shows a
-    // broken image. We re-fetch the slide from its asset src WITH credentials
-    // and replace the broken reference so the export matches what is on screen,
-    // on same-origin and cluster-proxy setups alike.
-    try {
-      const bgAssetId = backgroundShape?.props?.assetId;
-      const asset = bgAssetId
-        ? (tldrawAPI.getAsset?.(bgAssetId) || tldrawAPI.store?.get?.(bgAssetId))
-        : null;
-      const slideSrc = asset?.props?.src;
-      if (slideSrc) {
-        const response = await fetch(slideSrc, { credentials: 'include' });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const blob = await response.blob();
-        const slideDataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-        svgElem.querySelectorAll('image').forEach((imageEl) => {
-          const href = imageEl.getAttribute('href') || imageEl.getAttribute('xlink:href');
-          // Annotations and polls are already valid data:image URIs; only the
-          // slide background fails to inline, so replace anything that is not.
-          if (!href || !href.startsWith('data:image')) {
-            imageEl.removeAttribute('xlink:href');
-            imageEl.setAttribute('href', slideDataUrl);
-          }
-        });
+    // Embed image assets as credentialed data URLs before rasterizing, because
+    // tldraw's getSvg leaves two kinds of <image> unusable in the export:
+    // - the slide background under a cluster-proxy (client on the proxy origin,
+    //   slide served by the BBB node origin): getSvg fetches assets WITHOUT
+    //   credentials, so the request is answered with 401 and tldraw inlines the
+    //   error page, leaving a data: href that is not an image;
+    // - pasted images, whose asset src is relative
+    //   (/bigbluebutton/fileUpload/...): tldraw only inlines absolute srcs and
+    //   skips these, leaving the URL as-is. It resolves against nothing in the
+    //   SVG handed to Safari/iOS, and is fetched uncredentialed on the PNG path.
+    // Both are re-fetched here WITH credentials, each from its own source, so
+    // the export matches what is on screen. Hrefs that already are data:image
+    // URIs (polls, and assets tldraw inlined successfully) are left untouched.
+    const fetchAsDataUrl = async (url) => {
+      const response = await fetch(url, { credentials: 'include' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    };
+
+    // tldraw writes the href with setAttributeNS(xlink), so the namespaced
+    // attribute has to be removed or it takes precedence over the plain one.
+    const inlineImage = (imageEl, dataUrl) => {
+      imageEl.removeAttribute('xlink:href');
+      imageEl.setAttribute('href', dataUrl);
+    };
+
+    const getHref = (imageEl) => imageEl.getAttribute('href') || imageEl.getAttribute('xlink:href');
+
+    // An empty href (the asset failed to load at all) is deliberately left
+    // alone: exporting it blank matches the screen, and painting the slide
+    // background over it would be worse.
+    const urlImages = [];
+    const brokenImages = [];
+    svgElem.querySelectorAll('image').forEach((imageEl) => {
+      const href = getHref(imageEl);
+      if (!href || href.startsWith('data:image')) return;
+      if (href.startsWith('data:')) {
+        brokenImages.push(imageEl);
+      } else {
+        urlImages.push(imageEl);
       }
-    } catch (error) {
-      logger.warn({
-        logCode: 'presentation_snapshot_inline_image_error',
-        extraInfo: { error: error?.message || String(error) },
-      }, `Snapshot: failed to embed slide image for export: ${error?.message || error}`);
+    });
+
+    if (brokenImages.length) {
+      try {
+        const bgAssetId = backgroundShape?.props?.assetId;
+        const asset = bgAssetId
+          ? (tldrawAPI.getAsset?.(bgAssetId) || tldrawAPI.store?.get?.(bgAssetId))
+          : null;
+        const slideSrc = asset?.props?.src;
+        if (slideSrc) {
+          const slideDataUrl = await fetchAsDataUrl(slideSrc);
+          brokenImages.forEach((imageEl) => inlineImage(imageEl, slideDataUrl));
+        }
+      } catch (error) {
+        logger.warn({
+          logCode: 'presentation_snapshot_inline_image_error',
+          extraInfo: { error: error?.message || String(error), imageType: 'slideBackground' },
+        }, `Snapshot: failed to embed slide image for export: ${error?.message || error}`);
+      }
     }
+
+    // Fetched one by one so a single unreachable upload does not cost the whole
+    // export: on failure the element keeps its original href.
+    await Promise.all(urlImages.map(async (imageEl) => {
+      const href = getHref(imageEl);
+      try {
+        inlineImage(imageEl, await fetchAsDataUrl(href));
+      } catch (error) {
+        logger.warn({
+          logCode: 'presentation_snapshot_inline_image_error',
+          extraInfo: { error: error?.message || String(error), href },
+        }, `Snapshot: failed to embed image for export: ${error?.message || error}`);
+      }
+    }));
 
     if (isIos || isSafari) {
       const svgString = new XMLSerializer().serializeToString(svgElem);

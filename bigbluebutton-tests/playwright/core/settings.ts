@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 export interface Settings {
   reactionsButton?: boolean;
   sharedNotesEnabled?: boolean;
+  sharedNotesImagePasteEnabled?: boolean;
   directLeaveButton?: boolean;
   // Audio
   autoJoinAudioModal?: boolean;
@@ -18,6 +19,8 @@ export interface Settings {
   maxMessageLength?: number;
   emojiPickerEnabled?: boolean;
   autoConvertEmojiEnabled?: boolean;
+  imagePasteEnabled?: boolean;
+  markdownImageAllowed?: boolean;
   // Polling
   pollEnabled?: boolean;
   pollChatMessage?: boolean;
@@ -43,6 +46,7 @@ export interface Settings {
   emojiRain?: boolean;
   // Whiteboard
   allowInfiniteWhiteboard?: boolean;
+  whiteboardImagePasteEnabled?: boolean;
   // Multifunctional mode
   multiFunctionalModeEnabled?: boolean;
 }
@@ -61,6 +65,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
     settings = {
       reactionsButton: settingsData.app?.reactionsButton?.enabled,
       sharedNotesEnabled: settingsData.notes?.enabled,
+      sharedNotesImagePasteEnabled: settingsData.app?.sharedNotes?.imagePaste?.enabled,
       directLeaveButton: settingsData.app?.defaultSettings?.application?.directLeaveButton,
       // Audio
       autoJoinAudioModal: settingsData.app?.autoJoin,
@@ -76,6 +81,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       maxMessageLength: settingsData.chat?.max_message_length,
       emojiPickerEnabled: settingsData.chat?.emojiPicker?.enable,
       autoConvertEmojiEnabled: settingsData.chat?.autoConvertEmoji,
+      imagePasteEnabled: settingsData.chat?.imagePaste?.enabled,
+      markdownImageAllowed: settingsData.chat?.markdownImageAllowed,
       // Polling
       pollEnabled: settingsData.poll?.enabled,
       pollChatMessage: settingsData.poll?.chatMessage,
@@ -101,6 +108,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       emojiRain: settingsData.app?.emojiRain?.enabled,
       // Whiteboard
       allowInfiniteWhiteboard: settingsData.whiteboard?.allowInfiniteWhiteboard,
+      whiteboardImagePasteEnabled: settingsData.whiteboard?.imagePaste?.enabled,
       // Multifunctional mode
       multiFunctionalModeEnabled: settingsData.multiFunctionalMode?.enabled,
     };

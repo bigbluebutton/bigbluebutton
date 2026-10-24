@@ -17,6 +17,7 @@ export interface Public {
   captions: Captions
   timer: Timer
   chat: Chat
+  fileUpload: FileUpload
   multiFunctionalMode: MultiFunctionalMode
   userReaction: UserReaction
   notes: Notes
@@ -57,6 +58,7 @@ export interface App {
   html5ClientBuild: string
   helpLink: string
   delayForUnmountOfSharedNote: number
+  sharedNotes: AppSharedNotes
   bbbTabletApp: BbbTabletApp
   cdn: string
   basename: string
@@ -116,6 +118,14 @@ export interface BbbTabletApp {
   enabled: boolean
   iosAppStoreUrl: string
   iosAppUrlScheme: string
+}
+
+export interface AppSharedNotes {
+  imagePaste: SharedNotesImagePaste
+}
+
+export interface SharedNotesImagePaste {
+  enabled: boolean
 }
 
 export interface DarkTheme {
@@ -584,8 +594,19 @@ export interface Chat {
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   markdownImageAllowed: boolean
+  imagePaste: ChatImagePaste
   toolbar: string[]
   announcePresenterChangeInChat: boolean
+}
+
+export interface ChatImagePaste {
+  enabled: boolean
+}
+
+export interface FileUpload {
+  maxFileSizeKb: number
+  maxImageDimensionPx: number
+  allowedMimeTypes: string[]
 }
 
 export interface MultiFunctionalMode {
@@ -863,6 +884,7 @@ export interface Label {
 export interface Whiteboard {
   annotationsQueueProcessInterval: number
   cursorInterval: number
+  imagePaste: WhiteboardImagePaste
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
@@ -878,6 +900,10 @@ export interface Whiteboard {
   locales: string[]
   styles: Styles
   toolbar: Toolbar
+}
+
+export interface WhiteboardImagePaste {
+  enabled: boolean
 }
 
 export interface Annotations {

@@ -3,7 +3,13 @@ import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
+import {
+  ChatAttachment,
+  authenticateUploadedImages,
+  getFirstVisibleLineHtml,
+  removeAttachmentFromHtml,
+} from '/imports/ui/components/chat/chat-graphql/service';
+import AttachmentPreview from '/imports/ui/components/chat/chat-graphql/attachment-preview/component';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -16,12 +22,14 @@ interface MessageRepliedProps {
   message: string;
   sequence: number;
   deletedByUser: string | null;
+  attachment: ChatAttachment | null;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, sequence, deletedByUser,
+    message, sequence, deletedByUser, attachment,
   } = props;
+  const text = attachment ? removeAttachmentFromHtml(message, attachment) : message;
 
   const intl = useIntl();
 
@@ -44,9 +52,10 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
     >
       {!deletedByUser && (
         <Styled.Message>
+          {attachment && <AttachmentPreview attachment={attachment} />}
           <Styled.HtmlContent
             // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message) }}
+            dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(getFirstVisibleLineHtml(text)) }}
             $currentUserId={Auth.userID as string | undefined}
           />
         </Styled.Message>

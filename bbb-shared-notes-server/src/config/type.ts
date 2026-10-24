@@ -53,6 +53,13 @@ export interface RateLimit {
   maxRequestsPerWindow: number;
 }
 
+export interface FileUploadConfig {
+  // Base directory where bbb-file-upload stores per-meeting uploads. Layout:
+  // {basePath}/{meetingId}/{uploadsDirName}/{uuid}.{ext}
+  basePath: string;
+  uploadsDirName: string;
+}
+
 export interface AppSettings {
   expressServer: ExpressServerConfig;
   hocuspocusServer: HocuspocusServerConfig;
@@ -62,4 +69,5 @@ export interface AppSettings {
   log: LogConfig;
   redis: RedisConfig;
   postgres: PostgresConfig;
+  fileUpload: FileUploadConfig;
 }

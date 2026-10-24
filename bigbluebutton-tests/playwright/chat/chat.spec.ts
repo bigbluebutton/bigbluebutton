@@ -1,10 +1,17 @@
 import { test } from '../core/setup/fixtures';
+import { ChatAttachmentRendering } from './attachmentRendering';
 import { Chat } from './chat';
+import { ChatImagePaste } from './imagePaste';
 import { Jumbomoji } from './jumbomoji';
 import { Mention } from './mention';
 import { MessageActions } from './messageActions';
 import { ChatPluginDomElements } from './pluginDomElements';
 import { PrivateChatListPreview } from './privateChatListPreview';
+
+// Rendering the sent <img> needs chat.imagePaste (to stage/upload) AND
+// chat.markdownImageAllowed (the akka markdown renderer only emits <img> when this
+// is on); both settings must be enabled for the image-paste tests to pass.
+const imagePasteTags = ['@setting-required:chat.imagePaste', '@setting-required:chat.markdownImageAllowed'];
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -295,6 +302,143 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.initPages(page, testInfo);
         await message.orderReactions();
       });
+    });
+  });
+
+  // Needs markdownImageAllowed for the image body, like image paste.
+  test.describe('Attachment rendering', { tag: imagePasteTags }, () => {
+    test('Draw an image attachment as a full-width card with the text below', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.rendersImageCard();
+    });
+
+    test('Download an attachment from the message toolbar', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.downloadsFromToolbar();
+    });
+
+    test('Draw a non-image attachment as a file row that downloads it', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.rendersFileRow();
+    });
+
+    test('Show the attachment in the reply and pinned previews', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatAttachmentRendering(browser, context);
+      await chat.init(page, testInfo);
+      await chat.showsAttachmentInPreviews();
+    });
+  });
+
+  test.describe('Image paste', { tag: imagePasteTags }, () => {
+    test('Paste an image, preview it and send it', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.pasteAndSendImage();
+    });
+
+    test('Remove the pasted image before sending', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.removePreviewBeforeSend();
+    });
+
+    test('Reject an image above the size limit', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsOversizeImage();
+    });
+
+    test('Reject an unsupported image type', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsUnsupportedType();
+    });
+
+    test('Reject a file whose bytes are not the image type it declares', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsSpoofedImageContent();
+    });
+
+    test('Reject an image above the dimension cap', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsImageExceedingDimensionCap();
+    });
+
+    test('Stage every file of the clipboard and send one message per file', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.stagesEveryFileAndSendsOneMessageEach();
+    });
+
+    test('Remove one of several staged files', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.removeOneOfSeveralFiles();
+    });
+
+    test('Attach a file with the file picker', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.attachWithFilePicker();
+    });
+
+    test('Drop a file on the chat panel', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropOnChatPanel();
+    });
+
+    test('Send a file that is not an image as a file row', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.sendNonImageFile();
+    });
+
+    test('Keep the image staged when the upload fails, and send it on retry', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.keepsImageStagedWhenUploadFails();
+    });
+
+    test('Strip an externally hosted image from a sent message', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropsExternalImage();
+    });
+
+    test('Strip an external image nested in the alt text of another image', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropsExternalImageNestedInAltText();
     });
   });
 });

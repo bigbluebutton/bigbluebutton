@@ -1,0 +1,19 @@
+[Unit]
+Description=BigBlueButton File Upload Server
+After=syslog.target network.target
+PartOf=bigbluebutton.target
+StartLimitIntervalSec=0
+
+[Service]
+WorkingDirectory=/usr/share/bbb-file-upload
+ExecStart=/usr/bin/node bbb-file-upload.js
+EnvironmentFile=-/etc/bigbluebutton/bbb-file-upload.env
+Restart=always
+SyslogIdentifier=bbb-file-upload
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target
