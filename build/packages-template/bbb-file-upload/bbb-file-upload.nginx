@@ -14,7 +14,7 @@ location = /bigbluebutton/fileUpload/upload {
   auth_request_set $meeting_id $sent_http_meeting_id;
   auth_request_set $user_id $sent_http_user_id;
 
-  proxy_pass http://127.0.0.1:8094/upload;
+  proxy_pass http://bbb-file-upload/upload;
   proxy_http_version 1.1;
   proxy_set_header Host $host;
   proxy_set_header Meeting-Id $meeting_id;
