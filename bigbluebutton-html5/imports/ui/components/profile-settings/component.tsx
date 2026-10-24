@@ -210,6 +210,11 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const { formatMessage } = useIntl();
   const sharedDevices = useSharedDevices();
   const isCamLocked = useIsCamSharingLocked();
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    name: user.name,
+    away: user.away,
+    inAudio: user.voice,
+  }));
   const stopVideo = useStopVideo();
   const streams = useStreams();
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
@@ -256,7 +261,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     initialProfileId: PreviewService.getDefaultProfile().id,
     isCameraShared: isAlreadyShared(initialWebcamDeviceId),
     forceOpen: true,
-    cameraDisabled: isCamLocked,
+    // The lock state isn't known until the current user is loaded
+    cameraDisabled: isCamLocked || !currentUserData,
   });
 
   const prevWebcamDeviceId = usePreviousValue(webcamDeviceId);
@@ -336,12 +342,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       setActivePreviewIndex(newActiveIndex);
     }
   }, [webcamDeviceId, cameraSections, isCameraLoading]);
-
-  const { data: currentUserData } = useCurrentUser((user) => ({
-    name: user.name,
-    away: user.away,
-    inAudio: user.voice,
-  }));
 
   const voiceToggle = useToggleVoice();
   const { data: unmuted } = useWhoIsUnmuted(Auth.userID as string);
