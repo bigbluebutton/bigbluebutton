@@ -1,5 +1,5 @@
-import { linkIssue } from '../core/helpers';
 import { exposeLiveKitRooms, isLiveKit } from '../core/livekit';
+import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { ScreenShare } from './screenshare';
@@ -25,6 +25,19 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     const screenshare = new ScreenShare(browser, context);
     await screenshare.initModPage(page, { testInfo });
     await screenshare.lateJoinerReceivesScreenshare();
+  });
+
+  test('A refused screen capture leaves the start button usable', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    await refuseMedia(page, ['display']);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.refusedScreenCapture();
   });
 
   test('Webcams fill the media area after screenshare ends when no presentation is loaded', async ({
@@ -82,9 +95,7 @@ test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {
     await screenshare.presentationStaysHiddenAfterSharingWithAnnotations();
   });
 
-  test('Start screenshare stops external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-    // requiring logged user to start external video on CI environment
-    linkIssue(21589);
+  test('Start screenshare stops external video', async ({ browser, context, page }, testInfo) => {
     const screenshare = new ScreenShare(browser, context);
     await screenshare.initModPage(page, { testInfo });
     await screenshare.screenshareStopsExternalVideo();

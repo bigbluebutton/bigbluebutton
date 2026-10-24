@@ -204,3 +204,16 @@ export const expectAudioReceived = async (page: PlaywrightPage, description: str
     annotate('inbound audio', delta);
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 };
+
+// Nothing audible reaches the page: whatever arrives decodes to silence. Pair it with
+// expectAudioReceived on the same page, or a page that receives nothing at all passes.
+export const expectAudioSilent = async (page: PlaywrightPage, description: string): Promise<void> => {
+  await expect(async () => {
+    const delta = await measureInboundRtp(page, 'audio', AUDIO_SAMPLE_WINDOW);
+    const detail = JSON.stringify(delta);
+    expect(delta.totalAudioEnergy, `${description}: the audio should be silent (${detail})`).toBeLessThan(
+      MIN_SPEECH_ENERGY,
+    );
+    annotate('inbound audio', delta);
+  }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+};
