@@ -334,6 +334,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     });
   }, [sharedDevices, lastUsedWebcamDeviceId, activePreviewIndex, webcamDeviceId]);
 
+  // Sharing a webcam elsewhere grants camera access, even when the browser
+  // can't report permission changes
+  useEffect(() => {
+    if (isAwaitingCameraPermission && sharedDevices.length > 0) startPreview();
+  }, [isAwaitingCameraPermission, sharedDevices, startPreview]);
+
   // Sync the active preview section with the current webcam device.
   useEffect(() => {
     // Adding a section can render before its camera starts. Keep the requested
