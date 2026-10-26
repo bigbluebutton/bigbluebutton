@@ -137,4 +137,15 @@ class PresentationPodsAppSpec extends AnyFlatSpec {
   it should "never refuse when the limit is disabled" in {
     assert(!PresentationPodsApp.podIsFullFor(defaultPod, "new-presentation-id", 0))
   }
+
+  behavior of "PresentationPodsApp.maxPresentationsPerPodFor"
+
+  it should "let server imports go past the cap, up to twice it" in {
+    assert(PresentationPodsApp.maxPresentationsPerPodFor(systemUpload = true, 50) == 100)
+    assert(PresentationPodsApp.maxPresentationsPerPodFor(systemUpload = false, 50) == 50)
+  }
+
+  it should "keep the cap disabled for server imports" in {
+    assert(PresentationPodsApp.maxPresentationsPerPodFor(systemUpload = true, 0) == 0)
+  }
 }

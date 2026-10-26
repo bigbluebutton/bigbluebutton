@@ -1257,7 +1257,7 @@ This limit is enforced at the single point every upload passes through, so unlik
 
 Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it and the room is destroyed immediately afterwards, so discarding it would lose it permanently with nothing left to retry from.
 
-Be aware that this means no conversion rate limit applies to captures. `apps.presentationMaxPerPod` is not a substitute: it caps how many presentations a pod holds, which is meeting state, and it is checked in `bbb-apps-akka` only once conversion has already started (see below). Ending a breakout session imports up to two presentations per room (captured slides and captured shared notes are separate uploads, each behind its own setting), all at once, so a session with many rooms produces a corresponding burst of conversion work in the parent meeting.
+Be aware that this means no conversion rate limit applies to captures. `apps.presentationMaxPerPod` is not a substitute: it caps how many presentations a pod holds, which is meeting state, it is checked in `bbb-apps-akka` only once conversion has already started, and captures may go past it up to twice its value (see below). Ending a breakout session imports up to two presentations per room (captured slides and captured shared notes are separate uploads, each behind its own setting), all at once, so a session with many rooms produces a corresponding burst of conversion work in the parent meeting.
 
 The limit is keyed by internal meeting ID, so a throttled meeting recovers once the window passes. To change the values, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
 
@@ -1283,7 +1283,7 @@ An over-limit presentation is refused entry to the pod and a warning is logged i
 
 - **Interactive uploads** are refused when the client asks for an upload token, before the file is sent. The presenter sees "Maximum of N presentations reached" in the upload toast.
 - **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. The presenter sees "Maximum of N presentations reached" in the upload toast.
-- **Captured slides and shared notes from an ended breakout room** are always added, even to a full pod, for the same reason they are exempt from `presentationConversionMaxRequests`: the room is gone, so refusing them would lose them. Each room adds at most two presentations.
+- **Captured slides and shared notes from an ended breakout room** may go past the cap, up to twice its value (**100** by default), for the same reason they are exempt from `presentationConversionMaxRequests`: the room is gone, so refusing them would lose them. Past twice the cap they are refused like any other presentation, and the presenter sees "Maximum of N presentations reached" with N twice the cap. While captures keep a pod above the cap, other uploads are refused until enough presentations are removed to bring it below the cap again.
 
 ##### Limit how fast one presenter can request uploads
 

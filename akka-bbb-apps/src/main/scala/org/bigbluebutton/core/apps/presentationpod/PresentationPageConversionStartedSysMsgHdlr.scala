@@ -67,6 +67,7 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
     val presentationId = msg.body.presentationId
     val podId = msg.body.podId
     val meetingId = liveMeeting.props.meetingProp.intId
+    val maxPerPod = PresentationPodsApp.maxPresentationsPerPodFor(msg.body.systemUpload, presMaxPerPod)
 
     val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.default, msg.body.current, Map.empty, downloadable,
       "", removable, filenameConverted = msg.body.presFilenameConverted, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
@@ -86,13 +87,11 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
           s"meetingId=$meetingId podId=$podId presentationId=$presentationId")
         state
 
-      // Bounds the akka pod map. 0 disables the cap. Content the server imports from an ended
-      // breakout room is exempt: the room that produced it is gone, so refusing it would lose it.
-      // Each room imports at most its slides and its shared notes.
-      case Some(pod) if !msg.body.systemUpload && PresentationPodsApp.podIsFullFor(pod, presentationId, presMaxPerPod) =>
+      // Bounds the akka pod map. 0 disables the cap.
+      case Some(pod) if PresentationPodsApp.podIsFullFor(pod, presentationId, maxPerPod) =>
         log.warning("Rejecting presentation: pod presentation limit reached. " +
           s"meetingId=$meetingId userId=${msg.header.userId} podId=$podId " +
-          s"count=${pod.getPresentationsSize()} limit=$presMaxPerPod presentationId=$presentationId")
+          s"count=${pod.getPresentationsSize()} limit=$maxPerPod presentationId=$presentationId")
 
         // Not added to the pod, so it does not occupy a slot. Record the error on the row
         // instead; the insert is a no-op when a row already exists.
@@ -102,7 +101,7 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
         PresPresentationDAO.updateErrors(
           presentationId,
           "PRESENTATION_UPLOAD_POD_LIMIT_REACHED",
-          Map("maxPresentationsPerPod" -> presMaxPerPod.toString)
+          Map("maxPresentationsPerPod" -> maxPerPod.toString)
         )
 
         liveMeeting.droppedPresentations.add(presentationId)

@@ -42,6 +42,11 @@ object PresentationPodsApp {
     getAllPresentationPodsInMeeting(state).find(_.getPresentation(presentationId).isDefined)
   }
 
+  // Content the server imports from an ended breakout room may go past the cap: the room that
+  // produced it is gone, so refusing it would lose it. Twice the cap still bounds repeated rounds.
+  def maxPresentationsPerPodFor(systemUpload: Boolean, maxPerPod: Int): Int =
+    if (systemUpload) maxPerPod * 2 else maxPerPod
+
   // A presentation already in the pod holds its slot, so it never counts against the cap.
   // 0 disables the cap.
   def podIsFullFor(pod: PresentationPod, presentationId: String, maxPerPod: Int): Boolean = {
