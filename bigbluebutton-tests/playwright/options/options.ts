@@ -271,6 +271,10 @@ export class Options extends MultiUsers {
       this.modPage.page.locator('#simpleModal'),
       'should paint the settings modal with a dark surface',
     ).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(
+      this.modPage.page.locator('#simpleModal > div:last-child'),
+      'should paint the settings modal footer with a dark surface',
+    ).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
   }
 
   async fontSizeKeptAfterReload() {
