@@ -195,7 +195,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
         <property name="apiVersion" value="${apiVersion}"/>
-        <property name="serviceEnabled" value="${serviceEnabled}"/>
         <property name="securitySalt" value="${securitySalt}"/>
         <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
         <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 
 export interface WebcamDevice {
   deviceId: string;
@@ -98,11 +99,7 @@ export interface CameraProfileProps {
   default?: boolean;
   bitrate: number;
   hidden?: boolean;
-  constraints?: {
-    width: number;
-    height: number;
-    frameRate?: number;
-  };
+  constraints?: Constraints2;
 }
 export interface CustomBackground {
   uniqueId: string;

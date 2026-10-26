@@ -73,12 +73,10 @@ export class ConnectionStatus extends MultiUsers {
   async copyStatsTest() {
     await openConnectionStatus(this.modPage);
     await this.modPage.hasElementEnabled(e.copyStats, 'should enable the copy stats button');
+    await this.modPage.grantClipboardPermissions();
     await this.modPage.waitAndClick(e.copyStats);
-    await this.modPage?.context?.grantPermissions(['clipboard-write', 'clipboard-read'], {
-      origin: process.env.BBB_URL,
-    });
-    const copiedText = await this.modPage.page.evaluate(async () => navigator.clipboard.readText());
-    const check = copiedText.includes('audioCurrentUploadRate');
-    await expect(check).toBeTruthy();
+    await expect
+      .poll(() => this.modPage.getCopiedText(), { message: 'should copy the connection stats to the clipboard' })
+      .toContain('audioCurrentUploadRate');
   }
 }

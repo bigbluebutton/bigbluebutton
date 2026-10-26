@@ -2,7 +2,7 @@ import { elements as e } from '../core/elements';
 import { parameters } from '../core/parameters';
 
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
-export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+export const CUSTOM_STYLE_URL = 'https://bbb-test-stub.local/css-test-file.css';
 
 // group names around the old varchar(100) limit of meeting_group (issue 25676)
 export const LONG_GROUP_NAMES = {
@@ -14,6 +14,8 @@ export const LONG_GROUP_NAMES = {
 
 const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
+export const LOGOUT_URL = `${serverOrigin}/?logout-url-test`;
+
 export const constants = {
   // Create Parameters
   bannerText: 'bannerText=some+text',
@@ -22,10 +24,12 @@ export const constants = {
   maxParticipants: 'maxParticipants=2',
   duration: 'duration=2',
   durationAboveRemainingTimeThreshold: 'duration=10',
+  shortestDuration: 'duration=1',
   messageModerator: 'This is a moderator only message',
   moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
   webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
   muteOnStart: 'muteOnStart=true',
+  muteOnStartDisabled: 'muteOnStart=false',
   allowModsToUnmuteUsers: 'allowModsToUnmuteUsers=true',
   lockSettingsDisableCam: 'lockSettingsDisableCam=true',
   lockSettingsDisableMic: 'lockSettingsDisableMic=true',
@@ -35,10 +39,7 @@ export const constants = {
   notifyRecordingIsOn: 'notifyRecordingIsOn=true',
   notifyRecordingAppendMessage: 'This meeting will be summarized using AI — <strong>plain text</strong>',
   notifyRecordingAppend: 'notifyRecordingAppend=This meeting will be summarized using AI — <strong>plain text</strong>',
-  preUploadedPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-tests/playwright/core/media/sample.pdf',
-  preUploadedHeavyPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
+  preUploadedPresentation: `preUploadedPresentation=${serverOrigin}/default.pdf`,
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   camerasOnly: 'meetingLayout=CAMERAS_ONLY',
@@ -75,7 +76,6 @@ export const constants = {
   multiUserTools: 'userdata-bbb_multi_user_tools=["arrow","text"]',
   customStyle: `userdata-bbb_custom_style=${CUSTOM_STYLE_CSS}`,
   customStyleUrl: `userdata-bbb_custom_style_url=${CUSTOM_STYLE_URL}`,
-  autoSwapLayout: 'userdata-bbb_auto_swap_layout=true',
   hidePresentationOnJoin: 'userdata-bbb_hide_presentation_on_join=true',
   outsideToggleSelfVoice: 'userdata-bbb_outside_toggle_self_voice=true',
   outsideToggleRecording: 'userdata-bbb_outside_toggle_recording=true',
@@ -98,10 +98,11 @@ export const constants = {
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
   webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
-  logoutURL: 'logoutURL=https://www.google.com',
+  logoutURL: `logoutURL=${encodeURIComponent(LOGOUT_URL)}`,
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
   speechRecognitionDisabled: 'disabledFeatures=liveTranscription',
+  captionsDisabled: 'disabledFeatures=liveTranscription',
   chatDisabled: 'disabledFeatures=chat',
   externalVideosDisabled: 'disabledFeatures=externalVideos',
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
@@ -122,6 +123,7 @@ export const constants = {
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
   speechRecognitionExclude:
     'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
+  captionsExclude: 'disabledFeatures=liveTranscription,presentation,chat&disabledFeaturesExclude=liveTranscription',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
   learningDashboardExclude:
@@ -139,8 +141,8 @@ export const constants = {
     'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms',
   presentationExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation',
   customVirtualBackgroundExclude:
-    'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
-  slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
+    'disabledFeatures=presentation,chat,customVirtualBackgrounds&disabledFeaturesExclude=customVirtualBackgrounds',
+  slideSnapshotExclude: 'disabledFeatures=snapshotOfCurrentSlide,chat&disabledFeaturesExclude=snapshotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
   infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
   multiFunctionalModeDisabled: 'disabledFeatures=multiFunctionalMode',

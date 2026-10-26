@@ -15,9 +15,12 @@ import { MultiUsers } from './multiusers';
 import {
   applyUserListLock,
   drawArrow,
+  hasNoRecordedToast,
+  hasRecordedToast,
   hasUserListMicState,
   isTalkingLocator,
   openLockViewers,
+  recordToasts,
   setPresentationPermission,
   talkingIndicatorLocator,
 } from './util';
@@ -236,6 +239,45 @@ export class LockViewers extends MultiUsers {
     );
   }
 
+  async cancelLockViewersChanges() {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClickElement(e.lockPublicChat);
+    await this.modPage.hasElementNotChecked(e.lockPublicChat, 'should switch off the public chat permission');
+    await this.modPage.waitAndClick(e.cancelLockSettings);
+    await this.modPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers dialog on cancel');
+    await this.modPage.wasRemoved(e.unsavedChangesIgnore, 'should not warn about unsaved changes on cancel');
+
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.hasElementChecked(e.lockPublicChat, 'should not have applied the cancelled public chat lock');
+    await this.modPage.waitAndClickElement(e.lockPublicChat);
+    await this.modPage.hasElementNotChecked(e.lockPublicChat, 'should switch off the public chat permission again');
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.hasElement(
+      e.unsavedChangesIgnore,
+      'should warn about unsaved changes when closing the lock viewers dialog',
+    );
+    await this.modPage.waitAndClick(e.unsavedChangesIgnore);
+    await this.modPage.wasRemoved(
+      e.applyLockSettings,
+      'should close the lock viewers dialog when ignoring the changes',
+    );
+
+    await this.userPage.hasElementEnabled(e.chatBox, 'should keep the public chat enabled for the attendee');
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should receive the public message of the attendee, who was never locked',
+    );
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.hasElementChecked(e.lockPublicChat, 'should not have applied the ignored public chat lock');
+  }
+
   async lockSendPrivateChatMessages() {
     // user start private chat with mod and send a message
     await this.userPage.waitAndClick(e.usersListSidebarButton);
@@ -393,7 +435,6 @@ export class LockViewers extends MultiUsers {
       1,
       'should contain one user on the user list for the second attendee',
     );
-    await this.modPage.page.waitForTimeout(1000);
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElementCount(
       e.userListItem,
@@ -432,9 +473,6 @@ export class LockViewers extends MultiUsers {
     // timeout to ensure that the userPage presentation is zoomed in stabilized
     await this.modPage.page.waitForTimeout(1000);
     await drawArrow(this.userPage);
-    const screenshotOptions = {
-      maxDiffPixels: 500,
-    };
     // lock the viewers annotations
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClick(e.participantPermissionsTab);
@@ -450,58 +488,43 @@ export class LockViewers extends MultiUsers {
       e.smallToastMsg,
       'should not display any toast notification for the second attendee after closing all',
     );
-    const user2WbLocator = this.userPage2.page.locator(e.whiteboard);
     await this.userPage2.hasElement(e.whiteboard, 'should display the whiteboard for the second attendee');
-    await this.modPage.page.waitForTimeout(1000); // timeout to ensure the user2 presentation is zoomed correctly
-    await this.userPage2.wasRemoved(
+    await this.userPage2.hasElementCount(
       e.wbDrawnArrow,
+      0,
       'should not display the other viewer annotation for the viewer who just joined',
     );
-    // park the cursor on a neutral element (chatButton is gone from 4.0)
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    // ensure userPage cursor won't be visible on the screenshot (chatButton is gone from 4.0)
-    await this.userPage.page.locator(e.messagesSidebarButton).hover();
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(
-      user2WbLocator,
-      'should not display the other viewer annotation for the viewer who just joined',
-    ).toHaveScreenshot('viewer2-just-joined.png', screenshotOptions);
-    // draw a rectangle and check if it is displayed
-    await this.userPage.waitAndClick(e.wbShapesButton);
+    // the first viewer draws a rectangle, then the moderator draws an arrow:
+    // the moderator arrow reaching the second viewer proves its whiteboard is
+    // receiving annotations, so the missing rectangle is the lock at work
     await this.userPage.waitAndClick(e.wbRectangleShape);
     await this.userPage.waitAndClick(e.whiteboard);
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
-    await this.userPage2.wasRemoved(e.wbDrawnShape, 'should not display the new annotation for the other viewer');
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(user2WbLocator, 'should not display the new annotation for the other viewer').toHaveScreenshot(
-      'viewer2-no-rectangle.png',
-      screenshotOptions,
+    await this.userPage.hasElementCount(e.wbDrawnShape, 1, 'should display the rectangle for the viewer who drew it');
+    await drawArrow(this.modPage);
+    await this.userPage2.hasElementCount(
+      e.wbDrawnArrow,
+      1,
+      'should display only the moderator annotation for the locked viewer',
+    );
+    await this.userPage2.hasElementCount(
+      e.wbDrawnShape,
+      0,
+      'should not display the new annotation for the other viewer',
     );
     // unlock user2
     const attendee2Row = await this.modPage.page.locator(e.userListItem).last();
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
     await this.modPage.page.locator(`${e.unlockUserButton}:visible`).first().click();
     // check if previous annotations is displayed after unlocking user
-    await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
-    await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage2.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(
-      user2WbLocator,
-      'should display the other viewer annotations when unlocking specific user',
-    ).toHaveScreenshot('viewer2-previous-shapes.png', screenshotOptions);
+    await this.userPage2.hasElementCount(
+      e.wbDrawnArrow,
+      2,
+      'should display the arrows drawn by the moderator and by the other viewer before unlocking',
+    );
+    await this.userPage2.hasElementCount(e.wbDrawnShape, 1, 'should display the rectangle drawn before unlocking user');
     // check if new annotations is displayed after unlocking user
     await drawArrow(this.userPage);
-    await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor will be visible on the screenshot
-    await this.userPage2.hasElementCount(e.wbDrawnArrow, 2, 'should display all arrows drawn for unlocked user');
-    await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
-    await expect(user2WbLocator, 'should display all arrows drawn for unlocked user').toHaveScreenshot(
-      'viewer2-new-arrow.png',
-      screenshotOptions,
-    );
+    await this.userPage2.hasElementCount(e.wbDrawnArrow, 3, 'should display all arrows drawn for unlocked user');
   }
 
   async lockSeeOtherViewersCursor() {
@@ -542,6 +565,107 @@ export class LockViewers extends MultiUsers {
       1,
       'should be displayed the other viewer whiteboard cursor indicator when unlocking user is unlocked',
     );
+  }
+
+  async liftingLocksRestoresCapabilities() {
+    await this.initUserPage2();
+    await startSharedNotesBlockNote(this.userPage);
+    await this.setParticipantLocks([e.lockPublicChat, e.lockEditSharedNotes, e.lockUserList], true);
+
+    await this.userPage.hasElement(e.blockNoteReadOnly, 'should make the shared notes read-only for the attendee');
+    await this.userPage2.hasElementDisabled(e.chatBox, 'should disable the public chat for the second attendee');
+    await this.userPage2.waitAndClick(e.usersListSidebarButton);
+    await this.userPage2.hasElementCount(
+      e.userListItem,
+      1,
+      'should hide the other attendee from the second attendee, leaving only the moderator',
+    );
+
+    await this.setParticipantLocks([e.lockPublicChat, e.lockEditSharedNotes, e.lockUserList], false);
+
+    // the same pages, not reloaded, get each capability back
+    await this.userPage2.hasElementCount(
+      e.userListItem,
+      2,
+      'should show the other attendee again once the user list lock is lifted',
+    );
+    await this.userPage.hasElement(
+      e.blockNoteEditable,
+      'should make the shared notes editable again once the notes lock is lifted',
+    );
+    await this.userPage2.waitAndClick(e.messagesSidebarButton);
+    await this.userPage2.hasElementEnabled(
+      e.chatBox,
+      'should enable the public chat again once the chat lock is lifted',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.fill(e.chatBox, e.message);
+    await this.userPage2.waitAndClick(e.sendButton);
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should deliver the message the second attendee sent after the chat lock was lifted',
+    );
+  }
+
+  async unlockingOneUserOverridesTheGlobalLock() {
+    await this.initUserPage2();
+    await this.setParticipantLocks([e.lockPublicChat], true);
+    await this.userPage.hasElementDisabled(e.chatBox, 'should disable the public chat for the first attendee');
+    await this.userPage2.hasElementDisabled(e.chatBox, 'should disable the public chat for the second attendee');
+
+    const attendeeRow = this.modPage.page.locator(`${e.userListItem}[aria-label="${this.userPage.username}"]`);
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    const lockToggle = this.modPage.page.locator(`${e.unlockUserButton}:visible`).first();
+    await expect(lockToggle, 'should offer to unlock the first attendee').toHaveText(
+      `Unlock ${this.userPage.username}`,
+    );
+    await lockToggle.click();
+
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should enable the public chat for the unlocked attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await this.userPage2.hasText(
+      e.chatUserMessageText,
+      e.message,
+      'should deliver the message of the unlocked attendee to the second attendee',
+    );
+    // the message arrived after the unlock was applied, so the other attendee is checked after it
+    await this.userPage2.hasElementDisabled(
+      e.chatBox,
+      'should keep the public chat disabled for the attendee who was not unlocked',
+    );
+
+    // locking the attendee again puts the meeting-wide lock back on them
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await expect(lockToggle, 'should offer to lock the unlocked attendee again').toHaveText(
+      `Lock ${this.userPage.username}`,
+    );
+    await lockToggle.click();
+    await this.userPage.hasElementDisabled(
+      e.chatBox,
+      'should disable the public chat again for the attendee locked again',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  // sets participant locks in the lock viewers modal and applies them; a checked
+  // toggle there means the viewers are allowed, an unchecked one that they are locked
+  async setParticipantLocks(locks: string[], locked: boolean) {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    for (const lock of locks) {
+      const lockToggle = this.modPage.page.locator(lock);
+      if ((await lockToggle.isChecked()) === locked) await this.modPage.waitAndClickElement(lock);
+      await expect(lockToggle, `should ${locked ? 'lock' : 'unlock'} ${lock}`).toBeChecked({ checked: !locked });
+    }
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers modal once applied');
   }
 
   async presenterPolicyModeratorOnly() {
@@ -663,6 +787,10 @@ export class LockViewers extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
+    // Record toasts before Viewer2 joins: the join toast can come and go before the join finishes.
+    await recordToasts(this.modPage);
+    await recordToasts(this.userPage);
+
     // Step 5: Viewer2 joins.
     await this.initUserPage2();
 
@@ -676,18 +804,19 @@ export class LockViewers extends MultiUsers {
     // Moderator MUST still receive the join notification (per-user route after fix).
     // Assert positive first to confirm the notification was actually emitted before
     // checking the locked viewer never received it.
-    await this.modPage.hasText(
-      e.smallToastMsg,
-      `${this.userPage2.username} joined the session`,
+    const joinedMessage = `${this.userPage2.username} joined the session`;
+    await hasRecordedToast(
+      this.modPage,
+      joinedMessage,
       'Moderator must still receive the join notification when hideUserList is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
     // Locked viewer must NOT receive the join notification (regression for #24888).
-    await this.userPage.wasRemoved(
-      e.smallToastMsg,
+    await hasNoRecordedToast(
+      this.userPage,
+      joinedMessage,
       'Locked viewer must not receive a join notification when hideUserList is active',
-      ELEMENT_WAIT_TIME,
     );
   }
 
@@ -794,6 +923,11 @@ export class LockViewers extends MultiUsers {
     await this.userPage.closeAllToastNotifications();
     await unlockedViewer.closeAllToastNotifications();
 
+    // Record toasts before Viewer3 joins: the join toast can come and go before the join finishes.
+    await recordToasts(this.modPage);
+    await recordToasts(this.userPage);
+    await recordToasts(unlockedViewer);
+
     // Viewer3 joins after subscriptions are active.
     await this.initUserPage2(undefined, { fullName: 'Attendee3' });
     const viewer3 = this.userPage2;
@@ -805,24 +939,25 @@ export class LockViewers extends MultiUsers {
 
     // Assert positives first to confirm notifications were emitted before checking
     // the locked viewer never received one.
-    await this.modPage.hasText(
-      e.smallToastMsg,
-      `${viewer3.username} joined the session`,
+    const joinedMessage = `${viewer3.username} joined the session`;
+    await hasRecordedToast(
+      this.modPage,
+      joinedMessage,
       'Moderator must receive join notification when hideUserList is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await unlockedViewer.hasText(
-      e.smallToastMsg,
-      `${viewer3.username} joined the session`,
+    await hasRecordedToast(
+      unlockedViewer,
+      joinedMessage,
       'Unlocked viewer must receive join notification when hideUserList is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await this.userPage.wasRemoved(
-      e.smallToastMsg,
+    await hasNoRecordedToast(
+      this.userPage,
+      joinedMessage,
       'Locked viewer must not receive join notification when hideUserList is active',
-      ELEMENT_WAIT_TIME,
     );
   }
 
@@ -926,6 +1061,10 @@ export class LockViewers extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
+    // Record toasts before Mod2 joins: the join toast can come and go before the join finishes.
+    await recordToasts(this.modPage);
+    await recordToasts(this.userPage);
+
     await this.initModPage2();
     const mod2Name = this.modPage2.username;
 
@@ -934,15 +1073,15 @@ export class LockViewers extends MultiUsers {
       'Mod2 should appear in Mod1 user list after joining',
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    await this.modPage.hasText(
-      e.smallToastMsg,
+    await hasRecordedToast(
+      this.modPage,
       `${mod2Name} joined the session`,
       'Mod1 must receive join notification when a moderator joins (hideUserList active)',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await this.userPage.hasText(
-      e.smallToastMsg,
+    await hasRecordedToast(
+      this.userPage,
       `${mod2Name} joined the session`,
       'Locked viewer must receive join notification when a MODERATOR joins (hideUserList active)',
       ELEMENT_WAIT_LONGER_TIME,

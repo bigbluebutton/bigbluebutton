@@ -36,7 +36,6 @@ apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.apache.grails.gradle.grails-web"
-apply plugin: "org.apache.grails.gradle.grails-gsp"
 apply plugin: "cloud.wondrify.asset-pipeline"
 apply plugin: "com.github.erdi.webdriver-binaries"
 apply plugin: "org.apache.grails.gradle.grails-gson"
@@ -180,7 +179,6 @@ configurations {
 
 bootRun {
   jvmArgs '-Dspring.output.ansi.enabled=always'
-  jvmArgs '-Dspring.main.allow-circular-references=true'
   sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
@@ -206,12 +204,20 @@ test {
   ext.MIN_EXPECTED_TESTS = 40
   ext.executedTestCount = 0
 
-  afterSuite { desc, result ->
-    if (desc.parent == null) {
-      // Root suite: `result` aggregates the whole run.
-      test.ext.executedTestCount = result.testCount
+  addTestListener(new TestListener() {
+    void beforeSuite(TestDescriptor suite) {}
+
+    void afterSuite(TestDescriptor suite, TestResult result) {
+      if (suite.parent == null) {
+        // Root suite: `result` aggregates the whole run.
+        test.ext.executedTestCount = result.testCount
+      }
     }
-  }
+
+    void beforeTest(TestDescriptor testDescriptor) {}
+
+    void afterTest(TestDescriptor testDescriptor, TestResult result) {}
+  })
 
   doLast {
     int executed = test.ext.executedTestCount

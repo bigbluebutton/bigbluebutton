@@ -78,17 +78,18 @@ class ApiController {
   ValidationService validationService
 
 
-  def initResponseBuilder = {
+  private ResponseBuilder initResponseBuilder() {
     String protocol = this.getClass().getResource("").getProtocol();
     if (Objects.equals(protocol, "jar")) {
       // Application running inside a JAR file
-      responseBuilder = new ResponseBuilder(getClass().getClassLoader(), "/WEB-INF/freemarker")
+      return new ResponseBuilder(getClass().getClassLoader(), "/WEB-INF/freemarker")
     } else if (Objects.equals(protocol, "file")) {
       // Application unzipped and running outside a JAR file
       String templateLoc = ServletContextHolder.servletContext.getRealPath("/WEB-INF/freemarker")
       // We should never have a null `templateLoc`
-      responseBuilder = new ResponseBuilder(new File(templateLoc))
+      return new ResponseBuilder(new File(templateLoc))
     }
+    return null
   }
 
   /* general methods */
@@ -822,7 +823,7 @@ class ApiController {
     }
   }
 
-  String handleCreateUserClientUrl(String sessionToken, UserSession session) {
+  private String handleCreateUserClientUrl(String sessionToken, UserSession session) {
     String clientUrl = paramsProcessorUtil.getDefaultHTML5ClientUrl()
     String redirectUrl = clientUrl
     if (!StringUtils.isEmpty(session.getEnforceLayout())) {
@@ -2144,15 +2145,6 @@ class ApiController {
       uploadedPres.setDownloadable();
     }
     presentationService.processUploadedPresentation(uploadedPres);
-  }
-
-  def beforeInterceptor = {
-    if (paramsProcessorUtil.isServiceEnabled() == false) {
-      log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
-      // TODO: this doesn't stop the request - so it generates invalid XML
-      //      since the request continues and renders a second response
-      invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
-    }
   }
 
   private respondWithConference(meeting, msgKey, msg) {

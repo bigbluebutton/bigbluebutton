@@ -4,7 +4,7 @@ import { CI, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
-import { getLocaleValues, openAboutModal, openSettings } from './util';
+import { getCenterX, getHtmlFontSize, getLocaleValues, openAboutModal, openSettings, selectLocale } from './util';
 
 export class Options extends MultiUsers {
   async openedAboutModal() {
@@ -188,6 +188,189 @@ export class Options extends MultiUsers {
         screenshotOptions,
       );
     }
+  }
+
+  async unsavedSettingsChanges() {
+    const htmlLocator = this.modPage.page.locator('html');
+    const navigationSidebarLocator = this.modPage.page.locator(e.navigationSidebarContainer);
+    const initialFontSize = await getHtmlFontSize(this.modPage);
+    const initialBackgroundColor = await navigationSidebarLocator.evaluate(
+      (node) => getComputedStyle(node).backgroundColor,
+    );
+
+    await openSettings(this.modPage);
+    await this.modPage.hasElement(e.saveSettingsButton, 'should open the settings');
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.wasRemoved(e.saveSettingsButton, 'should close the settings right away when nothing changed');
+    await this.modPage.wasRemoved(e.unsavedChangesIgnore, 'should not warn about unsaved changes when nothing changed');
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
+    await this.modPage.hasElementChecked(e.darkModeToggleBtn, 'should turn the dark mode toggle on');
+    await this.modPage.waitAndClick(e.increaseFontSize);
+    await expect(htmlLocator, 'should preview the larger font size before saving').not.toHaveCSS(
+      'font-size',
+      initialFontSize,
+    );
+
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.hasElement(
+      e.unsavedChangesIgnore,
+      'should warn about unsaved changes when closing the settings',
+    );
+    await this.modPage.waitAndClick(e.unsavedChangesCancel);
+    await this.modPage.hasElement(e.saveSettingsButton, 'should return to the settings when cancelling the warning');
+    await this.modPage.hasElementChecked(
+      e.darkModeToggleBtn,
+      'should keep the unsaved dark mode choice after cancelling the warning',
+    );
+    await expect(htmlLocator, 'should keep previewing the larger font size').not.toHaveCSS(
+      'font-size',
+      initialFontSize,
+    );
+
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.waitAndClick(e.unsavedChangesIgnore);
+    await this.modPage.wasRemoved(e.saveSettingsButton, 'should close the settings when ignoring the changes');
+    await this.modPage.wasRemoved(e.unsavedChangesIgnore, 'should close the warning when ignoring the changes');
+    await expect(htmlLocator, 'should drop the previewed font size').toHaveCSS('font-size', initialFontSize);
+    await expect(navigationSidebarLocator, 'should not apply the dark mode').toHaveCSS(
+      'background-color',
+      initialBackgroundColor,
+    );
+    await openSettings(this.modPage);
+    await this.modPage.hasElementNotChecked(e.darkModeToggleBtn, 'should not have saved the dark mode choice');
+  }
+
+  async darkModeKeptAfterReload() {
+    const navigationSidebarLocator = this.modPage.page.locator(e.navigationSidebarContainer);
+    const getBackgroundColor = (node: HTMLElement) => getComputedStyle(node).backgroundColor;
+    const lightBackgroundColor = await navigationSidebarLocator.evaluate(getBackgroundColor);
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
+    await this.modPage.wasRemoved(e.saveSettingsButton, 'should close the settings after saving');
+    await expect(navigationSidebarLocator, 'should apply the dark mode').not.toHaveCSS(
+      'background-color',
+      lightBackgroundColor,
+    );
+    const darkBackgroundColor = await navigationSidebarLocator.evaluate(getBackgroundColor);
+
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await expect(navigationSidebarLocator, 'should keep the dark mode after a reload').toHaveCSS(
+      'background-color',
+      darkBackgroundColor,
+    );
+    await openSettings(this.modPage);
+    await this.modPage.hasElementChecked(e.darkModeToggleBtn, 'should show the dark mode on after a reload');
+  }
+
+  async fontSizeKeptAfterReload() {
+    const htmlLocator = this.modPage.page.locator('html');
+    const initialFontSize = await getHtmlFontSize(this.modPage);
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClick(e.increaseFontSize);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
+    await this.modPage.wasRemoved(e.saveSettingsButton, 'should close the settings after saving');
+    await expect(htmlLocator, 'should apply the larger font size').not.toHaveCSS('font-size', initialFontSize);
+    const savedFontSize = await getHtmlFontSize(this.modPage);
+
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await expect(htmlLocator, 'should keep the saved font size after a reload').toHaveCSS('font-size', savedFontSize);
+  }
+
+  async rightToLeftLayout() {
+    const htmlLocator = this.modPage.page.locator('html');
+    const halfViewportWidth = this.modPage.page.viewportSize()!.width / 2;
+
+    await expect(htmlLocator, 'should start with a left-to-right document').toHaveAttribute('dir', 'ltr');
+    expect(
+      await getCenterX(this.modPage, e.navigationSidebarContainer),
+      'should start with the navigation sidebar on the left',
+    ).toBeLessThan(halfViewportWidth);
+
+    await selectLocale(this.modPage, 'ar');
+    await expect(htmlLocator, 'should switch the document language to Arabic').toHaveAttribute('lang', 'ar');
+    await expect(htmlLocator, 'should make the document right-to-left').toHaveAttribute('dir', 'rtl');
+    await expect
+      .poll(() => getCenterX(this.modPage, e.navigationSidebarContainer), {
+        message: 'should move the navigation sidebar to the right',
+      })
+      .toBeGreaterThan(halfViewportWidth);
+    await expect
+      .poll(() => getCenterX(this.modPage, e.sidebarContentMain), {
+        message: 'should move the chat panel to the right',
+      })
+      .toBeGreaterThan(halfViewportWidth);
+    expect(
+      await getCenterX(this.modPage, e.navigationSidebarContainer),
+      'should keep the navigation sidebar at the outer edge, right of the chat panel',
+    ).toBeGreaterThan(await getCenterX(this.modPage, e.sidebarContentMain));
+
+    await selectLocale(this.modPage, 'en');
+    await expect(htmlLocator, 'should make the document left-to-right again').toHaveAttribute('dir', 'ltr');
+    await expect
+      .poll(() => getCenterX(this.modPage, e.navigationSidebarContainer), {
+        message: 'should move the navigation sidebar back to the left',
+      })
+      .toBeLessThan(halfViewportWidth);
+  }
+
+  async localeKeptAfterReload() {
+    const htmlLocator = this.modPage.page.locator('html');
+    const { [e.chatTitle]: arabicChatTitle } = await getLocaleValues(
+      { [e.chatTitle]: 'app.userList.messagesTitle' },
+      'ar',
+    );
+
+    await selectLocale(this.modPage, 'ar');
+    await this.modPage.hasText(e.chatTitle, arabicChatTitle, 'should translate the chat title into Arabic');
+
+    await this.modPage.reloadPage();
+    await this.modPage.closeAudioModal();
+    await expect(htmlLocator, 'should keep the Arabic locale after a reload').toHaveAttribute('lang', 'ar');
+    await expect(htmlLocator, 'should keep the document right-to-left after a reload').toHaveAttribute('dir', 'rtl');
+    await this.modPage.hasText(
+      e.chatTitle,
+      arabicChatTitle,
+      'should still show the chat title in Arabic after a reload',
+    );
+    await openSettings(this.modPage);
+    await expect(
+      this.modPage.page.locator(e.languageSelector),
+      'should show Arabic as the selected language after a reload',
+    ).toHaveValue('ar');
+  }
+
+  async sessionDetails(joinUrl: string) {
+    await this.modPage.waitAndClick(e.sessionDetailsButton);
+    await this.modPage.hasElement(e.sessionDetailsModal, 'should open the session details from the meeting title');
+    await this.modPage.hasText(e.sessionDetailsModal, e.joinByUrlLabel, 'should offer the moderator to join by URL');
+    await this.modPage.hasText(e.sessionDetailsModal, joinUrl, 'should show the moderator the join URL');
+
+    const copyJoinUrlLocator = this.modPage.page.locator(e.copyJoinUrlButton);
+    await expect(copyJoinUrlLocator, 'should offer to copy the join URL').toHaveAccessibleName(e.copyJoinUrlLabel);
+    await this.modPage.grantClipboardPermissions();
+    await copyJoinUrlLocator.click();
+    await expect(copyJoinUrlLocator, 'should confirm that the join URL was copied').toHaveAccessibleName(
+      e.joinUrlCopiedLabel,
+    );
+    expect(await this.modPage.getCopiedText(), 'should copy the join URL to the clipboard').toBe(joinUrl);
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.wasRemoved(e.sessionDetailsModal, 'should close the session details');
+
+    await this.initUserPage(this.modPage.context);
+    await this.userPage.waitAndClick(e.sessionDetailsButton);
+    await this.userPage.hasElement(e.sessionDetailsModal, 'should open the session details for the attendee');
+    await expect(
+      this.userPage.page.locator(e.sessionDetailsModal),
+      'should not show the join URL to an attendee',
+    ).not.toContainText(joinUrl);
+    await this.userPage.wasRemoved(e.copyJoinUrlButton, 'should not offer an attendee to copy the join URL');
   }
 
   async autoHideWhiteboardToolbar() {

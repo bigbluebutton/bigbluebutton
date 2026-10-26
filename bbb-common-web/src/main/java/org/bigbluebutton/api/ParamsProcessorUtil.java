@@ -61,7 +61,6 @@ public class ParamsProcessorUtil {
     private static final String CONF_NAME = "%%CONFNAME%%";
 
     private String apiVersion;
-    private boolean serviceEnabled = false;
     private String securitySalt;
     private String supportedChecksumAlgorithms;
     private String checksumHash;
@@ -1128,10 +1127,6 @@ public class ParamsProcessorUtil {
 		return apiVersion;
 	}
 
-	public boolean isServiceEnabled() {
-		return serviceEnabled;
-	}
-
 	public String getDefaultHTML5ClientUrl() {
 		return defaultHTML5ClientUrl;
 	}
@@ -1479,10 +1474,6 @@ public class ParamsProcessorUtil {
 
 	public void setApiVersion(String apiVersion) {
 		this.apiVersion = apiVersion;
-	}
-
-	public void setServiceEnabled(boolean e) {
-		serviceEnabled = e;
 	}
 
 	public void setSecuritySalt(String securitySalt) {
