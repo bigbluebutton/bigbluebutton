@@ -1,5 +1,6 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   GetGuestLobbyInfo,
@@ -36,7 +37,9 @@ import {
   RoomModePanel,
 } from '/imports/ui/components/pre-flight/room-mode/component';
 import useRoomModePanelGate from '/imports/ui/components/pre-flight/room-mode/useRoomModePanelGate';
-import RoomModeApplyOnJoin from '/imports/ui/components/pre-flight/room-mode/apply-on-join';
+import RoomModeApplyOnJoin, {
+  notifyRoomModeNotApplied,
+} from '/imports/ui/components/pre-flight/room-mode/apply-on-join';
 import { getRoomMode } from '/imports/ui/components/pre-flight/room-mode/modes';
 import { RoomModeChoice } from '/imports/ui/components/pre-flight/room-mode/settings';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
@@ -121,6 +124,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   record,
   autoStartRecording,
 }) => {
+  const intl = useIntl();
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
@@ -241,12 +245,22 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       if (joinFailed) preFlightCommitRef.current?.();
       clearTimeout(timeoutRef.current);
       const roomModeChoice = roomModeChoiceRef.current;
-      if (roomModeChoice && getRoomMode(roomModeChoice.modeId)) {
+      // The pick was checked when Start room was pressed; a mode another
+      // moderator set since then stays.
+      if (roomModeChoice && getRoomMode(roomModeChoice.modeId) && roomMode === '') {
         // A join that landed after it stalled shows the panel as joining while
         // the mode is applied, not as delayed.
         setJoinFailed(false);
         setApplyingRoomMode(true);
       } else {
+        if (roomModeChoice && roomMode) {
+          logger.info({
+            logCode: 'pre_flight_room_mode_apply_skipped',
+            extraInfo: { modeId: roomModeChoice.modeId, reason: 'room mode already set' },
+          }, 'Room mode not applied: another moderator set one first');
+          notifyRoomModeNotApplied(intl, 'modeSet');
+        }
+        if (roomModeChoice) roomModeChoiceRef.current = null;
         setAllowToRender(true);
       }
     }

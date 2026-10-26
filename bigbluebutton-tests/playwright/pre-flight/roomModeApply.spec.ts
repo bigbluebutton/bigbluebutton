@@ -57,4 +57,24 @@ test.describe.parallel('Room mode applied after the join', { tag: '@ci' }, () =>
     const apply = new RoomModeApply(browser, context);
     await apply.keepsModeSetByAnotherModerator(page, { testInfo });
   });
+
+  test('Another moderator in the room keeps it as it is', async ({ browser, context, page }, testInfo) => {
+    const apply = new RoomModeApply(browser, context);
+    await apply.keepsRoomRunningByAnotherModerator(page, { testInfo });
+  });
+
+  test('A mode set during the join is not overwritten', async ({ browser, context, page }, testInfo) => {
+    const apply = new RoomModeApply(browser, context);
+    await apply.keepsModeSetDuringJoin(page, { testInfo });
+  });
+
+  test('A room without chat keeps its public chat lock', async ({ browser, context, page }, testInfo) => {
+    const apply = new RoomModeApply(browser, context);
+    await apply.leavesPublicChatLockedWithoutChat(page, { testInfo });
+  });
+
+  test('An edited guest policy is applied', async ({ browser, context, page }, testInfo) => {
+    const apply = new RoomModeApply(browser, context);
+    await apply.appliesEditedGuestPolicy(page, { testInfo });
+  });
 });

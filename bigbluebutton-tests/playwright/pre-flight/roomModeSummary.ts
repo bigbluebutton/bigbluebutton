@@ -1,12 +1,11 @@
 import { expect, Page as PlaywrightPage } from '@playwright/test';
 
-import { field, queryDocument, runQuery } from '../core/apolloProbe';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
-import { ensureProbe } from './roomMode';
-import { hasPanel, RoomModePanel } from './roomModePanel';
+import { CLASS_ROOM_AS_CREATED, ensureProbe, readRoomSettings } from './roomMode';
+import { hasPanel, pickOption, RoomModePanel, startsRoom } from './roomModePanel';
 import { PHONE_VIEWPORT, PRE_FLIGHT_CREATE_PARAMETER } from './util';
 
 type Switch =
@@ -38,52 +37,15 @@ const MEETING_PRESET: EditableValues = {
   whiteboard: false,
 };
 
-// The server's own defaults for a room created by the suite (muteOnStart pinned
-// off by the pre-flight's create parameter): the preset values must not reach
-// the room before it starts.
+// The server's own default for a room created by the suite: no mode asserts a
+// guest policy, so the select starts from it.
 const AS_CREATED = {
-  roomMode: '',
-  muteOnStart: false,
   guestPolicy: 'ALWAYS_ACCEPT',
-  multiUserWhiteboardEnabled: false,
 };
 
 // A room that may record: only there does the summary say a recording never
 // starts on its own.
 export const RECORDING_ROOM_CREATE_PARAMETER = `${PRE_FLIGHT_CREATE_PARAMETER}&record=true`;
-
-// Before the join the server answers only the room's policies and voice settings,
-// not its lock settings, so the room is read through those.
-const PRE_JOIN_ROOM_QUERY = queryDocument(
-  [
-    field('meeting', [
-      field('roomMode'),
-      field('usersPolicies', [field('guestPolicy'), field('multiUserWhiteboardEnabled')]),
-      field('voiceSettings', [field('muteOnStart')]),
-    ]),
-  ],
-  // Named as the client's own subscription, the one the middleware lets through before the join.
-  'userCurrentSubscription',
-);
-
-interface PreJoinRoomRow {
-  roomMode: string;
-  usersPolicies: { guestPolicy: string; multiUserWhiteboardEnabled: boolean };
-  voiceSettings: { muteOnStart: boolean };
-}
-
-const readRoomBeforeJoin = async (page: Page) => {
-  const data = await runQuery(page.page, PRE_JOIN_ROOM_QUERY);
-  const rows = data.meeting as PreJoinRoomRow[];
-  if (!rows?.length) throw new Error('meeting returned no rows');
-  const [{ roomMode, usersPolicies, voiceSettings }] = rows;
-  return {
-    roomMode,
-    muteOnStart: voiceSettings.muteOnStart,
-    guestPolicy: usersPolicies.guestPolicy,
-    multiUserWhiteboardEnabled: usersPolicies.multiUserWhiteboardEnabled,
-  };
-};
 
 const expectSwitch = async (page: Page, selector: Switch, on: boolean, message: string) => {
   if (on) await expect(page.page.locator(selector), message).toBeChecked();
@@ -104,12 +66,6 @@ const expectEditables = async (page: Page, values: EditableValues, context: stri
     `${context}: who can present`,
   );
   await expectSwitch(page, e.preFlightRoomModeWhiteboard, values.whiteboard, `${context}: whiteboard for everyone`);
-};
-
-const pickOption = async (page: Page, selector: Select, value: string) => {
-  await page.waitAndClick(selector);
-  await page.waitAndClick(`${e.selectMenuItem}[data-value="${value}"]`);
-  await expectSelectValue(page, selector, value, `should pick ${value}`);
 };
 
 // Edits away from the class preset on every editable item.
@@ -273,8 +229,8 @@ export class RoomModeSummary extends RoomModePanel {
     ).toBeFalsy();
   }
 
-  // Edits stay on the panel until Start room: the room still holds what it was created with.
-  async appliesNothingBeforeStart() {
+  // Cancel drops the pick with its edits, so Start room applies nothing and the room opens as created.
+  async appliesNothingAfterCancel() {
     await hasPanel(this.modPage);
     await this.modPage.waitAndClick(e.preFlightRoomModeClass);
     await editClassPreset(this.modPage);
@@ -283,9 +239,13 @@ export class RoomModeSummary extends RoomModePanel {
     await this.modPage.page.locator(e.preFlightRoomModeJoinMuted).check();
     await this.modPage.page.locator(e.preFlightRoomModeWhiteboard).check();
 
+    await this.modPage.waitAndClick(e.preFlightRoomModeCancelButton);
+    await this.modPage.wasRemoved(e.preFlightRoomModeSummary, 'should drop the summary on cancel');
+    await startsRoom(this.modPage);
     await ensureProbe(this.modPage);
-    // Nothing reaches the room until the join, so a read right now is the settled value.
-    expect(await readRoomBeforeJoin(this.modPage), 'should leave the room as it was created').toEqual(AS_CREATED);
+    expect(await readRoomSettings(this.modPage), 'should leave the room as it was created after Cancel').toEqual(
+      CLASS_ROOM_AS_CREATED,
+    );
   }
 
   async reachesSummaryOnPhone(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
