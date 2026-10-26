@@ -127,5 +127,10 @@ object PresentationPodsApp {
     DigestUtils.sha1Hex(presFilename + RandomStringGenerator.randomAlphanumericString(8)) + "-" + timestamp
   }
 
+  // The form generatePresentationId produces, which bbb-web's Util.generatePresentationId shares.
+  private val PresentationIdPattern = "^[0-9a-f]{40}-[0-9]+$".r
+
+  def isPresentationId(id: String): Boolean = PresentationIdPattern.matches(id)
+
 }
 

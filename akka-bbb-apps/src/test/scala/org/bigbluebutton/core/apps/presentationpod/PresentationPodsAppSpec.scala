@@ -148,4 +148,23 @@ class PresentationPodsAppSpec extends AnyFlatSpec {
   it should "keep the cap disabled for server imports" in {
     assert(PresentationPodsApp.maxPresentationsPerPodFor(systemUpload = true, 0) == 0)
   }
+
+  behavior of "PresentationPodsApp.isPresentationId"
+
+  it should "accept the ids generatePresentationId produces" in {
+    assert(PresentationPodsApp.isPresentationId(PresentationPodsApp.generatePresentationId("slides.pdf")))
+    assert(PresentationPodsApp.isPresentationId("0123456789abcdef0123456789abcdef01234567-1793037924284"))
+  }
+
+  it should "reject anything else" in {
+    val digest = "0123456789abcdef0123456789abcdef01234567"
+    assert(!PresentationPodsApp.isPresentationId(""))
+    assert(!PresentationPodsApp.isPresentationId("not-a-presentation-id"))
+    assert(!PresentationPodsApp.isPresentationId(digest))
+    assert(!PresentationPodsApp.isPresentationId(digest + "-"))
+    assert(!PresentationPodsApp.isPresentationId(digest.dropRight(1) + "-1793037924284"))
+    assert(!PresentationPodsApp.isPresentationId(digest + "8-1793037924284"))
+    assert(!PresentationPodsApp.isPresentationId(digest.toUpperCase + "-1793037924284"))
+    assert(!PresentationPodsApp.isPresentationId(digest + "-1793037924284x"))
+  }
 }

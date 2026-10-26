@@ -104,7 +104,7 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
           Map("maxPresentationsPerPod" -> maxPerPod.toString)
         )
 
-        liveMeeting.droppedPresentations.add(presentationId)
+        liveMeeting.droppedPresentations.addRefused(presentationId)
         sendConversionRejected("PRESENTATION_UPLOAD_POD_LIMIT_REACHED")
 
         // Drop any conversion tracker entry for this presentation.
@@ -135,7 +135,7 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
           Map.empty
         )
 
-        liveMeeting.droppedPresentations.add(presentationId)
+        liveMeeting.droppedPresentations.addRefused(presentationId)
         sendConversionRejected("PRESENTATION_UPLOAD_UNKNOWN_POD")
 
         state

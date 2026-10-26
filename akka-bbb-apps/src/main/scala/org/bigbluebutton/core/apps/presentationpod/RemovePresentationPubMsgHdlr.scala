@@ -5,7 +5,6 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.DroppedPresentations
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
@@ -44,7 +43,7 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
       PresentationPodsApp.findPodWithPresentation(state, presentationId) match {
         case Some(pod) if pod.id == podId =>
           PresPresentationDAO.delete(meetingId, presentationId)
-          liveMeeting.droppedPresentations.add(presentationId)
+          liveMeeting.droppedPresentations.addRemoved(presentationId)
           broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
           state.update(state.presentationPodManager.removePresentationInPod(pod.id, presentationId))
 
@@ -59,8 +58,8 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
         // id is remembered.
         case None =>
           PresPresentationDAO.delete(meetingId, presentationId)
-          if (DroppedPresentations.isPresentationId(presentationId)) {
-            liveMeeting.droppedPresentations.add(presentationId)
+          if (PresentationPodsApp.isPresentationId(presentationId)) {
+            liveMeeting.droppedPresentations.addRemoved(presentationId)
           }
           state
       }
