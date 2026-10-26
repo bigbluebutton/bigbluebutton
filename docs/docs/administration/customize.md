@@ -1253,7 +1253,7 @@ Presentation conversion is the most resource-intensive part of an upload. `bbb-w
 
 - **20** presentations per meeting within a rolling **60-second** window (`presentationConversionMaxRequests` / `presentationConversionRateWindowSec`).
 
-This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. Interactive uploads also show an error in the presenter's upload toast.
+This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. The upload toast shows an error to the participant who uploaded the file or, for `create` and `insertDocument` documents, to the presenter.
 
 Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it and the room is destroyed immediately afterwards, so discarding it would lose it permanently with nothing left to retry from.
 
@@ -1282,7 +1282,7 @@ This caps **meeting state** — how many presentations exist in the pod and appe
 An over-limit presentation is refused entry to the pod and a warning is logged in `bbb-apps-akka`.
 
 - **Interactive uploads** are refused when the client asks for an upload token, before the file is sent. The presenter sees "Maximum of N presentations reached" in the upload toast.
-- **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. No error is shown to the presenter, since they did not upload the document.
+- **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. The presenter sees "Maximum of N presentations reached" in the upload toast.
 
 ##### Limit how fast one presenter can request uploads
 
@@ -1334,7 +1334,7 @@ Note how this relates to the conversion limit: `insertDocumentMaxRequests` bound
 | `presentationConversionMaxRequests` | `bbb-web` | `Rejecting presentation conversion: per-meeting rate limit exceeded` | "Too many presentations were uploaded recently" |
 | `insertDocumentMaxRequests` | `bbb-web` | `Rejecting insertDocument: rate limit exceeded` | API `FAILED` response |
 | `maxPresentationsPerRequest` | `bbb-web` | `Presentation count N exceeds maxPresentationsPerRequest` | none — excess documents are dropped; `bbb-web` logs a warning |
-| `presentationMaxPerPod` | `bbb-apps-akka` | `Rejecting presentation upload token request: pod presentation limit reached` (interactive) or `Rejecting presentation: pod presentation limit reached` (API) | "Maximum of N presentations reached" for interactive uploads; none for API documents |
+| `presentationMaxPerPod` | `bbb-apps-akka` | `Rejecting presentation upload token request: pod presentation limit reached` (interactive) or `Rejecting presentation: pod presentation limit reached` (API) | "Maximum of N presentations reached" |
 | `presentationUploadTokenMaxRequests` | `bbb-apps-akka` | `Rejecting presentation upload token request: request rate limit exceeded` | "You are uploading too many presentations at once" |
 
 Restart your server with `sudo bbb-conf --restart` to apply any of these changes.

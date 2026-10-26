@@ -24,13 +24,14 @@ const PresentationUploaderToastContainer = (props) => {
 
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
 
-  // Errors are shown only to whoever uploaded the file, so a presenter is not told about a
-  // document an integration pushed through the API. Breakout room captures ('204') are kept.
+  // An error on another participant's upload is shown only to that participant. Presentations
+  // with no uploader (API documents, breakout room captures) show their errors to the presenter,
+  // who was already shown them converting.
   const presentationsToBeShowed = presentations.filter(
     (p) => (!p.uploadCompletionNotified
       && (!p.uploadErrorMsgKey
-        || p.uploadUserId === currentUser?.userId
-        || p.uploadErrorMsgKey === '204')),
+        || !p.uploadUserId
+        || p.uploadUserId === currentUser?.userId)),
   );
 
   if (presentationLoading) return null;
