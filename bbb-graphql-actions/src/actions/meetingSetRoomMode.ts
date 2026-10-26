@@ -2,8 +2,9 @@ import { RedisMessage } from '../types';
 import {isBreakout, throwErrorIfInvalidInput, throwErrorIfNotModerator} from "../imports/validation";
 import {ValidationError} from "../types/ValidationError";
 
-// Same shape check as SetRoomModeCmdMsgHdlr in akka-apps.
-const ROOM_MODE_PATTERN = /^([a-z][a-z0-9-]{0,31})?$/;
+// Same shape check as SetRoomModeCmdMsgHdlr in akka-apps. Empty is only the
+// default: once set, a room is never reopened to the pre-flight panel.
+const ROOM_MODE_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);
@@ -19,7 +20,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   )
 
   if (!ROOM_MODE_PATTERN.test(input.roomMode as string)) {
-    throw new ValidationError('Invalid room mode: expected lowercase letters, digits and hyphens (up to 32), or empty.', 400);
+    throw new ValidationError('Invalid room mode: expected lowercase letters, digits and hyphens (up to 32), starting with a letter.', 400);
   }
 
   const eventName = 'SetRoomModeCmdMsg';
