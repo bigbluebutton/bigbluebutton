@@ -44,9 +44,8 @@ case class MeetingExpiryTracker(
     val expire = for {
       lastUserLeftOn <- lastUserLeftOnInMs
     } yield {
-      // Check if we need to end meeting right away when the last user left
-      // ralam Nov 16, 2018
-      if (meetingExpireWhenLastUserLeftInMs == 0) true
+      // 0 disables the timer: the meeting is not ended when it becomes empty
+      if (meetingExpireWhenLastUserLeftInMs <= 0) false
       else timestampInMs - lastUserLeftOn > meetingExpireWhenLastUserLeftInMs
     }
 
