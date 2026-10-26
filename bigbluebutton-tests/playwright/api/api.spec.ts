@@ -63,6 +63,11 @@ test.describe.parallel('API', () => {
     await API.testOverAThousandRequestParameters();
   });
 
+  test('hiddenMethodOverrideIgnored', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testHiddenMethodOverrideIgnored();
+  });
+
   test('breakoutWithoutParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });

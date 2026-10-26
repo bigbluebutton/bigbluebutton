@@ -356,6 +356,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="serviceEnabled" .../>` entry - bbb-web will fail to start otherwise.
 - `sharedNotesEditor` was removed: BlockNote is the only shared-notes editor (it first became the default in 4.0.0-beta.4; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default) and [Removed Etherpad](#removed-etherpad)). A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="sharedNotesEditor" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise.
+- `accessControlAllowOrigin` was removed in BBB 4.0.1. It was meant to set the `Access-Control-Allow-Origin` header on presentation uploads, but the Grails 2 filter that read it has not run since bbb-web moved to Grails 3 in BBB 2.2, so it had no effect. Cross-origin access to bbb-web is configured with the `grails.cors.*` options, as the [cluster proxy guide](/administration/cluster-proxy#bigbluebutton-servers) shows. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
 
 #### Value changed
 
