@@ -1,0 +1,13 @@
+# Only what the Dockerfile copies
+*
+!core/Gemfile
+!core/Gemfile.lock
+!core/Rakefile
+!core/lib
+!core/scripts
+!presentation/scripts
+!video/scripts
+!video/playback
+!notes/scripts
+!screenshare/scripts
+!screenshare/playback
