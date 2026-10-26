@@ -1163,6 +1163,7 @@ const reducer = (state, action) => {
         resizableEdge,
         zIndex,
         focusedId,
+        isLocalOnly = false,
       } = action.value;
       const { cameraDock } = state.output;
       if (cameraDock.display === display
@@ -1179,7 +1180,8 @@ const reducer = (state, action) => {
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
         && cameraDock.resizableEdge === resizableEdge
-        && cameraDock.focusedId === focusedId) {
+        && cameraDock.focusedId === focusedId
+        && cameraDock.isLocalOnly === isLocalOnly) {
         return state;
       }
       return {
@@ -1205,6 +1207,7 @@ const reducer = (state, action) => {
             resizableEdge,
             zIndex,
             focusedId,
+            isLocalOnly,
           },
         },
       };

@@ -11,8 +11,8 @@ include "/usr/share/bbb-apps-akka/conf/application.conf"
 // This file will not be overridden by packages
 
 services {
-  bbbWebAPI=${API}
-  sharedSecret=${SECRET}
+  bbbWebAPI=${API}, bbbWebAPI=\${?BBB_WEB_API}
+  sharedSecret=${SECRET}, sharedSecret=\${?SHARED_SECRET}
 }
 END
 }

@@ -95,6 +95,11 @@ func (c *Config) loadConfigs() {
 		}
 	}
 
+	// SERVER_HOST, if set, wins over the default and the override file
+	if host := os.Getenv("SERVER_HOST"); host != "" {
+		configDefault.Server.Host = host
+	}
+
 	// Update the singleton instance with the merged config
 	*instance = configDefault
 }
@@ -134,8 +139,6 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 var ReconnectionReasonsPreservingMembership = []string{
 	"role_changed",
 	"lock_user_changed",
-	"lockSettings_changed",
-	"webcamOnlyForMod_changed",
 	"assigned_presenter",
 	"assigned_presenter_automatically",
 }

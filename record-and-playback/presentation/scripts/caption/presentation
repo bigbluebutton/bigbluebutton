@@ -23,8 +23,10 @@ require 'bundler/setup'
 
 require File.expand_path('../../../core/lib/boot', __dir__)
 
+require 'fileutils'
+require 'json'
 require 'optparse'
-require 'journald/logger'
+require 'recordandplayback'
 
 # Parse command-line options
 
@@ -52,7 +54,7 @@ if (isThereOverride)
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 
-logger = Journald::Logger.new('caption/presentation')
+logger = BigBlueButton.system_logger('caption/presentation')
 logger.tag(record_id: recording_id)
 
 captions_dir = props['captions_dir']

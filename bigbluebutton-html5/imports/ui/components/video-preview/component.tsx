@@ -10,6 +10,8 @@ import { MutationFunction } from '@apollo/client';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
+import { ModalPriority } from '/imports/ui/components/common/modal/generic/component';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import {
@@ -41,7 +43,7 @@ interface VideoPreviewProps {
   // Shares the stored camera straight away, skipping this modal's UI.
   skipPreview?: boolean;
   isOpen: boolean;
-  priority?: number;
+  priority?: ModalPriority;
   isVirtualBackgroundsEnabled: boolean;
   isCustomVirtualBackgroundsEnabled: boolean;
   hideNotificationToasts?: boolean;
@@ -657,14 +659,17 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
 
   return (
-    <Styled.VideoPreviewModal
+    <ModalSimple
       onRequestClose={handleProceed}
       contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-      shouldShowCloseButton={allowCloseModal}
+      title={getModalTitle()}
+      contentStyle={deviceInfo.isPhone
+        ? { minWidth: '100%', minHeight: '100%', borderRadius: 0 }
+        : undefined}
       shouldCloseOnOverlayClick={allowCloseModal}
-      isPhone={deviceInfo.isPhone}
-      data-test="webcamSettingsModal"
-      {...{ isOpen, priority }}
+      dataTest="webcamSettingsModal"
+      isOpen={isOpen}
+      priority={priority}
     >
       <Styled.Container>
         <Styled.Header>
@@ -688,7 +693,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         </Styled.Header>
         {deviceInfo.hasMediaDevices ? renderModalContent() : supportWarning()}
       </Styled.Container>
-    </Styled.VideoPreviewModal>
+    </ModalSimple>
   );
 };
 

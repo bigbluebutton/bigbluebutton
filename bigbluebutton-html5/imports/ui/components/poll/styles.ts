@@ -178,8 +178,8 @@ const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
     width: 100%;
     margin: 0;
     color: ${colorText};
-    // The library paints this box with --color-neutral-white, which the dark theme
-    // leaves white on purpose, so it would carry the dark theme's white text.
+    // The library paints this box with --color-white (then --color-neutral-white),
+    // which the dark theme keeps white, so it would carry the dark theme's white text.
     background: ${colorWhiteSurface};
     -webkit-appearance: none;
     padding: ${$2xlPadding} ${jumboPaddingY};
