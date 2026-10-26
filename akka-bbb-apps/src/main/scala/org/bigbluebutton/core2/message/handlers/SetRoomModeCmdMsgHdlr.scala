@@ -8,8 +8,9 @@ import org.bigbluebutton.core2.MeetingStatus2x
 
 object SetRoomModeCmdMsgHdlr {
   // Mode names belong to the front-end (e.g. "class", "meeting"); the server only
-  // checks the shape. Empty means the room is not configured.
-  val RoomModePattern = "^([a-z][a-z0-9-]{0,31})?$".r
+  // checks the shape. Empty means the room is not configured; it is only the
+  // default, so a moderator cannot reopen the pre-flight panel for later arrivals.
+  val RoomModePattern = "^[a-z][a-z0-9-]{0,31}$".r
 
   def isValidRoomMode(roomMode: String): Boolean = RoomModePattern.matches(roomMode)
 }
