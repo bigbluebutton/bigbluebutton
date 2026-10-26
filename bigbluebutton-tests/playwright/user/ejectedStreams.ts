@@ -114,6 +114,8 @@ export class EjectedStreams extends MultiUsers {
    * membership gate as the only thing under test.
    */
   private async toggleMic() {
+    // Back-to-back toggles get coalesced and emit nothing; give each transition time to land.
+    await this.modPage.page.waitForTimeout(1500);
     const mute = this.modPage.page.locator(`${e.muteMicButton}:visible`);
     const unmute = this.modPage.page.locator(`${e.unmuteMicButton}:visible`);
     if ((await mute.count()) > 0) {
@@ -121,8 +123,6 @@ export class EjectedStreams extends MultiUsers {
     } else {
       await unmute.first().click();
     }
-    // Back-to-back toggles get coalesced and emit nothing; give each transition time to land.
-    await this.modPage.page.waitForTimeout(1500);
   }
 
   private async ejectVictim() {
