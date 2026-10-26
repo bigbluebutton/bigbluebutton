@@ -199,6 +199,8 @@ export class RoomMode extends PreFlight {
     };
     await expectRefused('Class');
     await expectRefused('a'.repeat(33));
+    // Empty is the default only: clearing would reopen the panel for later arrivals.
+    await expectRefused('');
     // Refused by bbb-graphql-actions before anything reaches Redis.
     expect(await getRoomMode(this.modPage), 'should keep the room mode after invalid ones').toBe('class');
   }
