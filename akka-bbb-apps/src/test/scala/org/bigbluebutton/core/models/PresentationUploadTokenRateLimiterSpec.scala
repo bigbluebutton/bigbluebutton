@@ -50,10 +50,30 @@ class PresentationUploadTokenRateLimiterSpec extends AnyFlatSpec {
     assert(limiter.shouldReportRejection("u2", 0L, windowMs))
   }
 
-  it should "forget a removed user" in {
+  behavior of "PresentationUploadTokenRateLimiter.recordRejectionRow"
+
+  it should "keep rows up to maxRows and return the oldest beyond it" in {
     val limiter = new PresentationUploadTokenRateLimiter
-    assert(limiter.shouldReportRejection("u1", 0L, windowMs))
-    limiter.removeUser("u1")
-    assert(limiter.shouldReportRejection("u1", 1L, windowMs))
+    assert(limiter.recordRejectionRow("u1", "p1", 2) == Vector.empty)
+    assert(limiter.recordRejectionRow("u1", "p2", 2) == Vector.empty)
+    assert(limiter.recordRejectionRow("u1", "p3", 2) == Vector("p1"))
+    assert(limiter.recordRejectionRow("u1", "p4", 2) == Vector("p2"))
+  }
+
+  it should "track rows per user" in {
+    val limiter = new PresentationUploadTokenRateLimiter
+    assert(limiter.recordRejectionRow("u1", "p1", 1) == Vector.empty)
+    assert(limiter.recordRejectionRow("u2", "p2", 1) == Vector.empty)
+    assert(limiter.recordRejectionRow("u1", "p3", 1) == Vector("p1"))
+  }
+
+  behavior of "PresentationUploadTokenRateLimiter.maxRejectionRows"
+
+  it should "keep one window of refusals plus its rate-limit row" in {
+    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(5) == 6)
+  }
+
+  it should "fall back to the default limit when the limit is disabled" in {
+    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(0) == 21)
   }
 }
