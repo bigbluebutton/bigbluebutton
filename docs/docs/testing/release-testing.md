@@ -11,7 +11,7 @@ keywords:
 
 This document is meant to be a combination of manual and (labeled so) automated tests, listed per feature of BigBlueButton.
 
-A case labeled <b>(Automated)</b> links to the Playwright spec on `v4.0.x-develop` that runs the same steps and checks the same outcome, <b>(Partially automated)</b> means the linked tests exercise the feature but leave some steps or outcomes to be checked by hand, and a case with no label (including one whose test is quarantined as `@flaky`, `@need-update` or `@known-issue`, marked `test.fixme`, or skipped on the default LiveKit audio bridge) has to be tested manually.
+A case labeled <b>(Automated)</b> links to the Playwright spec on `v4.1.x-develop` that runs the same steps and checks the same outcome, <b>(Partially automated)</b> means the linked tests exercise the feature but leave some steps or outcomes to be checked by hand, and a case with no label (including one whose test is quarantined as `@flaky`, `@need-update` or `@known-issue`, marked `test.fixme`, or skipped on the default LiveKit audio bridge) has to be tested manually.
 
 The <b>automated tests</b> are only a portion of the testing done before a release. Ideally they should be triggered often, for example when testing pull requests, or once a day automatically.
 
