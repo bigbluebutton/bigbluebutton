@@ -19,4 +19,16 @@ test.describe('Audio Last-N', { tag: ['@ci', '@media'] }, () => {
     await lastN.initListenerAndSpeakers(testInfo, 1, 2);
     await lastN.expectSwitchWithoutResubscribe();
   });
+
+  test('hands the audible slot to a standby speaker who starts talking', async ({ browser, context }, testInfo) => {
+    const lastN = new LastN(browser, context);
+    await lastN.initListenerAndSpeakers(testInfo, 1, 2, { switchableMicrophones: true });
+    await lastN.expectSpeechSwitchWithoutResubscribe();
+  });
+
+  test('gives the audible slot to a speaker who unmutes, before they talk', async ({ browser, context }, testInfo) => {
+    const lastN = new LastN(browser, context);
+    await lastN.initListenerAndSpeakers(testInfo, 1, 2, { switchableMicrophones: true, secondSpeakerMuted: true });
+    await lastN.expectUnmuteTakesAudibleSlot();
+  });
 });

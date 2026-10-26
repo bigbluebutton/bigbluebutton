@@ -21,12 +21,14 @@ export interface TestRemotePublication extends TestPublication {
 
 export interface TestRemoteParticipant {
   identity: string;
+  isSpeaking?: boolean;
   audioTrackPublications: Map<string, TestRemotePublication>;
 }
 
 export interface TestRoom {
   state: string;
   localParticipant: {
+    isSpeaking?: boolean;
     audioTrackPublications: Map<string, TestPublication>;
     setMicrophoneEnabled: (enabled: boolean) => Promise<unknown>;
     permissions?: { canPublish: boolean; canSubscribe: boolean };
