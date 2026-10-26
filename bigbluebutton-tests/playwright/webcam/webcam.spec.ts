@@ -163,4 +163,33 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
       await cameraCaps.meetingCameraCap();
     });
   });
+
+  test.describe('Multiple cameras', () => {
+    test('Keeps the webcam settings open while sharing and stopping one of two cameras', async ({
+      browser,
+      page,
+    }, testInfo) => {
+      linkIssue(25545);
+      await addSecondFakeCamera(page);
+      const webcam = new Webcam(browser, page);
+      await webcam.init(true, { testInfo });
+      await webcam.keepsSettingsOpenWithTwoCameras();
+    });
+
+    test('Ignores a second click on share while the camera is being published', async ({ browser, page }, testInfo) => {
+      await addSecondFakeCamera(page);
+      const webcam = new Webcam(browser, page);
+      await webcam.init(true, { testInfo });
+      await webcam.ignoresSecondShareClick();
+    });
+
+    test('Closes the webcam settings after sharing and stopping the only camera', async ({
+      browser,
+      page,
+    }, testInfo) => {
+      const webcam = new Webcam(browser, page);
+      await webcam.init(true, { testInfo });
+      await webcam.closesSettingsWithOneCamera();
+    });
+  });
 });
