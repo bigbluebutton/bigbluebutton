@@ -336,6 +336,14 @@ const PushLayoutEngine = (props) => {
       || focusedCamera !== prevProps.focusedCamera
       || enforceLayoutResult !== prevProps.enforceLayoutResult
       || presentationContentUpdatedAt !== prevProps.presentationContentUpdatedAt;
+    // A follower's presentation state is local (never propagated) and its restore
+    // memory may be stale: on becoming presenter, adopt what is being shown.
+    const becamePresenter = isPresenter && prevProps.isPresenter === false;
+    if (becamePresenter) {
+      Session.setItem('presentationLastState', presentationIsOpen);
+    }
+    const presenterStateDiverged = becamePresenter
+      && presentationIsOpen !== meetingPresentationIsOpen;
 
     if (pushLayoutMeeting !== undefined
       && pushLayout !== prevProps.pushLayout
@@ -356,7 +364,8 @@ const PushLayoutEngine = (props) => {
       // server and overwriting the meeting configured layout type.
       && hasInitiallyPropagated.current
     ) {
-      if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
+      if (pushLayout
+        && (layoutChanged || presenterStateDiverged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout(pushLayout);
       }
     }

@@ -97,6 +97,22 @@ test.describe.parallel('Unified Layout - viewer minimize persistence', { tag: '@
   );
 });
 
+test.describe.parallel('Unified Layout - new presenter propagation', { tag: '@ci' }, () => {
+  test('A viewer that restored the presentation locally pushes it once made presenter', async ({
+    browser,
+    context,
+  }, testInfo) => {
+    const layouts = new Layouts(browser, context);
+    await initializePages(layouts, browser, {
+      isMultiUser: true,
+      createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+      testInfo,
+      recordVideo: true,
+    });
+    await layouts.unifiedLayoutNewPresenterPropagatesLocalPresentation();
+  });
+});
+
 test.describe.parallel('Unified Layout - focused camera replication', { tag: '@ci' }, () => {
   test(
     'Viewer follows a camera focus and keeps a local unfocus while webcams come and go',
