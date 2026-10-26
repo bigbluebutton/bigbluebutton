@@ -83,6 +83,14 @@ services:
       - "80:8080"
     volumes:
       - ./docker/compose/nginx/bigbluebutton:/etc/nginx/sites-available/bigbluebutton:ro
+      # 4.0 package fragments still use 127.0.0.1; mount compose service hosts over them.
+      # (4.1 uses named upstreams in the image instead.)
+      - ./docker/compose/nginx/web.nginx:/usr/share/bigbluebutton/nginx/web.nginx:ro
+      - ./docker/compose/nginx/graphql.nginx:/usr/share/bigbluebutton/nginx/graphql.nginx:ro
+      - ./docker/compose/nginx/livekit.nginx:/usr/share/bigbluebutton/nginx/livekit.nginx:ro
+      - ./docker/compose/nginx/webrtc-sfu.nginx:/usr/share/bigbluebutton/nginx/webrtc-sfu.nginx:ro
+      - ./docker/compose/nginx/bbb-shared-notes-server.nginx:/usr/share/bigbluebutton/nginx/bbb-shared-notes-server.nginx:ro
+      - ./docker/compose/nginx/hasura-loadbalancer.conf:/etc/nginx/sites-available/hasura-loadbalancer.conf:ro
       - ./docker/compose/nginx/playback.nginx:/usr/share/bigbluebutton/nginx/playback.nginx:ro
       - acme-challenge:/var/www/bigbluebutton-default/assets/.well-known/acme-challenge:ro
       - ./data/bigbluebutton:/var/bigbluebutton:ro,z
@@ -208,11 +216,12 @@ services:
   web:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-web:${BBB_IMAGE_TAG}
-    # keys of bigbluebutton.properties, upper case with "." as "_"
+    # Written into /etc/bigbluebutton/bbb-web.properties by the image entrypoint (4.0).
+    # On 4.1+, property-style env (REDISHOST, SECURITYSALT, …) also works via Application.groovy.
     environment:
-      BIGBLUEBUTTON_WEB_SERVERURL: https://${BBB_DOMAIN}
-      SECURITYSALT: ${BBB_SHARED_SECRET}
-      REDISHOST: redis
+      SERVER_URL: https://${BBB_DOMAIN}
+      SHARED_SECRET: ${BBB_SHARED_SECRET}
+      REDIS_HOST: redis
     configs:
       - source: turn-stun-servers.xml
         target: /etc/bigbluebutton/turn-stun-servers.xml
@@ -261,6 +270,10 @@ services:
   export-annotations:
     <<: *bbb
     image: ${BBB_IMAGE_REGISTRY:-ghcr.io/bigbluebutton/bigbluebutton}/bbb-export-annotations:${BBB_IMAGE_TAG}
+    # 4.0 entrypoint rewrites config/settings.json from these; the /etc mount is for 4.1+ merge.
+    environment:
+      BBB_REDIS_HOST: redis
+      BBB_WEB_HOST: web
     volumes:
       - ./docker/compose/bbb-export-annotations.json:/etc/bigbluebutton/bbb-export-annotations.json:ro
       - ./data/bigbluebutton:/var/bigbluebutton:z
