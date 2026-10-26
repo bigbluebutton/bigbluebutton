@@ -811,9 +811,9 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
 
     - The changes should be gone: each mode starts from its own values. They should also be gone after "Cancel"
 
-4. Change every setting, without clicking "Start room" (automated only: the room is read before the join)
+4. Change every setting, click "Cancel", then click "Start room"
 
-    - Nothing should change in the session: the lock settings, the guest policy, "users join muted" and the multi-user whiteboard should be as the session was created
+    - The session should be as it was created: the lock settings, the guest policy, "users join muted" and the multi-user whiteboard
 
 5. Repeat step 1 on a phone-width window
 
@@ -840,7 +840,7 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
 
 2. Join the same session as a viewer after step 1
 
-    - The viewer should get the same settings as in step 1, and should be able to write on the whiteboard
+    - The viewer should get the same settings as in step 1, be locked under the applied lock settings, and should be able to write on the whiteboard
 
 3. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&multiUserWhiteboardEnabled=true`, join it as a moderator, pick "Class", switch "Whiteboard for everyone" off and click "Start room"
 
@@ -869,10 +869,31 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
 9. Repeat step 1 with the lock settings request held until the room has opened, then released (automated only)
 
     - The room should keep no room mode, and users should not join muted: nothing after the held request is sent once the 15 seconds pass
+    - Once released, the held lock settings should still land: public messages allowed, "Presentation Policy" on "Allow participants to present with moderator approval" and the locks applying to people who join later, while the webcams stay "only for moderators" as the session was created
 
 10. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator and pick "Class" without clicking "Start room". Then join the same session as a second moderator and set the mode to "Meeting" while the first moderator's panel is still open (automated only: nothing in the client sets a room mode yet). Back on the first moderator, click the join button
 
     - The panel should go away once the mode is set. Joining should keep "Meeting" and the presentation policy the session was created with, not the "Class" settings
+
+11. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator and pick "Class" without clicking "Start room". Then join the same session as a second moderator, click "Start room" without picking a mode (the second moderator also gets the room mode panel because the room has no mode yet), and under "Permissions and Policies", set "Presentation Policy" to "Presenter is assigned by a moderator". Back on the first moderator, click "Start room"
+
+    - The room should open with no room mode, "Presentation Policy" still on "Presenter is assigned by a moderator" and the other settings as the session was created
+    - A notice should say "Another moderator is already in the room, so the room mode was not applied"
+
+12. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&disabledFeatures=chat`, join it as a moderator, pick "Class" and click "Start room"
+
+    - The room should open with public messages still locked, as the session was created, since it has no chat
+
+13. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator, pick "Class", change the guest policy to "Ask moderator" and click "Start room"
+
+    - The session's guest policy should be "Ask moderator", and the other settings should be as in step 1
+
+    - Repeat without changing the guest policy: the session should keep the guest policy it was created with
+
+14. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator, pick "Class" and click "Start room" while the join is held back (automated only: the join request is held until a second moderator has set the mode). Meanwhile, join the same session as a second moderator and set the mode to "Meeting"; then let the held join through
+
+    - Once the join lands, the room should keep "Meeting" and the settings the session was created with, not the "Class" settings
+    - A notice should say "Another moderator set the room mode first, so yours was not applied"
 
 ## Audio
 

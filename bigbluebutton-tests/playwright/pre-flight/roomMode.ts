@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { Create } from '../breakout/create';
 import {
   APOLLO_CLIENT_SETTINGS_MODULE,
   field,
@@ -10,13 +11,12 @@ import {
   runQuery,
   stringVarMutation,
 } from '../core/apolloProbe';
-import { Create } from '../breakout/create';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { PreFlight } from './preFlight';
-import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_INIT_OPTIONS } from './util';
+import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER, PRE_FLIGHT_INIT_OPTIONS } from './util';
 
 // Read the way the client reads it, before and after the join: through user_current,
 // under the operation name the middleware already lets through before joining.
@@ -77,6 +77,83 @@ const APOLLO_EXPOSURE_SKIP_REASON =
 
 export const ensureProbe = async (page: Page): Promise<void> => {
   test.skip(!(await isApolloClientExposed(page.page, ELEMENT_WAIT_LONGER_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
+};
+
+// Each room is created away from the preset it is applied with, so a value that
+// matches the preset can only have come from the applier.
+export const CLASS_CREATE_PARAMETER = [
+  PRE_FLIGHT_CREATE_PARAMETER,
+  'lockSettingsDisablePublicChat=true',
+  'lockSettingsLockOnJoin=false',
+  'lockSettingsPresenterPolicy=freeForAll',
+  'webcamsOnlyForModerator=true',
+  'record=true',
+].join('&');
+
+// The room's settings as the server holds them, read through the probe after the join.
+export interface RoomSettings {
+  roomMode: string;
+  disablePublicChat: boolean;
+  presenterPolicy: string;
+  lockOnJoin: boolean;
+  webcamsOnlyForModerator: boolean;
+  multiUserWhiteboardEnabled: boolean;
+  muteOnStart: boolean;
+  isRecording: boolean;
+  guestPolicy: string;
+}
+
+// The room as CLASS_CREATE_PARAMETER creates it, before any mode is applied.
+export const CLASS_ROOM_AS_CREATED: RoomSettings = {
+  roomMode: '',
+  disablePublicChat: true,
+  presenterPolicy: 'freeForAll',
+  lockOnJoin: false,
+  webcamsOnlyForModerator: true,
+  multiUserWhiteboardEnabled: false,
+  muteOnStart: false,
+  isRecording: false,
+  guestPolicy: 'ALWAYS_ACCEPT',
+};
+
+const ROOM_SETTINGS_QUERY = queryDocument([
+  field('meeting', [
+    field('roomMode'),
+    field('lockSettings', [field('disablePublicChat'), field('presenterPolicy'), field('lockOnJoin')]),
+    field('usersPolicies', [
+      field('webcamsOnlyForModerator'),
+      field('multiUserWhiteboardEnabled'),
+      field('guestPolicy'),
+    ]),
+    field('voiceSettings', [field('muteOnStart')]),
+    field('recording', [field('isRecording')]),
+  ]),
+]);
+
+interface RoomSettingsRow {
+  roomMode: string;
+  lockSettings: { disablePublicChat: boolean; presenterPolicy: string; lockOnJoin: boolean };
+  usersPolicies: { webcamsOnlyForModerator: boolean; multiUserWhiteboardEnabled: boolean; guestPolicy: string };
+  voiceSettings: { muteOnStart: boolean };
+  recording: { isRecording: boolean } | null;
+}
+
+export const readRoomSettings = async (page: Page): Promise<RoomSettings> => {
+  const data = await runQuery(page.page, ROOM_SETTINGS_QUERY);
+  const rows = data.meeting as RoomSettingsRow[];
+  if (!rows?.length) throw new Error('meeting returned no rows');
+  const [{ roomMode, lockSettings, usersPolicies, voiceSettings, recording }] = rows;
+  return {
+    roomMode,
+    disablePublicChat: lockSettings.disablePublicChat,
+    presenterPolicy: lockSettings.presenterPolicy,
+    lockOnJoin: lockSettings.lockOnJoin,
+    webcamsOnlyForModerator: usersPolicies.webcamsOnlyForModerator,
+    multiUserWhiteboardEnabled: usersPolicies.multiUserWhiteboardEnabled,
+    muteOnStart: voiceSettings.muteOnStart,
+    isRecording: recording?.isRecording ?? false,
+    guestPolicy: usersPolicies.guestPolicy,
+  };
 };
 
 export class RoomMode extends PreFlight {

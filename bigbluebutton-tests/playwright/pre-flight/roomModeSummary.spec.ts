@@ -1,4 +1,5 @@
 import { test } from '../core/setup/fixtures';
+import { CLASS_CREATE_PARAMETER } from './roomMode';
 import { RECORDING_ROOM_CREATE_PARAMETER, RoomModeSummary } from './roomModeSummary';
 
 test.describe.parallel('Room mode summary', { tag: '@ci' }, () => {
@@ -45,10 +46,10 @@ test.describe.parallel('Room mode summary', { tag: '@ci' }, () => {
     await summary.leavesRecordingOut(page, false, { testInfo });
   });
 
-  test('Applies nothing to the room before Start room', async ({ browser, context, page }, testInfo) => {
+  test('Cancel then Start room leaves the room as created', async ({ browser, context, page }, testInfo) => {
     const summary = new RoomModeSummary(browser, context);
-    await summary.initModPageWithPanel(page, { testInfo });
-    await summary.appliesNothingBeforeStart();
+    await summary.initModPageWithPanel(page, { createParameter: CLASS_CREATE_PARAMETER, testInfo });
+    await summary.appliesNothingAfterCancel();
   });
 
   test('Edits the summary on a phone', async ({ browser, context, page }, testInfo) => {

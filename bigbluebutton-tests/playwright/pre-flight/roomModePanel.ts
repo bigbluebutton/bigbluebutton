@@ -69,6 +69,13 @@ export const startsRoom = async (page: Page) => {
   await page.wasRemoved(e.preFlight, 'should remove the pre-flight screen after starting the room');
 };
 
+// The way the moderator picks an option: open the select, then click the option.
+export const pickOption = async (page: Page, selector: string, value: string) => {
+  await page.waitAndClick(selector);
+  await page.waitAndClick(`${e.selectMenuItem}[data-value="${value}"]`);
+  await expect(page.page.locator(selector), `should pick ${value}`).toHaveAttribute('data-value', value);
+};
+
 // Whether the element itself is what a tap at its centre would hit: a notice
 // drawn under a pinned bar is in the page, but nobody can see it.
 const isUncovered = (page: Page, selector: string) =>
