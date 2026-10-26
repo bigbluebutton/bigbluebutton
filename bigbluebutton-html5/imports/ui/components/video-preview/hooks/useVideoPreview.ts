@@ -759,6 +759,10 @@ export const useVideoPreview = ({
   const handleStartSharing = useCallback(async (deviceId: string) => {
     if (!currentVideoStream.current) return;
 
+    const keepPreviewStream = VideoService.isMultipleCamerasEnabled();
+    // A second click before the subscription lists this camera as shared
+    if (keepPreviewStream && PreviewService.getStream(deviceId) === currentVideoStream.current) return;
+
     // Only streams that will be shared should be stored in the service.
     // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
@@ -780,7 +784,7 @@ export const useVideoPreview = ({
       PreviewService.changeWebcam(deviceId);
       updateVirtualBackgroundInfo();
       updateCameraBrightnessInfo();
-      cleanupStreamAndVideo();
+      if (!keepPreviewStream) cleanupStreamAndVideo();
       if (startSharing) startSharing(deviceId);
     } else {
       cleanupStreamAndVideo();
