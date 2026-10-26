@@ -35,7 +35,8 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
         downloadable = msg.body.downloadable,
         removable = msg.body.removable,
         authzToken = msg.body.authzToken,
-        numPages = msg.body.numPages
+        numPages = msg.body.numPages,
+        systemUpload = msg.body.systemUpload
       )
       val event = PresentationPageConversionStartedSysMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
@@ -85,8 +86,10 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
           s"meetingId=$meetingId podId=$podId presentationId=$presentationId")
         state
 
-      // Bounds the akka pod map. 0 disables the cap.
-      case Some(pod) if PresentationPodsApp.podIsFullFor(pod, presentationId, presMaxPerPod) =>
+      // Bounds the akka pod map. 0 disables the cap. Content the server imports from an ended
+      // breakout room is exempt: the room that produced it is gone, so refusing it would lose it.
+      // Each room imports at most its slides and its shared notes.
+      case Some(pod) if !msg.body.systemUpload && PresentationPodsApp.podIsFullFor(pod, presentationId, presMaxPerPod) =>
         log.warning("Rejecting presentation: pod presentation limit reached. " +
           s"meetingId=$meetingId userId=${msg.header.userId} podId=$podId " +
           s"count=${pod.getPresentationsSize()} limit=$presMaxPerPod presentationId=$presentationId")

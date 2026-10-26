@@ -1283,6 +1283,7 @@ An over-limit presentation is refused entry to the pod and a warning is logged i
 
 - **Interactive uploads** are refused when the client asks for an upload token, before the file is sent. The presenter sees "Maximum of N presentations reached" in the upload toast.
 - **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. The presenter sees "Maximum of N presentations reached" in the upload toast.
+- **Captured slides and shared notes from an ended breakout room** are always added, even to a full pod, for the same reason they are exempt from `presentationConversionMaxRequests`: the room is gone, so refusing them would lose them. Each room adds at most two presentations.
 
 ##### Limit how fast one presenter can request uploads
 

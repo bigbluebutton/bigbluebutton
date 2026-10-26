@@ -351,7 +351,8 @@ object MsgBuilder {
       downloadable = msg.downloadable,
       removable = msg.removable,
       numPages = msg.numPages,
-      authzToken = msg.authzToken
+      authzToken = msg.authzToken,
+      systemUpload = msg.systemUpload
     )
     val req = PresentationPageConversionStartedSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

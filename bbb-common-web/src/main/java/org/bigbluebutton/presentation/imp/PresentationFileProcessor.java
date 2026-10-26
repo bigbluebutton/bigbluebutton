@@ -316,7 +316,8 @@ public class PresentationFileProcessor {
                 pres.isRemovable(),
                 pres.isCurrent(),
                 pres.isDefaultPresentation(),
-                pres.getNumberOfPages());
+                pres.getNumberOfPages(),
+                pres.isSystemUpload());
         notifier.sendDocConversionProgress(progress);
     }
 

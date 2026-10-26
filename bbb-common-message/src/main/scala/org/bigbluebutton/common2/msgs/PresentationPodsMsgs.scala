@@ -172,7 +172,8 @@ case class PresentationPageConversionStartedSysMsgBody(
     downloadable:   Boolean,
     removable:      Boolean,
     authzToken:     String,
-    numPages:       Int
+    numPages:       Int,
+    systemUpload:   Boolean
 )
 
 object PresentationConversionEndedSysMsg { val NAME = "PresentationConversionEndedSysMsg" }
