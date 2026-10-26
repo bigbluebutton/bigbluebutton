@@ -104,9 +104,9 @@ libraryDependencies ++= Seq(
   // Jakarta EE 11 / Spring Framework 7 levels (aligned with Spring Boot 4.1 dependency management)
   "jakarta.validation" % "jakarta.validation-api" % "3.1.1",
   "org.springframework.data" % "spring-data-commons" % "4.1.1",
-  "org.hibernate.validator" % "hibernate-validator" % "9.1.3.Final",
+  "org.hibernate.validator" % "hibernate-validator" % "9.1.5.Final",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
-  "org.postgresql" % "postgresql" % "42.7.12",
+  "org.postgresql" % "postgresql" % "42.7.14",
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
   "com.zaxxer" % "HikariCP" % "4.0.3",
@@ -123,3 +123,10 @@ libraryDependencies ++= Seq(
 // Pin transitively-pulled artifacts to fixed releases.
 // junrar is reached only via tika-parsers-standard-package > tika-parser-pkg-module.
 dependencyOverrides += "com.github.junrar" % "junrar" % "7.6.1"
+// bouncycastle is reached only via tika-parsers-standard-package; tika-parent 3.3.2 manages it at 1.85.
+dependencyOverrides ++= Seq(
+  "org.bouncycastle" % "bcprov-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcpkix-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcutil-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcjmail-jdk18on" % "1.86"
+)
