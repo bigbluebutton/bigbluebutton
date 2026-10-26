@@ -135,7 +135,7 @@ get_upstream_port() {
     # so the match stays inside that block; the port follows the last colon ([::1]:8090 too)
     upstream="$1"
     sed 's/#.*//' "$NGINX_UPSTREAMS" 2>/dev/null | tr '\n' ' ' \
-        | sed -nE "s/.*upstream[[:space:]]+$upstream[[:space:]]*\{[^}]*server[[:space:]]+[^;[:space:]]*:([0-9]+)[;[:space:]].*/\1/p"
+        | sed -nE "s/.*upstream[[:space:]]+${upstream}[[:space:]]*\{[^}]*server[[:space:]]+[^;[:space:]]*:([0-9]+)[;[:space:]].*/\1/p"
 }
 get_bbb_web_config_value() {
     key="$1"
