@@ -23,7 +23,7 @@ built from their repositories at the tag in their `*.placeholder.sh`; CI checks 
 CI (`.github/workflows/build-all-images.yml`) builds every image for amd64 on pull requests. On
 pushes to the develop and release branches and on tags, it builds amd64 and arm64 and pushes
 `ghcr.io/bigbluebutton/bigbluebutton/bbb-<target>:<branch or tag>`, and the same image as
-`:<branch or tag>-<commit>` (e.g. `v4.1.x-develop-2a1b3c4`). `bbb-record-and-playback` is amd64
+`:<branch or tag>-<commit>` (e.g. `v4.0.x-develop-2a1b3c4`). `bbb-record-and-playback` is amd64
 only: mkclean, which it needs, has no 64-bit ARM build.
 
 ## Images

@@ -147,14 +147,14 @@ target "webrtc-sfu" {
   inherits = ["_image"]
   tags     = tags("webrtc-sfu")
   context  = "./docker/bbb-webrtc-sfu"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-sfu.git#v2.25.0-beta.2" }
+  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-sfu.git#v2.25.0-beta.3" }
 }
 
 target "webrtc-recorder" {
   inherits = ["_image"]
   tags     = tags("webrtc-recorder")
   context  = "./docker/bbb-webrtc-recorder"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-recorder.git#v0.14.0" }
+  contexts = { src = "https://github.com/bigbluebutton/bbb-webrtc-recorder.git#v0.17.0" }
 }
 
 target "webhooks" {
@@ -168,5 +168,5 @@ target "playback" {
   inherits = ["_image"]
   tags     = tags("playback")
   context  = "./docker/bbb-playback"
-  contexts = { src = "https://github.com/bigbluebutton/bbb-playback.git#v5.4.7" }
+  contexts = { src = "https://github.com/bigbluebutton/bbb-playback.git#v5.4.8" }
 }
