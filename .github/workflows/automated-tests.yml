@@ -93,7 +93,7 @@ jobs:
         run: |
           BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
           echo "Including build dirs: $BUILD_DIRS"
-          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh"
+          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh build/setup.sh build/setup-inside-docker.sh build/package-names.inc.sh build/opts-global.sh build/get_external_dependencies.sh"
           TREE_HASHES=$(echo $LIST | tr ' ' '\n' | xargs -I {} git rev-parse HEAD:{} 2>/dev/null)
           CACHE_DIGEST=$(printf "%s" "$TREE_HASHES" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')
           echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
@@ -508,8 +508,6 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-    env:
-      SAMPLES_WITH_TESTS: "sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin sample-media-area-plugin"
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -540,6 +538,15 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+          # the later steps build and serve every sample of this SDK version that has tests
+          samples=""
+          for dir in bigbluebutton-html-plugin-sdk/samples/*/tests; do
+            [ -d "$dir" ] || continue
+            sample=${dir%/tests}
+            samples="$samples ${sample##*/}"
+          done
+          echo "Samples with tests:$samples"
+          echo "SAMPLES_WITH_TESTS=${samples# }" >> "$GITHUB_ENV"
       - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
         uses: actions/setup-node@v5
         with:
@@ -739,8 +746,9 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
-      # This job re-runs the @media-tagged tests against the legacy
+      # This job re-runs the @media-tagged gate tests against the legacy
       # bbb-webrtc-sfu bridge, selected per-meeting via MEDIA_BRIDGE create params.
+      # The quarantine tags it leaves out are the gate's (config.quarantine in package.json).
       - name: Run legacy (bbb-webrtc-sfu) media tests
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -750,7 +758,7 @@ jobs:
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
           MEDIA_BRIDGE: bbb-webrtc-sfu
-        run: npx playwright test --project=chromium --grep '(?=.*@ci)(?=.*@media)' --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
+        run: npm run test-chromium-media-ci
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6

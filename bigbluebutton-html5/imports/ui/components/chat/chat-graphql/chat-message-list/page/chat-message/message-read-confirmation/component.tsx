@@ -28,7 +28,7 @@ const MessageReadConfirmation: React.FC<MessageReadConfirmationProps> = ({
 
   return (
     <Tooltip title={intl.formatMessage(intlMessages.messageReadLabel)}>
-      <IconWrapper>
+      <IconWrapper data-test="chatMessageReadConfirmation">
         <ReadIcon iconName={CONFIRMATION_READ_ICON} />
       </IconWrapper>
     </Tooltip>

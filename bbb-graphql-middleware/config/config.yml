@@ -1,5 +1,5 @@
 server:
-  listen_host: 127.0.0.1
+  listen_host: 127.0.0.1 # or SERVER_HOST from the environment
   listen_port: 8378
   # Maximum number of concurrent connections allowed.
   max_connections: 500
