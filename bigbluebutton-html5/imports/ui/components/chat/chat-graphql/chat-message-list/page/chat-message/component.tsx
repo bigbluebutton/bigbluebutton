@@ -8,7 +8,7 @@ import React, {
 import { MessageDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import { defineMessages, FormattedTime, useIntl } from 'react-intl';
-import FocusTrap from 'focus-trap-react';
+import { FocusTrap } from 'focus-trap-react';
 import classNames from 'classnames';
 import { useMutation } from '@apollo/client';
 import ChatMessageHeader from './message-header/component';
