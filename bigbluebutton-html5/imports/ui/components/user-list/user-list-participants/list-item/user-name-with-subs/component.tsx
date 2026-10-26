@@ -1,4 +1,5 @@
 import React from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import { defineMessages } from 'react-intl';
 import { UserListItemAdditionalInformationType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
 import { PluginIconType, UserListItemLabel } from 'bigbluebutton-html-plugin-sdk';
@@ -56,7 +57,7 @@ const getIconComponent = (icon: PluginIconType): React.ReactNode => {
     return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
   }
   if (icon && typeof icon === 'object' && 'svgContent' in icon) {
-    const svgContent = icon.svgContent as React.ReactNode;
+    const svgContent = toHostReactNode(icon.svgContent);
     return (
       <Styled.SvgContentUserListIconMargin>
         {svgContent}

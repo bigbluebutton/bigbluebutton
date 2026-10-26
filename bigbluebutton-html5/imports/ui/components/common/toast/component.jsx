@@ -1,4 +1,5 @@
 import React from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import PropTypes from 'prop-types';
 import Icon from '/imports/ui/components/common/icon/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
@@ -21,7 +22,7 @@ const renderIcon = (icon, type) => {
   if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     return (
       <Styled.ToastCustomIcon>
-        <PluginButtonIcon>{icon.svgContent}</PluginButtonIcon>
+        <PluginButtonIcon>{toHostReactNode(icon.svgContent)}</PluginButtonIcon>
       </Styled.ToastCustomIcon>
     );
   }

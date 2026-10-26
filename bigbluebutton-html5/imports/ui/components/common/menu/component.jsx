@@ -1,4 +1,5 @@
 import React from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Divider } from '@mui/material';
@@ -37,7 +38,7 @@ const renderIcon = (icon, color, iconKey = 'icon', IconComponent = Icon, iconSty
   if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     return (
       <Styled.SvgContentIconWrapper key={iconKey}>
-        {icon.svgContent}
+        {toHostReactNode(icon.svgContent)}
       </Styled.SvgContentIconWrapper>
     );
   }

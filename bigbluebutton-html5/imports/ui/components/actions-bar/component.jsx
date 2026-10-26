@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
@@ -63,7 +64,7 @@ class ActionsBar extends PureComponent {
                 } else if (plugin?.icon && typeof plugin.icon === 'object' && 'svgContent' in plugin.icon) {
                   buttonProps.customIcon = (
                     <PluginButtonIcon>
-                      {plugin.icon.svgContent}
+                      {toHostReactNode(plugin.icon.svgContent)}
                     </PluginButtonIcon>
                   );
                 }
