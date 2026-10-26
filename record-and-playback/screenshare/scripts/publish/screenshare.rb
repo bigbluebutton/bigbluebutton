@@ -37,7 +37,7 @@ if playback != 'screenshare'
 end
 
 # Load parameters and set up paths
-props = BigBlueButton.load_yaml(File.expand_path('../../bigbluebutton.yml', __FILE__))
+props = BigBlueButton.read_props
 screenshare_props = BigBlueButton.load_yaml(File.expand_path('../../screenshare.yml', __FILE__))
 
 process_dir = "#{props['recording_dir']}/process/screenshare/#{meeting_id}"

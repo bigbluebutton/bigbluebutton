@@ -112,7 +112,7 @@ func TestChatStreamDeniesNonMembers(t *testing.T) {
 // member, while a reason that could have ended membership must.
 func TestChatStreamMembershipStaleness(t *testing.T) {
 	lockChanged := newConn("lockChanged", "getChatMessageStream", true, nil)
-	lockChanged.MarkSessionVariablesStale(common.ReconnectionAffectsMembership("lockSettings_changed"))
+	lockChanged.MarkSessionVariablesStale(common.ReconnectionAffectsMembership("lock_user_changed"))
 
 	ejected := newConn("ejected", "getChatMessageStream", true, nil)
 	ejected.MarkSessionVariablesStale(common.ReconnectionAffectsMembership("user_requested_eject_reason"))
@@ -221,25 +221,26 @@ func TestNotifyRoleDeniesEjectedModerator(t *testing.T) {
 	}
 }
 
+// hideViewersCursor is on: akka-apps marks a viewer's cursor as hidden for locked viewers.
 func cursorBody(fromViewer bool) map[string]interface{} {
 	return map[string]interface{}{
-		"userIsViewer": fromViewer,
-		"xPercent":     float64(10),
-		"yPercent":     float64(20),
+		"userIsViewer":           fromViewer,
+		"hiddenForLockedViewers": fromViewer,
+		"xPercent":               float64(10),
+		"yPercent":               float64(20),
 	}
 }
 
 func TestCursorStreamMembershipAndLock(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingCursorsCache(testMeetingId) })
 
-	member := newConn("member", "getCursorCoordinatesStream", true, nil)
-	// A non-member carries no cursor-lock variable at all, so membership has to be established
-	// before the lock comparison is reached.
+	member := newConn("member", "getCursorCoordinatesStream", true, notLockedVars())
+	// A non-member carries no lock variable at all, which reads as locked, so only a cursor the
+	// lock does not cover shows that membership is checked.
 	nonMember := newConn("nonMember", "getCursorCoordinatesStream", false, nil)
-	lockedMember := newConn("lockedMember", "getCursorCoordinatesStream", true,
-		map[string]string{"x-hasura-cursorlockeduserid": "lockedMember"})
+	lockedMember := newConn("lockedMember", "getCursorCoordinatesStream", true, lockedVars())
 	// A refresh is in flight, so the lock state is unsettled and cannot be relied on.
-	staleMember := newConn("staleMember", "getCursorCoordinatesStream", true, nil)
+	staleMember := newConn("staleMember", "getCursorCoordinatesStream", true, notLockedVars())
 	staleMember.SessionVariablesStale = true
 
 	conns := map[string]*common.BrowserConnection{
@@ -268,6 +269,9 @@ func TestCursorStreamMembershipAndLock(t *testing.T) {
 	if got := drain(lockedMember); len(got) != 1 {
 		t.Errorf("locked member got %d moderator cursor updates, want 1", len(got))
 	}
+	if got := drain(nonMember); len(got) != 0 {
+		t.Errorf("non-member received a moderator cursor: %v", got)
+	}
 }
 
 func TestSendPreviousCursorPositionDeniesNonMembers(t *testing.T) {
@@ -283,7 +287,7 @@ func TestSendPreviousCursorPositionDeniesNonMembers(t *testing.T) {
 		t.Errorf("non-member was replayed the cursor cache: %v", got)
 	}
 
-	member := newConn("member", "getCursorCoordinatesStream", true, nil)
+	member := newConn("member", "getCursorCoordinatesStream", true, notLockedVars())
 	SendPreviousCursorPosition(member, "q2")
 	got := drain(member)
 	if len(got) != 1 || !strings.Contains(got[0], "w_viewer") {
@@ -306,8 +310,7 @@ func TestSendPreviousCursorPositionFiltersPerRow(t *testing.T) {
 		"xPercent": float64(3), "yPercent": float64(4), "userId": "w_presenter", "__typename": "pres_page_cursor",
 	}, false)
 
-	lockedViewer := newConn("lockedViewer", "getCursorCoordinatesStream", true,
-		map[string]string{"x-hasura-cursorlockeduserid": "lockedViewer"})
+	lockedViewer := newConn("lockedViewer", "getCursorCoordinatesStream", true, lockedVars())
 	if !SendPreviousCursorPosition(lockedViewer, "q1") {
 		t.Fatal("a member must be replayed")
 	}
@@ -333,7 +336,7 @@ func TestCursorReplayCarriesOnlySubscriptionFields(t *testing.T) {
 		"xPercent": float64(1), "yPercent": float64(2), "userId": "w_viewer", "__typename": "pres_page_cursor",
 	}, true)
 
-	member := newConn("member", "getCursorCoordinatesStream", true, nil)
+	member := newConn("member", "getCursorCoordinatesStream", true, notLockedVars())
 	SendPreviousCursorPosition(member, "q1")
 
 	got := drain(member)
@@ -367,17 +370,17 @@ func voiceBody() map[string]interface{} {
 	return map[string]interface{}{
 		"userId": "w_speaker", "voiceUserId": "vu1", "userRole": "VIEWER",
 		"userName": "Secret Victim Name", "userColor": "#fff", "userSpeechLocale": "en",
-		"talking": true, "muted": false, "leftVoiceConf": false,
+		"talking": true, "muted": false, "leftVoiceConf": false, "hideUserList": true,
 	}
 }
 
 func TestVoiceStreamDeniesNonMembers(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingUserVoiceStatesCache(testMeetingId) })
 
-	// An in-meeting connection always carries this variable in production - set to the meeting id
-	// while the user list is unlocked, cleared when hideUserList is on - so nil would be an
-	// unrealistic fixture now that an absent value correctly reads as "locked".
-	member := newConn("member", "getUserVoiceStateStream", true, userListUnlocked())
+	// An in-meeting connection always carries the lock variable in production - set to the meeting
+	// id unless the user is a locked viewer, cleared when they are - so nil would be an unrealistic
+	// fixture now that an absent value correctly reads as "locked".
+	member := newConn("member", "getUserVoiceStateStream", true, notLockedVars())
 	nonMember := newConn("nonMember", "getUserVoiceStateStream", false, nil)
 
 	conns := map[string]*common.BrowserConnection{"member": member, "nonMember": nonMember}
@@ -398,13 +401,13 @@ func TestVoiceStreamDeniesNonMembers(t *testing.T) {
 	}
 }
 
-func userListUnlocked() map[string]string {
-	return map[string]string{"x-hasura-userlistnotlockedinmeeting": testMeetingId}
+func notLockedVars() map[string]string {
+	return map[string]string{notLockedKey: testMeetingId}
 }
 
-// hideUserList is on: the lock variable is present but cleared.
-func userListLocked() map[string]string {
-	return map[string]string{"x-hasura-userlistnotlockedinmeeting": ""}
+// A locked viewer: the lock variable is present but cleared.
+func lockedVars() map[string]string {
+	return map[string]string{notLockedKey: ""}
 }
 
 func moderatorVoiceBody() map[string]interface{} {
@@ -419,12 +422,12 @@ func moderatorVoiceBody() map[string]interface{} {
 func TestVoiceStreamRespectsHideUserList(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingUserVoiceStatesCache(testMeetingId) })
 
-	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, userListLocked())
-	unlockedViewer := newConn("unlockedViewer", "getUserVoiceStateStream", true, userListUnlocked())
+	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, lockedVars())
+	unlockedViewer := newConn("unlockedViewer", "getUserVoiceStateStream", true, notLockedVars())
 	// Locked, but is the speaker: must still receive their own mute/talking state.
-	speakerSelf := newConn("w_speaker", "getUserVoiceStateStream", true, userListLocked())
+	speakerSelf := newConn("w_speaker", "getUserVoiceStateStream", true, lockedVars())
 	// Locked, and a refresh is in flight, so the lock state cannot be trusted.
-	staleViewer := newConn("staleViewer", "getUserVoiceStateStream", true, userListUnlocked())
+	staleViewer := newConn("staleViewer", "getUserVoiceStateStream", true, notLockedVars())
 	staleViewer.SessionVariablesStale = true
 
 	conns := map[string]*common.BrowserConnection{
@@ -454,7 +457,7 @@ func TestVoiceStreamRespectsHideUserList(t *testing.T) {
 func TestVoiceStreamAllowsModeratorSpeakerToLockedViewer(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingUserVoiceStatesCache(testMeetingId) })
 
-	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, userListLocked())
+	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, lockedVars())
 	conns := map[string]*common.BrowserConnection{"lockedViewer": lockedViewer}
 
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_speaker", moderatorVoiceBody()), &sync.RWMutex{}, conns)
@@ -477,7 +480,7 @@ func TestSendPreviousUserVoiceStateFiltersHiddenSpeakers(t *testing.T) {
 	modBody["userName"] = "Visible Moderator"
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_mod", modBody), &sync.RWMutex{}, all)
 
-	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, userListLocked())
+	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, lockedVars())
 	SendPreviousUserVoiceState(lockedViewer, "q1")
 
 	got := drain(lockedViewer)
@@ -493,7 +496,7 @@ func TestSendPreviousUserVoiceStateFiltersHiddenSpeakers(t *testing.T) {
 
 	// The same replay to a connection whose lock state is unsettled rather than locked: the
 	// lock-governed row is withheld on that basis alone, while the moderator row stays exempt.
-	staleViewer := newConn("staleViewer", "getUserVoiceStateStream", true, userListUnlocked())
+	staleViewer := newConn("staleViewer", "getUserVoiceStateStream", true, notLockedVars())
 	staleViewer.SessionVariablesStale = true
 	SendPreviousUserVoiceState(staleViewer, "q2")
 
@@ -512,7 +515,7 @@ func TestVoiceStreamAnonymousSpeakerIsSubjectToHideUserList(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingUserVoiceStatesCache(testMeetingId) })
 
 	// A connection whose own user id is not yet populated, with the user list locked.
-	unidentified := newConn("", "getUserVoiceStateStream", true, userListLocked())
+	unidentified := newConn("", "getUserVoiceStateStream", true, lockedVars())
 	conns := map[string]*common.BrowserConnection{"unidentified": unidentified}
 
 	body := voiceBody()
@@ -530,8 +533,8 @@ func TestVoiceStreamAnonymousSpeakerIsSubjectToHideUserList(t *testing.T) {
 func TestVoiceStreamDeniesNonMembersForModeratorSpeaker(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingUserVoiceStatesCache(testMeetingId) })
 
-	member := newConn("member", "getUserVoiceStateStream", true, userListUnlocked())
-	nonMember := newConn("nonMember", "getUserVoiceStateStream", false, userListUnlocked())
+	member := newConn("member", "getUserVoiceStateStream", true, notLockedVars())
+	nonMember := newConn("nonMember", "getUserVoiceStateStream", false, notLockedVars())
 	conns := map[string]*common.BrowserConnection{"member": member, "nonMember": nonMember}
 
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_mod", moderatorVoiceBody()), &sync.RWMutex{}, conns)
@@ -545,7 +548,7 @@ func TestVoiceStreamDeniesNonMembersForModeratorSpeaker(t *testing.T) {
 
 	// The replay path carries the same asymmetry: the moderator row just cached above is withheld
 	// from a non-member only by inMeeting.
-	replayTarget := newConn("replay", "getUserVoiceStateStream", false, userListUnlocked())
+	replayTarget := newConn("replay", "getUserVoiceStateStream", false, notLockedVars())
 	SendPreviousUserVoiceState(replayTarget, "q1")
 	if got := drain(replayTarget); len(got) != 0 {
 		t.Errorf("non-member was replayed a moderator speaker's cached voice state: %v", got)
@@ -560,7 +563,7 @@ func TestSendPreviousUserVoiceStateSendsEmptyFrameWhenAllFiltered(t *testing.T) 
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_speaker", voiceBody()),
 		&sync.RWMutex{}, map[string]*common.BrowserConnection{})
 
-	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, userListLocked())
+	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, lockedVars())
 	if !SendPreviousUserVoiceState(lockedViewer, "q1") {
 		t.Fatal("a member must be replayed")
 	}

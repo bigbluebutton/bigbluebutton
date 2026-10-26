@@ -50,7 +50,6 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
         externalMeetingId,
         user.avatar,
         user.webcamBackground,
-        user.role,
         password
       )
       // We generate a first url with redirect -> true

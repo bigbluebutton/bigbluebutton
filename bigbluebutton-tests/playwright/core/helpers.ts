@@ -1,10 +1,17 @@
 import { env } from 'node:process';
 import { format } from 'node:util';
 
-import { type Browser, type ConsoleMessage, expect, test, type TestInfo } from '@playwright/test';
+import {
+  type APIRequestContext,
+  type Browser,
+  type ConsoleMessage,
+  expect,
+  test,
+  type TestInfo,
+} from '@playwright/test';
 import axios, { AxiosResponse } from 'axios';
 // This is version 4 of chalk, not version 5, which uses ESM
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import sha from 'sha.js';
 import * as xml2js from 'xml2js';
@@ -12,7 +19,6 @@ import * as xml2js from 'xml2js';
 import { MultiUsers } from '../user/multiusers';
 import { Page } from './page';
 import { parameters } from './parameters';
-import { runScript } from './util';
 
 dotenv.config();
 
@@ -49,12 +55,22 @@ interface GetJoinUrlProp {
   };
 }
 
-export function getChecksum(text: string, secret: string): string {
-  let algorithm = (process.env.CHECKSUM || '').toLowerCase();
-  if (!['sha1', 'sha256', 'sha512'].includes(algorithm)) {
+// The algorithms bbb-web accepts by default (supportedChecksumAlgorithms).
+export const CHECKSUM_ALGORITHMS = ['sha1', 'sha256', 'sha384', 'sha512'] as const;
+export type ChecksumAlgorithm = (typeof CHECKSUM_ALGORITHMS)[number];
+
+const isChecksumAlgorithm = (value: string): value is ChecksumAlgorithm =>
+  (CHECKSUM_ALGORITHMS as readonly string[]).includes(value);
+
+export function getChecksum(text: string, secret: string, forcedAlgorithm?: ChecksumAlgorithm): string {
+  let algorithm = forcedAlgorithm ?? (process.env.CHECKSUM || '').toLowerCase();
+  if (!isChecksumAlgorithm(algorithm)) {
     switch (secret.length) {
       case 128:
         algorithm = 'sha512';
+        break;
+      case 96:
+        algorithm = 'sha384';
         break;
       case 64:
         algorithm = 'sha256';
@@ -65,7 +81,7 @@ export function getChecksum(text: string, secret: string): string {
     }
   }
 
-  return sha(algorithm as 'sha1' | 'sha256' | 'sha512')
+  return sha(algorithm as ChecksumAlgorithm)
     .update(text)
     .digest('hex');
 }
@@ -76,16 +92,82 @@ export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (maxFloored - minCeiled)) + minCeiled;
 }
 
-export function getApiCallUrl(name: string, callParams: Record<string, string> | null): string {
+interface ApiCallUrlOptions {
+  algorithm?: ChecksumAlgorithm;
+  // The call name the checksum is computed for; another name than `name` gives
+  // a checksum that is valid for a different call.
+  signedAs?: string;
+}
+
+export function getApiCallUrl(
+  name: string,
+  callParams: Record<string, string> | null,
+  { algorithm, signedAs = name }: ApiCallUrlOptions = {},
+): string {
   const { secret } = parameters;
   if (!secret) {
     throw new Error('BBB_SECRET environment variable is required');
   }
   const query = callParams ? new URLSearchParams(callParams).toString() : '';
-  const apiCall = `${name}${query}${secret}`;
-  const checksum = getChecksum(apiCall, secret);
+  const apiCall = `${signedAs}${query}${secret}`;
+  const checksum = getChecksum(apiCall, secret, algorithm);
   const url = `${parameters.server}/api/${name}?${query}&checksum=${checksum}`;
   return url;
+}
+
+// An element as parsed by xml2js: every child is an array of text or elements
+export interface XmlElement {
+  [name: string]: (string | XmlElement)[] | undefined;
+}
+
+export interface ApiCallResult {
+  status: number;
+  // Redirect target (join answers most errors with a redirect)
+  location?: string;
+  // The `errors` list such a redirect carries in its query string
+  redirectErrors?: { key: string; message: string }[];
+  // The parsed <response> element
+  response: XmlElement;
+}
+
+// GET an API URL through Playwright's request context without following
+// redirects, asking for XML.
+export async function requestApiCall(request: APIRequestContext, url: string): Promise<ApiCallResult> {
+  const res = await request.get(url, { maxRedirects: 0, headers: { Accept: 'application/xml' } });
+  const { location } = res.headers();
+  const errors = location ? new URL(location).searchParams.get('errors') : null;
+  const body = await res.text();
+  const parsed = body.trim().startsWith('<') ? await xml2js.parseStringPromise(body) : {};
+  return {
+    status: res.status(),
+    location,
+    redirectErrors: errors ? JSON.parse(errors) : undefined,
+    response: parsed.response ?? {},
+  };
+}
+
+// Ends the given meetings so a test leaves none running.
+export async function endMeetings(request: APIRequestContext, meetingIDs: string[]): Promise<void> {
+  await Promise.all(meetingIDs.map((meetingID) => request.get(getApiCallUrl('end', { meetingID }))));
+}
+
+// Meetings created while a test runs. The test fixture ends them once the test is over,
+// so they do not stay on the server until they expire.
+const meetingsCreatedByTest: string[] = [];
+
+export function startTrackingCreatedMeetings(): void {
+  meetingsCreatedByTest.length = 0;
+}
+
+export async function endMeetingsCreatedByTest(): Promise<void> {
+  const meetingIDs = meetingsCreatedByTest.splice(0);
+  await Promise.all(
+    meetingIDs.map((meetingID) =>
+      axios
+        .get(getApiCallUrl('end', { meetingID }), { adapter: 'http' })
+        .catch((error: Error) => console.warn(`could not end meeting ${meetingID} after the test: ${error.message}`)),
+    ),
+  );
 }
 
 export async function apiCall<T = unknown>(
@@ -141,6 +223,7 @@ export async function createMeeting(
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+  meetingsCreatedByTest.push(xmlResponse.response.meetingID[0]);
   return xmlResponse.response.meetingID[0];
 }
 
@@ -159,6 +242,7 @@ export async function createMeetingWithModules(
   });
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+  meetingsCreatedByTest.push(xmlResponse.response.meetingID[0]);
   return xmlResponse.response.meetingID[0];
 }
 
@@ -169,24 +253,13 @@ export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): st
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
-  const baseQuery = `fullName=${fullName}&meetingID=${meetingID}`
+  // Encode before signing: bbb-web checksums the query string as it arrives, already percent-encoded.
+  const baseQuery = `fullName=${encodeURIComponent(fullName)}&meetingID=${meetingID}`
     + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
   return `${parameters.server}/api/join?${query}&checksum=${checksum}`;
-}
-
-export async function checkRootPermission(): Promise<void> {
-  const checkSudo = await runScript('timeout -k 1 1 sudo id', {
-    handleError: () => false,
-    handleOutput: (stdout: string) => !!stdout,
-    timeout: 5000,
-  });
-  // skip rather than fail: these tests kill TCP sessions, which needs
-  // passwordless sudo - a machine-setup precondition, not a product defect
-  // (grant it beforehand by running "sudo -v" and entering the password)
-  test.skip(!checkSudo, 'Test requires root permission: run "sudo -v" first or grant passwordless sudo');
 }
 
 async function sanitizeLog(

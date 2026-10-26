@@ -10,7 +10,7 @@ import (
 	"bbb-graphql-middleware/internal/common"
 )
 
-const userListKey = "x-hasura-userlistnotlockedinmeeting"
+const notLockedKey = "x-hasura-notlockedinmeeting"
 
 func lockedViewer(userId string) streamingRecipient {
 	return streamingRecipient{
@@ -23,7 +23,7 @@ func lockedViewer(userId string) streamingRecipient {
 
 func unlockedViewer(userId string) streamingRecipient {
 	r := lockedViewer(userId)
-	r.SessionVars = map[string]string{userListKey: testMeetingId}
+	r.SessionVars = map[string]string{notLockedKey: testMeetingId}
 	return r
 }
 
@@ -40,30 +40,34 @@ func TestVoiceStateVisibleTo(t *testing.T) {
 	otherMeeting.MeetingId = "meeting-2"
 
 	cases := []struct {
-		name        string
-		recipient   streamingRecipient
-		speakerId   string
-		speakerRole string
-		want        bool
+		name         string
+		recipient    streamingRecipient
+		speakerId    string
+		speakerRole  string
+		want         bool
+		hideUserList bool
 	}{
-		{"moderator reaches a locked viewer", lockedViewer("viewer-1"), "mod-1", "MODERATOR", true},
-		{"moderator role is matched case-insensitively", lockedViewer("viewer-1"), "mod-1", "moderator", true},
-		{"viewer is withheld from a locked viewer", lockedViewer("viewer-1"), "viewer-2", "VIEWER", false},
-		{"viewer reaches an unlocked viewer", unlockedViewer("viewer-1"), "viewer-2", "VIEWER", true},
-		{"absent role grants no exemption", lockedViewer("viewer-1"), "viewer-2", "", false},
-		{"absent role is still visible to an unlocked viewer", unlockedViewer("viewer-1"), "viewer-2", "", true},
-		{"a locked viewer sees their own state", lockedViewer("viewer-1"), "viewer-1", "VIEWER", true},
-		{"unsettled session vars withhold a viewer", staleUnlocked, "viewer-2", "VIEWER", false},
-		{"unsettled session vars still pass a moderator", staleLocked, "mod-1", "MODERATOR", true},
-		{"unsettled session vars still pass the recipient's own state", staleLocked, "viewer-1", "VIEWER", true},
-		{"a recipient not in the meeting gets nothing", notInMeeting, "mod-1", "MODERATOR", false},
-		{"unsettled membership gets nothing", membershipStale, "mod-1", "MODERATOR", false},
-		{"a recipient in another meeting gets nothing", otherMeeting, "mod-1", "MODERATOR", false},
-		{"an empty speaker id is not the recipient", lockedViewer(""), "", "VIEWER", false},
+		{"moderator reaches a locked viewer", lockedViewer("viewer-1"), "mod-1", "MODERATOR", true, true},
+		{"moderator role is matched case-insensitively", lockedViewer("viewer-1"), "mod-1", "moderator", true, true},
+		{"viewer is withheld from a locked viewer", lockedViewer("viewer-1"), "viewer-2", "VIEWER", false, true},
+		{"viewer reaches an unlocked viewer", unlockedViewer("viewer-1"), "viewer-2", "VIEWER", true, true},
+		{"absent role grants no exemption", lockedViewer("viewer-1"), "viewer-2", "", false, true},
+		{"absent role is still visible to an unlocked viewer", unlockedViewer("viewer-1"), "viewer-2", "", true, true},
+		{"a locked viewer sees their own state", lockedViewer("viewer-1"), "viewer-1", "VIEWER", true, true},
+		{"unsettled session vars withhold a viewer", staleUnlocked, "viewer-2", "VIEWER", false, true},
+		{"unsettled session vars still pass a moderator", staleLocked, "mod-1", "MODERATOR", true, true},
+		{"unsettled session vars still pass the recipient's own state", staleLocked, "viewer-1", "VIEWER", true, true},
+		{"a recipient not in the meeting gets nothing", notInMeeting, "mod-1", "MODERATOR", false, true},
+		{"unsettled membership gets nothing", membershipStale, "mod-1", "MODERATOR", false, true},
+		{"a recipient in another meeting gets nothing", otherMeeting, "mod-1", "MODERATOR", false, true},
+		{"an empty speaker id is not the recipient", lockedViewer(""), "", "VIEWER", false, true},
+		{"hideUserList off: viewer reaches a locked viewer", lockedViewer("viewer-1"), "viewer-2", "VIEWER", true, false},
+		{"hideUserList off: unsettled session vars do not matter", staleLocked, "viewer-2", "VIEWER", true, false},
+		{"hideUserList off: a recipient not in the meeting still gets nothing", notInMeeting, "viewer-2", "VIEWER", false, false},
 	}
 
 	for _, c := range cases {
-		if got := voiceStateVisibleTo(c.recipient, testMeetingId, c.speakerId, c.speakerRole); got != c.want {
+		if got := voiceStateVisibleTo(c.recipient, testMeetingId, c.speakerId, c.speakerRole, c.hideUserList); got != c.want {
 			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
 		}
 	}
@@ -184,6 +188,7 @@ func voiceStateEvent(userId, role, name string, talking, muted, leftVoiceConf bo
 		"talking":          talking,
 		"muted":            muted,
 		"leftVoiceConf":    leftVoiceConf,
+		"hideUserList":     true,
 	}
 	return msg
 }
@@ -226,7 +231,7 @@ func TestDemotedModeratorIsClearedForLockedViewers(t *testing.T) {
 	resetVoiceStatesCache(t)
 
 	locked := newVoiceStateSubscriber("viewer-1", map[string]string{})
-	unlocked := newVoiceStateSubscriber("viewer-2", map[string]string{userListKey: testMeetingId})
+	unlocked := newVoiceStateSubscriber("viewer-2", map[string]string{notLockedKey: testMeetingId})
 	connections := map[string]*common.BrowserConnection{locked.Id: locked, unlocked.Id: unlocked}
 	var connectionsMutex sync.RWMutex
 
@@ -302,13 +307,13 @@ func TestCachedVoiceStateSpeaker(t *testing.T) {
 	}
 }
 
-// voiceRecipient builds a settled in-meeting recipient with the given hideUserList variable.
-func voiceRecipient(userId, userListNotLocked string) streamingRecipient {
+// voiceRecipient builds a settled in-meeting recipient with the given not-locked variable.
+func voiceRecipient(userId, notLocked string) streamingRecipient {
 	return streamingRecipient{
 		MeetingId:          testMeetingId,
 		UserId:             userId,
 		CurrentlyInMeeting: true,
-		SessionVars:        map[string]string{"x-hasura-userlistnotlockedinmeeting": userListNotLocked},
+		SessionVars:        map[string]string{notLockedKey: notLocked},
 	}
 }
 
@@ -329,7 +334,7 @@ func TestVoiceStateVisibleToLockVariableEdges(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := voiceStateVisibleTo(tt.recipient, testMeetingId, tt.speakerUserId, tt.speakerRole); got != tt.want {
+			if got := voiceStateVisibleTo(tt.recipient, testMeetingId, tt.speakerUserId, tt.speakerRole, true); got != tt.want {
 				t.Errorf("voiceStateVisibleTo() = %v, want %v", got, tt.want)
 			}
 		})
@@ -349,7 +354,7 @@ func TestCachedVoiceStateSpeakerMalformedRows(t *testing.T) {
 	for name, row := range rows {
 		t.Run(name, func(t *testing.T) {
 			speakerUserId, speakerRole := cachedVoiceStateSpeaker(row)
-			if voiceStateVisibleTo(locked, testMeetingId, speakerUserId, speakerRole) {
+			if voiceStateVisibleTo(locked, testMeetingId, speakerUserId, speakerRole, true) {
 				t.Error("a malformed row was visible to a locked recipient")
 			}
 		})
@@ -365,7 +370,7 @@ func TestSendPreviousUserVoiceStateUnlockedGetsEveryRow(t *testing.T) {
 	modBody["userId"] = "w_mod"
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_mod", modBody), &sync.RWMutex{}, none)
 
-	unlocked := newConn("unlocked", "getUserVoiceStateStream", true, userListUnlocked())
+	unlocked := newConn("unlocked", "getUserVoiceStateStream", true, notLockedVars())
 	SendPreviousUserVoiceState(unlocked, "q1")
 
 	got := drain(unlocked)
@@ -380,7 +385,7 @@ func clearingBody(userId string) map[string]interface{} {
 	return map[string]interface{}{
 		"userId": userId, "voiceUserId": "", "userRole": "VIEWER",
 		"userName": "", "userColor": "", "userSpeechLocale": "",
-		"talking": false, "muted": true, "leftVoiceConf": true,
+		"talking": false, "muted": true, "leftVoiceConf": true, "hideUserList": true,
 	}
 }
 
@@ -388,7 +393,7 @@ func clearingBody(userId string) map[string]interface{} {
 func TestModeratorClearingRowReachesLockedViewer(t *testing.T) {
 	t.Cleanup(func() { RemoveMeetingUserVoiceStatesCache(testMeetingId) })
 
-	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, userListLocked())
+	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, lockedVars())
 	conns := map[string]*common.BrowserConnection{"lockedViewer": lockedViewer}
 
 	talkingMod := moderatorVoiceBody()
@@ -416,7 +421,7 @@ func TestClearingRowForViewerStaysGated(t *testing.T) {
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_speaker", voiceBody()),
 		&sync.RWMutex{}, map[string]*common.BrowserConnection{})
 
-	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, userListLocked())
+	lockedViewer := newConn("lockedViewer", "getUserVoiceStateStream", true, lockedVars())
 	conns := map[string]*common.BrowserConnection{"lockedViewer": lockedViewer}
 
 	HandleUserVoiceStateEvtMsg(msgFor(testMeetingId, "w_speaker", clearingBody("w_speaker")), &sync.RWMutex{}, conns)

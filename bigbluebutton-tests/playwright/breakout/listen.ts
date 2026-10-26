@@ -18,8 +18,9 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { getMicPlacement } from '../core/livekit';
 import { Page } from '../core/page';
+import { expectAudioReceived, expectAudioSilent } from '../core/rtcStatsProbe';
 import { getDefaultLocaleValue } from '../core/util';
-import { applyUserListLock } from '../user/util';
+import { applyUserListLock, isTalkingLocator } from '../user/util';
 import { Join } from './join';
 
 // Purposes carried by the user_livekit_room memberships.
@@ -763,5 +764,62 @@ export class Listen extends Join {
         timeout: ELEMENT_WAIT_LONGER_TIME,
       });
     }
+  }
+
+  // -- Bridge-agnostic cases: a FreeSWITCH transfer on bbb-webrtc-sfu, a second LiveKit room otherwise --
+
+  // The attendee talks in room 1; the moderator is in the main room audio with a muted
+  // microphone and hears nothing there. Needs trackPeerConnections before the pages load.
+  private async setupMutedListener(): Promise<Page> {
+    await this.create();
+    const breakoutUserPage = await this.joinRoom(true);
+    await breakoutUserPage.hasElement(e.isTalking, 'the attendee should be talking in the breakout room');
+    await this.connectModMicrophone();
+    await this.modPage.hasElement(e.unmuteMicButton, 'the moderator should join the main room muted');
+    await expectAudioSilent(this.modPage.page, 'the moderator should hear nothing in the main room before listening');
+    return breakoutUserPage;
+  }
+
+  async listenerHearsTheRoomAndReturns(): Promise<void> {
+    await this.setupMutedListener();
+    await this.openRoomListenMenu(1);
+    await expectAudioReceived(this.modPage.page, 'the moderator should hear the attendee talking in the breakout room');
+
+    await this.openRoomListenMenu(1); // the same entry now stops listening
+    await expectAudioSilent(this.modPage.page, 'the moderator should no longer hear the breakout room');
+    await this.modPage.hasElement(e.audioDropdownMenu, 'the moderator should be back in the main room audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.checkUserTalkingIndicator();
+  }
+
+  async breakoutEndDuringListenKeepsAudio(): Promise<void> {
+    await this.setupMutedListener();
+    await this.openRoomListenMenu(1);
+    await expectAudioReceived(this.modPage.page, 'the moderator should hear the breakout room');
+
+    await this.endAllBreakoutRooms();
+    await this.modPage.hasElement(
+      e.audioDropdownMenu,
+      'the moderator should be back in the main room audio after the rooms end',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    // The attendee comes back to the main room talking
+    await expectAudioReceived(this.modPage.page, 'the moderator should hear the attendee in the main room');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.checkUserTalkingIndicator();
+  }
+
+  async mutedListenerIsNotHeard(): Promise<void> {
+    const breakoutUserPage = await this.setupMutedListener();
+    await this.openRoomListenMenu(1);
+    await expectAudioReceived(this.modPage.page, 'the moderator should hear the breakout room');
+    await expectAudioSilent(breakoutUserPage.page, 'the attendee should not hear the moderator, who listens muted');
+    await expect(
+      isTalkingLocator(breakoutUserPage, this.modPage.username),
+      'the attendee should not see the muted moderator talking',
+    ).toBeHidden();
+
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await expectAudioReceived(breakoutUserPage.page, 'the attendee should hear the moderator once they unmute');
   }
 }

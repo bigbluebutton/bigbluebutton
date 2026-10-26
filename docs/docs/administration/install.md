@@ -10,13 +10,9 @@ keywords:
 
 We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated Linux server. This document shows you how to install.
 
-
-# BigBlueButton 4.0 is under development. This documentation section is a DRAFT.
-
-
 ## Before you install
 
-We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 24.04 64-bit server with no prior software installed. If you want to upgrade from BigBlueButton 3.0, you could upgrade using the [4.0 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v4.0.x-release).
+We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 24.04 64-bit server with no prior software installed.
 Upgrading from an earlier version of BigBlueButton (2.6, 2.7, 3.0) directly is not supported. We recommend setting up a clean server for BigBlueButton 4.0 on Ubuntu 24.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
@@ -164,7 +160,7 @@ At the moment, the requirement for docker may preclude running 4.0 within some v
 
 To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v4.0.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
 
-The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. We recommend using Greenlight as a frontend. [API MATE](https://mconf.github.io/api-mate/) can be quite useful when verifying your server is working correctly.
+The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. We recommend using Greenlight as a frontend. [API MATE](https://bigbluebutton.github.io/api-mate/) can be quite useful when verifying your server is working correctly.
 
 After the `bbb-install.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
@@ -310,10 +306,10 @@ $ sudo bbb-conf --secret
     Secret: 330a8b08c3b4c61533e1d0c334
 
       Link to the API-Mate:
-      https://mconf.github.io/api-mate/#server=https://bbb.example.com/bigbluebutton/&sharedSecret=330a8b08c3b4c61533e1d0c334
+      https://bigbluebutton.github.io/api-mate/#server=https://bbb.example.com/bigbluebutton/&sharedSecret=330a8b08c3b4c61533e1d0c334
 ```
 
-The link to API-Mate will open a page at [https://mconf.github.io/api-mate/](https://mconf.github.io/api-mate/) and let you send valid API calls to your server. This makes it easy for testing wihthout any frontend like Greenlight.
+The link to API-Mate will open a page at [https://bigbluebutton.github.io/api-mate/](https://bigbluebutton.github.io/api-mate/) and let you send valid API calls to your server. This makes it easy for testing wihthout any frontend like Greenlight.
 
 ### Configure the firewall (if required)
 

@@ -3,6 +3,7 @@ import { type Browser, type BrowserContext, type Page as PlaywrightPage, type Te
 import { isApolloClientExposed } from '../core/apolloProbe';
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { exposeLiveKitRooms, isLiveKit } from '../core/livekit';
+import { trackPeerConnections } from '../core/rtcStatsProbe';
 import { test } from '../core/setup/fixtures';
 import { Listen } from './listen';
 
@@ -111,4 +112,44 @@ test.describe('Listen to breakout room', { tag: ['@ci'] }, () => {
     const listen = await initListen(browser, context, page, testInfo);
     await listen.adversarialTransferToSelf();
   });
+});
+
+// The same flow on either media bridge, judged by the audio each page receives rather
+// than by LiveKit room memberships, so it also covers the FreeSWITCH transfer of bbb-webrtc-sfu.
+test.describe('Listen to breakout room on either bridge', { tag: ['@ci'] }, () => {
+  test.beforeEach(async ({ context }) => {
+    await trackPeerConnections(context);
+  });
+
+  test(
+    'moderator hears the breakout room and returns to main',
+    { tag: '@media' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = new Listen(browser, context);
+      await listen.initPages(page, testInfo);
+      await listen.listenerHearsTheRoomAndReturns();
+    },
+  );
+
+  // On bbb-webrtc-sfu the moderator is left out of audio when the rooms end while they listen.
+  test(
+    'moderator stays in audio when the rooms end mid-listen',
+    { tag: '@known-issue' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = new Listen(browser, context);
+      await listen.initPages(page, testInfo);
+      await listen.breakoutEndDuringListenKeepsAudio();
+    },
+  );
+
+  // On bbb-webrtc-sfu the transfer leaves a muted moderator's microphone live in the room, with no mute control.
+  test(
+    'a muted moderator is not heard in the room they listen to',
+    { tag: '@known-issue' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = new Listen(browser, context);
+      await listen.initPages(page, testInfo);
+      await listen.mutedListenerIsNotHeard();
+    },
+  );
 });

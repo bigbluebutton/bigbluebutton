@@ -13,10 +13,11 @@ import (
 // what it now says, so between that request and a successful refresh the affected state is unknown
 // and must be treated as such rather than used at its previous value.
 //
-// The two are tracked separately because they are invalidated at very different rates. A lock or
-// role change cannot alter membership, and those changes fan out to every locked viewer in a
-// meeting; treating membership as unknown for each of them would withhold stream data that the
-// recipients are entitled to, and stream data withheld is lost rather than delayed.
+// The two are tracked separately because they are invalidated at very different rates. A user's
+// lock or role change cannot alter membership; treating membership as unknown for it would withhold
+// stream data that the recipient is entitled to, and stream data withheld is lost rather than
+// delayed. Meeting-wide lock settings do not reach the session at all: they travel with the stream
+// events and are kept per meeting by the streaming server.
 
 const (
 	refreshRetryBaseDelay = 250 * time.Millisecond

@@ -13,7 +13,10 @@ trait ChangeUserPinStateReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleChangeUserPinStateReqMsg(msg: ChangeUserPinStateReqMsg): Unit = {
-    log.info("handleAssignPinReqMsg: changedBy={} pin={} userId={}", msg.body.changedBy, msg.body.pin, msg.body.userId)
+    log.info(
+      "handleAssignPinReqMsg: requestedBy={} changedBy={} pin={} userId={}",
+      msg.header.userId, msg.body.changedBy, msg.body.pin, msg.body.userId
+    )
 
     def broadcastUserPinChange(user: UserState, pin: Boolean): Unit = {
       val routingChange = Routing.addMsgToClientRouting(
@@ -30,10 +33,12 @@ trait ChangeUserPinStateReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.body.changedBy)) {
+    // Authorized against the authenticated sender in the header; the changedBy
+    // body field is only the label carried in the broadcast event.
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change pin in meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.changedBy, reason, outGW, liveMeeting)
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       for {
         newPin <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)

@@ -1,13 +1,6 @@
 import { expect } from '@playwright/test';
-import { exec } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-
-interface RunScriptOptions {
-  handleError?: (stderr: string) => unknown;
-  handleOutput?: (stdout: string) => unknown;
-  timeout?: number;
-}
 
 interface ClipObj {
   x: number;
@@ -59,24 +52,4 @@ export function constructClipObj(wbBox: WbBox): ClipObj {
     width: wbBox.width,
     height: wbBox.height,
   };
-}
-
-/**
- * Run a shell script and handle its output or error.
- * @param script  The shell script to run.
- * @param options Options for handling output and errors.
- * @returns True if the script ran successfully, false otherwise.
- */
-export async function runScript(script: string, options: RunScriptOptions = {}): Promise<boolean> {
-  const { handleError, handleOutput, timeout } = options;
-  return new Promise((resolve) => {
-    exec(script, { timeout }, (error, stdout, stderr) => {
-      if (error || stderr) {
-        if (handleError) return resolve(Boolean(handleError(stderr)));
-        return resolve(false);
-      }
-      if (handleOutput) return resolve(Boolean(handleOutput(stdout)));
-      return resolve(true);
-    });
-  });
 }

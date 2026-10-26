@@ -53,10 +53,6 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
-  def index = {
-    render(view: 'upload-file')
-  }
-
   def checkPresentationAuthorization = {
     try {
       def uri = request.getHeader("x-original-uri")
@@ -357,19 +353,6 @@ class PresentationController {
 
   def testConversion = {
     presentationService.testConversionProcess()
-  }
-
-  //handle external presentation server 
-  def delegate = {
-    def presentation_name = request.getParameter('presentation_name')
-    def conference = request.getParameter('conference')
-    def room = request.getParameter('room')
-    def returnCode = request.getParameter('returnCode')
-    def totalSlides = request.getParameter('totalSlides')
-    def slidesCompleted = request.getParameter('slidesCompleted')
-
-    presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
-    redirect(action: list)
   }
 
   def showSvgImage = {
