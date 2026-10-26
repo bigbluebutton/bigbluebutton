@@ -240,6 +240,9 @@ Configuration:
 - nginx uses the image's location files and upstreams, which use the default service names. The
   compose file mounts only its site (port 80 and haproxy's 8081) and `playback.nginx`, because
   `playback` runs only with the `recording` profile.
+- More Hasura instances: `docker compose up -d --scale graphql-server=2`, then
+  `docker compose exec nginx nginx -s reload`. nginx balances them as on bare metal and looks up
+  the instances only when it starts or reloads, so reload it again after scaling down.
 - bbb-web downloads the default slides from `https://<domain>` through the host
   (`extra_hosts: host-gateway`), so port 443 must be published on the host's addresses (the
   default). The download needs the real certificate; it fails while haproxy serves the
