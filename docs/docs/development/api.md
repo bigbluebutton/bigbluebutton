@@ -195,6 +195,8 @@ Look for the parameter `securitySalt` (it's called `securitySalt` due to legacy 
 securitySalt=<your_salt>
 ```
 
+If `BBB_SECRET` is set in [`/etc/bigbluebutton/bigbluebutton.env`](/administration/configuration-files#server-url-and-shared-secret-etcbigbluebuttonbigbluebuttonenv), it takes precedence over `securitySalt`.
+
 We'll refer to this value as `sharedSecret`. When you first install BigBlueButton on a server, the packaging scripts create a random 32 character `sharedSecret`. You can also change the `sharedSecret` at anytime using the command `bbb-conf --setsecret`.
 
 ```bash

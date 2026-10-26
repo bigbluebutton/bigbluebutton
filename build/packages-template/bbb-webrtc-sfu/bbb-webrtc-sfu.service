@@ -6,6 +6,7 @@ PartOf=bigbluebutton.target
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-webrtc-sfu
+EnvironmentFile=-/etc/bigbluebutton/bigbluebutton.env
 ExecStart=/usr/bin/node server.js
 Restart=always
 SyslogIdentifier=bbb-webrtc-sfu

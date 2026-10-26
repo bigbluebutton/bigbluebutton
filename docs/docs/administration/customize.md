@@ -1929,6 +1929,8 @@ To change the shared secret, do the following:
 1. Generate a new Universal Unique ID (UUID) from a UUID generator such as at [http://www.somacon.com/p113.php](http://www.somacon.com/p113.php). This will give a long string of random numbers that will be impossible to reverse engineer.
 2. Run the command `sudo bbb-conf --setsecret new_secret`.
 
+If you set `BBB_SECRET` in [`/etc/bigbluebutton/bigbluebutton.env`](/administration/configuration-files#server-url-and-shared-secret-etcbigbluebuttonbigbluebuttonenv), that value takes precedence: change it there instead and run `sudo bbb-conf --restart`.
+
 Note: If you have created you own front-end or are using a [third-party plug-in](http://bigbluebutton.org/support) to connect to BigBlueButton, its shared secret; otherwise, if the shared secrets do not match, the checksum for the incoming API calls will not match and the BigBlueButton server will reject the API call with an error.
 
 #### Install callback for events (webhooks)

@@ -152,10 +152,8 @@ begin
     filepathOverride = "/etc/bigbluebutton/bbb-web.properties"
     hasOverride = File.file?(filepathOverride)
 
-    bbb_props = BigBlueButton.read_java_props("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
-    bbb_props.merge!(BigBlueButton.read_java_props(filepathOverride)) if hasOverride
-
-    secret = bbb_props[:securitySalt]
+    secret = (ENV['BBB_SECRET'] unless ENV['BBB_SECRET'].to_s.empty?) ||
+             BigBlueButton.read_java_props("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties").merge(hasOverride ? BigBlueButton.read_java_props(filepathOverride) : {})[:securitySalt]
     external_meeting_id = metadata.attributes['meetingId']&.content
 
     # Parse the events.xml.

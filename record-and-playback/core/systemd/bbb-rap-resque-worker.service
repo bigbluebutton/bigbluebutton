@@ -10,6 +10,7 @@ ExecStart=/usr/bin/bundle exec rake -f Rakefile resque:workers
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
 Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions,rap:events
 Environment=COUNT=1
+EnvironmentFile=-/etc/bigbluebutton/bigbluebutton.env
 # Environment=VVERBOSE=1
 User=bigbluebutton
 Restart=always

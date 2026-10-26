@@ -51,6 +51,43 @@ securitySalt=UsanRxRk938d02cTWfAqSM9Cvin7bnzsREfqFfzpf2U
 
 This override will ensure that `bbb-web` uses the above values regardless of changes the packaging scripts make to the upgrade.
 
+### Server URL and shared secret (`/etc/bigbluebutton/bigbluebutton.env`)
+
+Several components need the server URL and the shared secret. Instead of keeping them in sync across their configuration files, you can set them once in `/etc/bigbluebutton/bigbluebutton.env`:
+
+```
+BBB_URL=https://bbb.example.com
+BBB_SECRET=UsanRxRk938d02cTWfAqSM9Cvin7bnzsREfqFfzpf2U
+```
+
+The file is optional and only maintained by the administrator: packages, `bbb-install.sh` and `bbb-conf` never create or change it, so updates never change these values. A variable set there takes precedence over the component settings:
+
+| Component | Overridden settings |
+| :-- | :-- |
+| bbb-web | `bigbluebutton.web.serverURL`, `securitySalt` |
+| bbb-apps-akka | `services.bbbWebAPI` (as `<BBB_URL>/bigbluebutton/api`) and `services.sharedSecret`, which sign the breakout room join URLs |
+| bbb-webhooks | `bbb.serverDomain` (as the host of `BBB_URL`), `bbb.sharedSecret` |
+| bbb-webrtc-sfu | `livekit.bbbDomain` (as the host of `BBB_URL`) |
+| Recording callbacks (bbb-rap-resque-worker) | `securitySalt` |
+| `bbb-conf`, `bbb-install.sh` (Greenlight, LTI) | server URL and shared secret |
+| `apply-config.sh` (`HOST`, `PROTOCOL`) | server URL |
+
+The services load the file with `EnvironmentFile=-/etc/bigbluebutton/bigbluebutton.env` and read `BBB_URL` and `BBB_SECRET` from their environment, so a missing file never prevents them from starting. Shell scripts only read the `BBB_URL` and `BBB_SECRET` lines. Use plain `KEY=value` lines, without quotes, and write `BBB_URL` as the root URL without a trailing slash. Because the file holds the shared secret, make it readable only by `root` and the `bigbluebutton` group, then restart BigBlueButton:
+
+```bash
+$ sudo chown root:bigbluebutton /etc/bigbluebutton/bigbluebutton.env
+$ sudo chmod 0640 /etc/bigbluebutton/bigbluebutton.env
+$ sudo bbb-conf --restart
+```
+
+`bbb-conf --setip` and `bbb-conf --setsecret` keep updating the component files and warn when `bigbluebutton.env` overrides the value they set. After changing `BBB_URL`, also run `sudo bbb-conf --setip <hostname>` to update the settings derived from the hostname (recordings, HTML5 client). `bbb-conf --check` warns when one of these settings, or the `bbb-web.properties` values used by `bbbctl`, no longer matches `bigbluebutton.env`.
+
+`bbbctl` only reads `bbb-web.properties`. When `bigbluebutton.env` is set, pass its values through `bbbctl`'s own variables:
+
+```bash
+$ sudo bash -c 'f=/etc/bigbluebutton/bigbluebutton.env; BBBCTL_SERVER=$(grep "^BBB_URL=" $f | cut -d= -f2-) BBBCTL_SECRET=$(grep "^BBB_SECRET=" $f | cut -d= -f2-) bbbctl meeting list'
+```
+
 For `bbb-apps-akka` and `bbb-fsesl-akka`, the settings file are formatted as shown below. For example, the file `bbb-apps-akka.conf` overrides the settings for `/usr/share/bbb-apps-akka/conf/application.conf`.
 
 ```
