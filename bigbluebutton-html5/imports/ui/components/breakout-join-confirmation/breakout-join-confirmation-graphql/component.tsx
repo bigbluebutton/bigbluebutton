@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import React, {
   useCallback, useEffect, useMemo, useRef,
 } from 'react';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { defineMessages, useIntl } from 'react-intl';
 import MenuItem from '@mui/material/MenuItem';
 import { type SelectChangeEvent } from '@mui/material';
@@ -76,7 +77,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const { isOpen, open, close } = useModalRegistration({ id: 'breakoutJoinConfirmation', priority: 'low' });
   const [dismissedInvitationKey, setDismissedInvitationKey] = React.useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -139,11 +140,11 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   }, [defaultSelectedBreakoutId]);
 
   const handleClose = useCallback(() => {
-    setIsOpen(false);
+    close();
     setWaiting(false);
     setDismissedInvitationKey(currentInvitationKey);
     callHandleInviteDismissedAt();
-  }, [callHandleInviteDismissedAt, currentInvitationKey]);
+  }, [callHandleInviteDismissedAt, close, currentInvitationKey]);
 
   const handleJoinBreakoutConfirmation = useCallback(() => {
     const breakout = (!freeJoin || breakouts.length === 1)
@@ -166,9 +167,9 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     const win = window.open(breakout.joinURL, '_blank');
     if (win) setBreakoutWindowRef(win);
     stopMediaOnMainRoom(presenter);
-    setIsOpen(false);
+    close();
     setDismissedInvitationKey(currentInvitationKey);
-  }, [breakouts, selectValue, presenter, stopMediaOnMainRoom, freeJoin, currentInvitationKey]);
+  }, [breakouts, close, selectValue, presenter, stopMediaOnMainRoom, freeJoin, currentInvitationKey]);
 
   const assignedBreakout = breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
   const roomName = assignedBreakout.isDefaultName
@@ -221,7 +222,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   useEffect(() => {
     if (breakouts?.length > 0 && !currentUserJoined && !isDismissed) {
-      setIsOpen(true);
+      open();
     }
   }, [breakouts, currentUserJoined, isDismissed]);
 

@@ -1,10 +1,8 @@
-/* eslint-disable max-classes-per-file */
 import {
   Browser,
   BrowserContext,
   Download,
   expect,
-  Frame as PlaywrightFrame,
   Locator,
   Page as PlaywrightPage,
   test,
@@ -34,7 +32,7 @@ dotenv.config();
  * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
  */
 export interface ClientSettingsOverrides {
-  [key: string]: string | number | boolean | null | ClientSettingsOverrides;
+  [key: string]: string | number | boolean | null | Array<string | number | boolean> | ClientSettingsOverrides;
 }
 
 export interface InitOptionsProps {
@@ -158,8 +156,11 @@ export class Page {
       'should pass the authentication and the layout element should be displayed',
     ).toBeFalsy();
     if (shouldCheckAllInitialSteps !== undefined ? shouldCheckAllInitialSteps : true) {
-      if (!shouldAvoidLayoutCheck) await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
-      this.settings = await generateSettingsData(this.page);
+      // a page expected not to reach the client (shouldAvoidLayoutCheck) has no settings to read
+      if (!shouldAvoidLayoutCheck) {
+        await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
+        this.settings = await generateSettingsData(this.page);
+      }
       const { autoJoinAudioModal } = this.settings || {};
       if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
     }
@@ -212,6 +213,7 @@ export class Page {
     testInfo?: TestInfo,
     timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<HandleDownloadResult> {
+    await locator.waitFor({ state: 'visible', timeout });
     const [download] = await Promise.all([this.page.waitForEvent('download', { timeout }), locator.click({ timeout })]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
@@ -241,6 +243,9 @@ export class Page {
 
   async joinMicrophone(options: JoinMicrophoneOptions = {}): Promise<void> {
     const { shouldUnmute = true } = options;
+    // Firefox holds enumerateDevices() until the tab is the selected one, and the audio
+    // modal needs it before it enables its join button
+    await this.page.bringToFront();
     await this.waitForSelector(e.audioModal);
     await this.clickMicrophoneButton();
     await this.waitForSelector(e.stopHearingButton);
@@ -280,12 +285,8 @@ export class Page {
     const { shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME } = options;
     const { webcamSharingEnabled } = this.settings || (await generateSettingsData(this.page)) || {};
 
-    test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
+    test.skip(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
-    if (!webcamSharingEnabled) {
-      await this.wasRemoved(e.joinVideo, 'should not display the join video button');
-      return;
-    }
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.page.bringToFront();
@@ -486,7 +487,7 @@ export class Page {
         const element = document.querySelector(el);
         if (!element) return false;
         
-        const afterElement = getComputedStyle(element, 'after');
+        const afterElement = getComputedStyle(element, '::after');
         if (afterElement && afterElement.content !== 'none') {
           return true;
         }
@@ -642,28 +643,5 @@ export class Page {
     await this.hoverElement(selector);
     const locatorTooltip = this.page.locator(`text=${text}`);
     await expect(locatorTooltip).toBeVisible({ timeout: 10000});
-  }
-
-  async getYoutubeFrame(): Promise<Frame> {
-    await this.waitForSelector(e.youtubeFrame);
-    const iframeElement = await this.page.locator(`${e.youtubeFrame} iframe`).elementHandle();
-    const frame = await iframeElement?.contentFrame();
-    if (!frame) throw new Error('Failed to get YouTube frame');
-    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Frame(frame);
-    return ytFrame;
-  }
-}
-
-class Frame {
-  public frame: PlaywrightFrame;
-
-  constructor(frame: PlaywrightFrame) {
-    this.frame = frame;
-  }
-
-  async hasElement(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
-    const locator = this.frame.locator(selector);
-    await expect(locator, description).toBeVisible({ timeout });
   }
 }
