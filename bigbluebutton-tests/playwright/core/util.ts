@@ -16,10 +16,17 @@ interface WbBox {
   height: number;
 }
 
-// The shipped English locale, loaded once. Assertions on user-facing copy resolve through it
-// rather than repeating the string, so a wording change shows up as one edit in en.json.
-const defaultLocalePath = join(__dirname, '../../../bigbluebutton-html5/public/locales/en.json');
-const defaultLocale: Record<string, string> = JSON.parse(readFileSync(defaultLocalePath, 'utf8'));
+// The shipped English locale. Assertions on user-facing copy resolve through it rather than
+// repeating the string, so a wording change shows up as one edit in en.json. Loaded on first use,
+// so a missing file fails only the tests that need it.
+let defaultLocale: Record<string, string> | undefined;
+export function getDefaultLocale(): Record<string, string> {
+  if (!defaultLocale) {
+    const defaultLocalePath = join(__dirname, '../../../bigbluebutton-html5/public/locales/en.json');
+    defaultLocale = JSON.parse(readFileSync(defaultLocalePath, 'utf8')) as Record<string, string>;
+  }
+  return defaultLocale;
+}
 
 // Text
 export async function checkTextContent(
@@ -40,7 +47,7 @@ export async function checkTextContent(
  * @returns The value from en.json.
  */
 export function getDefaultLocaleValue(key: string): string {
-  const value = defaultLocale[key];
+  const value = getDefaultLocale()[key];
   expect(value, `locale key "${key}" should exist in en.json`).toBeDefined();
   return value;
 }
