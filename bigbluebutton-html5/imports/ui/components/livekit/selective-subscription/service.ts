@@ -263,25 +263,25 @@ export const selectLastNTiers = (
 
   const speaking = (candidate: LastNCandidate) => isLastNSpeaking(candidate, now, settings.speechHoldMs);
 
-  // An unmuted audible participant keeps its slot while speaking. A silent one
-  // keeps it for minAudibleMs after it got it, but not against an unmuted
-  // speaker who needs the slot. A muted one keeps nothing: it carries no audio.
-  // The others compete with an incumbent bonus.
-  const keptSpeakers = rankLastN(candidates.filter((candidate) => (
-    candidate.unmuted && speaking(candidate) && previous.audibleSince.has(candidate.participantId)
-  )), baseScore).slice(0, audibleSize);
-  const waitingSpeakers = candidates.filter((candidate) => (
-    candidate.unmuted && speaking(candidate) && !keptSpeakers.includes(candidate)
-  )).length;
+  // Unmuted speakers get slots before anyone else, whatever their role: a
+  // speaker who waits loses their first words. Those already audible go first.
+  // A silent unmuted participant keeps its slot for minAudibleMs if no speaker
+  // needs it. The remaining slots go by score, with a bonus for incumbents.
+  const wasAudible = (candidate: LastNCandidate) => previous.audibleSince.has(candidate.participantId);
+  const unmutedSpeakers = candidates.filter((candidate) => candidate.unmuted && speaking(candidate));
+  const speakers = [
+    ...rankLastN(unmutedSpeakers.filter((candidate) => wasAudible(candidate)), baseScore),
+    ...rankLastN(unmutedSpeakers.filter((candidate) => !wasAudible(candidate)), baseScore),
+  ].slice(0, audibleSize);
   const keptSilent = rankLastN(candidates.filter((candidate) => {
     const since = previous.audibleSince.get(candidate.participantId);
 
     return candidate.unmuted && !speaking(candidate)
       && since !== undefined && now - since < settings.minAudibleMs;
-  }), baseScore).slice(0, Math.max(0, audibleSize - keptSpeakers.length - waitingSpeakers));
-  const audible = new Set([...keptSpeakers, ...keptSilent].map((candidate) => candidate.participantId));
+  }), baseScore).slice(0, audibleSize - speakers.length);
+  const audible = new Set([...speakers, ...keptSilent].map((candidate) => candidate.participantId));
   const audibleScore = (candidate: LastNCandidate) => baseScore(candidate)
-    + (previous.audibleSince.has(candidate.participantId) ? LAST_N_SCORE.incumbent : 0)
+    + (wasAudible(candidate) ? LAST_N_SCORE.incumbent : 0)
     + (candidate.unmuted ? LAST_N_SCORE.unmutedAudible : 0);
 
   rankLastN(candidates.filter((candidate) => !audible.has(candidate.participantId)), audibleScore)
