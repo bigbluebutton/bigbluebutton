@@ -129,7 +129,7 @@ Updated in 3.0:
 - **getJoinUrl** endpoint was first introduced.
 - **enter** endpoint was removed. It was only used internally, never part of the api documentation.
 - **html5client/check** endpoint was removed. It was used for checking the health of the server returning `{"html5clientStatus":"running"}`
-- **feedback** endpoint was introduced, replacing calls to `/html5client/feedback` with `/api/feedback`
+- **html5client/feedback** endpoint was removed together with the built-in post-meeting feedback form. The `/api/feedback` endpoint that replaced it during the 3.0 release candidates was removed as well. Feedback is collected by the optional [custom-feedback](https://github.com/bigbluebutton/custom-feedback) application, which brings its own backend.
 
 Updated in 4.0:
 

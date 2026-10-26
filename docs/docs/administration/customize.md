@@ -1844,7 +1844,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
 | `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |
 | `pluginManifestCacheRefreshIntervalMinutes` | How often (in minutes) the plugin manifest cache refresh task runs | Integer | 60 |
-| `serviceEnabled` | Whether the BigBlueButton API is enabled | true/false | true |
 | `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
 | `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
 | `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Override for additional security separation between presentation tokens and the rest of bbb-web | String | _(defaults to `${securitySalt}`)_ |

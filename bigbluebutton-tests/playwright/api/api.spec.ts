@@ -46,6 +46,11 @@ test.describe.parallel('API', () => {
     await API.testBbbWebSecurityHeaders();
   });
 
+  test('controllerHelpersNotReachable', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testControllerHelpersNotReachable();
+  });
+
   test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page, browserName }) => {
     test.skip(
       browserName !== 'chromium',
@@ -56,6 +61,11 @@ test.describe.parallel('API', () => {
 
   test('overAThousandRequestParameters', { tag: '@ci' }, async () => {
     await API.testOverAThousandRequestParameters();
+  });
+
+  test('hiddenMethodOverrideIgnored', { tag: '@ci' }, async () => {
+    linkIssue(26002);
+    await API.testHiddenMethodOverrideIgnored();
   });
 
   test('breakoutWithoutParent', { tag: '@ci' }, async () => {
