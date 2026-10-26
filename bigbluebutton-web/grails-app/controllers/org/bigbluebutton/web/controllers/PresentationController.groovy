@@ -53,10 +53,6 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
-  def index = {
-    render(view: 'upload-file')
-  }
-
   def checkPresentationAuthorization = {
     try {
       def uri = request.getHeader("x-original-uri")
