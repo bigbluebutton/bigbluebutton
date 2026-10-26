@@ -1812,7 +1812,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
 | `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
 | `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
-| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |
+| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu | livekit |
 | `disableRecordingDefault` | When true, do not record even if the `/create` call sets `record=true` | true/false | false |
 | `autoStartRecording` | Start recording when the first user joins the meeting | true/false | false _`overwritable`_ |
 | `allowStartStopRecording` | Allow users to start/stop recording during the session | true/false | true _`overwritable`_ |

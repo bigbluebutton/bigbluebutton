@@ -171,7 +171,7 @@ rtc:
 Each media type defaults to `livekit` and can be pointed at the legacy stack
 instead, per meeting or server-wide:
 - Per meeting: set any of the following meeting `/create` parameters
-  - `audioBridge=bbb-webrtc-sfu` (or `freeswitch`)
+  - `audioBridge=bbb-webrtc-sfu`
   - `cameraBridge=bbb-webrtc-sfu`
   - `screenShareBridge=bbb-webrtc-sfu`
 - Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
