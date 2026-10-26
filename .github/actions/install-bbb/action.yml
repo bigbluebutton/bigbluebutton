@@ -144,6 +144,8 @@ runs:
         # Tests provision per-meeting client settings via the clientSettingsOverride
         # create module (e.g. webcam/gridTileCount); the property defaults to false.
         echo "allowOverrideClientSettingsOnCreateCall=true" | tee -a /etc/bigbluebutton/bbb-web.properties
+        # The meeting-ended callback test calls back bbb-ci.test, which resolves to a private address.
+        echo "fetchUrlAllowedLocalHosts=bbb-ci.test" | tee -a /etc/bigbluebutton/bbb-web.properties
         cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
         #!/bin/bash
 

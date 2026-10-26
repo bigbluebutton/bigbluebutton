@@ -2,6 +2,7 @@ import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APICallbacks } from './callbacks';
 import { APIChecksum } from './checksum';
 import { APIDisabledFeatures } from './disabledFeatures';
 import { APIJoin } from './join';
@@ -122,6 +123,17 @@ test.describe.parallel('API', () => {
 
     test('createTwice', async ({ request }) => {
       await APILifecycle.testCreateTwice(request);
+    });
+  });
+
+  test.describe('Meeting ended callback', { tag: '@ci' }, () => {
+    test('meetingEndedUrlCarriesRecordingmarksAndMeetingID', async ({ request }) => {
+      linkIssue(25929);
+      test.skip(
+        !(await APICallbacks.serverCallsBackItsOwnHost(request)),
+        'bbb-web does not accept a callback to its own host (fetchUrlAllowedLocalHosts)',
+      );
+      await APICallbacks.testMeetingEndedUrlCarriesRecordingmarksAndMeetingID(request);
     });
   });
 
