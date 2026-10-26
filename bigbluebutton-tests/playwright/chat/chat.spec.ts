@@ -1,10 +1,14 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
 import { Jumbomoji } from './jumbomoji';
 import { Mention } from './mention';
 import { MessageActions } from './messageActions';
+import { MessageRendering } from './messageRendering';
 import { ChatPluginDomElements } from './pluginDomElements';
 import { PrivateChatListPreview } from './privateChatListPreview';
+import { ReadConfirmation } from './readConfirmation';
+import { EMOJI_PICKER_SETTINGS_OVERRIDE } from './util';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -58,10 +62,16 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.saveChat();
   });
 
-  test.fixme('Verify character limit', async ({ browser, context, page }, testInfo) => {
+  test('Verify character limit', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.characterLimit();
+  });
+
+  test('Late joiner loads older messages by scrolling up', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo });
+    await chat.lateJoinerLoadsOlderMessages();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sending-empty-chat-message-automated
@@ -77,20 +87,18 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.copyPastePublicMessage();
   });
 
-  test(
-    'Send emoji on public chat using emoji picker',
-    { tag: '@setting-required:chat.emojiPicker' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.sendEmoji();
-    },
-  );
+  test('Send emoji on public chat using emoji picker', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.sendEmoji();
+  });
 
   test('Copy chat with emoji', async ({ browser, context, page, browserName }, testInfo) => {
     test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
     const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
+    await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
     await chat.emojiCopyChat();
   });
 
@@ -106,76 +114,50 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.closePrivateChat();
   });
 
-  test(
-    'Save chat with emoji',
-    { tag: '@setting-required:chat.emojiPicker' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.emojiSaveChat();
-    },
-  );
+  test('Save chat with emoji', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.emojiSaveChat();
+  });
 
-  test(
-    'Send emoji on private chat',
-    { tag: '@setting-required:chat.emojiPicker' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.emojiSendPrivateChat();
-    },
-  );
+  test('Send emoji on private chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
+    await chat.emojiSendPrivateChat();
+  });
 
-  test(
-    'Send auto converted emoji on public chat',
-    { tag: '@setting-required:chat.autoConvertEmoji' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.autoConvertEmojiPublicChat();
-    },
-  );
+  test('Send auto converted emoji on public chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.autoConvertEmojiPublicChat();
+  });
 
-  test(
-    'Escape auto converted emoji with a backslash on public chat',
-    { tag: '@setting-required:chat.autoConvertEmoji' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.autoConvertEmojiEscapePublicChat();
-    },
-  );
+  test('Escape auto converted emoji with a backslash on public chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.autoConvertEmojiEscapePublicChat();
+  });
 
-  test(
-    'Copy chat with auto converted emoji',
-    { tag: '@setting-required:chat.autoConvertEmoji' },
-    async ({ browser, context, page, browserName }, testInfo) => {
-      test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.autoConvertEmojiCopyChat();
-    },
-  );
+  test('Copy chat with auto converted emoji', async ({ browser, context, page, browserName }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.autoConvertEmojiCopyChat();
+  });
 
-  test(
-    'Auto convert emoji save chat',
-    { tag: '@setting-required:chat.autoConvertEmoji' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.autoConvertEmojiSaveChat();
-    },
-  );
+  test('Auto convert emoji save chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.autoConvertEmojiSaveChat();
+  });
 
-  test(
-    'Send auto converted emoji on private chat',
-    { tag: '@setting-required:chat.autoConvertEmoji' },
-    async ({ browser, context, page }, testInfo) => {
-      const chat = new Chat(browser, context);
-      await chat.initPages(page, testInfo);
-      await chat.autoConvertEmojiSendPrivateChat();
-    },
-  );
+  test('Send auto converted emoji on private chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.autoConvertEmojiSendPrivateChat();
+  });
 
   test('Private chat disabled when user leaves meeting', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
@@ -183,10 +165,31 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.chatDisabledUserLeaves();
   });
 
+  test('Presenter change is announced in public chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.presenterChangeAnnouncement();
+  });
+
   test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
     const jumbomoji = new Jumbomoji(browser, context);
     await jumbomoji.initModPage(page, { testInfo });
     await jumbomoji.verifyJumbomoji();
+  });
+
+  test('Private message read check does not overlap the message time on hover', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25936);
+    const readConfirmation = new ReadConfirmation(browser, context);
+    await readConfirmation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { chat: { privateMessageReadFeedback: { enabled: true } } } },
+    });
+    await readConfirmation.initUserPage(context, { testInfo });
+    await readConfirmation.verifyReadCheckDoesNotOverlapMessageTime();
   });
 
   test('Private chat preview renders at first paint', async ({ browser, context, page }, testInfo) => {
@@ -204,6 +207,30 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const preview = new PrivateChatListPreview(browser, context);
     await preview.initPages(page, testInfo);
     await preview.deletedLastMessageRendersDeletedLabel();
+  });
+
+  test.describe('Message rendering', () => {
+    test('Markdown formatting is rendered for the receiver', async ({ browser, context, page }, testInfo) => {
+      const rendering = new MessageRendering(browser, context);
+      await rendering.initPages(page, testInfo);
+      await rendering.markdownFormatting();
+    });
+
+    test('HTML and script payloads are displayed as text for the receiver', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const rendering = new MessageRendering(browser, context);
+      await rendering.initPages(page, testInfo);
+      await rendering.htmlPayloadsRenderAsText();
+    });
+
+    test('Image markdown is not rendered as an image', async ({ browser, context, page }, testInfo) => {
+      const rendering = new MessageRendering(browser, context);
+      await rendering.initPages(page, testInfo);
+      await rendering.imageMarkdownNotRendered();
+    });
   });
 
   test.describe('Message actions', () => {
@@ -240,15 +267,11 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.deleteAnotherUserMessage();
       });
 
-      test(
-        'User can delete only his own messages in breakout rooms',
-        { tag: '@flaky' },
-        async ({ browser, context, page }, testInfo) => {
-          const message = new MessageActions(browser, context);
-          await message.initPages(page, testInfo);
-          await message.breakoutsModDelete();
-        },
-      );
+      test('User can delete only his own messages in breakout rooms', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page, testInfo);
+        await message.breakoutsModDelete();
+      });
     });
 
     test.describe('Reply', () => {
@@ -274,6 +297,26 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         const message = new MessageActions(browser, context);
         await message.initPages(page, testInfo);
         await message.scrollToRepliedMessage();
+      });
+    });
+
+    test.describe('Pin', () => {
+      test('Moderator pins and unpins a message for everyone', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page, testInfo);
+        await message.pinAndUnpinMessage();
+      });
+
+      test('Viewer cannot pin a message', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page, testInfo);
+        await message.viewerCannotPinMessage();
+      });
+
+      test('Pin message button is removed by disabledFeatures', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, { createParameter: 'disabledFeatures=pinChatMessage', testInfo });
+        await message.pinMessageDisabled();
       });
     });
 

@@ -164,7 +164,7 @@ At the moment, the requirement for docker may preclude running 4.1 within some v
 
 To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v4.1.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
 
-The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. We recommend using Greenlight as a frontend. [API MATE](https://mconf.github.io/api-mate/) can be quite useful when verifying your server is working correctly.
+The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. We recommend using Greenlight as a frontend. [API MATE](https://bigbluebutton.github.io/api-mate/) can be quite useful when verifying your server is working correctly.
 
 After the `bbb-install.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
@@ -310,10 +310,10 @@ $ sudo bbb-conf --secret
     Secret: 330a8b08c3b4c61533e1d0c334
 
       Link to the API-Mate:
-      https://mconf.github.io/api-mate/#server=https://bbb.example.com/bigbluebutton/&sharedSecret=330a8b08c3b4c61533e1d0c334
+      https://bigbluebutton.github.io/api-mate/#server=https://bbb.example.com/bigbluebutton/&sharedSecret=330a8b08c3b4c61533e1d0c334
 ```
 
-The link to API-Mate will open a page at [https://mconf.github.io/api-mate/](https://mconf.github.io/api-mate/) and let you send valid API calls to your server. This makes it easy for testing wihthout any frontend like Greenlight.
+The link to API-Mate will open a page at [https://bigbluebutton.github.io/api-mate/](https://bigbluebutton.github.io/api-mate/) and let you send valid API calls to your server. This makes it easy for testing wihthout any frontend like Greenlight.
 
 ### Configure the firewall (if required)
 

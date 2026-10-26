@@ -1,7 +1,7 @@
 # Handle request to bbb-web running within a SpringBoot Tomcat embedded servlet container.  This is for BBB-API and Presentation.
 location /bigbluebutton {
 	proxy_http_version 1.1;
-	proxy_pass         http://127.0.0.1:8090;
+	proxy_pass         http://bbb-web;
 	proxy_redirect     default;
 	proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
@@ -11,7 +11,7 @@ location /bigbluebutton {
 
 location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
 	proxy_http_version 1.1;
-	proxy_pass         http://127.0.0.1:8090;
+	proxy_pass         http://bbb-web;
 	proxy_redirect     default;
 	proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
@@ -50,7 +50,7 @@ location ~ "^/bigbluebutton/presentation/download\/[0-9a-f]+-[0-9]+/[0-9a-f]+-[0
 	}
 	auth_request /bigbluebutton/presentation/checkAuthorization;
 	proxy_http_version 1.1;
-	proxy_pass         http://127.0.0.1:8090$uri$is_args$args;
+	proxy_pass         http://bbb-web$uri$is_args$args;
 	proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 	# Workaround IE refusal to set cookies in iframe
 	add_header         P3P 'CP="No P3P policy available"';
@@ -59,7 +59,7 @@ location ~ "^/bigbluebutton/presentation/download\/[0-9a-f]+-[0-9]+/[0-9a-f]+-[0
 location = /bigbluebutton/presentation/checkPresentation {
 	internal;
 	proxy_http_version 1.1;
-	proxy_pass         http://127.0.0.1:8090;
+	proxy_pass         http://bbb-web;
 	proxy_redirect     default;
 	proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
@@ -85,7 +85,7 @@ location = /bigbluebutton/presentation/checkPresentation {
 location = /bigbluebutton/presentation/checkAuthorization {
 	internal;
 	proxy_http_version       1.1;
-	proxy_pass               http://127.0.0.1:8090;
+	proxy_pass               http://bbb-web;
 	proxy_pass_request_body  off;
 	proxy_set_header         Content-Length "";
 	proxy_set_header         X-Original-URI $request_uri;
@@ -94,7 +94,7 @@ location = /bigbluebutton/presentation/checkAuthorization {
 location = /bigbluebutton/connection/checkAuthorization {
 	internal;
 	proxy_http_version       1.1;
-	proxy_pass               http://127.0.0.1:8090;
+	proxy_pass               http://bbb-web;
 	proxy_pass_request_body  off;
 	proxy_set_header         Content-Length "";
 	proxy_set_header         X-Original-URI $request_uri;
@@ -103,7 +103,7 @@ location = /bigbluebutton/connection/checkAuthorization {
 location = /bigbluebutton/connection/checkGraphqlAuthorization {
 	internal;
 	proxy_http_version       1.1;
-	proxy_pass               http://127.0.0.1:8090;
+	proxy_pass               http://bbb-web;
 	proxy_pass_request_body  off;
 	proxy_set_header         Content-Length "";
 	proxy_set_header         X-Original-URI $request_uri;
@@ -114,16 +114,7 @@ location = /bigbluebutton/connection/checkGraphqlAuthorization {
 location = /bigbluebutton/connection/legacyCheckAuthorization {
 	internal;
 	proxy_http_version       1.1;
-	proxy_pass               http://127.0.0.1:8090;
-	proxy_pass_request_body  off;
-	proxy_set_header         Content-Length "";
-	proxy_set_header         X-Original-URI $request_uri;
-}
-
-location = /bigbluebutton/connection/validatePad {
-	internal;
-	proxy_http_version       1.1;
-	proxy_pass               http://127.0.0.1:8090;
+	proxy_pass               http://bbb-web;
 	proxy_pass_request_body  off;
 	proxy_set_header         Content-Length "";
 	proxy_set_header         X-Original-URI $request_uri;
@@ -140,7 +131,7 @@ location ~ "^/bigbluebutton\/textTrack\/(?<textTrackToken>[a-zA-Z0-9]+)\/(?<reco
 location = /bigbluebutton/textTrack/validateAuthToken {
 	internal;
 	proxy_http_version 1.1;
-	proxy_pass         http://127.0.0.1:8090;
+	proxy_pass         http://bbb-web;
 	proxy_redirect     default;
 	proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 

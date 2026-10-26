@@ -28,9 +28,11 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 | /etc/default/bbb-graphql-server                                         | /etc/bigbluebutton/bbb-graphql-server.env        | It can replace any Hasura config but HASURA_GRAPHQL_ADMIN_SECRET                 |
 | /usr/share/bbb-graphql-server/admin-secret                              |                                                  | Stores Hasura admin password (HASURA_GRAPHQL_ADMIN_SECRET), it can be edited     |
 | /usr/share/bbb-graphql-middleware/config.yml                            | /etc/bigbluebutton/bbb-graphql-middleware.yml    |                                                                                  |
+| /usr/lib/systemd/system/bbb-graphql-actions.service                     | /etc/bigbluebutton/bbb-graphql-actions.env       | Optional environment file (`KEY=VALUE`), e.g. `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `BBB_REDIS_PASSWORD` |
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
+| /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json    | /etc/bigbluebutton/bbb-export-annotations.json   | JSON; arrays are merged by replacement           |
 | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       |
 | /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    |
 | /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
@@ -50,6 +52,8 @@ securitySalt=UsanRxRk938d02cTWfAqSM9Cvin7bnzsREfqFfzpf2U
 
 This override will ensure that `bbb-web` uses the above values regardless of changes the packaging scripts make to the upgrade.
 
+Settings can also be given as `-D` system properties or environment variables. The order, highest first, is: `-D` > environment > `/etc/bigbluebutton/bbb-web.properties` > `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`. An environment variable uses the key in upper case with `.` as `_` (for example `BIGBLUEBUTTON_WEB_SERVERURL` or `SECURITYSALT`), or the exact key name.
+
 For `bbb-apps-akka` and `bbb-fsesl-akka`, the settings file are formatted as shown below. For example, the file `bbb-apps-akka.conf` overrides the settings for `/usr/share/bbb-apps-akka/conf/application.conf`.
 
 ```
@@ -64,6 +68,27 @@ services {
   sharedSecret="UsanRxRk938d02cTWfAqSM9Cvin7bnzsREfqFfzpf2U"
 }
 ```
+
+### Using a password-protected Redis
+
+Redis has no password by default. To require one, set `requirepass` in `/etc/redis/redis.conf` and restart `redis-server`, then set the same password in every service that connects to Redis and restart them:
+
+| Service                    | File                                                         | Setting                                 |
+| :------------------------- | :----------------------------------------------------------- | :-------------------------------------- |
+| bbb-web                    | /etc/bigbluebutton/bbb-web.properties                        | `redisPassword=`                        |
+| bbb-apps-akka              | /etc/bigbluebutton/bbb-apps-akka.conf                        | `redis { password="" }`                 |
+| bbb-fsesl-akka             | /etc/bigbluebutton/bbb-fsesl-akka.conf                       | `redis { password="" }`                 |
+| bbb-graphql-middleware     | /etc/bigbluebutton/bbb-graphql-middleware.yml                | `redis.password`                        |
+| bbb-graphql-actions        | /etc/bigbluebutton/bbb-graphql-actions.env                   | `BBB_REDIS_PASSWORD=`                   |
+| bbb-shared-notes-server    | /etc/bigbluebutton/bbb-shared-notes-server.yml               | `redis.password`                        |
+| bbb-webrtc-sfu             | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml             | `redisPassword`                         |
+| Recording processing       | /etc/bigbluebutton/recording/recording.yml                   | `redis_password`                        |
+| bbb-export-annotations     | /etc/bigbluebutton/bbb-export-annotations.json               | `redis.password`                        |
+| bbb-webrtc-recorder        | /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml             | `pubsub.adapters.redis.password`        |
+| bbb-transcription-controller | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `redis.password`                      |
+| livekit-server             | /etc/bigbluebutton/livekit.yaml                              | `redis.password`                        |
+| livekit-sip                | /etc/bigbluebutton/livekit-sip.yaml                          | `redis.password`                        |
+| bbb-webhooks (if installed) | /usr/local/bigbluebutton/bbb-webhooks/config/default.yml    | `redis.password` (regenerated on package upgrades) |
 
 ## HTML5 Client
 
