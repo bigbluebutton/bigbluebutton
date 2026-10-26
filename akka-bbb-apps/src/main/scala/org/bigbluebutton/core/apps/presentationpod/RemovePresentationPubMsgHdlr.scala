@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.DroppedPresentations
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
@@ -54,9 +55,13 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
 
         // In no pod (refused, or not yet converted): delete the row so it does not linger.
         // Not announced; consumers of the remove event assume the presentation was in a pod.
+        // Only a well-formed id can belong to a presentation still converting, so only such an
+        // id is remembered.
         case None =>
           PresPresentationDAO.delete(meetingId, presentationId)
-          liveMeeting.droppedPresentations.add(presentationId)
+          if (DroppedPresentations.isPresentationId(presentationId)) {
+            liveMeeting.droppedPresentations.add(presentationId)
+          }
           state
       }
     }
