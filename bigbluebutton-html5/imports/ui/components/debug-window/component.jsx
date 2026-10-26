@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import Draggable from 'react-draggable';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -50,6 +50,15 @@ class DebugWindow extends Component {
     this.state = {
       showDebugWindow: false,
       logLevel: ChatLogger.getLogLevel(),
+    };
+
+    this.resizableRef = createRef();
+    // react-draggable needs the DOM node, which Resizable exposes as `resizable`
+    const { resizableRef } = this;
+    this.draggableNodeRef = {
+      get current() {
+        return resizableRef.current?.resizable ?? null;
+      },
     };
   }
 
@@ -103,11 +112,13 @@ class DebugWindow extends Component {
 
     return (
       <Draggable
+        nodeRef={this.draggableNodeRef}
         handle="#debugWindowHeader"
         bounds="body"
         enableUserSelectHack={false}
       >
         <Styled.DebugWindowWrapper
+          ref={this.resizableRef}
           minWidth={window.innerWidth * 0.2}
           minHeight={window.innerHeight * 0.2}
           enable={{
