@@ -13,6 +13,7 @@ import {
   Track,
   type RemoteTrackPublication,
   type Room,
+  type TrackPublication,
 } from 'livekit-client';
 import { useReactiveVar } from '@apollo/client';
 import { useRemoteParticipants, useSpeakingParticipants } from '@livekit/components-react';
@@ -200,6 +201,7 @@ const getLastNCandidates = (
   participants: RemoteParticipant[],
   inputs: LastNInputs,
   lkStoppedTalkingAt: Map<string, number>,
+  lkUnmutedAt: Map<string, number>,
   now: number,
 ): LastNCandidate[] => {
   const candidates: LastNCandidate[] = [];
@@ -214,6 +216,7 @@ const getLastNCandidates = (
     const spokeAt = [
       participant.lastSpokeAt?.getTime(),
       participant.isSpeaking ? now : lkStoppedTalkingAt.get(participant.identity),
+      lkUnmutedAt.get(participant.identity),
       inputs.bbbTalkingUsers[userId] ? now : inputs.bbbLastTalkedAt.get(userId),
     ].filter((value): value is number => value !== undefined);
 
@@ -314,6 +317,9 @@ const useLastN = (liveKitRoom: Room | undefined) => {
   // LiveKit's lastSpokeAt is when speech started; the speech hold counts from
   // when it stopped.
   const lkStoppedTalkingAt = useRef<Map<string, number>>(new Map());
+  // An unmute counts as speech: speech detection reports a speaker only after
+  // their first words, so waiting for it loses them.
+  const lkUnmutedAt = useRef<Map<string, number>>(new Map());
   const timer = useRef<ReturnType<typeof setTimeout>>();
 
   const rank = useCallback(() => {
@@ -326,6 +332,7 @@ const useLastN = (liveKitRoom: Room | undefined) => {
       participants.current,
       inputs.current,
       lkStoppedTalkingAt.current,
+      lkUnmutedAt.current,
       now,
     );
     const tiers = selectLastNTiers(
@@ -386,6 +393,26 @@ const useLastN = (liveKitRoom: Room | undefined) => {
       });
       talking = nowTalking;
     };
+    const onMicUnmuted = (publication: TrackPublication, participant: Participant) => {
+      if (publication.source !== Track.Source.Microphone || publication.isMuted) return;
+
+      lkUnmutedAt.current.set(participant.identity, Date.now());
+    };
+    // With unpublishOnMute, an unmute publishes a new microphone. A participant's
+    // first publish is not an unmute, and neither are the publishes LiveKit
+    // replays after a reconnect: it emits them right after Reconnected, in the
+    // same task.
+    let replayingPublishes = false;
+    const onReconnected = () => {
+      replayingPublishes = true;
+      queueMicrotask(() => { replayingPublishes = false; });
+    };
+    const onTrackPublished = (publication: TrackPublication, participant: Participant) => {
+      if (replayingPublishes) return;
+      if (!participants.current.some((known) => known.identity === participant.identity)) return;
+
+      onMicUnmuted(publication, participant);
+    };
 
     // One SDK update can emit many of these (several mute changes, every track
     // unpublished on a reconnect). Rank once, right after it.
@@ -402,11 +429,17 @@ const useLastN = (liveKitRoom: Room | undefined) => {
     };
 
     liveKitRoom.on(RoomEvent.ActiveSpeakersChanged, onActiveSpeakersChanged);
+    liveKitRoom.on(RoomEvent.TrackUnmuted, onMicUnmuted);
+    liveKitRoom.on(RoomEvent.TrackPublished, onTrackPublished);
+    liveKitRoom.on(RoomEvent.Reconnected, onReconnected);
     LAST_N_RANKING_EVENTS.forEach((event) => liveKitRoom.on(event, queueRank));
 
     return () => {
       active = false;
       liveKitRoom.off(RoomEvent.ActiveSpeakersChanged, onActiveSpeakersChanged);
+      liveKitRoom.off(RoomEvent.TrackUnmuted, onMicUnmuted);
+      liveKitRoom.off(RoomEvent.TrackPublished, onTrackPublished);
+      liveKitRoom.off(RoomEvent.Reconnected, onReconnected);
       LAST_N_RANKING_EVENTS.forEach((event) => liveKitRoom.off(event, queueRank));
       clearTimeout(timer.current);
     };
