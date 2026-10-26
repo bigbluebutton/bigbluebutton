@@ -52,7 +52,8 @@ export interface GenericModalProps {
   children: React.ReactNode;
   /**
    * Controls z-index priority when multiple modals coexist.
-   * Maps to the BBB portal class (`modal-low`, `modal-medium`, `modal-high`).
+   * Maps to the BBB portal class (`modal-low`, `modal-medium`, `modal-high`),
+   * next to `generic-modal`, which marks the portal as this component's.
    * Defaults to `low`, like the legacy base modal.
    */
   priority?: ModalPriority;
@@ -215,7 +216,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
       stickyFooter={stickyFooter}
       contentRef={setContentNode}
       parentSelector={() => document.querySelector<HTMLElement>('#modals-container') ?? document.body}
-      portalClassName={`modal-${priority ?? 'low'}`}
+      portalClassName={`generic-modal modal-${priority ?? 'low'}`}
       testId={dataTest}
       data={dataTest ? { test: dataTest } : undefined}
     >

@@ -356,15 +356,13 @@
 /*
  * Library modal surface. BBBModal paints its content and its sticky footer with
  * the library's colorWhite, var(--color-white, ...), which stays the text role
- * here because primary BBButton labels read it too. Scoped to the portal classes
- * only GenericModal sets.
+ * here because primary BBButton labels read it too. Scoped to generic-modal,
+ * the portal class only GenericModal sets: plugins render their own react-modal
+ * with the modal-low/medium/high classes too, and a priority outside those
+ * three still gets the surface.
  */
-:root[data-theme='dark'] .modal-low .ReactModal__Content,
-:root[data-theme='dark'] .modal-medium .ReactModal__Content,
-:root[data-theme='dark'] .modal-high .ReactModal__Content,
-:root[data-theme='dark'] .modal-low .ReactModal__Content > div:last-child,
-:root[data-theme='dark'] .modal-medium .ReactModal__Content > div:last-child,
-:root[data-theme='dark'] .modal-high .ReactModal__Content > div:last-child {
+:root[data-theme='dark'] .generic-modal .ReactModal__Content,
+:root[data-theme='dark'] .generic-modal .ReactModal__Content > div:last-child {
   background-color: var(--color-white-surface, #2D2F38);
 }
 
