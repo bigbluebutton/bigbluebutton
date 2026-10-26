@@ -5,6 +5,7 @@ import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import { RETRY_DESCRIPTION } from '/imports/ui/components/error-screen/loader-error';
 import Session from '/imports/ui/services/storage/in-memory';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import { assetUrl } from '/imports/ui/services/url-builder';
 import logger from './logger';
 
 // Backoff between locale fetch retries: 1s, 2s, then 5s repeated, each with equal
@@ -69,8 +70,9 @@ const buildFetchLocale = <T = LocaleJson>(
   signal: AbortSignal,
   deadline: number,
 ): Promise<T | false> => {
-  const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
-  const url = `locales/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`;
+  const url = locale === 'index'
+    ? assetUrl('locales/')
+    : assetUrl(`locales/${locale}.json`);
 
   const attempt = async (retryCount: number): Promise<T | false> => {
     // Per-attempt controller: composes the outer unmount signal with a timeout so a

@@ -67,9 +67,8 @@ else
 fi
 cd ..
 
-# replace v=VERSION with build identifier in head and css files
-if [ -f dist/index.html ] || [ -f dist/stylesheets/fonts.css ]; then
-  sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" dist/index.html
+# replace v=VERSION with build identifier in font css (Source Sans + bbb-icons)
+if [ -f dist/stylesheets/fonts.css ]; then
   sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" dist/stylesheets/fonts.css
 fi
 

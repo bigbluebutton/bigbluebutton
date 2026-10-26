@@ -1,8 +1,10 @@
+import { assetUrl } from '/imports/ui/services/url-builder';
+
 /**
  * Locale lookup for the error screen when it renders outside an IntlProvider. IntlLoader needs the
  * client settings SettingsLoader fetches, so the failure users hit most - an expired link, where
  * that fetch is what fails - has no intl at all. The locale files are static and public, so fetch
- * them straight from there.
+ * them via assetUrl (cdn/basename + ?v=).
  *
  * Deliberately simpler than intlLoader: no retries, no locale index, no user override. It does
  * mirror one thing - English underneath the requested language - because translations lag the
@@ -24,7 +26,7 @@ export const localeCandidates = (language: string): string[] => {
 
 const fetchLocale = async (locale: string, signal?: AbortSignal): Promise<LocaleMessages | null> => {
   try {
-    const response = await fetch(`locales/${locale}.json`, { signal });
+    const response = await fetch(assetUrl(`locales/${locale}.json`), { signal });
 
     return response.ok ? await response.json() : null;
   } catch {
