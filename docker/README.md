@@ -141,7 +141,7 @@ Requirements:
 Install and start:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/docker/compose/install.sh | sh -s -- <domain> [email]
+curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-develop/docker/compose/install.sh | sh -s -- <domain> [email]
 cd bigbluebutton && docker compose up -d
 ```
 
@@ -151,7 +151,7 @@ email and new secrets; an existing `.env` is kept. Without the script: copy thes
 repository, `cp .env.sample .env` and set every value.
 
 The images come from the registry (`docker compose pull`, or the first `up`); no local build is
-needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.1.x-develop`, or `v4.1.x-develop-<commit>` to
+needed. `BBB_IMAGE_TAG` is a branch tag such as `v4.0.x-develop`, or `v4.0.x-develop-<commit>` to
 pin a set of images built together.
 
 `COMPOSE_PROFILES` in `.env` selects the optional parts: `recording` (on by default, as in a

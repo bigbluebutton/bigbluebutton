@@ -1,7 +1,7 @@
 #!/bin/sh
 # Downloads the docker compose files of BigBlueButton and writes a .env for one server:
 #
-#   curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-develop/docker/compose/install.sh | sh -s -- <domain> [email]
+#   curl -fsSL https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-develop/docker/compose/install.sh | sh -s -- <domain> [email]
 #
 # Without the email (for Let's Encrypt), put your own certificate in data/certs.
 # BBB_REPO and BBB_BRANCH select the GitHub repository and the branch or tag to download from,
@@ -10,7 +10,7 @@
 set -eu
 
 BBB_REPO="${BBB_REPO:-bigbluebutton/bigbluebutton}"
-BBB_BRANCH="${BBB_BRANCH:-v4.1.x-develop}"
+BBB_BRANCH="${BBB_BRANCH:-v4.0.x-develop}"
 BBB_DIR="${BBB_DIR:-bigbluebutton}"
 URL="https://raw.githubusercontent.com/$BBB_REPO/$BBB_BRANCH"
 
