@@ -155,8 +155,8 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     );
   });
 
-  function addSeparator(elements: (string | JSX.Element)[]) {
-    const modifiedElements: (string | JSX.Element)[] = [];
+  function addSeparator(elements: (string | React.JSX.Element)[]) {
+    const modifiedElements: (string | React.JSX.Element)[] = [];
 
     elements.forEach((element, index) => {
       modifiedElements.push(element);

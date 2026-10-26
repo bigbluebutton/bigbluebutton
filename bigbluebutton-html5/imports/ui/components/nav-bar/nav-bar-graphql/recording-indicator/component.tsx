@@ -140,7 +140,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const intl = useIntl();
   const [shouldNotify, setShouldNotify] = useState(true);
   const [time, setTime] = useState(serverTime);
-  const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const setIntervalRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);

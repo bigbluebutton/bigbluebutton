@@ -92,7 +92,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     closeImportModal: () => setIsImportModalOpen(false),
   }), [isImportModalOpen]);
 
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   useEffect(() => {
     if (isVisible) {
       setShouldRenderNotes(true);

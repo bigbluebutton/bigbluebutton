@@ -32,7 +32,7 @@ interface Response {
 const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
   children,
 }) => {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [fetched, setFetched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

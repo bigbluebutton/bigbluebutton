@@ -462,7 +462,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     });
   }, [message.messageId, setRenderedChatMessages]);
 
-  const scrollEndFrameRef = React.useRef<number>();
+  const scrollEndFrameRef = React.useRef<number | undefined>(undefined);
 
   const pollScrollEndEvent = useCallback((
     setFrameId: (id: number) => void,
