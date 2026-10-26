@@ -518,6 +518,8 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
 The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
+A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). Documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted.
+
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
 #### clientSettingsOverride
@@ -930,6 +932,42 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 ```
 
 There is also the possibility of passing the removable, downloadable and current variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
+
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <message>Presentation is being uploaded</message>
+</response>
+```
+
+When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only the first ones are uploaded. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted.
+
+**Errors:**
+
+In addition to the standard BigBlueButton checksum and validation errors, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
+
+notFound
+: No meeting with the given meeting ID was found.
+
+malformedXml
+: The request body is not well-formed XML.
+
+invalidPresentationUrl
+: A document URL is malformed.
+
+invalidFilename
+: A document's filename is invalid. No document from the request is uploaded.
+
+presentationDisabled
+: The presentation feature is disabled for the meeting.
+
+noDocuments
+: The request body has no `presentation` module, or the module has no document with a `url` or `name`.
+
+rateLimitExceeded
+: The meeting has made more `insertDocument` calls than `insertDocumentMaxRequests` allows within the window; see [Limit `insertDocument` API calls](/administration/customize#limit-insertdocument-api-calls). Only calls that pass the checks above count towards this limit, but once it is reached every call is refused with this error, before its body is read.
 
 ### `GET` `POST` isMeetingRunning
 

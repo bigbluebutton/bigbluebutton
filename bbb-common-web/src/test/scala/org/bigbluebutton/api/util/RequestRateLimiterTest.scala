@@ -109,6 +109,24 @@ class RequestRateLimiterTest extends UnitSpec {
     assert(l.allow("m1", now + 60000))
   }
 
+  it should "report the limit without recording a request" in {
+    val l = limiter(2, 60)
+    val now = 1000L
+    assert(!l.isLimited("m1", now))
+    assert(!l.isLimited("m1", now))
+    assert(l.allow("m1", now))
+    assert(!l.isLimited("m1", now + 1))
+    assert(l.allow("m1", now + 1))
+    assert(l.isLimited("m1", now + 2))
+    assert(!l.isLimited("m1", now + 60000))
+  }
+
+  it should "never report the limit when maxRequests is 0 (disabled)" in {
+    val l = limiter(0, 60)
+    assert(l.allow("m1", 1000L))
+    assert(!l.isLimited("m1", 1001L))
+  }
+
   // Pins the pruning comparison. An off-by-one here shifts every window in the system.
   it should "expire a timestamp exactly one window later, not before" in {
     val l = limiter(1, 60)

@@ -1225,7 +1225,7 @@ Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to 
 
 #### Limit the number of presentations per API request
 
-By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit.
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
 
 To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
 
@@ -1269,7 +1269,7 @@ presentationConversionMaxRequests=20
 presentationConversionRateWindowSec=60
 ```
 
-When raising or lowering this, note the floor: a single `create` call may carry up to `maxPresentationsPerRequest` documents, counting the automatically injected default presentation, so a value below that will silently drop documents from a legitimate `create`.
+When raising or lowering this, note the floor: a single `create` call may carry up to `maxPresentationsPerRequest` documents plus the automatically injected default presentation, so a value below that will drop documents from a legitimate `create`.
 
 ##### Limit how many presentations a pod holds
 
@@ -1315,7 +1315,7 @@ apps {
 
 - **30** `insertDocument` calls per meeting within a rolling **60-second** window (`insertDocumentMaxRequests` / `insertDocumentRateWindowSec`).
 
-When a meeting exceeds this rate the request is rejected with a `FAILED` response before the request body is read, and a warning is logged in `bbb-web`.
+When a meeting exceeds this rate the request is rejected with a `FAILED` response with the `messageKey` `rateLimitExceeded`, and a warning is logged in `bbb-web`. Only calls that would upload documents count: a call rejected for another reason, such as malformed XML, an invalid filename or no documents, does not use up the meeting's allowance. Once the allowance is used up, every call is rejected before its request body is read.
 
 ```properties
 #----------------------------------------------------
@@ -1332,8 +1332,8 @@ Note how this relates to the conversion limit: `insertDocumentMaxRequests` bound
 | Setting | Enforced in | Log message | Client error |
 | --- | --- | --- | --- |
 | `presentationConversionMaxRequests` | `bbb-web` | `Rejecting presentation conversion: per-meeting rate limit exceeded` | "Too many presentations were uploaded recently" |
-| `insertDocumentMaxRequests` | `bbb-web` | `Rejecting insertDocument: rate limit exceeded` | API `FAILED` response |
-| `maxPresentationsPerRequest` | `bbb-web` | `Presentation count N exceeds maxPresentationsPerRequest` | none — excess documents are dropped; `bbb-web` logs a warning |
+| `insertDocumentMaxRequests` | `bbb-web` | `Rejecting insertDocument: rate limit exceeded` | API `FAILED` response, `messageKey` `rateLimitExceeded` |
+| `maxPresentationsPerRequest` | `bbb-web` | `Presentation count N exceeds maxPresentationsPerRequest` | API `SUCCESS` response, `messageKey` `documentsDropped`; the excess documents are not uploaded |
 | `presentationMaxPerPod` | `bbb-apps-akka` | `Rejecting presentation upload token request: pod presentation limit reached` (interactive) or `Rejecting presentation: pod presentation limit reached` (API) | "Maximum of N presentations reached" |
 | `presentationUploadTokenMaxRequests` | `bbb-apps-akka` | `Rejecting presentation upload token request: request rate limit exceeded` | "You are uploading too many presentations at once" |
 

@@ -3,6 +3,9 @@
 <response>
   <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
   <returncode>${returnCode}</returncode>
+  <#if msgKey?has_content>
+  <messageKey>${msgKey}</messageKey>
+  </#if>
   <message>${message}</message>
 </response>
 </#compress>

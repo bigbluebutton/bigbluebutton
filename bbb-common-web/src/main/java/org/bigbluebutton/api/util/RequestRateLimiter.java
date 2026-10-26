@@ -95,6 +95,30 @@ public class RequestRateLimiter {
   }
 
   /**
+   * Returns true when {@link #allow} would currently throttle a request for {@code key},
+   * without recording one. Lets a caller turn a request away before the work of validating
+   * it, and count it with {@link #allow} only once it is accepted.
+   */
+  public boolean isLimited(String key, long nowMs) {
+    if (maxRequests <= 0) {
+      return false;
+    }
+
+    final long cutoff = nowMs - windowMs;
+    final boolean[] limited = new boolean[1];
+
+    requestTimestamps.computeIfPresent(key, (k, timestamps) -> {
+      while (!timestamps.isEmpty() && timestamps.peekFirst() <= cutoff) {
+        timestamps.pollFirst();
+      }
+      limited[0] = timestamps.size() >= maxRequests;
+      return timestamps.isEmpty() ? null : timestamps;
+    });
+
+    return limited[0];
+  }
+
+  /**
    * Removes buckets whose timestamps have all fallen outside the window. Intended to
    * be called periodically to reclaim memory for keys that are no longer active and
    * therefore never revisited by {@link #allow}.
