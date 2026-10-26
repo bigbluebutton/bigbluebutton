@@ -1,7 +1,6 @@
 import React, {
   useState, useRef, useContext, useEffect,
 } from 'react';
-import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
@@ -169,8 +168,7 @@ const VirtualBgSelector = ({
       if (!index || index < 0) return null;
 
       if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
-        // eslint-disable-next-line react/no-find-dom-node
-        findDOMNode(inputElementsRef.current[index]).focus();
+        inputElementsRef.current[index]?.focus();
       } else {
         if (customParams) {
           dispatch({
@@ -189,8 +187,7 @@ const VirtualBgSelector = ({
             },
           });
         }
-        // eslint-disable-next-line react/no-find-dom-node
-        findDOMNode(inputElementsRef.current[0]).focus();
+        inputElementsRef.current[0]?.focus();
       }
 
       return null;
@@ -288,7 +285,7 @@ const VirtualBgSelector = ({
           hideLabel
           aria-pressed={currentVirtualBg?.name?.includes('blur') || currentVirtualBg?.name?.includes('Blur')}
           disabled={disabled}
-          ref={(ref) => { inputElementsRef.current[index] = ref; }}
+          setRef={(ref) => { inputElementsRef.current[index] = ref; }}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
           style={{ '--original-background-image': `url(${getVirtualBackgroundThumbnail(BLUR_FILENAME)})` }}
         />
@@ -318,7 +315,7 @@ const VirtualBgSelector = ({
             aria-describedby={`vr-cam-btn-${index + 1}`}
             aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
             hideLabel
-            ref={(ref) => { inputElementsRef.current[index] = ref; }}
+            setRef={(ref) => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index)}
             disabled={disabled}
             background={getVirtualBackgroundThumbnail(imageName)}
@@ -351,7 +348,7 @@ const VirtualBgSelector = ({
             aria-describedby={`vr-cam-btn-${index + 1}`}
             aria-pressed={currentVirtualBg?.name?.includes(filename)}
             hideLabel
-            ref={(ref) => { inputElementsRef.current[index] = ref; }}
+            setRef={(ref) => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(
               EFFECT_TYPES.IMAGE_TYPE,
               filename,
