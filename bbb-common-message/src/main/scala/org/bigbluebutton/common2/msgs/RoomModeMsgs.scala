@@ -47,3 +47,14 @@ object RoomModeSettings {
       RoomModeVoiceSettings(props.voiceProp.muteOnStart)
     )
 }
+
+/**
+ * Message for the systems around the meeting that a room mode was applied, the
+ * current one included, with the settings the room has once it is applied.
+ */
+object RoomConfiguredEvtMsg { val NAME = "RoomConfiguredEvtMsg" }
+case class RoomConfiguredEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   RoomConfiguredEvtMsgBody
+) extends BbbCoreMsg
+case class RoomConfiguredEvtMsgBody(roomMode: String, settings: RoomModeSettings, setBy: String, setOn: Long)
