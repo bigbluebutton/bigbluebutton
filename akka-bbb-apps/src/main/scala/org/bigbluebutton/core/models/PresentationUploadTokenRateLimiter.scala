@@ -17,9 +17,6 @@ class PresentationUploadTokenRateLimiter {
   // userId -> ascending timestamps (ms) of recent allowed token requests
   private var requestTimestamps: Map[String, Vector[Long]] = Map.empty
 
-  // userId -> time (ms) a rate-limit rejection was last reported to that user
-  private var lastRejectionReportedMs: Map[String, Long] = Map.empty
-
   // userId -> ids of the rejection rows written for that user, oldest first
   private var rejectionRows: Map[String, Vector[String]] = Map.empty
 
@@ -51,19 +48,6 @@ class PresentationUploadTokenRateLimiter {
   }
 
   /**
-   * Returns true, and records nowMs, when no rate-limit rejection has been reported to this
-   * user within the last windowMs. Each further refusal is free to request, so recording every
-   * one would let a user create rows as fast as they can send requests.
-   */
-  def shouldReportRejection(userId: String, nowMs: Long, windowMs: Long): Boolean = {
-    val reportedRecently = lastRejectionReportedMs.get(userId).exists(_ > nowMs - windowMs)
-    if (!reportedRecently) {
-      lastRejectionReportedMs = lastRejectionReportedMs.updated(userId, nowMs)
-    }
-    !reportedRecently
-  }
-
-  /**
    * Records a rejection row written for this user. Returns the ids of the user's oldest rows
    * beyond maxRows, which the caller deletes, so the rows one user can accumulate stay bounded.
    */
@@ -77,15 +61,7 @@ class PresentationUploadTokenRateLimiter {
 
 object PresentationUploadTokenRateLimiter {
 
-  // Matches the default of apps.presentationUploadTokenMaxRequests.
-  private val DefaultMaxRequests = 20
-
-  /**
-   * How many rejection rows to keep per user: every refusal one rate-limit window can
-   * produce, which is one per admitted request (pod-full refusals) plus the window's single
-   * rate-limit row. With the limit disabled nothing bounds refusals, so keep the default
-   * limit's worth.
-   */
-  def maxRejectionRows(maxRequests: Int): Int =
-    (if (maxRequests > 0) maxRequests else DefaultMaxRequests) + 1
+  // How many rejection rows to keep per user: enough for every refused file of a large
+  // selection. Refused requests cost the user nothing, so older rows are deleted instead.
+  val MaxRejectionRows = 100
 }

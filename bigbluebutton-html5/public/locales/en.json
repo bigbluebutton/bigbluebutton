@@ -450,7 +450,7 @@
     "app.presentationUploder.genericError": "Oops, Something went wrong ...",
     "app.presentationUploder.upload.fileVirus": "Upload failed: Virus detected! Please check your file and retry.",
     "app.presentationUploder.upload.scanFailed": "Upload failed: the file could not be scanned",
-    "app.presentationUploder.upload.408": "The upload could not start. If you are uploading many files at once, please wait a moment and try again.",
+    "app.presentationUploder.upload.408": "The upload could not start. Please try again.",
     "app.presentationUploder.upload.404": "404: Invalid upload token",
     "app.presentationUploder.upload.401": "Request presentation upload token failed.",
     "app.presentationUploder.conversion.conversionProcessingSlides": "Processing page {currentPage} of {totalPages}",

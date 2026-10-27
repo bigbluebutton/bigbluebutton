@@ -79,7 +79,7 @@ const intlMessages = defineMessages({
   },
   408: {
     id: 'app.presentationUploder.upload.408',
-    description: 'error when no upload token arrived, most often because too many uploads were requested',
+    description: 'error when no upload token arrived',
   },
   404: {
     id: 'app.presentationUploder.upload.404',

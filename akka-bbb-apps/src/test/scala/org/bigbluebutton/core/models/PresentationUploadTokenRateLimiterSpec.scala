@@ -28,28 +28,6 @@ class PresentationUploadTokenRateLimiterSpec extends AnyFlatSpec {
     (0 until 100).foreach(i => assert(limiter.allow("u1", i.toLong, 0, windowMs)))
   }
 
-  behavior of "PresentationUploadTokenRateLimiter.shouldReportRejection"
-
-  it should "report the first rejection and suppress the rest within the window" in {
-    val limiter = new PresentationUploadTokenRateLimiter
-    assert(limiter.shouldReportRejection("u1", 0L, windowMs))
-    assert(!limiter.shouldReportRejection("u1", 1L, windowMs))
-    assert(!limiter.shouldReportRejection("u1", windowMs - 1, windowMs))
-  }
-
-  it should "report again once the window has passed" in {
-    val limiter = new PresentationUploadTokenRateLimiter
-    assert(limiter.shouldReportRejection("u1", 0L, windowMs))
-    assert(limiter.shouldReportRejection("u1", windowMs, windowMs))
-    assert(!limiter.shouldReportRejection("u1", windowMs + 1, windowMs))
-  }
-
-  it should "track users independently" in {
-    val limiter = new PresentationUploadTokenRateLimiter
-    assert(limiter.shouldReportRejection("u1", 0L, windowMs))
-    assert(limiter.shouldReportRejection("u2", 0L, windowMs))
-  }
-
   behavior of "PresentationUploadTokenRateLimiter.recordRejectionRow"
 
   it should "keep rows up to maxRows and return the oldest beyond it" in {
@@ -65,15 +43,5 @@ class PresentationUploadTokenRateLimiterSpec extends AnyFlatSpec {
     assert(limiter.recordRejectionRow("u1", "p1", 1) == Vector.empty)
     assert(limiter.recordRejectionRow("u2", "p2", 1) == Vector.empty)
     assert(limiter.recordRejectionRow("u1", "p3", 1) == Vector("p1"))
-  }
-
-  behavior of "PresentationUploadTokenRateLimiter.maxRejectionRows"
-
-  it should "keep one window of refusals plus its rate-limit row" in {
-    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(5) == 6)
-  }
-
-  it should "fall back to the default limit when the limit is disabled" in {
-    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(0) == 21)
   }
 }

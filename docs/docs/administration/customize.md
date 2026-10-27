@@ -1293,7 +1293,7 @@ An over-limit presentation is refused entry to the pod and a warning is logged i
 
 This covers the interactive client path only, because only the client requests an upload token. It does not apply to `create`, `insertDocument`, or breakout-room slide copies.
 
-A refused request is not uploaded. The upload toast shows "You are uploading too many presentations at once" for the first refusal in each window; later refusals in the same window show the notification "The upload could not start. If you are uploading many files at once, please wait a moment and try again." instead. Requests refused by `presentationMaxPerPod` also count towards this limit, and each of them shows "Maximum of N presentations reached".
+A refused request is not uploaded, and the upload toast shows "You are uploading too many presentations at once" for each refused file. Only a user's 100 most recent refusals are kept; older ones drop off the list. Requests refused by `presentationMaxPerPod` also count towards this limit, and each of them shows "Maximum of N presentations reached".
 
 To change either `bbb-apps-akka` limit, add an overwrite rule in `/etc/bigbluebutton/bbb-apps-akka.conf` under the `apps` block:
 
