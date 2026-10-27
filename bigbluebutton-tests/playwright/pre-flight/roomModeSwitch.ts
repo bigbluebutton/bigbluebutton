@@ -50,7 +50,7 @@ interface LockSettingsRow {
   presenterPolicy: string;
 }
 
-const readLockSettings = async (page: Page): Promise<LockSettingsRow> => {
+export const readLockSettings = async (page: Page): Promise<LockSettingsRow> => {
   const data = await runQuery(page.page, LOCK_SETTINGS_QUERY);
   const rows = data.meeting as { lockSettings: LockSettingsRow }[];
   if (!rows?.length) throw new Error('meeting returned no rows');
@@ -85,20 +85,20 @@ const setGuestPolicy = (page: Page, guestPolicy: string) =>
     typedVarMutation('guestUsersSetPolicy', { guestPolicy: { type: 'String!', value: guestPolicy } }),
   );
 
-const expectRoomSettings = async (page: Page, expected: RoomSettings, message: string) => {
+export const expectRoomSettings = async (page: Page, expected: RoomSettings, message: string) => {
   await expect(async () => {
     expect(await readRoomSettings(page), message).toEqual(expected);
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 };
 
-const openRoomModeTab = async (page: Page) => {
+export const openRoomModeTab = async (page: Page) => {
   await page.waitAndClick(e.settingsSidebarButton);
   await page.waitAndClick(e.settingsRoomModeTab);
   await page.hasElement(e.settingsRoomModePanel, 'should display the room modes tab');
 };
 
 // Picks Meeting in the tab and confirms it from the window's footer.
-const switchToMeeting = async (page: Page) => {
+export const switchToMeeting = async (page: Page) => {
   await openRoomModeTab(page);
   await page.waitAndClick(e.settingsRoomModeMeeting);
   await page.waitAndClick(e.settingsRoomModeChangeButton);
@@ -108,7 +108,7 @@ const switchToMeeting = async (page: Page) => {
 
 export class RoomModeSwitch extends RoomModePanel {
   // A room created away from both presets, started with Class from the pre-flight.
-  private async startsClass(page: PlaywrightPage, options: InitExtraPageOptionsProps) {
+  protected async startsClass(page: PlaywrightPage, options: InitExtraPageOptionsProps) {
     await this.initModPageWithPanel(page, { createParameter: CLASS_CREATE_PARAMETER, ...options });
     await hasPanel(this.modPage);
     await this.modPage.waitAndClick(e.preFlightRoomModeClass);
