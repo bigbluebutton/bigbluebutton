@@ -1,4 +1,6 @@
 import { defineMessages, MessageDescriptor } from 'react-intl';
+import { isChatAvailable } from '../features';
+import type { RoomModeDefinition } from './modes';
 
 export type PresenterPolicy = 'moderatorOnly' | 'requireApproval' | 'freeForAll';
 
@@ -245,4 +247,19 @@ export const resolveRoomModeSettings = (
     if (value !== undefined) Object.assign(resolved, { [id]: value });
   });
   return resolved;
+};
+
+// The modes leave the guest policy as created, so it is sent only when edited
+// (or asserted by a mode); a room without chat has no public chat to unlock.
+export const settingsToApply = (
+  mode: RoomModeDefinition,
+  edits: RoomModeEdits,
+  roomValues: RoomModeRoomValues,
+): ResolvedRoomModeSettings => {
+  const settings = resolveRoomModeSettings(mode.preset, edits, roomValues);
+  if (edits.guestPolicy === undefined && mode.preset.editable.guestPolicy === undefined) {
+    delete settings.guestPolicy;
+  }
+  if (!isChatAvailable()) delete settings.publicChat;
+  return settings;
 };
