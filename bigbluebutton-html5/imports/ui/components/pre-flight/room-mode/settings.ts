@@ -1,8 +1,13 @@
 import { defineMessages, MessageDescriptor } from 'react-intl';
+import {
+  ALWAYS_ACCEPT_AUTH_OPTION,
+  GUEST_POLICY_OPTIONS,
+  PRESENTATION_POLICY_OPTIONS,
+  type PolicyOption,
+  type PresenterPolicy,
+} from '/imports/ui/components/lock-viewers/policy-options';
 import { isChatAvailable } from '../features';
 import type { RoomModeDefinition } from './modes';
-
-export type PresenterPolicy = 'moderatorOnly' | 'requireApproval' | 'freeForAll';
 
 // The settings a moderator can change in the pre-flight: only what BBB can
 // still apply once the room exists.
@@ -54,22 +59,6 @@ const intlMessages = defineMessages({
     id: 'app.guest-policy.title',
     description: 'Guest policy title',
   },
-  askModerator: {
-    id: 'app.guest-policy.button.askModerator',
-    description: 'Ask moderator button label',
-  },
-  alwaysAccept: {
-    id: 'app.guest-policy.button.alwaysAccept',
-    description: 'Always accept button label',
-  },
-  alwaysAcceptAuth: {
-    id: 'app.guest-policy.button.alwaysAcceptAuth',
-    description: 'Always accept authenticated button label',
-  },
-  alwaysDeny: {
-    id: 'app.guest-policy.button.alwaysDeny',
-    description: 'Always deny button label',
-  },
   joinMuted: {
     id: 'app.preFlight.roomMode.settings.joinMuted',
     description: 'Room mode setting: participants join with the microphone muted',
@@ -90,18 +79,6 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.presentationPermissions.title',
     description: 'Presentation policy title',
   },
-  moderatorOnly: {
-    id: 'app.lock-viewers.presentationPermissions.moderatorOnly',
-    description: 'Presentation policy: the presenter is assigned by a moderator',
-  },
-  requireApproval: {
-    id: 'app.lock-viewers.presentationPermissions.requireApproval',
-    description: 'Presentation policy: participants present with moderator approval',
-  },
-  freeForAll: {
-    id: 'app.lock-viewers.presentationPermissions.freeForAll',
-    description: 'Presentation policy: participants present freely',
-  },
   whiteboard: {
     id: 'app.preFlight.roomMode.settings.whiteboardForEveryone',
     description: 'Room mode setting: everyone can draw on the whiteboard',
@@ -120,10 +97,7 @@ const intlMessages = defineMessages({
   },
 });
 
-export interface SettingOption<V extends string = string> {
-  value: V;
-  label: MessageDescriptor;
-}
+export type SettingOption<V extends string = string> = Omit<PolicyOption<V>, 'dataTest'>;
 
 interface BaseEditableSetting {
   label: MessageDescriptor;
@@ -166,14 +140,8 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     kind: 'select',
     label: intlMessages.guestPolicy,
     testId: 'GuestPolicy',
-    options: [
-      { value: 'ASK_MODERATOR', label: intlMessages.askModerator },
-      { value: 'ALWAYS_ACCEPT', label: intlMessages.alwaysAccept },
-      { value: 'ALWAYS_DENY', label: intlMessages.alwaysDeny },
-    ],
-    hiddenOptions: [
-      { value: 'ALWAYS_ACCEPT_AUTH', label: intlMessages.alwaysAcceptAuth },
-    ],
+    options: GUEST_POLICY_OPTIONS,
+    hiddenOptions: [ALWAYS_ACCEPT_AUTH_OPTION],
   },
   {
     id: 'joinMuted',
@@ -193,11 +161,7 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     kind: 'select',
     label: intlMessages.presenterPolicy,
     testId: 'PresenterPolicy',
-    options: [
-      { value: 'moderatorOnly', label: intlMessages.moderatorOnly },
-      { value: 'requireApproval', label: intlMessages.requireApproval },
-      { value: 'freeForAll', label: intlMessages.freeForAll },
-    ],
+    options: PRESENTATION_POLICY_OPTIONS,
   },
   {
     id: 'whiteboard',
