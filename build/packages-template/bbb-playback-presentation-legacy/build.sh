@@ -28,24 +28,33 @@ cp presentation-legacy.nginx staging/usr/share/bigbluebutton/nginx
 #
 # This package only works with a bbb-playback-presentation that no longer
 # ships the legacy players and their redirect itself, so it depends on (and
-# replaces files of) the version of that package built by the same pipeline.
-# GitLab CI may reuse an older bbb-playback-presentation build (listed in
-# packages_to_skip.txt); otherwise both packages come from this tree at $VERSION.
+# replaces files of) that version of the package. A build system that
+# versions each package on its own passes it in PRESENTATION_VERSION
+# (full version, e.g. 1:3.0-17); GitLab CI may reuse an older
+# bbb-playback-presentation build (listed in packages_to_skip.txt); otherwise
+# both packages come from this tree at $VERSION.
 # Same lookup as the version pins of the bigbluebutton meta package.
-PRESENTATION_VERSION=""
-SKIP_FILE="${CI_PROJECT_DIR:-.}/packages_to_skip.txt"
-if [ -f "$SKIP_FILE" ]; then
-  REUSED_PRESENTATION="$(grep "^bbb-playback-presentation " "$SKIP_FILE" || true)"
-  if [ -n "$REUSED_PRESENTATION" ]; then
-    PRESENTATION_VERSION=$(echo $REUSED_PRESENTATION | tr '_' ' ' | cut -f3 -d ' ')
+if [ -z "$PRESENTATION_VERSION" ]; then
+  SKIP_FILE="${CI_PROJECT_DIR:-.}/packages_to_skip.txt"
+  if [ -f "$SKIP_FILE" ]; then
+    REUSED_PRESENTATION="$(grep "^bbb-playback-presentation " "$SKIP_FILE" || true)"
+    if [ -n "$REUSED_PRESENTATION" ]; then
+      PRESENTATION_VERSION=$(echo $REUSED_PRESENTATION | tr '_' ' ' | cut -f3 -d ' ')
+    fi
   fi
 fi
 if [ -z "$PRESENTATION_VERSION" ]; then
   PRESENTATION_VERSION="$VERSION"
 fi
-# add the epoch if not already in the filename
-if [[ "$PRESENTATION_VERSION" != "${EPOCH}:"* ]]; then
-  PRESENTATION_VERSION="${EPOCH}:${PRESENTATION_VERSION}"
+# add the epoch when the version carries none
+if [[ "$PRESENTATION_VERSION" != *:* ]]; then
+  PRESENTATION_VERSION="$EPOCH:$PRESENTATION_VERSION"
+fi
+# fpm does not check the relationship; dpkg would only reject it at install time
+DEB_VERSION_RE='^[0-9]+:[0-9][A-Za-z0-9.+~-]*$'
+if ! [[ "$PRESENTATION_VERSION" =~ $DEB_VERSION_RE ]]; then
+  echo "invalid bbb-playback-presentation version '$PRESENTATION_VERSION' (EPOCH='$EPOCH', VERSION='$VERSION')" >&2
+  exit 1
 fi
 
 #
