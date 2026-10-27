@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 import org.bigbluebutton.api.util.UnitSpec
-import org.bigbluebutton.presentation.{ RejectedPresentationRegistry, UploadedPresentation }
+import org.bigbluebutton.presentation.{ RejectedPresentationRegistry, UploadedPresentation, Util }
 
 class PdfSlidesGenerationServiceTest extends UnitSpec {
 
@@ -28,8 +28,9 @@ class PdfSlidesGenerationServiceTest extends UnitSpec {
   }
 
   private def withService(test: (PdfSlidesGenerationService, RejectedPresentationRegistry) => Unit): Unit = {
+    val presentationDir = Files.createTempDirectory("rejected").toFile
     val registry = new RejectedPresentationRegistry
-    registry.setPresentationDir(Files.createTempDirectory("rejected").toFile.getAbsolutePath)
+    registry.setPresentationDir(presentationDir.getAbsolutePath)
     registry.start()
     val service = new PdfSlidesGenerationService(1)
     service.setRejectedPresentationRegistry(registry)
@@ -37,6 +38,7 @@ class PdfSlidesGenerationServiceTest extends UnitSpec {
     finally {
       service.stop()
       registry.stop()
+      Util.deleteDirectory(presentationDir)
     }
   }
 

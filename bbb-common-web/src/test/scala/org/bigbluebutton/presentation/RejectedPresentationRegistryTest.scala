@@ -21,102 +21,85 @@ class RejectedPresentationRegistryTest extends UnitSpec {
     dir
   }
 
-  private def registry(base: File): RejectedPresentationRegistry = {
+  // Runs the test against a registry rooted at a new temporary directory, deleted afterwards.
+  private def withRegistry(test: (RejectedPresentationRegistry, File) => Unit): Unit = {
+    val base = Files.createTempDirectory("rejected").toFile
     val r = new RejectedPresentationRegistry
     r.setPresentationDir(base.getAbsolutePath)
     r.start()
-    r
+    try test(r, base)
+    finally {
+      r.stop()
+      Util.deleteDirectory(base)
+    }
   }
 
-  it should "report a rejected presentation as rejected, scoped to its meeting" in {
-    val r = registry(Files.createTempDirectory("rejected").toFile)
-    try {
-      assert(!r.isRejected(meetingId, presId))
-      r.reject(meetingId, presId)
-      assert(r.isRejected(meetingId, presId))
-      assert(!r.isRejected("another-meeting", presId))
-    } finally r.stop()
+  it should "report a rejected presentation as rejected, scoped to its meeting" in withRegistry { (r, _) =>
+    assert(!r.isRejected(meetingId, presId))
+    r.reject(meetingId, presId)
+    assert(r.isRejected(meetingId, presId))
+    assert(!r.isRejected("another-meeting", presId))
   }
 
-  it should "ignore ids that could escape the presentation directory" in {
-    val r = registry(Files.createTempDirectory("rejected").toFile)
-    try {
-      r.reject(meetingId, "../../etc")
-      r.reject("../x", presId)
-      r.reject(null, presId)
-      r.reject(meetingId, null)
-      assert(!r.isRejected(meetingId, "../../etc"))
-      assert(!r.isRejected("../x", presId))
-    } finally r.stop()
+  it should "ignore ids that could escape the presentation directory" in withRegistry { (r, _) =>
+    r.reject(meetingId, "../../etc")
+    r.reject("../x", presId)
+    r.reject(null, presId)
+    r.reject(meetingId, null)
+    assert(!r.isRejected(meetingId, "../../etc"))
+    assert(!r.isRejected("../x", presId))
   }
 
-  it should "delete the presentation directory but keep the presentation rejected" in {
-    val base = Files.createTempDirectory("rejected").toFile
+  it should "delete the presentation directory but keep the presentation rejected" in withRegistry { (r, base) =>
     val dir = presentationDirUnder(base)
-    val r = registry(base)
-    try {
-      r.reject(meetingId, presId)
-      r.deleteFiles(meetingId, presId)
-      assert(!dir.exists())
-      assert(new File(base, s"$meetingId/$meetingId").exists(), "sibling presentations must be kept")
-      // Work still queued for the presentation must keep seeing the rejection.
-      assert(r.isRejected(meetingId, presId))
-    } finally r.stop()
+    r.reject(meetingId, presId)
+    r.deleteFiles(meetingId, presId)
+    assert(!dir.exists())
+    assert(new File(base, s"$meetingId/$meetingId").exists(), "sibling presentations must be kept")
+    // Work still queued for the presentation must keep seeing the rejection.
+    assert(r.isRejected(meetingId, presId))
   }
 
-  it should "tolerate a presentation directory that no longer exists" in {
-    val r = registry(Files.createTempDirectory("rejected").toFile)
-    try {
-      r.reject(meetingId, presId)
-      r.deleteFiles(meetingId, presId)
-      assert(r.isRejected(meetingId, presId))
-      r.expire(meetingId, presId)
-      assert(!r.isRejected(meetingId, presId))
-    } finally r.stop()
+  it should "tolerate a presentation directory that no longer exists" in withRegistry { (r, _) =>
+    r.reject(meetingId, presId)
+    r.deleteFiles(meetingId, presId)
+    assert(r.isRejected(meetingId, presId))
+    r.expire(meetingId, presId)
+    assert(!r.isRejected(meetingId, presId))
   }
 
-  it should "stay rejected when rejected twice" in {
-    val r = registry(Files.createTempDirectory("rejected").toFile)
-    try {
-      r.reject(meetingId, presId)
-      r.reject(meetingId, presId)
-      assert(r.isRejected(meetingId, presId))
-    } finally r.stop()
+  it should "stay rejected when rejected twice" in withRegistry { (r, _) =>
+    r.reject(meetingId, presId)
+    r.reject(meetingId, presId)
+    assert(r.isRejected(meetingId, presId))
   }
 
-  it should "delete the directory and forget the presentation on expiry" in {
-    val base = Files.createTempDirectory("rejected").toFile
+  it should "delete the directory and forget the presentation on expiry" in withRegistry { (r, base) =>
     val dir = presentationDirUnder(base)
-    val r = registry(base)
-    try {
-      r.reject(meetingId, presId)
-      r.expire(meetingId, presId)
-      assert(!dir.exists())
-      assert(!r.isRejected(meetingId, presId))
-    } finally r.stop()
+    r.reject(meetingId, presId)
+    r.expire(meetingId, presId)
+    assert(!dir.exists())
+    assert(!r.isRejected(meetingId, presId))
   }
 
   // A task that was still running at the first deletion can write blank slides afterwards,
   // recreating the directory. Expiry must remove that too.
-  it should "remove files written after the first deletion on expiry" in {
-    val base = Files.createTempDirectory("rejected").toFile
+  it should "remove files written after the first deletion on expiry" in withRegistry { (r, base) =>
     val dir = presentationDirUnder(base)
     val sibling = new File(base, s"$meetingId/$meetingId/other-presentation")
     assert(sibling.mkdirs())
-    val r = registry(base)
-    try {
-      r.reject(meetingId, presId)
-      r.deleteFiles(meetingId, presId)
-      assert(!dir.exists())
 
-      val thumbnails = new File(dir, "thumbnails")
-      assert(thumbnails.mkdirs())
-      Files.writeString(new File(thumbnails, "thumb-1.png").toPath, "blank")
+    r.reject(meetingId, presId)
+    r.deleteFiles(meetingId, presId)
+    assert(!dir.exists())
 
-      r.expire(meetingId, presId)
-      assert(!dir.exists())
-      assert(sibling.exists(), "sibling presentations must be kept")
-    } finally r.stop()
+    val thumbnails = new File(dir, "thumbnails")
+    assert(thumbnails.mkdirs())
+    Files.writeString(new File(thumbnails, "thumb-1.png").toPath, "blank")
+
+    r.expire(meetingId, presId)
+    assert(!dir.exists())
+    assert(sibling.exists(), "sibling presentations must be kept")
   }
 
   it should "map the akka rejection message onto the bbb-web message" in {
