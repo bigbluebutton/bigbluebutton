@@ -34,7 +34,7 @@ type RoomModeName = keyof typeof MODE_CARDS;
 
 // The class preset's values. The guest policy is not one of them: it stays as created,
 // the suite's server default.
-const CLASS_APPLIED: RoomSettings = {
+export const CLASS_APPLIED: RoomSettings = {
   roomMode: 'class',
   disablePublicChat: false,
   presenterPolicy: 'requireApproval',
@@ -46,7 +46,7 @@ const CLASS_APPLIED: RoomSettings = {
   guestPolicy: 'ALWAYS_ACCEPT',
 };
 
-const MEETING_APPLIED: RoomSettings = {
+export const MEETING_APPLIED: RoomSettings = {
   ...CLASS_APPLIED,
   roomMode: 'meeting',
   presenterPolicy: 'freeForAll',
@@ -75,7 +75,7 @@ export const readLocked = async (page: Page): Promise<boolean> => {
 };
 
 // A change made by hand, the way the moderator's crowd actions make it.
-const setMuted = (page: Page, muted: boolean) =>
+export const setMuted = (page: Page, muted: boolean) =>
   runMutation(
     page.page,
     typedVarMutation('meetingSetMuted', {
