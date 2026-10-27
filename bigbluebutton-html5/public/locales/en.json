@@ -255,6 +255,7 @@
     "app.preFlight.roomMode.cancelLabel": "Cancel",
     "app.preFlight.roomMode.notAppliedRoomRunning": "Another moderator is already in the room, so the room mode was not applied.",
     "app.preFlight.roomMode.notAppliedModeSet": "Another moderator set the room mode first, so yours was not applied.",
+    "app.preFlight.roomMode.openRoomModes": "Open room modes",
     "app.preFlight.roomMode.modes.class.name": "Class",
     "app.preFlight.roomMode.modes.class.hint": "A presenter leads and participants follow",
     "app.preFlight.roomMode.modes.meeting.name": "Meeting",
