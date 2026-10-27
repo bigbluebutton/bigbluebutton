@@ -81,28 +81,37 @@ async function expectDrawnShape(testPage: Page, geo: string) {
   }
 }
 
-test.describe.parallel('Initial selected whiteboard tool', { tag: '@ci' }, () => {
+// Keep representative cases in CI; run the remaining variants with @nightly or the full file.
+test.describe.parallel('Initial selected whiteboard tool', () => {
   for (const tool of [...tools, ...shapes]) {
-    test(`selects ${tool}`, async ({ browser, page }, testInfo) => {
-      const errors: string[] = [];
-      page.on('pageerror', (error) => errors.push(error.message));
-      const presenter = new Page(browser, page, testInfo);
-      await presenter.init(true, { shouldCloseAudioModal: false, joinParameter: joinParameter(tool) });
-      await expectTool(page, tool);
-      if (shapes.includes(tool)) await expectDrawnShape(presenter, tool);
-      expect(errors).toEqual([]);
-    });
+    test(
+      `selects ${tool}`,
+      { tag: ['draw', 'rectangle'].includes(tool) ? '@ci' : '@nightly' },
+      async ({ browser, page }, testInfo) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        const presenter = new Page(browser, page, testInfo);
+        await presenter.init(true, { shouldCloseAudioModal: false, joinParameter: joinParameter(tool) });
+        await expectTool(page, tool);
+        if (shapes.includes(tool)) await expectDrawnShape(presenter, tool);
+        expect(errors).toEqual([]);
+      },
+    );
   }
 
   for (const tool of invalidTools) {
-    test(`falls back to draw for ${JSON.stringify(tool)}`, async ({ browser, page }, testInfo) => {
-      const presenter = new Page(browser, page, testInfo);
-      await presenter.init(true, { shouldCloseAudioModal: false, joinParameter: joinParameter(tool) });
-      await expectTool(page, 'draw');
-    });
+    test(
+      `falls back to draw for ${JSON.stringify(tool)}`,
+      { tag: ['more', 'null'].includes(tool) ? '@ci' : '@nightly' },
+      async ({ browser, page }, testInfo) => {
+        const presenter = new Page(browser, page, testInfo);
+        await presenter.init(true, { shouldCloseAudioModal: false, joinParameter: joinParameter(tool) });
+        await expectTool(page, 'draw');
+      },
+    );
   }
 
-  test('uses a configured shape as the default', async ({ browser, page }, testInfo) => {
+  test('uses a configured shape as the default', { tag: '@nightly' }, async ({ browser, page }, testInfo) => {
     const presenter = new Page(browser, page, testInfo);
     await presenter.init(true, {
       shouldCloseAudioModal: false,
@@ -113,45 +122,59 @@ test.describe.parallel('Initial selected whiteboard tool', { tag: '@ci' }, () =>
     await expectDrawnShape(presenter, 'ellipse');
   });
 
-  test('uses draw if the configured default is also invalid', async ({ browser, page }, testInfo) => {
-    const presenter = new Page(browser, page, testInfo);
-    await presenter.init(true, {
-      shouldCloseAudioModal: false,
-      joinParameter: joinParameter('unknown-tool'),
-      clientSettingsOverrides: { public: { whiteboard: { toolbar: { initialSelectedTool: 'actions' } } } },
-    });
-    await expectTool(page, 'draw');
-  });
-
-  test('restores a saved shape on reload before the initial tool', async ({ browser, page }, testInfo) => {
-    const presenter = new Page(browser, page, testInfo);
-    await presenter.init(true, { shouldCloseAudioModal: false, joinParameter: joinParameter('rectangle') });
-    await expectTool(page, 'rectangle');
-    await page.getByTestId('tools.ellipse').click();
-    await expectTool(page, 'ellipse');
-    await expect
-      .poll(() =>
-        page.evaluate(() => JSON.parse(sessionStorage.getItem('BBB_whiteboardToolbarSavedState') || '{}').selectedTool),
-      )
-      .toBe('ellipse');
-    await page.reload();
-    await expectTool(page, 'ellipse');
-    await expectDrawnShape(presenter, 'ellipse');
-  });
-
-  for (const savedTool of ['more', 'rectangle']) {
-    test(`ignores an invalid or unavailable saved tool (${savedTool})`, async ({ browser, page }, testInfo) => {
-      await page.addInitScript((selectedTool) => {
-        sessionStorage.setItem('BBB_whiteboardToolbarSavedState', JSON.stringify({ selectedTool }));
-      }, savedTool);
+  test(
+    'uses draw if the configured default is also invalid',
+    { tag: '@nightly' },
+    async ({ browser, page }, testInfo) => {
       const presenter = new Page(browser, page, testInfo);
       await presenter.init(true, {
         shouldCloseAudioModal: false,
-        joinParameter: `${joinParameter('unknown-tool')}&userdata-bbb_presenter_tools=%5B%22ellipse%22%5D`,
+        joinParameter: joinParameter('unknown-tool'),
+        clientSettingsOverrides: { public: { whiteboard: { toolbar: { initialSelectedTool: 'actions' } } } },
       });
+      await expectTool(page, 'draw');
+    },
+  );
+
+  test(
+    'restores a saved shape on reload before the initial tool',
+    { tag: '@ci' },
+    async ({ browser, page }, testInfo) => {
+      const presenter = new Page(browser, page, testInfo);
+      await presenter.init(true, { shouldCloseAudioModal: false, joinParameter: joinParameter('rectangle') });
+      await expectTool(page, 'rectangle');
+      await page.getByTestId('tools.ellipse').click();
+      await expectTool(page, 'ellipse');
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () => JSON.parse(sessionStorage.getItem('BBB_whiteboardToolbarSavedState') || '{}').selectedTool,
+          ),
+        )
+        .toBe('ellipse');
+      await page.reload();
       await expectTool(page, 'ellipse');
       await expectDrawnShape(presenter, 'ellipse');
-    });
+    },
+  );
+
+  for (const savedTool of ['more', 'rectangle']) {
+    test(
+      `ignores an invalid or unavailable saved tool (${savedTool})`,
+      { tag: '@nightly' },
+      async ({ browser, page }, testInfo) => {
+        await page.addInitScript((selectedTool) => {
+          sessionStorage.setItem('BBB_whiteboardToolbarSavedState', JSON.stringify({ selectedTool }));
+        }, savedTool);
+        const presenter = new Page(browser, page, testInfo);
+        await presenter.init(true, {
+          shouldCloseAudioModal: false,
+          joinParameter: `${joinParameter('unknown-tool')}&userdata-bbb_presenter_tools=%5B%22ellipse%22%5D`,
+        });
+        await expectTool(page, 'ellipse');
+        await expectDrawnShape(presenter, 'ellipse');
+      },
+    );
   }
 
   for (const [allowedTools, expected] of [
@@ -160,14 +183,18 @@ test.describe.parallel('Initial selected whiteboard tool', { tag: '@ci' }, () =>
     [['actions', 'delete-selected-items'], 'noop'],
     [[], 'rectangle'],
   ] as const) {
-    test(`respects presenter tools ${JSON.stringify(allowedTools)}`, async ({ browser, page }, testInfo) => {
-      const presenter = new Page(browser, page, testInfo);
-      await presenter.init(true, {
-        shouldCloseAudioModal: false,
-        joinParameter: `${joinParameter('rectangle')}&userdata-bbb_presenter_tools=${encodeURIComponent(JSON.stringify(allowedTools))}`,
-      });
-      await expectTool(page, expected);
-    });
+    test(
+      `respects presenter tools ${JSON.stringify(allowedTools)}`,
+      { tag: expected === 'arrow' ? '@ci' : '@nightly' },
+      async ({ browser, page }, testInfo) => {
+        const presenter = new Page(browser, page, testInfo);
+        await presenter.init(true, {
+          shouldCloseAudioModal: false,
+          joinParameter: `${joinParameter('rectangle')}&userdata-bbb_presenter_tools=${encodeURIComponent(JSON.stringify(allowedTools))}`,
+        });
+        await expectTool(page, expected);
+      },
+    );
   }
 
   for (const [tool, extra, expected] of [
@@ -176,28 +203,28 @@ test.describe.parallel('Initial selected whiteboard tool', { tag: '@ci' }, () =>
     ['rectangle', '&userdata-bbb_multi_user_tools=%5B%22ellipse%22%5D', 'ellipse'],
     ['rectangle', '&userdata-bbb_multi_user_pen_only=true', 'draw'],
   ]) {
-    test(`selects ${expected} when a viewer gets access (${tool}${extra})`, async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const users = new MultiUsers(browser, context);
-      await users.initModPage(page, { shouldCloseAudioModal: false, joinParameter: joinParameter('draw'), testInfo });
-      await users.initUserPage(context, {
-        shouldCloseAudioModal: false,
-        joinParameter: joinParameter(tool) + extra,
-        testInfo,
-      });
-      await expectTool(users.userPage.page, 'noop');
-      await users.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-      await expectTool(users.userPage.page, expected);
-      if (tool === 'rectangle' && extra === '') {
-        await users.userPage.page.reload();
-        await expectTool(users.userPage.page, 'rectangle');
-      }
-      if (shapes.includes(expected)) await expectDrawnShape(users.userPage, expected);
-      await users.modPage.waitAndClick(e.multiUsersWhiteboardOff);
-      await expectTool(users.userPage.page, 'noop');
-    });
+    test(
+      `selects ${expected} when a viewer gets access (${tool}${extra})`,
+      { tag: tool === 'rectangle' && extra === '' ? '@ci' : '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const users = new MultiUsers(browser, context);
+        await users.initModPage(page, { shouldCloseAudioModal: false, joinParameter: joinParameter('draw'), testInfo });
+        await users.initUserPage(context, {
+          shouldCloseAudioModal: false,
+          joinParameter: joinParameter(tool) + extra,
+          testInfo,
+        });
+        await expectTool(users.userPage.page, 'noop');
+        await users.modPage.waitAndClick(e.multiUsersWhiteboardOn);
+        await expectTool(users.userPage.page, expected);
+        if (tool === 'rectangle' && extra === '') {
+          await users.userPage.page.reload();
+          await expectTool(users.userPage.page, 'rectangle');
+        }
+        if (shapes.includes(expected)) await expectDrawnShape(users.userPage, expected);
+        await users.modPage.waitAndClick(e.multiUsersWhiteboardOff);
+        await expectTool(users.userPage.page, 'noop');
+      },
+    );
   }
 });
