@@ -10,6 +10,10 @@ import { MultiUsers } from '../user/multiusers';
 export const AUDIO_CAPTIONS_SETTINGS: ClientSettingsOverrides = {
   public: { app: { audioCaptions: { enabled: true } } },
 };
+// puts the transcription and captions entry in the sidebar: in the actions bar it only shows while captions are active
+export const AUDIO_CAPTIONS_SIDEBAR_SETTINGS: ClientSettingsOverrides = {
+  public: { app: { audioCaptions: { enabled: true, showInSidebarNavigation: true } } },
+};
 
 export const INFINITE_WHITEBOARD_SETTINGS: ClientSettingsOverrides = {
   public: { whiteboard: { allowInfiniteWhiteboard: true } },
@@ -34,6 +38,18 @@ export class DisabledFeatures extends MultiUsers {
     await this.modPage.wasRemoved(
       e.speechRecognitionUnsupported,
       'should not display the speech recognition message saying that is unsupported',
+    );
+  }
+
+  async captions() {
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SIDEBAR_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.usersListSidebarButton, 'should display the sidebar navigation');
+    await this.modPage.wasRemoved(
+      e.audioCaptionsSidebarButton,
+      'should not display the transcription and captions entry on the sidebar',
     );
   }
 
@@ -169,6 +185,15 @@ export class DisabledFeatures extends MultiUsers {
       `${e.speechRecognition}, ${e.speechRecognitionUnsupported}`,
       'should display the speech recognition option',
     );
+  }
+
+  async captionsExclude() {
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SIDEBAR_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.waitAndClick(e.audioCaptionsSidebarButton);
+    await this.modPage.hasElement(e.audioCaptionsPanel, 'should open the transcription and captions panel');
   }
 
   async chatExclude() {

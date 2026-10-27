@@ -43,10 +43,16 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.saveChat();
   });
 
-  test.fixme('Verify character limit', async ({ browser, context, page }, testInfo) => {
+  test('Verify character limit', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.characterLimit();
+  });
+
+  test('Late joiner loads older messages by scrolling up', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo });
+    await chat.lateJoinerLoadsOlderMessages();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sending-empty-chat-message-automated
@@ -138,6 +144,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.chatDisabledUserLeaves();
+  });
+
+  test('Presenter change is announced in public chat', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.presenterChangeAnnouncement();
   });
 
   test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
@@ -236,15 +248,11 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.deleteAnotherUserMessage();
       });
 
-      test(
-        'User can delete only his own messages in breakout rooms',
-        { tag: '@flaky' },
-        async ({ browser, context, page }, testInfo) => {
-          const message = new MessageActions(browser, context);
-          await message.initPages(page, testInfo);
-          await message.breakoutsModDelete();
-        },
-      );
+      test('User can delete only his own messages in breakout rooms', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page, testInfo);
+        await message.breakoutsModDelete();
+      });
     });
 
     test.describe('Reply', () => {

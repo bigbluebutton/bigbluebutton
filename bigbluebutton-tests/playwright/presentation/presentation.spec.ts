@@ -114,11 +114,9 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.selectSlide();
   });
 
-  // All external video tests (youtube) require logged user to start external video on CI environment
-  test.describe.parallel('External Video', { tag: '@flaky' }, () => {
+  test.describe.parallel('External Video', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
     test('Start external video', async ({ browser, context, page }, testInfo) => {
-      linkIssue(21589);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.startExternalVideo();
@@ -282,6 +280,29 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadAndRemoveAllPresentations();
+    });
+
+    // The server reports PAGE_COUNT_FAILED, which the upload toast has no message for: it shows "Converting file ...".
+    test('A truncated PDF is refused', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.truncatedPdfIsRefused();
+    });
+
+    test('A file whose content does not match its extension is refused', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.executableNamedPdfIsRefused();
+    });
+
+    test('A PDF with more pages than allowed is refused', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.tooManyPagesIsRefused();
     });
 
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }, testInfo) => {

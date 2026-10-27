@@ -157,7 +157,5 @@ class UrlMappings {
     "/bigbluebutton/"(controller: "api") {
       action = [GET: 'index']
     }
-
-    "500"(view: '/error')
   }
 }

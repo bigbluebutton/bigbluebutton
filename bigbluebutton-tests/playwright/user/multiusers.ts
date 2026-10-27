@@ -1,12 +1,18 @@
 import { Browser, BrowserContext, expect, Page as PlaywrightPage, test, TestInfo } from '@playwright/test';
 
-import { ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { linkIssue } from '../core/helpers';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { remoteWebcamContentCheck } from '../webcam/util';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
+import {
+  AUDIO_ONLY_TILE_SETTINGS_OVERRIDE,
+  audioOnlyTilesLocator,
+  checkAvatarIcon,
+  checkMutedUser,
+  REACTION_EXPIRY_CHECK_INTERVAL,
+} from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
@@ -247,6 +253,11 @@ export class MultiUsers {
       audioOnlyTiles.filter({ has: this.modPage.page.locator(e.webcamItemRaisedHand) }),
       'should display the raised hand indicator on the audio-only tile',
     ).toHaveCount(1);
+    // The indicator also shows the user's position in the raised-hand queue.
+    await expect(
+      audioOnlyTiles.locator(e.webcamItemRaisedHand),
+      'should display the raised hand position on the audio-only tile',
+    ).toHaveText(/^1(?!\d)/);
   }
 
   async audioOnlyTileVisibleForAttendee() {
@@ -500,13 +511,9 @@ export class MultiUsers {
   }
 
   async muteAllUsersExceptPresenter() {
-    // join audio. Firefox holds enumerateDevices() until the tab is the selected one, and
-    // the audio modal needs it before it enables its join button
-    await this.modPage.page.bringToFront();
+    // join audio
     await this.modPage.joinMicrophone();
-    await this.modPage2.page.bringToFront();
     await this.modPage2.joinMicrophone();
-    await this.userPage.page.bringToFront();
     await this.userPage.joinMicrophone();
     // mute all users except the presenter: a direct crowd-action button in the
     // participants panel now (the manageUsers gear dropdown is gone)
@@ -541,20 +548,11 @@ export class MultiUsers {
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem, 'should not display a user on the user list for the moderator');
-
-    // Will be modified when the issue is fixed and accept just one of both screens
-    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
-    try {
-      await this.modPage2.hasElement(
-        e.errorScreenMessage,
-        'should display the error screen message for the second moderator',
-      );
-    } catch {
-      await this.modPage2.hasElement(
-        e.meetingEndedModalTitle,
-        'should display the meeting ended modal for the second moderator',
-      );
-    }
+    await this.modPage2.hasText(
+      e.meetingEndedModal,
+      e.removedFromSessionMessage,
+      'should tell the second moderator that they were removed',
+    );
   }
 
   async removeUserAndPreventRejoining() {
@@ -568,19 +566,11 @@ export class MultiUsers {
       'should not display the user on the user list for the moderator',
     );
 
-    // Will be modified when the issue is fixed and accept just one of both screens
-    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
-    try {
-      await this.modPage2.hasElement(
-        e.errorScreenMessage,
-        'should display the error screen message for the second moderator',
-      );
-    } catch {
-      await this.modPage2.hasElement(
-        e.meetingEndedModalTitle,
-        'should display the meeting ended modal for the second moderator',
-      );
-    }
+    await this.modPage2.hasText(
+      e.meetingEndedModal,
+      e.removedFromSessionMessage,
+      'should tell the second moderator that they were removed',
+    );
 
     await this.initModPage2(this.modPage.context, {
       meetingId: this.modPage.meetingId,
@@ -588,13 +578,13 @@ export class MultiUsers {
       shouldCheckAllInitialSteps: false,
       shouldCloseAudioModal: false,
     });
-
-    // Due to same reason above, sometimes it displays different messages
-    try {
-      await this.modPage2.hasText('body', /banned/, 'should display the banned message for the second moderator');
-    } catch {
-      await this.modPage2.hasText('body', /removed/, 'should display the removed message for the second moderator');
-    }
+    await this.modPage2.hasText(
+      e.meetingEndedModal,
+      e.bannedFromSessionMessage,
+      'should tell the second moderator rejoining that they were removed for the rest of the session',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage2.wasRemoved(e.actionsBarBackground, 'should not let the second moderator back into the meeting');
   }
 
   // Reactions tests
@@ -643,6 +633,63 @@ export class MultiUsers {
     );
   }
 
+  async removeReaction() {
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button');
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.hasText(
+      e.moderatorAvatar,
+      '😃',
+      'should display the smiling emoji in the moderator avatar for the attendee',
+    );
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(e.removeReactionButton);
+    await expect(
+      this.modPage.page.locator(e.reactionsButton),
+      'should remove the emoji from the reactions button',
+    ).not.toContainText('😃');
+    await expect(
+      this.userPage.page.locator(e.moderatorAvatar),
+      'should remove the emoji from the moderator avatar for the attendee',
+    ).not.toContainText('😃');
+  }
+
+  async reactionExpires() {
+    const expireSeconds = await this.modPage.page.evaluate(
+      () =>
+        (window as unknown as { meetingClientSettings: { public: { userReaction: { expire: number } } } })
+          .meetingClientSettings.public.userReaction.expire,
+    );
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    const reactionSetAt = Date.now();
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button');
+    await this.userPage.hasText(
+      e.moderatorAvatar,
+      '😃',
+      'should display the smiling emoji in the moderator avatar for the attendee',
+    );
+
+    await expect(
+      this.userPage.page.locator(e.moderatorAvatar),
+      `should remove the emoji from the moderator avatar for the attendee once it is ${expireSeconds}s old`,
+    ).not.toContainText('😃', {
+      timeout: expireSeconds * 1000 + REACTION_EXPIRY_CHECK_INTERVAL + ELEMENT_WAIT_LONGER_TIME,
+    });
+    expect(
+      Date.now() - reactionSetAt,
+      `should keep the reaction for the ${expireSeconds}s set in public.userReaction.expire`,
+    ).toBeGreaterThanOrEqual((expireSeconds - 1) * 1000);
+    await expect(
+      this.modPage.page.locator(e.reactionsButton),
+      'should remove the expired emoji from the reactions button',
+    ).not.toContainText('😃');
+  }
+
   async emojiRainTest(isEmojiRainEnabled: boolean) {
     expect(this.modPage.settings?.emojiRain, 'emojiRain.enabled should match emojiRainSettingsOverride').toBe(
       isEmojiRainEnabled,
@@ -674,7 +721,6 @@ export class MultiUsers {
         timeout: ELEMENT_WAIT_TIME,
       })
       .toBeGreaterThan(0);
-    await this.modPage.page.waitForTimeout(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
     });

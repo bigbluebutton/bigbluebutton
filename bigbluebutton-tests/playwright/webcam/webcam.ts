@@ -2,6 +2,7 @@ import { BrowserContext, expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { allowMedia } from '../core/mediaPermissions';
 import { Page } from '../core/page';
 import {
   checkBackgroundThumbnailColumns,
@@ -10,6 +11,28 @@ import {
   uploadBackgroundVideoImage,
   webcamContentCheck,
 } from './util';
+
+// "minimal" publishes alone, and it is the lowest simulcast layer of "medium".
+export const CONSTRAINT_OBJECT_PROFILES_MODULE = [
+  '<modules><module name="clientSettingsOverride"><![CDATA[',
+  JSON.stringify({
+    public: {
+      kurento: {
+        cameraProfiles: [
+          {
+            id: 'minimal',
+            name: 'Minimal',
+            bitrate: 50,
+            constraints: { width: { ideal: 32 }, height: { ideal: 32 } },
+          },
+          { id: 'low', name: 'Low', bitrate: 100 },
+          { id: 'medium', name: 'Medium', default: true, bitrate: 200 },
+        ],
+      },
+    },
+  }),
+  ']]></module></modules>',
+].join('');
 
 export class Webcam extends Page {
   async share() {
@@ -41,6 +64,23 @@ export class Webcam extends Page {
     );
     const respUser = await webcamContentCheck(this);
     await expect(respUser, 'should display the user webcam').toBeTruthy();
+  }
+
+  async refusedCameraPermission() {
+    await this.waitAndClick(e.joinVideo);
+    await this.hasText(
+      e.webcamSettingsModal,
+      e.webcamPermissionErrorLabel,
+      'should tell the user that the camera permission was refused',
+    );
+    await this.hasElementDisabled(e.startSharingWebcam, 'should not offer to share a camera it cannot open');
+    await this.waitAndClick(e.cancelSharingWebcam);
+    await this.wasRemoved(e.webcamSettingsModal, 'should close the webcam settings');
+    await this.wasRemoved(e.leaveVideo, 'should not show a camera as shared');
+    await this.hasElementEnabled(e.joinVideo, 'should keep the share webcam button usable');
+    // The same button shares the camera once the permission is granted, so nothing was left half started.
+    await allowMedia(this.page);
+    await this.shareWebcam();
   }
 
   async talkingIndicator() {
@@ -129,6 +169,20 @@ export class Webcam extends Page {
     await checkVideoUploadData(this, lowValue);
   }
 
+  async shareWithQuality(profileId: string) {
+    const { videoPreviewTimeout } = this.settings || {};
+
+    await this.waitAndClick(e.joinVideo);
+    await this.page.locator(e.videoQualitySelector).selectOption(profileId);
+    await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
+    await this.waitAndClick(e.startSharingWebcam);
+    // A failed publish removes the tile before its video element is added.
+    await this.waitForSelector(`${e.webcamVideoItem} video`, VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(e.webcamConnecting, 'should finish connecting the webcam', ELEMENT_WAIT_LONGER_TIME);
+    await this.waitAndClick(e.leaveVideo);
+    await this.hasElement(e.joinVideo, 'should display the join video button after stopping the webcam');
+  }
+
   async applyBackground() {
     await this.waitAndClick(e.joinVideo);
     await this.waitAndClick(e.backgroundSettingsTitle);
@@ -156,7 +210,11 @@ export class Webcam extends Page {
     }));
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.webcamsFullscreenButton);
-    await this.page.waitForTimeout(1000); // timeout to ensure the video is in fullscreen
+    await expect
+      .poll(async () => (await this.page.locator('video').boundingBox())?.height, {
+        message: 'should show the video in fullscreen',
+      })
+      .toBe(windowHeight);
     // get fullscreen webcam size
     const boundingBox = await this.page.locator('video').boundingBox();
     if (!boundingBox) throw new Error('video boundingBox is null');

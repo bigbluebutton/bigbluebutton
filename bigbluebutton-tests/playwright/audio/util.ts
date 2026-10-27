@@ -2,7 +2,12 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ClientSettingsOverrides, Page } from '../core/page';
+
+// The yes/no echo test through the server, used when the local echo test is off
+export const E2E_ECHO_TEST_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: { media: { localEchoTest: { enabled: false } } },
+};
 
 export async function connectMicrophone(testPage: Page) {
   if (!testPage.settings) throw new Error('testPage.settings is not defined');
@@ -56,4 +61,21 @@ export async function ensureUnmuted(testPage: Page) {
   const isMuted = await testPage.checkElement(e.unmuteMicButton);
   if (isMuted) await testPage.waitAndClick(e.unmuteMicButton);
   await testPage.hasElement(e.isTalking, 'should be talking');
+}
+
+// Ids of the output devices each remote audio element plays on.
+export async function getRemoteAudioSinkIds(testPage: Page): Promise<string[]> {
+  return testPage.page.evaluate(() =>
+    Array.from(document.querySelectorAll('audio'))
+      .filter((audio) => audio.srcObject)
+      .map((audio) => audio.sinkId),
+  );
+}
+
+// Whether every remote audio element is playing (not paused, not muted) with a stream attached.
+export async function areRemoteAudioElementsPlaying(testPage: Page): Promise<boolean> {
+  return testPage.page.evaluate(() => {
+    const remote = Array.from(document.querySelectorAll('audio')).filter((audio) => audio.srcObject);
+    return remote.length > 0 && remote.every((audio) => !audio.paused && !audio.muted);
+  });
 }

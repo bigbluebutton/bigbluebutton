@@ -235,6 +235,29 @@ export class API extends MultiUsers {
     );
   }
 
+  // bbb-web keeps Grails' hidden HTTP method filter off: a POST cannot be turned into a GET
+  // with a _method parameter or an X-HTTP-Method-Override header. join has no POST action, so a
+  // POST falls through to index; an override that worked would reach join instead.
+  static async testHiddenMethodOverrideIgnored() {
+    const meetingID = await createMeeting();
+    const joinUrl = getJoinURL({ meetingID, fullName: 'Override' });
+    const send = (method: 'get' | 'post', url: string, data?: URLSearchParams, headers?: Record<string, string>) =>
+      axios.request({ method, url, data, headers, adapter: 'http', maxRedirects: 0, validateStatus: () => true });
+    expect((await send('get', joinUrl)).status, 'GET join should redirect to the client').toBe(302);
+    const plainPost = await send('post', joinUrl);
+    expect(String(plainPost.data), 'POST join should be answered by index').toContain('<version>');
+    const overrides: Record<string, () => ReturnType<typeof send>> = {
+      '_method=GET in the query': () => send('post', `${joinUrl}&_method=GET`),
+      '_method=GET in the form': () => send('post', joinUrl, new URLSearchParams({ _method: 'GET' })),
+      'X-HTTP-Method-Override: GET': () => send('post', joinUrl, undefined, { 'X-HTTP-Method-Override': 'GET' }),
+    };
+    for (const [override, request] of Object.entries(overrides)) {
+      const response = await request();
+      expect(response.status, `POST join with ${override} should be answered like a plain POST`).toBe(plainPost.status);
+      expect(response.data, `POST join with ${override} should be answered by index`).toEqual(plainPost.data);
+    }
+  }
+
   // A document, a redirect and an error response from bbb-web all carry the headers.
   static async testBbbWebSecurityHeaders() {
     const server = parameters.server!.replace(/\/$/, '');
@@ -256,6 +279,23 @@ export class API extends MultiUsers {
       for (const [header, value] of Object.entries(BBB_WEB_SECURITY_HEADERS)) {
         expect(response.headers[header], `${request} should send ${header}: ${value}`).toEqual(value);
       }
+    }
+  }
+
+  // Grails makes every public method and closure property of a controller an action, reachable
+  // through the generic /bigbluebutton/$controller/$action mapping without a checksum.
+  static async testControllerHelpersNotReachable() {
+    const server = parameters.server!.replace(/\/$/, '');
+    const index = await axios.get(`${server}/api/index`, { adapter: 'http' });
+    expect(String(index.data), 'an action should be reachable through the generic mapping').toContain('SUCCESS');
+    for (const helper of [
+      'api/handleCreateUserClientUrl',
+      'api/initResponseBuilder',
+      'api/beforeInterceptor',
+      'recording/initResponseBuilder',
+    ]) {
+      const response = await axios.get(`${server}/${helper}`, { adapter: 'http', validateStatus: () => true });
+      expect(response.status, `${helper} should not be an action`).toBe(404);
     }
   }
 

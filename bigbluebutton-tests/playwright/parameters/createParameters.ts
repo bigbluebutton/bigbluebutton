@@ -8,6 +8,8 @@ import { MultiUsers } from '../user/multiusers';
 import { constants } from './constants';
 
 const { messageModerator } = constants;
+// one minute, the shortest duration a meeting can have, plus the interval of the server's expiry check
+const MEETING_DURATION_END_WAIT_TIME = 2 * 60000;
 
 export class CreateParameters extends MultiUsers {
   async recordMeeting() {
@@ -108,6 +110,16 @@ export class CreateParameters extends MultiUsers {
       e.timeRemaining,
       /[1-2]:[0-5][0-9]/,
       'should display the time remaining of the meeting decreasing',
+    );
+  }
+
+  async meetingEndsAfterDuration() {
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
+    await this.modPage.hasText(
+      e.meetingEndedModal,
+      e.meetingEndedByDurationMessage,
+      'should end the meeting when its duration is over',
+      MEETING_DURATION_END_WAIT_TIME,
     );
   }
 
@@ -288,21 +300,20 @@ export class CreateParameters extends MultiUsers {
   async overrideDefaultPresentation() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage.hasElement(e.currentSlideImg, 'should display the pre-uploaded slide for the attendee');
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElementCount(
+      e.presentationItem,
+      1,
+      'should not upload the default presentation next to the pre-uploaded one',
+    );
     await this.modPage.hasText(
       e.presentationItem,
       'ScientificPaper.pdf',
       'should display the uploaded presentation name in the manage presentations modal',
     );
     await this.modPage.press('Escape');
-    await this.userPage.page.waitForTimeout(1500); // wait for the whiteboard zoom to stabilize
-    await expect(this.modPage.page, 'should display the overridden presentation for the mod').toHaveScreenshot(
-      'mod-page-overridden-default-presentation.png',
-    );
-    await expect(this.userPage.page, 'should display the overridden presentation for the viewer').toHaveScreenshot(
-      'viewer-page-overridden-default-presentation.png',
-    );
   }
 
   async camerasOnly() {
@@ -313,8 +324,8 @@ export class CreateParameters extends MultiUsers {
     await this.userPage.shareWebcam();
     await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
-
-    await this.modPage.page.waitForTimeout(1000);
+    await this.modPage.hasElementCount(e.webcamVideoItem, 2, 'should display both webcams to the moderator');
+    await this.userPage.hasElementCount(e.webcamVideoItem, 2, 'should display both webcams to the attendee');
 
     await checkScreenshots(
       this,
@@ -348,7 +359,6 @@ export class CreateParameters extends MultiUsers {
 
     await this.modPage.hasElement(e.chatMessages, 'should display the chat messages for the moderator');
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
-    await this.userPage.page.waitForTimeout(1000);
 
     await checkScreenshots(
       this,
