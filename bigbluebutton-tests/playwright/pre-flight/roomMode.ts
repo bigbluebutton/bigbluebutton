@@ -156,6 +156,18 @@ export const readRoomSettings = async (page: Page): Promise<RoomSettings> => {
   };
 };
 
+// A mode applied again lands within the applier's 15-second deadline, so its
+// absence is checked by sampling the settings across that window.
+export const expectRoomSettingsStable = async (page: Page, expected: RoomSettings, message: string): Promise<void> => {
+  const start = Date.now();
+  while (Date.now() - start < ELEMENT_WAIT_EXTRA_LONG_TIME) {
+    // eslint-disable-next-line no-await-in-loop
+    expect(await readRoomSettings(page), message).toEqual(expected);
+    // eslint-disable-next-line no-await-in-loop
+    await page.page.waitForTimeout(ROOM_MODE_SAMPLE_INTERVAL);
+  }
+};
+
 export class RoomMode extends PreFlight {
   // The meeting enables the probe on create; requiring it is up to the cases
   // that read or write the room mode.
