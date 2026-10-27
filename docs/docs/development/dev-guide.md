@@ -166,11 +166,13 @@ In the next step, you need to install a number of tools using sdkman.
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-sdk install gradle 8.14.3 
-sdk install grails 7.0.12
+sdk install gradle 9.8.0
 sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
+
+A system-wide Grails install is no longer needed: bbb-web is built with the
+Gradle wrapper (`./gradlew`), which provisions the Grails toolchain itself.
 
 ### Checking out the Source
 
@@ -358,6 +360,8 @@ To rebuild and deploy your changes, replacing the existing `bbb-web` in `/usr/sh
 ./deploy_to_usr_share.sh --build
 ```
 The --build option builds bbb-common-web, which is required when building bbb-web for the first time. After that, if you have not changed the bbb-common-web source code, you can omit the --build option.
+
+The script also replaces `/lib/systemd/system/bbb-web.service` with the packaged unit from `build/packages-template/bbb-web/` when the two differ. If a systemd override still launches bbb-web with the classpath of the Grails 7 builds (`-cp WEB-INF/lib/*:/:WEB-INF/classes/:.`), with which bbb-web on Grails 8 never finishes starting, the script stops before deploying anything and prints what to change.
 
 Alternatively, to run bbb-web in development mode on port 8090 without replacing the deployed files:
 

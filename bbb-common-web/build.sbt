@@ -30,7 +30,6 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
-libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
 
 Seq(Revolver.settings: _*)
 
@@ -102,12 +101,12 @@ licenses := Seq("LGPL-3.0" -> url("https://opensource.org/licenses/LGPL-3.0"))
 homepage := Some(url("https://www.bigbluebutton.org"))
 
 libraryDependencies ++= Seq(
-  "jakarta.validation" % "jakarta.validation-api" % "3.0.2",
-  "org.springframework.data" % "spring-data-commons" % "3.5.12",
-  "org.hibernate.validator" % "hibernate-validator" % "8.0.1.Final",
-  "org.glassfish" % "jakarta.el" % "4.0.2",
+  // Jakarta EE 11 / Spring Framework 7 levels (aligned with Spring Boot 4.1 dependency management)
+  "jakarta.validation" % "jakarta.validation-api" % "3.1.1",
+  "org.springframework.data" % "spring-data-commons" % "4.1.1",
+  "org.hibernate.validator" % "hibernate-validator" % "9.1.5.Final",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
-  "org.postgresql" % "postgresql" % "42.7.12",
+  "org.postgresql" % "postgresql" % "42.7.14",
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
   "com.zaxxer" % "HikariCP" % "4.0.3",
@@ -117,10 +116,17 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
   "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0",
   "xyz.capybara" % "clamav-client" % "2.1.2",
-  "jakarta.servlet" % "jakarta.servlet-api" % "6.0.0" % "provided",
-  "jakarta.annotation" % "jakarta.annotation-api" % "2.1.1"
+  "jakarta.servlet" % "jakarta.servlet-api" % "6.1.0" % "provided",
+  "jakarta.annotation" % "jakarta.annotation-api" % "3.0.0"
 )
 
 // Pin transitively-pulled artifacts to fixed releases.
 // junrar is reached only via tika-parsers-standard-package > tika-parser-pkg-module.
 dependencyOverrides += "com.github.junrar" % "junrar" % "7.6.1"
+// bouncycastle is reached only via tika-parsers-standard-package; tika-parent 3.3.2 manages it at 1.85.
+dependencyOverrides ++= Seq(
+  "org.bouncycastle" % "bcprov-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcpkix-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcutil-jdk18on" % "1.86",
+  "org.bouncycastle" % "bcjmail-jdk18on" % "1.86"
+)

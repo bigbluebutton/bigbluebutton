@@ -10,10 +10,10 @@
     "serve": "npx docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.3.2",
-    "@docusaurus/plugin-client-redirects": "^3.3.2",
-    "@docusaurus/preset-classic": "^3.5.0",
-    "@docusaurus/theme-mermaid": "^3.7.0",
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/plugin-client-redirects": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "@docusaurus/theme-mermaid": "^3.10.2",
     "@easyops-cn/docusaurus-search-local": "^0.40.1",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
@@ -22,8 +22,8 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.3.2",
-    "@docusaurus/types": "^3.7.0"
+    "@docusaurus/module-type-aliases": "^3.10.2",
+    "@docusaurus/types": "^3.10.2"
   },
   "browserslist": {
     "production": [
@@ -41,6 +41,11 @@
     "node": ">=18.0"
   },
   "overrides": {
-    "serialize-javascript": "^7.0.5"
+    "postcss-selector-parser": "^7.1.6",
+    "serialize-javascript": "^7.0.5",
+    "sockjs": {
+      "uuid": "^11.1.1"
+    },
+    "tinypool": "^2.1.2"
   }
 }

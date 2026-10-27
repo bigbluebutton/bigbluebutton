@@ -122,6 +122,7 @@ Updated in 3.0:
   - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
   - **Added POST module:** `clientSettingsOverride` (gated by the server-side setting `allowOverrideClientSettingsOnCreateCall` in `bbb-web.properties`);
   - **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. 
+  - **Removed option:** `captions` is no longer a valid `disabledFeatures` value. It has had no effect since BBB 3.0.0, when typed captions moved to a plugin; only the documentation still listed it. Use `liveTranscription` to disable automatic transcription.
 - **join**
   - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool`
   - **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET, `userdata-bbb_ask_for_feedback_on_logout`.
