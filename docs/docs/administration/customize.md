@@ -1943,6 +1943,7 @@ Edit `/etc/nginx/sites-available/hasura-loadbalancer.conf` and add to the list i
 
 ```
 upstream hasura {
+    zone hasura 512k;
     least_conn;
     server 127.0.0.1:8085;
     server 127.0.0.1:8086;
