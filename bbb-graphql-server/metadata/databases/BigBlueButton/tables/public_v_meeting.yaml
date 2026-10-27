@@ -186,6 +186,7 @@ select_permissions:
         - notifyRecordingIsOn
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl
+        - roomBaseSettings
         - roomMode
       filter:
         meetingId:

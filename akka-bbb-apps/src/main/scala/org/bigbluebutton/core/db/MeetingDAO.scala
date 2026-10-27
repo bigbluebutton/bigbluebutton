@@ -2,6 +2,7 @@ package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import PostgresProfile.api._
+import spray.json.JsValue
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.models.PluginModel
 
@@ -21,7 +22,8 @@ case class MeetingBridgesDbModel(
 )
 
 case class MeetingRoomConfigDbModel(
-  roomMode: String
+  roomMode:         String,
+  roomBaseSettings: JsValue
 )
 
 case class MeetingDbModel(
@@ -107,11 +109,43 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
   val roomMode = column[String]("roomMode")
+  val roomBaseSettings = column[JsValue]("roomBaseSettings")
 
-  val roomConfig = roomMode <> (MeetingRoomConfigDbModel.apply, MeetingRoomConfigDbModel.unapply)
+  val roomConfig = (roomMode, roomBaseSettings) <> (MeetingRoomConfigDbModel.tupled, MeetingRoomConfigDbModel.unapply)
 }
 
 object MeetingDAO {
+  // The settings a room mode changes, as the room was created: a mode is applied
+  // over them. Shaped like the lockSettings, usersPolicies and voiceSettings the
+  // client already reads. webcamsOnlyForModerator is there for modes that leave
+  // the webcams as created; today every mode sets them.
+  def roomBaseSettings(meetingProps: DefaultProps): JsValue = {
+    val lock = meetingProps.lockSettingsProps
+    JsonUtils.mapToJson(Map(
+      "lockSettings" -> Map(
+        "disableCam" -> lock.disableCam,
+        "disableMic" -> lock.disableMic,
+        "disablePrivateChat" -> lock.disablePrivateChat,
+        "disablePublicChat" -> lock.disablePublicChat,
+        "disableNotes" -> lock.disableNotes,
+        "hideUserList" -> lock.hideUserList,
+        "lockOnJoin" -> lock.lockOnJoin,
+        "lockOnJoinConfigurable" -> lock.lockOnJoinConfigurable,
+        "hideViewersCursor" -> lock.hideViewersCursor,
+        "hideViewersAnnotation" -> lock.hideViewersAnnotation,
+        "presenterPolicy" -> lock.presenterPolicy
+      ),
+      "usersPolicies" -> Map(
+        "webcamsOnlyForModerator" -> meetingProps.usersProp.webcamsOnlyForModerator,
+        "guestPolicy" -> meetingProps.usersProp.guestPolicy,
+        "multiUserWhiteboardEnabled" -> meetingProps.usersProp.multiUserWhiteboardEnabled
+      ),
+      "voiceSettings" -> Map(
+        "muteOnStart" -> meetingProps.voiceProp.muteOnStart
+      )
+    ))
+  }
+
   def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel) = {
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef].forceInsert(
@@ -167,7 +201,8 @@ object MeetingDAO {
           endedReasonCode = None,
           endedBy = None,
           roomConfig = MeetingRoomConfigDbModel(
-            roomMode = ""
+            roomMode = "",
+            roomBaseSettings = roomBaseSettings(meetingProps)
           )
         )
       )
