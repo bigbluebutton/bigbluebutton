@@ -253,3 +253,32 @@ Not covered: office document conversion (bbb-web expects
 `/usr/share/bbb-libreoffice-conversion/convert.sh`, which no image provides yet), FreeSWITCH and
 dial-in, more than one server, Kubernetes, and running behind an existing reverse proxy or TLS
 terminator.
+
+### On your own machine
+
+For development: a certificate from a local CA such as [mkcert](https://github.com/FiloSottile/mkcert),
+and in `.env` `BBB_DOMAIN=bbb.localhost` (browsers resolve `*.localhost` to the loopback address),
+`BBB_PUBLIC_IP=127.0.0.1` and an empty `ACME_EMAIL`. Then open `https://bbb.localhost`.
+
+```sh
+mkcert -install
+mkdir -p data/certs && cp "$(mkcert -CAROOT)/rootCA.pem" data/certs/
+mkcert -cert-file data/certs/fullchain.pem -key-file data/certs/privkey.pem bbb.localhost
+```
+
+bbb-web loads the default slides from `https://bbb.localhost`, so it must trust the CA (otherwise
+meetings start without them): create a Java truststore with it once, and use it in a
+`docker-compose.override.yml`.
+
+```sh
+docker compose run --rm --no-deps --user 0 -v ./data/certs:/certs --entrypoint sh web -c 'cp "$JAVA_HOME/lib/security/cacerts" /certs/cacerts && keytool -importcert -noprompt -alias local-ca -file /certs/rootCA.pem -keystore /certs/cacerts -storepass changeit'
+```
+
+```yaml
+services:
+  web:
+    environment:
+      JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/local/cacerts
+    volumes:
+      - ./data/certs/cacerts:/etc/ssl/local/cacerts:ro
+```
