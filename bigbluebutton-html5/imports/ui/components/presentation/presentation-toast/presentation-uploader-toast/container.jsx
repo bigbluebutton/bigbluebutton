@@ -26,7 +26,7 @@ const PresentationUploaderToastContainer = (props) => {
 
   // An error on another participant's upload is shown only to that participant. Presentations
   // with no uploader (API documents, breakout room captures) show their errors to the presenter,
-  // who was already shown them converting.
+  // the one who can act on them.
   const presentationsToBeShowed = presentations.filter(
     (p) => (!p.uploadCompletionNotified
       && (!p.uploadErrorMsgKey

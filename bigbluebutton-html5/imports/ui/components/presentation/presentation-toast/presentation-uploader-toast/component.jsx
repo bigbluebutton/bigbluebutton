@@ -17,6 +17,10 @@ const EXPORT_STATUSES = {
 
 const TIMEOUT_CLOSE_TOAST = 2; // second
 
+// Numbers the converting toasts across mounts, so a new mount cannot reuse the id of the
+// previous mount's toast while that one is still closing.
+let convertingToastCount = 0;
+
 const intlMessages = defineMessages({
   uploading: {
     id: 'app.presentationUploder.uploading',
@@ -476,10 +480,10 @@ export const PresentationUploaderToast = ({
   const prevPresentations = usePreviousValue(presentations);
   const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
   const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
-  const convertingToastCountRef = useRef(0);
   const closeTimeoutReference = useRef();
-  // Ids of failed uploads the converting toast has displayed
-  const shownErrorIdsRef = useRef(new Set());
+  // Ids of failed uploads the converting toast has displayed and that are not yet notified
+  const shownErrorIdsRef = useRef(null);
+  if (!shownErrorIdsRef.current) shownErrorIdsRef.current = new Set();
 
   const rememberShownErrors = (pres) => {
     pres.forEach((p) => {
@@ -560,11 +564,12 @@ export const PresentationUploaderToast = ({
       (p) => (p.uploadErrorMsgKey
         ? shownErrorIdsRef.current.has(p.presentationId)
         : p.uploadCompleted),
-    ).forEach(
-      (p) => setPresentationUploadCompletionNotified(
+    ).forEach((p) => {
+      shownErrorIdsRef.current.delete(p.presentationId);
+      setPresentationUploadCompletionNotified(
         { variables: { presentationId: p.presentationId } },
-      ),
-    );
+      );
+    });
   }, [showToast]);
 
   useEffect(() => {
@@ -584,8 +589,8 @@ export const PresentationUploaderToast = ({
     }
     if (showToast && !toast.isActive(convertingToastIdRef.current)) {
       // A new id for each toast, so one still closing can neither block this one nor close it.
-      convertingToastCountRef.current += 1;
-      const toastId = `presentationUploaderConvertingPresentationId-${convertingToastCountRef.current}`;
+      convertingToastCount += 1;
+      const toastId = `presentationUploaderConvertingPresentationId-${convertingToastCount}`;
       convertingToastIdRef.current = toastId;
       toast(() => renderToastList(presentationsToBeShowed, intl), {
         hideProgressBar: true,
