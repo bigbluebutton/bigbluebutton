@@ -31,6 +31,8 @@
 - `notifyRecordingIsOn`
 - `presentationUploadExternalDescription`
 - `presentationUploadExternalUrl`
+- `roomBaseSettings`
+- `roomMode`
 - `screenShareBridge`
 ### Relationships:
 - `breakoutPolicies: Object` [Type meeting_breakoutPolicies](#type-meeting_breakoutPolicies)
