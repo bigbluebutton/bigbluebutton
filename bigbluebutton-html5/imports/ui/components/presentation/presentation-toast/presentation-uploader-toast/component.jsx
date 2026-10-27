@@ -562,6 +562,12 @@ export const PresentationUploaderToast = ({
   }, [presentationsToBeShowed]);
 
   useEffect(() => {
+    // Closing the toast marks every finished or failed upload in it as notified, so a close
+    // scheduled while it had nothing left to show must not run once new uploads arrive.
+    if (showToast && closeTimeoutReference.current) {
+      clearTimeout(closeTimeoutReference.current);
+      closeTimeoutReference.current = null;
+    }
     if (showToast && !toast.isActive(convertingToastIdRef.current)) {
       toast(() => renderToastList(presentationsToBeShowed, intl), {
         hideProgressBar: true,
@@ -575,7 +581,8 @@ export const PresentationUploaderToast = ({
           Session.setItem('presentationUploaderToastId', null);
         },
       });
-    } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
+    } else if (!showToast && toast.isActive(convertingToastIdRef.current)
+      && !closeTimeoutReference.current) {
       closeTimeoutReference.current = setTimeout(() => {
         closeTimeoutReference.current = null;
         handleDismissToast(convertingToastIdRef.current);
