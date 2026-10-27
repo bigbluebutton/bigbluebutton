@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { defineMessages, IntlShape, useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
+import { useReactiveVar } from '@apollo/client';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -9,6 +12,7 @@ import {
   UsersCountSubscriptionResponse,
 } from '/imports/ui/components/user-list/user-list-participants/queries';
 import { getRoomMode } from './modes';
+import roomModeHandoffVar, { roomModeHandoffTakerVar } from './handoff';
 import { ROOM_MODE_APPLY_TIMEOUT, useRoomModeApplier } from './applier';
 import {
   ResolvedRoomModeSettings,
@@ -27,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.roomMode.notAppliedModeSet',
     description: 'Toast when the picked room mode is not applied because another moderator set one during the join',
   },
+  openRoomModes: {
+    id: 'app.preFlight.roomMode.openRoomModes',
+    description: 'Action in the room mode toast: opens the room modes tab with the pick pre-selected',
+  },
 });
 
 // The guest policy the pre-flight showed is the one applied: left unedited,
@@ -37,12 +45,58 @@ const withShownGuestPolicy = (edits: RoomModeEdits, shown: RoomModeRoomValues): 
     : edits
 );
 
-// The pick never reaches the room in either case, so the moderator is told why.
-export const notifyRoomModeNotApplied = (intl: IntlShape, reason: 'roomRunning' | 'modeSet') => {
+const NOT_APPLIED_TOAST_ID = 'roomModeNotApplied';
+
+interface RoomModeHandoffActionProps {
+  label: string;
+  handoff: RoomModeChoice;
+}
+
+// Shown only while something can take the pick: the notice comes before the
+// room renders, and a layout may leave the settings button out.
+const RoomModeHandoffAction: React.FC<RoomModeHandoffActionProps> = ({ label, handoff }) => {
+  const hasTaker = useReactiveVar(roomModeHandoffTakerVar);
+  if (!hasTaker) return null;
+
+  return (
+    <BBButton
+      variant="subtle"
+      size="sm"
+      label={label}
+      onClick={() => {
+        roomModeHandoffVar(handoff);
+        toast.dismiss(NOT_APPLIED_TOAST_ID);
+      }}
+      dataTest="roomModeHandoffButton"
+    />
+  );
+};
+
+/**
+ * The pick never reaches the room in either case, so the moderator is told
+ * why. Given a pick to hand over, the notice also offers the settings
+ * window's Room modes tab, with that pick pre-selected.
+ */
+export const notifyRoomModeNotApplied = (
+  intl: IntlShape,
+  reason: 'roomRunning' | 'modeSet',
+  handoff?: RoomModeChoice,
+) => {
   const message = reason === 'roomRunning'
     ? intlMessages.notAppliedRoomRunning
     : intlMessages.notAppliedModeSet;
-  notify(intl.formatMessage(message), 'info', 'settings');
+  const action = handoff && (
+    <RoomModeHandoffAction
+      label={intl.formatMessage(intlMessages.openRoomModes)}
+      handoff={handoff}
+    />
+  );
+  notify(intl.formatMessage(message), 'info', 'settings', {
+    toastId: NOT_APPLIED_TOAST_ID,
+    // A notice that carries an action stays until it is used or closed, as the
+    // other notices with an action do.
+    ...(action && { autoClose: false, closeOnClick: false, draggable: false }),
+  }, action);
 };
 
 interface RoomModeApplyOnJoinProps {
@@ -116,7 +170,13 @@ const RoomModeApplyOnJoin: React.FC<RoomModeApplyOnJoinProps> = ({
       logCode: 'pre_flight_room_mode_apply_skipped',
       extraInfo: { modeId: choiceRef.current.modeId, reason: 'another moderator is in the room' },
     }, 'Room mode not applied: the room is already running');
-    notifyRoomModeNotApplied(intl, 'roomRunning');
+    // The room is running: the pick can still be applied from the room, as
+    // the pre-flight showed it.
+    const { modeId, edits } = choiceRef.current;
+    notifyRoomModeNotApplied(intl, 'roomRunning', {
+      modeId,
+      edits: withShownGuestPolicy(edits, roomValuesRef.current),
+    });
     onDoneRef.current();
   };
 

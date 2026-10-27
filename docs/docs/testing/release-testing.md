@@ -934,6 +934,10 @@ Moderators change the room mode from the settings window, in a "Room modes" tab.
 
     - Nothing should be applied again: the setting stays as changed by hand. The automated case changes "users join muted" through the API, since the client has no control that stores it
 
+9. Create a session as in step 1, join it as a moderator and pick "Class" without clicking "Start room". Join the same session as a second moderator and start it without a mode. Back on the first moderator, click "Start room"
+
+    - A notice should say the room mode was not applied, with an "Open room modes" action
+    - The action should open the "Room modes" tab with "Class" picked; "Change room mode" should apply it
 
 ## Audio
 
