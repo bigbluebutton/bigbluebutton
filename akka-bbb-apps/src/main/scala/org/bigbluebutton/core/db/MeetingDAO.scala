@@ -1,6 +1,8 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.msgs.RoomModeSettings
+import org.bigbluebutton.common2.util.JsonUtil
 import PostgresProfile.api._
 import spray.json.JsValue
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
@@ -119,32 +121,8 @@ object MeetingDAO {
   // over them. Shaped like the lockSettings, usersPolicies and voiceSettings the
   // client already reads. webcamsOnlyForModerator is there for modes that leave
   // the webcams as created; today every mode sets them.
-  def roomBaseSettings(meetingProps: DefaultProps): JsValue = {
-    val lock = meetingProps.lockSettingsProps
-    JsonUtils.mapToJson(Map(
-      "lockSettings" -> Map(
-        "disableCam" -> lock.disableCam,
-        "disableMic" -> lock.disableMic,
-        "disablePrivateChat" -> lock.disablePrivateChat,
-        "disablePublicChat" -> lock.disablePublicChat,
-        "disableNotes" -> lock.disableNotes,
-        "hideUserList" -> lock.hideUserList,
-        "lockOnJoin" -> lock.lockOnJoin,
-        "lockOnJoinConfigurable" -> lock.lockOnJoinConfigurable,
-        "hideViewersCursor" -> lock.hideViewersCursor,
-        "hideViewersAnnotation" -> lock.hideViewersAnnotation,
-        "presenterPolicy" -> lock.presenterPolicy
-      ),
-      "usersPolicies" -> Map(
-        "webcamsOnlyForModerator" -> meetingProps.usersProp.webcamsOnlyForModerator,
-        "guestPolicy" -> meetingProps.usersProp.guestPolicy,
-        "multiUserWhiteboardEnabled" -> meetingProps.usersProp.multiUserWhiteboardEnabled
-      ),
-      "voiceSettings" -> Map(
-        "muteOnStart" -> meetingProps.voiceProp.muteOnStart
-      )
-    ))
-  }
+  def roomBaseSettings(meetingProps: DefaultProps): JsValue =
+    JsonUtils.stringToJson(JsonUtil.toJson(RoomModeSettings.fromProps(meetingProps)))
 
   def insert(meetingProps: DefaultProps, clientSettings: Map[String, Object], pluginProps: PluginModel) = {
     DatabaseConnection.enqueue(
