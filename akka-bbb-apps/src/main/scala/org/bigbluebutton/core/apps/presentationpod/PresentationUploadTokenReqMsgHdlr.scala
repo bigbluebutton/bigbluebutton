@@ -55,23 +55,23 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
 
     // Record the rejection on a row of its own so the uploader shows why that file failed.
     // The empty token tells the client not to send the file. The user's oldest rejection rows
-    // beyond MaxRejectionRows are deleted, so their number stays bounded.
+    // beyond one window's worth are deleted, so their number stays bounded.
     def reportRejection(msg: PresentationUploadTokenReqMsg, presentationId: String,
                         errorMsgKey: String, errorDetails: Map[String, String]): Unit = {
       val meetingId = liveMeeting.props.meetingProp.intId
       val userId = msg.header.userId
-      PresPresentationDAO.insertUploadTokenIfNotExists(
+      PresPresentationDAO.insertRejectedUpload(
         meetingId,
         userId,
         msg.body.uploadTemporaryId,
         presentationId,
-        "",
-        msg.body.filename
+        msg.body.filename,
+        errorMsgKey,
+        errorDetails
       )
-      PresPresentationDAO.updateErrors(presentationId, errorMsgKey, errorDetails)
 
-      liveMeeting.presUploadRateLimiter.recordRejectionRow(userId, presentationId,
-        PresentationUploadTokenRateLimiter.MaxRejectionRows)
+      val maxRows = PresentationUploadTokenRateLimiter.maxRejectionRows(presUploadTokenMaxRequests)
+      liveMeeting.presUploadRateLimiter.recordRejectionRow(userId, presentationId, maxRows)
         .foreach(expiredId => PresPresentationDAO.delete(meetingId, expiredId))
     }
 
@@ -120,7 +120,12 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
           log.warning("Rejecting presentation upload token request: request rate limit exceeded. " +
             s"meetingId=$meetingId userId=${msg.header.userId} limit=$presUploadTokenMaxRequests windowSec=$presUploadTokenWindowSec")
           broadcastPresentationUploadTokenFailResp(msg)
-          reportRejection(msg, presentationId, "PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED", Map.empty)
+          if (liveMeeting.presUploadRateLimiter.allowRateLimitRow(
+            msg.header.userId, System.currentTimeMillis(),
+            PresentationUploadTokenRateLimiter.MaxRateLimitRowsPerWindow, presUploadTokenWindowSec * 1000L
+          )) {
+            reportRejection(msg, presentationId, "PRESENTATION_UPLOAD_RATE_LIMIT_EXCEEDED", Map.empty)
+          }
         } else if (pod.exists(PresentationPodsApp.podIsFullFor(_, presentationId, presMaxPerPod))) {
           log.warning("Rejecting presentation upload token request: pod presentation limit reached. " +
             s"meetingId=$meetingId userId=${msg.header.userId} podId=${msg.body.podId} " +

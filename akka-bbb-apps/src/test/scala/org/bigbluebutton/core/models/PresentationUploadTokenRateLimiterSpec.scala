@@ -28,6 +28,28 @@ class PresentationUploadTokenRateLimiterSpec extends AnyFlatSpec {
     (0 until 100).foreach(i => assert(limiter.allow("u1", i.toLong, 0, windowMs)))
   }
 
+  behavior of "PresentationUploadTokenRateLimiter.allowRateLimitRow"
+
+  it should "allow up to maxRows rows within the window and refuse the next" in {
+    val limiter = new PresentationUploadTokenRateLimiter
+    assert(limiter.allowRateLimitRow("u1", 0L, 2, windowMs))
+    assert(limiter.allowRateLimitRow("u1", 1L, 2, windowMs))
+    assert(!limiter.allowRateLimitRow("u1", 2L, 2, windowMs))
+  }
+
+  it should "allow rows again once earlier ones leave the window" in {
+    val limiter = new PresentationUploadTokenRateLimiter
+    assert(limiter.allowRateLimitRow("u1", 0L, 1, windowMs))
+    assert(!limiter.allowRateLimitRow("u1", windowMs - 1, 1, windowMs))
+    assert(limiter.allowRateLimitRow("u1", windowMs, 1, windowMs))
+  }
+
+  it should "track users independently" in {
+    val limiter = new PresentationUploadTokenRateLimiter
+    assert(limiter.allowRateLimitRow("u1", 0L, 1, windowMs))
+    assert(limiter.allowRateLimitRow("u2", 0L, 1, windowMs))
+  }
+
   behavior of "PresentationUploadTokenRateLimiter.recordRejectionRow"
 
   it should "keep rows up to maxRows and return the oldest beyond it" in {
@@ -43,5 +65,18 @@ class PresentationUploadTokenRateLimiterSpec extends AnyFlatSpec {
     assert(limiter.recordRejectionRow("u1", "p1", 1) == Vector.empty)
     assert(limiter.recordRejectionRow("u2", "p2", 1) == Vector.empty)
     assert(limiter.recordRejectionRow("u1", "p3", 1) == Vector("p1"))
+  }
+
+  behavior of "PresentationUploadTokenRateLimiter.maxRejectionRows"
+
+  it should "keep every row one window can produce" in {
+    val rateLimitRows = PresentationUploadTokenRateLimiter.MaxRateLimitRowsPerWindow
+    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(5) == 5 + rateLimitRows)
+    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(200) == 200 + rateLimitRows)
+  }
+
+  it should "fall back to the default limit when the limit is disabled" in {
+    val rateLimitRows = PresentationUploadTokenRateLimiter.MaxRateLimitRowsPerWindow
+    assert(PresentationUploadTokenRateLimiter.maxRejectionRows(0) == 20 + rateLimitRows)
   }
 }

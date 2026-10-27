@@ -261,6 +261,25 @@ object PresPresentationDAO {
     )
   }
 
+  // As insertUploadTokenIfNotExists with an empty token followed by updateErrors, in one statement,
+  // so the row never appears without its reason.
+  def insertRejectedUpload(meetingId: String, userId: String, temporaryId: String, presentationId: String,
+                           filename: String, errorMsgKey: String,
+                           errorDetails: scala.collection.immutable.Map[String, String]) = {
+    val errorDetailsJson = errorDetails.toJson.compactPrint
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadCompletionNotified","uploadInProgress","uploadCompleted","totalPages",
+          "uploadErrorMsgKey","uploadErrorDetailsJson")
+          values (${meetingId}, ${presentationId}, ${userId}, ${temporaryId}, '', ${filename},
+          '', false, false, false, false, false, false, false, 0,
+          ${errorMsgKey}, cast(${errorDetailsJson} as jsonb))
+          on conflict do nothing
+          """
+    )
+  }
+
   def updateErrors(presentationId: String, errorMsgKey: String, errorDetails: scala.collection.immutable.Map[String, String]) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]

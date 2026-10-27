@@ -296,7 +296,8 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
         onUpload: (upload) => {
           that.deepMergeUpdateFileKey(id, 'upload', upload);
           // No upload token arrived and no reason was recorded for the uploader toast to show,
-          // so nothing else would tell the presenter the upload failed.
+          // so nothing else would tell the presenter the upload failed. The upload rate limit
+          // stops recording reasons past a number of refusals per window, hence "wait a moment".
           if (upload.error && !upload.reported && upload.status === 408) {
             notify(intl.formatMessage(intlMessages[408]), 'error');
           }
