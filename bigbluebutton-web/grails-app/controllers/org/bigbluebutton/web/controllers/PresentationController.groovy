@@ -363,7 +363,7 @@ class PresentationController {
             presFilename,
             presentationBaseUrl,
             current,
-            params.authzToken,
+            authzToken,
             uploadFailed,
             uploadFailReasons
     )
