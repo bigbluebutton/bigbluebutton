@@ -1,0 +1,23 @@
+# Development: as html5.yml, but the webpack dev server runs in a container, for when Node 24 is
+# not installed on your machine. Add it in .env instead of html5.yml:
+#   COMPOSE_FILE=docker-compose.yml:docker/compose/dev/html5-container.yml
+# The html5-client image keeps running (nginx depends on it) but no longer gets requests.
+services:
+  html5-dev:
+    image: node:24@sha256:14078204b6bb268c107ceff6d3c43f45a888105e5c2b18b14c32b3409d93a1b0
+    working_dir: /app
+    # webpack dev server on port 3000; node_modules is a volume, not in the source tree
+    command: sh -ec 'npm ls --depth=0 >/dev/null 2>&1 || npm ci; exec npm start'
+    volumes:
+      - ./bigbluebutton-html5:/app
+      - html5-node-modules:/app/node_modules
+
+  nginx:
+    volumes:
+      - ./docker/compose/dev/bbb-html5.nginx:/usr/share/bigbluebutton/nginx/bbb-html5.nginx:ro
+      - ./bigbluebutton-html5/public/locales:/usr/share/bigbluebutton/html5-client/locales:ro
+    depends_on:
+      - html5-dev
+
+volumes:
+  html5-node-modules:

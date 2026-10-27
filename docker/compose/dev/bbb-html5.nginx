@@ -1,0 +1,16 @@
+# The html5 client from the webpack dev server (html5.yml, html5-container.yml in this
+# directory), as build/packages-template/bbb-html5/bbb-html5.nginx.dev
+location /html5client/ {
+  proxy_pass http://html5-dev:3000/;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  proxy_set_header Host $host;
+}
+
+# the client lists the locales from nginx's JSON index
+location /html5client/locales {
+  alias /usr/share/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
+}
