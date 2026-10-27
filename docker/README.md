@@ -282,3 +282,21 @@ services:
     volumes:
       - ./data/certs/cacerts:/etc/ssl/local/cacerts:ro
 ```
+
+### Development
+
+In a checkout of this repository, build the image of the component you changed and run it in
+place of the published one, e.g. for bbb-web:
+
+```sh
+BBB_IMAGE_REGISTRY=localhost BBB_IMAGE_TAG=dev docker buildx bake -f docker-bake.hcl --load --set '*.platform=linux/amd64' web
+```
+
+```yaml
+# docker-compose.override.yml
+services:
+  web:
+    image: localhost/bbb-web:dev
+```
+
+Then `docker compose up -d web`.
