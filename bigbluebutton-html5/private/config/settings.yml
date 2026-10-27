@@ -14,7 +14,9 @@ public:
     preFlight:
       enabled: false
       # Room mode panel beside the setup panel, for a moderator entering a room
-      # nobody has configured yet. Needs preFlight.enabled.
+      # nobody has configured yet, and the "Room modes" tab of the settings
+      # window, where moderators change the mode during the session.
+      # Needs preFlight.enabled.
       # Per session: userdata-bbb_pre_flight_room_modes.
       roomModes:
         enabled: false

@@ -768,7 +768,7 @@ The panel needs the pre-flight on and `public.app.preFlight.roomModes.enabled: t
 
     - The pre-flight should show the session's name and a "Join session" button, without the room mode panel
 
-3. A session whose room mode is already set (automated only: nothing in the client sets a room mode yet)
+3. A session whose room mode is already set (set it from the "Room modes" tab of the settings window, as in "Room mode change during the session")
 
     - A moderator joining it should not see the room mode panel
 
@@ -869,7 +869,7 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
     - The room should keep no room mode, and users should not join muted: nothing after the held request is sent once the 15 seconds pass
     - Once released, the held lock settings should still land: public messages allowed, "Presentation Policy" on "Allow participants to present with moderator approval" and the locks applying to people who join later, while the webcams stay "only for moderators" as the session was created
 
-10. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator and pick "Class" without clicking "Start room". Then join the same session as a second moderator and set the mode to "Meeting" while the first moderator's panel is still open (automated only: nothing in the client sets a room mode yet). Back on the first moderator, click the join button
+10. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator and pick "Class" without clicking "Start room". Then join the same session as a second moderator and set the mode to "Meeting" from the "Room modes" tab of the settings window while the first moderator's panel is still open. Back on the first moderator, click the join button
 
     - The panel should go away once the mode is set. Joining should keep "Meeting" and the presentation policy the session was created with, not the "Class" settings
 
@@ -892,6 +892,48 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
 
     - Once the join lands, the room should keep "Meeting" and the settings the session was created with, not the "Class" settings
     - A notice should say "Another moderator set the room mode first, so yours was not applied"
+
+### Room mode change during the session [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-develop/bigbluebutton-tests/playwright/pre-flight/roomModeSwitch.spec.ts)
+
+Moderators change the room mode from the settings window, in a "Room modes" tab. The new mode is applied over the room as it was created: the previous mode, and anything changed by hand since, do not stay. Same settings as the room mode panel.
+
+1. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator, pick "Class" and click "Start room". Open the settings window
+
+    - A "Room modes" tab should be listed, with "Class" marked as the current mode
+    - A viewer, and a moderator with `public.app.preFlight.roomModes.enabled` off, should not get the tab
+
+2. In the tab, click "Class" again
+
+    - "Change room mode" should stay disabled. Picking "Meeting" enables it, and going back to "Class" disables it again
+
+3. Click the gear of "Class"
+
+    - The mode's settings should open, with the same settings as the room mode panel, and a "Fixed for this session" group: recording, breakout rooms, polls, reactions and virtual backgrounds shown disabled, as the session was created
+    - "Back" should return to the modes without keeping any edit
+
+4. Close the settings, set the guest policy to "Ask moderator" and lock private chat in "Lock viewers", then open the tab, pick "Meeting" and click "Change room mode"
+
+    - The settings window should close and a notice say the room mode changed
+    - The room should have the "Meeting" settings, the guest policy back to the session's own, and private chat unlocked, as the session was created
+
+5. Repeat step 4 opening the gear of "Meeting", switching "Whiteboard for everyone" on and clicking "Apply changes" before "Change room mode"
+
+    - The whiteboard should be shared with everyone; the rest as in step 4
+
+6. With a viewer in the room under "Class", change the mode to "Meeting"
+
+    - The viewer should lose the shared whiteboard
+
+7. Pick "Meeting" in the tab and close the window with Esc or the close button, without changing the mode
+
+    - A dialog should ask before discarding the change; discarding it should leave the room in "Class"
+    - Picking "Meeting" again and clicking "Save" from another tab should ask the same
+    - Ignoring the change from there should save the other settings and leave the room in "Class" (checked by hand only)
+
+8. After changing the mode, change a setting by hand (for example the guest policy to "Ask moderator"), then reload the page, and then join as a second moderator
+
+    - Nothing should be applied again: the setting stays as changed by hand. The automated case changes "users join muted" through the API, since the client has no control that stores it
+
 
 ## Audio
 
