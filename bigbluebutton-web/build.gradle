@@ -29,8 +29,8 @@ buildscript {
 version = "0.10.0"
 group = "org.bigbluebutton.web"
 
-// TODO: remove once springVersion manages Tomcat >= 11.0.26 (4.1.1 manages 11.0.24).
-ext['tomcat.version'] = '11.0.26'
+// TODO: remove, with the tomcat-embed lines below, once springVersion manages Tomcat >= 11.0.27 (4.1.1 manages 11.0.24).
+ext['tomcat.version'] = '11.0.27'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -94,6 +94,15 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
 //  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
+
+  // Same version as ext['tomcat.version'], declared directly for scanners that skip the Grails BOM (Snyk Git import)
+  implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.27") {
+    exclude group: "org.apache.tomcat", module: "tomcat-annotations-api"
+  }
+  implementation("org.apache.tomcat.embed:tomcat-embed-websocket:11.0.27") {
+    exclude group: "org.apache.tomcat", module: "tomcat-annotations-api"
+  }
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:11.0.27"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"

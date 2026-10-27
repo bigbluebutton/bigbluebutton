@@ -413,7 +413,7 @@ const createEndpointTableData = [
     "name": "audioBridge",
     "required": false,
     "type": "String",
-    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>, <code className="language-plaintext highlighter-rouge">freeswitch</code>. (added 3.0)</>)
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
   },
   {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
@@ -427,7 +427,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Number",
     "default": 1,
-    "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this function.</>)
+    "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> ends the meeting as soon as the last user has left, so a meeting whose only user reloads the page or loses the connection can end.</>)
   },
   {
     "name": "groups",
