@@ -39,6 +39,5 @@ routes:
 profiles:
   checksum-sha256-only: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" checksum-sha256-only'}
   reveal-version:       {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
-  service-disabled:     {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" service-disabled'}
   clamav-scan:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan'}
   default:              {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
