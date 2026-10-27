@@ -1,11 +1,6 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
-import {
-  colorGrayDark,
-  btnPrimaryColor,
-  btnPrimaryActiveBg,
-} from '/imports/ui/stylesheets/styled-components/palette';
 import { mobileNavbarButtonGap, mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
 import { activeEntryBadge } from '/imports/ui/components/common/bar-overflow/styles';
 
@@ -59,68 +54,6 @@ const DropdownButton = styled(Button)<{
   }
 `;
 
-const AwayOption = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  & > span b {
-    margin-left: 0.25rem;
-    margin-right: 0.25rem;
-  }
-`;
-
-const ToggleButtonWrapper = styled.div<{ active?: boolean }>`
-  border: 1px solid transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-
-  &:focus {
-    background-color: ${colorGrayDark};
-  }
-
-  & > button {
-    cursor: pointer;
-    flex: auto;
-  }
-
-  & > * > span {
-    padding: 4px;
-  }
-
-  ${({ active }) => active && `
-    color: ${btnPrimaryColor};
-    background-color: ${btnPrimaryActiveBg};
-
-    &:hover{
-      filter: brightness(90%);
-      color: ${btnPrimaryColor};
-      background-color: ${btnPrimaryActiveBg} !important;
-    }
-  `}
-
-  width: auto;
-  cursor: inherit;
-  &:hover {
-    background-color: transparent !important;
-  }
-`;
-
-const AFKLabel = styled.div`
-  padding-right: .5rem;
-  padding-left: 0;
-
-  [dir="rtl"] & {
-    padding-left: .5rem;
-    padding-right: 0;
-  }
-
-`;
-
 export default {
   DropdownButton,
-  AwayOption,
-  ToggleButtonWrapper,
-  AFKLabel,
 };
