@@ -866,7 +866,9 @@ object VoiceApp extends SystemConfiguration {
         userId
       )
       } yield {
-        if (u.muted != muted && (muted || !u.deafened)) {
+        // A matching confirmed state does not mean there is no opposite
+        // command in flight. The voice bridge must receive the latest request.
+        if (muted || !u.deafened) {
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
             liveMeeting.props.voiceProp.voiceConf,
