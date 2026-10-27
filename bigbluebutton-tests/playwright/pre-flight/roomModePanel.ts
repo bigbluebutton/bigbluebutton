@@ -49,7 +49,7 @@ export const hasPanel = async (page: Page) => {
 // Asserted over a settled positive signal: the join button only replaces the
 // loading state once the room mode is known, so a panel still on its way would
 // already be up.
-const hasNoPanel = async (page: Page, description: string) => {
+export const hasNoPanel = async (page: Page, description: string) => {
   await page.hasElement(e.preFlightJoinButton, 'should display the join button', ELEMENT_WAIT_LONGER_TIME);
   expect(await page.checkElement(e.preFlightRoomModePanel), description).toBeFalsy();
 };
