@@ -1,3 +1,4 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import {
   LOGOUT_URL_CREATE_PARAMETER,
@@ -59,15 +60,17 @@ test.describe.parallel('Session link', { tag: '@ci' }, () => {
     await meetingEnded.secondPageJoinsAsTheSameUser();
   });
 
-  // both pages stay in: the first silently loses its media connection to the second
-  // ("Connection issue detected. Restoring your audio and video...") instead of being told why
-  test(
-    'Opened in a second page tells the first page why',
-    { tag: '@known-issue' },
-    async ({ browser, context, page }, testInfo) => {
-      const meetingEnded = new MeetingEnded(browser, context);
-      await meetingEnded.initPages(page, testInfo);
-      await meetingEnded.firstPageIsToldAboutTheSecondOne();
-    },
-  );
+  // the latest page keeps the session and the previous page is told why it was disconnected
+  test('Opened in a second page tells the first page why', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26133);
+    const meetingEnded = new MeetingEnded(browser, context);
+    await meetingEnded.initPages(page, testInfo);
+    await meetingEnded.firstPageIsToldAboutTheSecondOne();
+  });
+
+  test('Reloading a single page keeps it in the meeting', async ({ browser, context, page }, testInfo) => {
+    const meetingEnded = new MeetingEnded(browser, context);
+    await meetingEnded.initPages(page, testInfo);
+    await meetingEnded.reloadKeepsThePageInTheMeeting();
+  });
 });
