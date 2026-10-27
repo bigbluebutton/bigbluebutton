@@ -5,7 +5,14 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { MultiUsers } from '../user/multiusers';
-import { checkLastMessageSent, openPrivateChat, openPublicChat, sendPublicMessages } from './util';
+import {
+  checkLastMessageSent,
+  countPublicMessageCreatedAtTies,
+  openPrivateChat,
+  openPublicChat,
+  sendPublicMessages,
+  sendPublicMessagesInBatches,
+} from './util';
 
 export class Chat extends MultiUsers {
   async sendPublicMessage() {
@@ -205,6 +212,45 @@ export class Chat extends MultiUsers {
     await expect(receivedMessages, 'should show the whole history').toHaveCount(messages.length);
     expect((await receivedMessages.allInnerTexts()).sort(), 'should show every message of the history').toEqual(
       [...messages].sort(),
+    );
+  }
+
+  async lateJoinerLoadsMessagesInSequence() {
+    const messages = Array.from(
+      { length: 120 },
+      (_v, index) => `Ordered history message ${String(index + 1).padStart(3, '0')}`,
+    );
+    await openPublicChat(this.modPage);
+    await sendPublicMessagesInBatches(this.modPage, messages, 20);
+    await checkLastMessageSent(this.modPage, messages[messages.length - 1]);
+    const createdAtTieCount = await countPublicMessageCreatedAtTies(this.modPage);
+    this.modPage.testInfo?.annotations.push({
+      type: 'createdAt ties in oldest page',
+      description: String(createdAtTieCount),
+    });
+
+    await this.initUserPage();
+    const receivedMessages = this.userPage.page.locator(e.chatUserMessageText);
+    const firstMessage = receivedMessages.filter({ hasText: messages[0] });
+    await checkLastMessageSent(this.userPage, messages[messages.length - 1]);
+    const chatMessagesBox = await this.userPage.page.locator(e.chatMessages).boundingBox();
+    if (!chatMessagesBox) throw new Error('chat messages boundingBox is null');
+    await this.userPage.page.mouse.move(
+      chatMessagesBox.x + chatMessagesBox.width / 2,
+      chatMessagesBox.y + chatMessagesBox.height / 2,
+    );
+    await expect(async () => {
+      await this.userPage.page.mouse.wheel(0, -2000);
+      await expect(firstMessage).toBeVisible({ timeout: 1000 });
+    }, 'should load the oldest message when scrolling up').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await expect(receivedMessages, 'should show every user message').toHaveCount(messages.length);
+    const sequences = await this.userPage.page
+      .locator(e.chatMessageItem)
+      .evaluateAll((items) => items.map((item) => Number(item.getAttribute('data-sequence'))));
+    expect(sequences, 'should not repeat a message sequence').toHaveLength(new Set(sequences).size);
+    expect(sequences, 'should show chat messages in their server sequence').toEqual(
+      Array.from({ length: sequences.length }, (_v, index) => index + 1),
     );
   }
 
