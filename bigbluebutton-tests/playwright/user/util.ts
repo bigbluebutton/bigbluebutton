@@ -23,6 +23,21 @@ export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
+// Selects LiveKit's client-side audio state instead of BBB's. The shipped default is false
+// (settings.yml), and the two are served by different talking-indicator paths, so any test
+// that cares which one is in use has to pin it rather than inherit the server's setting.
+export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    media: {
+      livekit: {
+        audio: {
+          useLiveKitAudioState: true,
+        },
+      },
+    },
+  },
+};
+
 export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
   return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
 }

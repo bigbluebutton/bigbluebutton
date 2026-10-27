@@ -158,7 +158,7 @@ $ sudo ./bbb-x.x-script --force
 
 #### Play recordings made with BigBlueButton 0.81 or 0.9
 
-Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default: `bbb-playback-presentation` ships only the processing scripts, and the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package:
+Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default. `bbb-playback-presentation` still ships the processing scripts and the nginx configuration that serves `/playback/presentation`, but not the players, so the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package that provides them:
 
 ```bash
 $ sudo apt-get install bbb-playback-presentation-legacy
@@ -666,6 +666,20 @@ public:
                 users: 100
 HERE
 ```
+
+In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To keep the switch for moderators only, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
+
+```
+public:
+    kurento:
+        pagination:
+            paginationToggleEnabled: true
+            paginationToggleModeratorOnly: true
+```
+
+A user who cannot see the switch always gets the default from `public.app.defaultSettings.application.paginationEnabled`, even if they changed it earlier (for example, before being demoted from moderator).
+
+The switch only shows when the user's page size is above `0`. With the default `desktopPageSizes.moderator: 0`, moderators on desktop see every webcam and get no switch; set a moderator page size to give it to them.
 
 #### Use custom images for virtual background
 
@@ -1778,7 +1792,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `authenticatedGuest` | Enable authenticated guest mode | true/false | true |
 | `defaultAllowPromoteGuestToModerator` | Allows moderators to promote guests to moderators when `authenticatedGuest` is enabled | true/false | false _`overwritable`_ (via `allowPromoteGuestToModerator`) |
 | `meetingExpireIfNoUserJoinedInMinutes` | End meeting if no user joined within a period of time after meeting created | Integer | 5 _`overwritable`_ |
-| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left | Integer (0=disable) | 1 _`overwritable`_ |
+| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left | Integer (0=end as soon as the last user left) | 1 _`overwritable`_ |
 | `endWhenNoModerator` | End meeting when there are no moderators after a certain period of time | true/false | false _`overwritable`_ |
 | `endWhenNoModeratorDelayInMinutes` | Number of minutes to wait for moderator rejoin before end meeting | Integer | 1 _`overwritable`_ |
 | `userInactivityInspectTimerInMinutes` | User inactivity audit timer interval | Integer (0=disable) | 0 |
@@ -1798,7 +1812,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
 | `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
 | `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
-| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |
+| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu | livekit |
 | `disableRecordingDefault` | When true, do not record even if the `/create` call sets `record=true` | true/false | false |
 | `autoStartRecording` | Start recording when the first user joins the meeting | true/false | false _`overwritable`_ |
 | `allowStartStopRecording` | Allow users to start/stop recording during the session | true/false | true _`overwritable`_ |
@@ -1830,7 +1844,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
 | `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |
 | `pluginManifestCacheRefreshIntervalMinutes` | How often (in minutes) the plugin manifest cache refresh task runs | Integer | 60 |
-| `serviceEnabled` | Whether the BigBlueButton API is enabled | true/false | true |
 | `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
 | `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
 | `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Override for additional security separation between presentation tokens and the rest of bbb-web | String | _(defaults to `${securitySalt}`)_ |

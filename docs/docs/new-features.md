@@ -171,7 +171,7 @@ rtc:
 Each media type defaults to `livekit` and can be pointed at the legacy stack
 instead, per meeting or server-wide:
 - Per meeting: set any of the following meeting `/create` parameters
-  - `audioBridge=bbb-webrtc-sfu` (or `freeswitch`)
+  - `audioBridge=bbb-webrtc-sfu`
   - `cameraBridge=bbb-webrtc-sfu`
   - `screenShareBridge=bbb-webrtc-sfu`
 - Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
@@ -352,8 +352,11 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="clientLogoutTimerInMinutes" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise. The `bbb-conf --check` retired-property warning only scans `/etc/bigbluebutton/bbb-web.properties`, not `resources.xml`.
 - `enteredUsersTimeout` was removed. It set how long bbb-web tracked users who had called the `/enter` endpoint without joining; that endpoint was removed in BBB 3.0, so nothing has been tracked since. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `enteredUserCleanupTimerTask` bean and the `<property name="enteredUserCleanupTimerTask" .../>` and `<property name="enteredUsersTimeout" .../>` entries - bbb-web will fail to start otherwise.
+- `serviceEnabled` was removed in BBB 4.0.1. It was documented as switching the API off, but its only reader was a Grails 2 controller interceptor that has not run since bbb-web moved to Grails 3 in BBB 2.2, so `serviceEnabled=false` has not disabled the API on any supported release. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
+  - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="serviceEnabled" .../>` entry - bbb-web will fail to start otherwise.
 - `sharedNotesEditor` was removed: BlockNote is the only shared-notes editor (it first became the default in 4.0.0-beta.4; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default) and [Removed Etherpad](#removed-etherpad)). A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="sharedNotesEditor" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise.
+- `accessControlAllowOrigin` was removed in BBB 4.0.1. It was meant to set the `Access-Control-Allow-Origin` header on presentation uploads, but the Grails 2 filter that read it has not run since bbb-web moved to Grails 3 in BBB 2.2, so it had no effect. Cross-origin access to bbb-web is configured with the `grails.cors.*` options, as the [cluster proxy guide](/administration/cluster-proxy#bigbluebutton-servers) shows. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
 
 #### Value changed
 
@@ -377,6 +380,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 #### Added
 
 - `public.kurento.pagination.gridEnabled` (default `true`) - whether the camera-less avatar grid (the "webcam grid") is shown while the presentation is minimized. The grid can also be disabled per meeting with `disabledFeatures=webcamGrid`.
+- `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - shows the "Video pagination" switch in Settings to moderators only. A user who cannot see the switch, whether because of this setting or `paginationToggleEnabled: false`, always gets the default from `public.app.defaultSettings.application.paginationEnabled`. See [Limit overall media streams](/administration/customize#limit-overall-media-streams).
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.

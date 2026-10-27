@@ -358,6 +358,30 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - You should be able to see you again after enabling it
 
+### Video pagination switch for moderators only
+
+1. In `/etc/bigbluebutton/bbb-html5.yml`, set `public.kurento.pagination.paginationToggleModeratorOnly: true` and give both roles a page size above 0 (e.g. `desktopPageSizes: { moderator: 1, viewer: 1 }`). Run `bbb-conf --restart`.
+
+2. Join a meeting with a moderator and two viewers. The moderator and one viewer share webcams.
+
+3. As each user, open Settings > Application.
+
+    - The moderator should see the "Video pagination" switch
+    - The viewers should not see it
+
+4. As the viewer without a webcam, look at the webcam area.
+
+    - Only one webcam should be shown, with buttons to move between pages
+
+5. Promote that viewer to moderator, then turn "Video pagination" off in their Settings.
+
+    - Both webcams should be shown, without page buttons
+
+6. Demote the user back to viewer.
+
+    - The switch should disappear from their Settings
+    - The webcams should be paginated again, even though they turned pagination off as a moderator
+
 ### Share camera as content [(Partially automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/presentation/presentation.spec.ts)
 
 1. Join in a meeting with 2 users.

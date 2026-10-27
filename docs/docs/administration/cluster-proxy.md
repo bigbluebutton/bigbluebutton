@@ -103,10 +103,11 @@ Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 ```ini
 defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
-accessControlAllowOrigin=https://bbb-proxy.example.com
 graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
 graphqlApiUrl=https://bbb-01.example.com/api/rest
 ```
+
+Earlier versions of this guide also set `accessControlAllowOrigin` here. bbb-web does not read that property; remove it if you have it (`bbb-conf --check` lists it). The `bbb-web.service` override with the `grails.cors.*` options, further down, is what allows the proxy's origin.
 
 ---
 

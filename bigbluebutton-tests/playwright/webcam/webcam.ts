@@ -12,6 +12,28 @@ import {
   webcamContentCheck,
 } from './util';
 
+// "minimal" publishes alone, and it is the lowest simulcast layer of "medium".
+export const CONSTRAINT_OBJECT_PROFILES_MODULE = [
+  '<modules><module name="clientSettingsOverride"><![CDATA[',
+  JSON.stringify({
+    public: {
+      kurento: {
+        cameraProfiles: [
+          {
+            id: 'minimal',
+            name: 'Minimal',
+            bitrate: 50,
+            constraints: { width: { ideal: 32 }, height: { ideal: 32 } },
+          },
+          { id: 'low', name: 'Low', bitrate: 100 },
+          { id: 'medium', name: 'Medium', default: true, bitrate: 200 },
+        ],
+      },
+    },
+  }),
+  ']]></module></modules>',
+].join('');
+
 export class Webcam extends Page {
   async share() {
     const { skipVideoPreview, skipVideoPreviewOnFirstJoin, videoPreviewTimeout } = this.settings || {};
@@ -145,6 +167,20 @@ export class Webcam extends Page {
     await joinWebcamSettingQuality('high');
     await this.waitAndClick(e.connectionStatusBtn);
     await checkVideoUploadData(this, lowValue);
+  }
+
+  async shareWithQuality(profileId: string) {
+    const { videoPreviewTimeout } = this.settings || {};
+
+    await this.waitAndClick(e.joinVideo);
+    await this.page.locator(e.videoQualitySelector).selectOption(profileId);
+    await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
+    await this.waitAndClick(e.startSharingWebcam);
+    // A failed publish removes the tile before its video element is added.
+    await this.waitForSelector(`${e.webcamVideoItem} video`, VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(e.webcamConnecting, 'should finish connecting the webcam', ELEMENT_WAIT_LONGER_TIME);
+    await this.waitAndClick(e.leaveVideo);
+    await this.hasElement(e.joinVideo, 'should display the join video button after stopping the webcam');
   }
 
   async applyBackground() {
