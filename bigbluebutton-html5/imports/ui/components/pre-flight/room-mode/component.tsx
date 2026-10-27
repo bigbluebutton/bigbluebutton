@@ -7,7 +7,7 @@ import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 import { usePreFlight } from '../context';
 import { JoiningRoomActions } from '../joining-room/component';
 import JoinNotices from '../join-notices/component';
-import ROOM_MODES, { getRoomMode } from './modes';
+import ROOM_MODES, { getRoomMode, RoomModeDefinition } from './modes';
 import RoomIllustration from './illustration';
 import RoomModeSummary from './summary/component';
 import { RoomModeRoomValues } from './settings';
@@ -47,11 +47,116 @@ const intlMessages = defineMessages({
   },
 });
 
-const HEADING_ID = 'preFlightRoomModeHeading';
+// The pre-flight's prefix, for both element ids and data-test ids.
+const PRE_FLIGHT_PREFIX = 'preFlightRoomMode';
 
-const cardId = (modeId: string) => `preFlightRoomMode-${modeId}`;
+const HEADING_ID = `${PRE_FLIGHT_PREFIX}Heading`;
 
-const focusCard = (modeId: string) => document.getElementById(cardId(modeId))?.focus();
+const cardId = (prefix: string, modeId: string) => `${prefix}-${modeId}`;
+
+const focusCard = (prefix: string, modeId: string) => document.getElementById(cardId(prefix, modeId))?.focus();
+
+interface RoomModeCardsProps {
+  selectedId: string | null;
+  onSelect: (modeId: string) => void;
+  // Once the pick is being applied the cards stop taking input.
+  locked: boolean;
+  // Element ids and data-test ids start with it, so two places can list the modes.
+  prefix: string;
+  labelledBy: string;
+  // The room's mode, marked on its card.
+  currentId?: string;
+  // Read out on the current mode's card, which the check may have left.
+  currentLabel?: string;
+  // Rendered beside each card, outside it: a card is a radio.
+  renderCardAction?: (mode: RoomModeDefinition) => React.ReactNode;
+}
+
+/**
+ * The mode cards, as a radio group. The pick belongs to the caller: the
+ * pre-flight's state, or the in-meeting settings window.
+ */
+export const RoomModeCards: React.FC<RoomModeCardsProps> = ({
+  selectedId,
+  onSelect,
+  locked,
+  prefix,
+  labelledBy,
+  currentId,
+  currentLabel,
+  renderCardAction,
+}) => {
+  const intl = useIntl();
+  const selected = getRoomMode(selectedId);
+  // Roving focus, as a radio group: one tab stop, arrows move between the
+  // cards.
+  const focusableId = selected?.id ?? ROOM_MODES[0].id;
+
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = {
+      ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1,
+    }[event.key];
+    // Only the cards move the pick: a card's action has keys of its own.
+    if (!step || locked || (event.target as HTMLElement).getAttribute('role') !== 'radio') return;
+    event.preventDefault();
+    const modes = ROOM_MODES;
+    const current = modes.findIndex((mode) => mode.id === focusableId);
+    const next = modes[(current + step + modes.length) % modes.length];
+    onSelect(next.id);
+    focusCard(prefix, next.id);
+  }, [focusableId, onSelect, locked, prefix]);
+
+  return (
+    <Styled.Cards
+      role="radiogroup"
+      aria-labelledby={labelledBy}
+      aria-disabled={locked || undefined}
+      onKeyDown={handleKeyDown}
+    >
+      {ROOM_MODES.map((mode) => {
+        const isSelected = mode.id === selected?.id;
+        const isCurrent = currentId !== undefined && mode.id === currentId;
+        const Icon = mode.icon;
+
+        // Not disabled while locked: a disabled card would leave the tab order
+        // and stop announcing the pick.
+        const card = (
+          <Styled.Card
+            key={mode.id}
+            id={cardId(prefix, mode.id)}
+            role="radio"
+            aria-checked={isSelected}
+            aria-disabled={locked || undefined}
+            tabIndex={mode.id === focusableId ? 0 : -1}
+            $selected={isSelected}
+            onClick={() => { if (!locked) onSelect(mode.id); }}
+            data-test={`${prefix}${mode.testId}`}
+            data-current={currentId === undefined ? undefined : isCurrent}
+          >
+            <Styled.CardIcon aria-hidden $selected={isSelected}>
+              <Icon />
+            </Styled.CardIcon>
+            <Styled.CardText>
+              <Styled.CardName>
+                {intl.formatMessage(mode.name)}
+                {isSelected && <CheckCircleIcon aria-hidden />}
+              </Styled.CardName>
+              <Styled.CardHint>{intl.formatMessage(mode.hint)}</Styled.CardHint>
+              {isCurrent && currentLabel && <span className="sr-only">{currentLabel}</span>}
+            </Styled.CardText>
+          </Styled.Card>
+        );
+
+        return renderCardAction ? (
+          <Styled.CardRow key={mode.id}>
+            {card}
+            {renderCardAction(mode)}
+          </Styled.CardRow>
+        ) : card;
+      })}
+    </Styled.Cards>
+  );
+};
 
 interface RoomModePanelProps {
   // Once Start room is pressed the pick is final: the cards stop taking input.
@@ -70,22 +175,6 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining, roomVal
   // In the phone layout the tab already names the panel.
   const { roomMode, setRoomMode, phoneLayout } = usePreFlight();
   const selected = getRoomMode(roomMode);
-  // Roving focus, as a radio group: one tab stop, arrows move between the
-  // cards.
-  const focusableId = selected?.id ?? ROOM_MODES[0].id;
-
-  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-    const step = {
-      ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1,
-    }[event.key];
-    if (!step || isJoining) return;
-    event.preventDefault();
-    const modes = ROOM_MODES;
-    const current = modes.findIndex((mode) => mode.id === focusableId);
-    const next = modes[(current + step + modes.length) % modes.length];
-    setRoomMode(next.id);
-    focusCard(next.id);
-  }, [focusableId, setRoomMode, isJoining]);
 
   return (
     <Styled.Panel data-test="preFlightRoomModePanel">
@@ -99,44 +188,13 @@ export const RoomModePanel: React.FC<RoomModePanelProps> = ({ isJoining, roomVal
         <Styled.Picker>
           <Styled.Heading id={HEADING_ID}>{intl.formatMessage(intlMessages.heading)}</Styled.Heading>
           <Styled.Description>{intl.formatMessage(intlMessages.description)}</Styled.Description>
-          <Styled.Cards
-            role="radiogroup"
-            aria-labelledby={HEADING_ID}
-            aria-disabled={isJoining || undefined}
-            onKeyDown={handleKeyDown}
-          >
-            {ROOM_MODES.map((mode) => {
-              const isSelected = mode.id === selected?.id;
-              const Icon = mode.icon;
-
-              // Not disabled while joining, only locked: a disabled card would
-              // leave the tab order and stop announcing the pick.
-              return (
-                <Styled.Card
-                  key={mode.id}
-                  id={cardId(mode.id)}
-                  role="radio"
-                  aria-checked={isSelected}
-                  aria-disabled={isJoining || undefined}
-                  tabIndex={mode.id === focusableId ? 0 : -1}
-                  $selected={isSelected}
-                  onClick={() => { if (!isJoining) setRoomMode(mode.id); }}
-                  data-test={mode.dataTest}
-                >
-                  <Styled.CardIcon aria-hidden $selected={isSelected}>
-                    <Icon />
-                  </Styled.CardIcon>
-                  <Styled.CardText>
-                    <Styled.CardName>
-                      {intl.formatMessage(mode.name)}
-                      {isSelected && <CheckCircleIcon aria-hidden />}
-                    </Styled.CardName>
-                    <Styled.CardHint>{intl.formatMessage(mode.hint)}</Styled.CardHint>
-                  </Styled.CardText>
-                </Styled.Card>
-              );
-            })}
-          </Styled.Cards>
+          <RoomModeCards
+            selectedId={roomMode}
+            onSelect={setRoomMode}
+            locked={isJoining}
+            prefix={PRE_FLIGHT_PREFIX}
+            labelledBy={HEADING_ID}
+          />
         </Styled.Picker>
         {/* No live region: the checked radio already announces the pick. */}
         <Styled.Summary $empty={!selected}>
@@ -185,7 +243,7 @@ export const RoomModeActions: React.FC<RoomModeActionsProps> = ({ isJoining, onJ
   // rather than falling back to the page.
   const handleCancel = useCallback(() => {
     setRoomMode(null);
-    focusCard(ROOM_MODES[0].id);
+    focusCard(PRE_FLIGHT_PREFIX, ROOM_MODES[0].id);
   }, [setRoomMode]);
 
   return (

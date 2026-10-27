@@ -14,6 +14,9 @@ import { RoomModeDefinition } from '../modes';
 import {
   AUTOMATIC_SETTINGS,
   EDITABLE_SETTINGS,
+  RoomModeEditableId,
+  RoomModeEditableValues,
+  RoomModeEdits,
   RoomModeRoomValues,
   resolveRoomModeSettings,
   SelectSetting,
@@ -31,26 +34,42 @@ const intlMessages = defineMessages({
   },
 });
 
-const EDITABLE_HEADING_ID = 'preFlightRoomModeEditableHeading';
-const AUTOMATIC_HEADING_ID = 'preFlightRoomModeAutomaticHeading';
+// The pre-flight's prefix, for both element ids and data-test ids.
+const PRE_FLIGHT_PREFIX = 'preFlightRoomMode';
 
-interface RoomModeSummaryProps {
+interface RoomModeSummaryViewProps {
   mode: RoomModeDefinition;
+  // What a setting falls back to when neither an edit nor the mode sets it.
   roomValues: RoomModeRoomValues;
-  // Once Start room is pressed the settings are final, as the cards are.
-  isJoining: boolean;
+  edits: RoomModeEdits;
+  onEdit: <K extends RoomModeEditableId>(id: K, value: RoomModeEditableValues[K]) => void;
+  // Once the pick is being applied the settings are final, as the cards are.
+  locked: boolean;
+  // Element ids and data-test ids start with it, so two places can list a mode.
+  prefix: string;
+  // A group of its own, listed after the automatic settings.
+  extraGroup?: React.ReactNode;
 }
 
 /**
- * What the picked mode will apply, split as the design's legend splits it:
- * the settings the moderator can still change, and those applied without
- * asking. Edits stay in the pre-flight; nothing reaches the room from here.
+ * What a mode will apply, split as the design's legend splits it: the
+ * settings the moderator can still change, and those applied without asking.
+ * Edits stay with the caller; nothing reaches the room from here.
  */
-const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJoining }) => {
+export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
+  mode,
+  roomValues,
+  edits,
+  onEdit,
+  locked,
+  prefix,
+  extraGroup,
+}) => {
   const intl = useIntl();
-  const { roomModeEdits, setRoomModeEdit } = usePreFlight();
+  const editableHeadingId = `${prefix}EditableHeading`;
+  const automaticHeadingId = `${prefix}AutomaticHeading`;
 
-  const values = resolveRoomModeSettings(mode.preset, roomModeEdits, roomValues);
+  const values = resolveRoomModeSettings(mode.preset, edits, roomValues);
 
   // The label hugs the switch: BBBToggle has no layout for a label at the
   // start and the switch at the end (bbb-ui-components-react#112).
@@ -58,25 +77,25 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
     const checked = values[setting.id] === true;
     const helper = setting.helper && (checked ? setting.helper.on : setting.helper.off);
 
-    const id = `preFlightRoomMode-${setting.id}`;
+    const id = `${prefix}-${setting.id}`;
 
-    // Locked while joining, not disabled: a disabled switch would leave the tab
-    // order, as the cards would.
+    // Locked, not disabled: a disabled switch would leave the tab order, as the
+    // cards would.
     return (
       <BBBToggle
         key={setting.id}
         id={id}
         checked={checked}
         onChange={(_event: React.ChangeEvent<HTMLInputElement>, next: boolean) => {
-          if (!isJoining) setRoomModeEdit(setting.id, next);
+          if (!locked) onEdit(setting.id, next);
         }}
         label={intl.formatMessage(setting.label)}
         helperText={helper && intl.formatMessage(helper)}
         textPosition="left"
         slotProps={{
           input: {
-            'data-test': setting.dataTest,
-            'aria-disabled': isJoining || undefined,
+            'data-test': `${prefix}${setting.testId}`,
+            'aria-disabled': locked || undefined,
           } as React.InputHTMLAttributes<HTMLInputElement>,
         }}
       />
@@ -99,17 +118,17 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
         key={setting.id}
         title={intl.formatMessage(setting.label)}
         value={value}
-        // Read-only while joining: it stays focusable but does not open.
-        readOnly={isJoining}
+        // Read-only while locked: it stays focusable but does not open.
+        readOnly={locked}
         onChange={(event: SelectChangeEvent<unknown>) => {
           // Only a value the list offers is staged.
           const picked = options.find((option) => option.value === event.target.value);
-          if (picked && !isJoining) setRoomModeEdit(setting.id, picked.value);
+          if (picked && !locked) onEdit(setting.id, picked.value);
         }}
         SelectDisplayProps={{
-          'data-test': setting.dataTest,
+          'data-test': `${prefix}${setting.testId}`,
           'data-value': value,
-          'aria-disabled': isJoining || undefined,
+          'aria-disabled': locked || undefined,
         } as React.HTMLAttributes<HTMLDivElement>}
       >
         {options.map((option) => (
@@ -122,13 +141,13 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
   };
 
   return (
-    <Styled.Settings data-test="preFlightRoomModeSummary">
-      <Styled.Group role="group" aria-labelledby={EDITABLE_HEADING_ID}>
-        <Styled.GroupHeading id={EDITABLE_HEADING_ID}>
+    <Styled.Settings data-test={`${prefix}Summary`}>
+      <Styled.Group role="group" aria-labelledby={editableHeadingId}>
+        <Styled.GroupHeading id={editableHeadingId}>
           <EditIcon aria-hidden />
           {intl.formatMessage(intlMessages.editable)}
         </Styled.GroupHeading>
-        <Styled.Controls $locked={isJoining}>
+        <Styled.Controls $locked={locked}>
           {EDITABLE_SETTINGS.map((setting) => {
             const value = values[setting.id];
             // A setting the mode leaves as created, and whose value the room
@@ -143,21 +162,45 @@ const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJ
           })}
         </Styled.Controls>
       </Styled.Group>
-      <Styled.Group role="group" aria-labelledby={AUTOMATIC_HEADING_ID}>
-        <Styled.GroupHeading id={AUTOMATIC_HEADING_ID}>
+      <Styled.Group role="group" aria-labelledby={automaticHeadingId}>
+        <Styled.GroupHeading id={automaticHeadingId}>
           <AutoAwesomeIcon aria-hidden />
           {intl.formatMessage(intlMessages.automatic)}
         </Styled.GroupHeading>
         <Styled.AutomaticList>
           {AUTOMATIC_SETTINGS.filter((setting) => setting.appliesTo(mode.preset, roomValues)).map((setting) => (
-            <Styled.AutomaticItem key={setting.id} data-test={setting.dataTest}>
+            <Styled.AutomaticItem key={setting.id} data-test={`${prefix}${setting.testId}`}>
               <CheckIcon aria-hidden />
               {intl.formatMessage(setting.label)}
             </Styled.AutomaticItem>
           ))}
         </Styled.AutomaticList>
       </Styled.Group>
+      {extraGroup}
     </Styled.Settings>
+  );
+};
+
+interface RoomModeSummaryProps {
+  mode: RoomModeDefinition;
+  roomValues: RoomModeRoomValues;
+  // Once Start room is pressed the settings are final, as the cards are.
+  isJoining: boolean;
+}
+
+// The pre-flight's summary: the edits live in the pre-flight's state.
+const RoomModeSummary: React.FC<RoomModeSummaryProps> = ({ mode, roomValues, isJoining }) => {
+  const { roomModeEdits, setRoomModeEdit } = usePreFlight();
+
+  return (
+    <RoomModeSummaryView
+      mode={mode}
+      roomValues={roomValues}
+      edits={roomModeEdits}
+      onEdit={setRoomModeEdit}
+      locked={isJoining}
+      prefix={PRE_FLIGHT_PREFIX}
+    />
   );
 };
 

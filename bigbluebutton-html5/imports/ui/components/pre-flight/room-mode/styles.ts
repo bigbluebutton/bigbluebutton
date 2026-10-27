@@ -127,6 +127,23 @@ const Card = styled.button.attrs({ type: 'button' })<{ $selected: boolean }>`
   }
 `;
 
+// A card with an action beside it: the action sits over the card's top end
+// corner, but outside the card, which is a button. The card keeps that corner
+// clear, so a long name never runs under the action.
+const CardRow = styled.div`
+  position: relative;
+
+  & > :first-child:not(:last-child) {
+    padding-inline-end: calc(3rem + ${smPadding});
+  }
+
+  & > :last-child:not(:first-child) {
+    position: absolute;
+    top: ${smPadding};
+    inset-inline-end: ${smPadding};
+  }
+`;
+
 // The design's 48px tile: grey and neutral until picked, tinted once it is.
 const CardIcon = styled.span<{ $selected: boolean }>`
   display: flex;
@@ -238,6 +255,7 @@ export default {
   Description,
   Cards,
   Card,
+  CardRow,
   CardIcon,
   CardText,
   CardName,
