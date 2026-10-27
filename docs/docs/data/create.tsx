@@ -413,7 +413,7 @@ const createEndpointTableData = [
     "name": "audioBridge",
     "required": false,
     "type": "String",
-    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>, <code className="language-plaintext highlighter-rouge">freeswitch</code>. (added 3.0)</>)
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
   },
   {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
