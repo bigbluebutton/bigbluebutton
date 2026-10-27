@@ -11,12 +11,11 @@ import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-cha
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
-
-const PRESENTATION_POLICY = {
-  MODERATOR_ONLY: 'moderatorOnly',
-  REQUIRE_APPROVAL: 'requireApproval',
-  FREE_FOR_ALL: 'freeForAll',
-};
+import {
+  DEFAULT_PRESENTATION_POLICY,
+  GUEST_POLICY_OPTIONS,
+  PRESENTATION_POLICY_OPTIONS,
+} from './policy-options';
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -54,18 +53,6 @@ const intlMessages = defineMessages({
   guestPolicyDescription: {
     id: 'app.lock-viewers.guestPolicy.description',
     description: 'Guest policy section description',
-  },
-  askModerator: {
-    id: 'app.guest-policy.button.askModerator',
-    description: 'Ask moderator button label',
-  },
-  alwaysAccept: {
-    id: 'app.guest-policy.button.alwaysAccept',
-    description: 'Always accept button label',
-  },
-  alwaysDeny: {
-    id: 'app.guest-policy.button.alwaysDeny',
-    description: 'Always deny button label',
   },
   lobbyMessageLabel: {
     id: 'app.userList.guest.inputPlaceholder',
@@ -131,30 +118,6 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.presentationPermissions.description',
     description: 'Presentation permissions section description',
   },
-  presModeratorOnly: {
-    id: 'app.lock-viewers.presentationPermissions.moderatorOnly',
-    description: 'Only moderator can assign presenter',
-  },
-  presModeratorOnlyTooltip: {
-    id: 'app.lock-viewers.presentationPermissions.moderatorOnly.tooltip',
-    description: 'Tooltip for moderator only option',
-  },
-  presRequireApproval: {
-    id: 'app.lock-viewers.presentationPermissions.requireApproval',
-    description: 'Participants can request with approval',
-  },
-  presRequireApprovalTooltip: {
-    id: 'app.lock-viewers.presentationPermissions.requireApproval.tooltip',
-    description: 'Tooltip for require approval option',
-  },
-  presFreeForAll: {
-    id: 'app.lock-viewers.presentationPermissions.freeForAll',
-    description: 'Anyone can present freely',
-  },
-  presFreeForAllTooltip: {
-    id: 'app.lock-viewers.presentationPermissions.freeForAll.tooltip',
-    description: 'Tooltip for free for all option',
-  },
 });
 
 const propTypes = {
@@ -200,7 +163,7 @@ class LockViewersComponent extends Component {
 
     const { meeting: { lockSettings, usersPolicies } } = this.props;
 
-    const presentationPolicy = lockSettings.presenterPolicy || PRESENTATION_POLICY.REQUIRE_APPROVAL;
+    const presentationPolicy = lockSettings.presenterPolicy || DEFAULT_PRESENTATION_POLICY;
 
     this.state = {
       selectedTab: 0,
@@ -352,15 +315,11 @@ class LockViewersComponent extends Component {
           onChange={(e) => this.setState({ guestPolicy: e.target.value })}
           data-test="guestPolicySelector"
         >
-          <MenuItem value="ASK_MODERATOR" data-test="askModerator">
-            {intl.formatMessage(intlMessages.askModerator)}
-          </MenuItem>
-          <MenuItem value="ALWAYS_ACCEPT" data-test="alwaysAccept">
-            {intl.formatMessage(intlMessages.alwaysAccept)}
-          </MenuItem>
-          <MenuItem value="ALWAYS_DENY" data-test="alwaysDeny">
-            {intl.formatMessage(intlMessages.alwaysDeny)}
-          </MenuItem>
+          {GUEST_POLICY_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value} data-test={option.dataTest}>
+              {intl.formatMessage(option.label)}
+            </MenuItem>
+          ))}
         </Styled.GuestPolicySelector>
         <Styled.LobbyMessageSection>
           <Styled.SwitchRow>
@@ -518,27 +477,6 @@ class LockViewersComponent extends Component {
     const { intl } = this.props;
     const { presentationPolicy } = this.state;
 
-    const options = [
-      {
-        value: PRESENTATION_POLICY.MODERATOR_ONLY,
-        label: intlMessages.presModeratorOnly,
-        tooltip: intlMessages.presModeratorOnlyTooltip,
-        dataTest: 'presModeratorOnly',
-      },
-      {
-        value: PRESENTATION_POLICY.REQUIRE_APPROVAL,
-        label: intlMessages.presRequireApproval,
-        tooltip: intlMessages.presRequireApprovalTooltip,
-        dataTest: 'presRequireApproval',
-      },
-      {
-        value: PRESENTATION_POLICY.FREE_FOR_ALL,
-        label: intlMessages.presFreeForAll,
-        tooltip: intlMessages.presFreeForAllTooltip,
-        dataTest: 'presFreeForAll',
-      },
-    ];
-
     return (
       <Styled.TabContent>
         <Styled.SectionTitle>
@@ -553,11 +491,11 @@ class LockViewersComponent extends Component {
           onChange={(e) => this.setState({ presentationPolicy: e.target.value })}
           data-test="presentationPolicySelector"
           renderValue={(value) => {
-            const selected = options.find((o) => o.value === value);
+            const selected = PRESENTATION_POLICY_OPTIONS.find((o) => o.value === value);
             return selected ? intl.formatMessage(selected.label) : '';
           }}
         >
-          {options.map((option) => (
+          {PRESENTATION_POLICY_OPTIONS.map((option) => (
             <MenuItem
               key={option.value}
               value={option.value}
