@@ -71,8 +71,6 @@ export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
 
   const values = resolveRoomModeSettings(mode.preset, edits, roomValues);
 
-  // The label hugs the switch: BBBToggle has no layout for a label at the
-  // start and the switch at the end (bbb-ui-components-react#112).
   const renderSwitch = (setting: SwitchSetting) => {
     const checked = values[setting.id] === true;
     const helper = setting.helper && (checked ? setting.helper.on : setting.helper.off);
@@ -92,6 +90,7 @@ export const RoomModeSummaryView: React.FC<RoomModeSummaryViewProps> = ({
         label={intl.formatMessage(setting.label)}
         helperText={helper && intl.formatMessage(helper)}
         textPosition="left"
+        fullWidth
         slotProps={{
           input: {
             'data-test': `${prefix}${setting.testId}`,
