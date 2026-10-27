@@ -478,6 +478,14 @@ export const PresentationUploaderToast = ({
   const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
   const convertingToastCountRef = useRef(0);
   const closeTimeoutReference = useRef();
+  // Ids of failed uploads the converting toast has displayed
+  const shownErrorIdsRef = useRef(new Set());
+
+  const rememberShownErrors = (pres) => {
+    pres.forEach((p) => {
+      if (p.uploadErrorMsgKey) shownErrorIdsRef.current.add(p.presentationId);
+    });
+  };
 
   const addPressIdToDismissed = (presId) => {
     setDismissedItems((prev) => {
@@ -544,10 +552,14 @@ export const PresentationUploaderToast = ({
     };
   }, []);
 
+  // An error is marked as notified only once the toast has displayed it, so errors that already
+  // existed when this mounted (after a reload, or when this user became presenter) are shown.
   useEffect(() => {
     if (showToast) return;
     presentationsToBeShowed.filter(
-      (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
+      (p) => (p.uploadErrorMsgKey
+        ? shownErrorIdsRef.current.has(p.presentationId)
+        : p.uploadCompleted),
     ).forEach(
       (p) => setPresentationUploadCompletionNotified(
         { variables: { presentationId: p.presentationId } },
@@ -588,6 +600,7 @@ export const PresentationUploaderToast = ({
           Session.setItem('presentationUploaderToastId', null);
         },
       });
+      rememberShownErrors(presentationsToBeShowed);
     } else if (!showToast && toast.isActive(convertingToastIdRef.current)
       && !closeTimeoutReference.current) {
       const toastId = convertingToastIdRef.current;
@@ -595,10 +608,11 @@ export const PresentationUploaderToast = ({
         closeTimeoutReference.current = null;
         handleDismissToast(toastId);
       }, TIMEOUT_CLOSE_TOAST * 1000);
-    } else if (presentationsToBeShowed.length > 0) {
+    } else if (presentationsToBeShowed.length > 0 && toast.isActive(convertingToastIdRef.current)) {
       toast.update(convertingToastIdRef.current, {
         render: renderToastList(presentationsToBeShowed, intl),
       });
+      rememberShownErrors(presentationsToBeShowed);
     }
   }, [showToast, presentationsToBeShowed, intl]);
 
