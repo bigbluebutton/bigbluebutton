@@ -498,6 +498,7 @@ class Settings extends Component {
         onRequestClose={this.handleClose}
         contentStyle={{ width: `min(${modalWidth}, 90vw)`, height: modalHeight }}
         showDividers
+        allowScroll={false}
         footerContent={(
           <>
             <BBButton
