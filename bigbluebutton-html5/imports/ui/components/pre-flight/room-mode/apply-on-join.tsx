@@ -8,16 +8,15 @@ import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
   UsersCountSubscriptionResponse,
 } from '/imports/ui/components/user-list/user-list-participants/queries';
-import { getRoomMode, RoomModeDefinition } from './modes';
+import { getRoomMode } from './modes';
 import { ROOM_MODE_APPLY_TIMEOUT, useRoomModeApplier } from './applier';
 import {
   ResolvedRoomModeSettings,
   RoomModeChoice,
   RoomModeEdits,
   RoomModeRoomValues,
-  resolveRoomModeSettings,
+  settingsToApply,
 } from './settings';
-import { isChatAvailable } from '../features';
 
 const intlMessages = defineMessages({
   notAppliedRoomRunning: {
@@ -29,6 +28,14 @@ const intlMessages = defineMessages({
     description: 'Toast when the picked room mode is not applied because another moderator set one during the join',
   },
 });
+
+// The guest policy the pre-flight showed is the one applied: left unedited,
+// it is the room's current one, not the policy the room was created with.
+const withShownGuestPolicy = (edits: RoomModeEdits, shown: RoomModeRoomValues): RoomModeEdits => (
+  edits.guestPolicy === undefined && shown.guestPolicy !== undefined
+    ? { ...edits, guestPolicy: shown.guestPolicy }
+    : edits
+);
 
 // The pick never reaches the room in either case, so the moderator is told why.
 export const notifyRoomModeNotApplied = (intl: IntlShape, reason: 'roomRunning' | 'modeSet') => {
@@ -44,21 +51,6 @@ interface RoomModeApplyOnJoinProps {
   // Called once, whatever the outcome: the room is shown either way.
   onDone: () => void;
 }
-
-// The modes leave the guest policy as created, so it is sent only when edited
-// (or asserted by a mode); a room without chat has no public chat to unlock.
-const settingsToApply = (
-  mode: RoomModeDefinition,
-  edits: RoomModeEdits,
-  roomValues: RoomModeRoomValues,
-): ResolvedRoomModeSettings => {
-  const settings = resolveRoomModeSettings(mode.preset, edits, roomValues);
-  if (edits.guestPolicy === undefined && mode.preset.editable.guestPolicy === undefined) {
-    delete settings.guestPolicy;
-  }
-  if (!isChatAvailable()) delete settings.publicChat;
-  return settings;
-};
 
 // Mounted only while the choice is applied, after the join: the meeting data
 // is not subscribed to before it.
@@ -151,7 +143,8 @@ const RoomModeApplyOnJoin: React.FC<RoomModeApplyOnJoinProps> = ({
       return;
     }
 
-    const settings = settingsToApply(mode, edits, roomValuesRef.current);
+    const shown = roomValuesRef.current;
+    const settings = settingsToApply(mode, withShownGuestPolicy(edits, shown), shown);
     apply(mode, settings, () => doneRef.current)
       .then(() => finish(undefined, settings))
       .catch((error) => finish((error as Error).message || 'unknown error'));

@@ -10,6 +10,7 @@ import { USER_SET_WHITEBOARD_WRITE_ACCESS } from '/imports/ui/components/present
 import { SET_ROOM_MODE } from './mutations';
 import { RoomModeDefinition } from './modes';
 import { ResolvedRoomModeSettings } from './settings';
+import useRoomModeBase from './base';
 
 // How long the room waits for the mode after SetRoomMode.
 export const ROOM_MODE_WAIT_TIMEOUT = 10000;
@@ -58,10 +59,14 @@ export interface RoomModeApplier {
 }
 
 /**
- * Sets a room mode on a room that is already joined: only what differs from
- * the room's state, in order, and the mode last. The mode showing on the user
- * is the proof: the server answers only after publishing, and these commands
- * run in order on the same meeting actor, so the earlier ones have landed.
+ * Sets a room mode on a room that is already joined, over the room as it was
+ * created: what the mode and the edits leave out goes back to the room's base,
+ * so a previous mode and changes made by hand do not stay. Only what differs
+ * from the room's state is sent, in order, and the mode last. The mode showing
+ * on the user is the proof: the server answers only after publishing, and
+ * these commands run in order on the same meeting actor, so the earlier ones
+ * have landed. A room created before the server kept its base is changed over
+ * its current state instead.
  */
 export const useRoomModeApplier = (): RoomModeApplier => {
   const { data: meeting } = useMeeting((m) => ({
@@ -70,6 +75,7 @@ export const useRoomModeApplier = (): RoomModeApplier => {
     isBreakout: m.isBreakout,
   }));
   const { data: currentUser } = useCurrentUser((u) => ({ meeting: u.meeting }));
+  const { loading: baseLoading, base } = useRoomModeBase();
   const roomModeRef = useRef<string | undefined>(undefined);
   roomModeRef.current = currentUser?.meeting?.roomMode;
 
@@ -87,7 +93,7 @@ export const useRoomModeApplier = (): RoomModeApplier => {
     ? meeting.usersPolicies
     : undefined;
   const isBreakout = !!meeting?.isBreakout;
-  const ready = !!lockSettings && !!usersPolicies;
+  const ready = !!lockSettings && !!usersPolicies && !baseLoading;
 
   const apply = useCallback(async (
     mode: RoomModeDefinition,
@@ -102,13 +108,17 @@ export const useRoomModeApplier = (): RoomModeApplier => {
     if (isBreakout) throw new Error('room modes do not apply to breakout rooms');
     if (!lockSettings || !usersPolicies) throw new Error('the meeting data has not arrived');
 
-    const { guestPolicy, joinMuted, whiteboard } = settings;
+    // Each setting the mode and the edits leave out takes the base's value.
+    const guestPolicy = settings.guestPolicy ?? base?.usersPolicies.guestPolicy;
+    const joinMuted = settings.joinMuted ?? base?.voiceSettings.muteOnStart;
+    const whiteboard = settings.whiteboard ?? base?.usersPolicies.multiUserWhiteboardEnabled;
 
     const current = lockSettingsVariables(lockSettings);
+    const from = base ? lockSettingsVariables(base.lockSettings) : current;
     const next: LockSettingsVariables = {
-      ...current,
-      disablePubChat: settings.publicChat === undefined ? current.disablePubChat : !settings.publicChat,
-      presenterPolicy: settings.presenterPolicy ?? current.presenterPolicy,
+      ...from,
+      disablePubChat: settings.publicChat === undefined ? from.disablePubChat : !settings.publicChat,
+      presenterPolicy: settings.presenterPolicy ?? from.presenterPolicy,
       lockOnJoin: mode.preset.automatic.lockOnJoin,
     };
     const lockChanged = (Object.keys(next) as (keyof LockSettingsVariables)[])
@@ -117,9 +127,10 @@ export const useRoomModeApplier = (): RoomModeApplier => {
       await step('lock settings', () => setLockSettingsProps({ variables: next }));
     }
 
-    if (!mode.preset.automatic.webcamsOnlyForModerator && usersPolicies.webcamsOnlyForModerator) {
+    const { webcamsOnlyForModerator } = mode.preset.automatic;
+    if (webcamsOnlyForModerator !== usersPolicies.webcamsOnlyForModerator) {
       await step('webcams only for moderator', () => setWebcamOnlyForModerator({
-        variables: { webcamsOnlyForModerator: false },
+        variables: { webcamsOnlyForModerator },
       }));
     }
 
@@ -146,6 +157,7 @@ export const useRoomModeApplier = (): RoomModeApplier => {
     isBreakout,
     lockSettings,
     usersPolicies,
+    base,
     setLockSettingsProps,
     setWebcamOnlyForModerator,
     setPolicy,

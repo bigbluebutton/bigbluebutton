@@ -886,7 +886,7 @@ Same settings as the room mode panel. Nothing here reaches the room before "Star
 
     - The session's guest policy should be "Ask moderator", and the other settings should be as in step 1
 
-    - Repeat without changing the guest policy: the session should keep the guest policy it was created with
+    - Repeat without changing the guest policy: the session should keep the guest policy the panel showed, which is the session's current one
 
 14. Create a session with `lockSettingsDisablePublicChat=true&lockSettingsLockOnJoin=false&lockSettingsPresenterPolicy=freeForAll&webcamsOnlyForModerator=true&muteOnStart=false&record=true`, join it as a moderator, pick "Class" and click "Start room" while the join is held back (automated only: the join request is held until a second moderator has set the mode). Meanwhile, join the same session as a second moderator and set the mode to "Meeting"; then let the held join through
 
