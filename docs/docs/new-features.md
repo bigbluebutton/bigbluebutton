@@ -332,7 +332,7 @@ Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the follo
 - Java 21
 - Spring 7.0.9
 - Spring Boot 4.1.1
-- Tomcat 11.0.26 (embedded in bbb-web)
+- Tomcat 11.0.27 (embedded in bbb-web)
 - FreeSWITCH 1.11.3 (since BigBlueButton 3.0.36; earlier 3.0 releases shipped a patched 1.10.12)
 
 The bbb-web stack (Grails, Gradle, Groovy, Spring, Spring Boot and Tomcat) was upgraded in BigBlueButton 3.0.40; earlier 3.0 releases shipped Grails 7.0.12, Gradle 8.14.3, Groovy 4.0.21, Spring 6.2.19, Spring Boot 3.5.16 and Tomcat 10.1.
@@ -351,6 +351,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.40](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.40)
 - [3.0.39](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.39)
 - [3.0.38](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.38)
 - [3.0.37](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.37)
@@ -503,6 +504,12 @@ See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/custom
 Starting with BigBlueButton 3.0.37 the `bbb-html5` package no longer ships `/usr/share/bigbluebutton/nginx/sip.nginx`, the nginx `/ws` location that proxied SIP-over-WebSocket traffic to FreeSWITCH for the long-deprecated in-browser SIP.js audio path. The file is absent on new installs and is deleted on upgrade, and `bbb-conf --check` no longer inspects it or reports `sipjsHackViaWs`. Audio through bbb-webrtc-sfu (the default) and LiveKit is unaffected.
 
 A local override at `/etc/bigbluebutton/nginx/sip.nginx` is left in place and reinstates the endpoint; the package upgrade prints a warning when it finds one. See [Legacy FreeSWITCH SIP-over-WebSocket endpoint](/administration/customize#legacy-freeswitch-sip-over-websocket-endpoint-ws) for details.
+
+#### Added new setting to turn off away status notes in the public chat
+
+- Client settings.yml: `public.chat.announceUserAwayStatusInChat`. Defaults to `true`. Added in BigBlueButton 3.0.40.
+
+When a user sets themselves away or back to active, a note is added to the public chat. To stop these notes in every session, set the value to `false` in `/etc/bigbluebutton/bbb-html5.yml` and restart BigBlueButton (`sudo bbb-conf --restart`); to stop them in a single session, set it in a [client settings override](/development/api#clientsettingsoverride) on the create call. The away icon on the user's avatar is not affected. `public.chat.announcePresenterChangeInChat` does the same for the note announcing a new presenter.
 
 ### Changes to events.xml
 
