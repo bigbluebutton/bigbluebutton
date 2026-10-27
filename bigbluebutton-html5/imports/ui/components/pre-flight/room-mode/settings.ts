@@ -127,7 +127,8 @@ export interface SettingOption<V extends string = string> {
 
 interface BaseEditableSetting {
   label: MessageDescriptor;
-  dataTest: string;
+  // Appended to the data-test prefix of the summary that lists it.
+  testId: string;
 }
 
 export interface SwitchSetting extends BaseEditableSetting {
@@ -152,7 +153,8 @@ export type EditableSetting = SwitchSetting | SelectSetting;
 export interface AutomaticSetting {
   id: string;
   label: MessageDescriptor;
-  dataTest: string;
+  // Appended to the data-test prefix of the summary that lists it.
+  testId: string;
   // Whether the mode applies it; listed only then.
   appliesTo: (preset: RoomModePreset, room: RoomModeRoomValues) => boolean;
 }
@@ -163,7 +165,7 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     id: 'guestPolicy',
     kind: 'select',
     label: intlMessages.guestPolicy,
-    dataTest: 'preFlightRoomModeGuestPolicy',
+    testId: 'GuestPolicy',
     options: [
       { value: 'ASK_MODERATOR', label: intlMessages.askModerator },
       { value: 'ALWAYS_ACCEPT', label: intlMessages.alwaysAccept },
@@ -178,19 +180,19 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     kind: 'switch',
     label: intlMessages.joinMuted,
     helper: { on: intlMessages.joinMutedOnHelper, off: intlMessages.joinMutedOffHelper },
-    dataTest: 'preFlightRoomModeJoinMuted',
+    testId: 'JoinMuted',
   },
   {
     id: 'publicChat',
     kind: 'switch',
     label: intlMessages.publicChat,
-    dataTest: 'preFlightRoomModePublicChat',
+    testId: 'PublicChat',
   },
   {
     id: 'presenterPolicy',
     kind: 'select',
     label: intlMessages.presenterPolicy,
-    dataTest: 'preFlightRoomModePresenterPolicy',
+    testId: 'PresenterPolicy',
     options: [
       { value: 'moderatorOnly', label: intlMessages.moderatorOnly },
       { value: 'requireApproval', label: intlMessages.requireApproval },
@@ -201,7 +203,7 @@ export const EDITABLE_SETTINGS: EditableSetting[] = [
     id: 'whiteboard',
     kind: 'switch',
     label: intlMessages.whiteboard,
-    dataTest: 'preFlightRoomModeWhiteboard',
+    testId: 'Whiteboard',
   },
 ];
 
@@ -211,19 +213,19 @@ export const AUTOMATIC_SETTINGS: AutomaticSetting[] = [
   {
     id: 'webcams',
     label: intlMessages.webcams,
-    dataTest: 'preFlightRoomModeAutomaticWebcams',
+    testId: 'AutomaticWebcams',
     appliesTo: (preset) => !preset.automatic.webcamsOnlyForModerator,
   },
   {
     id: 'lockOnJoin',
     label: intlMessages.lockOnJoin,
-    dataTest: 'preFlightRoomModeAutomaticLockOnJoin',
+    testId: 'AutomaticLockOnJoin',
     appliesTo: (preset) => preset.automatic.lockOnJoin,
   },
   {
     id: 'recording',
     label: intlMessages.recording,
-    dataTest: 'preFlightRoomModeAutomaticRecording',
+    testId: 'AutomaticRecording',
     // No mode starts the recording. Said only in a room that may record and is
     // not set to start recording as the moderator enters; a recording already
     // running cannot be read before the join.

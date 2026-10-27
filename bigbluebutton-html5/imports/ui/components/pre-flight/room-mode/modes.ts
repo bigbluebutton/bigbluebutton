@@ -10,7 +10,8 @@ export interface RoomModeDefinition {
   icon: React.ElementType;
   name: MessageDescriptor;
   hint: MessageDescriptor;
-  dataTest: string;
+  // Appended to the data-test prefix of the place that lists the mode.
+  testId: string;
   // What picking the mode applies.
   preset: RoomModePreset;
 }
@@ -53,7 +54,7 @@ const ROOM_MODES: RoomModeDefinition[] = [
     icon: SchoolIcon,
     name: intlMessages.className,
     hint: intlMessages.classHint,
-    dataTest: 'preFlightRoomModeClass',
+    testId: 'Class',
     // A presenter leads, so presenting goes through a moderator and everyone
     // can draw. The waiting room is left as created.
     preset: {
@@ -71,7 +72,7 @@ const ROOM_MODES: RoomModeDefinition[] = [
     icon: GroupsIcon,
     name: intlMessages.meetingName,
     hint: intlMessages.meetingHint,
-    dataTest: 'preFlightRoomModeMeeting',
+    testId: 'Meeting',
     // Everyone takes part: anyone can present, the whiteboard stays the
     // presenter's. The waiting room is left as created.
     preset: {
