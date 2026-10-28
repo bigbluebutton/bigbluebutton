@@ -1333,9 +1333,13 @@ if [ $CHECK ]; then
 
     if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
         LIVEKIT_ENABLED_CODECS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.room.enabled_codecs[] | .mime' -)
+        LIVEKIT_LOG_LEVEL=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.log_level // ""' -)
         echo
         echo "/etc/bigbluebutton/livekit.yaml (livekit-server)"
-        echo "               log_level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.log_level' -)"
+        echo "               logging.level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.logging.level' -)"
+        if [ -n "$LIVEKIT_LOG_LEVEL" ]; then
+            echo "               log_level: $LIVEKIT_LOG_LEVEL (overrides logging.level)"
+        fi
         echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
         echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
