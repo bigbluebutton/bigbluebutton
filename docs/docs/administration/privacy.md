@@ -165,7 +165,7 @@ analytics {
 
 The general level is `loglevel` in the same override, and the logger levels are in `/usr/share/bbb-apps-akka/conf/logback.xml`. `bbb-fsesl-akka`, which connects the meetings to FreeSWITCH, logs the voice users the same way to `/var/log/bbb-fsesl-akka/bbb-fsesl-akka.log`; its settings are `/etc/bigbluebutton/bbb-fsesl-akka.conf` and `/usr/share/bbb-fsesl-akka/conf/logback.xml`.
 
-`bbb-webrtc-sfu` logs the media sessions, including user identifiers, to `/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log`. To reduce it, set the log level in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
+`bbb-webrtc-sfu` logs the media sessions, including user identifiers, to `/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log` and to the journal. To reduce it, set the log level in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
 
 ```yaml
 log:
