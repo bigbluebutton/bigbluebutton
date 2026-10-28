@@ -1080,7 +1080,7 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
    rtp_port: <START>-<END>
    ```
 
-   Note: The default RTP range for livekit-sip is `16384-32768`, the range the other media servers share. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
+   Note: By default livekit-sip shares `16384-32768` with the other media servers, and `bbb-conf --set-port-range` moves them all, overwriting `rtp_port`. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
 
 4. Restart BigBlueButton:
 
@@ -1452,11 +1452,9 @@ mediasoup:
     rtcMaxPort: 51999
 ```
 
-To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder and LiveKit; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
-- the command does not edit livekit-sip: if you use the telephone dial-in, set `rtp_port` in `/etc/bigbluebutton/livekit-sip.yaml` yourself (see above);
+To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder, LiveKit and livekit-sip; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
 - `switch.conf.xml` isn't preserved on `bbb-freeswitch-core` upgrades, so FreeSWITCH goes back to 16384-24576 - re-run the command after upgrading;
-- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well;
-- in BigBlueButton 4.0.0 the command writes the LiveKit values as quoted strings (`port_range_start: "<min>"`), which `livekit-server` rejects at start (`cannot unmarshal !!str ... into uint32`) - remove the quotes in `/etc/bigbluebutton/livekit.yaml` before restarting.
+- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well.
 
 #### Apply custom settings for TURN server
 
