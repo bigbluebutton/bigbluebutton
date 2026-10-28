@@ -1,5 +1,18 @@
 name: "Install BBB"
 description: "Install BigBlueButton"
+inputs:
+  artifacts-run-id:
+    description: "Workflow run whose all-bbb-artifacts packages to install (default: the current run)"
+    required: false
+    default: ""
+  github-token:
+    description: "Token that can read the artifacts of that run (needed with artifacts-run-id)"
+    required: false
+    default: ""
+  bbb-web-properties:
+    description: "Lines to append to /etc/bigbluebutton/bbb-web.properties before the services restart (default: none)"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -15,6 +28,8 @@ runs:
       with:
         name: all-bbb-artifacts
         path: artifacts
+        run-id: ${{ inputs.artifacts-run-id || github.run_id }}
+        github-token: ${{ inputs.github-token }}
     - name: List downloaded artifacts
       shell: bash
       run: |
@@ -127,7 +142,9 @@ runs:
       env:
         NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
         ACTIONS_RUNNER_DEBUG: true
+        BBB_WEB_PROPERTIES: ${{ inputs.bbb-web-properties }}
       run: |
+        printf '%s\n' "$BBB_WEB_PROPERTIES" > /tmp/bbb-web-extra.properties
         sudo -i <<'EOF'
         set -e
         cd /root/
@@ -144,6 +161,8 @@ runs:
         # Tests provision per-meeting client settings via the clientSettingsOverride
         # create module (e.g. webcam/gridTileCount); the property defaults to false.
         echo "allowOverrideClientSettingsOnCreateCall=true" | tee -a /etc/bigbluebutton/bbb-web.properties
+        # Settings the calling job asked for (input bbb-web-properties), e.g. for @setting-required tests
+        sed '/^$/d' /tmp/bbb-web-extra.properties | tee -a /etc/bigbluebutton/bbb-web.properties
         cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
         #!/bin/bash
 
