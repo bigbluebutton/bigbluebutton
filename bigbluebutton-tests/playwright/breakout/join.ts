@@ -848,7 +848,7 @@ export class Join extends Create {
   }
 
   // Joins the room from the invitation the attendee got when the rooms were created
-  private async joinRoomFromInvitation(attendee: Page): Promise<Page> {
+  protected async joinRoomFromInvitation(attendee: Page): Promise<Page> {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const breakoutTab = await attendee.handleNewTab(e.modalConfirmButton, attendee.page.context());
