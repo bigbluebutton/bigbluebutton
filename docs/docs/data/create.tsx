@@ -123,7 +123,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": true,
-    "description": (<>If set to false, the private chat will be disabled in breakout rooms.</>)
+    "description": (<>If set to false, the private chat will be disabled in breakout rooms. As with <code>disabledFeatures=privateChat</code>, private chats that involve a moderator stay available.</>)
   },
   {
     "name": "breakoutRoomsRecord",
