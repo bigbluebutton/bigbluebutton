@@ -9,6 +9,8 @@ import Notification from '/imports/ui/components/settings/submenus/notification/
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
@@ -54,10 +56,6 @@ const intlMessages = defineMessages({
   SaveLabel: {
     id: 'app.settings.main.save.label',
     description: 'Save the changes and close the settings menu',
-  },
-  SaveLabelDesc: {
-    id: 'app.settings.main.save.label.description',
-    description: 'Settings modal save button label',
   },
   notificationLabel: {
     id: 'app.submenu.notification.SectionTitle', // set menu label identical to section title
@@ -121,7 +119,7 @@ const propTypes = {
     processingMode: PropTypes.oneOf(['advanced', 'standard', 'original']),
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
-  availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
+  availableLocales: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.shape({}))).isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
   transcription: PropTypes.shape({
     partialUtterances: PropTypes.bool,
@@ -493,35 +491,31 @@ class Settings extends Component {
     }
 
     return (
-      <Styled.Modal
+      <ModalSimple
         title={intl.formatMessage(intlMessages.SettingsLabel)}
-        width={modalWidth}
-        height={modalHeight}
         modalIsOpen={isOpen}
         documentTitle={intl.formatMessage(intlMessages.SettingsLabel)}
-        confirm={{
-          callback: this.handleSave,
-          label: intl.formatMessage(intlMessages.SaveLabel),
-          description: intl.formatMessage(intlMessages.SaveLabelDesc),
-        }}
-        dismiss={{
-          callback: this.handleClose,
-        }}
         onRequestClose={this.handleClose}
+        contentStyle={{ width: `min(${modalWidth}, 90vw)`, height: modalHeight }}
+        showDividers
+        footerContent={(
+          <>
+            <BBButton
+              variant="secondary"
+              label={intl.formatMessage(intlMessages.CancelLabel)}
+              onClick={this.performClose}
+            />
+            <BBButton
+              variant="primary"
+              dataTest="saveSettingsButton"
+              label={intl.formatMessage(intlMessages.SaveLabel)}
+              onClick={this.handleSave}
+            />
+          </>
+        )}
       >
         {this.renderModalContent()}
-        <Styled.ActionsContainer>
-          <Styled.ActionButton onClick={this.performClose}>
-            {intl.formatMessage(intlMessages.CancelLabel)}
-          </Styled.ActionButton>
-          <Styled.ActionButton
-            data-test="saveSettingsButton"
-            onClick={this.handleSave}
-          >
-            {intl.formatMessage(intlMessages.SaveLabel)}
-          </Styled.ActionButton>
-        </Styled.ActionsContainer>
-      </Styled.Modal>
+      </ModalSimple>
     );
   }
 }

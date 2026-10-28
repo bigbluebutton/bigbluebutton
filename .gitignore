@@ -27,3 +27,8 @@ bbb-presentation-video
 bbb-graphql-actions-adapter-server/
 bigbluebutton-html5/public/locales/index.json
 node_modules
+.env
+data/postgres
+ssl
+data/bbb-webrtc-recorder
+data/bigbluebutton

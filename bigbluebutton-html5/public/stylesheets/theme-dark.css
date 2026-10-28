@@ -22,8 +22,8 @@
  * links, toast backgrounds) are deliberately absent: they must fall through to
  * whatever the brand declared, which is today's behaviour.
  *
- * Carve-out: a state/notice chip's set (--notice-warning-*) is structure and IS
- * emitted. It carries its own ground, so falling through would hand the dark
+ * Carve-out: a state/notice chip's set (--notice-warning-*, --notice-danger-*)
+ * is structure and IS emitted. It carries its own ground, so falling through would hand the dark
  * theme an unreadable chip rather than hand the brand a choice.
  *
  * Multi-role tokens are split per role in phase 3: the dominant role keeps the
@@ -284,6 +284,13 @@
   --notice-warning-text: var(--notice-warning-text-dark-theme, #FFC845);
   --notice-warning-icon: var(--notice-warning-icon-dark-theme, #FFC845);
 
+  /* Same carve-out for the danger chip: the light label measures 2.13:1 over the
+     pill here, so label, icon and border lighten together to 5.68:1. */
+  --notice-danger-bg: var(--notice-danger-bg-dark-theme, rgba(205, 84, 91, 0.16));
+  --notice-danger-border: var(--notice-danger-border-dark-theme, #FF9C9C);
+  --notice-danger-text: var(--notice-danger-text-dark-theme, #FF9C9C);
+  --notice-danger-icon: var(--notice-danger-icon-dark-theme, #FF9C9C);
+
   /* The light scrim is a grey that barely darkens a dark screen, so the dialog
      would not stand apart from it. */
   --color-scrim: var(--color-scrim-dark-theme, rgba(0, 0, 0, 0.5));
@@ -294,7 +301,10 @@
      --color-brand-*, --color-hover-dark) stay absent like the client's own.
      --color-neutral-white is NOT emitted: the library uses it as a surface AND
      as the label colour over a brand background. --color-background-white is
-     its surface alias, so emitting that one separates the roles. */
+     its surface alias, so emitting that one separates the roles. Since 0.9.0
+     the library's colorWhite reads --color-white first, so it takes the text
+     value above and --color-neutral-white is never reached here; the modal
+     surface that reads it is set after the tldraw rule. */
   --color-background-white: var(--color-background-white-dark-theme, var(--color-overlays-dark-theme, #2D2F38));
   --color-light-gray: var(--color-light-gray-dark-theme, var(--color-hover-bg-dark, #393C48));
   /* BBButton tertiary's ground and its hover, plus BBBHint's hover. Kept
@@ -341,6 +351,19 @@
  */
 :root[data-theme='dark'] .tl-container .tl-background {
   background-color: var(--color-tldraw-background, #F9FAFB);
+}
+
+/*
+ * Library modal surface. BBBModal paints its content and its sticky footer with
+ * the library's colorWhite, var(--color-white, ...), which stays the text role
+ * here because primary BBButton labels read it too. Scoped to generic-modal,
+ * the portal class only GenericModal sets: plugins render their own react-modal
+ * with the modal-low/medium/high classes too, and a priority outside those
+ * three still gets the surface.
+ */
+:root[data-theme='dark'] .generic-modal .ReactModal__Content,
+:root[data-theme='dark'] .generic-modal .ReactModal__Content > div:last-child {
+  background-color: var(--color-white-surface, #2D2F38);
 }
 
 /*

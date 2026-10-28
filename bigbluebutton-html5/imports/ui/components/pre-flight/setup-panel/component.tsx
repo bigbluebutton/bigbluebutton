@@ -51,6 +51,7 @@ const SetupPanel: React.FC = () => {
     setAudioMode,
     joinMuted,
     setJoinMuted,
+    microphoneDenied,
   } = usePreFlight();
 
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -59,20 +60,23 @@ const SetupPanel: React.FC = () => {
   }));
   const { canUseMicrophone, canListenOnly } = getAudioModeAvailability(!!currentUserData?.isModerator);
   const isListenOnly = audioMode === AUDIO_MODES.LISTEN_ONLY;
+  // No microphone the toggle could mute: listen only, or one the browser
+  // refused (which also covers joining without audio past it).
+  const micUnavailable = isListenOnly || microphoneDenied;
 
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
   const enableVideo = !!getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 
   const renderMicControl = (overMedia: boolean) => (
     <Styled.PreviewControlButton
-      $active={!joinMuted && !isListenOnly}
+      $active={!joinMuted && !micUnavailable}
       $overMedia={overMedia}
-      disabled={isListenOnly}
+      disabled={micUnavailable}
       onClick={() => setJoinMuted(!joinMuted)}
       aria-label={formatMessage(joinMuted ? intlMessages.unmuteLabel : intlMessages.muteLabel)}
       data-test="preFlightMuteToggle"
     >
-      {joinMuted || isListenOnly ? <MicOffIcon /> : <MicIcon />}
+      {joinMuted || micUnavailable ? <MicOffIcon /> : <MicIcon />}
     </Styled.PreviewControlButton>
   );
 

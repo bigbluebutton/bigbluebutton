@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Icon from '/imports/ui/components/common/icon/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -59,12 +60,11 @@ const MediaConsentModal = ({
     : denyLabel;
 
   return (
-    <Styled.RequestModal
+    <ModalSimple
       isOpen
       priority="high"
       title={title}
       onRequestClose={onDeny}
-      shouldShowCloseButton
     >
       <Styled.Subtitle>
         {subtitle}
@@ -87,7 +87,7 @@ const MediaConsentModal = ({
           color="danger"
         />
       </Styled.RequestModalContent>
-    </Styled.RequestModal>
+    </ModalSimple>
   );
 };
 

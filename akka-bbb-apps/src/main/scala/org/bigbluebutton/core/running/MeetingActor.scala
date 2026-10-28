@@ -501,7 +501,7 @@ class MeetingActor(
         updateUserLastActivity(m.header.userId)
       case m: ChangeUserPinStateReqMsg =>
         usersApp.handleChangeUserPinStateReqMsg(m)
-        updateUserLastActivity(m.body.changedBy)
+        updateUserLastActivity(m.header.userId)
       case m: UserConnectionAliveReqMsg    => usersApp.handleUserConnectionAliveReqMsg(m)
       case m: SetUserSpeechLocaleReqMsg    => usersApp.handleSetUserSpeechLocaleReqMsg(m)
       case m: SetUserSpeechOptionsReqMsg   => usersApp.handleSetUserSpeechOptionsReqMsg(m)
@@ -671,7 +671,7 @@ class MeetingActor(
       case m: PreuploadedPresentationsSysPubMsg => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg =>
         state = handlePresenterChange(m, state)
-        updateUserLastActivity(m.body.assignedBy)
+        updateUserLastActivity(m.header.userId)
       case m: MakePresentationDownloadReqMsg =>
         presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)

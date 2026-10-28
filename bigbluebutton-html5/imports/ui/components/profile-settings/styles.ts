@@ -11,6 +11,7 @@ import {
   colorText,
   colorWhite,
   colorWhiteSurface,
+  palettePlaceholderText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
@@ -342,6 +343,26 @@ const DeviceSelector = styled(Select)`
   border-radius: 0.5rem !important;
   overflow: hidden;
   width: 100%;
+
+  /* Doubled: MUI's own error outline has the same specificity and its
+     stylesheet is injected after this one. */
+  &&.Mui-error .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorDanger};
+  }
+`;
+
+const DevicePlaceholder = styled.span`
+  color: ${palettePlaceholderText};
+`;
+
+// Under the selector it flags, past the row's icon: the row's 1rem gap would
+// read as the next row's caption.
+const DeviceFieldError = styled.div`
+  margin-top: -0.5rem;
+  padding-inline-start: 2.5rem;
+  color: ${colorDanger};
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
 `;
 
 const CameraQualityContainer = styled.div`
@@ -579,6 +600,8 @@ export default {
   ArrowRightIcon,
   AddCameraIcon,
   DeviceSelector,
+  DevicePlaceholder,
+  DeviceFieldError,
   CameraQualityContainer,
   CameraQualityText,
   CameraQualitySelector,

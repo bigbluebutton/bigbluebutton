@@ -157,9 +157,9 @@ const hasMicrophonePermission = async ({
   try {
     let status = permissionStatus;
 
-    // If the browser doesn't support the Permissions API, we can't check
-    // microphone permissions - return null (unknown)
-    if (navigator?.permissions?.query == null) return null;
+    // Without the Permissions API there is no state to read: ask gUM, as when
+    // the query itself fails below
+    if (navigator?.permissions?.query == null) return checkWithGUM();
 
     if (!status) {
       ({ state: status } = await navigator.permissions.query({ name: 'microphone' }));

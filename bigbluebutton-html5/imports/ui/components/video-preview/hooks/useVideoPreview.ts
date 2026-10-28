@@ -124,6 +124,7 @@ export const useVideoPreview = ({
   const [viewState, setViewState] = useState<string>(VIEW_STATES.finding);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [skipPreviewFailed, setSkipPreviewFailed] = useState(false);
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [brightness, setBrightness] = useState<number>(DEFAULT_BRIGHTNESS_STATE.brightness);
@@ -140,6 +141,7 @@ export const useVideoPreview = ({
   }, [brightness, wholeImageBrightness]);
 
   const webcamDeviceId = useRef<string | null>(initialDeviceId);
+  const [previewDeviceId, setPreviewDeviceId] = useState<string | null>(initialDeviceId);
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentVideoStream = useRef<BBBVideoStream | null>(null);
   // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
@@ -177,6 +179,7 @@ export const useVideoPreview = ({
       logCode: `video_preview_${logCode}_error`,
       extraInfo: { errorName: error.name, errorMessage: error.message },
     }, `Error ${description}`);
+    setPermissionDenied(error.name === 'NotAllowedError');
     setPreviewError(handleGUMError(error));
   }, [handleGUMError]);
 
@@ -185,6 +188,9 @@ export const useVideoPreview = ({
       logCode: `video_preview_${logCode}_error`,
       extraInfo: { errorName: error.name, errorMessage: error.message },
     }, `Error ${description}`);
+    // Not reset otherwise: an empty enumeration after a refused gUM is still
+    // the refusal.
+    if (error.name === 'NotAllowedError') setPermissionDenied(true);
     setViewState(VIEW_STATES.error);
     setDeviceError(handleGUMError(error));
   }, [handleGUMError]);
@@ -426,6 +432,8 @@ export const useVideoPreview = ({
     // Trust the stream over the request: the browser may have handed over another camera
     const actualDeviceId = PreviewService.getVideoStreamDeviceId(currentVideoStream.current) || deviceId;
     webcamDeviceId.current = actualDeviceId;
+    // Consumers must render when the captured camera changes, even if other state is unchanged.
+    setPreviewDeviceId(actualDeviceId);
     return actualDeviceId;
   }, []);
 
@@ -550,6 +558,7 @@ export const useVideoPreview = ({
         return null;
       }
       setCurrentVideoStream(bbbVideoStream);
+      setPermissionDenied(false);
       const updatedDevice = updateDeviceId(deviceId);
 
       // The camera we got is already shared: reuse its stream instead of capturing it twice
@@ -859,13 +868,14 @@ export const useVideoPreview = ({
 
   return {
     // state
-    webcamDeviceId: webcamDeviceId.current,
+    webcamDeviceId: previewDeviceId,
     virtualBackgroundActive,
     availableWebcams,
     selectedProfile,
     viewState,
     deviceError,
     previewError,
+    permissionDenied,
     isCameraLoading,
     brightness,
     wholeImageBrightness,

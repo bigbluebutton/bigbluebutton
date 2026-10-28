@@ -16,8 +16,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
-import { useVideoStreams, useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
-import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
 import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -105,7 +104,6 @@ const LayoutObserver: React.FC = () => {
   }, [currentPageId, loadingPresentationPageData, loadingMeeting, currentMeeting?.isBreakout]);
 
   const isThereWebcam = useVideoStreamsCount() > 0;
-  const { streams: videoStream } = useVideoStreams();
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isChatEnabled = useIsChatEnabled();
@@ -294,19 +292,6 @@ const LayoutObserver: React.FC = () => {
       isPresentationEnabled,
     );
   });
-
-  // Count only real camera streams. AUDIO_ONLY (speaking) tiles are merged into the
-  // stream set for the unified layout, but they must not inflate the camera count:
-  // otherwise speaking with no webcams shared forces the top camera dock to display and
-  // shrinks the presentation, even while the presentation is visible (issue #25235).
-  const numCamerasValue = videoStream.filter((vs) => vs.type !== VIDEO_TYPES.AUDIO_ONLY).length;
-
-  useEffect(() => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_NUM_CAMERAS,
-      value: numCamerasValue,
-    });
-  }, [numCamerasValue]);
 
   useEffect(() => {
     if (layoutIsReady) {

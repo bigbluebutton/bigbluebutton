@@ -1,4 +1,4 @@
-import { BrowserContext, expect, Page as PlaywrightPage } from '@playwright/test';
+import { expect, Page as PlaywrightPage, WebSocketRoute } from '@playwright/test';
 
 import {
   ELEMENT_WAIT_EXTRA_LONG_TIME,
@@ -7,17 +7,45 @@ import {
   VIDEO_LOADING_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { InitOptionsProps } from '../core/page';
+import { InitOptionsProps, Page } from '../core/page';
 import { getLocaleValues } from '../options/util';
 import { InitExtraPageOptionsProps, MultiUsers } from '../user/multiusers';
 import { openLockViewers, setGuestPolicyOption } from '../user/util';
-import { NO_PRE_FLIGHT_INIT_OPTIONS, PRE_FLIGHT_CREATE_PARAMETER, PRE_FLIGHT_INIT_OPTIONS } from './util';
+import {
+  DeviceKind,
+  NO_LISTEN_ONLY_JOIN_PARAMETER,
+  NO_PRE_FLIGHT_INIT_OPTIONS,
+  PRE_FLIGHT_CREATE_PARAMETER,
+  PRE_FLIGHT_INIT_OPTIONS,
+  refuseDevices,
+} from './util';
 
 const GUEST_DENY_REDIRECT_TIMEOUT = 15000;
 
 const GUEST_DENIED_LOGOUT_URL = /reasonCode=guest_deny_reason/;
 
+// The client's own timings (connection-manager's retryWait, presenceManager's
+// JOIN_RETRY_TIMEOUT), plus the usual budget for the screen to follow.
+const GRAPHQL_RETRY_WAIT = 10000 + ELEMENT_WAIT_LONGER_TIME;
+const JOIN_RETRY_TIMEOUT = 20000 + ELEMENT_WAIT_LONGER_TIME;
+
+const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
+
+// 1012 (service restart): graphql-ws reconnects on it, where most 1xxx codes,
+// 1011 included, are fatal to it and end the retries.
+const DROPPED_SOCKET = { code: 1012, reason: 'Connection dropped by the test' };
+
 export class PreFlight extends MultiUsers {
+  private graphqlSockets: { client: WebSocketRoute; server: WebSocketRoute }[] = [];
+
+  private graphqlDown = false;
+
+  private graphqlRefused = 0;
+
+  private holdUserJoin = false;
+
+  private heldUserJoins = 0;
+
   // The attendee is the one held by the pre-flight; the moderator goes through
   // the regular flow and observes the server side of the join.
   async initModPage(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
@@ -28,8 +56,21 @@ export class PreFlight extends MultiUsers {
     });
   }
 
-  async initUserPageWithPreFlight(context?: BrowserContext, options: InitOptionsProps = {}) {
-    await this.initUserPage(context || this.context, { ...PRE_FLIGHT_INIT_OPTIONS, ...options });
+  // prepare runs on the attendee's page before it loads, so a fault injected
+  // there is in place for the first getUserMedia and the first socket.
+  async initUserPageWithPreFlight(
+    prepare?: (page: PlaywrightPage) => Promise<unknown>,
+    options: InitOptionsProps = {},
+  ) {
+    const page = await this.context.newPage();
+    if (prepare) await prepare(page);
+    this.userPage = new Page(this.browser, page, this.modPage.testInfo);
+    await this.userPage.init(false, {
+      fullName: 'Attendee',
+      meetingId: this.modPage.meetingId,
+      ...PRE_FLIGHT_INIT_OPTIONS,
+      ...options,
+    });
     // Same first-paint budget as init()'s layout wait, which is skipped here.
     await this.userPage.hasElement(
       e.preFlight,
@@ -380,6 +421,278 @@ export class PreFlight extends MultiUsers {
     await expect(this.userPage.page, 'should take the denied guest to the logout URL when they ask').toHaveURL(
       GUEST_DENIED_LOGOUT_URL,
       { timeout: ELEMENT_WAIT_TIME },
+    );
+  }
+
+  async initUserPageRefusing(refused: Record<DeviceKind, boolean>, options: InitOptionsProps = {}) {
+    await this.initUserPageWithPreFlight((page) => page.addInitScript(refuseDevices, refused), options);
+  }
+
+  async refusals(kind: DeviceKind) {
+    return this.userPage.page.evaluate((deviceKind) => window.preFlightPermissions.refusals[deviceKind], kind);
+  }
+
+  async grantDevice(kind: DeviceKind, { notify }: { notify: boolean }) {
+    await this.userPage.page.evaluate(
+      ([deviceKind, notifyChange]) => window.preFlightPermissions.grant(deviceKind, notifyChange),
+      [kind, notify] as [DeviceKind, boolean],
+    );
+  }
+
+  async hasDevicePermissionScreen(kind: DeviceKind) {
+    expect(await this.refusals(kind), `should have refused the ${kind} device to the client`).toBeGreaterThan(0);
+    await this.userPage.hasElement(
+      e.preFlightDevicePermission,
+      `should display the device permission screen while the ${kind} device is refused`,
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasElement(
+      kind === 'audio' ? e.preFlightInputDeviceError : e.preFlightCameraDeviceError,
+      `should flag the refused ${kind} selector`,
+    );
+    expect(
+      await this.userPage.checkElement(e.preFlightJoinButton),
+      'should not offer the join while a device the user picked is refused',
+    ).toBeFalsy();
+  }
+
+  async clearsDevicePermissionScreen(description: string) {
+    await this.userPage.wasRemoved(e.preFlightDevicePermission, description, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.preFlightJoinButton, 'should bring back the join button');
+  }
+
+  // A camera toggled on that the browser refuses gets no preview, so
+  // enableCamera's wait does not apply.
+  async turnOnRefusedCamera() {
+    await this.userPage.waitAndClick(e.preFlightCameraToggle);
+    await this.hasDevicePermissionScreen('video');
+  }
+
+  async holdsJoinWhileMicrophoneDenied() {
+    await this.initUserPageRefusing({ audio: true, video: false }, { joinParameter: NO_LISTEN_ONLY_JOIN_PARAMETER });
+    await this.hasDevicePermissionScreen('audio');
+
+    // Read over a rendered list, after the screen settled: a join dispatched
+    // with the screen up would already have landed.
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.hasElement(e.currentUser, "should display the moderator's own user list item");
+    expect(
+      await this.modPage.checkElement(e.viewerAvatar),
+      'should not join the attendee while the microphone is refused',
+    ).toBeFalsy();
+
+    await this.userPage.waitAndClick(e.preFlightWithoutMicrophoneButton);
+    await this.clearsDevicePermissionScreen('should clear the screen once the user goes on without the microphone');
+    await this.userPage.hasElement(e.preFlightJoiningWithoutAudio, 'should say the join carries no audio');
+    await this.userPage.hasElementDisabled(
+      e.preFlightMuteToggle,
+      'should disable the microphone toggle when there is no microphone to join with',
+    );
+
+    await this.confirmJoin();
+    await this.userPage.hasElement(
+      e.joinAudio,
+      'should land without audio, free to join it from the session',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    expect(
+      await this.userPage.checkElement(e.audioModal),
+      'should not display the audio modal after the pre-flight',
+    ).toBeFalsy();
+  }
+
+  async clearsMicrophoneDenialOnGrant() {
+    await this.initUserPageRefusing({ audio: true, video: false });
+    await this.hasDevicePermissionScreen('audio');
+
+    await this.grantDevice('audio', { notify: true });
+    await this.clearsDevicePermissionScreen(
+      'should clear the screen on a grant made in the site settings, without a retry',
+    );
+    await this.userPage.wasRemoved(e.preFlightInputDeviceError, 'should clear the microphone selector flag');
+
+    await this.confirmJoin();
+    await this.userPage.hasElement(
+      e.muteMicButton,
+      'should join the audio with the microphone granted in the pre-flight',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async retriesDeniedCamera() {
+    await this.initUserPageRefusing({ audio: false, video: true });
+    await this.turnOnRefusedCamera();
+    await this.userPage.hasElement(
+      e.preFlightWithoutCameraButton,
+      'should offer to go on without the camera when only the camera is refused',
+    );
+
+    // Still refused: the retry asks again, and the screen stays.
+    const refusalsBefore = await this.refusals('video');
+    await this.userPage.waitAndClick(e.preFlightRetryButton);
+    await expect
+      .poll(() => this.refusals('video'), { message: 'should ask the browser for the camera again on a retry' })
+      .toBeGreaterThan(refusalsBefore);
+    await this.userPage.hasElement(e.preFlightDevicePermission, 'should keep the screen while the camera is refused');
+
+    await this.grantDevice('video', { notify: false });
+    await this.userPage.waitAndClick(e.preFlightRetryButton);
+    await this.clearsDevicePermissionScreen('should clear the screen once a retry gets the camera');
+    await this.userPage.hasElement(
+      e.webcamMirroredVideoPreview,
+      'should display the camera preview once a retry gets the camera',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+
+    await this.confirmJoin();
+    await this.userPage.hasElement(
+      e.leaveVideo,
+      'should share the camera a retry got in the pre-flight',
+      VIDEO_LOADING_WAIT_TIME,
+    );
+  }
+
+  async continuesWithoutDeniedCamera() {
+    await this.initUserPageRefusing({ audio: false, video: true });
+    await this.turnOnRefusedCamera();
+
+    await this.userPage.waitAndClick(e.preFlightWithoutCameraButton);
+    await this.clearsDevicePermissionScreen('should clear the screen once the user goes on without the camera');
+
+    await this.confirmJoin();
+    await this.userPage.hasElement(e.joinVideo, 'should not share the refused camera', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(
+      e.muteMicButton,
+      'should still join the audio with the microphone',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async listenOnlyPastDeniedDevices() {
+    await this.initUserPageRefusing({ audio: true, video: true });
+    await this.hasDevicePermissionScreen('audio');
+    await this.turnOnRefusedCamera();
+    expect(
+      await this.userPage.checkElement(e.preFlightWithoutCameraButton),
+      'should offer the microphone way past, which drops the camera too, rather than one per device',
+    ).toBeFalsy();
+
+    await this.userPage.waitAndClick(e.preFlightListenOnlyButton);
+    await this.clearsDevicePermissionScreen('should clear the screen for both devices with listen only');
+    // Read off the panel rather than after the join: the legacy bridge's
+    // listen only is not what this covers.
+    await expect(
+      this.userPage.page.locator(`${e.preFlightAudioMode} input`),
+      'should switch the audio mode to listen only',
+    ).toHaveValue('listenOnly');
+    await this.userPage.hasElementDisabled(e.preFlightMuteToggle, 'should leave no microphone to toggle');
+    await this.userPage.wasRemoved(e.preFlightCameraDeviceError, 'should turn the refused camera off as well');
+  }
+
+  // Every graphql socket of the attendee goes through here: forwarded as is
+  // until the test drops the connection or holds the join. The moderator's
+  // page is not routed.
+  async routeGraphql(page: PlaywrightPage) {
+    await page.routeWebSocket('**/graphql**', (client) => {
+      if (this.graphqlDown) {
+        this.graphqlRefused += 1;
+        client.close(DROPPED_SOCKET);
+        return;
+      }
+      const server = client.connectToServer();
+      this.graphqlSockets.push({ client, server });
+      client.onMessage((message) => {
+        if (this.holdUserJoin && message.toString().includes(USER_JOIN_OPERATION)) {
+          this.heldUserJoins += 1;
+          return;
+        }
+        server.send(message);
+      });
+      server.onMessage((message) => client.send(message));
+    });
+  }
+
+  async dropGraphql() {
+    this.graphqlDown = true;
+    const sockets = this.graphqlSockets.splice(0);
+    expect(sockets.length, 'should have a graphql socket to drop').toBeGreaterThan(0);
+    await Promise.all(
+      sockets.map(async ({ client, server }) => {
+        await server.close();
+        await client.close(DROPPED_SOCKET);
+      }),
+    );
+    await this.userPage.hasElement(
+      e.preFlightConnectionLost,
+      'should display the connection screen once the socket drops',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async recoversConnectionOnItsOwn() {
+    await this.initUserPageWithPreFlight((page) => this.routeGraphql(page));
+    await this.dropGraphql();
+    await this.userPage.hasElement(e.preFlightCameraToggle, 'should keep the setup panel under the connection screen');
+    expect(
+      await this.userPage.checkElement(e.preFlightJoinButton),
+      'should not offer the join while the connection is down',
+    ).toBeFalsy();
+    await expect
+      .poll(() => this.graphqlRefused, {
+        message: 'should have kept the reconnection down for a while',
+        timeout: GRAPHQL_RETRY_WAIT,
+      })
+      .toBeGreaterThan(0);
+
+    this.graphqlDown = false;
+    await this.userPage.wasRemoved(
+      e.preFlightConnectionLost,
+      'should clear the connection screen on its own once the socket reconnects',
+      GRAPHQL_RETRY_WAIT,
+    );
+    await this.confirmJoin();
+  }
+
+  async reloadsOnRetryWhileDisconnected() {
+    await this.initUserPageWithPreFlight((page) => this.routeGraphql(page));
+    await this.dropGraphql();
+
+    const reloaded = this.userPage.page.waitForEvent('load');
+    await this.userPage.waitAndClick(e.preFlightRetryButton);
+    await reloaded;
+
+    this.graphqlDown = false;
+    await this.userPage.hasElement(
+      e.preFlight,
+      'should load the pre-flight again once the reloaded page connects',
+      GRAPHQL_RETRY_WAIT + ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    expect(
+      await this.userPage.checkElement(e.preFlightConnectionLost),
+      'should not carry the connection screen over the reload',
+    ).toBeFalsy();
+  }
+
+  async recommitsSetupOnStalledJoinRetry() {
+    await this.initUserPageWithPreFlight((page) => this.routeGraphql(page));
+    this.holdUserJoin = true;
+    await this.userPage.waitAndClick(e.preFlightJoinButton);
+    await this.userPage.hasElement(
+      e.preFlightConnectionLost,
+      'should display the connection screen once the join stalls',
+      JOIN_RETRY_TIMEOUT,
+    );
+    expect(this.heldUserJoins, 'should have held the join request back').toBeGreaterThan(0);
+
+    // Committed unmuted by the first click: only a recommit joins muted.
+    await this.userPage.waitAndClick(e.preFlightMuteToggle);
+    this.holdUserJoin = false;
+    await this.userPage.waitAndClick(e.preFlightRetryButton);
+    await this.userPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.hasElement(
+      e.unmuteMicButton,
+      'should join with the microphone setting changed under the connection screen',
+      ELEMENT_WAIT_LONGER_TIME,
     );
   }
 

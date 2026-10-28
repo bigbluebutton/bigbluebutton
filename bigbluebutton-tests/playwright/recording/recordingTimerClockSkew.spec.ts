@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { test } from '../core/setup/fixtures';
@@ -46,12 +46,14 @@ test.describe('Recording timer', { tag: '@ci' }, () => {
     }, CLOCK_SKEW_MS);
 
     const modPage = new Page(browser, page);
-    await modPage.init(true, { fullName: 'Moderator', createParameter: c.recordMeeting });
-
-    // Give the RTT worker time to send its first round-trip to /rtt-check.
+    // Wait for the RTT worker's first round-trip to /rtt-check.
     // The timeSync skew is only set after the first RTT message arrives; without
     // this wait the timer shows the raw client clock offset until the worker kicks in.
-    await modPage.page.waitForTimeout(5000);
+    const firstRttCheck = page.waitForResponse((response) => response.url().includes('/rtt-check'), {
+      timeout: 2 * ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
+    await modPage.init(true, { fullName: 'Moderator', createParameter: c.recordMeeting });
+    await firstRttCheck;
 
     // start recording
     const recordingIndicatorButton = modPage.page.locator(`${e.recordingIndicator} button`);

@@ -229,6 +229,7 @@ const Whiteboard = React.memo((props) => {
   const shapeBatchRef = useRef({});
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
+  const isTouchZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
   const incomingPageZoomRef = useRef(null);
   const suppressNextZoomSyncRef = useRef(false);
@@ -1463,6 +1464,11 @@ const Whiteboard = React.memo((props) => {
         // Handle removed shapes immediately (not batched)
         const idsToRemove = Object.keys(removed);
         if (idsToRemove.length > 0) {
+          // A shape removed before it was persisted (e.g. a dot bailed by a second finger)
+          // must not be sent afterwards.
+          idsToRemove.forEach((id) => {
+            delete shapeBatchRef.current[id];
+          });
           removeShapes(idsToRemove);
         }
       },
@@ -1477,7 +1483,12 @@ const Whiteboard = React.memo((props) => {
 
         const path = editor.getPath();
 
-        if ((isPresenterRef.current || hasWBAccessRef.current) && pointers) {
+        // During a two-finger touch the handler publishes the point between the fingers.
+        if (
+          (isPresenterRef.current || hasWBAccessRef.current)
+          && pointers
+          && !isTouchZoomRef.current
+        ) {
           const [, nextPointer] = pointers;
           updateCursorPosition(nextPointer?.x, nextPointer?.y);
         }
@@ -1518,7 +1529,8 @@ const Whiteboard = React.memo((props) => {
               hasZoomSyncedRef.current = false;
             }
 
-            if (isWheelZoomRef.current) {
+            // Wheel and touch gestures move the camera directly; zoomChanger follows it.
+            if (isWheelZoomRef.current || isTouchZoomRef.current) {
               zoomSlide(
                 viewedRegionW, viewedRegionH, nextCam.x, nextCam.y,
                 currentPresentationPageRef.current,
@@ -1633,7 +1645,7 @@ const Whiteboard = React.memo((props) => {
       });
 
       // eslint-disable-next-line no-param-reassign
-      editor.store.onBeforeChange = (prev, next) => {
+      editor.store.onBeforeChange = (prev, next, source) => {
         if (isPhone) {
           const path = editor.getPath();
           const activePaths = [
@@ -1724,12 +1736,64 @@ const Whiteboard = React.memo((props) => {
         let viewportHeight;
 
         if (isPresenterRef.current) {
-          const viewportPageBounds = editor?.getViewportPageBounds();
-          viewportWidth = viewportPageBounds?.w;
-          viewportHeight = viewportPageBounds?.h;
+          // The viewport of the camera being written, not of the current one: with the
+          // current zoom, a zoom step that starts at 100% would be pushed back to (0, 0).
+          const { w, h } = editor.getViewportScreenBounds();
+          const zoom = next?.typeName === CAMERA_TYPE && next.z > 0 ? next.z : editor.getCamera().z;
+          viewportWidth = w / zoom;
+          viewportHeight = h / zoom;
         } else {
           viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth;
           viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
+        }
+
+        const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
+        const currentPage = currentPresentationPageRef.current;
+
+        // Prevent pinch zoom outside allowed range
+        if (
+          zoomed
+          && source === 'user'
+          && isPresenterRef.current
+          && isTouchZoomRef.current
+          && currentPage
+          && Number.isFinite(currentPage.scaledWidth)
+          && currentPage.scaledWidth > 0
+          && Number.isFinite(currentPage.scaledHeight)
+          && currentPage.scaledHeight > 0
+        ) {
+          // The same 100 % as the touch handler and the wheel, or the gate would reject
+          // their writes at the bounds.
+          let baseZoom = initialZoomRef.current;
+
+          if (!(baseZoom > 0)) {
+            const { widthGap } = getContainerDimensions();
+
+            baseZoom = calculateZoomValueRef.current(
+              currentPage.scaledWidth,
+              currentPage.scaledHeight,
+            );
+
+            if (widthGap > 0) {
+              baseZoom = calculateZoomWithGapValueRef.current(
+                currentPage.scaledWidth,
+                currentPage.scaledHeight,
+                widthGap,
+              );
+            }
+          }
+
+          if (Number.isFinite(baseZoom) && baseZoom > 0) {
+            const minimumZoom = currentPage.infiniteWhiteboard
+              ? baseZoom * 0.25
+              : baseZoom;
+
+            const maximumZoom = baseZoom * 4;
+
+            if (next.z < minimumZoom || next.z > maximumZoom) {
+              return prev;
+            }
+          }
         }
 
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
@@ -2032,7 +2096,7 @@ const Whiteboard = React.memo((props) => {
 
   useMouseEvents(
     {
-      whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
+      whiteboardRef, tlEditorRef, isWheelZoomRef, isTouchZoomRef, initialZoomRef, isPresenterRef,
     },
     {
       hasWBAccess: hasWBAccessRef.current,
@@ -2170,6 +2234,7 @@ const Whiteboard = React.memo((props) => {
       && currentPresentationPage
       && isPresenter
       && !isWheelZoomRef.current
+      && !isTouchZoomRef.current
     ) {
       if (!isMounting && prevZoomValueRef.current !== zoomValue) {
         // The presenter zoomed before the remounted editor restored the page: that zoom

@@ -59,7 +59,6 @@ export class Notifications extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
-    await this.modPage.page.waitForTimeout(1000);
     await this.modPage.hasElement(
       e.lowerHandUserItem,
       'should display raise hand rejection button on toast notification',
