@@ -4,7 +4,9 @@ id: getSessions.list.no-join
 title: getSessions lists no session for a meeting nobody joined
 endpoint: getSessions
 class: contract
-tags: [ci]
+# Runs alone (serial): the answer lists the server's sessions, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
 requires: [akka]
 steps:
   - call: create

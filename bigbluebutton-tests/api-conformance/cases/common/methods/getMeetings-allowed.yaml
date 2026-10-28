@@ -6,7 +6,9 @@ id: getMeetings.method.allowed
 title: getMeetings answers ${method} with its own handler
 endpoint: getMeetings
 class: contract
-tags: [ci]
+# Runs alone (serial): the answer lists the server's meetings, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
 variants:
   - {id: get, vars: {method: GET}}
   - {id: post, vars: {method: POST}}

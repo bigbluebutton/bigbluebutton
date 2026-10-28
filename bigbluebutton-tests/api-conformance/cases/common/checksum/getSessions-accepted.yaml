@@ -6,7 +6,9 @@ id: getSessions.checksum.accepted
 title: getSessions accepts a valid ${alg} checksum
 endpoint: getSessions
 class: contract
-tags: [ci]
+# Runs alone (serial): the answer lists the server's sessions, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
 variants:
   - {id: sha1, vars: {alg: sha1}}
   - {id: sha512, vars: {alg: sha512}}

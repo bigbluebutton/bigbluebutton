@@ -3,7 +3,9 @@ id: getMeetings.cors.no-header
 title: bbb-web adds no Access-Control-Allow-Origin header to an API response
 endpoint: getMeetings
 class: compat
-tags: [ci]
+# Runs alone (serial): the answer lists the server's meetings, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
 steps:
   - call: getMeetings
     headers: {Origin: "https://origin.example"}

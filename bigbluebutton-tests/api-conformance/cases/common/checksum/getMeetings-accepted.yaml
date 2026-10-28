@@ -3,7 +3,9 @@ id: getMeetings.checksum.accepted
 title: getMeetings accepts every algorithm, upper-case hex, any placement and an unknown signed param
 endpoint: getMeetings
 class: contract
-tags: [ci]
+# Runs alone (serial): the answer lists the server's meetings, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
 defs:
   base: &base {alg: sha256, mode: valid, pos: last, extra: ""}
 variants:
