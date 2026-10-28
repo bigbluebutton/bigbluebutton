@@ -484,6 +484,9 @@ export const PresentationUploaderToast = ({
   // Ids of failed uploads the converting toast has displayed and that are not yet notified
   const shownErrorIdsRef = useRef(null);
   if (!shownErrorIdsRef.current) shownErrorIdsRef.current = new Set();
+  // Ids of uploads being marked as notified, until they leave presentationsToBeShowed
+  const notifyingIdsRef = useRef(null);
+  if (!notifyingIdsRef.current) notifyingIdsRef.current = new Set();
 
   const rememberShownErrors = (pres) => {
     pres.forEach((p) => {
@@ -566,6 +569,7 @@ export const PresentationUploaderToast = ({
         : p.uploadCompleted),
     ).forEach((p) => {
       shownErrorIdsRef.current.delete(p.presentationId);
+      notifyingIdsRef.current.add(p.presentationId);
       setPresentationUploadCompletionNotified(
         { variables: { presentationId: p.presentationId } },
       );
@@ -573,11 +577,20 @@ export const PresentationUploaderToast = ({
   }, [showToast]);
 
   useEffect(() => {
-    const allPresentationsDone = presentationsToBeShowed.every(
+    // Closing the toast marks its rows as notified one mutation at a time. Rows still waiting
+    // for theirs must not reopen it, or it comes back until the last mutation lands.
+    const ids = new Set(presentationsToBeShowed.map((p) => p.presentationId));
+    notifyingIdsRef.current.forEach((id) => {
+      if (!ids.has(id)) notifyingIdsRef.current.delete(id);
+    });
+    const pending = presentationsToBeShowed.filter(
+      (p) => !notifyingIdsRef.current.has(p.presentationId),
+    );
+    const allPresentationsDone = pending.every(
       (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
     );
     // Forcing to show toast will only work if there are any presentations to show
-    setShowToast(presentationsToBeShowed.length > 0 && (!allPresentationsDone || forceShowToast));
+    setShowToast(pending.length > 0 && (!allPresentationsDone || forceShowToast));
   }, [presentationsToBeShowed]);
 
   useEffect(() => {
