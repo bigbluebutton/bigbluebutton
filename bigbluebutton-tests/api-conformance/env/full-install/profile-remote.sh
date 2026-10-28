@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 # The part of profile.sh that runs on the server, as root. profile.sh puts
 # NAME and OVERLAY (a file with the profile's settings) in front of it.
 set -eu
