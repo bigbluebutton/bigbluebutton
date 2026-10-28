@@ -24,7 +24,6 @@ public class MimeTypeUtils {
     private  static final String PDF = "application/pdf";
     private  static final String JPEG = "image/jpeg";
     private  static final String PNG = "image/png";
-    private  static final String SVG = "image/svg+xml";
     private  static final String WEBP = "image/webp";
 
     // If the following mime-types are changed, please, make sure to also change:
@@ -48,7 +47,6 @@ public class MimeTypeUtils {
             put(FileTypeConstants.JPG, Arrays.asList(JPEG));
             put(FileTypeConstants.JPEG, Arrays.asList(JPEG));
             put(FileTypeConstants.PNG, Arrays.asList(PNG));
-            put(FileTypeConstants.SVG, Arrays.asList(SVG));
             put(FileTypeConstants.WEBP, Arrays.asList(WEBP));
         }
     };
