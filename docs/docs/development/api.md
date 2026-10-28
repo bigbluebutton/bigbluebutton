@@ -1839,7 +1839,6 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .jpeg
   - .png
   - .webp
-  - .svg
 
 #### Text Files
 
