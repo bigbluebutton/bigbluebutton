@@ -70,7 +70,7 @@ $ sudo bbb-conf --setip bbb.mybbbserver.com
 
 ### `--set-port-range <min>-<max>`
 
-Changes the UDP port range used for media to `<min>`-`<max>` in every component at once: FreeSWITCH (`rtp-start-port`/`rtp-end-port` in `switch.conf.xml`), mediasoup (`mediasoup.worker.rtcMinPort`/`rtcMaxPort` in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`), bbb-webrtc-recorder (`webrtc.rtcMinPort`/`rtcMaxPort`) and LiveKit (`rtc.port_range_start`/`port_range_end` in `/etc/bigbluebutton/livekit.yaml`). Restart BigBlueButton afterwards. See [Change UDP ports](/administration/customize#change-udp-ports) for the default ranges of each component.
+Changes the UDP port range used for media to `<min>`-`<max>` in four components at once: FreeSWITCH (`rtp-start-port`/`rtp-end-port` in `switch.conf.xml`), mediasoup (`mediasoup.worker.rtcMinPort`/`rtcMaxPort` in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`), bbb-webrtc-recorder (`webrtc.rtcMinPort`/`rtcMaxPort` in `/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml`) and LiveKit (`rtc.port_range_start`/`port_range_end` in `/etc/bigbluebutton/livekit.yaml`). Restart BigBlueButton afterwards and open the new range in your firewall. See [Change UDP ports](/administration/customize#change-udp-ports) for the default ranges and the caveats: livekit-sip is not edited, `switch.conf.xml` is reset by `bbb-freeswitch-core` upgrades, an existing `/etc/bigbluebutton/bbb-webrtc-recorder.yml` shadows the file the command edits, and in BigBlueButton 4.0.0 the LiveKit values are written as quoted strings, which `livekit-server` rejects.
 
 ### `--clean`
 

@@ -134,12 +134,12 @@ prometheus:
 ```
 After a restart of bbb-webrtc-sfu, the metrics can now be queried via
 
-  * `curl http://bbb.example.com:3014/metrics` (mcs-core)
-  * `curl http://bbb.example.com:3016/metrics` (main)
-  * `curl http://bbb.example.com:3026/metrics` (video)
-  * `curl http://bbb.example.com:3022/metrics` (screenshare)
-  * `curl http://bbb.example.com:3024/metrics` (audio)
-  * `curl http://bbb.example.com:6759/metrics` (bbb-webrtc-sfu's LiveKit controller)
+  * `curl http://localhost:3014/metrics` (mcs-core)
+  * `curl http://localhost:3016/metrics` (main)
+  * `curl http://localhost:3026/metrics` (video)
+  * `curl http://localhost:3022/metrics` (screenshare)
+  * `curl http://localhost:3024/metrics` (audio)
+  * `curl http://localhost:6759/metrics` (bbb-webrtc-sfu's LiveKit controller)
 
 respectively.
 

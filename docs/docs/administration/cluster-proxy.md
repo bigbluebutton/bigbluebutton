@@ -162,7 +162,7 @@ BigBlueButton server and the proxy._
 
 ---
 
-Add the following line to `/etc/bigbluebutton/bbb-web.env` (the `bbb-web` service reads this file as its environment; create it if it does not exist):
+Add the following line to `/etc/bigbluebutton/bbb-web.env` (the `bbb-web` service reads this file as its environment; create it if it does not exist). If the file already sets `JDK_JAVA_OPTIONS`, add these options to that line instead, since only the last assignment takes effect:
 
 ```shell
 JDK_JAVA_OPTIONS=-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://bbb-01.example.com

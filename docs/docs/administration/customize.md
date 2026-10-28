@@ -1318,7 +1318,7 @@ BigBlueButton comes with a [UFW](https://launchpad.net/ufw) based ruleset. It it
 - TCP/IP port 22 for SSH
 - TCP/IP port 80 for HTTP
 - TCP/IP port 443 for HTTPS
-- TCP and UDP port 3478 for the built-in TURN server (opened only while HAProxy is running on the server)
+- TCP and UDP port 3478 for the built-in TURN server (opened only if HAProxy is enabled and running when the rules are applied)
 - UDP ports 16384 to 32768 for media connections
 
 Note: if you have configured `sshd` (the OpenSSH daemon) to use a different port than 22, then before running the commands below, change `ufw allow OpenSSH` to `ufw allow <port>/tcp` where `<port>` is the port in use by `sshd`. You can see the listening port for `sshd` using the command `ss -tlnp | grep sshd`. Here the command shows `sshd` listening to the standard port 22.
@@ -1356,6 +1356,8 @@ To configure a firewall for your BigBlueButton server (recommended), add `enable
 enableUFWRules
 ```
 
+The helper opens port 3478 for the built-in TURN server only if HAProxy is enabled and active when it runs, and removes the rule otherwise; if you enable the TURN server later, run `bbb-conf --restart` again so the rule is added.
+
 With `enableUFWRule` added to `apply-config.sh`, whenever you do `bbb-conf` with `--restart` or `--setip`, you'll see the following output
 
 ```bash
@@ -1381,7 +1383,7 @@ Starting BigBlueButton
 
 #### Change UDP ports
 
-By default, BigBlueButton uses the UDP ports 16384-32768, which are used by LiveKit, FreeSWITCH, mediasoup and bbb-webrtc-recorder to send real-time packets (RTP).
+By default, BigBlueButton uses the UDP ports 16384-32768, which are used by LiveKit, livekit-sip, FreeSWITCH, mediasoup and bbb-webrtc-recorder to send real-time packets (RTP).
 
 **LiveKit** (the default media server) uses the whole range 16384 - 32768, which is defined in `/usr/share/livekit-server/livekit.yaml`; override it in `/etc/bigbluebutton/livekit.yaml`:
 
@@ -1389,6 +1391,12 @@ By default, BigBlueButton uses the UDP ports 16384-32768, which are used by Live
 rtc:
   port_range_start: 16384
   port_range_end: 32768
+```
+
+**livekit-sip** (the telephone dial-in of the LiveKit audio bridge) uses the same range, which is defined as `rtp_port` in `/usr/share/livekit-server/livekit-sip.yaml`; override it in `/etc/bigbluebutton/livekit-sip.yaml`:
+
+```yaml
+rtp_port: 16384-32768
 ```
 
 **FreeSWITCH** uses the range 16384 - 24576, which is defined in `/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml`
@@ -1418,9 +1426,11 @@ mediasoup:
     rtcMaxPort: 51999
 ```
 
-To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder, LiveKit and livekit-sip; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
+To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder and LiveKit; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
+- the command does not edit livekit-sip: if you use the telephone dial-in, set `rtp_port` in `/etc/bigbluebutton/livekit-sip.yaml` yourself (see above);
 - `switch.conf.xml` isn't preserved on `bbb-freeswitch-core` upgrades, so FreeSWITCH goes back to 16384-24576 - re-run the command after upgrading;
-- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well.
+- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well;
+- in BigBlueButton 4.0.0 the command writes the LiveKit values as quoted strings (`port_range_start: "<min>"`), which `livekit-server` rejects at start (`cannot unmarshal !!str ... into uint32`) - remove the quotes in `/etc/bigbluebutton/livekit.yaml` before restarting.
 
 #### Apply custom settings for TURN server
 
@@ -1941,5 +1951,5 @@ You may want to double check that both instances are running fine via `systemctl
 
 ##### How many Hasura instances should I run?
 
-We recommend keeping the default (single instance) unless you expect that your BigBlueButton server will be handling hundreds of simultaneous users. A second instance would prove benefitial for those aiming to support a larger number (several hundreds users), especially on hardware which is multiple times more performant than what we outline in the [minimum server requirements](/administration/install#minimum-server-requirements).
+We recommend keeping the default (single instance) unless you expect that your BigBlueButton server will be handling hundreds of simultaneous users. A second instance would prove beneficial for those aiming to support a larger number (several hundreds users), especially on hardware which is multiple times more performant than what we outline in the [minimum server requirements](/administration/install#minimum-server-requirements).
 We have not yet noticed visible difference with more than two instances of Hasura, because at this level of usage, there are other aspects of BigBlueButton which will also begin showing signs of slowing down.
