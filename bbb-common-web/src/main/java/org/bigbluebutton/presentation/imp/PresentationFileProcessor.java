@@ -68,12 +68,26 @@ public class PresentationFileProcessor {
         }
 
         String meetingId = pres.getMeetingId();
+        Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
+        if (meeting == null) {
+            Map<String, Object> logData = new HashMap<String, Object>();
+            logData.put("podId", pres.getPodId());
+            logData.put("meetingId", meetingId);
+            logData.put("presId", pres.getId());
+            logData.put("filename", pres.getName());
+            logData.put("logCode", "presentation_conversion_meeting_gone");
+            logData.put("message", "Meeting ended before the presentation was processed. Skipping conversion.");
+            Gson gson = new Gson();
+            String logStr = gson.toJson(logData);
+            log.warn(" --analytics-- data={}", logStr);
+            return;
+        }
+
         //Download presentation outputs from cache (if enabled)
         try {
             pres.setUploadedFileHash(s3FileManager.generateHash(pres.getUploadedFile()));
             String remoteFileName = pres.getUploadedFileHash() + ".tar.gz";
-            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
-            if(meeting != null && meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
+            if(meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
                 TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
@@ -84,7 +98,7 @@ public class PresentationFileProcessor {
         }
 
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
-            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
+            boolean isNumberOfPagesOk = determineNumberOfPages(pres, meeting);
             if (!isNumberOfPagesOk) {
                 return;
             }
@@ -268,9 +282,8 @@ public class PresentationFileProcessor {
         return tempPage;
     }
 
-    private boolean determineNumberOfPages(UploadedPresentation pres) {
+    private boolean determineNumberOfPages(UploadedPresentation pres, Meeting meeting) {
         try {
-            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(pres.getMeetingId());
             counterService.determineNumberOfPages(pres, meeting.getMaxNumPages());
             return true;
         } catch (CountingPageException e) {
