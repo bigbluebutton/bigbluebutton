@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# join only registers the user; the meeting runs once the user's client joins
+# it. The check waits until akka-apps has registered the user.
+id: isMeetingRunning.state.registered
+title: A meeting whose only user is registered but not in it isn't running
+endpoint: isMeetingRunning
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Running}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/running: "false"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

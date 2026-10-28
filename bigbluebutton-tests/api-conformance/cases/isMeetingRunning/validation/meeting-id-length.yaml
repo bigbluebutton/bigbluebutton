@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meetingID has 2 to 256 characters. One within the bounds is answered
+# whether or not the meeting exists; none of these does.
+id: isMeetingRunning.validation.meeting-id-length
+title: isMeetingRunning with a meetingID of ${len} characters
+endpoint: isMeetingRunning
+class: contract
+tags: [ci]
+defs:
+  rejected: &rejected {returncode: FAILED, key: sizeError, message: Meeting ID must be between 2 and 256 characters, running: null}
+  answered: &answered {returncode: SUCCESS, key: null, message: null, running: "false"}
+variants:
+  - {id: too-short, vars: {<<: *rejected, len: 1}}
+  - {id: shortest, vars: {<<: *answered, len: 2}}
+  - {id: longest, vars: {<<: *answered, len: 256}}
+  - {id: too-long, vars: {<<: *rejected, len: 257}}
+steps:
+  - call: isMeetingRunning
+    params: {meetingID: '${repeat("z", len)}'}
+    expect:
+      returncode: "${returncode}"
+      messageKey: "${key}"
+      message: "${message}"
+      xpath: {/response/running: "${running}"}

@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# isMeetingRunning checks meetingID's format, not that the meeting exists. A
+# meetingID is required and can't contain a comma.
+id: isMeetingRunning.validation.meeting-id
+title: isMeetingRunning rejects ${scenario}
+endpoint: isMeetingRunning
+class: contract
+tags: [ci]
+variants:
+  - {id: missing, vars: {scenario: a request without meetingID, meetingID: null, key: missingParamMeetingID, message: You must provide a meeting ID}}
+  - {id: comma, vars: {scenario: a meetingID with a comma, meetingID: "z,z", key: validationError, message: "Meeting ID cannot contain ','"}}
+steps:
+  - call: isMeetingRunning
+    params: {meetingID: "${meetingID}"}
+    expect: {returncode: FAILED, messageKey: "${key}", message: "${message}"}
