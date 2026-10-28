@@ -15,11 +15,11 @@ object Dependencies {
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
     val gson = "2.8.9"
-    val jackson = "2.22.3"
+    val jackson = "2.22.4"
     // jackson-annotations drops the patch component from 2.20 on: the 2.22.3 suite pins it at 2.22.
     val jacksonAnnotations = "2.22"
     val netty = "4.2.17.Final"
-    val logback = "1.6.3"
+    val logback = "1.6.5"
     val slf4j = "2.0.17"
     val quicklens = "1.7.5"
     val spray = "1.3.6"
@@ -36,7 +36,7 @@ object Dependencies {
 
     // Database
     val slick = "3.4.1"
-    val postgresql = "42.7.13"
+    val postgresql = "42.7.14"
     val slickPg = "0.21.1"
 
     // Test
