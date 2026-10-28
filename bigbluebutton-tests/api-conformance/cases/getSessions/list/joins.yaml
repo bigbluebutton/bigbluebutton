@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Each join opens a session, whether or not the user's client ever connects.
+# getSessions lists one meeting element per session, naming the meeting by
+# its internal ID, with the meeting's name and the user's.
+id: getSessions.list.joins
+title: getSessions lists a session for each join
+endpoint: getSessions
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Sessions}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: moderator, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: getSessions
+    expect:
+      returncode: SUCCESS
+      xpath:
+        "/response/sessions/meeting[meetingID='${intId}']": {count: 2}
+        "/response/sessions/meeting[meetingID='${intId}'][userName='Ann']/meetingName": Sessions
+        "/response/sessions/meeting[meetingID='${intId}'][userName='Bob']/meetingName": Sessions
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

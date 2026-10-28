@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Creating a meeting opens no session: sessions come from joins.
+id: getSessions.list.no-join
+title: getSessions lists no session for a meeting nobody joined
+endpoint: getSessions
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Sessions}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: getSessions
+    expect:
+      returncode: SUCCESS
+      xpath: {"/response/sessions/meeting[meetingID='${intId}']": {count: 0}}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
