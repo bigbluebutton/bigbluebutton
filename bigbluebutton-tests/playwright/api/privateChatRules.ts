@@ -97,21 +97,33 @@ export class PrivateChatRules extends MultiUsers {
     );
   }
 
+  // A third attendee of the meeting, for a request the server may answer with an eject
+  private async joinDisposableAttendee(): Promise<Page> {
+    if (!this.modPage.context) throw new Error('modPage not initialized');
+    const attendee = new Page(this.browser, await this.modPage.context.newPage(), this.modPage.testInfo);
+    await attendee.init(false, { fullName: 'Attendee3', meetingId: this.modPage.meetingId });
+    return attendee;
+  }
+
   // lockSettingsDisablePrivateChat=true: a locked attendee chats privately with the moderator only, and
   // with the other attendee once the moderator unlocks them
   async privateChatLockUntilUnlocked(lockedSince: number) {
     expect((await readCurrentUser(this.userPage))?.locked, 'the attendee should join locked').toBe(true);
     await waitForLockGraceToPass(lockedSince);
 
-    await PrivateChatRules.expectPrivateChatRefused(
-      this.userPage,
-      this.userPage2,
-      'a locked attendee should not chat privately with another attendee',
-    );
     await PrivateChatRules.expectPrivateChatDelivered(
       this.userPage,
       this.modPage,
       'a locked attendee should chat privately with the moderator',
+    );
+    // a refused request ejects its sender when apps.ejectOnViolation is on (off by default), so the
+    // attendee the moderator unlocks below never sends one
+    const disposableAttendee = await this.joinDisposableAttendee();
+    expect((await readCurrentUser(disposableAttendee))?.locked, 'the third attendee should join locked').toBe(true);
+    await PrivateChatRules.expectPrivateChatRefused(
+      disposableAttendee,
+      this.userPage2,
+      'a locked attendee should not chat privately with another attendee',
     );
 
     const attendeeId = await getOwnUserId(this.userPage);
