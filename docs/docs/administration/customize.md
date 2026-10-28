@@ -1418,7 +1418,9 @@ mediasoup:
     rtcMaxPort: 51999
 ```
 
-To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into all four components; restart BigBlueButton afterwards. Remember to open the new range in your firewall.
+To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder, LiveKit and livekit-sip; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
+- `switch.conf.xml` isn't preserved on `bbb-freeswitch-core` upgrades, so FreeSWITCH goes back to 16384-24576 - re-run the command after upgrading;
+- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well.
 
 #### Apply custom settings for TURN server
 
