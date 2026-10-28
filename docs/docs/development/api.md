@@ -129,7 +129,7 @@ Updated in 3.0:
 - **getJoinUrl** endpoint was first introduced.
 - **enter** endpoint was removed. It was only used internally, never part of the api documentation.
 - **html5client/check** endpoint was removed. It was used for checking the health of the server returning `{"html5clientStatus":"running"}`
-- **feedback** endpoint was introduced, replacing calls to `/html5client/feedback` with `/api/feedback`
+- **html5client/feedback** endpoint was removed together with the built-in post-meeting feedback form. The `/api/feedback` endpoint that replaced it during the 3.0 release candidates was removed as well. Feedback is collected by the optional [custom-feedback](https://github.com/bigbluebutton/custom-feedback) application, which brings its own backend.
 
 Updated in 4.0:
 
@@ -137,7 +137,7 @@ Updated in 4.0:
   - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
   - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage` and `webcamGrid`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
-  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
+  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through the `clientSettingsOverride` POST module (requires `allowOverrideClientSettingsOnCreateCall=true`) or the `clientSettingsOverrideJsonUrl` parameter (no server-side setting needed).
   - **Removed parameter:** `logoutTimer` (it had no effect; the value was stored in bbb-web but never propagated to akka-apps or the HTML5 client).
   - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
@@ -148,7 +148,7 @@ Updated in 4.0:
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
-  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
+  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
@@ -773,7 +773,109 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-See [Passing user metadata to the client on join](/administration/customize/#passing-user-metadata-to-the-client-on-join) for additional `join` parameters that can override default settings for the user.
+#### User metadata parameters
+
+Any `join` parameter whose name starts with `userdata-` is accepted and stored as metadata of that user, the per-user counterpart of the `meta_` parameters of [`create`](#get-post-create). The name after the prefix must not contain another `-`, or bbb-web drops the parameter; `getJoinUrl` additionally only forwards names made of letters, digits, `_` and `.`. The value is kept with the user for the lifetime of the meeting and is:
+
+- delivered to that user's HTML5 client when it loads, where the `bbb_` parameters listed below change the look and default behaviour of the client for that user only;
+- available to bbb-apps-akka, which enforces the recording parameters on the server side;
+- written to the recording events (the `userdata` attribute of `ParticipantJoinEvent` in `events.xml`), where recording processing scripts can read it;
+- inherited by the user's breakout room sessions: a `userdata-` parameter passed on the parent room join also applies in the breakout rooms, unless the breakout join URL sets the same parameter explicitly.
+
+The `bbb_` prefix, that is every `userdata-bbb_*` parameter, is reserved for BigBlueButton. Integrations that attach their own per-user data must use their own prefix (for example `userdata-myapp_cohort=2026A`); such parameters are stored and passed along unchanged, and the client ignores them.
+
+Values are URL encoded. The client parses each value as JSON where possible and otherwise keeps it as a string, so booleans are written `true` or `false`, and lists are JSON arrays with double quotes: `["draw","text"]` is passed as `userdata-bbb_presenter_tools=%5B%22draw%22%2C%22text%22%5D`.
+
+Each parameter overrides one default of the client's `settings.yml`, named in the **Default** column; the same key can be changed for the whole server in `/etc/bigbluebutton/bbb-html5.yml` (see [Configuration Files](/administration/configuration-files)).
+
+[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, audio bridge and whiteboard tool parameters).
+
+Tools for experimenting:
+
+- [API Mate](https://bigbluebutton.github.io/api-mate/) builds `join` URLs with user metadata interactively; `sudo bbb-conf --secret` prints a link that opens it with your server and secret filled in.
+- A URL encoder such as [this one](https://meyerweb.com/eric/tools/dencoder/) helps with values that need encoding, like CSS or JSON arrays.
+
+##### Application parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_auto_join_audio` | If `false`, the audio prompt (microphone or listen only) does not open when the client loads; the user joins audio later from the actions bar. | `true` (`public.app.autoJoin`) |
+| `userdata-bbb_client_title` | Text used as the browser tab title. | `BigBlueButton` (`public.app.clientTitle`) |
+| `userdata-bbb_force_listen_only` | If `true`, the user can only join audio in listen-only mode; the microphone option is hidden. Moderators are not affected. | `false` (`public.app.forceListenOnly`) |
+| `userdata-bbb_listen_only_mode` | If `false`, the listen-only option is removed from the audio prompt, so the user must join with a microphone. Only read when the meeting's audio bridge (`audioBridge`, default `livekit`) is `bbb-webrtc-sfu`; with `livekit` the listen-only option is not offered anyway, unless `bbb_force_listen_only` forces it, because users join through a muted microphone connection instead. | `true` (`public.app.listenOnlyMode`) |
+| `userdata-bbb_skip_check_audio` | If `true`, the echo test is skipped when the user joins with a microphone. | `false` (`public.app.skipCheck`) |
+| `userdata-bbb_skip_check_audio_on_first_join` | If `true`, the echo test is skipped the first time the user joins with a microphone in a session; it is shown again if the user leaves and rejoins audio. No effect when `bbb_skip_check_audio` is `true`. Added in 2.3. | `false` (`public.app.skipCheckOnJoin`) |
+| `userdata-bbb_skip_echotest_if_previous_device` | If `true`, the echo test is skipped when the browser has stored working input and output devices from an earlier session. Ignored on mobile devices. Added in 3.0. | `false` (`public.app.skipEchoTestIfPreviousDevice`) |
+| `userdata-bbb_override_default_locale` | Locale code (for example `de`) to use instead of the browser's preferred language. Added in 2.3. | none |
+| `userdata-bbb_direct_leave_button` | If `false`, the leave button is removed from the navigation bar and the user leaves through the options menu instead. Added in 2.7. | `true` (`public.app.defaultSettings.application.directLeaveButton`) |
+| `userdata-bbb_show_session_details_on_join` | If `true`, the session details window opens when the user joins. Added in 3.0. | `false` (`public.layout.showSessionDetailsOnJoin`) |
+| `userdata-bbb_show_animations_default` | If `false`, the animations setting (reactions, whiteboard toolbar fading and the like) starts turned off for the user. | `true` (`public.app.defaultSettings.application.animations`) |
+| `userdata-bbb_record_permission` | `true` lets the user start and stop the recording whatever their role; `false` prevents it even for a moderator. Checked by the client and enforced by bbb-apps-akka; the meeting must allow it (`allowStartStopRecording`). Added in 3.0. | none: moderators may record |
+| `userdata-bbb_record_permission_tooltip` | Text shown as the tooltip of the recording indicator for a user who is not allowed to record. Added in 3.0. | none |
+
+##### Branding parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_display_branding_area` | If `false`, the branding area (the logo in the sidebar navigation) is hidden. | `true` (`public.app.branding.displayBrandingArea`) |
+
+##### Shortcut parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_shortcuts` | JSON array of the keyboard shortcuts that stay enabled, by their `descId` in `public.app.shortcuts`: `openOptions`, `toggleUserList`, `openLeaveMenu`, `toggleMute`, `joinAudio`, `leaveAudio`, `togglePublicChat`, `hidePrivateChat`, `closePrivateChat`, `raiseHand`, `openActions`, `openDebugWindow`. Shortcuts not listed are disabled; `%5B%5D` (an empty array) disables them all. | all shortcuts in `public.app.shortcuts` |
+
+##### Media parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_auto_share_webcam` | If `true`, the webcam sharing dialog opens automatically when the client loads, together with the audio prompt when that opens too. No effect when `bbb_enable_video` is `false`. | `false` (`public.kurento.autoShareWebcam`) |
+| `userdata-bbb_preferred_camera_profile` | Id of the camera profile preselected in the webcam dialog, out of `public.kurento.cameraProfiles` (for example `low`, `medium`, `high`). | the profile marked `default` (`medium`) |
+| `userdata-bbb_enable_video` | If `false`, the webcam sharing button is hidden and the user cannot share a webcam. | `true` (`public.kurento.enableVideo`) |
+| `userdata-bbb_record_video` | If `false`, the user's webcam is not recorded. Enforced by bbb-apps-akka. | `true` |
+| `userdata-bbb_skip_video_preview` | If `true`, the webcam preview dialog is skipped and sharing starts right away. | `false` (`public.kurento.skipVideoPreview`) |
+| `userdata-bbb_skip_video_preview_on_first_join` | If `true`, the webcam preview dialog is skipped the first time the user shares a webcam in a session; it is shown again on later shares. Added in 2.3. | `false` (`public.kurento.skipVideoPreviewOnFirstJoin`) |
+| `userdata-bbb_skip_video_preview_if_previous_device` | If `true`, the webcam preview dialog is skipped when the browser has a stored camera from an earlier session. Added in 3.0. | `false` (`public.kurento.skipVideoPreviewIfPreviousDevice`) |
+| `userdata-bbb_mirror_own_webcam` | If `false`, the user sees their own webcam unmirrored. Does not change what other users see. | `true` (`public.app.mirrorOwnWebcam`) |
+| `userdata-bbb_transparent_listen_only` | If `false`, listen-only users get a receive-only audio connection instead of a muted microphone connection that can be unmuted without rejoining. Only read when the meeting's audio bridge is `bbb-webrtc-sfu`; the `livekit` bridge always works this way. | `true` (`public.media.transparentListenOnly`) |
+| `userdata-bbb_transcription_provider` | Speech-to-text provider for live captions: `webspeech` (speech recognition in the browser) or the name of the server-side provider the transcription service is set up for, such as `gladia` or `vosk` (see [Enable live captions](/administration/customize#enable-live-captions)). Added in 3.0. | `webspeech` (`public.app.audioCaptions.provider`) |
+
+##### Presentation parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_force_restore_presentation_on_new_events` | If `false`, a presentation the user has minimized stays minimized when the presenter changes slide, zooms or draws; if `true`, it is restored on such events. | `true` (`public.presentation.restoreOnUpdate`) |
+
+##### Whiteboard parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_multi_user_pen_only` | If `true`, a user who is neither moderator nor presenter only gets the pen tool (plus the hand tool when viewers may pan) when the whiteboard is in multi-user mode. | `false` (`public.whiteboard.toolbar.multiUserPenOnly`) |
+| `userdata-bbb_presenter_tools` | JSON array of the toolbar items available to the user while they are presenter. The ids are the ones listed under `public.whiteboard.toolbar.presenterTools`: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `line`, `frame`, `highlight`, `delete-selected-items`, `more` and `actions`. | all (`public.whiteboard.toolbar.presenterTools`) |
+| `userdata-bbb_multi_user_tools` | Same as `bbb_presenter_tools`, for a user who is neither moderator nor presenter while the whiteboard is in multi-user mode. | all (`public.whiteboard.toolbar.multiUserTools`) |
+| `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Accepts the tool and geometric shape ids listed under `bbb_presenter_tools`, except `more`, `actions` and `delete-selected-items`. Invalid or unavailable values use the configured initial tool, then `draw`, then the first available selectable tool. If none is available, no drawing tool is selected. Tool restrictions still apply. A valid saved selection takes priority on reload; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
+
+##### Theming and styling parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_custom_style` | URL-encoded CSS applied to the client for this user. See [Changing the background color of the HTML client](/administration/customize#changing-the-background-color-of-the-html-client) for an example. | none |
+| `userdata-bbb_custom_style_url` | URL of a stylesheet loaded into the client for this user. | none (`public.app.customStyleUrl`) |
+| `userdata-bbb_prefer_dark_theme` | `true` starts the client in dark mode, `false` in light mode. Takes precedence over the configured default and over the operating system preference that `public.app.darkTheme.autoDetectFromSystem` follows. Added in 3.0. | `false` (`public.app.defaultSettings.application.darkTheme`) |
+
+##### Layout parameters
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `userdata-bbb_hide_presentation_on_join` | If `true`, the presentation area starts minimized; the user can restore it. Added in 2.6. | `false` (`public.layout.hidePresentationOnJoin`) |
+| `userdata-bbb_show_participants_on_login` | If `true`, the user list panel is open when the user joins. Takes precedence over `bbb_show_public_chat_on_login`. | `false` (`public.layout.showParticipantsOnLogin`) |
+| `userdata-bbb_show_public_chat_on_login` | If `false`, the public chat panel is closed when the user joins. This does not disable chat. | `true` (the opposite of `public.chat.startClosed`) |
+| `userdata-bbb_hide_nav_bar` | If `true`, the navigation bar (the top of the client) is not shown. Added in 2.4. | `false` |
+| `userdata-bbb_hide_actions_bar` | If `true`, the actions bar (the bottom of the client) is not shown. Added in 2.4. | `false` |
+| `userdata-bbb_default_layout` | Layout the client starts in: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY` or `MEDIA_ONLY`. The `enforceLayout` join parameter takes precedence; without either, the meeting layout (`meetingLayout` on `create`, else `defaultMeetingLayout`) is used. Added in 3.0. | none |
+| `userdata-bbb_hide_notifications` | If `true`, all notification toasts are suppressed. Added in 3.0. | `false` |
+| `userdata-bbb_hide_controls` | If `true`, hides the actions bar and the top row of the navigation bar (sidebar toggle, meeting title, connection indicator, leave button) while keeping the row with the talking indicator and the timer. Added in 3.0. | `false` |
+| `userdata-bbb_hide_sidebar_navigation` | If `true`, the sidebar navigation column and the sidebar content panel are closed when the user joins. Added in 4.0. | `false` |
 
 ### `POST` insertDocument
 
@@ -1680,7 +1782,7 @@ See the following [bigbluebutton-api-ruby](https://github.com/mconf/bigbluebutto
 
 ### Testing API Calls with API Mate
 
-To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
+To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](https://bigbluebutton.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
 
 If you're developing new API calls or adding parameters on API calls, you can still use the API Mate to test them. Just scroll the page down or type "custom" in the parameter filter and you'll see the inputs where you can add custom API calls or user metadata. New API calls will appear in the list of API links and new parameters will be added to all the API links.
 
@@ -1737,7 +1839,6 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .jpeg
   - .png
   - .webp
-  - .svg
 
 #### Text Files
 

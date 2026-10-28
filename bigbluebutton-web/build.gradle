@@ -29,14 +29,13 @@ buildscript {
 version = "0.10.0"
 group = "org.bigbluebutton.web"
 
-// TODO: remove once springVersion manages Tomcat >= 11.0.26 (4.1.1 manages 11.0.24).
-ext['tomcat.version'] = '11.0.26'
+// TODO: remove, with the tomcat-embed lines below, once springVersion manages Tomcat >= 11.0.27 (4.1.1 manages 11.0.24).
+ext['tomcat.version'] = '11.0.27'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.apache.grails.gradle.grails-web"
-apply plugin: "org.apache.grails.gradle.grails-gsp"
 apply plugin: "cloud.wondrify.asset-pipeline"
 apply plugin: "com.github.erdi.webdriver-binaries"
 apply plugin: "org.apache.grails.gradle.grails-gson"
@@ -95,6 +94,15 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
 //  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
+
+  // Same version as ext['tomcat.version'], declared directly for scanners that skip the Grails BOM (Snyk Git import)
+  implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.27") {
+    exclude group: "org.apache.tomcat", module: "tomcat-annotations-api"
+  }
+  implementation("org.apache.tomcat.embed:tomcat-embed-websocket:11.0.27") {
+    exclude group: "org.apache.tomcat", module: "tomcat-annotations-api"
+  }
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:11.0.27"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
@@ -180,7 +188,6 @@ configurations {
 
 bootRun {
   jvmArgs '-Dspring.output.ansi.enabled=always'
-  jvmArgs '-Dspring.main.allow-circular-references=true'
   sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
@@ -206,12 +213,20 @@ test {
   ext.MIN_EXPECTED_TESTS = 40
   ext.executedTestCount = 0
 
-  afterSuite { desc, result ->
-    if (desc.parent == null) {
-      // Root suite: `result` aggregates the whole run.
-      test.ext.executedTestCount = result.testCount
+  addTestListener(new TestListener() {
+    void beforeSuite(TestDescriptor suite) {}
+
+    void afterSuite(TestDescriptor suite, TestResult result) {
+      if (suite.parent == null) {
+        // Root suite: `result` aggregates the whole run.
+        test.ext.executedTestCount = result.testCount
+      }
     }
-  }
+
+    void beforeTest(TestDescriptor testDescriptor) {}
+
+    void afterTest(TestDescriptor testDescriptor, TestResult result) {}
+  })
 
   doLast {
     int executed = test.ext.executedTestCount

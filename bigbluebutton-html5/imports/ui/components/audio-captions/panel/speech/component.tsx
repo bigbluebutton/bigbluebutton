@@ -4,7 +4,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   getCaptionsTermsLink,
-  getSpeechVoices,
+  useSpeechVoices,
   isGladia,
   setUserLocaleProperty,
   useIsAudioTranscriptionEnabled,
@@ -48,7 +48,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
   const captionsTermsLink = showTerms && getCaptionsTermsLink(intl.locale);
   const [speechChecked, setSpeechChecked] = useState<boolean>(false);
   const [voicesList, setVoicesList] = useState<string[]>([]);
-  const voices = getSpeechVoices();
+  const voices = useSpeechVoices();
   const isEnabled = useIsAudioTranscriptionEnabled();
   const shouldShowInSidebarNavigation = showInSidebarNavigation();
   const isMobile = layoutSelect((i: Layout) => i.deviceType) === DEVICE_TYPE.MOBILE;
@@ -127,7 +127,8 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
   const speechRecognitionSupport = useMemo(() => hasSpeechRecognitionSupport(), []);
   const noSupport = (!speechRecognitionSupport || speechVoices.length === 0) && !isGladia();
   const hasSupport = !noSupport;
-  if (!isEnabled) return null;
+  // Still checking which languages the browser transcribes on the device
+  if (!isEnabled || voices === undefined) return null;
   if (shouldShowInSidebarNavigation && audioModal) return null;
 
   return (
@@ -151,6 +152,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
         <AudioCaptionsSpeechSelectorContainer
           speechChecked={speechChecked}
           speechVoices={speechVoices}
+          inAudioModal={audioModal}
         />
       )}
     </Styled.TranscriptionToggleContainer>

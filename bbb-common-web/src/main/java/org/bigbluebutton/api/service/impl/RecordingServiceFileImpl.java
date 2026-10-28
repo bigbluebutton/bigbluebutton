@@ -117,52 +117,26 @@ public class RecordingServiceFileImpl implements RecordingService {
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
         String done = recordStatusDir + File.separatorChar + meetingId + "-" + timestamp + ".done";
-
-        File doneFile = new File(done);
-        if (!doneFile.exists()) {
-            try {
-                doneFile.createNewFile();
-                if (!doneFile.exists())
-                    log.error("Failed to create {} file.", done);
-            } catch (IOException e) {
-                log.error("Exception occurred when trying to create {} file", done);
-            }
-        } else {
-            log.error("{} file already exists.", done);
-        }
+        createDoneFile(done);
     }
 
     public void startIngestAndProcessing(String meetingId) {
         String done = recordStatusDir + File.separatorChar + meetingId + ".done";
-
-        File doneFile = new File(done);
-        if (!doneFile.exists()) {
-            try {
-                doneFile.createNewFile();
-                if (!doneFile.exists())
-                    log.error("Failed to create {} file.", done);
-            } catch (IOException e) {
-                log.error("Exception occurred when trying to create {} file.", done);
-            }
-        } else {
-            log.error("{} file already exists.", done);
-        }
+        createDoneFile(done);
     }
 
     public void markAsEnded(String meetingId) {
         String done = recordStatusDir + "/../ended/" + meetingId + ".done";
+        createDoneFile(done);
+    }
 
-        File doneFile = new File(done);
-        if (!doneFile.exists()) {
-            try {
-                doneFile.createNewFile();
-                if (!doneFile.exists())
-                    log.error("Failed to create " + done + " file.");
-            } catch (IOException e) {
-                log.error("Exception occurred when trying to create {} file.", done);
+    private void createDoneFile(String done) {
+        try {
+            if (!new File(done).createNewFile()) {
+                log.error("{} file already exists.", done);
             }
-        } else {
-            log.error(done + " file already exists.");
+        } catch (IOException e) {
+            log.error("Exception occurred when trying to create {} file.", done, e);
         }
     }
 

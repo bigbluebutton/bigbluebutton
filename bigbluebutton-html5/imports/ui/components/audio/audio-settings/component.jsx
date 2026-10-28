@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
+import AudioModalFooterContext from '../audio-modal/context';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
@@ -45,6 +46,9 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  transcriptionNotReady: PropTypes.bool,
+  transcriptionNeedsDownload: PropTypes.bool,
+  downloadTranscriptionLanguage: PropTypes.func,
   skipAudioOptions: PropTypes.func.isRequired,
 };
 
@@ -54,6 +58,9 @@ const defaultProps = {
   withEcho: false,
   unmuteOnExit: false,
   permissionStatus: null,
+  transcriptionNotReady: false,
+  transcriptionNeedsDownload: false,
+  downloadTranscriptionLanguage: () => Promise.resolve(false),
 };
 
 const intlMessages = defineMessages({
@@ -125,7 +132,6 @@ class AudioSettings extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
     this.handleConfirmationClick = this.handleConfirmationClick.bind(this);
-    this.handleCancelClick = this.handleCancelClick.bind(this);
     this.unmuteOnExit = this.unmuteOnExit.bind(this);
     this.updateDeviceList = this.updateDeviceList.bind(this);
 
@@ -164,6 +170,8 @@ class AudioSettings extends React.Component {
     this._isMounted = true;
     // Guarantee initial in/out devices are initialized on all ends
     AudioManager.isEchoTest = true;
+
+    this._registerFooter();
     checkMicrophonePermission({ gumOnPrompt: true, permissionStatus })
       .then(this.updateDeviceList)
       .then(() => {
@@ -189,19 +197,36 @@ class AudioSettings extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    const { permissionStatus } = this.props;
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      permissionStatus, isConnecting, isConnected, skipAudioOptions, handleBack,
+      transcriptionNotReady,
+    } = this.props;
+    const { producingStreams } = this.state;
 
     if (prevProps.permissionStatus !== permissionStatus) {
       this.updateDeviceList();
+    }
+
+    const footerChanged = prevProps.isConnecting !== isConnecting
+      || prevProps.isConnected !== isConnected
+      || prevState.producingStreams !== producingStreams
+      || prevProps.skipAudioOptions !== skipAudioOptions
+      || prevProps.handleBack !== handleBack
+      || prevProps.transcriptionNotReady !== transcriptionNotReady;
+
+    if (footerChanged) {
+      this._registerFooter();
     }
   }
 
   componentWillUnmount() {
     const { stream } = this.state;
+    const { setFooterContent } = this.context;
 
     Session.setItem('inEchoTest', false);
     this._isMounted = false;
+    setFooterContent(null);
 
     if (stream) {
       if (!this._confirmedWithStream) {
@@ -231,14 +256,25 @@ class AudioSettings extends React.Component {
     this.setOutputDevice(deviceId);
   }
 
-  handleConfirmationClick() {
+  handleConfirmationClick({ languagePackReady = false } = {}) {
     const { stream, inputDeviceId: selectedInputDeviceId } = this.state;
     const {
       isConnected,
       produceStreams,
       handleConfirmation,
       liveChangeInputDevice,
+      transcriptionNeedsDownload,
+      downloadTranscriptionLanguage,
     } = this.props;
+
+    // A transcription language without its on-device language pack: confirming downloads it,
+    // and the modal stays open until the download ends. A failure leaves it open to try again.
+    if (transcriptionNeedsDownload && !languagePackReady) {
+      downloadTranscriptionLanguage().then((installed) => {
+        if (installed && this._isMounted) this.handleConfirmationClick({ languagePackReady: true });
+      });
+      return;
+    }
 
     const confirm = () => {
       // Stream generation disabled or there isn't any stream: just run the provided callback
@@ -279,12 +315,6 @@ class AudioSettings extends React.Component {
     } else {
       confirm();
     }
-  }
-
-  handleCancelClick() {
-    const { handleBack } = this.props;
-
-    handleBack();
   }
 
   setInputDevice(deviceId) {
@@ -425,6 +455,39 @@ class AudioSettings extends React.Component {
       });
   }
 
+  _registerFooter() {
+    const { setFooterContent } = this.context;
+    const {
+      intl, isConnected, isConnecting, skipAudioOptions, handleBack, transcriptionNotReady,
+    } = this.props;
+    const { producingStreams } = this.state;
+
+    // Both disabled while the on-device language pack of the transcription language is checked or
+    // downloaded
+    setFooterContent(
+      <Styled.SettingsFooter>
+        <Styled.SettingsBackButton
+          label={(isConnected || skipAudioOptions())
+            ? intl.formatMessage(intlMessages.cancelLabel)
+            : intl.formatMessage(intlMessages.backLabel)}
+          color="secondary"
+          onClick={handleBack}
+          disabled={isConnecting || transcriptionNotReady}
+        />
+        <Button
+          data-test="joinEchoTestButton"
+          size="md"
+          color="primary"
+          label={isConnected
+            ? intl.formatMessage(intlMessages.confirmLabel)
+            : intl.formatMessage(intlMessages.retryLabel)}
+          onClick={() => this.handleConfirmationClick()}
+          disabled={isConnecting || producingStreams || transcriptionNotReady}
+        />
+      </Styled.SettingsFooter>,
+    );
+  }
+
   updateDeviceList() {
     const { updateInputDevices, updateOutputDevices } = this.props;
 
@@ -529,7 +592,7 @@ class AudioSettings extends React.Component {
       <Styled.FormElement>
         <Styled.LabelSmall htmlFor="audioSettingsCaptionsSelector">
           {intl.formatMessage(intlMessages.captionsSelectorLabel)}
-          <AudioCaptionsSelectContainer showTitleLabel={false} />
+          <AudioCaptionsSelectContainer showTitleLabel={false} inAudioModal />
         </Styled.LabelSmall>
       </Styled.FormElement>
     );
@@ -629,48 +692,18 @@ class AudioSettings extends React.Component {
   }
 
   render() {
-    const {
-      producingStreams,
-    } = this.state;
-    const {
-      isConnecting,
-      isConnected,
-      skipAudioOptions,
-      intl,
-    } = this.props;
-
     return (
       <Styled.FormWrapper data-test="audioSettingsModal">
         {this.renderAudioNote()}
         <Styled.Form>
           {this.renderDeviceSelectors()}
         </Styled.Form>
-        <Styled.BottomSeparator />
-        <Styled.EnterAudio>
-          <Styled.BackButton
-            label={(isConnected || skipAudioOptions())
-              ? intl.formatMessage(intlMessages.cancelLabel)
-              : intl.formatMessage(intlMessages.backLabel)}
-            color="secondary"
-            onClick={this.handleCancelClick}
-            disabled={isConnecting}
-          />
-          <Button
-            data-test="joinEchoTestButton"
-            size="md"
-            color="primary"
-            label={isConnected
-              ? intl.formatMessage(intlMessages.confirmLabel)
-              : intl.formatMessage(intlMessages.retryLabel)}
-            onClick={this.handleConfirmationClick}
-            disabled={isConnecting || producingStreams}
-          />
-        </Styled.EnterAudio>
       </Styled.FormWrapper>
     );
   }
 }
 
+AudioSettings.contextType = AudioModalFooterContext;
 AudioSettings.propTypes = propTypes;
 AudioSettings.defaultProps = defaultProps;
 

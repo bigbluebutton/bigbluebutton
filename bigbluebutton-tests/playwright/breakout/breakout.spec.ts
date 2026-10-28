@@ -1,3 +1,4 @@
+import { RECORDING_PROCESSING_WAIT_TIME } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ClientSettingsOverride } from './clientSettingsOverride';
@@ -18,7 +19,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.changeNumberOfRooms();
     });
 
-    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+    test('Change duration time in the creation form', async ({ browser, context, page }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.changeDurationTime();
@@ -188,7 +189,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.messageToAllRooms();
     });
 
-    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+    test('Change duration time of running rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -216,6 +217,29 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.endAllBreakoutRooms();
     });
 
+    test(
+      'Ending the rooms returns the attendee to main room audio',
+      { tag: '@media' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.endingRoomsReturnsAudioToMain();
+      },
+    );
+
+    // Back in the main room the attendee is unmuted: the rejoin uses the mute state stored before the breakout.
+    test(
+      'Ending the rooms keeps an attendee who muted in the breakout muted',
+      { tag: '@known-issue' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.endingRoomsKeepsTheBreakoutMuteState();
+      },
+    );
+
     test('Invite user after creating rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
@@ -231,7 +255,6 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initModPage(page, { testInfo });
       await join.initUserPage(context, { testInfo });
@@ -240,7 +263,6 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(false, true);
@@ -281,10 +303,51 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.returnToMainSessionFromSidebar();
     });
 
+    test('breakoutRoomsPrivateChatEnabled=false removes the private chat between attendees in the rooms', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initModPage(page, { createParameter: 'breakoutRoomsPrivateChatEnabled=false', testInfo });
+      await join.initUserPage(context, { testInfo });
+      await join.initUserPage2(context, { testInfo });
+      await join.privateChatDisabledInRooms();
+    });
+
     // https://github.com/bigbluebutton/bigbluebutton/issues/25138
     test('Breakout room inherits client settings override from parent meeting', async ({ browser, context, page }, testInfo) => {
       const override = new ClientSettingsOverride(browser, context);
       await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
     });
+  });
+});
+
+// About two minutes: the running rooms cannot be given less than one minute.
+test.describe.parallel('Breakout time limit', { tag: '@nightly' }, () => {
+  test('Rooms end by themselves when their time runs out', async ({ browser, context, page }, testInfo) => {
+    const join = new Join(browser, context);
+    await join.initPages(page, testInfo);
+    await join.create();
+    await join.roomsEndWhenTimeRunsOut();
+  });
+});
+
+test.describe.parallel('Breakout recording', { tag: '@nightly' }, () => {
+  test('Breakout room recording is published as a breakout of its parent', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    test.setTimeout(RECORDING_PROCESSING_WAIT_TIME + 3 * 60000);
+    const join = new Join(browser, context);
+    await join.initModPage(page, {
+      createParameter: 'record=true&breakoutRoomsRecord=true',
+      clientSettingsOverrides: { public: { app: { breakouts: { offerRecordingForBreakouts: true } } } },
+      testInfo,
+    });
+    await join.initUserPage(context, { testInfo });
+    await join.create(false, false, true);
+    await join.recordInBreakoutRoom();
   });
 });

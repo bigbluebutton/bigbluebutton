@@ -88,7 +88,7 @@ interface UserActionProps {
   name: string;
   stream: VideoItem;
   cameraId: string | null;
-  numOfStreams: number;
+  canFocus: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
   focused: boolean;
   onHandleMirror: () => void;
@@ -106,7 +106,7 @@ interface UserActionProps {
 
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
-    name, cameraId = '', numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
+    name, cameraId = '', canFocus, onHandleVideoFocus, stream, focused, onHandleMirror,
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator, isFullscreenContext, layoutContextDispatch,
   } = props;
@@ -198,7 +198,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       });
     }
 
-    if (numOfStreams > 2 && isStream) {
+    if (canFocus && isStream) {
       menuItems.push({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
@@ -295,6 +295,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           <BBBMenu
             trigger={(
               <Styled.DropdownTrigger
+                className="bbb-webcam__name"
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
                 $isRTL={isRTL}
@@ -320,7 +321,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         )
         : (
           <Styled.Dropdown $isFirefox={isFirefox}>
-            <Styled.UserName $noMenu={numOfStreams < 3}>
+            <Styled.UserName className="bbb-webcam__name" $noMenu={!canFocus}>
               {displayName}
             </Styled.UserName>
           </Styled.Dropdown>
