@@ -1012,8 +1012,11 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
          <action application="set" data="call_timeout=15"/>
          <!-- livekit-sip takes DTMF only as RFC 2833, and the BBB external
               profile defaults to dtmf-type=info. dtmf_type applies to the
-              bridged leg only, so the trunk leg keeps its own DTMF mode. -->
-         <action application="bridge" data="{dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
+              bridged leg only, so the trunk leg keeps its own DTMF mode.
+              absolute_codec_string keeps the codecs compatible across all legs
+              (provider, gateway and livekit-sip). The quotes keep the list in
+              one variable. -->
+         <action application="bridge" data="{absolute_codec_string='G722,PCMU,PCMA',dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
          <action application="transfer" data="LK_BAD_PIN XML public"/>
        </condition>
      </extension>
