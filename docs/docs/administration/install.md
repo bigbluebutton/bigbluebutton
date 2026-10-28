@@ -387,21 +387,15 @@ See the [Server customization page](/administration/customize) for things you ca
 
 ## Troubleshooting
 
-### Package locales-all is not available
+### bbb-libreoffice-docker cannot pull the LibreOffice image
 
-The package `bbb-libreoffice` needs to build a docker image for libreoffice. If you receive the following error when installing on a network behind a firewall
+The package `bbb-libreoffice-docker` runs LibreOffice from the Docker image `bigbluebutton/bbb-libreoffice`, pinned to the tag listed in `/usr/share/bbb-libreoffice/docker-image`. When the package is installed, it pulls that image from Docker Hub. On a server that cannot reach Docker Hub (for example behind a firewall or on a network with a local name server) the installation fails with an error such as
 
 ```
-Package locales-all is not available, but is referred to by another package.
-This may mean that the package is missing, has been obsoleted, or
-is only available from another source
-
-E: Package 'locales-all' has no installation candidate
-E: Unable to locate package libxt6
-E: Unable to locate package libxrender1
-The command '/bin/sh -c apt -y install locales-all fontconfig libxt6 libxrender1' returned a non-zero code: 100
+# Pulling the bbb-libreoffice docker image bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+Error response from daemon: Get "https://registry-1.docker.io/v2/": dial tcp: lookup registry-1.docker.io on 127.0.0.53:53: server misbehaving
 dpkg: error processing package bbb-libreoffice-docker (--configure):
- installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 100
+ installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 1
 ```
 
 Ubuntu 24.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get the above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
@@ -411,6 +405,25 @@ echo "nameserver 10.11.12.13" > /etc/resolv.conf
 ```
 
 For more details see [this issue](https://github.com/bigbluebutton/bbb-install/issues/385).
+
+If the server has no route to Docker Hub at all, load the image from a machine that has one and finish the installation afterwards:
+
+```bash
+# on a machine with access to Docker Hub
+docker pull bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200
+docker save bigbluebutton/bbb-libreoffice:25.8.4.2-20260129-151200 -o bbb-libreoffice.tar
+scp bbb-libreoffice.tar bbb.example.com:
+
+# on the BigBlueButton server
+sudo docker load -i bbb-libreoffice.tar
+sudo apt-get install -f
+```
+
+Document conversion runs the image straight from this reference, so Docker pulls it again by itself if it is ever removed from the server (for example by `docker image prune -a`). The first conversion after the removal then waits for the download, and on a slow connection it can run into the 60-second conversion timeout of `bbb-web` and fail once. If you prune images on the server, pull the image back right away so no upload has to wait for it:
+
+```bash
+sudo docker pull "$(cat /usr/share/bbb-libreoffice/docker-image)"
+```
 
 ## Feedback and reporting bugs
 
