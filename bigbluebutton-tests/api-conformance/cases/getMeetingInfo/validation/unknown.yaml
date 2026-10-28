@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting the server doesn't know is an error.
+id: getMeetingInfo.validation.unknown
+title: getMeetingInfo rejects an unknown meeting
+endpoint: getMeetingInfo
+class: contract
+tags: [ci]
+steps:
+  - call: getMeetingInfo
+    params: {meetingID: conform-no-such-meeting}
+    expect: {returncode: FAILED, messageKey: notFound, message: A meeting with that ID does not exist}
