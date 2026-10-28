@@ -51,18 +51,6 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     await preFlight.guestLobbyWithinPreFlight();
   });
 
-  test('Guest denial within the pre-flight', async ({ browser, context, page }, testInfo) => {
-    const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
-    await preFlight.guestDenialWithinPreFlight();
-  });
-
-  test('Guest denial leave button', async ({ browser, context, page }, testInfo) => {
-    const preFlight = new PreFlight(browser, context);
-    await preFlight.initModPage(page, { testInfo });
-    await preFlight.guestDenialLeaveButton();
-  });
-
   test('Holds the join on a denied microphone, clears on a grant', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, { testInfo });
@@ -99,6 +87,15 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     await preFlight.listenOnlyPastDeniedDevices();
   });
 
+  test('Disabled by default', async ({ browser, context, page }, testInfo) => {
+    const preFlight = new PreFlight(browser, context);
+    await preFlight.initModPage(page, { testInfo });
+    await preFlight.disabledByDefault();
+  });
+});
+
+// Fault injection, races and edge cases: out of the per-PR gates, run by `npm run test-nightly`.
+test.describe.parallel('Pre-flight: faults and denials', { tag: '@nightly' }, () => {
   test('Recovers a dropped connection, or reloads on retry', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, { testInfo });
@@ -117,9 +114,15 @@ test.describe.parallel('Pre-flight', { tag: '@ci' }, () => {
     await preFlight.recommitsSetupOnStalledJoinRetry();
   });
 
-  test('Disabled by default', async ({ browser, context, page }, testInfo) => {
+  test('Guest denial within the pre-flight', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, { testInfo });
-    await preFlight.disabledByDefault();
+    await preFlight.guestDenialWithinPreFlight();
+  });
+
+  test('Guest denial leave button', async ({ browser, context, page }, testInfo) => {
+    const preFlight = new PreFlight(browser, context);
+    await preFlight.initModPage(page, { testInfo });
+    await preFlight.guestDenialLeaveButton();
   });
 });

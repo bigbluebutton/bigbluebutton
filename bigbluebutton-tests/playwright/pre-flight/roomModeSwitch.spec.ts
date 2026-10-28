@@ -22,7 +22,10 @@ test.describe.parallel('Room mode change during the session', { tag: '@ci' }, ()
     const roomMode = new RoomModeSwitch(browser, context);
     await roomMode.editedControlWins(page, { testInfo });
   });
+});
 
+// Fault injection, races and edge cases: out of the per-PR gates, run by `npm run test-nightly`.
+test.describe.parallel('Room mode change during the session: nothing applied again', { tag: '@nightly' }, () => {
   test('A reload after the switch applies nothing again', async ({ browser, context, page }, testInfo) => {
     const roomMode = new RoomModeSwitch(browser, context);
     await roomMode.reloadChangesNothing(page, { testInfo });

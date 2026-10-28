@@ -132,7 +132,7 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@setting-required:<setting>` — needs a non-default server setting
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
-Tests tagged `@nightly` wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. Their tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+Tests tagged `@nightly` wait minutes for recording processing or timers, or are pre-flight fault-injection, race and edge cases kept out of the per-PR run, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. Their tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
 
 ## Skip SDK tests without the need of a new release
 
