@@ -37,7 +37,8 @@ routes:
 # environment points BBB_PROFILE_CMD at its own switcher: the Tier 1 stack's
 # conform.env points it at env/tier1/profile.sh.
 profiles:
-  checksum-sha256-only: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" checksum-sha256-only'}
-  reveal-version:       {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
-  clamav-scan:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan'}
-  default:              {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
+  checksum-sha256-only:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" checksum-sha256-only'}
+  reveal-version:        {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
+  clamav-scan:           {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan'}
+  guest-unauthenticated: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" guest-unauthenticated'}
+  default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
