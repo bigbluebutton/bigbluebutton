@@ -59,6 +59,11 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
     .filter({ has: testPage.page.locator(e.webcamConnecting) });
 }
 
+// a row of the participants list, by the whole user name
+export const userListRowOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+// the private chat option of that row
+export const privateChatOptionOf = (userName: string) => `${userListRowOf(userName)} ${e.startPrivateChat}`;
+
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page
     .locator(e.lockViewersButton)
