@@ -19,7 +19,9 @@ there compares like with like.
   unstable field. A developer server (the bbb40 container, bbb-web from the
   same tree) recorded the same files before. The join cases (`join/`, apart
   from the checksum and method ones) were added on 2026-10-28 the same way,
-  from a stack built from this tree then.
+  from a stack built from this tree then. So were the cases of
+  isMeetingRunning, getMeetingInfo, getMeetings, getSessions and end, from
+  the same stack, apart from those endpoints' checksum and method ones.
 
 ## Reviewing
 
