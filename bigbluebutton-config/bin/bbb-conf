@@ -672,8 +672,9 @@ if [[ $PORT_RANGE ]]; then
         fi
 
         if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
-            yq-go e -i ".rtc.port_range_start = \"$START_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
-            yq-go e -i ".rtc.port_range_end = \"$END_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+            # Unquoted: livekit-server does not start when these are strings.
+            yq-go e -i ".rtc.port_range_start = $START_PORT" $LIVEKIT_SERVER_ETC_CONFIG
+            yq-go e -i ".rtc.port_range_end = $END_PORT" $LIVEKIT_SERVER_ETC_CONFIG
         fi
 
         echo
