@@ -270,7 +270,8 @@ export class RoomModeSwitch extends RoomModePanel {
     await this.modPage.waitAndClick(e.roomModeHandoffButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.settingsRoomModePanel, 'should open the room modes tab');
     await ensureProbe(this.modPage);
-    await expectRoomModeStable(this.modPage, '', 'should not apply the pick while another moderator is in');
+    // The handoff comes from the applier's skip, which sends nothing.
+    await expectRoomMode(this.modPage, '', 'should not apply the pick while another moderator is in');
     await expect(
       this.modPage.page.locator(e.settingsRoomModeClass),
       'should pre-select the pick the pre-flight could not apply',

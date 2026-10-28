@@ -11,13 +11,7 @@ import { elements as e } from '../core/elements';
 import { installClientSettingsOverrides, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { USER_JOIN_OPERATION } from './preFlight';
-import {
-  ensureProbe,
-  expectRoomMode,
-  expectRoomModeRefusedInBreakout,
-  expectRoomModeStable,
-  RoomMode,
-} from './roomMode';
+import { ensureProbe, expectRoomMode, expectRoomModeRefusedInBreakout, RoomMode } from './roomMode';
 import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
   NO_PRE_FLIGHT_INIT_OPTIONS,
@@ -298,9 +292,8 @@ export class RoomModePanel extends RoomMode {
     await ensureProbe(this.modPage);
     await hasPanel(this.modPage);
     await startsRoom(this.modPage);
-    // Nothing is expected to write the mode, so its absence is sampled across a
-    // window rather than read once.
-    await expectRoomModeStable(this.modPage, '', 'should leave the room unconfigured when started without a mode');
+    // Without a pick no applier starts, and the room opens only after that check.
+    await expectRoomMode(this.modPage, '', 'should leave the room unconfigured when started without a mode');
   }
 
   async panelsBecomeTabsOnPhoneAndTablet(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
