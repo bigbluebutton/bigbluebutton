@@ -1,0 +1,3 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.guest.unauthenticated-always-deny-guest
+target bbb-web
