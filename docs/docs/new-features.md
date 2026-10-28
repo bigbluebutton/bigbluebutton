@@ -64,6 +64,8 @@ Audio settings moved into a dedicated **Audio** tab in the Settings modal, where
 
 The mode pre-selected for a new user is controlled by `public.app.defaultSettings.audio.processingMode` (default `standard`); if it is set to `advanced` while WASM processing is unsupported by the browser or disabled server-side, the client falls back to `standard`. The browser-level constraints applied in the standard mode are configurable under `public.media.audio.microphoneConstraints`.
 
+Since BigBlueButton 4.0.1 a user's own pick is kept for the browser session and the current meeting only, so a new meeting or browser session starts again from the configured default (Advanced Filtering is still experimental). Set `public.app.audioFilterStorage` to `local` to have the pick follow `public.app.userSettingsStorage` like the other settings.
+
 <!-- TODO add screenshot of the Audio settings tab -->
 
 #### Wrong-microphone alert for live captions
@@ -71,6 +73,16 @@ The mode pre-selected for a new user is controlled by `public.app.defaultSetting
 When browser-based (WebSpeech) live captions are enabled and a user holds the audio floor but no transcription is produced for a short while, BigBlueButton now shows a toast suggesting the wrong microphone may be selected or the environment is too noisy. The alert can optionally link to a knowledge-base article and is configurable via `public.app.audioCaptions.microphoneAlert` in `settings.yml`.
 
 <!-- TODO add screenshot of the wrong-microphone caption alert -->
+
+#### Live captions transcribed on the user's device
+
+With browser-based (WebSpeech) live captions, where the speech is transcribed is up to the browser: Chrome sends the audio to Google's speech recognition servers unless the language pack is already installed on the computer. Since BigBlueButton 4.0.1, `public.app.audioCaptions.speechProcessing` lets the administrator decide instead:
+
+- `cloud` (default) - the browser decides, as before.
+- `local` - the browser always transcribes on the user's device and never sends the audio to a speech recognition service. The language pack (a few hundred MB) is downloaded when the user confirms joining audio with that transcription language, and the audio settings stay open until it finishes. Only the languages the browser can transcribe on the device are offered, and browsers without on-device speech recognition (Chrome has it from version 139, on desktop) show live captions as unsupported.
+- `auto` - as `local`, but a language the browser cannot transcribe on the device is still offered and transcribed as with `cloud`; a line under the transcription language tells the user that the audio may be sent to the browser's speech recognition service.
+
+Only the transcribed text reaches BigBlueButton, whatever the setting. See [Where the speech is transcribed](/administration/customize#where-the-speech-is-transcribed).
 
 #### Whiteboard: scroll to pan, Ctrl+scroll to zoom
 
@@ -199,23 +211,28 @@ brings automatic token refresh for long-running sessions.
 We encourage users to provide feedback via our GitHub issue tracker or the mailing
 lists.
 
+#### Last-N audio for the LiveKit bridge (experimental)
+
+Added in BigBlueButton 4.0.1 and off by default. On the LiveKit audio bridge every client receives the microphone of every unmuted user, so a meeting with many open microphones means as many audio tracks per client and a renegotiation for each one. With `public.media.livekit.selectiveSubscription.lastN.enabled: true`, each client instead ranks the microphones by who is speaking, the presenter, pinned users, recent speech and moderators, plays at most `audibleSize` of them (default `3`) and keeps `standbySize` (default `12`) subscribed but paused, so a new speaker is switched in without a renegotiation. A microphone that has just been unmuted counts as speaking, so its first words are not lost. Viewers who cannot see the user list because of the lock settings are not told about other users' voice activity, so their client keeps every microphone subscribed. When enabled, Last-N replaces `audioSubscriptionPoolSize`.
+
 
 ### Upgraded components
 
 Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
 - Java 21 (OpenJDK)
 - Grails 8.0.0
-- Gradle 9.8.0
+- Gradle 9.8.1
 - Groovy 5.1.3
 - Spring Framework 7.0.9
 - Spring Boot 4.1.1
-- Tomcat (embedded) 11.0.26
+- Tomcat (embedded) 11.0.27
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 
 Recent releases:
 
+- [4.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.1)
 - [4.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0)
 - [4.0.0-rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.5)
 - [4.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.4)
@@ -380,7 +397,11 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 #### Added
 
 - `public.kurento.pagination.gridEnabled` (default `true`) - whether the camera-less avatar grid (the "webcam grid") is shown while the presentation is minimized. The grid can also be disabled per meeting with `disabledFeatures=webcamGrid`.
-- `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - shows the "Video pagination" switch in Settings to moderators only. A user who cannot see the switch, whether because of this setting or `paginationToggleEnabled: false`, always gets the default from `public.app.defaultSettings.application.paginationEnabled`. See [Limit overall media streams](/administration/customize#limit-overall-media-streams).
+- `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - shows the "Video pagination" switch in Settings to moderators only. A user who cannot see the switch, whether because of this setting or `paginationToggleEnabled: false`, always gets the default from `public.app.defaultSettings.application.paginationEnabled`. See [Limit overall media streams](/administration/customize#limit-overall-media-streams). Added in BBB 4.0.1.
+- `public.app.audioCaptions.speechProcessing` (default `cloud`) - where the browser transcribes the speaker's audio for WebSpeech live captions: `cloud` leaves it to the browser, `local` always transcribes on the user's device (the language pack is downloaded on the user's confirmation) and `auto` transcribes on the device when the browser can and as `cloud` otherwise. See [Live captions transcribed on the user's device](#live-captions-transcribed-on-the-users-device). Added in BBB 4.0.1.
+- `public.app.audioFilterStorage` (default `session`) - where the user's audio-processing pick in Settings > Audio is kept: `session` scopes it to the browser session and the current meeting, `local` makes it follow `public.app.userSettingsStorage` like the other settings. Added in BBB 4.0.1.
+- `public.chat.announceUserAwayStatusInChat` (default `true`) - whether bbb-apps-akka posts a system message in the public chat when a user sets or clears the away status. Set it to `false` to keep these changes out of the chat; the away status itself is unchanged. Added in BBB 4.0.1.
+- `public.media.livekit.selectiveSubscription.lastN` (default `enabled: false`) - plays only the most relevant microphones on the LiveKit audio bridge: `audibleSize` (default `3`) microphones are heard at once, `standbySize` (default `12`) stay subscribed but paused, `speechHoldMs` (default `1500`) is the silence after which an audible speaker can be replaced, `minAudibleMs` (default `2000`) the minimum time a microphone stays audible and `standbyGraceMs` (default `5000`) the delay before a standby track is unsubscribed. When enabled it replaces `audioSubscriptionPoolSize`. See [Last-N audio for the LiveKit bridge](#last-n-audio-for-the-livekit-bridge-experimental). Added in BBB 4.0.1.
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.
