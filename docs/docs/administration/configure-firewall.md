@@ -154,12 +154,14 @@ At this point, proceed with the [installation of BigBlueButton](/administration/
 
 ### Updating LiveKit
 
-By default the HTML5 client sends and receives its WebRTC streams through **LiveKit**. The shipped `livekit.yaml` does not try to discover the server's public address (`rtc.use_external_ip` is `false`), so on a server behind NAT, tell LiveKit the external IP address of the firewall in `/etc/bigbluebutton/livekit.yaml`:
+If your server is behind NAT or your main network interface is not bound to a public IP, you need to configure LiveKit so that it advertises its public IP correctly. In `/etc/bigbluebutton/livekit.yaml`, set:
 
 ```yaml
 rtc:
   node_ip: 203.0.113.1
 ```
+
+If users also connect from the server's private network (or your firewall doesn't do hairpin NAT), also set `advertise_internal_ip: true` under `rtc`. Keep `use_external_ip` set to `false`.
 
 Restart BigBlueButton to apply the change.
 
