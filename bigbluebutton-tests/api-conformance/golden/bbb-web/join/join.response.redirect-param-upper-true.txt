@@ -1,0 +1,9 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.response.redirect-param-upper-true
+target bbb-web
+
+== step 2: call join
+status 302
+header Set-Cookie JSESSIONID=<token>; HttpOnly; Path=/; Secure
+location ${baseUrl}/html5client/?sessionToken=<token>
+body (redirect)

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Which redirect values keep the redirect and which give XML. bbb-web parses
+# the value with Java's Boolean.parseBoolean when it isn't empty: only "true",
+# in any case, keeps the redirect, so "1" gives XML. Values other than true,
+# false and none are compat.
+id: join.response.redirect-param
+title: join with redirect=${value}
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: "true", vars: {value: "true", redirect: "true", status: 302}}
+  - {id: absent, vars: {value: absent, redirect: null, status: 302}}
+  - {id: "false", vars: {value: "false", redirect: "false", status: 200}}
+  - {id: upper-true, class: compat, vars: {value: TRUE, redirect: TRUE, status: 302}}
+  - {id: empty, class: compat, vars: {value: empty, redirect: "", status: 302}}
+  - {id: zero, class: compat, vars: {value: "0", redirect: "0", status: 200}}
+  - {id: one, class: compat, vars: {value: "1", redirect: "1", status: 200}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join response}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer, redirect: "${redirect}"}
+    expect:
+      status: ${status}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
