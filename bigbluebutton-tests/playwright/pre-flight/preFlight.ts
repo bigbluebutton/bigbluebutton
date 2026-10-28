@@ -79,6 +79,16 @@ export class PreFlight extends MultiUsers {
     );
   }
 
+  // Closes the attendee so the next one joins the same meeting with no routing left over.
+  async closeAttendee() {
+    await this.userPage.page.close();
+    this.graphqlSockets = [];
+    this.graphqlDown = false;
+    this.graphqlRefused = 0;
+    this.holdUserJoin = false;
+    this.heldUserJoins = 0;
+  }
+
   // The toggle starts in autoShareWebcam's state, off by default.
   async enableCamera() {
     await this.userPage.waitAndClick(e.preFlightCameraToggle);
