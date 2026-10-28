@@ -101,7 +101,7 @@ validate_format() {
       echo "Format '$fmt' contains invalid characters"
       exit 1
    fi
-   if ! printf '%s\n' $TYPES | grep -qxF "$fmt"; then
+   if ! printf '%s\n' "$TYPES" | grep -qxF "$fmt"; then
       echo "Unknown format '$fmt'. Valid formats: ${TYPES//$'\n'/ }"
       exit 1
    fi
@@ -198,7 +198,7 @@ remove_published_output() {
    for dir in "${PUBLISHED_DIR:?}"/"$fmt" \
               "$RAW_PRESENTATION_SRC"/unpublished/"$fmt" \
               "$RAW_PRESENTATION_SRC"/deleted/"$fmt"; do
-      rm -rf "$dir"/"$id"
+      rm -rf "${dir:?}"/"$id"
    done
 }
 
