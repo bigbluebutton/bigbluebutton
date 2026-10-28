@@ -173,6 +173,14 @@ else
     LIVEKIT_SERVER_CONFIG=$(yq-go e $LIVEKIT_SERVER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
+LIVEKIT_SIP_DEFAULT_CONFIG=/usr/share/livekit-server/livekit-sip.yaml
+LIVEKIT_SIP_ETC_CONFIG=/etc/bigbluebutton/livekit-sip.yaml
+if [ -f $LIVEKIT_SIP_ETC_CONFIG ]; then
+    LIVEKIT_SIP_CONFIG=$(yq-go eval-all '. as $item ireduce ({}; . * $item )' $LIVEKIT_SIP_DEFAULT_CONFIG $LIVEKIT_SIP_ETC_CONFIG 2> /dev/null)
+else
+    LIVEKIT_SIP_CONFIG=$(yq-go e $LIVEKIT_SIP_DEFAULT_CONFIG 2> /dev/null)
+fi
+
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -675,6 +683,10 @@ if [[ $PORT_RANGE ]]; then
             # Unquoted: livekit-server does not start when these are strings.
             yq-go e -i ".rtc.port_range_start = $START_PORT" $LIVEKIT_SERVER_ETC_CONFIG
             yq-go e -i ".rtc.port_range_end = $END_PORT" $LIVEKIT_SERVER_ETC_CONFIG
+        fi
+
+        if [ -f $LIVEKIT_SIP_ETC_CONFIG ]; then
+            yq-go e -i ".rtp_port = \"$START_PORT-$END_PORT\"" $LIVEKIT_SIP_ETC_CONFIG
         fi
 
         echo
@@ -1297,6 +1309,9 @@ if [ $CHECK ]; then
     if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
         echo "                    livekit.rtc.port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "                    livekit.rtc.port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
+    fi
+    if [ -n "$LIVEKIT_SIP_CONFIG" ]; then
+        echo "                    livekit-sip.rtp_port: $(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.rtp_port' -)"
     fi
 
     if [ -f $RECORD_CONFIG ]; then
