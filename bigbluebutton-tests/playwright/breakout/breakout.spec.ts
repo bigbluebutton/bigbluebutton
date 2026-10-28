@@ -303,6 +303,18 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.returnToMainSessionFromSidebar();
     });
 
+    test('breakoutRoomsPrivateChatEnabled=false removes the private chat between attendees in the rooms', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initModPage(page, { createParameter: 'breakoutRoomsPrivateChatEnabled=false', testInfo });
+      await join.initUserPage(context, { testInfo });
+      await join.initUserPage2(context, { testInfo });
+      await join.privateChatDisabledInRooms();
+    });
+
     // https://github.com/bigbluebutton/bigbluebutton/issues/25138
     test('Breakout room inherits client settings override from parent meeting', async ({ browser, context, page }, testInfo) => {
       const override = new ClientSettingsOverride(browser, context);

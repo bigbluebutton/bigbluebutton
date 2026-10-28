@@ -922,6 +922,11 @@ public class ParamsProcessorUtil {
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
 
+        // the client and bbb-apps-akka turn private chat off through this feature
+        if (isBreakout && !breakoutParams.privateChatEnabled && !listOfDisabledFeatures.contains("privateChat")) {
+            listOfDisabledFeatures.add("privateChat");
+        }
+
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
         Map<String, String> meetingInfo = processMetaParam(params);

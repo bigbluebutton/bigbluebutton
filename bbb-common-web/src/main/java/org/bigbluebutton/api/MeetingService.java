@@ -880,6 +880,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME, message.captureNotesFilename.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME, message.captureSlidesFilename.toString());
+      params.put(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED, message.privateChatEnabled.toString());
       params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
       params.put(ApiParams.DIAL_NUMBER, message.dialNumber);
