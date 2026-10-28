@@ -92,7 +92,7 @@ When recording is enabled, the BigBlueButton stack writes the session's media an
 - `/var/bigbluebutton/recording/raw/`, `/var/bigbluebutton/published/`, `/var/bigbluebutton/unpublished/` and `/var/bigbluebutton/deleted/` (raw and processed recordings), `/var/bigbluebutton/<meetingId>/` (presentations), `/var/bigbluebutton/learning-dashboard/` and `/var/bigbluebutton/events/`, owned by the `bigbluebutton` user
 - `/var/lib/bbb-webrtc-recorder/` (webcams, screen sharing for both LiveKit and mediasoup, and audio with LiveKit, written by `bbb-webrtc-recorder`), owned by the `bigbluebutton` user
 - `/var/freeswitch/meetings/` (audio, with the FreeSWITCH audio bridge), owned by the `freeswitch` user
-- `/var/mediasoup/` (webcams and screen sharing, only with the mediasoup media bridge), created by the `bbb-webrtc-sfu` package
+- `/var/mediasoup/` (webcams and screen sharing, only with the mediasoup media bridge and a off-by-default recording adapter), created by the `bbb-webrtc-sfu` package - generally unused
 
 The media files of a meeting are deleted by the archive step once it has copied them into the raw directory; the daily cleanup job deletes anything older than `history` days that was left behind.
 
