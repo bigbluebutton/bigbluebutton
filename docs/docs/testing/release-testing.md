@@ -376,6 +376,10 @@ Webcams will be moved when mouse is released. (Note: When only one webcam is sha
 
     - The avatar tiles should come back for everyone.
 
+5. Create a meeting with `hideUsersWithoutCamera=true` and repeat steps 1 and 2.
+
+    - Avatar tiles should be hidden from the start, and the "Layout view" toggle should be on.
+
 ### Hide participants without camera: late join, presenter and audio-only tiles
 
 1. Join a meeting with a moderator and 2 viewers, nobody sharing a webcam. Minimize the presentation.

@@ -39,9 +39,10 @@ class LayoutDbTableDef(tag: Tag) extends Table[LayoutDbModel](tag, None, "layout
 }
 
 object LayoutDAO {
-  def insert(meetingId: String, currentLayoutType: String) = {
+  def insert(meetingId: String, currentLayoutType: String, hideUsersWithoutCamera: Boolean) = {
     val layoutDefaultValues = new Layouts()
     setCurrentLayout(layoutDefaultValues, currentLayoutType)
+    Layouts.setHideUsersWithoutCamera(layoutDefaultValues, hideUsersWithoutCamera)
 
     insertOrUpdate(meetingId, layoutDefaultValues)
   }

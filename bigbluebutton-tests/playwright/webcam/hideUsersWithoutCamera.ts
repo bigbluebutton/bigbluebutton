@@ -2,6 +2,8 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 
+export const HIDE_USERS_WITHOUT_CAMERA_PARAMETER = 'hideUsersWithoutCamera=true';
+
 export class HideUsersWithoutCamera extends MultiUsers {
   // Moderator shares a camera, the attendee doesn't. With the presentation
   // minimized (grid mode), the attendee sees the moderator's camera tile plus
@@ -44,5 +46,25 @@ export class HideUsersWithoutCamera extends MultiUsers {
 
     await this.modPage.waitAndClick(e.closeLayoutViewPanel);
     await this.modPage.wasRemoved(e.layoutViewPanel, 'should close the layout view panel');
+  }
+
+  // Same scenario in a meeting created with hideUsersWithoutCamera=true: the
+  // avatar tiles are hidden from the start, until the moderator turns it off.
+  async startWithUsersWithoutCameraHidden(): Promise<void> {
+    await this.modPage.shareWebcam();
+    await this.modPage.waitAndClick(e.minimizePresentation);
+
+    await this.userPage.hasElementCount(e.webcamStreamItem, 1, 'should show the moderator camera tile');
+    await this.userPage.hasElementCount(e.webcamGridItem, 0, 'should start with avatar tiles hidden for the attendee');
+    await this.modPage.hasElementCount(e.webcamGridItem, 0, 'should start with avatar tiles hidden for the moderator');
+
+    await this.modPage.waitAndClick(e.layoutViewButton);
+    await this.modPage.hasElementChecked(e.hideUsersWithoutCameraToggle, 'should start with the toggle on');
+    await this.modPage.page.locator(e.hideUsersWithoutCameraToggle).click();
+    await this.userPage.hasElement(
+      e.webcamGridItem,
+      'should show avatar tiles once turned off',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
   }
 }

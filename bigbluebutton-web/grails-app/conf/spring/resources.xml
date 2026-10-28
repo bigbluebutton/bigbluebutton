@@ -229,6 +229,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultAllowPromoteGuestToModerator" value="${defaultAllowPromoteGuestToModerator}"/>
         <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="defaultMeetingLayout" value="${defaultMeetingLayout}"/>
+        <property name="defaultHideUsersWithoutCamera" value="${defaultHideUsersWithoutCamera}"/>
         <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
         <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
         <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>
