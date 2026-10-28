@@ -26,21 +26,6 @@ test.describe.parallel('Room mode applied after the join', { tag: '@ci' }, () =>
     await apply.holdsRoomUntilModeRecorded(page, { testInfo });
   });
 
-  test('The room opens with no mode when applying fails or hangs', async ({ browser, context, page }, testInfo) => {
-    const apply = new RoomModeApply(browser, context);
-    await test.step('The room opens with no mode when applying fails', async () => {
-      await apply.opensRoomWhenApplyFails(page, { testInfo });
-    });
-    await test.step('The room opens with no mode when applying hangs', async () => {
-      await apply.opensRoomWhenApplyHangs(await apply.newPageForNextRoom(), { testInfo });
-    });
-  });
-
-  test('Nothing more is sent once the deadline passes', async ({ browser, context, page }, testInfo) => {
-    const apply = new RoomModeApply(browser, context);
-    await apply.sendsNothingAfterDeadline(page, { testInfo });
-  });
-
   test('A mode set by another moderator is not overwritten', async ({ browser, context, page }, testInfo) => {
     const apply = new RoomModeApply(browser, context);
     await apply.keepsModeSetByAnotherModerator(page, { testInfo });
@@ -49,6 +34,24 @@ test.describe.parallel('Room mode applied after the join', { tag: '@ci' }, () =>
   test('Another moderator in the room keeps it as it is', async ({ browser, context, page }, testInfo) => {
     const apply = new RoomModeApply(browser, context);
     await apply.keepsRoomRunningByAnotherModerator(page, { testInfo });
+  });
+});
+
+// Fault injection, races and edge cases: out of the per-PR gates, run by `npm run test-nightly`.
+test.describe.parallel('Room mode applied after the join: faults and races', { tag: '@nightly' }, () => {
+  test('Nothing more is sent once the deadline passes', async ({ browser, context, page }, testInfo) => {
+    const apply = new RoomModeApply(browser, context);
+    await apply.sendsNothingAfterDeadline(page, { testInfo });
+  });
+
+  test('The room opens with no mode when applying fails or hangs', async ({ browser, context, page }, testInfo) => {
+    const apply = new RoomModeApply(browser, context);
+    await test.step('The room opens with no mode when applying fails', async () => {
+      await apply.opensRoomWhenApplyFails(page, { testInfo });
+    });
+    await test.step('The room opens with no mode when applying hangs', async () => {
+      await apply.opensRoomWhenApplyHangs(await apply.newPageForNextRoom(), { testInfo });
+    });
   });
 
   test('A mode set during the join is not overwritten', async ({ browser, context, page }, testInfo) => {

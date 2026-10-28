@@ -43,11 +43,14 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.noPanelWhenDisabled(page, { testInfo });
   });
 
-  test('Keeps the picked mode under the device permission screen', async ({ browser, context, page }, testInfo) => {
+  test('Join notices stay visible on a desktop and a phone', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
-    await panel.keepsModeUnderDevicePermissionScreen(page, { testInfo });
+    await panel.showsJoinNoticesOnDesktopAndPhone(page, { testInfo });
   });
+});
 
+// Fault injection, races and edge cases: out of the per-PR gates, run by `npm run test-nightly`.
+test.describe.parallel('Room mode panel: edge cases', { tag: '@nightly' }, () => {
   test('Keeps the setup panel across the tabs breakpoints', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.keepsSetupAcrossTabsBreakpoints(page, { testInfo });
@@ -58,19 +61,19 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.locksCardsWhileJoining(page, { testInfo });
   });
 
-  test('Keeps the desktop layout for a viewer on a tablet', async ({ browser, context, page }, testInfo) => {
+  test('Keeps the picked mode under the device permission screen', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
-    await panel.initModPage(page, { testInfo });
-    await panel.viewerKeepsDesktopLayoutOnTablet();
-  });
-
-  test('Join notices stay visible on a desktop and a phone', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.showsJoinNoticesOnDesktopAndPhone(page, { testInfo });
+    await panel.keepsModeUnderDevicePermissionScreen(page, { testInfo });
   });
 
   test('No panel for a bot moderator', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.noPanelForBot(page, { testInfo });
+  });
+
+  test('Keeps the desktop layout for a viewer on a tablet', async ({ browser, context, page }, testInfo) => {
+    const panel = new RoomModePanel(browser, context);
+    await panel.initModPage(page, { testInfo });
+    await panel.viewerKeepsDesktopLayoutOnTablet();
   });
 });
