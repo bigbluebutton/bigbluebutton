@@ -111,6 +111,7 @@ test.describe.parallel('API', () => {
       'breakoutRoomOnTakenVoiceBridgeIsCreated',
       { tag: '@known-issue' },
       async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26273);
         const api = new APIBreakout(browser, context);
         await api.testVoiceBridgeTakenByAnotherMeeting(page, testInfo, request);
       },
@@ -129,6 +130,7 @@ test.describe.parallel('API', () => {
       'apiCreatedBreakoutRoomFoundByReturnedId',
       { tag: '@known-issue' },
       async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26272);
         const api = new APIBreakout(browser, context);
         await api.testApiCreatedRoomFoundByReturnedId(page, testInfo, request);
       },
@@ -141,6 +143,7 @@ test.describe.parallel('API', () => {
       'apiCreatedBreakoutRoomEndsWithParent',
       { tag: '@known-issue' },
       async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26271);
         const api = new APIBreakout(browser, context);
         await api.testApiCreatedRoomEndsWithParent(page, testInfo, request);
       },
@@ -152,6 +155,7 @@ test.describe.parallel('API', () => {
       'breakoutRoomsRecordFalseEnforced',
       { tag: '@known-issue' },
       async ({ browser, context, page, request }, testInfo) => {
+        linkIssue(26274);
         const api = new APIBreakout(browser, context);
         await api.testRoomsNotRecordedWhenParentForbids(page, testInfo, request);
       },

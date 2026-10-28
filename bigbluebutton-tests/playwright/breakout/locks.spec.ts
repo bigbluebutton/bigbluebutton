@@ -1,3 +1,4 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { BreakoutLocks, LOCKS_WITHOUT_SWITCH_CREATE_PARAMETER } from './locks';
 
@@ -88,6 +89,7 @@ test.describe.parallel('Breakout lock settings', { tag: '@ci' }, () => {
     'Locks the moderator applies in a room without inheritance bind the attendee',
     { tag: '@known-issue' },
     async ({ browser, context, page }, testInfo) => {
+      linkIssue(26275);
       const locks = new BreakoutLocks(browser, context);
       await locks.initPages(page, testInfo);
       await locks.locksAppliedInRoomBindAttendee(false);
