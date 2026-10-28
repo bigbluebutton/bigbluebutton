@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Once bbb-web has forgotten an ended meeting, ending it again is an unknown
+# meeting. end waits until akka-apps has created the meeting: an end that
+# reaches it earlier is lost.
+id: end.lifecycle.twice
+title: end of a meeting that has ended
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: End}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {messageKey: sentEndMeetingRequest}
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+    expect: {messageKey: notFound}
+  - call: end
+    params: {meetingID: "${uid}"}
+    expect: {returncode: FAILED, messageKey: notFound}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

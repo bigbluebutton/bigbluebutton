@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A 64-character password is the longest end accepts. It isn't the meeting's,
+# which end doesn't check (end.password.ignored).
+id: end.password.longest
+title: end with a 64-character password ends the meeting
+endpoint: end
+class: compat
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: End, moderatorPW: mp}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}", password: '${repeat("z", 64)}'}
+    expect: {returncode: SUCCESS, messageKey: sentEndMeetingRequest}
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.reason: ENDED_FROM_API}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

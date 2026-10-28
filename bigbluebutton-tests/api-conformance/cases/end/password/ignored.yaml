@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# end doesn't compare the password with the meeting's: any password of a
+# valid length, or none, ends the meeting. Without a password and with the
+# moderator's are the contract; that the attendee's or a wrong one also end
+# it is compat. akka-apps announces the end with the reason ENDED_FROM_API.
+# end waits until akka-apps has created the meeting: an end that reaches it
+# earlier is lost.
+id: end.password.ignored
+title: end with ${scenario} ends the meeting
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: moderator, vars: {scenario: the moderator password, password: mp}}
+  - {id: none, vars: {scenario: no password, password: null}}
+  - {id: attendee, class: compat, vars: {scenario: the attendee password, password: ap}}
+  - {id: wrong, class: compat, vars: {scenario: a wrong password, password: wrong}}
+  - {id: shortest, class: compat, vars: {scenario: a 2-character wrong password, password: zz}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: End, moderatorPW: mp, attendeePW: ap}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}", password: "${password}"}
+    expect: {returncode: SUCCESS, messageKey: sentEndMeetingRequest}
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect:
+      jsonpath: {$.core.body.reason: ENDED_FROM_API}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
