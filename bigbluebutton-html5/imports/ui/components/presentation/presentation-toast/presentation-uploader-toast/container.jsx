@@ -24,9 +24,9 @@ const PresentationUploaderToastContainer = (props) => {
 
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
 
-  // An error on another participant's upload is shown only to that participant. Presentations
-  // with no uploader (API documents, breakout room captures) show their errors to the presenter,
-  // the one who can act on them.
+  // Rows are served to the current presenter only. An error on an upload made by an earlier
+  // presenter is not shown to the next one. Presentations with no uploader (API documents,
+  // breakout room captures) show their errors to the presenter, the one who can act on them.
   const presentationsToBeShowed = presentations.filter(
     (p) => (!p.uploadCompletionNotified
       && (!p.uploadErrorMsgKey
