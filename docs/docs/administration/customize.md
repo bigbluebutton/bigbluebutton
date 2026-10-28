@@ -975,7 +975,9 @@ Then set up a SIP call gateway — BigBlueButton's bundled FreeSWITCH, or an ext
 
 ##### Using the bundled FreeSWITCH as the call gateway
 
-In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`). DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`; FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg, which is what `livekit-sip` expects by default.
+In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`).
+
+DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`. FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg. `livekit-sip` accepts DTMF only as RFC 2833.
 
 :::note
 For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-bridge dial-in path: meetings created with `audioBridge=bbb-webrtc-sfu` will no longer be reachable through that DID. To support both audio bridges on the same server, use distinct DIDs and gate the dialplan on `destination_number` (one extension routes to `mod_conference`, the other bridges to `livekit-sip`).
@@ -983,7 +985,7 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
 
 1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
 
-2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+2. `livekit-sip` listens on port `5062` by default. To change it, set in `/etc/bigbluebutton/livekit-sip.yaml`, and use the same port in the bridge in step 3:
 
    ```yaml
    sip_port: 5062
@@ -1012,16 +1014,23 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
 
      <extension name="bbb_lk_sip_bridge">
        <condition field="destination_number" expression="^SEND_TO_LIVEKIT_SIP$">
-         <!-- Stop in-band DTMF detection so DTMF is not absorbed by FreeSWITCH. -->
+         <!-- Stop in-band DTMF detection: the trunk's RFC 2833 or SIP INFO digits
+              reach livekit-sip without it. For a trunk that sends DTMF only as
+              tones, remove this line (see DTMF troubleshooting). -->
          <action application="stop_dtmf"/>
-         <!-- Force RFC 2833 on the bridged b-leg toward livekit-sip. The BBB
-              external profile defaults to dtmf-type=info; livekit-sip negotiates
-              RFC 2833 by default. -->
-         <action application="bridge" data="{sip_dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
-         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
-              the a-leg automatically, since hangup_after_bridge defaults to true).
-              On failure (e.g. no LiveKit dispatch for this voice bridge, or
-              livekit-sip down), play bad-pin and re-prompt. -->
+         <!-- Hang up the caller when livekit-sip ends the call; go back to the
+              PIN prompt when the bridge fails. -->
+         <action application="set" data="hangup_after_bridge=true"/>
+         <action application="set" data="continue_on_fail=true"/>
+         <!-- Stop waiting for livekit-sip to answer after 15 s (the default is 60 s). -->
+         <action application="set" data="call_timeout=15"/>
+         <!-- livekit-sip takes DTMF only as RFC 2833, and the BBB external
+              profile defaults to dtmf-type=info. dtmf_type applies to the
+              bridged leg only, so the trunk leg keeps its own DTMF mode.
+              absolute_codec_string keeps the codecs compatible across all legs
+              (provider, gateway and livekit-sip). The quotes keep the list in
+              one variable. -->
+         <action application="bridge" data="{absolute_codec_string='G722,PCMU,PCMA',dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
          <action application="transfer" data="LK_BAD_PIN XML public"/>
        </condition>
      </extension>
@@ -1093,7 +1102,10 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
 
 ##### DTMF troubleshooting
 
-If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge, confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`). If that is already correct, further FreeSWITCH DTMF-mode tweaks may be required.
+If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge:
+
+- Confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`).
+- If the trunk sends DTMF only as in-band tones, remove `stop_dtmf` from the `bbb_lk_sip_bridge` extension. FreeSWITCH then turns the tones into RFC 2833 events.
 
 ##### Limitations
 
