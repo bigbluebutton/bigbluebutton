@@ -196,7 +196,7 @@ Restart BigBlueButton to apply the changes.
 
 ### Update FreeSWITCH
 
-FreeSWITCH carries the audio of the meetings that use the FreeSWITCH audio bridge (`audioBridge=bbb-webrtc-sfu` or `freeswitch`) and the telephone dial-in; with the default LiveKit audio bridge and no dial-in, you can skip this section.
+FreeSWITCH carries the audio of the meetings that use the FreeSWITCH audio bridge (`audioBridge=bbb-webrtc-sfu`) and the telephone dial-in; with the default LiveKit audio bridge and no dial-in, you can skip this section.
 
 Let's revisit the typical setup for BigBlueButton behind a firewall (yours would have different IP address of course).
 
