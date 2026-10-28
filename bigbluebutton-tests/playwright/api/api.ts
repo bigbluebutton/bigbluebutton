@@ -311,7 +311,7 @@ export class API extends MultiUsers {
     const server = parameters.server!.replace(/\/$/, '');
     const api = await axios.get(`${server}/api`, { adapter: 'http' });
     expect(String(api.data), 'a controller with an index action should still answer').toContain('SUCCESS');
-    for (const path of ['presentation', 'recording', 'connection', 'presentation/noSuchAction']) {
+    for (const path of ['presentation', 'recording', 'connection', 'presentation/noSuchAction', 'error']) {
       const response = await axios.get(`${server}/${path}`, { adapter: 'http', validateStatus: () => true });
       expect(response.status, `${path} should not be a resource`).toBe(404);
       expect(response.data?.status, `${path} should get the JSON body of an unknown path`).toBe(404);
