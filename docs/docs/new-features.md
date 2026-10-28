@@ -116,6 +116,10 @@ A chat message that contains only emoji (up to three emoji, whitespace ignored) 
 
 The Learning Dashboard is no longer disabled in breakout rooms: each breakout gets its own dashboard, tracking activity the same way the parent meeting does (an inherited `disabledFeatures=learningDashboard` still turns it off). A breakout's dashboard data is also kept until the *parent* meeting ends - previously cleanup was anchored to the breakout's own end - so instructors can review breakout activity for as long as the main room is running (plus `learningDashboardCleanupDelayInMinutes`).
 
+#### Learning Dashboard: polls and quizzes numbered in the order they were asked
+
+In the Learning Dashboard's Polls and Quizzes tables, polls and quizzes without a question are now numbered in the order they were asked: "Poll 1" is the first poll of the meeting, and a new poll no longer renumbers the existing columns. The tables still show the newest first. Hovering a column header shows the date and time the poll or quiz was asked, after the question text when there is one. The columns of the "Download Session Data" CSV follow the same chronological order.
+
 <!-- ### Analytics -->
 
 ### Behind the scenes
@@ -233,6 +237,10 @@ Recent releases:
 #### Node.js 24 runtime
 
 BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-actions`, `bbb-shared-notes-server`, `bbb-export-annotations`, `bbb-webhooks`, `bbb-webrtc-sfu`, `bbb-transcription-controller`) on Node.js 24, the Active LTS line maintained until April 2028. `bbb-install.sh` installs it from NodeSource, and the packages declare a dependency on `nodejs (>= 24) (<< 25)`.
+
+#### bbb-transcription-controller 0.4.0 (Gladia v2)
+
+BigBlueButton 4.0.0 ships `bbb-transcription-controller` 0.4.0; the 4.0 release candidates shipped 0.2.10. It uses Gladia's v2 live API and reads the API key from `gladia.key` in `/usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml`. The `x_gladia_key` field of `gladia.startMessage` is no longer read, so a server configured that way stops transcribing. Installing or upgrading the package also replaces `default.yml` with the packaged defaults, which removes the key and the FreeSWITCH password that `bbb-conf --setip` writes there. After upgrading, repeat the steps in [Configuration of gladia.io](/administration/customize#configuration-of-gladiaio). The package works with the FreeSWITCH audio bridge; with the default LiveKit audio bridge, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead.
 
 #### Security response headers from bbb-web
 
