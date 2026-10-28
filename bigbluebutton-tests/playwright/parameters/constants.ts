@@ -126,6 +126,7 @@ export const constants = {
     'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
   captionsExclude: 'disabledFeatures=liveTranscription,presentation,chat&disabledFeaturesExclude=liveTranscription',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
+  chatExcludeWithSpace: 'disabledFeatures=polls,chat&disabledFeaturesExclude=polls,%20chat',
   privateChatExclude: 'disabledFeatures=presentation,privateChat&disabledFeaturesExclude=privateChat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
   learningDashboardExclude:

@@ -344,6 +344,11 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
         await disabledFeatures.initModPage(page, { createParameter: c.chatExclude, testInfo });
         await disabledFeatures.chatExclude();
       });
+      test('Chat (exclude, space after comma)', async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.chatExcludeWithSpace, testInfo });
+        await disabledFeatures.chatExclude();
+      });
     });
 
     test.describe(() => {

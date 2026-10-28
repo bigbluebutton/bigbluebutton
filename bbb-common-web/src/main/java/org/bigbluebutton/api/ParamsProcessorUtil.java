@@ -709,7 +709,7 @@ public class ParamsProcessorUtil {
             listOfDisabledFeaturesExclude.addAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
             listOfDisabledFeaturesExclude.removeAll(Arrays.asList("", null));
             listOfDisabledFeaturesExclude.replaceAll(String::trim);
-            listOfDisabledFeatures.removeAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+            listOfDisabledFeatures.removeAll(listOfDisabledFeaturesExclude);
         }
 
         // Parse Plugins Manifests from config and param
