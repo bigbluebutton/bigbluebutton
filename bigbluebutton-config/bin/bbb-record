@@ -161,7 +161,7 @@ step_after() {
 
    # Use the 'steps' map from the last file that defines one, matching the
    # shallow merge read_props applies to the override.
-   yq ea '[.steps].[-1]."'"${step}"'" // ""' "${files[@]}" 2>/dev/null
+   yq-go ea '[.steps].[-1]."'"${step}"'" // ""' "${files[@]}" 2>/dev/null
 }
 
 # Remove a format's status files for the meeting, from the given $STATUS
