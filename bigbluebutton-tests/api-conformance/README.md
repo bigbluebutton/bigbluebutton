@@ -18,7 +18,7 @@ runner/                  the bbb-conform Go module
   schema/case.schema.json  the case format, as JSON Schema
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
-cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/
+cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases/join/guest/
 fixtures/                files cases refer to (bodies, presentations, schemas); none yet
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings

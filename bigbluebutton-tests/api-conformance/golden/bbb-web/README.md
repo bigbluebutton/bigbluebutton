@@ -17,7 +17,9 @@ there compares like with like.
   a profile (`env/bbb-web/profiles/`). The salt is never recorded.
 - **Recorded:** 2026-10-23, from a reset stack, two passes per case with no
   unstable field. A developer server (the bbb40 container, bbb-web from the
-  same tree) recorded the same files before.
+  same tree) recorded the same files before. The join cases (`join/`, apart
+  from the checksum and method ones) were added on 2026-10-28 the same way,
+  from a stack built from this tree then.
 
 ## Reviewing
 
