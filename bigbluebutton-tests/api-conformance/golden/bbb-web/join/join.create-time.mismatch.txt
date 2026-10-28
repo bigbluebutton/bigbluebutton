@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.create-time.mismatch
+target bbb-web
+
+== step 2: call join
+status 302
+location ${baseUrl}?errors=[{"message":"The createTime parameter submitted mismatches with the current meeting.","key":"mismatchCreateTimeParam"}]
+body (redirect)
