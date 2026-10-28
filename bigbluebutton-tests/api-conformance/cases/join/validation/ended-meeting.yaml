@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting that was ended can't be joined. end is repeated until bbb-web no
+# longer knows the meeting, so the join can't arrive before the end has taken
+# effect.
+id: join.validation.ended-meeting
+title: join refuses a meeting that was ended
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join validation}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    eventually: {within: 5s, every: 100ms, until: {messageKey: notFound}}
+    expect: {messageKey: notFound}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: viewer}
+    expect: {status: 302, redirect: {query: {errors: {contains: '"key":"meetingForciblyEnded"'}}}}
+teardown:
+  # In case the end above timed out: again until bbb-web no longer knows the
+  # meeting.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
