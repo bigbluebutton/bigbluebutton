@@ -49,7 +49,7 @@ env:
 jobs:
   find-build:
     if: github.event_name != 'schedule' || github.repository == 'bigbluebutton/bigbluebutton'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       run-id: ${{ steps.find.outputs.run-id }}
       sha: ${{ steps.find.outputs.sha }}
@@ -107,7 +107,7 @@ jobs:
   tests:
     needs: find-build
     name: ${{ matrix.group }} ${{ matrix.shard }}/${{ matrix.shards }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 240
     strategy:
       fail-fast: false
@@ -250,7 +250,7 @@ jobs:
     needs:
       - find-build
       - tests
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v5
         with:
