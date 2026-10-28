@@ -128,10 +128,6 @@ A chat message that contains only emoji (up to three emoji, whitespace ignored) 
 
 The Learning Dashboard is no longer disabled in breakout rooms: each breakout gets its own dashboard, tracking activity the same way the parent meeting does (an inherited `disabledFeatures=learningDashboard` still turns it off). A breakout's dashboard data is also kept until the *parent* meeting ends - previously cleanup was anchored to the breakout's own end - so instructors can review breakout activity for as long as the main room is running (plus `learningDashboardCleanupDelayInMinutes`).
 
-#### Learning Dashboard: polls and quizzes numbered in the order they were asked
-
-In the Learning Dashboard's Polls and Quizzes tables, polls and quizzes without a question are now numbered in the order they were asked: "Poll 1" is the first poll of the meeting, and a new poll no longer renumbers the existing columns. The tables still show the newest first. Hovering a column header shows the date and time the poll or quiz was asked, after the question text when there is one. The columns of the "Download Session Data" CSV follow the same chronological order.
-
 <!-- ### Analytics -->
 
 ### Behind the scenes
@@ -147,22 +143,6 @@ The client now has first-class handling for **bot users** (joined with `bot=true
 #### Server messages internationalized on the frontend
 
 Strings that were previously emitted as English constants from the server (Akka) — for example some chat/notification messages — are now resolved to i18n keys on the frontend, improving localization coverage.
-
-#### Fewer re-renders in the video grid
-
-BigBlueButton 4.0.1 cuts the work the client does on a large camera grid: a user joining or leaving, a raised hand, a reaction or a change of the audio floor no longer re-renders every video tile, the toast progress bar animates without re-laying out the page, LiveKit cameras that appear together are subscribed in one batch instead of one renegotiation per camera, and a camera that starts is subscribed at once instead of after the pagination delay.
-
-#### Lock settings changes no longer reconnect viewers
-
-Changing a meeting-wide lock setting (for example hiding the user list or the viewers' cursors) used to make every locked viewer re-establish its GraphQL connection, a burst proportional to the meeting size. Since 4.0.1 the permission rules read the current lock settings from the database, so the change reaches every client as data and no connection is re-established. See [bbb-graphql-middleware](/development/architecture#bbb-graphql-middleware).
-
-#### Client modals on BBBModal
-
-In 4.0.1 the client's modals (audio, settings, session details, lock viewers, connection status, the breakout join confirmation and others) were migrated to the `BBBModal` component of `bbb-ui-components-react`, so they share one implementation and look.
-
-#### bbb-web cleanup
-
-BigBlueButton 4.0.1 removes bbb-web code and settings that nothing has read since bbb-web moved from Grails 2 to Grails 3 in BigBlueButton 2.2 ([#26002](https://github.com/bigbluebutton/bigbluebutton/issues/26002)): the `serviceEnabled` and `accessControlAllowOrigin` properties (see [bbb-web properties changes](#bbb-web-properties-changes)), the Grails 2 configuration files and wrapper, the dead `api/guestWait` route and `delegate` presentation action, and the handler-less `validatePad` nginx location. Controller helper methods are no longer reachable as URL actions.
 
 ### Media
 
