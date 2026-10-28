@@ -25,6 +25,10 @@ test.describe.parallel('Shared Notes - BlockNote math and diagrams', { tag: '@ci
     await mathDiagramSharedNotes.markdownExportKeepsEquationsAndDiagrams();
   });
 
+  test('TXT export keeps formulas with <, > and &', async () => {
+    await mathDiagramSharedNotes.textExportKeepsFormulaSymbols();
+  });
+
   test('Diagrams follow dark mode', async () => {
     await mathDiagramSharedNotes.diagramsFollowDarkMode();
   });

@@ -7,6 +7,10 @@ import { MultiUsers } from '../../user/multiusers';
 import { enableMarkdownNotesOptions, getBlockNoteEditorLocator, startBlockNoteSharedNotes } from './util';
 
 const EQUATION = String.raw`\int_0^1 x^2 \, dx = \frac{1}{3}`;
+// Formula sources that look like HTML to the TXT export. KaTeX cannot parse
+// the second one (& outside a table), which exports through its error path.
+const TEXT_EXPORT_BLOCK_EQUATION = String.raw`x<y \quad a \& b`;
+const TEXT_EXPORT_EDGE_CASE = String.raw`\text{&lt;} <b>`;
 const DIAGRAM_LINES = ['graph TD', 'A[Agenda] --> B{Decision}', 'B -->|yes| C[Ship]'];
 // Script chunks of the client (`<id>.bundle.<hash>.js`), as opposed to the
 // bundle itself (`bundle.<hash>.js`)
@@ -77,6 +81,12 @@ async function insertBlockEquation(testPage: Page, slot: string): Promise<void> 
   await insertFromSlashMenu(testPage, slot, 'Block Equation');
   await testPage.page.keyboard.type(EQUATION);
   await testPage.page.keyboard.press('Escape');
+}
+
+async function typeInlineEquation(testPage: Page, source: string): Promise<void> {
+  await testPage.page.keyboard.type(source);
+  await testPage.page.keyboard.press('Escape');
+  await testPage.page.keyboard.press('End');
 }
 
 async function insertDiagram(testPage: Page, slot: string): Promise<void> {
@@ -166,6 +176,53 @@ export class MathDiagramSharedNotes extends MultiUsers {
     expect(download.content, 'the export should keep the diagram as Mermaid source').toContain(
       ['```mermaid', ...DIAGRAM_LINES, '```'].join('\n'),
     );
+  }
+
+  // The TXT export (also read by recordings to tell empty notes apart) strips
+  // every <...> span after writing the LaTeX source back into the HTML, so a
+  // formula with < or > lost the text up to the next >.
+  async textExportKeepsFormulaSymbols() {
+    await startBlockNoteSharedNotes(this.modPage);
+    await typeSlots(this.modPage, ['inline slot', 'edge slot', 'equation slot']);
+    await insertFromSlashMenu(this.modPage, 'inline slot', 'Inline Equation');
+    await typeInlineEquation(this.modPage, 'a<b');
+    await this.modPage.page.keyboard.type(' then ');
+    await this.modPage.page.keyboard.type('/Inline Equation');
+    await this.modPage.page.keyboard.press('Enter');
+    await typeInlineEquation(this.modPage, 'c>d');
+    await this.modPage.page.keyboard.type(' end.');
+    await insertFromSlashMenu(this.modPage, 'edge slot', 'Inline Equation');
+    await typeInlineEquation(this.modPage, TEXT_EXPORT_EDGE_CASE);
+    await insertFromSlashMenu(this.modPage, 'equation slot', 'Block Equation');
+    await this.modPage.page.keyboard.type(TEXT_EXPORT_BLOCK_EQUATION);
+    await this.modPage.page.keyboard.press('Escape');
+    await expect(this.modPage.page.locator(`${e.blockNoteMathBlock} .katex`)).toBeVisible({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+
+    // "Export as PDF" opens the authenticated export URL; reuse it for TXT
+    await this.modPage.waitAndClick(e.notesOptions);
+    const [pdfRequest] = await Promise.all([
+      this.modPage.page.context().waitForEvent('request', {
+        predicate: (request) =>
+          request.url().includes('/hocuspocus/api/documents/') && request.url().includes('/export/pdf'),
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      }),
+      this.modPage.waitAndClick(e.exportNotesAsPDF),
+    ]);
+    const textUrl = pdfRequest.url().replace('/export/pdf', '/export/txt');
+    // the export reads the stored document, which follows the editor shortly
+    await expect
+      .poll(async () => (await this.modPage.page.request.get(textUrl)).text(), {
+        message: 'the TXT export should keep every formula whole',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toContain(`$$${TEXT_EXPORT_BLOCK_EQUATION}$$`);
+    const text = await (await this.modPage.page.request.get(textUrl)).text();
+    expect(text, 'a formula with < should keep its end').toContain('$a<b$');
+    expect(text, 'a formula with > should stay whole').toContain('$c>d$');
+    expect(text, 'the text after the formulas should stay').toContain('end.');
+    expect(text, 'a literal entity and a tag-like source should stay as typed').toContain(`$${TEXT_EXPORT_EDGE_CASE}$`);
   }
 
   // DarkReader lightens SVG fills like text, which left light labels on light

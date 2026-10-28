@@ -11,6 +11,9 @@ const logger = new Logger('math');
 // the helpers below cover the outputs that cannot.
 
 const MATH_ELEMENT = /<math\b([^>]*)>([\s\S]*?)<\/math>/g;
+// A formula KaTeX cannot parse is a span with the error message in its title,
+// where the DOM serializer writes < and > unescaped: keep only its source.
+const KATEX_ERROR = /<span class="katex-error" title="[^"]*" style="[^"]*">([\s\S]*?)<\/span>/g;
 const TEX_ANNOTATION = /<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/;
 
 const decodeEntities = (text: string): string => text
@@ -29,13 +32,23 @@ const replaceMath = (
   return replace(decodeEntities(annotation[1]), /\bdisplay="block"/.test(attributes));
 });
 
+const escapeHtml = (text: string): string => text
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;');
+
 /**
- * Plain text keeps the LaTeX source, between $ (inline) or $$ (block).
+ * Plain text keeps the LaTeX source, between $ (inline) or $$ (block). The
+ * source goes back into the HTML escaped: the TXT export strips every <...>
+ * span afterwards, which would take a formula such as a<b with it.
  */
 export const mathToLatexText = (html: string): string => replaceMath(
   html,
-  (tex, displayMode) => (displayMode ? `<p>$$${tex}$$</p>` : `$${tex}$`),
-);
+  (tex, displayMode) => {
+    const source = escapeHtml(tex);
+    return displayMode ? `<p>$$${source}$$</p>` : `$${source}$`;
+  },
+).replaceAll(KATEX_ERROR, (_element, source: string) => `$${source}$`);
 
 let katexStylesheet: Promise<string> | undefined;
 
