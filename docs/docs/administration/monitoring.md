@@ -147,7 +147,18 @@ respectively.
 `bbb-graphql-middleware`, which carries the client's GraphQL subscriptions, always serves Prometheus metrics (connection and subscription counters) on its listen port: `curl http://127.0.0.1:8378/metrics`. It only listens on localhost; `prometheus_advanced_metrics_enabled: true` in `/etc/bigbluebutton/bbb-graphql-middleware.yml` adds per-query metrics.
 
 #### WebRTC recorder
-`bbb-webrtc-recorder` exposes metrics when enabled in `/etc/bigbluebutton/bbb-webrtc-recorder.yml`:
+`bbb-webrtc-recorder` exposes metrics when `prometheus.enable` is set. Set it with environment variables in `/etc/default/bbb-webrtc-recorder`, which keeps the rest of the packaged configuration in place (naming rules in the [bbb-webrtc-recorder README](https://github.com/bigbluebutton/bbb-webrtc-recorder#configuration)):
+
+```shell
+BBBRECORDER_PROMETHEUS_ENABLE=true
+BBBRECORDER_PROMETHEUS_LISTENADDRESS=127.0.0.1:3200
+```
+
+The override file `/etc/bigbluebutton/bbb-webrtc-recorder.yml` is not merged: when it exists, the recorder reads it instead of `/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml`, and any setting missing from it falls back to the recorder's built-in default. To use it, copy the packaged file first and edit the `prometheus` section of the copy:
+
+```shell
+sudo cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml /etc/bigbluebutton/bbb-webrtc-recorder.yml
+```
 
 ```yaml
 prometheus:

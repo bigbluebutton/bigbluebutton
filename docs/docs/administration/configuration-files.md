@@ -31,7 +31,7 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/share/bbb-graphql-middleware/config.yml                            | /etc/bigbluebutton/bbb-graphql-middleware.yml    |                                                                                  |
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
-| /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml                        | /etc/bigbluebutton/bbb-webrtc-recorder.yml       |                                                  |
+| /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml                        | /etc/bigbluebutton/bbb-webrtc-recorder.yml       | Replaces the original file; `BBBRECORDER_*` variables in `/etc/default/bbb-webrtc-recorder` override single settings |
 | /usr/share/livekit-server/livekit.yaml                                  | /etc/bigbluebutton/livekit.yaml                  | Merged when `livekit-server` starts; holds the API keys                          |
 | /usr/share/livekit-server/livekit-sip.yaml                              | /etc/bigbluebutton/livekit-sip.yaml              | Merged when `livekit-sip` starts                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
