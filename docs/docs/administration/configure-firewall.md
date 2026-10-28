@@ -165,7 +165,7 @@ Restart BigBlueButton to apply the change.
 
 ### Updating mediasoup
 
-**mediasoup** is used instead of LiveKit for the meetings whose `cameraBridge` or `screenShareBridge` is `bbb-webrtc-sfu` (see the [bbb-web properties](/administration/customize#other-meeting-configs-available)). If you use it on a BigBlueButton server behind a firewall that uses network address translation (NAT), you need to make sure mediasoup has its external addresses properly configured.
+**mediasoup** is used instead of LiveKit for the meetings whose `cameraBridge`, `screenShareBridge` or `audioBridge` is `bbb-webrtc-sfu` (see the [bbb-web properties](/administration/customize#other-meeting-configs-available)). If you use it on a BigBlueButton server behind a firewall that uses network address translation (NAT), you need to make sure mediasoup has its external addresses properly configured.
 
 Keep in mind the following steps should already be done by bbb-install in an IPv4 environment.
 
