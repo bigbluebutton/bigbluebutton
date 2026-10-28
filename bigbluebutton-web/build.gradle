@@ -210,7 +210,7 @@ test {
   //
   // Bump MIN_EXPECTED_TESTS when adding specs; it is a floor, not an exact count,
   // so it does not need to track every new test case.
-  ext.MIN_EXPECTED_TESTS = 40
+  ext.MIN_EXPECTED_TESTS = 80
   ext.executedTestCount = 0
 
   addTestListener(new TestListener() {
