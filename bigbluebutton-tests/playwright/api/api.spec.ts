@@ -79,6 +79,12 @@ test.describe.parallel('API', () => {
     await APIBreakout.testBreakoutWithoutSequenceNumber(request);
   });
 
+  // A non-numeric sequence takes the same Integer.parseInt path (ParamsProcessorUtil
+  // processCreateParams) and fails the same way as a missing one.
+  test('breakoutWithNonNumericSequenceNumber', { tag: ['@ci', '@known-issue'] }, async ({ request }) => {
+    await APIBreakout.testBreakoutWithNonNumericSequence(request);
+  });
+
   test('breakoutWithNonexistentParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithNonexistentParent();
   });
@@ -94,6 +100,102 @@ test.describe.parallel('API', () => {
     } finally {
       await api.endParentMeeting(request);
     }
+  });
+
+  test.describe('Breakout rooms', { tag: '@ci' }, () => {
+    // A room's voice bridge is the parent's plus its sequence. When another meeting holds
+    // that number, bbb-web refuses to create the room (MeetingService.createMeeting ~557-561,
+    // duplicate telVoice) and processCreateBreakoutRoom ignores the refusal (~931), while
+    // akka-apps keeps the room in its breakout model and waits for it to start.
+    test(
+      'breakoutRoomOnTakenVoiceBridgeIsCreated',
+      { tag: '@known-issue' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testVoiceBridgeTakenByAnotherMeeting(page, testInfo, request);
+      },
+    );
+
+    test('apiCreatedBreakoutRoom', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoom(page, testInfo, request);
+    });
+
+    // bbb-web keeps the requested meetingID as the room's internal ID and returns a rebuilt
+    // external ID (ParamsProcessorUtil.processCreateParams ~941-950); getMeetingInfo resolves
+    // an external ID through sha1(externalID) (ServiceUtils.findMeetingFromMeetingID), which
+    // matches only the IDs akka-apps builds for the rooms it creates.
+    test(
+      'apiCreatedBreakoutRoomFoundByReturnedId',
+      { tag: '@known-issue' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testApiCreatedRoomFoundByReturnedId(page, testInfo, request);
+      },
+    );
+
+    // The parent's akka-apps ends only the rooms of its own breakout model
+    // (HandlerHelpers.endAllBreakoutRooms ~290-299), and an API-created room never enters
+    // it (BreakoutRoomCreatedMsgHdlr finds no such room in state.breakout).
+    test(
+      'apiCreatedBreakoutRoomEndsWithParent',
+      { tag: '@known-issue' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testApiCreatedRoomEndsWithParent(page, testInfo, request);
+      },
+    );
+
+    // CreateBreakoutRoomsCmdMsgHdlr (~130) passes the client's record flag to the rooms
+    // without checking the parent's breakoutRoomsRecord.
+    test(
+      'breakoutRoomsRecordFalseEnforced',
+      { tag: '@known-issue' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testRoomsNotRecordedWhenParentForbids(page, testInfo, request);
+      },
+    );
+
+    test('breakoutRoomsRecordTrueControl', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testRoomsRecordedWhenParentAllows(page, testInfo, request);
+    });
+
+    test('disabledBreakoutRoomsNotCreated', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testDisabledBreakoutRoomsNotCreated(page, testInfo, request);
+    });
+
+    test('breakoutRoomCreateTakesEffect', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testBreakoutRoomCreateTakesEffect(page, testInfo, request);
+    });
+
+    test('attendeeCannotCreateBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testAttendeeCannotCreateRooms(page, testInfo, request);
+    });
+
+    test('breakoutRoomCannotCreateBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testRoomCannotCreateRooms(page, testInfo, request);
+    });
+
+    test('breakoutRoomCountLimits', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testRoomCountLimits(page, testInfo, request);
+    });
+
+    test('endingParentEndsBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testEndingParentEndsRooms(page, testInfo, request);
+    });
+
+    test('getMeetingsListsBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testGetMeetingsListsRooms(page, testInfo, request);
+    });
   });
 
   test.describe('Checksum', { tag: '@ci' }, () => {
