@@ -1,4 +1,4 @@
-import { expect, Page as PlaywrightPage, WebSocketRoute } from '@playwright/test';
+import { expect, Page as PlaywrightPage, test, WebSocketRoute } from '@playwright/test';
 
 import { field, queryDocument, runMutation, runQuery, stringVarMutation, typedVarMutation } from '../core/apolloProbe';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
@@ -138,21 +138,96 @@ export class RoomModeApply extends RoomModePanel {
     await this.modPage.waitAndClick(MODE_CARDS[mode]);
   }
 
-  async appliesClassPreset(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+  // Applied once from the pre-flight: the moderator gets the class preset, a viewer who
+  // joins later gets it too, and a reload applies nothing again.
+  async appliesClassPresetOnce(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     let guestPolicySent = 0;
     await routeOperation(page, 'SetPolicy', ({ server, message }) => {
       guestPolicySent += 1;
       server.send(message);
     });
 
-    await this.picksMode(page, 'class', CLASS_CREATE_PARAMETER, options);
+    await test.step('Start room applies the class preset', async () => {
+      await this.picksMode(page, 'class', CLASS_CREATE_PARAMETER, options);
+      await startsRoom(this.modPage);
+      await ensureProbe(this.modPage);
+      // The room opens only once the mode is recorded, so this read is settled.
+      expect(await readRoomSettings(this.modPage), 'should apply the class preset once the room starts').toEqual(
+        CLASS_APPLIED,
+      );
+      expect(guestPolicySent, 'should not send the guest policy the moderator left as it was').toBe(0);
+    });
+
+    await test.step('A viewer who joins later gets the applied settings', async () => {
+      await this.initJoinedViewer();
+      expect(
+        await readRoomSettings(this.userPage),
+        'should show a viewer who joins later the settings the class preset applied',
+      ).toEqual(CLASS_APPLIED);
+      await expect(async () => {
+        expect(
+          await readWhiteboardWriteAccess(this.userPage),
+          'should let a viewer who joins later write on the whiteboard',
+        ).toBe(true);
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+      // The room is created without the lock on join, so a lock on the viewer shows the applied one reached them.
+      await expect(async () => {
+        expect(
+          await readLocked(this.userPage),
+          'should lock a viewer who joins later under the lock on join the class preset applied',
+        ).toBe(true);
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    });
+
+    await test.step('A reload does not apply the mode again', async () => {
+      expect((await setMuted(this.modPage, false)).errors, 'should accept the change made by hand').toEqual([]);
+      await expect(async () => {
+        expect((await readRoomSettings(this.modPage)).muteOnStart, 'should show the change made by hand').toBe(false);
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+      await this.modPage.page.reload();
+      await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+      await ensureProbe(this.modPage);
+      // Nothing is expected to apply again, so the read follows a quiet spell long
+      // enough for a new application to have landed.
+      await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+      expect(
+        await readRoomSettings(this.modPage),
+        'should keep the change made by hand after a reload, without applying the mode again',
+      ).toEqual({ ...CLASS_APPLIED, muteOnStart: false });
+    });
+  }
+
+  // The switch the moderator edited wins over the preset it was set from. The guest
+  // policy the moderator edits is sent with the pick: the modes do not assert one.
+  async appliesEditsOverPreset(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await this.picksMode(page, 'class', `${CLASS_CREATE_PARAMETER}&multiUserWhiteboardEnabled=true`, options);
+    await this.modPage.hasElement(
+      e.preFlightRoomModeWhiteboard,
+      'should show the whiteboard switch of the picked mode',
+    );
+    await this.modPage.page.locator(e.preFlightRoomModeWhiteboard).uncheck();
+    await pickOption(this.modPage, e.preFlightRoomModeGuestPolicy, 'ASK_MODERATOR');
     await startsRoom(this.modPage);
     await ensureProbe(this.modPage);
-    // The room opens only once the mode is recorded, so this read is settled.
-    expect(await readRoomSettings(this.modPage), 'should apply the class preset once the room starts').toEqual(
-      CLASS_APPLIED,
-    );
-    expect(guestPolicySent, 'should not send the guest policy the moderator left as it was').toBe(0);
+    const settings = await readRoomSettings(this.modPage);
+    expect(settings, 'should apply the whiteboard switch as edited instead of the class preset').toEqual({
+      ...CLASS_APPLIED,
+      multiUserWhiteboardEnabled: false,
+      guestPolicy: 'ASK_MODERATOR',
+    });
+    expect(settings.guestPolicy, 'should apply the guest policy the moderator edited').toBe('ASK_MODERATOR');
+  }
+
+  // The room has no public chat to unlock, so the class preset leaves its lock as created.
+  async leavesPublicChatLockedWithoutChat(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await this.picksMode(page, 'class', `${CLASS_CREATE_PARAMETER}&disabledFeatures=chat`, options);
+    await startsRoom(this.modPage);
+    await ensureProbe(this.modPage);
+    expect(
+      await readRoomSettings(this.modPage),
+      'should leave the public chat lock as created in a room without chat',
+    ).toEqual({ ...CLASS_APPLIED, disablePublicChat: true });
   }
 
   async appliesMeetingPreset(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
@@ -164,75 +239,10 @@ export class RoomModeApply extends RoomModePanel {
     );
   }
 
-  async viewerJoiningLaterSeesAppliedSettings(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.picksMode(page, 'class', CLASS_CREATE_PARAMETER, options);
-    await startsRoom(this.modPage);
-    await ensureProbe(this.modPage);
-
-    await this.initJoinedViewer();
-    expect(
-      await readRoomSettings(this.userPage),
-      'should show a viewer who joins later the settings the class preset applied',
-    ).toEqual(CLASS_APPLIED);
-    await expect(async () => {
-      expect(
-        await readWhiteboardWriteAccess(this.userPage),
-        'should let a viewer who joins later write on the whiteboard',
-      ).toBe(true);
-    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    // The room is created without the lock on join, so a lock on the viewer shows the applied one reached them.
-    await expect(async () => {
-      expect(
-        await readLocked(this.userPage),
-        'should lock a viewer who joins later under the lock on join the class preset applied',
-      ).toBe(true);
-    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
-  }
-
-  // The switch the moderator edited wins over the preset it was set from.
-  async editedSwitchWinsOverPreset(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.picksMode(page, 'class', `${CLASS_CREATE_PARAMETER}&multiUserWhiteboardEnabled=true`, options);
-    await this.modPage.hasElement(
-      e.preFlightRoomModeWhiteboard,
-      'should show the whiteboard switch of the picked mode',
-    );
-    await this.modPage.page.locator(e.preFlightRoomModeWhiteboard).uncheck();
-    await startsRoom(this.modPage);
-    await ensureProbe(this.modPage);
-    expect(
-      await readRoomSettings(this.modPage),
-      'should apply the whiteboard switch as edited instead of the class preset',
-    ).toEqual({ ...CLASS_APPLIED, multiUserWhiteboardEnabled: false });
-  }
-
-  async reloadDoesNotReapply(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.picksMode(page, 'class', CLASS_CREATE_PARAMETER, options);
-    await startsRoom(this.modPage);
-    await ensureProbe(this.modPage);
-    expect(await readRoomSettings(this.modPage), 'should apply the class preset once the room starts').toEqual(
-      CLASS_APPLIED,
-    );
-
-    expect((await setMuted(this.modPage, false)).errors, 'should accept the change made by hand').toEqual([]);
-    await expect(async () => {
-      expect((await readRoomSettings(this.modPage)).muteOnStart, 'should show the change made by hand').toBe(false);
-    }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
-
-    await this.modPage.page.reload();
-    await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await ensureProbe(this.modPage);
-    // Nothing is expected to apply again, so the read follows a quiet spell long
-    // enough for a new application to have landed.
-    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
-    expect(
-      await readRoomSettings(this.modPage),
-      'should keep the change made by hand after a reload, without applying the mode again',
-    ).toEqual({ ...CLASS_APPLIED, muteOnStart: false });
-  }
-
   // The room mode is sent last: held back, every setting must already show in the
-  // read that shows no mode, and the mode is recorded once released.
-  async settingsLandBeforeRoomMode(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+  // read that shows no mode, the pre-flight stays up, and the mode is recorded once
+  // released, with nothing started recording.
+  async holdsRoomUntilModeRecorded(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
     const held: RoutedOperation[] = [];
     await routeOperation(page, 'SetRoomMode', (operation) => {
       held.push(operation);
@@ -249,19 +259,37 @@ export class RoomModeApply extends RoomModePanel {
         timeout: ELEMENT_WAIT_LONGER_TIME,
       })
       .toBeGreaterThan(0);
-    await expect(async () => {
-      expect(
-        await sampleRoomSettings(this.modPage),
-        'should apply every class setting while the room mode is still unset',
-      ).toEqual({ ...CLASS_APPLIED, roomMode: '' });
-    }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
 
-    held.splice(0).forEach(({ server, message }) => server.send(message));
-    await expectRoomMode(this.modPage, 'class', 'should record the class mode once the request is released');
-    await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    expect(await readRoomSettings(this.modPage), 'should keep the class settings once the room opens').toEqual(
-      CLASS_APPLIED,
-    );
+    await test.step('Settings land before the room mode is recorded', async () => {
+      await expect(async () => {
+        expect(
+          await sampleRoomSettings(this.modPage),
+          'should apply every class setting while the room mode is still unset',
+        ).toEqual({ ...CLASS_APPLIED, roomMode: '' });
+      }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    });
+
+    await test.step('The pre-flight stays up until the mode is recorded', async () => {
+      await this.modPage.page.waitForTimeout(ROOM_MODE_HOLD_TIME);
+      await this.modPage.hasElement(
+        e.preFlightRoomModePanel,
+        'should keep the room mode panel up until the mode is recorded',
+      );
+      expect(
+        await this.modPage.checkElement(e.layoutContainer),
+        'should not open the room before the mode is recorded',
+      ).toBeFalsy();
+    });
+
+    await test.step('The mode is recorded once released', async () => {
+      held.splice(0).forEach(({ server, message }) => server.send(message));
+      await expectRoomMode(this.modPage, 'class', 'should record the class mode once the request is released');
+      await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+      await this.modPage.wasRemoved(e.preFlight, 'should remove the pre-flight screen once the mode is recorded');
+      const settings = await readRoomSettings(this.modPage);
+      expect(settings, 'should keep the class settings once the room opens').toEqual(CLASS_APPLIED);
+      expect(settings, 'should open the room with the class settings and no recording started').toEqual(CLASS_APPLIED);
+    });
   }
 
   // The applier's first SetMuted is refused by the server: the room still opens, with no mode.
@@ -372,42 +400,6 @@ export class RoomModeApply extends RoomModePanel {
     ).toMatchObject({ presenterPolicy: 'freeForAll', lockOnJoin: false, webcamsOnlyForModerator: true });
   }
 
-  // The pre-flight stays up until the server records the mode, and nothing starts recording.
-  async holdsPanelUntilRoomModeRecorded(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    const held: RoutedOperation[] = [];
-    await routeOperation(page, 'SetRoomMode', (operation) => {
-      held.push(operation);
-    });
-
-    await this.picksMode(page, 'class', CLASS_CREATE_PARAMETER, options);
-    await ensureProbe(this.modPage);
-    await this.modPage.waitAndClick(e.preFlightJoinButton);
-    await expect
-      .poll(() => held.length, {
-        message: 'should hold the room mode request back',
-        timeout: ELEMENT_WAIT_LONGER_TIME,
-      })
-      .toBeGreaterThan(0);
-
-    await this.modPage.page.waitForTimeout(ROOM_MODE_HOLD_TIME);
-    await this.modPage.hasElement(
-      e.preFlightRoomModePanel,
-      'should keep the room mode panel up until the mode is recorded',
-    );
-    expect(
-      await this.modPage.checkElement(e.layoutContainer),
-      'should not open the room before the mode is recorded',
-    ).toBeFalsy();
-
-    held.splice(0).forEach(({ server, message }) => server.send(message));
-    await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.modPage.wasRemoved(e.preFlight, 'should remove the pre-flight screen once the mode is recorded');
-    expect(
-      await readRoomSettings(this.modPage),
-      'should open the room with the class settings and no recording started',
-    ).toEqual(CLASS_APPLIED);
-  }
-
   // Another moderator is already in the room: the pick is not applied at all, so the room
   // keeps the change that moderator made by hand, opens with no mode, and tells the moderator.
   async keepsRoomRunningByAnotherModerator(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
@@ -490,29 +482,6 @@ export class RoomModeApply extends RoomModePanel {
       lockOnJoin: false,
       webcamsOnlyForModerator: true,
       disablePublicChat: true,
-    });
-  }
-
-  // The room has no public chat to unlock, so the class preset leaves its lock as created.
-  async leavesPublicChatLockedWithoutChat(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.picksMode(page, 'class', `${CLASS_CREATE_PARAMETER}&disabledFeatures=chat`, options);
-    await startsRoom(this.modPage);
-    await ensureProbe(this.modPage);
-    expect(
-      await readRoomSettings(this.modPage),
-      'should leave the public chat lock as created in a room without chat',
-    ).toEqual({ ...CLASS_APPLIED, disablePublicChat: true });
-  }
-
-  // The guest policy the moderator edits is sent with the pick: the modes do not assert one.
-  async appliesEditedGuestPolicy(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.picksMode(page, 'class', CLASS_CREATE_PARAMETER, options);
-    await pickOption(this.modPage, e.preFlightRoomModeGuestPolicy, 'ASK_MODERATOR');
-    await startsRoom(this.modPage);
-    await ensureProbe(this.modPage);
-    expect(await readRoomSettings(this.modPage), 'should apply the guest policy the moderator edited').toEqual({
-      ...CLASS_APPLIED,
-      guestPolicy: 'ASK_MODERATOR',
     });
   }
 }

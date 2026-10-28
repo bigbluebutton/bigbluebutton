@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-import { Create } from '../breakout/create';
 import {
   APOLLO_CLIENT_SETTINGS_MODULE,
   field,
@@ -54,6 +53,16 @@ export const expectRoomMode = async (page: Page, expected: string, message: stri
   await expect(async () => {
     expect(await getRoomMode(page), message).toBe(expected);
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+};
+
+// Akka refuses breakouts too, but only after the call has answered true, and
+// with ejectOnViolation on it would eject the moderator from the breakout.
+export const expectRoomModeRefusedInBreakout = async (breakoutPage: Page): Promise<void> => {
+  const { accepted, errors } = await setRoomMode(breakoutPage, 'class');
+
+  expect(accepted, 'should not accept the room mode in a breakout room').toBe(false);
+  expect(errors.join(' '), 'should refuse the room mode in a breakout room').toMatch(/breakout room/i);
+  expect(await getRoomMode(breakoutPage), 'should keep the breakout room unconfigured').toBe('');
 };
 
 // Akka drops a command it refuses without answering, so the absence of a change
@@ -195,14 +204,52 @@ export class RoomMode extends PreFlight {
     });
   }
 
-  async setsModeForEveryone() {
+  // One room through the mode's life: unset, set by a moderator for everyone,
+  // refused from a viewer and for invalid values, and kept across a reload.
+  async setsAndKeepsModeForEveryone() {
     await this.initJoinedViewer();
-    await expectRoomMode(this.modPage, '', 'should start with no room mode');
 
-    await this.setByModerator('class');
+    await test.step('Moderator sets the room mode for everyone', async () => {
+      await expectRoomMode(this.modPage, '', 'should start with no room mode');
 
-    await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the moderator');
-    await expectRoomMode(this.userPage, 'class', 'should show the room mode to the other clients');
+      await this.setByModerator('class');
+
+      await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the moderator');
+      await expectRoomMode(this.userPage, 'class', 'should show the room mode to the other clients');
+    });
+
+    await test.step('Viewer cannot set the room mode', async () => {
+      await expectRoomMode(this.userPage, 'class', 'should show the room mode to the viewer');
+
+      const { accepted, errors } = await setRoomMode(this.userPage, 'meeting');
+
+      expect(accepted, 'should not accept the room mode from a viewer').toBe(false);
+      expect(errors.join(' '), 'should refuse the room mode from a viewer').toMatch(/not moderator/i);
+      // This error is thrown by bbb-graphql-actions before it publishes anything to
+      // Redis, so no change is in flight and the value can be read right away.
+      expect(await getRoomMode(this.modPage), 'should keep the room mode a viewer tried to change').toBe('class');
+    });
+
+    await test.step('Invalid room mode is refused', async () => {
+      const expectRefused = async (roomMode: string) => {
+        const { accepted, errors } = await setRoomMode(this.modPage, roomMode);
+        expect(accepted, `should not accept the room mode "${roomMode}"`).toBe(false);
+        expect(errors.join(' '), `should refuse the room mode "${roomMode}"`).toMatch(/invalid room mode/i);
+      };
+      await expectRefused('Class');
+      await expectRefused('a'.repeat(33));
+      // Empty is the default only: clearing would reopen the panel for later arrivals.
+      await expectRefused('');
+      // Refused by bbb-graphql-actions before anything reaches Redis.
+      expect(await getRoomMode(this.modPage), 'should keep the room mode after invalid ones').toBe('class');
+    });
+
+    await test.step('Room mode survives a reload', async () => {
+      await this.modPage.page.reload();
+      await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
+      await ensureProbe(this.modPage);
+      await expectRoomMode(this.modPage, 'class', 'should keep the room mode after the moderator reloads');
+    });
   }
 
   async readsModeBeforeJoining() {
@@ -216,20 +263,6 @@ export class RoomMode extends PreFlight {
     await this.setByModerator('class');
     await expectRoomMode(this.userPage, 'class', 'should show a room mode changed while still on the pre-flight');
     await this.userPage.hasElement(e.preFlight, 'should still be on the pre-flight after reading the room mode');
-  }
-
-  async refusesModeFromViewer() {
-    await this.initJoinedViewer();
-    await this.setByModerator('class');
-    await expectRoomMode(this.userPage, 'class', 'should show the room mode to the viewer');
-
-    const { accepted, errors } = await setRoomMode(this.userPage, 'meeting');
-
-    expect(accepted, 'should not accept the room mode from a viewer').toBe(false);
-    expect(errors.join(' '), 'should refuse the room mode from a viewer').toMatch(/not moderator/i);
-    // This error is thrown by bbb-graphql-actions before it publishes anything to
-    // Redis, so no change is in flight and the value can be read right away.
-    expect(await getRoomMode(this.modPage), 'should keep the room mode a viewer tried to change').toBe('class');
   }
 
   // graphql-actions only checks the role, so a moderator who has not joined yet
@@ -258,49 +291,5 @@ export class RoomMode extends PreFlight {
       errors: [],
     });
     await expectRoomMode(this.modPage, 'class', 'should store the room mode from the moderator who joined');
-  }
-
-  // Akka refuses breakouts too, but only after the call has answered true, and
-  // with ejectOnViolation on it would eject the moderator from the breakout.
-  async refusesModeInBreakout() {
-    await this.initJoinedViewer();
-    const breakout = new Create(this.browser, this.context);
-    breakout.modPage = this.modPage;
-    breakout.userPage = this.userPage;
-    const breakoutPage = new Page(this.browser, await breakout.joinAssignedBreakoutAsModerator());
-    await ensureProbe(breakoutPage);
-
-    const { accepted, errors } = await setRoomMode(breakoutPage, 'class');
-
-    expect(accepted, 'should not accept the room mode in a breakout room').toBe(false);
-    expect(errors.join(' '), 'should refuse the room mode in a breakout room').toMatch(/breakout room/i);
-    expect(await getRoomMode(breakoutPage), 'should keep the breakout room unconfigured').toBe('');
-  }
-
-  async refusesInvalidMode() {
-    await this.setByModerator('class');
-    await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the moderator');
-
-    const expectRefused = async (roomMode: string) => {
-      const { accepted, errors } = await setRoomMode(this.modPage, roomMode);
-      expect(accepted, `should not accept the room mode "${roomMode}"`).toBe(false);
-      expect(errors.join(' '), `should refuse the room mode "${roomMode}"`).toMatch(/invalid room mode/i);
-    };
-    await expectRefused('Class');
-    await expectRefused('a'.repeat(33));
-    // Empty is the default only: clearing would reopen the panel for later arrivals.
-    await expectRefused('');
-    // Refused by bbb-graphql-actions before anything reaches Redis.
-    expect(await getRoomMode(this.modPage), 'should keep the room mode after invalid ones').toBe('class');
-  }
-
-  async keepsModeAcrossReload() {
-    await this.setByModerator('class');
-    await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the moderator');
-
-    await this.modPage.page.reload();
-    await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await ensureProbe(this.modPage);
-    await expectRoomMode(this.modPage, 'class', 'should keep the room mode after the moderator reloads');
   }
 }

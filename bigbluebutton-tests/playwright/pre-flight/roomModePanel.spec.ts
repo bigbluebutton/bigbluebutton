@@ -1,34 +1,23 @@
 import { test } from '../core/setup/fixtures';
 import { RoomModePanel } from './roomModePanel';
+import { RoomModeSummary } from './roomModeSummary';
 
 test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
-  test('Moderator sees the panel in a room with no mode', async ({ browser, context, page }, testInfo) => {
+  test('Moderator sees the panel and picks room modes', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.initModPageWithPanel(page, { testInfo });
-    await panel.showsPanelInUnconfiguredRoom();
+    await panel.usesPanelInUnconfiguredRoom();
   });
 
-  test('Picks a room mode and cancels it', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.initModPageWithPanel(page, { testInfo });
-    await panel.picksAndClearsMode();
-  });
-
-  test('Viewer never sees the panel', async ({ browser, context, page }, testInfo) => {
+  test('Viewers and configured rooms never get the panel', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.initModPage(page, { testInfo });
-    await panel.viewerNeverSeesPanel();
+    await panel.hidesPanelFromViewerAndConfiguredRoom();
   });
 
-  test('No panel in a room that already has a mode', async ({ browser, context, page }, testInfo) => {
+  test('No panel and no room mode in a breakout room', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
-    await panel.initModPage(page, { testInfo });
-    await panel.noPanelInConfiguredRoom();
-  });
-
-  test('No panel in a breakout room', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.noPanelInBreakout(page, { testInfo });
+    await panel.noPanelNorModeInBreakout(page, { testInfo });
   });
 
   test('Starting without a mode leaves the room unconfigured', async ({ browser, context, page }, testInfo) => {
@@ -37,9 +26,16 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.startsWithoutMode();
   });
 
-  test('Panels become tabs on a phone', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.panelsBecomeTabsOnPhone(page, { testInfo });
+  test('Panels become tabs on a phone and a tablet, the summary fits a phone', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const summary = new RoomModeSummary(browser, context);
+    await summary.panelsBecomeTabsOnPhoneAndTablet(page, { testInfo });
+    await test.step('Edits the summary on a phone', async () => {
+      await summary.reachesSummaryOnPhone(await summary.newPageForNextRoom(), { testInfo });
+    });
   });
 
   test('No panel with its setting off', async ({ browser, context, page }, testInfo) => {
@@ -52,12 +48,6 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.keepsModeUnderDevicePermissionScreen(page, { testInfo });
   });
 
-  test('Moves between room modes with the arrow keys', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.initModPageWithPanel(page, { testInfo });
-    await panel.movesBetweenModesWithArrows();
-  });
-
   test('Keeps the setup panel across the tabs breakpoints', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.keepsSetupAcrossTabsBreakpoints(page, { testInfo });
@@ -68,29 +58,19 @@ test.describe.parallel('Room mode panel', { tag: '@ci' }, () => {
     await panel.locksCardsWhileJoining(page, { testInfo });
   });
 
-  test('Turns the panels into tabs on a tablet', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.panelsBecomeTabsOnTablet(page, { testInfo });
-  });
-
   test('Keeps the desktop layout for a viewer on a tablet', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.initModPage(page, { testInfo });
     await panel.viewerKeepsDesktopLayoutOnTablet();
   });
 
-  test('Shows the join notices in the panel footer', async ({ browser, context, page }, testInfo) => {
+  test('Join notices stay visible on a desktop and a phone', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
-    await panel.showsJoinNoticesInPanelFooter(page, { testInfo });
+    await panel.showsJoinNoticesOnDesktopAndPhone(page, { testInfo });
   });
 
   test('No panel for a bot moderator', async ({ browser, context, page }, testInfo) => {
     const panel = new RoomModePanel(browser, context);
     await panel.noPanelForBot(page, { testInfo });
-  });
-
-  test('Keeps the join notices visible on a phone', async ({ browser, context, page }, testInfo) => {
-    const panel = new RoomModePanel(browser, context);
-    await panel.showsJoinNoticesOnPhone(page, { testInfo });
   });
 });

@@ -1,4 +1,4 @@
-import { expect, Page as PlaywrightPage } from '@playwright/test';
+import { expect, Page as PlaywrightPage, test } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -135,33 +135,75 @@ export class RoomModeSummary extends RoomModePanel {
     );
   }
 
-  async keepsEditsWhileModeStaysPicked() {
-    await hasPanel(this.modPage);
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await editClassPreset(this.modPage);
-    await expectEditables(this.modPage, CLASS_EDITED, 'should show the edits');
-    await expectJoinMutedHelper(this.modPage, false);
+  async editsSummaryWithKeyboardAndModes() {
+    // From the picked card, Tab walks the summary in order: guest policy, join
+    // muted, public chat, who can present, whiteboard.
+    await test.step('Operates the summary with the keyboard', async () => {
+      await hasPanel(this.modPage);
+      await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+      await this.modPage.page.locator(e.preFlightRoomModeClass).focus();
+      const { keyboard } = this.modPage.page;
+      const expectFocused = (selector: string, message: string) =>
+        expect(this.modPage.page.locator(selector), message).toBeFocused();
 
-    // Picking the mode that is already picked is not a mode change.
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await expectEditables(this.modPage, CLASS_EDITED, 'should keep the edits while the mode stays picked');
-  }
+      await keyboard.press('Tab');
+      await expectFocused(e.preFlightRoomModeGuestPolicy, 'should reach the guest policy right after the cards');
+      await keyboard.press('Tab');
+      await expectFocused(e.preFlightRoomModeJoinMuted, 'should reach join muted next');
+      await keyboard.press('Space');
+      await expectSwitch(this.modPage, e.preFlightRoomModeJoinMuted, false, 'should toggle a switch with the keyboard');
+      await keyboard.press('Tab');
+      await expectFocused(e.preFlightRoomModePublicChat, 'should reach public chat next');
+      await keyboard.press('Tab');
+      await expectFocused(e.preFlightRoomModePresenterPolicy, 'should reach who can present next');
 
-  async dropsEditsOnModeChangeAndCancel() {
-    await hasPanel(this.modPage);
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await editClassPreset(this.modPage);
+      // The menu opens on the current value: one step down is the next policy.
+      await keyboard.press('Enter');
+      await this.modPage.hasElement(
+        `${e.selectMenuItem}[data-value="requireApproval"]`,
+        'should open the select with the keyboard',
+        ELEMENT_WAIT_LONGER_TIME,
+      );
+      await keyboard.press('ArrowDown');
+      await keyboard.press('Enter');
+      await expectSelectValue(
+        this.modPage,
+        e.preFlightRoomModePresenterPolicy,
+        'freeForAll',
+        'should pick an option with the arrow keys',
+      );
 
-    await this.modPage.waitAndClick(e.preFlightRoomModeMeeting);
-    await expectEditables(this.modPage, MEETING_PRESET, 'should show the meeting preset, not the class edits');
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await expectEditables(this.modPage, CLASS_PRESET, 'should drop the class edits after switching mode and back');
+      await expectFocused(e.preFlightRoomModePresenterPolicy, 'should give the focus back to the select');
+      await keyboard.press('Tab');
+      await expectFocused(e.preFlightRoomModeWhiteboard, 'should reach the whiteboard last');
+    });
 
-    await editClassPreset(this.modPage);
-    await this.modPage.waitAndClick(e.preFlightRoomModeCancelButton);
-    await this.modPage.wasRemoved(e.preFlightRoomModeSummary, 'should drop the summary on cancel');
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await expectEditables(this.modPage, CLASS_PRESET, 'should drop the edits on cancel');
+    await test.step('Keeps an edit while the mode stays picked', async () => {
+      await hasPanel(this.modPage);
+      await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+      await editClassPreset(this.modPage);
+      await expectEditables(this.modPage, CLASS_EDITED, 'should show the edits');
+      await expectJoinMutedHelper(this.modPage, false);
+
+      // Picking the mode that is already picked is not a mode change.
+      await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+      await expectEditables(this.modPage, CLASS_EDITED, 'should keep the edits while the mode stays picked');
+    });
+
+    await test.step('Drops the edits when the mode changes or is cancelled', async () => {
+      await hasPanel(this.modPage);
+
+      await this.modPage.waitAndClick(e.preFlightRoomModeMeeting);
+      await expectEditables(this.modPage, MEETING_PRESET, 'should show the meeting preset, not the class edits');
+      await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+      await expectEditables(this.modPage, CLASS_PRESET, 'should drop the class edits after switching mode and back');
+
+      await editClassPreset(this.modPage);
+      await this.modPage.waitAndClick(e.preFlightRoomModeCancelButton);
+      await this.modPage.wasRemoved(e.preFlightRoomModeSummary, 'should drop the summary on cancel');
+      await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+      await expectEditables(this.modPage, CLASS_PRESET, 'should drop the edits on cancel');
+    });
   }
 
   // Neither mode asserts the waiting room, so it starts from the room's own
@@ -194,17 +236,32 @@ export class RoomModeSummary extends RoomModePanel {
     }
   }
 
-  // A policy the list does not offer is shown while it is the room's value,
-  // and never offered otherwise.
-  async showsRoomOnlyGuestPolicy(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.startsWaitingRoomFromRoom(page, 'ALWAYS_ACCEPT_AUTH', options);
-    await pickOption(this.modPage, e.preFlightRoomModeGuestPolicy, 'ASK_MODERATOR');
-    await this.modPage.waitAndClick(e.preFlightRoomModeGuestPolicy);
-    await this.modPage.hasElement(
-      `${e.selectMenuItem}[data-value="ALWAYS_ACCEPT_AUTH"]`,
-      "should keep offering the room's own policy after another pick",
-    );
-    await this.modPage.page.keyboard.press('Escape');
+  async startsWaitingRoomFromRoomPolicies(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    const policies = [
+      { title: "Starts the waiting room from the room's default policy", guestPolicy: 'ALWAYS_ACCEPT' },
+      { title: "Starts the waiting room from the room's own policy", guestPolicy: 'ASK_MODERATOR' },
+      { title: "Keeps offering a room's policy the list does not offer", guestPolicy: 'ALWAYS_ACCEPT_AUTH' },
+    ];
+    for (const [index, { title, guestPolicy }] of policies.entries()) {
+      await test.step(title, async () => {
+        await this.startsWaitingRoomFromRoom(
+          index === 0 ? page : await this.newPageForNextRoom(),
+          guestPolicy,
+          options,
+        );
+        // A policy the list does not offer is shown while it is the room's value,
+        // and never offered otherwise.
+        if (guestPolicy === 'ALWAYS_ACCEPT_AUTH') {
+          await pickOption(this.modPage, e.preFlightRoomModeGuestPolicy, 'ASK_MODERATOR');
+          await this.modPage.waitAndClick(e.preFlightRoomModeGuestPolicy);
+          await this.modPage.hasElement(
+            `${e.selectMenuItem}[data-value="ALWAYS_ACCEPT_AUTH"]`,
+            "should keep offering the room's own policy after another pick",
+          );
+          await this.modPage.page.keyboard.press('Escape');
+        }
+      });
+    }
   }
 
   // A room created to record on its own starts recording as the moderator
@@ -227,6 +284,16 @@ export class RoomModeSummary extends RoomModePanel {
       await this.modPage.checkElement(e.preFlightRoomModeAutomaticRecording),
       'should not say recording never starts by itself in this room',
     ).toBeFalsy();
+  }
+
+  async leavesRecordingOutInBothRooms(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await test.step('Leaves recording out for a room that records on its own', async () => {
+      await this.leavesRecordingOut(page, true, options);
+    });
+
+    await test.step('Leaves recording out for a room that cannot record', async () => {
+      await this.leavesRecordingOut(await this.newPageForNextRoom(), false, options);
+    });
   }
 
   // Cancel drops the pick with its edits, so Start room applies nothing and the room opens as created.
@@ -269,47 +336,5 @@ export class RoomModeSummary extends RoomModePanel {
       this.modPage.page.locator(e.preFlightJoinButton),
       'should keep the start button reachable under the summary',
     ).toBeVisible();
-  }
-
-  // From the picked card, Tab walks the summary in order: guest policy, join
-  // muted, public chat, who can present, whiteboard.
-  async operatesSummaryWithKeyboard() {
-    await hasPanel(this.modPage);
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await this.modPage.page.locator(e.preFlightRoomModeClass).focus();
-    const { keyboard } = this.modPage.page;
-    const expectFocused = (selector: string, message: string) =>
-      expect(this.modPage.page.locator(selector), message).toBeFocused();
-
-    await keyboard.press('Tab');
-    await expectFocused(e.preFlightRoomModeGuestPolicy, 'should reach the guest policy right after the cards');
-    await keyboard.press('Tab');
-    await expectFocused(e.preFlightRoomModeJoinMuted, 'should reach join muted next');
-    await keyboard.press('Space');
-    await expectSwitch(this.modPage, e.preFlightRoomModeJoinMuted, false, 'should toggle a switch with the keyboard');
-    await keyboard.press('Tab');
-    await expectFocused(e.preFlightRoomModePublicChat, 'should reach public chat next');
-    await keyboard.press('Tab');
-    await expectFocused(e.preFlightRoomModePresenterPolicy, 'should reach who can present next');
-
-    // The menu opens on the current value: one step down is the next policy.
-    await keyboard.press('Enter');
-    await this.modPage.hasElement(
-      `${e.selectMenuItem}[data-value="requireApproval"]`,
-      'should open the select with the keyboard',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
-    await keyboard.press('ArrowDown');
-    await keyboard.press('Enter');
-    await expectSelectValue(
-      this.modPage,
-      e.preFlightRoomModePresenterPolicy,
-      'freeForAll',
-      'should pick an option with the arrow keys',
-    );
-
-    await expectFocused(e.preFlightRoomModePresenterPolicy, 'should give the focus back to the select');
-    await keyboard.press('Tab');
-    await expectFocused(e.preFlightRoomModeWhiteboard, 'should reach the whiteboard last');
   }
 }

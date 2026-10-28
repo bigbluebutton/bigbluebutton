@@ -1,4 +1,4 @@
-import { expect, Page as PlaywrightPage, ViewportSize } from '@playwright/test';
+import { expect, Page as PlaywrightPage, test, ViewportSize } from '@playwright/test';
 
 import { Create } from '../breakout/create';
 import {
@@ -11,7 +11,13 @@ import { elements as e } from '../core/elements';
 import { installClientSettingsOverrides, Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
 import { USER_JOIN_OPERATION } from './preFlight';
-import { ensureProbe, expectRoomMode, expectRoomModeStable, RoomMode } from './roomMode';
+import {
+  ensureProbe,
+  expectRoomMode,
+  expectRoomModeRefusedInBreakout,
+  expectRoomModeStable,
+  RoomMode,
+} from './roomMode';
 import {
   NO_LISTEN_ONLY_JOIN_PARAMETER,
   NO_PRE_FLIGHT_INIT_OPTIONS,
@@ -145,60 +151,121 @@ export class RoomModePanel extends RoomMode {
     );
   }
 
-  async showsPanelInUnconfiguredRoom() {
-    await hasPanel(this.modPage);
-    await this.modPage.hasElement(e.preFlightRoomModeClass, 'should offer the class mode');
-    await this.modPage.hasElement(e.preFlightRoomModeMeeting, 'should offer the meeting mode');
-    await this.modPage.hasElement(e.preFlightRoomModeEmptyState, 'should show the empty state until a mode is picked');
-    await this.modPage.hasElement(e.preFlightRoomModeIllustration, 'should illustrate the empty state');
-    await expectSelected(this.modPage, null);
-    // Starting without a mode is allowed: the button never waits on a pick.
-    await this.modPage.hasElementEnabled(e.preFlightJoinButton, 'should let the moderator start without a mode');
-    expect(
-      await this.modPage.checkElement(e.preFlightRoomModeCancelButton),
-      'should not offer to cancel a selection before there is one',
-    ).toBeFalsy();
+  // A later step of a test starts on a room of its own, from a new page.
+  async newPageForNextRoom() {
+    await this.modPage.page.close();
+    return this.context.newPage();
   }
 
-  async picksAndClearsMode() {
-    await hasPanel(this.modPage);
+  async usesPanelInUnconfiguredRoom() {
+    await test.step('Moderator sees the panel in a room with no mode', async () => {
+      await hasPanel(this.modPage);
+      await this.modPage.hasElement(e.preFlightRoomModeClass, 'should offer the class mode');
+      await this.modPage.hasElement(e.preFlightRoomModeMeeting, 'should offer the meeting mode');
+      await this.modPage.hasElement(
+        e.preFlightRoomModeEmptyState,
+        'should show the empty state until a mode is picked',
+      );
+      await this.modPage.hasElement(e.preFlightRoomModeIllustration, 'should illustrate the empty state');
+      await expectSelected(this.modPage, null);
+      // Starting without a mode is allowed: the button never waits on a pick.
+      await this.modPage.hasElementEnabled(e.preFlightJoinButton, 'should let the moderator start without a mode');
+      expect(
+        await this.modPage.checkElement(e.preFlightRoomModeCancelButton),
+        'should not offer to cancel a selection before there is one',
+      ).toBeFalsy();
+    });
 
-    await this.modPage.waitAndClick(e.preFlightRoomModeClass);
-    await expectSelected(this.modPage, e.preFlightRoomModeClass);
-    await this.modPage.hasElement(e.preFlightRoomModeSelected, 'should show the picked mode beside the cards');
-    await this.modPage.wasRemoved(e.preFlightRoomModeEmptyState, 'should replace the empty state with the picked mode');
-    await this.modPage.wasRemoved(
-      e.preFlightRoomModeIllustration,
-      'should drop the illustration once a mode is picked',
-    );
+    await test.step('Picks a room mode and cancels it', async () => {
+      await hasPanel(this.modPage);
 
-    await this.modPage.waitAndClick(e.preFlightRoomModeMeeting);
-    await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
+      await this.modPage.waitAndClick(e.preFlightRoomModeClass);
+      await expectSelected(this.modPage, e.preFlightRoomModeClass);
+      await this.modPage.hasElement(e.preFlightRoomModeSelected, 'should show the picked mode beside the cards');
+      await this.modPage.wasRemoved(
+        e.preFlightRoomModeEmptyState,
+        'should replace the empty state with the picked mode',
+      );
+      await this.modPage.wasRemoved(
+        e.preFlightRoomModeIllustration,
+        'should drop the illustration once a mode is picked',
+      );
 
-    await this.modPage.waitAndClick(e.preFlightRoomModeCancelButton);
-    await expectSelected(this.modPage, null);
-    // Cancel goes away with the selection: focus lands on the cards' tab stop,
-    // not on the page.
-    await expect(
-      this.modPage.page.locator(e.preFlightRoomModeClass),
-      'should move the focus to the first mode once the selection is cleared',
-    ).toBeFocused();
-    await this.modPage.hasElement(e.preFlightRoomModeEmptyState, 'should go back to the empty state on cancel');
-    await this.modPage.wasRemoved(
-      e.preFlightRoomModeCancelButton,
-      'should drop the cancel button once nothing is selected',
-    );
-    await this.modPage.hasElement(e.preFlightRoomModePanel, 'should keep the moderator on the panel after cancelling');
+      await this.modPage.waitAndClick(e.preFlightRoomModeMeeting);
+      await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
+
+      await this.modPage.waitAndClick(e.preFlightRoomModeCancelButton);
+      await expectSelected(this.modPage, null);
+      // Cancel goes away with the selection: focus lands on the cards' tab stop,
+      // not on the page.
+      await expect(
+        this.modPage.page.locator(e.preFlightRoomModeClass),
+        'should move the focus to the first mode once the selection is cleared',
+      ).toBeFocused();
+      await this.modPage.hasElement(e.preFlightRoomModeEmptyState, 'should go back to the empty state on cancel');
+      await this.modPage.wasRemoved(
+        e.preFlightRoomModeCancelButton,
+        'should drop the cancel button once nothing is selected',
+      );
+      await this.modPage.hasElement(
+        e.preFlightRoomModePanel,
+        'should keep the moderator on the panel after cancelling',
+      );
+    });
+
+    // The cards are one radio group: the arrows move between the modes and wrap
+    // around.
+    await test.step('Moves between room modes with the arrow keys', async () => {
+      await hasPanel(this.modPage);
+      await this.modPage.page.locator(e.preFlightRoomModeClass).focus();
+
+      await this.modPage.page.keyboard.press('ArrowDown');
+      await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
+      await expect(
+        this.modPage.page.locator(e.preFlightRoomModeMeeting),
+        'should move the focus with the selection',
+      ).toBeFocused();
+
+      await this.modPage.page.keyboard.press('ArrowDown');
+      await expectSelected(this.modPage, e.preFlightRoomModeClass);
+      await expect(
+        this.modPage.page.locator(e.preFlightRoomModeClass),
+        'should wrap around to the first mode',
+      ).toBeFocused();
+
+      await this.modPage.page.keyboard.press('ArrowUp');
+      await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
+    });
   }
 
-  async viewerNeverSeesPanel() {
-    await this.initUserPage(this.context, ROOM_MODE_PANEL_INIT_OPTIONS);
-    await this.userPage.hasElement(
-      e.preFlight,
-      'should display the pre-flight screen to the viewer',
-      ELEMENT_WAIT_EXTRA_LONG_TIME,
-    );
-    await hasNoPanel(this.userPage, 'should never display the room mode panel to a viewer');
+  async hidesPanelFromViewerAndConfiguredRoom() {
+    await test.step('Viewer never sees the panel', async () => {
+      await this.initUserPage(this.context, ROOM_MODE_PANEL_INIT_OPTIONS);
+      await this.userPage.hasElement(
+        e.preFlight,
+        'should display the pre-flight screen to the viewer',
+        ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+      await hasNoPanel(this.userPage, 'should never display the room mode panel to a viewer');
+    });
+
+    await test.step('No panel in a room that already has a mode', async () => {
+      await ensureProbe(this.modPage);
+      await this.setByModerator('class');
+      await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the first moderator');
+
+      await this.initModPage2(this.context, ROOM_MODE_PANEL_INIT_OPTIONS);
+      await this.modPage2.hasElement(
+        e.preFlight,
+        'should display the pre-flight screen to the second moderator',
+        ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+      expect(
+        await readRoomModePanelSetting(this.modPage2.page),
+        'should have the room mode panel turned on for the second moderator',
+      ).toBe(true);
+      await hasNoPanel(this.modPage2, 'should not display the room mode panel in a room that already has a mode');
+    });
   }
 
   // On a tablet only the panel turns the screen into tabs: a viewer keeps the
@@ -227,24 +294,6 @@ export class RoomModePanel extends RoomMode {
     ).toBeVisible();
   }
 
-  async noPanelInConfiguredRoom() {
-    await ensureProbe(this.modPage);
-    await this.setByModerator('class');
-    await expectRoomMode(this.modPage, 'class', 'should store the room mode set by the first moderator');
-
-    await this.initModPage2(this.context, ROOM_MODE_PANEL_INIT_OPTIONS);
-    await this.modPage2.hasElement(
-      e.preFlight,
-      'should display the pre-flight screen to the second moderator',
-      ELEMENT_WAIT_EXTRA_LONG_TIME,
-    );
-    expect(
-      await readRoomModePanelSetting(this.modPage2.page),
-      'should have the room mode panel turned on for the second moderator',
-    ).toBe(true);
-    await hasNoPanel(this.modPage2, 'should not display the room mode panel in a room that already has a mode');
-  }
-
   async startsWithoutMode() {
     await ensureProbe(this.modPage);
     await hasPanel(this.modPage);
@@ -254,14 +303,16 @@ export class RoomModePanel extends RoomMode {
     await expectRoomModeStable(this.modPage, '', 'should leave the room unconfigured when started without a mode');
   }
 
-  async panelsBecomeTabsOnPhone(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.panelsBecomeTabs(page, PHONE_VIEWPORT, 'a phone', options);
-  }
+  async panelsBecomeTabsOnPhoneAndTablet(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    await test.step('Panels become tabs on a phone', async () => {
+      await this.panelsBecomeTabs(page, PHONE_VIEWPORT, 'a phone', options);
+    });
 
-  // A tablet has no room for the panels side by side: with the panel up, the
-  // pre-flight lays out as on a phone.
-  async panelsBecomeTabsOnTablet(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await this.panelsBecomeTabs(page, TABLET_VIEWPORT, 'a tablet', options);
+    // A tablet has no room for the panels side by side: with the panel up, the
+    // pre-flight lays out as on a phone.
+    await test.step('Turns the panels into tabs on a tablet', async () => {
+      await this.panelsBecomeTabs(await this.newPageForNextRoom(), TABLET_VIEWPORT, 'a tablet', options);
+    });
   }
 
   private async panelsBecomeTabs(
@@ -347,56 +398,42 @@ export class RoomModePanel extends RoomMode {
   // Breakouts carry no pre-flight at all. The overrides go on the whole context,
   // the only way they reach the tab the client opens for the room; the attendee
   // gets a context of its own, without them.
-  async noPanelInBreakout(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await page.context().addInitScript(installClientSettingsOverrides, ROOM_MODE_PANEL_SETTINGS_OVERRIDE);
-    await page.context().addInitScript(watchForPreFlight);
-    await this.initModPageWithPanel(page, { ...options, clientSettingsOverrides: undefined });
-    await hasPanel(this.modPage);
-    expect(
-      await page.evaluate(() => window.preFlightSeen),
-      'should flag the pre-flight where it does show (positive control)',
-    ).toBe(true);
-    await startsRoom(this.modPage);
+  async noPanelNorModeInBreakout(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    let breakoutTab: PlaywrightPage | undefined;
+    await test.step('No panel in a breakout room', async () => {
+      await page.context().addInitScript(installClientSettingsOverrides, ROOM_MODE_PANEL_SETTINGS_OVERRIDE);
+      await page.context().addInitScript(watchForPreFlight);
+      await this.initModPageWithPanel(page, { ...options, clientSettingsOverrides: undefined });
+      await hasPanel(this.modPage);
+      expect(
+        await page.evaluate(() => window.preFlightSeen),
+        'should flag the pre-flight where it does show (positive control)',
+      ).toBe(true);
+      await startsRoom(this.modPage);
 
-    await this.initUserPage(await this.browser.newContext(), NO_PRE_FLIGHT_INIT_OPTIONS);
+      await this.initUserPage(await this.browser.newContext(), NO_PRE_FLIGHT_INIT_OPTIONS);
 
-    const breakout = new Create(this.browser, this.context);
-    breakout.modPage = this.modPage;
-    breakout.userPage = this.userPage;
-    const breakoutTab = await breakout.joinAssignedBreakoutAsModerator();
+      const breakout = new Create(this.browser, this.context);
+      breakout.modPage = this.modPage;
+      breakout.userPage = this.userPage;
+      breakoutTab = await breakout.joinAssignedBreakoutAsModerator();
 
-    expect(
-      await readRoomModePanelSetting(breakoutTab),
-      'should carry the room mode panel setting into the breakout room tab',
-    ).toBe(true);
-    expect(
-      await breakoutTab.evaluate(() => window.preFlightSeen),
-      'should never display the pre-flight, nor its room mode panel, in a breakout room',
-    ).toBe(false);
-  }
+      expect(
+        await readRoomModePanelSetting(breakoutTab),
+        'should carry the room mode panel setting into the breakout room tab',
+      ).toBe(true);
+      expect(
+        await breakoutTab.evaluate(() => window.preFlightSeen),
+        'should never display the pre-flight, nor its room mode panel, in a breakout room',
+      ).toBe(false);
+    });
 
-  // The cards are one radio group: the arrows move between the modes and wrap
-  // around.
-  async movesBetweenModesWithArrows() {
-    await hasPanel(this.modPage);
-    await this.modPage.page.locator(e.preFlightRoomModeClass).focus();
-
-    await this.modPage.page.keyboard.press('ArrowDown');
-    await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
-    await expect(
-      this.modPage.page.locator(e.preFlightRoomModeMeeting),
-      'should move the focus with the selection',
-    ).toBeFocused();
-
-    await this.modPage.page.keyboard.press('ArrowDown');
-    await expectSelected(this.modPage, e.preFlightRoomModeClass);
-    await expect(
-      this.modPage.page.locator(e.preFlightRoomModeClass),
-      'should wrap around to the first mode',
-    ).toBeFocused();
-
-    await this.modPage.page.keyboard.press('ArrowUp');
-    await expectSelected(this.modPage, e.preFlightRoomModeMeeting);
+    await test.step('Room mode cannot be set in a breakout room', async () => {
+      if (!breakoutTab) throw new Error('the breakout room tab did not open');
+      const breakoutPage = new Page(this.browser, breakoutTab);
+      await ensureProbe(breakoutPage);
+      await expectRoomModeRefusedInBreakout(breakoutPage);
+    });
   }
 
   // Crossing the tabs' breakpoints, as a rotation can, only turns the tabs on or
@@ -492,51 +529,58 @@ export class RoomModePanel extends RoomMode {
     ).toHaveCount(0);
   }
 
-  // A phone pins the actions to the bottom of the screen, so the join's notices
-  // belong to the header there.
-  async showsJoinNoticesOnPhone(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await page.setViewportSize(PHONE_VIEWPORT);
-    await page.addInitScript(refuseDevices, { audio: true, video: false });
-    await this.initModPageWithPanel(page, { joinParameter: NO_LISTEN_ONLY_JOIN_PARAMETER, ...options });
+  async showsJoinNoticesOnDesktopAndPhone(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
+    // On a desktop the panel takes the join step's place, so the join's notices
+    // move to the panel's footer, beside the start button.
+    await test.step('Shows the join notices in the panel footer', async () => {
+      await page.setViewportSize(DESKTOP_VIEWPORT);
+      await page.addInitScript(refuseDevices, { audio: true, video: false });
+      await this.initModPageWithPanel(page, { joinParameter: NO_LISTEN_ONLY_JOIN_PARAMETER, ...options });
 
-    await this.modPage.hasElement(
-      e.preFlightDevicePermission,
-      'should display the device permission screen for the refused microphone',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
-    await this.modPage.waitAndClick(e.preFlightWithoutMicrophoneButton);
-    // The case only holds with the panel up: without it the notices are in the
-    // header anyway.
-    await this.modPage.hasElement(e.preFlightRoomModeTab, 'should display the room mode panel as a tab on a phone');
-    await this.modPage.hasElement(e.preFlightJoiningWithoutAudio, 'should say the join carries no audio');
-    await this.modPage.page.locator(e.preFlightJoiningWithoutAudio).scrollIntoViewIfNeeded();
-    expect(
-      await isUncovered(this.modPage, e.preFlightJoiningWithoutAudio),
-      'should keep the notice clear of the pinned start button',
-    ).toBe(true);
-    expect(await this.modPage.getSelectorCount(e.preFlightJoiningWithoutAudio), 'should show the notice once').toBe(1);
-  }
+      await this.modPage.hasElement(
+        e.preFlightDevicePermission,
+        'should display the device permission screen for the refused microphone',
+        ELEMENT_WAIT_LONGER_TIME,
+      );
+      await this.modPage.waitAndClick(e.preFlightWithoutMicrophoneButton);
+      await hasPanel(this.modPage);
+      await this.modPage.hasElement(e.preFlightJoiningWithoutAudio, 'should say the join carries no audio');
+      expect(
+        await isUncovered(this.modPage, e.preFlightJoiningWithoutAudio),
+        'should show the notice where it can be seen',
+      ).toBe(true);
+      expect(await this.modPage.getSelectorCount(e.preFlightJoiningWithoutAudio), 'should show the notice once').toBe(
+        1,
+      );
+    });
 
-  // On a desktop the panel takes the join step's place, so the join's notices
-  // move to the panel's footer, beside the start button.
-  async showsJoinNoticesInPanelFooter(page: PlaywrightPage, options: InitExtraPageOptionsProps = {}) {
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await page.addInitScript(refuseDevices, { audio: true, video: false });
-    await this.initModPageWithPanel(page, { joinParameter: NO_LISTEN_ONLY_JOIN_PARAMETER, ...options });
+    // A phone pins the actions to the bottom of the screen, so the join's notices
+    // belong to the header there.
+    await test.step('Keeps the join notices visible on a phone', async () => {
+      const phonePage = await this.newPageForNextRoom();
+      await phonePage.setViewportSize(PHONE_VIEWPORT);
+      await phonePage.addInitScript(refuseDevices, { audio: true, video: false });
+      await this.initModPageWithPanel(phonePage, { joinParameter: NO_LISTEN_ONLY_JOIN_PARAMETER, ...options });
 
-    await this.modPage.hasElement(
-      e.preFlightDevicePermission,
-      'should display the device permission screen for the refused microphone',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
-    await this.modPage.waitAndClick(e.preFlightWithoutMicrophoneButton);
-    await hasPanel(this.modPage);
-    await this.modPage.hasElement(e.preFlightJoiningWithoutAudio, 'should say the join carries no audio');
-    expect(
-      await isUncovered(this.modPage, e.preFlightJoiningWithoutAudio),
-      'should show the notice where it can be seen',
-    ).toBe(true);
-    expect(await this.modPage.getSelectorCount(e.preFlightJoiningWithoutAudio), 'should show the notice once').toBe(1);
+      await this.modPage.hasElement(
+        e.preFlightDevicePermission,
+        'should display the device permission screen for the refused microphone',
+        ELEMENT_WAIT_LONGER_TIME,
+      );
+      await this.modPage.waitAndClick(e.preFlightWithoutMicrophoneButton);
+      // The case only holds with the panel up: without it the notices are in the
+      // header anyway.
+      await this.modPage.hasElement(e.preFlightRoomModeTab, 'should display the room mode panel as a tab on a phone');
+      await this.modPage.hasElement(e.preFlightJoiningWithoutAudio, 'should say the join carries no audio');
+      await this.modPage.page.locator(e.preFlightJoiningWithoutAudio).scrollIntoViewIfNeeded();
+      expect(
+        await isUncovered(this.modPage, e.preFlightJoiningWithoutAudio),
+        'should keep the notice clear of the pinned start button',
+      ).toBe(true);
+      expect(await this.modPage.getSelectorCount(e.preFlightJoiningWithoutAudio), 'should show the notice once').toBe(
+        1,
+      );
+    });
   }
 
   // Bots never get the pre-flight, so they never get the panel either.
