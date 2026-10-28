@@ -217,8 +217,18 @@ class PresentationController {
       } else {
         log.debug "NO SUCCESS \n"
 
-        //Send upload error message
+        // An unknown or already used token is refused as such: there is no upload to report a
+        // file size error on, and without x-file-too-large nginx answers 403 rather than 413.
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
+        if (presUploadToken == null) {
+          response.setStatus(403);
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'text/plain'
+          response.outputStream << 'invalid auth token';
+          return;
+        }
+
+        //Send upload error message
         meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
 
         response.setStatus(403);
