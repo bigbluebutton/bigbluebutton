@@ -43,7 +43,7 @@ object Dependencies {
     val scalaTest = "3.2.11"
     val mockito = "2.23.0"
     val akkaTestKit = "2.6.0"
-    val jacksonDataFormat = "2.22.1"
+    val jacksonDataFormat = "2.22.4"
   }
 
   object Compile {
