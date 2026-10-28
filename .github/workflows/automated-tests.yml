@@ -367,7 +367,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
@@ -557,7 +557,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json') }}
       - name: Plugins SDK - Install node dependencies
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
@@ -735,7 +735,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
