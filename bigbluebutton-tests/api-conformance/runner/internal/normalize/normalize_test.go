@@ -228,6 +228,46 @@ $.list []
 $.obj {}`)
 }
 
+// getSessions names meetings by internal ID only. A case's view keeps the
+// sessions of the meetings it created, sorted, and reads the same whatever
+// else is running.
+func TestGetSessionsOwnView(t *testing.T) {
+	uid := "bbbc-u5"
+	s := func(meetingID, user string) string {
+		return `<meeting><meetingID>` + meetingID + `</meetingID><meetingName>N</meetingName><userName>` + user + `</userName></meeting>`
+	}
+	own := sha(uid) + "-1760000000001"
+	other := sha("bbbc-other") + "-1760000000002"
+	a := Response(obs(200, nil, `<response><returncode>SUCCESS</returncode><sessions>`+
+		s(own, "Bob")+s(other, "Eve")+s(own, "Ann")+`</sessions></response>`), ctx(uid), Default())
+	b := Response(obs(200, nil, `<response><returncode>SUCCESS</returncode><sessions>`+
+		s(own, "Ann")+s(own, "Bob")+`</sessions></response>`), ctx(uid), Default())
+	check(t, a, strings.Join(b, "\n"))
+	check(t, a, `
+status 200
+body xml
+/response/returncode "SUCCESS"
+/response/sessions/meeting/meetingID "<sha1(meetingID)>-<time>"
+/response/sessions/meeting/meetingName "N"
+/response/sessions/meeting/userName "Ann"
+/response/sessions/meeting/meetingID "<sha1(meetingID)>-<time>"
+/response/sessions/meeting/meetingName "N"
+/response/sessions/meeting/userName "Bob"`)
+
+	// With none of its own, a case reads the same whether the server has
+	// other sessions or none.
+	none := Response(obs(200, nil, `<response><returncode>SUCCESS</returncode><sessions/>`+
+		`<messageKey>noSessions</messageKey><message>no sessions were found on this server</message></response>`), ctx(uid), Default())
+	others := Response(obs(200, nil, `<response><returncode>SUCCESS</returncode><sessions>`+
+		s(other, "Eve")+`</sessions></response>`), ctx(uid), Default())
+	check(t, others, strings.Join(none, "\n"))
+	check(t, none, `
+status 200
+body xml
+/response/returncode "SUCCESS"
+/response/sessions`)
+}
+
 func TestOtherBodies(t *testing.T) {
 	c := ctx("bbbc-u0u0u0")
 	check(t, Response(obs(500, map[string]string{"Content-Type": "text/html"}, "<html><head><title>HTTP Status 500 – Internal Server Error</title></head></html>"), c, Default()), `

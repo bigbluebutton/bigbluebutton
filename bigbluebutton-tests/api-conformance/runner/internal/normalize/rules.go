@@ -49,7 +49,8 @@ type Unordered struct {
 }
 
 // Scope drops the repeated nodes a path names whose Key value doesn't
-// contain the case's ${uid}: getMeetings lists every meeting on the server.
+// contain the case's ${uid} and isn't the internal ID of a meeting whose ID
+// does: getMeetings and getSessions list every meeting on the server.
 type Scope struct {
 	Path string `yaml:"path"`
 	Key  string `yaml:"key"`
@@ -127,19 +128,25 @@ func Default() *Rules {
 			{Path: "recordings/recording", Key: "recordID"},
 			{Path: "metadata/*", Key: "#name"},
 			{Path: "attendees/attendee", Key: "userID"},
+			{Path: "sessions/meeting", Key: ""},
 			{Path: "stunServers[]", Key: ""},
 			{Path: "turnServers[]", Key: ""},
 			{Path: "remoteIceCandidates[]", Key: ""},
 		},
 		Scope: []Scope{
 			{Path: "meetings/meeting", Key: "meetingID"},
+			// getSessions names a session's meeting by its internal ID.
+			{Path: "sessions/meeting", Key: "meetingID"},
 		},
 		// getMeetings says noMeetings only when the whole server has none,
-		// which other cases decide. A case's own view is its scoped list.
-		// Unanchored, like the scope rule, so they match XML and JSON.
+		// which other cases decide, and getSessions noSessions likewise. A
+		// case's own view is its scoped list. Unanchored, like the scope
+		// rule, so they match XML and JSON.
 		Drop: []Drop{
 			{Path: "response/messageKey", Value: "noMeetings"},
 			{Path: "response/message", Value: "no meetings were found on this server"},
+			{Path: "response/messageKey", Value: "noSessions"},
+			{Path: "response/message", Value: "no sessions were found on this server"},
 		},
 	}
 	if err := r.compile(); err != nil {
@@ -304,11 +311,20 @@ func isHex(s string) bool {
 
 // preimage names the sent param whose SHA-1 is sum, or "?".
 func (c *Context) preimage(sum string) string {
-	for v, name := range c.Sent {
-		h := sha1.Sum([]byte(v))
-		if hex.EncodeToString(h[:]) == sum {
-			return name
-		}
+	if _, name := c.sentWithSHA1(sum); name != "" {
+		return name
 	}
 	return "?"
+}
+
+// sentWithSHA1 returns the sent value whose SHA-1 is sum and the param that
+// carried it, or two empty strings.
+func (c *Context) sentWithSHA1(sum string) (value, name string) {
+	for v, n := range c.Sent {
+		h := sha1.Sum([]byte(v))
+		if hex.EncodeToString(h[:]) == sum {
+			return v, n
+		}
+	}
+	return "", ""
 }

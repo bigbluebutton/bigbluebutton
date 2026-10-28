@@ -364,8 +364,8 @@ missing or extra elements, tag casing, element order, status codes,
 Content-Type, error formats.
 
 - **Running:** each side gets its own `${uid}`s, since both targets may share
-  one akka-apps. getMeetings lists every meeting on the server, but
-  normalization keeps only the case's own (see below).
+  one akka-apps. getMeetings and getSessions list every meeting on the
+  server, but normalization keeps only the case's own (see below).
 - **Checks don't stop a case** in diff mode, so later steps still run;
   captures still feed them. A capture that finds nothing does stop it.
 - **What isn't compared:** teardown steps, and any step with `golden: off`.
@@ -436,8 +436,11 @@ After masking:
   reads like an empty one. getMeetings' `noMeetings` messageKey and message
   are dropped too, since they depend on whether any other case has a meeting:
   check them with `expect`, which sees the raw response;
-- lists whose order isn't defined are sorted: meetings, recordings, metadata,
-  attendees, STUN and TURN servers.
+- getSessions likewise: it names a session's meeting by its internal ID, so
+  a session is the case's own when that ID is the SHA-1 of a meetingID the
+  case sent. Its `noSessions` messageKey and message are dropped;
+- lists whose order isn't defined are sorted: meetings, sessions,
+  recordings, metadata, attendees, STUN and TURN servers.
 
 What a `presence`, `graphql`, `bus`, `fs` or `redis` step returns is a JSON
 document, not a response: it becomes the document's lines alone, normalized

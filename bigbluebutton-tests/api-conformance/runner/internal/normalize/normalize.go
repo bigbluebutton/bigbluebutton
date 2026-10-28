@@ -333,11 +333,25 @@ func (c *Context) scope(root *node, r *Rules) {
 	}
 	walk(root, func(n *node) {
 		for _, s := range r.Scope {
-			if n.ruleMatch(s.re) && !strings.Contains(keyOf(n, s.Key), c.UID) {
+			if n.ruleMatch(s.re) && !c.owns(keyOf(n, s.Key)) {
 				n.drop = true
 			}
 		}
 	})
+}
+
+// owns tells whether a scope key is the case's: it contains the case's
+// ${uid}, or it is the internal ID of a meeting the case created, which is
+// how getSessions names meetings.
+func (c *Context) owns(key string) bool {
+	if strings.Contains(key, c.UID) {
+		return true
+	}
+	if g := internalIDRe.FindStringSubmatch(key); g != nil {
+		v, _ := c.sentWithSHA1(g[1])
+		return strings.Contains(v, c.UID)
+	}
+	return false
 }
 
 // drop drops the nodes a drop rule names. It runs on raw values.
