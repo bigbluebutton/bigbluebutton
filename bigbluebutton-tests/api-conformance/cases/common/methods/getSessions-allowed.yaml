@@ -2,17 +2,17 @@
 # The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
 # deterministic request, which gets the endpoint's own answer rather than the fallback
 # an unmapped method gets: expect pins that answer, the recording the rest.
-# A bad checksum: a valid call would list every session on the server, and the fallback doesn't check checksums.
 id: getSessions.method.allowed
 title: getSessions answers ${method} with its own handler
 endpoint: getSessions
 class: contract
-tags: [ci]
+# Runs alone (serial): the answer lists the server's sessions, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
 variants:
   - {id: get, vars: {method: GET}}
   - {id: post, vars: {method: POST}}
 steps:
   - call: getSessions
     method: "${method}"
-    sign: bad
-    expect: {returncode: FAILED, messageKey: checksumError}
+    expect: {returncode: SUCCESS, xpath: {/response/sessions: {exists: true}}}

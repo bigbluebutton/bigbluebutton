@@ -12,4 +12,8 @@ variants:
 steps:
   - call: isMeetingRunning
     params: {meetingID: "${meetingID}"}
-    expect: {returncode: FAILED, messageKey: "${key}", message: "${message}"}
+    expect:
+      returncode: FAILED
+      messageKey: "${key}"
+      message: "${message}"
+      xpath: {/response/running: {absent: true}}

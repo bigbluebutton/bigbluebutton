@@ -7,8 +7,8 @@ endpoint: isMeetingRunning
 class: contract
 tags: [ci]
 defs:
-  rejected: &rejected {returncode: FAILED, key: sizeError, message: Meeting ID must be between 2 and 256 characters, running: null}
-  answered: &answered {returncode: SUCCESS, key: null, message: null, running: "false"}
+  rejected: &rejected {returncode: FAILED, key: sizeError, message: Meeting ID must be between 2 and 256 characters, running: null, runningCount: "0"}
+  answered: &answered {returncode: SUCCESS, key: null, message: null, running: "false", runningCount: "1"}
 variants:
   - {id: too-short, vars: {<<: *rejected, len: 1}}
   - {id: shortest, vars: {<<: *answered, len: 2}}
@@ -21,4 +21,6 @@ steps:
       returncode: "${returncode}"
       messageKey: "${key}"
       message: "${message}"
-      xpath: {/response/running: "${running}"}
+      xpath:
+        count(/response/running): "${runningCount}"
+        /response/running: "${running}"

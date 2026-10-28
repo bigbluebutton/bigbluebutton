@@ -7,6 +7,5 @@ status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8
 body xml
-/response/returncode "FAILED"
-/response/messageKey "checksumError"
-/response/message "<missing-checksum message>"
+/response/returncode "SUCCESS"
+/response/sessions
