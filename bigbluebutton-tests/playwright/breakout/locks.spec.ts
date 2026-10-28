@@ -55,6 +55,25 @@ test.describe.parallel('Breakout lock settings', { tag: '@ci' }, () => {
     await locks.locksAppliedInRoomBindAttendee(true);
   });
 
+  // Suspected product issue: without inheritance CreateBreakoutRoomsCmdMsgHdlr.scala:104 sends lockOnJoin=false,
+  // so the attendee joins the room unlocked (HandlerHelpers.scala:97, locked = lockOnJoin). Locks bind only locked
+  // viewers (LockSettingsUtil.scala:96,102, SendGroupChatMessageMsgHdlr.scala:61; in the client
+  // chat-message-form/component.tsx:821-830 and video-provider/hooks/index.ts:156), and
+  // ChangeLockSettingsInMeetingCmdMsgHdlr never locks the users already in the room. The server also accepts the
+  // attendee's public chat messages there.
+  test(
+    'Locks the moderator applies in a room without inheritance bind the attendee',
+    { tag: '@known-issue' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(26275);
+      const locks = new BreakoutLocks(browser, context);
+      await locks.initPages(page, testInfo);
+      await locks.locksAppliedInRoomBindAttendee(false);
+    },
+  );
+});
+
+test.describe.parallel('Breakout lock settings (nightly)', { tag: '@nightly' }, () => {
   test(
     'See other viewers webcams is enforced in a room that inherited it',
     { tag: '@media' },
@@ -76,23 +95,6 @@ test.describe.parallel('Breakout lock settings', { tag: '@ci' }, () => {
       await locks.initUserPage(context, { testInfo });
       await locks.initUserPage2(context, { testInfo });
       await locks.otherViewersWebcamsInRoom(false);
-    },
-  );
-
-  // Suspected product issue: without inheritance CreateBreakoutRoomsCmdMsgHdlr.scala:104 sends lockOnJoin=false,
-  // so the attendee joins the room unlocked (HandlerHelpers.scala:97, locked = lockOnJoin). Locks bind only locked
-  // viewers (LockSettingsUtil.scala:96,102, SendGroupChatMessageMsgHdlr.scala:61; in the client
-  // chat-message-form/component.tsx:821-830 and video-provider/hooks/index.ts:156), and
-  // ChangeLockSettingsInMeetingCmdMsgHdlr never locks the users already in the room. The server also accepts the
-  // attendee's public chat messages there.
-  test(
-    'Locks the moderator applies in a room without inheritance bind the attendee',
-    { tag: '@known-issue' },
-    async ({ browser, context, page }, testInfo) => {
-      linkIssue(26275);
-      const locks = new BreakoutLocks(browser, context);
-      await locks.initPages(page, testInfo);
-      await locks.locksAppliedInRoomBindAttendee(false);
     },
   );
 });

@@ -51,33 +51,10 @@ test.describe.parallel('Breakout inheritance', { tag: '@ci' }, () => {
     },
   );
 
-  test('Rooms give every attendee the whiteboard tools', async ({ browser, context, page }, testInfo) => {
-    const inheritance = new Inheritance(browser, context);
-    await inheritance.initModPage(page, { testInfo });
-    await inheritance.initUserPage(context, { testInfo });
-    await inheritance.initUserPage2(context, { testInfo });
-    await inheritance.multiUserWhiteboardOnInRooms();
-  });
-
   test('A room shows the slide its parent is on as its only page', async ({ browser, context, page }, testInfo) => {
     const inheritance = new Inheritance(browser, context);
     await inheritance.initPages(page, testInfo);
     await inheritance.roomShowsTheParentSlide();
-  });
-
-  test('Rooms ask for recording consent when the parent has notifyRecordingIsOn', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const inheritance = new Inheritance(browser, context);
-    await inheritance.initModPage(page, {
-      createParameter: 'record=true&breakoutRoomsRecord=true&notifyRecordingIsOn=true',
-      clientSettingsOverrides: { public: { app: { breakouts: { offerRecordingForBreakouts: true } } } },
-      testInfo,
-    });
-    await inheritance.initUserPage(context, { testInfo });
-    await inheritance.recordingConsentInRooms();
   });
 
   test('Rooms let a guest of an ASK_MODERATOR parent in without a lobby', async ({
@@ -115,5 +92,30 @@ test.describe.parallel('Breakout inheritance', { tag: '@ci' }, () => {
         await inheritance.webcamOnDefaultBridge();
       },
     );
+  });
+});
+
+test.describe.parallel('Breakout inheritance (nightly)', { tag: '@nightly' }, () => {
+  test('Rooms give every attendee the whiteboard tools', async ({ browser, context, page }, testInfo) => {
+    const inheritance = new Inheritance(browser, context);
+    await inheritance.initModPage(page, { testInfo });
+    await inheritance.initUserPage(context, { testInfo });
+    await inheritance.initUserPage2(context, { testInfo });
+    await inheritance.multiUserWhiteboardOnInRooms();
+  });
+
+  test('Rooms ask for recording consent when the parent has notifyRecordingIsOn', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const inheritance = new Inheritance(browser, context);
+    await inheritance.initModPage(page, {
+      createParameter: 'record=true&breakoutRoomsRecord=true&notifyRecordingIsOn=true',
+      clientSettingsOverrides: { public: { app: { breakouts: { offerRecordingForBreakouts: true } } } },
+      testInfo,
+    });
+    await inheritance.initUserPage(context, { testInfo });
+    await inheritance.recordingConsentInRooms();
   });
 });

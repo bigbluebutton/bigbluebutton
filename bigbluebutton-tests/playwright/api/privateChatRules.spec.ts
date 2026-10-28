@@ -30,7 +30,9 @@ test.describe.parallel('Private chat rules on the server', { tag: '@ci' }, () =>
     await rules.initUserPage2(context, { testInfo });
     await rules.privateChatLockUntilUnlocked(lockedSince);
   });
+});
 
+test.describe.parallel('Private chat rules on the server (nightly)', { tag: '@nightly' }, () => {
   test('A private chat lock inherited by a breakout room refuses a chat between attendees in the room', async ({
     browser,
     context,
