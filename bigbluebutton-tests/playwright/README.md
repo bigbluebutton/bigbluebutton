@@ -1,9 +1,11 @@
 <!-- omit from toc -->
+
 ## BigBlueButton Playwright Tests
 
 Tests for BigBlueButton using Playwright.
 
 <!-- omit from toc -->
+
 ## Table of content
 
 - [Setup](#setup)
@@ -38,6 +40,7 @@ To run these tests with an existing BigBlueButton server, you need to find the s
 ### 2. Run tests
 
 - **IMPORTANT**: BBB automated tests rely on the default server config (based on values set in `settings.yml`). Any custom setting may cause false failures.
+- A few tests provision per-meeting client settings server-side through the `clientSettingsOverride` create module (`createClientSettingsOverride` in `Page.init`). bbb-web ignores that module unless `allowOverrideClientSettingsOnCreateCall=true` is set in `/etc/bigbluebutton/bbb-web.properties` (then restart bbb-web); without it those tests fail at join with a message naming the setting. CI enables it in `.github/actions/install-bbb`.
 - Node 24 recommended: it is the version CI runs the suite with (see the root `.nvmrc`).
 
 Tests can be executed using `npx playwright test` or `npm test`. You can run all tests in each of 3 available browsers (`chromium`, `firefox`, `webkit`) (Note: ensure the browser you're interested in is enabled in `playwright.config.ts`) with one of the following commands:
@@ -132,7 +135,13 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@setting-required:<setting>` — needs a non-default server setting
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
-Tests tagged `@nightly` wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. Their tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+
+The initial whiteboard tool tests in `parameters/initialSelectedTool.spec.ts` keep seven representative cases in `@ci`: `draw`, `rectangle`, menu and non-string fallback, a restricted tool list, saved-shape reload, and viewer access. The remaining 42 cases use `@nightly`. Run the file without a tag filter to check all 49 cases:
+
+```bash
+npx playwright test parameters/initialSelectedTool.spec.ts --project=Chromium --workers=2
+```
 
 ## Skip SDK tests without the need of a new release
 
