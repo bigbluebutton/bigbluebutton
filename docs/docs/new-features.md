@@ -251,22 +251,6 @@ Recent releases:
 
 BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-actions`, `bbb-shared-notes-server`, `bbb-export-annotations`, `bbb-webhooks`, `bbb-webrtc-sfu`, `bbb-transcription-controller`) on Node.js 24, the Active LTS line maintained until April 2028. `bbb-install.sh` installs it from NodeSource, and the packages declare a dependency on `nodejs (>= 24) (<< 25)`.
 
-#### Component versions in 4.0.1
-
-BigBlueButton 4.0.1 upgrades the LiveKit stack to livekit-server 1.13.7, livekit-sip 1.17.0 and livekit-client 2.22.3 (from 1.9.12, 1.2.0 and 2.19.0 in 4.0.0), bbb-webrtc-recorder to 0.18.0 (from 0.14.0), bbb-webrtc-sfu to 2.25.0-beta.3 and bbb-playback to 5.4.8. bbb-web's embedded Tomcat moves to 11.0.27 and its Gradle wrapper to 9.8.1. The bundled FreeSWITCH now runs with `rtp-port-usage-robustness` enabled, since it shares the UDP range with livekit-sip, and livekit-sip ships with `rtp_port` set to the default media range, so dial-in no longer needs a port range configured by hand (see [Configure the firewall](/administration/configure-firewall)).
-
-#### Minimum Safari version is 14.1
-
-livekit-client 2.22.3 needs `WeakRef`, which Safari added in 14.1, so BigBlueButton 4.0.1 requires Safari 14.1 or newer: on iOS and iPadOS that is 14.5 or newer, for every browser, since they all run on the system WebKit. Older versions get the unsupported-browser page; see [Supported browsers and minimum versions](/support/troubleshooting#supported-browsers-and-minimum-versions).
-
-#### Password-protected Redis for bbb-graphql-actions
-
-bbb-graphql-actions can now connect to a Redis that requires a password: set `BBB_REDIS_PASSWORD` in `/etc/bigbluebutton/bbb-graphql-actions.env`. The setting of each component is listed under [Using a password-protected Redis](/administration/configuration-files#using-a-password-protected-redis).
-
-#### bbb-transcription-controller 0.4.0 (Gladia v2)
-
-BigBlueButton 4.0.0 ships `bbb-transcription-controller` 0.4.0; the 4.0 release candidates shipped 0.2.10. It uses Gladia's v2 live API and reads the API key from `gladia.key` in `/usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml`. The `x_gladia_key` field of `gladia.startMessage` is no longer read, so a server configured that way stops transcribing. Installing or upgrading the package also replaces `default.yml` with the packaged defaults, which removes the key and the FreeSWITCH password that `bbb-conf --setip` writes there. After upgrading, repeat the steps in [Configuration of gladia.io](/administration/customize#configuration-of-gladiaio). The package works with the FreeSWITCH audio bridge; with the default LiveKit audio bridge, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead.
-
 #### Security response headers from bbb-web
 
 With the move to Grails 8, bbb-web adds four browser security headers to every response it sends:
