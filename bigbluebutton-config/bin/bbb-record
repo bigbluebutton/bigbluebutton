@@ -115,6 +115,10 @@ disabled_formats() {
    local events=$RECORDING_DIR/raw/$id/events.xml
    local disabled_formats
 
+   # Without events.xml (its raw files already cleaned up, say) there is no
+   # opt-out to honour; rap-enqueue.rb and the workers treat it the same way.
+   [[ -e $events ]] || return 0
+
    # Same parsing as BigBlueButton::Events.disabled_recording_formats
    disabled_formats=$(xmlstarlet sel -t -v /recording/metadata/@bbb-disable-recording-formats "$events" 2>/dev/null)
    case $? in
