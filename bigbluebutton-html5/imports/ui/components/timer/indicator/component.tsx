@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
@@ -118,7 +119,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const onClick = running ? stopTimer : startTimer;
 
   return (
-    <Styled.TimerWrapper>
+    <Styled.TimerWrapper
+      className={cx('bbb-timer-indicator', { 'bbb-timer-indicator--running': running })}
+    >
       <Styled.Timer>
         <Styled.TimerButton
           running={running}
