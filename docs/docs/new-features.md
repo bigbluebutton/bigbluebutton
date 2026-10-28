@@ -171,7 +171,7 @@ rtc:
 Each media type defaults to `livekit` and can be pointed at the legacy stack
 instead, per meeting or server-wide:
 - Per meeting: set any of the following meeting `/create` parameters
-  - `audioBridge=bbb-webrtc-sfu` (or `freeswitch`)
+  - `audioBridge=bbb-webrtc-sfu`
   - `cameraBridge=bbb-webrtc-sfu`
   - `screenShareBridge=bbb-webrtc-sfu`
 - Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
@@ -204,17 +204,19 @@ lists.
 
 Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
 - Java 21 (OpenJDK)
-- Grails 7.0.12
-- Gradle 8.14.3
-- Groovy 4.0.21
-- Spring 6.2.11
-- Spring Boot 3.5.16
+- Grails 8.0.0
+- Gradle 9.8.0
+- Groovy 5.1.3
+- Spring Framework 7.0.9
+- Spring Boot 4.1.1
+- Tomcat (embedded) 11.0.26
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 
 Recent releases:
 
+- [4.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0)
 - [4.0.0-rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.5)
 - [4.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.4)
 - [4.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-rc.3)
@@ -231,6 +233,33 @@ Recent releases:
 #### Node.js 24 runtime
 
 BigBlueButton 4.0 runs its Node.js components (`bbb-html5` build, `bbb-graphql-actions`, `bbb-shared-notes-server`, `bbb-export-annotations`, `bbb-webhooks`, `bbb-webrtc-sfu`, `bbb-transcription-controller`) on Node.js 24, the Active LTS line maintained until April 2028. `bbb-install.sh` installs it from NodeSource, and the packages declare a dependency on `nodejs (>= 24) (<< 25)`.
+
+#### Security response headers from bbb-web
+
+With the move to Grails 8, bbb-web adds four browser security headers to every response it sends:
+
+- `X-Frame-Options: SAMEORIGIN`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `X-XSS-Protection: 0`
+
+Joining a meeting is not affected, including from an LMS or any other site that embeds BigBlueButton in a frame: the `join` call answers with a redirect, and the client, slides and recordings are served by nginx, which does not add these headers. What changes is that a page rendered by bbb-web itself, such as an API response, is no longer displayed inside a frame on another site.
+
+To turn a header off, set its `enabled` property to `false` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web (`sudo systemctl restart bbb-web`). For example, to allow bbb-web's own pages in frames on other sites again:
+
+```properties
+grails.security.headers.frame-options.enabled=false
+```
+
+The other three headers are controlled by `grails.security.headers.content-type-options.enabled`, `grails.security.headers.referrer-policy.enabled` and `grails.security.headers.xss-protection.enabled`. `grails.security.headers.enabled=false` turns all four off.
+
+#### Other bbb-web response changes on Grails 8
+
+- A request for a URL under `/bigbluebutton/` that no API call handles is still answered with 404, but the body is JSON instead of the XML `<Map>` document Grails 7 produced.
+- Without a CORS configuration (the default; the cluster-proxy setup configures one), a cross-origin preflight request is answered with 200 and no `Access-Control-*` headers instead of 403, and responses no longer carry `Vary: Origin`. Neither version grants cross-origin access.
+- A request with more than 10000 parameters is answered with an HTTP 500 page by the embedded Tomcat; Tomcat 10.1 ignored the parameters beyond the limit.
+- Sent directly to port 8090 (nginx answers 413 for bodies above 1 MB before that), a form POST larger than Tomcat's 2 MB limit is answered with an HTTP 500 page instead of an API error.
+- If a `systemd` override of `bbb-web.service` replaces `ExecStart`, update it to launch with `-cp .` as the packaged unit does. With the previous classpath (`-cp WEB-INF/lib/*:/:WEB-INF/classes/:.`) bbb-web on Grails 8 never finishes starting and nginx answers 502.
 
 #### Promoted BlockNote shared notes as default
 
@@ -307,7 +336,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 #### Other removed configuration
 
-- `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client-side WebRTC stats logging](#client-side-webrtc-stats-logging)).
+- `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client settings (settings.yml) changes](#client-settings-settingsyml-changes)).
 - `captions` is no longer a valid `disabledFeatures` value. It has had no effect since BBB 3.0, when typed captions moved to a plugin. Use `liveTranscription` to disable automatic transcription.
 
 ### Changes to events.xml
@@ -323,8 +352,11 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="clientLogoutTimerInMinutes" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise. The `bbb-conf --check` retired-property warning only scans `/etc/bigbluebutton/bbb-web.properties`, not `resources.xml`.
 - `enteredUsersTimeout` was removed. It set how long bbb-web tracked users who had called the `/enter` endpoint without joining; that endpoint was removed in BBB 3.0, so nothing has been tracked since. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `enteredUserCleanupTimerTask` bean and the `<property name="enteredUserCleanupTimerTask" .../>` and `<property name="enteredUsersTimeout" .../>` entries - bbb-web will fail to start otherwise.
+- `serviceEnabled` was removed in BBB 4.0.1. It was documented as switching the API off, but its only reader was a Grails 2 controller interceptor that has not run since bbb-web moved to Grails 3 in BBB 2.2, so `serviceEnabled=false` has not disabled the API on any supported release. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
+  - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="serviceEnabled" .../>` entry - bbb-web will fail to start otherwise.
 - `sharedNotesEditor` was removed: BlockNote is the only shared-notes editor (it first became the default in 4.0.0-beta.4; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default) and [Removed Etherpad](#removed-etherpad)). A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored.
   - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="sharedNotesEditor" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise.
+- `accessControlAllowOrigin` was removed in BBB 4.0.1. It was meant to set the `Access-Control-Allow-Origin` header on presentation uploads, but the Grails 2 filter that read it has not run since bbb-web moved to Grails 3 in BBB 2.2, so it had no effect. Cross-origin access to bbb-web is configured with the `grails.cors.*` options, as the [cluster proxy guide](/administration/cluster-proxy#bigbluebutton-servers) shows. A leftover value in `/etc/bigbluebutton/bbb-web.properties` is ignored, and `bbb-conf --check` lists it for removal.
 
 #### Value changed
 
@@ -348,6 +380,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 #### Added
 
 - `public.kurento.pagination.gridEnabled` (default `true`) - whether the camera-less avatar grid (the "webcam grid") is shown while the presentation is minimized. The grid can also be disabled per meeting with `disabledFeatures=webcamGrid`.
+- `public.kurento.pagination.paginationToggleModeratorOnly` (default `false`) - shows the "Video pagination" switch in Settings to moderators only. A user who cannot see the switch, whether because of this setting or `paginationToggleEnabled: false`, always gets the default from `public.app.defaultSettings.application.paginationEnabled`. See [Limit overall media streams](/administration/customize#limit-overall-media-streams).
 - `public.multiFunctionalMode.enabled` (default `false`) - enables the auxiliary/dual sidebar content panel.
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.

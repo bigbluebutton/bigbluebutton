@@ -383,14 +383,14 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, 
   const namesByLastName = userNamesObj.sort(sortUsersByLastName)
     .map((u) => getUsernameString(u)).join('\r\n');
 
-  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}
-    \r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`.replace(/ {2}/g, ' ');
+  const namesListsString = `${docTitle}\r\n\r\n${fnSortedLabel}\r\n${namesByFirstName}`
+    + `\r\n\r\n${lnSortedLabel}\r\n${namesByLastName}`;
 
   const link = document.createElement('a');
   link.setAttribute('download', `bbb-${meetingName}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
+    `data: ${mimeType};charset=utf-8,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };

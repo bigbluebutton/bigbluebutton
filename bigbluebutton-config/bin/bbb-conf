@@ -194,8 +194,10 @@ RETIRED_BBB_WEB_PROPERTIES=(
     textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
     insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
     insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+    serviceEnabled                    # Removed in BBB 4.0.1 (no effect since BBB 2.2)
     clientLogoutTimerInMinutes        # Removed in BBB 4.0
     enteredUsersTimeout               # Removed in BBB 4.0
+    accessControlAllowOrigin          # Removed in BBB 4.0.1 (no effect since BBB 2.2; use grails.cors.* instead)
 )
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 
@@ -575,7 +577,7 @@ while [ $# -gt 0 ]; do
             echo "    Secret: $SECRET"
             echo
             echo "    Link to the API-Mate:"
-            echo "    https://mconf.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
+            echo "    https://bigbluebutton.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
             echo
             exit 0
         fi
