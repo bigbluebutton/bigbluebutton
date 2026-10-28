@@ -16,7 +16,7 @@ variants:
   - {id: viewer, vars: {who: a viewer without the guest param, role: viewer, guest: null, auth: null, rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
   - {id: not-guest, vars: {who: a viewer with guest=false, role: viewer, guest: "false", auth: null, rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
   - {id: not-guest-auth, vars: {who: a viewer with guest=false and auth=true, role: viewer, guest: "false", auth: "true", rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
-  - {id: guest-one, class: compat, vars: {who: a viewer with guest=1, role: viewer, guest: "1", auth: null, rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
+  - {id: guest-one, vars: {who: a viewer with guest=1, role: viewer, guest: "1", auth: null, rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Guest policy, guestPolicy: always_accept}

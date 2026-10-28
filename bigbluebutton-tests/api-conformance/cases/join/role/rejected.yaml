@@ -23,7 +23,8 @@ steps:
   - call: join
     params: {meetingID: "${uid}", fullName: Ann, role: "${role}", password: "${password}"}
     expect: {status: 200, format: xml, returncode: FAILED, messageKey: Params required, message: "${message}"}
-  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 2s}
+  # As long as the other role cases wait for the registration.
+  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 5s}
     expect: {absent: true}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches

@@ -18,7 +18,8 @@ variants:
   - id: logout-url
     vars: {<<: *base, dest: logoutURL, logoutURL: "https://logout.example/bye", host: logout.example, path: /bye}
   - id: default
-    vars: {<<: *base, dest: the default logout URL}
+    # The default logout URL is the server's URL; its host is in the recording.
+    vars: {<<: *base, dest: the default logout URL, path: ""}
   - id: existing-query
     vars: {<<: *base, dest: an errorRedirectUrl with a query, errorRedirectUrl: "https://errors.example/back?from=bbb", host: errors.example, path: /back, from: bbb}
   - id: placeholders

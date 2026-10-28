@@ -2,7 +2,7 @@
 case join.guest.ask-moderator-guest-one
 target bbb-web
 
-== step 2: call join
+== step 2: call join (document)
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8

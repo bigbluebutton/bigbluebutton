@@ -4,8 +4,8 @@
 # decided (the triage tag).
 # With authenticatedGuest off, the guest param alone decides: whoever isn't
 # a guest is let in, whatever the policy, and a guest is treated by the
-# policy, even as a moderator. A refusal (guestDeniedAccess) is checked by
-# its expect only.
+# policy, even as a moderator.
+# A refusal (guestDeniedAccess) is checked by its expect only.
 id: join.guest.unauthenticated-unknown
 title: "join under always_accept with authenticatedGuest off: ${who}"
 endpoint: join

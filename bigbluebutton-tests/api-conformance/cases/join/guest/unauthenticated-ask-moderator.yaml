@@ -2,8 +2,7 @@
 # Under ASK_MODERATOR guests wait for a moderator's approval, moderators too.
 # With authenticatedGuest off, the guest param alone decides: whoever isn't
 # a guest is let in, whatever the policy, and a guest is treated by the
-# policy, even as a moderator. A refusal (guestDeniedAccess) is checked by
-# its expect only.
+# policy, even as a moderator.
 id: join.guest.unauthenticated-ask-moderator
 title: "join under ASK_MODERATOR with authenticatedGuest off: ${who}"
 endpoint: join

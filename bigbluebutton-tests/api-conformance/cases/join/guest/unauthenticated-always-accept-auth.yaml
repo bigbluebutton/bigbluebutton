@@ -2,8 +2,7 @@
 # Under ALWAYS_ACCEPT_AUTH guests are let in as well.
 # With authenticatedGuest off, the guest param alone decides: whoever isn't
 # a guest is let in, whatever the policy, and a guest is treated by the
-# policy, even as a moderator. A refusal (guestDeniedAccess) is checked by
-# its expect only.
+# policy, even as a moderator.
 id: join.guest.unauthenticated-always-accept-auth
 title: "join under ALWAYS_ACCEPT_AUTH with authenticatedGuest off: ${who}"
 endpoint: join

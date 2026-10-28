@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # Under ALWAYS_ACCEPT_AUTH only guests wait for a moderator's approval.
 # With authenticatedGuest on (the default), a moderator is always let in.
-# A refusal (guestDeniedAccess) is checked by its expect only.
+# guest=1 passes validation as a boolean but counts as false here; that
+# variant is recorded for triage.
 id: join.guest.always-accept-auth
 title: "join under ALWAYS_ACCEPT_AUTH: ${who}"
 endpoint: join
@@ -14,7 +15,7 @@ variants:
   - {id: viewer, vars: {who: a viewer without the guest param, role: viewer, guest: null, auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
   - {id: not-guest, vars: {who: a viewer with guest=false, role: viewer, guest: "false", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
   - {id: not-guest-auth, vars: {who: a viewer with guest=false and auth=true, role: viewer, guest: "false", auth: "true", rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
-  - {id: guest-one, class: compat, vars: {who: a viewer with guest=1, role: viewer, guest: "1", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+  - {id: guest-one, class: compat, tags: [triage], vars: {who: a viewer with guest=1, role: viewer, guest: "1", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: document}}
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Guest policy, guestPolicy: ALWAYS_ACCEPT_AUTH}
