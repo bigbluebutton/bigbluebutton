@@ -172,7 +172,7 @@ log:
   level: error
 ```
 
-`livekit-server` and `livekit-sip` log to the journal; their `log_level` (default `info`) is set in `/etc/bigbluebutton/livekit.yaml` and `/etc/bigbluebutton/livekit-sip.yaml`. The GraphQL server (Hasura) logs at `warn` by default (`HASURA_GRAPHQL_LOG_LEVEL`, overridable in `/etc/bigbluebutton/bbb-graphql-server.env`).
+`livekit-server` and `livekit-sip` log to the journal. `livekit-server`'s log config is `log_level` (default `info`) in `/etc/bigbluebutton/livekit.yaml`, while `livekit-sip`'s is `logging.level` (default `info`) in `/etc/bigbluebutton/livekit-sip.yaml`. The GraphQL server (Hasura) logs at `warn` by default (`HASURA_GRAPHQL_LOG_LEVEL`, overridable in `/etc/bigbluebutton/bbb-graphql-server.env`).
 
 The client can send its own logs to the server. `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml` controls this: with the default configuration the browser only logs to its console; the `external` target, which posts the client log (with the user's and meeting's identifiers) to a URL of your choice, is disabled by default. Leave it disabled unless you need it, and keep the receiving endpoint under the same retention rules as the server logs.
 
