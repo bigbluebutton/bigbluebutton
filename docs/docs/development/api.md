@@ -955,10 +955,10 @@ malformedXml
 : The request body is not well-formed XML.
 
 invalidPresentationUrl
-: A document URL is malformed.
+: A document URL is not valid URI syntax.
 
 invalidFilename
-: A document's filename is invalid. No document from the request is uploaded.
+: A document's filename is invalid, or no filename can be derived from its URL: the URL is not absolute (for example `url="notaurl"`), or the document has no `filename` and the URL path does not end in a name with an extension. No document from the request is uploaded.
 
 presentationDisabled
 : The presentation feature is disabled for the meeting.
