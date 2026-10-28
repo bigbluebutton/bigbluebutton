@@ -232,7 +232,10 @@ mark_for_rebuild() {
 
      # Restart processing at the 'process' step for this format only; the steps
      # workflow chains process:<format> -> publish:<format>.
-     /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "process:$FMT" "$MEETING_ID"
+     if ! /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "process:$FMT" "$MEETING_ID"; then
+        echo "Could not enqueue process:$FMT for $MEETING_ID, its output is already removed."
+        return 1
+     fi
      return
   fi
 
