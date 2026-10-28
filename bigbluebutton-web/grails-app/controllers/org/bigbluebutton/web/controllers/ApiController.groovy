@@ -26,7 +26,6 @@ import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
@@ -707,7 +706,7 @@ class ApiController {
       } catch (Exception ignored) {}
     }
 
-    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+    String sessionToken = Util.randomAlphanumeric(16).toLowerCase()
     log.debug "Session token: " + sessionToken
 
     UserSession us = new UserSession();
