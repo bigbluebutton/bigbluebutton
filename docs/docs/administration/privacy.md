@@ -238,9 +238,10 @@ The nginx in front of Greenlight keeps the same access logs as described for Big
 
 ## coturn
 
-`bbb-install.sh` installs coturn (the `bbb-coturn` package) on the BigBlueButton server when it is run without `-c`. Its systemd override makes coturn log to `/var/log/turnserver/turnserver.log` (the package's own unit sets no `--log-file`), rotated daily with 7 rotations kept (`/etc/logrotate.d/coturn`). The log contains the IP addresses and ports of the users who relay media through the TURN server; together with the other logs it allows identifying the sessions these users joined. With `-c <host>:<secret>`, the TURN server is elsewhere and nothing is logged on the BigBlueButton server.
+`bbb-install.sh` installs coturn (the `bbb-coturn` package) on the BigBlueButton server when it is run without `-c`. Its systemd override makes coturn log to `/var/log/turnserver/turnserver.log` (the package's own unit sets no `--log-file`), rotated daily with 7 rotations kept (`/etc/logrotate.d/coturn`), and the `/etc/turnserver.conf` it writes enables coturn's `verbose` mode, which is off by default (the configuration the package ships has it commented out). In that mode coturn logs every session: the allocations, the IP address and port of each user who relays media through the TURN server, and the TURN user name, which BigBlueButton builds from the user's internal id. Together with the other logs this allows identifying the sessions these users joined. With `-c <host>:<secret>`, the TURN server is elsewhere and nothing is logged on the BigBlueButton server.
 
-coturn has no option to log less. To stop logging, change `--log-file` in the override that `bbb-install.sh` created (`systemctl edit coturn`) to `/dev/null`, or shorten the rotation in `/etc/logrotate.d/coturn`.
+To log less, comment out `verbose` in `/etc/turnserver.conf` and restart coturn (`systemctl restart coturn`); coturn then logs little more than its startup and errors (socket errors still carry the address of the connection). To log nothing, change `--log-file` in the override that `bbb-install.sh` created (`systemctl edit coturn`) to `/dev/null`. Shortening the rotation in `/etc/logrotate.d/coturn` reduces how long whatever is logged is kept. `bbb-install.sh` rewrites `/etc/turnserver.conf` only while it still contains the stock `#static-auth-secret=north` line, and the package treats it as a conffile, so the edit survives re-runs and upgrades.
+
 
 ## Scalelite
 
