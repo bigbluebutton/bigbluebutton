@@ -1004,14 +1004,16 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
               reach livekit-sip without it. For a trunk that sends DTMF only as
               tones, remove this line (see DTMF troubleshooting). -->
          <action application="stop_dtmf"/>
+         <!-- Hang up the caller when livekit-sip ends the call; go back to the
+              PIN prompt when the bridge fails. -->
+         <action application="set" data="hangup_after_bridge=true"/>
+         <action application="set" data="continue_on_fail=true"/>
+         <!-- Stop waiting for livekit-sip to answer after 15 s (the default is 60 s). -->
+         <action application="set" data="call_timeout=15"/>
          <!-- livekit-sip takes DTMF only as RFC 2833, and the BBB external
               profile defaults to dtmf-type=info. dtmf_type applies to the
               bridged leg only, so the trunk leg keeps its own DTMF mode. -->
          <action application="bridge" data="{dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
-         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
-              the a-leg automatically, since hangup_after_bridge defaults to true).
-              On failure (e.g. no LiveKit dispatch for this voice bridge, or
-              livekit-sip down), play bad-pin and re-prompt. -->
          <action application="transfer" data="LK_BAD_PIN XML public"/>
        </condition>
      </extension>
