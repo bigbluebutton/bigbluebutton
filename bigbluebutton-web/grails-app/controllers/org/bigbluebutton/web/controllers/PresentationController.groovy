@@ -206,11 +206,13 @@ class PresentationController {
 
         //Send upload error message
         PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(presentationToken);
-        meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
+        if (presUploadToken != null) {
+          meetingService.sendPresentationUploadMaxFilesizeMessage(presUploadToken, originalContentLength, maxUploadFileSize as int);
+          response.addHeader("x-file-too-large", "1")
+        }
 
         response.setStatus(403);
         response.addHeader("Cache-Control", "no-cache")
-        response.addHeader("x-file-too-large", "1")
         response.contentType = 'text/plain'
         response.outputStream << 'file-empty';
       }
