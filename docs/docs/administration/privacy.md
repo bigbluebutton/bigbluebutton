@@ -90,7 +90,7 @@ Server administrators can also change the nginx configuration to restrict access
 When recording is enabled, the BigBlueButton stack writes the session's media and data to disk in several directories:
 
 - `/var/bigbluebutton/recording/raw/`, `/var/bigbluebutton/published/`, `/var/bigbluebutton/unpublished/` and `/var/bigbluebutton/deleted/` (raw and processed recordings), `/var/bigbluebutton/<meetingId>/` (presentations), `/var/bigbluebutton/learning-dashboard/` and `/var/bigbluebutton/events/`, owned by the `bigbluebutton` user
-- `/var/lib/bbb-webrtc-recorder/` (webcams, screen sharing and, with the LiveKit audio bridge, audio, written by `bbb-webrtc-recorder`), owned by the `bigbluebutton` user
+- `/var/lib/bbb-webrtc-recorder/` (webcams, screen sharing for both LiveKit and mediasoup, and audio with LiveKit, written by `bbb-webrtc-recorder`), owned by the `bigbluebutton` user
 - `/var/freeswitch/meetings/` (audio, with the FreeSWITCH audio bridge), owned by the `freeswitch` user
 - `/var/mediasoup/` (webcams and screen sharing, only with the mediasoup media bridge), created by the `bbb-webrtc-sfu` package
 
