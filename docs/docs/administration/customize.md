@@ -788,33 +788,6 @@ public:
 ```
 Afterwards, restart bbb-apps-akka: `$ sudo systemctl restart bbb-apps-akka`.
 
-#### Play only the most relevant microphones (Last-N)
-
-On the LiveKit audio bridge each client receives the microphone track of every unmuted user. `audioSubscriptionPoolSize` under `public.media.livekit.selectiveSubscription` caps the subscribed tracks, but unmuted users are exempt from it, so a meeting where many users keep their microphone open still sends every one of them to every client, with a renegotiation for each.
-
-Since BigBlueButton 4.0.1, `lastN` (off by default) makes each client play only the most relevant microphones. Microphones are ranked by speech, presenter, pinned users, recent speech, moderator and mute state; the top `audibleSize` are heard, the next ones up to `standbySize` stay subscribed but paused, so a new speaker is heard without a renegotiation. A microphone that has just been unmuted counts as speaking. Enable it in `/etc/bigbluebutton/bbb-html5.yml`:
-
-```yaml
-public:
-  media:
-    livekit:
-      selectiveSubscription:
-        lastN:
-          enabled: true
-          # microphones played at once
-          audibleSize: 3
-          # microphones kept subscribed (audible included)
-          standbySize: 12
-          # silence after which an audible speaker can be replaced
-          speechHoldMs: 1500
-          # minimum time a microphone stays audible, unless it is silent and an unmuted speaker needs its slot
-          minAudibleMs: 2000
-          # delay before an unranked standby track is unsubscribed
-          standbyGraceMs: 5000
-```
-
-When `lastN` is enabled it replaces `audioSubscriptionPoolSize`. Viewers who cannot see the user list because of the lock settings are not told about other users' voice activity, so their client keeps every microphone subscribed. Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
-
 #### Enable background music when only one person is in a session
 
 FreeSWITCH enables you to have music play in the background when only one users is in the voice conference. To enable background music, edit `/opt/freeswitch/conf/autoload_configs/conference.conf.xml` (as root) and around line 204 you'll see the music on hold (moh-sound) commented out
@@ -1718,7 +1691,7 @@ Where the speech is transcribed is up to the browser. Chrome sends the audio to 
 
 ##### Where the speech is transcribed
 
-`speechProcessing` (added in 4.0.1) sets where the browser transcribes the speaker's audio:
+`speechProcessing` (added in 4.0) sets where the browser transcribes the speaker's audio:
 
 ```
 public:
@@ -1747,12 +1720,11 @@ To use gladia.io for automatic speech-to-text transcriptions, you first need to 
 
 Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`), BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`), or BigBlueButton 4.0+ (pass `-v noble-400`) on a BigBlueButton server with a public IP and hostname.
 
-Which service sends your users' audio to gladia.io depends on the audio bridge:
+Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
 
-- **LiveKit audio bridge** (`audioBridge=livekit`, the default in BigBlueButton 4.0): use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt). It is a LiveKit agent that you run next to BigBlueButton, from source with `uv` or as a Docker image; no BigBlueButton package installs it. Its README lists the settings it needs, such as `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` and `GLADIA_API_KEY`.
-- **FreeSWITCH audio bridge** (`audioBridge=bbb-webrtc-sfu`): use the `bbb-transcription-controller` package, as described below. It takes the audio from FreeSWITCH, so it does not transcribe users who joined audio through LiveKit.
+Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external hostname of the server (same as was passed to bbb-install.sh). This will update the bbb-transcription-controller configuration.
 
-With either service, enable the speech-to-text options in the client by running the following commands
+Next, to enable gladia.io, run the following two commands
 
 ```bash
 sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
@@ -1760,23 +1732,21 @@ sudo yq-go e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bb
 sudo yq-go e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
 ```
 
-For the FreeSWITCH audio bridge, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
-
-Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external hostname of the server (same as was passed to bbb-install.sh). This writes the FreeSWITCH password into the bbb-transcription-controller configuration.
-
-Next, set the gladia.io API key using the command below, replacing \<gladia-api-key\> with the gladia.io API key obtained above.
+Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
 
 ```bash
-sudo yq-go e -i '.gladia.key = "<gladia-api-key>"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo yq-go e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
-BigBlueButton 4.0 ships bbb-transcription-controller 0.4.0, which uses Gladia's v2 live API and reads the key from `gladia.key`. It no longer reads the `x_gladia_key` field of `gladia.startMessage` that earlier releases used. The same file holds the other Gladia options, such as `gladia.modelType`, `gladia.endpointing` and, for real-time translation, `gladia.translation.enabled` and `gladia.translation.languages`. Also install the [Live Transcription plugin](https://github.com/bigbluebutton/bbb-plugin-live-transcription).
+If you are running BigBlueButton version **3.0** or higher, use release version **>0.3.x** of the [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller/) repository, install the Live Transcription plugin [https://github.com/bigbluebutton/bbb-plugin-live-transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription) and use the following startMessage:
 
-:::warning
-Installing or upgrading the `bbb-transcription-controller` package replaces `default.yml` with the packaged defaults. This removes the API key, any other changes you made to the file, and the FreeSWITCH password written by `bbb-conf --setip`; without the password the service keeps restarting with `FSESL connection authentication error`. Every BigBlueButton upgrade also upgrades this package, so after each upgrade run `sudo bbb-conf --setip <hostname>` and the `gladia.key` command again.
-:::
+```bash
+sudo yq-go e -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+```
 
 Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
+
+If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead of [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller) as gladia proxy.
 
 #### Advanced Filtering (WASM audio processing)
 
@@ -1806,8 +1776,6 @@ public:
 ```
 
 The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` selects the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
-
-A user's own pick is kept for the browser session and the current meeting only (`public.app.audioFilterStorage: session`, the default since BigBlueButton 4.0.1), so a new meeting or browser session starts again from `processingMode`. Set `public.app.audioFilterStorage` to `local` to have the pick follow `public.app.userSettingsStorage` like the other settings.
 
 #### Configure guest policy
 
