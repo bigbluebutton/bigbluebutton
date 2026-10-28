@@ -122,6 +122,10 @@ export const elements = {
   audioHelpRetryMicButton: 'button[data-test="helpRetryMicBtn"]',
   microphonePermissionHelpLabel: 'We need access to your microphone',
   unmuteConsentTitle: 'A moderator is asking you to unmute',
+  onDeviceLanguageDownloadable: 'div[data-test="onDeviceLanguageDownloadable"]',
+  onDeviceLanguageDownloading: 'div[data-test="onDeviceLanguageDownloading"]',
+  onDeviceLanguageFailed: 'div[data-test="onDeviceLanguageFailed"]',
+  onDeviceLanguageCloudFallback: 'div[data-test="onDeviceLanguageCloudFallback"]',
 
   // Breakout
   createBreakoutRoomsButton: 'button[data-test="createBreakoutRoomsButton"]',
