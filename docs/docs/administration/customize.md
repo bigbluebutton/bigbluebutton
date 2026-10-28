@@ -971,7 +971,7 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
 
 1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
 
-2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+2. `livekit-sip` listens on port `5062` by default. To change it, set in `/etc/bigbluebutton/livekit-sip.yaml`, and use the same port in the bridge in step 3:
 
    ```yaml
    sip_port: 5062
