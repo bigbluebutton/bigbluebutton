@@ -139,7 +139,7 @@ After a restart of bbb-webrtc-sfu, the metrics can now be queried via
   * `curl http://bbb.example.com:3026/metrics` (video)
   * `curl http://bbb.example.com:3022/metrics` (screenshare)
   * `curl http://bbb.example.com:3024/metrics` (audio)
-  * `curl http://bbb.example.com:6759/metrics` (LiveKit integration)
+  * `curl http://bbb.example.com:6759/metrics` (bbb-webrtc-sfu's LiveKit controller)
 
 respectively.
 
