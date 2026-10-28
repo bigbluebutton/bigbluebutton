@@ -1,7 +1,7 @@
 import { expect, Page as PlaywrightPage, test, WebSocketRoute } from '@playwright/test';
 
 import { field, queryDocument, runMutation, runQuery, stringVarMutation, typedVarMutation } from '../core/apolloProbe';
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { InitExtraPageOptionsProps } from '../user/multiusers';
@@ -188,9 +188,8 @@ export class RoomModeApply extends RoomModePanel {
       await this.modPage.page.reload();
       await this.modPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
       await ensureProbe(this.modPage);
-      // Nothing is expected to apply again, so the read follows a quiet spell long
-      // enough for a new application to have landed.
-      await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+      // The room renders only once a pick is applied, and a room that has a mode
+      // offers none, so the read is settled once the room is up again.
       expect(
         await readRoomSettings(this.modPage),
         'should keep the change made by hand after a reload, without applying the mode again',
@@ -308,7 +307,8 @@ export class RoomModeApply extends RoomModePanel {
     await ensureProbe(this.modPage);
 
     expect(refused, 'should have refused the applier SetMuted').toBeGreaterThan(0);
-    await expectRoomModeStable(this.modPage, '', 'should leave the room mode unset when the apply fails');
+    // The room opens only once the applier stops, and it sends nothing after a failed step.
+    await expectRoomMode(this.modPage, '', 'should leave the room mode unset when the apply fails');
   }
 
   // The room mode request is never answered: the room opens with no mode once the
@@ -428,7 +428,8 @@ export class RoomModeApply extends RoomModePanel {
       'should not say another moderator set the room mode first',
     ).toHaveCount(0);
     await ensureProbe(this.modPage);
-    await expectRoomModeStable(this.modPage, '', 'should leave the room mode unset while another moderator is in');
+    // The applier skips before sending anything, and the room opens only after it.
+    await expectRoomMode(this.modPage, '', 'should leave the room mode unset while another moderator is in');
     expect(
       await readRoomSettings(this.modPage),
       'should leave the room as created, with the change made by hand',
