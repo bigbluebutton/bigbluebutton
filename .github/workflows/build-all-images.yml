@@ -55,8 +55,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set the HTML5 client build id as build/setup.sh does
-        run: echo "CLIENT_BUILD=$(git log -n1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S)" >> "$GITHUB_ENV"
+      # VERSION: the tag, the commit date and the commit, e.g. v4.1.x-develop-20261027T145204-9fffe59
+      - name: Set the HTML5 client build id as build/setup.sh does, and the image version
+        run: |
+          CLIENT_BUILD=$(git log -n1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S)
+          echo "CLIENT_BUILD=$CLIENT_BUILD" >> "$GITHUB_ENV"
+          echo "VERSION=$TAG-$CLIENT_BUILD-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -68,7 +72,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Each platform is pushed under <commit>-<platform>; the merge job joins the images of this commit
-      # only under $TAG and $TAG-<commit>, so a re-run can never mix commits.
+      # only under $TAG and $VERSION, so a re-run can never mix commits.
       # The cache is written only by pushes, pull requests read it; mode=min keeps 15 x 2 scopes in the 10 GB limit.
       - uses: docker/bake-action@v6
         env:
@@ -79,6 +83,8 @@ jobs:
           push: ${{ env.PUSH == 'true' }}
           set: |
             *.platform=linux/${{ matrix.platform }}
+            *.labels.org.opencontainers.image.revision=${{ github.sha }}
+            *.labels.org.opencontainers.image.version=${{ env.VERSION }}
             *.cache-from=type=gha,scope=${{ matrix.target }}-${{ matrix.platform }}
             ${{ env.PUSH == 'true' && format('*.cache-to=type=gha,mode=min,scope={0}-{1}', matrix.target, matrix.platform) || '' }}
 
@@ -92,13 +98,16 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Set the image version as the build job does
+        run: echo "VERSION=$TAG-$(git log -n1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S)-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Join the amd64 and arm64 images under the branch and commit tags
+      - name: Join the amd64 and arm64 images under the branch tag and the version
         env:
           TARGETS: ${{ join(fromJSON(needs.targets.outputs.targets), ' ') }}
         run: |
@@ -108,5 +117,5 @@ jobs:
             for p in $(docker buildx bake --print "$t" | jq -r ".target[\"$t\"].platforms[] | ltrimstr(\"linux/\")"); do
               sources+=("$BBB_IMAGE_REGISTRY/bbb-$t:$GITHUB_SHA-$p")
             done
-            docker buildx imagetools create -t "$image" -t "$image-${GITHUB_SHA::7}" "${sources[@]}"
+            docker buildx imagetools create -t "$image" -t "$BBB_IMAGE_REGISTRY/bbb-$t:$VERSION" "${sources[@]}"
           done

@@ -25,8 +25,10 @@ and the packages build the version pinned in one place.
 CI (`.github/workflows/build-all-images.yml`) builds every image for amd64 on pull requests. On
 pushes to the develop and release branches and on tags, it builds amd64 and arm64 and pushes
 `ghcr.io/bigbluebutton/bigbluebutton/bbb-<target>:<branch or tag>`, and the same image as
-`:<branch or tag>-<commit>` (e.g. `v4.1.x-develop-2a1b3c4`). `bbb-record-and-playback` is amd64
-only: mkclean, which it needs, has no 64-bit ARM build.
+`:<branch or tag>-<commit date>-<commit>` (e.g. `v4.1.x-develop-20261027T145204-2a1b3c4`; the date
+is the HTML5 client's build id). The labels `org.opencontainers.image.revision` and
+`org.opencontainers.image.version` of each image hold the commit and that version.
+`bbb-record-and-playback` is amd64 only: mkclean, which it needs, has no 64-bit ARM build.
 
 ## Images
 
