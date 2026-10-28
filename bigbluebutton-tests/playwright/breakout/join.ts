@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getMeetingInfo } from '../core/endpoints';
+import { readRows } from '../core/graphql';
 import { Page } from '../core/page';
 import {
   getCurrentSlideSrc,
@@ -14,7 +15,7 @@ import {
 import { waitForPublishedRecording } from '../recording/recordedPlayback';
 import * as utilScreenShare from '../screenshare/util';
 import { getBlockNoteEditorLocator } from '../sharednotes/blocknote/util';
-import { isTalkingLocator } from '../user/util';
+import { isTalkingLocator, privateChatOptionOf, userListRowOf } from '../user/util';
 import { Create } from './create';
 
 // Long enough for a rejoin that restored the wrong mute state to show it
@@ -22,6 +23,13 @@ const AUDIO_REJOIN_SETTLE_TIME = 3000;
 // The running rooms accept no less than one minute left; the server checks the time
 // every few seconds after that.
 const SHORTEST_BREAKOUT_END_TIME = 90000;
+
+// the room's own meeting row: the choice it took from its parent and the feature that enforces it
+const ROOM_PRIVATE_CHAT = 'subscription { meeting { disabledFeatures breakoutPolicies { privateChatEnabled } } }';
+interface RoomPrivateChat {
+  disabledFeatures: string[];
+  breakoutPolicies: { privateChatEnabled: boolean };
+}
 
 // In a breakout, OK on the meeting-ended modal closes the tab. Firefox closes it
 // before the click returns and rejects the click, so a closed page is not an error.
@@ -837,5 +845,74 @@ export class Join extends Create {
       parentMeetingId,
     );
     expect(recording.breakout?.[0]?.sequence?.[0], `record ${recordId} should be of the first room`).toBe('1');
+  }
+
+  // Joins the room from the invitation the attendee got when the rooms were created
+  private async joinRoomFromInvitation(attendee: Page): Promise<Page> {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    const breakoutTab = await attendee.handleNewTab(e.modalConfirmButton, attendee.page.context());
+    const breakoutPage = new Page(this.browser, breakoutTab, this.modPage.testInfo);
+    await breakoutPage.hasElement(e.presentationTitle, 'should load the breakout room', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await breakoutPage.closeAudioModal();
+    return breakoutPage;
+  }
+
+  // breakoutRoomsPrivateChatEnabled=false on the parent puts privateChat among the disabled features
+  // of each room, so the attendees of a room get no private chat with each other while the parent
+  // keeps it
+  async privateChatDisabledInRooms() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+    if (!this?.userPage2) throw new Error('userPage2 not initialized');
+
+    const secondAttendeeRow = userListRowOf(this.userPage2.username);
+    const privateChatWithSecondAttendee = privateChatOptionOf(this.userPage2.username);
+
+    // control: the parent meeting offers the private chat between the attendees
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.hasElement(
+      privateChatWithSecondAttendee,
+      'should offer the attendee a private chat with the other attendee in the main room',
+    );
+
+    // both attendees go to the first room
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    // the unassigned users are listed by name, so both attendees come before the moderator
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.hasText(
+      e.breakoutBox1,
+      this.userPage2.username,
+      'should assign the other attendee to the first room',
+    );
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+
+    const breakoutUserPage = await this.joinRoomFromInvitation(this.userPage);
+    await this.joinRoomFromInvitation(this.userPage2);
+
+    const [room] = await readRows<RoomPrivateChat>(breakoutUserPage, ROOM_PRIVATE_CHAT, 'meeting');
+    expect(
+      room?.breakoutPolicies?.privateChatEnabled,
+      'the room should take breakoutRoomsPrivateChatEnabled=false from its parent',
+    ).toBe(false);
+    expect(room?.disabledFeatures, 'the room should count privateChat among its disabled features').toContain(
+      'privateChat',
+    );
+
+    await breakoutUserPage.waitAndClick(e.usersListSidebarButton);
+    await breakoutUserPage.hasElement(
+      secondAttendeeRow,
+      'should list the other attendee in the breakout room',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await breakoutUserPage.wasRemoved(
+      privateChatWithSecondAttendee,
+      'should not offer the attendee a private chat with the other attendee in the breakout room',
+    );
   }
 }
