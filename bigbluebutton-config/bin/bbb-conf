@@ -659,7 +659,8 @@ fi
 #
 
 if [[ $PORT_RANGE ]]; then
-    if [[ "$PORT_RANGE" =~ ^([[:digit:]]+)-([[:digit:]]+)$ ]]; then
+    # No leading zeros: livekit-server reads them as octal, or does not start.
+    if [[ "$PORT_RANGE" =~ ^([1-9][[:digit:]]{0,4})-([1-9][[:digit:]]{0,4})$ ]] && (( BASH_REMATCH[1] < BASH_REMATCH[2] && BASH_REMATCH[2] <= 65535 )); then
         START_PORT=${BASH_REMATCH[1]}
         END_PORT=${BASH_REMATCH[2]}
 
@@ -699,7 +700,7 @@ if [[ $PORT_RANGE ]]; then
         echo
     else
         echo
-        echo "Warning: --set-port-range requires a numerical port range (default is 16384-32768)"
+        echo "Warning: --set-port-range requires a port range MIN-MAX, with 0 < MIN < MAX <= 65535 and no leading zeros (default is 16384-32768)"
         echo
         echo "Port range remains unchanged"
         echo
