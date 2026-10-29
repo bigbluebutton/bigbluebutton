@@ -3,15 +3,11 @@ import {
   RenameGenericContentSidekickAreaCommandArguments,
   SetGenericContentSidekickAreaBadgeCommandArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/types';
-import { setGenericContentBadges } from '/imports/ui/core/local-states/useGenericContentBadges';
+import {
+  removeGenericContentBadge,
+  setGenericContentBadges,
+} from '/imports/ui/core/local-states/useGenericContentBadges';
 import { setGenericContentMenuNames } from '/imports/ui/core/local-states/useGenericContentMenuNames';
-
-const removeBadge = (id: string) => setGenericContentBadges((badges) => {
-  if (!Object.hasOwn(badges, id)) return badges;
-  const remainingBadges = { ...badges };
-  delete remainingBadges[id];
-  return remainingBadges;
-});
 
 // Badges and menu names are kept outside the components that display them, which
 // unmount whenever the apps gallery closes or switches view and would otherwise
@@ -20,7 +16,7 @@ const handleSetBadge = ((event: CustomEvent<SetGenericContentSidekickAreaBadgeCo
   const { id, badgeContent } = event.detail ?? {};
   if (!id) return;
   if (!badgeContent) {
-    removeBadge(id);
+    removeGenericContentBadge(id);
     return;
   }
   setGenericContentBadges((badges) => ({ ...badges, [id]: badgeContent }));
@@ -28,7 +24,7 @@ const handleSetBadge = ((event: CustomEvent<SetGenericContentSidekickAreaBadgeCo
 
 const handleRemoveBadge = ((event: CustomEvent<RemoveGenericContentSidekickAreaBadgeCommandArguments>) => {
   const { id } = event.detail ?? {};
-  if (id) removeBadge(id);
+  if (id) removeGenericContentBadge(id);
 }) as EventListener;
 
 const handleRenameMenu = ((event: CustomEvent<RenameGenericContentSidekickAreaCommandArguments>) => {

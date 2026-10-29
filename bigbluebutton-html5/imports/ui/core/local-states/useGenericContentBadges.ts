@@ -26,8 +26,16 @@ const useGenericContentBadgeIds = (): string[] => {
   return useMemo(() => JSON.parse(serializedIds), [serializedIds]);
 };
 
+const removeGenericContentBadge = (id: string) => setGenericContentBadges((badges) => {
+  if (!Object.hasOwn(badges, id)) return badges;
+  const remainingBadges = { ...badges };
+  delete remainingBadges[id];
+  return remainingBadges;
+});
+
 export {
   useGenericContentBadge,
   useGenericContentBadgeIds,
   setGenericContentBadges,
+  removeGenericContentBadge,
 };
