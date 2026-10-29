@@ -14,8 +14,15 @@ const config = {
     baseUrl: isDev ? '/docs' : '/',
     favicon: 'img/favicon.ico',
     trailingSlash: true,
+    onBrokenLinks: 'throw',
+    onBrokenAnchors: 'warn',
+    onDuplicateRoutes: 'throw',
     markdown: {
         mermaid: true,
+        hooks: {
+            onBrokenMarkdownLinks: 'throw',
+            onBrokenMarkdownImages: 'throw',
+        },
     },    
 
     // GitHub pages deployment config.
