@@ -4,6 +4,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   $2xlPadding,
+  confirmationButtonMinWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -29,6 +30,10 @@ const RequestModalContent = styled.div`
   gap: ${$2xlPadding};
   margin-top: 1rem;
   padding: 1rem;
+
+  & > button {
+    min-width: ${confirmationButtonMinWidth};
+  }
 
   @media ${smallOnly} {
     flex-direction: row-reverse;
