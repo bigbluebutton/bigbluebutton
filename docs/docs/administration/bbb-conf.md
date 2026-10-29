@@ -82,6 +82,8 @@ Restarts BigBlueButton and clears all the log files during the restart.  This is
 
 Runs a series of checks on your current setup and reports any potential problems.  Not all reported problems are actual issues.  For example, if you use `--setip <hostname_or_IP>`, then `bbb-conf` will complain that the hostname does not match the server's IP, but that's fine as you configured the BigBlueButton server to listen on a hostname instead of IP address.
 
+The checks include LiveKit: its health check, address settings that keep other components or outside clients from reaching it, and API key copies that differ. See [LiveKit](/support/troubleshooting#livekit) for what each warning means.
+
 ### `--debug`
 
 Greps through the various log files for errors (such as exceptions in the Java log files for Tomcat).
