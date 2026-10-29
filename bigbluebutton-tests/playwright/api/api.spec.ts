@@ -102,14 +102,14 @@ test.describe.parallel('API', () => {
     }
   });
 
-  test.describe('Breakout rooms', { tag: '@ci' }, () => {
+  test.describe('Breakout rooms', () => {
     // A room's voice bridge is the parent's plus its sequence. When another meeting holds
     // that number, bbb-web refuses to create the room (MeetingService.createMeeting ~557-561,
     // duplicate telVoice) and processCreateBreakoutRoom ignores the refusal (~931), while
     // akka-apps keeps the room in its breakout model and waits for it to start.
     test(
       'breakoutRoomOnTakenVoiceBridgeIsCreated',
-      { tag: '@known-issue' },
+      { tag: ['@ci', '@known-issue'] },
       async ({ browser, context, page, request }, testInfo) => {
         linkIssue(26273);
         const api = new APIBreakout(browser, context);
@@ -117,7 +117,7 @@ test.describe.parallel('API', () => {
       },
     );
 
-    test('apiCreatedBreakoutRoom', async ({ browser, context, page, request }, testInfo) => {
+    test('apiCreatedBreakoutRoom', { tag: '@nightly' }, async ({ browser, context, page, request }, testInfo) => {
       const api = new APIBreakout(browser, context);
       await api.testApiCreatedRoom(page, testInfo, request);
     });
@@ -128,7 +128,7 @@ test.describe.parallel('API', () => {
     // matches only the IDs akka-apps builds for the rooms it creates.
     test(
       'apiCreatedBreakoutRoomFoundByReturnedId',
-      { tag: '@known-issue' },
+      { tag: ['@ci', '@known-issue'] },
       async ({ browser, context, page, request }, testInfo) => {
         linkIssue(26272);
         const api = new APIBreakout(browser, context);
@@ -141,7 +141,7 @@ test.describe.parallel('API', () => {
     // it (BreakoutRoomCreatedMsgHdlr finds no such room in state.breakout).
     test(
       'apiCreatedBreakoutRoomEndsWithParent',
-      { tag: '@known-issue' },
+      { tag: ['@ci', '@known-issue'] },
       async ({ browser, context, page, request }, testInfo) => {
         linkIssue(26271);
         const api = new APIBreakout(browser, context);
@@ -153,7 +153,7 @@ test.describe.parallel('API', () => {
     // without checking the parent's breakoutRoomsRecord.
     test(
       'breakoutRoomsRecordFalseEnforced',
-      { tag: '@known-issue' },
+      { tag: ['@ci', '@known-issue'] },
       async ({ browser, context, page, request }, testInfo) => {
         linkIssue(26274);
         const api = new APIBreakout(browser, context);
@@ -161,45 +161,73 @@ test.describe.parallel('API', () => {
       },
     );
 
-    test('breakoutRoomsRecordTrueControl', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testRoomsRecordedWhenParentAllows(page, testInfo, request);
-    });
+    test(
+      'breakoutRoomsRecordTrueControl',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testRoomsRecordedWhenParentAllows(page, testInfo, request);
+      },
+    );
 
-    test('disabledBreakoutRoomsNotCreated', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testDisabledBreakoutRoomsNotCreated(page, testInfo, request);
-    });
+    test(
+      'disabledBreakoutRoomsNotCreated',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testDisabledBreakoutRoomsNotCreated(page, testInfo, request);
+      },
+    );
 
-    test('breakoutRoomCreateTakesEffect', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testBreakoutRoomCreateTakesEffect(page, testInfo, request);
-    });
+    test(
+      'breakoutRoomCreateTakesEffect',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testBreakoutRoomCreateTakesEffect(page, testInfo, request);
+      },
+    );
 
-    test('attendeeCannotCreateBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testAttendeeCannotCreateRooms(page, testInfo, request);
-    });
+    test(
+      'attendeeCannotCreateBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testAttendeeCannotCreateRooms(page, testInfo, request);
+      },
+    );
 
-    test('breakoutRoomCannotCreateBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testRoomCannotCreateRooms(page, testInfo, request);
-    });
+    test(
+      'breakoutRoomCannotCreateBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testRoomCannotCreateRooms(page, testInfo, request);
+      },
+    );
 
-    test('breakoutRoomCountLimits', async ({ browser, context, page, request }, testInfo) => {
+    test('breakoutRoomCountLimits', { tag: '@nightly' }, async ({ browser, context, page, request }, testInfo) => {
       const api = new APIBreakout(browser, context);
       await api.testRoomCountLimits(page, testInfo, request);
     });
 
-    test('endingParentEndsBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testEndingParentEndsRooms(page, testInfo, request);
-    });
+    test(
+      'endingParentEndsBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testEndingParentEndsRooms(page, testInfo, request);
+      },
+    );
 
-    test('getMeetingsListsBreakoutRooms', async ({ browser, context, page, request }, testInfo) => {
-      const api = new APIBreakout(browser, context);
-      await api.testGetMeetingsListsRooms(page, testInfo, request);
-    });
+    test(
+      'getMeetingsListsBreakoutRooms',
+      { tag: '@nightly' },
+      async ({ browser, context, page, request }, testInfo) => {
+        const api = new APIBreakout(browser, context);
+        await api.testGetMeetingsListsRooms(page, testInfo, request);
+      },
+    );
   });
 
   test.describe('Checksum', { tag: '@ci' }, () => {

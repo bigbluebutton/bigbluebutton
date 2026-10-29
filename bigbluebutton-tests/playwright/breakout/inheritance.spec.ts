@@ -5,7 +5,7 @@ import { Inheritance, roomsApiCreateParameter } from './inheritance';
 
 // What a breakout room takes from its parent (MeetingService.processCreateBreakoutRoom) and how
 // the room behaves because of it
-test.describe.parallel('Breakout inheritance', { tag: '@ci' }, () => {
+test.describe.parallel('Breakout inheritance', { tag: '@nightly' }, () => {
   test("Rooms read through the API carry the parent's settings", async ({ browser, context, page }, testInfo) => {
     // a running meeting may hold a fixed bridge; the rooms get this one followed by their sequence
     const voiceBridge = getRandomInt(30000, 70000);
@@ -93,9 +93,7 @@ test.describe.parallel('Breakout inheritance', { tag: '@ci' }, () => {
       },
     );
   });
-});
 
-test.describe.parallel('Breakout inheritance (nightly)', { tag: '@nightly' }, () => {
   test('Rooms give every attendee the whiteboard tools', async ({ browser, context, page }, testInfo) => {
     const inheritance = new Inheritance(browser, context);
     await inheritance.initModPage(page, { testInfo });

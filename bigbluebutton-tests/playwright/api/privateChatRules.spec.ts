@@ -4,7 +4,7 @@ import { PrivateChatRules } from './privateChatRules';
 // the private chat lock, set when the meeting starts; lockOnJoin=true (the default) makes it bind the attendees
 const PRIVATE_CHAT_LOCK = 'lockSettingsDisablePrivateChat=true&lockSettingsLockOnJoin=true';
 
-test.describe.parallel('Private chat rules on the server', { tag: '@ci' }, () => {
+test.describe.parallel('Private chat rules on the server', { tag: '@nightly' }, () => {
   test('disabledFeatures=privateChat keeps the private chats that involve a moderator', async ({
     browser,
     context,
@@ -30,9 +30,7 @@ test.describe.parallel('Private chat rules on the server', { tag: '@ci' }, () =>
     await rules.initUserPage2(context, { testInfo });
     await rules.privateChatLockUntilUnlocked(lockedSince);
   });
-});
 
-test.describe.parallel('Private chat rules on the server (nightly)', { tag: '@nightly' }, () => {
   test('A private chat lock inherited by a breakout room refuses a chat between attendees in the room', async ({
     browser,
     context,

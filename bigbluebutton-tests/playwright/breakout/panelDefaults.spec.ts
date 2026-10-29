@@ -10,7 +10,7 @@ const breakouts = (settings: ClientSettingsOverrides): ClientSettingsOverrides =
 
 const RECORDABLE_BREAKOUTS = 'record=true&breakoutRoomsRecord=true';
 
-test.describe.parallel('Breakout creation panel defaults', { tag: '@ci' }, () => {
+test.describe.parallel('Breakout creation panel defaults', { tag: '@nightly' }, () => {
   test.describe.parallel('Allow users to choose a room', () => {
     test('is unticked by default', async ({ browser, context, page }, testInfo) => {
       const panel = new PanelDefaults(browser, context);
@@ -60,23 +60,6 @@ test.describe.parallel('Breakout creation panel defaults', { tag: '@ci' }, () =>
       });
       await panel.captureSwitchesPreTicked({ whiteboard: false, sharedNotes: true });
     });
-
-    // The panel seeds both switches from settings.yml only: sidebar-create-breakout/component.tsx:329-332 reads
-    // captureWhiteboardByDefault / captureSharedNotesByDefault from window.meetingClientSettings, and :340-341 use
-    // them as the initial state. The meeting's breakoutPolicies.captureSlides / captureNotes is never read.
-    test(
-      'breakoutRoomsCaptureSlides and breakoutRoomsCaptureNotes pre-tick the capture options',
-      { tag: '@known-issue' },
-      async ({ browser, context, page }, testInfo) => {
-        linkIssue(26228);
-        const panel = new PanelDefaults(browser, context);
-        await panel.initModPage(page, {
-          testInfo,
-          createParameter: 'breakoutRoomsCaptureSlides=true&breakoutRoomsCaptureNotes=true',
-        });
-        await panel.captureSwitchesFollowTheCreateParameters();
-      },
-    );
   });
 
   test.describe.parallel('Record', () => {
@@ -213,5 +196,27 @@ test.describe.parallel('Breakout creation panel defaults', { tag: '@ci' }, () =>
       await panel.initUserPage(context, { testInfo });
       await panel.presentationManagementInRoom(false, overrides);
     });
+  });
+});
+
+// keeps @ci, not @nightly: the nightly's @nightly jobs do not leave quarantined tests out
+test.describe.parallel('Breakout creation panel defaults', { tag: '@ci' }, () => {
+  test.describe.parallel('Capture whiteboard and shared notes', () => {
+    // The panel seeds both switches from settings.yml only: sidebar-create-breakout/component.tsx:329-332 reads
+    // captureWhiteboardByDefault / captureSharedNotesByDefault from window.meetingClientSettings, and :340-341 use
+    // them as the initial state. The meeting's breakoutPolicies.captureSlides / captureNotes is never read.
+    test(
+      'breakoutRoomsCaptureSlides and breakoutRoomsCaptureNotes pre-tick the capture options',
+      { tag: '@known-issue' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(26228);
+        const panel = new PanelDefaults(browser, context);
+        await panel.initModPage(page, {
+          testInfo,
+          createParameter: 'breakoutRoomsCaptureSlides=true&breakoutRoomsCaptureNotes=true',
+        });
+        await panel.captureSwitchesFollowTheCreateParameters();
+      },
+    );
   });
 });
