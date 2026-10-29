@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'minitest/autorun'
+require 'minitest/mock'
 require 'fileutils'
 require 'logger'
 require 'tmpdir'
@@ -105,10 +106,27 @@ class TestEDLAudio < Minitest::Test
     assert_operator(mean_volume(output), :>, -40)
   end
 
+  # FreeSWITCH records opus. Overloaded, it drops frames, and files can miss
+  # more than 10% of the time they cover.
+  def test_render_opus_file_missing_frames
+    file = "#{@dir}/voice.opus"
+    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=44:sample_rate=48000',
+                  '-c:a', 'libopus', file))
+    edl = [
+      { timestamp: 0, audios: [{ filename: file, timestamp: 45_000, original_duration: 50_000 }] },
+      { timestamp: 1000, audios: [] },
+    ]
+
+    output = render(edl)
+
+    assert_operator(mean_volume(output), :>, -40)
+  end
+
   private
 
+  # Render with the default settings, whatever the host's recording.yml says
   def render(edl)
-    BigBlueButton::EDL::Audio.render(edl, "#{@dir}/out")
+    BigBlueButton.stub(:read_props, {}) { BigBlueButton::EDL::Audio.render(edl, "#{@dir}/out") }
   end
 
   def mean_volume(file, filter = '')
@@ -121,19 +139,43 @@ end
 class TestEDLAudioSpeedAdjustment < Minitest::Test
   # Recording events and the file they started differ by a fraction of a second
   def test_speed_adjustment_ignores_differences_under_2_s
-    assert_equal(1.0, BigBlueButton::EDL::Audio.speed_adjustment(wav_info(179_200, 180_000)))
+    assert_equal(1.0, speed(info('wav', 'pcm_s16le', 179_200, 180_000), 0.2))
   end
 
   def test_speed_adjustment_stretches_a_short_file
-    assert_in_delta(0.98, BigBlueButton::EDL::Audio.speed_adjustment(wav_info(176_400, 180_000)), 1e-9)
+    assert_in_delta(0.98, speed(info('wav', 'pcm_s16le', 176_400, 180_000), 0.2), 1e-9)
+  end
+
+  def test_speed_adjustment_stretches_freeswitch_opus
+    assert_in_delta(0.88, speed(info('ogg', 'opus', 158_400, 180_000), 0.2), 1e-9)
+  end
+
+  def test_speed_adjustment_respects_the_limit
+    assert_equal(1.0, speed(info('ogg', 'opus', 158_400, 180_000), 0.1))
+    assert_equal(1.0, speed(info('ogg', 'opus', 176_400, 180_000), 0))
+  end
+
+  # atempo cannot play slower than half speed, whatever the configured limit
+  def test_speed_adjustment_never_goes_below_half_speed
+    assert_in_delta(0.6, speed(info('ogg', 'opus', 108_000, 180_000), 0.9), 1e-9)
+    assert_equal(1.0, speed(info('ogg', 'opus', 72_000, 180_000), 0.9))
+  end
+
+  # Screen share audio is opus in webm, not a FreeSWITCH voice recording
+  def test_speed_adjustment_leaves_webm_alone
+    assert_equal(1.0, speed(info('matroska,webm', 'opus', 176_400, 180_000), 0.2))
   end
 
   private
 
-  def wav_info(duration, original_duration)
+  def speed(info, max_mismatch)
+    BigBlueButton::EDL::Audio.speed_adjustment(info, max_mismatch)
+  end
+
+  def info(format_name, codec_name, duration, original_duration)
     {
-      format: { format_name: 'wav' },
-      audio: { codec_name: 'pcm_s16le' },
+      format: { format_name: format_name },
+      audio: { codec_name: codec_name },
       duration: duration,
       original_duration: original_duration,
     }

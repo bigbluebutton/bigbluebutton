@@ -47,6 +47,13 @@ show_moderator_viewpoint: false
 # number of physical CPU threads that will be used will typically be 2-4 times this number.
 video_compositing_parallel_workers: 2
 
+# FreeSWITCH voice recordings can be shorter than the meeting time they
+# cover, when it drops audio frames on an overloaded server. Such a file is
+# stretched to cover that time if it misses less than this fraction of it,
+# at most 0.5. Differences under 2 s or 0.3% are left as they are. Set to 0
+# to never stretch them.
+max_audio_length_mismatch: 0.2
+
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:
 #   current_step: next_step
