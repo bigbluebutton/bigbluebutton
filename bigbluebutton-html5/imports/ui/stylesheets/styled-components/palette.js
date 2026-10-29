@@ -86,6 +86,9 @@ const btnWarningBg = `var(--btn-warning-bg, ${colorWarning})`;
 
 const connectionStatusGoodBg = 'var(--connection-status-good-bg, #0F9821)';
 
+const timerRunningBg = 'var(--timer-running-bg, #1D65D4)';
+const timerStoppedBg = 'var(--timer-stopped-bg, #393C48)';
+
 const btnDangerBorder = `var(--btn-danger-border, ${colorDanger})`;
 const btnDangerColor = `var(--btn-danger-color, ${colorWhite})`;
 const btnDangerBg = `var(--btn-danger-bg, ${colorDanger})`;
@@ -251,6 +254,8 @@ export {
   btnWarningColor,
   btnWarningBg,
   connectionStatusGoodBg,
+  timerRunningBg,
+  timerStoppedBg,
   btnDangerBorder,
   btnDangerColor,
   btnDangerBg,
