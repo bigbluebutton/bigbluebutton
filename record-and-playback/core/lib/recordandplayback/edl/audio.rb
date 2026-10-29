@@ -342,13 +342,14 @@ module BigBlueButton
                  (info[:duration].to_f / info[:original_duration]) < 0.997 &&
                  (((info[:original_duration] - info[:duration]).to_f) / info[:original_duration]).abs < 0.05)
               speed = info[:duration].to_f / info[:original_duration]
-              seek = 0
+              # Seek to the cut's position in the file's own time
+              seek = (seek * speed).round
               BigBlueButton.logger.warn "  Audio file length mismatch in #{filename}, adjusting speed to #{speed}"
             end
 
             # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
             # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
-            if seek < (info[:duration].to_f * speed)
+            if seek < info[:duration]
               # For each audio, add a -ss and -i for its input
               # Use -noaccurate_seek to read frames before seek point (will be trimmed by resampler)
               ffmpeg_cmd += ['-noaccurate_seek', '-ss', ms_to_s(seek)]
@@ -365,7 +366,8 @@ module BigBlueButton
               # Build track label
               track_label = "t#{i}_#{idx}"
               line = "[#{input_index}]"
-              line << "atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}," if speed != 1.0
+              # Trim what was read before the seek point, or it would be stretched into the cut too
+              line << "atrim=start=0,atempo=#{speed}," if speed != 1.0
               # Ensure the aresample filter doesn't see the next audio packet after a long pts gap
               line << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])},apad,"
               line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}"
