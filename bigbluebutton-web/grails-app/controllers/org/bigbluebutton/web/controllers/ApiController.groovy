@@ -26,7 +26,6 @@ import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
@@ -36,6 +35,7 @@ import org.bigbluebutton.api.service.DownloadResult
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
+import org.bigbluebutton.api.util.RequestRateLimiter
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.SupportedFileTypes
@@ -64,6 +64,15 @@ class ApiController {
   private static final String ERROR_MALFORMED_XML_MESSAGE = "The request body contains malformed XML."
   private static final String ERROR_INVALID_PRESENTATION_URL = "invalidPresentationUrl"
   private static final String ERROR_INVALID_PRESENTATION_URL_MESSAGE = "Presentation URL is malformed."
+
+  // Outcomes of prepareDocuments
+  private static final String DOCUMENTS_READY = "ready"
+  private static final String DOCUMENTS_DISABLED = "disabled"
+  private static final String DOCUMENTS_INVALID_FILENAME = "invalidFilename"
+
+  // SUCCESS messageKey of create and insertDocument when documents beyond maxPresentationsPerRequest were dropped
+  private static final String MSG_KEY_DOCUMENTS_DROPPED = "documentsDropped"
+
   private static final String URL_ENCODING = "UTF-8"
   protected static Boolean REDIRECT_RESPONSE = true
 
@@ -71,6 +80,7 @@ class ApiController {
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
   PresentationUrlDownloadService presDownloadService
+  RequestRateLimiter insertDocumentRateLimiter
   StunTurnService stunTurnService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
@@ -262,13 +272,19 @@ class ApiController {
       // synchronous portion of the upload handling must not turn a successful
       // creation into a 500 — log it and still respond with success (the actual
       // download/processing runs async and reports its own failures).
+      def documents = null
       try {
-        uploadDocuments(xmlModules, newMeeting, false);
+        documents = prepareDocuments(xmlModules, newMeeting, false)
+        documents.tasks.each { it() }
       } catch (Exception e) {
         log.error("Failed to handle pre-uploaded presentations for meeting [${newMeeting.getInternalId()}]", e)
       }
 
-      respondWithConference(newMeeting, null, null)
+      if (documents != null && documents.dropped > 0) {
+        respondWithConference(newMeeting, MSG_KEY_DOCUMENTS_DROPPED, droppedDocumentsMessage(documents))
+      } else {
+        respondWithConference(newMeeting, null, null)
+      }
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
@@ -707,7 +723,7 @@ class ApiController {
       } catch (Exception ignored) {}
     }
 
-    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+    String sessionToken = Util.randomAlphanumeric(16).toLowerCase()
     log.debug "Session token: " + sessionToken
 
     UserSession us = new UserSession();
@@ -1203,78 +1219,48 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null) {
+      // Keyed by the internal meeting ID, which is guaranteed unique. A meeting over the limit
+      // is turned away before the request body is read; otherwise a request is counted below,
+      // only once it is known to upload documents.
+      String internalMeetingId = meeting.getInternalId()
+      if (insertDocumentRateLimiter.isLimited(internalMeetingId, System.currentTimeMillis())) {
+        respondWithInsertDocumentRateLimited(externalMeetingId, internalMeetingId)
+        return
+      }
+
       String requestBody = request.inputStream == null ? null : request.inputStream.text
       requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
-      // 4.0 validates the XML body and the presentation URLs up front; 3.0 made
-      // uploadDocuments return a status so an invalid filename can be reported
-      // as a failure instead of a misleading SUCCESS. Keep both.
+      // The XML body, the presentation URLs and the filenames are all validated before
+      // anything is downloaded, so an invalid request is reported as a failure instead of a
+      // misleading SUCCESS, and does not count against the rate limit.
       def xmlModules = processValidatedRequestXmlModules(requestBody)
       if (xmlModules == null) return
-      def uploadResult = uploadDocuments(xmlModules, meeting, true)
-      if (uploadResult == true) {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                    , contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                    , contentType: "text/xml")
-          }
-        }
-      } else if (uploadResult == "invalid_filename") {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse(
-                    "One or more documents could not be uploaded due to an invalid filename.", RESP_CODE_FAILED)
-                    , contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse(
-                    "One or more documents could not be uploaded due to an invalid filename.", RESP_CODE_FAILED)
-                    , contentType: "text/xml")
-          }
-        }
-      } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
-        }
+      def documents = prepareDocuments(xmlModules, meeting, true)
+
+      if (documents.status == DOCUMENTS_DISABLED) {
+        respondWithInsertDocument(RESP_CODE_FAILED, "presentationDisabled",
+                "Presentation feature is disabled, ignoring.")
+      } else if (documents.status == DOCUMENTS_INVALID_FILENAME) {
+        respondWithInsertDocument(RESP_CODE_FAILED, "invalidFilename",
+                "One or more documents could not be uploaded due to an invalid filename.")
+      } else if (documents.tasks.isEmpty()) {
+        respondWithInsertDocument(RESP_CODE_FAILED, "noDocuments",
+                "Request body must contain a presentation module with at least one document.")
+      } else if (!insertDocumentRateLimiter.allow(internalMeetingId, System.currentTimeMillis())) {
+        respondWithInsertDocumentRateLimited(externalMeetingId, internalMeetingId)
       } else {
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildInsertDocumentResponse(
-                    "Request body must contain a presentation module with at least one document.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
-          '*' {
-            render(text: responseBuilder.buildInsertDocumentResponse(
-                    "Request body must contain a presentation module with at least one document.",
-                    RESP_CODE_FAILED), contentType: "text/xml")
-          }
+        documents.tasks.each { it() }
+        if (documents.dropped > 0) {
+          respondWithInsertDocument(RESP_CODE_SUCCESS, MSG_KEY_DOCUMENTS_DROPPED, droppedDocumentsMessage(documents))
+        } else {
+          respondWithInsertDocument(RESP_CODE_SUCCESS, null, "Presentation is being uploaded")
         }
       }
-    }else {
+    } else {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildInsertDocumentResponse(
-                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
-                  contentType: "text/xml")
-        }
-        '*' {
-          render(text: responseBuilder.buildInsertDocumentResponse(
-                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
-                  contentType: "text/xml")
-        }
-      }
+      respondWithInsertDocument(RESP_CODE_FAILED, "notFound",
+              "Meeting with id [${externalMeetingId}] not found.")
     }
   }
 
@@ -1580,12 +1566,15 @@ class ApiController {
     }
   }
 
-  private uploadDocuments(xmlModules, conf, isFromInsertAPI) {
+  // Validates the request's documents on the request thread, while failures are still tied to
+  // the request. Returns [status, tasks, requested, dropped]: running tasks submits the accepted
+  // documents for download and processing, which the caller does only once it accepts the request.
+  private Map prepareDocuments(xmlModules, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains(MODULE_PRESENTATION)) {
       log.warn("Presentation feature is disabled.")
-      return false
+      return [status: DOCUMENTS_DISABLED, tasks: [], requested: 0, dropped: 0]
     }
-    log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
+    log.debug("ApiController#prepareDocuments(${conf.getInternalId()})");
 
     //sanitizeInput
     params.each {
@@ -1642,7 +1631,7 @@ class ApiController {
     if (!xmlModules.containsKey(MODULE_PRESENTATION)) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
-        return false;
+        return [status: DOCUMENTS_READY, tasks: [], requested: 0, dropped: 0]
       }
 
      if (hasPresentationUrlInParameter) {
@@ -1687,9 +1676,25 @@ class ApiController {
       presentationListHasCurrent = hasCurrent;
     }
 
+    // The default presentation is added by the server, not by the request, so it is neither
+    // counted against maxPresentationsPerRequest nor dropped.
+    def isRequestedDocument = { !(it instanceof Map && it.name == "default") }
+    int requested = listOfPresentation.count(isRequestedDocument)
+    int dropped = 0
+    int maxPresentations = paramsProcessorUtil.getMaxPresentationsPerRequest()
+    if (maxPresentations > 0 && requested > maxPresentations) {
+      dropped = requested - maxPresentations
+      log.warn("Presentation count {} exceeds maxPresentationsPerRequest {} for meeting {} " +
+               "(isFromInsertAPI={}); processing first {} and dropping {}.",
+               requested, maxPresentations, conf.getInternalId(),
+               isFromInsertAPI, maxPresentations, dropped)
+      int kept = 0
+      listOfPresentation = listOfPresentation.findAll { !isRequestedDocument(it) || kept++ < maxPresentations }
+    }
+
     // Filenames are validated synchronously (on the request thread) while the
     // request is still in scope; the slow download/processing is only submitted
-    // afterwards. Collect the submissions and defer them so that, for
+    // afterwards, by the caller. Collect the submissions so that, for
     // insertDocument, an invalid filename can be reported as a failed response
     // instead of being silently skipped.
     def pendingPresentationTasks = []
@@ -1781,10 +1786,10 @@ class ApiController {
             log.error("Skipping raw-bytes presentation: invalid document name [${document.@name}]")
             invalidFilenameFound = true
           } else {
-            def b64 = new Base64()
-            def decodedBytes = b64.decode(document.text().getBytes())
-
             pendingPresentationTasks << {
+              // Decoded only once the request is accepted.
+              def b64 = new Base64()
+              def decodedBytes = b64.decode(document.text().getBytes())
               presentationService.submitPresentationTask(conf.getInternalId(), documentName) {
                 processDocumentFromRawBytes(decodedBytes, documentName,
                         conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
@@ -1803,11 +1808,10 @@ class ApiController {
     // creation still proceeds with the valid ones.
     if (isFromInsertAPI && invalidFilenameFound) {
       log.warn("insertDocument rejected for meeting [${conf.getInternalId()}]: one or more documents had an invalid filename")
-      return "invalid_filename"
+      return [status: DOCUMENTS_INVALID_FILENAME, tasks: [], requested: requested, dropped: dropped]
     }
 
-    pendingPresentationTasks.each { it() }
-    return true
+    return [status: DOCUMENTS_READY, tasks: pendingPresentationTasks, requested: requested, dropped: dropped]
   }
 
   private Map processRequestXmlModules(String requestBody) {
@@ -2111,6 +2115,30 @@ class ApiController {
       uploadedPres.setDownloadable();
     }
     presentationService.processUploadedPresentation(uploadedPres);
+  }
+
+  private respondWithInsertDocument(String returnCode, String msgKey, String msg) {
+    withFormat {
+      xml {
+        render(text: responseBuilder.buildInsertDocumentResponse(msgKey, msg, returnCode), contentType: "text/xml")
+      }
+      '*' {
+        render(text: responseBuilder.buildInsertDocumentResponse(msgKey, msg, returnCode), contentType: "text/xml")
+      }
+    }
+  }
+
+  private respondWithInsertDocumentRateLimited(String externalMeetingId, String internalMeetingId) {
+    log.warn("Rejecting insertDocument: rate limit exceeded. meetingID={} internalMeetingID={}",
+            externalMeetingId, internalMeetingId)
+    respondWithInsertDocument(RESP_CODE_FAILED, "rateLimitExceeded",
+            "Too many presentation upload requests, please try again later.")
+  }
+
+  private static String droppedDocumentsMessage(Map documents) {
+    int accepted = documents.requested - documents.dropped
+    return "Only the first ${accepted} of ${documents.requested} presentations are being uploaded; " +
+            "at most ${accepted} are accepted per request."
   }
 
   private respondWithConference(meeting, msgKey, msg) {

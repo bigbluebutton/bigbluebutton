@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
+import cx from 'classnames';
 import { FetchResult } from '@apollo/client';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -235,6 +236,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
     <>
       <Styled.OffsetBottom>
         <Button
+          className={cx('bbb-video-toggle', { 'bbb-video-toggle--off': !hasVideoStream })}
           label={label}
           data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
           onClick={handleOnClick}

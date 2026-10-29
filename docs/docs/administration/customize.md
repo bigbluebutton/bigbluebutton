@@ -20,7 +20,7 @@ For the full list of the configuration files and their overriding counterpart, s
 
 ### Preserving customizations using apply-config.sh
 
-**Note that starting with BigBlueButton 2.6 we strongly recommend adding your custom settings to `/etc/bigbluebutton` instead. See [the list of override files](/administration/configuration-files#local-overrides-for-configuration-settings)**
+**We strongly recommend adding your custom settings to `/etc/bigbluebutton` instead. See [the list of override files](/administration/configuration-files#local-overrides-for-configuration-settings)**
 
 Whenever you upgrade a server to the latest version of BigBlueButton, either using the [upgrade steps](/administration/install#upgrading-bigbluebutton-40) or the [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) script, if you have made custom changes to BigBlueButton's configuration files [that are deployed from packages], the packaging scripts may overwrite these changes.
 
@@ -58,17 +58,19 @@ When a meeting finishes, the BigBlueButton server [archives the meeting data](/d
 
 Retaining the raw data lets you [rebuild](/development/recording#rebuild-a-recording) a recording if there was a processing issue, to enabled a new recording format, or if it was accidentally deleted by a user; however, the tradeoff is the storage of raw data will consume more disk space over time.
 
-By default, BigBlueButton server automatically remove the raw data for a recording after 14 days of its being published. You can adjust this by editing the file `/etc/cron.daily/bigbluebutton`. Look for this line near the top of the file:
+By default, the BigBlueButton server automatically removes the raw data for a recording 14 days after it was published. The period is the variable `published_days` of `/etc/cron.daily/bigbluebutton`; override it in `/etc/default/bigbluebutton-cron-config`, which survives upgrades:
 
 ```bash
-published_days=14
+published_days=30
 ```
 
-And adjust it to the desired number of days. If you would instead like to completely disable the cleanup of raw recording data, comment out the following line, near the bottom of the file:
+If you would instead like to completely disable the cleanup of raw recording data, comment out the following line, near the bottom of `/etc/cron.daily/bigbluebutton` (this edit is lost on upgrades; alternatively set `published_days` to a very large value):
 
 ```bash
 remove_raw_of_published_recordings
 ```
+
+The same file also deletes the raw data of meetings without recording marks after `unrecorded_days` (default 14), presentations after `history` (default 5) days and rotated logs after `log_history` (default 28) days. All of these can be overridden the same way.
 
 #### Delete recordings older than N days
 
@@ -168,7 +170,7 @@ The package installs both players and the redirect from the unversioned link `/p
 
 #### Enable playback of recordings on iOS
 
-The `presentation` playback format encodes the video shared during the session (webcam and screen share) as `.webm` (VP8) files; however, iOS devices only support playback of `.mp4` (h.264) video files. To enable playback of the `presentation` recording format on iOS devices, edit `/usr/local/bigbluebutton/core/scripts/presentation.yml` and uncomment the entry for `mp4`.
+The `presentation` playback format encodes the video shared during the session (webcam and screen share) as `.webm` (VP8) files; however, iOS devices only support playback of `.mp4` (h.264) video files. To enable playback of the `presentation` recording format on iOS devices, add `mp4` to `video_formats` in `/etc/bigbluebutton/recording/presentation.yml` (the override of `/usr/local/bigbluebutton/core/scripts/presentation.yml`).
 
 ```yaml
 video_formats:
@@ -292,21 +294,18 @@ The transferred recordings should be immediately visible via the BigBlueButton r
 
 #### Change processing time
 
-On a 2.2.x BigBlueButton server, the server will process recordings as meetings finish. You can restrict the recording processing interval to specific hours by creating the file `/etc/systemd/system/bbb-record-core.timer.d/override.conf` with the contents
+The BigBlueButton server processes recordings as meetings finish: `bbb-rap-starter` queues each recording and the `bbb-rap-resque-worker` service works through the queue. To restrict the processing to specific hours, stop the worker during the day and start it in the evening with a cron job; the queued recordings wait until the worker runs again. For example, in `/etc/cron.d/bbb-recording-hours`:
 
 ```
-[Timer]
-OnActiveSec=
-OnUnitInactiveSec=
-OnCalendar=21,22,23,00,01,02,03:*:00
-Persistent=false
+0 7  * * * root systemctl stop bbb-rap-resque-worker
+0 21 * * * root systemctl start bbb-rap-resque-worker
 ```
 
-and do `systemctl daemon-reload`. This file overrides the timing of when systemd runs `bbb-record-core.target`. In the above example, recordings will start processing between 21:00 and 03:59.
+`bbb-conf --restart` also starts the worker, so a restart during the day resumes processing until the next stop.
 
 #### Allow all recordings to be returned
 
-In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `bigbluebutton.properties`. This property determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
+The configuration property `allowFetchAllRecordings` in `bigbluebutton.properties` determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
 
 #### Increase the number of recording workers
 
@@ -361,7 +360,7 @@ In order to enable the recording formats manually, you need to edit the file `/u
 
 To enable a new recording format, you need to add a new step named `process:formatname` that runs after the step named captions, and a new step named `publish:formatname` that runs after `process:formatname`. You may have to convert some of the steps to list format.
 
-For example, here are the stock steps in BigBlueButton 3.0 with the `presentation` format enabled:
+For example, here are the stock steps with the `presentation` format enabled:
 
 ```yml
 steps:
@@ -392,7 +391,7 @@ After you edit the configuration file, you must restart the recording processing
 
 To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
 
-The following script will enable the video recording format of a BigBlueButton 2.6+ server.
+The following script enables the video recording format.
 
 ```
 #!/bin/bash
@@ -415,19 +414,17 @@ fi
 
 #### Enable generating mp4 (H.264) video output
 
-By default, BigBlueButton generates recording videos as `.webm` files using the VP9 video codec. These are supported in most desktop web browsers, but might not work on iOS mobile devices. You can additionally enable the H.264 video codec in some recording formats (Keep in mind that the following `.yml` files mentioned ahead only exist when the respective format package is installed):
+By default, the `presentation` and `screenshare` recording formats generate their videos as `.webm` files using the VP9 video codec. These are supported in most desktop web browsers, but might not work on iOS mobile devices. You can additionally enable the H.264 video codec (keep in mind that the `.yml` files mentioned below only exist when the respective format package is installed):
 
 **`video`**
 
-Edit the file `/usr/local/bigbluebutton/core/scripts/video.yml` and uncomment the lines under the `formats:` label for the mimetype `video/mp4`.
-
-<!-- TODO: The default for the video recording format is currently mp4; this needs to be updated with the correct steps -->
+The `video` format already produces an `.mp4` (H.264) file by default. To generate a `.webm` file as well, edit `/usr/local/bigbluebutton/core/scripts/video.yml` and uncomment the `video/webm` entry under `formats:`.
 
 The encoding options can be adjusted to speed up encoding or increase quality of video generation as desired.
 
 **`presentation`**
 
-Edit the file `/usr/local/bigbluebutton/core/scripts/presentation.yml` and uncomment the entry for `mp4`:
+Add `mp4` to `video_formats` in `/etc/bigbluebutton/recording/presentation.yml` (the override of `/usr/local/bigbluebutton/core/scripts/presentation.yml`):
 
 ```yml
 video_formats:
@@ -664,7 +661,6 @@ public:
                     moderator: 8
                     viewer: 2
                 users: 100
-HERE
 ```
 
 In the example above, `paginationToggleEnabled: false` hides the "Video pagination" switch in Settings, so no user can turn pagination off. To keep the switch for moderators only, leave `paginationToggleEnabled: true` and set `paginationToggleModeratorOnly: true`:
@@ -683,7 +679,7 @@ The switch only shows when the user's page size is above `0`. With the default `
 
 #### Use custom images for virtual background
 
-Starting from version 2.4 BigBlueButton offers virtual background for webcams.
+BigBlueButton offers virtual backgrounds for webcams.
 To use your own background images copy them into the directory
 `/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds`.
 For each image copy a thumbnail of the image of 50x50 pixels size into
@@ -794,7 +790,6 @@ Afterwards, restart bbb-apps-akka: `$ sudo systemctl restart bbb-apps-akka`.
 
 #### Enable background music when only one person is in a session
 
-p
 FreeSWITCH enables you to have music play in the background when only one users is in the voice conference. To enable background music, edit `/opt/freeswitch/conf/autoload_configs/conference.conf.xml` (as root) and around line 204 you'll see the music on hold (moh-sound) commented out
 
 ```xml
@@ -845,7 +840,7 @@ This dial-in path is handled by FreeSWITCH and applies to meetings that use the 
 
 The built-in WebRTC-based audio in BigBlueButton is very high quality audio. Still, there may be cases where you want users to be able to dial into the conference bridge using a telephone number.
 
-Before you can configure FreeSWITCH to route the call to the right conference, you need to first obtain a phone number from a [Internet Telephone Service Providers](https://freeswitch.org/confluence/display/FREESWITCH/Providers+ITSPs) and configure FreeSWITCH accordingly to receive incoming calls via session initiation protocol (SIP) from that provider. Ensure that the context is `public` and that the file is called `/opt/freeswitch/conf/sip_profiles/external/YOUR-PROVIDER.xml`. Here is an example; of course, hostname and ALL-CAPS values need to be changed:
+Before you can configure FreeSWITCH to route the call to the right conference, you need to first obtain a phone number from an Internet Telephone Service Provider (see the [FreeSWITCH documentation](https://developer.signalwire.com/freeswitch/)) and configure FreeSWITCH accordingly to receive incoming calls via session initiation protocol (SIP) from that provider. Ensure that the context is `public` and that the file is called `/opt/freeswitch/conf/sip_profiles/external/YOUR-PROVIDER.xml`. Here is an example; of course, hostname and ALL-CAPS values need to be changed:
 
 ```xml
 <include>
@@ -975,7 +970,9 @@ Then set up a SIP call gateway — BigBlueButton's bundled FreeSWITCH, or an ext
 
 ##### Using the bundled FreeSWITCH as the call gateway
 
-In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`). DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`; FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg, which is what `livekit-sip` expects by default.
+In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`).
+
+DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`. FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg. `livekit-sip` accepts DTMF only as RFC 2833.
 
 :::note
 For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-bridge dial-in path: meetings created with `audioBridge=bbb-webrtc-sfu` will no longer be reachable through that DID. To support both audio bridges on the same server, use distinct DIDs and gate the dialplan on `destination_number` (one extension routes to `mod_conference`, the other bridges to `livekit-sip`).
@@ -983,7 +980,7 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
 
 1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
 
-2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+2. `livekit-sip` listens on port `5062` by default. To change it, set in `/etc/bigbluebutton/livekit-sip.yaml`, and use the same port in the bridge in step 3:
 
    ```yaml
    sip_port: 5062
@@ -1012,16 +1009,23 @@ For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-br
 
      <extension name="bbb_lk_sip_bridge">
        <condition field="destination_number" expression="^SEND_TO_LIVEKIT_SIP$">
-         <!-- Stop in-band DTMF detection so DTMF is not absorbed by FreeSWITCH. -->
+         <!-- Stop in-band DTMF detection: the trunk's RFC 2833 or SIP INFO digits
+              reach livekit-sip without it. For a trunk that sends DTMF only as
+              tones, remove this line (see DTMF troubleshooting). -->
          <action application="stop_dtmf"/>
-         <!-- Force RFC 2833 on the bridged b-leg toward livekit-sip. The BBB
-              external profile defaults to dtmf-type=info; livekit-sip negotiates
-              RFC 2833 by default. -->
-         <action application="bridge" data="{sip_dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
-         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
-              the a-leg automatically, since hangup_after_bridge defaults to true).
-              On failure (e.g. no LiveKit dispatch for this voice bridge, or
-              livekit-sip down), play bad-pin and re-prompt. -->
+         <!-- Hang up the caller when livekit-sip ends the call; go back to the
+              PIN prompt when the bridge fails. -->
+         <action application="set" data="hangup_after_bridge=true"/>
+         <action application="set" data="continue_on_fail=true"/>
+         <!-- Stop waiting for livekit-sip to answer after 15 s (the default is 60 s). -->
+         <action application="set" data="call_timeout=15"/>
+         <!-- livekit-sip takes DTMF only as RFC 2833, and the BBB external
+              profile defaults to dtmf-type=info. dtmf_type applies to the
+              bridged leg only, so the trunk leg keeps its own DTMF mode.
+              absolute_codec_string keeps the codecs compatible across all legs
+              (provider, gateway and livekit-sip). The quotes keep the list in
+              one variable. -->
+         <action application="bridge" data="{absolute_codec_string='G722,PCMU,PCMA',dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
          <action application="transfer" data="LK_BAD_PIN XML public"/>
        </condition>
      </extension>
@@ -1076,7 +1080,7 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
    rtp_port: <START>-<END>
    ```
 
-   Note: The default RTP range for livekit-sip is `16384-32768`, the range the other media servers share. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
+   Note: By default livekit-sip shares `16384-32768` with the other media servers, and `bbb-conf --set-port-range` moves them all, overwriting `rtp_port`. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
 
 4. Restart BigBlueButton:
 
@@ -1093,7 +1097,10 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
 
 ##### DTMF troubleshooting
 
-If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge, confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`). If that is already correct, further FreeSWITCH DTMF-mode tweaks may be required.
+If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge:
+
+- Confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`).
+- If the trunk sends DTMF only as in-band tones, remove `stop_dtmf` from the `bbb_lk_sip_bridge` extension. FreeSWITCH then turns the tones into RFC 2833 events.
 
 ##### Limitations
 
@@ -1109,7 +1116,7 @@ If you want to enable, edit `/opt/freeswitch/conf/autoload_configs/conference.co
 <param name="comfort-noise" value="1400"/>
 ```
 
-You need to restart BigBlueButton between each change. For more information, see [comfort-noise](https://freeswitch.org/confluence/display/FREESWITCH/mod_conference) in FreeSWITCH documentation.
+You need to restart BigBlueButton between each change. For more information, see `mod_conference` in the [FreeSWITCH documentation](https://developer.signalwire.com/freeswitch/).
 
 ```bash
 $ sudo bbb-conf --restart
@@ -1192,27 +1199,9 @@ With the check off, affected slides may show up blank or with missing images aga
 
 #### Increase the file size for an uploaded presentation
 
-The default maximum file upload size for an uploaded presentation is 30 MB.
+The default maximum file upload size for an uploaded presentation is 30 MB. The limit is enforced by bbb-web and by the HTML5 client; nginx (`/usr/share/bigbluebutton/nginx/web.nginx`) already accepts uploads of up to 1000 MB, so it does not need to change for limits below that.
 
-The first step is to change the size restriction in nginx. Edit `/etc/bigbluebutton/nginx/web.nginx` (2.4) or `/usr/share/bigbluebutton/nginx/web.nginx` (from 2.5 on) and modify the values for `client_max_body_size`.
-
-```nginx
-       location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
-          ....
-          # Allow 30M uploaded presentation document.
-          client_max_body_size       30m;
-          ....
-       }
-
-       location = /bigbluebutton/presentation/checkPresentation {
-          ....
-          # Allow 30M uploaded presentation document.
-          client_max_body_size       30m;
-          ....
-       }
-```
-
-Next change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the value `maxFileSizeUpload`.
+Change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the value `maxFileSizeUpload`.
 
 ```properties
 # Maximum file size for an uploaded presentation (default 30MB).
@@ -1223,9 +1212,126 @@ You will have to additionally increase the size for the HTML5 client, edit `/usr
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
+#### Limit the number of presentations per API request
+
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
+
+To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
+
+```properties
+#----------------------------------------------------
+# Maximum number of presentations processed per create/insertDocument API call (default 10).
+maxPresentationsPerRequest=10
+```
+
+Set the value to `0` to disable the limit entirely.
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+$ sudo bbb-conf --restart
+```
+
+#### Rate limit presentation uploads
+
+BigBlueButton has several independent controls over presentation uploads. They protect different things, so it is worth knowing which one to reach for. Set any of the `*MaxRequests` settings, or `presentationMaxPerPod`, to `0` to disable that limit entirely.
+
+##### Limit conversion load (the main resource control)
+
+Presentation conversion is the most resource-intensive part of an upload. `bbb-web` caps how many presentations may enter the conversion pipeline for a single meeting:
+
+- **20** presentations per meeting within a rolling **60-second** window (`presentationConversionMaxRequests` / `presentationConversionRateWindowSec`).
+
+This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. The upload toast shows an error to the participant who uploaded the file or, for `create` and `insertDocument` documents, to the presenter.
+
+Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it and the room is destroyed immediately afterwards, so discarding it would lose it permanently with nothing left to retry from.
+
+Be aware that this means no conversion rate limit applies to captures. `apps.presentationMaxPerPod` is not a substitute: it caps how many presentations a pod holds, which is meeting state, it is checked in `bbb-apps-akka` only once conversion has already started, and captures may go past it up to twice its value (see below). Ending a breakout session imports up to two presentations per room (captured slides and captured shared notes are separate uploads, each behind its own setting), all at once, so a session with many rooms produces a corresponding burst of conversion work in the parent meeting.
+
+The limit is keyed by internal meeting ID, so a throttled meeting recovers once the window passes. To change the values, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+#----------------------------------------------------
+# Rate limit on presentations entering the conversion pipeline, per meeting
+# (defaults: 20 per 60s). 0 = disabled.
+presentationConversionMaxRequests=20
+presentationConversionRateWindowSec=60
+```
+
+When raising or lowering this, note the floor: a single `create` call may carry up to `maxPresentationsPerRequest` documents plus the automatically injected default presentation, so a value below that will drop documents from a legitimate `create`.
+
+##### Limit how many presentations a pod holds
+
+`bbb-apps-akka` caps how many presentations a single presentation pod may contain:
+
+- **50** presentations per presentation pod (`presentationMaxPerPod`).
+
+This caps **meeting state** — how many presentations exist in the pod and appear in the client's presentation list. To bound conversion load, use `presentationConversionMaxRequests` above.
+
+An over-limit presentation is refused entry to the pod and a warning is logged in `bbb-apps-akka`.
+
+- **Interactive uploads** are refused when the client asks for an upload token, before the file is sent. The presenter sees "Maximum of N presentations reached" in the upload toast. The check counts the presentations already in the pod, not uploads still in progress, so when the presenter selects several files at once, each of them gets a token and is sent. Those that would take the pod past the cap are then refused when their conversion starts, as described for `create` and `insertDocument` below. `presentationUploadTokenMaxRequests` bounds how many files one such selection can send.
+- **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. The presenter sees "Maximum of N presentations reached" in the upload toast.
+- **Captured slides and shared notes from an ended breakout room** may go past the cap, up to twice its value (**100** by default), for the same reason they are exempt from `presentationConversionMaxRequests`: the room is gone, so refusing them would lose them. Past twice the cap they are refused like any other presentation, and the presenter sees "Maximum of N presentations reached" with N twice the cap. While captures keep a pod above the cap, other uploads are refused until enough presentations are removed to bring it below the cap again.
+
+##### Limit how fast one presenter can request uploads
+
+`bbb-apps-akka` rate limits presentation upload-**token** requests per user:
+
+- **20** upload-token requests per user within a rolling **60-second** window (`presentationUploadTokenMaxRequests` / `presentationUploadTokenWindowSec`).
+
+This covers the interactive client path only, because only the client requests an upload token. It does not apply to `create`, `insertDocument`, or breakout-room slide copies.
+
+A refused request is not uploaded, and the upload toast shows "You are uploading too many presentations at once" for each refused file, up to 100 files per user in each window. Further refused files in the window show the notification "The upload could not start. Please wait a moment and try again." instead. Entries from earlier windows are removed as newer refusals arrive. Requests refused by `presentationMaxPerPod` also count towards this limit, and each of them shows "Maximum of N presentations reached".
+
+To change either `bbb-apps-akka` limit, add an overwrite rule in `/etc/bigbluebutton/bbb-apps-akka.conf` under the `apps` block:
+
+```properties
+apps {
+  # Maximum presentation upload-token requests allowed per user within the window below.
+  # 0 = disabled
+  presentationUploadTokenMaxRequests = 20
+  # Length in seconds of the per-user rate-limit window.
+  presentationUploadTokenWindowSec = 60
+  # Maximum number of presentations allowed in a single presentation pod.
+  # 0 = disabled
+  presentationMaxPerPod = 50
+}
+```
+
+##### Limit `insertDocument` API calls
+
+`bbb-web` rate limits the `insertDocument` API per meeting:
+
+- **30** `insertDocument` calls per meeting within a rolling **60-second** window (`insertDocumentMaxRequests` / `insertDocumentRateWindowSec`).
+
+When a meeting exceeds this rate the request is rejected with a `FAILED` response with the `messageKey` `rateLimitExceeded`, and a warning is logged in `bbb-web`. Only calls that would upload documents count: a call rejected for another reason, such as malformed XML, an invalid filename or no documents, does not use up the meeting's allowance. Once the allowance is used up, every call is rejected before its request body is read.
+
+```properties
+#----------------------------------------------------
+# Rate limit for the insertDocument API, applied per meeting (defaults: 30 per 60s).
+# 0 = disabled.
+insertDocumentMaxRequests=30
+insertDocumentRateWindowSec=60
+```
+
+Note how this relates to the conversion limit: `insertDocumentMaxRequests` bounds API **calls**, while `presentationConversionMaxRequests` bounds the **presentations** those calls carry. With the shipped defaults the conversion limit is the lower of the two, so that is the one to raise if a legitimate integration is being throttled.
+
+##### Which limit rejected my upload?
+
+| Setting | Enforced in | Log message | Client error |
+| --- | --- | --- | --- |
+| `presentationConversionMaxRequests` | `bbb-web` | `Rejecting presentation conversion: per-meeting rate limit exceeded` | "Too many presentations were uploaded recently" |
+| `insertDocumentMaxRequests` | `bbb-web` | `Rejecting insertDocument: rate limit exceeded` | API `FAILED` response, `messageKey` `rateLimitExceeded` |
+| `maxPresentationsPerRequest` | `bbb-web` | `Presentation count N exceeds maxPresentationsPerRequest` | API `SUCCESS` response, `messageKey` `documentsDropped`; the excess documents are not uploaded |
+| `presentationMaxPerPod` | `bbb-apps-akka` | `Rejecting presentation upload token request: pod presentation limit reached` (interactive) or `Rejecting presentation: pod presentation limit reached` (API) | "Maximum of N presentations reached" |
+| `presentationUploadTokenMaxRequests` | `bbb-apps-akka` | `Rejecting presentation upload token request: request rate limit exceeded` | "You are uploading too many presentations at once" |
+
+Restart your server with `sudo bbb-conf --restart` to apply any of these changes.
+
 #### Add custom fonts for presentation conversion
 
-Starting with BigBlueButton 2.3 we added support for using additional fonts when converting presentation files.
+BigBlueButton can use additional fonts when converting presentation files.
 
 On the server where you want the new fonts supported you would want to download the fonts (.ttf) file. For example:
 
@@ -1243,7 +1349,7 @@ That's all! The font will be available on next presentations.
 
 #### Change the limit of 300 annotations per page
 
-In BigBlueButton 2.6 we introduced a cap for how many annotations can be added to a single whiteboard (slide). The default value is set to 300. The reason for this cap is that when a large number of annotations was added, it was often times done in the case of multi user whiteboard being enabled and a student trying to be funny. This had a negative effect on other participants in the session, specifically on limited CPU devices. In almost all cases we observed during the testing phase of BigBlueButton 2.6 this cap was sufficient for the normal run of classes. In very rare instances normal use of the whiteboard led to hitting the cap.
+There is a cap for how many annotations can be added to a single whiteboard (slide). The default value is 300. The reason for this cap is that a large number of annotations was often the result of a student playing with the multi-user whiteboard, and it had a negative effect on other participants in the session, specifically on devices with limited CPU. In almost all cases this cap is sufficient for the normal run of classes; in very rare instances normal use of the whiteboard hits it.
 
 In order to change the value (on per-server basis) to, say, 500 annotations in your deployment, add the following to `/etc/bigbluebutton/bbb-html5.yml`
 
@@ -1257,7 +1363,7 @@ and restart BigBlueButton via `sudo bbb-conf --restart`
 
 #### Configure S3-based cache for presentation assets
 
-In BigBlueButton 3.0 we introduced a functionality to store outputs such as SVGs, PNGs, thumbnails and text generated from PDFs or document files uploaded as presentations.
+BigBlueButton can store the outputs (SVGs, PNGs, thumbnails and text) generated from PDFs or document files uploaded as presentations.
 The processed outputs are cached in an S3-based storage system, keyed by a hash of the presentation file.
 When the same presentation is uploaded again, the system retrieves the cached outputs, avoiding redundant processing and improving performance.
 
@@ -1324,14 +1430,6 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 ### Frontends
 
-#### Remove the API demos
-
-If you have earlier installed the API demos for testing (which makes it possible for anyone to use your BigBlueButton server without authentication) and want to now remove them, enter the command:
-
-```bash
-$ sudo apt-get purge bbb-demo
-```
-
 #### Modify the default landing page
 
 The default HTML landing page is located in
@@ -1340,7 +1438,7 @@ The default HTML landing page is located in
 /var/www/bigbluebutton-default/assets/index.html
 ```
 
-Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-conf`).
+Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-config`).
 
 #### Use the Greenlight front-end
 
@@ -1363,14 +1461,15 @@ BigBlueButton comes with a [UFW](https://launchpad.net/ufw) based ruleset. It it
 - TCP/IP port 22 for SSH
 - TCP/IP port 80 for HTTP
 - TCP/IP port 443 for HTTPS
+- TCP and UDP port 3478 for the built-in TURN server (opened only if HAProxy is enabled and running when the rules are applied)
 - UDP ports 16384 to 32768 for media connections
 
-Note: if you have configured `sshd` (the OpenSSH daemon) to use a different port than 22, then before running the commands below, change `ufw allow OpenSSH` to `ufw allow <port>/tcp` where `<port>` is the port in use by `sshd`. You can see the listening port for `sshd` using the command `# netstat -antp | grep sshd`. Here the command shows `sshd` listening to the standard port 22.
+Note: if you have configured `sshd` (the OpenSSH daemon) to use a different port than 22, then before running the commands below, change `ufw allow OpenSSH` to `ufw allow <port>/tcp` where `<port>` is the port in use by `sshd`. You can see the listening port for `sshd` using the command `ss -tlnp | grep sshd`. Here the command shows `sshd` listening to the standard port 22.
 
 ```bash
-$ netstat -antp | grep sshd
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1739/sshd
-tcp6       0      0 :::22                   :::*                    LISTEN      1739/sshd
+$ sudo ss -tlnp | grep sshd
+LISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=1739,fd=3))
+LISTEN 0      128             [::]:22           [::]:*    users:(("sshd",pid=1739,fd=4))
 ```
 
 To restrict external access minimal needed ports for BigBlueButton.
@@ -1383,6 +1482,7 @@ You can also do it manually with the following commands
 $ apt-get install -y ufw
 ufw allow OpenSSH
 ufw allow "Nginx Full"
+ufw allow 3478
 ufw allow 16384:32768/udp
 ufw --force enable
 ```
@@ -1398,6 +1498,8 @@ To configure a firewall for your BigBlueButton server (recommended), add `enable
 ```sh
 enableUFWRules
 ```
+
+The helper opens port 3478 for the built-in TURN server only if HAProxy is enabled and active when it runs, and removes the rule otherwise; if you enable the TURN server later, run `bbb-conf --restart` again so the rule is added.
 
 With `enableUFWRule` added to `apply-config.sh`, whenever you do `bbb-conf` with `--restart` or `--setip`, you'll see the following output
 
@@ -1424,7 +1526,21 @@ Starting BigBlueButton
 
 #### Change UDP ports
 
-By default, BigBlueButton uses the UDP ports 16384-32768 which are used by FreeSWITCH, mediasoup and bbb-webrtc-recorder to send real-time packets (RTP).
+By default, BigBlueButton uses the UDP ports 16384-32768, which are used by LiveKit, livekit-sip, FreeSWITCH, mediasoup and bbb-webrtc-recorder to send real-time packets (RTP).
+
+**LiveKit** (the default media server) uses the whole range 16384 - 32768, which is defined in `/usr/share/livekit-server/livekit.yaml`; override it in `/etc/bigbluebutton/livekit.yaml`:
+
+```yaml
+rtc:
+  port_range_start: 16384
+  port_range_end: 32768
+```
+
+**livekit-sip** (the telephone dial-in of the LiveKit audio bridge) uses the same range, which is defined as `rtp_port` in `/usr/share/livekit-server/livekit-sip.yaml`; override it in `/etc/bigbluebutton/livekit-sip.yaml`:
+
+```yaml
+rtp_port: 16384-32768
+```
 
 **FreeSWITCH** uses the range 16384 - 24576, which is defined in `/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml`
 
@@ -1452,6 +1568,10 @@ mediasoup:
     rtcMinPort: 50000
     rtcMaxPort: 51999
 ```
+
+To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder, LiveKit and livekit-sip; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
+- `switch.conf.xml` isn't preserved on `bbb-freeswitch-core` upgrades, so FreeSWITCH goes back to 16384-24576 - re-run the command after upgrading;
+- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well.
 
 #### Apply custom settings for TURN server
 
@@ -1565,11 +1685,9 @@ For example, if you would like to replace `de.json` with the version from a spec
 cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
 wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
-cd /usr/share/bigbluebutton/html5-client/locales/
-rm de.json
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
-bbb-conf --restart
 ```
+
+No restart is needed: the client loads the locale files from this directory when it starts.
 
 Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
 
@@ -1639,7 +1757,7 @@ After restart, if you open the lock settings you'll see `Share webcam` lock enab
 
 The default URL path for the client is `/html5client`, and it can be changed to match your preferences.
 
-Edit nginx configuration file (`/usr/share/bigbluebutton/nginx/bbb-html5.nginx`), replacing all instances of `/html5client` with the new path;
+Edit the nginx configuration file `/usr/share/bigbluebutton/nginx/bbb-html5.nginx.static` (included by `bbb-html5.nginx`), replacing all instances of `/html5client` with the new path;
 
 Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
 
@@ -1683,6 +1801,33 @@ public:
 ```
 
 Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
+
+Where the speech is transcribed is up to the browser. Chrome sends the audio to Google's speech recognition servers, unless the language pack for the chosen language is already installed on the computer, in which case it transcribes on the device.
+
+##### Where the speech is transcribed
+
+`speechProcessing` (added in 4.0) sets where the browser transcribes the speaker's audio:
+
+```
+public:
+  app:
+    audioCaptions:
+      enabled: true
+      speechProcessing: local
+```
+
+- `cloud` (default): the browser decides, as described above. This does not guarantee that the audio goes to a speech recognition service: Chrome transcribes on the device when the language pack is already installed.
+- `local`: the browser always transcribes on the user's device and never falls back to a speech recognition service.
+- `auto`: as `local`, but a language the browser cannot transcribe on the device, or every language in a browser without on-device speech recognition, is transcribed as with `cloud`. Under the transcription language, a line tells the user that the browser may send the audio to its speech recognition service.
+
+With `local` and `auto`:
+
+- A language must be downloaded to the device before it can be transcribed. When it is not there yet, a short line under the transcription language in the audio settings says that a language pack will be downloaded. The download starts when the user confirms (the join audio button), and the audio settings stay open, showing that it is downloading, until it finishes; if it fails they stay open to try again. Picking "Disabled" joins audio without transcription and without downloading. The download is about 300 MB the first time in Chrome (speech engine plus language pack), then once per language.
+- In the transcription panel, turning transcription on with a language that is not on the device starts its download.
+- If audio is joined some other way (for example with `userdata-bbb_skip_check_audio`) without the language pack, transcription stays off and the user is told to turn it on in the transcription settings to download it. It starts by itself once the download finishes.
+- With `local`, only the languages in `language.available` that the browser can transcribe on the device are offered, and browsers without on-device speech recognition show live captions as unsupported. Chrome has it from version 139, on desktop.
+
+Only the transcribed text is sent to BigBlueButton, as with the default setting.
 
 #### Configuration of gladia.io
 
@@ -1891,6 +2036,28 @@ If you are adding this to a join-url you need to URL encode the string:
 %3Aroot%7B--loader-bg%3A%23000%3B%7Dbody%7Bbackground-color%3A%23000!important%3B%7D
 ```
 
+##### Static CSS classes for client elements
+
+The class names the client generates for its components change from build to build, so a stylesheet that relies on them breaks with the next update. Key components also carry fixed class names with a `bbb-` prefix, which custom styles and theme plugins can select instead. They follow a BEM-like scheme:
+
+- `bbb-<block>` names a component, for example `bbb-navigation`, `bbb-avatar` or `bbb-actions-bar`;
+- `bbb-<block>__<element>` names a part of it, for example `bbb-navigation__item` or `bbb-chat-message__time`;
+- `bbb-<block>--<state>` marks a state, for example `bbb-avatar--presenter`, `bbb-navigation__item--active` or `bbb-mute-toggle--muted`.
+
+The classes cover the avatars, the navigation sidebar and its items, the sidebar panels and their headers, the chat and its messages, the user list, buttons, the actions bar, the microphone and camera buttons, the nav bar and its items, the talking indicator, the presentation and its toolbar, webcams, the timer indicator and the notifications bar. For example, to highlight the open item of the navigation sidebar and to turn the microphone button red while the user is muted:
+
+```css
+.bbb-navigation__item--active {
+  background-color: #fff3cd !important;
+}
+
+.bbb-mute-toggle--muted .bbb-button__icon {
+  background-color: #d93025 !important;
+}
+```
+
+Pass the stylesheet with `userdata-bbb_custom_style_url` or `userdata-bbb_custom_style` as above, or set `public.app.customStyleUrl` in `/etc/bigbluebutton/bbb-html5.yml` to load it for every user (a `userdata-bbb_custom_style_url` on the join URL replaces it for that user).
+
 #### Send client logs to the server
 
 Step-by-step instructions for how to configure logs from clients to be logged in a server log file are located in [Administration -> Configuration Files](/administration/configuration-files#logs-sent-directly-from-the-client)
@@ -1973,5 +2140,5 @@ You may want to double check that both instances are running fine via `systemctl
 
 ##### How many Hasura instances should I run?
 
-As of BigBlueButton 3.0, we recommend keeping the default (single instance) unless you expect that your BigBlueButton server will be handling hundreds of simultaneous users. A second instance would prove benefitial for those aiming to support a larger number (several hundreds users), especially on hardware which is multiple times more performant than what we outline in the [minimum server requirements](/administration/install#minimum-server-requirements).
+We recommend keeping the default (single instance) unless you expect that your BigBlueButton server will be handling hundreds of simultaneous users. A second instance would prove beneficial for those aiming to support a larger number (several hundreds users), especially on hardware which is multiple times more performant than what we outline in the [minimum server requirements](/administration/install#minimum-server-requirements).
 We have not yet noticed visible difference with more than two instances of Hasura, because at this level of usage, there are other aspects of BigBlueButton which will also begin showing signs of slowing down.

@@ -339,6 +339,18 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.returnToMainSessionFromSidebar();
     });
 
+    test('breakoutRoomsPrivateChatEnabled=false removes the private chat between attendees in the rooms', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initModPage(page, { createParameter: 'breakoutRoomsPrivateChatEnabled=false', testInfo });
+      await join.initUserPage(context, { testInfo });
+      await join.initUserPage2(context, { testInfo });
+      await join.privateChatDisabledInRooms();
+    });
+
     // https://github.com/bigbluebutton/bigbluebutton/issues/25138
     test('Breakout room inherits client settings override from parent meeting', async ({
       browser,
@@ -352,7 +364,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
 });
 
 // About two minutes: the running rooms cannot be given less than one minute.
-test.describe.parallel('Breakout time limit', () => {
+test.describe.parallel('Breakout time limit', { tag: '@nightly' }, () => {
   test('Rooms end by themselves when their time runs out', async ({ browser, context, page }, testInfo) => {
     const join = new Join(browser, context);
     await join.initPages(page, testInfo);
