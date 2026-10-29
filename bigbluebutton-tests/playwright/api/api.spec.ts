@@ -1,7 +1,11 @@
+import { expect } from '@playwright/test';
+
+import { CI } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APICallbacks } from './callbacks';
 import { APIChecksum } from './checksum';
 import { APIDisabledFeatures } from './disabledFeatures';
 import { APIDocumentTypes } from './documentTypes';
@@ -128,6 +132,19 @@ test.describe.parallel('API', () => {
 
     test('createTwice', async ({ request }) => {
       await APILifecycle.testCreateTwice(request);
+    });
+  });
+
+  test.describe('Meeting ended callback', { tag: '@ci' }, () => {
+    test('meetingEndedUrlCarriesRecordingmarksAndMeetingID', async ({ request }) => {
+      linkIssue(25929);
+      const callsBack = await APICallbacks.serverCallsBackItsOwnHost(request);
+      if (CI) {
+        expect(callsBack, 'the meta_endCallbackUrl control callback should re-create the meeting').toBe(true);
+      } else {
+        test.skip(!callsBack, 'bbb-web does not accept a callback to its own host (fetchUrlAllowedLocalHosts)');
+      }
+      await APICallbacks.testMeetingEndedUrlCarriesRecordingmarksAndMeetingID(request);
     });
   });
 

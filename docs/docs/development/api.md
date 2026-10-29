@@ -574,7 +574,9 @@ Upon receiving the callback your application could, for example, change the inte
 To specify the callback to BigBlueButton, pass a URL using the parameter `meetingEndedURL` on the `create` request.
 When the BigBlueButton server ends the meeting, it will make an HTTP GET request to the passed URL.
 
-BigBlueButton will add an additional query parameter, `recordingmarks=true|false`,
+BigBlueButton will add two query parameters to the URL:
+`meetingID`, the meeting ID that was passed on the create API call,
+and `recordingmarks=true|false`,
 which provides a hint as to whether a recording will be generated for the meeting.
 The value will be `true` if the meeting was set to be recorded
 (`record=true` was passed on the create API call)
@@ -591,10 +593,16 @@ add the following parameter to the `create` API call:
 &meetingEndedURL=https%3A%2F%2Fmyapp.example.com%2FmeetingEndedCallback%3Ftoken%3Da817dde5-0a18-43ad-9016-2d5d4c758a50
 ```
 (note the callback URL needs to be URLEncoded).
-The actual URL that the callback will be made to will look like
+The actual URL that the callback will be made to, for a meeting created with `meetingID=test01`, will look like
 ```
-https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true&meetingID=test01
 ```
+BigBlueButton appends the parameters to the query string that your URL already has
+and does not replace a parameter of the same name:
+if your URL already contains `meetingID` or `recordingmarks`, the callback carries both values, yours first.
+Your existing parameters keep their values, but BigBlueButton may re-encode them
+(for example, `redirect=https://x/a` is sent as `redirect=https%3A%2F%2Fx%2Fa`),
+so do not rely on the raw query string, for example to verify a signature over it.
 
 For security reasons, the callback URL that your application generates should be authenticated in some way,
 to prevent malicious users from causing your application to think a meeting has ended while it is still running.
