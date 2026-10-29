@@ -8,6 +8,7 @@ import { APIBreakout } from './breakout';
 import { APICallbacks } from './callbacks';
 import { APIChecksum } from './checksum';
 import { APIDisabledFeatures } from './disabledFeatures';
+import { APIDocumentTypes } from './documentTypes';
 import { APIJoin } from './join';
 import { APILifecycle } from './lifecycle';
 
@@ -70,6 +71,11 @@ test.describe.parallel('API', () => {
   test('hiddenMethodOverrideIgnored', { tag: '@ci' }, async () => {
     linkIssue(26002);
     await API.testHiddenMethodOverrideIgnored();
+  });
+
+  test('svgDocumentNotAdded', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
+    const documentTypes = new APIDocumentTypes(browser, context);
+    await documentTypes.testSvgDocumentNotAdded(page, testInfo, request);
   });
 
   test('breakoutWithoutParent', { tag: '@ci' }, async () => {

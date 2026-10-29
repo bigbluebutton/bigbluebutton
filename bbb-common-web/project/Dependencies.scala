@@ -15,7 +15,7 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
-    val jackson = "2.22.3"
+    val jackson = "2.22.4"
     val freemarker = "2.3.35"
     val awsSdkS3 = "1.12.779"
     val apacheHttp = "4.5.13"

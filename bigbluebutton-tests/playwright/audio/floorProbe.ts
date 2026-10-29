@@ -8,7 +8,7 @@ import { field, queryDocument, runQuery } from '../core/apolloProbe';
 // See core/apolloProbe for the enableApolloDevTools / clientSettingsOverride
 // requirement.
 
-export { APOLLO_CLIENT_SETTINGS_MODULE, getOwnUserId, isApolloClientExposed } from '../core/apolloProbe';
+export { APOLLO_CLIENT_SETTINGS_OVERRIDE, getOwnUserId, isApolloClientExposed } from '../core/apolloProbe';
 
 const USER_VOICE_QUERY = queryDocument([
   field('user_voice', [field('userId'), field('talking'), field('floor'), field('lastFloorTime'), field('muted')]),

@@ -283,13 +283,18 @@ export class API extends MultiUsers {
   }
 
   // Grails makes every public method and closure property of a controller an action, reachable
-  // through the generic /bigbluebutton/$controller/$action mapping without a checksum.
+  // through the generic /bigbluebutton/$controller/$action mapping without a checksum. The
+  // helpers that handle sessions and documents must stay private.
   static async testControllerHelpersNotReachable() {
     const server = parameters.server!.replace(/\/$/, '');
     const index = await axios.get(`${server}/api/index`, { adapter: 'http' });
     expect(String(index.data), 'an action should be reachable through the generic mapping').toContain('SUCCESS');
     for (const helper of [
       'api/handleCreateUserClientUrl',
+      'api/handleJoinExistingUser',
+      'api/getUserSession',
+      'api/sanitizeSessionToken',
+      'api/uploadDocuments',
       'api/initResponseBuilder',
       'api/beforeInterceptor',
       'recording/initResponseBuilder',

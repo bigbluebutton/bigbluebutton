@@ -295,6 +295,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           <BBBMenu
             trigger={(
               <Styled.DropdownTrigger
+                className="bbb-webcam__name"
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
                 $isRTL={isRTL}
@@ -320,7 +321,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         )
         : (
           <Styled.Dropdown $isFirefox={isFirefox}>
-            <Styled.UserName $noMenu={!canFocus}>
+            <Styled.UserName className="bbb-webcam__name" $noMenu={!canFocus}>
               {displayName}
             </Styled.UserName>
           </Styled.Dropdown>

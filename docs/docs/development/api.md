@@ -148,7 +148,7 @@ Updated in 4.0:
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
-  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
+  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
@@ -861,7 +861,7 @@ Tools for experimenting:
 | `userdata-bbb_multi_user_pen_only` | If `true`, a user who is neither moderator nor presenter only gets the pen tool (plus the hand tool when viewers may pan) when the whiteboard is in multi-user mode. | `false` (`public.whiteboard.toolbar.multiUserPenOnly`) |
 | `userdata-bbb_presenter_tools` | JSON array of the toolbar items available to the user while they are presenter. The ids are the ones listed under `public.whiteboard.toolbar.presenterTools`: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `line`, `frame`, `highlight`, `delete-selected-items`, `more` and `actions`. | all (`public.whiteboard.toolbar.presenterTools`) |
 | `userdata-bbb_multi_user_tools` | Same as `bbb_presenter_tools`, for a user who is neither moderator nor presenter while the whiteboard is in multi-user mode. | all (`public.whiteboard.toolbar.multiUserTools`) |
-| `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Not kept across page reloads; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
+| `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Accepts the tool and geometric shape ids listed under `bbb_presenter_tools`, except `more`, `actions` and `delete-selected-items`. Invalid or unavailable values use the configured initial tool, then `draw`, then the first available selectable tool. If none is available, no drawing tool is selected. Tool restrictions still apply. A valid saved selection takes priority on reload; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
 
 ##### Theming and styling parameters
 
@@ -1847,7 +1847,6 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .jpeg
   - .png
   - .webp
-  - .svg
 
 #### Text Files
 

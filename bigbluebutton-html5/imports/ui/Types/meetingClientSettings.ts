@@ -128,6 +128,7 @@ export interface AudioCaptions {
   enabled: boolean
   mobile: boolean
   provider: string
+  speechProcessing: 'cloud' | 'local' | 'auto'
   showInSidebarNavigation: boolean
   microphoneAlert: MicrophoneAlert
   language: Language
@@ -677,10 +678,20 @@ export interface LiveKitAudioSettings {
   useLiveKitAudioState?: boolean
 }
 
+export type LastNAudioConfig = {
+  enabled: boolean;
+  audibleSize: number;
+  standbySize: number;
+  speechHoldMs: number;
+  minAudibleMs: number;
+  standbyGraceMs: number;
+};
+
 export type SelectiveSubscriptionConfig = {
   enabled: boolean;
   audioSubscriptionPoolSize: number;
   muteDebounceMs: number;
+  lastN?: LastNAudioConfig;
 };
 
 export interface LiveKitSettings {

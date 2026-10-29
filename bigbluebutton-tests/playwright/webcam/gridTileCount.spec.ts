@@ -1,21 +1,23 @@
 import { test } from '../core/setup/fixtures';
 import {
   BOT_LABEL_SETTINGS,
-  GEOMETRY_CLIENT_SETTINGS_MODULE,
+  GEOMETRY_CLIENT_SETTINGS_OVERRIDE,
   GridTileCount,
   MAX_GRID_SIZE,
-  PAGINATION_CLIENT_SETTINGS_MODULE,
+  PAGINATION_CLIENT_SETTINGS_OVERRIDE,
   SMALL_GRID_SETTINGS,
 } from './gridTileCount';
 
 // Regression test for issue 25073 (backport of PR 25103):
 // "Unified Layout: tile count plus aggregated users does not match total participant count".
 //
-// Precondition: the server under test must set a small grid size, e.g.
-//   public.kurento.pagination.desktopGridSizes: { moderator: 4, viewer: 4 }
-// so the overflow path can be exercised with a practical number of webcams.
-// (The issue's own reproduction likewise required a custom pagination config.)
-// When the configured grid size is larger than MAX_GRID_SIZE the test is skipped.
+// Each scenario provisions a small grid size per meeting through the
+// clientSettingsOverride create module, so the overflow path can be exercised
+// with a practical number of webcams. (The issue's own reproduction likewise
+// required a custom pagination config.) The server must allow that module
+// (allowOverrideClientSettingsOnCreateCall=true); Page.init fails with the
+// remedy otherwise. When the effective grid size is larger than MAX_GRID_SIZE
+// the test is skipped.
 test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
   test('tile count plus aggregated overflow equals total participants', async ({
     browser,
@@ -23,7 +25,10 @@ test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     const gridTileCount = new GridTileCount(browser, context);
-    await gridTileCount.initModPage(page, { testInfo, createModules: PAGINATION_CLIENT_SETTINGS_MODULE });
+    await gridTileCount.initModPage(page, {
+      testInfo,
+      createClientSettingsOverride: PAGINATION_CLIENT_SETTINGS_OVERRIDE,
+    });
 
     const gridSize = await gridTileCount.getConfiguredGridSize();
     test.skip(
@@ -48,7 +53,10 @@ test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     const gridTileCount = new GridTileCount(browser, context);
-    await gridTileCount.initModPage(page, { testInfo, createModules: PAGINATION_CLIENT_SETTINGS_MODULE });
+    await gridTileCount.initModPage(page, {
+      testInfo,
+      createClientSettingsOverride: PAGINATION_CLIENT_SETTINGS_OVERRIDE,
+    });
 
     const gridSize = await gridTileCount.getConfiguredGridSize();
     test.skip(
@@ -63,7 +71,7 @@ test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
     test.skip(
       pageSize !== gridSize,
       `effective moderator page size (${pageSize}) must equal the grid size (${gridSize}) - ` +
-        'enable allowOverrideClientSettingsOnCreateCall or configure a matching paginationThresholds entry',
+        'configure a matching paginationThresholds entry',
     );
 
     test.setTimeout((gridSize + 2) * 25_000 + 60_000);
@@ -81,7 +89,10 @@ test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
     page,
   }, testInfo) => {
     const gridTileCount = new GridTileCount(browser, context);
-    await gridTileCount.initModPage(page, { testInfo, createModules: GEOMETRY_CLIENT_SETTINGS_MODULE });
+    await gridTileCount.initModPage(page, {
+      testInfo,
+      createClientSettingsOverride: GEOMETRY_CLIENT_SETTINGS_OVERRIDE,
+    });
 
     const gridSize = await gridTileCount.getConfiguredGridSize();
     test.skip(
