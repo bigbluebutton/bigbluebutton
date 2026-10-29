@@ -841,6 +841,87 @@ check_configuration() {
 
 }
 
+print_docs_link() {
+    echo "#"
+    echo "#   https://docs.bigbluebutton.org/$1"
+    echo "#"
+}
+
+is_private_ipv4() {
+    case "$1" in
+        10.*|192.168.*|172.1[6-9].*|172.2[0-9].*|172.3[01].*) return 0 ;;
+        # 100.64.0.0/10, carrier-grade NAT
+        100.6[4-9].*|100.[7-9][0-9].*|100.1[01][0-9].*|100.12[0-7].*) return 0 ;;
+    esac
+    return 1
+}
+
+# livekit-server's YAML parser reads YAML 1.1 forms such as yes and on as true
+# for a bool, so they count as true here too.
+livekit_bool() {
+    case "$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e "$1 // false" -)" in
+        true|True|TRUE|y|Y|yes|Yes|YES|on|On|ON) echo true ;;
+        *) echo false ;;
+    esac
+}
+
+check_livekit() {
+    if [ -z "$LIVEKIT_SERVER_CONFIG" ] || ! systemctl is-enabled --quiet livekit-server 2> /dev/null; then
+        return
+    fi
+
+    LIVEKIT_HOST=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.bind_addresses[0] // ""' -)
+    case "$LIVEKIT_HOST" in
+        ""|0.0.0.0|::) LIVEKIT_HOST=127.0.0.1 ;;
+        *:*) LIVEKIT_HOST="[$LIVEKIT_HOST]" ;;
+    esac
+    LIVEKIT_HEALTH_URL="http://$LIVEKIT_HOST:$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.port // 7880' -)/"
+    # livekit-server may still be starting after --restart
+    LIVEKIT_DEADLINE=$((SECONDS + 15))
+    while true; do
+        LIVEKIT_HEALTH=$(curl --noproxy '*' -s -m 2 "$LIVEKIT_HEALTH_URL")
+        if [ "$LIVEKIT_HEALTH" == "OK" ] || [ $SECONDS -ge $LIVEKIT_DEADLINE ]; then
+            break
+        fi
+        sleep 1
+    done
+    if [ "$LIVEKIT_HEALTH" != "OK" ]; then
+        if [ -z "$LIVEKIT_HEALTH" ]; then
+            echo "# Error: livekit-server does not answer at $LIVEKIT_HEALTH_URL"
+        else
+            echo "# Error: livekit-server answers \"${LIVEKIT_HEALTH%%$'\n'*}\" at $LIVEKIT_HEALTH_URL"
+        fi
+        print_docs_link "support/troubleshooting#livekit-server-fails-its-health-check"
+    fi
+
+    LIVEKIT_NODE_IP=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.node_ip // ""' -)
+    LIVEKIT_NODE_IP4=$(echo "$LIVEKIT_NODE_IP" | tr ',' '\n' | tr -d ' ' | grep -m 1 -E '^[0-9]+(\.[0-9]+){3}$')
+    LIVEKIT_ICE_LITE=$(livekit_bool .rtc.use_ice_lite)
+    LIVEKIT_ADVERTISE_INTERNAL=$(livekit_bool .rtc.advertise_internal_ip)
+    LIVEKIT_USE_EXTERNAL=$(livekit_bool .rtc.use_external_ip)
+    LOCAL_IPV4S=$(ip -o -4 address show | awk '{ split($4, a, "/"); print a[1] }')
+    LOCAL_PUBLIC_IPV4S=$(for a in $LOCAL_IPV4S; do case "$a" in 127.*|169.254.*) ;; *) is_private_ipv4 "$a" || echo "$a" ;; esac; done)
+
+    # With ICE-lite, LiveKit sends no connectivity checks of its own, so the
+    # recorder and livekit-sip connect only through the addresses it announces.
+    if [ "$LIVEKIT_ICE_LITE" == "true" ] && [ "$LIVEKIT_ADVERTISE_INTERNAL" != "true" ]; then
+        # With use_external_ip, LiveKit announces the address it learns over STUN.
+        if [ "$LIVEKIT_USE_EXTERNAL" == "true" ]; then
+            if is_private_ipv4 "$IP" && [ -z "$LOCAL_PUBLIC_IPV4S" ]; then
+                echo "# Warning: LiveKit uses ICE-lite and announces the public address it learns over STUN,"
+                echo "# but no interface of this server holds a public IPv4 address. bbb-webrtc-recorder and"
+                echo "# livekit-sip then reach LiveKit only if the network sends that traffic back to this server."
+                print_docs_link "support/troubleshooting#livekit-ice-lite-address-is-not-on-this-server"
+            fi
+        elif [ -n "$LIVEKIT_NODE_IP4" ] && ! echo "$LOCAL_IPV4S" | grep -qxF "$LIVEKIT_NODE_IP4"; then
+            echo "# Warning: LiveKit uses ICE-lite and announces rtc.node_ip $LIVEKIT_NODE_IP4 as its only IPv4"
+            echo "# address, but no interface of this server holds it. bbb-webrtc-recorder and livekit-sip"
+            echo "# then reach LiveKit only if the network sends traffic for $LIVEKIT_NODE_IP4 back to this server."
+            print_docs_link "support/troubleshooting#livekit-ice-lite-address-is-not-on-this-server"
+        fi
+    fi
+}
+
 check_state() {
     echo
     print_header
@@ -1125,6 +1206,8 @@ check_state() {
         echo "#"
       fi
     fi
+
+    check_livekit
 
     if [ ! -z "$STUN" ]; then
       for i in $STUN; do
