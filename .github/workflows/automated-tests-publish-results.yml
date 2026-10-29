@@ -12,7 +12,7 @@ env:
   IN_PROGRESS_MARKER: "<!-- bbb-automated-tests-in-progress: ${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }} -->"
 jobs:
   get-pr-data:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     concurrency:
       group: github-api-request
       cancel-in-progress: false
@@ -97,7 +97,7 @@ jobs:
             core.info('Multiple open PRs matched commit+head repo+branch; skipping to avoid wrong comment')
             return
   publish-test-results:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     needs: get-pr-data
     if: ${{ github.repository_owner == 'bigbluebutton' && needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id && github.event.workflow_run.status == 'completed' && github.event.workflow_run.conclusion != 'success' }}
     permissions:
@@ -158,7 +158,7 @@ jobs:
           workflow-id: ${{ needs.get-pr-data.outputs.workflow-id }}
           report-path: ${{ env.REPORT_PATH }}
   comment-pr:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     concurrency:
       group: comment-pr-${{ needs.get-pr-data.outputs.pr-number }}
       # An in_progress event can arrive after the run completed; let it wait

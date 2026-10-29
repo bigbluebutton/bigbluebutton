@@ -117,7 +117,7 @@ runs:
         sudo -i <<EOF
         set -e
         apt install -yq dpkg-dev
-        cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
+        cp -r "$GITHUB_WORKSPACE/artifacts/" /artifacts/
         cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
         echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
         EOF
