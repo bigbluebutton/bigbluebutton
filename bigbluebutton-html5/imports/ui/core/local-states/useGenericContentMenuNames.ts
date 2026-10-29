@@ -15,7 +15,15 @@ const useGenericContentMenuName = (id: string) => useReactiveVarSelector(
   (menuNames) => (Object.hasOwn(menuNames, id) ? menuNames[id] : undefined),
 );
 
+const removeGenericContentMenuName = (id: string) => setGenericContentMenuNames((menuNames) => {
+  if (!Object.hasOwn(menuNames, id)) return menuNames;
+  const remainingMenuNames = { ...menuNames };
+  delete remainingMenuNames[id];
+  return remainingMenuNames;
+});
+
 export {
   useGenericContentMenuName,
   setGenericContentMenuNames,
+  removeGenericContentMenuName,
 };
