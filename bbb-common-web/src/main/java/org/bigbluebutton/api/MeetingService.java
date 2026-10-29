@@ -1170,7 +1170,7 @@ public class MeetingService implements MessageListener {
               .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
             callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
           } catch (Exception e) {
-            log.error("Error in callback url={}", meetingEndedCallbackURL, e);
+            log.error("Error in meetingEndedURL callback url={}", meetingEndedCallbackURL, e);
           }
         }
       }
