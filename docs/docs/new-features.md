@@ -388,7 +388,17 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `lockSettingsPresenterPolicy` added (default `requireApproval`). Controls whether viewers can request the presenter role; see [Request to Present](#request-to-present).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 - `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
+- `maxPresentationsPerRequest` added (default `10`). Maximum number of documents processed per `create`/`insertDocument` call; see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request).
+- `insertDocumentMaxRequests` and `insertDocumentRateWindowSec` added (default `30` per `60` seconds; `0` = disabled). Per-meeting rate limit on `insertDocument` calls.
+- `presentationConversionMaxRequests` and `presentationConversionRateWindowSec` added (default `20` per `60` seconds; `0` = disabled). Per-meeting cap on presentations entering the conversion pipeline from participant and API uploads; breakout-room captures are exempt. See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
 - `filterTagThreshold` added (default `1`; `0` = disabled). Slides whose generated SVG contains `N` or more `<filter>` tags (which `pdftocairo` emits for soft masks) are rendered with both `pdftocairo` and `pdftoppm`, and are rasterized only when the two renders noticeably differ. This fixes slides that showed up blank or with missing images ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)); see [Verify slides with soft masks](/administration/customize#verify-slides-with-soft-masks).
+
+### bbb-apps-akka settings changes
+
+- `apps.presentationUploadTokenMaxRequests` and `apps.presentationUploadTokenWindowSec` added (default `20` per `60` seconds; `0` = disabled). Per-user rate limit on presentation upload-token requests from the client.
+- `apps.presentationMaxPerPod` added (default `50`; `0` = disabled). Caps how many presentations a presentation pod holds.
+
+See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
 
 ### Client settings (settings.yml) changes
 
