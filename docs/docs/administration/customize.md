@@ -2036,6 +2036,28 @@ If you are adding this to a join-url you need to URL encode the string:
 %3Aroot%7B--loader-bg%3A%23000%3B%7Dbody%7Bbackground-color%3A%23000!important%3B%7D
 ```
 
+##### Static CSS classes for client elements
+
+The class names the client generates for its components change from build to build, so a stylesheet that relies on them breaks with the next update. Key components also carry fixed class names with a `bbb-` prefix, which custom styles and theme plugins can select instead. They follow a BEM-like scheme:
+
+- `bbb-<block>` names a component, for example `bbb-navigation`, `bbb-avatar` or `bbb-actions-bar`;
+- `bbb-<block>__<element>` names a part of it, for example `bbb-navigation__item` or `bbb-chat-message__time`;
+- `bbb-<block>--<state>` marks a state, for example `bbb-avatar--presenter`, `bbb-navigation__item--active` or `bbb-mute-toggle--muted`.
+
+The classes cover the avatars, the navigation sidebar and its items, the sidebar panels and their headers, the chat and its messages, the user list, buttons, the actions bar, the microphone and camera buttons, the nav bar and its items, the talking indicator, the presentation and its toolbar, webcams, the timer indicator and the notifications bar. For example, to highlight the open item of the navigation sidebar and to turn the microphone button red while the user is muted:
+
+```css
+.bbb-navigation__item--active {
+  background-color: #fff3cd !important;
+}
+
+.bbb-mute-toggle--muted .bbb-button__icon {
+  background-color: #d93025 !important;
+}
+```
+
+Pass the stylesheet with `userdata-bbb_custom_style_url` or `userdata-bbb_custom_style` as above, or set `public.app.customStyleUrl` in `/etc/bigbluebutton/bbb-html5.yml` to load it for every user (a `userdata-bbb_custom_style_url` on the join URL replaces it for that user).
+
 #### Send client logs to the server
 
 Step-by-step instructions for how to configure logs from clients to be logged in a server log file are located in [Administration -> Configuration Files](/administration/configuration-files#logs-sent-directly-from-the-client)

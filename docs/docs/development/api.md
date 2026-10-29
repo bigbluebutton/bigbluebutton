@@ -145,11 +145,17 @@ Updated in 4.0:
   - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
   - **Removed option:** `captions` is no longer a valid `disabledFeatures` value (it has had no effect since BBB 3.0, when typed captions moved to a plugin). Use `liveTranscription` to disable automatic transcription.
+  - **Changed:** At most `maxPresentationsPerRequest` pre-uploaded documents (10 by default; the default presentation is not counted) are uploaded per call (added in 4.0.1). The meeting is still created, and the response carries the `messageKey` `documentsDropped`; see [Pre-upload Slides](#pre-upload-slides).
+  - **Changed:** The `meetingEndedURL` callback carries the query parameters `recordingmarks` and `meetingID`, appended to the query of the URL (added in 4.0.1; 4.0.0 called the URL unchanged). See [Meeting Ended Callback URL](#meeting-ended-callback-url).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
+- **insertDocument**
+  - **Changed:** At most `maxPresentationsPerRequest` documents (10 by default) are uploaded per call (added in 4.0.1). The response is still `SUCCESS` and carries the `messageKey` `documentsDropped`.
+  - **Changed:** Calls are rate limited per meeting, by default to 30 calls per 60 seconds (`insertDocumentMaxRequests`, `insertDocumentRateWindowSec`); a call over the limit fails with the `messageKey` `rateLimitExceeded` (added in 4.0.1).
+  - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types

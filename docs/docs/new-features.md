@@ -339,6 +339,10 @@ Plugin authors should publish manifests with a range that names the pre-release,
 
 If you set `html5PluginSdkVersion` in `/etc/bigbluebutton/bbb-web.properties`, remove it or update it to `1.0.0-beta.3`. An override keeps manifests being validated against an SDK version different from the one the client actually runs.
 
+#### Static CSS classes for custom styles
+
+Added in BigBlueButton 4.0.1. The class names the client generates for its components change from build to build, so a custom stylesheet or a theme plugin had to find elements by their `data-test` attributes and their position in the page. Key components now also carry fixed class names with a `bbb-` prefix: `bbb-<block>` for a component (`bbb-navigation`, `bbb-avatar`), `bbb-<block>__<element>` for a part of it (`bbb-navigation__item`, `bbb-chat-message__time`) and `bbb-<block>--<state>` for a state (`bbb-avatar--presenter`, `bbb-mute-toggle--muted`). They cover the navigation sidebar, the sidebar panels, chat, the user list, buttons, the actions bar and nav bar, the talking indicator, the presentation and webcams. See [Static CSS classes for client elements](/administration/customize#static-css-classes-for-client-elements).
+
 #### Removing deprecated layout options
 
 The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
@@ -388,15 +392,15 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `lockSettingsPresenterPolicy` added (default `requireApproval`). Controls whether viewers can request the presenter role; see [Request to Present](#request-to-present).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 - `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
-- `maxPresentationsPerRequest` added (default `10`). Maximum number of documents processed per `create`/`insertDocument` call; see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request).
-- `insertDocumentMaxRequests` and `insertDocumentRateWindowSec` added (default `30` per `60` seconds; `0` = disabled). Per-meeting rate limit on `insertDocument` calls.
-- `presentationConversionMaxRequests` and `presentationConversionRateWindowSec` added (default `20` per `60` seconds; `0` = disabled). Per-meeting cap on presentations entering the conversion pipeline from participant and API uploads; breakout-room captures are exempt. See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
+- `maxPresentationsPerRequest` added in BBB 4.0.1 (default `10`). Maximum number of documents processed per `create`/`insertDocument` call; see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request).
+- `insertDocumentMaxRequests` and `insertDocumentRateWindowSec` added in BBB 4.0.1 (default `30` per `60` seconds; `0` = disabled). Per-meeting rate limit on `insertDocument` calls; see [Limit `insertDocument` API calls](/administration/customize#limit-insertdocument-api-calls).
+- `presentationConversionMaxRequests` and `presentationConversionRateWindowSec` added in BBB 4.0.1 (default `20` per `60` seconds; `0` = disabled). Per-meeting cap on presentations entering the conversion pipeline from participant and API uploads; breakout-room captures are exempt. See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
 - `filterTagThreshold` added (default `1`; `0` = disabled). Slides whose generated SVG contains `N` or more `<filter>` tags (which `pdftocairo` emits for soft masks) are rendered with both `pdftocairo` and `pdftoppm`, and are rasterized only when the two renders noticeably differ. This fixes slides that showed up blank or with missing images ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)); see [Verify slides with soft masks](/administration/customize#verify-slides-with-soft-masks).
 
 ### bbb-apps-akka settings changes
 
-- `apps.presentationUploadTokenMaxRequests` and `apps.presentationUploadTokenWindowSec` added (default `20` per `60` seconds; `0` = disabled). Per-user rate limit on presentation upload-token requests from the client.
-- `apps.presentationMaxPerPod` added (default `50`; `0` = disabled). Caps how many presentations a presentation pod holds.
+- `apps.presentationUploadTokenMaxRequests` and `apps.presentationUploadTokenWindowSec` added in BBB 4.0.1 (default `20` per `60` seconds; `0` = disabled). Per-user rate limit on presentation upload-token requests from the client.
+- `apps.presentationMaxPerPod` added in BBB 4.0.1 (default `50`; `0` = disabled). Caps how many presentations a presentation pod holds.
 
 See [Rate limit presentation uploads](/administration/customize#rate-limit-presentation-uploads).
 
