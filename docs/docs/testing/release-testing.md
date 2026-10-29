@@ -1767,7 +1767,7 @@ Client should apply user metadata according to the descriptions from [here](/dev
 
 ### Override default presentation on CREATE meeting API call [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-develop/bigbluebutton-tests/playwright/parameters/parameters.spec.ts)
 
-(for more information, see the documentation [here](/new-features/#override-default-presentation-on-create-via-url))
+(for more information, see the documentation [here](/development/api#get-post-create))
 
 1. When creating a meeting, use the following settings (required):
 ```sh
