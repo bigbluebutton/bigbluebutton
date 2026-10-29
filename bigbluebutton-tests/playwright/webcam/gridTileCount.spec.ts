@@ -47,37 +47,37 @@ test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
   // Regression: the overflow tile must never consume a camera slot (grid grows
   // to the page instead), its count must reflect the actually-hidden users, and
   // pagination must reach every camera, ie no camera stranded across pages.
-  test('overflow tile never hides a camera and pagination reaches every camera', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const gridTileCount = new GridTileCount(browser, context);
-    await gridTileCount.initModPage(page, {
-      testInfo,
-      createClientSettingsOverride: PAGINATION_CLIENT_SETTINGS_OVERRIDE,
-    });
+  test(
+    'overflow tile never hides a camera and pagination reaches every camera',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const gridTileCount = new GridTileCount(browser, context);
+      await gridTileCount.initModPage(page, {
+        testInfo,
+        createClientSettingsOverride: PAGINATION_CLIENT_SETTINGS_OVERRIDE,
+      });
 
-    const gridSize = await gridTileCount.getConfiguredGridSize();
-    test.skip(
-      !Number.isFinite(gridSize) || gridSize < 1 || gridSize > MAX_GRID_SIZE,
-      `requires public.kurento.pagination.desktopGridSizes <= ${MAX_GRID_SIZE} ` +
-        `to exercise the overflow path with a practical number of webcams (configured: ${gridSize})`,
-    );
+      const gridSize = await gridTileCount.getConfiguredGridSize();
+      test.skip(
+        !Number.isFinite(gridSize) || gridSize < 1 || gridSize > MAX_GRID_SIZE,
+        `requires public.kurento.pagination.desktopGridSizes <= ${MAX_GRID_SIZE} ` +
+          `to exercise the overflow path with a practical number of webcams (configured: ${gridSize})`,
+      );
 
-    // Encodes "page size == grid size" (full-camera first page + a second
-    // page), provisioned above; the guard reads the effective settings.
-    const pageSize = await gridTileCount.getEffectiveModeratorPageSize(gridSize + 2);
-    test.skip(
-      pageSize !== gridSize,
-      `effective moderator page size (${pageSize}) must equal the grid size (${gridSize}) - ` +
-        'configure a matching paginationThresholds entry',
-    );
+      // Encodes "page size == grid size" (full-camera first page + a second
+      // page), provisioned above; the guard reads the effective settings.
+      const pageSize = await gridTileCount.getEffectiveModeratorPageSize(gridSize + 2);
+      test.skip(
+        pageSize !== gridSize,
+        `effective moderator page size (${pageSize}) must equal the grid size (${gridSize}) - ` +
+          'configure a matching paginationThresholds entry',
+      );
 
-    test.setTimeout((gridSize + 2) * 25_000 + 60_000);
+      test.setTimeout((gridSize + 2) * 25_000 + 60_000);
 
-    await gridTileCount.checkCameraPrecedenceAcrossPages(gridSize);
-  });
+      await gridTileCount.checkCameraPrecedenceAcrossPages(gridSize);
+    },
+  );
 
   // Regression: the overflow tile mounting on an otherwise unchanged grid (a
   // camera-less late join) must trigger a grid-template recompute; a stale
@@ -129,15 +129,15 @@ test.describe('Grid layout with bots', { tag: '@ci' }, () => {
     await grid.checkModeratorCameraWithBot();
   });
 
-  test('a bot joining and leaving does not change the hidden human count', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const grid = new GridTileCount(browser, context);
-    await grid.initModPage(page, { testInfo, clientSettingsOverrides: SMALL_GRID_SETTINGS });
-    await grid.checkHumanOverflowWithBot();
-  });
+  test(
+    'a bot joining and leaving does not change the hidden human count',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const grid = new GridTileCount(browser, context);
+      await grid.initModPage(page, { testInfo, clientSettingsOverrides: SMALL_GRID_SETTINGS });
+      await grid.checkHumanOverflowWithBot();
+    },
+  );
 
   test('a bot camera is reachable across pages and stops counting when its camera stops', async ({
     browser,

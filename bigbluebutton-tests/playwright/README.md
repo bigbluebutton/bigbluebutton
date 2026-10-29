@@ -123,7 +123,7 @@ Tags decide which tests run where:
 
 | Selection           | Tests                                                      | npm script                                               | Runs                                                                                                                        |
 | ------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Pull request gate   | `@ci` minus the quarantine tags                            | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                                          |
+| Pull request gate   | `@ci` minus the quarantine tags and `@nightly`             | `test-chromium-ci` (`test-chromium` without CI settings) | on every pull request, in 8 shards                                                                                          |
 | Legacy media bridge | the gate tests that are also `@media`, on `bbb-webrtc-sfu` | `test-chromium-media-ci`                                 | on every pull request                                                                                                       |
 | Firefox gate        | the gate selection on Firefox                              | `test-firefox-ci`                                        | on pull requests labelled `test Firefox`; runs nothing while the Firefox project is commented out in `playwright.config.ts` |
 
@@ -135,7 +135,7 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@setting-required:<setting>` — needs a non-default server setting
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
-Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
+Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers. The gates never select them, even inside a describe tagged `@ci`, so a `@ci` test moves to the nightly by taking the `@nightly` tag itself; `npm run test-nightly` runs them on Chromium. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
 
 The initial whiteboard tool tests in `parameters/initialSelectedTool.spec.ts` keep seven representative cases in `@ci`: `draw`, `rectangle`, menu and non-string fallback, a restricted tool list, saved-shape reload, and viewer access. The remaining 42 cases use `@nightly`. Run the file without a tag filter to check all 49 cases:
 

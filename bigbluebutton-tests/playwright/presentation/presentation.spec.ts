@@ -122,17 +122,17 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.startExternalVideo();
     });
 
-    test('External video loads correctly after new user joins the meeting', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, testInfo);
-      await presentation.startExternalVideo();
-      await presentation.initUserPage2(context, { testInfo });
-      await presentation.checkVideoAfterUserJoins();
-    });
+    test(
+      'External video loads correctly after new user joins the meeting',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const presentation = new Presentation(browser, context);
+        await presentation.initPages(page, testInfo);
+        await presentation.startExternalVideo();
+        await presentation.initUserPage2(context, { testInfo });
+        await presentation.checkVideoAfterUserJoins();
+      },
+    );
 
     test('Pause External video', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
@@ -159,7 +159,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     // Regression: presenter scrubbing the external video while playing must broadcast the
     // new position. Adapters like YouTube do not emit a seek event, so before the fix the
     // viewer stayed stuck. Asserts the viewer's playhead follows the presenter's seek.
-    test('Seek external video while playing', async ({ browser, context, page }, testInfo) => {
+    test('Seek external video while playing', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(25472);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
@@ -190,7 +190,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       },
     );
 
-    test('Upload Other Presentations Format', async ({ browser, context, page }, testInfo) => {
+    test('Upload Other Presentations Format', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadOtherPresentationsFormat();
@@ -242,19 +242,27 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.sendPresentationToDownload();
     });
 
-    test('Exported text annotations do not overlap', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24566);
-      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
-      await exportedAnnotations.initModPage(page, { testInfo });
-      await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
-    });
+    test(
+      'Exported text annotations do not overlap',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(24566);
+        const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+        await exportedAnnotations.initModPage(page, { testInfo });
+        await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
+      },
+    );
 
-    test('Exported text annotation keeps the client line breaks', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24566);
-      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
-      await exportedAnnotations.initModPage(page, { testInfo });
-      await exportedAnnotations.textAnnotationKeepsClientLineBreaks(testInfo);
-    });
+    test(
+      'Exported text annotation keeps the client line breaks',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(24566);
+        const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+        await exportedAnnotations.initModPage(page, { testInfo });
+        await exportedAnnotations.textAnnotationKeepsClientLineBreaks(testInfo);
+      },
+    );
 
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);

@@ -21,7 +21,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.openHelp();
   });
 
-  test('Locales', async () => {
+  test('Locales', { tag: '@nightly' }, async () => {
     await options.localesTest();
   });
 

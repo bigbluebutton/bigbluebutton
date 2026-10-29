@@ -19,7 +19,7 @@ test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, 
   });
 });
 
-test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' }, () => {
+test.describe.parallel('Unified Layout - restored presentation', { tag: '@nightly' }, () => {
   test(
     'Restoring presentation clears participant grid avatars',
     { tag: '@media' },
@@ -97,7 +97,7 @@ test.describe.parallel('Unified Layout - viewer minimize persistence', { tag: '@
   );
 });
 
-test.describe.parallel('Unified Layout - focused camera replication', { tag: '@ci' }, () => {
+test.describe.parallel('Unified Layout - focused camera replication', { tag: '@nightly' }, () => {
   test(
     'Viewer follows a camera focus and keeps a local unfocus while webcams come and go',
     { tag: '@media' },
@@ -246,7 +246,7 @@ test.describe.parallel('Unified Layout - server layout rate validation', { tag: 
   });
 });
 
-test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@ci' }, () => {
+test.describe.parallel('Unified Layout - viewer video pagination', { tag: '@nightly' }, () => {
   test(
     'Viewer pages through webcams at the default page size while the moderator sees them all',
     { tag: '@media' },
