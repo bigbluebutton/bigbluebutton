@@ -54,6 +54,57 @@ class TestEDLAudio < Minitest::Test
     assert_operator(mean_volume(output, 'atrim=1.2:1.3,'), :>, -40)
   end
 
+  # Stretched, the file covers its whole original duration, so a cut after
+  # the end of the file's own audio must not be removed as a gap.
+  def test_render_speed_adjusted_cut_past_the_file_audio
+    file = "#{@dir}/voice.wav"
+    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=19.2:sample_rate=48000',
+                  '-c:a', 'pcm_s16le', file))
+    edl = [
+      { timestamp: 0, audios: [{ filename: file, timestamp: 19_300, original_duration: 20_000 }] },
+      { timestamp: 600, audios: [] },
+    ]
+
+    output = render(edl)
+
+    assert_operator(mean_volume(output), :>, -40)
+  end
+
+  # Stretching would close up the gap and play the audio after it too early,
+  # so a file with a timestamp gap keeps its own timing.
+  def test_render_does_not_stretch_a_file_with_timestamp_gaps
+    file = "#{@dir}/voice.webm"
+    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=mono:d=10',
+                  '-f', 'lavfi', '-i', 'sine=frequency=440:duration=33:sample_rate=48000',
+                  '-filter_complex', '[1]asetpts=PTS+15/TB[b];[0][b]concat=n=2:v=0:a=1', '-c:a', 'libvorbis', file))
+    edl = [
+      { timestamp: 0, audios: [{ filename: file, timestamp: 12_000, original_duration: 61_000 }] },
+      { timestamp: 1000, audios: [] },
+    ]
+
+    output = render(edl)
+
+    assert_operator(mean_volume(output), :<, -60)
+  end
+
+  # A gap of half a second is enough to keep the file at its own timing. The
+  # tone starts after 30 s of silence and the gap; stretched, it would start
+  # about a second late.
+  def test_render_does_not_stretch_a_file_with_a_short_timestamp_gap
+    file = "#{@dir}/voice.webm"
+    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=mono:d=30',
+                  '-f', 'lavfi', '-i', 'sine=frequency=440:duration=15:sample_rate=48000',
+                  '-filter_complex', '[1]asetpts=PTS+0.5/TB[b];[0][b]concat=n=2:v=0:a=1', '-c:a', 'libvorbis', file))
+    edl = [
+      { timestamp: 0, audios: [{ filename: file, timestamp: 30_700, original_duration: 47_600 }] },
+      { timestamp: 600, audios: [] },
+    ]
+
+    output = render(edl)
+
+    assert_operator(mean_volume(output), :>, -40)
+  end
+
   private
 
   def render(edl)
