@@ -820,7 +820,7 @@ jobs:
           name: bbb-logs-legacy
           path: ./bbb-logs.tar.gz
   detect-presentation-conversion-changes:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       run: ${{ steps.gate.outputs.presentation_conversion }}
       reason: ${{ steps.gate.outputs.reason }}
@@ -851,7 +851,7 @@ jobs:
       - unify-artifacts
       - bbb-libreoffice-image
     if: needs.detect-presentation-conversion-changes.outputs.run == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 180
     defaults:
       run:
