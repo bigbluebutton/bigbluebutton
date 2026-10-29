@@ -1080,7 +1080,7 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
    rtp_port: <START>-<END>
    ```
 
-   Note: The default RTP range for livekit-sip is `16384-32768`, the range the other media servers share. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
+   Note: By default livekit-sip shares `16384-32768` with the other media servers, and `bbb-conf --set-port-range` moves them all, overwriting `rtp_port`. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
 
 4. Restart BigBlueButton:
 
@@ -1211,6 +1211,123 @@ maxFileSizeUpload=30000000
 You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` or `/etc/bigbluebutton/bbb-html5.yml` (recommended) and modify `uploadSizeMax`.
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
+
+#### Limit the number of presentations per API request
+
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
+
+To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
+
+```properties
+#----------------------------------------------------
+# Maximum number of presentations processed per create/insertDocument API call (default 10).
+maxPresentationsPerRequest=10
+```
+
+Set the value to `0` to disable the limit entirely.
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+$ sudo bbb-conf --restart
+```
+
+#### Rate limit presentation uploads
+
+BigBlueButton has several independent controls over presentation uploads. They protect different things, so it is worth knowing which one to reach for. Set any of the `*MaxRequests` settings, or `presentationMaxPerPod`, to `0` to disable that limit entirely.
+
+##### Limit conversion load (the main resource control)
+
+Presentation conversion is the most resource-intensive part of an upload. `bbb-web` caps how many presentations may enter the conversion pipeline for a single meeting:
+
+- **20** presentations per meeting within a rolling **60-second** window (`presentationConversionMaxRequests` / `presentationConversionRateWindowSec`).
+
+This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. The upload toast shows an error to the participant who uploaded the file or, for `create` and `insertDocument` documents, to the presenter.
+
+Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it and the room is destroyed immediately afterwards, so discarding it would lose it permanently with nothing left to retry from.
+
+Be aware that this means no conversion rate limit applies to captures. `apps.presentationMaxPerPod` is not a substitute: it caps how many presentations a pod holds, which is meeting state, it is checked in `bbb-apps-akka` only once conversion has already started, and captures may go past it up to twice its value (see below). Ending a breakout session imports up to two presentations per room (captured slides and captured shared notes are separate uploads, each behind its own setting), all at once, so a session with many rooms produces a corresponding burst of conversion work in the parent meeting.
+
+The limit is keyed by internal meeting ID, so a throttled meeting recovers once the window passes. To change the values, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+#----------------------------------------------------
+# Rate limit on presentations entering the conversion pipeline, per meeting
+# (defaults: 20 per 60s). 0 = disabled.
+presentationConversionMaxRequests=20
+presentationConversionRateWindowSec=60
+```
+
+When raising or lowering this, note the floor: a single `create` call may carry up to `maxPresentationsPerRequest` documents plus the automatically injected default presentation, so a value below that will drop documents from a legitimate `create`.
+
+##### Limit how many presentations a pod holds
+
+`bbb-apps-akka` caps how many presentations a single presentation pod may contain:
+
+- **50** presentations per presentation pod (`presentationMaxPerPod`).
+
+This caps **meeting state** — how many presentations exist in the pod and appear in the client's presentation list. To bound conversion load, use `presentationConversionMaxRequests` above.
+
+An over-limit presentation is refused entry to the pod and a warning is logged in `bbb-apps-akka`.
+
+- **Interactive uploads** are refused when the client asks for an upload token, before the file is sent. The presenter sees "Maximum of N presentations reached" in the upload toast. The check counts the presentations already in the pod, not uploads still in progress, so when the presenter selects several files at once, each of them gets a token and is sent. Those that would take the pod past the cap are then refused when their conversion starts, as described for `create` and `insertDocument` below. `presentationUploadTokenMaxRequests` bounds how many files one such selection can send.
+- **`create` and `insertDocument` documents** do not request a token, so the cap is checked when their conversion starts. `bbb-apps-akka` then tells `bbb-web`, which schedules no more pages for the presentation and deletes its files once any work already running has finished (after `maxPageConversionTime`). Office-to-PDF conversion and page counting have run by that point; `presentationConversionMaxRequests` bounds that work. The presenter sees "Maximum of N presentations reached" in the upload toast.
+- **Captured slides and shared notes from an ended breakout room** may go past the cap, up to twice its value (**100** by default), for the same reason they are exempt from `presentationConversionMaxRequests`: the room is gone, so refusing them would lose them. Past twice the cap they are refused like any other presentation, and the presenter sees "Maximum of N presentations reached" with N twice the cap. While captures keep a pod above the cap, other uploads are refused until enough presentations are removed to bring it below the cap again.
+
+##### Limit how fast one presenter can request uploads
+
+`bbb-apps-akka` rate limits presentation upload-**token** requests per user:
+
+- **20** upload-token requests per user within a rolling **60-second** window (`presentationUploadTokenMaxRequests` / `presentationUploadTokenWindowSec`).
+
+This covers the interactive client path only, because only the client requests an upload token. It does not apply to `create`, `insertDocument`, or breakout-room slide copies.
+
+A refused request is not uploaded, and the upload toast shows "You are uploading too many presentations at once" for each refused file, up to 100 files per user in each window. Further refused files in the window show the notification "The upload could not start. Please wait a moment and try again." instead. Entries from earlier windows are removed as newer refusals arrive. Requests refused by `presentationMaxPerPod` also count towards this limit, and each of them shows "Maximum of N presentations reached".
+
+To change either `bbb-apps-akka` limit, add an overwrite rule in `/etc/bigbluebutton/bbb-apps-akka.conf` under the `apps` block:
+
+```properties
+apps {
+  # Maximum presentation upload-token requests allowed per user within the window below.
+  # 0 = disabled
+  presentationUploadTokenMaxRequests = 20
+  # Length in seconds of the per-user rate-limit window.
+  presentationUploadTokenWindowSec = 60
+  # Maximum number of presentations allowed in a single presentation pod.
+  # 0 = disabled
+  presentationMaxPerPod = 50
+}
+```
+
+##### Limit `insertDocument` API calls
+
+`bbb-web` rate limits the `insertDocument` API per meeting:
+
+- **30** `insertDocument` calls per meeting within a rolling **60-second** window (`insertDocumentMaxRequests` / `insertDocumentRateWindowSec`).
+
+When a meeting exceeds this rate the request is rejected with a `FAILED` response with the `messageKey` `rateLimitExceeded`, and a warning is logged in `bbb-web`. Only calls that would upload documents count: a call rejected for another reason, such as malformed XML, an invalid filename or no documents, does not use up the meeting's allowance. Once the allowance is used up, every call is rejected before its request body is read.
+
+```properties
+#----------------------------------------------------
+# Rate limit for the insertDocument API, applied per meeting (defaults: 30 per 60s).
+# 0 = disabled.
+insertDocumentMaxRequests=30
+insertDocumentRateWindowSec=60
+```
+
+Note how this relates to the conversion limit: `insertDocumentMaxRequests` bounds API **calls**, while `presentationConversionMaxRequests` bounds the **presentations** those calls carry. With the shipped defaults the conversion limit is the lower of the two, so that is the one to raise if a legitimate integration is being throttled.
+
+##### Which limit rejected my upload?
+
+| Setting | Enforced in | Log message | Client error |
+| --- | --- | --- | --- |
+| `presentationConversionMaxRequests` | `bbb-web` | `Rejecting presentation conversion: per-meeting rate limit exceeded` | "Too many presentations were uploaded recently" |
+| `insertDocumentMaxRequests` | `bbb-web` | `Rejecting insertDocument: rate limit exceeded` | API `FAILED` response, `messageKey` `rateLimitExceeded` |
+| `maxPresentationsPerRequest` | `bbb-web` | `Presentation count N exceeds maxPresentationsPerRequest` | API `SUCCESS` response, `messageKey` `documentsDropped`; the excess documents are not uploaded |
+| `presentationMaxPerPod` | `bbb-apps-akka` | `Rejecting presentation upload token request: pod presentation limit reached` (interactive) or `Rejecting presentation: pod presentation limit reached` (API) | "Maximum of N presentations reached" |
+| `presentationUploadTokenMaxRequests` | `bbb-apps-akka` | `Rejecting presentation upload token request: request rate limit exceeded` | "You are uploading too many presentations at once" |
+
+Restart your server with `sudo bbb-conf --restart` to apply any of these changes.
 
 #### Add custom fonts for presentation conversion
 
@@ -1452,11 +1569,9 @@ mediasoup:
     rtcMaxPort: 51999
 ```
 
-To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder and LiveKit; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
-- the command does not edit livekit-sip: if you use the telephone dial-in, set `rtp_port` in `/etc/bigbluebutton/livekit-sip.yaml` yourself (see above);
+To move the whole range in one go, `sudo bbb-conf --set-port-range <min>-<max>` writes the same range into FreeSWITCH, mediasoup, bbb-webrtc-recorder, LiveKit and livekit-sip; restart BigBlueButton afterwards. Remember to open the new range in your firewall. Caveats:
 - `switch.conf.xml` isn't preserved on `bbb-freeswitch-core` upgrades, so FreeSWITCH goes back to 16384-24576 - re-run the command after upgrading;
-- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well;
-- in BigBlueButton 4.0.0 the command writes the LiveKit values as quoted strings (`port_range_start: "<min>"`), which `livekit-server` rejects at start (`cannot unmarshal !!str ... into uint32`) - remove the quotes in `/etc/bigbluebutton/livekit.yaml` before restarting.
+- if `/etc/bigbluebutton/bbb-webrtc-recorder.yml` exists, the recorder ignores the file the command writes to - set the range in the override as well.
 
 #### Apply custom settings for TURN server
 
@@ -1920,6 +2035,28 @@ If you are adding this to a join-url you need to URL encode the string:
 ```
 %3Aroot%7B--loader-bg%3A%23000%3B%7Dbody%7Bbackground-color%3A%23000!important%3B%7D
 ```
+
+##### Static CSS classes for client elements
+
+The class names the client generates for its components change from build to build, so a stylesheet that relies on them breaks with the next update. Key components also carry fixed class names with a `bbb-` prefix, which custom styles and theme plugins can select instead. They follow a BEM-like scheme:
+
+- `bbb-<block>` names a component, for example `bbb-navigation`, `bbb-avatar` or `bbb-actions-bar`;
+- `bbb-<block>__<element>` names a part of it, for example `bbb-navigation__item` or `bbb-chat-message__time`;
+- `bbb-<block>--<state>` marks a state, for example `bbb-avatar--presenter`, `bbb-navigation__item--active` or `bbb-mute-toggle--muted`.
+
+The classes cover the avatars, the navigation sidebar and its items, the sidebar panels and their headers, the chat and its messages, the user list, buttons, the actions bar, the microphone and camera buttons, the nav bar and its items, the talking indicator, the presentation and its toolbar, webcams, the timer indicator and the notifications bar. For example, to highlight the open item of the navigation sidebar and to turn the microphone button red while the user is muted:
+
+```css
+.bbb-navigation__item--active {
+  background-color: #fff3cd !important;
+}
+
+.bbb-mute-toggle--muted .bbb-button__icon {
+  background-color: #d93025 !important;
+}
+```
+
+Pass the stylesheet with `userdata-bbb_custom_style_url` or `userdata-bbb_custom_style` as above, or set `public.app.customStyleUrl` in `/etc/bigbluebutton/bbb-html5.yml` to load it for every user (a `userdata-bbb_custom_style_url` on the join URL replaces it for that user).
 
 #### Send client logs to the server
 
