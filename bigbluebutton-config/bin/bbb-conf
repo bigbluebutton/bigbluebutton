@@ -1359,6 +1359,11 @@ if [ $CHECK ]; then
         fi
         echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
+        echo "               rtc.node_ip: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.node_ip' -)"
+        echo "               rtc.advertise_internal_ip: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.advertise_internal_ip // false' -)"
+        echo "               rtc.use_external_ip: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.use_external_ip // false' -)"
+        echo "               rtc.use_ice_lite: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.use_ice_lite // false' -)"
+        echo "               rtc.enable_loopback_candidate: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.enable_loopback_candidate // false' -)"
         echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
         echo "               webrtc-sfu.livekit.enabled: $(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.enabled' -)"
         echo "               webrtc-sfu.livekit.keyIsSet: $(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.key != null' -)"
