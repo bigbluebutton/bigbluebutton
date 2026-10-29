@@ -156,6 +156,8 @@ Updated in 4.0:
   - **Changed:** At most `maxPresentationsPerRequest` documents (10 by default) are uploaded per call (added in 4.0.1). The response is still `SUCCESS` and carries the `messageKey` `documentsDropped`.
   - **Changed:** Calls are rate limited per meeting, by default to 30 calls per 60 seconds (`insertDocumentMaxRequests`, `insertDocumentRateWindowSec`); a call over the limit fails with the `messageKey` `rateLimitExceeded` (added in 4.0.1).
   - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
+- **end**
+  - **Changed:** Ending a meeting now also ends the breakout rooms created through `create` with `isBreakout=true` (previously only the rooms created from the client's breakout panel ended with their parent).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
@@ -1014,7 +1016,7 @@ running can be “true” or “false” that signals whether a meeting with thi
 
 ### `GET` `POST` end
 
-Use this to forcibly end a meeting and kick all participants out of the meeting.
+Use this to forcibly end a meeting and kick all participants out of the meeting. Ending a meeting also ends all of its breakout rooms, including the ones created through `create` with `isBreakout=true`.
 
 **Resource URL:**
 

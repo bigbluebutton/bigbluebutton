@@ -1,9 +1,18 @@
-import { type APIRequestContext, expect } from '@playwright/test';
+import { type APIRequestContext, expect, type Page as PlaywrightPage, type TestInfo } from '@playwright/test';
 
 import { Join } from '../breakout/join';
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
 import { getMeetingInfo } from '../core/endpoints';
-import { createMeeting, createMeetingPromise, endMeetings } from '../core/helpers';
+import {
+  createMeeting,
+  createMeetingPromise,
+  endMeetings,
+  getApiCallUrl,
+  getRandomInt,
+  requestApiCall,
+} from '../core/helpers';
+import { parameters } from '../core/parameters';
 
 export class APIBreakout extends Join {
   // Attempt to use API to create a breakout room without a parent
@@ -89,6 +98,47 @@ export class APIBreakout extends Join {
       });
       expect(second).toMatchObject({ running: ['false'], participantCount: ['0'], hasUserJoined: ['false'] });
     }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+  }
+
+  // A room created through the create API (isBreakout=true) ends with its parent, as the
+  // rooms created from the breakout panel do
+  async testApiCreatedRoomEndsWithParent(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
+    await this.initModPage(page, { testInfo });
+    const roomID = `api-room-${getRandomInt(1000, 9999)}`;
+    try {
+      const { response } = await requestApiCall(
+        request,
+        getApiCallUrl('create', {
+          name: 'ApiRoom',
+          meetingID: roomID,
+          // the room does not take the parent's join passwords
+          attendeePW: parameters.attendeePW,
+          moderatorPW: parameters.moderatorPW,
+          isBreakout: 'true',
+          parentMeetingID: this.modPage.meetingId,
+          sequence: '1',
+        }),
+      );
+      expect(response.returncode, 'should create the breakout room').toEqual(['SUCCESS']);
+      await this.initModPage2(this.modPage.context, { testInfo, meetingId: roomID, fullName: 'RoomModerator' });
+      await this.modPage2.hasElement(e.presentationTitle, 'should load the room for its moderator');
+
+      await endMeetings(request, [this.modPage.meetingId]);
+      await this.modPage.hasElement(e.meetingEndedModal, 'should end the parent', ELEMENT_WAIT_EXTRA_LONG_TIME);
+      await expect
+        .poll(
+          async () =>
+            (await requestApiCall(request, getApiCallUrl('getMeetingInfo', { meetingID: roomID }))).response.messageKey,
+          {
+            timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+            message: 'getMeetingInfo should no longer find the room once its parent ended',
+          },
+        )
+        .toEqual(['notFound']);
+      await this.modPage2.hasElement(e.meetingEndedModal, 'should show the meeting ended screen in the room');
+    } finally {
+      await endMeetings(request, [roomID]);
+    }
   }
 
   async endParentMeeting(request: APIRequestContext) {
