@@ -110,6 +110,15 @@ test.describe.parallel('API', () => {
     }
   });
 
+  test(
+    'apiCreatedBreakoutRoomEndsWithParent',
+    { tag: '@ci' },
+    async ({ browser, context, page, request }, testInfo) => {
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWithParent(page, testInfo, request);
+    },
+  );
+
   test.describe('Checksum', { tag: '@ci' }, () => {
     test('checksumAlgorithmsAccepted', async ({ request }) => {
       await APIChecksum.testAlgorithmsAccepted(request);

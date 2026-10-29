@@ -1186,7 +1186,23 @@ public class MeetingService implements MessageListener {
         learningDashboardService.removeJsonDataFiles(meetingIdsToClean, m.getLearningDashboardCleanupDelayInMinutes());
       }
 
+      if (!m.isBreakout()) {
+        endBreakoutRoomsOf(m);
+      }
+
       processRemoveEndedMeeting(message);
+    }
+  }
+
+  // akka-apps ends only the rooms the parent created from the client; a room created through the
+  // create API with isBreakout=true is known here alone, so end every room that is still running.
+  private void endBreakoutRoomsOf(Meeting parent) {
+    for (String roomId : parent.getBreakoutRoomsInternalIds()) {
+      Meeting room = getMeeting(roomId);
+      if (room != null && room.getEndTime() == 0) {
+        log.info("Ending breakout room {} because its parent meeting {} ended.", roomId, parent.getInternalId());
+        gw.endMeeting(new EndMeetingMessage(roomId));
+      }
     }
   }
 
