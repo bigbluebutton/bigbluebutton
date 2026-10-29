@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
+import { connectionStatusGoodBg } from '/imports/ui/stylesheets/styled-components/palette';
 
 const IconWrapper = styled.div`
   width: 1.025rem;
@@ -16,6 +17,9 @@ const IconWrapper = styled.div`
 `;
 
 const ButtonWrapper = styled.div`
+  --btn-success-bg: ${connectionStatusGoodBg};
+  --btn-success-border: ${connectionStatusGoodBg};
+
   @media ${smallOnly} {
   margin: 0 0 0 .3rem;
 }

@@ -136,6 +136,8 @@ const btnWarningColor = 'var(--btn-warning-color, #393C48)';
 const btnWarningColorSurface = `var(--btn-warning-color-surface, ${btnWarningColor})`;
 const btnWarningBg = `var(--btn-warning-bg, ${colorWarning})`;
 
+const connectionStatusGoodBg = 'var(--connection-status-good-bg, #0F9821)';
+
 const btnDangerBorder = `var(--btn-danger-border, ${colorDanger})`;
 const btnDangerColor = `var(--btn-danger-color, ${colorWhite})`;
 const btnDangerColorSurface = `var(--btn-danger-color-surface, ${btnDangerColor})`;
@@ -373,6 +375,7 @@ export {
   btnWarningColor,
   btnWarningColorSurface,
   btnWarningBg,
+  connectionStatusGoodBg,
   btnDangerBorder,
   btnDangerColor,
   btnDangerColorSurface,
