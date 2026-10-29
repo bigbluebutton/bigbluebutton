@@ -138,7 +138,7 @@ object WhiteboardModel {
 }
 
 class WhiteboardModel extends SystemConfiguration {
-  import WhiteboardModel.{ bindAnnotationAuthor, bindAnnotationCreator, hasSafeAnnotationUrl, isAllowedAnnotationType, preserveAnnotationCreator }
+  import WhiteboardModel.{ bindAnnotationAuthor, bindAnnotationCreator, hasSafeAnnotationUrl, isAllowedAnnotationType, logger, preserveAnnotationCreator }
 
   private val allowedAnnotationTypes = WhiteboardModel.allowedAnnotationTypes
 
@@ -205,9 +205,9 @@ class WhiteboardModel extends SystemConfiguration {
           val finalAnnotationInfo = preserveAnnotationCreator(oldAnnotation.get, cleanedAnnotationInfo)
 
           if (!isAllowedAnnotationType(finalAnnotationInfo, allowedAnnotationTypes)) {
-            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+            logger.warn("Rejected update of annotation {} with disallowed type on page [{}], ignoring...", annotation.id, wb.id)
           } else if (!hasSafeAnnotationUrl(finalAnnotationInfo)) {
-            println(s"Rejected update of annotation ${annotation.id} with disallowed url on page [${wb.id}], ignoring...")
+            logger.warn("Rejected update of annotation {} with disallowed url on page [{}], ignoring...", annotation.id, wb.id)
           } else {
             val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
             newAnnotationsMap += (annotation.id -> newAnnotation)
@@ -220,9 +220,9 @@ class WhiteboardModel extends SystemConfiguration {
         }
       } else if (annotation.annotationInfo.contains("type")) {
         if (!isAllowedAnnotationType(annotation.annotationInfo, allowedAnnotationTypes)) {
-          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+          logger.warn("Rejected annotation {} with disallowed type on page [{}], ignoring...", annotation.id, wb.id)
         } else if (!hasSafeAnnotationUrl(annotation.annotationInfo)) {
-          println(s"Rejected annotation ${annotation.id} with disallowed url on page [${wb.id}], ignoring...")
+          logger.warn("Rejected annotation {} with disallowed url on page [{}], ignoring...", annotation.id, wb.id)
         } else {
           val newAnnotation = annotation.copy(annotationInfo = bindAnnotationCreator(annotation.annotationInfo, userId))
           newAnnotationsMap += (annotation.id -> newAnnotation)
