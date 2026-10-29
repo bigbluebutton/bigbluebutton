@@ -24,7 +24,7 @@ class CheckPresentationBeforeUploadingSpec extends Specification implements Cont
     controller.paramsProcessorUtil = paramsProcessorUtil
 
     meetingService = new StubMeetingService()
-    meetingService.tokens[TOKEN] = new PresentationUploadToken('pod-1', TOKEN, 'slides.pdf', 'meeting-1', 'pres-1')
+    meetingService.tokens[TOKEN] = new PresentationUploadToken('pod-1', TOKEN, 'slides.pdf', 'meeting-1', 'pres-1', 'w_uploader')
     controller.meetingService = meetingService
   }
 
