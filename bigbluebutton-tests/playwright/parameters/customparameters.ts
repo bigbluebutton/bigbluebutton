@@ -9,7 +9,12 @@ import {
 } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkScreenshots } from '../layouts/util';
-import { EXTERNAL_VIDEO_URL, routeExternalVideo, uploadSinglePresentation } from '../presentation/util';
+import {
+  EXTERNAL_VIDEO_URL,
+  routeExternalVideo,
+  uploadSinglePresentation,
+  waitForSlideToSettle,
+} from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
 import { constants as c, LOGOUT_URL, LONG_GROUP_NAMES } from './constants';
@@ -911,6 +916,8 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.joinVideo, 'should not display the join video button');
 
     await this.modPage.hasElement(e.chatMessages, 'should display the chat messages');
+    // the attendee joins without enforceLayout and sees the presentation
+    await waitForSlideToSettle(this.userPage);
 
     await checkScreenshots(
       this,
