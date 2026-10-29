@@ -524,7 +524,7 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
 The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
-A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). Documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted.
+A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). The document that is loaded first in the client is always kept, the remaining slots go to the other documents in the order they appear in the request, and the documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with the `messageKey` `invalidPresentationUrl` even when its document would not have been uploaded.
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
@@ -956,7 +956,7 @@ There is also the possibility of passing the removable, downloadable and current
 </response>
 ```
 
-When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only the first ones are uploaded. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted.
+When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only that many are uploaded: the first document with `current="true"`, if there is one, and then the others in the order they appear in the request. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with `invalidPresentationUrl` even when its document would not have been uploaded.
 
 **Errors:**
 

@@ -1214,7 +1214,7 @@ Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to 
 
 #### Limit the number of presentations per API request
 
-By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes `maxPresentationsPerRequest` of them and ignores the rest, logging a warning for each request that exceeds the limit. The presentation that will be shown first is always kept, and the remaining slots go to the other presentations in the order they appear in the request. All presentation URLs are checked before the limit is applied, so a malformed URL fails the request with the `messageKey` `invalidPresentationUrl` even when its presentation would have been ignored. The API response still has the `returncode` `SUCCESS`, and adds the `messageKey` `documentsDropped`, with a `message` saying how many presentations were accepted.
 
 To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
 
