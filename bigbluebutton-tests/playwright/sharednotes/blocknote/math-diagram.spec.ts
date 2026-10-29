@@ -29,8 +29,8 @@ test.describe.parallel('Shared Notes - BlockNote math and diagrams', { tag: '@ci
     await mathDiagramSharedNotes.textExportKeepsFormulaSymbols();
   });
 
-  test('Diagrams follow dark mode', async () => {
-    await mathDiagramSharedNotes.diagramsFollowDarkMode();
+  test('Diagrams stay light cards in dark mode', async () => {
+    await mathDiagramSharedNotes.diagramsStayLightCardsInDarkMode();
   });
 
   test('Typed prices stay text', async () => {

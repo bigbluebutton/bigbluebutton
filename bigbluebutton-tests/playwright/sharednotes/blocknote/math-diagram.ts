@@ -41,11 +41,12 @@ async function insertFromSlashMenu(testPage: Page, slot: string, title: string):
 interface DiagramColors {
   boxLuminance: number;
   labelLuminance: number;
+  cardLuminance: number;
   styleKeptFromDarkReader: boolean;
 }
 
-// Relative luminance (0 dark .. 1 light) of the first node box and node label
-// of the diagram, and whether its stylesheet is kept out of DarkReader.
+// Relative luminance (0 dark .. 1 light) of the first node box, node label and
+// card behind the diagram, and whether its stylesheet is kept out of DarkReader.
 async function readDiagramColors(testPage: Page): Promise<DiagramColors | null> {
   return testPage.page.evaluate((selector) => {
     const svg = document.querySelector(`${selector} svg`);
@@ -59,10 +60,9 @@ async function readDiagramColors(testPage: Page): Promise<DiagramColors | null> 
     return {
       boxLuminance: luminance(getComputedStyle(box).fill),
       labelLuminance: luminance(getComputedStyle(label).fill),
-      // DarkReader adds its own `darkreader darkreader--*` styles next to the
-      // ones it recolors; the diagram's own sheet carries the bare class.
-      styleKeptFromDarkReader: Array.from(svg.querySelectorAll('style')).some(
-        (style) => style.getAttribute('class') === 'darkreader',
+      cardLuminance: luminance(getComputedStyle(svg).backgroundColor),
+      styleKeptFromDarkReader: Array.from(svg.querySelectorAll('style')).some((style) =>
+        style.classList.contains('stylus'),
       ),
     };
   }, e.blockNoteDiagram);
@@ -225,41 +225,56 @@ export class MathDiagramSharedNotes extends MultiUsers {
     expect(text, 'a literal entity and a tag-like source should stay as typed').toContain(`$${TEXT_EXPORT_EDGE_CASE}$`);
   }
 
-  // DarkReader lightens SVG fills like text, which left light labels on light
-  // boxes. In dark mode a diagram is drawn with Mermaid's dark theme and its
-  // stylesheet is kept out of DarkReader (mermaid-on-demand.ts); switching the
-  // theme redraws it. Guards the DarkReader and Mermaid internals this relies on.
-  async diagramsFollowDarkMode() {
+  // Workaround until BlockNote draws diagrams with theme-aware CSS
+  // (https://github.com/TypeCellOS/BlockNote/pull/3219): a diagram stays a light
+  // card in dark mode, its stylesheet kept out of DarkReader (mermaid-on-demand.ts),
+  // and switching the theme neither redraws it nor remounts the editor, so undo
+  // reaches edits made before the switch. Guards the DarkReader internals this
+  // relies on; replace it when the workaround is removed.
+  async diagramsStayLightCardsInDarkMode() {
     await startBlockNoteSharedNotes(this.modPage);
-    await typeSlots(this.modPage, ['diagram slot']);
+    await typeSlots(this.modPage, ['Notes', 'diagram slot']);
     await insertDiagram(this.modPage, 'diagram slot');
     await expect(this.modPage.page.locator(`${e.blockNoteDiagram} svg`, { hasText: 'Decision' })).toBeVisible({
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    // a pause first, so undo keeps the edit as a step of its own
+    await this.modPage.page.waitForTimeout(1500);
+    await editor.locator('.bn-block-content', { hasText: 'Notes' }).click();
+    await this.modPage.page.keyboard.press('End');
+    await this.modPage.page.keyboard.type(' before the switch');
+    await expect(editor).toContainText('Notes before the switch');
+    const editorElement = await editor.elementHandle();
+
+    const expectLightCard = async (mode: string) => {
+      await expect
+        .poll(() => readDiagramColors(this.modPage), {
+          message: `in ${mode} mode the diagram should keep its own stylesheet`,
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        })
+        .toMatchObject({ styleKeptFromDarkReader: true });
+      const colors = await readDiagramColors(this.modPage);
+      expect(colors!.cardLuminance, `in ${mode} mode the diagram should sit on a light card`).toBeGreaterThan(0.9);
+      expect(colors!.boxLuminance, `in ${mode} mode boxes should be lighter than their labels`).toBeGreaterThan(
+        colors!.labelLuminance + 0.4,
+      );
+    };
 
     await toggleDarkMode(this.modPage);
-    await expect
-      .poll(() => readDiagramColors(this.modPage), {
-        message: 'in dark mode the diagram should have dark boxes, light labels and its own stylesheet',
-        timeout: ELEMENT_WAIT_LONGER_TIME,
-      })
-      .toMatchObject({ styleKeptFromDarkReader: true });
-    const dark = await readDiagramColors(this.modPage);
-    expect(dark!.boxLuminance, 'dark mode boxes should be darker than their labels').toBeLessThan(
-      dark!.labelLuminance - 0.4,
-    );
+    await expectLightCard('dark');
+    expect(
+      await editorElement!.evaluate((node, selector) => node === document.querySelector(selector), e.blockNoteEditor),
+      'switching the theme should not remount the editor',
+    ).toBe(true);
+    await editor.locator('.bn-block-content', { hasText: 'Notes' }).click();
+    await this.modPage.page.keyboard.press('End');
+    await this.modPage.page.keyboard.press('Control+Z');
+    await expect(editor, 'undo should reach the edit made before the switch').not.toContainText('before the switch');
+    await expect(editor).toContainText('Notes');
 
     await toggleDarkMode(this.modPage);
-    await expect
-      .poll(() => readDiagramColors(this.modPage), {
-        message: 'back in light mode the diagram should be redrawn with the light theme',
-        timeout: ELEMENT_WAIT_LONGER_TIME,
-      })
-      .toMatchObject({ styleKeptFromDarkReader: false });
-    const light = await readDiagramColors(this.modPage);
-    expect(light!.boxLuminance, 'light mode boxes should be lighter than their labels').toBeGreaterThan(
-      light!.labelLuminance + 0.4,
-    );
+    await expectLightCard('light');
   }
 
   // Typing amounts such as "R$ 10 e R$ 20" must not turn the text between the

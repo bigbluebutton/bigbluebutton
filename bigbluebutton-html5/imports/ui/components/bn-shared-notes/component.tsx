@@ -62,7 +62,6 @@ import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
 import MarkdownImportModal from './markdown-import-modal/component';
 import { useSharedNotesImport } from './import-context';
-import { isDarkThemeEnabled } from '/imports/ui/components/app/service';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -654,17 +653,6 @@ function BlockNoteContainer({ isVisible, isOnMediaArea }: BlockNoteContainerProp
 
   const { disableNotes } = currentMeeting?.lockSettings || { disableNotes: false };
 
-  // Diagrams are drawn in the client theme (mermaid-on-demand.ts): remount the
-  // editor when dark mode is switched so they are drawn again.
-  const [darkMode, setDarkMode] = React.useState(isDarkThemeEnabled());
-  React.useEffect(() => {
-    const handleDarkModeChange = (event: Event) => {
-      setDarkMode((event as CustomEvent<{ enabled: boolean }>).detail.enabled);
-    };
-    window.addEventListener('darkmodechange', handleDarkModeChange);
-    return () => window.removeEventListener('darkmodechange', handleDarkModeChange);
-  }, []);
-
   const hasError = !!error;
 
   const renderBlockNote = !error && !isAuthenticating
@@ -713,7 +701,6 @@ function BlockNoteContainer({ isVisible, isOnMediaArea }: BlockNoteContainerProp
       {renderBlockNote
         && (
           <BlockNoteApp
-            key={darkMode ? 'dark' : 'light'}
             disableNotes={disableNotes}
             hocuspocusProvider={hocuspocusProvider}
             currentUser={currentUser ?? null}
