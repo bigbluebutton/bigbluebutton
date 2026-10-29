@@ -241,6 +241,7 @@ export const INITIAL_OUTPUT_STATE = {
     },
     zIndex: 1,
     focusedId: 'none',
+    isLocalOnly: false,
   },
   dropZoneAreas: {},
   presentation: {

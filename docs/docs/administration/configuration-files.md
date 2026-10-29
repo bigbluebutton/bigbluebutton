@@ -17,19 +17,24 @@ We recommend you make changes only to the override files (`/etc/bigbluebutton`) 
 
 ## Local overrides for configuration settings
 
-Starting with BigBlueButton 2.3 many of the configuration files have local overrides so the administrator can specify the local equivalents. We recommend you make changes only to the override files (`/etc/bigbluebutton`) so that when you update to a newer version of BigBlueButton your configuration changes are not overwritten by the new packages.
+Many of the configuration files have local overrides so the administrator can specify the local equivalents. We recommend you make changes only to the override files (`/etc/bigbluebutton`) so that when you update to a newer version of BigBlueButton your configuration changes are not overwritten by the new packages.
 
 | Package                                                                 | Override                                         | Notes                                                                            |
 | :---------------------------------------------------------------------- | :----------------------------------------------- | -------------------------------------------------------------------------------- |
 | /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties             | /etc/bigbluebutton/bbb-web.properties            | Minimum containing general configuration (`securitySalt` and `serverURL`) |
+| /etc/default/bbb-web                                                    | /etc/bigbluebutton/bbb-web.env                   | Environment of the `bbb-web` service (heap size, listen address, `JDK_JAVA_OPTIONS`) |
 | /usr/share/bbb-apps-akka/conf/application.conf                          | /etc/bigbluebutton/bbb-apps-akka.conf            |                                                                                  |
 | /usr/share/bbb-fsesl-akka/conf/application.conf                         | /etc/bigbluebutton/bbb-fsesl-akka.conf           |                                                                                  |
 | /usr/share/bigbluebutton/html5-client/private/config/settings.yml       | /etc/bigbluebutton/bbb-html5.yml                 | Arrays are merged by replacement (as of 2.4-rc-5)                                |
 | /etc/default/bbb-graphql-server                                         | /etc/bigbluebutton/bbb-graphql-server.env        | It can replace any Hasura config but HASURA_GRAPHQL_ADMIN_SECRET                 |
 | /usr/share/bbb-graphql-server/admin-secret                              |                                                  | Stores Hasura admin password (HASURA_GRAPHQL_ADMIN_SECRET), it can be edited     |
 | /usr/share/bbb-graphql-middleware/config.yml                            | /etc/bigbluebutton/bbb-graphql-middleware.yml    |                                                                                  |
+| /usr/lib/systemd/system/bbb-graphql-actions.service                     | /etc/bigbluebutton/bbb-graphql-actions.env       | Optional environment file (`KEY=VALUE`), e.g. `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `BBB_REDIS_PASSWORD` |
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
+| /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml                        | /etc/bigbluebutton/bbb-webrtc-recorder.yml       | Replaces the original file; `BBBRECORDER_*` variables in `/etc/default/bbb-webrtc-recorder` override single settings |
+| /usr/share/livekit-server/livekit.yaml                                  | /etc/bigbluebutton/livekit.yaml                  | Merged when `livekit-server` starts; holds the API keys                          |
+| /usr/share/livekit-server/livekit-sip.yaml                              | /etc/bigbluebutton/livekit-sip.yaml              | Merged when `livekit-sip` starts                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
 | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       |
 | /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    |
@@ -65,6 +70,27 @@ services {
 }
 ```
 
+### Using a password-protected Redis
+
+Redis has no password by default. To require one, set `requirepass` in `/etc/redis/redis.conf` and restart `redis-server`, then set the same password in every service that connects to Redis and restart them:
+
+| Service                    | File                                                         | Setting                                 |
+| :------------------------- | :----------------------------------------------------------- | :-------------------------------------- |
+| bbb-web                    | /etc/bigbluebutton/bbb-web.properties                        | `redisPassword=`                        |
+| bbb-apps-akka              | /etc/bigbluebutton/bbb-apps-akka.conf                        | `redis { password="" }`                 |
+| bbb-fsesl-akka             | /etc/bigbluebutton/bbb-fsesl-akka.conf                       | `redis { password="" }`                 |
+| bbb-graphql-middleware     | /etc/bigbluebutton/bbb-graphql-middleware.yml                | `redis.password`                        |
+| bbb-graphql-actions        | /etc/bigbluebutton/bbb-graphql-actions.env                   | `BBB_REDIS_PASSWORD=`                   |
+| bbb-shared-notes-server    | /etc/bigbluebutton/bbb-shared-notes-server.yml               | `redis.password`                        |
+| bbb-webrtc-sfu             | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml             | `redisPassword`                         |
+| Recording processing       | /etc/bigbluebutton/recording/recording.yml                   | `redis_password`                        |
+| bbb-export-annotations     | /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json | `redis.password` (no override file; reapply after package upgrades) |
+| bbb-webrtc-recorder        | /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml             | `pubsub.adapters.redis.password`        |
+| bbb-transcription-controller | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `redis.password`                      |
+| livekit-server             | /etc/bigbluebutton/livekit.yaml                              | `redis.password`                        |
+| livekit-sip                | /etc/bigbluebutton/livekit-sip.yaml                          | `redis.password`                        |
+| bbb-webhooks (if installed) | /usr/local/bigbluebutton/bbb-webhooks/config/default.yml    | `redis.password` (regenerated on package upgrades) |
+
 ## HTML5 Client
 
 ### Configuration files
@@ -81,31 +107,31 @@ public:
 
 ### Log files
 
-#### Log monitoring for server logs (bbb-html5)
+#### Log monitoring for server logs
 
-In BigBlueButton 3.0 we modified the architecture to shift the load away from the old frontend and backend bbb-html5 pools of services. Logs for the new services can be foud via:
-
-`journalctl -f -u bbb-html5.service`
-
-Akka-apps is responsible for most of the logic, so key info can be obtained via
+The HTML5 client is a static bundle served by nginx, so it has no service of its own. The services behind it are `bbb-apps-akka`, which holds the meeting logic, and the GraphQL stack that the client talks to:
 
 `journalctl -f -u bbb-apps-akka.service`
 
-`SYSTEMD_LESS=FRXMK journalctl -u bbb-graphql-middleware.service -f` can also be useful.
+`SYSTEMD_LESS=FRXMK journalctl -f -u bbb-graphql-middleware.service -u bbb-graphql-server.service -u bbb-graphql-actions.service`
+
+`bbb-apps-akka` also writes `/var/log/bbb-apps-akka/bbb-apps-akka.log`.
 
 #### Logs sent directly from the client
 
 To assist with monitoring and debugging, the HTML5 client can send its logs to the BigBlueButton server via the `logger` function. Here's an example of its use:
 
-The client logger accepts two targets for the logs: `console` and `external`.
+The client logger has two targets, `console` and `external`, configured under `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml`. Each target has its own settings:
 
-| Name   | Default Value | Accepted Values                  | Description                                                                                             |
-| ------ | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| target | "console"     | "console", "external",           | Where the logs will be sent to.                                                                         |
-| level  | "info"        | "debug", "info", "warn", "error" | The lowest log level that will be sent. Any log level higher than this will also be sent to the target. |
-| url    | -             | -                                | The end point where logs will be sent to when the target is set to "external".                          |
-| method | -             | "POST", "PUT"                    | HTTP method being used when using the target "external".                                                |
-| enableRuntimeErrorLogging | false | true / false          | When true, the client installs global listeners to capture runtime errors, unhandled rejections, and resource load failures. |
+| Name   | Target | Accepted Values                  | Description                                                                                             |
+| ------ | ------ | -------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| enabled | both  | true / false                     | Whether the target receives logs.                                                                       |
+| level  | both   | "debug", "info", "warn", "error" | The lowest log level that will be sent. Any log level higher than this will also be sent to the target. |
+| enableRuntimeErrorLogging | console | true / false   | When true, the client installs global listeners to capture runtime errors, unhandled rejections, and resource load failures. |
+| url    | external | -                              | The end point where logs will be sent to.                                                               |
+| method | external | "POST", "PUT"                  | HTTP method used to send the logs.                                                                      |
+| throttleInterval | external | milliseconds         | How often buffered log entries are sent.                                                                |
+| flushOnClose | external | true / false             | Send the remaining entries when the page is closed.                                                     |
 
 The default values are:
 
@@ -191,7 +217,9 @@ Here's a sample log entry
 
 Located in `/etc/nginx/sites-enabled/bigbluebutton`
 
-This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx))
+This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx)) The configuration of each component is included from `/etc/bigbluebutton/nginx/*.nginx`.
+
+On a server installed by `bbb-install.sh` with the built-in TURN server, port 443 belongs to HAProxy, which terminates TLS and passes HTTP connections to nginx on ports 81 and 82 (with the PROXY protocol) and TURN connections to coturn. nginx itself listens on port 80 and on those two local ports.
 
 
 ### Log files
@@ -216,14 +244,11 @@ https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton
 
 ### Log files
 
-Located in `/var/log/bigbluebutton/bbb-web`
-
-| Log                      | Description                                                  |
-| :----------------------- | :----------------------------------------------------------- |
-| catalina.yyyy-mm-dd.log  | General log information from startup.              |
-| localhost.yyyy-mm-dd.log | General log information from startup of applications. |
-| /var/log/syslog          | Also contains output from bbb-web.                            |
-| /var/log/bigbluebutton   | Contains BigBlueButton Web and Recording processing logs.    |
+| Log                                   | Description                                                  |
+| :------------------------------------ | :----------------------------------------------------------- |
+| /var/log/bigbluebutton/bbb-web.log    | The bbb-web application log (API calls, meetings, presentation conversion); rotated daily, 14 days are kept. |
+| `journalctl -u bbb-web`               | The service's standard output, including startup errors.     |
+| /var/log/bigbluebutton                | Also contains the recording processing logs (see below).     |
 
 ## FreeSWITCH
 

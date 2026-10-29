@@ -3,16 +3,19 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import {
-  getSpeechVoices,
+  useSpeechVoices,
   setUserLocaleProperty,
   useFixedLocale,
   isGladia,
   useIsAudioTranscriptionEnabled,
   getLocaleName,
 } from '../service';
+import { chosenSpeechLocale, getLocale, localeAsDefaultSelected } from '../speech/service';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
+import AudioCaptionsOnDeviceNotice from '../on-device-notice/component';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
 
 const messages: { [key: string]: { id: string; description?: string } } = {
@@ -44,8 +47,14 @@ Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
 
 const intlMessages = defineMessages(messages);
 
+// The configured default language is applied once per client session: a user who then picks
+// "Disabled" keeps that choice when the audio settings are reopened. A reload applies it again.
+const DEFAULT_LOCALE_APPLIED_KEY = 'audioCaptionsDefaultLocaleApplied';
+
 interface AudioCaptionsContainerProps {
   showTitleLabel?: boolean;
+  // In the audio modal, where confirming downloads the on-device language pack
+  inAudioModal?: boolean;
 }
 
 interface AudioCaptionsSelectProps {
@@ -92,6 +101,7 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
+    chosenSpeechLocale(value);
     setUserLocaleProperty(value, setUserSpeechLocale);
   };
 
@@ -146,9 +156,10 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
 
 const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   showTitleLabel = true,
+  inAudioModal = false,
 }) => {
   const [voicesList, setVoicesList] = React.useState<string[]>([]);
-  const voices = getSpeechVoices();
+  const voices = useSpeechVoices();
 
   useEffect(() => {
     if ((voices && voices.length > 0) && voicesList.length === 0) {
@@ -164,15 +175,40 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
     }),
   );
   const isEnabled = useIsAudioTranscriptionEnabled();
-  if (!currentUser || !isEnabled) return null;
+  const fixedLocale = useFixedLocale();
+  const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
+  const speechLocale = currentUser?.speechLocale ?? '';
+
+  // Pre-select the configured language (public.app.audioCaptions.language.locale, when
+  // defaultSelectLocale or forceLocale is on) the first time the select mounts for a user
+  // who has no speechLocale yet. The speech component used to do this at startup; since
+  // 7dffe4aa79 it only does so for providers other than webspeech. getLocale() is '' for
+  // locale "disabled", so the default settings keep the select on Disabled.
+  useEffect(() => {
+    if (!isEnabled || !currentUser || speechLocale !== '') return;
+    if (Session.getItem(DEFAULT_LOCALE_APPLIED_KEY)) return;
+    if (!fixedLocale && !localeAsDefaultSelected()) return;
+    Session.setItem(DEFAULT_LOCALE_APPLIED_KEY, 'true');
+    const locale = getLocale();
+    if (locale === '') return;
+    setUserLocaleProperty(locale, (value: string, provider: string) => {
+      setSpeechLocaleMutation({ variables: { locale: value, provider } });
+    });
+  }, [isEnabled, currentUser, speechLocale, fixedLocale, setSpeechLocaleMutation]);
+
+  // Still checking which languages the browser transcribes on the device
+  if (!currentUser || !isEnabled || voices === undefined) return null;
 
   return (
-    <AudioCaptionsSelect
-      isTranscriptionEnabled={isEnabled}
-      speechLocale={currentUser.speechLocale ?? ''}
-      speechVoices={voices || voicesList}
-      showTitleLabel={showTitleLabel}
-    />
+    <>
+      <AudioCaptionsSelect
+        isTranscriptionEnabled={isEnabled}
+        speechLocale={currentUser.speechLocale ?? ''}
+        speechVoices={voices || voicesList}
+        showTitleLabel={showTitleLabel}
+      />
+      <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />
+    </>
   );
 };
 

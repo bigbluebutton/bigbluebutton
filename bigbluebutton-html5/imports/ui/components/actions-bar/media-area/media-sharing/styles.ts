@@ -1,5 +1,8 @@
 import styled, { css } from 'styled-components';
 import {
+  BBButton, borderRadiusDefault, spacingSmall, spacingSmallMedium,
+} from '@bigbluebutton/bbb-ui-components-react';
+import {
   colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
   colorText, colorGrayIcons, appsPanelTextColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -8,7 +11,6 @@ import { fontSizeBase, headingsFontWeight } from '/imports/ui/stylesheets/styled
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 
 const MODAL_WIDTH = '26.25rem';
-const MODAL_WIDTH_REDUCED = '250px';
 
 // This overlay covers the entire viewport and is used to catch outside clicks.
 const Overlay = styled.div`
@@ -26,7 +28,6 @@ const ModalContainer = styled.div<{
   isMobile: boolean,
   isRTL: boolean,
   actionsBarHeight: number,
-  reducedWidth?: boolean,
 }>`
   position: fixed;
   background: ${colorWhite};
@@ -38,13 +39,13 @@ const ModalContainer = styled.div<{
   border-radius: ${lgBorderRadius};
 
   ${({
-    isMobile, isRTL, reducedWidth,
+    isMobile, isRTL,
   }) => (isMobile ? `
     width: 70%;
     right: 6%;
     left: auto;
   ` : `
-    width: ${reducedWidth ? MODAL_WIDTH_REDUCED : MODAL_WIDTH};
+    width: ${MODAL_WIDTH};
     ${isRTL ? `
       left: 24px;
       right: auto;
@@ -165,35 +166,32 @@ const BecomePresenterViewContainer = styled.div`
   gap: 1rem;
 `;
 
-// `size="sm"` shrinks the take-presenter button to its label, which leaves it
-// visibly narrower than the text above it. Hold a floor wide enough for the
-// longest of the two labels this view renders, without reaching into
-// BBButton's own markup.
-const becomePresenterButtonMinWidth = '8.5rem';
-
-const BecomePresenterButtonWrapper = styled.div`
-  display: flex;
-
-  > * {
-    min-width: ${becomePresenterButtonMinWidth};
-  }
+// The take/request presenter button spans the popover, so it keeps one size
+// whatever the label. BBButton never wraps its label and some translations are
+// wider than the popover, so let them wrap instead of overflowing.
+const BecomePresenterButton = styled(BBButton)`
+  white-space: normal;
 `;
 
 const BecomePresenterText = styled.div`
   color: ${colorText};
 `;
 
+// Not a BBButton: the library's disabled style would make this status even
+// fainter. It takes BBButton's `sm` box instead, so the button keeps its size
+// when a request turns into a wait.
 const WaitingButton = styled.button<{ $animations?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  border-radius: 8px;
+  gap: ${spacingSmall};
+  padding: ${spacingSmall} ${spacingSmallMedium};
+  border-radius: ${borderRadiusDefault};
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   background-color: #e0e0e0;
   color: #666;
-  border: none;
+  border: 1px solid transparent;
   cursor: not-allowed;
   opacity: 0.7;
 
@@ -215,7 +213,7 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
 
 export default {
   Overlay,
-  BecomePresenterButtonWrapper,
+  BecomePresenterButton,
   ModalContainer,
   HeaderContainer,
   ContentContainer,

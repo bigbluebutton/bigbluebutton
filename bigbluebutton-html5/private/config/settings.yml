@@ -104,6 +104,20 @@ public:
       mobile: false
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
+      # speechProcessing: [cloud, local, auto] - only for the webspeech provider, where the
+      # browser transcribes the speaker's audio.
+      # cloud: the browser decides, as it always did. Chrome sends the audio to Google's servers,
+      #   unless the language pack happens to be installed: then it transcribes on the device.
+      # local: always on the user's device (SpeechRecognition.processLocally); the audio is never
+      #   sent to a speech recognition service. Each language's pack (a few hundred MB) is
+      #   downloaded when the user confirms joining audio with that transcription language, and
+      #   the audio settings stay open until it ends. Only the languages the browser can
+      #   transcribe locally are offered; browsers without on-device speech recognition
+      #   (Chrome 139+ on desktop has it) show transcription as unsupported.
+      # auto: as local, but a language the browser cannot transcribe on the device (or every
+      #   language, in a browser without on-device speech recognition) is still offered and
+      #   transcribed as with cloud.
+      speechProcessing: cloud
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
@@ -199,6 +213,15 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
+    # audioFilterStorage: where the user's pick in Settings > Audio is kept.
+    # Advanced filtering is experimental, so the default deliberately keeps the
+    # pick from following the user around. Allowed values:
+    # 'session' -> sessionStorage, under a key scoped to the meeting: the pick
+    #              survives neither a new browser session nor another meeting,
+    #              whatever userSettingsStorage says
+    # 'local'   -> the pick follows userSettingsStorage like any other setting,
+    #              so with 'local' there it persists across sessions
+    audioFilterStorage: session
     reactionsButton:
       enabled: true
     emojiRain:
@@ -220,6 +243,8 @@ public:
     # allowed values:
     # 'session' -> settings are stored in browser sessionStorage
     # 'local' -> settings are stored in browser localStorage
+    # A group with a storage flag of its own - see audioFilterStorage - only
+    # falls back to this option when that flag says 'local'.
     userSettingsStorage: session
     defaultSettings:
       layout:
@@ -276,6 +301,9 @@ public:
         # If set to 'advanced' but the browser doesn't support BBBA/WASM
         # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
         # it falls back to 'standard' (advanced -> standard).
+        # Unless audioFilterStorage is set to 'local', a user's own pick is
+        # kept for the browser session and current meeting only, so a new
+        # meeting or browser session starts from this default.
         processingMode: standard
       dataSaving:
         viewParticipantsWebcams: true
@@ -568,6 +596,10 @@ public:
       # paginationToggleEnabled: show a pagination toggle in settings for the
       # user to enable/disable it
       paginationToggleEnabled: true
+      # paginationToggleModeratorOnly: show the pagination toggle to moderators
+      # only. Users who can't see the toggle always get the default value in
+      # public.app.defaultSettings.application.paginationEnabled
+      paginationToggleModeratorOnly: false
       # how long (in ms) the negotiation will be debounced after a page change.
       pageChangeDebounceTime: 1000
       # video page sizes for DESKTOP endpoints. It stands for the number of SUBSCRIBER streams.
@@ -825,6 +857,7 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+    announceUserAwayStatusInChat: true
   multiFunctionalMode:
     enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
@@ -933,6 +966,10 @@ public:
       # microphoneConstraints: browser-level audio constraints (AGC/echo
       # cancellation/noise suppression) applied when the user selects the
       # 'standard' audio processing mode in Settings > Audio.
+      # They apply in 'standard' only, including when the user hasn't picked a
+      # mode: if app.defaultSettings.audio.processingMode is 'original' every
+      # browser filter is off, and if it is 'advanced' the browser filters come
+      # from audioWasmProcessing.constraints instead.
       # For more details, see:
       # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
       # Currently, google chrome sets {ideal: true} for autoGainControl,
@@ -1029,6 +1066,25 @@ public:
         # muteDebounceMs: debounce time in milliseconds for mute state
         # transitions that would trigger unsubscribe operations.
         muteDebounceMs: 2500
+        # lastN: play only the most relevant microphones (speaking now, presenter,
+        # pinned, recent speech, moderator). When enabled, it replaces
+        # audioSubscriptionPoolSize and has no unmuted-user exemption.
+        #   audibleSize: microphones played at once.
+        #   standbySize: microphones kept subscribed (audible included). Standby
+        #     tracks are paused with setEnabled, so promoting one to audible
+        #     needs no renegotiation. Lifted for viewers while the user list is
+        #     locked, as other users' voice activity is hidden from them.
+        #   speechHoldMs: silence after which an audible speaker can be replaced.
+        #   minAudibleMs: minimum time a microphone stays audible, unless it is
+        #     silent and an unmuted speaker needs its slot.
+        #   standbyGraceMs: delay before an unranked standby track is unsubscribed.
+        lastN:
+          enabled: false
+          audibleSize: 3
+          standbySize: 12
+          speechHoldMs: 1500
+          minAudibleMs: 2000
+          standbyGraceMs: 5000
       logLevel: 3
       # livekit.sdkLogBridge: forward livekit-client's own logs to the client logger.
       sdkLogBridge: true

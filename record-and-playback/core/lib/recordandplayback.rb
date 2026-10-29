@@ -84,9 +84,44 @@ module BigBlueButton
   def self.logger
     return @logger if @logger
 
-    logger = Journald::Logger.new('bbb-rap')
+    logger = system_logger('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
+  end
+
+  # Logger for a long-running recording service, tagged with +identifier+.
+  #
+  # systemd sets JOURNAL_STREAM for every unit whose stdout/stderr goes to the
+  # journal, so package installs log to journald. Without a journal (e.g. in a
+  # container) a Journald::Logger silently drops every line, so log to a synced
+  # stdout instead and let the runtime collect it.
+  def self.system_logger(identifier)
+    return Journald::Logger.new(identifier) if ENV.key?('JOURNAL_STREAM')
+
+    $stdout.sync = true
+    StdoutLogger.new($stdout, progname: identifier)
+  end
+
+  # Stdout logger with the journald-specific methods the recording scripts use.
+  class StdoutLogger < Logger
+    def tag(**fields)
+      saved = @tags
+      @tags = (saved || {}).merge(fields)
+      yield
+    ensure
+      @tags = saved
+    end
+
+    def exception(exc)
+      error("#{exc.class}: #{exc.message}\n#{exc.backtrace&.join("\n")}")
+    end
+
+    private
+
+    def format_message(severity, time, progname, msg)
+      msg = "#{msg} #{@tags.map { |k, v| "#{k}=#{v}" }.join(' ')}" if @tags&.any?
+      super
+    end
   end
 
   def self.redis_publisher=(publisher)

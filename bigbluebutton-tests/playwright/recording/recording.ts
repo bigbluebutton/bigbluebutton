@@ -10,8 +10,19 @@ import { getCurrentSlideAspectRatio, skipSlide, uploadSinglePresentation } from 
 import { startScreenshare } from '../screenshare/util';
 import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
+import { getTldrawCamera } from '../whiteboard/util';
 
-type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+export type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+
+// A server may publish several formats (podcast, video, etc.) in any order,
+// so a format is always selected by its type.
+export function findPlaybackFormat(
+  recordingData: { playback?: { format?: RecordingPlaybackFormat[] }[] } | undefined,
+  type: string,
+): RecordingPlaybackFormat | undefined {
+  const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+  return formats.find((format) => format?.type?.[0] === type);
+}
 
 // Width the indicator takes beyond its own height: ~0 for the icon-only circle,
 // the label's width once it is revealed. Geometry rather than colour, which
@@ -22,6 +33,18 @@ async function indicatorLabelSpace(button: Locator): Promise<number> {
   const box = await button.boundingBox();
   return box ? box.width - box.height : -1;
 }
+
+// Recorded time shown by the indicator, or null while it shows none (not recording).
+async function recordingTimerSeconds(button: Locator): Promise<number | null> {
+  const match = (await button.textContent())?.match(/(\d+):(\d+)/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
+
+const RECORDED_BEFORE_PAUSE_SECONDS = 4;
+const PAUSE_TIME = 8000;
+// The resumed timer may be a little ahead of the value read just before pausing (the
+// pause takes a moment to reach the server), but far less than the pause itself.
+const RESUME_SLACK_SECONDS = 4;
 
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
@@ -35,8 +58,7 @@ export class Recording extends MultiUsers {
       // Wait for the presentation playback format specifically: a server may publish several
       // formats (podcast, video, screenshare, notes) and presentation is not guaranteed to be ready first.
       const recording = response.recordings?.[0]?.recording?.[0];
-      const formats: RecordingPlaybackFormat[] = recording?.playback?.[0]?.format ?? [];
-      const hasPresentationFormat = formats.some((format) => format?.type?.[0] === 'presentation');
+      const hasPresentationFormat = !!findPlaybackFormat(recording, 'presentation');
       if (
         response.returncode?.[0] === 'SUCCESS' &&
         response.messageKey?.[0] !== 'noRecordings' &&
@@ -139,10 +161,7 @@ export class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format — a server may publish multiple formats (podcast, video, etc.),
-    // so select the presentation format explicitly instead of relying on the array order
-    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
-    const playbackData = formats.find((format) => format?.type?.[0] === 'presentation');
+    const playbackData = findPlaybackFormat(recordingData, 'presentation');
     expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
     const playbackUrl = playbackData?.url?.[0];
@@ -195,7 +214,7 @@ export class Recording extends MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
 
     const { response } = await this.getRecordingsWithRetry();
-    const playbackUrl = response?.recordings?.[0]?.recording?.[0]?.playback?.[0]?.format?.[0]?.url?.[0];
+    const playbackUrl = findPlaybackFormat(response?.recordings?.[0]?.recording?.[0], 'presentation')?.url?.[0];
     if (!playbackUrl) {
       throw new Error('Playback URL not found in API response');
     }
@@ -210,6 +229,7 @@ export class Recording extends MultiUsers {
     await this.modPage.hasElement(e.confirmRecordingButton, 'recording confirmation should be visible');
     await this.modPage.waitAndClick(e.confirmRecordingButton);
 
+    const initialCamera = (await getTldrawCamera(this.modPage.page))!;
     for (const zoomLevel of [125, 150, 175, 200]) {
       await this.modPage.waitAndClick(e.zoomInButton);
       await expect(this.modPage.page.locator(e.resetZoomButton)).toContainText(`${zoomLevel}%`);
@@ -219,8 +239,42 @@ export class Recording extends MultiUsers {
       'the presentation should be zoomed before screenshare starts',
     ).toContainText('200%');
 
+    await this.initUserPage();
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    // The toolbar updates before the debounced zoom and camera animation finish.
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'the presenter camera should reach the final 200% zoom',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(initialCamera.z * 2, 3);
+    await expect
+      .poll(
+        async () => {
+          const before = await getTldrawCamera(this.modPage.page);
+          await this.modPage.page.waitForTimeout(800);
+          const after = await getTldrawCamera(this.modPage.page);
+          return JSON.stringify(before) === JSON.stringify(after);
+        },
+        { message: 'the presenter camera should settle before screenshare', timeout: ELEMENT_WAIT_LONGER_TIME },
+      )
+      .toBe(true);
+    const zoomedCamera = (await getTldrawCamera(this.modPage.page))!;
+    await expect
+      .poll(async () => getTldrawCamera(this.userPage.page), {
+        message: 'the final presentation camera should reach the viewer before screenshare',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toMatchObject({
+        x: expect.closeTo(zoomedCamera.x, 2),
+        y: expect.closeTo(zoomedCamera.y, 2),
+        z: expect.closeTo(zoomedCamera.z, 3),
+      });
+
     await startScreenshare(this.modPage);
     if (switchPresentation) await uploadSinglePresentation(this.modPage, 'sample.pdf');
+    // Give the recording a distinct screenshare interval before restoring the slide.
+    await this.modPage.page.waitForTimeout(3_000);
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.wasRemoved(e.isSharingScreen, 'screenshare should stop');
     if (switchPresentation) {
@@ -564,11 +618,29 @@ export class Recording extends MultiUsers {
     await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
       timeout: ELEMENT_WAIT_TIME,
     });
-    const progressBarPaused = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    const mediaLocator = this.playbackPage.page.locator(playbackElements.mediaElement);
+    const getPlaybackTime = () => mediaLocator.evaluate((el: HTMLMediaElement) => el.currentTime);
+    const getProgressBarWidth = () => progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    expect(
+      await mediaLocator.evaluate((el: HTMLMediaElement) => el.paused),
+      'media element should be paused',
+    ).toBeTruthy();
+    const playbackTimePaused = await getPlaybackTime();
+    // the progress bar is repainted a few frames after the pause, wait for it to settle
+    let progressBarPaused = await getProgressBarWidth();
+    await expect(async () => {
+      const previousWidth = progressBarPaused;
+      await this.playbackPage.page.waitForTimeout(250);
+      progressBarPaused = await getProgressBarWidth();
+      expect(progressBarPaused).toEqual(previousWidth);
+    }, 'progress bar should settle after pausing').toPass({ timeout: ELEMENT_WAIT_TIME });
     const screenshotBeforeWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     await this.playbackPage.page.waitForTimeout(2000);
-    expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
-      await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth),
+    expect(await getPlaybackTime(), 'playback time should not advance when playback is paused').toEqual(
+      playbackTimePaused,
+    );
+    expect(await getProgressBarWidth(), 'progress bar width should not change when playback is paused').toEqual(
+      progressBarPaused,
     );
     const screenshotAfterWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     expect(screenshotBeforeWait, 'should display the same frame when paused — screenshot should not change').toEqual(
@@ -592,9 +664,12 @@ export class Recording extends MultiUsers {
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
     await this.playbackPage.page.waitForTimeout(500);
     await this.playbackPage.waitAndClick(playbackElements.seekForwardButton);
-    await this.playbackPage.page.waitForTimeout(500); // wait for the seek action to be processed
-    const progressBarFull = await progressBarLocator.evaluate((el) => el.style.width);
-    await expect(progressBarFull, 'progress bar width should be 100% after seeking forward').toBe('100%');
+    await expect
+      .poll(() => progressBarLocator.evaluate((el: HTMLDivElement) => el.style.width), {
+        message: 'progress bar width should be 100% after seeking forward',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toBe('100%');
     await expect(
       this.playbackPage.page,
       'second slide should be visible when seeking forward till the end',
@@ -604,9 +679,12 @@ export class Recording extends MultiUsers {
 
     // seek backward
     await this.playbackPage.waitAndClick(playbackElements.seekBackButton);
-    await this.playbackPage.page.waitForTimeout(500);
-    const progressBarBackward = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
-    expect(progressBarBackward, 'progress bar width should be 0 after seeking backward').toEqual(0);
+    await expect
+      .poll(() => progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth), {
+        message: 'progress bar width should be 0 after seeking backward',
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toEqual(0);
     await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot(
       'seek-backward.png',
       {
@@ -652,21 +730,26 @@ export class Recording extends MultiUsers {
       })
       .toBeLessThan(1);
 
-    await button.hover();
-    await expect
-      .poll(() => indicatorLabelSpace(button), {
-        message: 'hovering the indicator should reveal its label',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
+    // The client opens the indicator on hover only under (hover: hover) and
+    // (pointer: fine); headless Firefox matches neither, so it is keyboard-only there.
+    const hoverCapable = await page.evaluate(() => window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    if (hoverCapable) {
+      await button.hover();
+      await expect
+        .poll(() => indicatorLabelSpace(button), {
+          message: 'hovering the indicator should reveal its label',
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .toBeGreaterThan(RECORDING_LABEL_SPACE_PX);
 
-    await page.mouse.move(0, 0);
-    await expect
-      .poll(() => indicatorLabelSpace(button), {
-        message: 'the indicator should collapse again once the pointer leaves',
-        timeout: ELEMENT_WAIT_TIME,
-      })
-      .toBeLessThan(1);
+      await page.mouse.move(0, 0);
+      await expect
+        .poll(() => indicatorLabelSpace(button), {
+          message: 'the indicator should collapse again once the pointer leaves',
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .toBeLessThan(1);
+    }
 
     // Tab away and back, so the focus comes from the keyboard and matches
     // :focus-visible - a programmatic focus alone would not.
@@ -693,5 +776,76 @@ export class Recording extends MultiUsers {
       this.userPage.page.locator(`${e.recordingIndicator} button`),
       'a viewer should be told the meeting is recording, not offered to pause it',
     ).toHaveAttribute('aria-label', 'Recording');
+  }
+
+  // Records for a few seconds, then pauses. Returns the recorded time read just before pausing.
+  private async recordThenPause(): Promise<number> {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect
+      .poll(() => recordingTimerSeconds(modIndicator), {
+        message: 'the recording timer should run while recording',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThanOrEqual(RECORDED_BEFORE_PAUSE_SECONDS);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasText(e.toastContainer, 'Pause recording', 'should ask the moderator to confirm the pause');
+    const recordedBeforePause = await recordingTimerSeconds(modIndicator);
+    if (recordedBeforePause === null) throw new Error('the recording timer disappeared before the pause');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    return recordedBeforePause;
+  }
+
+  async pausingShowsThePausedState() {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    const userIndicator = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    await this.recordThenPause();
+
+    await expect(modIndicator, 'the moderator should be offered to resume the paused recording').toHaveAttribute(
+      'aria-label',
+      'Resume recording',
+    );
+    await expect(userIndicator, 'a viewer should be told the recording is paused').toHaveAttribute(
+      'aria-label',
+      'Paused recording',
+    );
+    await expect(modIndicator, 'the timer should stop for the moderator').not.toHaveText(/\d+:\d+/);
+    await expect(userIndicator, 'the timer should stop for the viewer').not.toHaveText(/\d+:\d+/);
+  }
+
+  async resumingContinuesFromThePausedTime() {
+    const modIndicator = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    const userIndicator = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    const recordedBeforePause = await this.recordThenPause();
+    await expect(modIndicator, 'the recording should be paused').toHaveAttribute('aria-label', 'Resume recording');
+    await this.modPage.page.waitForTimeout(PAUSE_TIME);
+
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasText(e.toastContainer, 'Resume recording', 'should ask the moderator to confirm resuming');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(modIndicator, 'the recording should run again').toHaveAttribute('aria-label', 'Pause recording');
+
+    for (const [indicator, who] of [
+      [modIndicator, 'moderator'],
+      [userIndicator, 'viewer'],
+    ] as const) {
+      await expect
+        .poll(() => recordingTimerSeconds(indicator), {
+          message: `the ${who}'s timer should run again after the resume`,
+          timeout: ELEMENT_WAIT_TIME,
+        })
+        .not.toBeNull();
+      const resumedSeconds = (await recordingTimerSeconds(indicator)) ?? Number.NaN;
+      expect(
+        resumedSeconds,
+        `the ${who}'s timer should continue from the paused value, not restart`,
+      ).toBeGreaterThanOrEqual(recordedBeforePause - 1);
+      expect(
+        resumedSeconds,
+        `the ${who}'s timer should not count the ${PAUSE_TIME / 1000} s pause`,
+      ).toBeLessThanOrEqual(recordedBeforePause + RESUME_SLACK_SECONDS);
+    }
   }
 }

@@ -4,7 +4,7 @@ const setLearningDashboardCookie = (token) => {
   if (token !== null) {
     const lifetime = new Date();
     lifetime.setTime(lifetime.getTime() + (3600000)); // 1h (extends 7d when open Dashboard)
-    document.cookie = `ld-${Auth.meetingID}=${token}; expires=${lifetime.toGMTString()}; path=/`;
+    document.cookie = `ld-${Auth.meetingID}=${token}; expires=${lifetime.toUTCString()}; path=/`;
     return true;
   }
   return false;

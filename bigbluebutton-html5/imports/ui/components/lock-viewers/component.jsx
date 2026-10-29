@@ -5,8 +5,10 @@ import { clone } from 'radash';
 import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 
@@ -617,6 +619,25 @@ class LockViewersComponent extends Component {
       <Styled.LockViewersModal
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
+        contentStyle={deviceInfo.isMobile ? { height: '90vh' } : { minWidth: 'min(55rem, 90vw)' }}
+        showDividers
+        shouldCloseOnOverlayClick
+        footerContent={(
+          <>
+            <BBButton
+              variant="secondary"
+              dataTest="cancelLockSettings"
+              label={intl.formatMessage(intlMessages.buttonCancel)}
+              onClick={closeModal}
+            />
+            <BBButton
+              variant="primary"
+              dataTest="applyLockSettings"
+              label={intl.formatMessage(intlMessages.buttonApply)}
+              onClick={() => this.handleSave()}
+            />
+          </>
+        )}
         {...{
           isOpen,
           onRequestClose: this.handleClose,
@@ -650,20 +671,6 @@ class LockViewersComponent extends Component {
             {this.renderPresentationPermissionsTab()}
           </Styled.SettingsTabPanel>
         </Styled.SettingsTabs>
-        <Styled.ActionsContainer>
-          <Styled.ActionButton
-            onClick={closeModal}
-            data-test="cancelLockSettings"
-          >
-            {intl.formatMessage(intlMessages.buttonCancel)}
-          </Styled.ActionButton>
-          <Styled.ActionButtonPrimary
-            onClick={() => this.handleSave()}
-            data-test="applyLockSettings"
-          >
-            {intl.formatMessage(intlMessages.buttonApply)}
-          </Styled.ActionButtonPrimary>
-        </Styled.ActionsContainer>
       </Styled.LockViewersModal>
     );
   }

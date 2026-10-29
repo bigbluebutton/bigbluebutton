@@ -7,6 +7,9 @@ import { Page } from '../core/page';
 export type TldrawCamera = { pageId: string; x: number; y: number; z: number };
 
 export type TldrawEditor = {
+  getCurrentToolId: () => string;
+  getInstanceState: () => { stylesForNextShape: Record<string, unknown> };
+  getCurrentPageShapes: () => { type: string; props: { geo?: string } }[];
   getCamera: () => { x: number; y: number; z: number };
   getCurrentPageId: () => string;
   getViewportScreenBounds: () => { w: number; h: number };
@@ -81,6 +84,12 @@ export async function viewerDrawsTwoStrokesAndErasesOne(modPage: Page, userPage:
   await userPage.waitAndClick(e.wbEraser);
   await dragAcrossWhiteboard(userPage, 0.6, 0.7);
   await modPage.waitUntilHaveCountSelector(e.wbDraw, 1);
+}
+
+export async function openClearAnnotations(testPage: Page) {
+  await testPage.waitAndClick(e.whiteboardOptionsButton);
+  await testPage.waitAndClick(e.clearAnnotations);
+  await testPage.hasElement(e.simpleModal, 'should display the clear annotations confirmation modal');
 }
 
 export async function snapshotComparison(modPage: Page, userPage: Page, snapshotName: string) {

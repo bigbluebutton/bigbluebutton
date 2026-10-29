@@ -27,26 +27,39 @@ async function validateEnvironmentAndAPI(): Promise<void> {
 
   // Create a request context for API validation
   const requestContext = await request.newContext();
+  const testMeetingId = `validation-test-${Date.now()}`;
+  let meetingCreated = false;
 
   try {
     // Test the /create endpoint with a temporary meeting
-    const testMeetingId = `validation-test-${Date.now()}`;
     const createUrl = helpers.createMeetingUrl(undefined, testMeetingId);
     const createResponse = await requestContext.get(createUrl, { timeout: 15000 });
 
-    if (!createResponse.ok()) {
-      const msg = `Failed to validate /create endpoint. HTTP status: ${createResponse.status()}.`;
+    // a wrong BBB_SECRET is answered with HTTP 200 and a checksumError
+    const createBody = await createResponse.text();
+    if (!createResponse.ok() || !createBody.includes('<returncode>SUCCESS</returncode>')) {
+      const messageKey = createBody.match(/<messageKey>(.*?)<\/messageKey>/)?.[1] ?? 'none';
+      const status = createResponse.status();
+      const msg = `Failed to validate /create endpoint. HTTP status: ${status}, messageKey: ${messageKey}.`;
       console.error(msg);
       throw new Error(msg);
     }
+    meetingCreated = true;
 
-    // Test the /join endpoint (will return an error for non-existent meeting, but validates the endpoint works)
+    // Test the /join endpoint on the meeting just created. A join redirects either to the client or,
+    // when rejected (e.g. checksumError), to the logout URL with an `errors` parameter. The redirect
+    // is not followed: by default the logout URL is the server's landing page, whose 200 would hide
+    // the rejection.
     const joinUrl = helpers.getJoinURL({ meetingID: testMeetingId, fullName: 'Test User' });
-    const joinResponse = await requestContext.get(joinUrl, { timeout: 15000 });
+    const joinResponse = await requestContext.get(joinUrl, { timeout: 15000, maxRedirects: 0 });
+    const joinLocation = joinResponse.headers().location;
+    const joinErrors = joinLocation ? new URL(joinLocation, server).searchParams.get('errors') : null;
 
-    // For /join, we expect either success (200) or a valid BBB error response
-    if (!joinResponse.ok() && joinResponse.status() !== 404) {
-      const msg = `Failed to validate /join endpoint. HTTP status: ${joinResponse.status()}.`;
+    if (joinResponse.status() !== 302 || !joinLocation || joinErrors !== null) {
+      let details = '';
+      if (!joinLocation) details = ' No redirect target.';
+      else if (joinErrors !== null) details = ` Errors: ${joinErrors}`;
+      const msg = `Failed to validate /join endpoint. HTTP status: ${joinResponse.status()}.${details}`;
       console.error(msg);
       throw new Error(msg);
     }
@@ -54,6 +67,7 @@ async function validateEnvironmentAndAPI(): Promise<void> {
     console.error('Environment and API validation failed:', (error as Error).message);
     throw error;
   } finally {
+    if (meetingCreated) await helpers.endMeetings(requestContext, [testMeetingId]);
     await requestContext.dispose();
   }
 }

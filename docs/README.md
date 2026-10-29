@@ -5,6 +5,8 @@ and GitHub Actions (see [deploy-docs.yml](../.github/workflows/deploy-docs.yml))
 
 ## Local Development
 
+The docs require Node.js 24 or newer; Node.js 24 is preferred and is what CI uses. The version is pinned in `.nvmrc`, so with nvm you can just run `nvm use` from this directory.
+
 To test build the docs locally use:
 
 ```bash
