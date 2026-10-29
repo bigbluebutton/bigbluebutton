@@ -129,7 +129,7 @@ Updated in 3.0:
 - **getJoinUrl** endpoint was first introduced.
 - **enter** endpoint was removed. It was only used internally, never part of the api documentation.
 - **html5client/check** endpoint was removed. It was used for checking the health of the server returning `{"html5clientStatus":"running"}`
-- **feedback** endpoint was introduced, replacing calls to `/html5client/feedback` with `/api/feedback`
+- **html5client/feedback** endpoint was removed together with the built-in post-meeting feedback form. The `/api/feedback` endpoint that replaced it during the 3.0 release candidates was removed as well. Feedback is collected by the optional [custom-feedback](https://github.com/bigbluebutton/custom-feedback) application, which brings its own backend.
 
 Updated in 4.0:
 
@@ -148,7 +148,7 @@ Updated in 4.0:
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
-  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
+  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
@@ -518,6 +518,8 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
 The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
+A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). Documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted.
+
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
 #### clientSettingsOverride
@@ -574,7 +576,9 @@ Upon receiving the callback your application could, for example, change the inte
 To specify the callback to BigBlueButton, pass a URL using the parameter `meetingEndedURL` on the `create` request.
 When the BigBlueButton server ends the meeting, it will make an HTTP GET request to the passed URL.
 
-BigBlueButton will add an additional query parameter, `recordingmarks=true|false`,
+BigBlueButton will add two query parameters to the URL:
+`meetingID`, the meeting ID that was passed on the create API call,
+and `recordingmarks=true|false`,
 which provides a hint as to whether a recording will be generated for the meeting.
 The value will be `true` if the meeting was set to be recorded
 (`record=true` was passed on the create API call)
@@ -591,10 +595,16 @@ add the following parameter to the `create` API call:
 &meetingEndedURL=https%3A%2F%2Fmyapp.example.com%2FmeetingEndedCallback%3Ftoken%3Da817dde5-0a18-43ad-9016-2d5d4c758a50
 ```
 (note the callback URL needs to be URLEncoded).
-The actual URL that the callback will be made to will look like
+The actual URL that the callback will be made to, for a meeting created with `meetingID=test01`, will look like
 ```
-https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true&meetingID=test01
 ```
+BigBlueButton appends the parameters to the query string that your URL already has
+and does not replace a parameter of the same name:
+if your URL already contains `meetingID` or `recordingmarks`, the callback carries both values, yours first.
+Your existing parameters keep their values, but BigBlueButton may re-encode them
+(for example, `redirect=https://x/a` is sent as `redirect=https%3A%2F%2Fx%2Fa`),
+so do not rely on the raw query string, for example to verify a signature over it.
 
 For security reasons, the callback URL that your application generates should be authenticated in some way,
 to prevent malicious users from causing your application to think a meeting has ended while it is still running.
@@ -853,7 +863,7 @@ Tools for experimenting:
 | `userdata-bbb_multi_user_pen_only` | If `true`, a user who is neither moderator nor presenter only gets the pen tool (plus the hand tool when viewers may pan) when the whiteboard is in multi-user mode. | `false` (`public.whiteboard.toolbar.multiUserPenOnly`) |
 | `userdata-bbb_presenter_tools` | JSON array of the toolbar items available to the user while they are presenter. The ids are the ones listed under `public.whiteboard.toolbar.presenterTools`: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `line`, `frame`, `highlight`, `delete-selected-items`, `more` and `actions`. | all (`public.whiteboard.toolbar.presenterTools`) |
 | `userdata-bbb_multi_user_tools` | Same as `bbb_presenter_tools`, for a user who is neither moderator nor presenter while the whiteboard is in multi-user mode. | all (`public.whiteboard.toolbar.multiUserTools`) |
-| `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Not kept across page reloads; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
+| `userdata-bbb_initial_selected_tool` | Id of the tool selected when the user's whiteboard first loads. Accepts the tool and geometric shape ids listed under `bbb_presenter_tools`, except `more`, `actions` and `delete-selected-items`. Invalid or unavailable values use the configured initial tool, then `draw`, then the first available selectable tool. If none is available, no drawing tool is selected. Tool restrictions still apply. A valid saved selection takes priority on reload; the user can pick another tool at any time. Added in 3.0. | `draw` (`public.whiteboard.toolbar.initialSelectedTool`) |
 
 ##### Theming and styling parameters
 
@@ -930,6 +940,42 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 ```
 
 There is also the possibility of passing the removable, downloadable and current variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
+
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <message>Presentation is being uploaded</message>
+</response>
+```
+
+When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only the first ones are uploaded. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted.
+
+**Errors:**
+
+In addition to the standard BigBlueButton checksum and validation errors, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
+
+notFound
+: No meeting with the given meeting ID was found.
+
+malformedXml
+: The request body is not well-formed XML.
+
+invalidPresentationUrl
+: A document URL is not valid URI syntax.
+
+invalidFilename
+: A document's filename is invalid, or no filename can be derived from its URL: the URL is not absolute (for example `url="notaurl"`), or the document has no `filename` and the URL path does not end in a name with an extension. No document from the request is uploaded.
+
+presentationDisabled
+: The presentation feature is disabled for the meeting.
+
+noDocuments
+: The request body has no `presentation` module, or the module has no document with a `url` or `name`.
+
+rateLimitExceeded
+: The meeting has made more `insertDocument` calls than `insertDocumentMaxRequests` allows within the window; see [Limit `insertDocument` API calls](/administration/customize#limit-insertdocument-api-calls). Only calls that pass the checks above count towards this limit, but once it is reached every call is refused with this error, before its body is read.
 
 ### `GET` `POST` isMeetingRunning
 
@@ -1839,7 +1885,6 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .jpeg
   - .png
   - .webp
-  - .svg
 
 #### Text Files
 

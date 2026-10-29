@@ -170,6 +170,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   return (
     <Styled.UserItemContents
       id={`user-index-${index}`}
+      className="bbb-user-list-item"
       tabIndex={-1}
       data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}
       role="listitem"

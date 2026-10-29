@@ -6,7 +6,7 @@ on:
 
 jobs:
   welcome:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     permissions:
       pull-requests: write
     steps:

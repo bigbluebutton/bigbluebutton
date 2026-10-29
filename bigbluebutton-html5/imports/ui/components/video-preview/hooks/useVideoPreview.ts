@@ -128,6 +128,7 @@ export const useVideoPreview = ({
   isCameraShared = false,
   forceOpen,
   waitForCameraPermission = false,
+  cameraDisabled = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -146,6 +147,7 @@ export const useVideoPreview = ({
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [isAwaitingCameraPermission, setIsAwaitingCameraPermission] = useState<boolean>(false);
   const isPreviewStarted = useRef(false);
+  const isFirstCameraDisabledRun = useRef(true);
   const [brightness, setBrightness] = useState<number>(DEFAULT_BRIGHTNESS_STATE.brightness);
   const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(
     DEFAULT_BRIGHTNESS_STATE.wholeImageBrightness,
@@ -158,6 +160,9 @@ export const useVideoPreview = ({
   // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
   const cameraStreamRequestId = useRef(0);
   const cameraLoadCount = useRef(0);
+  // Read by the async camera flows, which may outlive the render that started them
+  const isCameraDisabled = useRef(cameraDisabled);
+  isCameraDisabled.current = cameraDisabled;
 
   const handleGUMError = useCallback((error: Error & { name: string }) => {
     logger.error({
@@ -527,6 +532,8 @@ export const useVideoPreview = ({
     deviceId: string | null,
     profile: CameraProfileProps,
   ) => {
+    if (isCameraDisabled.current) return null;
+
     cameraStreamRequestId.current += 1;
     const requestId = cameraStreamRequestId.current;
     // A newer call terminates this call's stream when it starts, so once superseded
@@ -743,7 +750,8 @@ export const useVideoPreview = ({
     if (isPreviewStarted.current) return;
     isPreviewStarted.current = true;
     setIsAwaitingCameraPermission(false);
-    initializeCameras();
+    // A disabled camera is opened once it gets enabled
+    if (!isCameraDisabled.current) initializeCameras();
   }, [initializeCameras]);
 
   useEffect(() => {
@@ -781,6 +789,31 @@ export const useVideoPreview = ({
       cleanupStreamAndVideo();
     };
   }, []);
+
+  // A disabled camera (e.g. locked webcam sharing) must not be opened, and is
+  // released if it gets disabled while open
+  useEffect(() => {
+    if (cameraDisabled) {
+      isFirstCameraDisabledRun.current = false;
+      // Supersede a pending getCameraStream, so it drops the camera it's still opening
+      cameraStreamRequestId.current += 1;
+      terminateCameraStream(currentVideoStream.current);
+      cleanupStreamAndVideo();
+      return;
+    }
+
+    // The camera is opened by startPreview, so it's only reopened here once the
+    // preview has started and the camera gets enabled again
+    if (isFirstCameraDisabledRun.current || !isPreviewStarted.current) {
+      isFirstCameraDisabledRun.current = false;
+      return;
+    }
+
+    // Clear a device error from a previous attempt, so a successful retry recovers
+    setDeviceError(null);
+    setViewState(VIEW_STATES.finding);
+    initializeCameras();
+  }, [cameraDisabled]);
 
   useEffect(() => {
     if (viewState === VIEW_STATES.found && !videoRef.current?.srcObject) {

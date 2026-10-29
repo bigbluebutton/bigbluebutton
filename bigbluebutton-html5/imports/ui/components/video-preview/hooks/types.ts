@@ -51,6 +51,7 @@ export interface UseVideoPreviewProps {
   forceOpen?: boolean;
   // Only open the camera on mount if the browser already granted access to it
   waitForCameraPermission?: boolean;
+  cameraDisabled?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;

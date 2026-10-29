@@ -113,6 +113,18 @@ public class SlidesGenerationProgressNotifier {
     messagingService.sendDocConversionMsg(message);
   }
 
+  public void sendConversionRateLimited(UploadedPresentation pres) {
+    ConversionRateLimitExceeded message = new ConversionRateLimitExceeded(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_RATE_LIMIT_EXCEEDED_KEY,
+            "Per-meeting presentation conversion rate limit exceeded"
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
     log.info("Sending conversion update message for page {} of presentation [{}] in meeting [{}]", pageGenerated, pres.getId(), pres.getMeetingId());
     DocPageGeneratedProgress progress = new DocPageGeneratedProgress(pres.getPodId(),

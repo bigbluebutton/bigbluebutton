@@ -23,6 +23,21 @@ export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
+// Selects LiveKit's client-side audio state instead of BBB's. The shipped default is false
+// (settings.yml), and the two are served by different talking-indicator paths, so any test
+// that cares which one is in use has to pin it rather than inherit the server's setting.
+export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    media: {
+      livekit: {
+        audio: {
+          useLiveKitAudioState: true,
+        },
+      },
+    },
+  },
+};
+
 export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
   return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
 }
@@ -43,6 +58,11 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
     .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
     .filter({ has: testPage.page.locator(e.webcamConnecting) });
 }
+
+// a row of the participants list, by the whole user name
+export const userListRowOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+// the private chat option of that row
+export const privateChatOptionOf = (userName: string) => `${userListRowOf(userName)} ${e.startPrivateChat}`;
 
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page

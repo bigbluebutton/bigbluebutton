@@ -34,12 +34,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
 
+    <!-- Per-meeting cap on presentations entering the conversion pipeline, enforced in
+         DocumentConversionServiceImp.processDocument. Separate instance from
+         insertDocumentRateLimiter: that one counts API calls, this one counts presentations.
+         Keep the placeholder defaults in step with bigbluebutton.properties. -->
+    <bean id="presentationConversionRateLimiter" class="org.bigbluebutton.api.util.RequestRateLimiter"
+          init-method="start" destroy-method="stop">
+        <property name="maxRequests" value="${presentationConversionMaxRequests:20}"/>
+        <property name="windowSec" value="${presentationConversionRateWindowSec:60}"/>
+    </bean>
+
+    <!-- Presentations bbb-apps-akka refused after their conversion started: conversion stops
+         scheduling pages for them and their directory is deleted after maxPageConversionTime. -->
+    <bean id="rejectedPresentationRegistry" class="org.bigbluebutton.presentation.RejectedPresentationRegistry"
+          init-method="start" destroy-method="stop">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
+    </bean>
+
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
         <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
+        <property name="conversionRateLimiter" ref="presentationConversionRateLimiter"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
@@ -124,9 +143,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
 
     <bean id="pdfSlidesGenerationService"
-          class="org.bigbluebutton.presentation.imp.PdfSlidesGenerationService">
+          class="org.bigbluebutton.presentation.imp.PdfSlidesGenerationService" destroy-method="stop">
         <constructor-arg index="0" value="${numConversionThreads}"/>
         <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
     </bean>
 
     <bean id="presentationFileProcessor"
@@ -146,6 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="counterService" ref="pageCounterService"/>
         <property name="pdfSlidesGenerationService" ref="pdfSlidesGenerationService"/>
         <property name="s3FileManager" ref="s3FileManager"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
     </bean>
 
     <bean id="imageSlidesGenerationService"
@@ -174,6 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           init-method="start" destroy-method="stop">
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="s3FileManager" ref="s3FileManager"/>
+        <property name="rejectedPresentationRegistry" ref="rejectedPresentationRegistry"/>
     </bean>
 
 </beans>

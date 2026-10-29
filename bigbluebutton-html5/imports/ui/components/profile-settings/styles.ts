@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary, colorDanger,
+  colorWhite, colorText, colorPrimary,
   colorGrayDark, colorLink, colorBorder, colorSuccess, colorGrayLight, colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -560,19 +560,13 @@ const SaveButton = styled(Button)`
   width: 100%;
 `;
 
-const StopSharingButtonText = styled.div<{ extraPadding?: boolean }>`
-  padding: 0 1rem;
-  ${({ extraPadding }) => extraPadding && `
-    padding-left: 3.5rem;
-  `}
-  cursor: pointer;
-  color: ${colorDanger};
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-skip-ink: auto;
-  text-decoration-thickness: auto;
-  text-underline-offset: auto;
-  text-underline-position: from-font;
+const StopSharingButtonContainer = styled.div`
+  padding: 0.5rem 1rem 0 3.5rem;
+`;
+
+// @ts-ignore - JS code
+const StopSharingButton = styled(Button)`
+  border-radius: ${lgBorderRadius};
 `;
 
 export default {
@@ -629,5 +623,6 @@ export default {
   SaveButtonContainer,
   AddCameraContainer,
   AddCameraButtonAndText,
-  StopSharingButtonText,
+  StopSharingButtonContainer,
+  StopSharingButton,
 };

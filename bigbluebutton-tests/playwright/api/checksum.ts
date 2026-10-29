@@ -8,14 +8,15 @@ import {
   getRandomInt,
   requestApiCall,
 } from '../core/helpers';
+import { parameters } from '../core/parameters';
 
 const CHECKSUM_LENGTH = { sha1: 40, sha256: 64, sha384: 96, sha512: 128 };
 
 const checksumOf = (url: string) => url.match(/checksum=([0-9a-f]+)$/)?.[1] ?? '';
 
 // The ways a caller without the shared secret can get a checksum wrong: tamper
-// with a valid one, leave it out, reuse one signed for another call, or add a
-// second one next to the valid one.
+// with a valid one, leave it out, reuse one signed for another call, or send
+// two, whether the second one differs from the valid one or repeats it.
 function refusedUrls(name: string, params: Record<string, string>, otherCall: string) {
   const valid = getApiCallUrl(name, params);
   const checksum = checksumOf(valid);
@@ -28,7 +29,19 @@ function refusedUrls(name: string, params: Record<string, string>, otherCall: st
     { label: 'no checksum', url: valid.replace(`&checksum=${checksum}`, '') },
     { label: `a checksum computed for ${otherCall}`, url: getApiCallUrl(name, params, { signedAs: otherCall }) },
     { label: 'a second checksum', url: `${valid}&checksum=${changed}` },
+    { label: 'the same checksum twice', url: `${valid}&checksum=${checksum}` },
   ];
+}
+
+// A refused join is sent back to the server's own logout URL, never to a URL
+// the request itself names (logoutURL, errorRedirectUrl).
+const FOREIGN_URL = 'https://example.com/elsewhere';
+
+function expectRedirectToServer(location: string | undefined, label: string) {
+  expect(location, `${label}: should redirect`).toBeDefined();
+  expect(new URL(location!).origin, `${label}: should redirect to the server, not to a URL from the request`).toBe(
+    new URL(parameters.server!).origin,
+  );
 }
 
 function expectChecksumError({ status, response }: ApiCallResult, label: string) {
@@ -86,6 +99,14 @@ export class APIChecksum {
       for (const { label, url } of refusedUrls('create', meetingParams(meetingID), 'join')) {
         expectChecksumError(await requestApiCall(request, url), `create with ${label}`);
       }
+      // No optional parameter takes a request past the checksum.
+      const withExternalUpload = { ...meetingParams(meetingID), presentationUploadExternalUrl: FOREIGN_URL };
+      for (const { label, url } of refusedUrls('create', withExternalUpload, 'join')) {
+        expectChecksumError(
+          await requestApiCall(request, url),
+          `create with presentationUploadExternalUrl and ${label}`,
+        );
+      }
       const info = await requestApiCall(request, getApiCallUrl('getMeetingInfo', { meetingID }));
       expect(info.response.messageKey, 'the refused create calls should not create the meeting').toEqual(['notFound']);
     } finally {
@@ -112,21 +133,35 @@ export class APIChecksum {
   }
 
   // join answers a checksum error with a redirect carrying the error list, never
-  // with the client URL.
+  // with the client URL. The redirect ignores the request's logoutURL, and its
+  // errorRedirectUrl too: a checksum error is reported ahead of any other error
+  // on the same request.
   static async testJoinRefused(request: APIRequestContext) {
     const meetingID = `checksum-join-${getRandomInt(1000000, 10000000)}`;
     try {
       const create = await requestApiCall(request, getApiCallUrl('create', meetingParams(meetingID)));
       expect(create.response.returncode).toEqual(['SUCCESS']);
-      const joinParams = { fullName: 'Checksum', meetingID, role: 'MODERATOR' };
-      for (const { label, url } of refusedUrls('join', joinParams, 'create')) {
+      const joinParams = { fullName: 'Checksum', meetingID, role: 'MODERATOR', logoutURL: FOREIGN_URL };
+      const unknownMeetingParams = { ...joinParams, meetingID: `${meetingID}-unknown`, errorRedirectUrl: FOREIGN_URL };
+      const refusedJoins = [
+        ...refusedUrls('join', joinParams, 'create').map((refused) => ({
+          ...refused,
+          label: `join with ${refused.label}`,
+        })),
+        ...refusedUrls('join', unknownMeetingParams, 'create').map((refused) => ({
+          ...refused,
+          label: `join to an unknown meeting with errorRedirectUrl and ${refused.label}`,
+        })),
+      ];
+      for (const { label, url } of refusedJoins) {
         const { status, location, redirectErrors } = await requestApiCall(request, url);
-        expect(status, `join with ${label}: should redirect`).toBe(302);
-        expect(location, `join with ${label}: should not open a session`).not.toContain('sessionToken');
+        expect(status, `${label}: should redirect`).toBe(302);
+        expect(location, `${label}: should not open a session`).not.toContain('sessionToken');
         expect(
           redirectErrors?.map((error) => error.key),
-          `join with ${label}: should report checksumError`,
+          `${label}: should report checksumError`,
         ).toEqual(['checksumError']);
+        expectRedirectToServer(location, label);
       }
     } finally {
       await endMeetings(request, [meetingID]);

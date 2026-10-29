@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import { defineMessages, useIntl } from 'react-intl';
 import { UserCameraHelperButton } from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
@@ -150,6 +151,7 @@ const TalkingContent: React.FC<TalkingContentProps> = ({
     <Styled.Content
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
+      className={cx('bbb-webcam', { 'bbb-webcam--talking': talking })}
       ref={containerRef}
       talking={talking}
       customHighlight={customHighlight}

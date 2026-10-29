@@ -21,9 +21,13 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# Forks can pick their own runners with repository variables, each set
+# to one runner label. CI_HEAVY_RUNNER is for jobs that build packages,
+# pull the LibreOffice image or install BBB. CI_LIGHT_RUNNER is for the
+# rest.
 jobs:
   build-package:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -151,7 +155,7 @@ jobs:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
   bbb-libreoffice-image:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -179,7 +183,7 @@ jobs:
           docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
@@ -335,7 +339,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -367,7 +371,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
@@ -378,7 +382,7 @@ jobs:
           npx playwright install
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
+        timeout-minutes: 40
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -464,7 +468,7 @@ jobs:
   push-debs-to-package-repo:
     needs: unify-artifacts
     if: github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     environment: apt-repo
     steps:
       - name: Download unified artifacts
@@ -503,7 +507,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
     steps:
@@ -557,7 +561,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json') }}
       - name: Plugins SDK - Install node dependencies
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
@@ -708,7 +712,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
     steps:
@@ -735,7 +739,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
@@ -749,7 +753,7 @@ jobs:
       # The quarantine tags it leaves out are the gate's (config.quarantine in package.json).
       - name: Run legacy (bbb-webrtc-sfu) media tests
         working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
+        timeout-minutes: 40
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -807,7 +811,7 @@ jobs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
       - install-and-run-legacy-media-tests
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     env:
       hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' || needs.install-and-run-legacy-media-tests.result == 'failure' }}
     steps:
