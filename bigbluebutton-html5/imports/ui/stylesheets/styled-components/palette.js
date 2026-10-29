@@ -34,7 +34,8 @@ const colorStandout = 'var(--color-standout, #A16207)';
 const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
-const colorWarning = 'var(--color-warning, purple)';
+const colorWarning = 'var(--color-warning, #FFC845)';
+const noticeWarningText = 'var(--notice-warning-text, #936800)';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
@@ -80,7 +81,7 @@ const btnSuccessColor = `var(--btn-success-color, ${colorWhite})`;
 const btnSuccessBg = `var(--btn-success-bg, ${colorSuccess})`;
 
 const btnWarningBorder = `var(--btn-warning-border, ${colorWarning})`;
-const btnWarningColor = `var(--btn-warning-color, ${colorWhite})`;
+const btnWarningColor = 'var(--btn-warning-color, #393C48)';
 const btnWarningBg = `var(--btn-warning-bg, ${colorWarning})`;
 
 const btnDangerBorder = `var(--btn-danger-border, ${colorDanger})`;
@@ -152,7 +153,7 @@ const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255,
 // rgba version of colorPrimary (0F70D7) with 15% opacity for talking indicator background
 const webcamTalkingBackgroundColor = 'var(--webcam-talking-background-color, rgba(13, 109, 252, 0.15))';
 
-const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
+const toastWarningColor = 'var(--toast-warning-color, #393C48)';
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 const defaultBorder = 'var(--default-border, #B0BDC9)';
 
@@ -214,6 +215,7 @@ export {
   colorDangerDark,
   colorSuccess,
   colorWarning,
+  noticeWarningText,
   colorBackground,
   colorOverlay,
   userListBg,
