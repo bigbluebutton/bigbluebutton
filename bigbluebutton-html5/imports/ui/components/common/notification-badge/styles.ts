@@ -3,6 +3,7 @@ import {
   borderSizeSmall,
   navigationSidebarNotificationBadgeSize,
   navigationSidebarNotificationBadgeFontSize,
+  navigationSidebarNotificationBadgePaddingX,
   navigationSidebarNotificationBadgeBottom,
   navigationSidebarNotificationBadgeRight,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -38,7 +39,7 @@ const notificationBadgeAnchor = `
 const NotificationBadge = styled.div<{ $anchored?: boolean }>`
   ${notificationBadgeShape}
   ${notificationBadgeText}
-  padding: 0 3px;
+  padding: 0 ${navigationSidebarNotificationBadgePaddingX};
   flex-shrink: 0;
   white-space: nowrap;
 
