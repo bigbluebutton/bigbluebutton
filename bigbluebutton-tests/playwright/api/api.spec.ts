@@ -56,6 +56,10 @@ test.describe.parallel('API', () => {
     await API.testControllerHelpersNotReachable();
   });
 
+  test('controllerWithoutActionNotFound', { tag: '@ci' }, async () => {
+    await API.testControllerWithoutActionNotFound();
+  });
+
   test('joinInsideCrossOriginFrame', { tag: '@ci' }, async ({ page, browserName }) => {
     test.skip(
       browserName !== 'chromium',
