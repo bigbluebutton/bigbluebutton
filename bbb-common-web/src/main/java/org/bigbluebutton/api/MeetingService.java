@@ -1497,7 +1497,13 @@ public class MeetingService implements MessageListener {
       }
     };
 
-    runExec.execute(task);
+    runExec.execute(() -> {
+      try {
+        task.run();
+      } catch (Exception e) {
+        log.error("Unexpected exception while processing {}", message.getClass().getSimpleName(), e);
+      }
+    });
   }
 
   public void processGuestPolicyChanged(GuestPolicyChanged msg) {
