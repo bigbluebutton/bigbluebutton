@@ -30,6 +30,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.uploadingPlural',
     description: 'uploading label for toast notification (plural)',
   },
+  uploadFailed: {
+    id: 'app.presentationUploder.uploadFailed',
+    description: 'failed upload label for toast notification',
+  },
+  uploadFailedPlural: {
+    id: 'app.presentationUploder.uploadFailedPlural',
+    description: 'failed uploads label for toast notification (plural)',
+  },
   uploadStatus: {
     id: 'app.presentationUploder.uploadStatus',
     description: 'upload status for toast notification',
@@ -307,6 +315,7 @@ function renderToastItem(item, intl) {
 
 const renderToastList = (presentations, intl) => {
   let converted = 0;
+  let failed = 0;
 
   const presentationsSorted = presentations
     .sort((a, b) => a.uploadCompleted - b.uploadCompleted);
@@ -315,6 +324,7 @@ const renderToastList = (presentations, intl) => {
     .forEach((p) => {
       const presDone = p?.totalPages !== 0 && p?.totalPagesUploaded === p?.totalPages;
       if (presDone) converted += 1;
+      if (p?.uploadErrorMsgKey) failed += 1;
       return p;
     });
 
@@ -341,10 +351,20 @@ const renderToastList = (presentations, intl) => {
     });
   }
 
+  // Only refused or failed uploads are left (e.g. after a burst or a reload): none is uploading.
+  const allFailed = failed > 0 && failed === presentationsSorted.length;
+  if (allFailed) {
+    toastHeading = failed > 1
+      ? intl.formatMessage(intlMessages.uploadFailedPlural, {
+        numberOfPresentations: failed,
+      })
+      : intl.formatMessage(intlMessages.uploadFailed);
+  }
+
   return (
     <Styled.ToastWrapper data-test="presentationUploadProgressToast">
       <Styled.UploadToastHeader>
-        <Styled.UploadIcon iconName="upload" />
+        <Styled.UploadIcon iconName={allFailed ? 'close' : 'upload'} $error={allFailed} />
         <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
       </Styled.UploadToastHeader>
       <Styled.InnerToast>
