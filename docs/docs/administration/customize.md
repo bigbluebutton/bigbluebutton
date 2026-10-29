@@ -1383,7 +1383,7 @@ A configured list *replaces* the default rather than adding to it, so list every
 
 If the value cannot be read as a list of strings, akka-apps logs an error naming the setting and falls back to the default list. That covers a value that is not a list at all (for example `allowedAnnotationTypes = "draw"`, which is a string), and a list holding anything other than strings (for example `["draw", 2]`) — a number or a boolean would otherwise be read as the literal type name `"2"`, leaving an allowlist that matches no real annotation. A single bad entry rejects the whole list, so the default applies rather than a partial one. On startup it logs the types it ended up with, so you can confirm your edit took effect:
 
-```
+```text
 INFO o.b.core.apps.WhiteboardModel$ - Whiteboard annotation types enabled: [arrow, draw, ...]
 ```
 
