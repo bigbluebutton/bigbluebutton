@@ -865,6 +865,51 @@ livekit_bool() {
     esac
 }
 
+# Prints a variable's value from an EnvironmentFile, read the way systemd reads
+# a plain value.
+env_file_value() {
+    sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$2" 2> /dev/null | tail -n 1 \
+        | sed -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
+}
+
+env_file_has() {
+    grep -q "^[[:space:]]*$1[[:space:]]*=" "$2" 2> /dev/null
+}
+
+# bbb-webrtc-recorder loads only the first of these files it finds; it does not
+# merge them.
+webrtc_recorder_config_file() {
+    for f in /etc/bigbluebutton/bbb-webrtc-recorder.yaml /etc/bigbluebutton/bbb-webrtc-recorder.yml \
+        /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yaml /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml; do
+        if [ -f "$f" ]; then
+            echo "$f"
+            return
+        fi
+    done
+}
+
+# Warns and returns 1 when a component's copy of a LiveKit API key differs
+# from the keys livekit-server uses. It prints no key: a key and secret
+# swapped by mistake would print the secret.
+check_livekit_key() {
+    if [ -z "$2" ]; then
+        echo "# Warning: $1 has no LiveKit API key"
+    elif [ -z "$LIVEKIT_KEYS" ]; then
+        return 0
+    else
+        LIVEKIT_EXPECTED_SECRET=$(echo "$LIVEKIT_KEYS" | KEY="$2" yq-go e '.[strenv(KEY)] // ""' - 2> /dev/null)
+        if [ "$LIVEKIT_EXPECTED_SECRET" == "$3" ] && [ -n "$3" ]; then
+            return 0
+        elif [ -z "$LIVEKIT_EXPECTED_SECRET" ]; then
+            echo "# Warning: $1 uses a LiveKit API key that $LIVEKIT_KEYS_FROM does not list"
+        else
+            echo "# Warning: $1's LiveKit API secret differs from $LIVEKIT_KEYS_FROM"
+        fi
+    fi
+    print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
+    return 1
+}
+
 check_livekit() {
     if [ -z "$LIVEKIT_SERVER_CONFIG" ] || ! systemctl is-enabled --quiet livekit-server 2> /dev/null; then
         return
@@ -959,6 +1004,71 @@ check_livekit() {
             print_docs_link "support/troubleshooting#livekit-address-settings"
         fi
     done
+
+    # With key_file set, livekit-server uses only that file's keys and ignores
+    # the keys map in livekit.yaml.
+    LIVEKIT_KEY_FILE=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.key_file // ""' -)
+    if [ -n "$LIVEKIT_KEY_FILE" ]; then
+        # livekit-server expands ~ and $VAR, and resolves a relative path from /.
+        if [[ "$LIVEKIT_KEY_FILE" != /* && "$LIVEKIT_KEY_FILE" != "~"* && "$LIVEKIT_KEY_FILE" != *\$* ]]; then
+            LIVEKIT_KEY_FILE="/$LIVEKIT_KEY_FILE"
+        fi
+        LIVEKIT_KEYS_FROM=$LIVEKIT_KEY_FILE
+        LIVEKIT_KEYS=""
+        if [[ "$LIVEKIT_KEY_FILE" != /* || "$LIVEKIT_KEY_FILE" == *\$* ]]; then
+            echo "# Warning: bbb-conf cannot resolve key_file $LIVEKIT_KEY_FILE as livekit-server does,"
+            echo "# so the LiveKit API key copies are not checked"
+        elif [ "$(yq-go e 'length' "$LIVEKIT_KEY_FILE" 2> /dev/null)" -gt 0 ] 2> /dev/null; then
+            LIVEKIT_KEYS=$(yq-go e '.' "$LIVEKIT_KEY_FILE" 2> /dev/null)
+        else
+            echo "# Warning: cannot read key_file $LIVEKIT_KEY_FILE, or it holds no keys, so the LiveKit"
+            echo "# API key copies are not checked"
+        fi
+    else
+        LIVEKIT_KEYS_FROM=$LIVEKIT_SERVER_ETC_CONFIG
+        LIVEKIT_KEYS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.keys // {}' - 2> /dev/null)
+    fi
+
+    if systemctl is-enabled --quiet bbb-webrtc-recorder 2> /dev/null; then
+        WEBRTC_RECORDER_FILE=$(webrtc_recorder_config_file)
+        WEBRTC_RECORDER_KEY=$(env_file_value BBBRECORDER_LIVEKIT_APIKEY /etc/default/bbb-webrtc-recorder)
+        WEBRTC_RECORDER_SECRET=$(env_file_value BBBRECORDER_LIVEKIT_APISECRET /etc/default/bbb-webrtc-recorder)
+        if ! env_file_has BBBRECORDER_LIVEKIT_APIKEY /etc/default/bbb-webrtc-recorder && [ -n "$WEBRTC_RECORDER_FILE" ]; then
+            WEBRTC_RECORDER_KEY=$(yq-go e '.livekit.apiKey // ""' "$WEBRTC_RECORDER_FILE")
+        fi
+        if ! env_file_has BBBRECORDER_LIVEKIT_APISECRET /etc/default/bbb-webrtc-recorder && [ -n "$WEBRTC_RECORDER_FILE" ]; then
+            WEBRTC_RECORDER_SECRET=$(yq-go e '.livekit.apiSecret // ""' "$WEBRTC_RECORDER_FILE")
+        fi
+        check_livekit_key bbb-webrtc-recorder "$WEBRTC_RECORDER_KEY" "$WEBRTC_RECORDER_SECRET"
+    fi
+
+    if [ -n "$LIVEKIT_SIP_CONFIG" ] && systemctl is-enabled --quiet livekit-sip 2> /dev/null; then
+        check_livekit_key livekit-sip "$(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.api_key // ""' -)" \
+            "$(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.api_secret // ""' -)"
+    fi
+
+    if [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.enabled' - 2> /dev/null)" == "true" ]; then
+        WEBRTC_SFU_KEY=$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.key // ""' -)
+        # livekit-server signs webhooks with webhook.api_key, and the SFU checks
+        # them against its own key.
+        if check_livekit_key bbb-webrtc-sfu "$WEBRTC_SFU_KEY" "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.secret // ""' -)" \
+            && [ "$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.eventSource // "webhook"' -)" == "webhook" ]; then
+            WEBRTC_SFU_PATH=$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.webhook.path // "/livekit-webhook"' -)
+            WEBRTC_SFU_HOOK=":$(echo "$WEBRTC_SFU_CONFIG" | yq-go e '.livekit.webhook.port // 3040' -)${WEBRTC_SFU_PATH%/}"
+            # bbb-webrtc-sfu serves plain HTTP, and its router ignores case and a trailing slash.
+            WEBRTC_SFU_HOOK_RE=$(printf '%s' "$WEBRTC_SFU_HOOK" | sed "s/[][\\.*^\$()+?{}|]/\\\\&/g")
+            if ! echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.webhook.urls[]' - 2> /dev/null \
+                | grep -qiE "^http://[^/]+$WEBRTC_SFU_HOOK_RE/?(\?.*)?$"; then
+                echo "# Warning: webhook.urls in $LIVEKIT_SERVER_ETC_CONFIG has no URL of the form"
+                echo "# http://<host>$WEBRTC_SFU_HOOK, so bbb-webrtc-sfu gets no LiveKit events"
+                print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
+            elif [ "$WEBRTC_SFU_KEY" != "$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.webhook.api_key // ""' -)" ]; then
+                echo "# Warning: bbb-webrtc-sfu's LiveKit API key is not webhook.api_key in $LIVEKIT_SERVER_ETC_CONFIG,"
+                echo "# so bbb-webrtc-sfu rejects LiveKit's webhooks"
+                print_docs_link "support/troubleshooting#livekit-api-keys-and-webhooks"
+            fi
+        fi
+    fi
 }
 
 check_state() {
