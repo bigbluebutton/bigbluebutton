@@ -1,9 +1,14 @@
+import { expect } from '@playwright/test';
+
+import { CI } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { API } from './api';
 import { APIBreakout } from './breakout';
+import { APICallbacks } from './callbacks';
 import { APIChecksum } from './checksum';
 import { APIDisabledFeatures } from './disabledFeatures';
+import { APIDocumentTypes } from './documentTypes';
 import { APIJoin } from './join';
 import { APILifecycle } from './lifecycle';
 
@@ -72,6 +77,11 @@ test.describe.parallel('API', () => {
     await API.testHiddenMethodOverrideIgnored();
   });
 
+  test('svgDocumentNotAdded', { tag: '@ci' }, async ({ browser, context, page, request }, testInfo) => {
+    const documentTypes = new APIDocumentTypes(browser, context);
+    await documentTypes.testSvgDocumentNotAdded(page, testInfo, request);
+  });
+
   test('breakoutWithoutParent', { tag: '@ci' }, async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });
@@ -126,6 +136,19 @@ test.describe.parallel('API', () => {
 
     test('createTwice', async ({ request }) => {
       await APILifecycle.testCreateTwice(request);
+    });
+  });
+
+  test.describe('Meeting ended callback', { tag: '@ci' }, () => {
+    test('meetingEndedUrlCarriesRecordingmarksAndMeetingID', async ({ request }) => {
+      linkIssue(25929);
+      const callsBack = await APICallbacks.serverCallsBackItsOwnHost(request);
+      if (CI) {
+        expect(callsBack, 'the meta_endCallbackUrl control callback should re-create the meeting').toBe(true);
+      } else {
+        test.skip(!callsBack, 'bbb-web does not accept a callback to its own host (fetchUrlAllowedLocalHosts)');
+      }
+      await APICallbacks.testMeetingEndedUrlCarriesRecordingmarksAndMeetingID(request);
     });
   });
 

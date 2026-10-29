@@ -108,6 +108,7 @@ export const useVideoPreview = ({
   isCameraAsContent = false,
   isCameraShared = false,
   forceOpen,
+  cameraDisabled = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -136,6 +137,9 @@ export const useVideoPreview = ({
   // Bumped by every getCameraStream call so a slower, superseded call knows it lost the race
   const cameraStreamRequestId = useRef(0);
   const cameraLoadCount = useRef(0);
+  // Read by the async camera flows, which may outlive the render that started them
+  const isCameraDisabled = useRef(cameraDisabled);
+  isCameraDisabled.current = cameraDisabled;
 
   const handleGUMError = useCallback((error: Error & { name: string }) => {
     logger.error({
@@ -505,6 +509,8 @@ export const useVideoPreview = ({
     deviceId: string | null,
     profile: CameraProfileProps,
   ) => {
+    if (isCameraDisabled.current) return null;
+
     cameraStreamRequestId.current += 1;
     const requestId = cameraStreamRequestId.current;
     // A newer call terminates this call's stream when it starts, so once superseded
@@ -719,14 +725,29 @@ export const useVideoPreview = ({
   useEffect(() => {
     isMounted.current = true;
 
-    initializeCameras();
-
     return () => {
       isMounted.current = false;
       terminateCameraStream(currentVideoStream.current);
       cleanupStreamAndVideo();
     };
   }, []);
+
+  // A disabled camera (e.g. locked webcam sharing) must not be opened, and is
+  // released if it gets disabled while open
+  useEffect(() => {
+    if (cameraDisabled) {
+      // Supersede a pending getCameraStream, so it drops the camera it's still opening
+      cameraStreamRequestId.current += 1;
+      terminateCameraStream(currentVideoStream.current);
+      cleanupStreamAndVideo();
+      return;
+    }
+
+    // Clear a device error from a previous attempt, so a successful retry recovers
+    setDeviceError(null);
+    setViewState(VIEW_STATES.finding);
+    initializeCameras();
+  }, [cameraDisabled]);
 
   useEffect(() => {
     if (viewState === VIEW_STATES.found && !videoRef.current?.srcObject) {
