@@ -901,6 +901,7 @@ check_livekit() {
     LIVEKIT_USE_EXTERNAL=$(livekit_bool .rtc.use_external_ip)
     LOCAL_IPV4S=$(ip -o -4 address show | awk '{ split($4, a, "/"); print a[1] }')
     LOCAL_PUBLIC_IPV4S=$(for a in $LOCAL_IPV4S; do case "$a" in 127.*|169.254.*) ;; *) is_private_ipv4 "$a" || echo "$a" ;; esac; done)
+    NIC_IPV4S=$(ip -o -4 address show | awk '$2 != "lo" { split($4, a, "/"); print a[1] }')
 
     # With ICE-lite, LiveKit sends no connectivity checks of its own, so the
     # recorder and livekit-sip connect only through the addresses it announces.
@@ -920,6 +921,44 @@ check_livekit() {
             print_docs_link "support/troubleshooting#livekit-ice-lite-address-is-not-on-this-server"
         fi
     fi
+
+    if [ "$LIVEKIT_USE_EXTERNAL" == "true" ] \
+        && is_private_ipv4 "$IP" && [ -n "$(ip -6 route show default 2> /dev/null)" ] \
+        && ip -6 address show scope global 2> /dev/null | grep -v -E 'inet6 f[cd]' | grep -q inet6; then
+        echo "# Warning: rtc.use_external_ip is true on a server behind NAT with an IPv6 route."
+        echo "# livekit-server can then announce no public IPv4 address, and IPv4-only"
+        echo "# clients cannot connect."
+        print_docs_link "support/troubleshooting#livekit-address-settings"
+    fi
+
+    LIVEKIT_PEER_IPV4S=$( {
+        echo "$WEBRTC_SFU_CONFIG" | yq-go e '.mediasoup.webrtc.listenIps[] | .announcedIp // ""' -
+        xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=//'
+    } 2> /dev/null | grep -E '^[0-9]+(\.[0-9]+){3}$' | sort -u)
+    if [ "$LIVEKIT_USE_EXTERNAL" == "true" ]; then
+        LIVEKIT_PEER_IPV4S=""
+    fi
+    for PEER_IPV4 in $LIVEKIT_PEER_IPV4S; do
+        if [ -n "$LIVEKIT_NODE_IP4" ]; then
+            if [ "$PEER_IPV4" != "$LIVEKIT_NODE_IP4" ]; then
+                echo "# Warning: LiveKit announces rtc.node_ip $LIVEKIT_NODE_IP4, but mediasoup or FreeSWITCH announce $PEER_IPV4"
+                print_docs_link "support/troubleshooting#livekit-address-settings"
+            fi
+        elif [ -n "$LIVEKIT_NODE_IP" ]; then
+            echo "# Warning: rtc.node_ip has no IPv4 address, but mediasoup or FreeSWITCH announce $PEER_IPV4"
+            print_docs_link "support/troubleshooting#livekit-address-settings"
+        elif ! echo "$NIC_IPV4S" | grep -qxF "$PEER_IPV4"; then
+            echo "# Warning: mediasoup or FreeSWITCH announce $PEER_IPV4, which no interface other than lo holds,"
+            if [ "$LIVEKIT_ICE_LITE" == "true" ]; then
+                echo "# but rtc.node_ip is not set. With ICE-lite, LiveKit then announces only this server's"
+                echo "# own addresses, which clients outside the NAT reach only through TURN."
+            else
+                echo "# but rtc.node_ip is not set. LiveKit then depends on outside STUN servers to learn its"
+                echo "# public address."
+            fi
+            print_docs_link "support/troubleshooting#livekit-address-settings"
+        fi
+    done
 }
 
 check_state() {
