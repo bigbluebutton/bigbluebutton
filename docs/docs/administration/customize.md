@@ -1080,7 +1080,7 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
    rtp_port: <START>-<END>
    ```
 
-   Note: By default livekit-sip shares `16384-32768` with the other media servers, and `bbb-conf --set-port-range` moves them all, overwriting `rtp_port`. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
+   Note: By default livekit-sip shares `16384-32768` with the other media servers, and `bbb-conf --set-port-range` moves them all, overwriting `rtp_port`. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/firewall-configuration)).
 
 4. Restart BigBlueButton:
 
