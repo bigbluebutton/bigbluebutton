@@ -597,9 +597,12 @@ The actual URL that the callback will be made to, for a meeting created with `me
 ```
 https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true&meetingID=test01
 ```
-BigBlueButton appends the parameters after the query string that your URL already has
+BigBlueButton appends the parameters to the query string that your URL already has
 and does not replace a parameter of the same name:
 if your URL already contains `meetingID` or `recordingmarks`, the callback carries both values, yours first.
+Your existing parameters keep their values, but BigBlueButton may re-encode them
+(for example, `redirect=https://x/a` is sent as `redirect=https%3A%2F%2Fx%2Fa`),
+so do not rely on the raw query string, for example to verify a signature over it.
 
 For security reasons, the callback URL that your application generates should be authenticated in some way,
 to prevent malicious users from causing your application to think a meeting has ended while it is still running.
