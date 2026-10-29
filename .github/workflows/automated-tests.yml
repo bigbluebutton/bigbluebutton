@@ -32,9 +32,13 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event_name == 'workflow_dispatch' && format('-dispatch-{0}', inputs.jobs) || '' }}
   cancel-in-progress: true
+# Forks can pick their own runners with repository variables, each set
+# to one runner label. CI_HEAVY_RUNNER is for jobs that build packages,
+# pull the LibreOffice image or install BBB. CI_LIGHT_RUNNER is for the
+# rest.
 jobs:
   build-package:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -162,7 +166,7 @@ jobs:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
   bbb-libreoffice-image:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -190,7 +194,7 @@ jobs:
           docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     steps:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
@@ -347,7 +351,7 @@ jobs:
       - unify-artifacts
       - bbb-libreoffice-image
     if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -379,7 +383,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
@@ -390,7 +394,7 @@ jobs:
           npx playwright install
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
+        timeout-minutes: 40
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -476,7 +480,7 @@ jobs:
   push-debs-to-package-repo:
     needs: unify-artifacts
     if: github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     environment: apt-repo
     steps:
       - name: Download unified artifacts
@@ -516,11 +520,9 @@ jobs:
       - unify-artifacts
       - bbb-libreoffice-image
     if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
-    env:
-      SAMPLES_WITH_TESTS: "sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin sample-media-area-plugin"
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -551,6 +553,15 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+          # the later steps build and serve every sample of this SDK version that has tests
+          samples=""
+          for dir in bigbluebutton-html-plugin-sdk/samples/*/tests; do
+            [ -d "$dir" ] || continue
+            sample=${dir%/tests}
+            samples="$samples ${sample##*/}"
+          done
+          echo "Samples with tests:$samples"
+          echo "SAMPLES_WITH_TESTS=${samples# }" >> "$GITHUB_ENV"
       - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
         uses: actions/setup-node@v5
         with:
@@ -563,7 +574,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json') }}
       - name: Plugins SDK - Install node dependencies
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
@@ -715,7 +726,7 @@ jobs:
       - unify-artifacts
       - bbb-libreoffice-image
     if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
     steps:
@@ -742,7 +753,7 @@ jobs:
         id: cache
         uses: actions/cache@v5
         with:
-          path: /home/runner/.cache/ms-playwright/
+          path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
@@ -751,18 +762,19 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
-      # This job re-runs the @media-tagged tests against the legacy
+      # This job re-runs the @media-tagged gate tests against the legacy
       # bbb-webrtc-sfu bridge, selected per-meeting via MEDIA_BRIDGE create params.
+      # The quarantine tags it leaves out are the gate's (config.quarantine in package.json).
       - name: Run legacy (bbb-webrtc-sfu) media tests
         working-directory: ./bigbluebutton-tests/playwright
-        timeout-minutes: 25
+        timeout-minutes: 40
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
           MEDIA_BRIDGE: bbb-webrtc-sfu
-        run: npx playwright test --project=chromium --grep '(?=.*@ci)(?=.*@media)' --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
+        run: npm run test-chromium-media-ci
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6
@@ -949,7 +961,7 @@ jobs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
       - install-and-run-legacy-media-tests
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     env:
       hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' || needs.install-and-run-legacy-media-tests.result == 'failure' }}
     steps:

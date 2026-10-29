@@ -77,7 +77,7 @@ The following command line will start the systemd exporter and instruct it to
 only monitor services relevant to BigBlueButton on port 9558:
 
 ```shell
-systemd_exporter --systemd.collector.unit-include=(bbb.*|b3scale.*|freeswitch)\.service
+systemd_exporter --systemd.collector.unit-include=(bbb.*|b3scale.*|freeswitch|livekit.*)\.service
 ```
 It can be queried via `curl http://bbb.example.com:9558/metrics`.
 
@@ -126,37 +126,57 @@ prometheus:
     port: 3024
     path: '/metrics'
     collectDefaultMetrics: false
+  livekit:
+    host: localhost
+    port: 6759
+    path: '/metrics'
+    collectDefaultMetrics: false
 ```
 After a restart of bbb-webrtc-sfu, the metrics can now be queried via
 
-  * `curl http://bbb.example.com:3014/metrics` (mcs-core)
-  * `curl http://bbb.example.com:3016/metrics` (main)
-  * `curl http://bbb.example.com:3026/metrics` (video)
-  * `curl http://bbb.example.com:3022/metrics` (screenshare)
-  * `curl http://bbb.example.com:3024/metrics` (audio)
+  * `curl http://localhost:3014/metrics` (mcs-core)
+  * `curl http://localhost:3016/metrics` (main)
+  * `curl http://localhost:3026/metrics` (video)
+  * `curl http://localhost:3022/metrics` (screenshare)
+  * `curl http://localhost:3024/metrics` (audio)
+  * `curl http://localhost:6759/metrics` (bbb-webrtc-sfu's LiveKit controller)
 
 respectively.
 
-#### HTML5 Frontend (experimental)
-The HTML5 Frontend servers can be configured to provide Prometheus endpoints by adding
-the following to `/etc/bigbluebutton/bbb-html5.yml`:
+#### GraphQL middleware
+`bbb-graphql-middleware`, which carries the client's GraphQL subscriptions, always serves Prometheus metrics (connection and subscription counters) on its listen port: `curl http://127.0.0.1:8378/metrics`. It only listens on localhost; `prometheus_advanced_metrics_enabled: true` in `/etc/bigbluebutton/bbb-graphql-middleware.yml` adds per-query metrics.
 
-```yaml
-private:
-    prometheus:
-        enabled: true
-        # Metrics endpoint path
-        path: '/metrics'
-        # Whether default metrics for Node.js processes should be exported
-        collectDefaultMetrics: false
-        # Whether redis metrics should be exported
-        collectRedisMetrics: false
+#### WebRTC recorder
+`bbb-webrtc-recorder` exposes metrics when `prometheus.enable` is set. Set it with environment variables in `/etc/default/bbb-webrtc-recorder`, which keeps the rest of the packaged configuration in place (naming rules in the [bbb-webrtc-recorder README](https://github.com/bigbluebutton/bbb-webrtc-recorder#configuration)):
+
+```shell
+BBBRECORDER_PROMETHEUS_ENABLE=true
+BBBRECORDER_PROMETHEUS_LISTENADDRESS=127.0.0.1:3200
 ```
 
-After a restart, the metrics will be available at `https://bbb.example.com/html5client/metrics`.
+The override file `/etc/bigbluebutton/bbb-webrtc-recorder.yml` is not merged: when it exists, the recorder reads it instead of `/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml`, and any setting missing from it falls back to the recorder's built-in default. To use it, copy the packaged file first and edit the `prometheus` section of the copy:
 
-**Note:** The endpoint is unprotected. You need to configure nginx access
-          control to this URL yourself.
+```shell
+sudo cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml /etc/bigbluebutton/bbb-webrtc-recorder.yml
+```
+
+```yaml
+prometheus:
+  enable: true
+  listenAddress: 127.0.0.1:3200
+```
+
+After a restart of bbb-webrtc-recorder, query them via `curl http://127.0.0.1:3200/metrics`.
+
+#### LiveKit
+`livekit-server` exposes metrics when a port is set in `/etc/bigbluebutton/livekit.yaml`:
+
+```yaml
+prometheus:
+  port: 6789
+```
+
+After a restart of livekit-server, query them via `curl http://bbb.example.com:6789/metrics`. The port is bound on all interfaces, so firewall it.
 
 ### Optimization: Consolidating local metrics endpoints
 

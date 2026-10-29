@@ -10,286 +10,244 @@ keywords:
 
 ## Overview
 
-In many countries there exist regulation of data protection. For operators of BigBlueButton services, especially private data protection regulations are an important topic.
-In the European Union the relevant regulation is the [General Data Protection Regulation (GDPR)](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation). Many other countries also adopted similar regulations (for example the [California Consumer Privacy Act (CCPA)](https://en.wikipedia.org/wiki/California_Consumer_Privacy_Act) in California USA or the [Lei Geral de Proteção de Dados (LGPD)](https://pt.wikipedia.org/wiki/Lei_Geral_de_Prote%C3%A7%C3%A3o_de_Dados_Pessoais) in Brazil) and some of these regulation even have to be complied with outside of these countries under certain conditions. The following documentation is supposed to help understand where private data gets processed and stored in a typical setup of BigBlueButton, and what configuration options there are.
+Many countries regulate the protection of personal data, and for operators of BigBlueButton servers those regulations are an important topic.
+In the European Union the relevant regulation is the [General Data Protection Regulation (GDPR)](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation). Many other countries have adopted similar regulations (for example the [California Consumer Privacy Act (CCPA)](https://en.wikipedia.org/wiki/California_Consumer_Privacy_Act) in California, USA, or the [Lei Geral de Proteção de Dados (LGPD)](https://pt.wikipedia.org/wiki/Lei_Geral_de_Prote%C3%A7%C3%A3o_de_Dados_Pessoais) in Brazil), and some of them also apply outside their country under certain conditions. This page describes where a BigBlueButton 4.0 server processes and stores personal data, for how long, and which configuration options exist.
 
-Disclaimer: the following documentation is neither legal advice, nor complete. This is work-in-progress.
+Disclaimer: this page is neither legal advice nor complete.
 
 ## BigBlueButton
 
-This section documents privacy related settings, defaults, and configuration options in BigBlueButton itself. Keep in mind that your configuration changes here may be silently overwritten upon upgrades via apt, see [issue 9111](https://github.com/bigbluebutton/bigbluebutton/issues/9111)
-To prevent this, make sure to use the directory [`/etc/bigbluebutton`](/administration/configuration-files#local-overrides-for-configuration-settings) to ensure changes are retained upon upgrades and restarts.
+This section documents privacy related settings, defaults, and configuration options in BigBlueButton itself. Keep in mind that changes to files installed by the packages are overwritten on upgrades. Make your changes in the override files under [`/etc/bigbluebutton`](/administration/configuration-files#local-overrides-for-configuration-settings) so they survive upgrades and restarts. The retention periods of the daily cleanup job are set in `/etc/default/bigbluebutton-cron-config` (see [Retention settings](#retention-settings)).
 
 ### Recordings
 
 #### BigBlueButton either records all of a session or does not record at all
 
-When a room is created in BigBlueButton that allows recordings (i.e., the recording button is visible) BigBlueButton will record the entire session. This is independent of the recording-button actually being pressed or not. The technical reason behind this is that parts of the recordings (esp. the SVG files for the Whiteboard) depend on earlier state to be properly processed, see: [Recording](/development/recording)
-By default these files are stored for two weeks (see 'Retention of Cache Files' below). Furthermore, depending on the use-case and jurisdiction it might be prudent to retain the
-option to create 'retroactive' recordings, e.g., when users forgot to click the recording button.
+When a meeting is created with `record=true`, BigBlueButton records the events of the entire session (whiteboard and presentation events, chat, shared notes, who joined and left), independent of whether the recording button is pressed. The button only sets recording marks; the events of the whole session are needed because parts of the recording (for example the whiteboard) depend on earlier state, see [Recording](/development/recording). The media (audio, webcams and screen sharing) is captured only while the recording is running, that is, between the marks, unless `recordFullDurationMedia=true` is set in `/etc/bigbluebutton/bbb-web.properties` (default `false`) or via a `create` call; with it, the media of the whole session is kept as well.
 
-If the frontend (which uses the BigBlueButton API to create/start a room) specifies `record=true`, the entire session will be recorded, unless recording is disabled for all rooms in BigBlueButton. If the frontend specifies `record=false` or does not specify this parameter, then the session will not be recorded and the "start"/"stop" recording button will not be available during the session.
+After the meeting ends, the archive step copies the events and whatever media was captured into `/var/bigbluebutton/recording/raw/<meetingId>/` and deletes the original media files. It then checks for recording marks. If the meeting has none, it is not processed into a recording: the meeting's events are deleted from Redis and the raw directory is marked with a `.norecord` status file. The daily cleanup job deletes those raw directories `unrecorded_days` (default 14) after the meeting. Depending on the use case and jurisdiction it might be prudent to keep that window, so that a recording can still be produced when users forgot to click the recording button; with the default `recordFullDurationMedia=false` such a recording contains the events but no media.
+
+If the front end (which uses the BigBlueButton API to create the meeting) specifies `record=false` or does not specify the parameter, no media is recorded and the "start"/"stop" recording button is not shown. The presentation files and the session data described below are still stored.
 
 ##### Resolution
-
-Operators have at least these two options for handling this:
 
 ###### Globally disable recordings in BigBlueButton
 
-Server operators can overwrite default value for `disableRecordingDefault` initially set in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` by overwriting it in `/etc/bigbluebutton/bbb-web.properties` - set `disableRecordingDefault=false` to `disableRecordingDefault=true` for globally disabling recordings. Furthermore, recording of breakout rooms should be disabled by setting `breakoutRoomsRecord=false`. In general, this is an advisable idea (independently of `disableRecordingDefault=true`, because break-out rooms might imply a certain level of privacy for typical users.
+Set `disableRecordingDefault=true` in `/etc/bigbluebutton/bbb-web.properties` (it overrides the default in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`). Meetings are then never recorded, whatever the front end passes as `record`. Breakout rooms are not recorded by default (`breakoutRoomsRecord=false`); keep it that way, because breakout rooms imply a certain level of privacy for typical users.
 
-###### Post-recording script to remove recordings without any recording markers
+###### Shorten the retention of raw files without recording marks
 
-Server operators can deploy a custom script which purges recordings and cache-files of recordings for which no recording markers were created.
-
-Simple version:
-`/etc/sudoers:`
-`bigbluebutton ALL = NOPASSWD: /usr/bin/bbb-record`
-
-and
-
-`/usr/local/bigbluebutton/core/scripts/archive/archive.rb (after line 242):`
-` BigBlueButton.logger.info("There are no recording marks for #{meeting_id}, deleting the recording.")`
-` system('sudo', 'bbb-record', '--delete', "#{meeting_id}") || raise('Failed to delete local recording')`
-
-For a more complete version that also explicitly deletes cache files of recordings for freeswitch/kurento, please see:
-[bbb-recording-archive-workaround](https://github.com/Kalagon/bbb-recording-archive-workaround)
+Set `unrecorded_days` in `/etc/default/bigbluebutton-cron-config`. With `unrecorded_days=0` the raw directory of a meeting without recording marks is deleted on the first daily run that happens more than one day after the meeting ended.
 
 #### BigBlueButton stores presentations uploaded during sessions
 
-BigBlueButton stores the presentations of sessions in `/var/bigbluebutton` even if the room is started with record=false.
+BigBlueButton stores the uploaded presentations and the slides generated from them in `/var/bigbluebutton/<meetingId>/`, also when the meeting was created with `record=false`. The daily cleanup job deletes these directories `history` (default 5) days after the meeting. For recorded meetings, the archive step also copies them into the raw recording directory.
 
 ##### Resolution
 
-Unknown, unclear which post-recording actions are triggered if no recording is created.
-TODO: add some best practices here
+Lower `history` in `/etc/default/bigbluebutton-cron-config`.
+
+#### BigBlueButton keeps session data for a while after the meeting
+
+Independent of recording, a running meeting is stored in several places, each with its own cleanup:
+
+- The PostgreSQL database `bbb_graphql` holds the state of the meeting that the client reads through GraphQL: the users with their names and roles, chat messages, polls, and so on. bbb-apps-akka deletes a meeting from the database one hour after it ended, and the rows that belong to it (users, chat messages, and so on) are deleted with it.
+- Shared notes are stored by `bbb-shared-notes-server` in the PostgreSQL database `blocknote_app`. A meeting's notes are deleted `postgres.documentExpireMinutesAfterMeetingEnd` (default 60) minutes after the meeting ended; the setting can be changed in `/etc/bigbluebutton/bbb-shared-notes-server.yml`:
+
+  ```yaml
+  postgres:
+    documentExpireMinutesAfterMeetingEnd: 60
+  ```
+
+- The Learning Dashboard data (names, join and leave times, talk time, chat and poll activity) is written to `/var/bigbluebutton/learning-dashboard/`. bbb-web deletes the files `learningDashboardCleanupDelayInMinutes` (default 2) minutes after the meeting ended; `0` keeps them permanently, and a front end can set the value per meeting on the `create` call. The deletion is a timer inside bbb-web: if bbb-web is restarted during that delay, the files stay, because the daily cleanup job does not touch this directory. For recorded meetings the archive step keeps a copy in the raw recording directory. The dashboard can be turned off with `disabledFeatures=learningDashboard` in `/etc/bigbluebutton/bbb-web.properties`.
+- Redis holds the events of a recorded meeting until the recording scripts have stored them in the raw recording directory: the sanity step deletes them for meetings with recording marks, the archive step for meetings without.
+- When a meeting is created with `meetingKeepEvents=true` (or `defaultKeepEvents=true` is set in `bbb-web.properties`, default `false`), the events of the meeting are written to `/var/bigbluebutton/events/<meetingId>/events.xml` even if the meeting is not recorded. Breakout rooms inherit the parent meeting's value. No cleanup job removes these files.
 
 #### BigBlueButton stores full raw recording data
 
-BigBlueButton stores the raw recording data for meetings that have recording markers indefinitely. This includes parts of the session where the presenter/moderator did not yet click the recording button.
+The raw data of a recorded meeting (audio, webcam and screen sharing files, events, presentations, shared notes, Learning Dashboard data) stays in `/var/bigbluebutton/recording/raw/<meetingId>/` after the recording was processed. The events cover the parts of the session before the presenter clicked the recording button; the media does too if `recordFullDurationMedia` is set. The daily cleanup job deletes the raw directory `published_days` (default 14) after the meeting was archived (it looks at the modification time of the raw `events.xml`), provided every enabled recording format was published successfully. Unpublishing a recording through the API does not change that, since it only moves the processed files. If any format failed, the raw directory is kept until it is deleted by hand (`bbb-record --delete`).
 
 ##### Resolution
 
-This can be resolved by deleting raw recording data after a meeting has been successfully archived. For deployments using scalelite, this can be achieved by the following changes:
+Lower `published_days` in `/etc/default/bigbluebutton-cron-config`.
 
-`/etc/sudoers:`
-`bigbluebutton ALL = NOPASSWD: /usr/bin/bbb-record`
+For deployments using Scalelite, set `delete_recording: true` in `/usr/local/bigbluebutton/core/scripts/scalelite.yml`. The `scalelite_post_publish.rb` script then runs `bbb-record --delete` for each recording after it was transferred, which removes the raw directory, the published and unpublished copies, and the processing logs of the recording. `bbb-record --delete` can be run by the `bigbluebutton` user, so no `sudo` rule is needed.
 
-`/usr/local/bigbluebutton/core/scripts/post_publish/scalelite_post_publish.rb`, after line 66:
-`system('sudo', 'bbb-record', '--delete', "#{meeting_id}") || raise('Failed to delete local recording')`
-
-For other deployments, removal of `/var/bigbluebutton/recording/raw/$meeting/` should be added to the post-archive script.
-
-This data can also be removed periodically, see `Retention of cache files`
+For other deployments, a [post-publish script](/development/recording#post-scripts) can run `bbb-record --delete` the same way after the recording was copied elsewhere.
 
 #### All recordings are always accessible
 
-By default, BigBlueButton recordings are accessible, see e.g., [issue 8505](https://github.com/bigbluebutton/bigbluebutton/issues/8505)
-
-Additionally, the URLs for recordings are easily enumerable, see [issue 1466](https://github.com/bigbluebutton/greenlight/issues/1466) and [issue 9443](https://github.com/bigbluebutton/bigbluebutton/issues/9443)
+A published recording is served by nginx to anyone who has its link. BigBlueButton does not authenticate requests for recordings, see for example [issue 8505](https://github.com/bigbluebutton/bigbluebutton/issues/8505) and [issue 9443](https://github.com/bigbluebutton/bigbluebutton/issues/9443).
 
 ##### Resolution
 
-Server administrators can change the nginx configuration to restrict access to the recording URLs. Depending on the use-case, the auth statement in nginx can interact with the used frontend to enforce further restrictions (e.g., requesting the same credentials as the frontend). For example configuration options and an authentication callback to a Greenlight frontend, see: [bbb-rec-perm](https://github.com/ichdasich/bbb-rec-perm)
+Recordings that should not be reachable can be unpublished with the `publishRecordings` API call (`publish=false`); an unpublished recording is kept on disk but not served.
+
+Server administrators can also change the nginx configuration to restrict access to the recording URLs. Depending on the use case, an `auth_request` in nginx can call the front end to enforce its own permissions (for example, requiring the same credentials as the front end). [bbb-rec-perm](https://github.com/ichdasich/bbb-rec-perm) is an example of this pattern (written for Greenlight v2).
 
 #### Cache files
 
-The stack of BigBlueButton creates various cache files when recordings are enabled.
-Specifically in:
+When recording is enabled, the BigBlueButton stack writes the session's media and data to disk in several directories:
 
-`/var/bigbluebutton/recording/raw/`
-`/var/bigbluebutton/unpublished/`
-`/var/bigbluebutton/published/presentation/`
-`/usr/share/red5/webapps/video/streams/`
-`/usr/share/red5/webapps/screenshare/streams/`
-`/usr/share/red5/webapps/video-broadcast/streams/`
-`/var/kurento/recordings/`
-`/var/kurento/screenshare/`
-`/var/freeswitch/meetings/`
+- `/var/bigbluebutton/recording/raw/`, `/var/bigbluebutton/published/`, `/var/bigbluebutton/unpublished/` and `/var/bigbluebutton/deleted/` (raw and processed recordings), `/var/bigbluebutton/<meetingId>/` (presentations), `/var/bigbluebutton/learning-dashboard/` and `/var/bigbluebutton/events/`, owned by the `bigbluebutton` user
+- `/var/lib/bbb-webrtc-recorder/` (webcams, screen sharing for both LiveKit and mediasoup, and audio with LiveKit, written by `bbb-webrtc-recorder`), owned by the `bigbluebutton` user
+- `/var/freeswitch/meetings/` (audio, with the FreeSWITCH audio bridge), owned by the `freeswitch` user
+- `/var/mediasoup/` (webcams and screen sharing, only with the mediasoup media bridge and a off-by-default recording adapter), created by the `bbb-webrtc-sfu` package - generally unused
+
+The media files of a meeting are deleted by the archive step once it has copied them into the raw directory; the daily cleanup job deletes anything older than `history` days that was left behind.
 
 ##### Resolution
 
-For automatically cleaning up these files after recordings, see `BigBlueButton always records when recording of a room is enabled`. In addition, to prevent this data to be written to disk, these files can be mounted with tmpfs to keep recording caches in-memory.
-For this, the following lines have to be added to `/etc/fstab`:
+To keep this data out of persistent storage, the directories can be mounted as tmpfs, so the files only exist in memory. Add lines like the following to `/etc/fstab`:
 
-`tmpfs /var/bigbluebutton/recording/raw/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
-`tmpfs /var/bigbluebutton/unpublished/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
-`tmpfs /var/bigbluebutton/published/presentation/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0`
-`tmpfs /usr/share/red5/webapps/video/streams/ tmpfs rw,nosuid,noatime,uid=999,gid=999,size=16G,mode=0755 0 0`
-`tmpfs /usr/share/red5/webapps/screenshare/streams/ tmpfs rw,nosuid,noatime,uid=999,gid=999,size=16G,mode=0755 0 0`
-`tmpfs /usr/share/red5/webapps/video-broadcast/streams/ tmpfs rw,nosuid,noatime,uid=999,gid=999,size=16G,mode=0755 0 0`
-`tmpfs /var/kurento/recordings/ tmpfs rw,nosuid,noatime,uid=996,gid=996,size=16G,mode=0755 0 0`
-`tmpfs /var/kurento/screenshare/ tmpfs rw,nosuid,noatime,uid=996,gid=996,size=16G,mode=0755 0 0`
-`tmpfs /var/freeswitch/meetings/ tmpfs rw,nosuid,noatime,uid=997,gid=997,size=16G,mode=0755 0 0`
+```
+tmpfs /var/bigbluebutton/recording/raw/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0
+tmpfs /var/bigbluebutton/unpublished/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0
+tmpfs /var/bigbluebutton/published/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0
+tmpfs /var/lib/bbb-webrtc-recorder/ tmpfs rw,nosuid,noatime,uid=998,gid=998,size=16G,mode=0755 0 0
+tmpfs /var/freeswitch/meetings/ tmpfs rw,nosuid,noatime,uid=997,gid=997,size=16G,mode=0755 0 0
+```
 
-After applying that, the server administrator has to execute `bbb-conf --stop; mount -a; bbb-conf --start`.
+Then run `bbb-conf --stop; mount -a; bbb-conf --start`.
 
-Furthermore, the uid/gid values have to be adjusted to the local installation.
-The above example assumes:
-
-`red5:x:999:999:red5 user-daemon:/usr/share/red5:/bin/false`
-`bigbluebutton:x:998:998:bigbluebutton:/home/bigbluebutton:/bin/false`
-`freeswitch:x:997:997:freeswitch:/opt/freeswitch:/bin/bash`
-`kurento:x:996:996::/var/lib/kurento:`
-
-TODO: explain what these uid/gid values are and how to get the correct ones
+Replace the `uid` and `gid` values with the ones on your server; `getent passwd bigbluebutton freeswitch` prints them (the user and group IDs are the third and fourth fields). Size the mounts for the longest sessions you expect, and keep in mind that a tmpfs is empty after a reboot: recordings that were not processed yet are lost.
 
 #### Deleted recordings remain on disk
 
-When recordings are deleted via the `deleteRecordings` API, BigBlueButton does not immediately remove them from disk. Instead, it moves them to the `/var/bigbluebutton/deleted/` directory as part of a soft deletion mechanism. This approach preserves recordings temporarily in case they need to be recovered, but administrators should be aware these files continue to consume storage space and may contain sensitive data subject to compliance requirements. This implementation serves as a safety measure against accidental deletions, but requires explicit administrator action to fully remove recordings and reclaim storage space.
-
-The system does not automatically purge these files, meaning deleted recordings will remain indefinitely until manually removed. Although metadata still appears in API responses, the deleted recordings themselves remain on disk (inaccessible to the public) until manually removed.
+When recordings are deleted with the `deleteRecordings` API call, BigBlueButton does not remove them from disk. It moves them from `/var/bigbluebutton/published/` or `/var/bigbluebutton/unpublished/` to `/var/bigbluebutton/deleted/`, as a safety measure against accidental deletions. Deleted recordings are not listed by `getRecordings` unless `state=deleted` is requested explicitly, and they are not served, but they keep using disk space and may contain personal data subject to retention requirements. Nothing purges them automatically. The raw directory of a deleted recording also stays in `/var/bigbluebutton/recording/raw/` until the daily cleanup job removes it (`published_days` after the meeting was archived, under the same rule as above).
 
 ##### Resolution
 
-To completely free up disk space, administrators must manually delete the files from the system. The most direct method is running:
+Remove the files yourself. `bbb-record --delete <recordId>` removes everything that belongs to one recording, including its raw directory. To purge every deleted recording at once, run:
 
 ```bash
 rm -rf /var/bigbluebutton/deleted/*
 ```
 
-This command will permanently erase all content in the deleted recordings directory. Because this action is irreversible, we recommend verifying backups before proceeding.
+Both actions are irreversible, so verify your backups before proceeding.
 
-#### Retention of cache files
+#### Retention settings
 
-BigBlueButton retains various cache and log files. The general retention period for these files can be configured in `/etc/cron.daily/bigbluebutton`.
+The daily cleanup job `/etc/cron.daily/bigbluebutton` deletes files after a number of days. The periods are variables that you can override in `/etc/default/bigbluebutton-cron-config` (one `name=value` per line):
 
-- `history` is the retention period for presentations, red5 caches, kurento caches, and freeswitch caches in days
-- `unrecorded_days` the retention periods of recordings for meetings which have no recording markers set (user expectation: Were not recorded)
-- `published_days` the retention period of recordings' raw data, if these got published. To disable this, the line `remove_raw_of_published_recordings` has to be commented
+- `history` (default 5): presentations in `/var/bigbluebutton/<meetingId>/`, and media files the archive step left behind in `/var/lib/bbb-webrtc-recorder/`, `/var/mediasoup/` and `/var/freeswitch/meetings/`
+- `unrecorded_days` (default 14): raw directories of meetings without recording marks
+- `published_days` (default 14): raw directories of recordings that were published
+- `log_history` (default 28): rotated log files in `/var/log/bigbluebutton/`, `/var/log/bbb-webrtc-sfu/` and `/opt/freeswitch/var/log/freeswitch/`
 
-For directly deleting these caches, please see
-'Post-recording script to remove recordings without any recording markers'
+To keep the raw directories of published recordings, comment out the `remove_raw_of_published_recordings` call in `/etc/cron.daily/bigbluebutton` (this edit is lost on upgrades), or set `published_days` to a large value.
 
 ### Logs
 
 #### General log rotation
 
-If server operators opt to keep recording files and logs, they should know and change:
+Server operators who keep logs should know these retention settings:
 
-- the duration for which to keep the recording files in `/etc/cron.daily/bigluebutton`, using the `log_history` setting
-- the logrotate settings in `/etc/logrotate.d/(bbb-record-core.logrotate|bbb-webrtc-sfu.logrotate)` which rotate logs in `/var/log/bbb-webrtc-sfu/` every 7 days, and `/var/log/bigbluebutton/(bbb-rap-worker.log|sanity.log)` every 8 days
-- the logrotate settings in `/usr/share/bbb-web/WEB-INF/classes/logback.xml` which rotate logs at `/var/log/bigbluebutton/bbb-web.log` daily and keep them for 14 days
+- `log_history` in `/etc/default/bigbluebutton-cron-config` (default 28 days) for the rotated files under `/var/log/bigbluebutton/`, `/var/log/bbb-webrtc-sfu/` and `/opt/freeswitch/var/log/freeswitch/`
+- `/etc/logrotate.d/bbb-record-core.logrotate`, which rotates `/var/log/bigbluebutton/bbb-rap-worker.log` and `sanity.log` weekly and keeps 8 rotations
+- `/etc/logrotate.d/bbb-webrtc-sfu.logrotate`, which rotates `/var/log/bbb-webrtc-sfu/*.log` daily and keeps 7 rotations
+- `/usr/share/bbb-web/WEB-INF/classes/logback.xml`, which rotates `/var/log/bigbluebutton/bbb-web.log` daily and keeps 14 days
+- `/usr/share/bbb-apps-akka/conf/logback.xml` and `/usr/share/bbb-fsesl-akka/conf/logback.xml`, which rotate `/var/log/bbb-apps-akka/bbb-apps-akka.log` and `/var/log/bbb-fsesl-akka/bbb-fsesl-akka.log` daily and keep 14 days; `log_history` does not cover these two directories
+- `/etc/logrotate.d/nginx` (Ubuntu's default: daily, 14 rotations) for the nginx logs
+- `/etc/systemd/journald.conf` (`SystemMaxUse`, `MaxRetentionSec`) for the services that log to the systemd journal: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, `bbb-webrtc-recorder`, `bbb-shared-notes-server`, `bbb-export-annotations`, `livekit-server`, `livekit-sip`, and the optional `bbb-webhooks` and `bbb-transcription-controller`
 
 #### BigBlueButton logging
 
-BigBlueButton logs all interactions with rooms, i.e., when they were created, who joined when, and when they left in `/var/log/bigbluebutton/bbb-web.log`
+`bbb-web` logs every API request, including meeting creation and the join requests with the users' names, to `/var/log/bigbluebutton/bbb-web.log`. The log level is `appLogLevel` in `/etc/bigbluebutton/bbb-web.properties` (default `DEBUG`); the individual loggers are configured in `/usr/share/bbb-web/WEB-INF/classes/logback.xml`.
 
-The log verbosity of the core application can be reduced by setting
-`appLogLevel=Error` in
-`/etc/bigbluebutton/bbb-web.properties`
-and by adjusting the individual settings in `/usr/share/bbb-web/WEB-INF/classes/logback.xml`.
+`bbb-apps-akka` logs what happens inside meetings to `/var/log/bbb-apps-akka/bbb-apps-akka.log`, at `DEBUG` by default: users joining and leaving, their roles, and, by default, every public and private chat message with its text, as JSON. The chat messages are logged because `analytics.includeChat` is `true` in `/usr/share/bbb-apps-akka/conf/application.conf`; turn them off in `/etc/bigbluebutton/bbb-apps-akka.conf` (the override of that file):
 
-To avoid logging ip-addresses in bbb-webrtc-sfu, set
-`level: error` in
-`/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml`.
+```
+analytics {
+  includeChat = false
+}
+```
 
-Also these files contain log levels regarding chat usage and chat messages:
+The general level is `loglevel` in the same override, and the logger levels are in `/usr/share/bbb-apps-akka/conf/logback.xml`. `bbb-fsesl-akka`, which connects the meetings to FreeSWITCH, logs the voice users the same way to `/var/log/bbb-fsesl-akka/bbb-fsesl-akka.log`; its settings are `/etc/bigbluebutton/bbb-fsesl-akka.conf` and `/usr/share/bbb-fsesl-akka/conf/logback.xml`.
 
-- /etc/bbb-apps-akka/application.conf and /etc/bbb-apps-akka/logback.xml
+`bbb-webrtc-sfu` logs the media sessions, including user identifiers, to `/var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log` and to the journal. To reduce it, set the log level in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
 
-#### nginx
+```yaml
+log:
+  level: error
+```
 
-By default BigBlueButton has "full access logs" enabled for nginx. This includes users IP addresses, usernames, joined meetings, etc.
-This can be disable by switching the loglevel to 'ERROR' only in `/etc/nginx/sites-available/bigbluebutton` and `/etc/nginx/nginx.conf`:
+`livekit-server` and `livekit-sip` log to the journal. Both read their log level from `logging.level` (default `info`): `livekit-server` in `/etc/bigbluebutton/livekit.yaml`, `livekit-sip` in `/etc/bigbluebutton/livekit-sip.yaml`. For `livekit-server`, a deprecated `log_level` key overrides `logging.level`.
 
-`error_log /var/log/nginx/bigbluebutton.error.log;`
-`access_log /dev/null;`
+The GraphQL server (Hasura) logs at `warn` by default (`HASURA_GRAPHQL_LOG_LEVEL`, overridable in `/etc/bigbluebutton/bbb-graphql-server.env`).
 
-#### freeswitch
+The client can send its own logs to the server. `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml` controls this: with the default configuration the browser only logs to its console; the `external` target, which posts the client log (with the user's and meeting's identifiers) to a URL of your choice, is disabled by default. Leave it disabled unless you need it, and keep the receiving endpoint under the same retention rules as the server logs.
 
-The default installation of FreeSWITCH by default logs with loglevel DEBUG. This can be changed in `/etc/bbb-fsesl-akka/application.conf` and `/etc/bbb-fsesl-akka/logback.xml`. The default configuration stores usernames, joined sessions and timestamps.
+#### FreeSWITCH
+
+FreeSWITCH logs to `/opt/freeswitch/var/log/freeswitch/freeswitch.log`, at `debug` level by default. The log includes the names of the users who joined audio through the FreeSWITCH audio bridge and the numbers of dial-in callers. The level is set with `loglevel` in `/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml`, and the levels written to the file in `/opt/freeswitch/etc/freeswitch/autoload_configs/logfile.conf.xml`. Both files are installed by the `bbb-freeswitch-core` package and overwritten on upgrades.
+
+#### nginx and HAProxy
+
+By default nginx keeps a full access log, which includes the users' IP addresses and every requested URL, among them the join URLs with the users' names. The BigBlueButton site configuration `/etc/nginx/sites-available/bigbluebutton` logs to `/var/log/nginx/bigbluebutton.access.log`, and `/etc/nginx/nginx.conf` logs everything else to `/var/log/nginx/access.log`. To turn the access logs off, set `access_log off;` in both files and reload nginx with `systemctl reload nginx`.
+
+When `bbb-install.sh` sets up the built-in TURN server (that is, when it is run without `-c`), HAProxy terminates TLS on port 443 in front of nginx. `bbb-install.sh` configures it in `/etc/haproxy/haproxy.cfg` with `option tcplog`, so every connection is logged with the client's IP address through syslog (facility `local0`, on Ubuntu `/var/log/haproxy.log`). To turn this off, add `no log` to the `frontend nginx_or_turn` section and reload HAProxy with `systemctl reload haproxy`; `bbb-install.sh` rewrites the file when it is run again, so repeat the change after an upgrade. With `-c`, HAProxy is not installed and nginx listens on port 443 itself.
 
 ### Integrations
 
-#### TURN server
+#### TURN and STUN servers
 
-BigBlueButton uses a TURN server for NAT traversal. By default, a STUN server from freeswitch.org is configured for BigBlueButton. You can [set up your own TURN/STUN server](/administration/turn-server), and configure it in `/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml`.
+Browsers use STUN and TURN servers for NAT traversal. The `turn-stun-servers.xml` shipped with `bbb-web` lists the public STUN server `stun:stun.l.google.com:19302`, so on a server where that file is left as shipped, every client sends STUN requests, which reveal its IP address, to Google. `bbb-install.sh` always replaces it with the server's own TURN server: with `-c` it writes `/etc/bigbluebutton/turn-stun-servers.xml`; without `-c` it rewrites the shipped file under `/usr/share/bbb-web`, which the next `bbb-web` package upgrade restores, so the Google STUN entry comes back until `bbb-install.sh` is run again (re-running it is the documented way to upgrade). You can also [set up your own TURN/STUN server](/administration/turn-server) and configure it in `/etc/bigbluebutton/turn-stun-servers.xml`, which takes precedence over the shipped file. The logs of a coturn server are covered [below](#coturn).
+
+#### Live captions and transcription
+
+Automatic transcription is disabled by default (`public.app.audioCaptions.enabled` in `/etc/bigbluebutton/bbb-html5.yml`). When it is enabled, the users' audio leaves the server: the default `webspeech` provider uses the browser's speech recognition API, which in Chrome sends the audio to Google, and the `gladia` provider sends it to gladia.io, through `bbb-transcription-controller` or `bbb-livekit-stt` (see [Configuration of gladia.io](/administration/customize#configuration-of-gladiaio)). Inform your users before enabling it.
+
+#### Webhooks and callbacks
+
+The optional `bbb-webhooks` package posts meeting and user events, including user names, to the URLs that the front end registers. A meeting created with `meta_analytics-callback-url` posts a summary of its events to that URL after it ends, if the meeting keeps its events (`meetingKeepEvents`, see above); the script also writes that summary to `/var/bigbluebutton/events/<meetingId>/data.json`, which no cleanup job removes, and logs the whole payload to `/var/log/bigbluebutton/post_events_analytics_callback.log`. Whoever receives these callbacks processes personal data as well.
 
 ## Greenlight
 
-### Greenlight always starts new rooms with recording=true
+This section is about Greenlight v3. Greenlight is a front end; everything above still applies to the BigBlueButton server it uses.
 
-By default, when Greenlight creates a conference, the value 'record=true' is passed to BigBlueButton. These conferences will be recorded even if the record button is not pressed. See also: [Recording](/administration/privacy#bigbluebutton-either-records-all-of-a-session-or-does-not-record-at-all)
+### Rooms are recordable by default
 
-#### Resolution
-
-You can disable the recording globally in the Greenlight room settings for everyone or optionally for everyone in their room. see: [pull request 1296](https://github.com/bigbluebutton/greenlight/pull/1296) Alternatively, if necessary, completely disable the recording feature in the BigBlueButton server configuration.
-
-### Greenlight does not request consent to a privacy policy and/or recording of a session when joining a room as a guest.
-
-BigBlueButton has no feature that forces participants to consent to a privacy policy or being recorded prior to joining a room. Greenlight has an optional feature that you have to switch on in the basic settings: "Requires the consent of the room initiator and the participants for recording". This gives all participants a warning text before entering the conference that this room will be recorded.
+The default rooms configuration enables "Allow room to be recorded" for new rooms, so their meetings are created with `record=true` and recorded as described [above](#bigbluebutton-either-records-all-of-a-session-or-does-not-record-at-all): the events of the whole session, and the media between the recording marks. Room owners can turn the setting off per room, and the setting is forced off for users whose role does not have the permission to record.
 
 #### Resolution
 
-In [issue 1163](https://github.com/bigbluebutton/greenlight/issues/1163) it is discussed how the required changed can be addressed.
-[line 21](https://github.com/bigbluebutton/greenlight/blob/52ed7150f68c6c66c0488374ccc3457d30fd09d4/app/views/rooms/components/_room_event.html.erb#L21)
-adds a disclaimer. The code could be extended to provide a link to the privacy policy, and a checkbox which users have to press to acknowledge that the meeting they are about to join will be recorded, and that they consent to this; The join button should only be enabled when that checkmark is set.
+Administrators can disable recording for every room under Administration > Room Configuration by setting "Allow Room to be recorded" to disabled, or disable recording on the BigBlueButton server as described above.
 
-A more substantial change to BigBlueButton and Greenlight would be selective recording, i.e., excluding video, audio, chat and drawing input from users that did not consent to a recording.
+### Consent to recording and privacy policy
 
-### Greenlight includes user-names in room URLs
+When a room allows recording, Greenlight shows the checkbox "I acknowledge that this session may be recorded. This may include my voice and video if enabled." on the join page, and the join form cannot be submitted until it is checked. There is no built-in consent to a privacy policy, but the "Terms & Conditions" and "Privacy Notice" links shown at the bottom of every page can be set under Administration > Site Settings.
 
-In Greenlight, room URLs contain the username of the owner, which might also be private data depending on local laws. Solving this depends on [issue 1057](https://github.com/bigbluebutton/greenlight/issues/1057)
+BigBlueButton itself has no feature that asks participants for consent before joining, and no selective recording: audio, video, chat and drawing input of users who did not consent cannot be excluded from a recording.
 
-### Terms of Service
+### Room URLs
 
-Greenlight supports displaying of terms and conditions for registered users or upon registration.
+Room URLs contain a random identifier (for example `/rooms/abcd-efgh-ijkl/join`), not the owner's name.
 
-### All recordings are always accessible
+### Recording visibility
 
-By default, BigBlueButton recordings are accessible, see e.g.,
-[issue 8505](https://github.com/bigbluebutton/bigbluebutton/issues/8505) . Additionally, the URLs for recordings are easily enumerable, see [issue 1466](https://github.com/bigbluebutton/greenlight/issues/1466) and [issue 9443](https://github.com/bigbluebutton/bigbluebutton/issues/9443) .
-
-Greenlight, by default provides two settings for recordings: public, i.e., the recording is listed on the room page, and unlisted, i.e., the recording is only accessible via the (enumerable) direct link.
-
-##### Resolution
-
-Greenlight can be patched to allow more fine-grained control of recording visibility and publications. With [rec_restrictions](https://github.com/ichdasich/greenlight/tree/rec_restrictions) a third value is added to the recording visibility pull-down menu (public/unlisted/private), which leads to corresponding recording metadata being set (gl-listed=true/unlisted/false) in the recording either in scalelite or on the BigBlueButton host.
-
-[bbb-rec-perm](https://github.com/ichdasich/bbb-rec-perm) can then be used to check requests for recordings against that metadata, returning a 403 if the recording is set to private, and returning the recording if it is set to unlisted or public.
+Greenlight's recording visibility (and the "Default Recording Visibility" site setting) controls where a recording is listed in Greenlight. The BigBlueButton server still serves every published recording to anyone with the link; to restrict access, unpublish the recording or protect the recording URLs in nginx as described [above](#all-recordings-are-always-accessible).
 
 ### Logs
 
-#### Rails Logs
+#### Rails logs
 
-By default, Greenlight logs to `$GREENLIGHTDIR/logs/production.log`. Removing that line from .env does keep the logs, but does not expose them to the docker host. The easiest solution is linking `$GREENLIGHTDIR/logs/production.log` to `/dev/null`
+Greenlight runs in a Docker container and logs to its standard output, which the Docker logging driver stores (`docker logs greenlight-v3`). The log level is `LOG_LEVEL` in Greenlight's `.env` (default `info`), and `LOGGING_DRIVER` selects the Docker logging driver; its options, such as `max-size` and `max-file` for the default `json-file` driver, decide how much is kept.
 
-#### nginx Logs
+#### nginx logs
 
-By default Greenlight has full access logs enabled for nginx. This includes users IP addresses, usernames, joined meetings, etc. This can be disable by switching the loglevel to 'ERROR' only in `/etc/nginx/sites-available/bigbluebutton` and `/etc/nginx/nginx.conf`:
-
-`error_log /var/log/nginx/bigbluebutton.error.log;`
-`access_log /dev/null;`
+The nginx in front of Greenlight keeps the same access logs as described for BigBlueButton [above](#nginx-and-haproxy), including IP addresses and user names in join URLs; turn them off the same way.
 
 ## coturn
 
-By default, coturn logs to `/var/log/coturn.log`, with regular log-rotation. This logfile includes IP addresses of users using the TURN server, and the ports they use. Together with other BigBlueButton logs this enables identification of the sessions these users joined.
+`bbb-install.sh` installs coturn (the `bbb-coturn` package) on the BigBlueButton server when it is run without `-c`. Its systemd override makes coturn log to `/var/log/turnserver/turnserver.log` (the package's own unit sets no `--log-file`), rotated daily with 7 rotations kept (`/etc/logrotate.d/coturn`), and the `/etc/turnserver.conf` it writes enables coturn's `verbose` mode, which is off by default (the configuration the package ships has it commented out). In that mode coturn logs every session: the allocations, the IP address and port of each user who relays media through the TURN server, and the TURN user name, which BigBlueButton builds from the user's internal id. Together with the other logs this allows identifying the sessions these users joined. With `-c <host>:<secret>`, the TURN server is elsewhere and nothing is logged on the BigBlueButton server.
 
-coturn has no option of restricting logging. The best option here is linking
-`/var/log/coturn.log` to `/dev/null`
+To log less, comment out `verbose` in `/etc/turnserver.conf` and restart coturn (`systemctl restart coturn`); coturn then logs little more than its startup and errors (socket errors still carry the address of the connection). To log nothing, change `--log-file` in the override that `bbb-install.sh` created (`systemctl edit coturn`) to `/dev/null`. Shortening the rotation in `/etc/logrotate.d/coturn` reduces how long whatever is logged is kept. `bbb-install.sh` rewrites `/etc/turnserver.conf` only while it still contains the stock `#static-auth-secret=north` line, and the package treats it as a conffile, so the edit survives re-runs and upgrades.
 
-## scalelite
 
-### Logs
+## Scalelite
 
-#### Nginx logs
-
-Scalelite uses a container running nginx as frontend, which accumulates standard access logs. By default scalelite has full access logs enabled for nginx. This includes users IP addresses, usernames, joined meetings, watched meetings etc. The easiest way to address this is migrating the nginx to the host, thus getting rid of Docker.
-
-Then the logging can be disable by switching the loglevel to 'ERROR' in `/etc/nginx/sites-available/bigbluebutton` and `/etc/nginx/nginx.conf`:
-
-`error_log /var/log/nginx/bigbluebutton.error.log;`
-`access_log /dev/null;`
-
-#### Scalelite-API-Container logs
-
-The container of the scalelite-API-Image (blindsidenetwks/scalelite:v1-api) is also logging user activities. For example:
-Who joined which meeting:
-
-`{"log":"I, [<timestamp>] INFO -- : [<some_identifier>] Redirected to https://<URL>/bigbluebutton/api/join?meetingID=<meeting_ID>\u0026fullName=<name>\u0026password=<hashed_pw>... }`
-
-With the Scalelite version 1.0.9 a rotating of the logs was implemented. These are automatically deleted after one day.
+Scalelite's nginx and API containers log to the Docker logging driver, like Greenlight. The nginx access log includes the users' IP addresses and the join URLs with their names, and the API log records which meeting each user was redirected to. Limit the retention with the logging driver's options (`max-size` and `max-file` for `json-file`), or send the logs to a collector with its own retention.
 
 ## General GDPR Considerations
 
@@ -301,7 +259,6 @@ The GDPR lists several important considerations, especially:
 - Data minimisation
 - Storage limitation
 
-These pose challenges in the context of BigBlueButton, especially when considering that rooms can be joined anonymously. This means that an operator may not be able to easily identify all stored private information connected to a user, even though it is consider personal/private data, e.g., webcam recordings of a room joined to as a guest with a
-pseudonym.
+These pose challenges in the context of BigBlueButton, especially when considering that rooms can be joined anonymously. This means that an operator may not be able to easily identify all stored private information connected to a user, even though it is considered personal data, for example webcam recordings of a room joined as a guest with a pseudonym.
 
-For many use cases the easiest solution is to not store any private data of users at all. This includes reducing log levels or disabling logging (log to `/dev/null`), storing temporary data only im memory (tmpfs) instead of on disk, and disabling the session recording feature. Even after all this is done, the BigBlueButton server still processes all this data. Thus, usually a data processing agreement from the server hosting company is needed and also information about private data processing has to be provided to the users of the service.
+For many use cases the easiest solution is to not store any private data of users at all. This includes reducing log levels or disabling logging, storing temporary data only in memory (tmpfs) instead of on disk, and disabling the session recording feature. Even after all this is done, the BigBlueButton server still processes all this data. Thus, usually a data processing agreement with the hosting company is needed, and information about the processing of personal data has to be provided to the users of the service.

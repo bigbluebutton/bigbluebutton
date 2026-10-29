@@ -80,8 +80,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
     });
   });
 
-  // sometimes fails in 3.1
-  test.describe('Smart Slides', { tag: '@flaky' }, () => {
+  test.describe('Smart Slides', () => {
     test('A/B/C/D/E - One option answer', async () => {
       await polling.oneOptionAnswer();
     });

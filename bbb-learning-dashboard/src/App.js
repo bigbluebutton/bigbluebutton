@@ -18,7 +18,7 @@ import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
-import { makeUserCSVData, tsToHHmmss } from './services/UserService';
+import { makeUserCSVData, tsToHHmmss, isUserOnline } from './services/UserService';
 import QuizzesTable from './components/QuizzesTable';
 import QuizzesChart from './components/QuizzesChart';
 import {
@@ -409,9 +409,7 @@ class App extends React.Component {
     if (loading === false && this.getErrorMessage() !== '') return <ErrorMessage message={this.getErrorMessage()} />;
 
     const usersCount = Object.values(activitiesJson.users || {})
-      .filter((u) => activitiesJson.endedOn > 0
-        || Object.values(u.intIds)[Object.values(u.intIds).length - 1]
-          .sessions.slice(-1)[0].leftOn === 0)
+      .filter((u) => activitiesJson.endedOn > 0 || isUserOnline(u))
       .length;
 
     const polls = Object.fromEntries(Object

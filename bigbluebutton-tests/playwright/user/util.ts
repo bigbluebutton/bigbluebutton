@@ -4,6 +4,9 @@ import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { ClientSettingsOverrides, Page } from '../core/page';
 
+// How long a toast that must not appear is watched for after the matching toast reached another page.
+const TOAST_WATCH_TIME = 2000;
+
 // Client settings overrides that deterministically reproduce issue 25242 regardless of the
 // server config: the audio-only-tiles feature on, plus the equally-paginated branch
 // (partitionPrivilegedStreams: false) that used to drop audio-only tiles for non-privileged
@@ -20,6 +23,34 @@ export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
+// Selects LiveKit's client-side audio state instead of BBB's. The shipped default is false
+// (settings.yml), and the two are served by different talking-indicator paths, so any test
+// that cares which one is in use has to pin it rather than inherit the server's setting.
+export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    media: {
+      livekit: {
+        audio: {
+          useLiveKitAudioState: true,
+        },
+      },
+    },
+  },
+};
+
+export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
+  return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
+}
+
+// The server expires reactions, checking every 5 seconds, so only the meeting's clientSettingsOverride
+// create module can shorten public.userReaction.expire (where bbb-web allows that module)
+export const REACTION_EXPIRY_CHECK_INTERVAL = 5000;
+export const SHORT_REACTION_EXPIRY_MODULE = [
+  '<modules><module name="clientSettingsOverride"><![CDATA[',
+  JSON.stringify({ public: { userReaction: { expire: 3 } } }),
+  ']]></module></modules>',
+].join('');
+
 // Locator for audio-only tiles (camera-less users that hold the audio floor): a webcam
 // grid item rendering the connecting/avatar placeholder instead of a <video> element.
 export function audioOnlyTilesLocator(testPage: Page): Locator {
@@ -28,8 +59,16 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
     .filter({ has: testPage.page.locator(e.webcamConnecting) });
 }
 
+// a row of the participants list, by the whole user name
+export const userListRowOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+// the private chat option of that row
+export const privateChatOptionOf = (userName: string) => `${userListRowOf(userName)} ${e.startPrivateChat}`;
+
 export async function openLockViewers(testPage: Page) {
-  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+  const isLockViewersButtonVisible = await testPage.page
+    .locator(e.lockViewersButton)
+    .isVisible({ timeout: ELEMENT_WAIT_TIME })
+    .catch(() => false);
   if (!isLockViewersButtonVisible) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
@@ -47,6 +86,45 @@ export async function applyUserListLock(testPage: Page) {
   await testPage.closeAllToastNotifications();
 }
 
+// Keep the text of every toast the page shows from now on, so that a toast that comes and goes
+// while the test is still busy (a slow join, for example) can be checked afterwards.
+export async function recordToasts(testPage: Page) {
+  await testPage.page.evaluate((selector) => {
+    const recorded: string[] = [];
+    (window as unknown as { recordedToasts: string[] }).recordedToasts = recorded;
+    new MutationObserver(() => {
+      document.querySelectorAll(selector).forEach((toast) => {
+        const text = toast.textContent ?? '';
+        if (text && !recorded.includes(text)) recorded.push(text);
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }, e.smallToastMsg);
+}
+
+async function wasToastRecorded(testPage: Page, text: string): Promise<boolean> {
+  const recorded = await testPage.page.evaluate(
+    () => (window as unknown as { recordedToasts?: string[] }).recordedToasts ?? [],
+  );
+  return recorded.some((toast) => toast.includes(text));
+}
+
+export async function hasRecordedToast(
+  testPage: Page,
+  text: string,
+  description: string,
+  timeout: number = ELEMENT_WAIT_TIME,
+) {
+  await expect.poll(() => wasToastRecorded(testPage, text), { message: description, timeout }).toBe(true);
+}
+
+export async function hasNoRecordedToast(testPage: Page, text: string, description: string) {
+  const watchUntil = Date.now() + TOAST_WATCH_TIME;
+  while (Date.now() < watchUntil) {
+    expect(await wasToastRecorded(testPage, text), description).toBe(false);
+    await testPage.page.waitForTimeout(250);
+  }
+}
+
 // The talking indicator of one user, while that user is talking.
 export function isTalkingLocator(testPage: Page, userName: string): Locator {
   return testPage.page.locator(e.isTalking).locator(`:text-is("${userName}")`);
@@ -60,6 +138,18 @@ export function talkingIndicatorLocator(testPage: Page, userName: string): Locat
 // The away clock on one user's user list avatar.
 export function awayIndicatorLocator(testPage: Page, userName: string): Locator {
   return testPage.page.locator(e.userListItem, { hasText: userName }).locator(e.awayIndicator);
+}
+
+// The names on the participant rows of the user list, the current user's row included.
+export async function userListRowNames(testPage: Page): Promise<string[]> {
+  return testPage.page
+    .locator(`${e.userListItem}, ${e.currentUser}`)
+    .evaluateAll((rows) => rows.map((row) => row.getAttribute('aria-label') ?? ''));
+}
+
+// The title of the raised hands section, which carries the number of hands listed.
+export function raisedHandsTitle(testPage: Page): Locator {
+  return testPage.page.locator(e.userListPanel).getByText(/^Raised Hands \(\d+\)$/);
 }
 
 // Sets the user away through the status selector of the profile panel, then closes the panel.

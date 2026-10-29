@@ -5,8 +5,16 @@ import { GuestPolicy } from './guestPolicy';
 import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
+import { PresenterRequest } from './presenterRequest';
+import { RaisedHands } from './raisedHands';
 import { Timer } from './timer';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
+import { UserListSearch } from './userListSearch';
+import {
+  AUDIO_ONLY_TILE_SETTINGS_OVERRIDE,
+  emojiRainSettingsOverride,
+  LIVEKIT_AUDIO_STATE_OVERRIDE,
+  SHORT_REACTION_EXPIRY_MODULE,
+} from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -49,6 +57,20 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
       await multiusers.raiseHandRejected();
+    });
+
+    test('Raised hands are ranked in the order they were raised', async ({ browser, context, page }, testInfo) => {
+      const raisedHands = new RaisedHands(browser, context);
+      await raisedHands.initPages(page, testInfo);
+      await raisedHands.initUserPage2(context, { testInfo });
+      await raisedHands.rankedInOrderOfRaising();
+    });
+
+    test('Lowering the first raised hand re-ranks the others', async ({ browser, context, page }, testInfo) => {
+      const raisedHands = new RaisedHands(browser, context);
+      await raisedHands.initPages(page, testInfo);
+      await raisedHands.initUserPage2(context, { testInfo });
+      await raisedHands.reRankedWhenFirstHandIsLowered();
     });
 
     test('Raise hand indicator on audio-only tile', async ({ browser, context, page }, testInfo) => {
@@ -116,10 +138,29 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.reactionsTest();
     });
 
+    test('Remove reaction', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page, testInfo);
+      await multiusers.removeReaction();
+    });
+
+    test('Reaction expires', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo, createModules: SHORT_REACTION_EXPIRY_MODULE });
+      await multiusers.initUserPage(context, { testInfo });
+      await multiusers.reactionExpires();
+    });
+
     test('Emoji rain', async ({ browser, context, page }, testInfo) => {
       const emojiRain = new MultiUsers(browser, context);
-      await emojiRain.initModPage(page, { testInfo });
-      await emojiRain.emojiRainTest();
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(true) });
+      await emojiRain.emojiRainTest(true);
+    });
+
+    test('Emoji rain disabled', async ({ browser, context, page }, testInfo) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(false) });
+      await emojiRain.emojiRainTest(false);
     });
   });
 
@@ -177,6 +218,29 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage2(context, { joinParameter: 'userID=Moderator2', testInfo });
       await multiusers.removeUserAndPreventRejoining();
     });
+
+    test.describe.parallel('Search', () => {
+      test('Filters participants by part of their name', async ({ browser, context, page }, testInfo) => {
+        const userListSearch = new UserListSearch(browser, context);
+        await userListSearch.initPages(page, testInfo);
+        await userListSearch.initUserPage2(context, { testInfo });
+        await userListSearch.filterParticipantsByName();
+      });
+
+      test('Filters the raised hands', async ({ browser, context, page }, testInfo) => {
+        const userListSearch = new UserListSearch(browser, context);
+        await userListSearch.initPages(page, testInfo);
+        await userListSearch.initUserPage2(context, { testInfo });
+        await userListSearch.filterRaisedHands();
+      });
+
+      test('Shows when nothing matches and clears', async ({ browser, context, page }, testInfo) => {
+        const userListSearch = new UserListSearch(browser, context);
+        await userListSearch.initPages(page, testInfo);
+        await userListSearch.initUserPage2(context, { testInfo });
+        await userListSearch.emptyResultAndClear();
+      });
+    });
   });
 
   test.describe.parallel('Presentation permissions', () => {
@@ -196,6 +260,25 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       const lockViewers = new LockViewers(browser, context);
       await lockViewers.initPages(page, testInfo);
       await lockViewers.presenterPolicyFreeForAll();
+    });
+
+    test('Deny a presenter request', async ({ browser, context, page }, testInfo) => {
+      const presenterRequest = new PresenterRequest(browser, context);
+      await presenterRequest.initPages(page, testInfo);
+      await presenterRequest.denyRequest();
+    });
+
+    test('Approve one of two presenter requests', async ({ browser, context, page }, testInfo) => {
+      const presenterRequest = new PresenterRequest(browser, context);
+      await presenterRequest.initPages(page, testInfo);
+      await presenterRequest.initUserPage2(context, { testInfo });
+      await presenterRequest.approveOneOfTwoRequests();
+    });
+
+    test('Switching to moderator only keeps a pending request', async ({ browser, context, page }, testInfo) => {
+      const presenterRequest = new PresenterRequest(browser, context);
+      await presenterRequest.initPages(page, testInfo);
+      await presenterRequest.policySwitchWithPendingRequest();
     });
   });
 
@@ -295,6 +378,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSendPublicChatMessages();
       });
 
+      test('Cancel lock viewers changes', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.cancelLockViewersChanges();
+      });
+
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-chat
       test('Lock Send private chat messages', async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
@@ -322,6 +411,18 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
+      test('Lifting locks restores the capabilities without a reload', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.liftingLocksRestoresCapabilities();
+      });
+
+      test('Unlocking one user overrides the lock for that user only', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.unlockingOneUserOverridesTheGlobalLock();
+      });
+
       test('Lock see other viewers cursor', async ({ browser, context, page, browserName }, testInfo) => {
         test.skip(browserName === 'firefox', 'The test is inconsistent on Firefox, due to the heavy browser.');
         const lockViewers = new LockViewers(browser, context);
@@ -336,6 +437,58 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesJoinNotification();
       });
+
+      // Regression test for the getUserVoiceStateStream hideUserList bypass:
+      // a speaker's name must not reach a locked viewer through the talking indicator.
+      test(
+        'Hide user list suppresses talking indicator name for locked viewer',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListSuppressesTalkingIndicator();
+        },
+      );
+
+      // Companion to the test above, with the lock applied AFTER the speaker is already
+      // talking: the client has to drop the state it gathered before the lock, because the
+      // server stops reporting the speaker rather than retracting them.
+      test(
+        'Hide user list suppresses talking indicator name applied mid-talk',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk();
+        },
+      );
+
+      // Both cases again against LiveKit's client-side audio state. The two settings are
+      // served by different talking-indicator paths, and the shipped default is off, so
+      // without pinning it here the LiveKit path is never exercised.
+      test(
+        'Hide user list suppresses talking indicator name for locked viewer (LiveKit audio state)',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
+          await lockViewers.hideUserListSuppressesTalkingIndicator(LIVEKIT_AUDIO_STATE_OVERRIDE);
+        },
+      );
+
+      test(
+        'Hide user list suppresses talking indicator name applied mid-talk (LiveKit audio state)',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
+          await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk(LIVEKIT_AUDIO_STATE_OVERRIDE);
+        },
+      );
 
       test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
@@ -401,7 +554,8 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
     test('Save user names', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page, testInfo);
+      await multiusers.initModPage(page, { testInfo, fullName: '王小明' });
+      await multiusers.initUserPage(context, { testInfo, fullName: 'Zoë  Müller' });
       await multiusers.saveUserNames();
     });
 

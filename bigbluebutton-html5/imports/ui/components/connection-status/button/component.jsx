@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
@@ -99,6 +100,7 @@ class ConnectionStatusButton extends PureComponent {
       return (
         <Styled.ButtonWrapper>
           <Button
+            className="bbb-connection-status-button bbb-connection-status-button--offline"
             customIcon={ConnectionStatusButton.renderIcon()}
             label={intl.formatMessage(intlMessages.label)}
             hideLabel
@@ -141,6 +143,10 @@ class ConnectionStatusButton extends PureComponent {
     return (
       <Styled.ButtonWrapper>
         <Button
+          className={cx(
+            'bbb-connection-status-button',
+            `bbb-connection-status-button--${myCurrentStatus || 'normal'}`,
+          )}
           customIcon={ConnectionStatusButton.renderIcon(myCurrentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel

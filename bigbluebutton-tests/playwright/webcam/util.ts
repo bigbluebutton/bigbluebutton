@@ -82,6 +82,22 @@ export async function checkBackgroundThumbnailColumns(testPage: Page, minColumns
   ).toBeGreaterThanOrEqual(minColumns);
 }
 
+// Height of the element once it has stopped changing for one polling interval
+export async function getSettledHeight(testPage: Page, selector: string): Promise<number> {
+  let height = -1;
+  await expect
+    .poll(
+      async () => {
+        const previousHeight = height;
+        height = (await testPage.page.locator(selector).boundingBox())?.height ?? -1;
+        return height !== -1 && height === previousHeight;
+      },
+      { message: `should settle the height of ${selector}`, intervals: [500] },
+    )
+    .toBe(true);
+  return height;
+}
+
 const CUSTOM_BACKGROUND_PATH = resolve(__dirname, '../core/media/simpsons-background.png');
 
 export async function uploadBackgroundVideoImage(testPage: Page) {

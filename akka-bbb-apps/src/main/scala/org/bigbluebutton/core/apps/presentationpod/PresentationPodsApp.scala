@@ -38,6 +38,21 @@ object PresentationPodsApp {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
   }
 
+  def findPodWithPresentation(state: MeetingState2x, presentationId: String): Option[PresentationPod] = {
+    getAllPresentationPodsInMeeting(state).find(_.getPresentation(presentationId).isDefined)
+  }
+
+  // Content the server imports from an ended breakout room may go past the cap: the room that
+  // produced it is gone, so refusing it would lose it. Twice the cap still bounds repeated rounds.
+  def maxPresentationsPerPodFor(systemUpload: Boolean, maxPerPod: Int): Int =
+    if (systemUpload) maxPerPod * 2 else maxPerPod
+
+  // A presentation already in the pod holds its slot, so it never counts against the cap.
+  // 0 disables the cap.
+  def podIsFullFor(pod: PresentationPod, presentationId: String, maxPerPod: Int): Boolean = {
+    maxPerPod > 0 && pod.getPresentation(presentationId).isEmpty && pod.getPresentationsSize() >= maxPerPod
+  }
+
   def pageBelongsToMeeting(state: MeetingState2x, pageId: String): Boolean = {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
       .exists(_.presentations.values.exists(_.pages.contains(pageId)))
@@ -111,6 +126,11 @@ object PresentationPodsApp {
     val timestamp = System.currentTimeMillis
     DigestUtils.sha1Hex(presFilename + RandomStringGenerator.randomAlphanumericString(8)) + "-" + timestamp
   }
+
+  // The form generatePresentationId produces, which bbb-web's Util.generatePresentationId shares.
+  private val PresentationIdPattern = "^[0-9a-f]{40}-[0-9]+$".r
+
+  def isPresentationId(id: String): Boolean = PresentationIdPattern.matches(id)
 
 }
 

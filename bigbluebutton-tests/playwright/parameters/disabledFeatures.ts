@@ -4,11 +4,20 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { ClientSettingsOverrides } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+import { privateChatOptionOf, userListRowOf } from '../user/util';
 
 // Live transcription is off by default, and then the speech recognition option
 // is hidden whether or not the feature is disabled.
 export const AUDIO_CAPTIONS_SETTINGS: ClientSettingsOverrides = {
   public: { app: { audioCaptions: { enabled: true } } },
+};
+// puts the transcription and captions entry in the sidebar: in the actions bar it only shows while captions are active
+export const AUDIO_CAPTIONS_SIDEBAR_SETTINGS: ClientSettingsOverrides = {
+  public: { app: { audioCaptions: { enabled: true, showInSidebarNavigation: true } } },
+};
+
+export const INFINITE_WHITEBOARD_SETTINGS: ClientSettingsOverrides = {
+  public: { whiteboard: { allowInfiniteWhiteboard: true } },
 };
 
 export class DisabledFeatures extends MultiUsers {
@@ -33,10 +42,37 @@ export class DisabledFeatures extends MultiUsers {
     );
   }
 
+  async captions() {
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SIDEBAR_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.usersListSidebarButton, 'should display the sidebar navigation');
+    await this.modPage.wasRemoved(
+      e.audioCaptionsSidebarButton,
+      'should not display the transcription and captions entry on the sidebar',
+    );
+  }
+
   async chat() {
     await this.modPage.wasRemoved(
       e.hidePublicChat,
       'should not display the hide public chat button and the whole chat',
+    );
+  }
+
+  // the server refuses a private chat between attendees but lets one with a moderator through, and
+  // the participants list offers exactly those
+  async privateChat() {
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.hasElement(
+      privateChatOptionOf(this.modPage.username),
+      'should offer the attendee a private chat with the moderator',
+    );
+    await this.userPage.hasElement(userListRowOf(this.userPage2.username), 'should list the other attendee');
+    await this.userPage.wasRemoved(
+      privateChatOptionOf(this.userPage2.username),
+      'should not offer the attendee a private chat with the other attendee',
     );
   }
 
@@ -135,12 +171,13 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboard() {
-    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
-
-    if (allowInfiniteWhiteboard) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
-    }
+    expect(
+      this.modPage.settings?.allowInfiniteWhiteboard,
+      'allowInfiniteWhiteboard should be on (INFINITE_WHITEBOARD_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.hasElement(e.presentationToolbarWrapper, 'should display the presentation toolbar');
+    await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
   }
 
   // Disabled Features Exclude
@@ -166,10 +203,27 @@ export class DisabledFeatures extends MultiUsers {
     );
   }
 
+  async captionsExclude() {
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SIDEBAR_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.waitAndClick(e.audioCaptionsSidebarButton);
+    await this.modPage.hasElement(e.audioCaptionsPanel, 'should open the transcription and captions panel');
+  }
+
   async chatExclude() {
     await this.modPage.hasElement(
       e.hidePublicChat,
       'should display the hide public chat option when the public chat is open',
+    );
+  }
+
+  async privateChatExclude() {
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.hasElement(
+      privateChatOptionOf(this.userPage2.username),
+      'should offer the attendee a private chat with the other attendee',
     );
   }
 
@@ -263,11 +317,11 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboardExclude() {
-    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
-
-    if (allowInfiniteWhiteboard) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
-    }
+    expect(
+      this.modPage.settings?.allowInfiniteWhiteboard,
+      'allowInfiniteWhiteboard should be on (INFINITE_WHITEBOARD_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
   }
 }
