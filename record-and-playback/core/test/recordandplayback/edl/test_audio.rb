@@ -18,16 +18,16 @@ class TestEDLAudio < Minitest::Test
     FileUtils.rm_rf(@dir) if @dir
   end
 
-  # The wav file is 2% shorter than its original duration, so it is played
+  # The wav file is 2 s (4%) shorter than its original duration, so it is played
   # with an adjusted speed. The cut starts 6 s into the file but is only 2 s
   # long, so it must play that part of the stretched file. The file is silent
   # for its first 5 s, so playing it from the start comes out silent too.
   def test_render_speed_adjusted_cut_into_the_file
     file = "#{@dir}/voice.wav"
     assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi',
-                  '-i', 'aevalsrc=0.5*sin(2*PI*440*t)*gte(t\,5):s=48000:d=9.8', '-c:a', 'pcm_s16le', file))
+                  '-i', 'aevalsrc=0.5*sin(2*PI*440*t)*gte(t\,5):s=48000:d=48', '-c:a', 'pcm_s16le', file))
     edl = [
-      { timestamp: 0, audios: [{ filename: file, timestamp: 6000, original_duration: 10_000 }] },
+      { timestamp: 0, audios: [{ filename: file, timestamp: 6000, original_duration: 50_000 }] },
       { timestamp: 2000, audios: [] },
     ]
 
@@ -42,9 +42,9 @@ class TestEDLAudio < Minitest::Test
   def test_render_speed_adjusted_cut_starts_on_time
     file = "#{@dir}/voice.wav"
     assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi',
-                  '-i', 'aevalsrc=0.5*sin(2*PI*440*t)*gte(t\,2):s=48000:d=9.8', '-c:a', 'pcm_s16le', file))
+                  '-i', 'aevalsrc=0.5*sin(2*PI*440*t)*gte(t\,2):s=48000:d=48', '-c:a', 'pcm_s16le', file))
     edl = [
-      { timestamp: 0, audios: [{ filename: file, timestamp: 1000, original_duration: 10_000 }] },
+      { timestamp: 0, audios: [{ filename: file, timestamp: 1000, original_duration: 50_000 }] },
       { timestamp: 3000, audios: [] },
     ]
 
@@ -58,11 +58,11 @@ class TestEDLAudio < Minitest::Test
   # the end of the file's own audio must not be removed as a gap.
   def test_render_speed_adjusted_cut_past_the_file_audio
     file = "#{@dir}/voice.wav"
-    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=19.2:sample_rate=48000',
+    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=48:sample_rate=48000',
                   '-c:a', 'pcm_s16le', file))
     edl = [
-      { timestamp: 0, audios: [{ filename: file, timestamp: 19_300, original_duration: 20_000 }] },
-      { timestamp: 600, audios: [] },
+      { timestamp: 0, audios: [{ filename: file, timestamp: 48_500, original_duration: 50_000 }] },
+      { timestamp: 1000, audios: [] },
     ]
 
     output = render(edl)
@@ -115,5 +115,27 @@ class TestEDLAudio < Minitest::Test
     out = IO.popen(['ffmpeg', '-nostats', '-i', file, '-af', "#{filter}volumedetect", '-f', 'null', '-'],
                    err: %i[child out], &:read)
     Float(out[/mean_volume: (-?[\d.]+) dB/, 1])
+  end
+end
+
+class TestEDLAudioSpeedAdjustment < Minitest::Test
+  # Recording events and the file they started differ by a fraction of a second
+  def test_speed_adjustment_ignores_differences_under_2_s
+    assert_equal(1.0, BigBlueButton::EDL::Audio.speed_adjustment(wav_info(179_200, 180_000)))
+  end
+
+  def test_speed_adjustment_stretches_a_short_file
+    assert_in_delta(0.98, BigBlueButton::EDL::Audio.speed_adjustment(wav_info(176_400, 180_000)), 1e-9)
+  end
+
+  private
+
+  def wav_info(duration, original_duration)
+    {
+      format: { format_name: 'wav' },
+      audio: { codec_name: 'pcm_s16le' },
+      duration: duration,
+      original_duration: original_duration,
+    }
   end
 end
