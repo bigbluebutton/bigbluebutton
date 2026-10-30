@@ -16,7 +16,7 @@ COPY --from=html5-config settings.yml /usr/share/bigbluebutton/html5-client/priv
 ARG CLIENT_BUILD=0
 RUN sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
 
-# The start script reads /etc/bigbluebutton/bbb-apps-akka.conf, which must exist; the image's only includes the defaults
+# The start script reads /etc/bigbluebutton/bbb-apps-akka.conf, which must exist; the image's file only includes upstream's defaults
 RUN mkdir -p /etc/bigbluebutton \
     && echo 'include "/usr/share/bbb-apps-akka/conf/application.conf"' > /etc/bigbluebutton/bbb-apps-akka.conf
 
