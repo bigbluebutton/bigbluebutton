@@ -273,18 +273,11 @@ module BigBlueButton
           corrupt_audios.each { |f| audioinfo.delete(f) }
         end
 
+        # Gap detection depends on each file's speed
         max_mismatch = BigBlueButton.read_props.fetch('max_audio_length_mismatch', 0.2).to_f
         audioinfo.each do |filename, info|
           info[:speed] = speed_adjustment(info, max_mismatch)
           next if info[:speed] == 1.0
-
-          # Stretching reads the file as one stream and would close up any timestamp gaps, so a file with
-          # gaps keeps its own timing. FreeSWITCH recordings have none. Gaps under 100 ms don't count: at
-          # normal speed, aresample also absorbs them instead of filling them with silence.
-          unless BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, nil, 100).empty?
-            info[:speed] = 1.0
-            next
-          end
 
           BigBlueButton.logger.warn "Audio file length mismatch in #{filename}, adjusting speed to #{info[:speed]}"
         end
@@ -435,14 +428,18 @@ module BigBlueButton
       # fill the gap, but it enqueues the full length of the gap into the filter chain all at once,
       # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
       # and remove the audio file from the mix for the duration of the gap.
+      #
+      # In a speed-adjusted file, gaps shorter than DEFAULT_PTS_GAP_MS stay inside cuts, where atempo closes
+      # them up instead of filling them with silence, but FreeSWITCH recordings have none.
       def self.remove_audio_gaps(edl, audioinfo, process_dir)
         audio_gaps = audioinfo.each_with_object({}) do |(filename, info), gaps|
-          # A speed-adjusted file has no timestamp gaps and is stretched to its original duration, so its
-          # whole length has audio
-          next if info[:speed] != 1.0
-
-          duration = info.fetch(:original_duration, info[:duration])
+          # Stretched, a file covers its whole original duration, so its end is not a gap
+          duration = info[:speed] == 1.0 ? info.fetch(:original_duration, info[:duration]) : nil
           gaps[filename] = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, duration)
+          next if info[:speed] == 1.0
+
+          # Move the gaps from the file's own time to the EDL's
+          gaps[filename].each { |gap| gap.map! { |timestamp| (timestamp / info[:speed]).round } }
         end
 
         BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(

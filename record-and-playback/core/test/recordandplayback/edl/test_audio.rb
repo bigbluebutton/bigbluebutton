@@ -71,39 +71,24 @@ class TestEDLAudio < Minitest::Test
     assert_operator(mean_volume(output), :>, -40)
   end
 
-  # Stretching would close up the gap and play the audio after it too early,
-  # so a file with a timestamp gap keeps its own timing.
-  def test_render_does_not_stretch_a_file_with_timestamp_gaps
-    file = "#{@dir}/voice.webm"
-    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=mono:d=10',
-                  '-f', 'lavfi', '-i', 'sine=frequency=440:duration=33:sample_rate=48000',
-                  '-filter_complex', '[1]asetpts=PTS+15/TB[b];[0][b]concat=n=2:v=0:a=1', '-c:a', 'libvorbis', file))
+  # A speed-adjusted file's gaps are removed from the EDL in the meeting's
+  # time. The file has 2 s of tone, a 31 s gap and 10 s of tone, and covers
+  # 47 s, so it plays at 43/47 speed: the gap runs from about 2.2 s to 36.1 s.
+  def test_render_speed_adjusted_gap_in_the_meetings_time
+    file = "#{@dir}/voice.opus"
+    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=2:sample_rate=48000',
+                  '-f', 'lavfi', '-i', 'sine=frequency=440:duration=10:sample_rate=48000',
+                  '-filter_complex', '[1]asetpts=PTS+31/TB[b];[0][b]concat=n=2:v=0:a=1', '-c:a', 'libopus', file))
     edl = [
-      { timestamp: 0, audios: [{ filename: file, timestamp: 12_000, original_duration: 61_000 }] },
-      { timestamp: 1000, audios: [] },
+      { timestamp: 0, audios: [{ filename: file, timestamp: 0, original_duration: 47_000 }] },
+      { timestamp: 47_000, audios: [] },
     ]
 
     output = render(edl)
 
-    assert_operator(mean_volume(output), :<, -60)
-  end
-
-  # A gap of half a second is enough to keep the file at its own timing. The
-  # tone starts after 30 s of silence and the gap; stretched, it would start
-  # about a second late.
-  def test_render_does_not_stretch_a_file_with_a_short_timestamp_gap
-    file = "#{@dir}/voice.webm"
-    assert(system('ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=mono:d=30',
-                  '-f', 'lavfi', '-i', 'sine=frequency=440:duration=15:sample_rate=48000',
-                  '-filter_complex', '[1]asetpts=PTS+0.5/TB[b];[0][b]concat=n=2:v=0:a=1', '-c:a', 'libvorbis', file))
-    edl = [
-      { timestamp: 0, audios: [{ filename: file, timestamp: 30_700, original_duration: 47_600 }] },
-      { timestamp: 600, audios: [] },
-    ]
-
-    output = render(edl)
-
-    assert_operator(mean_volume(output), :>, -40)
+    assert_operator(mean_volume(output, 'atrim=10:20,'), :<, -60)
+    assert_operator(mean_volume(output, 'atrim=35.5:35.95,'), :<, -60)
+    assert_operator(mean_volume(output, 'atrim=36.3:37,'), :>, -40)
   end
 
   # FreeSWITCH records opus. Overloaded, it drops frames, and files can miss
