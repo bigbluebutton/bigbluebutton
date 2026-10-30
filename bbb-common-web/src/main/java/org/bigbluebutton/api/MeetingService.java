@@ -56,6 +56,7 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.bigbluebutton.presentation.RejectedPresentationRegistry;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
@@ -113,6 +114,7 @@ public class MeetingService implements MessageListener {
   private IBbbWebApiGWApp gw;
 
   private final ConcurrentMap<String, PresentationUploadToken> uploadAuthzTokens;
+  private RejectedPresentationRegistry rejectedPresentations;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -120,7 +122,7 @@ public class MeetingService implements MessageListener {
     meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
     sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
     removedSessions = new ConcurrentHashMap<String, UserSessionBasicData>(8, 0.9f, 1);
-    uploadAuthzTokens = new ConcurrentHashMap<String, PresentationUploadToken>();
+    uploadAuthzTokens = new ConcurrentHashMap<String, PresentationUploadToken>(8, 0.9f, 1);
   }
 
   public void addUserSession(String token, UserSession user) {
@@ -274,22 +276,18 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
+  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT consume the token
     return authzToken != null && uploadAuthzTokens.containsKey(authzToken);
   }
 
-  public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
-    return consumePresentationUploadToken(authzToken) != null;
-  }
-
-  public PresentationUploadToken getPresentationUploadToken(String authzToken) {
+  public PresentationUploadToken getPresentationUploadToken(String authzToken) { // Note we DO NOT consume the token
     if (authzToken == null) return null;
     return uploadAuthzTokens.get(authzToken);
   }
 
-  /**
-   * Atomically retrieves and expires a one-time presentation upload token.
-   */
+  // Atomically validate and consume the single-use upload token. For N concurrent
+  // callers with the same token, exactly one gets the non-null token and the rest
+  // get null, so the token authorizes exactly one upload.
   public PresentationUploadToken consumePresentationUploadToken(String authzToken) {
     if (authzToken == null) return null;
     return uploadAuthzTokens.remove(authzToken);
@@ -883,6 +881,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME, message.captureNotesFilename.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME, message.captureSlidesFilename.toString());
+      params.put(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED, message.privateChatEnabled.toString());
       params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
       params.put(ApiParams.DIAL_NUMBER, message.dialNumber);
@@ -1007,12 +1006,14 @@ public class MeetingService implements MessageListener {
 
   }
 
-  private void processPresentationUploadToken(PresentationUploadToken message) {
-    uploadAuthzTokens.put(message.authzToken, message);
+  private void processPresentationConversionRejected(PresentationConversionRejected message) {
+    if (rejectedPresentations != null) {
+      rejectedPresentations.reject(message.meetingId, message.presentationId);
+    }
   }
 
-  public void expirePresentationUploadToken(String usedToken) {
-    if (usedToken != null) uploadAuthzTokens.remove(usedToken);
+  private void processPresentationUploadToken(PresentationUploadToken message) {
+    uploadAuthzTokens.put(message.authzToken, message);
   }
 
   public void addUserCustomData(String meetingId, String userID,
@@ -1164,7 +1165,14 @@ public class MeetingService implements MessageListener {
 
         if (! StringUtils.isEmpty(m.getMeetingEndedCallbackURL())) {
           String meetingEndedCallbackURL = m.getMeetingEndedCallbackURL();
-          callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
+          try {
+            meetingEndedCallbackURL = new URIBuilder(new URI(meetingEndedCallbackURL))
+              .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
+              .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
+            callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), meetingEndedCallbackURL));
+          } catch (Exception e) {
+            log.error("Error in meetingEndedURL callback url={}", meetingEndedCallbackURL, e);
+          }
         }
       }
 
@@ -1310,6 +1318,10 @@ public class MeetingService implements MessageListener {
   public void setPresDownloadService(
     PresentationUrlDownloadService presDownloadService) {
     this.presDownloadService = presDownloadService;
+  }
+
+  public void setRejectedPresentationRegistry(RejectedPresentationRegistry rejectedPresentations) {
+    this.rejectedPresentations = rejectedPresentations;
   }
 
   public void userJoinedVoice(UserJoinedVoice message) {
@@ -1458,6 +1470,8 @@ public class MeetingService implements MessageListener {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
         } else if (message instanceof PresentationUploadToken) {
           processPresentationUploadToken((PresentationUploadToken) message);
+        } else if (message instanceof PresentationConversionRejected) {
+          processPresentationConversionRejected((PresentationConversionRejected) message);
         } else if (message instanceof PositionInWaitingQueueUpdated) {
           processPositionInWaitingQueueUpdated((PositionInWaitingQueueUpdated) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {

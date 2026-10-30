@@ -1,12 +1,17 @@
-import { devices } from '@playwright/test';
+import { Browser, devices } from '@playwright/test';
 
 import { linkIssue } from '../core/helpers';
 import { refuseMedia } from '../core/mediaPermissions';
 import { trackPeerConnections } from '../core/rtcStatsProbe';
+import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { addSecondFakeCamera, CameraCaps } from './cameraCaps';
-import { Webcam } from './webcam';
+import { CONSTRAINT_OBJECT_PROFILES_MODULE, Webcam } from './webcam';
+
+// The suite's 160x120 camera file is too small for simulcast layers (480px and
+// up); Chromium's built-in fake camera follows the profile's resolution.
+const launchWithFakeDeviceCamera = (browser: Browser) => browser.browserType().launch({ args: chromiumBaseArgs });
 
 test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
@@ -62,6 +67,20 @@ test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.changeVideoQuality();
+  });
+
+  test('Share webcam with a quality profile using constraint objects', async ({ browser, browserName }, testInfo) => {
+    test.skip(browserName !== 'chromium', 'Uses the Chromium fake camera');
+    const cameraBrowser = await launchWithFakeDeviceCamera(browser);
+    try {
+      const page = await (await cameraBrowser.newContext()).newPage();
+      const webcam = new Webcam(cameraBrowser, page);
+      await webcam.init(true, { testInfo, createModules: CONSTRAINT_OBJECT_PROFILES_MODULE });
+      await webcam.shareWithQuality('minimal');
+      await webcam.shareWithQuality('medium');
+    } finally {
+      await cameraBrowser.close();
+    }
   });
 
   test('Webcam fullscreen', async ({ browser, page }, testInfo) => {

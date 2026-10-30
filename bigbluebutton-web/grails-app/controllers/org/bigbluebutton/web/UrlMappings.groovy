@@ -158,6 +158,6 @@ class UrlMappings {
       action = [GET: 'index']
     }
 
-    "500"(view: '/error')
+    "500"(controller: "error", action: "serverError")
   }
 }

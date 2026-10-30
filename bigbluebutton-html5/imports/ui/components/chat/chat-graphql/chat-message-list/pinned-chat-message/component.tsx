@@ -9,6 +9,7 @@ import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -62,6 +63,32 @@ const intlMessages = defineMessages({
   },
 });
 
+// Maps chatId -> messageId of the pinned message the user collapsed, so the
+// state survives closing and reopening the chat while the same message is pinned
+const COLLAPSED_PINNED_MESSAGES_KEY = 'collapsedPinnedMessages';
+
+const getCollapsedPinnedMessages = () => (
+  Storage.getItem(COLLAPSED_PINNED_MESSAGES_KEY) as Record<string, string> || {}
+);
+
+const isPinnedMessageCollapsed = (chatId: string, messageId: string) => (
+  getCollapsedPinnedMessages()[chatId] === messageId
+);
+
+const setPinnedMessageCollapsed = (chatId: string, messageId: string, collapsed: boolean) => {
+  const collapsedPinnedMessages = { ...getCollapsedPinnedMessages() };
+  if (collapsed) {
+    collapsedPinnedMessages[chatId] = messageId;
+  } else {
+    delete collapsedPinnedMessages[chatId];
+  }
+  try {
+    Storage.setItem(COLLAPSED_PINNED_MESSAGES_KEY, collapsedPinnedMessages);
+  } catch (e) {
+    // Storage unavailable or full: the toggle still works, it just isn't remembered
+  }
+};
+
 interface PinnedMessageComponentProps {
   message: Message;
   isModerator: boolean;
@@ -70,7 +97,9 @@ interface PinnedMessageComponentProps {
 
 export default function PinnedMessageComponent({ message, isModerator, pinnedBy }: PinnedMessageComponentProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(
+    () => !isPinnedMessageCollapsed(message.chatId, message.messageId),
+  );
   const messagePreviewRef = useRef<HTMLDivElement>(null);
 
   const intl = useIntl();
@@ -78,8 +107,19 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
   const [unpinMessage] = useMutation(CHAT_SET_PINNED_MUTATION);
 
   useLayoutEffect(() => {
-    setIsExpanded(true);
-  }, [message.messageId, message.messageAsHtml]);
+    const collapsedMessageId = getCollapsedPinnedMessages()[message.chatId];
+    const isCollapsed = collapsedMessageId === message.messageId;
+    // A different message is pinned now, so forget the one collapsed before
+    if (collapsedMessageId && !isCollapsed) {
+      setPinnedMessageCollapsed(message.chatId, message.messageId, false);
+    }
+    setIsExpanded(!isCollapsed);
+  }, [message.chatId, message.messageId]);
+
+  const handleToggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+    setPinnedMessageCollapsed(message.chatId, message.messageId, isExpanded);
+  };
 
   const handleUnpin = () => {
     setIsConfirmModalOpen(true);
@@ -155,7 +195,7 @@ export default function PinnedMessageComponent({ message, isModerator, pinnedBy 
           )}
           <Tooltip title={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}>
             <Styled.ToggleButton
-              onClick={() => setIsExpanded((prev) => !prev)}
+              onClick={handleToggleExpanded}
               aria-label={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}
             >
               <Styled.Icon iconName={isExpanded ? 'arrow_forward_up' : 'arrow_forward_down'} />

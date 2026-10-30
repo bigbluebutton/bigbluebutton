@@ -781,6 +781,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     return (
       <Styled.Form
+        className="bbb-chat-form"
         ref={formRef}
         onSubmit={handleSubmit}
         isRTL={isRTL}
@@ -806,6 +807,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         ) : null}
         <Styled.Wrapper>
           <Styled.InputWrapper
+            className="bbb-chat-form__input"
             ref={inputWrapperRef}
             onClick={(e) => {
               if (e.target === e.currentTarget) {

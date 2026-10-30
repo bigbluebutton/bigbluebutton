@@ -4,7 +4,13 @@ import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
-import { hasSpeechRecognitionSupport } from './speech/service';
+import {
+  hasOnDeviceSupport,
+  hasSpeechRecognitionSupport,
+  isCloudFallbackAllowed,
+  isOnDeviceTranscription,
+  useOnDeviceLanguages,
+} from './speech/service';
 
 export const captionLimit = () => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
@@ -79,6 +85,22 @@ export const getSpeechVoices = () => {
   );
 };
 
+// The languages to offer: getSpeechVoices(), but with local or auto the configured languages the
+// browser can transcribe on the device. With auto, also the ones it cannot, as getSpeechVoices()
+// offers them for cloud. undefined while checking.
+export const useSpeechVoices = (): string[] | null | undefined => {
+  const onDevice = isWebSpeechApi() && isOnDeviceTranscription() && hasOnDeviceSupport()
+    && hasSpeechRecognitionSupport();
+  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+  const onDeviceVoices = useOnDeviceLanguages(LANGUAGES, onDevice);
+
+  if (!onDevice) return getSpeechVoices();
+  if (!onDeviceVoices || !isCloudFallbackAllowed()) return onDeviceVoices;
+
+  const cloudVoices = getSpeechVoices() || [];
+  return LANGUAGES.filter((locale) => onDeviceVoices.includes(locale) || cloudVoices.includes(locale));
+};
+
 export const setAudioCaptions = (value: boolean) => {
   setAudioCaptionEnable(value);
   // @ts-ignore - Exist while we have meteor in the project
@@ -126,6 +148,7 @@ export const showInSidebarNavigation = () => {
 
 export default {
   getSpeechVoices,
+  useSpeechVoices,
   useIsAudioTranscriptionEnabled,
   setUserLocaleProperty,
   setSpeechLocale,

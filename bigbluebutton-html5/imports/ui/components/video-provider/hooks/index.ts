@@ -346,10 +346,35 @@ export const useMyPageSize = () => {
   return actualSize;
 };
 
+export const useIsPaginationToggleAllowed = () => {
+  const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
+  const {
+    paginationToggleEnabled,
+    paginationToggleModeratorOnly,
+  } = window.meetingClientSettings.public.kurento.pagination;
+
+  if (!paginationToggleEnabled) return false;
+
+  return !paginationToggleModeratorOnly || !!currentUser?.isModerator;
+};
+
 export const useIsPaginationEnabled = () => {
   const myPageSize = useMyPageSize();
+  const isToggleAllowed = useIsPaginationToggleAllowed();
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION) as { paginationEnabled?: boolean };
-  return myPageSize > 0 && paginationEnabled;
+  // A user without the toggle can't change a value stored while they had it
+  // (e.g. before being demoted), so the configured default applies instead.
+  const {
+    paginationEnabled: defaultPaginationEnabled,
+  } = window.meetingClientSettings.public.app.defaultSettings.application;
+  const enabled = isToggleAllowed ? paginationEnabled : defaultPaginationEnabled;
+  const isEnabled = myPageSize > 0 && !!enabled;
+
+  useEffect(() => {
+    setVideoState({ paginationEnabled: isEnabled });
+  }, [isEnabled]);
+
+  return isEnabled;
 };
 
 const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
@@ -1058,11 +1083,9 @@ export const useStopVideo = () => {
 
 export const useShouldRenderPaginationToggle = () => {
   const myPageSize = useMyPageSize();
-  const {
-    paginationToggleEnabled: PAGINATION_TOGGLE_ENABLED,
-  } = window.meetingClientSettings.public.kurento.pagination;
+  const isToggleAllowed = useIsPaginationToggleAllowed();
 
-  return PAGINATION_TOGGLE_ENABLED && myPageSize > 0;
+  return isToggleAllowed && myPageSize > 0;
 };
 
 export const useIsVideoPinEnabledForCurrentUser = (isModerator: boolean) => {

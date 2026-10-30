@@ -31,6 +31,7 @@ For production, we recommend the following minimum requirements
 - 8 CPU cores, with high single-thread performance
 - 500 GB of free disk space (or more) for recordings, or 50GB if session recording is disabled on the server.
 - TCP ports 80 and 443 are accessible
+- TCP and UDP port 3478 are accessible (for the built-in TURN server)
 - UDP ports 16384 - 32768 are accessible
 - 250 Mbits/sec bandwidth (symmetrical) or more
 - TCP port 80 and 443 are **not** in use by another web server or reverse proxy
@@ -158,7 +159,7 @@ sudo ufw allow 443
 
 Sometimes we get asked "Why are you only supporting Ubuntu 24.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support many variants of Linux and have none of them work well.
 
-At the moment, the requirement for docker may preclude running 4.1 within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
+At the moment, the requirement for docker may preclude running BigBlueButton within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
 
 ## Install
 
@@ -255,13 +256,14 @@ bbb-graphql-middleware ———————► [✔ - active]
 bbb-graphql-server ———————————► [✔ - active]
 bbb-webrtc-sfu ———————————————► [✔ - active]
 bbb-webrtc-recorder ——————————► [✔ - active]
-livekit-server ———————————————► [✔ - active]
-livekit-sip ——————————————————► [✔ - active]
 bbb-web ——————————————————————► [✔ - active]
 bbb-export-annotations ———————► [✔ - active]
 bbb-rap-caption-inbox ————————► [✔ - active]
 bbb-rap-resque-worker ————————► [✔ - active]
 bbb-rap-starter ——————————————► [✔ - active]
+livekit-server ———————————————► [✔ - active]
+livekit-sip ——————————————————► [✔ - active]
+bbb-shared-notes-server ——————► [✔ - active]
 
 ```
 
@@ -348,17 +350,14 @@ If you see other warning messages check out the [troubleshooting installation](/
 
 If this server is intended for production, you should also
 
-- [Secure your system -- restrict access to specific ports](/administration/customize#preserving-customizations-using-apply-confsh)
+- [Secure your system -- restrict access to specific ports](/administration/customize#setup-a-firewall)
 - [Configure the server to work behind a firewall](/administration/firewall-configuration) (if you have installed behind a firewall or on a server that has a public/private IP address)
 - [Set up a TURN server](/administration/turn-server) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
 - Test your HTTPS configuration. A well-respected site that can do a series of automated tests is [https://www.ssllabs.com/ssltest/](https://www.ssllabs.com/ssltest/) - simply enter your server's hostname, optionally check the "Do not show results" check box if you would like to keep it private, then Submit. At time of writing, the configuration shown on this page should achieve an "A" ranking in the SSL Labs test page.
 
-We provide publicly accessible servers that you can use for testing:
+We provide a publicly accessible server that you can use for testing: [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/), a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases).
 
-- [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/) - a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases)
-- [https://test41.bigbluebutton.org](https://test41.bigbluebutton.org) - Runs the general build of BigBlueButton 4.1 - usually a few days behind the repository branch `v4.1.x-release`
-
-To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](/development/api). To see videos of BigBlueButton HTML5 client, see [https://bigbluebutton.org/html5](https://bigbluebutton.org/html5).
+To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](/development/api).
 
 ## Other installation options
 
@@ -395,30 +394,16 @@ See the [Server customization page](/administration/customize) for things you ca
 
 ## Troubleshooting
 
-### Package locales-all is not available
+### bbb-libreoffice-docker fails to install
 
-The package `bbb-libreoffice` needs to build a docker image for libreoffice. If you receive the following error when installing on a network behind a firewall
+The package `bbb-libreoffice-docker` builds the `bbb-soffice` Docker image when it is installed, from the image `bigbluebutton/bbb-libreoffice` on Docker Hub. On a server that cannot reach Docker Hub, the package's post-installation script fails with an error such as
 
 ```
-Package locales-all is not available, but is referred to by another package.
-This may mean that the package is missing, has been obsoleted, or
-is only available from another source
-
-E: Package 'locales-all' has no installation candidate
-E: Unable to locate package libxt6
-E: Unable to locate package libxrender1
-The command '/bin/sh -c apt -y install locales-all fontconfig libxt6 libxrender1' returned a non-zero code: 100
 dpkg: error processing package bbb-libreoffice-docker (--configure):
- installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 100
+ installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 1
 ```
 
-Ubuntu 24.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get the above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
-
-```
-echo "nameserver 10.11.12.13" > /etc/resolv.conf
-```
-
-For more details see [this issue](https://github.com/bigbluebutton/bbb-install/issues/385).
+Give Docker access to Docker Hub (for example, through an HTTP proxy configured in a drop-in for `docker.service`), or load the image onto the server by other means (`docker load`), then run `sudo apt-get install -f` to finish the installation.
 
 ## Feedback and reporting bugs
 

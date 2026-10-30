@@ -7,6 +7,9 @@ import { Page } from '../core/page';
 export type TldrawCamera = { pageId: string; x: number; y: number; z: number };
 
 export type TldrawEditor = {
+  getCurrentToolId: () => string;
+  getInstanceState: () => { stylesForNextShape: Record<string, unknown> };
+  getCurrentPageShapes: () => { type: string; props: { geo?: string } }[];
   getCamera: () => { x: number; y: number; z: number };
   getCurrentPageId: () => string;
   getViewportScreenBounds: () => { w: number; h: number };
