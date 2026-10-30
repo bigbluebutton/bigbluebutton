@@ -236,7 +236,7 @@ preset['formats'].each_with_index do |format, i|
 end
 
 logger.info('Generating closed captions')
-ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', process_dir)
+ret = BigBlueButton.generate_webvtt(raw_archive_dir, process_dir, events, props)
 raise 'Generating closed caption files failed' if ret != 0
 
 captions = JSON.parse(File.read("#{process_dir}/captions.json"))
