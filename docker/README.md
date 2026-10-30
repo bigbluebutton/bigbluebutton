@@ -43,7 +43,7 @@ image hold the commit and the dated version, `org.opencontainers.image.title` it
 | bbb-graphql-actions | `bbb-graphql-actions/` | 8093 | environment only |
 | bbb-graphql-middleware | `bbb-graphql-middleware/` | 8378 | `/etc/bigbluebutton/bbb-graphql-middleware.yml` |
 | bbb-graphql-server | `bbb-graphql-server/` | 8085 | environment (`HASURA_GRAPHQL_*`) |
-| bbb-export-annotations | `bbb-export-annotations/` | none | `/usr/local/bigbluebutton/bbb-export-annotations/config/settings.json` |
+| bbb-export-annotations | `bbb-export-annotations/` | none | `/etc/bigbluebutton/bbb-export-annotations.json` |
 | bbb-shared-notes-server | `bbb-shared-notes-server/` | 8787 | `/etc/bigbluebutton/bbb-shared-notes-server.yml` |
 | bbb-record-and-playback | `record-and-playback/` | none | `/etc/bigbluebutton/recording/recording.yml`, `presentation.yml`, `/etc/bigbluebutton/bbb-web.properties` |
 | bbb-nginx | `docker/nginx/` | 8080, 8185 | `/etc/nginx/sites-available/`, `/usr/share/bigbluebutton/nginx/` |
@@ -61,13 +61,11 @@ deployments use their official images.
   (html5-client, learning-dashboard, playback, nginx) run as the base image's `nginx` (UID 101).
 - Logs go to stdout (record-and-playback: per-recording logs to `/var/log/bigbluebutton`).
   Services listen on all interfaces, on the bare-metal ports.
-- Configuration is mounted at the bare-metal path. Where an image takes environment variables
-  into its default config file (bbb-apps-akka, bbb-web, export-annotations), a mounted file
-  replaces that and the variables are not used.
+- Configuration is mounted at the bare-metal path. bbb-apps-akka reads the variables below in
+  upstream's `application.conf`, which a mounted `bbb-apps-akka.conf` includes; keys set in that
+  file win. bbb-web's environment variables override its mounted files.
 - The entrypoint is the process, started as in its systemd unit (nginx images: the base image's).
-  bbb-web and export-annotations have a few-line entrypoint that writes the variables below into
-  the config unless it is mounted. graphql-server uses Hasura's entrypoint, which applies the
-  metadata before the engine starts.
+  graphql-server uses Hasura's entrypoint, which applies the metadata before the engine starts.
 - `/var/bigbluebutton` is shared between bbb-web, record-and-playback and nginx (presentations,
   recordings, captions, learning-dashboard reports). `/var/lib/bbb-webrtc-recorder` (recorder and
   record-and-playback) holds the recorded media; `/var/log/bigbluebutton` the recording logs.
@@ -90,21 +88,32 @@ static apps by their default service names on port 8080: `html5-client`, `learni
 `playback`. nginx resolves these names when it starts, so a deployment either runs those images
 under these service names or mounts its own fragments at `/usr/share/bigbluebutton/nginx/`.
 Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
-from `/var/bigbluebutton`. The backend fragments (`web`, `graphql.nginx`, `livekit.nginx`,
-`webrtc-sfu.nginx`, `bbb-shared-notes-server.nginx`, `webhooks.nginx`,
-`sites-available/hasura-loadbalancer.conf`) use upstream's `127.0.0.1`; a deployment mounts its own.
-nginx resolves every host name in these files when it starts, so all of them must resolve then. TLS
-and `server_name` are deployment config.
+from `/var/bigbluebutton`. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
+by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu` and
+`shared-notes-server`; Hasura is `graphql-server` in `sites-available/hasura-loadbalancer.conf`.
+A deployment uses these names or mounts its own two files. nginx resolves every host name in these
+files when it starts, so all of them must resolve then. The optional `webhooks` is not an upstream:
+its location (`/usr/share/bigbluebutton/nginx/webhooks.nginx`) resolves the name per request through
+the container's DNS server, so without it nginx starts and answers `/bigbluebutton/api/hooks` with
+502. The base image's entrypoint renders that resolver at start into `/tmp/bbb-resolver.conf`, so the
+image must be started with its entrypoint (a Kubernetes `command:` replaces it; without it the hooks
+API fails), and `/tmp` must be writable, as it already must be for nginx's pid and temp files. With
+several nameservers in `/etc/resolv.conf` nginx rotates between
+them, so all of them must know the name; on Kubernetes `webhooks` needs its full service name,
+because nginx's resolver ignores search domains. TLS and `server_name` are deployment config.
 
 ## Environment variables
 
 Only these are read; everything else is set in the mounted configuration.
 
-- **bbb-apps-akka** (HOCON `${?VAR}` in its default config): `SHARED_SECRET`, `BBB_WEB_API`,
-  `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `POSTGRES_HOST`, `POSTGRES_PASSWORD`; upstream's
-  `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`.
-- **bbb-web** (written to `bbb-web.properties` only if that file does not exist): `SERVER_URL`,
-  `SHARED_SECRET`, `REDIS_HOST`; also `JDK_JAVA_OPTIONS` (heap) and `MALLOC_ARENA_MAX`.
+- **bbb-apps-akka** (HOCON `${?VAR}` in upstream's `application.conf`): `SHARED_SECRET`,
+  `BBB_WEB_API`, `GRAPHQL_MIDDLEWARE_API`, `REDIS_HOST`, `REDIS_PASSWORD`, `POSTGRES_HOST`,
+  `POSTGRES_PASSWORD`; upstream's `INTERFACE` (set to `0.0.0.0`) and `PORT`; `JAVA_OPTS`;
+  `BBB_LOG_FILE_APPENDER` (set to `STDOUT`).
+- **bbb-web**: any key of `bigbluebutton.properties`, upper case with `.` as `_` (or the key
+  itself), e.g. `BIGBLUEBUTTON_WEB_SERVERURL`, `SECURITYSALT`, `REDISHOST`; they override
+  `bbb-web.properties`. Also `JDK_JAVA_OPTIONS` (heap), `MALLOC_ARENA_MAX` and
+  `BBB_LOG_FILE_APPENDER` (set to `STDOUT`).
 - **bbb-graphql-actions**: `BBB_REDIS_HOST`, `BBB_REDIS_PORT`, `BBB_REDIS_PASSWORD`,
   `SERVER_HOST` (`0.0.0.0`), `SERVER_PORT`, `MAX_BODY_SIZE`.
 - **bbb-graphql-server**: Hasura's `HASURA_GRAPHQL_*`, with the package's defaults set in the image.
@@ -112,8 +121,8 @@ Only these are read; everything else is set in the mounted configuration.
   `HASURA_GRAPHQL_AUTH_HOOK`, `HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL`. The image ships no admin
   secret: `HASURA_GRAPHQL_ADMIN_SECRET` is required, and Hasura refuses to start without it
   because the image sets the auth hook.
-- **bbb-export-annotations**: `BBB_REDIS_HOST`, `BBB_WEB_HOST`; the Redis password goes in a
-  mounted `settings.json`.
+- **bbb-export-annotations**: none; a deployment mounts
+  `/etc/bigbluebutton/bbb-export-annotations.json`.
 - **bbb-record-and-playback**: resque's `QUEUE` and `COUNT` (preset as in the systemd unit).
 - **bbb-webrtc-sfu**, **bbb-webhooks**: the variables in the component's
   `config/custom-environment-variables.yml` (node-config), e.g. `REDIS_HOST`, `REDIS_PASSWORD`;
@@ -123,5 +132,7 @@ Only these are read; everything else is set in the mounted configuration.
   `BBBRECORDER_LIVEKIT_APIKEY`, `BBBRECORDER_LIVEKIT_APISECRET`. A Redis address in
   `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_ADDRESS` needs `BBBRECORDER_PUBSUB_ADAPTERS_REDIS_NETWORK=tcp`
   as well.
-- **bbb-graphql-middleware**, **bbb-shared-notes-server**, **bbb-html5-client**,
-  **bbb-learning-dashboard**, **bbb-playback**, **bbb-nginx**: none.
+- **bbb-graphql-middleware**, **bbb-shared-notes-server**: `SERVER_HOST`, the listen address (the
+  image sets `0.0.0.0`); an override file cannot change it, as the environment wins.
+- **bbb-html5-client**, **bbb-learning-dashboard**, **bbb-playback**: none.
+- **bbb-nginx**: the base image's `NGINX_ENTRYPOINT_LOCAL_RESOLVERS`, which the image sets.

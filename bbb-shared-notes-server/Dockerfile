@@ -21,10 +21,9 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/assets ./assets
 COPY package.json package-lock.json blocknote_schema.sql run-in-systemd.sh ./
 COPY config/default.yml ./config/
-# Listen on all interfaces; deployments mount /etc/bigbluebutton/bbb-shared-notes-server.yml
-RUN sed -i '/^expressServer:/,/^[a-z]/ s/host: 127.0.0.1/host: 0.0.0.0/' config/default.yml
 
-ENV NODE_ENV=production
+# Listen on all interfaces; deployments mount /etc/bigbluebutton/bbb-shared-notes-server.yml
+ENV NODE_ENV=production SERVER_HOST=0.0.0.0
 USER bigbluebutton
 EXPOSE 8787
 CMD ["node", "bbb-shared-notes-server.js"]
