@@ -15,6 +15,7 @@
 //	bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
 //	bbb-conform tap [--listen ADDR] [--redis URL] [--data-dir DIR] [--watch DIR,..]
 //	                [--channels CH,..] [--redis-keys GLOB,..] [--max-mb N] [--max-age D]
+//	bbb-conform sink [--listen ADDR] [--cert FILE --key FILE] [--fixtures DIR] [--max-mb N] [--max-age D]
 //	bbb-conform version
 package main
 
@@ -59,6 +60,7 @@ const (
   bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
                                                         check case files, and their recordings in DIR
   bbb-conform tap [options]                             serve a server's bus, redis and files to the runner
+  bbb-conform sink [options]                            record a server's callbacks and fetches, serve fixtures
   bbb-conform version                                   print the version
 
 Run "bbb-conform <command> -h" for a command's options.
@@ -89,6 +91,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdValidate(args[1:], stdout, stderr)
 	case "tap":
 		return cmdTap(args[1:], stdout, stderr)
+	case "sink":
+		return cmdSink(args[1:], stdout, stderr)
 	case "version":
 		fmt.Fprintf(stdout, "bbb-conform %s\n", version)
 		return exitOK

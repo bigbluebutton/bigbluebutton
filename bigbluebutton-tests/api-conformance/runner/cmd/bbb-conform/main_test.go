@@ -49,6 +49,21 @@ func TestTapUsage(t *testing.T) {
 	}
 }
 
+func TestSinkUsage(t *testing.T) {
+	for _, args := range [][]string{
+		{"sink", "--cert", "server.crt"},
+		{"sink", "--key", "server.key"},
+		{"sink", "--fixtures", "no/such/dir"},
+		{"sink", "--listen", "not an address"},
+		{"sink", "extra"},
+	} {
+		var stdout, stderr bytes.Buffer
+		if code := run(args, &stdout, &stderr); code != exitUsage {
+			t.Errorf("%v: exit %d: %s", args, code, stderr.String())
+		}
+	}
+}
+
 // validate --golden reports a missing recording, a stale one, one from
 // another target, a leaked secret and an orphan.
 func TestValidateGolden(t *testing.T) {
