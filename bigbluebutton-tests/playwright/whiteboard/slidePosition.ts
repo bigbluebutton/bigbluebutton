@@ -133,6 +133,20 @@ export class SlidePosition extends MultiUsers {
       .toBeGreaterThan(restoredZ * 1.05);
   }
 
+  // The remounted editor applies the fit-to-width zoom only once its size is stable; a wheel
+  // pan sent before that is lost.
+  private async fitToWidth() {
+    const fitPageZ = (await getTldrawCamera(this.modPage.page))!.z;
+    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await expect
+      .poll(async () => (await getTldrawCamera(this.modPage.page))?.z, {
+        message: 'presenter reaches the fit-to-width zoom',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(fitPageZ * 1.05);
+    await this.waitForSettledPresenterCamera('fit-to-width camera settles');
+  }
+
   private async scrollTo(direction: 'top' | 'bottom') {
     const whiteboard = this.modPage.page.locator(e.whiteboard);
     let bounds = null;
@@ -145,6 +159,7 @@ export class SlidePosition extends MultiUsers {
     await this.modPage.page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     const delta = direction === 'bottom' ? 300 : -300;
     for (let i = 0; i < 25; i += 1) await this.modPage.page.mouse.wheel(0, delta);
+    await this.waitForSettledPresenterCamera(`scroll to the ${direction} settles for the presenter`);
   }
 
   async preservesEachSlidesLastPosition({ slowDecode = false, reducedMotion = false } = {}) {
@@ -168,7 +183,7 @@ export class SlidePosition extends MultiUsers {
       }
     }
 
-    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await this.fitToWidth();
     await this.scrollTo('bottom');
     const pageOneBottom = (await getTldrawCamera(this.modPage.page))?.y;
     expect(pageOneBottom, 'page 1 should pan below its top').toBeLessThan(-100);
@@ -191,7 +206,7 @@ export class SlidePosition extends MultiUsers {
   async restoresFitToWidthPageAfterRemount() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
-    await this.modPage.waitAndClick(e.fitToWidthButton);
+    await this.fitToWidth();
     await this.scrollTo('bottom');
     const bottomCamera = await getTldrawCamera(this.modPage.page);
     expect(bottomCamera?.y, 'page 1 should pan below its top').toBeLessThan(-100);
