@@ -41,4 +41,5 @@ profiles:
   reveal-version:        {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
   clamav-scan:           {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan'}
   guest-unauthenticated: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" guest-unauthenticated'}
+  alt-defaults:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" alt-defaults'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
