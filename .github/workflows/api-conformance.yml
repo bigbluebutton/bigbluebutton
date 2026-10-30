@@ -56,7 +56,8 @@ concurrency:
 jobs:
   bbb-web:
     name: bbb-web on Tier 1
-    runs-on: ubuntu-24.04
+    # It builds packages and pulls the LibreOffice image: a heavy job.
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 90
     defaults:
       run:
@@ -66,8 +67,10 @@ jobs:
         with:
           fetch-depth: 1
       # The build image, the stack's images and the build caches need more
-      # room than the runner leaves free.
+      # room than a GitHub-hosted runner leaves free. On a fork's own runner
+      # these directories may be in use, so they are left alone there.
       - name: Free disk space
+        if: runner.environment == 'github-hosted'
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h /
