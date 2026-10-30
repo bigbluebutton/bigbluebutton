@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The boolean create params that set akka-apps' lock-setting props
+# (lockSettingsProps), each with true and false, upper case, 1, yes and an
+# empty value. Only true, in any case, is true: 1 and yes read as false, and
+# an empty value keeps the configured default. All of lockSettingsProps is
+# recorded, so a param that moved another prop would show.
+id: create.booleans.lock-settings
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: "lock-settings-disable-cam-true", vars: {param: lockSettingsDisableCam, value: "true"}, class: contract}
+  - {id: "lock-settings-disable-cam-false", vars: {param: lockSettingsDisableCam, value: "false"}, class: contract}
+  - {id: "lock-settings-disable-cam-upper-case", vars: {param: lockSettingsDisableCam, value: "TRUE"}}
+  - {id: "lock-settings-disable-cam-one", vars: {param: lockSettingsDisableCam, value: "1"}}
+  - {id: "lock-settings-disable-cam-yes", vars: {param: lockSettingsDisableCam, value: "yes"}}
+  - {id: "lock-settings-disable-cam-empty", vars: {param: lockSettingsDisableCam, value: ""}}
+  - {id: "lock-settings-disable-mic-true", vars: {param: lockSettingsDisableMic, value: "true"}, class: contract}
+  - {id: "lock-settings-disable-mic-false", vars: {param: lockSettingsDisableMic, value: "false"}, class: contract}
+  - {id: "lock-settings-disable-mic-upper-case", vars: {param: lockSettingsDisableMic, value: "TRUE"}}
+  - {id: "lock-settings-disable-mic-one", vars: {param: lockSettingsDisableMic, value: "1"}}
+  - {id: "lock-settings-disable-mic-yes", vars: {param: lockSettingsDisableMic, value: "yes"}}
+  - {id: "lock-settings-disable-mic-empty", vars: {param: lockSettingsDisableMic, value: ""}}
+  - {id: "lock-settings-disable-private-chat-true", vars: {param: lockSettingsDisablePrivateChat, value: "true"}, class: contract}
+  - {id: "lock-settings-disable-private-chat-false", vars: {param: lockSettingsDisablePrivateChat, value: "false"}, class: contract}
+  - {id: "lock-settings-disable-private-chat-upper-case", vars: {param: lockSettingsDisablePrivateChat, value: "TRUE"}}
+  - {id: "lock-settings-disable-private-chat-one", vars: {param: lockSettingsDisablePrivateChat, value: "1"}}
+  - {id: "lock-settings-disable-private-chat-yes", vars: {param: lockSettingsDisablePrivateChat, value: "yes"}}
+  - {id: "lock-settings-disable-private-chat-empty", vars: {param: lockSettingsDisablePrivateChat, value: ""}}
+  - {id: "lock-settings-disable-public-chat-true", vars: {param: lockSettingsDisablePublicChat, value: "true"}, class: contract}
+  - {id: "lock-settings-disable-public-chat-false", vars: {param: lockSettingsDisablePublicChat, value: "false"}, class: contract}
+  - {id: "lock-settings-disable-public-chat-upper-case", vars: {param: lockSettingsDisablePublicChat, value: "TRUE"}}
+  - {id: "lock-settings-disable-public-chat-one", vars: {param: lockSettingsDisablePublicChat, value: "1"}}
+  - {id: "lock-settings-disable-public-chat-yes", vars: {param: lockSettingsDisablePublicChat, value: "yes"}}
+  - {id: "lock-settings-disable-public-chat-empty", vars: {param: lockSettingsDisablePublicChat, value: ""}}
+  - {id: "lock-settings-disable-notes-true", vars: {param: lockSettingsDisableNotes, value: "true"}, class: contract}
+  - {id: "lock-settings-disable-notes-false", vars: {param: lockSettingsDisableNotes, value: "false"}, class: contract}
+  - {id: "lock-settings-disable-notes-upper-case", vars: {param: lockSettingsDisableNotes, value: "TRUE"}}
+  - {id: "lock-settings-disable-notes-one", vars: {param: lockSettingsDisableNotes, value: "1"}}
+  - {id: "lock-settings-disable-notes-yes", vars: {param: lockSettingsDisableNotes, value: "yes"}}
+  - {id: "lock-settings-disable-notes-empty", vars: {param: lockSettingsDisableNotes, value: ""}}
+  - {id: "lock-settings-hide-user-list-true", vars: {param: lockSettingsHideUserList, value: "true"}, class: contract}
+  - {id: "lock-settings-hide-user-list-false", vars: {param: lockSettingsHideUserList, value: "false"}, class: contract}
+  - {id: "lock-settings-hide-user-list-upper-case", vars: {param: lockSettingsHideUserList, value: "TRUE"}}
+  - {id: "lock-settings-hide-user-list-one", vars: {param: lockSettingsHideUserList, value: "1"}}
+  - {id: "lock-settings-hide-user-list-yes", vars: {param: lockSettingsHideUserList, value: "yes"}}
+  - {id: "lock-settings-hide-user-list-empty", vars: {param: lockSettingsHideUserList, value: ""}}
+  - {id: "lock-settings-lock-on-join-true", vars: {param: lockSettingsLockOnJoin, value: "true"}, class: contract}
+  - {id: "lock-settings-lock-on-join-false", vars: {param: lockSettingsLockOnJoin, value: "false"}, class: contract}
+  - {id: "lock-settings-lock-on-join-upper-case", vars: {param: lockSettingsLockOnJoin, value: "TRUE"}}
+  - {id: "lock-settings-lock-on-join-one", vars: {param: lockSettingsLockOnJoin, value: "1"}}
+  - {id: "lock-settings-lock-on-join-yes", vars: {param: lockSettingsLockOnJoin, value: "yes"}}
+  - {id: "lock-settings-lock-on-join-empty", vars: {param: lockSettingsLockOnJoin, value: ""}}
+  - {id: "lock-settings-lock-on-join-configurable-true", vars: {param: lockSettingsLockOnJoinConfigurable, value: "true"}, class: contract}
+  - {id: "lock-settings-lock-on-join-configurable-false", vars: {param: lockSettingsLockOnJoinConfigurable, value: "false"}, class: contract}
+  - {id: "lock-settings-lock-on-join-configurable-upper-case", vars: {param: lockSettingsLockOnJoinConfigurable, value: "TRUE"}}
+  - {id: "lock-settings-lock-on-join-configurable-one", vars: {param: lockSettingsLockOnJoinConfigurable, value: "1"}}
+  - {id: "lock-settings-lock-on-join-configurable-yes", vars: {param: lockSettingsLockOnJoinConfigurable, value: "yes"}}
+  - {id: "lock-settings-lock-on-join-configurable-empty", vars: {param: lockSettingsLockOnJoinConfigurable, value: ""}}
+  - {id: "lock-settings-hide-viewers-cursor-true", vars: {param: lockSettingsHideViewersCursor, value: "true"}, class: contract}
+  - {id: "lock-settings-hide-viewers-cursor-false", vars: {param: lockSettingsHideViewersCursor, value: "false"}, class: contract}
+  - {id: "lock-settings-hide-viewers-cursor-upper-case", vars: {param: lockSettingsHideViewersCursor, value: "TRUE"}}
+  - {id: "lock-settings-hide-viewers-cursor-one", vars: {param: lockSettingsHideViewersCursor, value: "1"}}
+  - {id: "lock-settings-hide-viewers-cursor-yes", vars: {param: lockSettingsHideViewersCursor, value: "yes"}}
+  - {id: "lock-settings-hide-viewers-cursor-empty", vars: {param: lockSettingsHideViewersCursor, value: ""}}
+  - {id: "lock-settings-hide-viewers-annotation-true", vars: {param: lockSettingsHideViewersAnnotation, value: "true"}, class: contract}
+  - {id: "lock-settings-hide-viewers-annotation-false", vars: {param: lockSettingsHideViewersAnnotation, value: "false"}, class: contract}
+  - {id: "lock-settings-hide-viewers-annotation-upper-case", vars: {param: lockSettingsHideViewersAnnotation, value: "TRUE"}}
+  - {id: "lock-settings-hide-viewers-annotation-one", vars: {param: lockSettingsHideViewersAnnotation, value: "1"}}
+  - {id: "lock-settings-hide-viewers-annotation-yes", vars: {param: lockSettingsHideViewersAnnotation, value: "yes"}}
+  - {id: "lock-settings-hide-viewers-annotation-empty", vars: {param: lockSettingsHideViewersAnnotation, value: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Booleans, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.lockSettingsProps]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

@@ -1,0 +1,15 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.booleans.end-when-no-moderator-upper-case
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.durationProps.createdDate "<date>"
+$.core.body.props.durationProps.createdTime "<time>"
+$.core.body.props.durationProps.duration 0
+$.core.body.props.durationProps.endWhenNoModerator true
+$.core.body.props.durationProps.endWhenNoModeratorDelayInMinutes 1
+$.core.body.props.durationProps.meetingExpireIfNoUserJoinedInMinutes 5
+$.core.body.props.durationProps.meetingExpireWhenLastUserLeftInMinutes 1
+$.core.body.props.durationProps.userActivitySignResponseDelayInMinutes 5
+$.core.body.props.durationProps.userInactivityInspectTimerInMinutes 0
+$.core.body.props.durationProps.userInactivityThresholdInMinutes 30

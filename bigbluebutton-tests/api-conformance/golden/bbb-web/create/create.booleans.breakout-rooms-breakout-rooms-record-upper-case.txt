@@ -1,0 +1,15 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.booleans.breakout-rooms-breakout-rooms-record-upper-case
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.breakoutProps.breakoutRooms []
+$.core.body.props.breakoutProps.captureNotes false
+$.core.body.props.breakoutProps.captureNotesFilename "%%CONFNAME%%"
+$.core.body.props.breakoutProps.captureSlides false
+$.core.body.props.breakoutProps.captureSlidesFilename "%%CONFNAME%%"
+$.core.body.props.breakoutProps.freeJoin false
+$.core.body.props.breakoutProps.parentId "bbb-none"
+$.core.body.props.breakoutProps.privateChatEnabled true
+$.core.body.props.breakoutProps.record true
+$.core.body.props.breakoutProps.sequence 0

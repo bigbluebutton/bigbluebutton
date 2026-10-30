@@ -1,0 +1,21 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.booleans.notify-recording-is-on-true
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.meetingProp.audioBridge "livekit"
+$.core.body.props.meetingProp.cameraBridge "livekit"
+$.core.body.props.meetingProp.disabledFeatures []
+$.core.body.props.meetingProp.extId "${uid}"
+$.core.body.props.meetingProp.intId "<sha1(meetingID)>-<time>"
+$.core.body.props.meetingProp.isBreakout false
+$.core.body.props.meetingProp.maxPinnedCameras 3
+$.core.body.props.meetingProp.meetingCameraCap 0
+$.core.body.props.meetingProp.name "Booleans"
+$.core.body.props.meetingProp.notifyRecordingAppend ""
+$.core.body.props.meetingProp.notifyRecordingIsOn true
+$.core.body.props.meetingProp.presentationUploadExternalDescription ""
+$.core.body.props.meetingProp.presentationUploadExternalUrl ""
+$.core.body.props.meetingProp.screenShareBridge "livekit"
+$.core.body.props.meetingProp.sharedNotesInitialContentJson []
+$.core.body.props.meetingProp.sharedNotesInitialContentMarkdown ""
