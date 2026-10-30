@@ -116,6 +116,9 @@ if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
 fi
 
+# The locations in /usr/share/bigbluebutton/nginx/ proxy to the named upstreams defined here
+NGINX_UPSTREAMS=/etc/nginx/conf.d/bbb-upstreams.conf
+
 
 get_properties_value() {
     key="$1"
@@ -126,6 +129,13 @@ get_properties_value() {
         return 0
     fi
     return 1
+}
+get_upstream_port() {
+    # Port of the server in "upstream <name> { ... }", read with the file joined into one line
+    # so the match stays inside that block; the port follows the last colon ([::1]:8090 too)
+    upstream="$1"
+    sed 's/#.*//' "$NGINX_UPSTREAMS" 2>/dev/null | tr '\n' ' ' \
+        | sed -nE "s/.*upstream[[:space:]]+${upstream}[[:space:]]*\{[^}]*server[[:space:]]+[^;[:space:]]*:([0-9]+)[;[:space:]].*/\1/p"
 }
 get_bbb_web_config_value() {
     key="$1"
@@ -763,12 +773,12 @@ check_configuration() {
             echo
         fi
 
-        WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+        WEBHOOKS_PROXY_PORT=$(get_upstream_port bbb-webhooks)
         WEBHOOKS_APP_PORT=$(yq-go e '.modules."../out/webhooks/index.js".config.api.port' $WEBHOOKS_CONF)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
-            echo "#  /usr/share/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+            echo "#  $NGINX_UPSTREAMS (bbb-webhooks)            = $WEBHOOKS_PROXY_PORT"
             echo "#  $WEBHOOKS_CONF = $WEBHOOKS_APP_PORT"
             echo
         fi
@@ -867,7 +877,7 @@ check_state() {
     #
     # Check if running development environment
     #
-    if ! grep 8090 /usr/share/bigbluebutton/nginx/web.nginx > /dev/null; then
+    if [ "$(get_upstream_port bbb-web)" != "8090" ]; then
         echo "# Warning: nginx is not serving BigBlueButton's web application"
         echo "# from port 8090"
         echo "#"
@@ -935,7 +945,7 @@ check_state() {
     #
     # Check if the user is running their own bbb-web
     #
-    if grep -q 8888 /usr/share/bigbluebutton/nginx/web.nginx; then
+    if [ "$(get_upstream_port bbb-web)" = "8888" ]; then
         if ! ss -ant | grep '8888' > /dev/null; then
             echo "# Warning: There is no application server listening to port 8888."
             echo
