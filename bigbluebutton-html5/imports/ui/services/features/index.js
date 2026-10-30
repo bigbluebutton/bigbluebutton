@@ -76,6 +76,10 @@ export function useIsSnapshotOfCurrentSlideEnabled() {
   return useDisabledFeatures().indexOf('snapshotOfCurrentSlide') === -1 && window.meetingClientSettings.public.presentation.allowSnapshotOfCurrentSlide;
 }
 
+export function useIsPopupPresentationEnabled() {
+  return useDisabledFeatures().indexOf('popupPresentation') === -1 && window.meetingClientSettings.public.presentation.allowPopupPresentation;
+}
+
 export function useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
   return useDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
 }

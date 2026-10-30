@@ -94,6 +94,16 @@ const intlMessages = defineMessages({
     id: 'app.presentation.modal.clearAnnotationsConfirmLabel',
     description: 'Label for the confirm button',
   },
+  detachPopupDesc: {
+    id: 'app.presentation.options.detachPopup',
+    description: 'Popup the presentation area label',
+    defaultMessage: 'Popup presentation',
+  },
+  mergePopupDesc: {
+    id: 'app.presentation.options.mergePopup',
+    description: 'Merge the detached presentation area label',
+    defaultMessage: 'Merge presentation popup',
+  },
 });
 
 const propTypes = {
@@ -101,12 +111,14 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   allowSnapshotOfCurrentSlide: PropTypes.bool,
+  allowPopupPresentation: PropTypes.bool,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
   meetingName: PropTypes.string,
   isIphone: PropTypes.bool,
+  isMobile: PropTypes.bool,
   elementId: PropTypes.string,
   elementGroup: PropTypes.string,
   currentElement: PropTypes.string,
@@ -139,16 +151,20 @@ const PresentationMenu = (props) => {
     layoutContextDispatch,
     meetingName = '',
     isIphone = false,
+    isMobile = false,
     isRTL = Settings.application.isRTL,
     isToolbarVisible,
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide = false,
+    allowPopupPresentation = false,
     presentationDropdownItems,
     slideNum,
     currentUser,
     whiteboardId,
     persistShape,
     hasWBAccess,
+    popupWindow,
+    isPresentationDetached,
   } = props;
 
   const [state, setState] = useState({
@@ -304,6 +320,11 @@ const PresentationMenu = (props) => {
     : intl.formatMessage(intlMessages.showToolsDesc)
   );
 
+  const formattedDetachedLabel = (detached) => (detached
+    ? intl.formatMessage(intlMessages.mergePopupDesc)
+    : intl.formatMessage(intlMessages.detachPopupDesc)
+  );
+
   const extractShapes = (savedState) => {
     let data;
 
@@ -412,7 +433,7 @@ const PresentationMenu = (props) => {
           label: formattedLabel(isFullscreen),
           icon: isFullscreen ? 'exit_fullscreen' : 'fullscreen',
           onClick: () => {
-            handleToggleFullscreen(fullscreenRef);
+            handleToggleFullscreen(fullscreenRef, isPresentationDetached, popupWindow);
             const newElement = (elementId === currentElement) ? '' : elementId;
             const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
@@ -510,6 +531,15 @@ const PresentationMenu = (props) => {
           },
         },
       );
+    }
+
+    if (props.amIPresenter && allowPopupPresentation && !isMobile) {
+      menuItems.push({
+        key: 'list-item-detach-presentation',
+        label: formattedDetachedLabel(isPresentationDetached),
+        icon: isPresentationDetached ? 'minus' : 'popout_window',
+        onClick: props.detachPresentation,
+      });
     }
 
     // if (props.amIPresenter) {
