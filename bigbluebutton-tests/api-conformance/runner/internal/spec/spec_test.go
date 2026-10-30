@@ -85,8 +85,15 @@ func loadExamples(t *testing.T) map[string]*Case {
 
 func TestExampleCases(t *testing.T) {
 	byID := loadExamples(t)
-	if len(byID) != 23 {
-		t.Errorf("loaded %d example cases, want 23", len(byID))
+	if len(byID) != 24 {
+		t.Errorf("loaded %d example cases, want 24", len(byID))
+	}
+}
+
+func TestBusSelect(t *testing.T) {
+	b := loadExamples(t)["create.props.selected"].Steps[1].Bus
+	if want := []string{"$.core.body.props.voiceProp", "$.core.body.props.noSuchProp"}; b == nil || !reflect.DeepEqual(b.Select, want) {
+		t.Errorf("bus step = %+v, want select %q", b, want)
 	}
 }
 
@@ -248,7 +255,7 @@ func TestImplicitRequires(t *testing.T) {
 	if want := []StepKind{KindCall, KindBus, KindRedis, KindPresence, KindGraphQL, KindCall, KindFS, KindSink, KindEnv}; !reflect.DeepEqual(kinds, want) {
 		t.Errorf("kinds = %v", kinds)
 	}
-	if b := c.Steps[1].Bus; b == nil || *b != (BusStep{Name: "MeetingCreatedEvtMsg", MeetingID: "${intId}", Within: 5 * time.Second}) {
+	if b := c.Steps[1].Bus; b == nil || !reflect.DeepEqual(*b, BusStep{Name: "MeetingCreatedEvtMsg", MeetingID: "${intId}", Within: 5 * time.Second}) {
 		t.Errorf("bus step = %+v", b)
 	}
 	if r := c.Steps[2]; r.Redis == nil || r.Redis.Key != "meeting:info:${intId}" || len(r.Expect.Hash) != 1 || r.Expect.TTL == nil || r.Expect.TTL.Arg != "-1" {

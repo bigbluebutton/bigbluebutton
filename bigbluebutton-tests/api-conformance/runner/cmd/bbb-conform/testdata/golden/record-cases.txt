@@ -6,6 +6,7 @@ NEW        create.validation.name-length-1
 NEW        create.validation.name-length-2
 NEW        create.validation.name-length-256
 NEW        create.validation.name-length-257
+NEW        create.props.selected
 SKIP       create.props.mute-on-start: unimplemented: env, sink
 NEW        create.side-effects.unrecorded
 NEW        create.side-effects.recorded
@@ -22,4 +23,4 @@ NEW        join.redirect.session-token
 NEW        stuns.session.unknown-token
 NEW        version.index.fields
 
-OUT: 22 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 1 skipped
+OUT: 23 new, 0 changed, 0 unchanged, 0 unstable, 0 incomplete, 0 secret, 0 errors, 1 skipped

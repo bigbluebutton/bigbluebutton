@@ -157,6 +157,9 @@ func (c *Collector) Add(ev steps.Observed) []string {
 	var lines []string
 	if ev.Index < len(steps) && steps[ev.Index].Kind != spec.KindCall { // a document, not an HTTP response
 		lines = normalize.Document(ev.Obs.Body, ctx, c.rules)
+		if b := steps[ev.Index].Bus; b != nil && len(b.Select) > 0 {
+			lines = selectLines(lines, b.Select)
+		}
 	} else {
 		lines = normalize.Response(ev.Obs, ctx, c.rules)
 	}

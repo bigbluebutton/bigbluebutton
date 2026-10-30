@@ -140,6 +140,10 @@ type BusStep struct {
 	Channel   string // any of the tap's channels when empty
 	MeetingID string // the internal meeting ID; may be empty in serial cases
 	Within    time.Duration
+	// Select names the parts of the message that are recorded, as
+	// $-rooted dotted paths; the whole message when empty. expect and
+	// capture still see all of it.
+	Select []string
 }
 
 // FSStep looks for a file under the server's data directory, through the

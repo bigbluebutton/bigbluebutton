@@ -164,7 +164,7 @@ func TestRunParallel(t *testing.T) {
 	if code != exitOK {
 		t.Fatalf("exit %d\n%s%s", code, stdout.String(), stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "23 case(s): 22 passed, 0 failed, 0 errors, 1 skipped") {
+	if !strings.Contains(stdout.String(), "24 case(s): 23 passed, 0 failed, 0 errors, 1 skipped") {
 		t.Errorf("summary:\n%s", stdout.String())
 	}
 }

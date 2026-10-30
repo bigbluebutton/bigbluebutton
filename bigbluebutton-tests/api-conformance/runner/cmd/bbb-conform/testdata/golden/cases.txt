@@ -6,6 +6,7 @@ PASS  create.validation.name-length-1 (0s)
 PASS  create.validation.name-length-2 (0s)
 PASS  create.validation.name-length-256 (0s)
 PASS  create.validation.name-length-257 (0s)
+PASS  create.props.selected (0s)
 SKIP  create.props.mute-on-start
       unimplemented: env, sink
 PASS  create.side-effects.unrecorded (0s)
@@ -23,4 +24,4 @@ PASS  join.redirect.session-token (0s)
 PASS  stuns.session.unknown-token (0s)
 PASS  version.index.fields (0s)
 
-23 case(s): 22 passed, 0 failed, 0 errors, 1 skipped (0s)
+24 case(s): 23 passed, 0 failed, 0 errors, 1 skipped (0s)

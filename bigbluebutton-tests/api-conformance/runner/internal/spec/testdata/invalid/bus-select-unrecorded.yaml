@@ -1,0 +1,13 @@
+# want: 10: steps[0]: select only shapes what is recorded
+# want: 13: teardown[0]: select only shapes what is recorded
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: i, within: 1s}
+    golden: off
+    select: [$.core.body.props]
+teardown:
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: i, within: 1s}
+    select: [$.core.body.props]

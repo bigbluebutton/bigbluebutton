@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="bbb-conform fake" tests="23" failures="0" errors="0" skipped="1" time="0.000">
-  <testsuite name="create" tests="11" failures="0" errors="0" skipped="1" time="0.000">
+<testsuites name="bbb-conform fake" tests="24" failures="0" errors="0" skipped="1" time="0.000">
+  <testsuite name="create" tests="12" failures="0" errors="0" skipped="1" time="0.000">
     <testcase name="create.body.forms" classname="create" file="../../testdata/cases/create/body-forms.yaml" line="1" time="0.000"></testcase>
     <testcase name="create.duplicate.same-passwords" classname="create" file="../../testdata/cases/create/duplicate-same-passwords.yaml" line="1" time="0.000"></testcase>
     <testcase name="create.validation.meeting-id-missing" classname="create" file="../../testdata/cases/create/meeting-id.yaml" line="3" time="0.000"></testcase>
@@ -9,6 +9,7 @@
     <testcase name="create.validation.name-length-2" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
     <testcase name="create.validation.name-length-256" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
     <testcase name="create.validation.name-length-257" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.props.selected" classname="create" file="../../testdata/cases/create/props-select.yaml" line="4" time="0.000"></testcase>
     <testcase name="create.props.mute-on-start" classname="create" file="../../testdata/cases/create/props-side-effects.yaml" line="3" time="0.000">
       <skipped message="unimplemented: env, sink"></skipped>
     </testcase>

@@ -235,6 +235,9 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 		}
 	case KindBus, KindFS, KindRedis:
 		d.sideEffect(&s, mapGet(n, key), where)
+		if s.Kind == KindBus {
+			d.busSelect(&s, n, where)
+		}
 		if e := mapGet(n, "expect"); e != nil {
 			s.Expect = d.expect(e)
 			d.sideEffectModes(n, e, s.Expect, where)
@@ -518,6 +521,29 @@ func (d *decoder) sideEffect(s *Step, n *yaml.Node, where string) {
 		s.FS = f
 	case KindRedis:
 		s.Redis = &RedisStep{Key: d.str(mapGet(n, "key")), Within: within}
+	}
+}
+
+// selectPathRe is a select path: $ and dotted names, without filters or
+// wildcards, since it names a part of the recorded lines.
+var selectPathRe = regexp.MustCompile(`^\$(\.[A-Za-z_][A-Za-z0-9_-]*)+$`)
+
+// busSelect decodes a bus step's select. It only shapes what is recorded,
+// so a step that isn't recorded can't have one.
+func (d *decoder) busSelect(s *Step, n *yaml.Node, where string) {
+	sel := mapGet(n, "select")
+	if sel == nil {
+		return
+	}
+	if s.Golden == "off" || (s.Golden == "" && strings.HasPrefix(where, "teardown")) {
+		d.f.errf(mapKey(n, "select"), "%s: select only shapes what is recorded, and this step isn't recorded (golden: off)", where)
+	}
+	for _, item := range sel.Content {
+		if !selectPathRe.MatchString(item.Value) {
+			d.f.errf(item, "%s: select path %q: give a $-rooted dotted path, e.g. $.core.body.props.usersProp", where, item.Value)
+			continue
+		}
+		s.Bus.Select = append(s.Bus.Select, item.Value)
 	}
 }
 

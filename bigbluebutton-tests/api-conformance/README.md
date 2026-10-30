@@ -541,7 +541,8 @@ $.value.color "blue"
   Me as ann`, `bus MeetingCreatedEvtMsg` or `fs <path>`. `(document)` marks
   a step that is recorded but not compared.
 - **The lines** are the normalized response (see
-  [Normalized responses](#normalized-responses)).
+  [Normalized responses](#normalized-responses)), or for a bus step with
+  `select`, the lines of the selected parts.
 - **Stale:** a case's sections follow from the case alone. When the case
   changes so that they no longer match, record it again.
 
@@ -656,7 +657,7 @@ Each step has exactly one step-type key.
 | `wait` | A duration: `wait: 500ms`. | yes |
 | `presence` | `{action: join\|leave\|disconnect\|reconnect, as: <user>, args\|joinUrl\|sessionToken, timeout}`: a headless user; see [Users](#users-presence-and-graphql). `expect: {jsonpath}`. | yes |
 | `graphql` | `{as: <user>, query, variables, timeout}`, run as a user `presence` joined. `expect: {jsonpath, errors}`, `eventually`. | yes |
-| `bus` | `{name, channel, meetingId, within}`: a message on the redis bus. `expect: {jsonpath, absent, count}`. See [Side effects](#side-effects-bus-fs-and-redis). | yes |
+| `bus` | `{name, channel, meetingId, within}`: a message on the redis bus. `expect: {jsonpath, absent, count}`; `select` limits what is recorded. See [Side effects](#side-effects-bus-fs-and-redis). | yes |
 | `fs` | `{path, within}`: a file under the server's data directory; `path` may be a glob. `expect: {exists, absent, contents, jsonpath}`. | yes |
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
 | `sink` | `{key, within}`: a callback the sink received. `expect: {absent, count, method, path, query, headers}`. The callback URL the case gives bbb-web sets how the sink answers. | not yet |
@@ -812,7 +813,11 @@ These steps check what a call did outside its answer, through the target's
     `meetingInfo.internalId`, `recordId` or `room.breakoutMeetingId`).
 - **The documents** that `jsonpath`, `capture` and recordings see:
   - bus: the message as published, plus `channel`, or `null` when none
-    matched;
+    matched. `select: [$.core.body.props.usersProp, ...]` records only those
+    parts of it, given as `$`-rooted dotted paths; a part the message lacks
+    is recorded as `<path> (absent)`. `jsonpath` and `capture` still see the
+    whole message, so a case can pin the props a parameter reaches without
+    recording every other prop;
   - fs: `{path, found, contents}`, with contents parsed when they are JSON.
     A file that appeared and is gone again counts as found, without
     contents, unless the step checks its contents;

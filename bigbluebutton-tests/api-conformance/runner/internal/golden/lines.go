@@ -1,5 +1,7 @@
 package golden
 
+import "strings"
+
 // Lines diffs two line sequences by their longest common subsequence and
 // returns the changed lines, "-" for a and "+" for b, in order. It returns
 // nil when they are equal.
@@ -38,6 +40,32 @@ func Lines(a, b []string) []string {
 		default:
 			out = append(out, "+ "+b[j])
 			j++
+		}
+	}
+	return out
+}
+
+// selectLines keeps a document's lines that lie at or under one of the
+// paths, in order. A path with no line gets "<path> (absent)", so that
+// what a selected part lacks is recorded too.
+func selectLines(lines, paths []string) []string {
+	var out []string
+	found := make([]bool, len(paths))
+	for _, l := range lines {
+		p, _, _ := strings.Cut(l, " ")
+		keep := false
+		for i, sel := range paths {
+			if p == sel || strings.HasPrefix(p, sel+".") || strings.HasPrefix(p, sel+"[") {
+				found[i], keep = true, true
+			}
+		}
+		if keep {
+			out = append(out, l)
+		}
+	}
+	for i, sel := range paths {
+		if !found[i] {
+			out = append(out, sel+" (absent)")
 		}
 	}
 	return out
