@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The welcome message keeps only an allowed set of HTML: the tags a, b, br,
+# i, img, li, small, span, strong, u and ul. Other tags go, with their text
+# kept, except script and style, whose contents go too; attributes other
+# than a link's href and target and an image's src, width and height go.
+# Links keep only https, mailto and tel addresses, and each link that keeps
+# one opens in a new window. The result is in akka-apps' welcome props.
+id: create.welcome.html
+title: create with a welcome message holding ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: script, vars: {scenario: a script, welcome: "<script>alert(1)</script>hi"}}
+  - {id: style, vars: {scenario: a style sheet, welcome: "<style>b{color:red}</style>styled"}}
+  - {id: iframe, vars: {scenario: an iframe, welcome: '<iframe src="https://frame.example/"></iframe>framed'}}
+  - {id: svg, vars: {scenario: an svg, welcome: '<svg onload="alert(1)">drawn</svg>'}}
+  - {id: event-handlers, vars: {scenario: event handlers, welcome: '<b onclick="x()">bold</b><img src="https://img.example/x.png" onerror="x()">'}}
+  - {id: image, vars: {scenario: an image, welcome: '<img src="https://img.example/x.png" width="5" height="6" alt="x">'}}
+  - {id: link-https, vars: {scenario: an https link, welcome: '<a href="https://link.example/">secure</a>'}}
+  - {id: link-mailto, vars: {scenario: a mailto link, welcome: '<a href="mailto:help@example.org">mail</a>'}}
+  - {id: link-tel, vars: {scenario: a tel link, welcome: '<a href="tel:+16135550100">call</a>'}}
+  - {id: link-http, vars: {scenario: an http link, welcome: '<a href="http://link.example/">plain</a>'}}
+  - {id: link-javascript, vars: {scenario: a javascript link, welcome: '<a href="javascript:alert(1)">run</a>'}}
+  - {id: link-relative, vars: {scenario: a relative link, welcome: '<a href="/help">help</a>'}}
+  - {id: link-target, vars: {scenario: link targets, welcome: '<a target="_self" href="https://link.example/">new</a><a target="_self">kept</a>'}}
+  - {id: link-handler, vars: {scenario: a link with a handler, welcome: '<a href="https://link.example/" onclick="x()">clean</a>'}}
+  - {id: allowed, vars: {scenario: the allowed tags, welcome: "<b>b</b><i>i</i><u>u</u><strong>s</strong><small>m</small><span>p</span><br><ul><li>l</li></ul>"}}
+  - {id: entities, vars: {scenario: escaped text, welcome: '&lt;script&gt;x&lt;/script&gt; &amp; "q"'}}
+  - {id: whitespace, vars: {scenario: runs of spaces, welcome: "two  spaces"}, class: compat}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Welcome, welcome: "${welcome}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.welcomeProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

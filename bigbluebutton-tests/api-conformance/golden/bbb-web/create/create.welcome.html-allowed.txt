@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.welcome.html-allowed
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.welcomeProp.welcomeMsg "<b>b</b><i>i</i><u>u</u><strong>s</strong><small>m</small><span>p</span>\n<br>\n<ul>\n <li>l</li>\n</ul>\n<br>\n<br>\nThis server is running <a href=\"https://bigbluebutton.org/\" target=\"_blank\"><u>BigBlueButton</u></a>."
+$.core.body.props.welcomeProp.welcomeMsgForModerators ""
