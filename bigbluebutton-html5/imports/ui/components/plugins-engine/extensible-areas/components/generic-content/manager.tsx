@@ -15,6 +15,8 @@ import { PluginsContext } from '../../../../components-data/plugin-context/conte
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
+import { removeGenericContentBadge } from '/imports/ui/core/local-states/useGenericContentBadges';
+import { removeGenericContentMenuName } from '/imports/ui/core/local-states/useGenericContentMenuNames';
 
 const GenericContentPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -76,6 +78,8 @@ const GenericContentPluginStateContainer = ((
           type: ACTIONS.UNREGISTER_SIDEBAR_APP,
           id: genericContentSidekickId(gs.id),
         });
+        removeGenericContentBadge(gs.id);
+        removeGenericContentMenuName(gs.id);
       });
     },
     [],
