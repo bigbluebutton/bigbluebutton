@@ -3,11 +3,14 @@ import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { SET_MUTED } from './mutations';
+import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutations';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { useIsReactionsEnabled } from '/imports/ui/services/features';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -26,11 +29,29 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.description',
     description: 'Description for the lock settings button',
   },
+  clearAllReactionsLabel: {
+    id: 'app.userList.userOptions.clearAllReactionsLabel',
+    description: 'Clear all reactions label',
+  },
+  clearAllReactionsDescription: {
+    id: 'app.userList.userOptions.clearAllReactionsDesc',
+    description: 'Description for the clear all reactions button',
+  },
+  clearedReactions: {
+    id: 'app.userList.userOptions.clearedReactions',
+    description: 'Toast notification shown after reactions have been cleared',
+  },
+  failedToClearReactions: {
+    id: 'app.userList.userOptions.clearReactionsFailed',
+    description: 'Toast notification shown when clearing reactions fails',
+  },
 });
 
 const CrowdActionButtons: React.FC = () => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
+  const [clearAllReaction, { loading: isClearingReactions }] = useMutation(CLEAR_ALL_REACTION);
+  const isReactionsEnabled = useIsReactionsEnabled();
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
   const sidebarContent = layoutSelectOutput((i: { sidebarContent:
     { width: number; minWidth: number; }; }) => i.sidebarContent);
@@ -61,6 +82,19 @@ const CrowdActionButtons: React.FC = () => {
 
   const openLockSettingsModal = () => {
     lockViewersModal.open();
+  };
+
+  const clearReactions = async () => {
+    try {
+      await clearAllReaction();
+      notify(intl.formatMessage(intlMessages.clearedReactions), 'info', 'clear_status');
+    } catch (error) {
+      logger.error({
+        logCode: 'crowd_actions_clear_all_reactions_error',
+        extraInfo: { error },
+      }, 'moderator failed to clear all user reactions');
+      notify(intl.formatMessage(intlMessages.failedToClearReactions), 'error', 'clear_status');
+    }
   };
 
   return (
@@ -103,6 +137,24 @@ const CrowdActionButtons: React.FC = () => {
             onClick={openLockSettingsModal}
           />
         </Styled.ActionButtonWrapper>
+        {isReactionsEnabled && (
+          <Styled.ActionButtonWrapper>
+            <Styled.ActionButtonLabel>
+              {intl.formatMessage(intlMessages.clearAllReactionsLabel)}
+            </Styled.ActionButtonLabel>
+            {/* @ts-ignore - button is js component */}
+            <Styled.ActionButton
+              hideLabel
+              label={intl.formatMessage(intlMessages.clearAllReactionsDescription)}
+              tooltipLabel={intl.formatMessage(intlMessages.clearAllReactionsDescription)}
+              icon="clear_status"
+              size="lg"
+              data-test="clearAllReactions"
+              onClick={clearReactions}
+              disabled={isClearingReactions}
+            />
+          </Styled.ActionButtonWrapper>
+        )}
       </Styled.ActionButtonsWrapper>
     </>
   );
