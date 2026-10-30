@@ -273,6 +273,15 @@ module BigBlueButton
           corrupt_audios.each { |f| audioinfo.delete(f) }
         end
 
+        # Gap detection depends on each file's speed
+        max_mismatch = BigBlueButton.read_props.fetch('max_audio_length_mismatch', 0.2).to_f
+        audioinfo.each do |filename, info|
+          info[:speed] = speed_adjustment(info, max_mismatch)
+          next if info[:speed] == 1.0
+
+          BigBlueButton.logger.warn "Audio file length mismatch in #{filename}, adjusting speed to #{info[:speed]}"
+        end
+
         BigBlueButton.logger.info("Removing audio PTS gaps from EDL")
         remove_audio_gaps(edl, audioinfo, process_dir)
         BigBlueButton.logger.info("Adjusting EDL to enforce minimum cut durations")
@@ -332,23 +341,13 @@ module BigBlueButton
             filename = audio_data[:filename]
             seek     = audio_data[:timestamp]
             info     = audioinfo[filename]
-            speed    = 1.0
-
-            # Check for and handle audio files with mismatched lengths (generated
-            # by buggy versions of freeswitch in old BigBlueButton
-            if ((info[:format][:format_name] == 'wav' ||
-                 info[:audio][:codec_name] == 'vorbis') &&
-                 info[:original_duration] &&
-                 (info[:duration].to_f / info[:original_duration]) < 0.997 &&
-                 (((info[:original_duration] - info[:duration]).to_f) / info[:original_duration]).abs < 0.05)
-              speed = info[:duration].to_f / info[:original_duration]
-              seek = 0
-              BigBlueButton.logger.warn "  Audio file length mismatch in #{filename}, adjusting speed to #{speed}"
-            end
+            speed    = info[:speed]
+            # A stretched file is seeked to the cut's position in its own time
+            seek     = (seek * speed).round if speed != 1.0
 
             # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
             # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
-            if seek < (info[:duration].to_f * speed)
+            if seek < info[:duration]
               # For each audio, add a -ss and -i for its input
               # Use -noaccurate_seek to read frames before seek point (will be trimmed by resampler)
               ffmpeg_cmd += ['-noaccurate_seek', '-ss', ms_to_s(seek)]
@@ -365,7 +364,8 @@ module BigBlueButton
               # Build track label
               track_label = "t#{i}_#{idx}"
               line = "[#{input_index}]"
-              line << "atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}," if speed != 1.0
+              # Trim what was read before the seek point, or it would be stretched into the cut too
+              line << "atrim=start=0,atempo=#{speed}," if speed != 1.0
               # Ensure the aresample filter doesn't see the next audio packet after a long pts gap
               line << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])},apad,"
               line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}"
@@ -428,10 +428,18 @@ module BigBlueButton
       # fill the gap, but it enqueues the full length of the gap into the filter chain all at once,
       # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
       # and remove the audio file from the mix for the duration of the gap.
+      #
+      # In a speed-adjusted file, gaps shorter than DEFAULT_PTS_GAP_MS stay inside cuts, where atempo closes
+      # them up instead of filling them with silence, but FreeSWITCH recordings have none.
       def self.remove_audio_gaps(edl, audioinfo, process_dir)
         audio_gaps = audioinfo.each_with_object({}) do |(filename, info), gaps|
-          duration = info.fetch(:original_duration, info[:duration])
+          # Stretched, a file covers its whole original duration, so its end is not a gap
+          duration = info[:speed] == 1.0 ? info.fetch(:original_duration, info[:duration]) : nil
           gaps[filename] = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, duration)
+          next if info[:speed] == 1.0
+
+          # Move the gaps from the file's own time to the EDL's
+          gaps[filename].each { |gap| gap.map! { |timestamp| (timestamp / info[:speed]).round } }
         end
 
         BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
@@ -439,6 +447,21 @@ module BigBlueButton
           audio_gaps,
           stream_type: :audio
         )
+      end
+
+      # Speed to play a voice file at so that it covers its original duration. FreeSWITCH files can be
+      # shorter than that: old versions had bugs, and it drops audio frames when the server is overloaded.
+      # Differences under 2 s are the normal gap between the recording events and the file, and a file
+      # missing max_mismatch or more of its original duration is left as it is, as is one missing half or
+      # more, since atempo cannot play slower than half speed.
+      def self.speed_adjustment(info, max_mismatch)
+        return 1.0 unless info[:original_duration] && %w[wav ogg].include?(info[:format][:format_name])
+
+        missing = info[:original_duration] - info[:duration]
+        fraction = missing.to_f / info[:original_duration]
+        return 1.0 unless missing >= 2000 && fraction > 0.003 && fraction < [max_mismatch, 0.5].min
+
+        info[:duration].to_f / info[:original_duration]
       end
 
       def self.split_edl_at(edl, entry_i, rec_time)
