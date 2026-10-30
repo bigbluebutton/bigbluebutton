@@ -455,8 +455,7 @@ module BigBlueButton
       # missing max_mismatch or more of its original duration is left as it is, as is one missing half or
       # more, since atempo cannot play slower than half speed.
       def self.speed_adjustment(info, max_mismatch)
-        return 1.0 unless info[:original_duration] &&
-                          (%w[wav ogg].include?(info[:format][:format_name]) || info[:audio][:codec_name] == 'vorbis')
+        return 1.0 unless info[:original_duration] && %w[wav ogg].include?(info[:format][:format_name])
 
         missing = info[:original_duration] - info[:duration]
         fraction = missing.to_f / info[:original_duration]
