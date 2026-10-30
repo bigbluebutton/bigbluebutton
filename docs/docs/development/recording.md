@@ -153,6 +153,8 @@ Monitoring:
 
 Administration:
    --rebuild <internal meetingID>      rebuild the output for the given internal meetingID
+   --format <recording format name>    with --rebuild, --rebuildall or --republish,
+                                       act on only one playback format (see --list-workflows)
    --rebuildall                        rebuild every recording
    --delete <internal meetingID>       delete one meeting and recording
    --deleteall                         delete all meetings and recordings
@@ -268,6 +270,30 @@ If you run `bbb-record --rebuild` on a recording where the process and publish s
 $ sudo bbb-record --rebuild 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965
 ```
 
+#### Rebuild a single recording format
+
+Adding `--format` to `--rebuild` re-processes and re-publishes only the named
+playback format, leaving the sanity step and every other format's output alone.
+Rebuilding every format takes a long time, so this is useful when a single
+format failed, or when testing changes to one format's scripts.
+
+```bash
+$ sudo bbb-record --rebuild 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965 --format video
+```
+
+The format has to be *enabled* in the recording steps, not merely installed.
+`bbb-record --list-workflows` prints both lists, and installing a
+`bbb-playback-formatname` package does not enable the format on its own (see
+[#12241](https://github.com/bigbluebutton/bigbluebutton/issues/12241) and
+[Install additional recording processing formats](/administration/customize#install-additional-recording-processing-formats)).
+A format with no `process:formatname` step would have its existing output
+removed and never republished, so `bbb-record` refuses it and changes nothing.
+
+A format the meeting opted out of with `meta_bbb-disable-recording-formats` is
+also refused, so that a rebuild cannot undo the opt-out.
+
+`--format` also works with `--rebuildall` and `--republish`.
+
 #### Rebuild every recording
 
 This option goes through the Process and Publish phases again for every recording in your server.
@@ -371,6 +397,9 @@ $ sudo bbb-record --republish 29173583cf1ca21508b2efd7db566090bbefb36a-164763031
 The processed files of a format, under `/var/bigbluebutton/recording/process/<format>/<meetingId>`, are removed once that format publishes successfully. For a recording that published correctly, `bbb-record` reports that the processed files do not exist; use `--rebuild` for it instead.
 
 Without a meeting ID, `bbb-record --republish` does this for every recording in your server.
+
+Add `--format` to republish only one playback format, as described in
+[Rebuild a single recording format](#rebuild-a-single-recording-format).
 
 ### For Developers
 
