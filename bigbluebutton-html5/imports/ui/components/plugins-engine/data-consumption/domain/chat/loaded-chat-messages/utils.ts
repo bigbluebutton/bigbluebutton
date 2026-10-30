@@ -11,6 +11,8 @@ const formatLoadedChatMessagesDataFromGraphql = (
     senderUserId: chatMessagesData.user?.userId,
     senderRole: chatMessagesData.senderRole,
     messageMetadata: chatMessagesData.messageMetadata,
+    deletedAt: chatMessagesData.deletedAt,
+    deletedBy: chatMessagesData.deletedBy,
   }) as PluginSdk.LoadedChatMessage),
   loading: !(responseData),
   error: undefined,
