@@ -1,0 +1,100 @@
+                                                                                            Energy and Climate Courses at Stanford
+
+
+                                                                                                                        Introduction to modern physics. Relativity, quantum
+                                                                                                                        mechanics, atomic theory, radioactivity, nuclear reactions,
+                                                                                                                        nuclear structure, high energy physics, elementary
+                                                                                                                        particles, astrophysics, stellar evolution, and the big bang.
+                                                                                                                        Prerequisite: 23 or consent of instructor. How do
+                                                                                                                        incandescent light bulbs work and why are they so
+                                                                                                                        inefficient?
+
+                                                                                                                        Topics include:
+
+                                                                                                                        How do fluorescent bulbs work and why are they more
+                                                                                                                        efficient? Why do they contain mercury?
+                                                                                                                        How do LEDs (light emitting diodes) work and why are they
+                                                             Lecture                     PHYSICS                        even more efficient?
+                                                               and                All      23 or                        How do solar cells turn light into electricity?
+  PHYSICS 25           Modern Physics           3   Spr    discussion, Science undergrad consent         Burchat, P     How is mass turned into energy in the sun and in a nuclear
+                                                               120               uate        of                         reactor? What is the difference between fusion and fission?
+                                                            students                     instructor
+                                                                                                                        Other topics we discuss:
+                                                                                                                        How does Einstein's theory of special relativity lead to the
+                                                                                                                        conclusion that time "slows down" and objects are shorter
+                                                                                                                        when viewed in a moving frame of reference?
+                                                                                                                        How does quantum mechanics explain the form of the
+                                                                                                                        periodic table?
+                                                                                                                        How do we explain which isotopes are stable and which
+                                                                                                                        aren't?
+                                                                                                                        How does a laser work?
+                                                                                                                        What is radiation? How is it used for cancer therapy?
+                                                                                                                        What is dark matter and dark energy?
+                                                                                                                        How was the cosmic microwave background radiation
+                                                                                                                        produced and what does it tell us about the Universe?
+                                                                                                                        Vectors, particle kinematics and dynamics, work, energy,
+                                                                                 Freshmen
+                                                            Lecture,                                                    momentum, angular momentum; conservation laws; rigid
+                                                                                     ,
+  PHYSICS 41              Mechanics             4   Win        100     Science                 --        Church, S      bodies; mechanical oscillations and waves. Discussions
+                                                                                 Sophomor
+                                                            students                                                    based on use of calculus. Corequisite: MATH 19 or 41, or
+                                                                                    es
+                                                                                                                        consent of instructor. GER:DB-NatSci
+                                                                                                                        Electrostatics, Coulomb’s law, electric fields and fluxes,
+                                                                                                                        electric potential, properties of conductors, Gauss’s law,
+                                                                                                                        capacitors and resistors, DC circuits; magnetic forces and
+                                                                                 Freshmen                               fields, Biot-Savart law, Faraday’s law, Ampere’s law,
+                                                            Lecture,                                                    inductors, transformers, AC circuits, motors and generators,
+                                                                                     ,
+  PHYSICS 43      Electricity and Magnetism     4   Spr        100     Science                 --         Fisher, I     electric power, Galilean transformation of electric and
+                                                                                 Sophomor
+                                                            students                                                    magnetic fields, Maxwell’s equations; limited coverage of
+                                                                                    es
+                                                                                                                        electromagnetic fields and special relativity. Prerequisites:
+                                                                                                                        41 or equivialent, and MATH 19 or 41. Corequisite: MATH
+                                                                                                                        20 or 42, or consent of instructor. GER:DB-NatSci
+                                                                                                                   Reflection and refraction, lenses and lens systems;
+                                                                                 Freshmen
+                                                            Lecture,                                               polarization, interference, and diffraction; temperature,
+                                                    Aut,                             ,
+  PHYSICS 45            Light and Heat          4              100     Science                 --Gratta, G / Staff properties of matter and thermodynamics, introduction to
+                                                    Sum                          Sophomor
+                                                            students                                               kinetic theory of matter. Prerequisites: 41 or equivalent, and
+                                                                                    es
+                                                                                                                   MATH 19 or 41, or consent of instructor. GER:DB-NatSci
+                                                                                                                   For students with a strong high school mathematics and
+                                                                                                                   physics background Contemplating a major in Physics or
+                                                                                                                   interested in a rigorous treatment of physics. The
+                                                                                                                   fundamental structure of classical physics including
+                                                                                         Strong                    Newtonian mechanics, electricity and magnetism, waves,
+                                                                                        math and                   optics, thermodynamics. Foundations of modern physics
+                    Mechanics and Special                                                                          including special relativity, atomic structure, quantization of
+  PHYSICS 61                                    4   Aut    Lecture, 60 Science Freshmen physics   Blandford, R                                                                          Coursework
+                         Relativity                                                                                light, matter waves and the Schodinger equation. Diagnostic
+                                                                                        backgrou
+                                                                                           nd                      quiz in calculus and conceptual Newtonian mechanics at
+                                                                                                                   first meeting to decide if course is appropriate; some
+                                                                                                                   students may benefit more from the 40 series.
+                                                                                                                   Prerequisites: high school physics and familiarity with
+                                                                                                                   calculus (differentiation and integration in one variable); pre-
+                                                                                                                   or corequisite MATH 42. GER:DB-NatSci
+                                                                                                                   Recommended for prospective Physics majors or those
+                                                                                                                   interested in a rigorous treatment of physics. The
+                                                                                                                   fundamental structure of classical physics including
+                                                                                         Strong                    Newtonian mechanics, Lagrangian mechanics, special
+                                                                               Freshmen
+                                                                                        math and                   relativity, and electricity and magnetism. Diagnostic quiz in
+                  Electricity, Magnetism, and              Lecture, 30             ,
+  PHYSICS 63                                    4   Win                Science           physics    Allen, S       calculus and conceptual Newtonian mechanics at first
+                              Waves                         students           Sophomor
+                                                                                        backgrou                   meeting of 61 to help students decide if course is
+                                                                                  es
+                                                                                           nd                      appropriate; some students may benefit more from the 40
+                                                                                                                   series. Prerequisites: high school physics and familiarity
+                                                                                                                   with calculus (differentiation and integration in one variable);
+                                                                                                                   pre- or corequsite: MATH 42. GER:DB-NatSci
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                         Send additions and corrections to leighj@stanford.edu

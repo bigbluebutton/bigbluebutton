@@ -1,0 +1,107 @@
+                                                                                                                Energy and Climate Courses at Stanford
+
+
+                                                                                                                                           Introduction to the application of chemical principles and
+                                                                                                                                           concepts to geologic systems. The chemical behavior of
+                                                                                                                                           fluids, minerals, and gases using simple equilibrium
+                                                                                          Science,                                         approaches to modeling the geochemical consequences of
+                        Geochemical                                                                                                        diagenetic, hydrothermal, metamorphic, and igneous
+    GES 171                                                     3       Aut               Enginee               GES 80         Bird, D
+                      Thermodynamics                                                                                                       processes. Topics: reversible thermodynamics, solution
+                                                                                            ring
+                                                                                                                                           chemistry, mineral-solution equilibria, reaction kinetics, and
+                                                                                                                                           the distribution and transport of elements by geologic
+                                                                                                                                           processes. Prerequisite: 80. GER:DB-NatSci
+                                                                        Aut,                                                               The principles of seismic reflection profiling, focusing on
+ GEOPHYS 222                                                           Given              Enginee                                          methods of seismic data acquisition and seismic data
+                    Reflection Seismology                       3                                 Graduate                  Klemperer, S
+ (formerly 182)                                                         Alt.                ring                                           processing for hydrocarbon exploration.
+                                                                       Years
+                                                                                                                                           The structural and stratigraphic interpretation of seismic
+                                                                       Win,
+                                                                                                                                           reflection data, emphasizing hydrocarbon traps in two and
+ GEOPHYS 223        Reflection Seismology                              Given              Enginee
+                                                              1 to 4                              Graduate                  Klemperer, S   three dimensions on industry data, including workstation-
+ (formerly 183)         Interpretation                                  Alt.                ring
+                                                                                                                                           based interpretation. Lectures only, 1 unit. Prerequisite:
+                                                                       Years
+                                                                                                                                           222, or consent of instructor.
+                                                                        Spr,                                                               Workshop in computer processing of seismic reflection data.
+ GEOPHYS 224          Seismic Reflection                               Given              Enginee                                          Students individually process a commercial seismic
+                                                                3                                 Graduate                  Klemperer, S
+ (formerly 184)          Processing                                     Alt.                ring                                           reflection profile from field tapes to migrated stack, using
+                                                                       Years                                                               interactive software on a workstation. Prerequisite: consent
+                                                                                                                                           Electrostatics and magnetostatics: conductors and
+                                                                                                                                           dielectrics, magnetic media, electric and magnetic forces,
+                                                                                                                                           and energy. Maxwell’s equations: electromagnetic waves,
+                                                                                                     Advanced Physics                      Poynting’s theorem, electromagnetic properties of matter,
+                                                                                                     undergrad 121, 210,                   dispersion relations, wave guides and cavities,
+  PHYSICS 220     Classical Electrodynamics                            Win                Science                            Tantawi, S
+                                                                                                       uates/ Math 106                     magnetohydrodynamics. Special relativity: Lorentz
+                                                                                                     Graduate and 132                      transformations, covariant, equations of electrodynamics
+                                                                                                                                           and mechanics, Lagrangian formulation, Noether’s theorem
+                                                                                                                                           and conservation laws. Radiation: dipole and quadrupole
+                                                                                                                                           radiation,
+                                                                                                                                           Electrostatics and magnetostatics: conductors and
+                                                                                                                                           dielectrics, magnetic media, electric and magnetic forces,
+                                                                                                                                           and energy. Maxwell's equations: electromagnetic waves,
+                                                                                                                                           Poynting's theorem, electromagnetic properties of matter,
+                                                                                                                                           dispersion relations, wave guides and cavities,
+                                                                                                                Physics                    magnetohydrodynamics. Special relativity: Lorentz
+                                                                                                     Juniors,     121,                     transformations, covariant, equations of electrodynamics
+  PHYSICS 221     Classical Electrodynamics                             Spr               Science    Seniors,   210,220;     Tantawi, S    and mechanics, Lagrangian formulation, Noether's theorem
+                                                                                                      Grad      Math 106                   and conservation laws. Radiation: dipole and quadrupole
+                                                                                                                and 132                    radiation, electromagnetic scattering and diffraction, the
+                                                                                                                                           optical theorem, Liénard-Wiechert potentials, relativistic
+                                                                                                                                           Larmor's formula, frequency and angular distribution of
+                                                                                                                                           radiation, synchrotron radiation. Energy losses in matter:
+                                                                                                                                           Bohr's formula, Cherenkov radiation, bremsstrahlung and
+                                                                                                                                           screening effects, transition radiation.
+                                                                                                                                           Electromagnetic scattering and diffraction, the optical
+                                                                                                                                           theorem, Liénard-Wiechert potentials, relativistic Larmor’s
+                                                                                                               Physics
+                                                                                                     Juniors,                              formula, frequency and angular distribution of radiation,
+                    Introduction to Particle                                   Lecture, 15                     130, Co
+ PHYSICS 152A                                  PHYSICS 252A     4      Win                 Science   Seniors,                 Dixon, L     synchrotron radiation. Energy losses in matter: Bohr’s       http://www.slac.stanford.edu/~lance/phys152A/index.html
+                           Physics I                                            students                      -- Physics
+                                                                                                      Grad                                 formula, Cherenkov radiation, bremsstrahlung and
+                                                                                                                  131
+                                                                                                                                           screening effects, transition radiation. Prerequisites: 121,
+                                                                                                                                           210, or equivalents; MATH 106 and 132.
+                                                                                                                                           (Same as PHYSICS 252B.) Discoveries and observations in
+                                                                                                                 Physics
+                                                                                                                                           experimental particle physics and relation to theoretical
+                                                                                                                  130,
+                                                                                                     Juniors,                              developments. Asymptotic freedom. Charged and neutral
+                    Introduction to Particle                                   Lecture, 15                       Physics
+ PHYSICS 152B                                  PHYSICS 252B     4       Spr                Science   Seniors,                 Quinn, H     weak interactions. Electroweak unification. Weak isospin.
+                           Physics II                                           students                        152 Co --
+                                                                                                      Grad                                 Gauge theories, spontaneous symmetry breaking and the
+                                                                                                                 Physics
+                                                                                                                                           Higgs mechanism. Quark and lepton mixing. CP violation.
+                                                                                                                  131
+                                                                                                                                           eutrino oscillations. Prerequisites: 152 or 152A, 130, 131.
+                                                                                                                                           Crystal structures and bonding in solids. X-ray diffraction.
+                                                                                                                                           Lattice dynamics and thermal properties. Electronic
+                                                                                                  Advanced
+                                                                                                            Physics                        structure of solids; transport properties of metals; quantum
+  PHYSICS 172        Solid State Physics                        3       Spr               Science undergrad                 Manoharan, H
+                                                                                                            170, 171                       scillations; charge density waves. Properties and
+                                                                                                    uates
+                                                                                                                                           applications of semiconductors. Phenomenology and
+                                                                                                                                           microscopic theory of superconductivity.
+                                                                                                                                           General properties of proton-proton collisions at 14 TeV.
+                                                                                                                                           Capabilities of the LHC experiments. QCD predictions for
+                                                                                                             Physics                       hard-scattering reactions: parton distributions, radiative                        No net energy
+                                                                               Lecture, 14
+  PHYSICS 450          Particle Physics                         3       Aut                Science Graduate 262, 330,         Peskin, R    corrections, jets, parton shower. Methods for computing          http://www.slac.stanford.edu/~mpeskin/Physics450/
+                                                                                                                                                                                                                             yet via particle
+                                                                                students
+                                                                                                            331, 332                       multijet cross sections. Properties of W, Z, top quarks, and                          physics
+                                                                                                                                           Higgs bosons at the LHC. Methods for discovering new
+                                                                                                                                           heavy particles. May be repeated for credit. Prerequisites:
+                                                                                                                                           262, 330, 331, and 332.
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                                        Send additions and corrections to leighj@stanford.edu

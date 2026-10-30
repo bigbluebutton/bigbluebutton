@@ -1,0 +1,19 @@
+id: img-jpg-exif6-camera
+title: "Phone-style JPEG stored sideways (480x320) with EXIF Orientation 6"
+tier: synthetic
+file: img-jpg-exif6-camera.jpg
+issues: [13351, 26001]
+catalog: ["EXIF orientation, direct JPEG upload"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: { defaults: vector, rasterize-all: raster }
+marker: true
+aspect: 0.6667
+profiles: [defaults, rasterize-all]
+notes: >-
+  Port of camera-portrait-exif6.jpg: a portrait marker rotated 90 degrees counter-clockwise into
+  480x320 sensor order, tagged Orientation 6. After `convert -auto-orient` the slide must be the
+  upright 320x480 portrait (aspect 0.6667); ImageMagick 6.9.12-98 (noble) does that: a 320x480
+  page holding one image, no <filter.

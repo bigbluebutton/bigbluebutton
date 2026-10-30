@@ -1,0 +1,14 @@
+id: rt-pdf-bigpage-noise
+title: One page holding a 1200x900 incompressible image (about 3.2 MB), over maxBigPdfPageSize
+tier: runtime
+generate: { kind: noise-image-pdf, width: 1200, height: 900, seed: 5 }
+upload: { method: create-url }
+issues: [8555, 8274]
+catalog: [Oversized single page]
+pages: 1
+expect: converted
+expectByProfile: { tight-limits: dropped }
+kind: any
+checks: [outcome, pages, kind, aspect, exif, text]
+profiles: [defaults, tight-limits]
+notes: The page is split out with pdfseparate and downscaled with Ghostscript, which only affects thumbnails and PNGs.

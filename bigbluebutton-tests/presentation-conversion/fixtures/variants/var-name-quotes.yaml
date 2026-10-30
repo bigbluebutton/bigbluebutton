@@ -1,0 +1,11 @@
+id: var-name-quotes
+title: File name with double and single quotes
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "He said \"hi\" it's.pdf" }
+issues: [19505, 19557]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

@@ -1,0 +1,9 @@
+id: repo-smart-slides
+title: Nine 16:9 smart-slide pages (400 KB)
+tier: repo
+file: ../../../playwright/core/media/SmartSlides.pdf
+catalog: [Smart-slide / quick-poll text]
+pages: 9
+expect: converted
+kind: any
+checks: [outcome, pages, kind, aspect, exif, text]

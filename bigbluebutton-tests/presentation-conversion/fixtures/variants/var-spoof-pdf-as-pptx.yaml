@@ -1,0 +1,11 @@
+id: var-spoof-pdf-as-pptx
+title: PDF bytes uploaded with a .pptx extension
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "spoofed.pptx" }
+catalog: [File-type detection]
+pages: 0
+expect: dropped
+kind: any
+checks: [outcome]
+notes: "API uploads whose content does not match the extension are deleted without any message (ApiController.processDocumentFromRawBytes); the client upload path reports INVALID_MIME_TYPE instead."

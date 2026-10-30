@@ -1,0 +1,7 @@
+id: repo-good-presentation
+title: Eight 4:3 slides from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/GoodPresentation.pdf
+pages: 8
+expect: converted
+kind: any

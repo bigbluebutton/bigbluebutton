@@ -1,0 +1,18 @@
+id: off-odp-one-slide
+title: "odfpy 16:9 presentation slide laid out as the marker"
+tier: synthetic
+file: off-odp-one-slide.odp
+issues: []
+catalog: ["Office conversion"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: true
+aspect: 1.7778
+profiles: [defaults]
+notes: >-
+  28 x 15.75 cm page; red, blue, green and yellow draw:rect bands without outline, and a text
+  frame in the middle. LibreOffice 25.8: one 793.7x446.5 pt page with the marker upright, no
+  <filter.

@@ -1,0 +1,19 @@
+id: off-rtf-one-page
+title: "Hand-written RTF: a heading and three short lines on A4"
+tier: synthetic
+file: off-rtf-one-page.rtf
+issues: [25432]
+catalog: ["Office pre-check", "LibreOffice process failures"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: vector
+marker: false
+aspect: 0.7071
+profiles: [defaults, office-precheck]
+notes: >-
+  Plain RTF 1 with an A4 paper size (11906 x 16838 twips). office-precheck sets
+  skipOfficePrecheck=false, whose inverted isValid() branch (#25432) rejects every non-pptx file.
+  Measured with LibreOffice 25.8 (bbb-soffice image, file renamed to `file` as convert-local.sh
+  does): one A4 page, TrueType subsets, no <image or <filter.

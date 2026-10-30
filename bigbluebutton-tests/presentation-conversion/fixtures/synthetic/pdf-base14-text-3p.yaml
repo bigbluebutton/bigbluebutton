@@ -1,0 +1,20 @@
+id: pdf-base14-text-3p
+title: "Three pages of base-14 Helvetica text, page 3 holds only \"12\""
+tier: synthetic
+file: pdf-base14-text-3p.pdf
+issues: [15209, 24231]
+catalog: ["Numeric-only slide text", "Timeout unit mismatch", "Non-embedded fonts in PDF"]
+upload:
+  method: create
+pages: 3
+expect: converted
+expectByProfile:
+  tight-limits: converted
+kind: { defaults: vector, rasterize-all: raster, tight-limits: vector }
+marker: false
+aspect: auto
+profiles: [defaults, rasterize-all, tight-limits]
+notes: >-
+  Non-embedded Helvetica (WinAnsiEncoding), one Tf/Td/Tj text object per line. Page 3 is the
+  numeric-only text body of #15209. pdftocairo 24.02: no image, no filter, a few dozen <path
+  (glyph outlines) and one <use per glyph, spaces included.

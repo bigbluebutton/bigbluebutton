@@ -16,10 +16,21 @@ on:
       - "docs/**"
       - "**/*.md"
       - "bigbluebutton-html5/public/locales/*.json"
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: "all = the full pipeline; presentation-conversion = build, install and the presentation conversion suite only"
+        type: choice
+        options: [presentation-conversion, all]
+        default: presentation-conversion
+      bless:
+        description: "Presentation conversion: write goldens from this run and upload them as an artifact"
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}${{ github.event_name == 'workflow_dispatch' && format('-dispatch-{0}', inputs.jobs) || '' }}
   cancel-in-progress: true
 # Forks can pick their own runners with repository variables, each set
 # to one runner label. CI_HEAVY_RUNNER is for jobs that build packages,
@@ -339,6 +350,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
+    if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
     runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -507,6 +519,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
+    if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
     runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -930,6 +943,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
+    if: github.event_name != 'workflow_dispatch' || inputs.jobs == 'all'
     runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -1022,6 +1036,142 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: bbb-logs-legacy
+          path: ./bbb-logs.tar.gz
+  detect-presentation-conversion-changes:
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      run: ${{ steps.gate.outputs.presentation_conversion }}
+      reason: ${{ steps.gate.outputs.reason }}
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+          fetch-depth: 2
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+      - name: Decide whether the presentation conversion suite runs
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HAS_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'trigger for presentation conversion test') }}
+          DISPATCH_JOBS: ${{ inputs.jobs }}
+          REF_NAME: ${{ github.ref_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: .github/scripts/presentation-conversion-gate.sh
+  install-and-run-presentation-conversion-tests:
+    needs:
+      - detect-presentation-conversion-changes
+      - unify-artifacts
+      - bbb-libreoffice-image
+    if: needs.detect-presentation-conversion-changes.outputs.run == 'true'
+    runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: ./bigbluebutton-tests/presentation-conversion
+    env:
+      NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+      BBB_URL: https://bbb-ci.test/bigbluebutton/
+      BBB_SECRET: bbbci
+      CI: "true"
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+      - name: Install BBB
+        timeout-minutes: 60
+        uses: ./.github/actions/install-bbb
+      - name: Let bbb-web download URL documents from this host
+        run: |
+          echo "fetchUrlAllowedLocalHosts=bbb-ci.test" | sudo tee -a /etc/bigbluebutton/bbb-web.properties
+          sudo systemctl restart bbb-web
+          for _ in $(seq 1 120); do
+            curl -sk --max-time 5 "${BBB_URL}api" | grep -q '<returncode>SUCCESS</returncode>' && exit 0
+            sleep 2
+          done
+          echo "bbb-web did not come back after the restart" >&2
+          exit 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: bigbluebutton-tests/presentation-conversion/package-lock.json
+      - name: Install suite dependencies
+        timeout-minutes: 10
+        run: npm ci --no-audit --no-fund
+      - name: Run the suite (defaults and every profile)
+        timeout-minutes: 120
+        env:
+          PC_RUN_ID: ci-${{ github.run_id }}
+          PC_BLESS_ALL: ${{ inputs.bless && '1' || '0' }}
+        run: |
+          set +e
+          if [ "$PC_BLESS_ALL" = 1 ]; then
+            for p in defaults rasterize-all low-thresholds tight-limits office-precheck; do bin/bless.sh "$p"; done
+            bin/restore-profile.sh
+            npx tsx src/cli/summarize.ts > /dev/null
+            rc=0
+          else
+            bin/run-all.sh
+            rc=$?
+          fi
+          cat results/summary.md >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
+      - name: Restore bbb-web.properties
+        if: always()
+        run: bin/restore-profile.sh || true
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: presentation-conversion-report
+          path: |
+            bigbluebutton-tests/presentation-conversion/results/
+            bigbluebutton-tests/presentation-conversion/playwright-report/
+          retention-days: ${{ github.event_name == 'pull_request' && 14 || 60 }}
+      - name: Collect conversion evidence of failing fixtures
+        if: failure()
+        run: bin/collect-evidence.sh
+      - name: Upload conversion evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: presentation-conversion-evidence
+          path: bigbluebutton-tests/presentation-conversion/evidence/
+          if-no-files-found: ignore
+          retention-days: ${{ github.event_name == 'pull_request' && 14 || 60 }}
+      - name: Upload proposed goldens
+        if: always() && inputs.bless
+        uses: actions/upload-artifact@v6
+        with:
+          name: presentation-conversion-proposed-goldens
+          path: bigbluebutton-tests/presentation-conversion/goldens/
+      - if: failure()
+        name: Prepare artifacts
+        uses: ./.github/actions/prepare-artifacts
+      - if: failure()
+        name: Upload bbb-configs artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bbb-configs-presentation-conversion
+          path: configs
+      - if: failure()
+        name: Upload bbb-logs artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bbb-logs-presentation-conversion
           path: ./bbb-logs.tar.gz
   publish-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')

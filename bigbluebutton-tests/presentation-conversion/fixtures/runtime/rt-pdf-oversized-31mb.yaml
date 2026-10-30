@@ -1,0 +1,10 @@
+id: rt-pdf-oversized-31mb
+title: 31 MB PDF (over maxFileSizeUpload=30000000) uploaded by URL with create
+tier: runtime
+generate: { kind: padded-pdf, bytes: 31000000, seed: 3, label: 31 MB }
+upload: { method: create-url }
+issues: [25129, 25210]
+catalog: [Upload size limit]
+pages: 0
+expect: dropped
+checks: [outcome]

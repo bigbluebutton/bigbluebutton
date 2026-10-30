@@ -1,0 +1,9 @@
+id: repo-big-lots-of-objects
+title: Two letter pages with very many vector objects (1 MB), uploaded by URL
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/big-lots-of-objects.pdf
+upload: { method: create-url }
+catalog: [SVG too complex for the client]
+pages: 2
+expect: converted
+kind: any

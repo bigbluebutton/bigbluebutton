@@ -1,0 +1,9 @@
+id: repo-smart-slides-bug-repro
+title: Four smart-slide pages from a past quick-poll bug
+tier: repo
+file: ../../../playwright/core/media/smart-slides-bug-repro-1.pdf
+issues: [23304]
+catalog: [Smart-slide / quick-poll text]
+pages: 4
+expect: converted
+kind: any

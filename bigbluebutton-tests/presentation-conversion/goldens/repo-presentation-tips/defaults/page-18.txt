@@ -1,0 +1,7 @@
+Graphs - Bad
+
+ Minor gridlines are unnecessary
+ Font is too small
+ Colours are illogical
+ Title is missing
+ Shading is distracting

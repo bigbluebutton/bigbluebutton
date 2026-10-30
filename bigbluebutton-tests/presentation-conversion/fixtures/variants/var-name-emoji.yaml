@@ -1,0 +1,11 @@
+id: var-name-emoji
+title: File name with emoji
+tier: variant
+file: ../../../playwright/core/media/sample-with-mask.pdf
+upload: { method: insertDocument, name: "🎓 lecture 📊.pdf" }
+issues: [25425, 25435]
+catalog: [Filenames]
+pages: 1
+expect: converted
+kind: vector
+checks: [outcome, pages, kind, aspect, served]

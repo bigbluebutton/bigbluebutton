@@ -1,0 +1,16 @@
+            Search Skill Self Rating:
+              Selected web sites
+                                        Some-
+               Very                     What     Very   Never
+               High   High   Moderate    Low     Low    Used
+CDC
+Wonder
+  (18)*         1      5       10         9       6     101
+Pubmed
+  (24)          3      3       11        11       7      96
+
+Pittcat (14)    4      1       11         7       3     102
+Toxnet
+  (24)          1      7        9         7       10     97
+
+          *Total who used the site, any amount/month
