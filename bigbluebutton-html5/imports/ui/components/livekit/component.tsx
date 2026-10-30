@@ -88,6 +88,9 @@ const LiveKitObserver = ({
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
   // @ts-ignore
   const isDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
+  const { data: currentUser } = useCurrentUser((u) => ({
+    voice: u.voice,
+  }));
 
   useEffect(() => {
     logger.info({
@@ -109,15 +112,21 @@ const LiveKitObserver = ({
     });
   }, [isSpeaking, isMuted]);
 
+  // The LiveKit room connects on entry regardless of an explicit audio join, so
+  // akka creates the voice record deafened=false while the client defaults to
+  // deafened. The client owns the deafened state and must reflect it on the
+  // voice record whenever either changes to guarantee it is always up-to-date.
   useEffect(() => {
-    if (!usingAudio) return;
+    const voiceJoined = currentUser?.voice?.joined ?? false;
+
+    if (!usingAudio || !voiceJoined) return;
 
     setUserDeafened({
       variables: {
         deafened: isDeafened,
       },
     });
-  }, [isDeafened]);
+  }, [isDeafened, currentUser?.voice?.joined]);
 
   useEffect(() => {
     let mappedQuality = MetricStatus.Normal;
