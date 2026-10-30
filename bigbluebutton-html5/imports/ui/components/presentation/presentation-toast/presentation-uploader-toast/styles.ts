@@ -88,7 +88,9 @@ const UploadToastHeader = styled.div`
   padding-bottom: ${smPaddingX};
 `;
 
-const UploadIcon = styled(Icon)`
+const UploadIcon = styled(Icon)<{
+  $error?: boolean;
+}>`
   background-color: ${colorPrimary};
   color: ${colorWhite};
   height: ${uploadIconSize};
@@ -102,6 +104,10 @@ const UploadIcon = styled(Icon)`
     margin-left: ${smPaddingX};
     margin-right: 0;
   }
+
+  ${({ $error }) => $error && `
+    background-color: ${colorDanger};
+  `}
 `;
 
 const UploadToastTitle = styled.span`
