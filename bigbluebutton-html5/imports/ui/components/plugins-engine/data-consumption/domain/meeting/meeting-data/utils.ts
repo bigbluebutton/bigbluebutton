@@ -5,7 +5,9 @@ import { Meeting } from '/imports/ui/Types/meeting';
 const formatMeetingResponseFromGraphql = (
   graphqlDataResult: GraphqlDataHookSubscriptionResponse<Partial<Meeting>>,
 ): PluginSdk.GraphqlResponseWrapper<PluginSdk.MeetingData> => ({
-  data: graphqlDataResult.data,
+  // While loading, useMeeting holds only the static meeting data, which lacks fields
+  // MeetingData declares as required, such as lockSettings.
+  data: graphqlDataResult.loading ? undefined : graphqlDataResult.data,
   loading: graphqlDataResult.loading,
   error: graphqlDataResult?.errors?.[0],
 } as PluginSdk.GraphqlResponseWrapper<PluginSdk.MeetingData>);
