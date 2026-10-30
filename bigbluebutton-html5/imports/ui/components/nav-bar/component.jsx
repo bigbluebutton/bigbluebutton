@@ -82,7 +82,7 @@ const renderPluginItems = (pluginItems) => {
                     <Button
                       disabled={pluginItem.disabled}
                       label={pluginItem.label}
-                      aria-label={pluginItem.tooltip}
+                      aria-label={pluginItem.tooltip || pluginItem.label}
                       color={pluginItem.color || 'primary'}
                       circle={pluginItem.circle === true}
                       hideLabel={pluginItem.hideLabel === true}
