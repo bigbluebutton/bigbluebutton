@@ -86,6 +86,10 @@ const intlSFUErrors = defineMessages({
   },
 });
 
+// How many times a camera the server still lists is republished automatically
+// before the failure is surfaced to the sharer. Matches the ICE restart budget.
+const MAX_REPUBLISH_RETRIES = 3;
+
 interface VideoProviderState {
   socketOpen: boolean;
 }
@@ -174,6 +178,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   private restartTimer: Record<string, number>;
 
+  private republishRetries: Record<string, number>;
+
   private videoTags: Record<string, HTMLVideoElement>;
 
   constructor(props: VideoProviderProps) {
@@ -190,6 +196,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     this.wsQueues = {};
     this.restartTimeout = {};
     this.restartTimer = {};
+    this.republishRetries = {};
     this.webRtcPeers = {};
     this.outboundIceQueues = {};
     this.videoTags = {};
@@ -390,18 +397,19 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     } = window.meetingClientSettings.public.kurento.cameraWsOptions;
 
     const { exitVideo } = this.props;
+    const retrying = this.ws != null && this.ws.retryCount < WS_MAX_RETRIES;
     logger.info({
       logCode: 'video_provider_onwsclose',
     }, 'Multiple video provider websocket connection closed.');
 
     this.clearWSHeartbeat();
-    exitVideo();
+    if (!retrying) exitVideo();
     // Media is currently tied to signaling state  - so if signaling shuts down,
     // media will shut down server-side. This cleans up our local state faster
     // and notify the state change as failed so the UI rolls back to the placeholder
     // avatar UI in the camera container
     Object.keys(this.webRtcPeers).forEach((stream) => {
-      if (this.stopWebRTCPeer(stream, false)) {
+      if (this.stopWebRTCPeer(stream, retrying)) {
         notifyStreamStateChange(stream, 'failed');
       }
     });
@@ -693,6 +701,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     if (this.restartTimer[stream]) {
       delete this.restartTimer[stream];
     }
+
+    delete this.republishRetries[stream];
   }
 
   stopWebRTCPeer(stream: string, restarting = false) {
@@ -707,7 +717,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       conn.oniceconnectionstatechange = null;
     }
 
-    if (isLocal) {
+    if (isLocal && !restarting) {
       stopVideo(stream);
     }
 
@@ -731,25 +741,37 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       this.clearRestartTimers(stream);
     }
 
-    return this.destroyWebRTCPeer(stream);
+    return this.destroyWebRTCPeer(stream, restarting);
   }
 
-  destroyWebRTCPeer(stream: string) {
+  destroyWebRTCPeer(stream: string, restarting = false) {
     let stopped = false;
     const peer = this.webRtcPeers[stream];
     const isLocal = VideoService.isLocalStream(stream);
     const role = VideoService.getRole(isLocal);
+
+    // A restart republishes the very same camera, so keep the capture alive instead
+    // of releasing the device and re-acquiring it: that spares the user a
+    // camera-light blink and carries the applied effects over untouched. A stream
+    // that is no longer live has nothing to preserve and still goes down the
+    // stop-and-re-acquire path, which is what a genuinely dead device needs.
+    const preserveStream = restarting && peer?.bbbVideoStream?.mediaStream?.active === true;
 
     if (peer) {
       if (peer && peer.bbbVideoStream) {
         if (typeof peer.inactivationHandler === 'function') {
           peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
         }
-        peer.bbbVideoStream.stop();
+        if (typeof peer.streamSwapHandler === 'function') {
+          peer.bbbVideoStream.removeListener('streamSwapped', peer.streamSwapHandler);
+        }
+        if (!preserveStream) peer.bbbVideoStream.stop();
       }
 
       if (typeof peer.dispose === 'function') {
-        peer.dispose();
+        // Without this the peer stops its sender tracks on the way out, which are
+        // the very tracks the preserved stream is made of.
+        peer.dispose({ preserveLocalStream: preserveStream });
       }
 
       delete this.webRtcPeers[stream];
@@ -792,8 +814,10 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         peer.start();
         peer.generateOffer().then((offer) => {
           // Store the media stream if necessary. The scenario here is one where
-          // there is no preloaded stream stored.
-          if (peer.bbbVideoStream == null) {
+          // there is no preloaded stream stored - or where the preloaded one has
+          // already been stopped, in which case its mediaStream is null and it
+          // cannot be published (BBBVideoStream.stop clears it).
+          if (peer.bbbVideoStream == null || peer.bbbVideoStream.mediaStream == null) {
             bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
             VideoPreviewService.storeStream(
               MediaStreamUtils.extractDeviceIdFromStream(
@@ -805,11 +829,15 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           }
 
           peer.bbbVideoStream = bbbVideoStream;
-          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+          // Kept on the peer so the teardown can detach it: a preserved stream
+          // outlives its peer, and a listener per republish would swap the tracks
+          // once for every reconnect the call has been through.
+          peer.streamSwapHandler = ({ newStream }: { newStream: MediaStream }) => {
             if (newStream && newStream instanceof MediaStream) {
               this.replacePCVideoTracks(stream, newStream);
             }
-          });
+          };
+          bbbVideoStream.on('streamSwapped', peer.streamSwapHandler);
           peer.inactivationHandler = () => this.handleLocalStreamInactive(stream);
           bbbVideoStream.once('inactive', peer.inactivationHandler);
           resolve(offer);
@@ -1007,8 +1035,31 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     // Only display WebRTC negotiation error toasts to sharers. The viewer streams
     // will try to autoreconnect silently, but the error will log nonetheless
     if (isLocal) {
-      this.stopWebRTCPeer(stream, false);
-      if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
+      const stillExists = streams.some((item) => item.type === VIDEO_TYPES.STREAM && item.stream === stream);
+      const retries = this.republishRetries[stream] || 0;
+
+      if (stillExists && retries < MAX_REPUBLISH_RETRIES) {
+        this.republishRetries[stream] = retries + 1;
+        logger.error({
+          logCode: 'video_provider_camera_share_retry',
+          extraInfo: {
+            bridge: 'bbb-webrtc-sfu',
+            cameraId: stream,
+            errorName,
+            republishRetries: this.republishRetries[stream],
+          },
+        }, `Automatic camera republish failed. Retrying (${this.republishRetries[stream]}/${MAX_REPUBLISH_RETRIES})`);
+        // Republish now instead of waiting for an unrelated re-render to notice
+        // the peer is gone. reconnect stops the peer as a restart, so the
+        // capture and the effects applied to it survive the retry. The media
+        // flow timeout armed when the offer was generated is left running on
+        // purpose: it is what bounds this recovery and eventually surfaces the
+        // error if the camera is really gone.
+        this.reconnect(stream, isLocal);
+      } else {
+        this.stopWebRTCPeer(stream, false);
+        if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
+      }
     } else {
       // If it's a viewer, set the reconnection timeout. There's a good chance
       // no local candidate was generated and it wasn't set.
