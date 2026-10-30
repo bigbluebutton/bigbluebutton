@@ -20,6 +20,10 @@ case class MeetingBridgesDbModel(
   audioBridge: String
 )
 
+case class MeetingRoomConfigDbModel(
+  roomMode: String
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -42,6 +46,7 @@ case class MeetingDbModel(
     endedAt:                               Option[java.sql.Timestamp],
     endedReasonCode:                       Option[String],
     endedBy:                               Option[String],
+    roomConfig:                            MeetingRoomConfigDbModel,
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -66,7 +71,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     endWhenNoModeratorDelayInMinutes,
     endedAt,
     endedReasonCode,
-    endedBy
+    endedBy,
+    roomConfig
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -100,6 +106,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
+  val roomMode = column[String]("roomMode")
+
+  val roomConfig = roomMode <> (MeetingRoomConfigDbModel.apply, MeetingRoomConfigDbModel.unapply)
 }
 
 object MeetingDAO {
@@ -156,7 +165,10 @@ object MeetingDAO {
           endWhenNoModeratorDelayInMinutes = meetingProps.durationProps.endWhenNoModeratorDelayInMinutes,
           endedAt = None,
           endedReasonCode = None,
-          endedBy = None
+          endedBy = None,
+          roomConfig = MeetingRoomConfigDbModel(
+            roomMode = ""
+          )
         )
       )
     )
@@ -185,6 +197,15 @@ object MeetingDAO {
         .filter(_.meetingId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
+    )
+  }
+
+  def updateRoomMode(meetingId: String, roomMode: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(m => m.roomMode)
+        .update(roomMode)
     )
   }
 
