@@ -1,0 +1,52 @@
+conversion:
+  office:
+    script: /usr/share/bbb-libreoffice-conversion/convert.sh
+    timeout: 60 # Timeout in seconds
+    max_attempts: 3
+processing:
+  pdf:
+    page:
+      downscale:
+        script: /etc/bigbluebutton/nopdfmark.ps
+        timeout: 10 # Timeout in seconds
+      max_size: 2000000
+  image:
+    # Maximum resolution for uploaded presentation images
+    max_width: 2048
+    max_height: 1536
+    resize:
+      timeout: 7 # Timeout in seconds
+validation:
+  office:
+    script: /usr/share/prescheck/prescheck.sh
+    timeout: 20 # Timeout in seconds
+    exec_timeout: 25 # timeout in seconds
+    skip_precheck: true # Skip Office doc pre-check. Attempt to convert immediately
+generation:
+  thumbnail:
+    image_magick_dir: /usr/bin
+    timeout: 10 # Timeout in seconds
+  text_file:
+    timeout: 60 # Timeout in seconds
+  png:
+    slide_width: 800
+    generate: false
+    timeout: 10 # Timeout in seconds
+  svg:
+    generate: true
+    timeout: 60 # Timeout in seconds
+    resolution: 300 # Resolution PPI
+    max_images: 800 # The maximum number of image tags an SVG can contain
+    max_tags: 800 # The mazimum number of tags an SVG can contain
+    pdf:
+      font:
+        timeout: 3 # Timeout in seconds
+        max_attempts: 3
+    rasterize:
+      force: false # Force slides to be rasterized before conversion to SVG
+      width: 2048 # Rasterized slide will be resized to this width (in pixels)
+  blank:
+    presentation: /usr/share/bigbluebutton/blank/blank-presentation.pdf
+    thumbnail: /usr/share/bigbluebutton/blank/blank-thumb.png
+    png: /usr/share/bigbluebutton/blank/blank-png.png
+    svg: /usr/share/bigbluebutton/blank/blank-svg.svg
