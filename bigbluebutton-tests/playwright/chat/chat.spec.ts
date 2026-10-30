@@ -288,6 +288,30 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.pinAndUnpinMessage();
       });
 
+      test('Moderator can pin when the other message actions are disabled', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        linkIssue(26230);
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, {
+          createParameter: 'disabledFeatures=replyChatMessage,chatMessageReactions,editChatMessage,deleteChatMessage',
+          testInfo,
+        });
+        await message.initUserPage(context, { testInfo });
+        await message.pinAndUnpinMessage(true);
+      });
+
+      test('Moderator can pin when the toolbar contains only pin', async ({ browser, context, page }, testInfo) => {
+        linkIssue(26230);
+        const message = new MessageActions(browser, context);
+        const options = { clientSettingsOverrides: { public: { chat: { toolbar: ['pin'] } } }, testInfo };
+        await message.initModPage(page, options);
+        await message.initUserPage(context, options);
+        await message.pinAndUnpinMessage(true);
+      });
+
       test('Viewer cannot pin a message', async ({ browser, context, page }, testInfo) => {
         const message = new MessageActions(browser, context);
         await message.initPages(page, testInfo);
@@ -297,6 +321,15 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
       test('Pin message button is removed by disabledFeatures', async ({ browser, context, page }, testInfo) => {
         const message = new MessageActions(browser, context);
         await message.initModPage(page, { createParameter: 'disabledFeatures=pinChatMessage', testInfo });
+        await message.pinMessageDisabled();
+      });
+
+      test('Pin message button is removed by toolbar settings', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, {
+          clientSettingsOverrides: { public: { chat: { toolbar: ['reply', 'reactions', 'edit', 'delete'] } } },
+          testInfo,
+        });
         await message.pinMessageDisabled();
       });
     });

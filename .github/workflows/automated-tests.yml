@@ -538,6 +538,7 @@ jobs:
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
+      # PLUGIN_SDK_REPOSITORY, as owner/name, lets a fork use its own SDK copy.
       - name: Extract download URL of the SDK version information from bigbluebutton-html5/package.json
         working-directory: ./bigbluebutton-html5
         run: |
@@ -546,7 +547,7 @@ jobs:
             echo "SDK_URL=$SDK_DEP" >> $GITHUB_ENV
           else
             SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
-            echo "SDK_URL=https://github.com/${{ github.repository_owner }}/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
+            echo "SDK_URL=https://github.com/${{ vars.PLUGIN_SDK_REPOSITORY || 'bigbluebutton/bigbluebutton-html-plugin-sdk' }}/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
       - name: Plugins SDK - Download bigbluebutton-html-plugin-sdk.tar.gz
         working-directory: bigbluebutton-tests

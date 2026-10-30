@@ -570,7 +570,7 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
 
 #### Upload slides from external application to a live BigBlueButton session
 
-For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
+For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#post-insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
@@ -1899,4 +1899,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - Plain Text:
   - .txt
 
-All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+All these valid formats are also present in the `EXTENSIONS_MIME` map of the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java) and under `uploadValidMimeTypes` in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-html5/private/config/settings.yml) if more details are needed.

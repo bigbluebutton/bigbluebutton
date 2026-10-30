@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { APOLLO_CLIENT_SETTINGS_MODULE, getOwnUserId, isApolloClientExposed } from '../core/apolloProbe';
+import { APOLLO_CLIENT_SETTINGS_OVERRIDE, getOwnUserId, isApolloClientExposed } from '../core/apolloProbe';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
@@ -103,7 +103,7 @@ test.describe('Cursor replay on join', { tag: '@ci' }, () => {
   test('Locked viewer joining is replayed the moderator cursor only', async ({ browser, context, page }, testInfo) => {
     test.setTimeout(240_000);
     const cursorReplay = new CursorReplay(browser, context);
-    await cursorReplay.initModPage(page, { testInfo, createModules: APOLLO_CLIENT_SETTINGS_MODULE });
+    await cursorReplay.initModPage(page, { testInfo, createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE });
     await cursorReplay.lockedJoinerStillGetsTheModeratorCursor();
   });
 });
