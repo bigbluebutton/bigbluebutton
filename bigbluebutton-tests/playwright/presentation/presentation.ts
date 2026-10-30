@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { CI, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { prepareForScreenshot, screenshotMask } from '../core/screenshots';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
@@ -949,24 +950,27 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.toolVisibility);
-    const screenshotOptions = {
-      maxDiffPixels: 1000,
-    };
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    if (!CI)
+    if (!CI) {
+      const restoreFocus = await prepareForScreenshot(this.modPage);
       await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot(
         'mod-hide-toolbars.png',
-        screenshotOptions,
+        { maxDiffPixels: 1000, mask: screenshotMask(this.modPage.page) },
       );
+      await restoreFocus();
+    }
     await this.userPage.hasElement(
       e.wbToolbar,
       'should display the whiteboard toolbar for the viewer with whiteboard access',
     );
-    if (!CI)
+    if (!CI) {
+      const restoreFocus = await prepareForScreenshot(this.userPage);
       await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot(
         'user-toolbars.png',
-        screenshotOptions,
+        { maxDiffPixels: 1000, mask: screenshotMask(this.userPage.page) },
       );
+      await restoreFocus();
+    }
   }
 
   async zoom() {
