@@ -1,6 +1,6 @@
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
-import { LoggerSettings } from './types';
+import { LoggerSettings, PluginsLoadingProgress } from './types';
 import { ClientLog } from '../../Types/meetingClientSettings';
 
 function setLogger(pluginApi: PluginApi, loggerSettings: LoggerSettings) {
@@ -29,4 +29,17 @@ function overridePluginSettingsToDefault(
   };
 }
 
-export { setLogger, overridePluginSettingsToDefault };
+function logPluginsLoadingSummary(progress: PluginsLoadingProgress) {
+  const { loadedPluginNames, failedPluginNames, totalNumberOfPlugins } = progress;
+  logger.info({
+    logCode: 'plugin_loading_status',
+    extraInfo: {
+      numberOfLoadedPlugins: loadedPluginNames.length,
+      totalNumberOfPlugins,
+      failedPluginNames,
+      loadTimeMs: Math.round(performance.now() - progress.startedAt),
+    },
+  }, `${loadedPluginNames.length}/${totalNumberOfPlugins} plugins loaded`);
+}
+
+export { setLogger, overridePluginSettingsToDefault, logPluginsLoadingSummary };
