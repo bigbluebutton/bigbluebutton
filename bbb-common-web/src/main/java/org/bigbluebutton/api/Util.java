@@ -66,7 +66,7 @@ public final class Util {
 	}
 
 	public static String createNewFilename(String presId, String fileExt) {
-		if (!fileExt.isEmpty()) {
+		if (fileExt != null && !fileExt.isEmpty()) {
 			return presId + "." + fileExt;
 		} else {
 			return presId;
