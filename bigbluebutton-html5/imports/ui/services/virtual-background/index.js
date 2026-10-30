@@ -10,10 +10,10 @@ import {
     timerWorkerScript
 } from './TimeWorker';
 import {
-  getBasePath,
   MODELS,
-  getVirtualBgImagePath,
-} from '/imports/ui/services/virtual-background/service'
+  getVirtualBgImageUrl,
+} from '/imports/ui/services/virtual-background/service';
+import { assetUrl } from '/imports/ui/services/url-builder';
 import logger from '/imports/startup/client/logger';
 
 import { simd } from 'wasm-feature-detect';
@@ -265,7 +265,6 @@ class VirtualBackgroundService {
     }
 
     changeBackgroundImage(parameters = null) {
-        const virtualBackgroundImagePath = getVirtualBgImagePath();
         let name = '';
         let type = 'blur';
         let isVirtualBackground = false;
@@ -274,16 +273,19 @@ class VirtualBackgroundService {
             type = parameters.type;
             isVirtualBackground = parameters.isVirtualBackground;
         }
-        this._options.virtualBackground.virtualSource = virtualBackgroundImagePath + name;
+        let source = '';
+        if (parameters && parameters.customParams && parameters.customParams.file) {
+            source = parameters.customParams.file;
+        } else if (name) {
+            source = getVirtualBgImageUrl(name);
+        }
+        this._options.virtualBackground.virtualSource = source;
         this._options.virtualBackground.backgroundType = type;
         this._options.virtualBackground.isVirtualBackground = isVirtualBackground;
-        if (this._options.virtualBackground.backgroundType === 'image') {
+        if (type === 'image') {
             this._virtualImage = document.createElement('img');
             this._virtualImage.crossOrigin = 'anonymous';
-            this._virtualImage.src = virtualBackgroundImagePath + name;
-        }
-        if (parameters.customParams) {
-            this._virtualImage.src = parameters.customParams.file;
+            this._virtualImage.src = source;
         }
     }
 
@@ -373,29 +375,26 @@ export async function createVirtualBackgroundService(parameters = null) {
     let modelResponse;
     const simdSupported = await simd();
 
-    const BASE_PATH = getBasePath();
-
     if (simdSupported) {
         tflite = await window.createTFLiteSIMDModule();
-        modelResponse = await fetch(BASE_PATH+MODELS.model144.path);
+        modelResponse = await fetch(assetUrl(MODELS.model144.path));
     } else {
         tflite = await window.createTFLiteModule();
-        modelResponse = await fetch(BASE_PATH+MODELS.model96.path);
+        modelResponse = await fetch(assetUrl(MODELS.model96.path));
     }
 
     const modelBufferOffset = tflite._getModelBufferMemoryOffset();
-    const virtualBackgroundImagePath = getVirtualBgImagePath();
 
     if (parameters == null) {
         parameters = {};
-        parameters.virtualSource = virtualBackgroundImagePath + '';
+        parameters.virtualSource = '';
         parameters.backgroundType = 'blur';
         parameters.isVirtualBackground = false;
     } else {
         if (parameters.customParams) {
             parameters.virtualSource = parameters.customParams.file;
         } else {
-            parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+            parameters.virtualSource = getVirtualBgImageUrl(parameters.backgroundFilename);
         }
     }
 
