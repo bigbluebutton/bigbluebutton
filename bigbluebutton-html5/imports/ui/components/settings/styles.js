@@ -20,6 +20,7 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -35,6 +36,13 @@ const SettingsTabs = styled(Tabs)`
   width: 100%;
   height: 100%;
   overflow: hidden;
+  min-height: 0;
+
+  /* The modal body grows with its content; held to the modal's height
+     instead, the selected panel scrolls on its own and the tab list stays. */
+  div:has(> &) {
+    min-height: 0;
+  }
 
   @media ${smallOnly} {
     display: flex;
@@ -45,13 +53,14 @@ const SettingsTabs = styled(Tabs)`
   }
 `;
 
-const SettingsTabList = styled(TabList)`
+// The tab list and the selected panel scroll on their own, with the app's
+// scrollbar; withComponent keeps react-tabs' role on them.
+const SettingsTabList = styled(ScrollboxVertical.withComponent(TabList))`
   display: flex;
   flex-flow: column;
   margin: 0;
   padding: 0;
   width: calc(100% / 3);
-  height: 39rem;
 
   @media ${smallOnly} {
     width: 100%;
@@ -77,7 +86,7 @@ const SettingsTabSelector = styled(Tab)`
   color: ${colorGrayDark};
   cursor: pointer;
   border-radius: 10px;
-  margin-block: 1rem;
+  margin-block: 0.75rem;
   margin-inline: 0 1.5rem;
   transition: background-color 0.3s, color 0.3s;
 
@@ -141,7 +150,7 @@ const SettingsIcon = styled(Icon)`
   }
 `;
 
-const SettingsTabPanel = styled(TabPanel)`
+const SettingsTabPanel = styled(ScrollboxVertical.withComponent(TabPanel))`
   display: none;
   flex-grow: 1;
   // BBBModal already pads the outer edge, so only the side next to the tab list gets 3rem.
@@ -156,6 +165,7 @@ const SettingsTabPanel = styled(TabPanel)`
   &.is-selected {
     display: flex;
     flex-direction: column;
+    min-height: 0;
   }
 
   @media ${smallOnly} {

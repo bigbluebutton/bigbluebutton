@@ -44,6 +44,8 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserJoinedMeetingEvtMsg                        => logMessage(msg)
       case m: RecordingStatusChangedEvtMsg                   => logMessage(msg)
       case m: WebcamsOnlyForModeratorChangedEvtMsg           => logMessage(msg)
+      case m: RoomModeChangedEvtMsg                          => logMessage(msg)
+      case m: RoomConfiguredEvtMsg                           => logMessage(msg)
       case m: RequestUserCameraCmdMsg                        => logMessage(msg)
       case m: CameraRequestAnswerReqMsg                      => logMessage(msg)
       case m: UserLeftMeetingEvtMsg                          => logMessage(msg)
