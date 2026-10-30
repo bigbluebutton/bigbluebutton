@@ -2,10 +2,7 @@ import styled from 'styled-components';
 import {
   colorBorder,
   colorGrayLabel,
-  colorPrimary,
-  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { borderSize, borderSizeLarge, lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 import Styled from '/imports/ui/components/settings/submenus/styles';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
@@ -88,30 +85,6 @@ const PullContentRight = styled.div`
 const LocalesDropdownSelect = styled.div`
   width: 100%;
   margin-top: 0.5rem;
-
-  & > select {
-    background-color: ${colorWhite};
-    border: ${borderSize} solid ${colorBorder};
-    border-radius: ${lgBorderRadius};  
-    border-bottom: 0.1rem solid ${colorBorder};
-    color: ${colorGrayLabel};
-    width: 100%;
-    height: 3.5rem;
-    padding: 1rem;
-    box-sizing: border-box;
-
-    &:focus {
-      box-shadow: inset 0 0 0 ${borderSizeLarge} ${colorPrimary};
-      border-radius: ${lgBorderRadius};
-    }
-
-    &:hover,
-    &:focus {
-      outline: transparent;
-      outline-style: dotted;
-      outline-width: ${borderSize};
-    }
-  }
 `;
 
 const ExampleText = styled.p`
