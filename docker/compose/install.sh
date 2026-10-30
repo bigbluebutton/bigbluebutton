@@ -21,6 +21,7 @@ fail() {
 
 [ $# -eq 1 ] || [ $# -eq 2 ] || fail "Usage: install.sh <domain> [email]"
 domain="$1"
+[ -n "$domain" ] || fail "Usage: install.sh <domain> [email]"
 email="${2:-}"
 
 # Docker Engine 28 or later, the compose plugin 2.35 or later
