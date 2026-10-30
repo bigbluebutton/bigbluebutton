@@ -1,6 +1,7 @@
 import logger from '/imports/startup/client/logger';
 import BaseBroker from '/imports/ui/services/bbb-webrtc-sfu/sfu-base-broker';
 import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
+import { WEBRTC_CALL_TYPE_FULL_AUDIO } from '/imports/ui/services/mobile-app/constants';
 
 const ON_ICE_CANDIDATE_MSG = 'iceCandidate';
 const SUBSCRIBER_ANSWER = 'subscriberAnswer';
@@ -95,6 +96,8 @@ class AudioBroker extends BaseBroker {
           networkPriorities: this.networkPriority ? { audio: this.networkPriority } : undefined,
           mediaStreamFactory: this.mediaStreamFactory,
           gatheringTimeout: this.gatheringTimeout,
+          // Tablet WebView: stamp full-audio routing in WebRtcPeer.start().
+          webRtcCallType: WEBRTC_CALL_TYPE_FULL_AUDIO,
         };
 
         const peerRole = BaseBroker.getPeerRole(this.role);
