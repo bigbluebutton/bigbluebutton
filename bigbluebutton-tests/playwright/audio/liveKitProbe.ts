@@ -30,6 +30,7 @@ export interface TestRoom {
   localParticipant: {
     isSpeaking?: boolean;
     audioTrackPublications: Map<string, TestPublication>;
+    publishTrack: (track: unknown, options?: { source?: string }) => Promise<unknown>;
     setMicrophoneEnabled: (enabled: boolean) => Promise<unknown>;
     permissions?: { canPublish: boolean; canSubscribe: boolean };
   };
@@ -111,6 +112,69 @@ export const getLocalMicState = (page: PlaywrightPage): Promise<LocalMicState> =
       trackSids: pubs.map((pub) => pub.trackSid).filter((sid): sid is string => !!sid),
     };
   }, LK_NOT_EXPOSED_ERR_MSG);
+
+interface HeldMicPublicationWindow extends TestWindow {
+  bbbHeldMicPublication?: {
+    started: boolean;
+    settled: boolean;
+    release: () => void;
+    restore: () => void;
+  };
+}
+
+// Install after joining muted. Keep the next microphone publication pending so
+// the test can release M and receive the mute response before a track exists.
+// The original SDK method still runs, including its real server events.
+export const holdNextMicrophonePublication = async (page: PlaywrightPage) => {
+  await page.evaluate((notExposed) => {
+    const w = window as HeldMicPublicationWindow;
+    const participant = w.liveKitRoom?.localParticipant;
+    if (!participant) throw new Error(notExposed);
+
+    const originalPublish = participant.publishTrack;
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const hold = {
+      started: false,
+      settled: false,
+      release,
+      restore: () => {
+        participant.publishTrack = originalPublish;
+      },
+    };
+    w.bbbHeldMicPublication = hold;
+
+    participant.publishTrack = async (track, options) => {
+      if (options?.source !== 'microphone' || hold.started) {
+        return originalPublish.call(participant, track, options);
+      }
+      hold.started = true;
+      await gate;
+      try {
+        return await originalPublish.call(participant, track, options);
+      } finally {
+        hold.settled = true;
+      }
+    };
+  }, LK_NOT_EXPOSED_ERR_MSG);
+
+  return {
+    waitUntilStarted: async () => {
+      await page.waitForFunction(() => (window as HeldMicPublicationWindow).bbbHeldMicPublication?.started);
+    },
+    release: () =>
+      page.evaluate(() => {
+        const hold = (window as HeldMicPublicationWindow).bbbHeldMicPublication;
+        hold?.restore();
+        hold?.release();
+      }),
+    waitUntilSettled: async () => {
+      await page.waitForFunction(() => (window as HeldMicPublicationWindow).bbbHeldMicPublication?.settled);
+    },
+  };
+};
 
 export interface MicContinuitySample {
   atMs: number;
