@@ -52,7 +52,7 @@ const requestPresentationUploadToken = (
   });
 
   const timeout = setTimeout(() => {
-    reject(new Error({ code: 408, message: 'requestPresentationUploadToken timeout' }));
+    reject(Object.assign(new Error('requestPresentationUploadToken timeout'), { code: 408 }));
   }, TOKEN_TIMEOUT);
 
   const getData = (n = 0) => {
@@ -68,7 +68,14 @@ const requestPresentationUploadToken = (
       if (result.data.pres_presentation_uploadToken.length > 0) {
         clearTimeout(recursiveTimeout);
         clearTimeout(timeout);
-        resolve(result.data.pres_presentation_uploadToken[0].uploadToken);
+        const { uploadToken } = result.data.pres_presentation_uploadToken[0];
+        if (!uploadToken) {
+          // The request was refused and the reason was recorded on the presentation, which
+          // the uploader toast shows. There is nothing to upload to.
+          reject(Object.assign(new Error('requestPresentationUploadToken rejected'), { reported: true }));
+          return;
+        }
+        resolve(uploadToken);
       }
     });
     recursiveTimeout = setTimeout(() => {
@@ -119,7 +126,9 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      onUpload({ error: true, done: true, status: error.code });
+      onUpload({
+        error: true, done: true, status: error?.code, reported: !!error?.reported,
+      });
       return Promise.resolve();
     });
 };
@@ -286,6 +295,12 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
         },
         onUpload: (upload) => {
           that.deepMergeUpdateFileKey(id, 'upload', upload);
+          // No upload token arrived and no reason was recorded for the uploader toast to show,
+          // so nothing else would tell the presenter the upload failed. The upload rate limit
+          // stops recording reasons past a number of refusals per window, hence "wait a moment".
+          if (upload.error && !upload.reported && upload.status === 408) {
+            notify(intl.formatMessage(intlMessages[408]), 'error');
+          }
         },
         onDone: (newId) => {
           that.updateFileKey(id, 'id', newId);

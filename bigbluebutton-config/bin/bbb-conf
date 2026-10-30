@@ -173,6 +173,14 @@ else
     LIVEKIT_SERVER_CONFIG=$(yq-go e $LIVEKIT_SERVER_DEFAULT_CONFIG 2> /dev/null)
 fi
 
+LIVEKIT_SIP_DEFAULT_CONFIG=/usr/share/livekit-server/livekit-sip.yaml
+LIVEKIT_SIP_ETC_CONFIG=/etc/bigbluebutton/livekit-sip.yaml
+if [ -f $LIVEKIT_SIP_ETC_CONFIG ]; then
+    LIVEKIT_SIP_CONFIG=$(yq-go eval-all '. as $item ireduce ({}; . * $item )' $LIVEKIT_SIP_DEFAULT_CONFIG $LIVEKIT_SIP_ETC_CONFIG 2> /dev/null)
+else
+    LIVEKIT_SIP_CONFIG=$(yq-go e $LIVEKIT_SIP_DEFAULT_CONFIG 2> /dev/null)
+fi
+
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
@@ -194,8 +202,10 @@ RETIRED_BBB_WEB_PROPERTIES=(
     textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
     insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
     insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+    serviceEnabled                    # Removed in BBB 4.0.1 (no effect since BBB 2.2)
     clientLogoutTimerInMinutes        # Removed in BBB 4.0
     enteredUsersTimeout               # Removed in BBB 4.0
+    accessControlAllowOrigin          # Removed in BBB 4.0.1 (no effect since BBB 2.2; use grails.cors.* instead)
 )
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 
@@ -649,7 +659,8 @@ fi
 #
 
 if [[ $PORT_RANGE ]]; then
-    if [[ "$PORT_RANGE" =~ ^([[:digit:]]+)-([[:digit:]]+)$ ]]; then
+    # No leading zeros: livekit-server reads them as octal, or does not start.
+    if [[ "$PORT_RANGE" =~ ^([1-9][[:digit:]]{0,4})-([1-9][[:digit:]]{0,4})$ ]] && (( BASH_REMATCH[1] < BASH_REMATCH[2] && BASH_REMATCH[2] <= 65535 )); then
         START_PORT=${BASH_REMATCH[1]}
         END_PORT=${BASH_REMATCH[2]}
 
@@ -670,8 +681,13 @@ if [[ $PORT_RANGE ]]; then
         fi
 
         if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
-            yq-go e -i ".rtc.port_range_start = \"$START_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
-            yq-go e -i ".rtc.port_range_end = \"$END_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
+            # Unquoted: livekit-server does not start when these are strings.
+            yq-go e -i ".rtc.port_range_start = $START_PORT" $LIVEKIT_SERVER_ETC_CONFIG
+            yq-go e -i ".rtc.port_range_end = $END_PORT" $LIVEKIT_SERVER_ETC_CONFIG
+        fi
+
+        if [ -f $LIVEKIT_SIP_ETC_CONFIG ]; then
+            yq-go e -i ".rtp_port = \"$START_PORT-$END_PORT\"" $LIVEKIT_SIP_ETC_CONFIG
         fi
 
         echo
@@ -684,7 +700,7 @@ if [[ $PORT_RANGE ]]; then
         echo
     else
         echo
-        echo "Warning: --set-port-range requires a numerical port range (default is 16384-32768)"
+        echo "Warning: --set-port-range requires a port range MIN-MAX, with 0 < MIN < MAX <= 65535 and no leading zeros (default is 16384-32768)"
         echo
         echo "Port range remains unchanged"
         echo
@@ -1295,6 +1311,9 @@ if [ $CHECK ]; then
         echo "                    livekit.rtc.port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "                    livekit.rtc.port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
     fi
+    if [ -n "$LIVEKIT_SIP_CONFIG" ]; then
+        echo "                    livekit-sip.rtp_port: $(echo "$LIVEKIT_SIP_CONFIG" | yq-go e '.rtp_port' -)"
+    fi
 
     if [ -f $RECORD_CONFIG ]; then
         echo
@@ -1331,9 +1350,13 @@ if [ $CHECK ]; then
 
     if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
         LIVEKIT_ENABLED_CODECS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.room.enabled_codecs[] | .mime' -)
+        LIVEKIT_LOG_LEVEL=$(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.log_level // ""' -)
         echo
         echo "/etc/bigbluebutton/livekit.yaml (livekit-server)"
-        echo "               log_level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.log_level' -)"
+        echo "               logging.level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.logging.level' -)"
+        if [ -n "$LIVEKIT_LOG_LEVEL" ]; then
+            echo "               log_level: $LIVEKIT_LOG_LEVEL (overrides logging.level)"
+        fi
         echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_start' -)"
         echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq-go e '.rtc.port_range_end' -)"
         echo "               room.enabled_codecs: $(echo "$LIVEKIT_ENABLED_CODECS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"

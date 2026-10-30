@@ -77,6 +77,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
+        speechProcessing: 'cloud',
         showInSidebarNavigation: false,
         microphoneAlert: {
           enabled: true,
@@ -451,6 +452,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       pagination: {
         paginationToggleEnabled: true,
+        paginationToggleModeratorOnly: false,
         pageChangeDebounceTime: 1000,
         desktopPageSizes: {
           moderator: 0,
@@ -786,6 +788,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           enabled: true,
           audioSubscriptionPoolSize: 0,
           muteDebounceMs: 2500,
+          lastN: {
+            enabled: false,
+            audibleSize: 3,
+            standbySize: 12,
+            speechHoldMs: 1500,
+            minAudibleMs: 2000,
+            standbyGraceMs: 5000,
+          },
         },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: true,

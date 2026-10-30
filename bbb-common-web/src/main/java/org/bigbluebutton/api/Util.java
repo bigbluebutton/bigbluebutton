@@ -22,6 +22,7 @@ public final class Util {
 
 	private static final SecureRandom RANDOM = new SecureRandom();
 	private static final String CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	private static final String DIGITS = "0123456789";
 
 	private Util() {
 		throw new IllegalStateException("Utility class");
@@ -158,9 +159,17 @@ public final class Util {
 	}
 
 	public static String randomAlphanumeric(int count) {
+		return randomString(CHARS, count);
+	}
+
+	public static String randomNumeric(int count) {
+		return randomString(DIGITS, count);
+	}
+
+	private static String randomString(String alphabet, int count) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < count; i++) {
-			sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
+			sb.append(alphabet.charAt(RANDOM.nextInt(alphabet.length())));
 		}
 		return sb.toString();
 	}

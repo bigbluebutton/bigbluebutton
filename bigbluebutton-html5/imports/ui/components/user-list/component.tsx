@@ -165,7 +165,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
     : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 
   return (
-    <Styled.PanelContent data-test="userListPanel">
+    <Styled.PanelContent className="bbb-user-list" data-test="userListPanel">
       <PanelHeader
         panelId={PANELS.USERLIST}
         title={title}

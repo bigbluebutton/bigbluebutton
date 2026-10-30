@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { useReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 import browserInfo from '/imports/utils/browserInfo';
@@ -24,6 +24,11 @@ import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/aud
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 import { getStoredAudioInputDeviceId } from '/imports/api/audio/client/bridge/service';
 import { getAudioModes } from '/imports/ui/components/audio/audio-modes';
+import {
+  chosenSpeechLocale,
+  installOnDeviceLanguage,
+  useOnDeviceLanguageForAudio,
+} from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -36,6 +41,7 @@ const AudioModalContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
     isModerator: user.isModerator,
+    speechLocale: user.speechLocale,
   }));
   const usingLiveKit = meeting?.audioBridge === 'livekit';
   const getEchoTest = useStorageKey('getEchoTest', 'session');
@@ -133,6 +139,20 @@ const AudioModalContainer = (props) => {
     closeModal(callback);
   }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
+  const userSpeechLocale = currentUserData?.speechLocale ?? '';
+  const chosenLocale = useReactiveVar(chosenSpeechLocale);
+  const speechLocale = chosenLocale ?? userSpeechLocale;
+  useEffect(() => {
+    if (chosenLocale !== null && chosenLocale === userSpeechLocale) chosenSpeechLocale(null);
+  }, [chosenLocale, userSpeechLocale]);
+  const {
+    needsDownload: transcriptionNeedsDownload,
+    busy: transcriptionNotReady,
+  } = useOnDeviceLanguageForAudio(speechLocale, isTranscriptionEnabled);
+  const downloadTranscriptionLanguage = useCallback(
+    () => installOnDeviceLanguage(speechLocale),
+    [speechLocale],
+  );
 
   if (!currentUserData) return null;
 
@@ -192,6 +212,9 @@ const AudioModalContainer = (props) => {
       hasMicrophonePermission={Service.hasMicrophonePermission}
       permissionStatus={permissionStatus}
       isTranscriptionEnabled={isTranscriptionEnabled}
+      transcriptionNotReady={transcriptionNotReady}
+      transcriptionNeedsDownload={transcriptionNeedsDownload}
+      downloadTranscriptionLanguage={downloadTranscriptionLanguage}
       {...props}
     />
   );

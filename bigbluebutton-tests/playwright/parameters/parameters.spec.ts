@@ -272,6 +272,23 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test.describe(() => {
+      test('Private chat', async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.privateChatDisabled, testInfo });
+        await disabledFeatures.initUserPage(context, { testInfo });
+        await disabledFeatures.initUserPage2(context, { testInfo });
+        await disabledFeatures.privateChat();
+      });
+      test('Private chat (exclude)', async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.privateChatExclude, testInfo });
+        await disabledFeatures.initUserPage(context, { testInfo });
+        await disabledFeatures.initUserPage2(context, { testInfo });
+        await disabledFeatures.privateChatExclude();
+      });
+    });
+
+    test.describe(() => {
       test('Speech Recognition', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, {

@@ -42,11 +42,12 @@ In this example, all users must connect to the BigBlueButton server via the unif
 When BigBlueButton is protected behind a firewall, you need to configure the firewall to forward the following incoming connections to BigBlueButton:
 
 - TCP/IP port 22 (for SSH)
-- TCP/IP ports 80/443 (for HTTP/HTTPS)
-- UDP ports in the range 16384 - 32768 (for LiveKit/FreeSWITCH/HTML5 RTP streams)
+- TCP/IP ports 80/443 (for HTTP/HTTPS, and for TURN over TLS on 443)
+- TCP and UDP port 3478 (for the built-in TURN server, see [TURN server](/administration/turn-server))
+- UDP ports in the range 16384 - 32768 (for LiveKit/FreeSWITCH/mediasoup RTP streams)
 
 LiveKit reuses the UDP range above for its media (RTP) streams; its signaling is
-proxied through the existing nginx HTTPS endpoint (TCP 443), so no extra ports are
+proxied through the existing HTTPS endpoint (TCP 443), so no extra ports are
 required for it.
 
 `livekit-sip` takes its RTP ports from the same range by default (`rtp_port` in
@@ -79,10 +80,10 @@ After you have made the changes to you firewall settings, before proceeding to t
 
 To test connections on various ports needed by BigBlueButton, you will use a tool called `netcat` to listen for connections. You'll use `netcat` on the BigBlueButton server and on external server (outside the firewall) to generate connections. If the connections test fail, then the firewall is forwarding the packets.
 
-First, install `netcat` on the BigBlueButton using the following command:
+First, install `netcat` on the BigBlueButton server using the following command:
 
 ```bash
-$ sudo apt-get install netcat
+$ sudo apt-get install netcat-openbsd
 ```
 
 Next, stop BigBlueButton with the command `sudo bbb-conf --stop`. This frees up the ports we want to test. We can now run `netcat` to listen on ports and try connecting from an external computer. As root, run the following command:
@@ -151,9 +152,22 @@ At this point, proceed with the [installation of BigBlueButton](/administration/
 
 ## Configure BigBlueButton to work with your firewall
 
+### Updating LiveKit
+
+If your server is behind NAT or your main network interface is not bound to a public IP, you need to configure LiveKit so that it advertises its public IP correctly. In `/etc/bigbluebutton/livekit.yaml`, set:
+
+```yaml
+rtc:
+  node_ip: 203.0.113.1
+```
+
+If users also connect from the server's private network (or your firewall doesn't do hairpin NAT), also set `advertise_internal_ip: true` under `rtc`. Keep `use_external_ip` set to `false`.
+
+Restart BigBlueButton to apply the change.
+
 ### Updating mediasoup
 
-In BigBlueButton 2.5 or later, the HTML5 client uses **mediasoup** to send/receive WebRTC streams. If you are installing on a BigBlueButton server behind a firewall that uses network address translation (NAT), you need to make sure mediasoup has its external addresses properly configured.
+**mediasoup** is used instead of LiveKit for the meetings whose `cameraBridge`, `screenShareBridge` or `audioBridge` is `bbb-webrtc-sfu` (see the [bbb-web properties](/administration/customize#other-meeting-configs-available)). If you use it on a BigBlueButton server behind a firewall that uses network address translation (NAT), you need to make sure mediasoup has its external addresses properly configured.
 
 Keep in mind the following steps should already be done by bbb-install in an IPv4 environment.
 
@@ -184,6 +198,8 @@ Restart BigBlueButton to apply the changes.
 
 ### Update FreeSWITCH
 
+FreeSWITCH carries the audio of the meetings that use the FreeSWITCH audio bridge (`audioBridge=bbb-webrtc-sfu`) and the telephone dial-in; with the default LiveKit audio bridge and no dial-in, you can skip this section.
+
 Let's revisit the typical setup for BigBlueButton behind a firewall (yours would have different IP address of course).
 
 ![Install](/img/11-install-net2.png)
@@ -197,7 +213,7 @@ Edit the following files and substitute EXTERNAL_IP_ADDRESS for the external IP 
 Edit `/opt/freeswitch/conf/vars.xml`, and change
 
 ```xml
-<X-PRE-PROCESS cmd="set" data="external_rtp_ip=stun:stun.freeswitch.org"/>
+<X-PRE-PROCESS cmd="set" data="external_rtp_ip=stun:stun.l.google.com:19302"/>
 ```
 
 To
@@ -209,7 +225,7 @@ To
 Change
 
 ```xml
-<X-PRE-PROCESS cmd="set" data="external_sip_ip=stun:stun.freeswitch.org"/>
+<X-PRE-PROCESS cmd="set" data="external_sip_ip=stun:stun.l.google.com:19302"/>
 ```
 
 To
@@ -246,14 +262,7 @@ to
 
 so that FreeSWITCH announces the external IP address when a connection is established.
 
-Check that `enableListenOnly` is set to true in `/etc/bigbluebutton/bbb-html5.yml`, as in
-
-```bash
-$ grep enableListenOnly /etc/bigbluebutton/bbb-html5.yml
-    enableListenOnly: true
-```
-
-Next, edit `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` change the value to `ip` to match the external IP address of the server.
+Next, edit `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` and change the value of `ip` to match the external IP address of the server.
 
 ```yaml
 freeswitch:
@@ -265,7 +274,7 @@ freeswitch:
 After making the above changes, restart BigBlueButton.
 
 ```bash
-$ bbb-conf --restart
+$ sudo bbb-conf --restart
 ```
 
 To test, launch FireFox and try connecting to your BigBlueButton server and join the audio.
@@ -382,16 +391,17 @@ $ ip addr
 
 You should see the EXTERNAL_IP_ADDRESS for your firewall listed above.
 
-At this point, restart your BigBlueButton server with `bbb-conf --restart`, then try connecting to the WebRTC media again.
+At this point, restart your BigBlueButton server with `sudo bbb-conf --restart`, then try connecting to the WebRTC media again.
 
-Finally, to ensure this dummy NIC to be automatically created on restart, edit `/etc/network/interfaces` and add the following
+Finally, to ensure this dummy NIC is automatically created on reboot, add the address to the loopback interface in netplan, which Ubuntu 24.04 uses to configure the network. Create `/etc/netplan/60-bbb-loopback.yaml` with the following contents, replace `EXTERNAL_IP_ADDRESS`, and apply it with `sudo netplan apply`:
 
-```
-# The loopback network interface
-auto lo
-iface lo inet loopback
-        post-up ip addr add EXTERNAL_IP_ADDRESS/32 dev lo
-        pre-down ip addr del EXTERNAL_IP_ADDRESS/32 dev lo
+```yaml
+network:
+  version: 2
+  ethernets:
+    lo:
+      addresses:
+        - EXTERNAL_IP_ADDRESS/32
 ```
 
 The above will enable users outside the firewall to access your BigBlueButton server.
