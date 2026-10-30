@@ -85,8 +85,8 @@ func loadExamples(t *testing.T) map[string]*Case {
 
 func TestExampleCases(t *testing.T) {
 	byID := loadExamples(t)
-	if len(byID) != 24 {
-		t.Errorf("loaded %d example cases, want 24", len(byID))
+	if len(byID) != 25 {
+		t.Errorf("loaded %d example cases, want 25", len(byID))
 	}
 }
 
@@ -94,6 +94,37 @@ func TestBusSelect(t *testing.T) {
 	b := loadExamples(t)["create.props.selected"].Steps[1].Bus
 	if want := []string{"$.core.body.props.voiceProp", "$.core.body.props.noSuchProp"}; b == nil || !reflect.DeepEqual(b.Select, want) {
 		t.Errorf("bus step = %+v, want select %q", b, want)
+	}
+}
+
+// A sink step's filters become JSONPath matchers on the request; header
+// names are matched by their canonical form.
+func TestSinkStep(t *testing.T) {
+	c := loadExamples(t)["end.callback.ended"]
+	if c == nil || !reflect.DeepEqual(c.Requires, []string{"akka", "callbacks"}) {
+		t.Fatalf("case = %+v", c)
+	}
+	s := c.Steps[2]
+	if s.Sink == nil || *s.Sink != (SinkStep{Key: "${uid}-meta", Within: 5 * time.Second}) {
+		t.Errorf("sink step = %+v", s.Sink)
+	}
+	var keys []string
+	for _, m := range s.Expect.JSONPath {
+		keys = append(keys, m.Key+" "+m.M.Op+" "+m.M.Arg)
+	}
+	want := []string{"$.method eq GET", "$.path eq /${uid}-meta/end", "$.query['from'] eq meta", "$.query['meetingID'] eq ${uid}",
+		"$.query['recordingmarks'] eq false", "$.headers['User-Agent'] regex ^Go-http-client/"}
+	if !reflect.DeepEqual(keys, want) {
+		t.Errorf("filters = %q\nwant %q", keys, want)
+	}
+	if count := c.Steps[3].Expect.Count; count == nil || count.Arg != "1" || len(c.Steps[3].Expect.JSONPath) != 1 {
+		t.Errorf("count step = %+v", c.Steps[3].Expect)
+	}
+	if !c.Steps[4].Expect.Absent {
+		t.Errorf("absent step = %+v", c.Steps[4].Expect)
+	}
+	if got := jsonPathName(`it's a \ name`); got != `'it\'s a \\ name'` {
+		t.Errorf("jsonPathName = %s", got)
 	}
 }
 
@@ -263,6 +294,9 @@ func TestImplicitRequires(t *testing.T) {
 	}
 	if f := c.Steps[6]; f.FS == nil || f.FS.Path != "recording/status/recorded/${intId}*.done" || f.Expect.Exists == nil || !*f.Expect.Exists {
 		t.Errorf("fs step = %+v", f.FS)
+	}
+	if k := c.Steps[7]; k.Sink == nil || *k.Sink != (SinkStep{Key: "${uid}", Within: 10 * time.Second}) || !k.Expect.Absent {
+		t.Errorf("sink step = %+v", k.Sink)
 	}
 	if c.Steps[6].Golden != "document" {
 		t.Errorf("golden = %q", c.Steps[6].Golden)

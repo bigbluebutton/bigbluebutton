@@ -86,6 +86,8 @@ func label(s spec.Step) string {
 		return "fs " + s.FS.Path
 	case s.Kind == spec.KindRedis:
 		return "redis " + s.Redis.Key
+	case s.Kind == spec.KindSink:
+		return "sink " + s.Sink.Key
 	case s.Kind != spec.KindCall:
 		return string(s.Kind)
 	}

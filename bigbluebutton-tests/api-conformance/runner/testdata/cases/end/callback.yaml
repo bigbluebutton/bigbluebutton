@@ -1,0 +1,38 @@
+# A sink step finds the requests the target's sink recorded under its key
+# since the case began. The ended meeting calls back both URLs it was
+# created with, each with its ID added to the query; nothing reaches a key
+# no URL used. Headers can be matched, but only the method, path, query
+# and body are recorded.
+id: end.callback.ended
+title: Ending a meeting calls back its URLs
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: Callback
+      meta_endCallbackUrl: "${sinkUrl}/${uid}-meta/end?from=meta"
+      meetingEndedURL: "${sinkUrl}/${uid}-param"
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+  - sink: {key: "${uid}-meta", within: 5s}
+    expect:
+      method: GET
+      path: "/${uid}-meta/end"
+      query: {from: meta, meetingID: "${uid}", recordingmarks: "false"}
+      headers: {user-agent: {regex: "^Go-http-client/"}}
+    capture: {marks: $.query.recordingmarks}
+  - sink: {key: "${uid}-param", within: 1s}
+    expect: {count: 1, query: {recordingmarks: "${marks}"}}
+  - sink: {key: "${uid}-other", within: 300ms}
+    expect: {absent: true}
+teardown:
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

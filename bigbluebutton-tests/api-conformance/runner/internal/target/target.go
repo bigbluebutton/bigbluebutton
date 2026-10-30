@@ -4,6 +4,7 @@ package target
 
 import (
 	"bytes"
+	"cmp"
 	"fmt"
 	"net/url"
 	"os"
@@ -32,8 +33,17 @@ type Target struct {
 	Capabilities []string `yaml:"capabilities"`
 	// DefaultSign is the algorithm for signed calls; sha256 when empty.
 	DefaultSign string `yaml:"defaultSign"`
-	SinkURL     string `yaml:"sinkUrl"`
-	FixtureURL  string `yaml:"fixtureUrl"`
+	// SinkURL is the sink (bbb-conform sink) as the server under test
+	// reaches it, for ${sinkUrl}, or BBB_SINK_URL when blank. It gives the
+	// target the callbacks capability.
+	SinkURL string `yaml:"sinkUrl"`
+	// SinkReadURL is where the runner reads the sink, when it reaches it
+	// by another name than the server does: BBB_SINK_READ_URL when blank,
+	// else SinkURL.
+	SinkReadURL string `yaml:"sinkReadUrl"`
+	// FixtureURL is where the server fetches fixtures from, for
+	// ${fixtureUrl}, or BBB_FIXTURE_URL when blank.
+	FixtureURL string `yaml:"fixtureUrl"`
 	// GraphQLURL is bbb-graphql-middleware's websocket; by default the base
 	// URL's host at /graphql, as nginx serves it.
 	GraphQLURL string `yaml:"graphqlUrl"`
@@ -160,6 +170,9 @@ func (t *Target) complete(getenv func(string) string) error {
 			}
 		}
 	}
+	if err := t.completeSink(getenv); err != nil {
+		return err
+	}
 	if t.GraphQLURL == "" {
 		t.GraphQLURL = strings.Replace(t.BaseURL, "http", "ws", 1) + "/graphql"
 	} else if g, err := url.Parse(t.GraphQLURL); err != nil || (g.Scheme != "ws" && g.Scheme != "wss") || g.Host == "" {
@@ -284,6 +297,31 @@ func FillPath(path string, params map[string]string) (string, error) {
 		return "", fmt.Errorf("the route needs pathParams %s", strings.Join(missing, ", "))
 	}
 	return out, nil
+}
+
+// completeSink fills the sink's and fixtures' URLs from the environment
+// and checks them. A sink gives the target the callbacks capability.
+func (t *Target) completeSink(getenv func(string) string) error {
+	t.SinkURL = strings.TrimSuffix(cmp.Or(t.SinkURL, getenv("BBB_SINK_URL")), "/")
+	t.SinkReadURL = strings.TrimSuffix(cmp.Or(t.SinkReadURL, getenv("BBB_SINK_READ_URL"), t.SinkURL), "/")
+	t.FixtureURL = strings.TrimSuffix(cmp.Or(t.FixtureURL, getenv("BBB_FIXTURE_URL")), "/")
+	for _, f := range []struct{ name, url string }{{"sinkUrl", t.SinkURL}, {"sinkReadUrl", t.SinkReadURL}, {"fixtureUrl", t.FixtureURL}} {
+		if f.url == "" {
+			continue
+		}
+		if u, err := url.Parse(f.url); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+			return fmt.Errorf("%s %q must be an http:// or https:// URL", f.name, f.url)
+		}
+	}
+	switch {
+	case t.SinkURL == "" && t.SinkReadURL != "":
+		return fmt.Errorf("sinkReadUrl %q needs a sinkUrl, the sink as the server reaches it", t.SinkReadURL)
+	case t.SinkURL != "" && !t.Has("callbacks"):
+		t.Capabilities = append(t.Capabilities, "callbacks")
+	case t.SinkURL == "" && t.Has("callbacks"):
+		return fmt.Errorf("capability callbacks needs a sink: set sinkUrl or BBB_SINK_URL")
+	}
+	return nil
 }
 
 // tapCapabilities are what a tap gives a target.

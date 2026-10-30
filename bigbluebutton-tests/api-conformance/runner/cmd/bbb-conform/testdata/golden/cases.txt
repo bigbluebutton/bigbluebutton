@@ -8,9 +8,10 @@ PASS  create.validation.name-length-256 (0s)
 PASS  create.validation.name-length-257 (0s)
 PASS  create.props.selected (0s)
 SKIP  create.props.mute-on-start
-      unimplemented: env, sink
+      unimplemented: env
 PASS  create.side-effects.unrecorded (0s)
 PASS  create.side-effects.recorded (0s)
+PASS  end.callback.ended (0s)
 PASS  getMeetingInfo.fields.metadata (0s)
 PASS  getMeetings.checksum.errors (0s)
 PASS  getMeetings.checksum.modes-sha1-last (0s)
@@ -24,4 +25,4 @@ PASS  join.redirect.session-token (0s)
 PASS  stuns.session.unknown-token (0s)
 PASS  version.index.fields (0s)
 
-24 case(s): 23 passed, 0 failed, 0 errors, 1 skipped (0s)
+25 case(s): 24 passed, 0 failed, 0 errors, 1 skipped (0s)

@@ -2,6 +2,7 @@ package spec
 
 import (
 	"fmt"
+	"net/textproto"
 	"os"
 	"path"
 	"regexp"
@@ -240,6 +241,13 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 		}
 		if e := mapGet(n, "expect"); e != nil {
 			s.Expect = d.expect(e)
+			d.sideEffectModes(n, e, s.Expect, where)
+		}
+	case KindSink:
+		sk := mapGet(n, key)
+		s.Sink = &SinkStep{Key: d.str(mapGet(sk, "key")), Within: duration(mapGet(sk, "within"))}
+		if e := mapGet(n, "expect"); e != nil {
+			s.Expect = d.sinkExpect(e)
 			d.sideEffectModes(n, e, s.Expect, where)
 		}
 	default:
@@ -544,6 +552,37 @@ func (d *decoder) busSelect(s *Step, n *yaml.Node, where string) {
 func validGlob(p string) bool {
 	_, err := path.Match(p, "")
 	return err == nil
+}
+
+// sinkExpect decodes a sink step's expect. Its filters, which choose the
+// requests that count, become JSONPath matchers on the request as the
+// step sees it: $.method, $.path, $.query['<name>'] and
+// $.headers['<Canonical-Name>'].
+func (d *decoder) sinkExpect(n *yaml.Node) *Expect {
+	e := &Expect{Absent: boolean(mapGet(n, "absent")), Count: d.optMatcher(mapGet(n, "count"))}
+	for _, f := range []string{"method", "path"} {
+		if v := mapGet(n, f); v != nil {
+			e.JSONPath = append(e.JSONPath, NamedMatcher{Key: "$." + f, M: d.matcher(v), Line: v.Line})
+		}
+	}
+	if v := mapGet(n, "query"); v != nil {
+		for _, m := range d.matcherTable(v, keyPlain) {
+			m.Key = "$.query[" + jsonPathName(m.Key) + "]"
+			e.JSONPath = append(e.JSONPath, m)
+		}
+	}
+	if v := mapGet(n, "headers"); v != nil {
+		for _, m := range d.matcherTable(v, keyHeader) {
+			m.Key = "$.headers[" + jsonPathName(textproto.CanonicalMIMEHeaderKey(m.Key)) + "]"
+			e.JSONPath = append(e.JSONPath, m)
+		}
+	}
+	return e
+}
+
+// jsonPathName quotes a member name for a JSONPath bracket selector.
+func jsonPathName(name string) string {
+	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(name) + "'"
 }
 
 // sideEffectModes checks that a side-effect step's expect asks one

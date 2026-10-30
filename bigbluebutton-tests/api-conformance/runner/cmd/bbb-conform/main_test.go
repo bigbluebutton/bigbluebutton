@@ -14,7 +14,7 @@ func TestRun(t *testing.T) {
 		code     int
 		inStdout string
 	}{
-		{[]string{"validate", "--cases", "../../testdata/cases"}, exitOK, "ok: 24 case(s) in 17 file(s)"},
+		{[]string{"validate", "--cases", "../../testdata/cases"}, exitOK, "ok: 25 case(s) in 18 file(s)"},
 		{[]string{"validate", "--cases", "../../internal/spec/testdata/invalid", "--fixtures", "../../testdata/fixtures"}, exitFailed, "problem(s) in 48 file(s)"},
 		{[]string{"validate", "--cases", "../../testdata/smoke", "--golden", "testdata/recordings/smoke"}, exitOK, "is current"},
 		{[]string{"validate", "--cases", "no-such-dir"}, exitUsage, ""},
@@ -47,6 +47,16 @@ func TestTapUsage(t *testing.T) {
 			t.Errorf("%v: exit %d: %s", args, code, stderr.String())
 		}
 	}
+}
+
+// TestMain clears the variables targets fall back to, so a shell set up
+// for a real server (eval "$(make -s -C env env)") can't reach the fake
+// targets the tests write.
+func TestMain(m *testing.M) {
+	for _, v := range []string{"BBB_URL", "BBB_SECRET", "BBB_TAP_URL", "BBB_SINK_URL", "BBB_SINK_READ_URL", "BBB_FIXTURE_URL", "BBB_WEB_DIRECT_URL"} {
+		os.Unsetenv(v)
+	}
+	os.Exit(m.Run())
 }
 
 func TestSinkUsage(t *testing.T) {

@@ -43,6 +43,9 @@ type Server struct {
 	// DeleteMarkers removes markers as soon as they're written, as
 	// record-and-playback does.
 	DeleteMarkers bool
+	// Callbacks, when set, sends the callbacks a real server sends when a
+	// meeting ends, to meta_endCallbackUrl and meetingEndedURL.
+	Callbacks *http.Client
 
 	api bool // behave like bbb-api, the Go port
 
@@ -77,6 +80,7 @@ type meeting struct {
 	voiceConf               string
 	record                  bool
 	meetingKeepEvents       bool
+	endedURL                string // meetingEndedURL
 	ended                   bool
 	endPolls                int
 }
@@ -389,7 +393,8 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request, p url.Values) {
 	sum := sha1.Sum([]byte(id))
 	m := &meeting{id: id, name: name, attendeePW: ap, moderatorPW: mp, createTime: s.clock, meta: map[string]string{},
 		intID: hex.EncodeToString(sum[:]) + "-" + strconv.FormatInt(s.clock, 10), guestPolicy: p.Get("guestPolicy"),
-		voiceConf: voiceBridge(s.seq), record: p.Get("record") == "true", meetingKeepEvents: p.Get("meetingKeepEvents") == "true"}
+		voiceConf: voiceBridge(s.seq), record: p.Get("record") == "true", meetingKeepEvents: p.Get("meetingKeepEvents") == "true",
+		endedURL: p.Get("meetingEndedURL")}
 	for k, vs := range p {
 		if rest, ok := strings.CutPrefix(k, "meta_"); ok && rest != "" {
 			m.meta[strings.ToLower(rest)] = vs[0]
@@ -444,9 +449,34 @@ func (s *Server) end(w http.ResponseWriter, r *http.Request, p url.Values) {
 	} else {
 		s.ended(m)
 		m.ended = true
+		s.callBack(m)
 	}
 	s.writeXML(w, "<returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey>"+
 		"<message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message>")
+}
+
+// callBack sends the callbacks bbb-web sends once a meeting has ended, in
+// the background: each URL gets recordingmarks and meetingID added to its
+// query.
+func (s *Server) callBack(m *meeting) {
+	if s.Callbacks == nil {
+		return
+	}
+	for _, raw := range []string{m.meta["endcallbackurl"], m.endedURL} {
+		u, err := url.Parse(raw)
+		if raw == "" || err != nil {
+			continue
+		}
+		if u.RawQuery != "" {
+			u.RawQuery += "&"
+		}
+		u.RawQuery += "recordingmarks=false&meetingID=" + url.QueryEscape(m.id)
+		go func() {
+			if resp, err := s.Callbacks.Get(u.String()); err == nil {
+				resp.Body.Close()
+			}
+		}()
+	}
 }
 
 func (s *Server) join(w http.ResponseWriter, r *http.Request, p url.Values) {

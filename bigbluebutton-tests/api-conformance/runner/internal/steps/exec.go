@@ -25,6 +25,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/presence"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/sink"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tap"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
@@ -40,7 +41,7 @@ const minAttempt = 250 * time.Millisecond
 
 // Implemented lists the step types this runner can execute.
 var Implemented = map[spec.StepKind]bool{spec.KindCall: true, spec.KindWait: true, spec.KindPresence: true, spec.KindGraphQL: true,
-	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true}
+	spec.KindBus: true, spec.KindFS: true, spec.KindRedis: true, spec.KindSink: true}
 
 // Runner runs cases against one target.
 type Runner struct {
@@ -71,12 +72,15 @@ type Runner struct {
 	PingEvery time.Duration
 	// Tap is the target's tap, for bus, fs and redis steps; nil without one.
 	Tap *tap.Client
+	// Sink is the target's sink, for sink steps; nil without one.
+	Sink *sink.Client
 	// Abort, when done, stops teardowns too, as a second Ctrl-C does.
 	// Restoring the default profile still finishes.
 	Abort context.Context
 	// tapDown is why the tap didn't answer before the run, so its cases
-	// don't each wait for it.
-	tapDown error
+	// don't each wait for it; sinkDown the same for the sink.
+	tapDown  error
+	sinkDown error
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -126,6 +130,9 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 	r := &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, TLS: tlsCfg, Redactor: red, Version: version, NewUID: randomUID}
 	if t.TapURL != "" {
 		r.Tap = tap.NewClient(t.TapURL)
+	}
+	if t.SinkReadURL != "" {
+		r.Sink = sink.NewClient(t.SinkReadURL, tlsCfg)
 	}
 	return r, nil
 }
@@ -248,6 +255,14 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 		pctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		if _, err := r.Tap.Info(pctx); err != nil {
 			r.tapDown = fmt.Errorf("the tap at %s didn't answer before the run: %w", r.Target.TapURL, err)
+		}
+		cancel()
+	}
+	r.sinkDown = nil
+	if r.Sink != nil && slices.ContainsFunc(cases, func(c *spec.Case) bool { return usesSink(c) && r.skipReason(c) == "" }) {
+		pctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		if _, err := r.Sink.Info(pctx); err != nil {
+			r.sinkDown = fmt.Errorf("the sink at %s didn't answer before the run: %w", r.Target.SinkReadURL, err)
 		}
 		cancel()
 	}
@@ -399,6 +414,7 @@ type exec struct {
 	env      *tmpl.Env
 	users    map[string]*presence.User // presence users, by handle
 	mark     tap.Mark                  // where the case's bus and fs steps look from
+	sinkMark sink.Info                 // where its sink steps look from
 }
 
 // RunCase runs one case with the given ${uid}.
@@ -423,6 +439,10 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.tapDown.Error())
 		return res
 	}
+	if r.sinkDown != nil && usesSink(c) {
+		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.sinkDown.Error())
+		return res
+	}
 
 	x := &exec{r: r, c: c, uid: uid, captured: map[string]string{}, session: client.NewSession(r.Transport), users: map[string]*presence.User{}}
 	defer x.closeUsers() // after teardown, on every path
@@ -434,6 +454,14 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 			return res
 		}
 		x.mark = m
+	}
+	if usesSink(c) {
+		i, err := r.Sink.Info(ctx)
+		if err != nil {
+			res.Status, res.Reason = report.Error, r.Redactor.Redact(err.Error())
+			return res
+		}
+		x.sinkMark = *i
 	}
 	x.env = &tmpl.Env{
 		Vars:        x.lookup,
@@ -534,6 +562,8 @@ func (x *exec) step(ctx context.Context, phase string, i int, s spec.Step) repor
 		x.fs(ctx, phase, i, s, &sr)
 	case spec.KindRedis:
 		x.redis(ctx, phase, i, s, &sr)
+	case spec.KindSink:
+		x.sink(ctx, phase, i, s, &sr)
 	default:
 		sr.Status, sr.Message = report.Skip, "unimplemented: "+string(s.Kind)
 	}

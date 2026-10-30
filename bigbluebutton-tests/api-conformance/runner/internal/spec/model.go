@@ -76,14 +76,15 @@ type Step struct {
 	Bus      *BusStep      // KindBus
 	FS       *FSStep       // KindFS
 	Redis    *RedisStep    // KindRedis
+	Sink     *SinkStep     // KindSink
 
 	// Config is the step-type mapping of the kinds implemented by later
-	// tickets (sink, env), as plain values. Their tickets give them types.
+	// tickets (env), as plain values. Their tickets give them types.
 	Config map[string]any
 	// RawExpect is the expect mapping of those kinds.
 	RawExpect map[string]any
 
-	Expect  *Expect // every kind but wait, sink and env
+	Expect  *Expect // every kind but wait and env
 	Capture []Capture
 	Golden  string // compare | document | off; "" means the default
 }
@@ -155,6 +156,14 @@ type FSStep struct {
 
 // RedisStep reads a key from the server's redis, through the target's tap.
 type RedisStep struct {
+	Key    string
+	Within time.Duration
+}
+
+// SinkStep looks for a request the target's sink recorded under a key:
+// a callback, or a fetch of a fixture. The step sees every request to the
+// key since the case began.
+type SinkStep struct {
 	Key    string
 	Within time.Duration
 }
@@ -236,10 +245,11 @@ type Expect struct {
 	Schema     string
 	Errors     *Matcher // graphql: matched against each error message
 
-	// For bus, fs and redis steps.
+	// For bus, fs, redis and sink steps. A sink step's filters are
+	// JSONPath matchers on the request: see steps' sink.
 	Absent     bool     // nothing matches during the whole window
 	Exists     *bool    // fs, redis: false means gone at some point in the window
-	Count      *Matcher // bus: how many messages match by the window's end
+	Count      *Matcher // bus, sink: how many match by the window's end
 	Contents   *Matcher // fs
 	Hash       []NamedMatcher
 	Members    []string // redis: the exact set, in any order

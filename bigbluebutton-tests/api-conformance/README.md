@@ -8,8 +8,9 @@ cases. Cases are declarative YAML; `bbb-conform` (in `runner/`) runs them.
 `url` and `wait`), joins headless users to meetings (`presence`) and runs
 GraphQL as them (`graphql`), checks what the server did on the redis bus, in
 redis and on disk (`bus`, `redis` and `fs`, through a [tap](#the-tap-tap)),
-and records what a server answers. Cases that use the other step types
-(`sink`, `env`) or response schemas are skipped until those are implemented.
+checks the callbacks and fetches it sent (`sink`, through a
+[sink](#the-sink-sink)), and records what a server answers. Cases that use
+`env` steps or response schemas are skipped until those are implemented.
 bbb-api isn't in this tree yet; `targets/bbb-api.yaml` and
 `expectations/bbb-api.yaml` are ready for it.
 
@@ -19,7 +20,7 @@ runner/                  the bbb-conform Go module
   testdata/cases/          worked examples of every feature
   testdata/smoke/          a quick check of a live server
 cases/<area>/<group>/    the suite's cases, e.g. cases/common/checksum/ or cases/join/guest/
-fixtures/                files cases refer to (bodies, presentations, schemas); none yet
+fixtures/                files cases refer to or the sink serves (bodies, presentations, plugins)
 golden/<target>/         reviewed recordings of what a server answered
 masks.yaml               extra normalization rules for diff and recordings
 env/                     the Tier 1 stack (make -C env up) and config profiles
@@ -76,8 +77,9 @@ saltEnv: BBB_SECRET                  # or salt: ...
 tls: {caFile: dev-ca.crt}            # relative to this file; or insecureSkipVerify: true
 capabilities: [akka, presence]       # names a case can require; a misspelt one is an error
 defaultSign: sha256
-sinkUrl: https://sink.example.com    # optional, for ${sinkUrl}
-fixtureUrl: https://files.example.com
+sinkUrl: https://sink.test:8444      # the sink as the server reaches it, for ${sinkUrl}
+sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs
+fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
 vars:
@@ -85,12 +87,14 @@ vars:
 ```
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
-(e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`, and to
-`BBB_TAP_URL` for `tapUrl`. `targets/bbb-web.yaml` and `targets/bbb-api.yaml`
-are set up that way.
+(e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`; to
+`BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL` and
+`BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
+`targets/bbb-api.yaml` are set up that way.
 
-A target with a tap has the `bus`, `fs` and `redis` capabilities. Listing
-them without one is an error.
+A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
+with a sink the `callbacks` capability. Listing them without one is an
+error. The runner trusts the sink as it trusts the target (`tls`).
 
 **Routes** map the route names of `route` steps to this target's paths:
 
@@ -314,6 +318,60 @@ CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
 subscribed, its redis connection, the directories it watches and why it
 can't watch any others. Before a run, the runner checks that the tap
 answers; if it doesn't, the cases that use it ERROR at once.
+
+## The sink: `sink`
+
+`sink` steps see what a server sends out, callbacks and fetches, through a
+sink: `bbb-conform sink`, running where the server under test can reach it.
+It also serves the fixtures cases have the server fetch.
+
+```sh
+./bbb-conform sink --cert server.crt --key server.key --fixtures ../fixtures
+```
+
+| Option | Default |
+|---|---|
+| `--listen ADDR` | `127.0.0.1:8444`. |
+| `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
+| `--fixtures DIR` | None: the directory served under `fixtures/`. |
+| `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. |
+
+**Paths.** The first segment of a request's path is its key:
+
+| Path | Answer |
+|---|---|
+| `/<key>`, `/<key>/...` | Recorded under the key; 200 with no body. |
+| `/<key>/fixtures/<path>` | Recorded; the file at `<path>` in the fixtures directory, or 404. |
+| `/<key>/fixtures/generated/<name>?_size=N` | Recorded; a file of exactly N bytes (up to 64 MiB) made for the request: a valid one-page PDF for a `.pdf` name, a JSON document for `.json`, lines of text otherwise. A file over an upload limit needs no commit. |
+| `/fixtures/...` | The same files, not recorded. |
+| `/_received?key=K` | The requests recorded under K, as JSON: what `sink` steps read. |
+| `/_info` | The sink's instance and the number of its last request. |
+
+**Answers.** Query params that start with `_` change the answer. The
+server's own params never do: bbb-web adds `meetingID` and `recordingmarks`
+to an end callback.
+
+| Param | Answer |
+|---|---|
+| `_status=N` | Status N (200 to 599). |
+| `_delay=D` | After D, up to 2m. The request is recorded when it arrives, so a server that gives up still counts as having sent it. |
+| `_redirect=URL` | 302, or `_status`, with that Location. |
+| `_failFirst=N` | 500 to the first N requests to the path, then as asked. |
+| `_type=T` | Content-Type T. |
+| `_size=N` | A generated file's length. |
+
+An unknown `_` param gets a 400, so a misspelt one isn't ignored. Every
+request to a key is recorded, those it refused included.
+
+- **Test servers only.** The sink has no authentication: anyone who reaches
+  its port can read what it recorded. It serves files from the fixtures
+  directory only, never outside it.
+- **What it keeps:** each request's method, path, query, headers and the
+  first 64 KiB of its body, numbered in order. A restarted sink is a new
+  instance, so a case that took its mark before the restart ERRORs.
+
+Before a run, the runner checks that the sink answers; if it doesn't, the
+cases that use it ERROR at once.
 
 ## Checking cases
 
@@ -540,8 +598,8 @@ $.value.color "blue"
   like the steps in reports (`wait` steps count) and named after what the
   step does, e.g. `call create`, `presence join as ann`, `graphql query
   Me as ann`, `bus MeetingCreatedEvtMsg` (with `select <paths>` when it has
-  one) or `fs <path>`. `(document)` marks a step that is recorded but not
-  compared.
+  one), `fs <path>` or `sink <key>`. `(document)` marks a step that is
+  recorded but not compared.
 - **The lines** are the normalized response (see
   [Normalized responses](#normalized-responses)), or for a bus step with
   `select`, the lines of the selected parts.
@@ -662,7 +720,7 @@ Each step has exactly one step-type key.
 | `bus` | `{name, channel, meetingId, within}`: a message on the redis bus. `expect: {jsonpath, absent, count}`; `select` limits what is recorded. See [Side effects](#side-effects-bus-fs-and-redis). | yes |
 | `fs` | `{path, within}`: a file under the server's data directory; `path` may be a glob. `expect: {exists, absent, contents, jsonpath}`. | yes |
 | `redis` | `{key, within}`: a redis key. `expect: {exists, absent, hash, members, ttl}`. | yes |
-| `sink` | `{key, within}`: a callback the sink received. `expect: {absent, count, method, path, query, headers}`. The callback URL the case gives bbb-web sets how the sink answers. | not yet |
+| `sink` | `{key, within}`: the requests the target's sink recorded under a key. `expect: {method, path, query, headers, absent, count}`. See [Callbacks and fetches](#callbacks-and-fetches-sink). | yes |
 | `env` | `{action: stop\|start\|restart\|reset, service}`. | not yet |
 
 - A case that uses a step type that isn't implemented yet is skipped as
@@ -837,6 +895,46 @@ These steps check what a call did outside its answer, through the target's
   - So does a step whose window the tap no longer holds (raise `--max-mb`),
     or whose tap was restarted during the case.
 - **Paths** are relative to the data directory and can't contain `..`.
+
+#### Callbacks and fetches: `sink`
+
+A `sink` step checks what the server sent to the target's
+[sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
+the server a URL under `${sinkUrl}` whose first path segment is a key,
+normally made from `${uid}`, and the step looks at the requests under that
+key.
+
+```yaml
+- call: create
+  params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}"}
+- call: end
+  params: {meetingID: "${uid}"}
+- sink: {key: "${uid}", within: 10s}
+  expect:
+    method: GET
+    query: {meetingID: "${uid}", recordingmarks: "false"}
+    headers: {user-agent: {regex: "Apache-HttpClient"}}
+  capture: {marks: $.query.recordingmarks}
+- sink: {key: "${uid}-unused", within: 1s}
+  expect: {absent: true}
+```
+
+- **The window:** a case with a `sink` step takes a mark from the sink
+  before its first step. Each step looks at the requests to its key since
+  then, for up to `within` (required) after it starts. As for `bus`, it
+  passes at the first match; `absent: true` takes the whole window, and
+  `count` checks how many matched by its end.
+- **What matches:** `method`, `path`, `query` (by name) and `headers` (by
+  name, in any case) narrow what counts.
+- **The document** that `capture` and recordings see is
+  `{method, path, query, body}`: `query` holds each name's value, or a list
+  when the name repeats, and `body` is there when the request had one, in
+  base64 with `bodyEncoding` when it isn't UTF-8. Headers can be matched
+  but aren't recorded or captured: the User-Agent and the like change with
+  the server's libraries. The document is `null` when nothing matched.
+- **How the sink answers** follows the URL: see [the sink](#the-sink-sink).
+- **Errors:** a step ERRORs when the sink restarted during the case, or no
+  longer holds its window (raise its `--max-mb`).
 
 #### HTTP requests
 

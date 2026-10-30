@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/textproto"
 	"net/url"
 	"slices"
 	"sort"
@@ -16,6 +17,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/assert"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/observe"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/report"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/sink"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tap"
 )
@@ -43,6 +45,13 @@ func needsMark(c *spec.Case) bool {
 		}
 	}
 	return false
+}
+
+// usesSink says whether a case has a sink step. It looks from a mark taken
+// before its first step: the sink's last request then.
+func usesSink(c *spec.Case) bool {
+	return slices.ContainsFunc(append(append([]spec.Step{}, c.Steps...), c.Teardown...),
+		func(s spec.Step) bool { return s.Kind == spec.KindSink })
 }
 
 // usesTap says whether a case's steps, not counting its teardown, have
@@ -171,6 +180,120 @@ func (x *exec) bus(ctx context.Context, phase string, index int, s spec.Step, sr
 		results = append(results, firstMiss...)
 	}
 	x.settle(phase, index, s, nil, doc, sr, checked(results))
+}
+
+// sink looks for requests the sink recorded under the step's key since the
+// case began. Its filters are JSONPath matchers on the request as
+// sinkDocs gives it, headers included; what it records and captures from
+// leaves the headers out.
+func (x *exec) sink(ctx context.Context, phase string, index int, s spec.Step, sr *report.StepResult) {
+	k, e := s.Sink, s.Expect
+	key, err := x.expand(k.Key)
+	if err != nil {
+		sr.Status, sr.Message = report.Error, err.Error()
+		return
+	}
+	sr.Request = &report.Request{Method: "SINK", URL: x.redact(x.r.Target.SinkReadURL + "/_received?" + url.Values{"key": {key}}.Encode())}
+	m := modeOf(e)
+	deadline := time.Now().Add(k.Within)
+	after := x.sinkMark.Seq
+	var matches [][]byte // the recorded documents of the requests that pass the filters
+	var firstMiss []assert.Result
+	candidates := 0
+	for {
+		res, err := x.r.Sink.Received(ctx, sink.Query{Key: key, Instance: x.sinkMark.Instance, After: after, Wait: time.Until(deadline)})
+		if err == nil && res.Truncated {
+			err = errors.New("the sink no longer holds all of this case's requests: start it with a larger --max-mb")
+		}
+		if err != nil {
+			sr.Status, sr.Message = report.Error, err.Error()
+			return
+		}
+		after = res.Seq
+		for _, req := range res.Requests {
+			candidates++
+			full, doc := sinkDocs(req)
+			results, err := assert.Check(filters(e), documentObservation(full), assert.Eval(x.expand))
+			if err != nil {
+				sr.Status, sr.Message = report.Error, err.Error()
+				return
+			}
+			if assert.Passed(results) {
+				matches = append(matches, doc)
+			} else if firstMiss == nil {
+				firstMiss = results
+			}
+		}
+		done := time.Now().After(deadline) || ctx.Err() != nil
+		if (m == modeFind || m == modeAbsent) && len(matches) > 0 || done {
+			break
+		}
+	}
+	what := "sink " + key
+	doc := []byte("null")
+	if len(matches) > 0 {
+		doc = matches[0]
+	}
+	var result assert.Result
+	switch m {
+	case modeAbsent:
+		result = assert.Result{What: what, Expected: "none within " + k.Within.String(), Actual: "nothing", OK: len(matches) == 0}
+		if len(matches) > 0 {
+			result.Actual = jsonField(matches[0], "method") + " " + jsonField(matches[0], "path")
+		}
+	case modeCount:
+		r, err := assert.Match(what+" count", *e.Count, []string{strconv.Itoa(len(matches))}, assert.Eval(x.expand))
+		if err != nil {
+			sr.Status, sr.Message = report.Error, err.Error()
+			return
+		}
+		result = r
+	default:
+		result = assert.Result{What: what, Expected: "a request within " + k.Within.String(), Actual: "one", OK: len(matches) > 0}
+		if len(matches) == 0 {
+			result.Actual = "none"
+			if candidates > 0 {
+				result.Actual = fmt.Sprintf("%d request(s), none passing the filters", candidates)
+			}
+		}
+	}
+	results := []assert.Result{result}
+	if !result.OK && m == modeFind {
+		results = append(results, firstMiss...)
+	}
+	x.settle(phase, index, s, nil, doc, sr, checked(results))
+}
+
+// sinkDocs gives a request the sink recorded as a step sees it: method,
+// path, query (a value per name, or a list when it is repeated) and the
+// body when there is one. full adds the headers, by canonical name, for
+// the filters; doc, which is recorded, leaves them out, since headers
+// such as the User-Agent change with the server's libraries.
+func sinkDocs(r sink.Request) (full, doc []byte) {
+	q, _ := url.ParseQuery(r.RawQuery) // keeps what parses
+	query := map[string]any{}
+	for name, vs := range q {
+		if len(vs) == 1 {
+			query[name] = vs[0]
+		} else {
+			query[name] = vs
+		}
+	}
+	m := map[string]any{"method": r.Method, "path": r.Path, "query": query}
+	if r.Body != "" {
+		m["body"] = r.Body
+		if r.BodyEncoding != "" {
+			m["bodyEncoding"] = r.BodyEncoding
+		}
+	}
+	doc, _ = json.Marshal(m)
+	headers := map[string]string{}
+	for name, vs := range r.Header {
+		headers[textproto.CanonicalMIMEHeaderKey(name)] = strings.Join(vs, ", ")
+	}
+	m["headers"] = headers
+	full, _ = json.Marshal(m)
+	return full, doc
 }
 
 // busSeen describes what a bus step saw instead of a match: candidates

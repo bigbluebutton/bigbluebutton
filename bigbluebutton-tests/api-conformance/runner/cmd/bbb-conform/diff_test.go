@@ -21,7 +21,7 @@ func startTarget(t *testing.T, name, apiPrefix string, handler http.Handler) str
 	t.Helper()
 	tapLine := ""
 	if fake, ok := handler.(*fakebbb.Server); ok {
-		tapLine = "tapUrl: " + startTap(t, fake) + "\n"
+		tapLine = "tapUrl: " + startTap(t, fake) + "\n" + startSink(t, fake)
 	}
 	srv := httptest.NewTLSServer(handler)
 	t.Cleanup(srv.Close)
@@ -152,7 +152,7 @@ func TestDiffWebVsAPI(t *testing.T) {
 }
 
 func TestDiffUsage(t *testing.T) {
-	tf := startFake(t, "akka, presence")
+	tf := startFake(t, "akka, presence", true)
 	for _, args := range [][]string{
 		{"diff"},
 		{"diff", "--a", tf},
