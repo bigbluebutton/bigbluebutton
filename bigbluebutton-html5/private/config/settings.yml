@@ -956,9 +956,17 @@ public:
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
       #                Providers can force their own value for a given constraint,
       #                overriding whatever is configured below.
+      #   intensity: how aggressively the provider filters, 0-100. Only the
+      #              'bbba' provider has such a knob; it is ignored by any
+      #              provider that does not. Applied to every processor as it
+      #              is created, so it also covers the audio settings echo
+      #              test. There is no user-facing control for this - it is the
+      #              admin's choice for the whole server. Unset falls back to
+      #              the provider's own default.
       audioWasmProcessing:
         enabled: false
         provider: bbba
+        intensity: 95
         constraints:
           echoCancellation: true
           autoGainControl: true

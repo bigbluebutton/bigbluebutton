@@ -7,7 +7,7 @@ import {
 } from './types';
 import {
   isWasmProcessorSupported, isWasmProcessingConfigEnabled,
-  getEffectiveAudioProcessingMode,
+  getEffectiveAudioProcessingMode, isVoiceIsolationSupported,
 } from '/imports/api/audio/client/bridge/service';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 
@@ -30,6 +30,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.advancedFilteringDesc',
     description: 'advanced audio filtering option description',
   },
+  advancedFilteringIdealFor: {
+    id: 'app.submenu.audio.advancedFilteringIdealFor',
+    description: 'advanced audio filtering ideal use cases',
+  },
   standardFilteringLabel: {
     id: 'app.submenu.audio.standardFiltering',
     description: 'standard audio filtering option label',
@@ -37,6 +41,10 @@ const intlMessages = defineMessages({
   standardFilteringDesc: {
     id: 'app.submenu.audio.standardFilteringDesc',
     description: 'standard audio filtering option description',
+  },
+  standardFilteringIdealFor: {
+    id: 'app.submenu.audio.standardFilteringIdealFor',
+    description: 'standard audio filtering ideal use cases',
   },
   originalAudioLabel: {
     id: 'app.submenu.audio.originalAudio',
@@ -46,9 +54,33 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.originalAudioDesc',
     description: 'original/unprocessed audio option description',
   },
+  originalAudioIdealFor: {
+    id: 'app.submenu.audio.originalAudioIdealFor',
+    description: 'original/unprocessed audio ideal use cases',
+  },
   advancedFilteringDisabledReason: {
     id: 'app.submenu.audio.advancedFilteringDisabledReason',
     description: 'reason shown when advanced filtering is unavailable',
+  },
+  voiceIsolationLabel: {
+    id: 'app.submenu.audio.voiceIsolation',
+    description: 'voice isolation option label',
+  },
+  voiceIsolationDesc: {
+    id: 'app.submenu.audio.voiceIsolationDesc',
+    description: 'voice isolation option description',
+  },
+  voiceIsolationIdealFor: {
+    id: 'app.submenu.audio.voiceIsolationIdealFor',
+    description: 'voice isolation ideal use cases',
+  },
+  idealForLabel: {
+    id: 'app.submenu.audio.idealForLabel',
+    description: 'label for ideal audio option use cases',
+  },
+  experimentalBadge: {
+    id: 'app.submenu.audio.experimentalBadge',
+    description: 'badge shown on experimental audio options',
   },
 });
 
@@ -96,33 +128,45 @@ class AudioMenu extends BaseMenu {
 
     const options: AudioFilterOption[] = [];
 
+    options.push(
+      {
+        value: 'original',
+        titleMsg: intlMessages.originalAudioLabel,
+        descMsg: intlMessages.originalAudioDesc,
+        idealForMsg: intlMessages.originalAudioIdealFor,
+        disabled: false,
+        dataTest: 'originalAudioRadio',
+      },
+      {
+        value: 'standard',
+        titleMsg: intlMessages.standardFilteringLabel,
+        descMsg: intlMessages.standardFilteringDesc,
+        idealForMsg: intlMessages.standardFilteringIdealFor,
+        disabled: false,
+        dataTest: 'standardFilteringRadio',
+      },
+    );
     if (wasmConfigEnabled) {
       options.push({
         value: 'advanced',
         titleMsg: intlMessages.advancedFilteringLabel,
         descMsg: intlMessages.advancedFilteringDesc,
+        idealForMsg: intlMessages.advancedFilteringIdealFor,
         disabled: !wasmBrowserSupported,
         disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
         dataTest: 'advancedFilteringRadio',
       });
     }
-
-    options.push(
-      {
-        value: 'standard',
-        titleMsg: intlMessages.standardFilteringLabel,
-        descMsg: intlMessages.standardFilteringDesc,
+    if (wasmConfigEnabled && isVoiceIsolationSupported()) {
+      options.push({
+        value: 'voiceIsolation',
+        titleMsg: intlMessages.voiceIsolationLabel,
+        descMsg: intlMessages.voiceIsolationDesc,
+        idealForMsg: intlMessages.voiceIsolationIdealFor,
         disabled: false,
-        dataTest: 'standardFilteringRadio',
-      },
-      {
-        value: 'original',
-        titleMsg: intlMessages.originalAudioLabel,
-        descMsg: intlMessages.originalAudioDesc,
-        disabled: false,
-        dataTest: 'originalAudioRadio',
-      },
-    );
+        dataTest: 'voiceIsolationRadio',
+      });
+    }
 
     return (
       <Styled.FilterGroup
@@ -149,10 +193,20 @@ class AudioMenu extends BaseMenu {
                 />
                 <Styled.FilterOptionTitle>
                   {intl.formatMessage(option.titleMsg)}
+                  {['advanced', 'voiceIsolation'].includes(option.value) && (
+                    <Styled.ExperimentalBadge>
+                      {intl.formatMessage(intlMessages.experimentalBadge)}
+                    </Styled.ExperimentalBadge>
+                  )}
                 </Styled.FilterOptionTitle>
               </Styled.FilterOptionHeader>
               <Styled.FilterOptionDescription>
                 {intl.formatMessage(option.descMsg)}
+              </Styled.FilterOptionDescription>
+              <Styled.FilterOptionDescription>
+                <strong>{intl.formatMessage(intlMessages.idealForLabel)}</strong>
+                {' '}
+                {intl.formatMessage(option.idealForMsg)}
               </Styled.FilterOptionDescription>
               {showReason && option.disabledReasonMsg && (
                 <div id={reasonId} hidden>
