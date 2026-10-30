@@ -1899,4 +1899,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - Plain Text:
   - .txt
 
-All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+All these valid formats are also present in the `EXTENSIONS_MIME` map of the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java) and under `uploadValidMimeTypes` in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-html5/private/config/settings.yml) if more details are needed.
