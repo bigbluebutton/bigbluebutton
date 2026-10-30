@@ -71,6 +71,7 @@ export const elements = {
   closePopup: 'button[data-test="closePopup"]',
   restoreWelcomeMessages: 'li[data-test="restoreWelcomeMessages"]',
   navigationSidebarContainer: 'div[data-test="navigationSidebarContainer"]',
+  sidebarNavigationScrollbox: 'div[data-test="sidebarNavigationScrollbox"]',
   appsGallerySidebarButton: 'div[data-test="appsGallerySidebarButton"]',
   // the gallery items and their pin toggles carry no data-test: an item is the
   // button named after the app, its pin toggle the pressable button next to it
