@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.numeric.user-camera-cap-valid
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.usersProp.userCameraCap 7

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# meetingExpireWhenLastUserLeftInMinutes sets how long a meeting lasts after
+# its last user leaves. Whatever value it is given, create answers SUCCESS,
+# never an error: a value that isn't an int, such as letters or one over
+# 2^31 - 1, or an empty one, means the default. What reaches akka-apps'
+# meeting props is recorded.
+id: create.numeric.meeting-expire-when-last-user-left
+title: create with meetingExpireWhenLastUserLeftInMinutes=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: valid, vars: {value: "7"}, class: contract}
+  - {id: letters, vars: {value: "abc"}}
+  - {id: negative, vars: {value: "-5"}}
+  - {id: empty, vars: {value: ""}}
+  - {id: too-large, vars: {value: "2147483648"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Numbers, meetingExpireWhenLastUserLeftInMinutes: "${value}"}
+    golden: off
+    expect: {status: 200, returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.durationProps.meetingExpireWhenLastUserLeftInMinutes]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
