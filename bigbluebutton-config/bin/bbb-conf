@@ -107,6 +107,10 @@ fi
 
 # Common to Ubuntu and CentOS
 FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
+FREESWITCH_ETC_VARS=/etc/bigbluebutton/freeswitch/vars.xml
+if [ -f "$FREESWITCH_ETC_VARS" ]; then
+    FREESWITCH_VARS=$FREESWITCH_ETC_VARS
+fi
 FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
