@@ -165,6 +165,11 @@ const Avatar = styled.div`
     background-color: ${colorUserYou};
     color: ${colorUserYou};
   `}
+
+  ${({ $userColor }) => $userColor && `
+    background-color: ${$userColor};
+    color: ${$userColor};
+  `}
 `;
 
 const Skeleton = styled.div`
