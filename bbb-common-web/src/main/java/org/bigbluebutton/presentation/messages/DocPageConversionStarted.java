@@ -12,6 +12,7 @@ public class DocPageConversionStarted implements IDocConversionMsg {
     public final Boolean current;
     public final Boolean defaultPresentation;
     public final Integer numPages;
+    public final Boolean systemUpload;
 
     public DocPageConversionStarted(String podId,
                                     String meetingId,
@@ -23,7 +24,8 @@ public class DocPageConversionStarted implements IDocConversionMsg {
                                     Boolean removable,
                                     Boolean current,
                                     Boolean defaultPresentation,
-                                    Integer numPages) {
+                                    Integer numPages,
+                                    Boolean systemUpload) {
         this.podId = podId;
         this.meetingId = meetingId;
         this.presId = presId;
@@ -35,5 +37,6 @@ public class DocPageConversionStarted implements IDocConversionMsg {
         this.current = current;
         this.defaultPresentation = defaultPresentation;
         this.numPages = numPages;
+        this.systemUpload = systemUpload;
     }
 }

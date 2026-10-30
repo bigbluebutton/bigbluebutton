@@ -324,7 +324,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
 });
 
 // About two minutes: the running rooms cannot be given less than one minute.
-test.describe.parallel('Breakout time limit', () => {
+test.describe.parallel('Breakout time limit', { tag: '@nightly' }, () => {
   test('Rooms end by themselves when their time runs out', async ({ browser, context, page }, testInfo) => {
     const join = new Join(browser, context);
     await join.initPages(page, testInfo);
