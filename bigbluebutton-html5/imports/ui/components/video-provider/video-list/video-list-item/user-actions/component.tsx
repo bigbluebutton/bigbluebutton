@@ -88,7 +88,7 @@ interface UserActionProps {
   name: string;
   stream: VideoItem;
   cameraId: string | null;
-  numOfStreams: number;
+  canFocus: boolean;
   onHandleVideoFocus: ((id: string) => void) | null;
   focused: boolean;
   onHandleMirror: () => void;
@@ -106,7 +106,7 @@ interface UserActionProps {
 
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
-    name, cameraId = '', numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
+    name, cameraId = '', canFocus, onHandleVideoFocus, stream, focused, onHandleMirror,
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator, isFullscreenContext, layoutContextDispatch,
   } = props;
@@ -198,7 +198,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       });
     }
 
-    if (numOfStreams > 2 && isStream) {
+    if (canFocus && isStream) {
       menuItems.push({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
@@ -288,9 +288,9 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     return menuItems;
   };
 
-  const renderDefaultButton = () => (
+  const renderDefaultButton = (actions: ReturnType<typeof getAvailableActions>) => (
     <Styled.MenuWrapper>
-      {enableVideoMenu && getAvailableActions().length >= 1
+      {actions.length >= 1
         ? (
           <BBBMenu
             trigger={(
@@ -303,10 +303,11 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 {displayName}
               </Styled.DropdownTrigger>
             )}
-            actions={getAvailableActions()}
+            actions={actions}
             opts={{
               id: `webcam-${stream.userId}-dropdown-menu`,
-              keepMounted: true,
+              // Every tile has this menu and re-renders it often, so its closed tree is not kept mounted.
+              keepMounted: false,
               transitionDuration: 0,
               elevation: 3,
               getcontentanchorel: null,
@@ -319,7 +320,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         )
         : (
           <Styled.Dropdown $isFirefox={isFirefox}>
-            <Styled.UserName $noMenu={numOfStreams < 3}>
+            <Styled.UserName $noMenu={!canFocus}>
               {displayName}
             </Styled.UserName>
           </Styled.Dropdown>
@@ -354,7 +355,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   return (
     isVideoSqueezed
       ? renderSqueezedButton()
-      : renderDefaultButton()
+      : renderDefaultButton(enableVideoMenu ? getAvailableActions() : [])
   );
 };
 

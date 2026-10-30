@@ -1,8 +1,10 @@
 import { MutationFunction, useMutation } from '@apollo/client';
 import { useCallback } from 'react';
 import { SET_LAYOUT_PROPS, SET_SYNC_WITH_PRESENTER_LAYOUT } from './mutations';
-import { Input, Layout, Output } from '../layoutTypes';
-import { calculatePresentationVideoRate } from './service';
+import {
+  Input, Layout, MeetingCameraDock, Output,
+} from '../layoutTypes';
+import { getPropagatedCameraDock } from './service';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { layoutDispatch, layoutSelect } from '../context';
@@ -20,36 +22,59 @@ const usePushLayoutUpdater = (pushLayout: boolean) => {
       variables: {
         syncWithPresenterLayout: pushLayout,
       },
+    }).catch((error) => {
+      logger.error({
+        logCode: 'set_sync_with_presenter_layout_failed',
+        extraInfo: { error: error?.message },
+      }, 'Failed to set sync with presenter layout.');
     });
   };
 
   return setPushLayout;
 };
 
-const useMeetingLayoutUpdater = (
-  cameraDockOutput: Output['cameraDock'],
-  cameraDockInput: Input['cameraDock'],
-  presentationInput: Input['presentation'],
-  layoutSettings: { pushLayout: boolean, selectedLayout: boolean },
-) => {
+const useMeetingLayoutUpdater = ({
+  cameraDockOutput,
+  cameraDockInput,
+  presentationInput,
+  layoutSettings,
+  isCameraDockPropagationSuppressed,
+  meetingCameraDock,
+}: {
+  cameraDockOutput: Output['cameraDock'];
+  cameraDockInput: Input['cameraDock'];
+  presentationInput: Input['presentation'];
+  layoutSettings: { pushLayout: boolean, selectedLayout: string };
+  isCameraDockPropagationSuppressed: boolean;
+  meetingCameraDock: MeetingCameraDock;
+}) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
-  const { focusedId, position } = cameraDockOutput;
-  const { isResizing } = cameraDockInput;
+  const { focusedId } = cameraDockOutput;
   const { isOpen: presentationIsOpen } = presentationInput;
   const { selectedLayout } = layoutSettings;
 
   const setMeetingLayout = (pushLayout: boolean) => {
+    const cameraDock = getPropagatedCameraDock({
+      isSuppressed: isCameraDockPropagationSuppressed,
+      cameraDockOutput,
+      cameraDockInput,
+      meetingCameraDock,
+    });
+
     setMeetingLayoutProps({
       variables: {
         layout: selectedLayout,
         syncWithPresenterLayout: pushLayout,
         presentationIsOpen,
-        isResizing,
-        cameraPosition: position || 'contentTop',
         focusedCamera: focusedId || 'none',
-        presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+        ...cameraDock,
       },
+    }).catch((error) => {
+      logger.error({
+        logCode: 'set_meeting_layout_props_failed',
+        extraInfo: { error: error?.message },
+      }, 'Failed to set meeting layout properties.');
     });
   };
 

@@ -113,7 +113,7 @@ object ChatMessageDAO {
     ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
-  def update(meetingId: String, chatId: String, messageId: String, message: String, messageAsHtml: String) = {
+  def update(meetingId: String, chatId: String, messageId: String, message: String, messageAsHtml: String, metadata: Map[String, Any]) = {
     //The database will automatically keep the previous message as history
     DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef]
@@ -121,8 +121,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(msg => (msg.message, msg.messageAsHtml, msg.editedAt))
-        .update((Some(message), Some(messageAsHtml), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
+        .map(msg => (msg.message, msg.messageAsHtml, msg.messageMetadata, msg.editedAt))
+        .update((Some(message), Some(messageAsHtml), Some(JsonUtils.mapToJson(metadata).compactPrint), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 

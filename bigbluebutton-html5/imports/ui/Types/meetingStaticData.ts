@@ -19,6 +19,7 @@ export interface MeetingStaticData {
   customLogoUrl: string | null;
   customDarkLogoUrl: string | null;
   notifyRecordingIsOn: boolean;
+  notifyRecordingAppend: string;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
   recordingPolicies: {
@@ -29,6 +30,7 @@ export interface MeetingStaticData {
   } | null;
   usersPolicies: {
     allowModsToEjectCameras: boolean;
+    allowModsToRequestCameraShare: boolean;
     allowModsToUnmuteUsers: boolean;
     authenticatedGuest: boolean;
     guestPolicy: string;

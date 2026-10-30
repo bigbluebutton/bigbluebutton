@@ -132,7 +132,7 @@ All plugin sources are combined into a single list with duplicates removed. This
 You can use placeholders in the plugin URLs defined in any of the previously mentioned configurations. Currently, the only supported placeholder is:
 
 - `%%HTML5_PLUGIN_SDK_VERSION%%` – This will be automatically replaced by the version of the `bigbluebutton-html-plugin-sdk` used by `bigbluebutton-html5`.
-- `%%HTML5_PLUGIN_SDK_MAIN_VERSION%%` – This will be automatically replaced by the Main version of the `bigbluebutton-html-plugin-sdk` - Composed by Major + Minor (e.g.: `0.0` for `0.0.84`) - used by `bigbluebutton-html5`.
+- `%%HTML5_PLUGIN_SDK_MAIN_VERSION%%` – This will be automatically replaced by the Main version of the `bigbluebutton-html-plugin-sdk`, following semver compatibility: just the Major from `1.0` on (e.g.: `1` for `1.0.0-beta.3` and for `1.2.0`), Major + Minor for `0.x` versions, where every Minor is a breaking change (e.g.: `0.1` for `0.1.26`) - used by `bigbluebutton-html5`.
 - `%%BBB_VERSION%%` – This will be automatically replaced by the complete BigBlueButton server version (e.g.: `3.0.6`) from which the URL is called.
 - `%%BBB_MAIN_VERSION%%` – This will be automatically replaced by the current BigBlueButton server Main version - Composed by Major + Minor (e.g.: `3.0` for `3.0.6`) from which the URL is called.
 - `%%MEETING_ID%%` – This will be automatically replaced by the external meeting ID.
@@ -177,6 +177,43 @@ pluginManifestsFetchUrl=https://my-cdn.com/0.0.79/all-my-plugins/list-of-plugins
 In the future, support for additional placeholders may be added.
 
 ### Manifest Json
+
+#### SDK version compatibility
+
+The `requiredSdkVersion` field declares the SDK range supported by the plugin,
+starting with the first SDK version on which it works. This minimum compatible
+version is separate from the SDK dependency used to build the plugin in its
+`package.json`, which may be newer.
+
+When a meeting starts, BigBlueButton reads its SDK version from the
+`html5PluginSdkVersion` server property and checks whether that version satisfies
+the manifest range declared by the plugin. The plugin author is responsible for
+choosing the range that determines which BigBlueButton versions can load it. If
+the server SDK does not satisfy that range, BigBlueButton records a plugin load
+failure in `bbb-apps-akka`.
+
+The field accepts a [semantic version range](https://semver.org/). The two ranges
+used by official plugins have different behavior before version 1.0:
+
+- A tilde range allows patch updates within the specified minor version. For
+  example, `~0.0.77` accepts `0.0.77` and `0.0.78`, but rejects `0.1.0`.
+- A caret range allows updates that do not change the left-most non-zero version.
+  For example, `^0.1.26` accepts `0.1.26` and `0.1.27`, but rejects `0.2.0`.
+  On the `0.0.x` line, `^0.0.77` accepts only `0.0.77`.
+
+Official plugins on the legacy `0.0.x` line therefore use tilde ranges, as shown
+in the examples below. Plugins on the `0.1.x` line use caret ranges. This caret
+convention continues to express compatibility when the SDK reaches `1.x`: for
+example, `^1.0.0` accepts compatible `1.x` releases and rejects `2.0.0`.
+
+Pre-release SDK versions follow npm's pre-release rule: a pre-release only
+satisfies a range in which some comparator names a pre-release of the same
+`major.minor.patch`. While the server runs `1.0.0-beta.3`, `^1.0.0`, `0.x` and
+`>=0.1.5` all reject it, because none of them names a `1.0.0` pre-release. To
+load on a pre-release SDK and still support the stable line, declare both, for
+example `^0.1.5 || ^1.0.0-beta.1`. `^1.0.0-beta.1` also accepts the final
+`1.0.0` and later `1.x` releases, but rejects pre-releases of other versions such
+as `1.1.0-alpha.1`.
 
 Here is a complete `manifest.json` example with all possible configurations:
 
@@ -858,6 +895,16 @@ public:
 
 When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery.
 
+#### Configurable button styles
+
+Plugin-provided **nav bar**, **actions bar**, and **presentation toolbar** buttons accept a few optional style fields that control the rendered button's shape. They are read when present and fall back to the previous defaults when omitted, so older plugin objects keep rendering exactly as before (requires plugin SDK `0.0.100` or later):
+
+- `color` — button color (e.g. `primary`, `default`). Default: `primary` in the nav bar and actions bar, `default` in the presentation toolbar.
+- `circle` — render as a circular icon button. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
+- `hideLabel` — hide the text label and show only the icon. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
+- `size` — button size (`sm`, `md`, `lg`). Default: `lg` in the actions bar, `md` in the presentation toolbar and nav-bar.
+- `style` — an inline CSS style object applied to the button.
+
 ### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
@@ -881,13 +928,14 @@ export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
 - `useLoadedUserList` hook: provides information regarding the loaded user list (displayed in the screen);
 - `useCurrentUser` hook: provides information regarding the current user;
 - `useUsersBasicInfo` hook: provides information regarding all users (only crucial information: userId, name and role);
-- `useLoadedChatMessages` hook: provides information regarding the loaded chat messages;
+- `useLoadedChatMessages` hook: provides information regarding the loaded chat messages. Each message carries `senderUserId` and, since BigBlueButton 3.0.33, `senderRole` — the role the sender had when the message was sent (it stays as it was, even if the user's role changes later in the meeting);
 - `useCustomSubscription` hook: with this hook, the developer can query pretty much anything graphql can provide. Note: Make sure that, on BBB version change, the custom subscriptions you make will work as expected.
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
 - `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
 - `useMeetingData` hook: provides detailed meeting data with projection support, offering more flexibility than `useMeeting`.
 - `useCustomQuery` hook: similar to `useCustomSubscription`, but for one-time GraphQL queries rather than subscriptions. Note: Make sure that, on BBB version change, the custom queries you make will work as expected.
+- `useTimer` hook: it gives you the state of the meeting timer/stopwatch — whether it is `active` and `running`, whether it is in `stopwatch` mode, the configured `time`, `accumulated` and `timePassed` values, `startedAt`, whether it has `elapsed`, and the selected `songTrack` (requires plugin SDK `0.0.104` or later, shipped with BigBlueButton 3.0.33).
 
 So for these types of hooks, the return will follow the same structure:
 

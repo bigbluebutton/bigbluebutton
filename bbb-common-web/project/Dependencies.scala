@@ -15,22 +15,19 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
-    val jackson = "2.13.5"
-    val freemarker = "2.3.31"
+    val jackson = "2.22.3"
+    val freemarker = "2.3.35"
     val awsSdkS3 = "1.12.779"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
-    val jsoup = "1.14.3"
+    val jsoup = "1.23.2"
     val semver = "0.10.2"
 
 
     // Office and document conversion
     val apachePoi = "5.5.1"
     val nuProcess = "2.0.6"
-    val tika = "3.3.1"
-
-    // Server
-    val servlet = "4.0.1"
+    val tika = "3.3.2"
 
     // Apache Commons
     val io = "2.11.0"
@@ -54,6 +51,9 @@ object Dependencies {
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val jacksonXml = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % Versions.jackson
+    // Direct dep so it wins conflict resolution over the jackson-dataformat-cbor 2.17.2
+    // that aws-java-sdk-core pulls in, keeping the whole jackson suite on one version.
+    val jacksonCbor = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % Versions.jackson
     val freemarker = "org.freemarker" % "freemarker" % Versions.freemarker
     val awsSdkS3 = "com.amazonaws" % "aws-java-sdk-s3" % Versions.awsSdkS3
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
@@ -64,8 +64,6 @@ object Dependencies {
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
     val tika = "org.apache.tika" % "tika-core" % Versions.tika
-
-    val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
@@ -95,6 +93,7 @@ object Dependencies {
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.jacksonXml,
+    Compile.jacksonCbor,
     Compile.freemarker,
     Compile.awsSdkS3,
     Compile.apacheHttp,
@@ -104,7 +103,6 @@ object Dependencies {
     Compile.poiXml,
     Compile.nuProcess,
     Compile.tika,
-    Compile.servletApi,
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,

@@ -1,0 +1,2 @@
+# The container's DNS server (from /etc/resolv.conf), for names resolved at run time.
+resolver ${NGINX_LOCAL_RESOLVERS} valid=30s;

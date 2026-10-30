@@ -3,6 +3,7 @@ import path from 'path';
 import { linkIssue } from '../core/helpers';
 import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
+import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
@@ -19,7 +20,11 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
-  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser, browserName }, testInfo) => {
+    test.skip(
+      browserName === 'firefox',
+      'Compares screenshots of a static frame fed by Chromium-only --use-file-for-fake-video-capture',
+    );
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
         ...chromiumBaseArgs,
@@ -100,18 +105,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.zoom();
   });
 
-  test('Select Slide', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+  // fails deterministically on 4.0: the slide-thumbnail canvas screenshot no longer
+  // matches its baseline on any server - needs a baseline/approach refresh
+  test('Select Slide', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.selectSlide();
   });
 
-  // All external video tests (youtube) require logged user to start external video on CI environment
-  test.describe.parallel('External Video', { tag: '@flaky' }, () => {
+  test.describe.parallel('External Video', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
     test('Start external video', async ({ browser, context, page }, testInfo) => {
-      linkIssue(21589);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.startExternalVideo();
@@ -171,10 +176,46 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadSinglePresentationTest();
     });
 
+    // maskTagThreshold is a SERVER-SIDE bbb-web setting with no client-settings hook, so nothing
+    // applies it automatically: this test requires bbb-web to be restarted with `maskTagThreshold=1`
+    // in /etc/bigbluebutton/bbb-web.properties (rasterize any slide whose generated SVG contains a
+    // <mask> tag). The @setting-required tag keeps it out of the default CI gate.
+    test(
+      'Masked slide is rasterized when maskTagThreshold is set',
+      { tag: '@setting-required:maskTagThreshold' },
+      async ({ browser, context, page }, testInfo) => {
+        const presentation = new Presentation(browser, context);
+        await presentation.initModPage(page, { testInfo });
+        await presentation.maskRasterizationFallbackTest();
+      },
+    );
+
     test('Upload Other Presentations Format', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadOtherPresentationsFormat();
+    });
+
+    test('Upload PDF with embedded soft-masked image renders (not blank)', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(23953);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.blurredImagePresentationRendersTest();
+    });
+
+    test('Upload PDF with an ordinary soft-masked image stays a vector slide', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(23953);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.softMaskedSlideStaysVectorTest();
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
@@ -201,6 +242,20 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.sendPresentationToDownload();
     });
 
+    test('Exported text annotations do not overlap', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationsDoNotOverlapInExport(testInfo);
+    });
+
+    test('Exported text annotation keeps the client line breaks', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24566);
+      const exportedAnnotations = new ExportedAnnotationsOverlap(browser, context);
+      await exportedAnnotations.initModPage(page, { testInfo });
+      await exportedAnnotations.textAnnotationKeepsClientLineBreaks(testInfo);
+    });
+
     test('Remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
@@ -214,12 +269,40 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.presentationThumbnailLoads();
     });
 
-    test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      // duplicate toast notification displayed
-      linkIssue(24056);
+    test('Uploaded presentation keeps its source dimensions', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24110);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadPresentationKeepsSourceDimensions();
+    });
+
+    test('Upload and remove all presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadAndRemoveAllPresentations();
+    });
+
+    // The server reports PAGE_COUNT_FAILED, which the upload toast has no message for: it shows "Converting file ...".
+    test('A truncated PDF is refused', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.truncatedPdfIsRefused();
+    });
+
+    test('A file whose content does not match its extension is refused', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.executableNamedPdfIsRefused();
+    });
+
+    test('A PDF with more pages than allowed is refused', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.tooManyPagesIsRefused();
     });
 
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }, testInfo) => {

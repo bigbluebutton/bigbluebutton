@@ -5,6 +5,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import {
   assemblePresetFromConfig,
   deduplicatePresets,
+  toPublishEncoding,
   type PresetDefaults,
 } from '/imports/ui/services/livekit/presets';
 
@@ -242,7 +243,8 @@ export const getCameraPublishOptions = (
     : getProfileBasedPresets(stream);
 
   const layers = presets.length > 1 ? presets.slice(0, -1) : [];
-  const topEncoding = presets[presets.length - 1]?.encoding;
+  const topPreset = presets[presets.length - 1];
+  const topEncoding = topPreset && toPublishEncoding(topPreset);
 
   logger.debug({
     logCode: 'livekit_camera_presets',

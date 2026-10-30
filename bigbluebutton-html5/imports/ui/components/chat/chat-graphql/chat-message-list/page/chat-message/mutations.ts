@@ -1,8 +1,18 @@
 import { gql } from '@apollo/client';
 
 const CHAT_EDIT_MESSAGE_MUTATION = gql`
-  mutation($chatId: String!, $messageId: String!, $chatMessageInMarkdownFormat: String!) {
-    chatEditMessage(chatId: $chatId, messageId: $messageId, chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat)
+  mutation(
+    $chatId: String!,
+    $messageId: String!,
+    $chatMessageInMarkdownFormat: String!,
+    $metadata: json
+  ) {
+    chatEditMessage(
+      chatId: $chatId,
+      messageId: $messageId,
+      chatMessageInMarkdownFormat: $chatMessageInMarkdownFormat,
+      metadata: $metadata
+    )
   }
 `;
 

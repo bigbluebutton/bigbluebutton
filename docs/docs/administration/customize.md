@@ -22,7 +22,7 @@ For the full list of the configuration files and their overriding counterpart, s
 
 **Note that starting with BigBlueButton 2.6 we strongly recommend adding your custom settings to `/etc/bigbluebutton` instead. See [the list of override files](/administration/configuration-files#local-overrides-for-configuration-settings)**
 
-Whenever you upgrade a server to the latest version of BigBlueButton, either using the [manual upgrade steps](/administration/install#upgrading-from-bigbluebutton-26-or-27) or the [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) script, if you have made custom changes to BigBlueButton's configuration files [that are deployed from packages], the packaging scripts may overwrite these changes.
+Whenever you upgrade a server to the latest version of BigBlueButton, either using the [upgrade steps](/administration/install#upgrading-bigbluebutton-40) or the [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) script, if you have made custom changes to BigBlueButton's configuration files [that are deployed from packages], the packaging scripts may overwrite these changes.
 
 To make it easier to apply your configuration changes, you can create a BASH script at `/etc/bigbluebutton/bbb-conf/apply-config.sh` that contains commands to apply your changes. The `bbb-conf` script, which is run as part of the last steps in a manual upgrade steps or using `bbb-install.sh`, will detect `apply-config.sh` and invoke it just before starting all of BigBlueButton's components.
 
@@ -43,7 +43,7 @@ then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -155,6 +155,16 @@ If for some reason the scripts have to be run more than once, use the --force mo
 ```bash
 $ sudo ./bbb-x.x-script --force
 ```
+
+#### Play recordings made with BigBlueButton 0.81 or 0.9
+
+Recordings made with BigBlueButton 0.81 and 0.9 are played by their own players, served under `/playback/presentation/0.81/` and `/playback/presentation/0.9.0/`. Those players are no longer installed by default. `bbb-playback-presentation` still ships the processing scripts and the nginx configuration that serves `/playback/presentation`, but not the players, so the links to the old players answer 404. If you migrated recordings from those versions and still need to play them, install the optional package that provides them:
+
+```bash
+$ sudo apt-get install bbb-playback-presentation-legacy
+```
+
+The package installs both players and the redirect from the unversioned link `/playback/presentation/playback.html` to the 0.81 player, so links published by those versions keep working. These players only render recordings created by BigBlueButton 0.81 and 0.9; recordings made with the current version use the `2.3` player from `bbb-playback`. To remove the players again, run `sudo apt-get remove bbb-playback-presentation-legacy`.
 
 #### Enable playback of recordings on iOS
 
@@ -1049,10 +1059,10 @@ The steps below move the bundled FreeSWITCH off port `5060` and therefore **brea
    ```yaml
    sip_port: 5060
    sip_port_listen: 5060
-   rtp_port:
-     port_range_start: <START>
-     port_range_end: <END>
+   rtp_port: <START>-<END>
    ```
+
+   Note: The default RTP range for livekit-sip is `16384-32768`, the range the other media servers share. The call gateway needs UDP access to the range in use (see [Configure the firewall](/administration/configure-firewall)).
 
 4. Restart BigBlueButton:
 
@@ -1125,6 +1135,46 @@ After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart t
 ```bash
 $ sudo bbb-conf --restart
 ```
+
+#### Tune parallel downloads of pre-uploaded presentations
+
+Presentations pre-uploaded through the `create` or `insertDocument` API calls are downloaded and processed in the background, on a bounded thread pool, so the API response is not delayed. By default up to 5 documents are downloaded in parallel per server; additional documents wait in a bounded queue. If the server is under sustained overload and that queue is full, further presentation tasks are rejected (and logged) instead of being queued without limit, which protects the server from running out of memory. A rejected presentation is not uploaded into the meeting, and — like a download or conversion failure — this is not reflected in the `create`/`insertDocument` API response (which has already returned); it is only visible in the server log. To change the parallelism, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `numPresentationDownloadThreads` value (values below 1 are treated as 1):
+
+```properties
+numPresentationDownloadThreads=5
+```
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+sudo bbb-conf --restart
+```
+
+#### Rasterize slides whose SVG contains mask tags
+
+Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same fallback used by `imageTagThreshold` and `useTagThreshold`: the page is rendered to a PNG image with `pdftoppm` and embedded in the slide) for any slide whose SVG contains a configurable number of `<mask>` tags.
+
+The check is **disabled by default** (`maskTagThreshold=0`), because masks are common in ordinary PDFs and the `pdftocairo` shipped with Ubuntu 24.04 (poppler 24.02.0) generates correct mask values. To rasterize only mask-heavy slides, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+maskTagThreshold=100
+```
+
+A slide is rasterized when its SVG contains at least `maskTagThreshold` mask tags (a value of `1` would rasterize any slide containing a mask). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
+
+#### Verify slides with soft masks
+
+Soft masks (images with transparency, drop shadows, blurred or faded edges) are common in PDFs and mostly convert to a correct SVG. Some do not: `pdftocairo`, which generates the slide SVG, drops the content behind certain soft masks (for example the ones written by macOS), so the image, or the whole slide, shows up blank ([#23953](https://github.com/bigbluebutton/bigbluebutton/issues/23953)).
+
+`pdftocairo` emits `<filter>` tags whenever a page has soft masks, so bbb-web verifies every slide whose SVG contains at least `filterTagThreshold` `<filter>` tags. It renders the page at low resolution with both `pdftocairo` and `pdftoppm`, and rasterizes the slide only when the two renders noticeably differ. The check is **enabled by default** (`filterTagThreshold=1`) and costs a fraction of a second per verified slide. Slides that are verified and match keep their vector SVG. If the comparison cannot be made, or the rasterized slide is too large to embed, the vector SVG is kept as well.
+
+To turn the check off, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+filterTagThreshold=0
+```
+
+With the check off, affected slides may show up blank or with missing images again. To rasterize every slide with soft masks without verifying it first, use `maskTagThreshold=1` instead (see above). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
 
 #### Increase the file size for an uploaded presentation
 
@@ -1463,6 +1513,18 @@ HERE
 
 ### HTML5 client
 
+#### Configure when the remaining time banner appears
+
+By default, the HTML5 client shows the remaining time banner when a meeting has fewer than 6 minutes left. To change the threshold, set `public.app.remainingTimeThresholdInMinutes` in `/etc/bigbluebutton/bbb-html5.yml`. For example, the following restores the previous behaviour, where the banner appeared 30 minutes before the end of the meeting:
+
+```yaml
+public:
+  app:
+    remainingTimeThresholdInMinutes: 30
+```
+
+Restart `bbb-apps-akka` with `sudo systemctl restart bbb-apps-akka` for the change to take effect. The new threshold applies to meetings created after the restart.
+
 #### Change the default welcome message
 
 The default welcome message is built from three parameters: two system-wide parameters (see below) and the `welcome` parameter from the BigBlueButton `create` API call.
@@ -1488,10 +1550,10 @@ For example, if you would like to replace `de.json` with the version from a spec
 ```bash
 cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-release/bigbluebutton-html5/public/locales/de.json
 cd /usr/share/bigbluebutton/html5-client/locales/
 rm de.json
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.1.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
 ```
 
@@ -1642,9 +1704,9 @@ Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be abl
 
 If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead of [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller) as gladia proxy.
 
-#### Musician Mode (WASM audio processing)
+#### Advanced Filtering (WASM audio processing)
 
-BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as **"Musician Mode"** and offers an alternative to the browser's built-in audio processing — useful, for example, when sharing music where the browser's noise suppression and automatic gain control would be undesirable.
+BigBlueButton 4.0 ships with an optional WASM-based audio processor that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
 
 It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
 
@@ -1652,19 +1714,24 @@ It is **disabled by default**. To make it available to users, set `enabled: true
 public:
   media:
     audio:
-      # audioWasmProcessing: audio input processing through WASM/BBBA
-      #   enabled: whether BBBA should be exposed to users. If false, the
-      #            browser's built-in audio processing is used instead.
+      # audioWasmProcessing: audio input processing through WASM
+      #   enabled: whether advanced/WASM processing should be exposed to users.
+      #            If false, the browser's built-in audio processing is used instead.
+      #   provider: which WASM backend runs the processing - 'bbba' or
+      #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured here.
       audioWasmProcessing:
         enabled: true
+        provider: bbba
         constraints:
           echoCancellation: true
           autoGainControl: true
           noiseSuppression: true
 ```
 
-The initial per-user state of the feature is controlled by `public.app.defaultSettings.application.audioWasmProcessing`. Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
+The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` selects the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
 
 #### Configure guest policy
 
@@ -1699,18 +1766,17 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.1.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
 | `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY | UNIFIED_LAYOUT _`overwritable`_ (via `meetingLayout`) |
 | `defaultMaxUsers` | Maximum number of users a meeting can have | Integer (0=disable) | 0 _`overwritable`_ (via `maxParticipants`) |
-| `maxUserConcurrentAccesses` | Maximum number of sessions a single user (extId) can open simultaneously in the same meeting; oldest session is ended when exceeded | Integer (0=disable) | 3 |
+| `maxUserConcurrentAccesses` | Maximum number of sessions a single user (extId) can open simultaneously in the same meeting; oldest session is ended when exceeded. | Integer (0=disable) | 3 |
 | `defaultMeetingDuration` | Default duration of the meeting in minutes | Integer (0=disable) | 0 _`overwritable`_ (via `duration`) |
 | `defaultGuestPolicy` | Default guest policy applied to meetings | ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR | ALWAYS_ACCEPT _`overwritable`_ (via `guestPolicy`) |
 | `authenticatedGuest` | Enable authenticated guest mode | true/false | true |
 | `defaultAllowPromoteGuestToModerator` | Allows moderators to promote guests to moderators when `authenticatedGuest` is enabled | true/false | false _`overwritable`_ (via `allowPromoteGuestToModerator`) |
-| `clientLogoutTimerInMinutes` | Number of minutes to logout client if user isn't responsive | Integer (0=disable) | 0 |
 | `meetingExpireIfNoUserJoinedInMinutes` | End meeting if no user joined within a period of time after meeting created | Integer | 5 _`overwritable`_ |
 | `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left | Integer (0=disable) | 1 _`overwritable`_ |
 | `endWhenNoModerator` | End meeting when there are no moderators after a certain period of time | true/false | false _`overwritable`_ |
@@ -1720,7 +1786,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out | Integer | 5 |
 | `usersTimeout` | Timeout (millis) to remove a joined user after they left without a rejoin | Integer | 60000 (60s) |
 | `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
-| `enteredUsersTimeout` | Timeout (millis) to remove users that called the enter API but did not join | Integer | 45000 (45s) |
 | `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
 | `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
 | `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |
@@ -1731,6 +1796,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowModsToUnmuteUsers` | Gives moderators permission to unmute other users | true/false | false _`overwritable`_ |
 | `requireUserConsentBeforeUnmuting` | Allows participants to accept or decline when a moderator asks them to unmute. | true/false | false _`overwritable`_ |
 | `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
+| `allowModsToRequestCameraShare` | Lets moderators ask a participant to share their webcam; the participant accepts or declines. | true/false | false _`overwritable`_ |
 | `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
 | `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
 | `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |
@@ -1755,10 +1821,10 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsRecord` | Enable recordings in breakout rooms | true/false | false _`overwritable`_ |
 | `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
-| `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
+| `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends. For a breakout room's dashboard, the countdown starts when the parent meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
-| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | blockNote _`overwritable`_ |
-| `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
+| `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
+| `allowOverrideClientSettingsOnCreateCall` | Allow the `clientSettingsOverride` POST module on `/create`. Does not apply to the `clientSettingsOverrideJsonUrl` parameter, which is always accepted (see [`/create` docs](/development/api/#create)) | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
@@ -1776,123 +1842,20 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join
 
-The HTML5 client supports a list of parameters that can be added to the `join` API call which modify the look and default behaviour of the client. This list is accurate as of BigBlueButton version 2.2.17 (build 937). These parameters override the global defaults set in `settings.yml`. As the parameters are passed on call to join, it allows for some powerful customization that can vary depending on which user is joining the session.
-
-Useful tools for development:
-
-- A tool like (https://meyerweb.com/eric/tools/dencoder/) is useful in the encoding-decoding process for the fields expecting encoded value passed (see below).
-- The [API mate](https://mconf.github.io/api-mate/) allows you to directly experiment with these user metadata. To use the API mate, run the following command on your BigBlueButton machine: `sudo bbb-conf --secret`. This creates a link for you with your secret as a parameter so you can get started experimenting right away.
-
-#### Application parameters
-
-| Parameter                                      | Description                                                                                                                                                                                                                                                                                                                     | Default value |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_auto_join_audio=`                | If set to `true`, the client will start the process of joining the audio bridge automatically upon loading the client                                                                                                                                                                                                           | `false`       |
-| `userdata-bbb_client_title=`                   | Specifies a string to set as the HTML5 client title                                                                                                                                                                                                                                                                             | BigBlueButton |
-| `userdata-bbb_force_listen_only=`              | If set to `true`, attendees will be not be able to join with a microphone as an option (does not apply to moderators)                                                                                                                                                                                                           | `false`       |
-| `userdata-bbb_listen_only_mode=`               | If set to `false`, the user will not be able to join the audio part of the meeting without a microphone (disables listen-only mode)                                                                                                                                                                                             | `true`        |
-| `userdata-bbb_skip_check_audio=`               | If set to `true`, the user will not see the "echo test" prompt when sharing audio                                                                                                                                                                                                                                               | `false`       |
-| `userdata-bbb_skip_check_audio_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see the "echo test" when sharing audio for the first time in the session. If the user stops sharing, next time they try to share audio the echo test window will be displayed, allowing for configuration changes to be made prior to sharing audio again | `false`       |
-| `userdata-bbb_skip_echotest_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see the "echo test" if session has valid input/output devices stored previously | `false`       |
-| `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
-| `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false`  |
-| `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`
-| `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
-| `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by its content.                                                                                                                   | `null`        |
-| `userdata-bbb_show_session_details_on_join=` | (Introduced in BigBlueButton 3.0) If set to `false` , the session details window will not be displayed when a user joins the session.                                                                                                                   | `null`        |
-| `userdata-bbb_show_animations_default=` | If set to `false` , animations (emoji raining, whiteboard toolbars fading out, etc) will not be shown to the user.                                                                                                                   | `true`        |
-
-
-
-#### Branding parameters
-
-| Parameter                             | Description                                                                               | Default value |
-| ------------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_display_branding_area=` | If set to `true`, the client will display the branding area in the upper left hand corner | `true`       |
-
-#### Shortcut parameters
-
-| Parameter                 | Description                                                                                                                                                    | Default value      |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `userdata-bbb_shortcuts=` | The value passed has to be URL encoded. For example if you would like to disable shortcuts, pass `%5B%5D` which is the encoded version of the empty array `[]` | See `settings.yml` |
-
-#### Media parameters
-
-| Parameter                                        | Description                                                                                                                                                                                                                                                                                                                             | Default value |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_auto_share_webcam=`                | If set to `true`, the client will start the process of sharing webcam (if any) automatically upon loading the client                                                                                                                                                                                                                    | `false`       |
-| `userdata-bbb_preferred_camera_profile=`         | Specifies a preferred camera profile to use out of those defined in the `settings.yml`                                                                                                                                                                                                                                                  | none          |
-| `userdata-bbb_enable_video=`                     | If set to `false`, the client will display the webcam sharing button (in effect disabling/enabling webcams)                                                                                                                                                                                                                             | `true`        |
-| `userdata-bbb_record_video=`                     | If set to `false`, the user won't have her/his video stream recorded                                                                                                                                                                                                                                                                    | `true`        |
-| `userdata-bbb_skip_video_preview=`               | If set to `true`, the user will not see a preview of their webcam before sharing it                                                                                                                                                                                                                                                     | `false`       |
-| `userdata-bbb_skip_video_preview_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see a preview of their webcam before sharing it when sharing for the first time in the session. If the user stops sharing, next time they try to share webcam the video preview will be displayed, allowing for configuration changes to be made prior to sharing | `false`       |
-| `userdata-bbb_skip_video_preview_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see a preview of their webcam before sharing it if session has a valid input device stored previously | `false`       |
-| `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
-| `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `fullaudio`.                                                                                       | `fullaudio`   |
-| `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
-| `userdata-bbb_transcription_provider=`           | (Introduced in BigBlueButton 3.0) Overrides the speech-to-text provider used for live captions/transcription. Supported values: `webspeech`, `vosk`, `gladia`. Defaults to `public.app.audioCaptions.provider` in `settings.yml`.                                                                                                        | `webspeech`   |
-
-
-#### Presentation parameters
-
-| Parameter                                                | Description                                                                                                                                                                      | Default value |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_force_restore_presentation_on_new_events=` | If set to `true`, new events related to the presentation will be pushed to viewers. See [this PR](https://github.com/bigbluebutton/bigbluebutton/pull/9517) for more information | `false`       |
-
-#### Whiteboard parameters
-
-| Parameter                           | Description                                                                                                     | Default value |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
-| `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_presenter_tools=['eraser', 'note']` will allow only the eraser and note tools.                                                     | all enabled   |
-| `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_multi_user_tools=['eraser', 'note']` will allow only the eraser and note tools.                                          | all enabled   |
-| `userdata-bbb_initial_selected_tool=`     | Pass in the id of the tool to be initially selected when the user first joins a session. This option will not persist across page refreshs and may be overridden if the user selects another tool.                                                     | draw   |
-*more: More includes the rest of the extra shapes, those being: `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `frame`, `line`, `laser`.
-
-The use of *more will include all shapes listed above.
-
-#### Theming & styling parameters
-
-| Parameter                        | Description                                                                                                          | Default value |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_custom_style=`     | URL encoded string with custom CSS                                                                                   | none          |
-| `userdata-bbb_custom_style_url=` | This parameter acts the same way as `userdata-bbb_custom_style` except that the CSS content comes from a hosted file | none          |
-| `userdata-bbb_prefer_dark_theme=` | This parameter makes the dark theme come in as default                                                               | false         |
-
-#### Layout parameters
-
-| Parameter                                  | Description                                                                                                             | Default value |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_auto_swap_layout=`           | If set to `true`, the presentation area will be minimized when a user joins a meeting. (Removed in 2.6)                                  | `false`       |
-| `userdata-bbb_hide_presentation=`          | If set to `true`, the presentation area will not be displayed. (Removed in 2.6)                                                          | `false`       |
-| `userdata-bbb_hide_presentation_on_join=`          | If set to `true`, the presentation area will start minimized, but can be restored                                                          | `false`       |
-| `userdata-bbb_show_participants_on_login=` | If set to `true`, the participants panel will start opened.                                                             | `false`        |
-| `userdata-bbb_show_public_chat_on_login=`  | If set to `false`, the chat panel will not be visible on page load until opened. Not the same as disabling chat.        | `true`        |
-| `userdata-bbb_hide_nav_bar=`               | If set to `true`, the navigation bar (the top portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
-| `userdata-bbb_hide_actions_bar=`           | If set to `true`, the actions bar (the bottom portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
-| `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `MEDIA_ONLY`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
-| `userdata-bbb_hide_notifications=`         | When this parameter is set to `true`, all notification toasts are suppressed in the client. Introduced in BBB 3.0.0-beta.4. | `false`       |
-| `userdata-bbb_hide_controls=`              | When this parameter is set to `true`, it hides the actions bar and the top row of the navigation bar (including the close sidebar button, room title, connectivity indicator, and leave meeting button) while keeping the row with the talking indicator and timer indicator visible. Introduced in BBB 3.0.0-beta.4. | `false`    |
-| `userdata-bbb_hide_sidebar_navigation=`    | (Introduced in BigBlueButton 4.0) If set to `true`, the sidebar navigation column (the user-list / apps panel and its toggles) will be hidden on join. | `false`    |
-
-#### Examples
+The `join` API call accepts `userdata-bbb_*` parameters that change the look and default behaviour of the HTML5 client for the user who joins: automatic audio join, skipping the echo test or the webcam preview, locale, initial layout, hidden navigation and action bars, whiteboard tools, recording permission, custom CSS and more. They are documented with the API call, in [User metadata parameters](/development/api#user-metadata-parameters), together with the `settings.yml` default each one overrides.
 
 ##### Changing the background color of the HTML client
 
-You can change the background color of the HTML5 client with the following stylesheet:
+You can change the background color of the HTML5 client with the following stylesheet, passed through the `userdata-bbb_custom_style_url` or `userdata-bbb_custom_style` parameter:
 
 ```css
 :root {
   --loader-bg: #000;
-}
-
-.overlay--1aTlbi {
-  background-color: #000 !important;
 }
 
 body {
@@ -1907,13 +1870,13 @@ Alternatively (for simple changes) you can achieve the same without hosted file.
 You can try this in API-MATE - you need the non-encoded version of the CSS
 
 ```
-userdata-bbb_custom_style=:root{--loader-bg:#000;}.overlay--1aTlbi{background-color:#000!important;}body{background-color:#000!important;}
+userdata-bbb_custom_style=:root{--loader-bg:#000;}body{background-color:#000!important;}
 ```
 
-If you are adding this to a join-url you need to URI encode the string (see a sample encoding tool above)
+If you are adding this to a join-url you need to URL encode the string:
 
 ```
-%3Aroot%7B--loader-bg%3A%23000%3B%7D.overlay--1aTlbi%7Bbackground-color%3A%23000!important%3B%7Dbody%7Bbackground-color%3A%23000!important%3B%7D
+%3Aroot%7B--loader-bg%3A%23000%3B%7Dbody%7Bbackground-color%3A%23000!important%3B%7D
 ```
 
 #### Send client logs to the server
@@ -1933,7 +1896,7 @@ $ bbb-conf --secret
     Secret: 577fd5f05280c10fb475553d200f3322
 
     Link to the API-Mate:
-    https://mconf.github.io/api-mate/#server=https://10.0.3.132/bigbluebutton/&sharedSecret=577fd5f05280c10fb475553d200f3322
+    https://bigbluebutton.github.io/api-mate/#server=https://10.0.3.132/bigbluebutton/&sharedSecret=577fd5f05280c10fb475553d200f3322
 ```
 
 The last line gives a link API-Mate, an excellent tool provided by [Mconf Technologies](https://mconf.com/) (a company that has made many contributions to the BigBlueButton project over the years) that makes it easy to create API calls.
@@ -1980,6 +1943,7 @@ Edit `/etc/nginx/sites-available/hasura-loadbalancer.conf` and add to the list i
 
 ```
 upstream hasura {
+    zone hasura 512k;
     least_conn;
     server 127.0.0.1:8085;
     server 127.0.0.1:8086;

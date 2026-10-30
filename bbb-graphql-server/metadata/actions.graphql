@@ -163,6 +163,7 @@ type Mutation {
     chatId: String!
     messageId: String!
     chatMessageInMarkdownFormat: String!
+    metadata: json
   ): Boolean
 }
 
@@ -531,12 +532,6 @@ type Mutation {
 }
 
 type Mutation {
-  sharedNotesCreateSession(
-    sharedNotesExtId: String!
-  ): Boolean
-}
-
-type Mutation {
   sharedNotesSetPinned(
     sharedNotesExtId: String!
     pinned: Boolean!
@@ -589,6 +584,18 @@ type Mutation {
 type Mutation {
   userEjectCameras(
     userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userRequestCamera(
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  userCameraRequestAnswer(
+    accepted: Boolean!
   ): Boolean
 }
 

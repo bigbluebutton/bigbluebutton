@@ -23,14 +23,17 @@ import {
   setVideoState,
   useConnectingStream,
   getVideoState,
+  expectStreamStop,
 } from '/imports/ui/components/video-provider/state';
 import {
   GRID_USERS_SUBSCRIPTION,
+  GRID_USERS_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
+import { useIsWebcamGridEnabled } from '/imports/ui/services/features';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
@@ -164,10 +167,24 @@ export const useCanOnlySeeModeratorCameras = () => {
   return !!meeting?.usersPolicies?.webcamsOnlyForModerator && !!currentUser?.locked;
 };
 
-export const useVideoStreamsCount = () => {
-  const streams = useStreams();
+// Only the set of streams matters for a count: the projection drops the user
+// and voice fields, so floor changes and reactions do not re-render its readers.
+const projectStreamIdentity = (s: Partial<StreamSubscriptionData>) => ({
+  meetingId: s.meetingId,
+  streamId: s.streamId,
+});
 
-  return streams.length;
+export const useVideoStreamsCount = () => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const { data, loading } = useVideoStreamsSubscription(projectStreamIdentity);
+
+  if (loading || !meeting?.meetingId) return 0;
+
+  return filterByMeetingId(
+    data as StreamSubscriptionData[],
+    meeting.meetingId,
+    VIDEO_STREAMS_SUBSCRIPTION,
+  ).length;
 };
 
 export const useLocalVideoStreamsCount = () => {
@@ -211,6 +228,21 @@ export const useHasCapReached = () => {
   const userCap = userCameraCap !== 0 && localVideoStreamsCount >= userCameraCap;
 
   return meetingCap || userCap;
+};
+
+// Meeting-wide cap only, so it holds for a subject other than the local user;
+// the per-user cap is implied by that subject having no stream yet.
+export const useHasMeetingCameraCapReached = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    meetingCameraCap: m.meetingCameraCap,
+  }));
+  const videoStreamsCount = useVideoStreamsCount();
+
+  // If the meeting prop data is unreachable, force a safe return
+  if (meeting?.meetingCameraCap === undefined) return true;
+  const { meetingCameraCap } = meeting;
+
+  return meetingCameraCap !== 0 && videoStreamsCount >= (meetingCameraCap as number);
 };
 
 export const useDisableCam = () => {
@@ -324,8 +356,12 @@ const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
 
 export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
-  const userCount = getCountData();
-  const isGridEnabled = useStorageKey('isGridEnabled');
+  const isGridEnabled = useIsGridEnabled();
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
+    GRID_USERS_COUNT_SUBSCRIPTION,
+    { skip: !isGridEnabled },
+  );
+  const userCount = countData?.user_aggregate?.aggregate?.count ?? 0;
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
@@ -353,6 +389,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     reactionEmoji: u.reactionEmoji,
     cameras: u.cameras,
     voice: u.voice,
+    bot: u.bot,
   }));
 
   const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
@@ -423,6 +460,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     if (
       canOnlySeeModeratorCameras
       && currentUser?.userId
+      && !currentUser.bot
       && !currentUser.isModerator
       && (currentUser.cameras?.length ?? 0) === 0
       && !newGridUsers.some((u) => u.userId === currentUser.userId)
@@ -473,7 +511,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     // The tile replaces the last grid avatar, so preview that user too
     overflowUsers.current = newGridUsers.slice(Math.max(gridItems.current.length - 1, 0));
 
-    // Hidden users = everyone not visible on this page. Count in USERS, not
+    // Hidden users = grid participants not visible on this page. Count in USERS, not
     // stream tiles as a user with several cameras holds several tiles. The
     // overflow tile replaces the last avatar when avatars exist (+1: the
     // replaced user joins the count); on a full-camera page it takes a new
@@ -539,9 +577,26 @@ export const useGridSize = () => {
   return size;
 };
 
+export const useIsGridEnabled = () => {
+  const isGridLayout = useStorageKey('isGridEnabled');
+  const isWebcamGridEnabled = useIsWebcamGridEnabled();
+
+  return !!isGridLayout && isWebcamGridEnabled;
+};
+
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const {
+    showAudioOnlyOnFirstPage,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
+  // webcam over an open presentation in the unified layout (issues #25235/#25359).
+  const showAudioOnlyTiles = showAudioOnlyOnFirstPage && isUnifiedLayout;
+
   // When the user can only see moderator cameras, drop non-moderators ([true]); otherwise
   // keep everyone ([true, false]).
   const useAudioOnlySubscription = useCreateUseSubscription(
@@ -549,17 +604,10 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
     { moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false] },
     true,
   );
-  const { data, loading, errors } = useAudioOnlySubscription();
-  const layoutType = layoutSelect((i: Layout) => i.layoutType);
-  const {
-    showAudioOnlyOnFirstPage,
-  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+  // Skipped when the tiles aren't shown, so the client doesn't receive a result it discards.
+  const { data, loading, errors } = useAudioOnlySubscription((u) => u, !showAudioOnlyTiles);
 
-  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
-
-  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
-  // webcam over an open presentation in the unified layout (issues #25235/#25359).
-  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
+  if (!showAudioOnlyTiles) return [];
   if (loading) return [];
 
   if (errors) {
@@ -688,8 +736,12 @@ const reserveAudioOnlyTiles = ({
   const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
     ? audioOnlyUsers.filter((audioUser) => !excludeStreams.find((s) => s.userId === audioUser.userId))
     : [];
+  // Caps maxAudioOnlyUsers below its configured value on a small page: the two slots
+  // of a mobile page hold one audio-only tile, not two.
+  const cameraSlotFloor = reservedCount === 0 && others.length > 0 ? 1 : 0;
+  const audioOnlySlots = Math.max(0, Math.min(availableSlots - cameraSlotFloor, maxAudioOnlyUsers));
   const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
-    ? Math.min(uniqueAudioOnly.length, Math.min(availableSlots, maxAudioOnlyUsers))
+    ? Math.min(uniqueAudioOnly.length, audioOnlySlots)
     : 0;
 
   let totalNumberOfOtherStreams: number;
@@ -926,7 +978,7 @@ export const useExitVideo = (forceExit = false) => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  const exitVideo = useCallback(async () => {
+  const exitVideo = useCallback(async (expected = true) => {
     const { isConnected } = getVideoState();
 
     if (isConnected || forceExit) {
@@ -934,7 +986,11 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      const results = ownStreamsRef.current.map((streamId) => sendUserUnshareWebcam(streamId));
+      const results = ownStreamsRef.current.map((streamId) => {
+        if (expected) expectStreamStop(streamId);
+
+        return sendUserUnshareWebcam(streamId);
+      });
 
       return Promise.all(results).then(() => {
         videoService.exitedVideo();
@@ -981,13 +1037,14 @@ export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const ownStreamsRef = useOwnStreamsRef();
 
-  return useCallback(async (cameraId?: string) => {
+  return useCallback(async (cameraId?: string, expected = true) => {
     const streams = ownStreamsRef.current;
     const connectingStream = getConnectingStream();
     const hasTargetStream = streams.some((streamId) => streamId === cameraId);
     const hasOtherStream = streams.some((streamId) => streamId !== cameraId);
 
-    if (hasTargetStream) {
+    if (hasTargetStream && cameraId) {
+      if (expected) expectStreamStop(cameraId);
       cameraBroadcastStop({ variables: { cameraId } });
     }
 

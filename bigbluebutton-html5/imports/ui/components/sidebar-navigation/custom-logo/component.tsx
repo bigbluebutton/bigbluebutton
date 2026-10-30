@@ -1,27 +1,14 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { memo } from 'react';
 import Styled from './styles';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import { isDarkThemeEnabled } from '/imports/ui/components/app/service';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const CustomLogo = () => {
   const customLogoUrl = useStorageKey('CustomLogoUrl', 'session');
   const customDarkLogoUrl = useStorageKey('CustomDarkLogoUrl', 'session');
-  const [darkModeIsEnabled, setDarkModeIsEnabled] = useState(isDarkThemeEnabled());
-  const logoUrl = darkModeIsEnabled ? customDarkLogoUrl : customLogoUrl;
-
-  useEffect(() => {
-    const handleDarkModeChange = (event: CustomEvent<{
-      enabled: boolean,
-    }>) => {
-      setDarkModeIsEnabled(event.detail.enabled);
-    };
-
-    window.addEventListener('darkmodechange', handleDarkModeChange as EventListener);
-
-    return () => {
-      window.removeEventListener('darkmodechange', handleDarkModeChange as EventListener);
-    };
-  }, []);
+  const { darkTheme } = useSettings(SETTINGS.APPLICATION) as { darkTheme?: boolean };
+  const logoUrl = darkTheme ? customDarkLogoUrl : customLogoUrl;
 
   if (!logoUrl || typeof logoUrl !== 'string') return null;
 

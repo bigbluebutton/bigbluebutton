@@ -659,16 +659,31 @@ object MsgBuilder {
 
   def buildGenerateLiveKitTokenReqMsg(
     meetingId: String,
-    userId: String,
-    userName: String,
-    grant: LiveKitGrant,
-    metadata: LiveKitParticipantMetadata,
+    userId:    String,
+    userName:  String,
+    roomRef:   LiveKitRoomRef,
+    grant:     LiveKitGrant,
+    metadata:  LiveKitParticipantMetadata,
   ): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing  = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(GenerateLiveKitTokenReqMsg.NAME, routing)
-    val body = GenerateLiveKitTokenReqMsgBody(userId, userName, grant, metadata)
-    val header = BbbCoreHeaderWithMeetingId(GenerateLiveKitTokenReqMsg.NAME, meetingId)
-    val event = GenerateLiveKitTokenReqMsg(header, body)
+    val body     = GenerateLiveKitTokenReqMsgBody(userId, userName, roomRef, grant, metadata)
+    val header   = BbbCoreHeaderWithMeetingId(GenerateLiveKitTokenReqMsg.NAME, meetingId)
+    val event    = GenerateLiveKitTokenReqMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRemoveLiveKitParticipantSysMsg(
+    meetingId: String,
+    roomName:  String,
+    userId:    String,
+  ): BbbCommonEnvCoreMsg = {
+    val routing  = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RemoveLiveKitParticipantSysMsg.NAME, routing)
+    val body     = RemoveLiveKitParticipantSysMsgBody(roomName, userId)
+    val header   = BbbCoreHeaderWithMeetingId(RemoveLiveKitParticipantSysMsg.NAME, meetingId)
+    val event    = RemoveLiveKitParticipantSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -698,7 +713,8 @@ object MsgBuilder {
                                    voiceConf: String,
                                    userId: String,
                                    vuOption: Option[VoiceUserState],
-                                   leftVoiceConf: Boolean
+                                   leftVoiceConf: Boolean,
+                                   hideUserList: Boolean
                                  ): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserVoiceStateEvtMsg.NAME, routing)
@@ -716,7 +732,8 @@ object MsgBuilder {
           userSpeechLocale = vu.speechLocale,
           talking = vu.talking,
           muted = vu.muted,
-          leftVoiceConf
+          leftVoiceConf,
+          hideUserList
         )
       case None =>
       UserVoiceStateEvtMsgBody(
@@ -729,7 +746,8 @@ object MsgBuilder {
         userSpeechLocale = "",
         talking = false,
         muted = true,
-        leftVoiceConf
+        leftVoiceConf,
+        hideUserList
       )
     }
 

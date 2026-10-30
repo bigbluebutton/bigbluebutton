@@ -1,5 +1,5 @@
 expressServer:
-  host: 127.0.0.1
+  host: 127.0.0.1 # or SERVER_HOST from the environment
   port: 8787
   maxContentLength: 1500
   maxConnectionsPerSessionToken: 3
@@ -31,7 +31,6 @@ redis:
       - to-akka-apps-redis-channel
     subscribe:
       - from-akka-apps-redis-channel
-      - from-etherpad-redis-channel
 
 rateLimit:
   maxRequestsPerWindow: 60

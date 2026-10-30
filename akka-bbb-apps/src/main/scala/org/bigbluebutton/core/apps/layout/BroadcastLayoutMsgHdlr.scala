@@ -2,14 +2,13 @@ package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
-import org.bigbluebutton.core.running.OutMsgRouter
-import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ LayoutDAO, NotificationDAO }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
-  this: LayoutApp2x =>
+  this: MeetingActor =>
 
   val outGW: OutMsgRouter
 
@@ -39,7 +38,16 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Layouts.setCameraDockIsResizing(liveMeeting.layouts, msg.body.isResizing)
         Layouts.setCameraPosition(liveMeeting.layouts, msg.body.cameraPosition)
         Layouts.setFocusedCamera(liveMeeting.layouts, msg.body.focusedCamera)
-        Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
+        val presentationVideoRate = LayoutHdlrHelpers.clampPresentationVideoRate(msg.body.presentationVideoRate)
+        if (presentationVideoRate != msg.body.presentationVideoRate) {
+          log.warning(
+            "Clamped invalid presentation video rate {} from user {} in meeting {}",
+            msg.body.presentationVideoRate,
+            msg.header.userId,
+            liveMeeting.props.meetingProp.intId
+          )
+        }
+        Layouts.setPresentationVideoRate(liveMeeting.layouts, presentationVideoRate)
         Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
         LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)

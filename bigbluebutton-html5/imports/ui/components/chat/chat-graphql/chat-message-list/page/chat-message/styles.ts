@@ -6,6 +6,7 @@ import {
   $3xlPadding,
   xlPadding,
   mdPadding,
+  smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
@@ -14,16 +15,19 @@ import {
 
 import {
   colorBlueLightest,
-  colorGrayLight,
   colorBorder,
   colorGrayDark,
-  colorWhite,
-  colorSelectedCorrectAnswerText,
+  colorGrayLight,
+  colorGrayUserListToolbar,
+  colorSelectedCorrectAnswerTextBorder,
+  colorWhiteSurface,
   emphasizedMessageBackgroundColor,
+  highlightedMessageBackgroundColor,
   highlightedMessageBorderColor,
   systemMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
+import { IconWrapper as ReadConfirmationIconWrapper } from './message-read-confirmation/styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 interface ChatWrapperProps {
@@ -66,11 +70,11 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   ${({ isPresentationUpload }) => isPresentationUpload && `
       border: 1px solid ${systemMessageBorderColor};
       border-radius: 8px;
-      background-color: ${colorWhite};
+      background-color: ${colorWhiteSurface};
     `}
   ${({ messageHighlight }) => messageHighlight && `
-    background-color: #fef9f1;
-    border-left: 2px solid ${colorSelectedCorrectAnswerText};
+    background-color: ${highlightedMessageBackgroundColor};
+    border-left: 2px solid ${colorSelectedCorrectAnswerTextBorder};
     border-radius: 0px 3px 3px 0px;
     padding: 8px 2px;
   `}
@@ -90,7 +94,7 @@ export const ChatMessageContentWrapper = styled.div<ChatMessageContentWrapperPro
 
   ${({ $isSystemSender, isCustomPluginMessage }) => !$isSystemSender && !isCustomPluginMessage
   && `
-    background-color: #f4f6fa;
+    background-color: ${colorGrayUserListToolbar};
   `}
 
   ${({ $highlight, isCustomPluginMessage }) => ($highlight && !isCustomPluginMessage) && `
@@ -137,6 +141,15 @@ export const ChatContentFooter = styled.div`
 
   [dir="ltr"] & {
     right: 0.25rem;
+  }
+
+  /* keep clear of the read check: message padding + check (1rem glyph) + gap */
+  [dir="rtl"] .chat-message-content:has(${ReadConfirmationIconWrapper}) & {
+    left: calc(${$3xlPadding} + 1rem + ${smPadding});
+  }
+
+  [dir="ltr"] .chat-message-content:has(${ReadConfirmationIconWrapper}) & {
+    right: calc(${$3xlPadding} + 1rem + ${smPadding});
   }
 
   .chat-message-wrapper-focused &,

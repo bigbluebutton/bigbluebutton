@@ -39,6 +39,7 @@
 	
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
+		<!-- BBB_LOG_FILE_APPENDER=STDOUT logs to stdout only (no log file), e.g. in a container -->
+		<appender-ref ref="${BBB_LOG_FILE_APPENDER:-FILE}" />
 	</root>
 </configuration>

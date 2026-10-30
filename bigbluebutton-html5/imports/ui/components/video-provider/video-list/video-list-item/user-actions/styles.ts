@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable */
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhiteText } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
@@ -15,7 +15,7 @@ const DropdownTrigger = styled(DivElipsis)<{
   // Keep the background with 0.5 opacity, but leave the text with 1
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
-  color: ${colorOffWhite};
+  color: ${colorOffWhiteText};
   padding: 0 1rem 0 .5rem !important;
   font-size: 80%;
   cursor: pointer;
@@ -43,7 +43,7 @@ const UserName = styled(TextElipsis)<{
 }>`
   position: relative;
   // Keep the background with 0.5 opacity, but leave the text with 1
-  color: ${colorOffWhite};
+  color: ${colorOffWhiteText};
   padding: 0 1rem 0 .5rem !important;
   font-size: 80%;
 
@@ -95,7 +95,7 @@ const OptionsButton = styled(Button)`
   top: 7px;
   z-index: 2;
   background-color: rgba(0,0,0,0.4);
-  color: ${colorOffWhite};
+  color: ${colorOffWhiteText};
   overflow: hidden;
   border: none !important;
   padding: 3px;

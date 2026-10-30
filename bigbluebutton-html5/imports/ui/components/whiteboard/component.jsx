@@ -47,6 +47,14 @@ import SessionStorage from '/imports/ui/services/storage/session';
 setupColorThemePaletteOverrides();
 
 const CAMERA_TYPE = 'camera';
+// Fallback upper bound (ms) for waiting on the new slide's background image to decode
+// before swapping the visible page, used when meetingClientSettings does not provide
+// public.whiteboard.slideSwapDecodeTimeoutMs. Kept short: a warm/near cache decodes in
+// sub-frame time and wins the race, while a cold or slow asset falls through fast to the
+// old (un-gated) behavior rather than pinning the toolbar/zoom UI - which are NOT gated -
+// on a stale slide for long. Above this bound the original white flash still shows; the
+// gate mitigates the common near-cache case, it does not eliminate the worst (slow) case.
+const SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT = 250;
 const colorStyles = [
   'black',
   'blue',
@@ -176,6 +184,7 @@ const Whiteboard = React.memo((props) => {
     isPhone,
     setEditor,
     lockToolbarTools,
+    darkTheme,
     layoutChanged,
     pointerDiameter = 5,
   } = props;
@@ -193,6 +202,10 @@ const Whiteboard = React.memo((props) => {
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
   const [cursorZoom, setCursorZoom] = React.useState({ slideZoom: 1, containerZoom: 1 });
+  // Re-surfaces a deferred slide-swap failure into render so ErrorBoundaryWithReload can
+  // catch it (see the decode-gate effect). Setting state with a function that throws makes
+  // the throw happen during render, where the boundary sees it - a bare .catch could not.
+  const [, setSwapError] = React.useState();
   const updateCursorZoomRef = React.useRef(null);
 
   if (isMounting) {
@@ -204,6 +217,10 @@ const Whiteboard = React.memo((props) => {
   const zoomValueRef = React.useRef(null);
   const prevShapesRef = React.useRef(shapes);
   const tlEditorRef = React.useRef(null);
+
+  React.useEffect(() => {
+    tlEditorRef.current?.user?.updateUserPreferences({ isDarkMode: Boolean(darkTheme) });
+  }, [darkTheme]);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
   const prevZoomValueRef = React.useRef(null);
@@ -212,7 +229,11 @@ const Whiteboard = React.memo((props) => {
   const shapeBatchRef = useRef({});
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
+  const isTouchZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
+  const incomingPageZoomRef = useRef(null);
+  const suppressNextZoomSyncRef = useRef(false);
+  const pendingPageRestoreRef = useRef(null);
   const isPresenterRef = useRef(isPresenter);
   const viewerCanPanRef = useRef(viewerCanPan);
   const pageActualZoomRatioRef = useRef(_pageZoomRatioCache);
@@ -402,7 +423,9 @@ const Whiteboard = React.memo((props) => {
       }
 
       initialZoomRef.current = initialZoom;
-      prevZoomValueRef.current = zoomValue;
+      // Read the ref: this debounced closure can hold a zoomValue older than the one the
+      // zoom effect has already handled.
+      prevZoomValueRef.current = zoomValueRef.current;
     }
   }, 200);
 
@@ -496,8 +519,9 @@ const Whiteboard = React.memo((props) => {
     }
     debouncedUpdateShapes(
       shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+      currentUser?.userId,
     );
-  }, [shapes]);
+  }, [shapes, currentUser?.userId]);
 
   React.useEffect(() => {
     if (removedShapes && removedShapes.length > 0) {
@@ -919,6 +943,26 @@ const Whiteboard = React.memo((props) => {
     }
   };
 
+  const setPageCamera = (pageId, camera) => {
+    const editor = tlEditorRef.current;
+    const cameraId = `camera:${pageId}`;
+    const currentCamera = editor?.store.get(cameraId);
+    if (!editor || !currentCamera) return;
+
+    editor.store.mergeRemoteChanges(() => {
+      // Apply the target zoom before the offsets. The pan-bound hook calculates
+      // its limits from the current zoom, so a single write can clamp valid
+      // offsets using the previous page's viewport.
+      editor.store.put([{ ...currentCamera, z: camera.z }]);
+      editor.store.put([{ ...currentCamera, ...camera }]);
+    });
+  };
+
+  const getPendingPageRestore = () => {
+    const pending = pendingPageRestoreRef.current;
+    return pending && pending.pageId === String(curPageIdRef.current) ? pending : null;
+  };
+
   const calculateZoomValue = (localWidth, localHeight) => {
     const calcedZoom = fitToWidth
       ? presentationAreaWidth / localWidth
@@ -1115,12 +1159,30 @@ const Whiteboard = React.memo((props) => {
             baseZoom = zoomWithGap;
           }
 
-          coreCameraLogic({
-            baseZoom,
-            xOffset,
-            yOffset,
-            description: '(presenter)',
-          });
+          // The server offsets belong to the page's zoomed view, so pair them with its
+          // toolbar zoom. A mount can run more than once for the same editor; every run
+          // must write the same camera.
+          const pendingRestore = getPendingPageRestore();
+          const pageZoom = pendingRestore?.zoom ?? (zoomValueRef.current || HUNDRED_PERCENT);
+          // At 100% keep baseZoom as is: the multiplication can move it by one ulp, which
+          // is enough to fire a camera change the mount never used to produce.
+          const presenterZoom = pageZoom === HUNDRED_PERCENT
+            ? baseZoom
+            : (baseZoom * pageZoom) / HUNDRED_PERCENT;
+          if (pendingRestore) {
+            setPageCamera(`page:${curPageIdRef.current}`, {
+              x: pendingRestore.x,
+              y: pendingRestore.y,
+              z: presenterZoom,
+            });
+          } else {
+            coreCameraLogic({
+              baseZoom: presenterZoom,
+              xOffset,
+              yOffset,
+              description: '(presenter)',
+            });
+          }
         } else if (includeViewerLogic) {
           // Viewer logic
           baseZoom = calculateZoomValueRef.current(scaledViewBoxWidth, scaledViewBoxHeight);
@@ -1147,6 +1209,8 @@ const Whiteboard = React.memo((props) => {
     } catch (error) {
       logger.error({ logCode: 'AdjustCameraOnMount' }, `Failed to store viewbox: ${error}`);
       throw error;
+    } finally {
+      pendingPageRestoreRef.current = null;
     }
   };
 
@@ -1304,7 +1368,7 @@ const Whiteboard = React.memo((props) => {
     DefaultHorizontalAlignStyle.defaultValue = isRTL ? 'end' : 'start';
     DefaultVerticalAlignStyle.defaultValue = 'start';
 
-    editor?.user?.updateUserPreferences({ locale: language });
+    editor?.user?.updateUserPreferences({ locale: language, isDarkMode: Boolean(darkTheme) });
     if (lockToolbarTools) {
       editor?.updateInstanceState({ isToolLocked: true });
     }
@@ -1400,6 +1464,11 @@ const Whiteboard = React.memo((props) => {
         // Handle removed shapes immediately (not batched)
         const idsToRemove = Object.keys(removed);
         if (idsToRemove.length > 0) {
+          // A shape removed before it was persisted (e.g. a dot bailed by a second finger)
+          // must not be sent afterwards.
+          idsToRemove.forEach((id) => {
+            delete shapeBatchRef.current[id];
+          });
           removeShapes(idsToRemove);
         }
       },
@@ -1414,7 +1483,12 @@ const Whiteboard = React.memo((props) => {
 
         const path = editor.getPath();
 
-        if ((isPresenterRef.current || hasWBAccessRef.current) && pointers) {
+        // During a two-finger touch the handler publishes the point between the fingers.
+        if (
+          (isPresenterRef.current || hasWBAccessRef.current)
+          && pointers
+          && !isTouchZoomRef.current
+        ) {
           const [, nextPointer] = pointers;
           updateCursorPosition(nextPointer?.x, nextPointer?.y);
         }
@@ -1455,7 +1529,8 @@ const Whiteboard = React.memo((props) => {
               hasZoomSyncedRef.current = false;
             }
 
-            if (isWheelZoomRef.current) {
+            // Wheel and touch gestures move the camera directly; zoomChanger follows it.
+            if (isWheelZoomRef.current || isTouchZoomRef.current) {
               zoomSlide(
                 viewedRegionW, viewedRegionH, nextCam.x, nextCam.y,
                 currentPresentationPageRef.current,
@@ -1570,7 +1645,7 @@ const Whiteboard = React.memo((props) => {
       });
 
       // eslint-disable-next-line no-param-reassign
-      editor.store.onBeforeChange = (prev, next) => {
+      editor.store.onBeforeChange = (prev, next, source) => {
         if (isPhone) {
           const path = editor.getPath();
           const activePaths = [
@@ -1661,12 +1736,64 @@ const Whiteboard = React.memo((props) => {
         let viewportHeight;
 
         if (isPresenterRef.current) {
-          const viewportPageBounds = editor?.getViewportPageBounds();
-          viewportWidth = viewportPageBounds?.w;
-          viewportHeight = viewportPageBounds?.h;
+          // The viewport of the camera being written, not of the current one: with the
+          // current zoom, a zoom step that starts at 100% would be pushed back to (0, 0).
+          const { w, h } = editor.getViewportScreenBounds();
+          const zoom = next?.typeName === CAMERA_TYPE && next.z > 0 ? next.z : editor.getCamera().z;
+          viewportWidth = w / zoom;
+          viewportHeight = h / zoom;
         } else {
           viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth;
           viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
+        }
+
+        const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
+        const currentPage = currentPresentationPageRef.current;
+
+        // Prevent pinch zoom outside allowed range
+        if (
+          zoomed
+          && source === 'user'
+          && isPresenterRef.current
+          && isTouchZoomRef.current
+          && currentPage
+          && Number.isFinite(currentPage.scaledWidth)
+          && currentPage.scaledWidth > 0
+          && Number.isFinite(currentPage.scaledHeight)
+          && currentPage.scaledHeight > 0
+        ) {
+          // The same 100 % as the touch handler and the wheel, or the gate would reject
+          // their writes at the bounds.
+          let baseZoom = initialZoomRef.current;
+
+          if (!(baseZoom > 0)) {
+            const { widthGap } = getContainerDimensions();
+
+            baseZoom = calculateZoomValueRef.current(
+              currentPage.scaledWidth,
+              currentPage.scaledHeight,
+            );
+
+            if (widthGap > 0) {
+              baseZoom = calculateZoomWithGapValueRef.current(
+                currentPage.scaledWidth,
+                currentPage.scaledHeight,
+                widthGap,
+              );
+            }
+          }
+
+          if (Number.isFinite(baseZoom) && baseZoom > 0) {
+            const minimumZoom = currentPage.infiniteWhiteboard
+              ? baseZoom * 0.25
+              : baseZoom;
+
+            const maximumZoom = baseZoom * 4;
+
+            if (next.z < minimumZoom || next.z > maximumZoom) {
+              return prev;
+            }
+          }
         }
 
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
@@ -1757,7 +1884,7 @@ const Whiteboard = React.memo((props) => {
     }
   };
 
-  const syncCameraOnPresenterZoom = () => {
+  const syncCameraOnPresenterZoom = (pageZoom = zoomValueRef.current) => {
     if (
       !tlEditorRef.current
       || !curPageIdRef.current
@@ -1786,13 +1913,15 @@ const Whiteboard = React.memo((props) => {
       );
     }
 
-    const zoomCamera = (zoomLevelForReset * zoomValueRef.current) / HUNDRED_PERCENT;
+    const zoomCamera = (zoomLevelForReset * pageZoom) / HUNDRED_PERCENT;
     const slideShape = tlEditorRef.current.getShape(`shape:BG-${curPageIdRef.current}`);
     const camera = tlEditorRef.current.getCamera();
     const viewportScreenBounds = tlEditorRef.current.getViewportScreenBounds();
     const viewportWidth = viewportScreenBounds.width;
     const viewportHeight = viewportScreenBounds.height;
     let newCamera;
+    const pageJustChanged = pageJustChangedRef.current;
+    if (pageJustChanged) pageJustChangedRef.current = false;
 
     if (slideShape) {
       const prevZoomCamera = camera.z;
@@ -1800,9 +1929,6 @@ const Whiteboard = React.memo((props) => {
         + (viewportWidth - slideShape.props.w * prevZoomCamera) / (2 * prevZoomCamera);
       const prevCenteredCameraY = -slideShape.y
         + (viewportHeight - slideShape.props.h * prevZoomCamera) / (2 * prevZoomCamera);
-
-      const pageJustChanged = pageJustChangedRef.current;
-      if (pageJustChanged) pageJustChangedRef.current = false;
 
       const panningOffsetX = pageJustChanged ? 0 : (camera.x - prevCenteredCameraX);
       const panningOffsetY = pageJustChanged ? 0 : (camera.y - prevCenteredCameraY);
@@ -1812,8 +1938,9 @@ const Whiteboard = React.memo((props) => {
       const centeredCameraY = -slideShape.y
         + (viewportHeight - slideShape.props.h * zoomCamera) / (2 * zoomCamera);
 
-      // use stored values if slide has just changed and zoom is not default
-      if (pageJustChanged && zoomValueRef.current !== HUNDRED_PERCENT) {
+      // A page change always restores that page's server-backed position. This
+      // includes fit-to-width, whose toolbar zoom is intentionally 100%.
+      if (pageJustChanged) {
         newCamera = {
           x: currentPresentationPageRef.current.xOffset,
           y: currentPresentationPageRef.current.yOffset,
@@ -1835,7 +1962,11 @@ const Whiteboard = React.memo((props) => {
     }
 
     if (newCamera) {
-      tlEditorRef.current.setCamera(newCamera, { duration: 175 });
+      if (pageJustChanged) {
+        setPageCamera(`page:${curPageIdRef.current}`, newCamera);
+      } else {
+        tlEditorRef.current.setCamera(newCamera, { duration: 175 });
+      }
     }
   };
 
@@ -1845,6 +1976,9 @@ const Whiteboard = React.memo((props) => {
       || !currentPresentationPageRef.current
       || presentationAreaWidth <= 0
       || presentationAreaHeight <= 0
+      // The remounted editor's mount restores this page; a sync now would write and
+      // publish a camera that the restore replaces.
+      || getPendingPageRestore()
     ) {
       return;
     }
@@ -1962,7 +2096,7 @@ const Whiteboard = React.memo((props) => {
 
   useMouseEvents(
     {
-      whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
+      whiteboardRef, tlEditorRef, isWheelZoomRef, isTouchZoomRef, initialZoomRef, isPresenterRef,
     },
     {
       hasWBAccess: hasWBAccessRef.current,
@@ -2047,6 +2181,12 @@ const Whiteboard = React.memo((props) => {
     };
   }, [whiteboardRef.current]);
 
+  const prevFitToWidth = usePrevious(fitToWidth);
+
+  React.useEffect(() => {
+    pendingPageRestoreRef.current = null;
+  }, [isPresenter]);
+
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
     setPageZoomMap((prev) => ({
@@ -2060,21 +2200,31 @@ const Whiteboard = React.memo((props) => {
       // (cleared on unmount). Guard against it to preserve the toolbar zoom value
       // after a minimize → restore cycle.
       if (prevCurPageId === undefined) {
+        pendingPageRestoreRef.current = null;
         prevZoomValueRef.current = zoomValue;
         return;
       }
       const storedZoom = pageZoomMap[`${presentationIdRef.current}_${curPageIdRef.current}`] || HUNDRED_PERCENT;
-      zoomChanger(storedZoom);
-      // If storedZoom === zoomValue, zoomChanger is a no-op and no follow-up effect will fire.
-      // In that case syncCameraOnPresenterZoom must be called directly to restore camera position.
-      if (storedZoom === zoomValue) {
-        if (tlEditorRef.current && curPageIdRef.current && currentPresentationPage && isPresenter && !isMounting) {
-          pageJustChangedRef.current = true;
-          syncCameraOnPresenterZoom();
+      incomingPageZoomRef.current = storedZoom;
+      // The editor is keyed by fitToWidth, so a page change that flips it mounts a new
+      // editor and the restore in applyPageSwap lands on the discarded one. The new
+      // editor's mount (adjustCameraOnMount) restores the page instead.
+      const remountsEditor = isPresenter
+        && prevFitToWidth !== undefined
+        && prevFitToWidth !== fitToWidth;
+      pendingPageRestoreRef.current = remountsEditor
+        ? {
+          pageId: String(curPageId),
+          zoom: storedZoom,
+          x: currentPresentationPage?.xOffset ?? 0,
+          y: currentPresentationPage?.yOffset ?? 0,
         }
-      } else {
-        pageJustChangedRef.current = true;
-      }
+        : null;
+      zoomChanger(storedZoom);
+      pageJustChangedRef.current = true;
+      // Keep the outgoing page's value: the incoming zoom arrives through zoomChanger and
+      // must still count as a change.
+      prevZoomValueRef.current = zoomValue;
       return;
     }
 
@@ -2084,18 +2234,31 @@ const Whiteboard = React.memo((props) => {
       && currentPresentationPage
       && isPresenter
       && !isWheelZoomRef.current
+      && !isTouchZoomRef.current
     ) {
       if (!isMounting && prevZoomValueRef.current !== zoomValue) {
-        syncCameraOnPresenterZoom();
+        // The presenter zoomed before the remounted editor restored the page: that zoom
+        // wins, so the regular sync and mount take over from the restore.
+        if (getPendingPageRestore() && getPendingPageRestore().zoom !== zoomValue) {
+          pendingPageRestoreRef.current = null;
+        }
+        // A page restore owns this zoom change: either the swap already applied it, or a
+        // remounted editor will apply it on mount.
+        if (suppressNextZoomSyncRef.current || getPendingPageRestore()) {
+          suppressNextZoomSyncRef.current = false;
+        } else {
+          syncCameraOnPresenterZoom();
+        }
       }
     }
     prevZoomValueRef.current = zoomValue;
   }, [zoomValue, pageChanged, tlEditorRef.current]);
 
-  const prevFitToWidth = usePrevious(fitToWidth);
-
   React.useEffect(() => {
-    if (prevFitToWidth !== undefined && prevFitToWidth !== fitToWidth && isPresenter) {
+    if (prevFitToWidth !== undefined
+      && prevFitToWidth !== fitToWidth
+      && isPresenter
+      && !pageChanged) {
       zoomChanger(HUNDRED_PERCENT);
       zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
     }
@@ -2148,6 +2311,7 @@ const Whiteboard = React.memo((props) => {
       && initialViewBoxWidthRef.current
       && initialViewBoxHeightRef.current
       && currentPresentationPage
+      && !pageChanged
     ) {
       const newZoom = calculateZoomValue(
         currentPresentationPage.scaledViewBoxWidth,
@@ -2241,13 +2405,6 @@ const Whiteboard = React.memo((props) => {
     }
   }, [otherCursors, whiteboardWriters]);
 
-  const updateStore = (pages, cameras) => {
-    tlEditorRef.current.store.put(pages);
-    tlEditorRef.current.store.put(cameras);
-    tlEditorRef.current.store.put(assets);
-    tlEditorRef.current.store.put(bgShape);
-  };
-
   const finalizeStore = () => {
     tlEditorRef.current.history.clear();
   };
@@ -2265,38 +2422,78 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     const formattedPageId = parseInt(curPageIdRef.current, 10);
-    if (tlEditorRef.current && formattedPageId !== 0) {
-      // If a viewer is mid-edit (select.editing_shape) when the slide changes,
-      // the store mutation below (cleanupStore + setCurrentPage) removes the shape
-      // being edited out from under tldraw, leaving the editor in editing_shape with
-      // a dangling editingShapeId. The next pointer-down then hits EditingShape's
-      // `Expected an editing shape!` assertion and crashes the client (issue 25332).
-      // Commit the in-progress edit first so tldraw exits editing_shape (running
-      // EditingShape.onExit) while the shape still exists. Guarded so a normal slide
-      // change (no active edit) never resets the presenter's current tool.
+    if (!tlEditorRef.current || formattedPageId === 0) return undefined;
+
+    // The new page's background image-shape used to be mounted here synchronously, before
+    // its SVG had been fetched/decoded, leaving the presentation area blank until the asset
+    // arrived (issue 25397). We defer only the VISIBLE part of the swap (cleanupStore +
+    // background + setCurrentPage) behind a decode-gate so the page becomes visible once it
+    // is paintable, double-buffering the change instead of flashing white.
+    let cancelled = false;
+    const currentPageId = `page:${formattedPageId}`;
+
+    // A viewer mid-edit must leave select.editing_shape before anything prunes the old
+    // page's shapes. The same check inside applyPageSwap runs too late now that the swap
+    // is decode-gated: the shapes-sync removal effects are unguarded and run during the
+    // decode wait (issue 25332).
+    if (tlEditorRef.current.getEditingShape()) {
+      tlEditorRef.current.complete();
+    }
+
+    // Create the new page + its camera record synchronously, before the gate. These records
+    // are invisible (nothing renders until setCurrentPage runs in applyPageSwap), but remote
+    // annotations for the new page arrive via debouncedUpdateShapes (service.js, 175ms)
+    // parented to `page:N`. With the visible swap now deferred behind the decode - commonly
+    // past 175ms on the cold-cache path this fix targets - that debounce would otherwise put
+    // page-parented shapes before the page exists, and tldraw drops them or throws in
+    // ensureStoreIsUsable (inside a debounce callback, no error boundary). Creating the page
+    // up front keeps the parent present regardless of gate timing.
+    const ensurePageAndCamera = () => {
+      tlEditorRef.current.stopCameraAnimation();
+      tlEditorRef.current.store.mergeRemoteChanges(() => {
+        tlEditorRef.current.batch(() => {
+          const pages = [];
+          const cameras = [];
+          if (!tlEditorRef.current.getPage(currentPageId)) {
+            pages.push(...createPage(currentPageId));
+          }
+          const cameraExists = tlEditorRef.current.store.allRecords().some(
+            (record) => record.typeName === 'camera' && record.id === `camera:${currentPageId}`,
+          );
+          if (!cameraExists) {
+            cameras.push(createCamera(formattedPageId, tlEditorRef.current.getCamera()?.z));
+          }
+          if (pages.length) tlEditorRef.current.store.put(pages);
+          if (cameras.length) tlEditorRef.current.store.put(cameras);
+        });
+      });
+    };
+
+    const applyPageSwap = () => {
+      // Rapid-navigation / unmount guard: while awaiting the decode the user may have
+      // navigated on, or the effect may have been cleaned up (React runs the cleanup below
+      // on unmount and before re-running the effect). The `cancelled` flag - set in that
+      // cleanup - covers both, so a late decode for an abandoned page can't clobber the
+      // current one; re-check tlEditorRef too since the editor can be torn down mid-decode.
+      if (cancelled) return;
+      if (!tlEditorRef.current) return;
+      if (parseInt(curPageIdRef.current, 10) !== formattedPageId) return;
+
+      // If a viewer is mid-edit (select.editing_shape) when the slide changes, the store
+      // mutation below removes the shape being edited out from under tldraw, leaving a
+      // dangling editingShapeId; the next pointer-down then trips EditingShape's `Expected
+      // an editing shape!` assertion and crashes the client (issue 25332). Commit the
+      // in-progress edit first so tldraw exits editing_shape while the shape still exists.
+      // Guarded so a normal slide change never resets the presenter's current tool.
       if (tlEditorRef.current.getEditingShape()) {
         tlEditorRef.current.complete();
       }
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
-          const currentPageId = `page:${formattedPageId}`;
-          const tlZ = tlEditorRef.current.getCamera()?.z;
-          const cameras = [];
-          const pages = [];
-          const currPageExists = tlEditorRef.current?.getPage(currentPageId);
-          if (!currPageExists) {
-            const currentPage = createPage(currentPageId);
-            pages.push(...currentPage);
-          }
-          const allRecords = tlEditorRef.current.store.allRecords();
-          const cameraRecords = allRecords.filter(
-            (record) => record.typeName === 'camera' && record.id === `camera:page:${formattedPageId}`,
-          );
-          if (cameraRecords?.length < 1) {
-            cameras.push(createCamera(formattedPageId, tlZ));
-          }
+          // Page + camera already exist (ensurePageAndCamera ran synchronously above).
           cleanupStore(currentPageId);
-          updateStore(pages, cameras);
+          tlEditorRef.current.store.put(assets);
+          tlEditorRef.current.store.put(bgShape);
           tlEditorRef.current.setCurrentPage(currentPageId);
           finalizeStore();
         });
@@ -2305,12 +2502,73 @@ const Whiteboard = React.memo((props) => {
       toggleToolbarIfNeeded();
       resetSlideState();
 
-      if (viewerCanPanRef.current) {
+      if (isPresenterRef.current) {
+        const incomingPageZoom = incomingPageZoomRef.current ?? zoomValueRef.current;
+        suppressNextZoomSyncRef.current = incomingPageZoom !== zoomValueRef.current;
+        pageJustChangedRef.current = true;
+        syncCameraOnPresenterZoom(incomingPageZoom);
+        incomingPageZoomRef.current = null;
+      } else {
         pollInnerWrapperDimensionsUntilStable(() => {
           adjustCameraOnMount(true);
         });
       }
+    };
+
+    ensurePageAndCamera();
+
+    // `assets` is derived from the same currentPresentationPage as curPageId in the same
+    // render (container.jsx:439-453), so assets[0].props.src is the background for THIS
+    // page and is never stale relative to it. A stale src would silently disable the gate
+    // (the swap just returns), so keep that derivation in lock-step with curPageId.
+    const bgShapeSrc = assets?.[0]?.props?.src;
+    if (!bgShapeSrc) {
+      // No background URL to gate on (currentPresentationPage has no svgUrl): nothing to
+      // decode, so swap now.
+      applyPageSwap();
+      return undefined;
     }
+
+    // Prime a detached Image so the visible swap only happens once the new slide's
+    // background is decodable. When the SVG is browser-cacheable (see the sibling
+    // Cache-Control PR) this prime also warms the cache tldraw's later same-origin no-cors
+    // load reuses; on cluster-proxy/cross-origin setups the entries may not be shared, in
+    // which case the gate still works but without the cache-hit saving.
+    const img = new Image();
+    img.src = bgShapeSrc;
+    let fallbackTimer;
+    const decodeTimeout = window.meetingClientSettings?.public?.whiteboard?.slideSwapDecodeTimeoutMs
+      ?? SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT;
+    Promise.race([
+      // decode() rejects on a broken/401/malformed asset; swallow it so a bad asset degrades
+      // to "apply the swap anyway" (the pre-fix behavior) and never wedges navigation.
+      img.decode().catch(() => {}),
+      new Promise((resolve) => {
+        fallbackTimer = setTimeout(resolve, decodeTimeout);
+      }),
+    ])
+      .then(applyPageSwap)
+      .catch((error) => {
+        // The synchronous swap used to throw straight into ErrorBoundaryWithReload, which
+        // recovered with a reload. Inside this async chain a throw would escape as an
+        // unhandled rejection - no boundary, no reload. Log it, then re-surface it into
+        // render via setSwapError so the boundary still sees it.
+        logger.error({ logCode: 'SlideSwapDecodeGate' }, `Deferred page swap failed: ${error}`);
+        setSwapError(() => { throw error; });
+      })
+      .finally(() => {
+        // Clear the fallback timer on the decode-wins path too: the cleanup below only runs
+        // on unmount / effect re-run, not when the race resolves normally.
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+      });
+
+    return () => {
+      cancelled = true;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      // Release the detached decode Image so a burst of rapid navigation doesn't pin a queue
+      // of half-decoded SVGs in flight.
+      img.removeAttribute('src');
+    };
   }, [curPageId]);
 
   React.useEffect(() => {

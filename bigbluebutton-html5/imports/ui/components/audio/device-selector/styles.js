@@ -3,14 +3,14 @@ import {
   borderSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  colorGrayLabel,
-  colorWhite,
   colorBorder,
+  colorGrayLabel,
   colorPrimary,
+  colorWhiteSurface,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Select = styled.select`
-  background-color: ${colorWhite};
+  background-color: ${colorWhiteSurface};
   border: 0.1rem solid ${colorBorder};
   border-radius: ${borderSize};
   color: ${colorGrayLabel};

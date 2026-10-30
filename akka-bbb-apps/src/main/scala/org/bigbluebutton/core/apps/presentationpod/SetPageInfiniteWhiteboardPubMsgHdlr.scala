@@ -29,7 +29,9 @@ trait SetPageInfiniteWhiteboardPubMsgHdlr extends RightsManagementTrait {
       val pageId = msg.body.pageId
       val infiniteWhiteboard = msg.body.infiniteWhiteboard
 
-      PresPageDAO.updateInfiniteWhiteboard(pageId, infiniteWhiteboard)
+      if (PresentationPodsApp.pageBelongsToMeeting(state, pageId)) {
+        PresPageDAO.updateInfiniteWhiteboard(pageId, infiniteWhiteboard)
+      }
 
       state
     }

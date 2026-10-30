@@ -79,21 +79,19 @@ const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((prop
     handleTextareaChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   };
 
+  // Strips the two props this component consumes itself, so they are not forwarded down
+  // to the textarea underneath.
   const getCleanProps = () => {
-    const cleanProps = { ...props };
-    const propsToDelete = ['MAX_INPUT_CHARS', 'handlePollValuesText'] as const;
-
-    propsToDelete.forEach((prop) => {
-      delete cleanProps[prop as keyof typeof cleanProps];
-    });
-
-    return props as Omit<DragAndDropPros, typeof propsToDelete[number]>;
+    const cleanProps: Partial<DragAndDropPros> = { ...props };
+    delete cleanProps.MAX_INPUT_CHARS;
+    delete cleanProps.handleTextareaChange;
+    return cleanProps;
   };
 
   return (
     <Styled.DndTextArea
       ref={dropRef}
-      active={drag}
+      $active={drag}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...getCleanProps()}
     />

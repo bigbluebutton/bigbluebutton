@@ -44,7 +44,7 @@ BigBlueButton processes the recordings in the following order:
 
 The Capture phase involves enabling the BigBlueButton modules (chat, presentation, video, voice, etc.) to emit events over an event bus for capture on the BigBlueButton server. Components that generate media (webcam, voice, deskshare) must also store their data streams on the server.
 
-Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes and captions are taken from Etherpad.
+Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes are exported from bbb-shared-notes-server (BlockNote).
 
 ### Archive
 
@@ -107,7 +107,7 @@ Some Record and Playback phases store the media they handle in different directo
 - WEBCAM: `/var/lib/bbb-webrtc-recorder/recordings/<meetingid>`
 - SCREEN SHARING: `/var/lib/bbb-webrtc-recorder/screenshare/<meetingid>`
 - SLIDES: `/var/bigbluebutton/<meetingid>`
-- NOTES: `http://localhost:9002/p`
+- NOTES: `http://127.0.0.1:8787/loopback/api/documents`
 - EVENTS: `Redis`
 
 #### Archived files
@@ -162,8 +162,7 @@ Administration:
    --disable <workflow>                disable a recording workflow
    --tointernal <external meetingId>   get the internal meeting ids for the given external meetingId
    --toexternal <internal meetingId>   get the external meeting id for the given internal meetingId
-   --republish <internal meetingID>    republish the recording for meetingID.
-                                       (Only for Matterhorn Integration)
+   --republish [internal meetingID]    retry the publish step for meetingID (all recordings if omitted)
 ```
 
 #### Useful settings
@@ -363,11 +362,15 @@ English 102" meetingName="English 102
 
 #### Republish recordings
 
-Republish recordings.
+This option makes a recording go through the Publish phase again from its processed files, for example after you fix the cause of a failed publish.
 
 ```bash
 $ sudo bbb-record --republish 29173583cf1ca21508b2efd7db566090bbefb36a-1647630316965
 ```
+
+The processed files of a format, under `/var/bigbluebutton/recording/process/<format>/<meetingId>`, are removed once that format publishes successfully. For a recording that published correctly, `bbb-record` reports that the processed files do not exist; use `--rebuild` for it instead.
+
+Without a meeting ID, `bbb-record --republish` does this for every recording in your server.
 
 ### For Developers
 
@@ -655,6 +658,8 @@ You can deploy your changes by running `deploy.sh` and restarting the recording-
 systemctl restart bbb-rap-starter
 systemctl restart bbb-rap-resque-worker
 ```
+
+`deploy.sh` does not install the players for recordings made with BigBlueButton 0.81 and 0.9. If you need them on a development server, build and install the `bbb-playback-presentation-legacy` package (`build/setup.sh bbb-playback-presentation-legacy`), as described in [play recordings made with BigBlueButton 0.81 or 0.9](/administration/customize#play-recordings-made-with-bigbluebutton-081-or-09).
 
 #### Deploying other formats
 

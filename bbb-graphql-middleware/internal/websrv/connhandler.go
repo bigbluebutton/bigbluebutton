@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/gql_actions"
 	"bbb-graphql-middleware/internal/hasura"
+	streamingserver "bbb-graphql-middleware/internal/streaming_server"
 	"bbb-graphql-middleware/internal/websrv/reader"
 	"bbb-graphql-middleware/internal/websrv/writer"
 
@@ -236,7 +238,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	wgAll.Wait()
 }
 
-func InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate string) {
+func InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate string, reason string) {
 	BrowserConnectionsMutex.RLock()
 	connectionsToProcess := make([]*common.BrowserConnection, 0)
 	for _, browserConnection := range BrowserConnections {
@@ -251,16 +253,31 @@ func InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate string) {
 		wg.Add(1)
 		go func(bc *common.BrowserConnection) {
 			defer wg.Done()
-			invalidateHasuraConnectionForSessionToken(bc, sessionTokenToInvalidate)
+			invalidateHasuraConnectionForSessionToken(bc, sessionTokenToInvalidate, reason)
 		}(browserConnection)
 	}
 	wg.Wait()
 }
 
-func invalidateHasuraConnectionForSessionToken(browserConnection *common.BrowserConnection, sessionToken string) {
+func invalidateHasuraConnectionForSessionToken(browserConnection *common.BrowserConnection, sessionToken string, reason string) {
 	browserConnection.RLock()
 	hasuraConnection := browserConnection.HasuraConnection
 	browserConnection.RUnlock()
+
+	// The session variables held here are now superseded. Mark the state they feed as unsettled
+	// until a refresh succeeds, so checks derived from them treat it as unknown in the meantime.
+	// Which state that covers depends on the reason: a role or lock change cannot have moved the
+	// user in or out of the meeting.
+	browserConnection.MarkSessionVariablesStale(common.ReconnectionAffectsMembership(reason))
+
+	// Update variables for Mutations (gql-actions requests) and for the streams handled by the
+	// Middleware. This runs whether or not there is a Hasura connection to tear down, so the marks
+	// set above are always followed by a refresh that can clear them. A refresh already running
+	// picks up the generation opened above on its next attempt, so a burst of requests needs one
+	// goroutine between them rather than one each.
+	if browserConnection.BeginSessionVariablesRefresh() {
+		go refreshSessionVariablesUntilSettled(browserConnection)
+	}
 
 	if hasuraConnection == nil {
 		return // If there's no Hasura connection, there's nothing to invalidate.
@@ -271,9 +288,6 @@ func invalidateHasuraConnectionForSessionToken(browserConnection *common.Browser
 	// Stop receiving new messages from the browser.
 	browserConnection.Logger.Debug("freezing channel fromBrowserToHasuraChannel")
 	browserConnection.FromBrowserToHasuraChannel.FreezeChannel()
-
-	// Update variables for Mutations (gql-actions requests)
-	go refreshUserSessionVariables(browserConnection)
 
 	// Cancel the Hasura connection context to clean up resources.
 	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
@@ -326,9 +340,17 @@ func invalidateBrowserConnectionForSessionToken(bc *common.BrowserConnection, se
 	go SendUserGraphqlDisconnectionForcedEvtMsg(sessionToken)
 }
 
+// refreshUserSessionVariables performs one fetch and publishes the result.
+//
+// The generation is read together with the identity it is fetched with, and the result is applied
+// only while that generation is still current, so a fetch overtaken by a later reconnection is
+// discarded rather than written over the newer state. Every failure path returns without publishing
+// anything, leaving the connection unsettled.
 func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (error, string) {
+	generation, connectionId, sessionToken, clientSessionUUID := browserConnection.SessionVariablesRefreshTarget()
+
 	// Check authorization
-	sessionVariables, err, errorId := akka_apps.AkkaAppsGetSessionVariablesFrom(browserConnection.Id, browserConnection.SessionToken, browserConnection.ClientSessionUUID)
+	sessionVariables, err, errorId := akka_apps.AkkaAppsGetSessionVariablesFrom(connectionId, sessionToken, clientSessionUUID)
 	if err != nil {
 		browserConnection.Logger.Error(err)
 		return fmt.Errorf("error on checking sessionToken authorization: %s", err.Error()), errorId
@@ -345,12 +367,62 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-UserId is missing"), "param_missing"
 	}
 
-	browserConnection.Lock()
-	browserConnection.BBBWebSessionVariables = sessionVariables
-	browserConnection.CurrentlyInMeeting = hasuraRole == "bbb_client"
-	browserConnection.Unlock()
+	if !browserConnection.ApplySessionVariables(generation, sessionVariables, hasuraRole == "bbb_client") {
+		return errSessionVariablesSuperseded, ""
+	}
 
 	return nil, ""
+}
+
+var errSessionVariablesSuperseded = errors.New("session variables superseded by a newer reconnection request")
+
+// refreshSessionVariablesUntilSettled retries until the connection is settled or gone.
+//
+// Without this a connection whose refresh fails would keep its superseded state for the life of the
+// socket: nothing else re-reads it. Retrying is bounded by the connection context, so the loop ends
+// when the browser goes away.
+func refreshSessionVariablesUntilSettled(browserConnection *common.BrowserConnection) {
+	// Captured once: the field is reassigned during connection setup, and the loop may log on
+	// every attempt.
+	logger := browserConnection.Logger
+
+	for attempt := 0; ; attempt++ {
+		err, _ := refreshUserSessionVariables(browserConnection)
+
+		if err == nil {
+			// Hand the slot back only if the connection is still settled by the time we get there;
+			// otherwise a request that arrived while this attempt was finishing would have found
+			// the slot taken and started nothing.
+			if browserConnection.ReleaseSessionVariablesRefreshIfSettled() {
+				// Membership may have only just arrived, so deliver any replay that was withheld
+				// while it had not.
+				streamingserver.ReplayPendingStreams(browserConnection)
+
+				return
+			}
+
+			attempt = -1
+			continue
+		}
+
+		if errors.Is(err, errSessionVariablesSuperseded) {
+			// A newer request arrived mid-fetch. Its state is the one we need, so go straight back
+			// round rather than waiting.
+			attempt = -1
+			continue
+		}
+
+		delay := common.NextRefreshDelay(attempt)
+		logger.Warnf("Could not refresh session variables (attempt %d), retrying in %v: %v", attempt+1, delay, err)
+
+		select {
+		case <-browserConnection.Context.Done():
+			browserConnection.EndSessionVariablesRefresh()
+
+			return
+		case <-time.After(delay):
+		}
+	}
 }
 
 func connectionInitHandler(browserConnection *common.BrowserConnection) (error, string) {
@@ -439,7 +511,11 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 			browserConnection.ConnectionInitMessage = fromBrowserMessage
 			browserConnection.Unlock()
 
-			if err, errorId := refreshUserSessionVariables(browserConnection); err != nil {
+			// A reconnection request arriving during init supersedes this fetch. Authorization was
+			// still checked above, and the refresh that request opened will publish the current
+			// state, so this is not a reason to reject the connection.
+			if err, errorId := refreshUserSessionVariables(browserConnection); err != nil &&
+				!errors.Is(err, errSessionVariablesSuperseded) {
 				return err, errorId
 			}
 
@@ -496,9 +572,9 @@ func disconnectWithError(
 	browserConnectionContextCancel()
 }
 
-var websocketIdleTimeoutSeconds = config.GetConfig().Server.WebsocketIdleTimeoutSeconds
-
 func InvalidateIdleBrowserConnectionsRoutine() {
+	websocketIdleTimeoutSeconds := config.GetConfig().Server.WebsocketIdleTimeoutSeconds
+
 	for {
 		time.Sleep(15 * time.Second)
 

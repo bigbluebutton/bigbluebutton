@@ -22,7 +22,7 @@ else
     GIT_REV=$(git rev-parse HEAD)
     GIT_REV="local-build-${GIT_REV:0:10}"
 fi
-COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
+COMMIT_DATE="$(TZ=UTC0 git log -n1 --pretty='format:%cd' --date=format-local:'%Y%m%dT%H%M%S')"
 
 # FORCE_GIT_REV and FORCE_COMMIT_DATE are useful for Github Actions be able to cache previous packages
 # It sets FORCE_GIT_REV=0 and FORCE_COMMIT_DATE=0 in order to keep the same package version always

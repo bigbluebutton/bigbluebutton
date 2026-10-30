@@ -50,8 +50,8 @@ const OptionsDropdownContainer = (props) => {
     away: user.away,
   }));
   const voiceToggle = useToggleVoice();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const muted = !unmutedUsers[Auth.userID];
+  const { data: unmuted } = useWhoIsUnmuted(Auth.userID);
+  const muted = !unmuted;
 
   const away = currentUserData?.away;
 

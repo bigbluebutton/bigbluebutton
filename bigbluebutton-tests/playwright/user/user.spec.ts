@@ -5,12 +5,41 @@ import { GuestPolicy } from './guestPolicy';
 import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
+import { PresenterRequest } from './presenterRequest';
+import { RaisedHands } from './raisedHands';
 import { Timer } from './timer';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
+import { UserListSearch } from './userListSearch';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride, SHORT_REACTION_EXPIRY_MODULE } from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', { tag: '@ci' }, () => {
+  test.describe.parallel('Waiting users', () => {
+    test('Distinguishes authenticated and guest queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.distinguishWaitingQueues();
+    });
+
+    test('Deny everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.denyEveryoneInWaitingQueues();
+    });
+
+    test('Allow everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.allowEveryoneInWaitingQueues();
+    });
+
+    test('Keeps queue totals visible while searching', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.keepQueuesVisibleWhileSearching();
+    });
+  });
+
   test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }, testInfo) => {
@@ -25,6 +54,20 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.raiseHandRejected();
     });
 
+    test('Raised hands are ranked in the order they were raised', async ({ browser, context, page }, testInfo) => {
+      const raisedHands = new RaisedHands(browser, context);
+      await raisedHands.initPages(page, testInfo);
+      await raisedHands.initUserPage2(context, { testInfo });
+      await raisedHands.rankedInOrderOfRaising();
+    });
+
+    test('Lowering the first raised hand re-ranks the others', async ({ browser, context, page }, testInfo) => {
+      const raisedHands = new RaisedHands(browser, context);
+      await raisedHands.initPages(page, testInfo);
+      await raisedHands.initUserPage2(context, { testInfo });
+      await raisedHands.reRankedWhenFirstHandIsLowered();
+    });
+
     test('Raise hand indicator on audio-only tile', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
@@ -35,6 +78,18 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo, clientSettingsOverrides: AUDIO_ONLY_TILE_SETTINGS_OVERRIDE });
       await multiusers.audioOnlyTileVisibleForAttendee();
+    });
+
+    test('Locked viewer can send private messages to moderator', async ({ browser, context, page }, testInfo) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page, testInfo);
+      await lockViewers.lockedViewerCanSendPrivateMessageToModerator();
+    });
+
+    test('Lock public chat for a specific user', async ({ browser, context, page }, testInfo) => {
+      const lockViewers = new LockViewers(browser, context);
+      await lockViewers.initPages(page, testInfo);
+      await lockViewers.lockPublicChatForSpecificUser();
     });
 
     test('Toggle user list', async ({ browser, context, page }, testInfo) => {
@@ -49,10 +104,16 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.stopwatchTest();
     });
 
-    test('Timer', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('Timer', async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
-      await timer.initModPage(page, { testInfo });
+      await timer.initPages(page, testInfo);
       await timer.timerTest();
+    });
+
+    test('Timer countdown for the attendee', async ({ browser, context, page }, testInfo) => {
+      const timer = new Timer(browser, context);
+      await timer.initPages(page, testInfo);
+      await timer.timerCountdownForAttendeeTest();
     });
 
     test('Leave Meeting', async ({ browser, context, page }, testInfo) => {
@@ -72,10 +133,29 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.reactionsTest();
     });
 
+    test('Remove reaction', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initPages(page, testInfo);
+      await multiusers.removeReaction();
+    });
+
+    test('Reaction expires', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo, createModules: SHORT_REACTION_EXPIRY_MODULE });
+      await multiusers.initUserPage(context, { testInfo });
+      await multiusers.reactionExpires();
+    });
+
     test('Emoji rain', async ({ browser, context, page }, testInfo) => {
       const emojiRain = new MultiUsers(browser, context);
-      await emojiRain.initModPage(page, { testInfo });
-      await emojiRain.emojiRainTest();
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(true) });
+      await emojiRain.emojiRainTest(true);
+    });
+
+    test('Emoji rain disabled', async ({ browser, context, page }, testInfo) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, { testInfo, clientSettingsOverrides: emojiRainSettingsOverride(false) });
+      await emojiRain.emojiRainTest(false);
     });
   });
 
@@ -133,6 +213,29 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage2(context, { joinParameter: 'userID=Moderator2', testInfo });
       await multiusers.removeUserAndPreventRejoining();
     });
+
+    test.describe.parallel('Search', () => {
+      test('Filters participants by part of their name', async ({ browser, context, page }, testInfo) => {
+        const userListSearch = new UserListSearch(browser, context);
+        await userListSearch.initPages(page, testInfo);
+        await userListSearch.initUserPage2(context, { testInfo });
+        await userListSearch.filterParticipantsByName();
+      });
+
+      test('Filters the raised hands', async ({ browser, context, page }, testInfo) => {
+        const userListSearch = new UserListSearch(browser, context);
+        await userListSearch.initPages(page, testInfo);
+        await userListSearch.initUserPage2(context, { testInfo });
+        await userListSearch.filterRaisedHands();
+      });
+
+      test('Shows when nothing matches and clears', async ({ browser, context, page }, testInfo) => {
+        const userListSearch = new UserListSearch(browser, context);
+        await userListSearch.initPages(page, testInfo);
+        await userListSearch.initUserPage2(context, { testInfo });
+        await userListSearch.emptyResultAndClear();
+      });
+    });
   });
 
   test.describe.parallel('Presentation permissions', () => {
@@ -153,9 +256,28 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await lockViewers.initPages(page, testInfo);
       await lockViewers.presenterPolicyFreeForAll();
     });
+
+    test('Deny a presenter request', async ({ browser, context, page }, testInfo) => {
+      const presenterRequest = new PresenterRequest(browser, context);
+      await presenterRequest.initPages(page, testInfo);
+      await presenterRequest.denyRequest();
+    });
+
+    test('Approve one of two presenter requests', async ({ browser, context, page }, testInfo) => {
+      const presenterRequest = new PresenterRequest(browser, context);
+      await presenterRequest.initPages(page, testInfo);
+      await presenterRequest.initUserPage2(context, { testInfo });
+      await presenterRequest.approveOneOfTwoRequests();
+    });
+
+    test('Switching to moderator only keeps a pending request', async ({ browser, context, page }, testInfo) => {
+      const presenterRequest = new PresenterRequest(browser, context);
+      await presenterRequest.initPages(page, testInfo);
+      await presenterRequest.policySwitchWithPendingRequest();
+    });
   });
 
-  test.describe.parallel('Manage', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
       test.describe.parallel('ASK_MODERATOR', () => {
         // https://docs.bigbluebutton.org/3.0/testing/release-testing/#ask-moderator
@@ -164,21 +286,27 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await guestPolicy.initModPage(page, { testInfo });
           await guestPolicy.messageToGuestLobby();
         });
-        test('Allow Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Allow all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.allowEveryone();
+          await guestPolicy.allowAllAuthenticated();
         });
-        test('Deny Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Deny all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.denyEveryone();
+          await guestPolicy.denyAllAuthenticated();
         });
 
         test('Remember choice', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
           await guestPolicy.rememberChoice();
+        });
+
+        test('Waiting list keeps arrival order', async ({ browser, context, page }, testInfo) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page, { testInfo });
+          await guestPolicy.keepsWaitingListOrderedByArrival();
         });
 
         test.describe.parallel('Actions to specific pending user', () => {
@@ -245,6 +373,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSendPublicChatMessages();
       });
 
+      test('Cancel lock viewers changes', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.cancelLockViewersChanges();
+      });
+
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-chat
       test('Lock Send private chat messages', async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
@@ -270,6 +404,18 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersAnnotations();
+      });
+
+      test('Lifting locks restores the capabilities without a reload', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.liftingLocksRestoresCapabilities();
+      });
+
+      test('Unlocking one user overrides the lock for that user only', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page, testInfo);
+        await lockViewers.unlockingOneUserOverridesTheGlobalLock();
       });
 
       test('Lock see other viewers cursor', async ({ browser, context, page, browserName }, testInfo) => {
@@ -328,19 +474,32 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
         },
       );
+
+      // Regression tests for PR #25921: with hideUserList active a locked viewer keeps
+      // receiving the voice state of moderators, and only of moderators.
+      test('Hide user list keeps moderator voice state visible to locked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListModeratorVoiceStateVisibleToLockedViewer();
+      });
+
+      test('Hide user list voice state follows a role change', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListVoiceStateFollowsRoleChange();
+      });
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
-    test('Save user names', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('Save user names', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page, testInfo);
+      await multiusers.initModPage(page, { testInfo, fullName: '王小明' });
+      await multiusers.initUserPage(context, { testInfo, fullName: 'Zoë  Müller' });
       await multiusers.saveUserNames();
-    });
-
-    test('Disable users join muted', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, { testInfo });
-      await multiusers.disabledUsersJoinMuted();
     });
 
     test('Mute all users except presenter', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
@@ -349,13 +508,6 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage2(context, { shouldCloseAudioModal: false, testInfo });
       await multiusers.initUserPage(context, { shouldCloseAudioModal: false, testInfo });
       await multiusers.muteAllUsersExceptPresenter();
-    });
-
-    test('Clear all status icon', async ({ browser, context, page }, testInfo) => {
-      const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, { testInfo });
-      await multiusers.initModPage2(context, { testInfo });
-      await multiusers.clearAllStatusIcon();
     });
 
     test('End meeting', async ({ browser, context, page }, testInfo) => {

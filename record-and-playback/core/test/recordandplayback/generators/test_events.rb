@@ -7,18 +7,10 @@ require 'recordandplayback'
 
 class TestEvents < Minitest::Test
   def setup
-    @events_legacy = File.open('resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml') do |io|
-      Nokogiri::XML(io)
-    end
-    @events_chat09 = File.open('resources/raw/chat_0_9.xml') do |io|
-      Nokogiri::XML(io)
-    end
-    @events_devcall = File.open('resources/raw/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1630430006889/events.xml') do |io|
-      Nokogiri::XML(io)
-    end
-    @events_meta_edt = File.open('resources/raw/2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684/events.xml') do |io|
-      Nokogiri::XML(io)
-    end
+    @events_legacy = Nokogiri::XML(File.read('resources/raw/1b199e88-7df7-4842-a5f1-0e84b781c5c8/events.xml'))
+    @events_chat09 = Nokogiri::XML(File.read('resources/raw/chat_0_9.xml'))
+    @events_devcall = Nokogiri::XML(File.read('resources/raw/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1630430006889/events.xml'))
+    @events_meta_edt = Nokogiri::XML(File.read('resources/raw/2a1de53edf0543d950056bf3c0d4d357eba3383f-1630607370684/events.xml'))
   end
 
   def test_anonymous_user_map_legacy
@@ -263,5 +255,63 @@ class TestEvents < Minitest::Test
     assert_equal('Viewer 1', chat[:sender])
     assert_equal(DateTime.rfc3339('2021-09-02T14:33:02.214-04:00'), chat[:date])
     assert_equal('whoops, forgot to start recording…', chat[:message])
+  end
+
+  def test_create_webcam_edl_lock_hides_every_camera_of_a_user
+    camera = lambda do |ts, user, track|
+      <<~XML
+        <event timestamp="#{ts}" module="bbb-webrtc-sfu" eventname="StartWebRTCShareEvent">
+          <filename>/recording/camera-#{user}-#{track}-1.webm</filename>
+        </event>
+      XML
+    end
+    join = lambda do |ts, user, role|
+      <<~XML
+        <event timestamp="#{ts}" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+          <userId>#{user}</userId><name>#{user}</name><role>#{role}</role>
+        </event>
+      XML
+    end
+    role = lambda do |ts, user, value|
+      <<~XML
+        <event timestamp="#{ts}" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+          <userId>#{user}</userId><status>role</status><value>#{value}</value>
+        </event>
+      XML
+    end
+    lock = lambda do |ts, value|
+      <<~XML
+        <event timestamp="#{ts}" module="PARTICIPANT" eventname="WebcamsOnlyForModeratorEvent">
+          <webcamsOnlyForModerator>#{value}</webcamsOnlyForModerator>
+        </event>
+      XML
+    end
+    events = Nokogiri::XML(<<~XML)
+      <recording meeting_id="m-1">
+        #{join.call(0, 'w_m', 'MODERATOR')}#{join.call(0, 'w_v', 'VIEWER')}
+        #{camera.call(1000, 'w_m', 'TR_a')}#{camera.call(1000, 'w_m', 'TR_b')}
+        #{camera.call(1000, 'w_v', 'TR_a')}#{camera.call(1000, 'w_v', 'TR_b')}
+        #{lock.call(2000, 'true')}
+        #{role.call(3000, 'w_v', 'MODERATOR')}
+        #{role.call(4000, 'w_m', 'VIEWER')}
+        #{lock.call(5000, 'false')}
+        <event timestamp="6000" module="PARTICIPANT" eventname="EndAndKickAllEvent"/>
+      </recording>
+    XML
+    visible_at = lambda do |edl, ts|
+      edl.reverse.find { |entry| entry[:timestamp] <= ts }[:areas][:webcam].map { |v| File.basename(v[:filename]) }.sort
+    end
+    all = %w[camera-w_m-TR_a-1.webm camera-w_m-TR_b-1.webm camera-w_v-TR_a-1.webm camera-w_v-TR_b-1.webm]
+
+    edl = BigBlueButton::Events.create_webcam_edl(events, '/archive', false)
+
+    assert_equal(all, visible_at.call(edl, 1500))
+    # Lock on: both of the viewer's cameras are hidden
+    assert_equal(all[0, 2], visible_at.call(edl, 2500))
+    # Promoted under the lock: both of the viewer's cameras come back
+    assert_equal(all, visible_at.call(edl, 3500))
+    # Demoted under the lock: both of the moderator's cameras are hidden
+    assert_equal(all[2, 2], visible_at.call(edl, 4500))
+    assert_equal(all, visible_at.call(edl, 5500))
   end
 end

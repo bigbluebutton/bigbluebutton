@@ -1,6 +1,23 @@
+import { expect } from '@playwright/test';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { ClientSettingsOverrides } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+
+// Live transcription is off by default, and then the speech recognition option
+// is hidden whether or not the feature is disabled.
+export const AUDIO_CAPTIONS_SETTINGS: ClientSettingsOverrides = {
+  public: { app: { audioCaptions: { enabled: true } } },
+};
+// puts the transcription and captions entry in the sidebar: in the actions bar it only shows while captions are active
+export const AUDIO_CAPTIONS_SIDEBAR_SETTINGS: ClientSettingsOverrides = {
+  public: { app: { audioCaptions: { enabled: true, showInSidebarNavigation: true } } },
+};
+
+export const INFINITE_WHITEBOARD_SETTINGS: ClientSettingsOverrides = {
+  public: { whiteboard: { allowInfiniteWhiteboard: true } },
+};
 
 export class DisabledFeatures extends MultiUsers {
   async breakoutRooms() {
@@ -11,22 +28,29 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async speechRecognition() {
-    const { speechRecognitionEnabled } = this.modPage.settings || {};
-
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SETTINGS)',
+    ).toBe(true);
     await this.modPage.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_LONGER_TIME);
-
-    if (speechRecognitionEnabled) {
-      await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
-    } else {
-      await this.modPage.wasRemoved(
-        e.speechRecognitionUnsupported,
-        'should not display the speech recognition message saying that is unsupported',
-      );
-    }
+    await this.modPage.hasElement(e.joinEchoTestButton, 'should display the audio settings');
+    await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
+    await this.modPage.wasRemoved(
+      e.speechRecognitionUnsupported,
+      'should not display the speech recognition message saying that is unsupported',
+    );
   }
 
   async captions() {
-    await this.modPage.waitAndClick(e.manageUsers);
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SIDEBAR_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.usersListSidebarButton, 'should display the sidebar navigation');
+    await this.modPage.wasRemoved(
+      e.audioCaptionsSidebarButton,
+      'should not display the transcription and captions entry on the sidebar',
+    );
   }
 
   async chat() {
@@ -41,14 +65,6 @@ export class DisabledFeatures extends MultiUsers {
     await this.modPage.wasRemoved(
       e.shareExternalVideoBtn,
       'should not display the share external video option when opening the actions button',
-    );
-  }
-
-  async layouts() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.wasRemoved(
-      e.manageLayoutBtn,
-      'should not display manage layout option when the actions is open',
     );
   }
 
@@ -139,12 +155,13 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboard() {
-    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
-
-    if (allowInfiniteWhiteboard) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
-    }
+    expect(
+      this.modPage.settings?.allowInfiniteWhiteboard,
+      'allowInfiniteWhiteboard should be on (INFINITE_WHITEBOARD_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.hasElement(e.presentationToolbarWrapper, 'should display the presentation toolbar');
+    await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
   }
 
   // Disabled Features Exclude
@@ -157,22 +174,26 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async speechRecognitionExclude() {
-    const { speechRecognitionEnabled } = this.modPage.settings || {};
-
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SETTINGS)',
+    ).toBe(true);
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-
-    if (speechRecognitionEnabled) {
-      await this.modPage.wasRemoved(e.speechRecognition, 'should not display the speech recognition option');
-    } else {
-      await this.modPage.wasRemoved(
-        e.speechRecognitionUnsupported,
-        'should not display the speech recognition unsupported message',
-      );
-    }
+    // without speech synthesis voices (headless browsers) the option is
+    // replaced by the "unsupported" note
+    await this.modPage.hasElement(
+      `${e.speechRecognition}, ${e.speechRecognitionUnsupported}`,
+      'should display the speech recognition option',
+    );
   }
 
   async captionsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
+    expect(
+      this.modPage.settings?.speechRecognitionEnabled,
+      'audioCaptions.enabled should be on (AUDIO_CAPTIONS_SIDEBAR_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.waitAndClick(e.audioCaptionsSidebarButton);
+    await this.modPage.hasElement(e.audioCaptionsPanel, 'should open the transcription and captions panel');
   }
 
   async chatExclude() {
@@ -185,11 +206,6 @@ export class DisabledFeatures extends MultiUsers {
   async externalVideosExclude() {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.hasElement(e.shareExternalVideoBtn, 'should display the share external video button');
-  }
-
-  async layoutsExclude() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.hasElement(e.manageLayoutBtn, 'should display the manage layout button');
   }
 
   async learningDashboardExclude() {
@@ -277,11 +293,11 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboardExclude() {
-    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
-
-    if (allowInfiniteWhiteboard) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
-    }
+    expect(
+      this.modPage.settings?.allowInfiniteWhiteboard,
+      'allowInfiniteWhiteboard should be on (INFINITE_WHITEBOARD_SETTINGS)',
+    ).toBe(true);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
   }
 }

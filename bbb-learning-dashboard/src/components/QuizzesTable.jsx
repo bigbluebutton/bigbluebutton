@@ -7,6 +7,16 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import UserAvatar from './UserAvatar';
 
+const CREATED_ON_FORMAT = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+};
+
 const pollAnswerIds = {
   true: {
     id: 'app.poll.answer.true',
@@ -382,18 +392,26 @@ const QuizzesTable = (props) => {
           {['success', 'error', 'unknown', 'locked'].includes(type) && (
             <>
               {symbols[type]}
-              &nbsp;
-              {responses}
+              <span>&nbsp;</span>
+              <span>{responses}</span>
             </>
           )}
-          {type === 'default' && intl.formatMessage({
-            id: 'app.learningDashboard.quizzes.noResponse',
-            defaultMessage: 'No response',
-          })}
-          {type === 'waiting' && intl.formatMessage({
-            id: 'app.learningDashboard.quizzes.waitingResponse',
-            defaultMessage: 'Waiting user response',
-          })}
+          {type === 'default' && (
+            <span>
+              {intl.formatMessage({
+                id: 'app.learningDashboard.quizzes.noResponse',
+                defaultMessage: 'No response',
+              })}
+            </span>
+          )}
+          {type === 'waiting' && (
+            <span>
+              {intl.formatMessage({
+                id: 'app.learningDashboard.quizzes.waitingResponse',
+                defaultMessage: 'Waiting user response',
+              })}
+            </span>
+          )}
         </Box>
         {showPopper && (
           <Popper
@@ -420,17 +438,25 @@ const QuizzesTable = (props) => {
   const anonGridRow = [];
   const gridRows = [];
 
-  Object.values(quizzes).sort((a, b) => b.createdOn - a.createdOn).map((v, i) => {
+  // Shown newest first, but numbered in the order they were asked
+  Object.values(quizzes).sort((a, b) => b.createdOn - a.createdOn).map((v, i, sortedQuizzes) => {
     initQuizData[`${v?.pollId}`] = '';
-    const headerName = v?.question?.length > 0 ? v?.question : `Quiz ${i + 1}`;
+    const headerName = v?.question?.length > 0 ? v?.question : `Quiz ${sortedQuizzes.length - i}`;
     if (v?.anonymous) {
       hasAnonymousQuiz = true;
       anonymousQuizData[`${v?.pollId}`] = v?.anonymousAnswers;
     }
 
+    let description;
+    if (v?.createdOn) {
+      const createdOn = intl.formatDate(v.createdOn, CREATED_ON_FORMAT);
+      description = v?.question?.length > 0 ? `${headerName} (${createdOn})` : createdOn;
+    }
+
     const commonColProps = {
       field: v?.pollId,
       headerName,
+      description,
       flex: 1,
     };
 
@@ -487,7 +513,7 @@ const QuizzesTable = (props) => {
     return v;
   });
 
-  Object.values(allUsers).forEach((u, i) => {
+  Object.values(allUsers).forEach((u) => {
     if (u?.isModerator && Object.keys(u?.answers)?.length === 0) return;
 
     const result = Object
@@ -505,7 +531,7 @@ const QuizzesTable = (props) => {
       });
 
     gridRows.push({
-      id: i + 1,
+      id: u.userKey,
       user: u,
       ...{
         ...initQuizData,

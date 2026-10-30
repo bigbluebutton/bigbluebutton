@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { User } from '/imports/ui/Types/user';
+import deviceInfo from '/imports/utils/deviceInfo';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
@@ -9,7 +10,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import AudioModalContainer from '../../audio-modal/container';
 import AudioManager from '/imports/ui/services/audio-manager';
-import { joinListenOnly } from './service';
+import { rejoinAudioWhileConnected } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
@@ -91,7 +92,9 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   const handleJoinAudio = useCallback((connected: boolean) => {
     if (connected) {
-      joinListenOnly();
+      rejoinAudioWhileConnected().catch(() => {
+        // Nothing to bubble up here, audio-manager already does it.
+      });
     } else {
       setIsAudioModalOpen(true);
     }
@@ -118,7 +121,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           data-test="joinAudio"
           color="default"
           icon="no_audio"
-          size="lg"
+          size={deviceInfo.isMobile ? 'md' : 'lg'}
           circle
           accessKey={joinAudioShortcut}
           loading={isConnecting}

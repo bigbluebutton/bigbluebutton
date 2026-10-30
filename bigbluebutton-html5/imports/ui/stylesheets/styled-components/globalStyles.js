@@ -7,11 +7,12 @@ import {
   borderSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  dropdownBg,
-  colorText,
-  colorWhite,
-  colorGrayLighter,
+  colorGrayLighterSurface,
   colorOverlay,
+  colorSurfaceNeutral,
+  colorText,
+  colorWhiteSurface,
+  dropdownBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const GlobalStyle = createGlobalStyle`
@@ -29,6 +30,9 @@ const GlobalStyle = createGlobalStyle`
     }
     .MuiPaper-root {
       width: 100%;
+    }
+    .override-mobile-styles {
+      width: auto !important;
     }
   }
   .MuiList-padding {
@@ -67,7 +71,7 @@ const GlobalStyle = createGlobalStyle`
 
   .fullscreenModalOverlay {
     z-index: 900;
-    background: #fff;
+    background: ${colorWhiteSurface};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,10 +97,10 @@ const GlobalStyle = createGlobalStyle`
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
     cursor: pointer;
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
 
     &:focus {
-      background-color: #EEE;
+      background-color: ${colorSurfaceNeutral};
     }
   }
 
@@ -106,15 +110,17 @@ const GlobalStyle = createGlobalStyle`
     flex: 1;
     background-color: inherit;
     max-width: 17.75rem !important;
-    background-color: ${colorWhite} !important;
+    background-color: ${colorWhiteSurface} !important;
   }
 
+  // Scale, not width: a width animation lays out and repaints the page on every
+  // frame, which costs the most when many video tiles are on screen.
   @keyframes track-progress {
     0% {
-      width: 100%;
+      transform: scaleX(1);
     }
     100% {
-      width: 0;
+      transform: scaleX(0);
     }
   }
 
@@ -123,21 +129,24 @@ const GlobalStyle = createGlobalStyle`
     bottom: 0;
     left: 0;
     right: auto;
-    width: 0;
+    width: 100%;
     height: 5px;
     z-index: 999;
+    transform: scaleX(0);
+    transform-origin: left;
     animation: track-progress linear 1;
-    background-color: ${colorGrayLighter} !important;
+    background-color: ${colorGrayLighterSurface} !important;
     border-radius: ${borderRadius};
 
     [dir="rtl"] & {
       left: auto;
       right: 0;
+      transform-origin: right;
     }
   }
 
   .actionToast {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     display: flex;
     padding: ${smPaddingX};
     border-radius: ${borderRadius};
@@ -152,7 +161,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .raiseHandToast {
-    background-color: ${colorWhite};
+    background-color: ${colorWhiteSurface};
     padding: 1rem;
 
     i.close {

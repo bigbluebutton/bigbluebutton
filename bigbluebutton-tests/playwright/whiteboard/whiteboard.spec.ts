@@ -1,14 +1,18 @@
 import type { Browser, BrowserContext, Page, TestInfo } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
+import { MultiUserWhiteboard } from './multiUserWhiteboard';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
+import { SlideChangeBlank } from './slideChangeBlank';
 import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
+import { SlidePosition } from './slidePosition';
 import { TextShape } from './textShape';
-import { linkIssue } from '../core/helpers';
+import { TouchPinchZoom } from './touchPinchZoom';
 import { WhiteboardResize } from './whiteboardResize';
 
 async function runResizeTest(
@@ -24,13 +28,6 @@ async function runResizeTest(
   await resize[method]();
 }
 
-//! @flaky note:
-// all whiteboard tests are flagged as flaky due to unexpected zooming slides
-// only avoiding those assertions won't be enough as most of the tests are relying only on snapshot comparisons
-// so together with the further fix + re-enablement of the tests,
-// they will need to have non-snapshot assertions added as well
-// P.S. 1. the failures seems to be noticeable only on the CI
-// P.S. 2. Tests updated + re-enabled on March, 2025
 test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium', 'Drawing visual regression tests are enabled only for Chromium');
@@ -92,7 +89,9 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await textShape.stickyNote();
   });
 
-  test('Pan', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+  // fails deterministically on 4.0: the post-pan canvas screenshot diverges ~16%
+  // from its baseline on every server - pan/camera behavior changed, needs rework
+  test('Pan', { tag: '@need-update' }, async ({ browser, context, page }, testInfo) => {
     linkIssue(24367);
     const tools = new ShapeTools(browser, context);
     await tools.initModPage(page, { testInfo });
@@ -172,6 +171,90 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slideChange.crashOnSlideChangeWhileEditing();
   });
 
+  test('No blank presentation area on slide change with a cold cache', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.noBlankOnSlideChange();
+  });
+
+  test('Slide change with a broken background asset degrades without hanging', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.brokenAssetDegradesWithoutHanging();
+  });
+
+  test('Viewer follows a slide change that happens during camera calibration', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.viewerFollowsSlideChangeDuringMount();
+  });
+
+  test('Each slide restores its own last position', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.preservesEachSlidesLastPosition();
+  });
+
+  test('Fit-to-width position survives a slide-change remount', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresFitToWidthPageAfterRemount();
+  });
+
+  test('Slide position restoration is independent of decode timing', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.preservesEachSlidesLastPosition({ slowDecode: true });
+  });
+
+  test.describe('Reduced motion', () => {
+    test('Presenter and viewer restore the same per-slide position', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25866);
+      const slidePosition = new SlidePosition(browser, context);
+      await slidePosition.initPages(page, testInfo);
+      await slidePosition.preservesEachSlidesLastPosition({ reducedMotion: true });
+    });
+  });
+
+  test('Different per-slide zooms restore exact camera positions', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresPositionsAcrossDifferentZooms();
+  });
+
+  test('Toolbar-zoomed slide is restored after a fit-to-width slide', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresToolbarZoomAfterFitToWidthChange();
+  });
+
+  test('Fit-to-width slide keeps its toolbar zoom across a round trip', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25866);
+    const slidePosition = new SlidePosition(browser, context);
+    await slidePosition.initPages(page, testInfo);
+    await slidePosition.restoresFitToWidthPageWithToolbarZoom();
+  });
+
   test.describe.parallel('Shape Options', () => {
     test('Duplicate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);
@@ -202,5 +285,96 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
 
   test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
+  });
+
+  test.describe.parallel('Touch pinch zoom', () => {
+    // The two-finger gestures are sent with CDP Input.dispatchTouchEvent.
+    test.skip(({ browserName }) => browserName !== 'chromium', 'CDP touch input is Chromium-only');
+
+    test('Presenter pinch zoom stays between 100% and 400% and viewers follow', async ({
+      browser,
+      context,
+    }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.pinchStaysWithinZoomRange();
+    });
+
+    test('Slow presenter pinch ends with viewers on the same view', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.slowPinchReachesViewer();
+    });
+
+    test('Presenter pinch zoom does not flicker', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.pinchZoomsInOneDirection();
+    });
+
+    test('Two fingers at the same point leave the camera alone', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.fingersAtTheSamePointLeaveTheCameraAlone();
+    });
+
+    test('Presenter two-finger pan reaches viewers', async ({ browser, context }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo);
+      await touchPinchZoom.twoFingerPanReachesViewer();
+    });
+
+    test('Viewer touch gestures move no camera and keep the two-finger undo', async ({
+      browser,
+      context,
+    }, testInfo) => {
+      linkIssue(26079);
+      const touchPinchZoom = new TouchPinchZoom(browser, context);
+      await touchPinchZoom.initTouchPages(testInfo, { touch: 'viewer' });
+      await touchPinchZoom.viewerTouchGestures();
+    });
+  });
+});
+
+test.describe.parallel('Multi-user whiteboard', { tag: '@ci' }, () => {
+  test('Viewer annotation reaches the presenter and other viewers and stays after access is removed', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initModPage(page, { testInfo });
+    await whiteboard.initUserPage(context, { testInfo });
+    await whiteboard.initUserPage2(context, { testInfo });
+    await whiteboard.viewerAnnotationReachesEveryone();
+  });
+});
+
+test.describe.parallel('Clear annotations', { tag: '@ci' }, () => {
+  test('Presenter clears all annotations for everyone', async ({ browser, context, page }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initPages(page, testInfo);
+    await whiteboard.presenterClearsAllAnnotations();
+  });
+
+  test('Viewer with whiteboard access clears only their own annotations', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initPages(page, testInfo);
+    await whiteboard.viewerClearsOwnAnnotations();
+  });
+
+  test('Cancel keeps all annotations', async ({ browser, context, page }, testInfo) => {
+    const whiteboard = new MultiUserWhiteboard(browser, context);
+    await whiteboard.initPages(page, testInfo);
+    await whiteboard.cancelClearAnnotations();
   });
 });

@@ -150,17 +150,12 @@ func RemoveMeetingStreamCursorValueCache(meetingId string) {
 	delete(StreamCursorValueCache, meetingId)
 }
 
-var (
-	MaxConnPerSessionToken = config.GetConfig().Server.MaxConnectionsPerSessionToken
-	MaxConnGlobal          = config.GetConfig().Server.MaxConnections
-)
-
 func GetMaxConnectionsPerSessionToken() int {
-	return MaxConnPerSessionToken
+	return config.GetConfig().Server.MaxConnectionsPerSessionToken
 }
 
 func GetMaxConnectionsGlobal() int {
-	return MaxConnGlobal
+	return config.GetConfig().Server.MaxConnections
 }
 
 var (

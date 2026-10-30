@@ -300,12 +300,14 @@ export class MessageActions extends Chat {
     );
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.waitAndClick(e.closeModal);
+    // the moderator joins room1 from the room's options menu
+    await this.modPage.waitAndClick(e.roomOptions1, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.askJoinRoom1);
-    await this.modPage.hasElement(
-      e.alreadyConnected,
+    // both the room card and its still open menu item are marked alreadyConnected
+    await expect(
+      this.modPage.page.locator(e.alreadyConnected).first(),
       'should display the alreadyConnected element when mod join',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
     await breakoutModPage.waitAndClick(e.closeModal);
     // mod send a message
@@ -334,6 +336,10 @@ export class MessageActions extends Chat {
     await expect(
       lastMessageItemBreakoutUser.locator(e.editMessageButton),
       'should not display the edit message button when hovering a user message',
+    ).not.toBeVisible();
+    await expect(
+      lastMessageItemBreakoutUser.locator(e.deleteMessageButton),
+      'should not display the delete message button to the viewer for the moderator message',
     ).not.toBeVisible();
     // check if mod can delete own message
     const lastMessageItemBreakoutMod = breakoutModPage.page.locator(e.chatMessageItem).last();
@@ -606,6 +612,91 @@ export class MessageActions extends Chat {
       targetMessageUser,
       'should display the first message in viewport after clicking on the replied ',
     ).toBeInViewport();
+  }
+
+  async pinAndUnpinMessage() {
+    await openPublicChat(this.userPage);
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await checkLastMessageSent(this.modPage, e.message);
+    await this.userPage.wasRemoved(e.pinnedMessage, 'should not display a pinned message before pinning');
+    // pin the attendee message
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
+    await lastMessageItem.hover();
+    await expect(
+      lastMessageItem.locator(e.messageToolbar),
+      'should display the message toolbar when hovering a message',
+    ).toBeVisible();
+    await lastMessageItem.locator(e.pinMessageButton).click();
+    await this.modPage.hasElement(e.simpleModal, 'should display the pin message confirmation modal');
+    await this.modPage.waitAndClick(e.confirmPinMessageButton);
+    // check pinned message
+    const pinnedMessageUser = this.userPage.page.locator(e.pinnedMessage);
+    await expect(pinnedMessageUser, 'should display the pinned message for the attendee').toBeVisible();
+    await expect(pinnedMessageUser, 'should display the pinned message text for the attendee').toContainText(e.message);
+    await expect(pinnedMessageUser, 'should display who pinned the message for the attendee').toContainText(
+      new RegExp(`Pinned by\\s*${this.modPage.username}`),
+    );
+    await this.userPage.wasRemoved(
+      e.unpinPinnedMessageButton,
+      'should not display the unpin button on the pinned message for the attendee',
+    );
+    await this.modPage.hasText(e.pinnedMessage, e.message, 'should display the pinned message for the moderator');
+    // unpin
+    await this.modPage.waitAndClick(e.unpinPinnedMessageButton);
+    await this.modPage.hasElement(e.simpleModal, 'should display the unpin message confirmation modal');
+    await this.modPage.waitAndClick(e.confirmUnpinMessageButton);
+    await this.userPage.wasRemoved(
+      e.pinnedMessage,
+      'should remove the pinned message for the attendee after unpinning',
+    );
+    await this.modPage.wasRemoved(
+      e.pinnedMessage,
+      'should remove the pinned message for the moderator after unpinning',
+    );
+    await checkLastMessageSent(this.userPage, e.message);
+  }
+
+  async viewerCannotPinMessage() {
+    await openPublicChat(this.modPage);
+    await this.modPage.fill(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await checkLastMessageSent(this.userPage, e.message);
+    // the moderator can pin the message
+    const lastMessageItemMod = this.modPage.page.locator(e.chatMessageItem).last();
+    await lastMessageItemMod.hover();
+    await expect(
+      lastMessageItemMod.locator(e.pinMessageButton),
+      'should display the pin message button for the moderator',
+    ).toBeVisible();
+    // the attendee cannot
+    const lastMessageItemUser = this.userPage.page.locator(e.chatMessageItem).last();
+    await lastMessageItemUser.hover();
+    await expect(
+      lastMessageItemUser.locator(e.replyMessageButton),
+      'should display the reply message button when the attendee hovers a message',
+    ).toBeVisible();
+    await expect(
+      lastMessageItemUser.locator(e.pinMessageButton),
+      'should not display the pin message button for the attendee',
+    ).toHaveCount(0);
+  }
+
+  async pinMessageDisabled() {
+    await openPublicChat(this.modPage);
+    await this.modPage.fill(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await checkLastMessageSent(this.modPage, e.message);
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
+    await lastMessageItem.hover();
+    await expect(
+      lastMessageItem.locator(e.replyMessageButton),
+      'should display the reply message button when hovering a message',
+    ).toBeVisible();
+    await expect(
+      lastMessageItem.locator(e.pinMessageButton),
+      'should not display the pin message button when pinning chat messages is disabled',
+    ).toHaveCount(0);
   }
 
   async addRemoveReaction() {

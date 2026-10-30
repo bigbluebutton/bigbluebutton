@@ -1,3 +1,4 @@
+import { RECORDING_PROCESSING_WAIT_TIME } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ClientSettingsOverride } from './clientSettingsOverride';
@@ -18,7 +19,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.changeNumberOfRooms();
     });
 
-    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+    test('Change duration time in the creation form', async ({ browser, context, page }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.changeDurationTime();
@@ -42,10 +43,45 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.dragDropUserInRoom();
     });
 
+    test('Rejected presentation does not enable the slide selection', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25704);
+      const create = new Create(browser, context);
+      await create.initModPage(page, { testInfo });
+      await create.rejectedPresentationDoesNotEnableSlideSelection();
+    });
+
+    // Assumes default.pdf exists and maxFileSizeUpload is the 30 MB default; overriding either fails this confusingly.
+    test('Rejected presentation is not offered as a breakout room slide', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(25704);
+      const create = new Create(browser, context);
+      await create.initModPage(page, { testInfo });
+      await create.rejectedPresentationIsNotOfferedAsBreakoutSlide();
+    });
+
     test('Inherit lock settings checkbox is visible and unchecked by default', async ({ browser, context, page }, testInfo) => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.inheritLockSettingsCheckboxIsVisible();
+    });
+
+    test('Inherit lock settings checkbox is pre-checked when inheritLockSettingsByDefault is true', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(25804);
+      const create = new Create(browser, context);
+      await create.initModPage(page, {
+        testInfo,
+        clientSettingsOverrides: {
+          public: { app: { breakouts: { inheritLockSettingsByDefault: true } } },
+        },
+      });
+      await create.inheritLockSettingsCheckboxIsChecked();
     });
 
     test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {
@@ -153,7 +189,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.messageToAllRooms();
     });
 
-    test('Change duration time', async ({ browser, context, page }, testInfo) => {
+    test('Change duration time of running rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -181,6 +217,29 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.endAllBreakoutRooms();
     });
 
+    test(
+      'Ending the rooms returns the attendee to main room audio',
+      { tag: '@media' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.endingRoomsReturnsAudioToMain();
+      },
+    );
+
+    // Back in the main room the attendee is unmuted: the rejoin uses the mute state stored before the breakout.
+    test(
+      'Ending the rooms keeps an attendee who muted in the breakout muted',
+      { tag: '@known-issue' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.endingRoomsKeepsTheBreakoutMuteState();
+      },
+    );
+
     test('Invite user after creating rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
@@ -196,19 +255,14 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const join = new Join(browser, context);
-      // Pin the editor so the test doesn't depend on the server's default
-      // sharedNotesEditor; the breakout inherits it from the parent meeting, so
-      // only the mod page (which creates the meeting) needs the parameter.
-      await join.initModPage(page, { createParameter: 'sharedNotesEditor=blockNote', testInfo });
+      await join.initModPage(page, { testInfo });
       await join.initUserPage(context, { testInfo });
       await join.create(true);
       await join.exportBreakoutNotes();
     });
 
     test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(false, true);
@@ -254,5 +308,34 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       const override = new ClientSettingsOverride(browser, context);
       await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
     });
+  });
+});
+
+// About two minutes: the running rooms cannot be given less than one minute.
+test.describe.parallel('Breakout time limit', () => {
+  test('Rooms end by themselves when their time runs out', async ({ browser, context, page }, testInfo) => {
+    const join = new Join(browser, context);
+    await join.initPages(page, testInfo);
+    await join.create();
+    await join.roomsEndWhenTimeRunsOut();
+  });
+});
+
+test.describe.parallel('Breakout recording', { tag: '@nightly' }, () => {
+  test('Breakout room recording is published as a breakout of its parent', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    test.setTimeout(RECORDING_PROCESSING_WAIT_TIME + 3 * 60000);
+    const join = new Join(browser, context);
+    await join.initModPage(page, {
+      createParameter: 'record=true&breakoutRoomsRecord=true',
+      clientSettingsOverrides: { public: { app: { breakouts: { offerRecordingForBreakouts: true } } } },
+      testInfo,
+    });
+    await join.initUserPage(context, { testInfo });
+    await join.create(false, false, true);
+    await join.recordInBreakoutRoom();
   });
 });

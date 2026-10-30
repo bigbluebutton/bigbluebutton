@@ -2,11 +2,12 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 
 import {
-  colorBorder,
-  colorWhite,
-  colorGrayDark,
-  btnPrimaryColor,
   btnPrimaryActiveBg,
+  btnPrimaryColor,
+  colorBorder,
+  colorGrayDark,
+  colorGrayDarkSurface,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const ReactionsButton = styled(Button)`
@@ -33,7 +34,7 @@ const ButtonWrapper = styled.div`
   margin: 0 .5rem;
 
   &:focus {
-    background-color: ${colorGrayDark};
+    background-color: ${colorGrayDarkSurface};
   }
 
   & > button {

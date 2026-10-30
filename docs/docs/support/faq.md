@@ -349,7 +349,7 @@ All the features of BigBlueButton are available on Android except screen sharing
 
 #### iOS
 
-BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
+BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 14.5+.
 
 All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
 
@@ -563,7 +563,9 @@ We designed BigBlueButton to be accessible to users with visual and/or audible d
 
 BigBlueButton supports both JAWS and NVDA screen readers. When using a screen reader, we recommend using Internet Explorer or the 32-bit version of FireFox. The 64-bit versions of FireFox and Chrome make it harder for screen readers to interact with the BigBlueButton client.
 
-BigBlueButton supports [live closed captioning](https://www.youtube.com/watch?time_continue=1&v=feC_zm1y3N4). A stenographer can join the session and provide a live caption stream to all users (you can have multiple stenographers simultaneously providing captioning in multiple languages). Later on, when BigBlueButton processes the recording, it will convert the closed captions to subtitles in the playback.
+BigBlueButton supports automatic live captions. When they are enabled on the server, users can choose a transcription language when joining audio, and their speech is captioned for the other users in the session (see [Enable live captions](/administration/customize#enable-live-captions)). Later on, when BigBlueButton processes the recording, it will convert these captions to subtitles in the playback. A panel with the full running transcript is available through the [Live Transcription plugin](https://github.com/bigbluebutton/bbb-plugin-live-transcription).
+
+Captions typed by a person, such as a stenographer, are no longer built in as of BigBlueButton 3.0. They are available through the [Typed captions plugin](https://github.com/bigbluebutton/bbb-plugin-typed-captions).
 
 For a full statement on our accessibility see [https://bigbluebutton.org/accessibility/](https://bigbluebutton.org/accessibility/).
 
@@ -595,7 +597,7 @@ When you upload a PowerPoint document, BigBlueButton will convert it to PDF (usi
 
 The conversion to PDF will remove any animations (visual or audio), links, and embedded content. At the end of the conversion, you'll see the final slide within BigBlueButton. Splitting the animated slide into multiple slides with intermediate animation steps using plugins such as [PPspliT](https://github.com/maxonthegit/PPspliT) would be a good option. Alternatively, you can share the screen showing a PowerPoint presentation; BBB can share not only the animation and video, but also the audio for most of the compatible browsers.
 
-As the presenter, if you want to share a YouTube or Vimeo video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
+As the presenter, if you want to share a YouTube, Vimeo or Panopto video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
 
 #### I uploaded a document but some fonts are missing after conversion
 

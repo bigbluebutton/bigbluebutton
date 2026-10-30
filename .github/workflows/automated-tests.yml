@@ -36,7 +36,6 @@ jobs:
             bbb-playback-record,
             bbb-graphql-server,
             bbb-shared-notes-server,
-            bbb-etherpad,
             bbb-web,
             bbb-fsesl-akka,
             bbb-html5,
@@ -54,7 +53,7 @@ jobs:
           - package: bbb-learning-dashboard
             cache-files-list: bbb-learning-dashboard
           - package: bbb-playback-record
-            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
+            build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-presentation-legacy bbb-playback-screenshare bbb-playback-video bbb-record-core
             cache-files-list: bbb-playback.placeholder.sh bbb-presentation-video.placeholder.sh record-and-playback
           - package: bbb-graphql-server
             build-name: bbb-graphql-server
@@ -62,9 +61,6 @@ jobs:
             cache-files-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
           - package: bbb-shared-notes-server
             cache-files-list: bbb-shared-notes-server
-          - package: bbb-etherpad
-            cache-files-list: bbb-etherpad.placeholder.sh
-            cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
           - package: bbb-web
             cache-files-list: bigbluebutton-web bbb-common-message bbb-common-web
           - package: bbb-fsesl-akka
@@ -80,8 +76,8 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go
-            cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
+            build-list: bbb-mkclean bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go bbb-coturn
+            cache-files-list: bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -97,7 +93,7 @@ jobs:
         run: |
           BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
           echo "Including build dirs: $BUILD_DIRS"
-          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh"
+          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh build/setup.sh build/setup-inside-docker.sh build/package-names.inc.sh build/opts-global.sh build/get_external_dependencies.sh"
           TREE_HASHES=$(echo $LIST | tr ' ' '\n' | xargs -I {} git rev-parse HEAD:{} 2>/dev/null)
           CACHE_DIGEST=$(printf "%s" "$TREE_HASHES" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')
           echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
@@ -217,11 +213,6 @@ jobs:
         with:
           name: artifacts_bbb-graphql-server
           path: all-artifacts
-      - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-etherpad
-          path: all-artifacts
       - name: Download artifacts_bbb-shared-notes-server
         uses: actions/download-artifact@v7
         with:
@@ -266,9 +257,9 @@ jobs:
           sudo apt-get install -y -qq equivs
 
           DEBS_DIR="all-artifacts"
-          PKGS="bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations
+          PKGS="bbb-apps-akka bbb-config bbb-export-annotations
                 bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5
-                bbb-learning-dashboard bbb-libreoffice-docker bbb-livekit bbb-mkclean bbb-pads
+                bbb-learning-dashboard bbb-libreoffice-docker bbb-livekit bbb-mkclean
                 bbb-shared-notes-server bbb-playback bbb-playback-presentation
                 bbb-record-core bbb-web bbb-webrtc-sfu bbb-webrtc-recorder"
 
@@ -306,6 +297,8 @@ jobs:
           Version: $META_VERSION
           Maintainer: Fred Dixon <ffdixon@bigbluebutton.org>
           Depends: $DEPENDENCIES
+          Conflicts: bbb-etherpad, bbb-pads
+          Replaces: bbb-etherpad, bbb-pads
           Architecture: amd64
           Description: Virtual Classroom
            BigBlueButton is a virtual classroom for online teaching and learning.
@@ -330,7 +323,6 @@ jobs:
             artifacts_bbb-learning-dashboard
             artifacts_bbb-playback-record
             artifacts_bbb-graphql-server
-            artifacts_bbb-etherpad
             artifacts_bbb-shared-notes-server
             artifacts_bbb-freeswitch
             artifacts_bbb-webrtc
@@ -368,6 +360,7 @@ jobs:
       - uses: actions/setup-node@v5
         name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
@@ -498,6 +491,8 @@ jobs:
           case "${{ github.ref_name }}" in
             v4.0.x-release) CODENAME="noble-40-prerelease" ;;
             v4.0.x-develop) CODENAME="noble-40-dev" ;;
+            v4.1.x-release) CODENAME="noble-41-prerelease" ;;
+            v4.1.x-develop) CODENAME="noble-41-dev" ;;
             *) echo "Branch ${{ github.ref_name }} is not mapped to a package repo codename — skipping push."; exit 0 ;;
           esac
           rsync -avz -e "ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10" \
@@ -513,8 +508,6 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-    env:
-      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -545,9 +538,19 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+          # the later steps build and serve every sample of this SDK version that has tests
+          samples=""
+          for dir in bigbluebutton-html-plugin-sdk/samples/*/tests; do
+            [ -d "$dir" ] || continue
+            sample=${dir%/tests}
+            samples="$samples ${sample##*/}"
+          done
+          echo "Samples with tests:$samples"
+          echo "SAMPLES_WITH_TESTS=${samples# }" >> "$GITHUB_ENV"
       - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
         uses: actions/setup-node@v5
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: |
             bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
@@ -727,6 +730,7 @@ jobs:
       - uses: actions/setup-node@v5
         name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
+          node-version: 24
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
@@ -742,8 +746,9 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
-      # This job re-runs the @media-tagged tests against the legacy
+      # This job re-runs the @media-tagged gate tests against the legacy
       # bbb-webrtc-sfu bridge, selected per-meeting via MEDIA_BRIDGE create params.
+      # The quarantine tags it leaves out are the gate's (config.quarantine in package.json).
       - name: Run legacy (bbb-webrtc-sfu) media tests
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -753,7 +758,7 @@ jobs:
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
           MEDIA_BRIDGE: bbb-webrtc-sfu
-        run: npx playwright test --project=chromium --grep '(?=.*@ci)(?=.*@media)' --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
+        run: npm run test-chromium-media-ci
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6
@@ -811,7 +816,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
       - name: Check if blob reports exist
         if: ${{ fromJSON(env.hasFailure) }}
         id: check-blob-reports
@@ -821,16 +826,3 @@ jobs:
       - name: Merge and upload the blob reports
         if: ${{ fromJSON(env.hasFailure) && fromJSON(steps.check-blob-reports.outputs.result || 'false') }}
         uses: ./.github/actions/merge-and-upload-blob-reports
-      - name: Write PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        working-directory: ./
-        run: |
-          mkdir -p ./pr-comment-data
-          echo ${{ github.event.number }} > ./pr-comment-data/pr_number
-          echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
-      - name: Upload PR data for auto-comment
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v6
-        with:
-          name: pr-comment-data
-          path: pr-comment-data
