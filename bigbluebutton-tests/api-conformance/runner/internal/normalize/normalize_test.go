@@ -187,6 +187,16 @@ body xml
 	}
 }
 
+// A meeting's disabled features come from a set, in no defined order.
+func TestDisabledFeaturesSorted(t *testing.T) {
+	props := func(list string) []string {
+		return Document([]byte(`{"core":{"body":{"props":{"meetingProp":{"disabledFeatures":[`+list+`]}}}}}`), ctx("bbbc-u5"), Default())
+	}
+	check(t, props(`"polls","chat"`), `
+$.core.body.props.meetingProp.disabledFeatures[] "chat"
+$.core.body.props.meetingProp.disabledFeatures[] "polls"`)
+}
+
 // getMeetings says noMeetings only when no case has a meeting, so a case
 // whose own list is empty must read the same whatever else is running.
 func TestGetMeetingsOwnView(t *testing.T) {

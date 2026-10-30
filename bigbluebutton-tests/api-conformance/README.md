@@ -440,7 +440,8 @@ After masking:
   a session is the case's own when that ID is the SHA-1 of a meetingID the
   case sent. Its `noSessions` messageKey and message are dropped;
 - lists whose order isn't defined are sorted: meetings, sessions,
-  recordings, metadata, attendees, STUN and TURN servers.
+  recordings, metadata, attendees, STUN and TURN servers, and the disabled
+  features in akka-apps' meeting props.
 
 What a `presence`, `graphql`, `bus`, `fs` or `redis` step returns is a JSON
 document, not a response: it becomes the document's lines alone, normalized

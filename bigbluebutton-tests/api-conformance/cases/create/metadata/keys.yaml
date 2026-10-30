@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Metadata names are meta_ followed by a letter, then letters, digits and
+# dashes; the name after meta_ is lower-cased. Params that look like
+# metadata but don't follow the pattern are ignored, without an error.
+# getMeetingInfo and akka-apps' metadata props show the same metadata.
+id: create.metadata.keys
+title: create with metadata names that are valid or not
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Metadata, meta_Course-Code: ABC-101, meta_1x: digit first, meta_a_b: underscore, Meta_x: capital prefix, META_y: upper-case prefix}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.metadataProp]
+  - call: getMeetingInfo
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/metadata/course-code: ABC-101, "count(/response/metadata/*)": "1"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

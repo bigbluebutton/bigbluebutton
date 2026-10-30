@@ -132,6 +132,8 @@ func Default() *Rules {
 			{Path: "stunServers[]", Key: ""},
 			{Path: "turnServers[]", Key: ""},
 			{Path: "remoteIceCandidates[]", Key: ""},
+			// bbb-web keeps a meeting's disabled features in a set.
+			{Path: "disabledFeatures[]", Key: ""},
 		},
 		Scope: []Scope{
 			{Path: "meetings/meeting", Key: "meetingID"},

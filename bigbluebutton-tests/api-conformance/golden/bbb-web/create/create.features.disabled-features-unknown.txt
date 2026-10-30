@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.features.disabled-features-unknown
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.meetingProp.disabledFeatures[] "noSuchFeature"
