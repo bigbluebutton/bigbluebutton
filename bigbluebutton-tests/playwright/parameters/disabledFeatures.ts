@@ -86,7 +86,10 @@ export class DisabledFeatures extends MultiUsers {
 
   async learningDashboard() {
     await this.modPage.hasElement(e.usersListSidebarButton, 'should display the users list button on the sidebar');
-    await this.modPage.wasRemoved(e.learningDashboardSidebarButton, 'should not display the learning dashboard button on the sidebar');
+    await this.modPage.wasRemoved(
+      e.learningDashboardSidebarButton,
+      'should not display the learning dashboard button on the sidebar',
+    );
   }
 
   async polls() {
@@ -98,7 +101,10 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async sharedNotes() {
-    await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button on the sidebar');
+    await this.modPage.wasRemoved(
+      e.sharedNotesSidebarButton,
+      'should not display the shared notes button on the sidebar',
+    );
   }
 
   async virtualBackgrounds() {
@@ -234,7 +240,10 @@ export class DisabledFeatures extends MultiUsers {
 
   async learningDashboardExclude() {
     await this.modPage.hasElement(e.usersListSidebarButton, 'should display the users list button on the sidebar');
-    await this.modPage.hasElement(e.learningDashboardSidebarButton, 'should display the learning dashboard button on the sidebar');
+    await this.modPage.hasElement(
+      e.learningDashboardSidebarButton,
+      'should display the learning dashboard button on the sidebar',
+    );
   }
 
   async pollsExclude() {
