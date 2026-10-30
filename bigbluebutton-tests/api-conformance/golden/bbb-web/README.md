@@ -22,6 +22,11 @@ there compares like with like.
   from a stack built from this tree then. So were the cases of
   isMeetingRunning, getMeetingInfo, getMeetings, getSessions and end, from
   the same stack, apart from those endpoints' checksum and method ones.
+  On 2026-10-30, after merging 4.0.2's v4.0.x-develop, a reset stack built
+  from this tree answered every case as recorded except insertDocument's
+  not-found answer, which #25786 gave a `messageKey`; those three cases
+  (`insertDocument.checksum.accepted-*`, `insertDocument.method.allowed-post`)
+  were re-recorded from it.
 
 ## Reviewing
 

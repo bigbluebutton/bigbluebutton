@@ -7,4 +7,5 @@ status 200
 header Content-Type text/xml;charset=utf-8
 body xml
 /response/returncode "FAILED"
+/response/messageKey "notFound"
 /response/message "Meeting with id [${uid}] not found."
