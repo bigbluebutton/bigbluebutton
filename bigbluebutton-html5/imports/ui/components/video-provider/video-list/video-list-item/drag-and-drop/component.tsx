@@ -220,7 +220,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
   );
 };
 
-const Wrapper = (Component: (props: object) => JSX.Element) => (props: DragAndDropProps) => (
+const Wrapper = (Component: (props: object) => React.JSX.Element) => (props: DragAndDropProps) => (
   <DragAndDrop
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
@@ -229,7 +229,7 @@ const Wrapper = (Component: (props: object) => JSX.Element) => (props: DragAndDr
   </DragAndDrop>
 );
 
-const withDragAndDrop = (Component: (props: object) => JSX.Element) => injectIntl(
+const withDragAndDrop = (Component: (props: object) => React.JSX.Element) => injectIntl(
   withFileReader(
     Wrapper(Component),
     MIME_TYPES_ALLOWED, MAX_FILE_SIZE,

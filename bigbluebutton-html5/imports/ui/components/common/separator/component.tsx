@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import { SeparatorProps } from './types';
 import Styled from './styles';
 import PluginButtonIcon from '../../plugins/plugin-icon/styles';
@@ -8,7 +9,7 @@ const Separator = ({ icon, actionsBar = false, dataTest = '' }: SeparatorProps) 
   if (typeof icon === 'object' && 'svgContent' in icon) {
     return (
       <Styled.IconContainer data-test={dataTest}>
-        <PluginButtonIcon>{icon.svgContent as ReactNode}</PluginButtonIcon>
+        <PluginButtonIcon>{toHostReactNode(icon.svgContent)}</PluginButtonIcon>
       </Styled.IconContainer>
     );
   }

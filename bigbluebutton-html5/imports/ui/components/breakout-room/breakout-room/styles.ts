@@ -3,7 +3,6 @@ import {
   borderSize,
   borderRadius,
   smPaddingX,
-  smPaddingY,
   contentSidebarPadding,
   contentSidebarBottomScrollPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -25,7 +24,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
-import TextareaAutosize from 'react-autosize-textarea';
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
@@ -267,43 +265,6 @@ const Wrapper = styled.div`
   flex-direction: row;
 `;
 
-const Input = styled(TextareaAutosize)`
-  flex: 1;
-  background: ${colorWhiteSurface};
-  background-clip: padding-box;
-  margin: 0;
-  color: ${colorText};
-  -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
-  resize: none;
-  transition: none;
-  border-radius: ${borderRadius};
-  font-size: ${fontSizeBase};
-  line-height: 1;
-  min-height: 2.5rem;
-  max-height: 10rem;
-  border: 1px solid ${colorBorder};
-
-  &:disabled,
-  &[disabled] {
-    cursor: not-allowed;
-    opacity: .75;
-    background-color: rgba(167,179,189,0.25);
-  }
-
-  &:focus {
-    border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
-  }
-
-  &:hover,
-  &:active,
-  &:focus {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
-`;
 // @ts-ignore - as button comes from JS, we can't provide its props
 const SendButton = styled(Button)`
   margin:0 0 0 ${smPaddingX};
@@ -385,7 +346,6 @@ export default {
   FlexRow,
   Form,
   Wrapper,
-  Input,
   SendButton,
   ErrorMessage,
   BreakoutsList,

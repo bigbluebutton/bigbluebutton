@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
@@ -71,7 +72,7 @@ const renderPluginItems = (pluginItems) => {
                 else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'svgContent' in pluginItem.icon) {
                   navBarIconProps.customIcon = (
                     <PluginButtonIcon>
-                      {pluginItem.icon.svgContent}
+                      {toHostReactNode(pluginItem.icon.svgContent)}
                     </PluginButtonIcon>
                   );
                 }

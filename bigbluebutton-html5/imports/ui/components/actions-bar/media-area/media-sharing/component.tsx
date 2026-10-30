@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -284,7 +285,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
                   ) : (
                     <SvgIcon fontSize="large" sx={{ color: btnDefaultColor }}>
                       {/* @ts-ignore */}
-                      {icon?.svgContent}
+                      {toHostReactNode(icon?.svgContent)}
                     </SvgIcon>
                   )}
                   tooltip={item.tooltip}

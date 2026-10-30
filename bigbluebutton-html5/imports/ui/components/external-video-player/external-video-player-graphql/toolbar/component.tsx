@@ -67,7 +67,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
   showUnsynchedMsg,
 }) => {
   const intl = useIntl();
-  const mobileTimout = React.useRef<ReturnType<typeof setTimeout>>();
+  const mobileTimout = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const volumeSliderRef = React.useRef<HTMLInputElement>(null);
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);

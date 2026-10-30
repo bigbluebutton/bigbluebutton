@@ -27,6 +27,7 @@ export default class DropdownContent extends Component {
 
     return (
       <Styled.Content
+        ref={(node) => { this.node = node; }}
         data-test="dropdownContent"
         {...restProps}
       >

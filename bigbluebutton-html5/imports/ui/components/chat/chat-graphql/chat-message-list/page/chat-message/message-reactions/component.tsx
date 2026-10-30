@@ -72,7 +72,7 @@ const ChatMessageReactions: React.FC<ChatMessageReactionsProps> = (props) => {
     reactions, sendReaction, deleteReaction, chatId, messageId, keyboardFocused,
   } = props;
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const selectedElementRef = useRef<HTMLElement | null>();
+  const selectedElementRef = useRef<HTMLElement | null | undefined>(undefined);
   const [reactionItems, setReactionItems] = useState<Record<string, ReactionItem>>({});
 
   const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));

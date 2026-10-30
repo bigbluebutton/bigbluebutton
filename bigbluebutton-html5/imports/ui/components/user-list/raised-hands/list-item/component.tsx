@@ -1,4 +1,5 @@
-import React, { ReactNode, useContext, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { defineMessages, IntlShape } from 'react-intl';
 import {
@@ -50,7 +51,7 @@ const getIconComponent = (icon: PluginSdk.PluginIconType): React.ReactNode => {
     return <Icon iconName={icon.iconName} />;
   }
   if (icon && typeof icon === 'object' && 'svgContent' in icon) {
-    const svgContent = icon.svgContent as ReactNode;
+    const svgContent = toHostReactNode(icon.svgContent);
     return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
   }
   return null;

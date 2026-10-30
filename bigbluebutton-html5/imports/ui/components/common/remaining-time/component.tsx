@@ -35,7 +35,7 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
 
   const intl = useIntl();
   const [timeSync] = useTimeSync();
-  const timeRemainingInterval = React.useRef<ReturnType<typeof setTimeout>>();
+  const timeRemainingInterval = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [remainingTime, setRemainingTime] = useState<number>(-1);
 
   useEffect(() => {

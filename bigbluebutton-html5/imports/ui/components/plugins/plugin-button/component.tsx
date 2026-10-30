@@ -1,4 +1,5 @@
 import React from 'react';
+import { toHostReactNode } from '/imports/ui/components/plugins/plugin-icon/utils';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
@@ -29,7 +30,7 @@ const PluginHelperButtonComponent = ({
   } else if (icon && typeof icon === 'object' && 'iconName' in icon) {
     resolvedIcon = icon.iconName;
   } else if (icon && typeof icon === 'object' && 'svgContent' in icon) {
-    resolvedCustomIcon = <PluginButtonIcon>{icon.svgContent as React.ReactNode}</PluginButtonIcon>;
+    resolvedCustomIcon = <PluginButtonIcon>{toHostReactNode(icon.svgContent)}</PluginButtonIcon>;
   }
 
   return (
