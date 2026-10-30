@@ -10,7 +10,7 @@ export type getChatMessageHistory = {
 
 export const GET_CHAT_MESSAGE_HISTORY = gql`
 query getChatMessageHistory {
-  chat_message_public(order_by: {createdAt: asc}) {
+  chat_message_public(order_by: [{ createdAt: asc }, { messageSequence: asc }]) {
     message
     messageAsHtml
     messageId
