@@ -26,7 +26,9 @@ there compares like with like.
   from this tree answered every case as recorded except insertDocument's
   not-found answer, which #25786 gave a `messageKey`; those three cases
   (`insertDocument.checksum.accepted-*`, `insertDocument.method.allowed-post`)
-  were re-recorded from it.
+  were re-recorded from it. The create cases (`create/`, apart from the
+  checksum and method ones) were added the same day from that stack, some
+  under the alt-defaults profile.
 
 ## Reviewing
 
