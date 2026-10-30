@@ -28,7 +28,9 @@ there compares like with like.
   (`insertDocument.checksum.accepted-*`, `insertDocument.method.allowed-post`)
   were re-recorded from it. The create cases (`create/`, apart from the
   checksum and method ones) were added the same day from that stack, some
-  under the alt-defaults profile.
+  under the alt-defaults profile. So were the end callback cases
+  (`end/end.callbacks.*`), from the same packages once the stack had its
+  sink.
 
 ## Reviewing
 

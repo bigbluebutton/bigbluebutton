@@ -1,0 +1,10 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.callbacks.sent-meta-end-callback-url
+target bbb-web
+
+== step 4: sink ${uid}
+$.method "GET"
+$.path "/${uid}/ended"
+$.query.from "conform"
+$.query.meetingID "${uid}"
+$.query.recordingmarks "false"
