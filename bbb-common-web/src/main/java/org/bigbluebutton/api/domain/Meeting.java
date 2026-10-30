@@ -211,7 +211,7 @@ public class Meeting {
 				screenShareBridge = builder.screenShareBridge;
 				audioBridge = builder.audioBridge;
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
-        userCustomData = new HashMap<>();
+        userCustomData = Collections.synchronizedMap(new HashMap<>());
 		usersWithGuestLobbyMessages = new HashMap<>();
 
         users = new ConcurrentHashMap<>();

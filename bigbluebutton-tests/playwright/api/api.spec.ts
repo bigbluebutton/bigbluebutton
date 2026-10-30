@@ -36,6 +36,11 @@ test.describe.parallel('API', () => {
     await API.testJoinLongFullNameAccepted();
   });
 
+  test('concurrentJoinsRetainUserMetadata', { tag: '@ci' }, async () => {
+    linkIssue(26028);
+    await API.testConcurrentJoinsRetainUserMetadata();
+  });
+
   test('joinFullNameOverLimitRejected', { tag: '@ci' }, async () => {
     linkIssue(25682);
     await API.testJoinFullNameOverLimitRejected();
