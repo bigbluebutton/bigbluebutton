@@ -54,7 +54,7 @@ const colorPrimary = 'var(--color-primary, #0F70D7)';
 const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
-const colorWarning = 'var(--color-warning, purple)';
+const colorWarning = 'var(--color-warning, #FFC845)';
 const noticeWarningBg = 'var(--notice-warning-bg, rgba(255, 200, 69, 0.2))';
 const noticeWarningBorder = 'var(--notice-warning-border, #FFC845)';
 const noticeWarningText = 'var(--notice-warning-text, #936800)';
@@ -132,9 +132,14 @@ const btnSuccessColorSurface = `var(--btn-success-color-surface, ${btnSuccessCol
 const btnSuccessBg = `var(--btn-success-bg, ${colorSuccess})`;
 
 const btnWarningBorder = `var(--btn-warning-border, ${colorWarning})`;
-const btnWarningColor = `var(--btn-warning-color, ${colorWhite})`;
+const btnWarningColor = 'var(--btn-warning-color, #393C48)';
 const btnWarningColorSurface = `var(--btn-warning-color-surface, ${btnWarningColor})`;
 const btnWarningBg = `var(--btn-warning-bg, ${colorWarning})`;
+
+const connectionStatusGoodBg = 'var(--connection-status-good-bg, #0F9821)';
+
+const timerRunningBg = 'var(--timer-running-bg, #1D65D4)';
+const timerStoppedBg = 'var(--timer-stopped-bg, #393C48)';
 
 const btnDangerBorder = `var(--btn-danger-border, ${colorDanger})`;
 const btnDangerColor = `var(--btn-danger-color, ${colorWhite})`;
@@ -227,7 +232,7 @@ const previewControlBg = 'var(--preview-control-bg, rgba(255, 255, 255, 0.4))'; 
 // rgba version of colorPrimary (0F70D7) with 15% opacity for talking indicator background
 const webcamTalkingBackgroundColor = 'var(--webcam-talking-background-color, rgba(13, 109, 252, 0.15))';
 
-const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
+const toastWarningColor = 'var(--toast-warning-color, #393C48)';
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 const defaultBorder = 'var(--default-border, #B0BDC9)';
 
@@ -373,6 +378,9 @@ export {
   btnWarningColor,
   btnWarningColorSurface,
   btnWarningBg,
+  connectionStatusGoodBg,
+  timerRunningBg,
+  timerStoppedBg,
   btnDangerBorder,
   btnDangerColor,
   btnDangerColorSurface,

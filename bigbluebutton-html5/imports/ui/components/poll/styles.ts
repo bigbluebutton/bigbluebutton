@@ -38,7 +38,7 @@ import {
   colorGrayLighterSurface,
   colorGrayLightBorder,
   colorDanger,
-  colorWarning,
+  noticeWarningText,
   colorHeading,
   colorPrimary,
   colorGrayDark,
@@ -303,7 +303,7 @@ const Row = styled.div`
 `;
 
 const Warning = styled.div`
-  color: ${colorWarning};
+  color: ${noticeWarningText};
   font-size: ${fontSizeSmall};
 `;
 

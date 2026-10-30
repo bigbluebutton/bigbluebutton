@@ -110,7 +110,7 @@
   --toast-info-color: var(--toast-info-color-dark-theme, #FFFFFF);
   --toast-success-color: var(--toast-success-color-dark-theme, #FFFFFF);
   --toast-error-color: var(--toast-error-color-dark-theme, #FFFFFF);
-  --toast-warning-color: var(--toast-warning-color-dark-theme, #FFFFFF);
+  --toast-warning-color: var(--toast-warning-color-dark-theme, #393C48);
 
   /* quiz / poll -- right and wrong answer semantics */
   --color-info-box-quiz-bg: var(--color-info-box-quiz-bg-dark-theme, #133d28);
@@ -216,7 +216,7 @@
   --apps-gallery-outline-surface: var(--apps-gallery-outline-surface-dark-theme, #303334);
   --color-blue-lighter: var(--color-blue-lighter-dark-theme, #20456e);
   --color-blue-lighter-border: var(--color-blue-lighter-border-dark-theme, #214a77);
-  --btn-warning-color: var(--btn-warning-color-dark-theme, #FFFFFF);
+  --btn-warning-color: var(--btn-warning-color-dark-theme, #393C48);
   --btn-warning-color-surface: var(--btn-warning-color-surface-dark-theme, #222425);
   --btn-success-color: var(--btn-success-color-dark-theme, #FFFFFF);
   --btn-success-color-surface: var(--btn-success-color-surface-dark-theme, #222425);
