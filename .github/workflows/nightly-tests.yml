@@ -86,7 +86,7 @@ jobs:
                 workflow_id: 'automated-tests.yml',
                 branch: process.env.BRANCH,
                 event: 'push',
-                per_page: 30,
+                per_page: 100,
               });
               for (const candidate of data.workflow_runs) {
                 if (await hasPackages(candidate.id)) {
@@ -299,6 +299,7 @@ jobs:
             echo "|---|---|---|---|---|"
           } >> "$GITHUB_STEP_SUMMARY"
           for target in nightly-merge/*; do
+            [ -d "$target" ] || continue
             group=${target#nightly-merge/}
             PLAYWRIGHT_HTML_OUTPUT_DIR=nightly-reports/$group PLAYWRIGHT_JSON_OUTPUT_FILE=nightly-summary/$group.json \
               npx playwright merge-reports --reporter html,json "$target"

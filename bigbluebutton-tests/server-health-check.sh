@@ -81,6 +81,10 @@ check_oom_kills() {
   local name="no OOM kill in the kernel log"
   local source log matches
   if [ -n "${KERNEL_LOG:-}" ]; then
+    if [ ! -r "$KERNEL_LOG" ]; then
+      fail "$name: cannot read $KERNEL_LOG"
+      return
+    fi
     source=$KERNEL_LOG
     log=$(cat "$KERNEL_LOG")
   else
