@@ -373,7 +373,7 @@ If you see other warning messages check out the [troubleshooting installation](/
 
 If this server is intended for production, you should also
 
-- [Secure your system -- restrict access to specific ports](/administration/customize#preserving-customizations-using-apply-confsh)
+- [Secure your system -- restrict access to specific ports](/administration/customize#setup-a-firewall)
 - [Configure the server to work behind a firewall](/administration/firewall-configuration) (if you have installed behind a firewall or on a server that has a public/private IP address)
 - [Set up a TURN server](/administration/turn-server) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
 - Test your HTTPS configuration. A well-respected site that can do a series of automated tests is [https://www.ssllabs.com/ssltest/](https://www.ssllabs.com/ssltest/) - simply enter your server's hostname, optionally check the "Do not show results" check box if you would like to keep it private, then Submit. At time of writing, the configuration shown on this page should achieve an "A" ranking in the SSL Labs test page.
