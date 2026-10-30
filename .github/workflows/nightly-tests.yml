@@ -30,7 +30,7 @@ on:
       branch:
         description: "Branch whose newest Automated tests build to test"
         type: string
-        default: "v4.0.x-develop"
+        default: "v4.1.x-develop"
       build-run-id:
         description: "Automated tests run to take the packages from instead (optional)"
         type: string
@@ -39,10 +39,10 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.branch || 'v4.0.x-develop' }}
+  group: ${{ github.workflow }}-${{ inputs.branch || 'v4.1.x-develop' }}
   cancel-in-progress: false
 env:
-  BRANCH: ${{ inputs.branch || 'v4.0.x-develop' }}
+  BRANCH: ${{ inputs.branch || 'v4.1.x-develop' }}
   NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
   BBB_URL: https://bbb-ci.test/bigbluebutton/
   BBB_SECRET: bbbci
