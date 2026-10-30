@@ -48,6 +48,9 @@ export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
 export BBB_WEB_DIRECT_URL=http://localhost:8090
 export BBB_TAP_URL=http://localhost:8099
+export BBB_SINK_URL=https://sink.test:8444
+export BBB_SINK_READ_URL=https://localhost:8444
+export BBB_FIXTURE_URL=https://sink.test:8444/fixtures
 export BBB_PROFILE_CMD=$here/profile.sh
 export SSL_CERT_FILE=$out/certs/bundle.pem
 END

@@ -147,8 +147,9 @@ CMD ["node", "bbb-graphql-actions.js"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=60s \
   CMD curl -sS -o /dev/null http://127.0.0.1:8093/
 
-# The suite's tap (bbb-conform tap), built from the runner in this tree.
-FROM golang:1.26 AS tap-build
+# The suite's tap and sink (bbb-conform tap, bbb-conform sink), built from
+# the runner in this tree.
+FROM golang:1.26 AS runner-build
 WORKDIR /src
 COPY --from=runner go.mod go.sum ./
 RUN go mod download
@@ -158,11 +159,21 @@ RUN CGO_ENABLED=0 go build -o /bbb-conform ./cmd/bbb-conform
 # Follows the bus and reads redis and the data directory for the bus, redis
 # and fs steps. It only reads.
 FROM base AS tap
-COPY --from=tap-build /bbb-conform /usr/local/bin/bbb-conform
+COPY --from=runner-build /bbb-conform /usr/local/bin/bbb-conform
 USER bigbluebutton
 CMD ["bbb-conform", "tap", "--listen", "0.0.0.0:8099"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
   CMD curl -fsS http://127.0.0.1:8099/info | grep -q '"subscribed":true'
+
+# Records the callbacks and fetches bbb-web sends it and serves the suite's
+# fixtures, over https with nginx's certificate, for the sink steps.
+FROM base AS sink
+COPY --from=runner-build /bbb-conform /usr/local/bin/bbb-conform
+USER bigbluebutton
+CMD ["bbb-conform", "sink", "--listen", "0.0.0.0:8444", "--fixtures", "/fixtures", \
+     "--cert", "/etc/bigbluebutton/conform/certs/server.crt", "--key", "/etc/bigbluebutton/conform/certs/server.key"]
+HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
+  CMD curl -fsS --cacert /etc/bigbluebutton/conform/certs/ca.crt https://sink.test:8444/_info -o /dev/null
 
 # nginx as Ubuntu 24.04 packages it, with the packages' nginx files:
 # bbb-web's locations, and the middleware's /graphql location, its cache

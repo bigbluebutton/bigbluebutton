@@ -1,8 +1,11 @@
 # bbb-web, on any server. BBB_URL (e.g. https://bbb-ci.test/bigbluebutton/)
 # gives the base URL and API prefix, and BBB_SECRET the salt, as for the
 # Playwright suite. BBB_TAP_URL (e.g. http://10.0.0.5:8099) names the
-# server's tap (bbb-conform tap), for the bus, fs and redis steps: without
-# one, those cases are skipped. On the Tier 1 stack (make -C env up),
+# server's tap (bbb-conform tap), for the bus, fs and redis steps, and
+# BBB_SINK_URL the sink (bbb-conform sink) as the server reaches it, for the
+# sink steps (BBB_SINK_READ_URL when the runner reaches it otherwise), with
+# BBB_FIXTURE_URL for the fixtures it serves: without them, those cases are
+# skipped. On the Tier 1 stack (make -C env up),
 # eval "$(make -s -C env env)" sets all of them.
 name: bbb-web
 capabilities: [akka, presence, presentation-conversion]

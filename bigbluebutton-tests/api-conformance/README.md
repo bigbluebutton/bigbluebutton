@@ -192,7 +192,7 @@ come from.
 ```sh
 make -C env debs              # build the packages (see below)
 make -C env up                # build the images, start, wait until healthy
-eval "$(make -s -C env env)"  # BBB_URL, BBB_SECRET, BBB_TAP_URL, ...
+eval "$(make -s -C env env)"  # BBB_URL, BBB_SECRET, BBB_TAP_URL, BBB_SINK_URL, ...
 cd runner
 go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases --golden ../golden/bbb-web
 ```
@@ -201,7 +201,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
@@ -219,16 +219,21 @@ access for the first build.
   share one network namespace, so they reach each other on 127.0.0.1 as on
   a single-server install:
   - bbb-web and akka-apps; redis; Postgres with the GraphQL schema; Hasura,
-    the GraphQL middleware and the actions server; nginx; the tap;
+    the GraphQL middleware and the actions server; nginx; the tap; the sink;
   - nginx serves `https://localhost:8443`, with a certificate from a CA
     `make up` creates in `env/.state/` (`SSL_CERT_FILE` trusts it); bbb-web
-    itself answers on `http://localhost:8090` (`BBB_WEB_DIRECT_URL`), and
-    the tap on `http://localhost:8099`. All three are bound to the host's
-    loopback only.
+    itself answers on `http://localhost:8090` (`BBB_WEB_DIRECT_URL`), the
+    tap on `http://localhost:8099`, and the sink on `https://localhost:8444`
+    (`BBB_SINK_READ_URL`). All four are bound to the host's loopback only;
+  - bbb-web reaches the sink as `https://sink.test:8444` (`BBB_SINK_URL`),
+    a name the stack's hosts file gives it and nginx's certificate names.
+    The sink serves `fixtures/` (`BBB_FIXTURE_URL`).
 - **Its configuration** is a packaged server's, with what bbb-install sets:
   the host and a test salt (`env/tier1/tier1.env`, published on purpose),
   and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
-  stock ones.
+  stock ones. One setting is the suite's: `fetchUrlAllowedLocalHosts`
+  lists `sink.test`, since bbb-web fetches from and calls back to a private
+  address only for a host listed there.
 - **Where it differs from a packaged server:**
   - converters run without systemd's memory limit and sandbox, and
     LibreOffice (the build the packages use) runs in bbb-web's container,

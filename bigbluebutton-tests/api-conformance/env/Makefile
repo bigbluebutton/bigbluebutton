@@ -8,7 +8,7 @@ COMPOSE := docker compose -f $(CURDIR)/compose.yaml
 export LIBREOFFICE_IMAGE := $(shell sed -n 's/^FROM //p' $(CURDIR)/../../../bbb-libreoffice/docker/Dockerfile)
 # The long-running services; up waits for them to be healthy. CLAMAV=1 adds
 # the ClamAV daemon.
-SERVICES := redis postgres hasura akka-apps bbb-web middleware actions nginx tap
+SERVICES := redis postgres hasura akka-apps bbb-web middleware actions nginx tap sink
 ifeq ($(CLAMAV),1)
 COMPOSE += --profile clamav
 SERVICES += clamav

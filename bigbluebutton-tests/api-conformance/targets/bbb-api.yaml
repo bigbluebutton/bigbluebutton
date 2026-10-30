@@ -1,7 +1,8 @@
 # bbb-api, the Go port, behind nginx at /meeting-api/ on the same server as
 # bbb-web (bbb-api/bigbluebutton-api.nginx). BBB_URL gives the host and
 # BBB_SECRET the salt; both servers share them. BBB_TAP_URL names the
-# server's tap, which both share too.
+# server's tap, and BBB_SINK_URL, BBB_SINK_READ_URL and BBB_FIXTURE_URL its
+# sink, which both share too.
 name: bbb-api
 apiPrefix: /meeting-api/
 # presence users join through bbb-api's join and the same GraphQL server as

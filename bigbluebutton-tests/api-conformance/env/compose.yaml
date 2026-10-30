@@ -26,7 +26,8 @@ x-pod: &pod
 services:
   # Owns the namespace and publishes the ports the runner uses, on the host's
   # loopback only: the stack's salt is public. Never restarted: the services
-  # in its namespace would lose the published ports.
+  # in its namespace would lose the published ports. Every service in the
+  # namespace shares its hosts file, so bbb-web finds the sink as sink.test.
   net:
     image: registry.k8s.io/pause:3.10
     restart: "no"
@@ -34,6 +35,9 @@ services:
       - 127.0.0.1:8443:8443 # nginx
       - 127.0.0.1:8090:8090 # bbb-web itself, for the auth hooks
       - 127.0.0.1:8099:8099 # the tap
+      - 127.0.0.1:8444:8444 # the sink
+    extra_hosts:
+      - sink.test:127.0.0.1
 
   init:
     build: {<<: *build, target: init}
@@ -135,6 +139,17 @@ services:
       net: {condition: service_started}
       init: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
+
+  # The suite's sink, for the sink steps: bbb-web sends its callbacks and
+  # fetches to https://sink.test:8444, with nginx's certificate, which names
+  # it, and fetches the suite's fixtures from it.
+  sink:
+    <<: *pod
+    build: {<<: *build, target: sink}
+    init: true
+    volumes:
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+      - ../fixtures:/fixtures:ro
 
   # Optional (make up CLAMAV=1): the ClamAV daemon on localhost:3310, where
   # bbb-web looks for one when the clamav-scan profile turns scanning on.
