@@ -54,9 +54,7 @@ const config = {
   },
   devtool: 'source-map',
   plugins: [
-    // The Safari 14-15 build is one file: build.sh renames it after the build
-    // and its chunks would no longer be found (#22817). The regular build
-    // keeps Mermaid out of the bundle, see `dynamicImportMode` below.
+    // Safari 14-15 build: one file, build.sh renames it (#22817)
     isSafariTarget && new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
     }),
@@ -111,10 +109,7 @@ const config = {
     },
   },
   module: {
-    // Dynamic imports stay in the bundle, as they have since chunks were limited
-    // to one (#22817), except Mermaid's: it loads when a diagram is first drawn
-    // (bn-shared-notes/mermaid-on-demand.ts), and its own diagram types load
-    // when used.
+    // Dynamic imports stay in the bundle (#22817), except Mermaid's (lazy)
     parser: {
       javascript: {
         dynamicImportMode: 'eager',

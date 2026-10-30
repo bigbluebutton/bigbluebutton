@@ -107,7 +107,7 @@ export async function pushInitialContent(padId: string, content: InitialContent)
       };
     }
 
-    // Create a server editor with the shared notes schema
+    // Create a ServerBlockNoteEditor instance
     const editor = createServerEditor();
 
     // JSON (already parsed on the web tier) takes precedence. The raw markdown is only a

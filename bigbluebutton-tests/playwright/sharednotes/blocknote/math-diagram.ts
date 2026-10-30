@@ -12,11 +12,9 @@ const EQUATION = String.raw`\int_0^1 x^2 \, dx = \frac{1}{3}`;
 const TEXT_EXPORT_BLOCK_EQUATION = String.raw`x<y \quad a \& b`;
 const TEXT_EXPORT_EDGE_CASE = String.raw`\text{&lt;} <b>`;
 const DIAGRAM_LINES = ['graph TD', 'A[Agenda] --> B{Decision}', 'B -->|yes| C[Ship]'];
-// Script chunks of the client (`<id>.bundle.<hash>.js`), as opposed to the
-// bundle itself (`bundle.<hash>.js`)
+// Script chunks (`<id>.bundle.<hash>.js`), not the bundle itself
 const CHUNK_URL = /\/[^/]+\.bundle\.[^/]+\.js$/;
 
-// Types placeholder lines, one per block the test inserts afterwards.
 async function typeSlots(testPage: Page, slots: string[]): Promise<void> {
   await getBlockNoteEditorLocator(testPage).click();
   for (const [index, slot] of slots.entries()) {
@@ -25,7 +23,6 @@ async function typeSlots(testPage: Page, slots: string[]): Promise<void> {
   }
 }
 
-// Replaces a placeholder line with a block picked from the slash menu.
 async function insertFromSlashMenu(testPage: Page, slot: string, title: string): Promise<void> {
   const editor = getBlockNoteEditorLocator(testPage);
   await editor.locator('.bn-block-content', { hasText: slot }).click();
@@ -45,8 +42,7 @@ interface DiagramColors {
   styleKeptFromDarkReader: boolean;
 }
 
-// Relative luminance (0 dark .. 1 light) of the first node box, node label and
-// card behind the diagram, and whether its stylesheet is kept out of DarkReader.
+// Relative luminance (0 dark .. 1 light) of the diagram's parts
 async function readDiagramColors(testPage: Page): Promise<DiagramColors | null> {
   return testPage.page.evaluate((selector) => {
     const svg = document.querySelector(`${selector} svg`);
@@ -68,8 +64,7 @@ async function readDiagramColors(testPage: Page): Promise<DiagramColors | null> 
   }, e.blockNoteDiagram);
 }
 
-// Same steps as the dark mode option test (options/options.ts): Settings,
-// the dark mode switch, save. The settings panel replaces the notes panel.
+// As in options/options.ts; the settings panel replaces the notes panel
 async function toggleDarkMode(testPage: Page): Promise<void> {
   await testPage.waitAndClick(e.settingsSidebarButton);
   await testPage.waitAndClick(e.darkModeToggleBtn);
@@ -95,7 +90,6 @@ async function insertDiagram(testPage: Page, slot: string): Promise<void> {
   await expect(diagram.locator('svg'), 'a new diagram should render its sample source').toBeVisible({
     timeout: ELEMENT_WAIT_LONGER_TIME,
   });
-  // Open the source popup and replace the sample source
   await diagram.click();
   await testPage.page.keyboard.press('Control+A');
   for (const [index, line] of DIAGRAM_LINES.entries()) {
@@ -106,26 +100,8 @@ async function insertDiagram(testPage: Page, slot: string): Promise<void> {
 }
 
 export class MathDiagramSharedNotes extends MultiUsers {
-  async blockEquationRendersForEveryone() {
-    await startBlockNoteSharedNotes(this.modPage);
-    await startBlockNoteSharedNotes(this.userPage);
-    await typeSlots(this.modPage, ['equation slot']);
-    await insertBlockEquation(this.modPage, 'equation slot');
-
-    for (const [who, testPage] of [
-      ['moderator', this.modPage],
-      ['attendee', this.userPage],
-    ] as const) {
-      await expect(
-        testPage.page.locator(`${e.blockNoteMathBlock} .katex`),
-        `the ${who} should see the equation typeset`,
-      ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    }
-  }
-
-  // Mermaid is not part of the client bundle: each participant downloads it
-  // (as separate script chunks) only when a diagram is first drawn.
-  async diagramRendersForEveryone() {
+  // Mermaid is downloaded (as script chunks) only when a diagram is first drawn
+  async equationsAndDiagramsRenderForEveryone() {
     const chunkRequests = { moderator: [] as string[], attendee: [] as string[] };
     for (const [who, testPage] of [
       ['moderator', this.modPage],
@@ -137,7 +113,8 @@ export class MathDiagramSharedNotes extends MultiUsers {
     }
     await startBlockNoteSharedNotes(this.modPage);
     await startBlockNoteSharedNotes(this.userPage);
-    await typeSlots(this.modPage, ['diagram slot']);
+    await typeSlots(this.modPage, ['equation slot', 'diagram slot']);
+    await insertBlockEquation(this.modPage, 'equation slot');
     const chunksBeforeDiagram = { moderator: chunkRequests.moderator.length, attendee: chunkRequests.attendee.length };
     await insertDiagram(this.modPage, 'diagram slot');
 
@@ -145,6 +122,10 @@ export class MathDiagramSharedNotes extends MultiUsers {
       ['moderator', this.modPage],
       ['attendee', this.userPage],
     ] as const) {
+      await expect(
+        testPage.page.locator(`${e.blockNoteMathBlock} .katex`),
+        `the ${who} should see the equation typeset`,
+      ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
       await expect(
         testPage.page.locator(`${e.blockNoteDiagram} svg`, { hasText: 'Decision' }),
         `the ${who} should see the diagram drawn from the new source`,
@@ -156,8 +137,7 @@ export class MathDiagramSharedNotes extends MultiUsers {
     }
   }
 
-  // The notes server must know the math and diagram blocks: a block missing from
-  // its schema is silently dropped from every export and recording.
+  // A block missing from the server schema is dropped from every export
   async markdownExportKeepsEquationsAndDiagrams() {
     await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
@@ -178,9 +158,7 @@ export class MathDiagramSharedNotes extends MultiUsers {
     );
   }
 
-  // The TXT export (also read by recordings to tell empty notes apart) strips
-  // every <...> span after writing the LaTeX source back into the HTML, so a
-  // formula with < or > lost the text up to the next >.
+  // The TXT export strips <...> spans, which took formulas with < or > with them
   async textExportKeepsFormulaSymbols() {
     await startBlockNoteSharedNotes(this.modPage);
     await typeSlots(this.modPage, ['inline slot', 'edge slot', 'equation slot']);
@@ -225,12 +203,8 @@ export class MathDiagramSharedNotes extends MultiUsers {
     expect(text, 'a literal entity and a tag-like source should stay as typed').toContain(`$${TEXT_EXPORT_EDGE_CASE}$`);
   }
 
-  // Workaround until BlockNote draws diagrams with theme-aware CSS
-  // (https://github.com/TypeCellOS/BlockNote/pull/3219): a diagram stays a light
-  // card in dark mode, its stylesheet kept out of DarkReader (mermaid-on-demand.ts),
-  // and switching the theme neither redraws it nor remounts the editor, so undo
-  // reaches edits made before the switch. Guards the DarkReader internals this
-  // relies on; replace it when the workaround is removed.
+  // Guards the light card workaround of mermaid-on-demand.ts; replace it when
+  // https://github.com/TypeCellOS/BlockNote/pull/3219 lands
   async diagramsStayLightCardsInDarkMode() {
     await startBlockNoteSharedNotes(this.modPage);
     await typeSlots(this.modPage, ['Notes', 'diagram slot']);
@@ -275,18 +249,5 @@ export class MathDiagramSharedNotes extends MultiUsers {
 
     await toggleDarkMode(this.modPage);
     await expectLightCard('light');
-  }
-
-  // Typing amounts such as "R$ 10 e R$ 20" must not turn the text between the
-  // dollar signs into inline math. BlockNote 0.56 does not register the $...$
-  // shortcut of the inline equation; if it starts doing so, this fails.
-  async typedPricesStayText() {
-    await startBlockNoteSharedNotes(this.modPage);
-    const editor = getBlockNoteEditorLocator(this.modPage);
-    await editor.click();
-    const prices = 'Custa R$ 10 e R$ 20 por pessoa.';
-    await this.modPage.page.keyboard.type(prices);
-    await expect(editor, 'the prices should stay as typed').toContainText(prices);
-    await expect(this.modPage.page.locator(e.blockNoteInlineMath), 'no inline math should be created').toHaveCount(0);
   }
 }

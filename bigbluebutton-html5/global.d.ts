@@ -4,8 +4,7 @@ declare module '*.css' {
   export default content;
 }
 
-// Mermaid's entry file, imported by path where `mermaid` itself is aliased
-// (see imports/ui/components/bn-shared-notes/mermaid-on-demand.ts)
+// Mermaid by path, as `mermaid` is aliased to bn-shared-notes/mermaid-on-demand.ts
 declare module 'mermaid/dist/mermaid.core.mjs' {
   export { default } from 'mermaid';
 }

@@ -19,7 +19,7 @@ export async function exportDocumentToMarkdown(documentName: string): Promise<st
       return '';
     }
 
-    // Create a server editor with the shared notes schema
+    // Create a ServerBlockNoteEditor instance
     const editor = createServerEditor();
 
     // Convert Yjs XML Fragment to BlockNote blocks

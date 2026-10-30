@@ -226,9 +226,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     audio, image, file, video, ...remainingBlockSpecs
   } = defaultBlockSpecs;
 
-  // The shared notes server builds the same schema (bbb-shared-notes-server
-  // src/blocknote/editor.ts): a block type missing there is dropped from every
-  // export, recording and copied document.
+  // Keep in sync with bbb-shared-notes-server/src/blocknote/editor.ts: a block
+  // type missing there is dropped from every export and recording.
   const schema = BlockNoteSchema.create({
     blockSpecs: {
       ...remainingBlockSpecs,
@@ -400,12 +399,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     }
   }, [editable, hocuspocusProvider.awareness, userName, userColor]);
 
-  // BlockNote's floating UI (side menu, drag handle menu, slash menu, link
-  // toolbar, table handles) is portalled into this element, so the focus
-  // handler below only sees that UI and never the toolbar or the content.
-  // BlockNoteView renders only once the element exists: switching its portal
-  // target after mount remounts the editor view, which destroys the y-undo
-  // manager and leaves undo/redo dead for the rest of the session.
+  // BlockNote's floating UI is portalled here. BlockNoteView renders only once
+  // this element exists: changing its portal target after mount remounts the
+  // editor view, which destroys the y-undo manager (undo dead for the session).
   const [floatingUiElement, setFloatingUiElement] = React.useState<HTMLDivElement | null>(null);
   const portalElements = React.useMemo(
     () => (floatingUiElement ? { default: floatingUiElement } : undefined),
@@ -528,10 +524,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             min-height: 0;
             overflow-y: auto;
           }
-          /* The editor pads 50px on the left (side menu) and 25px on the right.
-             Equations and diagrams are drawn centered in their block, so give
-             their block the same margin on the right: centered relative to the
-             notes, not shifted right. */
+          /* Center equations and diagrams in the notes: match the editor's
+             25px right padding (the left one holds the side menu). */
           .bn-editor .bn-block-content[data-content-type="mathBlock"],
           .bn-editor .bn-block-content[data-content-type="diagram"] {
             width: calc(100% - 25px);

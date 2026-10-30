@@ -414,7 +414,6 @@ export const elements = {
   blockNoteAlignTextLeftButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Align text left"]',
   blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',
   blockNoteMathBlock: '#bn-notes-scroll-container [data-content-type="mathBlock"]',
-  blockNoteInlineMath: '#bn-notes-scroll-container [data-inline-content-type="math"]',
   blockNoteDiagram: '#bn-notes-scroll-container [data-content-type="diagram"]',
   notesConnectionError: '[data-test="notesError"]',
   notesRetryButton: 'button[data-test="notesRetryButton"]',

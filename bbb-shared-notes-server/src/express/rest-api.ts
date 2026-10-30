@@ -154,9 +154,8 @@ const documentApi: DocumentApi = {
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
           response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('html')}"`);
 
-          // Send HTML. The presentation playback of recordings reads the notes
-          // from this export with a single-line <body> pattern, so the line
-          // breaks of code and diagram sources go out as character references.
+          // Send HTML. Recording playback reads <body> with a single-line
+          // pattern, so line breaks inside <pre> go out as character references.
           response.send(fullHtml.replaceAll(/<pre\b[\s\S]*?<\/pre>/g, (pre) => pre.replaceAll('\n', '&#10;')));
           break;
         }

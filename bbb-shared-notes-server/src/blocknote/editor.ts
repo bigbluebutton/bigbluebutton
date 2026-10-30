@@ -1,5 +1,4 @@
-// The specs below build DOM nodes: @blocknote/server-util provides a DOM (jsdom)
-// while it exports, as for the built-in blocks.
+// @blocknote/server-util provides a DOM (jsdom) while it exports
 /// <reference lib="dom" />
 import {
   BlockNoteSchema,
@@ -14,16 +13,9 @@ import {
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import katex from "katex";
 
-// Server side of the math and diagram blocks the client registers from
-// @blocknote/math-block and @blocknote/diagram-block. The configs (type,
-// props, content) match those packages, so documents written by the client
-// read back here. The implementations only export: those packages render with
-// React and import stylesheets, which this server cannot load.
-//
-// Math exports as MathML with the LaTeX source in a TeX annotation, like the
-// client's copy and paste; the Markdown exporter turns it back into $...$ and
-// $$...$$. Diagrams export as their Mermaid source in a fenced code block: the
-// diagram is drawn by Mermaid in the browser.
+// Export-only twins of the client's math and diagram blocks: same configs, so
+// client documents read back here (those packages need React and CSS). Math
+// exports as MathML with a TeX annotation, diagrams as their Mermaid source.
 
 const latexToMathML = (source: string, displayMode: boolean): string =>
   katex.renderToString(source, { output: "mathml", displayMode, throwOnError: false });
@@ -52,8 +44,7 @@ const createDiagramBlockSpec = createBlockSpec(
   ),
   {
     meta: { code: true, defining: true, isolating: false },
-    // Initial content in Markdown: ```mermaid fences become diagrams, as when
-    // the same Markdown is imported in the client.
+    // ```mermaid fences in initial Markdown content become diagrams
     parse(element) {
       if (element.tagName !== "PRE" || element.childElementCount !== 1) return undefined;
       const code = element.firstElementChild;

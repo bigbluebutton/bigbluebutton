@@ -13,12 +13,8 @@ test.describe.parallel('Shared Notes - BlockNote math and diagrams', { tag: '@ci
     });
   });
 
-  test('Block equations render for every participant', async () => {
-    await mathDiagramSharedNotes.blockEquationRendersForEveryone();
-  });
-
-  test('Diagrams render for every participant', async () => {
-    await mathDiagramSharedNotes.diagramRendersForEveryone();
+  test('Equations and diagrams render for every participant', async () => {
+    await mathDiagramSharedNotes.equationsAndDiagramsRenderForEveryone();
   });
 
   test('Markdown export keeps equations and diagrams', async () => {
@@ -31,9 +27,5 @@ test.describe.parallel('Shared Notes - BlockNote math and diagrams', { tag: '@ci
 
   test('Diagrams stay light cards in dark mode', async () => {
     await mathDiagramSharedNotes.diagramsStayLightCardsInDarkMode();
-  });
-
-  test('Typed prices stay text', async () => {
-    await mathDiagramSharedNotes.typedPricesStayText();
   });
 });

@@ -55,7 +55,7 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
     const fragment = doc.getXmlFragment("doc");
 
     if (fragment.length > 0) {
-      // Create a server editor with the shared notes schema
+      // Create a ServerBlockNoteEditor instance
       const editor = createServerEditor();
 
       // Convert Yjs XML Fragment to BlockNote blocks
