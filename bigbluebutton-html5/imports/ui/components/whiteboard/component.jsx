@@ -1507,10 +1507,17 @@ const Whiteboard = React.memo((props) => {
 
           const zoomed = prevCam.z !== nextCam.z;
           if (isPresenterRef.current && (panned || zoomed) && isMountedRef.current) {
-            const baseZ = calculateZoomValueRef.current?.(
+            let baseZ = calculateZoomValueRef.current?.(
               currentPresentationPageRef.current?.scaledWidth,
               currentPresentationPageRef.current?.scaledHeight,
             );
+            // nextCam belongs to tldraw's canvas, which follows a layout change later than these
+            // props: while the two are more than a pixel apart, use that canvas's fit zoom.
+            const slideWidth = currentPresentationPageRef.current?.scaledWidth;
+            const canvasWidth = editor.getViewportScreenBounds().width;
+            if (slideWidth > 0 && Math.abs(canvasWidth - baseZ * slideWidth) > 1) {
+              baseZ = canvasWidth / slideWidth;
+            }
             if (baseZ > 0) {
               const pageKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
               pageActualZoomRatioRef.current[pageKey] = nextCam.z / baseZ;
