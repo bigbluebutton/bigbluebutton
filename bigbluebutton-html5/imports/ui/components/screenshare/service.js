@@ -8,6 +8,7 @@ import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
@@ -267,6 +268,14 @@ export const useShowButtonForNonPresenters = () => {
   const MEDIA_CONFIG = window.meetingClientSettings.public.kurento;
 
   return MEDIA_CONFIG.screenshare.showButtonForNonPresenters;
+};
+
+export const useIsScreenshareAllowedOnDevice = () => {
+  const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
+
+  return !deviceInfo.isMobile
+    || browserInfo.isTabletApp
+    || (SCREENSHARE_CONFIG.enableOnMobile && BridgeService.HAS_DISPLAY_MEDIA);
 };
 
 export const attachLocalPreviewStream = (mediaElement) => {

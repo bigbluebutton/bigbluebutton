@@ -345,13 +345,17 @@ The easiest way to get your own BigBlueButton server under OS X is to install VM
 
 BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://demo.bigbluebutton.org/](https://demo.bigbluebutton.org/).
 
-All the features of BigBlueButton are available on Android except screen sharing (Chrome does not support screen sharing on Android).
+All the features of BigBlueButton are available on Android except screen sharing. Administrators can opt in to
+experimental mobile screen sharing with `public.kurento.screenshare.enableOnMobile`, but the button is only shown
+when the browser exposes the required screen capture API. Chrome on Android does not currently expose that API.
 
 #### iOS
 
 BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 14.5+.
 
-All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
+Screen sharing on iOS and iPadOS is experimental. Administrators can enable it with
+`public.kurento.screenshare.enableOnMobile`; the screen sharing button is then shown when Safari exposes the required
+screen capture API. The setting is disabled by default.
 
 ### Bandwidth Requirements
 
@@ -575,7 +579,9 @@ For a full statement on our accessibility see [https://bigbluebutton.org/accessi
 
 BigBlueButton using WebRTC for sharing audio, video, and screen. You should be able to share your screen using Chrome, FireFox, and the newest version of Edge (based on Chromium). You don't need to install any plugin or download any additional binary to share your screen.
 
-At the time of this writing, you can view the presenter's screen on mobile devices, but not share the mobile screen.
+You can view the presenter's screen on mobile devices. Sharing from a mobile device is experimental and disabled by
+default; administrators can opt in with `public.kurento.screenshare.enableOnMobile` on browsers that expose the
+required screen capture API.
 
 #### Can I share a specific window when sharing my desktop?
 

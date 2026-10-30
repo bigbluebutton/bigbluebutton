@@ -69,6 +69,30 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
   }
 
+  async mobilePresenterSharesToDesktopViewer() {
+    await this.modPage.hasElement(e.startScreenSharing, 'should display screen sharing in the actions bar');
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.hasNElements(
+      '[data-test="startScreenShare"]',
+      2,
+      'should display screen sharing in the Media Sharing panel',
+    );
+    await this.modPage.page.keyboard.press('Escape');
+
+    await this.initUserPage(this.context);
+    await startScreenshare(this.modPage);
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'should deliver the mobile presenter screen share to a desktop viewer',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await expectVideoReceived(
+      this.userPage.page,
+      e.screenShareVideo,
+      'the desktop viewer should decode the mobile presenter screen share',
+    );
+  }
+
   async screenshareStopsExternalVideo() {
     const { screensharingEnabled } = this.modPage.settings || {};
 

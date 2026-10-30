@@ -438,6 +438,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.whiteboard.wheelZoomRequiresCtrl` (default `true`) - whether zooming the presentation with the mouse wheel requires holding `Ctrl` (`Cmd` on macOS). With the default, a bare wheel scroll pans the slide; set to `false` for the BigBlueButton 3.0 behavior where the wheel zooms directly. See [Whiteboard: scroll to pan, Ctrl+scroll to zoom](#whiteboard-scroll-to-pan-ctrlscroll-to-zoom).
 - `public.media.livekit.sdkLogBridge` (default `true`) - forwards livekit-client's own logs through the BigBlueButton client logger, so SDK-level media errors reach the usual client log destination.
 - `public.media.livekit.negotiationProbe` (default `false`) - debug instrumentation that logs how long a subscriber offer takes to be answered, from receive to socket dispatch. Off by default; enable only when diagnosing media negotiation latency.
+- `public.kurento.screenshare.enableOnMobile` (default `false`) - experimentally enables screen sharing on mobile browsers that expose the screen capture API.
 
 #### Value changed
 
