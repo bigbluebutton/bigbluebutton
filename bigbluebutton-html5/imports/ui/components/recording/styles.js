@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   lgBorderRadius,
+  confirmationButtonMinWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const NotificationContent = styled.div`
@@ -20,6 +21,7 @@ const NotificationActions = styled.div`
 const ConfirmationButton = styled.button`
   background-color: ${btnPrimaryBg};
   color: white;
+  min-width: ${confirmationButtonMinWidth};
   padding: 10px 24px;
   border: none;
   border-radius: ${lgBorderRadius};
@@ -43,6 +45,7 @@ const ConfirmationButton = styled.button`
 const CancelButton = styled.button`
   background-color: transparent;
   color: #333;
+  min-width: ${confirmationButtonMinWidth};
   padding: 10px 24px;
   font-size: 1rem;
   font-weight: 400;

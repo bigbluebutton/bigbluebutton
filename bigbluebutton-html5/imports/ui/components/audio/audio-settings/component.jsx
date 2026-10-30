@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import AudioModalFooterContext from '../audio-modal/context';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
@@ -465,26 +465,25 @@ class AudioSettings extends React.Component {
     // Both disabled while the on-device language pack of the transcription language is checked or
     // downloaded
     setFooterContent(
-      <Styled.SettingsFooter>
-        <Styled.SettingsBackButton
+      <>
+        <BBButton
+          variant="secondary"
           label={(isConnected || skipAudioOptions())
             ? intl.formatMessage(intlMessages.cancelLabel)
             : intl.formatMessage(intlMessages.backLabel)}
-          color="secondary"
           onClick={handleBack}
           disabled={isConnecting || transcriptionNotReady}
         />
-        <Button
-          data-test="joinEchoTestButton"
-          size="md"
-          color="primary"
+        <BBButton
+          variant="primary"
+          dataTest="joinEchoTestButton"
           label={isConnected
             ? intl.formatMessage(intlMessages.confirmLabel)
             : intl.formatMessage(intlMessages.retryLabel)}
           onClick={() => this.handleConfirmationClick()}
           disabled={isConnecting || producingStreams || transcriptionNotReady}
         />
-      </Styled.SettingsFooter>,
+      </>,
     );
   }
 
