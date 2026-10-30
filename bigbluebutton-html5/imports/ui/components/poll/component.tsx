@@ -777,15 +777,14 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       <Styled.PollFooter>
         {hasPoll ? <LiveResultActions /> : (
           <Styled.PollActionsRow>
-            <Styled.CancelPollBtn>
-              <BBButton
-                dataTest="cancelPollCreation"
-                label={intl.formatMessage(intlMessages.cancelLabel)}
-                variant="secondary"
-                color="default"
-                onClick={discardPoll}
-              />
-            </Styled.CancelPollBtn>
+            <BBButton
+              dataTest="cancelPollCreation"
+              fullWidth
+              label={intl.formatMessage(intlMessages.cancelLabel)}
+              variant="secondary"
+              color="default"
+              onClick={discardPoll}
+            />
             <StartPollButton
               question={question}
               multipleResponse={multipleResponse}

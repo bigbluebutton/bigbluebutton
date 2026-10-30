@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
+import BreakoutStyles from '../styles';
 import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -410,7 +410,7 @@ export const BottomBar = styled.div`
   border-top: 1px solid ${colorGrayLighter};
 `;
 
-export const ButtonWrapper = ButtonWrappers.TruncatingButtonWrapper;
+export const { BottomBarButton } = BreakoutStyles;
 
 export const MegaphoneChatArea = styled.div`
   padding: 0 1rem 0.5rem;
@@ -497,7 +497,7 @@ export default {
   RoomCardUserItem,
   UserRemoveBtn,
   BottomBar,
-  ButtonWrapper,
+  BottomBarButton,
   MegaphoneChatArea,
   MegaphoneChatRow,
   MegaphoneChatInput,

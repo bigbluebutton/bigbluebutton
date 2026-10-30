@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
+import BreakoutStyles from '../styles';
 import {
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -170,7 +170,7 @@ const BottomBar = styled.div`
   border-top: 1px solid ${colorGrayLighter};
 `;
 
-const ButtonWrapper = ButtonWrappers.TruncatingButtonWrapper;
+const { BottomBarButton, TruncatingButton: CardButton } = BreakoutStyles;
 
 export default {
   Separator,
@@ -190,5 +190,6 @@ export default {
   FreeJoinRoomName,
   FreeJoinRoomCount,
   BottomBar,
-  ButtonWrapper,
+  BottomBarButton,
+  CardButton,
 };
