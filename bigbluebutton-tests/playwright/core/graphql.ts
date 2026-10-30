@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { ELEMENT_WAIT_LONGER_TIME } from './constants';
 import { Page } from './page';
 
 // Sends GraphQL operations the way the client does, over a separate graphql-transport-ws
@@ -76,4 +77,40 @@ export async function readRows<T>(page: Page, query: string, view: string): Prom
   const { data, errors } = await graphql(page, query);
   expect(errors, `reading ${view} should not fail`).toBeUndefined();
   return (data?.[view] ?? []) as T[];
+}
+
+const CURRENT_USER = 'subscription { user_current { userId raiseHand } }';
+const RAISE_HAND =
+  'mutation RaiseHand($userId: String!, $raiseHand: Boolean!) { userSetRaiseHand(userId: $userId, raiseHand: $raiseHand) }';
+
+export async function getOwnUserId(page: Page): Promise<string> {
+  const [user] = await readRows<{ userId: string }>(page, CURRENT_USER, 'user_current');
+  return user.userId;
+}
+
+// Sends a mutation the way the client does and checks that the GraphQL layer
+// passed it on. A request the server punishes with an eject (apps.ejectOnViolation)
+// can close the connection before the answer arrives.
+export async function sendMutation(page: Page, query: string, field: string, variables?: Record<string, unknown>) {
+  const result = await graphql(page, query, variables);
+  expect(result.errors, `${field} should not be refused by the GraphQL layer`).toBeUndefined();
+  if (!result.closed) expect(result.data?.[field], `${field} should be accepted`).toBe(true);
+}
+
+// Sends a request the server accepts (toggling the observer's raised hand) and
+// waits until the observer sees it applied. akka-apps handles a meeting's
+// messages in order, so by then it has also handled every request sent before.
+export async function waitForServerToCatchUp(observer: Page) {
+  const [{ userId, raiseHand }] = await readRows<{ userId: string; raiseHand: boolean }>(
+    observer,
+    CURRENT_USER,
+    'user_current',
+  );
+  await sendMutation(observer, RAISE_HAND, 'userSetRaiseHand', { userId, raiseHand: !raiseHand });
+  await expect
+    .poll(async () => (await readRows<{ raiseHand: boolean }>(observer, CURRENT_USER, 'user_current'))[0]?.raiseHand, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+      message: 'the server should apply the observer request',
+    })
+    .toBe(!raiseHand);
 }

@@ -1,19 +1,17 @@
 import { type APIRequestContext, expect, type Page as PlaywrightPage, type TestInfo } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
-import { graphql, readRows } from '../core/graphql';
+import { getOwnUserId, graphql, readRows, sendMutation, waitForServerToCatchUp } from '../core/graphql';
 import { endMeetings, getRandomInt } from '../core/helpers';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 
 const PUBLIC_CHAT_ID = 'MAIN-PUBLIC-GROUP-CHAT';
-const pollOptions = { timeout: ELEMENT_WAIT_LONGER_TIME };
 
 // The mutations the client sends for each feature (see the matching
 // bigbluebutton-html5 mutations.ts files), and the views a participant reads
 // the result from. Values travel as variables, as in the client: the actions
 // server rejects booleans written inline.
-const SEND_CHAT_MESSAGE =
+export const SEND_CHAT_MESSAGE =
   'mutation SendChatMessage($chatId: String!, $message: String!) { chatSendMessage(chatId: $chatId, chatMessageInMarkdownFormat: $message) }';
 const CREATE_POLL =
   'mutation CreatePoll($pollId: String!, $pollType: String!, $secretPoll: Boolean!, $question: String!, $multipleResponse: Boolean!, $quiz: Boolean!, $answers: [String]!) { pollCreate(pollId: $pollId, pollType: $pollType, secretPoll: $secretPoll, question: $question, multipleResponse: $multipleResponse, quiz: $quiz, answers: $answers) }';
@@ -29,52 +27,18 @@ const pollVariables = (question: string) => ({
 const ACTIVATE_TIMER =
   'mutation ActivateTimer($stopwatch: Boolean!, $running: Boolean!, $time: Int!) { timerActivate(stopwatch: $stopwatch, running: $running, time: $time) }';
 const timerVariables = { stopwatch: true, running: false, time: 300000 };
-const CREATE_PRIVATE_CHAT = 'mutation CreatePrivateChat($userId: String!) { chatCreateWithUser(userId: $userId) }';
-const RAISE_HAND =
-  'mutation RaiseHand($userId: String!, $raiseHand: Boolean!) { userSetRaiseHand(userId: $userId, raiseHand: $raiseHand) }';
+export const CREATE_PRIVATE_CHAT =
+  'mutation CreatePrivateChat($userId: String!) { chatCreateWithUser(userId: $userId) }';
 const PUBLIC_MESSAGES = 'subscription { chat_message_public { message } }';
 const POLLS = 'subscription { poll { questionText } }';
 const TIMER = 'subscription { timer { active } }';
-const PRIVATE_CHATS = 'subscription { chat(where: { public: { _eq: false } }) { chatId participantId } }';
-const PRIVATE_MESSAGES = 'subscription { chat_message_private { message } }';
-const CURRENT_USER = 'subscription { user_current { userId raiseHand } }';
-
-async function getOwnUserId(page: Page): Promise<string> {
-  const [user] = await readRows<{ userId: string }>(page, CURRENT_USER, 'user_current');
-  return user.userId;
-}
-
-// Sends a mutation the way the client does and checks that the GraphQL layer
-// passed it on. Polls and private chat eject the sender when the feature is
-// disabled, which can close the connection before the answer arrives.
-async function sendMutation(page: Page, query: string, field: string, variables?: Record<string, unknown>) {
-  const result = await graphql(page, query, variables);
-  expect(result.errors, `${field} should not be refused by the GraphQL layer`).toBeUndefined();
-  if (!result.closed) expect(result.data?.[field], `${field} should be accepted`).toBe(true);
-}
-
-// Sends a request the server accepts (toggling the observer's raised hand) and
-// waits until the observer sees it applied. akka-apps handles a meeting's
-// messages in order, so by then it has also handled every request sent before.
-async function waitForServerToCatchUp(observer: Page) {
-  const [{ userId, raiseHand }] = await readRows<{ userId: string; raiseHand: boolean }>(
-    observer,
-    CURRENT_USER,
-    'user_current',
-  );
-  await sendMutation(observer, RAISE_HAND, 'userSetRaiseHand', { userId, raiseHand: !raiseHand });
-  await expect
-    .poll(async () => (await readRows<{ raiseHand: boolean }>(observer, CURRENT_USER, 'user_current'))[0]?.raiseHand, {
-      ...pollOptions,
-      message: 'the server should apply the observer request',
-    })
-    .toBe(!raiseHand);
-}
+export const PRIVATE_CHATS = 'subscription { chat(where: { public: { _eq: false } }) { chatId participantId } }';
+export const PRIVATE_MESSAGES = 'subscription { chat_message_private { message } }';
 
 // Starts a private chat as the client does: create it, then send the first
 // message, which is what makes it appear for the receiver. Returns once the
 // server has handled both requests.
-async function sendPrivateMessage(sender: Page, receiver: Page, message: string) {
+export async function sendPrivateMessage(sender: Page, receiver: Page, message: string) {
   const receiverId = await getOwnUserId(receiver);
   await sendMutation(sender, CREATE_PRIVATE_CHAT, 'chatCreateWithUser', { userId: receiverId });
   await waitForServerToCatchUp(receiver);
@@ -87,7 +51,7 @@ async function sendPrivateMessage(sender: Page, receiver: Page, message: string)
   await waitForServerToCatchUp(receiver);
 }
 
-const getPrivateMessages = async (page: Page) =>
+export const getPrivateMessages = async (page: Page) =>
   (await readRows<{ message: string }>(page, PRIVATE_MESSAGES, 'chat_message_private')).map((row) => row.message);
 
 export class APIDisabledFeatures extends MultiUsers {

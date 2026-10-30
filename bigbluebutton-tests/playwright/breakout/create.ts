@@ -16,7 +16,7 @@ export class Create extends MultiUsers {
     }
   }
 
-  private static async setCheckboxChecked(page: PlaywrightPage, selector: string, checked: boolean) {
+  protected static async setCheckboxChecked(page: PlaywrightPage, selector: string, checked: boolean) {
     const checkbox = page.locator(selector);
     await checkbox.waitFor({ state: 'attached', timeout: ELEMENT_WAIT_LONGER_TIME });
     // retry the toggle: under load a single click can land before the MUI switch is wired and not register
@@ -44,7 +44,7 @@ export class Create extends MultiUsers {
     return lockViewersButton;
   }
 
-  private static async openLockViewersPermissions(page: PlaywrightPage) {
+  protected static async openLockViewersPermissions(page: PlaywrightPage) {
     const lockViewersButton = await Create.getLockViewersButton(page);
     await lockViewersButton.click({ timeout: ELEMENT_WAIT_LONGER_TIME });
     await page.locator(e.participantPermissionsTab).click({ timeout: ELEMENT_WAIT_LONGER_TIME });
