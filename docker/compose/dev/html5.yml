@@ -1,0 +1,14 @@
+# Development: the html5 client from the webpack dev server on your machine, as
+# bigbluebutton-html5/run-dev.sh does on a package install. With Node 24:
+#   cd bigbluebutton-html5 && npm ci && npm start
+# and in .env: COMPOSE_FILE=docker-compose.yml:docker/compose/dev/html5.yml
+# Without Node on your machine: html5-container.yml.
+# The html5-client image keeps running (nginx depends on it) but no longer gets requests.
+services:
+  nginx:
+    volumes:
+      - ./docker/compose/dev/bbb-html5.nginx:/usr/share/bigbluebutton/nginx/bbb-html5.nginx:ro
+      - ./bigbluebutton-html5/public/locales:/usr/share/bigbluebutton/html5-client/locales:ro
+    # the location file proxies to html5-dev:3000; here that is port 3000 of your machine
+    extra_hosts:
+      - html5-dev:host-gateway

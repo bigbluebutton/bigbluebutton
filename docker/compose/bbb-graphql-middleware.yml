@@ -1,0 +1,11 @@
+# /etc/bigbluebutton/bbb-graphql-middleware.yml: the services by name instead of 127.0.0.1
+redis:
+  host: redis
+hasura:
+  url: ws://nginx:8185/v1/graphql
+graphql-actions:
+  url: http://graphql-actions:8093
+auth_hook:
+  url: http://web:8090/bigbluebutton/connection/checkGraphqlAuthorization
+session_vars_hook:
+  url: http://apps-akka:8901/userInfo
