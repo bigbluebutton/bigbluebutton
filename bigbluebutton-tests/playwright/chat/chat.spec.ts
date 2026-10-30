@@ -75,7 +75,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.sendEmoji();
   });
 
-  test('Copy chat with emoji', async ({ browser, context, page, browserName }, testInfo) => {
+  test('Copy chat with emoji', { tag: '@nightly' }, async ({ browser, context, page, browserName }, testInfo) => {
     test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
     const chat = new Chat(browser, context);
     await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
@@ -95,14 +95,14 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji', async ({ browser, context, page }, testInfo) => {
+  test('Save chat with emoji', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
     await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
     await chat.emojiSaveChat();
   });
 
-  test('Send emoji on private chat', async ({ browser, context, page }, testInfo) => {
+  test('Send emoji on private chat', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initModPage(page, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
     await chat.initUserPage(context, { testInfo, clientSettingsOverrides: EMOJI_PICKER_SETTINGS_OVERRIDE });
@@ -121,24 +121,32 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.autoConvertEmojiEscapePublicChat();
   });
 
-  test('Copy chat with auto converted emoji', async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.autoConvertEmojiCopyChat();
-  });
+  test(
+    'Copy chat with auto converted emoji',
+    { tag: '@nightly' },
+    async ({ browser, context, page, browserName }, testInfo) => {
+      test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiCopyChat();
+    },
+  );
 
-  test('Auto convert emoji save chat', async ({ browser, context, page }, testInfo) => {
+  test('Auto convert emoji save chat', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.autoConvertEmojiSaveChat();
   });
 
-  test('Send auto converted emoji on private chat', async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.autoConvertEmojiSendPrivateChat();
-  });
+  test(
+    'Send auto converted emoji on private chat',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiSendPrivateChat();
+    },
+  );
 
   test('Private chat disabled when user leaves meeting', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);

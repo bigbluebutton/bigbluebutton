@@ -23,7 +23,7 @@ test.describe('GraphQL connection failure', { tag: '@ci' }, () => {
     await expect(page.locator(e.errorScreenMessage)).toBeHidden();
   });
 
-  test('Error screen appears after connection timeout', async ({ page }) => {
+  test('Error screen appears after connection timeout', { tag: '@nightly' }, async ({ page }) => {
     // terminateAndRetry defaults to 30s — error screen should appear shortly after
     await expect(page.locator(e.loadingScreen)).toBeVisible({ timeout: 15_000 });
     await expect(page.locator(e.errorScreenMessage)).toBeVisible({ timeout: 60_000 });

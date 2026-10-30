@@ -63,37 +63,37 @@ test.describe('Listen to breakout room', { tag: ['@ci'] }, () => {
     await listen.goldenPath();
   });
 
-  test('a listening moderator keeps a talking indicator under hide user list', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const listen = await initListen(browser, context, page, testInfo);
-    await listen.hideUserListKeepsListeningModeratorIndicator();
-  });
+  test(
+    'a listening moderator keeps a talking indicator under hide user list',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = await initListen(browser, context, page, testInfo);
+      await listen.hideUserListKeepsListeningModeratorIndicator();
+    },
+  );
 
-  test('breakout-listen membership and mic attach survive a client reload', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const listen = await initListen(browser, context, page, testInfo);
-    await listen.reloadDuringListen();
-  });
+  test(
+    'breakout-listen membership and mic attach survive a client reload',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = await initListen(browser, context, page, testInfo);
+      await listen.reloadDuringListen();
+    },
+  );
 
   test('ending breakouts mid-listen unwinds the transfer', async ({ browser, context, page }, testInfo) => {
     const listen = await initListen(browser, context, page, testInfo);
     await listen.breakoutEndDuringListen();
   });
 
-  test('listening to a second room switches without two concurrent memberships', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const listen = await initListen(browser, context, page, testInfo);
-    await listen.singleActiveAutoSwitch();
-  });
+  test(
+    'listening to a second room switches without two concurrent memberships',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = await initListen(browser, context, page, testInfo);
+      await listen.singleActiveAutoSwitch();
+    },
+  );
 
   test('a transfer to a nonexistent meeting is rejected without side effects', async ({
     browser,
@@ -104,14 +104,14 @@ test.describe('Listen to breakout room', { tag: ['@ci'] }, () => {
     await listen.adversarialNonexistentTarget();
   });
 
-  test('a self-transfer to the parent meeting keeps the moderator in audio', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const listen = await initListen(browser, context, page, testInfo);
-    await listen.adversarialTransferToSelf();
-  });
+  test(
+    'a self-transfer to the parent meeting keeps the moderator in audio',
+    { tag: '@nightly' },
+    async ({ browser, context, page }, testInfo) => {
+      const listen = await initListen(browser, context, page, testInfo);
+      await listen.adversarialTransferToSelf();
+    },
+  );
 });
 
 // The same flow on either media bridge, judged by the audio each page receives rather
