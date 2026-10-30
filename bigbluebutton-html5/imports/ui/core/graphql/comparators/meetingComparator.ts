@@ -36,6 +36,7 @@ export const meetingComparator = <T>(
   if ((aData.cameraBridge ?? '') !== (bData.cameraBridge ?? '')) return false;
   if ((aData.screenShareBridge ?? '') !== (bData.screenShareBridge ?? '')) return false;
   if ((aData.audioBridge ?? '') !== (bData.audioBridge ?? '')) return false;
+  if ((aData.roomMode ?? '') !== (bData.roomMode ?? '')) return false;
   if ((aData.meetingId ?? '') !== (bData.meetingId ?? '')) return false;
   if ((aData.name ?? '') !== (bData.name ?? '')) return false;
   if ((aData.notifyRecordingIsOn ?? false) !== (bData.notifyRecordingIsOn ?? false)) return false;
@@ -77,6 +78,8 @@ export const meetingComparator = <T>(
   if ((als?.hideViewersAnnotation ?? false) !== (bls?.hideViewersAnnotation ?? false)) return false;
   if ((als?.meetingId ?? false) !== (bls?.meetingId ?? false)) return false;
   if ((als?.webcamsOnlyForModerator ?? false) !== (bls?.webcamsOnlyForModerator ?? false)) return false;
+  if ((als?.lockOnJoin ?? false) !== (bls?.lockOnJoin ?? false)) return false;
+  if ((als?.lockOnJoinConfigurable ?? false) !== (bls?.lockOnJoinConfigurable ?? false)) return false;
 
   const avs = aData.voiceSettings;
   const bvs = bData.voiceSettings;

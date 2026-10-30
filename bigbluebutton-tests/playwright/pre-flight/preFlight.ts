@@ -29,7 +29,7 @@ const GUEST_DENIED_LOGOUT_URL = /reasonCode=guest_deny_reason/;
 const GRAPHQL_RETRY_WAIT = 10000 + ELEMENT_WAIT_LONGER_TIME;
 const JOIN_RETRY_TIMEOUT = 20000 + ELEMENT_WAIT_LONGER_TIME;
 
-const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
+export const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
 
 // 1012 (service restart): graphql-ws reconnects on it, where most 1xxx codes,
 // 1011 included, are fatal to it and end the retries.
@@ -77,6 +77,16 @@ export class PreFlight extends MultiUsers {
       'should display the pre-flight screen before joining',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
+  }
+
+  // Closes the attendee so the next one joins the same meeting with no routing left over.
+  async closeAttendee() {
+    await this.userPage.page.close();
+    this.graphqlSockets = [];
+    this.graphqlDown = false;
+    this.graphqlRefused = 0;
+    this.holdUserJoin = false;
+    this.heldUserJoins = 0;
   }
 
   // The toggle starts in autoShareWebcam's state, off by default.

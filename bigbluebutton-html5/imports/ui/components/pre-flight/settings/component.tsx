@@ -37,6 +37,8 @@ const PreFlightSettingsModal: React.FC<PreFlightSettingsModalProps> = ({ setIsOp
       application={application}
       updateSettings={updateSettingsBeforeJoin}
       layoutContextDispatch={noLayoutDispatch}
+      // The room mode is changed from the room, never before the join.
+      isRoomModeTabEnabled={false}
       isOpen
       setIsOpen={setIsOpen}
     />
