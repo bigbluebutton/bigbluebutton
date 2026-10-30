@@ -2,7 +2,7 @@
 case create.metadata.keys
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.metadataProp
 $.core.body.props.metadataProp.metadata.course-code "ABC-101"
 
 == step 3: call getMeetingInfo

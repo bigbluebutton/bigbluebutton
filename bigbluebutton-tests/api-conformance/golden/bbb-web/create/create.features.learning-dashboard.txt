@@ -2,5 +2,5 @@
 case create.features.learning-dashboard
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.password.learningDashboardAccessToken
 $.core.body.props.password.learningDashboardAccessToken ""

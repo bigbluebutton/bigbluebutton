@@ -2,6 +2,6 @@
 case create.strings.capture-filenames
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.breakoutProps.captureSlidesFilename, $.core.body.props.breakoutProps.captureNotesFilename
 $.core.body.props.breakoutProps.captureNotesFilename "Notes of %%CONFNAME%%"
 $.core.body.props.breakoutProps.captureSlidesFilename "Slides of %%CONFNAME%%"

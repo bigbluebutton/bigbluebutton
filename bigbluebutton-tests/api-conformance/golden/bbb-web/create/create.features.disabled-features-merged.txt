@@ -2,7 +2,7 @@
 case create.features.disabled-features-merged
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.disabledFeatures
 $.core.body.props.meetingProp.disabledFeatures[] "chat"
 $.core.body.props.meetingProp.disabledFeatures[] "learningDashboard"
 $.core.body.props.meetingProp.disabledFeatures[] "polls"

@@ -23,7 +23,7 @@ body xml
 /response/messageKey
 /response/message
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.voiceProp
 $.core.body.props.voiceProp.dialNumber "613-555-1234"
 $.core.body.props.voiceProp.muteOnStart true
 $.core.body.props.voiceProp.telVoice "0"

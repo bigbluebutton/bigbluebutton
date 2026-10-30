@@ -2,7 +2,7 @@
 case create.booleans.breakout-rooms-breakout-rooms-private-chat-enabled-empty
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.breakoutProps
 $.core.body.props.breakoutProps.breakoutRooms []
 $.core.body.props.breakoutProps.captureNotes false
 $.core.body.props.breakoutProps.captureNotesFilename "%%CONFNAME%%"

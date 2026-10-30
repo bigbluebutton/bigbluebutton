@@ -2,5 +2,5 @@
 case create.numeric.meeting-expire-if-no-user-joined-too-large
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.durationProps.meetingExpireIfNoUserJoinedInMinutes
 $.core.body.props.durationProps.meetingExpireIfNoUserJoinedInMinutes 5

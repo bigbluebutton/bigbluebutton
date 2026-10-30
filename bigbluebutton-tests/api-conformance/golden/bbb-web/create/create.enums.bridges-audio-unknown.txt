@@ -2,7 +2,7 @@
 case create.enums.bridges-audio-unknown
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.cameraBridge, $.core.body.props.meetingProp.screenShareBridge, $.core.body.props.meetingProp.audioBridge
 $.core.body.props.meetingProp.audioBridge "no-such-bridge"
 $.core.body.props.meetingProp.cameraBridge "livekit"
 $.core.body.props.meetingProp.screenShareBridge "livekit"

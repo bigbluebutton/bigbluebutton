@@ -440,8 +440,8 @@ After masking:
   a session is the case's own when that ID is the SHA-1 of a meetingID the
   case sent. Its `noSessions` messageKey and message are dropped;
 - lists whose order isn't defined are sorted: meetings, sessions,
-  recordings, metadata, attendees, STUN and TURN servers, and the disabled
-  features in akka-apps' meeting props.
+  recordings, metadata, attendees, STUN and TURN servers, and any
+  `disabledFeatures` list, such as the one in akka-apps' meeting props.
 
 What a `presence`, `graphql`, `bus`, `fs` or `redis` step returns is a JSON
 document, not a response: it becomes the document's lines alone, normalized
@@ -539,8 +539,9 @@ $.value.color "blue"
 - **Sections:** one per step that takes `golden` and isn't `off`, numbered
   like the steps in reports (`wait` steps count) and named after what the
   step does, e.g. `call create`, `presence join as ann`, `graphql query
-  Me as ann`, `bus MeetingCreatedEvtMsg` or `fs <path>`. `(document)` marks
-  a step that is recorded but not compared.
+  Me as ann`, `bus MeetingCreatedEvtMsg` (with `select <paths>` when it has
+  one) or `fs <path>`. `(document)` marks a step that is recorded but not
+  compared.
 - **The lines** are the normalized response (see
   [Normalized responses](#normalized-responses)), or for a bus step with
   `select`, the lines of the selected parts.
@@ -815,8 +816,10 @@ These steps check what a call did outside its answer, through the target's
 - **The documents** that `jsonpath`, `capture` and recordings see:
   - bus: the message as published, plus `channel`, or `null` when none
     matched. `select: [$.core.body.props.usersProp, ...]` records only those
-    parts of it, given as `$`-rooted dotted paths; a part the message lacks
-    is recorded as `<path> (absent)`. `jsonpath` and `capture` still see the
+    parts of it, given as `$`-rooted dotted paths, with `[]` after a list's
+    name to go through its items (`$.core.body.props.groups[].groupId`;
+    quote such a path in a `[...]` list). A part the message lacks is
+    recorded as `<path> (absent)`. `jsonpath` and `capture` still see the
     whole message, so a case can pin the props a parameter reaches without
     recording every other prop;
   - fs: `{path, found, contents}`, with contents parsed when they are JSON.

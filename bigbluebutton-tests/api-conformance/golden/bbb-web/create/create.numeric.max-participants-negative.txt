@@ -2,5 +2,5 @@
 case create.numeric.max-participants-negative
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.usersProp.maxUsers
 $.core.body.props.usersProp.maxUsers -5

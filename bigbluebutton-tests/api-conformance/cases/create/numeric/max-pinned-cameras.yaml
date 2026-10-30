@@ -5,18 +5,18 @@
 # Zero or a negative number means the default. What reaches akka-apps'
 # meeting props is recorded.
 id: create.numeric.max-pinned-cameras
-title: create with maxPinnedCameras=${value}
+title: create with maxPinnedCameras=${value}${under}
 endpoint: create
 class: compat
 tags: [ci]
 requires: [akka, bus]
 variants:
-  - {id: valid, vars: {value: "7"}, class: contract}
-  - {id: zero, vars: {value: "0"}}
-  - {id: letters, vars: {value: "abc"}}
-  - {id: negative, vars: {value: "-5"}}
-  - {id: empty, vars: {value: ""}}
-  - {id: too-large, vars: {value: "2147483648"}}
+  - {id: valid, vars: {value: "7", under: ""}, class: contract}
+  - {id: zero, vars: {value: "0", under: ""}}
+  - {id: letters, vars: {value: "abc", under: ""}}
+  - {id: negative, vars: {value: "-5", under: ""}}
+  - {id: empty, vars: {value: "", under: ""}}
+  - {id: too-large, vars: {value: "2147483648", under: ""}}
 steps:
   - call: create
     params: {meetingID: "${uid}", name: Numbers, maxPinnedCameras: "${value}"}

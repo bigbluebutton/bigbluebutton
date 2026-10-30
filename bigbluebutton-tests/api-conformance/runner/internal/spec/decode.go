@@ -524,12 +524,10 @@ func (d *decoder) sideEffect(s *Step, n *yaml.Node, where string) {
 	}
 }
 
-// selectPathRe is a select path: $ and dotted names, without filters or
-// wildcards, since it names a part of the recorded lines.
-var selectPathRe = regexp.MustCompile(`^\$(\.[A-Za-z_][A-Za-z0-9_-]*)+$`)
-
-// busSelect decodes a bus step's select. It only shapes what is recorded,
-// so a step that isn't recorded can't have one.
+// busSelect decodes a bus step's select; the schema checks its paths. It
+// only shapes what is recorded, so a step that isn't recorded can't have
+// one: a bus step is off when it says so, and by default in teardown, as
+// steps.GoldenMode decides.
 func (d *decoder) busSelect(s *Step, n *yaml.Node, where string) {
 	sel := mapGet(n, "select")
 	if sel == nil {
@@ -539,10 +537,6 @@ func (d *decoder) busSelect(s *Step, n *yaml.Node, where string) {
 		d.f.errf(mapKey(n, "select"), "%s: select only shapes what is recorded, and this step isn't recorded (golden: off)", where)
 	}
 	for _, item := range sel.Content {
-		if !selectPathRe.MatchString(item.Value) {
-			d.f.errf(item, "%s: select path %q: give a $-rooted dotted path, e.g. $.core.body.props.usersProp", where, item.Value)
-			continue
-		}
 		s.Bus.Select = append(s.Bus.Select, item.Value)
 	}
 }

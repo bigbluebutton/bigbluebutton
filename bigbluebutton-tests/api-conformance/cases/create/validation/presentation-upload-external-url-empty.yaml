@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # An empty presentationUploadExternalUrl fails the URL check, unlike other
 # optional params, where empty means not given. Whether it should is still
-# to be decided (the triage tag).
+# to be decided (the triage tag); the expect allows either a SUCCESS or that
+# validation error.
 id: create.validation.presentation-upload-external-url-empty
 title: create with an empty presentationUploadExternalUrl
 endpoint: create
@@ -11,7 +12,7 @@ steps:
   - call: create
     params: {meetingID: "${uid}", name: External upload, presentationUploadExternalUrl: ""}
     golden: document
-    expect: {returncode: {regex: '^(SUCCESS|FAILED)$'}}
+    expect: {messageKey: {regex: '^(validationError)?$'}}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

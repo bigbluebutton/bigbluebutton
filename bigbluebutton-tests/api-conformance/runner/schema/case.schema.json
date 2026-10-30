@@ -311,10 +311,10 @@
           }
         },
         "select": {
-          "description": "The parts of the message that are recorded, as $-rooted dotted paths; all of it when absent. expect and capture still see the whole message.",
+          "description": "The parts of the message that are recorded, as $-rooted dotted paths, with [] after a list's name to go through its items; all of it when absent. expect and capture still see the whole message.",
           "type": "array",
           "minItems": 1,
-          "items": {"type": "string", "pattern": "^\\$(\\.[A-Za-z_][A-Za-z0-9_-]*)+$"}
+          "items": {"type": "string", "pattern": "^\\$(\\.[A-Za-z_][A-Za-z0-9_-]*(\\[\\])?)+$"}
         },
         "capture": {"$ref": "#/$defs/capture"},
         "golden": {"$ref": "#/$defs/golden"}

@@ -2,6 +2,6 @@
 case create.strings.banner-absent
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.systemProps.bannerText, $.core.body.props.systemProps.bannerColor
 $.core.body.props.systemProps.bannerColor ""
 $.core.body.props.systemProps.bannerText ""

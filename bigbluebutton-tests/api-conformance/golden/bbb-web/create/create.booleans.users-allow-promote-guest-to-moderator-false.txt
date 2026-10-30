@@ -2,7 +2,7 @@
 case create.booleans.users-allow-promote-guest-to-moderator-false
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.usersProp
 $.core.body.props.usersProp.allowModsToEjectCameras false
 $.core.body.props.usersProp.allowModsToUnmuteUsers false
 $.core.body.props.usersProp.allowPromoteGuestToModerator false

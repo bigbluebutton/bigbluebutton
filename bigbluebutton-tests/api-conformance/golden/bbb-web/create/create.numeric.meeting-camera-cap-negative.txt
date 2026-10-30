@@ -2,5 +2,5 @@
 case create.numeric.meeting-camera-cap-negative
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.meetingCameraCap
 $.core.body.props.meetingProp.meetingCameraCap 0

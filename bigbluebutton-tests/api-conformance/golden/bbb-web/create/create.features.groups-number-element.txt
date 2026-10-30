@@ -2,5 +2,5 @@
 case create.features.groups-number-element
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.groups
 $.core.body.props.groups []

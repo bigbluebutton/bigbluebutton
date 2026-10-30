@@ -2,7 +2,7 @@
 case create.booleans.recording-allow-start-stop-recording-one
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.recordProp
 $.core.body.props.recordProp.allowStartStopRecording false
 $.core.body.props.recordProp.autoStartRecording false
 $.core.body.props.recordProp.keepEvents false

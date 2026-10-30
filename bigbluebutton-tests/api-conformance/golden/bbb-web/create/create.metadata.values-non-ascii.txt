@@ -2,7 +2,7 @@
 case create.metadata.values-non-ascii
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.metadataProp
 $.core.body.props.metadataProp.metadata.note "Zoë 日本"
 
 == step 3: call getMeetingInfo

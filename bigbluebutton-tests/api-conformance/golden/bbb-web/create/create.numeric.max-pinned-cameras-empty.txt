@@ -2,5 +2,5 @@
 case create.numeric.max-pinned-cameras-empty
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.maxPinnedCameras
 $.core.body.props.meetingProp.maxPinnedCameras 3

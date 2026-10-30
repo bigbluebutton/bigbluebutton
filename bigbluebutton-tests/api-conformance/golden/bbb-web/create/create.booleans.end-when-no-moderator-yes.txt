@@ -2,7 +2,7 @@
 case create.booleans.end-when-no-moderator-yes
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.durationProps
 $.core.body.props.durationProps.createdDate "<date>"
 $.core.body.props.durationProps.createdTime "<time>"
 $.core.body.props.durationProps.duration 0

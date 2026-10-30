@@ -2,5 +2,5 @@
 case create.features.disabled-features-exclude-spaces
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg (document)
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.disabledFeatures (document)
 $.core.body.props.meetingProp.disabledFeatures[] "polls"

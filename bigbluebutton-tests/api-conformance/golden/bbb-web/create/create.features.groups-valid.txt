@@ -2,7 +2,7 @@
 case create.features.groups-valid
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.groups
 $.core.body.props.groups[].groupId "g1"
 $.core.body.props.groups[].name "Group one"
 $.core.body.props.groups[].usersExtId[] "u1"

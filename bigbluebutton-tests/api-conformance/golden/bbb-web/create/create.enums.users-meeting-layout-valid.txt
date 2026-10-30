@@ -2,6 +2,6 @@
 case create.enums.users-meeting-layout-valid
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.usersProp.guestPolicy, $.core.body.props.usersProp.meetingLayout
 $.core.body.props.usersProp.guestPolicy "ALWAYS_ACCEPT"
 $.core.body.props.usersProp.meetingLayout "CUSTOM_LAYOUT"

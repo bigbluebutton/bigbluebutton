@@ -2,7 +2,7 @@
 case create.booleans.lock-settings-lock-settings-disable-private-chat-yes
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.lockSettingsProps
 $.core.body.props.lockSettingsProps.disableCam false
 $.core.body.props.lockSettingsProps.disableMic false
 $.core.body.props.lockSettingsProps.disableNotes false

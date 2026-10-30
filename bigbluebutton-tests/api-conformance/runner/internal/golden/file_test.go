@@ -246,3 +246,32 @@ teardown:
 		t.Errorf("got:\n%s\nwant:\n%s", got, want)
 	}
 }
+
+// A bus step's select is in its label, so a recording made with another
+// select is stale. A path can go through a list's items.
+func TestBusSelectLabel(t *testing.T) {
+	src := `id: create.x.select
+title: t
+endpoint: create
+class: contract
+steps:
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: i, within: 1s}
+    select: [$.core.body.props.voiceProp, "$.core.body.props.groups[].groupId"]
+  - bus: {name: MeetingEndedEvtMsg, meetingId: i, within: 1s}
+`
+	c := loadCases(t, src)[0]
+	want := "step 1: bus MeetingCreatedEvtMsg select $.core.body.props.voiceProp, $.core.body.props.groups[].groupId\nstep 2: bus MeetingEndedEvtMsg"
+	if got := titles(Sections(c)); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+	f, err := Build(c, "fake", []Step{{Key: Key{"steps", 0}, Lines: []string{"a"}}, {Key: Key{"steps", 1}, Lines: []string{"b"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	other := loadCases(t, strings.Replace(src, "$.core.body.props.voiceProp, ", "", 1))[0]
+	want = "it has step 1: bus MeetingCreatedEvtMsg select $.core.body.props.voiceProp, $.core.body.props.groups[].groupId" +
+		" where the case has step 1: bus MeetingCreatedEvtMsg select $.core.body.props.groups[].groupId"
+	if s := Stale(f, other); s != want {
+		t.Errorf("stale after changing the select: %q", s)
+	}
+}

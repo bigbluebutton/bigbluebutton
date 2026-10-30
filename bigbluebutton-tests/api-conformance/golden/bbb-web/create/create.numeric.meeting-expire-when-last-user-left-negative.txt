@@ -2,5 +2,5 @@
 case create.numeric.meeting-expire-when-last-user-left-negative
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.durationProps.meetingExpireWhenLastUserLeftInMinutes
 $.core.body.props.durationProps.meetingExpireWhenLastUserLeftInMinutes -5

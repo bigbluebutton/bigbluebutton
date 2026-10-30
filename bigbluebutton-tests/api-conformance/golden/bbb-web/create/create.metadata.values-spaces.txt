@@ -2,7 +2,7 @@
 case create.metadata.values-spaces
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.metadataProp
 $.core.body.props.metadataProp.metadata.note "  lead and   inner  "
 
 == step 3: call getMeetingInfo

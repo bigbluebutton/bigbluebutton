@@ -2,7 +2,7 @@
 case create.strings.name-utf8
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.name
 $.core.body.props.meetingProp.name "Zoë 日本 – ✓"
 
 == step 3: call getMeetingInfo

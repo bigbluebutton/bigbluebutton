@@ -2,5 +2,5 @@
 case create.numeric.end-when-no-moderator-delay-negative
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.durationProps.endWhenNoModeratorDelayInMinutes
 $.core.body.props.durationProps.endWhenNoModeratorDelayInMinutes -5

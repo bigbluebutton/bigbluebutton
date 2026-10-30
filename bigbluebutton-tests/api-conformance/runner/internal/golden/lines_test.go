@@ -45,6 +45,7 @@ func TestSelectLines(t *testing.T) {
 		}},
 		{"a leaf", []string{"$.core.body.props.usersProp.maxUsers"}, []string{`$.core.body.props.usersProp.maxUsers 0`}},
 		{"a list", []string{"$.core.body.props.groups"}, []string{`$.core.body.props.groups[].groupId "g1"`}},
+		{"through a list's items", []string{"$.core.body.props.groups[].groupId"}, []string{`$.core.body.props.groups[].groupId "g1"`}},
 		{"an empty object", []string{"$.core.body.props.metadataProp.metadata"}, []string{`$.core.body.props.metadataProp.metadata {}`}},
 		{"several, in document order, once each", []string{"$.core.header", "$.core.body.props.meetingProp", "$.core.body.props.meetingProp.name"}, []string{
 			`$.core.body.props.meetingProp.name "Props"`,

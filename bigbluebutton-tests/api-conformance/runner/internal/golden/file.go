@@ -77,6 +77,9 @@ func label(s spec.Step) string {
 		return "presence " + s.Presence.Action + " as " + s.Presence.As
 	case s.Kind == spec.KindGraphQL && s.GraphQL.Op != nil:
 		return "graphql " + s.GraphQL.Op.Type + " " + s.GraphQL.Op.Name + " as " + s.GraphQL.As
+	case s.Kind == spec.KindBus && len(s.Bus.Select) > 0:
+		// What a step records follows from its select too.
+		return "bus " + s.Bus.Name + " select " + strings.Join(s.Bus.Select, ", ")
 	case s.Kind == spec.KindBus:
 		return "bus " + s.Bus.Name
 	case s.Kind == spec.KindFS:

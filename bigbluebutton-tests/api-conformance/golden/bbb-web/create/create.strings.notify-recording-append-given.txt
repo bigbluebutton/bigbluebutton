@@ -2,5 +2,5 @@
 case create.strings.notify-recording-append-given
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.notifyRecordingAppend
 $.core.body.props.meetingProp.notifyRecordingAppend "Recorded for review"

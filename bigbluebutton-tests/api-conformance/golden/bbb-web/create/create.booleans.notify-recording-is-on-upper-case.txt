@@ -2,7 +2,7 @@
 case create.booleans.notify-recording-is-on-upper-case
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp
 $.core.body.props.meetingProp.audioBridge "livekit"
 $.core.body.props.meetingProp.cameraBridge "livekit"
 $.core.body.props.meetingProp.disabledFeatures []

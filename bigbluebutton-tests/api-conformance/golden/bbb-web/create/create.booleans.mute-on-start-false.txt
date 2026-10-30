@@ -2,7 +2,7 @@
 case create.booleans.mute-on-start-false
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.voiceProp
 $.core.body.props.voiceProp.dialNumber "613-555-1234"
 $.core.body.props.voiceProp.muteOnStart false
 $.core.body.props.voiceProp.telVoice "<random>"

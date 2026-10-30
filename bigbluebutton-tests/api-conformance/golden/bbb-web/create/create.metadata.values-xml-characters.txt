@@ -2,7 +2,7 @@
 case create.metadata.values-xml-characters
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.metadataProp
 $.core.body.props.metadataProp.metadata.note "<x> & \"q\" 'a'"
 
 == step 3: call getMeetingInfo

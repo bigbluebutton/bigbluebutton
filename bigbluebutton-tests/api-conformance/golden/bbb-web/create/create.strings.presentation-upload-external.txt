@@ -2,6 +2,6 @@
 case create.strings.presentation-upload-external
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.presentationUploadExternalUrl, $.core.body.props.meetingProp.presentationUploadExternalDescription
 $.core.body.props.meetingProp.presentationUploadExternalDescription "Upload your slides there"
 $.core.body.props.meetingProp.presentationUploadExternalUrl "https://uploads.example/upload"

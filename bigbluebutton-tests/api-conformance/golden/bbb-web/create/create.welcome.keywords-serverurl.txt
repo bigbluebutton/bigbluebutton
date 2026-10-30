@@ -2,6 +2,6 @@
 case create.welcome.keywords-serverurl
 target bbb-web
 
-== step 2: bus MeetingCreatedEvtMsg
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.welcomeProp
 $.core.body.props.welcomeProp.welcomeMsg "See ${baseUrl}\n<br>\n<br>\nThis server is running <a href=\"https://bigbluebutton.org/\" target=\"_blank\"><u>BigBlueButton</u></a>."
 $.core.body.props.welcomeProp.welcomeMsgForModerators ""
