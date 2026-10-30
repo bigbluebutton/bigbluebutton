@@ -1,4 +1,4 @@
-import Auth from '/imports/ui/services/auth';
+import { v4 as uuid } from 'uuid';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useEffect } from 'react';
 import { makeVar, useReactiveVar } from '@apollo/client';
@@ -13,7 +13,10 @@ import logger from '/imports/startup/client/logger';
 export const SpeechRecognitionAPI = (window as any).SpeechRecognition
 || (window as any).webkitSpeechRecognition;
 
-export const generateId = () => `${Auth.userID}-${Date.now()}`;
+// Not `crypto.randomUUID()`: that needs Safari 15.4+, while
+// webkitSpeechRecognition exists from 14.1, and this runs during render for
+// every user. `uuid`'s v4 falls back to crypto.getRandomValues().
+export const generateId = () => uuid();
 
 type SpeechProcessing = 'cloud' | 'local' | 'auto';
 
