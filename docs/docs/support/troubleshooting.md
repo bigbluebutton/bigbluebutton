@@ -356,6 +356,63 @@ xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@
 
 Note: If your server has an internal/external IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
 
+## LiveKit
+
+`bbb-conf --check` checks LiveKit, and so do `--restart` and `--clean` once BigBlueButton has started. The entries below explain each error or warning they print. Restart BigBlueButton after changing `/etc/bigbluebutton/livekit.yaml`.
+
+### livekit-server fails its health check
+
+`bbb-conf` asks livekit-server for its health at `http://127.0.0.1:7880/`, using `port` and, when set, the first of `bind_addresses` from `/etc/bigbluebutton/livekit.yaml`. livekit-server answers `OK` when it runs normally, and `Not Ready` when its node statistics stopped updating.
+
+No answer usually means livekit-server is not running. Check `systemctl status livekit-server` and `journalctl -u livekit-server`.
+
+### LiveKit ICE-lite address is not on this server
+
+With `rtc.use_ice_lite: true`, LiveKit sends no connectivity checks of its own. bbb-webrtc-recorder and livekit-sip, which run on this server, then connect to LiveKit only through the addresses it announces.
+
+When `rtc.node_ip` is an address that no interface of the server holds, they reach LiveKit only if the firewall sends that traffic back to the server (hairpin NAT). To fix it, do one of the following:
+
+- set `rtc.advertise_internal_ip: true`, so LiveKit also announces the server's private address;
+- add the public address to an interface, as described in [Configure a dummy NIC](/administration/firewall-configuration#configure-a-dummy-nic-if-required);
+- remove `rtc.use_ice_lite`.
+
+`rtc.enable_loopback_candidate` does not help here, because LiveKit replaces that address with `rtc.node_ip` too.
+
+With `rtc.use_external_ip: true`, LiveKit announces the public address it learns over STUN instead of `rtc.node_ip`. `bbb-conf` then warns when the server is behind NAT and no interface holds a public IPv4 address.
+
+### LiveKit address settings
+
+`bbb-conf` warns when LiveKit's address settings disagree with each other or with the rest of the server:
+
+- `rtc.node_ip` differs from the address mediasoup (`announcedIp`) or FreeSWITCH (`external_rtp_ip`) announces. All three should announce the server's public IPv4 address. With `rtc.use_external_ip: true`, LiveKit announces the address it learns over STUN instead, so this check and the next two are skipped.
+- mediasoup or FreeSWITCH announce an address that no network interface other than `lo` holds, so the server is behind NAT, but `rtc.node_ip` is not set. LiveKit then depends on outside STUN servers to learn its public address. With `rtc.use_ice_lite`, it does not use STUN and announces only the server's own addresses, which clients outside the NAT reach only through TURN.
+- `rtc.node_ip` holds no IPv4 address, while mediasoup or FreeSWITCH announce one.
+- `rtc.use_external_ip` is `true` on a server behind NAT that has an IPv6 route. livekit-server can then announce no public IPv4 address, and IPv4-only clients cannot connect. Set it to `false` and set `rtc.node_ip`.
+
+See [Updating LiveKit](/administration/firewall-configuration#updating-livekit) for the settings of a server behind NAT.
+
+### LiveKit API keys and webhooks
+
+livekit-server accepts the API keys listed under `keys` in `/etc/bigbluebutton/livekit.yaml`, or only those in its `key_file` when one is set. bbb-webrtc-sfu, bbb-webrtc-recorder and livekit-sip each hold a copy of one key and its secret. When a copy differs, that component cannot connect to LiveKit; with bbb-webrtc-sfu, no user can join LiveKit audio, video or screen sharing.
+
+bbb-webrtc-sfu must hold the key named by `webhook.api_key`. livekit-server signs its webhooks with that key, and bbb-webrtc-sfu rejects webhooks signed with any other.
+
+`webhook.urls` must also list bbb-webrtc-sfu's address, `http://127.0.0.1:3040/livekit-webhook` by default. bbb-webrtc-sfu serves plain HTTP, so the URL must start with `http://`. Setting `webhook.urls` in `/etc/bigbluebutton/livekit.yaml` replaces the packaged list, so include that address there.
+
+Copy the key and its secret from `livekit.yaml`, or from its `key_file`, into the component's settings, then restart BigBlueButton:
+
+- bbb-webrtc-sfu: `livekit.key` and `livekit.secret` in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`;
+- bbb-webrtc-recorder: `BBBRECORDER_LIVEKIT_APIKEY` and `BBBRECORDER_LIVEKIT_APISECRET` in `/etc/default/bbb-webrtc-recorder`;
+- livekit-sip: `api_key` and `api_secret` in `/etc/bigbluebutton/livekit-sip.yaml`.
+
+### bbb-webrtc-recorder LiveKit health check
+
+bbb-webrtc-recorder checks its connection to LiveKit when it starts and every 5 minutes, by joining a hidden test room. A failure is logged as `failed to connect to LiveKit` at start and `LiveKit health check failed` afterwards; the recorder keeps running. The check at start can fail once right after a restart, while livekit-server is still starting; a failure that repeats at every check is the one to look into. With Prometheus metrics enabled, the result is also `recorder_component_health{component="livekit"}`.
+
+The package turns the check on with `BBBRECORDER_LIVEKIT_HEALTHCHECK_ENABLE=true` and sets its interval with `BBBRECORDER_LIVEKIT_HEALTHCHECK_INTERVAL=5m`, both in `/etc/default/bbb-webrtc-recorder`. To turn the check off, set the first variable to `false` there and restart bbb-webrtc-recorder. To check more or less often, change the interval the same way, for example to `1m`.
+
+A package upgrade keeps a value you set, and adds a variable back if it is removed. The variables override `livekit.healthCheck.enable` and `livekit.healthCheck.interval` in the YAML files, so values set there have no effect.
+
 ## Installation and packages
 
 ### The following packages have unmet dependencies
