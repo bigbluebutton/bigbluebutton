@@ -27,9 +27,9 @@ pushes to the develop and release branches and on tags, it builds amd64 and arm6
 `ghcr.io/bigbluebutton/bigbluebutton/bbb-<target>:<branch or tag>`, and the same image as
 `:<branch or tag>-<commit>` and `:<branch or tag>-<commit date>-<commit>` (e.g.
 `v4.1.x-develop-2a1b3c4` and `v4.1.x-develop-20261027T145204-2a1b3c4`). The date is the HTML5
-client's build id, in the committer's time zone, so these tags usually but not always sort by
-date. The labels `org.opencontainers.image.revision` and `org.opencontainers.image.version` of each
-image hold the commit and the dated version, `org.opencontainers.image.title` its name.
+client's build id, the commit date in UTC, so these tags sort by date. The labels
+`org.opencontainers.image.revision` and `org.opencontainers.image.version` of each image hold the
+commit and the dated version, `org.opencontainers.image.title` its name.
 `bbb-record-and-playback` is amd64 only: mkclean, which it needs, has no 64-bit ARM build.
 
 ## Images
