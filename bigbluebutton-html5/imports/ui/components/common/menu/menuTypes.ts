@@ -4,6 +4,7 @@ export type MenuOptionItemType = {
   key: string;
   dataTest?: string;
   label?: string;
+  description?: string;
   customStyles?: object;
   iconRight?: PluginIconType;
   onClick?: () => void;

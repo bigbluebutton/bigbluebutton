@@ -38,7 +38,7 @@ export class Options extends MultiUsers {
       [e.minimizePresentation]: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
       [e.reactionsButton]: 'app.actionsBar.reactions.reactionsButtonLabel',
       [e.connectionStatusBtn]: 'app.connection-status.label',
-      [e.optionsButton]: 'app.navBar.optionsDropdown.optionsLabel',
+      [e.optionsFullscreen]: 'app.navBar.optionsDropdown.fullscreenLabel',
     };
 
     for (const locale of e.locales) {
@@ -495,22 +495,38 @@ export class Options extends MultiUsers {
       'should auto-focus the fullscreen option (first item) when opening the menu via keyboard',
     ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
 
-    // In the default 4.0 configuration the options dropdown exposes a single
-    // navigable item (fullscreen): the Leave/End meeting entries are gated behind
-    // directLeaveButton, which defaults to true, and optionsDropdownItems only come
-    // from plugins. BBBMenu's arrow handler wraps around, so the arrow keys keep
-    // focus on the only item rather than moving it off.
+    // With the direct leave button disabled the dropdown also holds the logout entry
+    // (and end meeting, for moderators), so it has several items and stays a menu.
+    // BBBMenu's arrow handler wraps around at both ends.
     await this.modPage.press('ArrowDown');
     await expect(
       this.modPage.page.locator(fullscreenButton),
-      'ArrowDown should wrap around and keep focus on the fullscreen option (only item)',
+      'ArrowDown should move focus off the fullscreen option',
+    ).not.toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.modPage.press('ArrowUp');
+    await expect(
+      this.modPage.page.locator(fullscreenButton),
+      'ArrowUp should wrap back around to the fullscreen option (first item)',
     ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
 
     await this.modPage.press('ArrowUp');
     await expect(
       this.modPage.page.locator(fullscreenButton),
-      'ArrowUp should wrap around and keep focus on the fullscreen option (only item)',
-    ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+      'ArrowUp from the first item should wrap around to the last item',
+    ).not.toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async singleOptionBecomesDirectButton() {
+    await this.modPage.hasElement(
+      e.optionsFullscreen,
+      'should display the fullscreen option directly, as it is the only options entry',
+    );
+    await this.modPage.hasElementCount(
+      e.optionsButton,
+      0,
+      'should not display the options dropdown button when there is a single option',
+    );
   }
 
   async enableOtherParticipantsDesktopSharing() {

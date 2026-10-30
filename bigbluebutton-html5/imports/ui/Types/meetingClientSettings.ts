@@ -604,10 +604,19 @@ export interface Notes {
   pinnable: boolean
 }
 
+export interface BarsOverflow {
+  enabled: boolean
+  priority: {
+    navBar: Record<string, number>
+    actionsBar: Record<string, number>
+  }
+}
+
 export interface Layout {
   hidePresentationOnJoin: boolean
   showParticipantsOnLogin: boolean
   showScreenshareQuickSwapButton: boolean
+  barsOverflow: BarsOverflow
   showLeaveSessionLabel: boolean
 }
 

@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
-import { defineMessages } from 'react-intl';
-import PropTypes from 'prop-types';
+import React, { RefObject, useState } from 'react';
+import { defineMessages, IntlShape } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
-import BBBMenu from '/imports/ui/components/common/menu/component';
+import BBBMenu, { BBBMenuAction } from '/imports/ui/components/common/menu/component';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
+import { useBarPriorityEntries } from '/imports/ui/core/hooks/useBarPriorityEntries';
 import Styled from './styles';
 
-const ReactionsButton = (props) => {
+interface ReactionsButtonProps {
+  intl: IntlShape;
+  actionsBarRef: RefObject<HTMLElement>;
+  actionsBarWrapperRef: RefObject<HTMLElement>;
+  isMobile: boolean;
+  currentUserReaction: string;
+  autoCloseReactionsBar: boolean;
+  isOverflowed?: boolean;
+}
+
+const ReactionsButton = (props: ReactionsButtonProps) => {
   const {
     intl,
     actionsBarRef,
+    actionsBarWrapperRef,
     isMobile,
     currentUserReaction,
     autoCloseReactionsBar,
+    isOverflowed = false,
   } = props;
 
   const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
@@ -41,7 +53,16 @@ const ReactionsButton = (props) => {
     setShowEmojiPicker(false);
   };
 
-  const handleReactionSelect = (reaction) => {
+  useBarPriorityEntries('actionsBar', 'reactions', [{
+    key: 'reactions',
+    label: intl.formatMessage(intlMessages.reactionsLabel),
+    icon: 'reactions',
+    onClick: () => setShowEmojiPicker(true),
+    dataTest: 'reactionsOption',
+    active: currentUserReaction !== 'none',
+  }]);
+
+  const handleReactionSelect = (reaction: string) => {
     setReactionEmoji({ variables: { reactionEmoji: reaction } });
   };
 
@@ -62,13 +83,15 @@ const ReactionsButton = (props) => {
     padding: '4px',
   };
 
-  const actions = [];
+  const actions: BBBMenuAction[] = [];
 
   REACTIONS.forEach(({ id, native }) => {
     if (DISABLE_EMOJIS.includes(id)) return;
     actions.push({
       label: (
+        // @ts-expect-error -- styles.js is untyped, so its styled components accept no custom props.
         <Styled.ButtonWrapper active={currentUserReaction === native}>
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
           <em-emoji key={native} native={native} {...emojiProps} />
         </Styled.ButtonWrapper>
       ),
@@ -103,6 +126,14 @@ const ReactionsButton = (props) => {
     dataTest: 'remove-reaction',
   });
 
+  const getPickerAnchor = () => {
+    if (!isMobile) return actionsBarRef.current;
+    // A collapsed trigger is hidden, so the picker would open off an invisible anchor. Small screens
+    // drop the menu's top offset, so it goes above the whole bar rather than over its padding.
+    if (isOverflowed) return actionsBarWrapperRef.current;
+    return null;
+  };
+
   const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;
   const currentUserReactionEmoji = REACTIONS.find(({ native }) => native === currentUserReaction);
 
@@ -114,6 +145,7 @@ const ReactionsButton = (props) => {
         key={currentUserReactionEmoji?.id}
         native={currentUserReactionEmoji?.native}
         emoji={{ id: currentUserReactionEmoji?.id }}
+        // eslint-disable-next-line react/jsx-props-no-spreading
         {...emojiProps}
       />
     );
@@ -141,7 +173,7 @@ const ReactionsButton = (props) => {
       )}
       actions={actions}
       onCloseCallback={() => handleClose()}
-      customAnchorEl={!isMobile ? actionsBarRef.current : null}
+      customAnchorEl={getPickerAnchor()}
       customStyles={customStyles}
       open={showEmojiPicker}
       hasRoundedCorners
@@ -164,16 +196,5 @@ const ReactionsButton = (props) => {
     />
   );
 };
-
-const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-  userId: PropTypes.string.isRequired,
-  sidebarContentPanel: PropTypes.string.isRequired,
-  layoutContextDispatch: PropTypes.func.isRequired,
-};
-
-ReactionsButton.propTypes = propTypes;
 
 export default ReactionsButton;

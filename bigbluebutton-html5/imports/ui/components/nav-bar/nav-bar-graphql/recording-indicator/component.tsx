@@ -35,6 +35,8 @@ import Service from './service';
 import { Layout } from '../../../layout/layoutTypes';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { useBarPriorityEntries } from '/imports/ui/core/hooks/useBarPriorityEntries';
+import { OverflowMenuEntry } from '/imports/ui/components/common/bar-overflow/types';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -303,6 +305,30 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       ? intlMessages.recordingIndicatorOn
       : intlMessages.recordingIndicatorOff,
   ), [recording]);
+
+  // Someone who may not record never sees the indicator before the first recording (it is
+  // hidden at rest), so there is nothing to stand in for in the overflow menu then.
+  const isIndicatorVisible = showButton || time > 0;
+  let overflowEntries: OverflowMenuEntry[] = [];
+  if (record && isIndicatorVisible) {
+    overflowEntries = showButton
+      ? [{
+        key: 'recording',
+        label: recordTitle,
+        icon: 'record',
+        disabled,
+        dataTest: 'recordingOption',
+        onClick: () => recordingToggle(micUser, recording),
+        active: recording,
+      }]
+      : [{
+        key: 'recording',
+        label: title,
+        dataTest: 'recordingStatusOption',
+        active: recording,
+      }];
+  }
+  useBarPriorityEntries('navBar', 'recording', overflowEntries);
 
   let recordMeetingButton = (
     <Styled.RecordingControl

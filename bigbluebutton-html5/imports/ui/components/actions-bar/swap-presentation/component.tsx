@@ -10,6 +10,7 @@ import {
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { useBarPriorityEntries } from '/imports/ui/core/hooks/useBarPriorityEntries';
 
 const SwapPresentationButton = () => {
   const [showScreenShare, swapPresentation] = usePresentationSwap();
@@ -32,18 +33,29 @@ const SwapPresentationButton = () => {
     presenter: u.presenter,
   }));
 
-  if (!currentMeeting) return null;
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const hasScreenshare = currentMeeting?.componentsFlags?.hasScreenshare ?? false;
-  if (!hasScreenshare || !currentPresentationPage || !currentUser?.presenter) return null;
+  const shouldRender = !!currentMeeting && hasScreenshare && !!currentPresentationPage
+    && !!currentUser?.presenter;
+  const icon = !showScreenShare ? 'presentation' : 'desktop';
+  const label = !showScreenShare ? 'Swap to screenshare' : 'Swap to presentation';
+  const swap = () => swapPresentation(!showScreenShare);
+
+  useBarPriorityEntries('actionsBar', 'swapPresentation', shouldRender ? [{
+    key: 'swapPresentation',
+    label,
+    icon,
+    onClick: swap,
+    dataTest: 'swapPresentationOption',
+  }] : []);
+
+  if (!shouldRender) return null;
   return (
     <Button
-      onClick={() => {
-        swapPresentation(!showScreenShare);
-      }}
-      icon={!showScreenShare ? 'presentation' : 'desktop'}
-      label={!showScreenShare ? 'Swap to screenshare' : 'Swap to presentation'}
+      onClick={swap}
+      icon={icon}
+      label={label}
       hideLabel
       circle
       size={deviceInfo.isMobile ? 'md' : 'lg'}

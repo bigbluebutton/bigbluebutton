@@ -1,19 +1,28 @@
 import React from 'react';
-import { defineMessages } from 'react-intl';
-import PropTypes from 'prop-types';
+import { defineMessages, IntlShape } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import withShortcutHelper from '/imports/ui/services/shortcuts/withShortcutHelper';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
+import { useBarPriorityEntries } from '/imports/ui/core/hooks/useBarPriorityEntries';
 import Styled from './styles';
 
-const RaiseHandButton = (props) => {
+interface RaiseHandButtonProps {
+  intl: IntlShape;
+  userId: string;
+  raiseHand?: boolean;
+  shortcuts: Record<string, string>;
+  isOverflowed?: boolean;
+}
+
+const RaiseHandButton = (props: RaiseHandButtonProps) => {
   const {
     intl,
     userId,
     raiseHand,
     shortcuts,
+    isOverflowed = false,
   } = props;
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
@@ -36,10 +45,19 @@ const RaiseHandButton = (props) => {
         raiseHand: !raiseHand,
       },
     });
-    document.activeElement.blur();
+    (document.activeElement as HTMLElement | null)?.blur();
   };
 
   const label = raiseHand ? intlMessages.notRaiseHandLabel : intlMessages.raiseHandLabel;
+
+  useBarPriorityEntries('actionsBar', 'raiseHand', [{
+    key: 'raiseHand',
+    label: intl.formatMessage(label),
+    icon: 'hand',
+    onClick: handleRaiseHandButtonClick,
+    dataTest: raiseHand ? 'lowerHandOption' : 'raiseHandOption',
+    active: raiseHand,
+  }]);
 
   return (
     <Styled.RaiseHandButton
@@ -50,7 +68,8 @@ const RaiseHandButton = (props) => {
       onKeyPress={() => { }}
       onClick={() => handleRaiseHandButtonClick()}
       color={raiseHand ? 'primary' : 'default'}
-      accessKey={shortcuts.raisehand}
+      // Chromium still fires the access key of an inert element, so a collapsed button drops it.
+      accessKey={isOverflowed ? undefined : shortcuts.raisehand}
       hideLabel
       circle
       size={deviceInfo.isMobile ? 'md' : 'lg'}
@@ -58,18 +77,5 @@ const RaiseHandButton = (props) => {
     />
   );
 };
-
-const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-  userId: PropTypes.string.isRequired,
-  raiseHand: PropTypes.bool,
-  shortcuts: PropTypes.shape({
-    raisehand: PropTypes.string,
-  }).isRequired,
-};
-
-RaiseHandButton.propTypes = propTypes;
 
 export default withShortcutHelper(RaiseHandButton, ['raiseHand']);

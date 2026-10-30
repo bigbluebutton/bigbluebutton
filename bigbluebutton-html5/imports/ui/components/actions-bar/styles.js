@@ -15,6 +15,36 @@ const ActionsBar = styled.div`
   flex-direction: row;
   align-items: center;
   height: 100%;
+
+  ${({ $overflowEnabled }) => $overflowEnabled && `
+    /* An item that shrank instead would never free enough room to trigger the collapse. */
+    [data-overflow-item] {
+      flex-shrink: 0;
+      /* Items that render several buttons (the mobile mic and speaker) keep the group's spacing. */
+      gap: inherit;
+    }
+
+    /* Items that render nothing (e.g. captions off) must not add a gap. */
+    [data-overflow-item]:empty {
+      display: none;
+    }
+
+    /* Flex hands the free room out unevenly (an empty side gives its share to the other), so the
+       room the bar reserves around the center group is held as margins, one group gap each. On
+       small screens the last group is display: contents and its first child has this margin. */
+    > :first-child {
+      margin-inline-end: ${smPaddingX};
+    }
+
+    > :last-child {
+      margin-inline-start: ${smPaddingX};
+
+      /* Its RTL offset would push it over that margin. */
+      [dir="rtl"] & {
+        left: auto;
+      }
+    }
+  `}
 `;
 
 const ActionsBarWrapper = styled.section`
@@ -37,7 +67,8 @@ const Left = styled.div`
   ${ItemsGroup}
   flex-basis: 0;
   justify-content: flex-start;
-  > *:not(span) {
+  > *:not(span):not([data-overflow-item]),
+  > [data-overflow-item] > *:not(span) {
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
     }

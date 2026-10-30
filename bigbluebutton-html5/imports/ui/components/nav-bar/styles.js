@@ -21,6 +21,44 @@ const Navbar = styled.header`
 const Top = styled.div`
   display: flex;
   flex-direction: row;
+
+  ${({ $overflowEnabled }) => $overflowEnabled && `
+    /* Anchors the collapsed slots, which are laid out out of flow, inside this row. */
+    position: relative;
+
+    /* An item that shrank instead would never free enough room to trigger the collapse. */
+    [data-overflow-item] {
+      flex-shrink: 0;
+    }
+
+    /* Items that render nothing (e.g. recording disabled) must not add a gap. */
+    [data-overflow-item]:empty {
+      display: none;
+    }
+
+    /* As in the actions bar, the room kept between the center and each side group is held as
+       margins, so items collapse before a side group gets closer to the center than the buttons
+       are to each other. Desktop buttons already carry half of that spacing in their own margins;
+       on small screens the right group's padding already keeps it. A left group without items
+       has nothing to keep away from the center. */
+    > :first-child:not(:empty) {
+      margin-inline-end: ${lgPadding};
+    }
+
+    > :last-child {
+      margin-inline-start: ${lgPadding};
+    }
+
+    @media ${smallOnly} {
+      > :first-child:not(:empty) {
+        margin-inline-end: ${mobileNavbarButtonGap};
+      }
+
+      > :last-child {
+        margin-inline-start: 0;
+      }
+    }
+  `}
 `;
 
 const ItemsGroup = `
@@ -42,6 +80,14 @@ const Center = styled.div`
   @media ${smallOnly} {
     min-width: 0;
   }
+
+  /* Small viewports let the title shrink to an equal share even beside an empty group, so with
+     items collapsed the room they freed would otherwise go to that empty group. */
+  ${({ $hasOverflow }) => $hasOverflow && `
+    @media ${smallOnly} {
+      flex-basis: auto;
+    }
+  `}
 `;
 
 const PresentationTitle = styled.h1`
@@ -60,6 +106,16 @@ const PresentationTitle = styled.h1`
     font-size: ${fontSizeSmall};
     padding: ${lgPadding};
   }
+
+  /* The title holds its full width, as without the collapse, until the items around it leave
+     less room than that; then it truncates instead of pushing the row past the bar's edge. */
+  ${({ $overflowEnabled }) => $overflowEnabled && `
+    max-width: min(30vw, var(--nav-bar-title-room, 30vw));
+
+    @media ${smallOnly} {
+      max-width: 100%;
+    }
+  `}
 `;
 
 const TitleButton = styled.button`
@@ -126,15 +182,16 @@ const Right = styled.div`
     gap: ${mobileNavbarButtonGap};
     padding-inline-start: ${mobileNavbarButtonGap};
 
-    & > * {
+    & > *,
+    & > [data-overflow-item] > * {
       margin: 0 !important;
       padding: 0 !important;
       display: flex;
       align-items: center;
     }
 
-    & > *:last-child {
-      margin-inline-start: calc(-1 * ${mobileNavbarButtonGap}) !important;
+    & > [data-overflow-item] {
+      gap: ${mobileNavbarButtonGap};
     }
   }
 `;
