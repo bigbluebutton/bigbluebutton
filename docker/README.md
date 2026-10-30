@@ -85,14 +85,16 @@ static apps by their default service names on port 8080: `html5-client`, `learni
 under these service names or mounts its own fragments at `/usr/share/bigbluebutton/nginx/`.
 Content from volumes (slides, recordings, captions, learning-dashboard reports) it serves itself
 from `/var/bigbluebutton`. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
-by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu`,
-`shared-notes-server` and `webhooks`; Hasura is `graphql-server` in
-`sites-available/hasura-loadbalancer.conf`. A deployment uses these names or mounts its own two
-files. nginx resolves every host name in these files when it starts, so all of them must resolve
-then, except `webhooks`: it is resolved at run time through the container's DNS server, so without
-it nginx starts and answers `/bigbluebutton/api/hooks` with 502. The entrypoint renders that
-resolver at start into `/tmp/bbb-resolver.conf`, so `/tmp` must be writable, as it already must be for
-nginx's pid and temp files. With several nameservers in `/etc/resolv.conf` nginx rotates between
+by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu` and
+`shared-notes-server`; Hasura is `graphql-server` in `sites-available/hasura-loadbalancer.conf`.
+A deployment uses these names or mounts its own two files. nginx resolves every host name in these
+files when it starts, so all of them must resolve then. The optional `webhooks` is not an upstream:
+its location (`/usr/share/bigbluebutton/nginx/webhooks.nginx`) resolves the name per request through
+the container's DNS server, so without it nginx starts and answers `/bigbluebutton/api/hooks` with
+502. The base image's entrypoint renders that resolver at start into `/tmp/bbb-resolver.conf`, so the
+image must be started with its entrypoint (a Kubernetes `command:` replaces it; without it the hooks
+API fails), and `/tmp` must be writable, as it already must be for nginx's pid and temp files. With
+several nameservers in `/etc/resolv.conf` nginx rotates between
 them, so all of them must know the name; on Kubernetes `webhooks` needs its full service name,
 because nginx's resolver ignores search domains. TLS and `server_name` are deployment config.
 
