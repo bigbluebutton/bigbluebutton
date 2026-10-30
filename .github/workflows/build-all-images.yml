@@ -39,12 +39,12 @@ jobs:
         id: list
         run: echo "targets=$(docker buildx bake --print default | jq -c .group.default.targets)" >> "$GITHUB_OUTPUT"
 
-      # The HTML5 client build id as build/setup.sh sets it: the commit date in the committer's time zone.
+      # The HTML5 client build id as build/setup.sh sets it: the commit date in UTC.
       # The image version adds it and the commit to the tag, e.g. v4.1.x-develop-20261026T105204-2a1b3c4
       - name: Set the HTML5 client build id and the image version
         id: version
         run: |
-          CLIENT_BUILD=$(git log -n1 --pretty=format:%cd --date=format:%Y%m%dT%H%M%S)
+          CLIENT_BUILD=$(TZ=UTC0 git log -n1 --pretty=format:%cd --date=format-local:%Y%m%dT%H%M%S)
           echo "client-build=$CLIENT_BUILD" >> "$GITHUB_OUTPUT"
           echo "version=$TAG-$CLIENT_BUILD-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
