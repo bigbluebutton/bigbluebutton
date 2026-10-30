@@ -35,6 +35,9 @@ const USER_JOIN_OPERATION = '"operationName":"UserJoin"';
 // 1011 included, are fatal to it and end the retries.
 const DROPPED_SOCKET = { code: 1012, reason: 'Connection dropped by the test' };
 
+// A phone, where Start room is pinned to the bottom of the screen.
+const PHONE_VIEWPORT = { width: 390, height: 844 };
+
 export class PreFlight extends MultiUsers {
   private graphqlSockets: { client: WebSocketRoute; server: WebSocketRoute }[] = [];
 
@@ -93,6 +96,41 @@ export class PreFlight extends MultiUsers {
     await this.userPage.waitAndClick(e.preFlightJoinButton);
     await this.userPage.waitForSelector(e.layoutContainer, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.userPage.wasRemoved(e.preFlight, 'should remove the pre-flight screen after joining');
+  }
+
+  // Moving through the setup with Tab must never leave the focused control
+  // behind the pinned Start room bar.
+  async keepsFocusClearOfPinnedBar() {
+    await this.initUserPageWithPreFlight((page) => page.setViewportSize(PHONE_VIEWPORT));
+    // With the camera on, the setup is taller than the screen.
+    await this.enableCamera();
+
+    let scrolled = false;
+    for (let step = 0; step < 20; step += 1) {
+      await this.userPage.page.keyboard.press('Tab');
+      const { covered, offset } = await this.userPage.page.evaluate(() => {
+        const focused = document.activeElement;
+        // How far the focused control's scrolling ancestors, or the page, have moved.
+        let offset = window.scrollY;
+        for (let node = focused?.parentElement; node; node = node.parentElement) offset += node.scrollTop;
+        // The pinned bar: the join button's fixed ancestor.
+        let bar = document.querySelector<HTMLElement>('button[data-test="preFlightJoinButton"]');
+        while (bar && getComputedStyle(bar).position !== 'fixed') bar = bar.parentElement;
+        if (!(focused instanceof HTMLElement) || focused === document.body || !bar || bar.contains(focused)) {
+          return { covered: null, offset };
+        }
+        const { left, top, width, height } = focused.getBoundingClientRect();
+        const x = left + width / 2;
+        const y = top + height / 2;
+        // Below the screen, or under the bar: either way out of sight.
+        const hit = y < window.innerHeight ? document.elementFromPoint(x, y) : bar;
+        return { covered: hit && bar.contains(hit) ? focused.outerHTML.slice(0, 120) : null, offset };
+      });
+      expect(covered, 'should keep the focused control clear of the pinned join bar').toBeNull();
+      scrolled ||= offset > 0;
+    }
+    // A setup that fits the screen would pass the walk without testing anything.
+    expect(scrolled, 'should have scrolled the setup to reach a focused control').toBe(true);
   }
 
   async joinsOnlyAfterConfirmation() {

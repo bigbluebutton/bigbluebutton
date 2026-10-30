@@ -32,6 +32,9 @@ import {
 import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 
+// The pinned bar: jumboPaddingY + the 3.5rem button + jumboPaddingY + its border.
+const PHONE_ACTION_BAR_HEIGHT = '6.5625rem';
+
 const Page = styled.div`
   display: flex;
   gap: ${lgPaddingX};
@@ -47,6 +50,8 @@ const Page = styled.div`
     gap: 0;
     height: 100%;
     padding: 0;
+    /* Focus moved by Tab is scrolled clear of the pinned bar. */
+    scroll-padding-bottom: ${PHONE_ACTION_BAR_HEIGHT};
     /* No cards to sit behind on a phone: the screen is one flat surface. */
     background-color: ${colorWhiteSurface};
   }
@@ -304,8 +309,7 @@ const ActionsWrapper = styled.div`
 // render one reserve any.
 const ActionBar = styled.div`
   @media ${smallOnly} {
-    /* The bar is jumboPaddingY + the 3.5rem button + jumboPaddingY + its border. */
-    height: 6.5625rem;
+    height: ${PHONE_ACTION_BAR_HEIGHT};
   }
 `;
 
