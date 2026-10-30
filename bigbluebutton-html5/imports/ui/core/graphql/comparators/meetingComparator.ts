@@ -127,6 +127,7 @@ export const meetingComparator = <T>(
   if ((al?.cameraDockAspectRatio ?? '') !== (bl?.cameraDockAspectRatio ?? '')) return false;
   if ((al?.cameraWithFocus ?? '') !== (bl?.cameraWithFocus ?? '')) return false;
   if ((al?.presentationMinimized ?? false) !== (bl?.presentationMinimized ?? false)) return false;
+  if ((al?.hideUsersWithoutCamera ?? false) !== (bl?.hideUsersWithoutCamera ?? false)) return false;
   if ((al?.setByUserId ?? '') !== (bl?.setByUserId ?? '')) return false;
 
   const acf = aData.componentsFlags;

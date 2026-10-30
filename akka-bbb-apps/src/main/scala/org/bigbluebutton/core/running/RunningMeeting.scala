@@ -73,6 +73,11 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
     props.usersProp.meetingLayout,
   )
 
+  Layouts.setHideUsersWithoutCamera(
+    liveMeeting.layouts,
+    props.usersProp.hideUsersWithoutCamera,
+  )
+
   // Set initial multiUserWhiteboardEnabled state
   MeetingStatus2x.setMultiUserWhiteboardEnabled(liveMeeting.status, liveMeeting.props.usersProp.multiUserWhiteboardEnabled)
 

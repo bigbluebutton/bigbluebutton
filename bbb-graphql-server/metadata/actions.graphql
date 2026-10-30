@@ -263,6 +263,12 @@ type Mutation {
 }
 
 type Mutation {
+  meetingLayoutSetHideUsersWithoutCamera(
+    hideUsersWithoutCamera: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   meetingLayoutSetProps(
     layout: String!
     syncWithPresenterLayout: Boolean!

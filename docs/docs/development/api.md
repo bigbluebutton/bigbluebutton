@@ -155,7 +155,7 @@ Updated in 4.0:
 Updated in 4.1:
 
 - **create**
-  - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines).
+  - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines) and `hideUsersWithoutCamera` (when `true`, the meeting starts with participants without a camera hidden from the webcam grid).
 
 ## API Data Types
 
