@@ -1,0 +1,7 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.enums.users-guest-policy-lower-case
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.usersProp.guestPolicy "ask_moderator"
+$.core.body.props.usersProp.meetingLayout "UNIFIED_LAYOUT"

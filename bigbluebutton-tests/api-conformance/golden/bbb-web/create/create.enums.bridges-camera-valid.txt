@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.enums.bridges-camera-valid
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg
+$.core.body.props.meetingProp.audioBridge "livekit"
+$.core.body.props.meetingProp.cameraBridge "bbb-webrtc-sfu"
+$.core.body.props.meetingProp.screenShareBridge "livekit"

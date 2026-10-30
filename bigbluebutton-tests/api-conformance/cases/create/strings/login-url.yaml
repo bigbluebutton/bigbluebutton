@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# loginURL reaches akka-apps' system props as it was given; without it, it
+# is empty.
+id: create.strings.login-url
+title: create ${scenario} a loginURL
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: given, vars: {scenario: with, url: "https://login.example/again"}}
+  - {id: absent, vars: {scenario: without, url: null}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Strings, loginURL: "${url}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.systemProps.loginUrl]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
