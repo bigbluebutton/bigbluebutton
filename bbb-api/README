@@ -3,3 +3,27 @@
 3 - Run bbb-core-api using ./run-dev.sh (inside the Docker)
 4 - You can access the new API in your browser (replace the domain) https://YOUR-DOMAIN/core-api/getMeetings?checksum=123
 5 - Use API Mate to generate the checksum `bbb-conf -salt`
+
+### Unit Testing
+
+Run unit tests with:
+```
+go test ./...
+```
+
+### Building the Docker Images
+
+Each API service has its own Dockerfile following the naming convention `Dockerfile-{service}` where `service` is substituted with the
+API name. As an example, to build the Docker image for the meeting API use the following commands:
+```
+go mod vendor
+docker build -f Dockerfile-meeting -t imdt/bigbluebutton-api-meeting:latest .
+```
+
+### Integration Testing
+
+Integration tests are specific to individual APIs and build tags are used to differentiate the tests. For example, to run the integration
+tests for the meeting API against the build docker image use:
+```
+go test ./test/... --tags=integration,meeting
+```

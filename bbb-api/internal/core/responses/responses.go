@@ -63,10 +63,14 @@ const (
 	MeetingNotFoundKey = "notFound"
 	MeetingNotFoundMsg = "A meeting with that ID does not exist."
 
+	MissingMeetingDataKey = "missingMeetingData"
+	MissingMeetingDataMsg = "No meeting data was provided"
+
 	PresentationDisabledKey = "presentationDisabled"
 	PresentationDisabledMsg = "Presentation feature is disabled, ignoring."
 
 	NoClientProvided = "no client provided for call"
+	MissingReqParams = "request parameters are missing"
 
 	InvalidInteger      = "invalid integer"
 	InvalidStringLength = "invalid string length"
