@@ -48,6 +48,7 @@ subscription userCurrentSubscription {
       endedReasonCode
       endedByUserName
       logoutUrl
+      roomMode
     }
     lastBreakoutRoom {
       isUserCurrentlyInRoom
