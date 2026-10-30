@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The shortest and the longest meeting names create accepts.
+id: create.validation.name-length-bounds
+title: create accepts a ${len}-character meeting name
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: shortest, vars: {len: 2}}
+  - {id: longest, vars: {len: 256}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: '${repeat("n", len)}'}
+    expect: {returncode: SUCCESS}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

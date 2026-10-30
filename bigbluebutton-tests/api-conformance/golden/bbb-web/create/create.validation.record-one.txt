@@ -1,0 +1,34 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.validation.record-one
+target bbb-web
+
+== step 2: call getMeetingInfo (document)
+status 200
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingName "Record"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/createTime "<time>"
+/response/createDate "<date>"
+/response/voiceBridge "<random>"
+/response/dialNumber "613-555-1234"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/running "false"
+/response/duration "0"
+/response/hasUserJoined "false"
+/response/recording "false"
+/response/hasBeenForciblyEnded "false"
+/response/startTime "<time>"
+/response/endTime "<time>"
+/response/participantCount "0"
+/response/listenerCount "0"
+/response/voiceParticipantCount "0"
+/response/videoCount "0"
+/response/maxUsers "0"
+/response/moderatorCount "0"
+/response/attendees
+/response/metadata
+/response/isBreakout "false"

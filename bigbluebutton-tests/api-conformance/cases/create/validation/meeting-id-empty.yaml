@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An empty meetingID fails several checks at once, and bbb-web reports one of
+# them. Which one is recorded, not compared: the intended answer is still to
+# be decided (the triage tag). The expect only requires a meetingID error.
+id: create.validation.meeting-id-empty
+title: create with an empty meetingID
+endpoint: create
+class: compat
+tags: [triage]
+steps:
+  - call: create
+    params: {meetingID: "", name: Meeting ID}
+    golden: document
+    expect: {returncode: FAILED, messageKey: {regex: '^(missingParamMeetingID|sizeError|validationError)$'}}

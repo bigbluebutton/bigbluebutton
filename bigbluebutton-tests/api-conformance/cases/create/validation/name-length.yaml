@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting name must be 2 to 256 characters long; the error's message is in
+# the recording.
+id: create.validation.name-length
+title: create rejects a ${len}-character meeting name
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: too-short, vars: {len: 1}}
+  - {id: too-long, vars: {len: 257}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: '${repeat("n", len)}'}
+    expect: {returncode: FAILED, messageKey: sizeError}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
