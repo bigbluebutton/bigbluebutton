@@ -384,7 +384,7 @@ This section will guide you through all the steps needed to create a functional 
 
 **1. Choose the Right SDK Version**
 
-First, select the appropriate version of the `bigbluebutton-html-plugin-sdk` based on your BigBlueButton server. Refer to the section [Plugin Versioning](#plugin-versioning) for guidance. You’ll need this information later in the tutorial.
+First, select the appropriate version of the `bigbluebutton-html-plugin-sdk` based on your BigBlueButton server. Refer to the section [SDK version compatibility](#sdk-version-compatibility) for guidance. You’ll need this information later in the tutorial.
 
 ---
 
@@ -562,7 +562,7 @@ During meeting creation:
 - Once fetched, it includes the manifest content in a CreateMeetingReqMsg, which is sent to Akka.
 - Akka stores the plugin data in the database for that meeting.
 
-One other way to send the `pluginManifests` list to `bbb-web` is to include it into `/etc/bigbluebutton/bbb-web.properties` as mentioned previously in the second point of [this section](#running-the-Plugin-from-Source). This way, `bbb-web` gets the it via config file and it will be applied to every meeting of this particular server (with no need to include it in every create call). Key point: if a different list is included in the create call along with the list in the properties file, they will be merged into one and carry on the flow.
+One other way to send the `pluginManifests` list to `bbb-web` is to include it into `/etc/bigbluebutton/bbb-web.properties` as mentioned previously in the second point of [this section](#running-the-plugin-from-source). This way, `bbb-web` gets the it via config file and it will be applied to every meeting of this particular server (with no need to include it in every create call). Key point: if a different list is included in the create call along with the list in the properties file, they will be merged into one and carry on the flow.
 
 
 
@@ -1529,7 +1529,7 @@ Instead, the hook provided can be used to modify how messages are presented — 
 
 ### Localization
 
-The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliary-functions) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
+The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliaries) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
 
 We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
 
