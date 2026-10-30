@@ -91,16 +91,20 @@ Content from volumes (slides, recordings, captions, learning-dashboard reports) 
 from `/var/bigbluebutton`. The backends are the upstreams in `/etc/nginx/conf.d/bbb-upstreams.conf`,
 by their default service names: `web`, `graphql-middleware`, `livekit`, `webrtc-sfu` and
 `shared-notes-server`; Hasura is `graphql-server` in `sites-available/hasura-loadbalancer.conf`.
-A deployment uses these names or mounts its own two files. nginx resolves every host name in these
-files when it starts, so all of them must resolve then. The optional `webhooks` is not an upstream:
-its location (`/usr/share/bigbluebutton/nginx/webhooks.nginx`) resolves the name per request through
-the container's DNS server, so without it nginx starts and answers `/bigbluebutton/api/hooks` with
-502. The base image's entrypoint renders that resolver at start into `/tmp/bbb-resolver.conf`, so the
-image must be started with its entrypoint (a Kubernetes `command:` replaces it; without it the hooks
-API fails), and `/tmp` must be writable, as it already must be for nginx's pid and temp files. With
-several nameservers in `/etc/resolv.conf` nginx rotates between
-them, so all of them must know the name; on Kubernetes `webhooks` needs its full service name,
-because nginx's resolver ignores search domains. TLS and `server_name` are deployment config.
+A deployment uses these names or mounts its own two files. nginx resolves the backends when it
+starts, so they must resolve then. Two names are resolved at run time through the container's DNS
+server instead, every 30 s or per request:
+- `graphql-server`, so that scaling Hasura (more or fewer instances behind the one name) takes effect
+  within 30 s, without reloading nginx;
+- the optional `webhooks`, whose location (`/usr/share/bigbluebutton/nginx/webhooks.nginx`) resolves
+  it per request, so without it nginx starts and answers `/bigbluebutton/api/hooks` with 502.
+
+The base image's entrypoint renders that resolver at start into `/tmp/bbb-resolver.conf`, so the
+image must be started with its entrypoint (a Kubernetes `command:` replaces it, and nginx then does
+not start), and `/tmp` must be writable, as it already must be for nginx's pid and temp files. With
+several nameservers in `/etc/resolv.conf` nginx rotates between them, so all of them must know the
+names; on Kubernetes `graphql-server` and `webhooks` need their full service names, because nginx's
+resolver ignores search domains. TLS and `server_name` are deployment config.
 
 ## Environment variables
 
