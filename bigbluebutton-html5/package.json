@@ -39,6 +39,9 @@
     "@bigbluebutton/editor": {
       "core-js": "^3.37.1"
     },
+    "mermaid": {
+      "katex": "^0.18.10"
+    },
     "markdown-it": "^14.3.1",
     "@tiptap/core": "3.31.3",
     "@tiptap/pm": "3.31.3",
