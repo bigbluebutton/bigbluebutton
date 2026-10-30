@@ -20,10 +20,15 @@ trait BreakoutRoomUsersUpdateMsgHdlr extends HandlerHelpers {
       val updatedRoom = room.copy(users = msg.users, voiceUsers = msg.voiceUsers)
 
       //Update user lastActivityTime in parent room (to avoid be ejected while is in Breakout room)
-      for {
-        breakoutRoomUser <- updatedRoom.users
-        parentMeetingUser <- findUserInMainRoom(liveMeeting.users2x, breakoutRoomUser.extId)
-      } yield Users2x.updateLastUserActivity(liveMeeting.users2x, parentMeetingUser)
+      updatedRoom.users.foreach { breakoutRoomUser =>
+        findUserInMainRoom(liveMeeting.users2x, breakoutRoomUser.extId) match {
+          case Some(parentMeetingUser) => Users2x.updateLastUserActivity(liveMeeting.users2x, parentMeetingUser)
+          case None => log.info(
+            "breakoutAudit: findUserInMainRoom MISS extId={} breakoutRoomId={} parentMeetingId={}",
+            breakoutRoomUser.extId, updatedRoom.id, liveMeeting.props.meetingProp.intId
+          )
+        }
+      }
 
       //Update lastBreakout in registeredUsers to avoid lose this info when the user leaves
       for {
