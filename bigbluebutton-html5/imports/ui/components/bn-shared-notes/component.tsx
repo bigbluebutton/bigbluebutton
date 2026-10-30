@@ -2,11 +2,29 @@
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  defaultBlockSpecs,
+  defaultInlineContentSpecs,
+} from '@blocknote/core';
+import { filterSuggestionItems } from '@blocknote/core/extensions';
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+  getMathBlockTypeSelectItems,
+  getMathSlashMenuItems,
+  locales as mathLocales,
+} from '@blocknote/math-block';
+import {
+  createReactDiagramBlockSpec,
+  getDiagramBlockTypeSelectItems,
+  getDiagramSlashMenuItems,
+  locales as diagramLocales,
+} from '@blocknote/diagram-block';
 // As of BlockNote 0.53, `collaboration` is no longer a `BlockNoteEditorOptions` field:
 // it ships as an extension behind the `@blocknote/core/yjs` subpath
 import { withCollaboration } from '@blocknote/core/yjs';
-import { SideMenuExtension } from '@blocknote/core/extensions';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
@@ -14,9 +32,11 @@ import {
   BasicTextStyleButton,
   BlockNoteViewEditor,
   BlockTypeSelect,
+  blockTypeSelectItems,
   ColorStyleButton,
   ComponentsContext,
   FormattingToolbar,
+  getDefaultReactSlashMenuItems,
   NestBlockButton,
   SuggestionMenuController,
   UnnestBlockButton,
@@ -206,9 +226,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     audio, image, file, video, ...remainingBlockSpecs
   } = defaultBlockSpecs;
 
+  // Keep in sync with bbb-shared-notes-server/src/blocknote/editor.ts: a block
+  // type missing there is dropped from every export and recording.
   const schema = BlockNoteSchema.create({
     blockSpecs: {
       ...remainingBlockSpecs,
+      mathBlock: createReactMathBlockSpec(),
+      diagram: createReactDiagramBlockSpec(),
+    },
+    inlineContentSpecs: {
+      ...defaultInlineContentSpecs,
+      math: createReactInlineMathSpec(),
     },
   });
 
@@ -287,6 +315,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         default: '',
         heading: '',
       },
+      math: mathLocales[blockNoteLocale as keyof typeof mathLocales] ?? mathLocales.en,
+      diagram: diagramLocales[blockNoteLocale as keyof typeof diagramLocales] ?? diagramLocales.en,
     },
     _tiptapOptions: {
       extensions: [maxDocumentCharsExtension, escapeBlurExtension],
@@ -369,24 +399,32 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     }
   }, [editable, hocuspocusProvider.awareness, userName, userColor]);
 
+  // BlockNote's floating UI is portalled here. BlockNoteView renders only once
+  // this element exists: changing its portal target after mount remounts the
+  // editor view, which destroys the y-undo manager (undo dead for the session).
+  const [floatingUiElement, setFloatingUiElement] = React.useState<HTMLDivElement | null>(null);
+  const portalElements = React.useMemo(
+    () => (floatingUiElement ? { default: floatingUiElement } : undefined),
+    [floatingUiElement],
+  );
+
   // Keep the editor's focus/selection when tapping a toolbar button by
-  // cancelling the default focus move on mousedown.
+  // cancelling the default focus move on mousedown. The toolbar mounts with
+  // BlockNoteView, so the effect re-runs once floatingUiElement exists.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const el = toolbarRef.current;
     if (!el) return undefined;
     const handler = (e: MouseEvent) => e.preventDefault();
     el.addEventListener('mousedown', handler);
     return () => el.removeEventListener('mousedown', handler);
-  }, [editable]);
+  }, [editable, floatingUiElement]);
 
   // Keep editor focus when clicking SideMenu/DragHandleMenu items.
   // Skip native editable controls and BlockNote form popovers so their focus is preserved.
   // Also skip draggable="true" elements — preventDefault on mousedown prevents drag.
   React.useEffect(() => {
-    const { portalElement } = editor;
-    if (!portalElement) return undefined;
+    if (!floatingUiElement) return undefined;
     const mousedownHandler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const nativeEditableSelector = '[draggable="true"], input, textarea, select, [contenteditable="true"], .bn-form-popover';
@@ -396,29 +434,16 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     };
     // dragend bubbles from the drag handle after the drop — restore focus.
     const dragendHandler = () => editor.focus();
-    portalElement.addEventListener('mousedown', mousedownHandler);
-    portalElement.addEventListener('dragend', dragendHandler);
+    floatingUiElement.addEventListener('mousedown', mousedownHandler);
+    floatingUiElement.addEventListener('dragend', dragendHandler);
     return () => {
-      portalElement.removeEventListener('mousedown', mousedownHandler);
-      portalElement.removeEventListener('dragend', dragendHandler);
+      floatingUiElement.removeEventListener('mousedown', mousedownHandler);
+      floatingUiElement.removeEventListener('dragend', dragendHandler);
     };
-  }, [editor]);
-
-  // TODO: Remove this workaround when BlockNote limits side-menu detection to the editor.
-  // Related upstream issues: https://github.com/TypeCellOS/BlockNote/issues/1016 and
-  // https://github.com/TypeCellOS/BlockNote/issues/351.
-  React.useEffect(() => {
-    const mousemoveHandler = (e: MouseEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) {
-        editor.getExtension(SideMenuExtension)?.hideMenuIfNotFrozen();
-      }
-    };
-    document.addEventListener('mousemove', mousemoveHandler);
-    return () => document.removeEventListener('mousemove', mousemoveHandler);
-  }, [editor]);
+  }, [editor, floatingUiElement]);
 
   return (
-    <div ref={wrapperRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
           /* BlockNote ships Inter and hardcodes it; inherit the client font
@@ -499,6 +524,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             min-height: 0;
             overflow-y: auto;
           }
+          /* Center equations and diagrams in the notes: match the editor's
+             25px right padding (the left one holds the side menu). */
+          .bn-editor .bn-block-content[data-content-type="mathBlock"],
+          .bn-editor .bn-block-content[data-content-type="diagram"] {
+            width: calc(100% - 25px);
+          }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
             .bn-collaboration-cursor__label {
@@ -521,46 +552,65 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           />
         </Styled.WarningNotificationContainer>
       )}
-      <BlockNoteView
-        editable={editable}
-        editor={editor}
-        theme="light"
-        formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
-        slashMenu={false}
-        renderEditor={false}
-      >
-        {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
-          <ToolbarWithAccessibleMenus>
-            <div
-              ref={toolbarRef}
-              role="toolbar"
-              className="bn-toolbar-row"
-              data-test="blockNoteToolbar"
-              onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
-            >
-              <FormattingToolbar>
-                <BlockTypeSelect key="blockTypeSelect" />
-                <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
-                <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
-                <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
-                <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-              </FormattingToolbar>
-              <FormattingToolbar>
-                <ColorStyleButton key="colorStyleButton" />
-                <TextAlignSelect key="textAlignSelect" />
-                <NestBlockButton key="nestBlockButton" />
-                <UnnestBlockButton key="unnestBlockButton" />
-              </FormattingToolbar>
-            </div>
-          </ToolbarWithAccessibleMenus>
-        )}
-        <BlockNoteViewEditor>
-          <SuggestionMenuController
-            triggerCharacter="/"
-            shouldOpen={shouldOpenSlashMenu}
-          />
-        </BlockNoteViewEditor>
-      </BlockNoteView>
+      {portalElements && (
+        <BlockNoteView
+          editable={editable}
+          editor={editor}
+          theme="light"
+          formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+          slashMenu={false}
+          renderEditor={false}
+          portalElements={portalElements}
+        >
+          {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
+            <ToolbarWithAccessibleMenus>
+              <div
+                ref={toolbarRef}
+                role="toolbar"
+                className="bn-toolbar-row"
+                data-test="blockNoteToolbar"
+                onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
+              >
+                <FormattingToolbar>
+                  <BlockTypeSelect
+                    key="blockTypeSelect"
+                    items={[
+                      ...blockTypeSelectItems(editor),
+                      ...getMathBlockTypeSelectItems(editor),
+                      ...getDiagramBlockTypeSelectItems(editor),
+                    ]}
+                  />
+                  <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+                  <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+                  <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+                  <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+                </FormattingToolbar>
+                <FormattingToolbar>
+                  <ColorStyleButton key="colorStyleButton" />
+                  <TextAlignSelect key="textAlignSelect" />
+                  <NestBlockButton key="nestBlockButton" />
+                  <UnnestBlockButton key="unnestBlockButton" />
+                </FormattingToolbar>
+              </div>
+            </ToolbarWithAccessibleMenus>
+          )}
+          <BlockNoteViewEditor>
+            <SuggestionMenuController
+              triggerCharacter="/"
+              shouldOpen={shouldOpenSlashMenu}
+              getItems={async (query) => filterSuggestionItems(
+                combineByGroup(
+                  getDefaultReactSlashMenuItems(editor),
+                  getMathSlashMenuItems(editor),
+                  getDiagramSlashMenuItems(editor),
+                ),
+                query,
+              )}
+            />
+          </BlockNoteViewEditor>
+        </BlockNoteView>
+      )}
+      <div ref={setFloatingUiElement} />
       {isImportModalOpen && editable && (
         <MarkdownImportModal
           editor={editor}

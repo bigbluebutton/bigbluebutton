@@ -1,5 +1,5 @@
 import hocuspocus from "../../hocuspocus";
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { createServerEditor } from "../../blocknote/editor";
 
 export async function exportDocumentToMarkdown(documentName: string): Promise<string> {
   const connection = await hocuspocus.openDirectConnection(documentName);
@@ -20,7 +20,7 @@ export async function exportDocumentToMarkdown(documentName: string): Promise<st
     }
 
     // Create a ServerBlockNoteEditor instance
-    const editor = ServerBlockNoteEditor.create();
+    const editor = createServerEditor();
 
     // Convert Yjs XML Fragment to BlockNote blocks
     const blocks = editor.yXmlFragmentToBlocks(fragment);
