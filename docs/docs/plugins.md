@@ -41,7 +41,7 @@ you do the following:
 pluginManifests=[{"url": "http://<your-URL>/manifest.json"}]
 ```
 
-*Reminder:* Don't use the `localhost` URL that the `npm start` will create for you, Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment). Therefore, what we recommend is to follow instructions on the next section to test the plugin as if it is in a remote BBB server (heads up: you'll be using NGROK).
+*Reminder:* Don't use the `localhost` URL that the `npm start` will create for you, Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment). Therefore, what we recommend is to follow instructions on the section *Running from source code with a remote BBB-server* to test the plugin as if it is in a remote BBB server (heads up: you'll be using NGROK). If the plugin source code lives inside the BBB server/container itself, you can also expose the development server through the server's own nginx, as described in *Running from source code inside the BBB server/container (nginx proxy)* further below.
 
 *Running from source code with a remote BBB-server*
 
@@ -87,6 +87,56 @@ pluginManifests=[{"url": "https://<uuid>.ngrok-free.app/manifest.json"}]
 ```
 
 And there you go, you can test it freely.
+
+*Running from source code inside the BBB server/container (nginx proxy)*
+
+If the plugin source code lives inside the BBB server or container itself (for instance, a BBB 4.0 development container), the server's own nginx can expose the development server for you: the fixed path `https://<your-host>/plugins/dev/` is proxied to the plugin development server on `127.0.0.1:4701`. The manifest is then fetched through the server's public hostname, just like an installed plugin, instead of `localhost`.
+
+Since the proxy points to `127.0.0.1:4701`, `npm start` must run on the same server/container as nginx. If the development server runs on your own machine, use the NGROK flow above.
+
+:::warning
+This technique is for **development environments only**. **Never** use it on a production server. The block below publicly exposes, without authentication, whatever is listening on `127.0.0.1:4701`; the webpack-dev-server is not hardened for production (development build, open CORS, no caching), and any process that binds to that port can inject arbitrary JavaScript into every meeting referencing this manifest. In production, use the bundled build (`npm run build-bundle`) hosted as described in [Hosting the Plugin on a BBB Server](#hosting-the-plugin-on-a-bbb-server). When you are done developing, remove `/usr/share/bigbluebutton/nginx/plugins-dev.nginx` and reload nginx.
+:::
+
+1. Create the file `/usr/share/bigbluebutton/nginx/plugins-dev.nginx` (every `*.nginx` file in that folder is included in the BBB nginx `server` block):
+
+```nginx
+# /usr/share/bigbluebutton/nginx/plugins-dev.nginx
+# DEVELOPMENT ONLY: exposes the plugin webpack-dev-server (npm start, port 4701) at /plugins/dev/
+location ^~ /plugins/dev/ {
+    proxy_pass http://127.0.0.1:4701/;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+    add_header Cache-Control "no-store" always;
+}
+```
+
+The trailing slash in `proxy_pass http://127.0.0.1:4701/;` strips the `/plugins/dev/` prefix before forwarding, and the `^~` modifier prevents other regex `location` blocks of the BBB site from capturing the `.js` files before this one.
+
+2. Test and reload nginx:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+3. Start the plugin development server, inside the BBB server/container:
+
+```bash
+cd $HOME/src/plugin-pick-random-user-plugin
+npm install
+npm start
+```
+
+4. Add reference to it on BigBlueButton's `/create` call or add it on `/etc/bigbluebutton/bbb-web.properties`:
+
+```
+pluginManifests=[{"url": "https://<your-host>/plugins/dev/manifest.json"}]
+```
+
+The JavaScript bundle and locales are resolved automatically, since `javascriptEntrypointUrl` and `localesBaseUrl` in the manifest are relative to the manifest URL (e.g. `https://<your-host>/plugins/dev/PickRandomUserPlugin.js` and `https://<your-host>/plugins/dev/locales/en.json`).
+
+This serves one plugin at a time: the URL is always the same and points to whichever plugin's `npm start` is currently running. To switch plugins, stop one development server and start the other. If no development server is running, nginx answers `502` and the plugin won't load.
 
 ### Building the Plugin (Production)
 
