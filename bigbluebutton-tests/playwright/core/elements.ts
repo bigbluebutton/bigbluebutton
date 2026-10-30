@@ -1,6 +1,6 @@
 const reactionsButton: string = 'button[data-test="reactionsButton"]';
 const baseBbbIcon: string = 'i.icon-bbb-';
-const pollOptionItem: string = 'input[data-test="pollOptionItem"]';
+const pollOptionItem: string = 'textarea[data-test="pollOptionItem"]';
 const pollAnswerOptionDesc: string = 'div[data-test="optionsAnswers"]';
 const pollAnswersOption: string = 'div[data-test="optionsAnswers"]';
 const networkDataContainer: string = 'div[data-test="networkDataContainer"]';

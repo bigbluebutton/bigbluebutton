@@ -513,7 +513,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enabled: true,
       allowCustomResponseInput: true,
       maxCustom: 5,
-      maxTypedAnswerLength: 45,
+      maxQuestionLength: 500,
+      maxOptionLength: 100,
+      maxTypedAnswerLength: 100,
       chatMessage: true,
       quickPollConfirmationStep: false,
       quiz: {
