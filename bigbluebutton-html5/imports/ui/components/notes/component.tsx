@@ -21,11 +21,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import Styled from './styles';
 import { PIN_NOTES } from './mutations';
-import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
-import {
-  screenshareHasEnded,
-  useIsScreenBroadcasting,
-} from '/imports/ui/components/screenshare/service';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import {
   SharedNotes,
@@ -211,23 +207,17 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const [pinSharedNotes] = useMutation(PIN_NOTES);
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const isScreenBroadcasting = useIsScreenBroadcasting();
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
 
   const handlePinSharedNotes = useCallback((pinned: boolean) => {
-    if (pinned) {
-      stopExternalVideoShare();
-      if (isScreenBroadcasting) screenshareHasEnded();
-    }
+    if (pinned) ejectPresentationAreaContent('pinnedNotes');
     pinSharedNotes({ variables: { pinned } });
     layoutContextDispatch({
       type: ACTIONS.SET_NOTES_IS_PINNED,
       value: pinned,
     });
   }, [
-    stopExternalVideoShare,
-    isScreenBroadcasting,
-    screenshareHasEnded,
+    ejectPresentationAreaContent,
     pinSharedNotes,
     layoutContextDispatch,
   ]);

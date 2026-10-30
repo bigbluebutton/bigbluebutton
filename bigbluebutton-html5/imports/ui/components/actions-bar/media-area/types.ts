@@ -19,7 +19,6 @@ export interface MediaAreaContainerProps {
   allowExternalVideo: boolean;
   intl: IntlShape;
   isSharingVideo: boolean;
-  stopExternalVideoShare: () => void;
   isConnected: boolean;
   hasPresentation: boolean;
 }
@@ -31,7 +30,6 @@ export interface MediaAreaProps {
   handleTakePresenter: () => void;
   handleRequestPresenter: () => void;
   allowExternalVideo: boolean;
-  stopExternalVideoShare: () => void;
   isCameraAsContentEnabled: boolean;
   hasCameraAsContent: boolean;
   isConnected: boolean;

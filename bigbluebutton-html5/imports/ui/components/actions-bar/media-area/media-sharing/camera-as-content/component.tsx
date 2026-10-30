@@ -17,12 +17,12 @@ import * as ScreenShareService from '/imports/ui/components/screenshare/service'
 import { useStopVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useVideoPreview';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import useEjectPresentationAreaContent from '/imports/ui/core/hooks/useEjectPresentationAreaContent';
 
 interface CameraAsContentViewProps {
   intl: IntlShape;
   onActionCompleted: () => void;
   hasCameraAsContent: boolean;
-  stopExternalVideoShare: () => void;
 }
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -52,9 +52,9 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
   intl,
   hasCameraAsContent,
   onActionCompleted,
-  stopExternalVideoShare,
 }) => {
   const { formatMessage } = intl;
+  const ejectPresentationAreaContent = useEjectPresentationAreaContent();
   // @ts-ignore
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
   const initialWebcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage) as string || null;
@@ -173,7 +173,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
 
     ScreenShareService.shareScreen(
       hasCameraAsContent,
-      stopExternalVideoShare,
+      () => ejectPresentationAreaContent('screenshare'),
       // eslint-disable-next-line no-underscore-dangle
       true,
       handleFailure,
