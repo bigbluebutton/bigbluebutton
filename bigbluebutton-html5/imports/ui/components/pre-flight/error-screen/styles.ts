@@ -23,7 +23,6 @@ import {
   headingsFontWeight,
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import PreFlightStyled from '../styles';
 import type { PreFlightErrorTone } from './component';
 
@@ -91,7 +90,7 @@ const ErrorHeading = styled(PreFlightStyled.Heading)<{ $wide: boolean }>`
   line-height: 2.75rem;
 
   /* On a phone the heading sits in a dialog, which the design sets smaller. */
-  @media ${smallOnly} {
+  ${PreFlightStyled.PHONE_LAYOUT} & {
     ${({ $wide }) => $wide && 'max-width: 17.1875rem;'}
     font-size: 1.25rem;
     line-height: 1.6875rem;
@@ -107,7 +106,7 @@ const ErrorDescription = styled(PreFlightStyled.Description)`
      two on the last line. */
   text-wrap: balance;
 
-  @media ${smallOnly} {
+  ${PreFlightStyled.PHONE_LAYOUT} & {
     font-size: ${fontSizeBase};
     line-height: 1.375rem;
   }
@@ -141,7 +140,7 @@ const HelpLink = styled.a`
   /* In the phone dialog the stack's gap is 24px, not 16px: the same 24px and
      40px come out of a deeper pull-up and no bottom margin. The link spans the
      dialog, as the design's text button does. */
-  @media ${smallOnly} {
+  ${PreFlightStyled.PHONE_LAYOUT} & {
     align-self: stretch;
     justify-content: center;
     margin: -1rem 0 0;
@@ -164,7 +163,7 @@ const ErrorActions = styled.div`
     text-decoration: none;
   }
 
-  @media ${smallOnly} {
+  ${PreFlightStyled.PHONE_LAYOUT} & {
     align-self: stretch;
     flex-wrap: wrap;
 
