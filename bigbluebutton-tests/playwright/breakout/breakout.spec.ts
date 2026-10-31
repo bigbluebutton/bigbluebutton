@@ -88,6 +88,27 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.inheritLockSettingsCheckboxIsChecked();
     });
 
+    test('Locked recording setting forces the record option on', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initModPage(page, {
+        testInfo,
+        // the record option is only offered when the meeting allows breakout recording
+        createParameter: 'breakoutRoomsRecord=true',
+        clientSettingsOverrides: {
+          public: {
+            app: {
+              breakouts: {
+                offerRecordingForBreakouts: true,
+                recordRoomByDefault: false,
+                lockBreakoutRecordingSetting: true,
+              },
+            },
+          },
+        },
+      });
+      await create.lockedRecordingSettingForcesRecordOn();
+    });
+
     test('Lock Viewers option is visible in gear menu inside breakout room', async ({
       browser,
       context,
