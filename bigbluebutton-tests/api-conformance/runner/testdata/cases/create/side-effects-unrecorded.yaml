@@ -1,0 +1,28 @@
+# A meeting that stores no events leaves no metadata key and no recording
+# marker. absent waits for the whole window.
+id: create.side-effects.unrecorded
+title: A meeting that isn't recorded writes no metadata key or marker
+endpoint: create
+class: contract
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Plain}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath:
+        $.core.body.props.recordProp.record: "false"
+  - redis: {key: "meeting:info:${intId}", within: 1s}
+    expect: {absent: true}
+  - call: end
+    params: {meetingID: "${uid}"}
+  - bus: {name: MeetingEndedEvtMsg, meetingId: "${intId}", within: 5s}
+  - fs: {path: "recording/status/*/${intId}.done", within: 1s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

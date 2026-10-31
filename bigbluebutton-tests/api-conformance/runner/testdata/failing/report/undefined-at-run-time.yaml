@@ -1,0 +1,7 @@
+id: getMeetings.report.undefined-target-var
+title: A target var the target doesn't define is an error
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    params: {callback: "${target.sinkHost}/x"}

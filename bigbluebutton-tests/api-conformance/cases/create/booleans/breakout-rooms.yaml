@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The boolean create params that set akka-apps' breakout props
+# (breakoutProps), each with true and false, upper case, 1, yes and an empty
+# value. Only true, in any case, is true: 1 and yes read as false, and an
+# empty value keeps the configured default. All of breakoutProps is
+# recorded, so a param that moved another prop would show.
+id: create.booleans.breakout-rooms
+title: create with ${param}=${value}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: "breakout-rooms-record-true", vars: {param: breakoutRoomsRecord, value: "true"}, class: contract}
+  - {id: "breakout-rooms-record-false", vars: {param: breakoutRoomsRecord, value: "false"}, class: contract}
+  - {id: "breakout-rooms-record-upper-case", vars: {param: breakoutRoomsRecord, value: "TRUE"}}
+  - {id: "breakout-rooms-record-one", vars: {param: breakoutRoomsRecord, value: "1"}}
+  - {id: "breakout-rooms-record-yes", vars: {param: breakoutRoomsRecord, value: "yes"}}
+  - {id: "breakout-rooms-record-empty", vars: {param: breakoutRoomsRecord, value: ""}}
+  - {id: "breakout-rooms-private-chat-enabled-true", vars: {param: breakoutRoomsPrivateChatEnabled, value: "true"}, class: contract}
+  - {id: "breakout-rooms-private-chat-enabled-false", vars: {param: breakoutRoomsPrivateChatEnabled, value: "false"}, class: contract}
+  - {id: "breakout-rooms-private-chat-enabled-upper-case", vars: {param: breakoutRoomsPrivateChatEnabled, value: "TRUE"}}
+  - {id: "breakout-rooms-private-chat-enabled-one", vars: {param: breakoutRoomsPrivateChatEnabled, value: "1"}}
+  - {id: "breakout-rooms-private-chat-enabled-yes", vars: {param: breakoutRoomsPrivateChatEnabled, value: "yes"}}
+  - {id: "breakout-rooms-private-chat-enabled-empty", vars: {param: breakoutRoomsPrivateChatEnabled, value: ""}}
+  - {id: "breakout-rooms-capture-slides-true", vars: {param: breakoutRoomsCaptureSlides, value: "true"}, class: contract}
+  - {id: "breakout-rooms-capture-slides-false", vars: {param: breakoutRoomsCaptureSlides, value: "false"}, class: contract}
+  - {id: "breakout-rooms-capture-slides-upper-case", vars: {param: breakoutRoomsCaptureSlides, value: "TRUE"}}
+  - {id: "breakout-rooms-capture-slides-one", vars: {param: breakoutRoomsCaptureSlides, value: "1"}}
+  - {id: "breakout-rooms-capture-slides-yes", vars: {param: breakoutRoomsCaptureSlides, value: "yes"}}
+  - {id: "breakout-rooms-capture-slides-empty", vars: {param: breakoutRoomsCaptureSlides, value: ""}}
+  - {id: "breakout-rooms-capture-notes-true", vars: {param: breakoutRoomsCaptureNotes, value: "true"}, class: contract}
+  - {id: "breakout-rooms-capture-notes-false", vars: {param: breakoutRoomsCaptureNotes, value: "false"}, class: contract}
+  - {id: "breakout-rooms-capture-notes-upper-case", vars: {param: breakoutRoomsCaptureNotes, value: "TRUE"}}
+  - {id: "breakout-rooms-capture-notes-one", vars: {param: breakoutRoomsCaptureNotes, value: "1"}}
+  - {id: "breakout-rooms-capture-notes-yes", vars: {param: breakoutRoomsCaptureNotes, value: "yes"}}
+  - {id: "breakout-rooms-capture-notes-empty", vars: {param: breakoutRoomsCaptureNotes, value: ""}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Booleans, "${param}": "${value}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.breakoutProps]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

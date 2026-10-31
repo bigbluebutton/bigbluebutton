@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# What create fills in for a meeting given only a meetingID and a name, under
+# the shipped configuration and under the alt-defaults profile, which changes
+# every meeting default at once.
+# - The answer: its elements, in order, with generated passwords (8 letters
+#   and digits), a generated voiceBridge (defaultNumDigitsForTelVoice
+#   digits), the internal ID (the meetingID's SHA-1 and the create time),
+#   the creation date as Java prints it, and an empty messageKey and message.
+# - akka-apps' meeting props, recorded whole: every default that reaches
+#   them, such as the logout URL, the welcome message and the lock settings.
+id: create.response.defaults
+title: create fills in the defaults${under}
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: shipped, vars: {under: "", digits: 5}}
+  - {id: alt-defaults, vars: {under: " (alt-defaults)", digits: 7}, profile: alt-defaults, tags: [disruptive]}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Defaults}
+    expect:
+      returncode: SUCCESS
+      messageKey: ""
+      message: ""
+      xpath:
+        /response/internalMeetingID: {regex: '^[0-9a-f]{40}-[0-9]+$'}
+        /response/parentMeetingID: bbb-none
+        /response/attendeePW: {regex: '^[A-Za-z0-9]{8}$'}
+        /response/moderatorPW: {regex: '^[A-Za-z0-9]{8}$'}
+        /response/voiceBridge: {regex: '^[0-9]{${digits}}$'}
+        /response/createDate: {regex: '^[A-Z][a-z]{2} [A-Z][a-z]{2} [0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z0-9+:-]+ [0-9]{4}$'}
+    capture: {intId: /response/internalMeetingID, createTime: /response/createTime}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath:
+        $.core.body.props.meetingProp.intId: {regex: '^[0-9a-f]{40}-${createTime}$'}
+        $.core.body.props.durationProps.createdTime: ${createTime}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

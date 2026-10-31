@@ -1,0 +1,8 @@
+# want: 7: a step needs exactly one of call, route, url, wait, presence, graphql, bus, fs, redis, sink, env; found call and wait
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    wait: 1s

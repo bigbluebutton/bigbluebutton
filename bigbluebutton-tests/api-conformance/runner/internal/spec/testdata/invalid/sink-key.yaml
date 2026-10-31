@@ -1,0 +1,13 @@
+# want: 10: steps[0]: sink key "a/b" isn't one path segment
+# want: 11: steps[1]: the sink keeps "fixtures" for itself, so it can't be a key
+# want: 12: steps[2]: the sink keeps "_received" for itself, so it can't be a key
+# want: 13: steps[3]: sink key "${uid}/end" isn't one path segment
+id: end.x.y
+title: t
+endpoint: end
+class: contract
+steps:
+  - sink: {key: a/b, within: 1s}
+  - sink: {key: fixtures, within: 1s}
+  - sink: {key: _received, within: 1s}
+  - sink: {key: "${uid}/end", within: 1s}

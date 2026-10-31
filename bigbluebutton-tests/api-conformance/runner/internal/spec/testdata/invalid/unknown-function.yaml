@@ -1,0 +1,9 @@
+# want: 8: unknown function upper
+# want: 9: repeat takes 2 arguments, got 1
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - {call: create, params: {name: '${upper("a")}'}}
+  - {call: create, params: {name: '${repeat("a")}'}}

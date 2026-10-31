@@ -1,0 +1,166 @@
+# The Tier 1 stack: bbb-web and akka-apps with what they need, built from
+# the debs of the tree under test. make -C env up brings it up; see the
+# README, "Tier 1".
+name: bbb-conform-tier1
+
+x-build: &build
+  context: .
+  dockerfile: images/Dockerfile
+  args:
+    - LIBREOFFICE_IMAGE # from make; else the Dockerfile's default
+  additional_contexts:
+    debs: ${DEBS_DIR:-./.state/debs}
+    config: ../../../bigbluebutton-config
+    html5config: ../../../bigbluebutton-html5/private/config
+    runner: ../runner
+
+# Every service but net joins net's network namespace, so they reach each
+# other on 127.0.0.1, where the packages' defaults expect each other, as on
+# a single-server install.
+x-pod: &pod
+  network_mode: service:net
+  depends_on:
+    net:
+      condition: service_started
+
+services:
+  # Owns the namespace and publishes the ports the runner uses, on the host's
+  # loopback only: the stack's salt is public. Never restarted: the services
+  # in its namespace would lose the published ports. Every service in the
+  # namespace shares its hosts file, so bbb-web finds the sink as sink.test.
+  net:
+    image: registry.k8s.io/pause:3.10
+    restart: "no"
+    ports:
+      - 127.0.0.1:8443:8443 # nginx
+      - 127.0.0.1:8090:8090 # bbb-web itself, for the auth hooks
+      - 127.0.0.1:8099:8099 # the tap
+      - 127.0.0.1:8444:8444 # the sink
+    extra_hosts:
+      - sink.test:127.0.0.1
+
+  init:
+    build: {<<: *build, target: init}
+    network_mode: none
+    volumes:
+      - data:/var/bigbluebutton
+
+  redis:
+    <<: *pod
+    image: redis:7
+    command: [redis-server, --save, "", --appendonly, "no"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Its data is on tmpfs: the schema is loaded on every start, never left
+  # over from an earlier build.
+  postgres:
+    <<: *pod
+    build: {<<: *build, target: postgres}
+    command: [postgres, -c, max_connections=300]
+    environment:
+      POSTGRES_PASSWORD: postgres
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  akka-apps:
+    <<: *pod
+    build: {<<: *build, target: akka-apps}
+    init: true
+    volumes:
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+    depends_on:
+      net: {condition: service_started}
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+
+  bbb-web:
+    <<: *pod
+    build: {<<: *build, target: bbb-web}
+    init: true
+    environment:
+      - JAVA_TOOL_OPTIONS # e.g. a coverage agent; unset by default
+    volumes:
+      - data:/var/bigbluebutton
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+      - ./bbb-web/turn-stun-servers.xml:/etc/bigbluebutton/turn-stun-servers.xml:ro
+    depends_on:
+      net: {condition: service_started}
+      init: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  nginx:
+    <<: *pod
+    build: {<<: *build, target: nginx}
+    volumes:
+      - data:/var/bigbluebutton:ro
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+
+  # The GraphQL side the client, and the suite's presence users, talk to:
+  # Hasura on Postgres, the middleware in front of it (behind nginx's
+  # /graphql), and the actions server its mutations go to.
+  hasura:
+    <<: *pod
+    build: {<<: *build, target: hasura}
+    platform: linux/amd64 # BBB builds the engine for amd64 only
+    init: true
+    depends_on:
+      net: {condition: service_started}
+      postgres: {condition: service_healthy}
+
+  middleware:
+    <<: *pod
+    build: {<<: *build, target: middleware}
+    init: true
+    depends_on:
+      net: {condition: service_started}
+      redis: {condition: service_healthy}
+      hasura: {condition: service_healthy}
+
+  actions:
+    <<: *pod
+    build: {<<: *build, target: actions}
+    init: true
+    depends_on:
+      net: {condition: service_started}
+      redis: {condition: service_healthy}
+
+  # The suite's tap, for the bus, redis and fs steps.
+  tap:
+    <<: *pod
+    build: {<<: *build, target: tap}
+    init: true
+    volumes:
+      - data:/var/bigbluebutton:ro
+    depends_on:
+      net: {condition: service_started}
+      init: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  # The suite's sink, for the sink steps: bbb-web sends its callbacks and
+  # fetches to https://sink.test:8444, with nginx's certificate, which names
+  # it, and fetches the suite's fixtures from it.
+  sink:
+    <<: *pod
+    build: {<<: *build, target: sink}
+    init: true
+    volumes:
+      - ./.state/conform:/etc/bigbluebutton/conform:ro
+      - ../fixtures:/fixtures:ro
+
+  # Optional (make up CLAMAV=1): the ClamAV daemon on localhost:3310, where
+  # bbb-web looks for one when the clamav-scan profile turns scanning on.
+  # bbb-web asks it to scan a path, so it reads the data volume, as a daemon
+  # on the same server would.
+  clamav:
+    <<: *pod
+    image: clamav/clamav:1.4
+    profiles: [clamav]
+    volumes:
+      - data:/var/bigbluebutton:ro
+
+volumes:
+  data:

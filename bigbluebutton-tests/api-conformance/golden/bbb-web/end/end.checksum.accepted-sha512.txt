@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.checksum.accepted-sha512
+target bbb-web
+
+== step 1: call end
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "notFound"
+/response/message "A meeting with that ID does not exist"

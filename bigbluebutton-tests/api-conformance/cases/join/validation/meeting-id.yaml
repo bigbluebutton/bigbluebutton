@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A missing, unknown or empty meetingID fails several checks at once, and
+# bbb-web reports one of them. Which one is recorded, not compared: the
+# intended answer is still to be decided (the triage tag). The expect only
+# requires a meeting error.
+id: join.validation.meeting-id
+title: join without a usable meetingID (${scenario})
+endpoint: join
+class: compat
+tags: [triage]
+variants:
+  - {id: missing, vars: {scenario: missing, meetingID: null}}
+  - {id: unknown, vars: {scenario: unknown, meetingID: conform-no-such-meeting}}
+  - {id: empty, vars: {scenario: empty, meetingID: ""}}
+steps:
+  - call: join
+    params: {meetingID: "${meetingID}", fullName: Ann, role: viewer}
+    golden: document
+    expect:
+      status: 302
+      redirect:
+        query:
+          errors: {regex: '"key":"(meetingForciblyEnded|invalidMeetingIdentifier|emptyError|missingParamMeetingID|notFound)"'}

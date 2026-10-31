@@ -1,0 +1,13 @@
+# want: 10: steps[0]: fs paths are relative to the data directory
+# want: 11: steps[1]: fs paths stay inside the data directory: no ..
+# want: 12: steps[2]: bad glob
+# want: 13: steps[3]: put the meeting's internal ID (e.g. ${intId}) in the fs path, or tag the case serial
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - fs: {path: /etc/passwd}
+  - fs: {path: "recording/../../etc/passwd"}
+  - fs: {path: "recording/[x"}
+  - fs: {path: "recording/status/ended/*.done"}

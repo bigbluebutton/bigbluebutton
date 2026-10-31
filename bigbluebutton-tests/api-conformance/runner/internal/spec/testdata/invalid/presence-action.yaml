@@ -1,0 +1,7 @@
+# want: 7: steps[0].presence.action: value must be one of 'join', 'leave', 'disconnect', 'reconnect'
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - presence: {action: setPresenter, as: ann}

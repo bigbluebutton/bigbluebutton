@@ -1,0 +1,35 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetings.list.after-end
+target bbb-web
+
+== step 5: call getMeetings
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetings/meeting/meetingName "Meetings B"
+/response/meetings/meeting/meetingID "${uid}-b"
+/response/meetings/meeting/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/meetings/meeting/createTime "<time>"
+/response/meetings/meeting/createDate "<date>"
+/response/meetings/meeting/voiceBridge "<random>"
+/response/meetings/meeting/dialNumber "613-555-1234"
+/response/meetings/meeting/attendeePW "<random>"
+/response/meetings/meeting/moderatorPW "<random>"
+/response/meetings/meeting/running "false"
+/response/meetings/meeting/duration "0"
+/response/meetings/meeting/hasUserJoined "false"
+/response/meetings/meeting/recording "false"
+/response/meetings/meeting/hasBeenForciblyEnded "false"
+/response/meetings/meeting/startTime "<time>"
+/response/meetings/meeting/endTime "<time>"
+/response/meetings/meeting/participantCount "0"
+/response/meetings/meeting/listenerCount "0"
+/response/meetings/meeting/voiceParticipantCount "0"
+/response/meetings/meeting/videoCount "0"
+/response/meetings/meeting/maxUsers "0"
+/response/meetings/meeting/moderatorCount "0"
+/response/meetings/meeting/attendees
+/response/meetings/meeting/metadata
+/response/meetings/meeting/isBreakout "false"

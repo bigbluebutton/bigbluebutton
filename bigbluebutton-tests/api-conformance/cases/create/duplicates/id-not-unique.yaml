@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Creating a meeting that already exists with passwords that don't match its
+# own fails with idNotUnique: other passwords, only one of the two, or any
+# passwords when the first create left them to be generated.
+id: create.duplicates.id-not-unique
+title: create again with ${scenario}
+endpoint: create
+class: compat
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: other-passwords, vars: {scenario: other passwords, ap1: ap, mp1: mp, ap2: ap2, mp2: mp2}}
+  - {id: attendee-only, vars: {scenario: only the attendee password, ap1: ap, mp1: mp, ap2: ap, mp2: null}}
+  - {id: moderator-only, vars: {scenario: only the moderator password, ap1: ap, mp1: mp, ap2: null, mp2: mp}}
+  - {id: generated, vars: {scenario: passwords the first create generated, ap1: null, mp1: null, ap2: ap, mp2: mp}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: First, attendeePW: "${ap1}", moderatorPW: "${mp1}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: create
+    params: {meetingID: "${uid}", name: Second, attendeePW: "${ap2}", moderatorPW: "${mp2}"}
+    expect: {returncode: FAILED, messageKey: idNotUnique}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

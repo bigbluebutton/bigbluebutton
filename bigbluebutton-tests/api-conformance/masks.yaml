@@ -1,0 +1,39 @@
+# Extra normalization rules for diff and record mode, on top of the
+# built-in ones listed in the README under "Normalized responses". A rule here
+# wins over a built-in one for the same field. Add a mask when a value that
+# changes from run to run shows up as a difference.
+#
+#   masks:     [{field: name, as: time|date|internal-id|user-id|random|token}]
+#              [{path: turnServers[]/username, as: regex, regex: '^\d+:', replace: '<expiry>:'}]
+#   unordered: [{path: meetings/meeting, key: meetingID}]
+#   scope:     [{path: meetings/meeting, key: meetingID}]
+#   drop:      [{path: /response/messageKey, value: noMeetings}]
+#   headers:   [User-Id, Meeting-Id]
+masks:
+  # With no checksum, bbb-web answers either message at random: two checks
+  # put different messages under the same error key. Seen live on bbb40.
+  - field: message
+    as: regex
+    regex: '^(You must provide the checksum|Checksums do not match)$'
+    replace: '<missing-checksum message>'
+  # join redirects with the same two messages in its errors query param.
+  - field: errors
+    as: regex
+    regex: '"message":"(You must provide the checksum|Checksums do not match)"'
+    replace: '"message":"<missing-checksum message>"'
+  # Under allowRevealOfBBBVersion the version endpoint returns the installed
+  # release, which changes per build; the empty default stays as it is.
+  - path: /response/bbbVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
+  # The plugin SDK version the version endpoint returns changes with the
+  # SDK (bigbluebutton.properties), in XML and JSON answers alike.
+  - field: html5PluginSdkVersion
+    as: regex
+    regex: '^[0-9][0-9A-Za-z.+-]*$'
+    replace: '<version>'
+unordered: []
+scope: []
+drop: []
+headers: []

@@ -1,0 +1,9 @@
+id: getMeetings.report.wrong-value
+title: A check that fails
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    expect:
+      returncode: FAILED
+      messageKey: {oneOf: [a, b]}

@@ -1,0 +1,7 @@
+# want: 7: undefined variable nope
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - {call: create, params: {meetingID: "m-${nope}"}}

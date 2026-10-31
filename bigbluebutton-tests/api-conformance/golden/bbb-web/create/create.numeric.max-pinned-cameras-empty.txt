@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.numeric.max-pinned-cameras-empty
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.maxPinnedCameras
+$.core.body.props.meetingProp.maxPinnedCameras 3

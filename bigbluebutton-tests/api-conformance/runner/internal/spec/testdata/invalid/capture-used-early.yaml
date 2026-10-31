@@ -1,0 +1,8 @@
+# want: 7: undefined variable later
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - {call: create, params: {meetingID: "${later}"}}
+  - {call: create, capture: {later: /response/meetingID}}

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A join that settles on no role is refused with the messageKey
+# "Params required", and answered with XML even though the request didn't ask
+# for it: this error never redirects. Nobody is registered.
+id: join.role.rejected
+title: join with ${scenario} is refused
+endpoint: join
+class: compat
+tags: [ci]
+requires: [akka, bus]
+defs:
+  base: &base {role: null, password: null, message: "You must either send the valid role of the user, or the password, should the meeting have one."}
+variants:
+  - {id: wrong-password, vars: {<<: *base, scenario: a wrong password, password: wrong, message: You must enter a valid password}}
+  - {id: invalid-role, vars: {<<: *base, scenario: an unknown role and no password, role: presenter}}
+  - {id: neither, vars: {<<: *base, scenario: no role and no password}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join role, moderatorPW: mp, attendeePW: ap}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: "${role}", password: "${password}"}
+    expect: {status: 200, format: xml, returncode: FAILED, messageKey: Params required, message: "${message}"}
+  # As long as the other role cases wait for the registration.
+  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 5s}
+    expect: {absent: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

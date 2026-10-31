@@ -1,0 +1,10 @@
+# want: 10: key "name" is defined twice
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    params:
+      name: a
+      name: b

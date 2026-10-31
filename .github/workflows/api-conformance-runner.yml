@@ -1,0 +1,36 @@
+name: API conformance - runner self-tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bigbluebutton-tests/api-conformance/**"
+      - ".github/workflows/api-conformance-runner.yml"
+permissions:
+  contents: read
+jobs:
+  runner:
+    # The runner's own tests run against in-process fakes (bbb-web, redis,
+    # the GraphQL side), so they need no BigBlueButton server. They also load
+    # the suite's cases and recordings, from the commit as checked out.
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
+    defaults:
+      run:
+        working-directory: bigbluebutton-tests/api-conformance/runner
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
+          cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then echo "$unformatted"; exit 1; fi
+      - name: go vet, for Linux and macOS
+        run: |
+          go vet ./...
+          GOOS=darwin go vet ./...
+      - name: go test
+        run: BBB_CONFORM_SUITE=1 go test -race ./...

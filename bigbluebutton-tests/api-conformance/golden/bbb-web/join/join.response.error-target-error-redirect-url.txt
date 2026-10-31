@@ -1,0 +1,8 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.response.error-target-error-redirect-url
+target bbb-web
+
+== step 2: call join
+status 302
+location https://errors.example/back?errors=[{"message":"You must provide your name","key":"missingParamFullName"}]
+body (redirect)

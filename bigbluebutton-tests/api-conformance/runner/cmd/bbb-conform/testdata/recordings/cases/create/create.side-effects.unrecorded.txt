@@ -1,0 +1,67 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.side-effects.unrecorded
+target fake
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey
+/response/message
+
+== step 2: bus MeetingCreatedEvtMsg
+$.channel "from-akka-apps-redis-channel"
+$.core.body.props.durationProps.createdDate "<date>"
+$.core.body.props.durationProps.createdTime "<time>"
+$.core.body.props.durationProps.duration 0
+$.core.body.props.meetingProp.extId "${uid}"
+$.core.body.props.meetingProp.intId "<sha1(meetingID)>-<time>"
+$.core.body.props.meetingProp.isBreakout false
+$.core.body.props.meetingProp.name "Plain"
+$.core.body.props.metadataProp.metadata {}
+$.core.body.props.password.moderatorPass "<random>"
+$.core.body.props.password.viewerPass "<random>"
+$.core.body.props.recordProp.keepEvents false
+$.core.body.props.recordProp.record false
+$.core.body.props.voiceProp.dialNumber "613-555-1234"
+$.core.body.props.voiceProp.muteOnStart false
+$.core.body.props.voiceProp.telVoice "<random>"
+$.core.body.props.voiceProp.voiceConf "<random>"
+$.core.header.name "MeetingCreatedEvtMsg"
+$.envelope.name "MeetingCreatedEvtMsg"
+$.envelope.routing.sender "bbb-apps-akka"
+$.envelope.timestamp "<time>"
+
+== step 3: redis meeting:info:${intId}
+$.key "meeting:info:<sha1(meetingID)>-<time>"
+$.ttl -2
+$.type "none"
+$.value null
+
+== step 4: call end
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/messageKey "sentEndMeetingRequest"
+/response/message "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended."
+
+== step 5: bus MeetingEndedEvtMsg
+$.channel "from-akka-apps-redis-channel"
+$.core.body.meetingId "<sha1(meetingID)>-<time>"
+$.core.header.name "MeetingEndedEvtMsg"
+$.envelope.name "MeetingEndedEvtMsg"
+$.envelope.routing.sender "bbb-apps-akka"
+$.envelope.timestamp "<time>"
+
+== step 6: fs recording/status/*/${intId}.done
+$.found false
+$.path "recording/status/*/<sha1(meetingID)>-<time>.done"

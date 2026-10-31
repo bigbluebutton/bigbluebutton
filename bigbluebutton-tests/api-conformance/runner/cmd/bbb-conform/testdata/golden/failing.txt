@@ -1,0 +1,38 @@
+ERROR getMeetings.report.bad-position (0s)
+      step 1 (line 6): position middle needs at least two other params, got 1
+FAIL  getMeetings.report.capture-missing (0s)
+      step 1 (line 6): capture /response/nope: nothing matched
+FAIL  isMeetingRunning.report.eventually-timeout (0s)
+      step 2 (line 10): eventually: not within 500ms (N attempts): xpath /response/running: expected "true", got "false"
+      line 10: xpath /response/running: expected "true", got "false"
+PASS  getMeetings.report.ignored (0s)
+      line 6: returncode: expected "FAILED", got "SUCCESS"
+      warning: step 1 (line 6), ignored: returncode: expected "FAILED", got "SUCCESS"
+SKIP  getMeetings.report.needs-clamav
+      target lacks clamav
+SKIP  getMeetings.report.no-sink
+      not-configured: sinkUrl
+FAIL  getMeetings.report.not-json (0s)
+      step 1 (line 6): format: expected json, got xml
+      line 6: format: expected json, got xml
+      line 6: jsonpath $.response.returncode: expected "SUCCESS", got the response is not JSON: invalid character '<' looking for beginning of value
+SKIP  getMeetings.report.route
+      not-routed: presentation-download
+FAIL  getMeetings.report.salt-redacted (0s)
+      step 1 (line 6): message: expected "[salt]", got "no meetings were found on this server"
+      line 6: message: expected "[salt]", got "no meetings were found on this server"
+SKIP  getMeetings.report.schema
+      unimplemented: schema
+PASS  getMeetings.report.teardown-warning (0s)
+      line 8: returncode: expected "FAILED", got "SUCCESS"
+      warning: teardown step 1 (line 8): returncode: expected "FAILED", got "SUCCESS"
+ERROR getMeetings.report.transport-error (0s)
+      step 1 (line 6): Get "http://127.0.0.1:1/bigbluebutton/api": dial tcp 127.0.0.1:1: connect: connection refused
+ERROR getMeetings.report.undefined-target-var (0s)
+      step 1 (line 6): undefined variable target.sinkHost
+FAIL  getMeetings.report.wrong-value (0s)
+      step 1 (line 6): returncode: expected "FAILED", got "SUCCESS"
+      line 6: returncode: expected "FAILED", got "SUCCESS"
+      line 6: messageKey: expected one of "a", "b", got "noMeetings"
+
+14 case(s): 2 passed, 5 failed, 3 errors, 4 skipped (0s)

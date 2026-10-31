@@ -1,0 +1,19 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.callback.ended
+target fake
+
+== step 3: sink ${uid}-meta
+$.method "GET"
+$.path "/${uid}-meta/end"
+$.query.from "meta"
+$.query.meetingID "${uid}"
+$.query.recordingmarks "false"
+
+== step 4: sink ${uid}-param
+$.method "GET"
+$.path "/${uid}-param"
+$.query.meetingID "${uid}"
+$.query.recordingmarks "false"
+
+== step 5: sink ${uid}-other
+$ null

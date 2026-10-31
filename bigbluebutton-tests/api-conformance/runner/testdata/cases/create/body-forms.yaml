@@ -1,0 +1,43 @@
+id: create.body.forms
+title: Every body form the runner can send
+endpoint: create
+class: contract
+steps:
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Bodies}
+    body:
+      xml: <modules><module name="presentation"/></modules>
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Bodies}
+    body: {xmlFile: bodies/one-document.xml}
+  - call: create
+    method: POST
+    body:
+      form: {meetingID: "${uid}", name: Bodies}
+  - call: create
+    method: POST
+    params: {meetingID: "${uid}", name: Bodies}
+    body:
+      json: {meta: {k: v}, list: [1, true, "${uid}"]}
+  - call: insertDocument
+    method: POST
+    params: {meetingID: "${uid}"}
+    body: {raw: <modules/>, contentType: text/xml, chunked: true}
+  - call: putRecordingTextTrack
+    method: POST
+    params: {recordID: r1, kind: subtitles, lang: en-US}
+    body:
+      multipart:
+        fields: {label: English}
+        files:
+          - {field: file, path: captions/sample.vtt}
+          - {field: extra, content: WEBVTT, filename: x.vtt, contentType: text/vtt}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

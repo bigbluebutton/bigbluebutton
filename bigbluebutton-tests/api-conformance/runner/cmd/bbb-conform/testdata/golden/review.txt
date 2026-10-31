@@ -1,0 +1,31 @@
+== getMeetingInfo.smoke.json-error (recorded)
+   Errors come back as JSON when the client asks for JSON [contract], ../../testdata/smoke/getMeetingInfo/json-error.yaml:1
+   # Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+   case getMeetingInfo.smoke.json-error
+   target fake
+
+   == step 1: call getMeetingInfo
+   status 200
+   header Content-Type application/json
+   body json
+   $.response.message "We could not find a meeting with that meeting ID"
+   $.response.messageKey "notFound"
+   $.response.returncode "FAILED"
+
+== version.smoke.fields (recorded)
+   The version endpoint answers without a checksum [contract], ../../testdata/smoke/version/fields.yaml:1
+   # Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+   case version.smoke.fields
+   target fake
+
+   == step 1: call ""
+   status 200
+   header Cache-Control no-cache
+   header Content-Type text/xml;charset=utf-8
+   body xml
+   /response/returncode "SUCCESS"
+   /response/version "2.0"
+   /response/apiVersion "2.0"
+   /response/bbbVersion
+
+testdata/recordings/smoke: 2 recorded

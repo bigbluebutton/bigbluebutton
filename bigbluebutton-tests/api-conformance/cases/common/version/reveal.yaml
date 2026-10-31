@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+id: version.fields.reveal
+title: With allowRevealOfBBBVersion the bbbVersion field carries the release
+endpoint: version
+class: contract
+tags: [disruptive]
+profile: reveal-version
+steps:
+  - call: ""
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/bbbVersion: {regex: "^[0-9]+\\."}}

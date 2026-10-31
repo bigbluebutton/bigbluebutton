@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Any integer is a voiceBridge, kept as the text it was given: a negative
+# one, one with a plus sign, one over 2^31 - 1 or 0. It comes back in the
+# answer and reaches akka-apps' voice props as the conference number. A
+# voiceBridge must be unique among the server's meetings, and these are
+# fixed, so the case runs alone. One that isn't an integer is in
+# create/validation/voice-bridge.yaml.
+id: create.numeric.voice-bridge
+title: create with voiceBridge=${value}
+endpoint: create
+class: compat
+tags: [ci, serial]
+requires: [akka, bus]
+variants:
+  - {id: seven-digits, vars: {value: "7123456"}, class: contract}
+  - {id: zero, vars: {value: "0"}}
+  - {id: negative, vars: {value: "-5"}}
+  - {id: plus-sign, vars: {value: "+71234"}}
+  - {id: over-int, vars: {value: "2147483648"}}
+  - {id: eleven-digits, vars: {value: "99999999999"}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Voice bridge, voiceBridge: "${value}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/voiceBridge: "${value}"}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.voiceProp]
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

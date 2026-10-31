@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The longest fullName join accepts: 255 characters (full-name.yaml has 256).
+id: join.validation.full-name-longest
+title: join accepts a fullName of 255 characters
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join validation}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: '${repeat("a", 255)}', role: viewer, redirect: "false"}
+    expect: {returncode: SUCCESS, messageKey: successfullyJoined}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

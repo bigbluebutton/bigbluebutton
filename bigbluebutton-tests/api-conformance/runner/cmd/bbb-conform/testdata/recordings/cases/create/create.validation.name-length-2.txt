@@ -1,0 +1,17 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.validation.name-length-2
+target fake
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey
+/response/message

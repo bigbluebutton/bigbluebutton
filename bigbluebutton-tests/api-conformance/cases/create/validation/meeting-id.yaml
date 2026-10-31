@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meetingID is required and can't contain a comma. Both errors are
+# validationError; the message tells them apart, and is in the recording.
+# The length limits are in meeting-id-length.yaml.
+id: create.validation.meeting-id
+title: "create rejects a meetingID: ${scenario}"
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: missing, vars: {scenario: missing, meetingID: null}}
+  - {id: comma, vars: {scenario: contains a comma, meetingID: "a,b"}}
+steps:
+  - call: create
+    params: {meetingID: "${meetingID}", name: Meeting ID}
+    expect: {returncode: FAILED, messageKey: validationError}

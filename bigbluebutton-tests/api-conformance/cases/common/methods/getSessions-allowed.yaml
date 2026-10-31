@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
+id: getSessions.method.allowed
+title: getSessions answers ${method} with its own handler
+endpoint: getSessions
+class: contract
+# Runs alone (serial): the answer lists the server's sessions, and bbb-web
+# cuts it short when the last one goes away while it lists them.
+tags: [ci, serial]
+variants:
+  - {id: get, vars: {method: GET}}
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: getSessions
+    method: "${method}"
+    expect: {returncode: SUCCESS, xpath: {/response/sessions: {exists: true}}}

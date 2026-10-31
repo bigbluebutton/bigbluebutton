@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# With learningDashboard disabled, the meeting has no learning dashboard
+# access token: it is empty in akka-apps' password props, where it is
+# otherwise a generated token (see the response defaults case).
+id: create.features.learning-dashboard
+title: create with the learning dashboard disabled
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Features, disabledFeatures: learningDashboard}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    select: [$.core.body.props.password.learningDashboardAccessToken]
+    expect:
+      jsonpath: {$.core.body.props.password.learningDashboardAccessToken: ""}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

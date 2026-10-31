@@ -1,0 +1,10 @@
+# want: 10: bad XPath "/response/[": 
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    expect:
+      xpath:
+        "/response/[": x

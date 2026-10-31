@@ -1,0 +1,71 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.body.forms
+target fake
+
+== step 1: call create (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey
+/response/message
+
+== step 2: call create (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey "duplicateWarning"
+/response/message "This conference was already in existence and may currently be in progress."
+
+== step 3: call create (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey "duplicateWarning"
+/response/message "This conference was already in existence and may currently be in progress."
+
+== step 4: call create (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "unsupportedContentType"
+/response/message "POST request Content-Type is missing or unsupported"
+
+== step 5: call insertDocument (POST)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/messageKey
+/response/message "Presentation is being uploaded"
+
+== step 6: call putRecordingTextTrack (POST)
+status 200
+header Content-Type application/json
+body json
+$.response.message "Text track uploaded successfully"
+$.response.messageKey "upload_text_track_success"
+$.response.returncode "SUCCESS"

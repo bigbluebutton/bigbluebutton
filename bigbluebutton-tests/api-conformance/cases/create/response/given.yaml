@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Values create is given come back in its answer as given: the passwords,
+# the dial-in number and the duration.
+id: create.response.given
+title: create answers with the values it was given
+endpoint: create
+class: contract
+tags: [ci]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Given, attendeePW: ap, moderatorPW: mp, dialNumber: 613-555-0100, duration: "30"}
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/attendeePW: ap
+        /response/moderatorPW: mp
+        /response/dialNumber: 613-555-0100
+        /response/duration: "30"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

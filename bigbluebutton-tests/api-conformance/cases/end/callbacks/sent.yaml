@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Once a meeting has ended, bbb-web calls back the URL create's
+# meta_endCallbackUrl or meetingEndedURL gave it: one GET, with the
+# meeting's ID and whether it had recording marks added to the URL's own
+# query.
+id: end.callbacks.sent
+title: An ended meeting calls back its end callback URL
+endpoint: end
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - id: meta-end-callback-url
+    vars: {param: meta_endCallbackUrl}
+  - id: meeting-ended-url
+    vars: {param: meetingEndedURL}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, "${param}": "${sinkUrl}/${uid}/ended?from=conform"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - sink: {key: "${uid}", within: 10s}
+    expect:
+      method: GET
+      path: /${uid}/ended
+      query: {from: conform, meetingID: "${uid}", recordingmarks: "false"}
+  - sink: {key: "${uid}", within: 2s}
+    golden: off
+    expect: {count: 1}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

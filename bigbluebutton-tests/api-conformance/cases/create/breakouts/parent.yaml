@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A breakout room created through the API needs its parent meeting:
+# without a parentMeetingID it fails with parentMeetingIDMissing, and with
+# one no meeting has, with parentMeetingDoesNotExist.
+id: create.breakouts.parent
+title: create a breakout room with ${scenario}
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: missing, vars: {scenario: no parent, parent: null, key: parentMeetingIDMissing}}
+  - {id: unknown, vars: {scenario: an unknown parent, parent: conform-no-such-parent, key: parentMeetingDoesNotExist}}
+steps:
+  - call: create
+    params: {meetingID: "room-${uid}", name: Room, isBreakout: "true", parentMeetingID: "${parent}", sequence: "1"}
+    expect: {returncode: FAILED, messageKey: "${key}"}
+teardown:
+  - call: end
+    params: {meetingID: "room-${uid}"}
+    ignoreResult: true

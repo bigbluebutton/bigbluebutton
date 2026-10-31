@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
+id: publishRecordings.method.allowed
+title: publishRecordings answers ${method} with its own handler
+endpoint: publishRecordings
+class: contract
+tags: [ci]
+variants:
+  - {id: get, vars: {method: GET}}
+steps:
+  - call: publishRecordings
+    method: "${method}"
+    params: {recordID: "${uid}", publish: "true"}
+    expect: {returncode: FAILED, messageKey: notFound}

@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# A meeting runs once a user is in it, not when it is created. The check waits
+# until akka-apps has created the meeting, so it isn't just early.
+id: isMeetingRunning.state.created
+title: A meeting nobody has joined isn't running
+endpoint: isMeetingRunning
+class: contract
+tags: [ci]
+requires: [akka, bus]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Running}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    expect:
+      returncode: SUCCESS
+      xpath: {/response/running: "false"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

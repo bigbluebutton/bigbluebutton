@@ -1,0 +1,6 @@
+<modules>
+  <module name="presentation">
+    <document url="${fixtureUrl}/presentations/a.pdf" filename="a.pdf" current="true"/>
+    <document name="b.txt">${base64File("presentations/b.txt")}</document>
+  </module>
+</modules>

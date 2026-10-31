@@ -1,0 +1,56 @@
+# Two headless users join; one makes the other presenter. Their state is
+# checked as each sees it, through GraphQL. Users' connections close when
+# the case ends; bob logs out first.
+id: join.presence.two-users
+title: Users joined through the API are in the meeting, and a moderator can make another the presenter
+endpoint: join
+class: contract
+tags: [presence]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence}
+  - presence:
+      action: join
+      as: ann
+      args: {meetingID: "${uid}", fullName: Ann, role: MODERATOR}
+    capture: {annId: $.userId}
+    expect:
+      jsonpath:
+        $.joined: "true"
+        $.role: MODERATOR
+  - presence:
+      action: join
+      as: bob
+      args: {meetingID: "${uid}", fullName: Bob, role: VIEWER, avatarURL: "https://img.example/bob.png"}
+    capture: {bobId: $.userId}
+  - call: isMeetingRunning
+    params: {meetingID: "${uid}"}
+    expect:
+      xpath:
+        /response/running: "true"
+  - graphql:
+      as: ann
+      query: "mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }"
+      variables: {id: "${bobId}"}
+  - graphql:
+      as: bob
+      query: "query Me { user_current { presenter avatar } }"
+    eventually:
+      within: 10s
+      until:
+        jsonpath:
+          $.data.user_current[0].presenter: "true"
+    expect:
+      jsonpath:
+        $.data.user_current[0].avatar: "https://img.example/bob.png"
+  - presence: {action: leave, as: bob}
+    expect:
+      jsonpath:
+        $.loggedOut: "true"
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

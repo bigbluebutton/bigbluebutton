@@ -1,0 +1,13 @@
+# want: 10: steps[0]: join needs exactly one of joinUrl, args and sessionToken; found none
+# want: 11: steps[1]: join needs exactly one of joinUrl, args and sessionToken; found joinUrl and sessionToken
+# want: 12: steps[2]: only join takes args
+# want: 13: steps[3]: ann joined in an earlier step; joining again continues that join
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - presence: {action: join, as: ann}
+  - presence: {action: join, as: bob, joinUrl: "https://bbb.test/join", sessionToken: st1}
+  - presence: {action: leave, as: ann, args: {fullName: Ann}}
+  - presence: {action: join, as: ann, args: {fullName: Ann}}

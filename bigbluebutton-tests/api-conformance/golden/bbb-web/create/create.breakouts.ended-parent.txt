@@ -1,0 +1,12 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.breakouts.ended-parent
+target bbb-web
+
+== step 5: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "FAILED"
+/response/messageKey "parentMeetingDoesNotExist"
+/response/message "No parent meeting exists for the breakout room"

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# record must be a boolean: true, false, 1 or 0 in any case, or empty.
+id: create.validation.record
+title: create rejects record=yes
+endpoint: create
+class: contract
+tags: [ci]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Record, record: "yes"}
+    expect: {returncode: FAILED, messageKey: validationError}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

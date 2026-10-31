@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="bbb-conform fake" tests="25" failures="0" errors="0" skipped="1" time="0.000">
+  <testsuite name="create" tests="12" failures="0" errors="0" skipped="1" time="0.000">
+    <testcase name="create.body.forms" classname="create" file="../../testdata/cases/create/body-forms.yaml" line="1" time="0.000"></testcase>
+    <testcase name="create.duplicate.same-passwords" classname="create" file="../../testdata/cases/create/duplicate-same-passwords.yaml" line="1" time="0.000"></testcase>
+    <testcase name="create.validation.meeting-id-missing" classname="create" file="../../testdata/cases/create/meeting-id.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.validation.meeting-id-with-comma" classname="create" file="../../testdata/cases/create/meeting-id.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.validation.name-length-1" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.validation.name-length-2" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.validation.name-length-256" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.validation.name-length-257" classname="create" file="../../testdata/cases/create/name-length.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.props.selected" classname="create" file="../../testdata/cases/create/props-select.yaml" line="4" time="0.000"></testcase>
+    <testcase name="create.props.mute-on-start" classname="create" file="../../testdata/cases/create/props-side-effects.yaml" line="3" time="0.000">
+      <skipped message="unimplemented: env"></skipped>
+    </testcase>
+    <testcase name="create.side-effects.unrecorded" classname="create" file="../../testdata/cases/create/side-effects-unrecorded.yaml" line="3" time="0.000"></testcase>
+    <testcase name="create.side-effects.recorded" classname="create" file="../../testdata/cases/create/side-effects.yaml" line="5" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="end" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="end.callback.ended" classname="end" file="../../testdata/cases/end/callback.yaml" line="6" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="getMeetingInfo" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="getMeetingInfo.fields.metadata" classname="getMeetingInfo" file="../../testdata/cases/getMeetingInfo/metadata.yaml" line="2" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="getMeetings" tests="5" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="getMeetings.checksum.errors" classname="getMeetings" file="../../testdata/cases/getMeetings/checksum-errors.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.checksum.modes-sha1-last" classname="getMeetings" file="../../testdata/cases/getMeetings/checksum-modes.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.checksum.modes-sha256-first" classname="getMeetings" file="../../testdata/cases/getMeetings/checksum-modes.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.checksum.modes-sha384-middle" classname="getMeetings" file="../../testdata/cases/getMeetings/checksum-modes.yaml" line="1" time="0.000"></testcase>
+    <testcase name="getMeetings.checksum.modes-sha512-uppercase" classname="getMeetings" file="../../testdata/cases/getMeetings/checksum-modes.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="isMeetingRunning" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="isMeetingRunning.lifecycle.after-end" classname="isMeetingRunning" file="../../testdata/cases/isMeetingRunning/after-end.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="join" tests="3" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="join.presence.guest-approved" classname="join" file="../../testdata/cases/join/presence-guest.yaml" line="3" time="0.000"></testcase>
+    <testcase name="join.presence.two-users" classname="join" file="../../testdata/cases/join/presence-two-users.yaml" line="4" time="0.000"></testcase>
+    <testcase name="join.redirect.session-token" classname="join" file="../../testdata/cases/join/session-token.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="stuns" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="stuns.session.unknown-token" classname="stuns" file="../../testdata/cases/stuns/unknown-token.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+  <testsuite name="version" tests="1" failures="0" errors="0" skipped="0" time="0.000">
+    <testcase name="version.index.fields" classname="version" file="../../testdata/cases/version/fields.yaml" line="1" time="0.000"></testcase>
+  </testsuite>
+</testsuites>

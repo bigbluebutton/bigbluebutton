@@ -1,0 +1,6 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case create.strings.notify-recording-append-padded
+target bbb-web
+
+== step 2: bus MeetingCreatedEvtMsg select $.core.body.props.meetingProp.notifyRecordingAppend
+$.core.body.props.meetingProp.notifyRecordingAppend "Recorded for review"

@@ -1,0 +1,31 @@
+# Needs the server's tap (BBB_TAP_URL); skipped without one.
+id: create.smoke.side-effects
+title: create and end show on the bus, in redis and on disk
+endpoint: create
+class: contract
+tags: [ci]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Smoke props, record: "true", muteOnStart: "true", meta_Smoke: "yes"}
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath:
+        $.core.body.props.voiceProp.muteOnStart: "true"
+        $.core.body.props.meetingProp.extId: "${uid}"
+  - redis: {key: "meeting:info:${intId}", within: 5s}
+    expect:
+      hash: {smoke: "yes", meetingId: "${uid}"}
+  - call: end
+    params: {meetingID: "${uid}"}
+    expect: {returncode: SUCCESS}
+  - fs: {path: "recording/status/recorded/${intId}.done", within: 5s}
+    expect: {exists: true}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

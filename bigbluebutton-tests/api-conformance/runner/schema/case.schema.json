@@ -1,0 +1,423 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/schema/case.schema.json",
+  "title": "bbb-conform test case",
+  "description": "One BigBlueButton API conformance case, after variant expansion. The format is described in bigbluebutton-tests/api-conformance/README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "endpoint", "class", "steps"],
+  "properties": {
+    "id": {
+      "description": "<endpoint>.<area>.<scenario>. The gap matrix keys on it, so it must stay stable.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9-]*\\.[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+    },
+    "title": {"type": "string", "minLength": 1},
+    "endpoint": {"type": "string", "minLength": 1},
+    "class": {"$ref": "#/$defs/class"},
+    "tags": {"$ref": "#/$defs/names"},
+    "requires": {"$ref": "#/$defs/names"},
+    "profile": {"$ref": "#/$defs/name"},
+    "variants": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/variant"}},
+    "defs": {"description": "Ignored by the runner: a place to define YAML anchors, such as baseline params, for use elsewhere in the file."},
+    "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}},
+    "teardown": {"type": "array", "items": {"$ref": "#/$defs/step"}}
+  },
+  "$defs": {
+    "class": {"enum": ["contract", "compat", "defect"]},
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "names": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/name"}},
+    "varName": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+    "duration": {"type": "string", "pattern": "^([0-9]+(\\.[0-9]+)?(ms|s|m|h))+$"},
+    "scalar": {"type": ["string", "number", "boolean"]},
+    "scalarTable": {"type": "object", "additionalProperties": {"$ref": "#/$defs/scalar"}},
+    "golden": {
+      "description": "How record mode treats this step's output. Defaults: off in teardown and in steps with ignoreResult, document in defect cases, compare otherwise.",
+      "enum": ["compare", "document", "off"]
+    },
+
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "vars": {
+          "type": "object",
+          "propertyNames": {"$ref": "#/$defs/varName"},
+          "additionalProperties": {"type": ["string", "number", "boolean", "null"]}
+        },
+        "profile": {"$ref": "#/$defs/name"},
+        "requires": {"$ref": "#/$defs/names"},
+        "tags": {"$ref": "#/$defs/names"},
+        "class": {"$ref": "#/$defs/class"}
+      }
+    },
+
+    "step": {
+      "type": "object",
+      "oneOf": [
+        {"required": ["call"]}, {"required": ["route"]}, {"required": ["url"]},
+        {"required": ["wait"]}, {"required": ["presence"]}, {"required": ["graphql"]},
+        {"required": ["bus"]}, {"required": ["fs"]}, {"required": ["redis"]},
+        {"required": ["sink"]}, {"required": ["env"]}
+      ],
+      "allOf": [
+        {"if": {"anyOf": [{"required": ["call"]}, {"required": ["route"]}, {"required": ["url"]}]}, "then": {"$ref": "#/$defs/callStep"}},
+        {"if": {"required": ["wait"]}, "then": {"$ref": "#/$defs/waitStep"}},
+        {"if": {"required": ["presence"]}, "then": {"$ref": "#/$defs/presenceStep"}},
+        {"if": {"required": ["graphql"]}, "then": {"$ref": "#/$defs/graphqlStep"}},
+        {"if": {"required": ["bus"]}, "then": {"$ref": "#/$defs/busStep"}},
+        {"if": {"required": ["fs"]}, "then": {"$ref": "#/$defs/fsStep"}},
+        {"if": {"required": ["redis"]}, "then": {"$ref": "#/$defs/redisStep"}},
+        {"if": {"required": ["sink"]}, "then": {"$ref": "#/$defs/sinkStep"}},
+        {"if": {"required": ["env"]}, "then": {"$ref": "#/$defs/envStep"}}
+      ]
+    },
+
+    "callStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "call": {"description": "API call name; an empty string is the version endpoint.", "type": "string"},
+        "route": {"description": "Non-API route, mapped per target.", "type": "string", "minLength": 1},
+        "pathParams": {"$ref": "#/$defs/scalarTable"},
+        "url": {"description": "Absolute URL, sent verbatim.", "type": "string", "minLength": 1},
+        "method": {"enum": ["GET", "POST", "PUT", "DELETE", "HEAD"]},
+        "sign": {"$ref": "#/$defs/sign"},
+        "params": {"$ref": "#/$defs/scalarTable"},
+        "raw_query": {"type": "string"},
+        "headers": {"type": "object", "additionalProperties": {"type": ["string", "null"]}},
+        "body": {"$ref": "#/$defs/body"},
+        "client": {"$ref": "#/$defs/name"},
+        "followRedirects": {"type": "boolean"},
+        "timeout": {"$ref": "#/$defs/duration"},
+        "ignoreResult": {"type": "boolean"},
+        "eventually": {"$ref": "#/$defs/eventually"},
+        "expect": {"$ref": "#/$defs/callExpect"},
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "sign": {
+      "anyOf": [
+        {"enum": ["sha1", "sha256", "sha384", "sha512", "none", "bad", "duplicate", "uppercase", "wrong-length", "reencode"]},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "alg": {"enum": ["sha1", "sha256", "sha384", "sha512"]},
+            "mode": {"enum": ["valid", "uppercase", "bad", "duplicate", "none", "wrong-length", "reencode"]},
+            "position": {"enum": ["first", "middle", "last"]},
+            "call": {"description": "Sign as this call name instead of the step's own.", "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$"}
+          }
+        }
+      ]
+    },
+    "body": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf": [
+        {"required": ["xml"]}, {"required": ["xmlFile"]}, {"required": ["form"]},
+        {"required": ["json"]}, {"required": ["raw"]}, {"required": ["multipart"]}
+      ],
+      "properties": {
+        "xml": {"type": "string"},
+        "xmlFile": {"description": "Path under fixtures/; its contents are templated.", "type": "string", "minLength": 1},
+        "form": {"$ref": "#/$defs/scalarTable"},
+        "json": {"description": "Any YAML value, sent as JSON with its strings templated."},
+        "raw": {"type": "string"},
+        "multipart": {"$ref": "#/$defs/multipart"},
+        "contentType": {"type": "string", "minLength": 1},
+        "chunked": {"type": "boolean"}
+      }
+    },
+    "multipart": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fields": {"$ref": "#/$defs/scalarTable"},
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field"],
+            "oneOf": [{"required": ["path"]}, {"required": ["content"]}],
+            "properties": {
+              "field": {"type": "string", "minLength": 1},
+              "path": {"description": "Path under fixtures/.", "type": "string", "minLength": 1},
+              "content": {"type": "string"},
+              "filename": {"type": "string"},
+              "contentType": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "eventually": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["within", "until"],
+      "properties": {
+        "within": {"$ref": "#/$defs/duration"},
+        "every": {"$ref": "#/$defs/duration"},
+        "until": {"$ref": "#/$defs/callExpect"}
+      }
+    },
+
+    "matcherMap": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "exists": {"const": true},
+        "absent": {"const": true},
+        "regex": {"type": "string", "minLength": 1},
+        "type": {"enum": ["int", "bool"]},
+        "oneOf": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/scalar"}},
+        "count": {"type": "integer", "minimum": 0},
+        "contains": {"type": "string", "minLength": 1}
+      }
+    },
+    "matcher": {"anyOf": [{"$ref": "#/$defs/scalar"}, {"$ref": "#/$defs/matcherMap"}]},
+    "matcherTable": {"type": "object", "additionalProperties": {"$ref": "#/$defs/matcher"}},
+    "capture": {
+      "type": "object",
+      "propertyNames": {"$ref": "#/$defs/varName"},
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "callExpect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {"anyOf": [{"type": "integer", "minimum": 100, "maximum": 599}, {"$ref": "#/$defs/matcherMap"}]},
+        "headers": {"$ref": "#/$defs/matcherTable"},
+        "format": {"enum": ["xml", "json", "text"]},
+        "returncode": {"$ref": "#/$defs/matcher"},
+        "messageKey": {"$ref": "#/$defs/matcher"},
+        "message": {"$ref": "#/$defs/matcher"},
+        "xpath": {"$ref": "#/$defs/matcherTable"},
+        "jsonpath": {"$ref": "#/$defs/matcherTable"},
+        "body": {"$ref": "#/$defs/matcher"},
+        "redirect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "host": {"$ref": "#/$defs/matcher"},
+            "path": {"$ref": "#/$defs/matcher"},
+            "query": {"$ref": "#/$defs/matcherTable"}
+          }
+        },
+        "schema": {"description": "Response schema under fixtures/schemas/.", "type": "string", "minLength": 1}
+      }
+    },
+
+    "graphqlExpect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "jsonpath": {"$ref": "#/$defs/matcherTable"},
+        "errors": {"description": "Matched against each error message; without it, any error fails the step.", "$ref": "#/$defs/matcher"}
+      }
+    },
+    "graphqlEventually": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["within", "until"],
+      "properties": {
+        "within": {"$ref": "#/$defs/duration"},
+        "every": {"$ref": "#/$defs/duration"},
+        "until": {"$ref": "#/$defs/graphqlExpect"}
+      }
+    },
+
+    "waitStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {"wait": {"$ref": "#/$defs/duration"}}
+    },
+    "presenceStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "presence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "as"],
+          "properties": {
+            "action": {"description": "join, leave (log out), disconnect (close the connection) or reconnect.", "enum": ["join", "leave", "disconnect", "reconnect"]},
+            "as": {"description": "Handle of the user; a call step's client of the same name shares its cookies.", "$ref": "#/$defs/name"},
+            "joinUrl": {"description": "join: an API join URL to open.", "type": "string", "minLength": 1},
+            "args": {"description": "join: join params, signed like a call step's.", "$ref": "#/$defs/scalarTable"},
+            "sessionToken": {"description": "join: the session a call step with client: <as> started.", "type": "string", "minLength": 1},
+            "timeout": {"$ref": "#/$defs/duration"}
+          }
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {"jsonpath": {"$ref": "#/$defs/matcherTable"}}
+        },
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "graphqlStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "graphql": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["as", "query"],
+          "properties": {
+            "as": {"$ref": "#/$defs/name"},
+            "query": {"description": "One named operation; values go in variables.", "type": "string", "minLength": 1},
+            "variables": {"type": "object"},
+            "timeout": {"$ref": "#/$defs/duration"}
+          }
+        },
+        "eventually": {"$ref": "#/$defs/graphqlEventually"},
+        "expect": {"$ref": "#/$defs/graphqlExpect"},
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "busStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bus": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "within"],
+          "properties": {
+            "name": {"type": "string", "minLength": 1},
+            "channel": {"type": "string", "minLength": 1},
+            "meetingId": {"type": "string", "minLength": 1},
+            "within": {"$ref": "#/$defs/duration"}
+          }
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "absent": {"const": true},
+            "count": {"description": "How many messages match by the end of the window.", "$ref": "#/$defs/matcher"},
+            "jsonpath": {"$ref": "#/$defs/matcherTable"}
+          }
+        },
+        "select": {
+          "description": "The parts of the message that are recorded, as $-rooted dotted paths, with [] after a list's name to go through its items; all of it when absent. expect and capture still see the whole message.",
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^\\$(\\.[A-Za-z_][A-Za-z0-9_-]*(\\[\\])?)+$"}
+        },
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "fsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path"],
+          "properties": {
+            "path": {"description": "Relative to the target's data directory; may be a glob.", "type": "string", "minLength": 1},
+            "within": {"$ref": "#/$defs/duration"}
+          }
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "exists": {"type": "boolean"},
+            "absent": {"const": true},
+            "contents": {"$ref": "#/$defs/matcher"},
+            "jsonpath": {"$ref": "#/$defs/matcherTable"}
+          }
+        },
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "redisStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "redis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key"],
+          "properties": {
+            "key": {"type": "string", "minLength": 1},
+            "within": {"$ref": "#/$defs/duration"}
+          }
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "exists": {"type": "boolean"},
+            "absent": {"const": true},
+            "hash": {"$ref": "#/$defs/matcherTable"},
+            "members": {"type": "array", "items": {"$ref": "#/$defs/scalar"}},
+            "ttl": {"$ref": "#/$defs/matcher"}
+          }
+        },
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "sinkStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sink": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key", "within"],
+          "properties": {
+            "key": {"type": "string", "minLength": 1},
+            "within": {"$ref": "#/$defs/duration"}
+          }
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "absent": {"const": true},
+            "count": {"$ref": "#/$defs/matcher"},
+            "method": {"$ref": "#/$defs/matcher"},
+            "path": {"$ref": "#/$defs/matcher"},
+            "query": {"$ref": "#/$defs/matcherTable"},
+            "headers": {"$ref": "#/$defs/matcherTable"}
+          }
+        },
+        "capture": {"$ref": "#/$defs/capture"},
+        "golden": {"$ref": "#/$defs/golden"}
+      }
+    },
+    "envStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "env": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action"],
+          "properties": {
+            "action": {"enum": ["stop", "start", "restart", "reset"]},
+            "service": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    }
+  }
+}

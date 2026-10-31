@@ -1,0 +1,26 @@
+# One baseline, one change per variant. Each variant is its own case:
+# create.validation.name-length-1, -2, -256 and -257.
+id: create.validation.name-length
+title: create accepts meeting names of 2 to 256 characters
+endpoint: create
+class: contract
+tags: [ci]
+variants:
+  - {id: "1", vars: {len: 1, returncode: FAILED}}
+  - {id: "2", vars: {len: 2, returncode: SUCCESS}}
+  - {id: "256", vars: {len: 256, returncode: SUCCESS}}
+  - {id: "257", vars: {len: 257, returncode: FAILED}}
+steps:
+  - call: create
+    params:
+      meetingID: "${uid}"
+      name: '${repeat("n", len)}'
+    expect:
+      returncode: ${returncode}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

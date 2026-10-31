@@ -1,0 +1,40 @@
+# Uses the step types that aren't implemented yet. Until they are, the case
+# is reported as SKIP unimplemented:<type>, without running any step.
+id: create.props.mute-on-start
+title: muteOnStart reaches akka-apps' meeting props
+endpoint: create
+class: contract
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Props, record: "true", muteOnStart: "true"}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath:
+        $.core.body.props.voiceProp.muteOnStart: true
+    capture: {voiceConf: $.core.body.props.voiceProp.voiceConf}
+  - redis: {key: "meeting:info:${intId}", within: 5s}
+    expect:
+      hash: {meetingName: Props}
+      ttl: "-1"
+  - presence: {action: join, as: ann, joinUrl: "${baseUrl}/join?voice=${voiceConf}"}
+  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+    expect:
+      jsonpath:
+        $.data.user_current[0].name: Ann
+  - call: end
+    params: {meetingID: "${uid}"}
+  - fs: {path: "recording/status/recorded/${intId}*.done", within: 30s}
+    expect: {exists: true}
+    golden: document
+  - sink: {key: "${uid}", within: 10s}
+    expect: {absent: true}
+  - env: {action: restart, service: akka-apps}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

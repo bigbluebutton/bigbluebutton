@@ -1,0 +1,11 @@
+id: version.smoke.fields
+title: The version endpoint answers without a checksum
+endpoint: version
+class: contract
+tags: [ci]
+steps:
+  - call: ""
+    expect:
+      returncode: SUCCESS
+      xpath:
+        /response/version: {exists: true}

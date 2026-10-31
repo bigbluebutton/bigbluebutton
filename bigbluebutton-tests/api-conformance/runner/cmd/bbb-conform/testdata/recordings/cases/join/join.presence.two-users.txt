@@ -1,0 +1,80 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case join.presence.two-users
+target fake
+
+== step 1: call create
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/meetingID "${uid}"
+/response/internalMeetingID "<sha1(meetingID)>-<time>"
+/response/attendeePW "<random>"
+/response/moderatorPW "<random>"
+/response/createTime "<time>"
+/response/messageKey
+/response/message
+
+== step 2: presence join as ann
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest false
+$.guestStatus "ALLOW"
+$.isModerator true
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut false
+$.name "Ann"
+$.role "MODERATOR"
+$.sessionToken "<token>"
+$.userId "w_<id>"
+
+== step 3: presence join as bob
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest false
+$.guestStatus "ALLOW"
+$.isModerator false
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut false
+$.name "Bob"
+$.role "VIEWER"
+$.sessionToken "<token>"
+$.userId "w_<id>"
+
+== step 4: call isMeetingRunning
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/running "true"
+
+== step 5: graphql mutation SetPresenter as ann
+$.data.userSetPresenter true
+
+== step 6: graphql query Me as bob
+$.data.user_current[].avatar "https://img.example/bob.png"
+$.data.user_current[].presenter true
+
+== step 7: presence leave as bob
+$.ejectReasonCode null
+$.ejected null
+$.extId "w_<id>"
+$.guest false
+$.guestStatus "ALLOW"
+$.isModerator false
+$.joinErrorCode null
+$.joinErrorMessage null
+$.joined true
+$.loggedOut true
+$.name "Bob"
+$.role "VIEWER"
+$.sessionToken "<token>"
+$.userId "w_<id>"

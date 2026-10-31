@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Under ALWAYS_ACCEPT_AUTH only guests wait for a moderator's approval.
+# With authenticatedGuest on (the default), a moderator is always let in.
+# guest=1 passes validation as a boolean but counts as false here; that
+# variant is recorded for triage.
+id: join.guest.always-accept-auth
+title: "join under ALWAYS_ACCEPT_AUTH: ${who}"
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka]
+variants:
+  - {id: guest-moderator, vars: {who: a guest moderator, role: moderator, guest: "true", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+  - {id: guest, vars: {who: a guest viewer, role: viewer, guest: "true", auth: null, rc: SUCCESS, key: successfullyJoined, status: WAIT, golden: compare}}
+  - {id: viewer, vars: {who: a viewer without the guest param, role: viewer, guest: null, auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+  - {id: not-guest, vars: {who: a viewer with guest=false, role: viewer, guest: "false", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+  - {id: not-guest-auth, vars: {who: a viewer with guest=false and auth=true, role: viewer, guest: "false", auth: "true", rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+  - {id: guest-one, class: compat, tags: [triage], vars: {who: a viewer with guest=1, role: viewer, guest: "1", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: document}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Guest policy, guestPolicy: ALWAYS_ACCEPT_AUTH}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: "${role}", guest: "${guest}", auth: "${auth}", redirect: "false"}
+    golden: "${golden}"
+    expect:
+      returncode: "${rc}"
+      messageKey: "${key}"
+      xpath: {/response/guestStatus: "${status}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

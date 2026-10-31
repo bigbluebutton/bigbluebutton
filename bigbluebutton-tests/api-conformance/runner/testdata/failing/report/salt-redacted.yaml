@@ -1,0 +1,10 @@
+id: getMeetings.report.salt-redacted
+title: The salt never appears in a report
+endpoint: getMeetings
+class: contract
+steps:
+  - call: getMeetings
+    params: {echo: "${salt}"}
+    expect:
+      returncode: SUCCESS
+      message: "${salt}"

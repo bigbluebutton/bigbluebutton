@@ -1,0 +1,16 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case getMeetings.method.unmapped-delete
+target bbb-web
+
+== step 1: call getMeetings (DELETE) (document)
+status 200
+header Cache-Control no-cache
+header Content-Type text/xml;charset=utf-8
+body xml
+/response/returncode "SUCCESS"
+/response/version "2.0"
+/response/apiVersion "2.0"
+/response/bbbVersion
+/response/html5PluginSdkVersion "<version>"
+/response/graphqlWebsocketUrl "${wsBaseUrl}/graphql"
+/response/graphqlApiUrl "${baseUrl}/api/rest"

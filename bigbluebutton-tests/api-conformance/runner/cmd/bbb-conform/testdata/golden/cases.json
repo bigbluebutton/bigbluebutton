@@ -1,0 +1,2773 @@
+{
+  "target": "fake",
+  "started": "2026-01-01T00:00:00Z",
+  "duration_ms": 0,
+  "counts": {
+    "total": 25,
+    "passed": 24,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "cases": [
+    {
+      "id": "create.body.forms",
+      "title": "Every body form the runner can send",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/body-forms.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-000&name=Bodies&checksum=2f4334c95922ea1ac21d3240da3d58308772dc4d70039a3144192cfa89930907",
+            "headers": {
+              "Accept": "*/*",
+              "Content-Type": "application/xml",
+              "User-Agent": "bbb-conform/dev"
+            },
+            "body": "<modules><module name=\"presentation\"/></modules>"
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-000</meetingID><internalMeetingID>5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001</internalMeetingID><attendeePW>ap000001</attendeePW><moderatorPW>mp000001</moderatorPW><createTime>1760000000001</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-000&name=Bodies&checksum=2f4334c95922ea1ac21d3240da3d58308772dc4d70039a3144192cfa89930907",
+            "headers": {
+              "Accept": "*/*",
+              "Content-Type": "application/xml",
+              "User-Agent": "bbb-conform/dev"
+            },
+            "body": "<modules>\n  <module name=\"presentation\">\n    <document url=\"https://fixtures.test/presentations/a.pdf\" filename=\"a.pdf\" current=\"true\"/>\n    <document name=\"b.txt\">SGVsbG8gZnJvbSBhIGJhc2U2NCBkb2N1bWVudC4K</document>\n  </module>\n</modules>\n"
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "416",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-000</meetingID><internalMeetingID>5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001</internalMeetingID><attendeePW>ap000001</attendeePW><moderatorPW>mp000001</moderatorPW><createTime>1760000000001</createTime><messageKey>duplicateWarning</messageKey><message>This conference was already in existence and may currently be in progress.</message></response>"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/create?checksum=e02155c8676ad5463adab75dce97b68812c795590d9dcc6428a0059c92f1595e",
+            "headers": {
+              "Accept": "*/*",
+              "Content-Type": "application/x-www-form-urlencoded",
+              "User-Agent": "bbb-conform/dev"
+            },
+            "body": "meetingID=uid-000&name=Bodies"
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "416",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-000</meetingID><internalMeetingID>5ad06ac5d96e06b65e14f5a5ab9de09aae9d65b0-1760000000001</internalMeetingID><attendeePW>ap000001</attendeePW><moderatorPW>mp000001</moderatorPW><createTime>1760000000001</createTime><messageKey>duplicateWarning</messageKey><message>This conference was already in existence and may currently be in progress.</message></response>"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 19,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-000&name=Bodies&checksum=2f4334c95922ea1ac21d3240da3d58308772dc4d70039a3144192cfa89930907",
+            "headers": {
+              "Accept": "*/*",
+              "Content-Type": "application/json",
+              "User-Agent": "bbb-conform/dev"
+            },
+            "body": "{\"meta\":{\"k\":\"v\"},\"list\":[1,true,\"uid-000\"]}"
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "169",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>unsupportedContentType</messageKey><message>POST request Content-Type is missing or unsupported</message></response>"
+          }
+        },
+        {
+          "index": 4,
+          "kind": "call",
+          "line": 24,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/insertDocument?meetingID=uid-000&checksum=ae225ba81cba8b2b0fdc44561714b3038d396ff5203ba8ebcb67a698a8f81be4",
+            "headers": {
+              "Accept": "*/*",
+              "Content-Type": "text/xml",
+              "User-Agent": "bbb-conform/dev"
+            },
+            "body": "<modules/>",
+            "chunked": true
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "115",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey/><message>Presentation is being uploaded</message></response>"
+          }
+        },
+        {
+          "index": 5,
+          "kind": "call",
+          "line": 28,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/putRecordingTextTrack?recordID=r1&kind=subtitles&lang=en-US&checksum=3babc045d7f50345cfedfe396fde0ef05a1195d78dd56cc50bfcdde476351432",
+            "headers": {
+              "Accept": "*/*",
+              "Content-Type": "multipart/form-data; boundary=bbb-conform-boundary-5f0c2a9e1d",
+              "User-Agent": "bbb-conform/dev"
+            },
+            "body": "--bbb-conform-boundary-5f0c2a9e1d\r\nContent-Disposition: form-data; name=\"label\"\r\n\r\nEnglish\r\n--bbb-conform-boundary-5f0c2a9e1d\r\nContent-Disposition: form-data; name=\"file\"; filename=\"sample.vtt\"\r\nContent-Type: application/octet-stream\r\n\r\nWEBVTT\n\n00:00.000 --> 00:01.000\nHello\n\r\n--bbb-conform-boundary-5f0c2a9e1d\r\nContent-Disposition: form-data; name=\"extra\"; filename=\"x.vtt\"\r\nContent-Type: text/vtt\r\n\r\nWEBVTT\r\n--bbb-conform-boundary-5f0c2a9e1d--\r\n"
+          },
+          "response": {
+            "status": 200,
+            "format": "json",
+            "headers": {
+              "Content-Length": "123",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"response\":{\"message\":\"Text track uploaded successfully\",\"messageKey\":\"upload_text_track_success\",\"returncode\":\"SUCCESS\"}}"
+          }
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 40,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-000&checksum=bdd289d668fa938489cc7aa361bb4c52287f87820d1d40a35611f0f8bee1f652",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.duplicate.same-passwords",
+      "title": "Re-creating with identical passwords returns duplicateWarning",
+      "endpoint": "create",
+      "class": "compat",
+      "area": "create",
+      "file": "../../testdata/cases/create/duplicate-same-passwords.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-001&name=Dup+test&attendeePW=ap&moderatorPW=mp&checksum=c3ad4bc4fa6e795799c41a3ecedcafd3d3861aa865b03ee5b8ddc9443fe4254d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "314",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-001</meetingID><internalMeetingID>883cdcfb2cea59445da842d0031984b344a4a932-1760000000002</internalMeetingID><attendeePW>ap</attendeePW><moderatorPW>mp</moderatorPW><createTime>1760000000002</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "assertions": [
+            {
+              "what": "status",
+              "expected": "\"200\"",
+              "actual": "\"200\"",
+              "ok": true
+            },
+            {
+              "what": "format",
+              "expected": "xml",
+              "actual": "xml",
+              "ok": true
+            },
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "createTime": "1760000000002"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-001&name=Dup+test&attendeePW=ap&moderatorPW=mp&checksum=c3ad4bc4fa6e795799c41a3ecedcafd3d3861aa865b03ee5b8ddc9443fe4254d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "404",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-001</meetingID><internalMeetingID>883cdcfb2cea59445da842d0031984b344a4a932-1760000000002</internalMeetingID><attendeePW>ap</attendeePW><moderatorPW>mp</moderatorPW><createTime>1760000000002</createTime><messageKey>duplicateWarning</messageKey><message>This conference was already in existence and may currently be in progress.</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"duplicateWarning\"",
+              "actual": "\"duplicateWarning\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/createTime",
+              "expected": "\"1760000000002\"",
+              "actual": "\"1760000000002\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 25,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-001&checksum=876b44210170af4978c14aeb31bd72f47d61d915d4b49484788b4c47dde10c89",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.validation.meeting-id-missing",
+      "title": "create rejects a missing or malformed meetingID",
+      "endpoint": "create",
+      "class": "contract",
+      "variant": "missing",
+      "area": "create",
+      "file": "../../testdata/cases/create/meeting-id.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?name=n&checksum=83efc580e35691ca7a94d2da764915011577e04a27878ad4d44d302460e7997b",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "129",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>validationError</messageKey><message>Invalid meeting ID</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create.validation.meeting-id-with-comma",
+      "title": "create rejects a missing or malformed meetingID",
+      "endpoint": "create",
+      "class": "compat",
+      "variant": "with-comma",
+      "area": "create",
+      "file": "../../testdata/cases/create/meeting-id.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=a%2Cb&name=n&checksum=bae8ac905e2a03c988ec170c9ee41244ada09155b8897e542ff0942ad59dbc6f",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "148",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>validationError</messageKey><message>Meeting ID cannot contain &#39;,&#39;</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create.validation.name-length-1",
+      "title": "create accepts meeting names of 2 to 256 characters",
+      "endpoint": "create",
+      "class": "contract",
+      "variant": "1",
+      "area": "create",
+      "file": "../../testdata/cases/create/name-length.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 14,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-004&name=n&checksum=2dcc4d048e3af826baad07b861ad0d46c35f65f856c9332c71124b8fb7bc849d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "154",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>sizeError</messageKey><message>Meeting name must be between 2 and 256 characters</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 23,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-004&checksum=8d57380a987cb53bee6843324e5dc6b7702d071b7ba2263cae7f9873fe5dbd95",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.validation.name-length-2",
+      "title": "create accepts meeting names of 2 to 256 characters",
+      "endpoint": "create",
+      "class": "contract",
+      "variant": "2",
+      "area": "create",
+      "file": "../../testdata/cases/create/name-length.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 14,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-005&name=nn&checksum=807242e9f35def9ff85ed5f2be8777d37144b2fb5313ded04c1ec244c2ce60f9",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-005</meetingID><internalMeetingID>834591e1f5f81ebc97f12406be74d769a4a18a67-1760000000003</internalMeetingID><attendeePW>ap000003</attendeePW><moderatorPW>mp000003</moderatorPW><createTime>1760000000003</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 23,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-005&checksum=83debb9313c8e151070c1cdce61fb478ed27c6313300274d98e2c6b1e809ba9c",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.validation.name-length-256",
+      "title": "create accepts meeting names of 2 to 256 characters",
+      "endpoint": "create",
+      "class": "contract",
+      "variant": "256",
+      "area": "create",
+      "file": "../../testdata/cases/create/name-length.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 14,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-006&name=nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn&checksum=c3742eef79f458ae55ac00ceeec379fd2fb4f64fb5734c19df14d1ab41f4305e",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-006</meetingID><internalMeetingID>4202ba8a9e5f38095b5f8423080fee96aefc733e-1760000000004</internalMeetingID><attendeePW>ap000004</attendeePW><moderatorPW>mp000004</moderatorPW><createTime>1760000000004</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 23,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-006&checksum=5a3482a327ae1d3251c36015423beee3329b576148ea3a7dc68ae1e16f074c0c",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.validation.name-length-257",
+      "title": "create accepts meeting names of 2 to 256 characters",
+      "endpoint": "create",
+      "class": "contract",
+      "variant": "257",
+      "area": "create",
+      "file": "../../testdata/cases/create/name-length.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 14,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-007&name=nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn&checksum=01da5783407cff5b73b03b1f008e5f8b4ece92f801e93c57384fa6bb9f5498e0",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "154",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>sizeError</messageKey><message>Meeting name must be between 2 and 256 characters</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 23,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-007&checksum=8bd67d8fd19413e9262e5556323a188c3455ec24a4c51ff18a4ba7d4918533d0",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.props.selected",
+      "title": "Only the selected props are recorded",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/props-select.yaml",
+      "line": 4,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-008&name=Selected&muteOnStart=true&checksum=9669127b8ca2889c0d463b16a5e798773f4c6f13105d597897ddf34a1e487709",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-008</meetingID><internalMeetingID>1fe589f4d1fd3209285fcf6e24db023a3f2f33dc-1760000000005</internalMeetingID><attendeePW>ap000005</attendeePW><moderatorPW>mp000005</moderatorPW><createTime>1760000000005</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "captured": {
+            "intId": "1fe589f4d1fd3209285fcf6e24db023a3f2f33dc-1760000000005"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "bus",
+          "line": 14,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=1fe589f4d1fd3209285fcf6e24db023a3f2f33dc-1760000000005&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000005,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-008\",\"intId\":\"1fe589f4d1fd3209285fcf6e24db023a3f2f33dc-1760000000005\",\"isBreakout\":false,\"name\":\"Selected\"},\"metadataProp\":{\"metadata\":{}},\"password\":{\"moderatorPass\":\"mp000005\",\"viewerPass\":\"ap000005\"},\"recordProp\":{\"keepEvents\":false,\"record\":false},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":true,\"telVoice\":\"70005\",\"voiceConf\":\"70005\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000005}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 22,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-008&checksum=a26fc51465e2297d9fd26faa71181170c1902f2ba1c25c64316026dde64676ea",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.props.mute-on-start",
+      "title": "muteOnStart reaches akka-apps' meeting props",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/props-side-effects.yaml",
+      "line": 3,
+      "status": "SKIP",
+      "reason": "unimplemented: env",
+      "duration_ms": 0
+    },
+    {
+      "id": "create.side-effects.unrecorded",
+      "title": "A meeting that isn't recorded writes no metadata key or marker",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/side-effects-unrecorded.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-010&name=Plain&checksum=74cc270b765bc5afc5b609a68e174bc1fd32832ff7093ca4f6a67e945274579d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-010</meetingID><internalMeetingID>f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006</internalMeetingID><attendeePW>ap000006</attendeePW><moderatorPW>mp000006</moderatorPW><createTime>1760000000006</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "captured": {
+            "intId": "f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "bus",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000006,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-010\",\"intId\":\"f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\",\"isBreakout\":false,\"name\":\"Plain\"},\"metadataProp\":{\"metadata\":{}},\"password\":{\"moderatorPass\":\"mp000006\",\"viewerPass\":\"ap000006\"},\"recordProp\":{\"keepEvents\":false,\"record\":false},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":false,\"telVoice\":\"70006\",\"voiceConf\":\"70006\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000006}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "redis",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "REDIS",
+            "url": "http://fake.test/redis?key=meeting%3Ainfo%3Af853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006"
+          },
+          "document": "{\"key\":\"meeting:info:f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\",\"type\":\"none\",\"ttl\":-2,\"value\":null}",
+          "assertions": [
+            {
+              "what": "redis meeting:info:f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006",
+              "expected": "absent for 1s",
+              "actual": "absent",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 17,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-010&checksum=5dab257ce3fb56d005a1cd7b4eebd340d93aced1e02afb4664562221f9308312",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        },
+        {
+          "index": 4,
+          "kind": "bus",
+          "line": 19,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006&name=MeetingEndedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"meetingId\":\"f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006\"},\"header\":{\"name\":\"MeetingEndedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingEndedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000006}}",
+          "assertions": [
+            {
+              "what": "bus MeetingEndedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "kind": "fs",
+          "line": 20,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "FS",
+            "url": "http://fake.test/fs?path=recording%2Fstatus%2F%2A%2Ff853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006.done"
+          },
+          "document": "{\"found\":false,\"path\":\"recording/status/*/f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006.done\"}",
+          "assertions": [
+            {
+              "what": "fs recording/status/*/f853fa681680ede5d2113992ac2f5f78e70bc097-1760000000006.done",
+              "expected": "none within 1s",
+              "actual": "nothing",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 25,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-010&checksum=5dab257ce3fb56d005a1cd7b4eebd340d93aced1e02afb4664562221f9308312",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "create.side-effects.recorded",
+      "title": "A recorded meeting's props, metadata key and recording marker",
+      "endpoint": "create",
+      "class": "contract",
+      "area": "create",
+      "file": "../../testdata/cases/create/side-effects.yaml",
+      "line": 5,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-011&name=Props&record=true&muteOnStart=true&meta_Color=blue&checksum=66f354c9c5e6e2bfd49bf470d34f672d4151a860021324122c70cf9ba5ba2560",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-011</meetingID><internalMeetingID>9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007</internalMeetingID><attendeePW>ap000007</attendeePW><moderatorPW>mp000007</moderatorPW><createTime>1760000000007</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "captured": {
+            "intId": "9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "bus",
+          "line": 13,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000007,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-011\",\"intId\":\"9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007\",\"isBreakout\":false,\"name\":\"Props\"},\"metadataProp\":{\"metadata\":{\"color\":\"blue\"}},\"password\":{\"moderatorPass\":\"mp000007\",\"viewerPass\":\"ap000007\"},\"recordProp\":{\"keepEvents\":false,\"record\":true},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":true,\"telVoice\":\"70007\",\"voiceConf\":\"70007\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000007}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "voiceConf": "70007"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "redis",
+          "line": 18,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "REDIS",
+            "url": "http://fake.test/redis?key=meeting%3Ainfo%3A9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007"
+          },
+          "document": "{\"key\":\"meeting:info:9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007\",\"type\":\"hash\",\"ttl\":-1,\"value\":{\"color\":\"blue\",\"isBreakout\":\"false\",\"meetingId\":\"uid-011\",\"meetingName\":\"Props\"}}",
+          "assertions": [
+            {
+              "what": "redis meeting:info:9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007",
+              "expected": "present within 5s",
+              "actual": "a hash",
+              "ok": true
+            },
+            {
+              "what": "hash color",
+              "expected": "\"blue\"",
+              "actual": "\"blue\"",
+              "ok": true
+            },
+            {
+              "what": "hash meetingName",
+              "expected": "\"Props\"",
+              "actual": "\"Props\"",
+              "ok": true
+            },
+            {
+              "what": "ttl",
+              "expected": "\"-1\"",
+              "actual": "\"-1\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 22,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-011&checksum=65b2e84241f2e786958efb908a8f71f0af87ac3bd1cc7facf94631c5296825b7",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        },
+        {
+          "index": 4,
+          "kind": "bus",
+          "line": 24,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007&name=MeetingEndedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"meetingId\":\"9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007\"},\"header\":{\"name\":\"MeetingEndedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingEndedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000007}}",
+          "assertions": [
+            {
+              "what": "bus MeetingEndedEvtMsg",
+              "expected": "a message within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "kind": "fs",
+          "line": 25,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "FS",
+            "url": "http://fake.test/fs?path=recording%2Fstatus%2Frecorded%2F9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007.done"
+          },
+          "document": "{\"found\":true,\"path\":\"recording/status/recorded/9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007.done\"}",
+          "assertions": [
+            {
+              "what": "fs recording/status/recorded/9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007.done",
+              "expected": "a file within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "kind": "bus",
+          "line": 27,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "BUS",
+            "url": "http://fake.test/bus?meetingId=9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007&name=MeetingCreatedEvtMsg"
+          },
+          "document": "{\"channel\":\"from-akka-apps-redis-channel\",\"core\":{\"body\":{\"props\":{\"durationProps\":{\"createdDate\":\"Thu Oct 09 08:53:20 UTC 2025\",\"createdTime\":1760000000007,\"duration\":0},\"meetingProp\":{\"extId\":\"uid-011\",\"intId\":\"9461da4572f0409571df7c8f6cbf3720b89429fa-1760000000007\",\"isBreakout\":false,\"name\":\"Props\"},\"metadataProp\":{\"metadata\":{\"color\":\"blue\"}},\"password\":{\"moderatorPass\":\"mp000007\",\"viewerPass\":\"ap000007\"},\"recordProp\":{\"keepEvents\":false,\"record\":true},\"voiceProp\":{\"dialNumber\":\"613-555-1234\",\"muteOnStart\":true,\"telVoice\":\"70007\",\"voiceConf\":\"70007\"}}},\"header\":{\"name\":\"MeetingCreatedEvtMsg\"}},\"envelope\":{\"name\":\"MeetingCreatedEvtMsg\",\"routing\":{\"sender\":\"bbb-apps-akka\"},\"timestamp\":1760000000007}}",
+          "assertions": [
+            {
+              "what": "bus MeetingCreatedEvtMsg count",
+              "expected": "\"1\"",
+              "actual": "\"1\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 32,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-011&checksum=65b2e84241f2e786958efb908a8f71f0af87ac3bd1cc7facf94631c5296825b7",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "end.callback.ended",
+      "title": "Ending a meeting calls back its URLs",
+      "endpoint": "end",
+      "class": "contract",
+      "area": "end",
+      "file": "../../testdata/cases/end/callback.yaml",
+      "line": 6,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 13,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-012&name=Callback&meta_endCallbackUrl=http%3A%2F%2Fsink.test%2Fuid-012-meta%2Fend%3Ffrom%3Dmeta&meetingEndedURL=http%3A%2F%2Fsink.test%2Fuid-012-param&checksum=85b7ab90a573fdee3f65506a7a522663c39c31ff92ab353d90e1fde00391a401",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-012</meetingID><internalMeetingID>10a6d8ab2990070ede019a0a743b4b425964128f-1760000000008</internalMeetingID><attendeePW>ap000008</attendeePW><moderatorPW>mp000008</moderatorPW><createTime>1760000000008</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 20,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-012&checksum=7f076d271f44fb78147312624f5c01a2d01c49ba9bb491aff8caf7178d80d39e",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "sink",
+          "line": 23,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "SINK",
+            "url": "http://fake.test/_received?key=uid-012-meta"
+          },
+          "document": "{\"method\":\"GET\",\"path\":\"/uid-012-meta/end\",\"query\":{\"from\":\"meta\",\"meetingID\":\"uid-012\",\"recordingmarks\":\"false\"}}",
+          "assertions": [
+            {
+              "what": "sink uid-012-meta",
+              "expected": "a request within 5s",
+              "actual": "one",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "marks": "false"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "sink",
+          "line": 30,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "SINK",
+            "url": "http://fake.test/_received?key=uid-012-param"
+          },
+          "document": "{\"method\":\"GET\",\"path\":\"/uid-012-param\",\"query\":{\"meetingID\":\"uid-012\",\"recordingmarks\":\"false\"}}",
+          "assertions": [
+            {
+              "what": "sink uid-012-param count",
+              "expected": "\"1\"",
+              "actual": "\"1\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "kind": "sink",
+          "line": 32,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "SINK",
+            "url": "http://fake.test/_received?key=uid-012-other"
+          },
+          "document": "null",
+          "assertions": [
+            {
+              "what": "sink uid-012-other",
+              "expected": "none within 300ms",
+              "actual": "nothing",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 35,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-012&checksum=7f076d271f44fb78147312624f5c01a2d01c49ba9bb491aff8caf7178d80d39e",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "getMeetingInfo.fields.metadata",
+      "title": "getMeetingInfo lists create's meta_ params with lower-cased keys",
+      "endpoint": "getMeetingInfo",
+      "class": "contract",
+      "area": "getMeetingInfo",
+      "file": "../../testdata/cases/getMeetingInfo/metadata.yaml",
+      "line": 2,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-013&name=Meta&meta_Color=blue&checksum=518c6b90803e0c0c3da3318185329cc87b6ce870818629d27985d8a4867cb23a",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-013</meetingID><internalMeetingID>c405dcf801f01feabd02bcf606c750a742b70ccf-1760000000009</internalMeetingID><attendeePW>ap000009</attendeePW><moderatorPW>mp000009</moderatorPW><createTime>1760000000009</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetingInfo?meetingID=uid-013&checksum=093d4f7602e0fa5397e22164980d631717e320ae260e19983470b492f9b7e1b2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "309",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingName>Meta</meetingName><meetingID>uid-013</meetingID><internalMeetingID>c405dcf801f01feabd02bcf606c750a742b70ccf-1760000000009</internalMeetingID><createTime>1760000000009</createTime><running>false</running><metadata><color>blue</color></metadata></response>"
+          },
+          "assertions": [
+            {
+              "what": "xpath /response/metadata/color",
+              "expected": "\"blue\"",
+              "actual": "\"blue\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 23,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-013&name=Meta&checksum=a19e3be7f9b83a390de06c268c4f44f03086d5edb2234100e68846d985130db4",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.checksum.errors",
+      "title": "getMeetings rejects bad, duplicate and re-encoded checksums",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "area": "getMeetings",
+      "file": "../../testdata/cases/getMeetings/checksum-errors.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa0",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "131",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>checksumError</messageKey><message>Checksums do not match</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"checksumError\"",
+              "actual": "\"checksumError\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2&checksum=1af42d0ccfdb960caedd524edc52e712796e97e9236668e9ef27344120c35aa2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "131",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>checksumError</messageKey><message>Checksums do not match</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"checksumError\"",
+              "actual": "\"checksumError\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "call",
+          "line": 14,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?x=a+b&checksum=a62864df915d90370984ddfbc903548cd1b104143261cc19f7599fbd9ae282c9",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "131",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>checksumError</messageKey><message>Checksums do not match</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"checksumError\"",
+              "actual": "\"checksumError\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 19,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "POST",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?x=a%20b&checksum=a62864df915d90370984ddfbc903548cd1b104143261cc19f7599fbd9ae282c9",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "kind": "call",
+          "line": 24,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "138",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>checksumError</messageKey><message>You must provide the checksum</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "messageKey",
+              "expected": "\"checksumError\"",
+              "actual": "\"checksumError\"",
+              "ok": true
+            },
+            {
+              "what": "message",
+              "expected": "one of \"Checksums do not match\", \"You must provide the checksum\"",
+              "actual": "\"You must provide the checksum\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.checksum.modes-sha1-last",
+      "title": "getMeetings accepts every way of placing a valid checksum",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha1-last",
+      "area": "getMeetings",
+      "file": "../../testdata/cases/getMeetings/checksum-modes.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=947989e8bcec639546fa32860fb7d0242cfd73ed",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.checksum.modes-sha256-first",
+      "title": "getMeetings accepts every way of placing a valid checksum",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha256-first",
+      "area": "getMeetings",
+      "file": "../../testdata/cases/getMeetings/checksum-modes.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?checksum=1047766ff8609e0c04acf4cce5fa28cb41c3c4ec6f4c55fe2d8fb7007a5236c5&a=1&b=2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.checksum.modes-sha384-middle",
+      "title": "getMeetings accepts every way of placing a valid checksum",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha384-middle",
+      "area": "getMeetings",
+      "file": "../../testdata/cases/getMeetings/checksum-modes.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&checksum=725cf2f64ea972fb0a0fadf6469402afcc07d7035eddaf792ede87ddca61e8864cbd8f5f06631cb4bd51a915ed8c3afb&b=2",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getMeetings.checksum.modes-sha512-uppercase",
+      "title": "getMeetings accepts every way of placing a valid checksum",
+      "endpoint": "getMeetings",
+      "class": "contract",
+      "variant": "sha512-uppercase",
+      "area": "getMeetings",
+      "file": "../../testdata/cases/getMeetings/checksum-modes.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getMeetings?a=1&b=2&checksum=D3678631502555BB6F2D7B9CA7C39AD5BC1351A23A73BF86A664EC4A451EDA1081915A5594E415CCB880C0940A84378D70B565CC16BE33B6C6B03EA49BE41DCA",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "155",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetings/><messageKey>noMeetings</messageKey><message>no meetings were found on this server</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "isMeetingRunning.lifecycle.after-end",
+      "title": "isMeetingRunning eventually reports false after end",
+      "endpoint": "isMeetingRunning",
+      "class": "contract",
+      "area": "isMeetingRunning",
+      "file": "../../testdata/cases/isMeetingRunning/after-end.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-019&name=Running&checksum=a383029f2d81167bb4f9613960b30104fa5c31850303d32a8cb9e42b9df2872d",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-019</meetingID><internalMeetingID>91853384d29d8830c9793327b84c87c0a0886256-1760000000010</internalMeetingID><attendeePW>ap000010</attendeePW><moderatorPW>mp000010</moderatorPW><createTime>1760000000010</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 9,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-019&checksum=6545b47469453c1751c42a212df9fb67cf5acc1a38815d81aa93dfb196d20120",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "275",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><messageKey>sentEndMeetingRequest</messageKey><message>A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.</message></response>"
+          },
+          "assertions": [
+            {
+              "what": "messageKey",
+              "expected": "\"sentEndMeetingRequest\"",
+              "actual": "\"sentEndMeetingRequest\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "wait",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 13,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-019&checksum=38e819a5458e632090a8d8d6a7fed40e733cc07f92f306434d7bb93ca336e417",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "77",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><running>false</running></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/running",
+              "expected": "\"false\"",
+              "actual": "\"false\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 28,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-019&checksum=6545b47469453c1751c42a212df9fb67cf5acc1a38815d81aa93dfb196d20120",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join.presence.guest-approved",
+      "title": "A guest waits for a moderator's approval, then joins",
+      "endpoint": "join",
+      "class": "contract",
+      "area": "join",
+      "file": "../../testdata/cases/join/presence-guest.yaml",
+      "line": 3,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 9,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-020&name=Guests&guestPolicy=ASK_MODERATOR&checksum=6ccbd24e11de4fd6e98b1720c23e2f7eee1ac256e1f83a75d6015f4560893eda",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-020</meetingID><internalMeetingID>e6f2fca9783894d41c3bba6dd6023b19db04e055-1760000000011</internalMeetingID><attendeePW>ap000011</attendeePW><moderatorPW>mp000011</moderatorPW><createTime>1760000000011</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "presence",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-020&fullName=Mod&role=MODERATOR&checksum=6673e46cc3fed8a9a792fae9bae7d4c53f69011240e0f71e7521fef08a1cf8bb",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000012",
+              "Set-Cookie": "JSESSIONID=js000012; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000012\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000012\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Mod\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000012\",\"userId\":\"w_000000000012\"}"
+        },
+        {
+          "index": 2,
+          "kind": "presence",
+          "line": 15,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-020&fullName=Eve&role=VIEWER&guest=true&checksum=15570261931d66afe6c13411ff7869249bcb328b0b2810b2a6d123cd9af7d7af",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000013",
+              "Set-Cookie": "JSESSIONID=js000013; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000013\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000013\",\"guest\":true,\"guestStatus\":\"WAIT\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":false,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000013\",\"userId\":\"w_000000000013\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.guestStatus",
+              "expected": "\"WAIT\"",
+              "actual": "\"WAIT\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.joined",
+              "expected": "\"false\"",
+              "actual": "\"false\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "eveId": "w_000000000013"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "graphql",
+          "line": 24,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GRAPHQL",
+            "url": "wss://fake.test/graphql",
+            "body": "{\"query\":\"mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }\",\"variables\":{\"guests\":[{\"guest\":\"w_000000000013\",\"status\":\"ALLOW\"}]},\"operationName\":\"Approve\"}"
+          },
+          "document": "{\"data\":{\"guestUsersSubmitApprovalStatus\":true}}"
+        },
+        {
+          "index": 4,
+          "kind": "presence",
+          "line": 29,
+          "status": "PASS",
+          "duration_ms": 0,
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000013\",\"guest\":true,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Eve\",\"role\":\"VIEWER\",\"sessionToken\":\"st000013\",\"userId\":\"w_000000000013\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.guestStatus",
+              "expected": "\"ALLOW\"",
+              "actual": "\"ALLOW\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.joined",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 37,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-020&checksum=38ee505ac4c7ddbf535ea480ae4a5f83c6f4337c57acba18f229721a46989de8",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join.presence.two-users",
+      "title": "Users joined through the API are in the meeting, and a moderator can make another the presenter",
+      "endpoint": "join",
+      "class": "contract",
+      "area": "join",
+      "file": "../../testdata/cases/join/presence-two-users.yaml",
+      "line": 4,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 10,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-021&name=Presence&checksum=f12914322196cc55a4d66e53805a747d4ea79f5767fb507ef93433e1013d7a8f",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-021</meetingID><internalMeetingID>145d35606cf472d82da18039f6f5ddc718d0e48b-1760000000012</internalMeetingID><attendeePW>ap000014</attendeePW><moderatorPW>mp000014</moderatorPW><createTime>1760000000012</createTime><messageKey></messageKey><message></message></response>"
+          }
+        },
+        {
+          "index": 1,
+          "kind": "presence",
+          "line": 12,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-021&fullName=Ann&role=MODERATOR&checksum=2548b05ec71923bc26765b19accebbf3a404ee440ca2ff06d7ccbb30a46ff37a",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000015",
+              "Set-Cookie": "JSESSIONID=js000015; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000015\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000015\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Ann\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000015\",\"userId\":\"w_000000000015\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.joined",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.role",
+              "expected": "\"MODERATOR\"",
+              "actual": "\"MODERATOR\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "annId": "w_000000000015"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "presence",
+          "line": 21,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-021&fullName=Bob&role=VIEWER&avatarURL=https%3A%2F%2Fimg.example%2Fbob.png&checksum=a40a32619d97d7cbbdccc82395fc1d738dcd13eed4c27257620db86ec2a21a69",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000016",
+              "Set-Cookie": "JSESSIONID=js000016; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000016\">Found</a>.\n\n"
+          },
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000016\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000016\",\"userId\":\"w_000000000016\"}",
+          "captured": {
+            "bobId": "w_000000000016"
+          }
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 26,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/isMeetingRunning?meetingID=uid-021&checksum=e749d0a6174c89408f093a686e7837693b02cf995d9388e6f2b54ff7bcd41a18",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "76",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><running>true</running></response>"
+          },
+          "assertions": [
+            {
+              "what": "xpath /response/running",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "kind": "graphql",
+          "line": 31,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GRAPHQL",
+            "url": "wss://fake.test/graphql",
+            "body": "{\"query\":\"mutation SetPresenter($id: String!) { userSetPresenter(userId: $id) }\",\"variables\":{\"id\":\"w_000000000016\"},\"operationName\":\"SetPresenter\"}"
+          },
+          "document": "{\"data\":{\"userSetPresenter\":true}}"
+        },
+        {
+          "index": 5,
+          "kind": "graphql",
+          "line": 35,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GRAPHQL",
+            "url": "wss://fake.test/graphql",
+            "body": "{\"query\":\"query Me { user_current { presenter avatar } }\",\"operationName\":\"Me\"}"
+          },
+          "document": "{\"data\":{\"user_current\":[{\"avatar\":\"https://img.example/bob.png\",\"presenter\":true}]}}",
+          "assertions": [
+            {
+              "what": "jsonpath $.data.user_current[0].avatar",
+              "expected": "\"https://img.example/bob.png\"",
+              "actual": "\"https://img.example/bob.png\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "kind": "presence",
+          "line": 46,
+          "status": "PASS",
+          "duration_ms": 0,
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000016\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":false,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":true,\"name\":\"Bob\",\"role\":\"VIEWER\",\"sessionToken\":\"st000016\",\"userId\":\"w_000000000016\"}",
+          "assertions": [
+            {
+              "what": "jsonpath $.loggedOut",
+              "expected": "\"true\"",
+              "actual": "\"true\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 53,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-021&checksum=7db4db11fedeed9ec699de6b14cf3b130f03af5c174346c824fd1875c969e986",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join.redirect.session-token",
+      "title": "join redirects with a session token, and its getJoinUrl link works for another user",
+      "endpoint": "join",
+      "class": "contract",
+      "area": "join",
+      "file": "../../testdata/cases/join/session-token.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 8,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/create?meetingID=uid-022&name=Join+test&checksum=86d396470008b566b52c07f2fc9f9c92eb4a965e4ca2c5acd17d660c54103f96",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "326",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><meetingID>uid-022</meetingID><internalMeetingID>fca3c6af13e20b6fde36fa03d98272c14f4f33dd-1760000000013</internalMeetingID><attendeePW>ap000017</attendeePW><moderatorPW>mp000017</moderatorPW><createTime>1760000000013</createTime><messageKey></messageKey><message></message></response>"
+          },
+          "assertions": [
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "kind": "call",
+          "line": 11,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?meetingID=uid-022&fullName=Ann&role=moderator&checksum=09ce3faa9f899145217965dfcb0c54ddcd726e4482954593f39a090610eebd39",
+            "headers": {
+              "User-Agent": "bbb-conform/dev",
+              "X-Forwarded-For": "203.0.113.7"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000018",
+              "Set-Cookie": "JSESSIONID=js000018; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000018\">Found</a>.\n\n"
+          },
+          "assertions": [
+            {
+              "what": "status",
+              "expected": "\"302\"",
+              "actual": "\"302\"",
+              "ok": true
+            },
+            {
+              "what": "header Set-Cookie",
+              "expected": "matching /(?i);\\s*secure/",
+              "actual": "\"JSESSIONID=js000018; Path=/; HttpOnly; Secure\"",
+              "ok": true
+            },
+            {
+              "what": "redirect path",
+              "expected": "matching //html5client//",
+              "actual": "\"/html5client/join\"",
+              "ok": true
+            },
+            {
+              "what": "redirect query sessionToken",
+              "expected": "present",
+              "actual": "\"st000018\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "clientHost": "fake.test",
+            "jsession": "js000018",
+            "sessionToken": "st000018"
+          }
+        },
+        {
+          "index": 2,
+          "kind": "presence",
+          "line": 29,
+          "status": "PASS",
+          "duration_ms": 0,
+          "document": "{\"ejectReasonCode\":null,\"ejected\":null,\"extId\":\"w_000000000018\",\"guest\":false,\"guestStatus\":\"ALLOW\",\"isModerator\":true,\"joinErrorCode\":null,\"joinErrorMessage\":null,\"joined\":true,\"loggedOut\":false,\"name\":\"Ann\",\"role\":\"MODERATOR\",\"sessionToken\":\"st000018\",\"userId\":\"w_000000000018\"}"
+        },
+        {
+          "index": 3,
+          "kind": "call",
+          "line": 30,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/getJoinUrl?sessionToken=st000018&fullName=Bob",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "json",
+            "headers": {
+              "Content-Length": "269",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"response\":{\"message\":\"Join URL provided successfully.\",\"returncode\":\"SUCCESS\",\"url\":\"https://fake.test/bigbluebutton/api/join?\\u0026fullName=Bob\\u0026meetingID=uid-022\\u0026role=VIEWER\\u0026redirect=true\\u0026checksum=909ac46c9c3e932b00d79ea19d4f4ad9c9e6d3be\"}}"
+          },
+          "assertions": [
+            {
+              "what": "format",
+              "expected": "json",
+              "actual": "json",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.response.returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            }
+          ],
+          "captured": {
+            "joinUrl": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-022&role=VIEWER&redirect=true&checksum=909ac46c9c3e932b00d79ea19d4f4ad9c9e6d3be"
+          }
+        },
+        {
+          "index": 4,
+          "kind": "call",
+          "line": 38,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/join?&fullName=Bob&meetingID=uid-022&role=VIEWER&redirect=true&checksum=909ac46c9c3e932b00d79ea19d4f4ad9c9e6d3be",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 302,
+            "format": "text",
+            "headers": {
+              "Content-Length": "85",
+              "Content-Type": "text/html; charset=utf-8",
+              "Location": "https://fake.test/html5client/join?sessionToken=st000019",
+              "Set-Cookie": "JSESSIONID=js000019; Path=/; HttpOnly; Secure"
+            },
+            "body": "<a href=\"https://fake.test/html5client/join?sessionToken=st000019\">Found</a>.\n\n"
+          },
+          "assertions": [
+            {
+              "what": "status",
+              "expected": "\"302\"",
+              "actual": "\"302\"",
+              "ok": true
+            },
+            {
+              "what": "redirect host",
+              "expected": "\"fake.test\"",
+              "actual": "\"fake.test\"",
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "teardown": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 47,
+          "status": "PASS",
+          "attempts": 0,
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/end?meetingID=uid-022&checksum=02686e3fa1574779c1177344ddffcb3f70473de66a4b72529ede83dcc215511b",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "194",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>FAILED</returncode><messageKey>notFound</messageKey><message>We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?</message></response>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stuns.session.unknown-token",
+      "title": "stuns reports an unknown session token at the top level of its JSON",
+      "endpoint": "stuns",
+      "class": "compat",
+      "area": "stuns",
+      "file": "../../testdata/cases/stuns/unknown-token.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 6,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api/stuns?sessionToken=nope",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "json",
+            "headers": {
+              "Content-Length": "101",
+              "Content-Type": "application/json"
+            },
+            "body": "{\"logoutURL\":\"https://fake.test/\",\"message\":\"Could not find conference.\",\"returncode\":\"FAILED\"}"
+          },
+          "assertions": [
+            {
+              "what": "format",
+              "expected": "json",
+              "actual": "json",
+              "ok": true
+            },
+            {
+              "what": "returncode",
+              "expected": "\"FAILED\"",
+              "actual": "\"FAILED\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.message",
+              "expected": "\"Could not find conference.\"",
+              "actual": "\"Could not find conference.\"",
+              "ok": true
+            },
+            {
+              "what": "jsonpath $.logoutURL",
+              "expected": "present",
+              "actual": "\"https://fake.test/\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "version.index.fields",
+      "title": "The version endpoint answers without a checksum",
+      "endpoint": "version",
+      "class": "contract",
+      "area": "version",
+      "file": "../../testdata/cases/version/fields.yaml",
+      "line": 1,
+      "status": "PASS",
+      "duration_ms": 0,
+      "steps": [
+        {
+          "index": 0,
+          "kind": "call",
+          "line": 7,
+          "status": "PASS",
+          "duration_ms": 0,
+          "request": {
+            "method": "GET",
+            "url": "https://fake.test/bigbluebutton/api",
+            "headers": {
+              "Accept": "*/*",
+              "User-Agent": "bbb-conform/dev"
+            }
+          },
+          "response": {
+            "status": 200,
+            "format": "xml",
+            "headers": {
+              "Cache-Control": "no-cache",
+              "Content-Length": "128",
+              "Content-Type": "text/xml;charset=utf-8"
+            },
+            "body": "<response><returncode>SUCCESS</returncode><version>2.0</version><apiVersion>2.0</apiVersion><bbbVersion></bbbVersion></response>"
+          },
+          "assertions": [
+            {
+              "what": "header Content-Type",
+              "expected": "containing \"xml\"",
+              "actual": "\"text/xml;charset=utf-8\"",
+              "ok": true
+            },
+            {
+              "what": "returncode",
+              "expected": "\"SUCCESS\"",
+              "actual": "\"SUCCESS\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/version",
+              "expected": "present",
+              "actual": "\"2.0\"",
+              "ok": true
+            },
+            {
+              "what": "xpath /response/bbbVersion",
+              "expected": "1 value(s)",
+              "actual": "\"\"",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

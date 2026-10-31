@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The methods this route maps (UrlMappings.groovy). Each sends the same stateless,
+# deterministic request, which gets the endpoint's own answer rather than the fallback
+# an unmapped method gets: expect pins that answer, the recording the rest.
+id: putRecordingTextTrack.method.allowed
+title: putRecordingTextTrack answers ${method} with its own handler
+endpoint: putRecordingTextTrack
+class: contract
+tags: [ci]
+variants:
+  - {id: post, vars: {method: POST}}
+steps:
+  - call: putRecordingTextTrack
+    method: "${method}"
+    params: {recordID: "${uid}"}
+    expect: {format: json, jsonpath: {$.response.messageKey: noRecordings}}

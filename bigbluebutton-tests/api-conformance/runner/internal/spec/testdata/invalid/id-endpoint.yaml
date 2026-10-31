@@ -1,0 +1,6 @@
+# want: 2: id "join.x.y" must start with the endpoint, "create."
+id: join.x.y
+title: t
+endpoint: create
+class: contract
+steps: [{call: create}]

@@ -1,0 +1,48 @@
+# bbb-web, on any server. BBB_URL (e.g. https://bbb-ci.test/bigbluebutton/)
+# gives the base URL and API prefix, and BBB_SECRET the salt, as for the
+# Playwright suite. BBB_TAP_URL (e.g. http://10.0.0.5:8099) names the
+# server's tap (bbb-conform tap), for the bus, fs and redis steps, and
+# BBB_SINK_URL the sink (bbb-conform sink) as the server reaches it, for the
+# sink steps (BBB_SINK_READ_URL when the runner reaches it otherwise), with
+# BBB_FIXTURE_URL for the fixtures it serves: without them, those cases are
+# skipped. On the Tier 1 stack (make -C env up),
+# eval "$(make -s -C env env)" sets all of them.
+name: bbb-web
+capabilities: [akka, presence, presentation-conversion]
+# Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
+# authorization hooks can't be reached through nginx, so cases call them on
+# bbb-web itself: set BBB_WEB_DIRECT_URL (e.g. http://127.0.0.1:8090) to run
+# them, or they are skipped as not-routed.
+routes:
+  presentation-upload:       {path: "/bigbluebutton/presentation/{authzToken}/upload"}
+  presentation-test-convert: {path: "/bigbluebutton/presentation/test-convert"}
+  presentation-slides:       {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/slides"}
+  presentation-thumbnails:   {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnails"}
+  presentation-thumbnail:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/thumbnail/{id}"}
+  presentation-png:          {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/png/{id}"}
+  presentation-svgs:         {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svgs"}
+  presentation-svg:          {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/svg/{id}"}
+  presentation-textfiles:    {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles"}
+  presentation-textfile:     {path: "/bigbluebutton/presentation/{conference}/{room}/{presentationName}/textfiles/{id}"}
+  presentation-download:     {path: "/bigbluebutton/presentation/download/{meetingId}/{presId}"}
+  # Removed (#26119); cases check that it stays gone.
+  presentation-delegate:     {path: "/bigbluebutton/presentation/delegate"}
+  texttrack-file:            {path: "/bigbluebutton/textTrack/{token}/{recordId}/{track}"}
+  presentation-check:        {path: "/bigbluebutton/presentation/checkPresentation", baseEnv: BBB_WEB_DIRECT_URL}
+  presentation-authz:        {path: "/bigbluebutton/presentation/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-authz:          {path: "/bigbluebutton/connection/checkAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-graphql-authz:  {path: "/bigbluebutton/connection/checkGraphqlAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  connection-legacy-authz:   {path: "/bigbluebutton/connection/legacyCheckAuthorization", baseEnv: BBB_WEB_DIRECT_URL}
+  texttrack-authz:           {path: "/bigbluebutton/textTrack/validateAuthToken", baseEnv: BBB_WEB_DIRECT_URL}
+# Config profiles some cases need. env/full-install/profile.sh applies one to
+# a packaged server through BBB_EXEC (local, "docker exec -i <container>" or
+# "ssh root@<host>"); without BBB_EXEC their cases are skipped. Another
+# environment points BBB_PROFILE_CMD at its own switcher: the Tier 1 stack's
+# conform.env points it at env/tier1/profile.sh.
+profiles:
+  checksum-sha256-only:  {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" checksum-sha256-only'}
+  reveal-version:        {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" reveal-version'}
+  clamav-scan:           {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan'}
+  guest-unauthenticated: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" guest-unauthenticated'}
+  alt-defaults:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" alt-defaults'}
+  default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

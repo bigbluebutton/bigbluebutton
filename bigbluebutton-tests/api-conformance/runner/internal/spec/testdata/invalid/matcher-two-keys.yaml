@@ -1,0 +1,8 @@
+# want: 8: steps[0].expect.message: maxProperties: got 2, want 1
+id: create.x.y
+title: t
+endpoint: create
+class: contract
+steps:
+  - call: create
+    expect: {message: {exists: true, regex: x}}

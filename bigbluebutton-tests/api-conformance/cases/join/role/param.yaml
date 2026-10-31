@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# The role param sets the user's role, in any case. The role is read from
+# akka-apps' answer to the registration join sends it.
+id: join.role.param
+title: join with role=${roleParam} registers a ${role}
+endpoint: join
+class: contract
+tags: [ci]
+requires: [akka, bus]
+variants:
+  - {id: moderator, vars: {roleParam: moderator, role: MODERATOR}}
+  - {id: viewer, vars: {roleParam: viewer, role: VIEWER}}
+  - {id: upper-case, vars: {roleParam: MODERATOR, role: MODERATOR}}
+  - {id: mixed-case, vars: {roleParam: Viewer, role: VIEWER}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Join role}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: "${roleParam}", redirect: "false"}
+    expect: {returncode: SUCCESS}
+  - bus: {name: UserRegisteredRespMsg, meetingId: "${intId}", within: 5s}
+    expect:
+      jsonpath: {$.core.body.role: "${role}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}

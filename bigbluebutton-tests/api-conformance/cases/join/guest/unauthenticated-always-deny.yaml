@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# Under ALWAYS_DENY guests are refused, moderators too.
+# With authenticatedGuest off, the guest param alone decides: whoever isn't
+# a guest is let in, whatever the policy, and a guest is treated by the
+# policy, even as a moderator.
+# A refusal (guestDeniedAccess) is checked by its expect only.
+id: join.guest.unauthenticated-always-deny
+title: "join under ALWAYS_DENY with authenticatedGuest off: ${who}"
+endpoint: join
+class: contract
+tags: [disruptive]
+requires: [akka]
+profile: guest-unauthenticated
+variants:
+  - {id: guest-moderator, vars: {who: a guest moderator, role: moderator, guest: "true", auth: null, rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
+  - {id: guest, vars: {who: a guest viewer, role: viewer, guest: "true", auth: null, rc: FAILED, key: guestDeniedAccess, status: null, golden: off}}
+  - {id: viewer, vars: {who: a viewer without the guest param, role: viewer, guest: null, auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+  - {id: not-guest, vars: {who: a viewer with guest=false, role: viewer, guest: "false", auth: null, rc: SUCCESS, key: successfullyJoined, status: ALLOW, golden: compare}}
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Guest policy, guestPolicy: ALWAYS_DENY}
+    golden: off
+    expect: {returncode: SUCCESS}
+  - call: join
+    params: {meetingID: "${uid}", fullName: Ann, role: "${role}", guest: "${guest}", auth: "${auth}", redirect: "false"}
+    golden: "${golden}"
+    expect:
+      returncode: "${rc}"
+      messageKey: "${key}"
+      xpath: {/response/guestStatus: "${status}"}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
