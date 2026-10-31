@@ -305,12 +305,19 @@ func (t *Target) completeSink(getenv func(string) string) error {
 	t.SinkURL = strings.TrimSuffix(cmp.Or(t.SinkURL, getenv("BBB_SINK_URL")), "/")
 	t.SinkReadURL = strings.TrimSuffix(cmp.Or(t.SinkReadURL, getenv("BBB_SINK_READ_URL"), t.SinkURL), "/")
 	t.FixtureURL = strings.TrimSuffix(cmp.Or(t.FixtureURL, getenv("BBB_FIXTURE_URL")), "/")
-	for _, f := range []struct{ name, url string }{{"sinkUrl", t.SinkURL}, {"sinkReadUrl", t.SinkReadURL}, {"fixtureUrl", t.FixtureURL}} {
+	for _, f := range []struct {
+		name, url string
+		root      bool // the sink keys requests by their first path segment
+	}{{"sinkUrl", t.SinkURL, true}, {"sinkReadUrl", t.SinkReadURL, true}, {"fixtureUrl", t.FixtureURL, false}} {
 		if f.url == "" {
 			continue
 		}
-		if u, err := url.Parse(f.url); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+		u, err := url.Parse(f.url)
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
 			return fmt.Errorf("%s %q must be an http:// or https:// URL", f.name, f.url)
+		}
+		if f.root && (u.Path != "" || u.RawQuery != "") {
+			return fmt.Errorf("%s %q must be scheme and host only: the sink takes a request's first path segment as its key", f.name, f.url)
 		}
 	}
 	switch {

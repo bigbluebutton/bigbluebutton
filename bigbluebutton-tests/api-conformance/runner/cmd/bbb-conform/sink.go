@@ -38,6 +38,10 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform sink: unexpected argument %q\n", fl.Arg(0))
 		return exitUsage
 	}
+	if *maxMB < 1 || *maxAge <= 0 {
+		fmt.Fprintln(stderr, "bbb-conform sink: --max-mb and --max-age must be positive")
+		return exitUsage
+	}
 	if (*cert == "") != (*key == "") {
 		fmt.Fprintln(stderr, "bbb-conform sink: --cert and --key go together")
 		return exitUsage
@@ -59,9 +63,11 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
 		return exitUsage
 	}
-	srv := &http.Server{Handler: s, ReadHeaderTimeout: 10 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	// Requests end with ctx, so a runner's long-poll or a _delay doesn't
+	// hold up the shutdown.
+	srv := &http.Server{Handler: s, ReadHeaderTimeout: 10 * time.Second, BaseContext: func(net.Listener) context.Context { return ctx }}
 	go func() {
 		<-ctx.Done()
 		sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

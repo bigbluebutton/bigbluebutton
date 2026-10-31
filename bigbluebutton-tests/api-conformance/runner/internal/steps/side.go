@@ -50,8 +50,8 @@ func needsMark(c *spec.Case) bool {
 // usesSink says whether a case has a sink step. It looks from a mark taken
 // before its first step: the sink's last request then.
 func usesSink(c *spec.Case) bool {
-	return slices.ContainsFunc(append(append([]spec.Step{}, c.Steps...), c.Teardown...),
-		func(s spec.Step) bool { return s.Kind == spec.KindSink })
+	isSink := func(s spec.Step) bool { return s.Kind == spec.KindSink }
+	return slices.ContainsFunc(c.Steps, isSink) || slices.ContainsFunc(c.Teardown, isSink)
 }
 
 // usesTap says whether a case's steps, not counting its teardown, have
@@ -189,6 +189,9 @@ func (x *exec) bus(ctx context.Context, phase string, index int, s spec.Step, sr
 func (x *exec) sink(ctx context.Context, phase string, index int, s spec.Step, sr *report.StepResult) {
 	k, e := s.Sink, s.Expect
 	key, err := x.expand(k.Key)
+	if err == nil {
+		err = sink.CheckKey(key)
+	}
 	if err != nil {
 		sr.Status, sr.Message = report.Error, err.Error()
 		return

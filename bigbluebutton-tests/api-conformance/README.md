@@ -78,7 +78,7 @@ tls: {caFile: dev-ca.crt}            # relative to this file; or insecureSkipVer
 capabilities: [akka, presence]       # names a case can require; a misspelt one is an error
 defaultSign: sha256
 sinkUrl: https://sink.test:8444      # the sink as the server reaches it, for ${sinkUrl}
-sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs
+sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs; both scheme and host only
 fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
@@ -339,7 +339,7 @@ It also serves the fixtures cases have the server fetch.
 | `--listen ADDR` | `127.0.0.1:8444`. |
 | `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
-| `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. |
+| `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. Both must be positive. |
 
 **Paths.** The first segment of a request's path is its key:
 
@@ -361,11 +361,12 @@ to an end callback.
 | `_status=N` | Status N (200 to 599). |
 | `_delay=D` | After D, up to 2m. The request is recorded when it arrives, so a server that gives up still counts as having sent it. |
 | `_redirect=URL` | 302, or `_status`, with that Location. |
-| `_failFirst=N` | 500 to the first N requests to the path, then as asked. |
+| `_failFirst=N` | 500 to the first N requests to the path that it still holds, then as asked. Only under a key. |
 | `_type=T` | Content-Type T. |
-| `_size=N` | A generated file's length. |
+| `_size=N` | A generated file's length; only for `fixtures/generated/`. |
 
-An unknown `_` param gets a 400, so a misspelt one isn't ignored. Every
+An unknown or misplaced `_` param gets a 400, so a misspelt one isn't
+ignored. Every
 request to a key is recorded, those it refused included.
 
 - **Test servers only.** The sink has no authentication: anyone who reaches
@@ -907,7 +908,8 @@ A `sink` step checks what the server sent to the target's
 [sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
 the server a URL under `${sinkUrl}` whose first path segment is a key,
 normally made from `${uid}`, and the step looks at the requests under that
-key.
+key. A key is one path segment: no `/`, and neither `fixtures` nor a name
+starting with `_`, which the sink keeps for itself.
 
 ```yaml
 - call: create
@@ -930,10 +932,12 @@ key.
   passes at the first match; `absent: true` takes the whole window, and
   `count` checks how many matched by its end.
 - **What matches:** `method`, `path`, `query` (by name) and `headers` (by
-  name, in any case) narrow what counts.
+  name, in any case, so not a template) narrow what counts.
 - **The document** that `capture` and recordings see is
   `{method, path, query, body}`: `query` holds each name's value, or a list
-  when the name repeats, and `body` is there when the request had one, in
+  when the name repeats, as when bbb-web adds a param the URL already had
+  (match a list with `contains` or `regex`), and `body` is there when the
+  request had one, in
   base64 with `bodyEncoding` when it isn't UTF-8. Headers can be matched
   but aren't recorded or captured: the User-Agent and the like change with
   the server's libraries. The document is `null` when nothing matched.

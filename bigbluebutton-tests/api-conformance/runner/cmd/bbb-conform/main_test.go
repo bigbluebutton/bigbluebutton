@@ -15,7 +15,7 @@ func TestRun(t *testing.T) {
 		inStdout string
 	}{
 		{[]string{"validate", "--cases", "../../testdata/cases"}, exitOK, "ok: 25 case(s) in 18 file(s)"},
-		{[]string{"validate", "--cases", "../../internal/spec/testdata/invalid", "--fixtures", "../../testdata/fixtures"}, exitFailed, "problem(s) in 48 file(s)"},
+		{[]string{"validate", "--cases", "../../internal/spec/testdata/invalid", "--fixtures", "../../testdata/fixtures"}, exitFailed, "problem(s) in 50 file(s)"},
 		{[]string{"validate", "--cases", "../../testdata/smoke", "--golden", "testdata/recordings/smoke"}, exitOK, "is current"},
 		{[]string{"validate", "--cases", "no-such-dir"}, exitUsage, ""},
 		{[]string{"validate", "--cases", "../../testdata/cases", "--fixtures", "no-such-dir"}, exitUsage, ""},
@@ -65,6 +65,8 @@ func TestSinkUsage(t *testing.T) {
 		{"sink", "--key", "server.key"},
 		{"sink", "--fixtures", "no/such/dir"},
 		{"sink", "--listen", "not an address"},
+		{"sink", "--max-mb", "0"},
+		{"sink", "--max-age", "0s"},
 		{"sink", "extra"},
 	} {
 		var stdout, stderr bytes.Buffer

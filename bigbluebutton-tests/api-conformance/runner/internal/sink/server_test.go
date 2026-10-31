@@ -158,7 +158,8 @@ func TestReceivedErrors(t *testing.T) {
 	if _, err := w.client.Received(ctx(t), Query{}); !errors.As(err, &se) || se.Status != http.StatusBadRequest {
 		t.Errorf("no key: %v", err)
 	}
-	for _, p := range []string{"/", "/_nothing", "/_received?key=k&after=-1", "/_received?key=k&wait=soon"} {
+	for _, p := range []string{"/", "/_nothing", "/_received?key=k&after=-1", "/_received?key=k&wait=soon", "/_received?key=_x",
+		"/_received?key=fixtures", "/_received?key=a%2Fb"} {
 		resp, body := w.send(t, "GET", p, "")
 		if resp.StatusCode/100 != 4 || !strings.Contains(body, `"error"`) {
 			t.Errorf("%s: %d %s", p, resp.StatusCode, body)
@@ -189,6 +190,9 @@ func TestModifiers(t *testing.T) {
 		{"/k/a?_delay=1h", 400, "", "", "bad _delay"},
 		{"/k/a?_failFirst=x", 400, "", "", "bad _failFirst"},
 		{"/k/a?_stauts=500", 400, "", "", "unknown modifier _stauts"},
+		{"/k/a?_size=10", 400, "", "", "_size is for generated files"},
+		{"/k/generated/a.txt?_size=10", 400, "", "", "_size is for generated files"},
+		{"/k/fixtures/plugins/manifest.json?_size=10", 400, "", "", "_size is for generated files"},
 		{"/fixtures/plugins/manifest.json?_status=201", 201, "", "application/json", `{"name":"p"}`},
 	}
 	for _, tt := range tests {
@@ -198,6 +202,10 @@ func TestModifiers(t *testing.T) {
 			t.Errorf("%s: %d, Location %q, Content-Type %q, body %q", tt.path, resp.StatusCode,
 				resp.Header.Get("Location"), resp.Header.Get("Content-Type"), body)
 		}
+	}
+	// _failFirst counts what the sink recorded, so it needs a key.
+	if resp, body := w.send(t, "GET", "/fixtures/plugins/manifest.json?_failFirst=1", ""); resp.StatusCode != 400 || !strings.Contains(body, "needs a key") {
+		t.Errorf("_failFirst without a key: %d %q", resp.StatusCode, body)
 	}
 	// Every request to a key is recorded, those it refused included.
 	r, err := w.client.Received(ctx(t), Query{Key: "k"})
@@ -269,14 +277,10 @@ func TestFixtures(t *testing.T) {
 			t.Errorf("%s: %d %q", p, resp.StatusCode, body)
 		}
 	}
-	// Only keyed requests are recorded.
-	r, err := w.client.Received(ctx(t), Query{Key: "fixtures"})
-	if err != nil || len(r.Requests) != 0 {
-		t.Errorf("fixtures key: %+v %v", r, err)
-	}
-	r, err = w.client.Received(ctx(t), Query{Key: "k"})
-	if err != nil || len(r.Requests) != 5 {
-		t.Errorf("k: %d requests, %v", len(r.Requests), err)
+	// Only keyed requests are recorded: the log holds k's and nothing else.
+	r, err := w.client.Received(ctx(t), Query{Key: "k"})
+	if err != nil || len(r.Requests) != 5 || r.Seq != 5 {
+		t.Errorf("k: %d requests, seq %d, %v", len(r.Requests), r.Seq, err)
 	}
 }
 
@@ -313,6 +317,19 @@ func TestGeneratedOverHTTP(t *testing.T) {
 	for _, p := range []string{"/fixtures/generated/a.pdf", "/fixtures/generated/a.pdf?_size=10", "/fixtures/generated/a.txt?_size=-1"} {
 		if resp, body := w.send(t, "GET", p, ""); resp.StatusCode != 400 {
 			t.Errorf("%s: %d %q", p, resp.StatusCode, body)
+		}
+	}
+}
+
+func TestCheckKey(t *testing.T) {
+	for _, key := range []string{"bbbc-0123", "uid-1-meta", "a.b"} {
+		if err := CheckKey(key); err != nil {
+			t.Errorf("%q: %v", key, err)
+		}
+	}
+	for _, key := range []string{"", "a/b", "fixtures", "_received", "_x"} {
+		if err := CheckKey(key); err == nil {
+			t.Errorf("%q was accepted", key)
 		}
 	}
 }

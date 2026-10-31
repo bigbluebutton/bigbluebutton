@@ -36,7 +36,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 	"unicode/utf8"
 )
@@ -65,16 +64,13 @@ type Server struct {
 	instance string
 	log      *Log
 	root     *os.Root
-
-	mu     sync.Mutex
-	served map[string]int // requests per path that asked for _failFirst
 }
 
 // New starts a sink.
 func New(cfg Config) (*Server, error) {
 	b := make([]byte, 8)
 	_, _ = rand.Read(b)
-	s := &Server{cfg: cfg, instance: hex.EncodeToString(b), log: NewLog(cfg.MaxBytes, cfg.MaxAge), served: map[string]int{}}
+	s := &Server{cfg: cfg, instance: hex.EncodeToString(b), log: NewLog(cfg.MaxBytes, cfg.MaxAge)}
 	if cfg.Fixtures != "" {
 		root, err := os.OpenRoot(cfg.Fixtures)
 		if err != nil {
@@ -104,16 +100,30 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case key == "" || strings.HasPrefix(key, "_"):
 		writeJSON(w, nil, http.StatusNotFound, errors.New("no such path: requests go to /<key>/..., fixtures to /fixtures/<path>, and /_received?key=<key> lists a key's requests"))
 	case key == fixturesDir:
-		s.answer(w, r, fixturesDir+"/"+rest)
+		s.answer(w, r, fixturesDir+"/"+rest, 0)
 	default:
-		s.record(r, key)
-		s.answer(w, r, rest)
+		s.answer(w, r, rest, s.record(r, key))
 	}
 }
 
+// CheckKey says why requests can't be recorded under key, or returns nil:
+// a key is the first segment of a request's path, and the sink keeps
+// fixtures and names that start with an underscore for itself.
+func CheckKey(key string) error {
+	switch {
+	case key == "":
+		return errors.New("a sink key can't be empty")
+	case strings.Contains(key, "/"):
+		return fmt.Errorf("sink key %q isn't one path segment", key)
+	case key == fixturesDir || strings.HasPrefix(key, "_"):
+		return fmt.Errorf("the sink keeps %q for itself, so it can't be a key", key)
+	}
+	return nil
+}
+
 // record logs a request under key, with as much of its body as the sink
-// keeps.
-func (s *Server) record(r *http.Request, key string) {
+// keeps, and returns its sequence number.
+func (s *Server) record(r *http.Request, key string) int64 {
 	body, _ := io.ReadAll(io.LimitReader(r.Body, MaxBody))
 	more, _ := io.Copy(io.Discard, io.LimitReader(r.Body, maxDiscard))
 	h := r.Header.Clone()
@@ -127,7 +137,7 @@ func (s *Server) record(r *http.Request, key string) {
 			req.Body, req.BodyEncoding = base64.StdEncoding.EncodeToString(body), "base64"
 		}
 	}
-	s.log.Append(req)
+	return s.log.Append(req)
 }
 
 // modifiers are what a request's query asks of its answer.
@@ -180,9 +190,18 @@ func parseModifiers(q url.Values) (modifiers, error) {
 }
 
 // answer answers a request as its query asks. rest is its path after the
-// key: a fixture when it starts with fixtures/, else nothing.
-func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string) {
+// key: a fixture when it starts with fixtures/, else nothing. seq is the
+// request's number in the log, 0 when it isn't recorded.
+func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string, seq int64) {
 	m, err := parseModifiers(r.URL.Query())
+	name, isFixture := strings.CutPrefix(rest, fixturesDir+"/")
+	switch {
+	case err != nil:
+	case r.URL.Query().Has("_size") && !(isFixture && strings.HasPrefix(name, generatedDir+"/")):
+		err = errors.New("_size is for generated files: fixtures/generated/<name>")
+	case m.failFirst > 0 && seq == 0:
+		err = errors.New("_failFirst needs a key: the sink counts a path's requests in what it recorded")
+	}
 	if err != nil {
 		fail(w, http.StatusBadRequest, err)
 		return
@@ -194,7 +213,7 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string) {
 			return
 		}
 	}
-	if m.failFirst > 0 && s.servedBefore(r.URL.Path) < m.failFirst {
+	if m.failFirst > 0 && s.log.countBefore(r.URL.Path, seq) < m.failFirst {
 		fail(w, http.StatusInternalServerError, errors.New("failing on purpose (_failFirst)"))
 		return
 	}
@@ -206,8 +225,7 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string) {
 	if m.ctype != "" {
 		w.Header().Set("Content-Type", m.ctype)
 	}
-	name, ok := strings.CutPrefix(rest, fixturesDir+"/")
-	if !ok {
+	if !isFixture {
 		if m.ctype == "" {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		}
@@ -231,15 +249,6 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string) {
 	if r.Method != http.MethodHead {
 		io.Copy(w, f.content)
 	}
-}
-
-// servedBefore counts a request to p and returns how many came before it.
-func (s *Server) servedBefore(p string) int {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	n := s.served[p]
-	s.served[p] = n + 1
-	return n
 }
 
 // file is a fixture to send.
@@ -281,8 +290,8 @@ func (s *Server) open(p, size string) (*file, int, error) {
 func (s *Server) received(r *http.Request) (any, int, error) {
 	q := r.URL.Query()
 	key := q.Get("key")
-	if key == "" {
-		return nil, http.StatusBadRequest, errors.New("key is required")
+	if err := CheckKey(key); err != nil {
+		return nil, http.StatusBadRequest, err
 	}
 	if inst := q.Get("instance"); inst != "" && inst != s.instance {
 		return nil, http.StatusConflict, errors.New("the sink restarted: what it recorded before is gone")

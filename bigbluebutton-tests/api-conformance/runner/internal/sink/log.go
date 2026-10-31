@@ -50,6 +50,9 @@ func (l *Log) Append(r Request) int64 {
 		l.bytes -= size(l.entries[drop])
 		drop++
 	}
+	// Reslicing, not copying, keeps a full log's appends cheap: append
+	// moves the live entries to a new array once the old one is used up,
+	// and readers only ever read the part of an array they were handed.
 	l.entries = l.entries[drop:]
 	close(l.wake)
 	l.wake = make(chan struct{})
@@ -81,6 +84,22 @@ func (l *Log) After(seq int64) (entries []Request, truncated bool) {
 		return nil, false
 	}
 	return all[i:], false
+}
+
+// countBefore counts the requests to path numbered before seq that the
+// log still holds.
+func (l *Log) countBefore(path string, seq int64) int {
+	all, _ := l.After(0)
+	n := 0
+	for _, e := range all {
+		if e.Seq >= seq {
+			break
+		}
+		if e.Path == path {
+			n++
+		}
+	}
+	return n
 }
 
 // Wait waits until a request numbered after seq exists, or ctx ends.

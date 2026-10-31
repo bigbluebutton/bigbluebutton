@@ -194,3 +194,15 @@ func TestSinkDown(t *testing.T) {
 		t.Errorf("plain case: %s %s", p.Status, p.Reason)
 	}
 }
+
+// A key that expands to something the sink can't record under is an
+// error, not a miss.
+func TestSinkKeyAtRunTime(t *testing.T) {
+	w := startSink(t, nil)
+	res := w.run(t, `steps:
+  - sink: {key: "${baseUrl}", within: 1s}
+`)
+	if s := res.Steps[0]; res.Status != report.Error || !strings.Contains(s.Message, "isn't one path segment") {
+		t.Errorf("%s: %s", res.Status, s.Message)
+	}
+}

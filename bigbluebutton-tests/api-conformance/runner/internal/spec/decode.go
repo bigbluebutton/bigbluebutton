@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/antchfx/xpath"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/sink"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
 	"github.com/theory/jsonpath"
 	"gopkg.in/yaml.v3"
@@ -246,6 +247,7 @@ func (d *decoder) step(n *yaml.Node, where string) Step {
 	case KindSink:
 		sk := mapGet(n, key)
 		s.Sink = &SinkStep{Key: d.str(mapGet(sk, "key")), Within: duration(mapGet(sk, "within"))}
+		d.sinkKey(mapGet(sk, "key"), s.Sink.Key, where)
 		if e := mapGet(n, "expect"); e != nil {
 			s.Expect = d.sinkExpect(e)
 			d.sideEffectModes(n, e, s.Expect, where)
@@ -572,12 +574,29 @@ func (d *decoder) sinkExpect(n *yaml.Node) *Expect {
 		}
 	}
 	if v := mapGet(n, "headers"); v != nil {
-		for _, m := range d.matcherTable(v, keyHeader) {
+		for i, m := range d.matcherTable(v, keyHeader) {
+			if tmpl.HasExpr(m.Key) {
+				// Matched by its canonical form, which is known only for a
+				// name written out.
+				d.f.errf(v.Content[2*i], "a sink step's header names can't be templates")
+			}
 			m.Key = "$.headers[" + jsonPathName(textproto.CanonicalMIMEHeaderKey(m.Key)) + "]"
 			e.JSONPath = append(e.JSONPath, m)
 		}
 	}
 	return e
+}
+
+// sinkKey checks a sink step's key as far as it can before templates
+// expand: the runner checks the rest when the step runs.
+func (d *decoder) sinkKey(n *yaml.Node, key, where string) {
+	if !tmpl.HasExpr(key) {
+		if err := sink.CheckKey(key); err != nil {
+			d.f.errf(n, "%s: %v", where, err)
+		}
+	} else if strings.Contains(key, "/") {
+		d.f.errf(n, "%s: sink key %q isn't one path segment", where, key)
+	}
 }
 
 // jsonPathName quotes a member name for a JSONPath bracket selector.
