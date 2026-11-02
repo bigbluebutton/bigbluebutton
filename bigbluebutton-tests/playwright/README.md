@@ -134,7 +134,7 @@ The quarantine tags are defined once, as `config.quarantine` in `package.json`; 
 - `@flaky` — genuinely intermittent; passes on retry or under different timing
 - `@need-update` — the covered feature changed or was removed; the test itself needs a rewrite (a comment at the test states what changed)
 - `@known-issue` — the test and its assertions are correct, but a known/suspected product issue makes it fail deterministically (a comment or `linkIssue()` at the test points to the issue)
-- `@setting-required:<setting>` — needs a non-default server setting
+- `@setting-required:<setting>` — needs a server setting the gate's servers do not have; each one has its own `setting-*` nightly job
 - `@only-headed` — cannot run headless (no test carries it at the moment)
 
 Tests tagged `@nightly` cover extended test sets or wait minutes for recording processing or timers, so they are not tagged `@ci` and the gates never select them; `npm run test-nightly` runs them on Chromium. The tests of recording formats other than presentation run only for the formats listed in `RECORDING_FORMATS` (e.g. `presentation,podcast,video,screenshare,notes`).
