@@ -1,5 +1,11 @@
 
-import { throwErrorIfInvalidInput, throwErrorIfNotModerator } from '../imports/validation';
+import {
+  throwErrorIfInvalidInput,
+  throwErrorIfInvalidLocale,
+  throwErrorIfNotModerator,
+  throwErrorIfStringTooLong,
+} from '../imports/validation';
+import { MAX_TRANSCRIPT_ID_LENGTH, MAX_TRANSCRIPT_LENGTH } from '../imports/captionLimits';
 import { RedisMessage } from '../types';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
@@ -15,6 +21,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       {name: 'captionType', type: 'string', required: true},
     ]
 )
+
+  throwErrorIfInvalidLocale(input.locale);
+  throwErrorIfStringTooLong('transcriptId', input.transcriptId, MAX_TRANSCRIPT_ID_LENGTH);
+  throwErrorIfStringTooLong('transcript', input.transcript, MAX_TRANSCRIPT_LENGTH);
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

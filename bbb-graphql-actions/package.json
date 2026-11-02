@@ -7,6 +7,7 @@
   "scripts": {
     "start": "nodemon --watch src --ext ts,json --exec ts-node src/index.ts",
     "build": "tsc",
+    "test": "tsc -p tsconfig.test.json && node --test \"dist-test/**/*.test.js\"",
     "serve": "node dist/index.js"
   },
   "repository": {
