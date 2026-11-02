@@ -4,9 +4,9 @@
 # server's tap (bbb-conform tap), for the bus, fs and redis steps, and
 # BBB_SINK_URL the sink (bbb-conform sink) as the server reaches it, for the
 # sink steps (BBB_SINK_READ_URL when the runner reaches it otherwise), with
-# BBB_FIXTURE_URL for the fixtures it serves: without them, those cases are
-# skipped. On the Tier 1 stack (make -C env up),
-# eval "$(make -s -C env env)" sets all of them.
+# BBB_SINK_HTTP_URL for its plain-HTTP listener and BBB_FIXTURE_URL for the
+# fixtures it serves: without them, those cases are skipped. On the Tier 1
+# stack (make -C env up), eval "$(make -s -C env env)" sets all of them.
 name: bbb-web
 capabilities: [akka, presence, presentation-conversion]
 # Routes come from UrlMappings.groovy and bbb-web.nginx. The nginx-internal
@@ -45,4 +45,5 @@ profiles:
   clamav-scan:           {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" clamav-scan'}
   guest-unauthenticated: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" guest-unauthenticated'}
   alt-defaults:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" alt-defaults'}
+  fetch-http:            {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-http'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}

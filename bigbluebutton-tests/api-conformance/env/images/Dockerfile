@@ -170,7 +170,7 @@ HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
 FROM base AS sink
 COPY --from=runner-build /bbb-conform /usr/local/bin/bbb-conform
 USER bigbluebutton
-CMD ["bbb-conform", "sink", "--listen", "0.0.0.0:8444", "--fixtures", "/fixtures", \
+CMD ["bbb-conform", "sink", "--listen", "0.0.0.0:8444", "--listen-http", "0.0.0.0:8445", "--fixtures", "/fixtures", \
      "--cert", "/etc/bigbluebutton/conform/certs/server.crt", "--key", "/etc/bigbluebutton/conform/certs/server.key"]
 HEALTHCHECK --interval=2s --timeout=5s --start-period=30s \
   CMD curl -fsS --cacert /etc/bigbluebutton/conform/certs/ca.crt https://sink.test:8444/_info -o /dev/null

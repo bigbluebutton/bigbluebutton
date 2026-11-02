@@ -202,7 +202,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
@@ -228,7 +228,9 @@ access for the first build.
     (`BBB_SINK_READ_URL`). All four are bound to the host's loopback only;
   - bbb-web reaches the sink as `https://sink.test:8444` (`BBB_SINK_URL`),
     a name the stack's hosts file gives it and nginx's certificate names.
-    The sink serves `fixtures/` (`BBB_FIXTURE_URL`).
+    The sink serves `fixtures/` (`BBB_FIXTURE_URL`), and plain HTTP on
+    `http://sink.test:8445` (`BBB_SINK_HTTP_URL`), which only the stack
+    reaches.
 - **Its configuration** is a packaged server's, with what bbb-install sets:
   the host and a test salt (`env/tier1/tier1.env`, published on purpose),
   and a TURN server (`env/bbb-web/turn-stun-servers.xml`). Timeouts are the
