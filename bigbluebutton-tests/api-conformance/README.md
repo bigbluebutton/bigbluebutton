@@ -924,7 +924,7 @@ starting with `_`, which the sink keeps for itself.
   expect:
     method: GET
     query: {meetingID: "${uid}", recordingmarks: "false"}
-    headers: {user-agent: {regex: "Apache-HttpClient"}}
+    headers: {accept-language: {regex: "^en-US"}}
   capture: {marks: $.query.recordingmarks}
 - sink: {key: "${uid}-unused", within: 1s}
   expect: {absent: true}
