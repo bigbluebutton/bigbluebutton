@@ -188,7 +188,9 @@ func TestModifiers(t *testing.T) {
 		{"/k/a?_status=99", 400, "", "", "bad _status"},
 		{"/k/a?_status=200&_redirect=https://example.test", 400, "", "", "isn't a redirect"},
 		{"/k/a?_delay=1h", 400, "", "", "bad _delay"},
-		{"/k/a?_failFirst=x", 400, "", "", "bad _failFirst"},
+		{"/k/a?_status=500&_first=x", 400, "", "", "bad _first"},
+		{"/k/a?_status=500&_first=0", 400, "", "", "bad _first"},
+		{"/k/a?_first=1", 400, "", "", "none is given"},
 		{"/k/a?_stauts=500", 400, "", "", "unknown modifier _stauts"},
 		{"/k/a?_size=10", 400, "", "", "_size is for generated files"},
 		{"/k/generated/a.txt?_size=10", 400, "", "", "_size is for generated files"},
@@ -203,9 +205,9 @@ func TestModifiers(t *testing.T) {
 				resp.Header.Get("Location"), resp.Header.Get("Content-Type"), body)
 		}
 	}
-	// _failFirst counts what the sink recorded, so it needs a key.
-	if resp, body := w.send(t, "GET", "/fixtures/plugins/manifest.json?_failFirst=1", ""); resp.StatusCode != 400 || !strings.Contains(body, "needs a key") {
-		t.Errorf("_failFirst without a key: %d %q", resp.StatusCode, body)
+	// _first counts what the sink recorded, so it needs a key.
+	if resp, body := w.send(t, "GET", "/fixtures/plugins/manifest.json?_status=500&_first=1", ""); resp.StatusCode != 400 || !strings.Contains(body, "needs a key") {
+		t.Errorf("_first without a key: %d %q", resp.StatusCode, body)
 	}
 	// Every request to a key is recorded, those it refused included.
 	r, err := w.client.Received(ctx(t), Query{Key: "k"})
@@ -214,18 +216,33 @@ func TestModifiers(t *testing.T) {
 	}
 }
 
-func TestFailFirst(t *testing.T) {
+func TestFirst(t *testing.T) {
 	w := startWorld(t)
 	var got []int
 	for range 4 {
-		resp, _ := w.send(t, "GET", "/k/cb?_failFirst=2", "")
+		resp, _ := w.send(t, "GET", "/k/cb?_status=500&_first=2", "")
 		got = append(got, resp.StatusCode)
 	}
 	// Another path counts on its own.
-	resp, _ := w.send(t, "GET", "/k/other?_failFirst=1", "")
+	resp, _ := w.send(t, "GET", "/k/other?_status=500&_first=1", "")
 	got = append(got, resp.StatusCode)
-	if want := "[500 500 200 200 500]"; fmt.Sprint(got) != want {
+	// A redirect, too, is for the first requests only.
+	for range 2 {
+		resp, _ := w.send(t, "GET", "/k/moved?_redirect=https://example.test/x&_first=1", "")
+		got = append(got, resp.StatusCode)
+	}
+	if want := "[500 500 200 200 500 302 200]"; fmt.Sprint(got) != want {
 		t.Errorf("statuses %v, want %s", got, want)
+	}
+	// So is a delay: the second request is answered at once.
+	var took []time.Duration
+	for range 2 {
+		start := time.Now()
+		w.send(t, "GET", "/k/slow?_delay=300ms&_first=1", "")
+		took = append(took, time.Since(start))
+	}
+	if took[0] < 300*time.Millisecond || took[1] >= 300*time.Millisecond {
+		t.Errorf("answered after %v, want the first delayed and the second not", took)
 	}
 }
 

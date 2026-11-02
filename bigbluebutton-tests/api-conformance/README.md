@@ -361,8 +361,8 @@ to an end callback.
 | `_status=N` | Status N (200 to 599). |
 | `_delay=D` | After D, up to 2m. The request is recorded when it arrives, so a server that gives up still counts as having sent it. |
 | `_redirect=URL` | 302, or `_status`, with that Location. |
-| `_failFirst=N` | 500 to the first N requests to the path that it still holds, then as asked. Only under a key. |
 | `_type=T` | Content-Type T. |
+| `_first=N` | The params above apply to the first N requests to the path that it still holds; later ones get a plain answer. `_status=500&_first=1` fails once, then succeeds. Only under a key. |
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
 
 An unknown or misplaced `_` param gets a 400, so a misspelt one isn't

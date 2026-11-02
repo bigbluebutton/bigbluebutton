@@ -142,15 +142,20 @@ func (s *Server) record(r *http.Request, key string) int64 {
 
 // modifiers are what a request's query asks of its answer.
 type modifiers struct {
-	status    int           // _status: the answer's status
-	delay     time.Duration // _delay: how long to wait before answering
-	redirect  string        // _redirect: a Location to send, with a 302 or _status
-	failFirst int           // _failFirst: how many requests to the path answer 500 first
-	ctype     string        // _type: the answer's Content-Type
+	status   int           // _status: the answer's status
+	delay    time.Duration // _delay: how long to wait before answering
+	redirect string        // _redirect: a Location to send, with a 302 or _status
+	ctype    string        // _type: the answer's Content-Type
+	first    int           // _first: how many requests to the path the others apply to
 	// _size, a generated file's length, is read where the file is made.
 }
 
-var knownModifiers = []string{"_status", "_delay", "_redirect", "_failFirst", "_type", "_size"}
+// changesAnswer says whether m asks for anything but a plain answer.
+func (m modifiers) changesAnswer() bool {
+	return m.status != 0 || m.delay > 0 || m.redirect != "" || m.ctype != ""
+}
+
+var knownModifiers = []string{"_status", "_delay", "_redirect", "_type", "_first", "_size"}
 
 // parseModifiers reads the query params that start with an underscore.
 // One it doesn't know is an error, so a misspelt one isn't ignored.
@@ -175,16 +180,19 @@ func parseModifiers(q url.Values) (modifiers, error) {
 		}
 		m.delay = d
 	}
-	if v := q.Get("_failFirst"); v != "" {
-		n, err := strconv.Atoi(v)
-		if err != nil || n < 0 {
-			return m, fmt.Errorf("bad _failFirst %q: a number of requests", v)
-		}
-		m.failFirst = n
-	}
 	m.redirect, m.ctype = q.Get("_redirect"), q.Get("_type")
 	if m.redirect != "" && m.status != 0 && m.status/100 != 3 {
 		return m, fmt.Errorf("_status %d isn't a redirect, which _redirect needs", m.status)
+	}
+	if v := q.Get("_first"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 {
+			return m, fmt.Errorf("bad _first %q: a number of requests, at least 1", v)
+		}
+		if !m.changesAnswer() {
+			return m, errors.New("_first limits _status, _delay, _redirect or _type, and none is given")
+		}
+		m.first = n
 	}
 	return m, nil
 }
@@ -199,12 +207,16 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string, seq
 	case err != nil:
 	case r.URL.Query().Has("_size") && !(isFixture && strings.HasPrefix(name, generatedDir+"/")):
 		err = errors.New("_size is for generated files: fixtures/generated/<name>")
-	case m.failFirst > 0 && seq == 0:
-		err = errors.New("_failFirst needs a key: the sink counts a path's requests in what it recorded")
+	case m.first > 0 && seq == 0:
+		err = errors.New("_first needs a key: the sink counts a path's requests in what it recorded")
 	}
 	if err != nil {
 		fail(w, http.StatusBadRequest, err)
 		return
+	}
+	// Past the first N requests to the path, the answer is a plain one.
+	if m.first > 0 && s.log.countBefore(r.URL.Path, seq) >= m.first {
+		m = modifiers{}
 	}
 	if m.delay > 0 {
 		select {
@@ -212,10 +224,6 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string, seq
 		case <-r.Context().Done():
 			return
 		}
-	}
-	if m.failFirst > 0 && s.log.countBefore(r.URL.Path, seq) < m.failFirst {
-		fail(w, http.StatusInternalServerError, errors.New("failing on purpose (_failFirst)"))
-		return
 	}
 	if m.redirect != "" {
 		w.Header().Set("Location", m.redirect)
