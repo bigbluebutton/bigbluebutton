@@ -53,7 +53,7 @@ func TestTapUsage(t *testing.T) {
 // for a real server (eval "$(make -s -C env env)") can't reach the fake
 // targets the tests write.
 func TestMain(m *testing.M) {
-	for _, v := range []string{"BBB_URL", "BBB_SECRET", "BBB_TAP_URL", "BBB_SINK_URL", "BBB_SINK_READ_URL", "BBB_FIXTURE_URL", "BBB_WEB_DIRECT_URL"} {
+	for _, v := range []string{"BBB_URL", "BBB_SECRET", "BBB_TAP_URL", "BBB_SINK_URL", "BBB_SINK_READ_URL", "BBB_SINK_HTTP_URL", "BBB_FIXTURE_URL", "BBB_WEB_DIRECT_URL"} {
 		os.Unsetenv(v)
 	}
 	os.Exit(m.Run())
@@ -65,6 +65,8 @@ func TestSinkUsage(t *testing.T) {
 		{"sink", "--key", "server.key"},
 		{"sink", "--fixtures", "no/such/dir"},
 		{"sink", "--listen", "not an address"},
+		{"sink", "--listen-http", "127.0.0.1:0"},
+		{"sink", "--cert", "testdata/no.crt", "--key", "testdata/no.key", "--listen", "127.0.0.1:0", "--listen-http", "not an address"},
 		{"sink", "--max-mb", "0"},
 		{"sink", "--max-age", "0s"},
 		{"sink", "extra"},

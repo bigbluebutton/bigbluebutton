@@ -52,8 +52,8 @@ Each case ends as one of:
 - **ERROR**: the runner couldn't do what the case asked, e.g. the server is
   unreachable or a template didn't expand;
 - **SKIP**, with the reason: a capability the target lacks, a URL the case
-  uses that the target doesn't set (`not-configured: sinkUrl` or
-  `fixtureUrl`), something the runner can't do yet, or an interrupt before
+  uses that the target doesn't set (`not-configured: sinkUrl`,
+  `sinkHttpUrl` or `fixtureUrl`), something the runner can't do yet, or an interrupt before
   the case started.
 
 The exit status is 0 when nothing failed or errored, 1 when something did
@@ -79,6 +79,7 @@ capabilities: [akka, presence]       # names a case can require; a misspelt one 
 defaultSign: sha256
 sinkUrl: https://sink.test:8444      # the sink as the server reaches it, for ${sinkUrl}
 sinkReadUrl: https://localhost:8444  # where the runner reads it, when that differs; both scheme and host only
+sinkHttpUrl: http://sink.test:8445     # the sink's plain-HTTP listener, for ${sinkHttpUrl}; scheme and host only
 fixtureUrl: https://sink.test:8444/fixtures   # for ${fixtureUrl}
 graphqlUrl: wss://bbb.example.com/graphql  # the default: baseUrl's host at /graphql; keep that host, for the join's cookie
 tapUrl: http://10.0.0.5:8099         # the server's tap, for bus, fs and redis steps
@@ -88,8 +89,8 @@ vars:
 
 Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 (e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`; to
-`BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL` and
-`BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
+`BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL`,
+`BBB_SINK_HTTP_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
 `targets/bbb-api.yaml` are set up that way.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
@@ -338,6 +339,7 @@ It also serves the fixtures cases have the server fetch.
 |---|---|
 | `--listen ADDR` | `127.0.0.1:8444`. |
 | `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
+| `--listen-http ADDR` | None. With `--cert`, also serve plain HTTP there, for cases that check the server won't call an `http://` URL (`${sinkHttpUrl}`). Both listeners record into one log. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
 | `--max-mb N`, `--max-age D` | 64 MiB and 2h: how much of what it recorded it keeps. Both must be positive. |
 
@@ -906,7 +908,7 @@ These steps check what a call did outside its answer, through the target's
 
 A `sink` step checks what the server sent to the target's
 [sink](#the-sink-sink): a callback, or a fetch of a fixture. The case gives
-the server a URL under `${sinkUrl}` whose first path segment is a key,
+the server a URL under `${sinkUrl}` (or `${sinkHttpUrl}`) whose first path segment is a key,
 normally made from `${uid}`, and the step looks at the requests under that
 key. A key is one path segment: no `/`, and neither `fixtures` nor a name
 starting with `_`, which the sink keeps for itself.
@@ -1072,7 +1074,7 @@ Any string can contain `${...}`.
 - **Variables:**
   - `${uid}`: unique per case per run, valid as a meetingID;
   - `${salt}`: redacted from reports;
-  - `${baseUrl}`, `${sinkUrl}`, `${fixtureUrl}`;
+  - `${baseUrl}`, `${sinkUrl}`, `${sinkHttpUrl}`, `${fixtureUrl}`;
   - `${target.<name>}`: from the target file's `vars`, where an entry marked
     `secret` is redacted;
   - captures from earlier steps and variant vars.

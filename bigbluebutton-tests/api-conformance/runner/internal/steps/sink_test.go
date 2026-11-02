@@ -111,6 +111,45 @@ func TestSinkSteps(t *testing.T) {
 	}
 }
 
+// ${sinkHttpUrl} is the sink's plain-HTTP listener: a case that uses it is
+// skipped on a target that doesn't name one.
+func TestSinkHTTPURL(t *testing.T) {
+	w := startSink(t, nil)
+	srv := httptest.NewServer(w.fake)
+	defer srv.Close()
+	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkHttpUrl}/${uid}/end"}
+  - call: end
+    params: {meetingID: "${uid}"}
+  - sink: {key: "${uid}", within: 3s}
+    expect: {path: "/${uid}/end"}
+`)), spec.Options{})
+	if len(probs) > 0 {
+		t.Fatalf("problems: %v", probs)
+	}
+	if got := strings.Join(cases[0].Uses, ","); got != "sinkHttpUrl" {
+		t.Errorf("uses %q", got)
+	}
+	for _, tt := range []struct {
+		httpURL string
+		status  report.Status
+		reason  string
+	}{{"", report.Skip, "not-configured: sinkHttpUrl"}, {w.sinkURL, report.Pass, ""}} {
+		tg := w.target(srv.URL)
+		tg.SinkHTTPURL = tt.httpURL
+		r, err := NewRunner(tg, "", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+		res := r.RunCase(context.Background(), cases[0], "uid-http")
+		if res.Status != tt.status || res.Reason != tt.reason {
+			logSteps(t, res)
+			t.Errorf("sinkHttpUrl %q: %s %q, want %s %q", tt.httpURL, res.Status, res.Reason, tt.status, tt.reason)
+		}
+	}
+}
+
 func TestSinkStepFailures(t *testing.T) {
 	w := startSink(t, nil)
 	for _, tt := range []struct {

@@ -184,11 +184,12 @@ func TestTap(t *testing.T) {
 func TestSink(t *testing.T) {
 	tg := Target{Name: "x", BaseURL: "https://h", Salt: "s", Capabilities: []string{"akka"}}
 	err := tg.complete(env(map[string]string{"BBB_SINK_URL": "https://sink.test:8444/", "BBB_SINK_READ_URL": "https://localhost:8444",
-		"BBB_FIXTURE_URL": "https://sink.test:8444/fixtures/"}))
+		"BBB_SINK_HTTP_URL": "http://sink.test:8445/", "BBB_FIXTURE_URL": "https://sink.test:8444/fixtures/"}))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if tg.SinkURL != "https://sink.test:8444" || tg.SinkReadURL != "https://localhost:8444" || tg.FixtureURL != "https://sink.test:8444/fixtures" ||
+	if tg.SinkURL != "https://sink.test:8444" || tg.SinkReadURL != "https://localhost:8444" || tg.SinkHTTPURL != "http://sink.test:8445" ||
+		tg.FixtureURL != "https://sink.test:8444/fixtures" ||
 		strings.Join(tg.Capabilities, ",") != "akka,callbacks" {
 		t.Errorf("from the environment: %+v", tg)
 	}
@@ -209,6 +210,9 @@ func TestSink(t *testing.T) {
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s"}, map[string]string{"BBB_SINK_READ_URL": "https://localhost:8444"}, "needs a sinkUrl"},
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://ci.test/sink"}, nil, "sinkUrl \"https://ci.test/sink\" must be scheme and host only"},
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkReadURL: "https://r/x"}, nil, "sinkReadUrl \"https://r/x\" must be scheme and host only"},
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s"}, map[string]string{"BBB_SINK_HTTP_URL": "http://sink.test:8445"}, "sinkHttpUrl \"http://sink.test:8445\" needs a sinkUrl"},
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkHTTPURL: "https://s:8445"}, nil, "must be an http:// URL"},
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkHTTPURL: "http://s:8445/x"}, nil, "sinkHttpUrl \"http://s:8445/x\" must be scheme and host only"},
 	} {
 		if err := tt.in.complete(env(tt.env)); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("%+v %v: %v", tt.in, tt.env, err)

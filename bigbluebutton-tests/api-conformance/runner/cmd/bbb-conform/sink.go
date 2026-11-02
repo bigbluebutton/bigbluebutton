@@ -23,6 +23,7 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	fl := flag.NewFlagSet("sink", flag.ContinueOnError)
 	fl.SetOutput(stderr)
 	listen := fl.String("listen", "127.0.0.1:8444", "where to serve")
+	listenHTTP := fl.String("listen-http", "", "where to serve plain HTTP as well, with --cert: for cases that check a server won't call an http URL")
 	cert := fl.String("cert", "", "the TLS certificate, for a name the server under test resolves to this host; without one, plain HTTP")
 	key := fl.String("key", "", "the certificate's key")
 	fixtures := fl.String("fixtures", "", `the fixtures directory, served under /fixtures/; "" serves none`)
@@ -46,6 +47,10 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "bbb-conform sink: --cert and --key go together")
 		return exitUsage
 	}
+	if *listenHTTP != "" && *cert == "" {
+		fmt.Fprintln(stderr, "bbb-conform sink: --listen-http needs --cert: without one, --listen serves plain HTTP")
+		return exitUsage
+	}
 	if *fixtures != "" {
 		if st, err := os.Stat(*fixtures); err != nil || !st.IsDir() {
 			fmt.Fprintf(stderr, "bbb-conform sink: fixtures directory %q not found\n", *fixtures)
@@ -63,10 +68,19 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
 		return exitUsage
 	}
+	var httpLn net.Listener
+	if *listenHTTP != "" {
+		if httpLn, err = net.Listen("tcp", *listenHTTP); err != nil {
+			ln.Close()
+			fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
+			return exitUsage
+		}
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	// Requests end with ctx, so a runner's long-poll or a _delay doesn't
-	// hold up the shutdown.
+	// hold up the shutdown. One server serves both listeners, so they share
+	// the log, and Shutdown closes both.
 	srv := &http.Server{Handler: s, ReadHeaderTimeout: 10 * time.Second, BaseContext: func(net.Listener) context.Context { return ctx }}
 	go func() {
 		<-ctx.Done()
@@ -79,14 +93,28 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 		scheme = "https"
 	}
 	fmt.Fprintf(stderr, "bbb-conform sink: serving %s://%s; test servers only\n", scheme, ln.Addr())
-	if *cert != "" {
-		err = srv.ServeTLS(ln, *cert, *key)
-	} else {
-		err = srv.Serve(ln)
+	errs := make(chan error, 2)
+	go func() {
+		if *cert != "" {
+			errs <- srv.ServeTLS(ln, *cert, *key)
+		} else {
+			errs <- srv.Serve(ln)
+		}
+	}()
+	serving := 1
+	if httpLn != nil {
+		fmt.Fprintf(stderr, "bbb-conform sink: serving http://%s as well\n", httpLn.Addr())
+		go func() { errs <- srv.Serve(httpLn) }()
+		serving++
 	}
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
-		return exitFailed
+	code := exitOK
+	for range serving {
+		// The first to fail stops the other.
+		if err := <-errs; err != nil && !errors.Is(err, http.ErrServerClosed) {
+			fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
+			code = exitFailed
+			stop()
+		}
 	}
-	return exitOK
+	return code
 }

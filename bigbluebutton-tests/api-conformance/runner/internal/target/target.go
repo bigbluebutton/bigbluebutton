@@ -41,6 +41,11 @@ type Target struct {
 	// by another name than the server does: BBB_SINK_READ_URL when blank,
 	// else SinkURL.
 	SinkReadURL string `yaml:"sinkReadUrl"`
+	// SinkHTTPURL is the sink's plain-HTTP listener (--listen-http) as the
+	// server reaches it, for ${sinkHttpUrl}, or BBB_SINK_HTTP_URL when
+	// blank: for cases that check the server won't call an http URL. The
+	// runner reads what it records through SinkReadURL.
+	SinkHTTPURL string `yaml:"sinkHttpUrl"`
 	// FixtureURL is where the server fetches fixtures from, for
 	// ${fixtureUrl}, or BBB_FIXTURE_URL when blank.
 	FixtureURL string `yaml:"fixtureUrl"`
@@ -304,11 +309,12 @@ func FillPath(path string, params map[string]string) (string, error) {
 func (t *Target) completeSink(getenv func(string) string) error {
 	t.SinkURL = strings.TrimSuffix(cmp.Or(t.SinkURL, getenv("BBB_SINK_URL")), "/")
 	t.SinkReadURL = strings.TrimSuffix(cmp.Or(t.SinkReadURL, getenv("BBB_SINK_READ_URL"), t.SinkURL), "/")
+	t.SinkHTTPURL = strings.TrimSuffix(cmp.Or(t.SinkHTTPURL, getenv("BBB_SINK_HTTP_URL")), "/")
 	t.FixtureURL = strings.TrimSuffix(cmp.Or(t.FixtureURL, getenv("BBB_FIXTURE_URL")), "/")
 	for _, f := range []struct {
 		name, url string
 		root      bool // the sink keys requests by their first path segment
-	}{{"sinkUrl", t.SinkURL, true}, {"sinkReadUrl", t.SinkReadURL, true}, {"fixtureUrl", t.FixtureURL, false}} {
+	}{{"sinkUrl", t.SinkURL, true}, {"sinkReadUrl", t.SinkReadURL, true}, {"sinkHttpUrl", t.SinkHTTPURL, true}, {"fixtureUrl", t.FixtureURL, false}} {
 		if f.url == "" {
 			continue
 		}
@@ -323,6 +329,10 @@ func (t *Target) completeSink(getenv func(string) string) error {
 	switch {
 	case t.SinkURL == "" && t.SinkReadURL != "":
 		return fmt.Errorf("sinkReadUrl %q needs a sinkUrl, the sink as the server reaches it", t.SinkReadURL)
+	case t.SinkURL == "" && t.SinkHTTPURL != "":
+		return fmt.Errorf("sinkHttpUrl %q needs a sinkUrl: the runner reads what the sink recorded through it", t.SinkHTTPURL)
+	case strings.HasPrefix(t.SinkHTTPURL, "https:"):
+		return fmt.Errorf("sinkHttpUrl %q must be an http:// URL: it is the sink's plain-HTTP listener", t.SinkHTTPURL)
 	case t.SinkURL != "" && !t.Has("callbacks"):
 		t.Capabilities = append(t.Capabilities, "callbacks")
 	case t.SinkURL == "" && t.Has("callbacks"):

@@ -234,6 +234,8 @@ func (r *Runner) lookupTarget(name string) (string, bool) {
 		return t.BaseURL, true
 	case "sinkUrl":
 		return t.SinkURL, t.SinkURL != ""
+	case "sinkHttpUrl":
+		return t.SinkHTTPURL, t.SinkHTTPURL != ""
 	case "fixtureUrl":
 		return t.FixtureURL, t.FixtureURL != ""
 	}

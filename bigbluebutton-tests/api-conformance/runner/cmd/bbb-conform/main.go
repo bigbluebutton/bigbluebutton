@@ -15,7 +15,7 @@
 //	bbb-conform validate [--cases DIR] [--fixtures DIR] [--golden DIR]
 //	bbb-conform tap [--listen ADDR] [--redis URL] [--data-dir DIR] [--watch DIR,..]
 //	                [--channels CH,..] [--redis-keys GLOB,..] [--max-mb N] [--max-age D]
-//	bbb-conform sink [--listen ADDR] [--cert FILE --key FILE] [--fixtures DIR] [--max-mb N] [--max-age D]
+//	bbb-conform sink [--listen ADDR] [--cert FILE --key FILE [--listen-http ADDR]] [--fixtures DIR] [--max-mb N] [--max-age D]
 //	bbb-conform version
 package main
 
