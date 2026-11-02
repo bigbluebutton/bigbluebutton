@@ -55,6 +55,13 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.lateJoinerLoadsOlderMessages();
   });
 
+  test('Late joiner loads messages in server sequence', async ({ browser, context, page }, testInfo) => {
+    linkIssue(26134);
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page, { testInfo });
+    await chat.lateJoinerLoadsMessagesInSequence();
+  });
+
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sending-empty-chat-message-automated
   test('Not able to send an empty message', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
