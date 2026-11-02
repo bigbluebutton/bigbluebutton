@@ -57,7 +57,13 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 			return exitUsage
 		}
 	}
-	s, err := sink.New(sink.Config{Fixtures: *fixtures, MaxBytes: *maxMB << 20, MaxAge: *maxAge})
+	// The listener that serves plain HTTP: --listen-http, or --listen
+	// itself without a certificate.
+	plain := *listenHTTP
+	if *cert == "" {
+		plain = *listen
+	}
+	s, err := sink.New(sink.Config{Fixtures: *fixtures, MaxBytes: *maxMB << 20, MaxAge: *maxAge, HTTPAddr: plain})
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
 		return exitUsage
@@ -78,25 +84,37 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	return serveSink(ctx, s, ln, httpLn, *cert, *key, stderr)
+}
+
+// serveSink serves s on ln, over TLS when given a certificate, and on
+// httpLn, when there is one, over plain HTTP, until ctx ends or a listener
+// fails. One server serves both, so they share the log, and shutting it
+// down closes both. It returns once the server has shut down, so s
+// outlives every request it was answering.
+func serveSink(ctx context.Context, s *sink.Server, ln, httpLn net.Listener, cert, key string, stderr io.Writer) int {
+	ctx, stop := context.WithCancel(ctx)
+	defer stop()
 	// Requests end with ctx, so a runner's long-poll or a _delay doesn't
-	// hold up the shutdown. One server serves both listeners, so they share
-	// the log, and Shutdown closes both.
+	// hold up the shutdown.
 	srv := &http.Server{Handler: s, ReadHeaderTimeout: 10 * time.Second, BaseContext: func(net.Listener) context.Context { return ctx }}
+	shutDown := make(chan struct{})
 	go func() {
+		defer close(shutDown)
 		<-ctx.Done()
 		sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		srv.Shutdown(sctx)
 	}()
 	scheme := "http"
-	if *cert != "" {
+	if cert != "" {
 		scheme = "https"
 	}
 	fmt.Fprintf(stderr, "bbb-conform sink: serving %s://%s; test servers only\n", scheme, ln.Addr())
 	errs := make(chan error, 2)
 	go func() {
-		if *cert != "" {
-			errs <- srv.ServeTLS(ln, *cert, *key)
+		if cert != "" {
+			errs <- srv.ServeTLS(ln, cert, key)
 		} else {
 			errs <- srv.Serve(ln)
 		}
@@ -116,5 +134,7 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 			stop()
 		}
 	}
+	stop()
+	<-shutDown
 	return code
 }

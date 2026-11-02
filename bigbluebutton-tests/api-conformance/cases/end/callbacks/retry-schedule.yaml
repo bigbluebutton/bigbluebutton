@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # An end callback that keeps failing is tried five times in all, 30
 # seconds, 1, 2 and 5 minutes apart, and then given up: no sixth attempt
-# comes a minute after the fifth.
+# comes in the 6 minutes after the fifth, longer than the last gap.
 id: end.callbacks.retry-schedule
 title: An end callback that keeps failing is tried five times, then given up
 endpoint: end
@@ -24,7 +24,7 @@ steps:
   - sink: {key: "${uid}", within: 9m30s}
     golden: off
     expect: {count: 5}
-  - sink: {key: "${uid}", within: 1m}
+  - sink: {key: "${uid}", within: 6m}
     golden: off
     expect: {count: 5}
 teardown:

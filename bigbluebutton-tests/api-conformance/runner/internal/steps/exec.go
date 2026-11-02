@@ -8,7 +8,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"net/url"
 	osexec "os/exec"
 	"slices"
 	"sort"
@@ -78,9 +80,13 @@ type Runner struct {
 	// Restoring the default profile still finishes.
 	Abort context.Context
 	// tapDown is why the tap didn't answer before the run, so its cases
-	// don't each wait for it; sinkDown the same for the sink.
-	tapDown  error
-	sinkDown error
+	// don't each wait for it; sinkDown the same for the sink. sinkHTTPDown
+	// is why the cases that use the sink's plain-HTTP listener can't run:
+	// the sink has none, so a check that nothing reached it would pass
+	// whatever the server did.
+	tapDown      error
+	sinkDown     error
+	sinkHTTPDown error
 }
 
 // Observed is one response, with what diff and record mode need about it.
@@ -224,6 +230,24 @@ func (r *Runner) skipReason(c *spec.Case) string {
 	return ""
 }
 
+// urlPort is the port an http:// URL names, or 80.
+func urlPort(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || u.Port() == "" {
+		return "80"
+	}
+	return u.Port()
+}
+
+// addrPort is the port of a listen address such as 0.0.0.0:8445.
+func addrPort(addr string) string {
+	_, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return addr
+	}
+	return port
+}
+
 // lookupTarget resolves a built-in variable the target supplies.
 func (r *Runner) lookupTarget(name string) (string, bool) {
 	t := r.Target
@@ -260,11 +284,19 @@ func (r *Runner) RunAll(ctx context.Context, cases []*spec.Case, parallel int) *
 		}
 		cancel()
 	}
-	r.sinkDown = nil
+	r.sinkDown, r.sinkHTTPDown = nil, nil
 	if r.Sink != nil && slices.ContainsFunc(cases, func(c *spec.Case) bool { return usesSink(c) && r.skipReason(c) == "" }) {
 		pctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		if _, err := r.Sink.Info(pctx); err != nil {
+		info, err := r.Sink.Info(pctx)
+		switch {
+		case err != nil:
 			r.sinkDown = fmt.Errorf("the sink at %s didn't answer before the run: %w", r.Target.SinkReadURL, err)
+		case info.HTTP == "":
+			r.sinkHTTPDown = fmt.Errorf("the target names sinkHttpUrl %s, but the sink at %s serves no plain HTTP (bbb-conform sink --listen-http)",
+				r.Target.SinkHTTPURL, r.Target.SinkReadURL)
+		case r.Target.SinkHTTPURL != "" && urlPort(r.Target.SinkHTTPURL) != addrPort(info.HTTP):
+			r.sinkHTTPDown = fmt.Errorf("the target's sinkHttpUrl %s names port %s, but the sink at %s serves plain HTTP on %s",
+				r.Target.SinkHTTPURL, urlPort(r.Target.SinkHTTPURL), r.Target.SinkReadURL, info.HTTP)
 		}
 		cancel()
 	}
@@ -443,6 +475,10 @@ func (r *Runner) RunCase(ctx context.Context, c *spec.Case, uid string) *report.
 	}
 	if r.sinkDown != nil && usesSink(c) {
 		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.sinkDown.Error())
+		return res
+	}
+	if r.sinkHTTPDown != nil && usesSinkHTTP(c) {
+		res.Status, res.Reason = report.Error, r.Redactor.Redact(r.sinkHTTPDown.Error())
 		return res
 	}
 

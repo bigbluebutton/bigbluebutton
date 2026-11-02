@@ -54,6 +54,12 @@ func usesSink(c *spec.Case) bool {
 	return slices.ContainsFunc(c.Steps, isSink) || slices.ContainsFunc(c.Teardown, isSink)
 }
 
+// usesSinkHTTP says whether a case gives the server a URL on the sink's
+// plain-HTTP listener.
+func usesSinkHTTP(c *spec.Case) bool {
+	return slices.Contains(c.Uses, "sinkHttpUrl")
+}
+
 // usesTap says whether a case's steps, not counting its teardown, have
 // one the tap answers.
 func usesTap(c *spec.Case) bool {

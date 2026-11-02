@@ -212,6 +212,7 @@ func TestSink(t *testing.T) {
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkReadURL: "https://r/x"}, nil, "sinkReadUrl \"https://r/x\" must be scheme and host only"},
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s"}, map[string]string{"BBB_SINK_HTTP_URL": "http://sink.test:8445"}, "sinkHttpUrl \"http://sink.test:8445\" needs a sinkUrl"},
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkHTTPURL: "https://s:8445"}, nil, "must be an http:// URL"},
+		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkHTTPURL: "HTTPS://s:8445"}, nil, "must be an http:// URL"},
 		{Target{Name: "x", BaseURL: "https://h", Salt: "s", SinkURL: "https://s", SinkHTTPURL: "http://s:8445/x"}, nil, "sinkHttpUrl \"http://s:8445/x\" must be scheme and host only"},
 	} {
 		if err := tt.in.complete(env(tt.env)); err == nil || !strings.Contains(err.Error(), tt.want) {

@@ -14,6 +14,9 @@ type Info struct {
 	Instance string `json:"instance"`
 	Seq      int64  `json:"seq"` // the last request recorded
 	Fixtures string `json:"fixtures,omitempty"`
+	// HTTP is where the sink also serves plain HTTP (--listen-http), if
+	// it does.
+	HTTP string `json:"http,omitempty"`
 }
 
 // Request is one request the sink recorded, as it arrived.

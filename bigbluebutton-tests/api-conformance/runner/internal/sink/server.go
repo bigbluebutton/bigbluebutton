@@ -53,6 +53,7 @@ const (
 // Config configures a sink.
 type Config struct {
 	Fixtures string // the fixtures directory; "" serves none
+	HTTPAddr string // where it also serves plain HTTP, for /_info; "" for nowhere
 	MaxBytes int
 	MaxAge   time.Duration
 }
@@ -93,7 +94,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key, rest, _ := strings.Cut(strings.TrimPrefix(r.URL.Path, "/"), "/")
 	switch {
 	case key == "_info":
-		writeJSON(w, Info{Instance: s.instance, Seq: s.log.Last(), Fixtures: s.cfg.Fixtures}, 0, nil)
+		writeJSON(w, Info{Instance: s.instance, Seq: s.log.Last(), Fixtures: s.cfg.Fixtures, HTTP: s.cfg.HTTPAddr}, 0, nil)
 	case key == "_received":
 		v, status, err := s.received(r)
 		writeJSON(w, v, status, err)

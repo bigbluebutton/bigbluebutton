@@ -314,13 +314,18 @@ func (t *Target) completeSink(getenv func(string) string) error {
 	for _, f := range []struct {
 		name, url string
 		root      bool // the sink keys requests by their first path segment
-	}{{"sinkUrl", t.SinkURL, true}, {"sinkReadUrl", t.SinkReadURL, true}, {"sinkHttpUrl", t.SinkHTTPURL, true}, {"fixtureUrl", t.FixtureURL, false}} {
+		plain     bool // the sink's plain-HTTP listener
+	}{{"sinkUrl", t.SinkURL, true, false}, {"sinkReadUrl", t.SinkReadURL, true, false}, {"sinkHttpUrl", t.SinkHTTPURL, true, true},
+		{"fixtureUrl", t.FixtureURL, false, false}} {
 		if f.url == "" {
 			continue
 		}
 		u, err := url.Parse(f.url)
 		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
 			return fmt.Errorf("%s %q must be an http:// or https:// URL", f.name, f.url)
+		}
+		if f.plain && u.Scheme != "http" {
+			return fmt.Errorf("%s %q must be an http:// URL: it is the sink's plain-HTTP listener", f.name, f.url)
 		}
 		if f.root && (u.Path != "" || u.RawQuery != "") {
 			return fmt.Errorf("%s %q must be scheme and host only: the sink takes a request's first path segment as its key", f.name, f.url)
@@ -331,8 +336,6 @@ func (t *Target) completeSink(getenv func(string) string) error {
 		return fmt.Errorf("sinkReadUrl %q needs a sinkUrl, the sink as the server reaches it", t.SinkReadURL)
 	case t.SinkURL == "" && t.SinkHTTPURL != "":
 		return fmt.Errorf("sinkHttpUrl %q needs a sinkUrl: the runner reads what the sink recorded through it", t.SinkHTTPURL)
-	case strings.HasPrefix(t.SinkHTTPURL, "https:"):
-		return fmt.Errorf("sinkHttpUrl %q must be an http:// URL: it is the sink's plain-HTTP listener", t.SinkHTTPURL)
 	case t.SinkURL != "" && !t.Has("callbacks"):
 		t.Capabilities = append(t.Capabilities, "callbacks")
 	case t.SinkURL == "" && t.Has("callbacks"):

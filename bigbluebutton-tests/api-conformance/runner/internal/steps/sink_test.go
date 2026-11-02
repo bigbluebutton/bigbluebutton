@@ -112,11 +112,10 @@ func TestSinkSteps(t *testing.T) {
 }
 
 // ${sinkHttpUrl} is the sink's plain-HTTP listener: a case that uses it is
-// skipped on a target that doesn't name one.
+// skipped on a target that doesn't name one, and fails at once with a sink
+// that serves no plain HTTP, where a check that nothing came would pass
+// whatever the server did.
 func TestSinkHTTPURL(t *testing.T) {
-	w := startSink(t, nil)
-	srv := httptest.NewServer(w.fake)
-	defer srv.Close()
 	cases, probs := spec.LoadBytes("case.yaml", []byte(header(`steps:
   - call: create
     params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkHttpUrl}/${uid}/end"}
@@ -132,21 +131,48 @@ func TestSinkHTTPURL(t *testing.T) {
 		t.Errorf("uses %q", got)
 	}
 	for _, tt := range []struct {
-		httpURL string
-		status  report.Status
-		reason  string
-	}{{"", report.Skip, "not-configured: sinkHttpUrl"}, {w.sinkURL, report.Pass, ""}} {
+		name     string
+		httpURL  bool   // the target names the sink's URL as sinkHttpUrl
+		httpAddr string // where the sink says it serves plain HTTP; "self" for its own listener
+		status   report.Status
+		reason   string
+	}{
+		{"unset", false, "self", report.Skip, "not-configured: sinkHttpUrl"},
+		{"no listener", true, "", report.Error, "serves no plain HTTP"},
+		{"another port", true, "127.0.0.1:1", report.Error, "serves plain HTTP on 127.0.0.1:1"},
+		{"listener", true, "self", report.Pass, ""},
+	} {
+		sinkSrv := httptest.NewUnstartedServer(nil)
+		addr := tt.httpAddr
+		if addr == "self" {
+			addr = sinkSrv.Listener.Addr().String()
+		}
+		s, err := sink.New(sink.Config{MaxBytes: 1 << 20, MaxAge: time.Hour, HTTPAddr: addr})
+		if err != nil {
+			t.Fatal(err)
+		}
+		sinkSrv.Config.Handler = s
+		sinkSrv.Start()
+		fake := fakebbb.New(salt)
+		fake.Callbacks = sinkSrv.Client()
+		srv := httptest.NewServer(fake)
+		w := &sinkWorld{fake: fake, sinkURL: sinkSrv.URL}
 		tg := w.target(srv.URL)
-		tg.SinkHTTPURL = tt.httpURL
+		if tt.httpURL {
+			tg.SinkHTTPURL = sinkSrv.URL
+		}
 		r, err := NewRunner(tg, "", "test")
 		if err != nil {
 			t.Fatal(err)
 		}
-		res := r.RunCase(context.Background(), cases[0], "uid-http")
-		if res.Status != tt.status || res.Reason != tt.reason {
+		res := r.RunAll(context.Background(), cases, 1).Cases[0]
+		if res.Status != tt.status || !strings.Contains(res.Reason, tt.reason) {
 			logSteps(t, res)
-			t.Errorf("sinkHttpUrl %q: %s %q, want %s %q", tt.httpURL, res.Status, res.Reason, tt.status, tt.reason)
+			t.Errorf("%s: %s %q, want %s %q", tt.name, res.Status, res.Reason, tt.status, tt.reason)
 		}
+		srv.Close()
+		sinkSrv.Close()
+		s.Close()
 	}
 }
 

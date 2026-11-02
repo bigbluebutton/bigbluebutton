@@ -354,7 +354,7 @@ It also serves the fixtures cases have the server fetch.
 | `/<key>/fixtures/generated/<name>?_size=N` | Recorded; a file of exactly N bytes (up to 64 MiB) made for the request: a valid one-page PDF for a `.pdf` name, a JSON document for `.json`, lines of text otherwise. A file over an upload limit needs no commit. |
 | `/fixtures/...` | The same files, not recorded. |
 | `/_received?key=K` | The requests recorded under K, as JSON: what `sink` steps read. |
-| `/_info` | The sink's instance and the number of its last request. |
+| `/_info` | The sink's instance, the number of its last request, and where it serves plain HTTP, if it does. |
 
 **Answers.** Query params that start with `_` change the answer. The
 server's own params never do: bbb-web adds `meetingID` and `recordingmarks`
@@ -381,7 +381,10 @@ request to a key is recorded, those it refused included.
   instance, so a case that took its mark before the restart ERRORs.
 
 Before a run, the runner checks that the sink answers; if it doesn't, the
-cases that use it ERROR at once.
+cases that use it ERROR at once. So do the cases that use `${sinkHttpUrl}`
+when the sink serves no plain HTTP, or serves it on another port than
+`sinkHttpUrl` names: their check that nothing came would pass whatever the
+server did.
 
 ## Checking cases
 
