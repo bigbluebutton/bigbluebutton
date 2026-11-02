@@ -119,11 +119,15 @@ export class APIParameters extends MultiUsers {
 
   static async testCreateWithoutNameRefused(request: APIRequestContext) {
     const meetingID = uniqueMeetingID('create-without-name');
-    const { response } = await requestApiCall(request, getApiCallUrl('create', { meetingID }));
-    expect(response.returncode, 'should refuse a create without name').toEqual(['FAILED']);
-    expect(await getMeetingInfo(request, meetingID), 'should not create the meeting').toMatchObject({
-      returncode: ['FAILED'],
-    });
+    try {
+      const { response } = await requestApiCall(request, getApiCallUrl('create', { meetingID }));
+      expect(response.returncode, 'should refuse a create without name').toEqual(['FAILED']);
+      expect(await getMeetingInfo(request, meetingID), 'should not create the meeting').toMatchObject({
+        returncode: ['FAILED'],
+      });
+    } finally {
+      await endMeetings(request, [meetingID]);
+    }
   }
 
   static async testRepeatedCreateParameterRefused(request: APIRequestContext) {

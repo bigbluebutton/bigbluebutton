@@ -4,6 +4,7 @@ import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { startScreenshare } from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
+import { checkAvatarIcon } from '../user/util';
 
 const WELCOME_WITH_KEYWORDS = 'Welcome to %%CONFNAME%%, conference %%CONFNUM%%';
 const DIAL_NUMBER = '+1-613-555-0199';
@@ -125,6 +126,10 @@ export class MeetingParameters extends MultiUsers {
     await this.modPage.hasElement(`${e.makePresenter}:visible`, 'should open the options of the guest');
     if (guestCanBePromoted) {
       await this.modPage.hasElement(promoteOption, 'should offer to promote the guest');
+      await this.userPage2.waitAndClick(e.usersListSidebarButton);
+      await checkAvatarIcon(this.userPage2, false);
+      await this.modPage.waitAndClick(promoteOption);
+      await checkAvatarIcon(this.userPage2);
     } else {
       await this.modPage.wasRemoved(promoteOption, 'should not offer to promote the guest');
     }
