@@ -293,7 +293,7 @@ timestamp=1234567890
 ## Test it
 
 The easiest way to test the web hooks application is to register hooks in your BigBlueButton server
-using the [API Mate](http://mconf.github.io/api-mate/) and capture the callbacks using a 3rd party
+using the [API Mate](https://bigbluebutton.github.io/api-mate/) and capture the callbacks using a 3rd party
 POST catcher, such as [webhook.site](https://webhook.site/).
 There's also a test server available at the bbb-webhooks source code that can be used for catching hooks,
 see: https://github.com/bigbluebutton/bbb-webhooks/blob/develop/extra/interceptor.js.
@@ -301,7 +301,7 @@ see: https://github.com/bigbluebutton/bbb-webhooks/blob/develop/extra/intercepto
 Follow the steps:
 
 * Open your webhooks catcher of choice and copy its endpoint URL.
-* Open [API Mate](http://mconf.github.io/api-mate/) and configure your server and shared secret.
+* Open [API Mate](https://bigbluebutton.github.io/api-mate/) and configure your server and shared secret.
 * On the menu "Custom parameters", there's a field "Custom API calls:". Add these values to it:
 
 ```

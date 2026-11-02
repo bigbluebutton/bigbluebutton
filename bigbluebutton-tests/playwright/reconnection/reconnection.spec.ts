@@ -1,10 +1,9 @@
-import { checkRootPermission } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ANNOTATION_HISTORY_STREAM_FIELD, Reconnection } from './reconnection';
-import { routeGraphqlSockets } from './util';
+import { routeGraphqlSockets, routeServerConnection, SHOW_RECONNECTING_TOAST } from './util';
 
+// the connection is dropped from inside the browser: no root permission needed
 test.describe.parallel('Reconnection', () => {
-  // drops the graphql websocket from inside the browser: no root permission needed
   test(
     'Hidden presentation stays hidden after a reconnection when the slide has annotations',
     { tag: '@ci' },
@@ -17,17 +16,17 @@ test.describe.parallel('Reconnection', () => {
     },
   );
 
-  test('Chat', async ({ browser, context, page }, testInfo) => {
-    await checkRootPermission(); // check sudo permission before starting test
+  test('Chat', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
+    const connection = await routeServerConnection(page);
     const reconnection = new Reconnection(browser, context);
-    await reconnection.initModPage(page, { testInfo });
-    await reconnection.chat();
+    await reconnection.initModPage(page, { testInfo, clientSettingsOverrides: SHOW_RECONNECTING_TOAST });
+    await reconnection.chat(connection);
   });
 
-  test('Audio', async ({ browser, context, page }, testInfo) => {
-    await checkRootPermission(); // check sudo permission before starting test
+  test('Audio', { tag: '@ci' }, async ({ browser, context, page }, testInfo) => {
+    const connection = await routeServerConnection(page);
     const reconnection = new Reconnection(browser, context);
-    await reconnection.initModPage(page, { testInfo });
-    await reconnection.microphone();
+    await reconnection.initModPage(page, { testInfo, clientSettingsOverrides: SHOW_RECONNECTING_TOAST });
+    await reconnection.microphone(connection);
   });
 });

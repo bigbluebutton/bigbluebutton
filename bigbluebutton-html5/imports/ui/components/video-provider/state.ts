@@ -7,6 +7,7 @@ interface State {
   currentVideoPageIndex: number;
   numberOfPages: number;
   pageSize: number;
+  paginationEnabled: boolean;
   userId: string | null;
 }
 
@@ -16,6 +17,7 @@ const videoState = makeVar<State>({
   currentVideoPageIndex: 0,
   numberOfPages: 0,
   pageSize: 0,
+  paginationEnabled: false,
   userId: null,
 });
 

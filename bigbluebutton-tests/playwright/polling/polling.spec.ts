@@ -66,8 +66,21 @@ test.describe.parallel('Polling', { tag: '@ci' }, () => {
     });
   });
 
-  // sometimes fails in 3.1
-  test.describe('Smart Slides', { tag: '@flaky' }, () => {
+  test.describe('Quiz', () => {
+    test('Quiz live results mark correct and incorrect answers', async () => {
+      await polling.quizLiveResults();
+    });
+
+    test('Quiz cannot start without a correct answer', async () => {
+      await polling.quizWithoutCorrectAnswer();
+    });
+
+    test('Quiz results in chat message show the correct answer', async () => {
+      await polling.quizResultsOnChat();
+    });
+  });
+
+  test.describe('Smart Slides', () => {
     test('A/B/C/D/E - One option answer', async () => {
       await polling.oneOptionAnswer();
     });

@@ -143,7 +143,7 @@ class LeaveMeetingButton extends PureComponent {
     const isDisabled = actions.length === 0 && !connected;
 
     return (
-      <Styled.LeaveButtonWrapper>
+      <Styled.LeaveButtonWrapper className="bbb-leave-button">
         <BBBMenu
           customStyles={!ismobile ? customStyles : null}
           trigger={(
@@ -168,6 +168,7 @@ class LeaveMeetingButton extends PureComponent {
           )}
           actions={actions}
           disabled={isDisabled}
+          overrideMobileStyles
           opts={{
             id: 'app-leave-meeting-menu',
             keepMounted: true,

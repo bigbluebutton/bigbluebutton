@@ -16,6 +16,13 @@ import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { RaisedHandUser } from '/imports/ui/Types/user';
+import { Meeting } from '/imports/ui/Types/meeting';
+import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import propsEqualIgnoringFloor from './utils';
 
 interface VideoListContainerProps {
@@ -31,6 +38,12 @@ interface VideoListContainerProps {
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
 }
+
+// A stable projection lets useMeeting reuse its result across renders.
+const projectMeeting = (m: Pick<Partial<Meeting>, 'lockSettings' | 'meetingId'>) => ({
+  lockSettings: m.lockSettings,
+  meetingId: m.meetingId,
+});
 
 const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
@@ -51,6 +64,25 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   } = props;
   const numberOfPages = useNumberOfPages();
   const gridSize = useGridSize();
+
+  // Read once here rather than per tile: a hand toggle then re-renders only the
+  // tiles whose position changed, not every tile's container.
+  const { data: currentUserData } = useCurrentUser((user) => ({ locked: user.locked }));
+  const { data: currentMeeting } = useMeeting(projectMeeting);
+  const { data: raisedHandsData } = useDeduplicatedSubscription<{ user: RaisedHandUser[] }>(RAISED_HAND_USERS);
+  const hideUserList = currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList;
+  const meetingId = currentMeeting?.meetingId;
+  const raisedHandPositions = useMemo(() => {
+    const positions = new Map<string, number>();
+    if (hideUserList || !meetingId) return positions;
+    filterByMeetingId(
+      raisedHandsData?.user,
+      meetingId,
+      RAISED_HAND_USERS,
+      (u) => ({ mismatchedUserId: u.userId }),
+    ).forEach((user, index) => positions.set(user.userId, index + 1));
+    return positions;
+  }, [raisedHandsData, hideUserList, meetingId]);
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
@@ -130,6 +162,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
           gridSize={gridSize}
+          raisedHandPositions={raisedHandPositions}
         />
       )
   );

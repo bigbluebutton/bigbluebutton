@@ -79,7 +79,7 @@ const intlMessages = defineMessages({
   },
   408: {
     id: 'app.presentationUploder.upload.408',
-    description: 'error for token request timeout',
+    description: 'error when no upload token arrived',
   },
   404: {
     id: 'app.presentationUploder.upload.404',
@@ -729,6 +729,7 @@ class PresentationUploader extends Component {
             label={intl.formatMessage(intlMessages.shareLabel)}
             onClick={this.handleConfirm}
             disabled={currentPresentation === activeThumbnailId || !activeThumbnailId}
+            fullWidth
           />
         </ModalStyled.FooterContainer>
       </div>

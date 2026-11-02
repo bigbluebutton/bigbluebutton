@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Icon from '/imports/ui/components/common/icon/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -65,12 +66,11 @@ const RequestUnmuteComponent = ({
     : intl.formatMessage(intlMessages.denyButtonLabel);
 
   return (
-    <Styled.RequestModal
+    <ModalSimple
       isOpen
       priority="high"
       title={intl.formatMessage(intlMessages.modalTitle)}
       onRequestClose={handleDeny}
-      shouldShowCloseButton
     >
       <Styled.Subtitle>
         <FormattedMessage {...intlMessages.modalSubtitle} />
@@ -93,7 +93,7 @@ const RequestUnmuteComponent = ({
           color="danger"
         />
       </Styled.RequestModalContent>
-    </Styled.RequestModal>
+    </ModalSimple>
   );
 };
 

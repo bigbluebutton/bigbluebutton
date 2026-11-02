@@ -1,19 +1,23 @@
-import { exec as childExec } from 'node:child_process';
-import * as util from 'node:util';
-
 import { type Page as PlaywrightPage, type WebSocketRoute } from '@playwright/test';
 
-import { parameters } from '../core/parameters';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { routeLiveKitSignal } from '../core/livekit';
+import { type ClientSettingsOverrides } from '../core/page';
 
-const { hostname } = parameters;
+// the client waits 10 s before it reconnects the graphql websocket
+export const RECONNECTION_TIME = 2 * ELEMENT_WAIT_EXTRA_LONG_TIME;
 
-const exec = util.promisify(childExec);
+// code 3001 (disconnected, reconnecting) is left out of the default showConnectionErrors
+export const SHOW_RECONNECTING_TOAST: ClientSettingsOverrides = {
+  public: { app: { showConnectionErrors: [3001] } },
+};
 
 export interface GraphqlSockets {
   // how many graphql websockets the page has opened so far
   opened: () => number;
-  // closes the open ones, as a lost connection would; the client then reconnects
-  drop: () => void;
+  // closes the open ones, as a lost connection would, and returns how many were open;
+  // the client then reconnects
+  drop: () => number;
   // whether the server has sent a message containing `text` since the last drop
   receivedSinceDrop: (text: string) => boolean;
 }
@@ -47,33 +51,32 @@ export async function routeGraphqlSockets(page: PlaywrightPage, watchedTexts: st
   return {
     opened: () => opened,
     drop: () => {
+      const dropped = open.size;
       receivedSinceDrop.clear();
       open.forEach((socket) => {
         socket.page.close({ code: 1001, reason: 'connection dropped by the test' });
         socket.server.close();
       });
       open.clear();
+      return dropped;
     },
     receivedSinceDrop: (text: string) => receivedSinceDrop.has(text),
   };
 }
 
-export async function killConnection() {
-  if (!hostname) {
-    throw new Error('hostname is undefined; ensure BBB_URL is set');
-  }
-  if (!/^[a-zA-Z0-9.-]+$/.test(hostname)) {
-    throw new Error(`Invalid hostname format: ${hostname}`);
-  }
+export interface ServerConnection {
+  // closes the page's graphql and LiveKit signal sockets, as a network drop would, and
+  // returns how many of each were open; the client reconnects on new ones
+  drop: () => { graphql: number; liveKitSignal: number };
+}
 
-  try {
-    await exec(`
-      sudo ss -K dst ${hostname} dport https;
-      sudo iptables -A OUTPUT -p tcp -d ${hostname} --dport 443 -j DROP;
-      sleep 1;
-      sudo iptables -D OUTPUT -p tcp -d ${hostname} --dport 443 -j DROP;
-      `);
-  } catch (error) {
-    throw new Error(`Failed to kill connection to ${hostname}: ${error}`);
-  }
+// Cuts the page's connection to the server from inside the browser: no root needed, and
+// other pages and workers keep theirs. Call it before the page joins the meeting.
+export async function routeServerConnection(page: PlaywrightPage): Promise<ServerConnection> {
+  const graphqlSockets = await routeGraphqlSockets(page, []);
+  const liveKitSignal = await routeLiveKitSignal(page);
+
+  return {
+    drop: () => ({ graphql: graphqlSockets.drop(), liveKitSignal: liveKitSignal.drop() }),
+  };
 }

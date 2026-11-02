@@ -9,8 +9,6 @@ func TestReconnectionAffectsMembership(t *testing.T) {
 	preserving := []string{
 		"role_changed",
 		"lock_user_changed",
-		"lockSettings_changed",
-		"webcamOnlyForMod_changed",
 		"assigned_presenter",
 		"assigned_presenter_automatically",
 	}
@@ -97,12 +95,12 @@ func TestApplySessionVariablesDiscardsSupersededResult(t *testing.T) {
 
 func TestApplySessionVariablesReplacesMapWholesale(t *testing.T) {
 	bc := &BrowserConnection{}
-	bc.ApplySessionVariables(0, map[string]string{"x-hasura-userlistnotlockedinmeeting": "m1"}, true)
+	bc.ApplySessionVariables(0, map[string]string{"x-hasura-notlockedinmeeting": "m1"}, true)
 
 	// Readers alias this map, so a refresh must swap it rather than merge into the previous one.
 	bc.ApplySessionVariables(0, map[string]string{"x-hasura-role": "bbb_client"}, true)
 
-	if _, carriedOver := bc.BBBWebSessionVariables["x-hasura-userlistnotlockedinmeeting"]; carriedOver {
+	if _, carriedOver := bc.BBBWebSessionVariables["x-hasura-notlockedinmeeting"]; carriedOver {
 		t.Error("a variable absent from the refresh result survived it")
 	}
 }

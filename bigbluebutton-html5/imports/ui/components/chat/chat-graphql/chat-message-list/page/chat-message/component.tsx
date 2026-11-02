@@ -1050,13 +1050,13 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         <ChatContentFooter>
           {!deleteTime && editTime && (
             <Tooltip title={intl.formatTime(editTime)}>
-              <EditLabel>
+              <EditLabel data-test="chatMessageFooterEditedLabel">
                 <Icon iconName="pen_tool" />
                 <span>{intl.formatMessage(intlMessages.edited)}</span>
               </EditLabel>
             </Tooltip>
           )}
-          <ChatTime>
+          <ChatTime data-test="chatMessageFooterTime">
             <FormattedTime value={dateTime} />
           </ChatTime>
         </ChatContentFooter>
@@ -1116,8 +1116,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   return (
     <Container
       data-test="chatMessageItem"
-      className={classNames('chat-message-container', {
+      className={classNames('chat-message-container', 'bbb-chat-message', {
         'chat-message-container-keyboard-focused': keyboardFocused,
+        'bbb-chat-message--own': !!message.user && message.user.userId === Auth.userID,
+        'bbb-chat-message--system': isSystemSender,
       })}
       ref={containerRef}
       $sequence={message.messageSequence}

@@ -1,4 +1,6 @@
-import { getSettingsSingletonInstance, hasPersistedChange } from '/imports/ui/services/settings';
+import {
+  getSettingsSingletonInstance, hasPersistedChange, isSessionScoped,
+} from '/imports/ui/services/settings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import logger from '/imports/startup/client/logger';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
@@ -222,6 +224,13 @@ const getDefaultAudioProcessingMode = () => resolveAudioProcessingMode(
   window.meetingClientSettings.public.app.defaultSettings.audio.processingMode,
 );
 
+// Older records of the filter choice - 3.0's microphoneConstraints, and the
+// copy earlier 4.0 clients wrote next to processingMode - live in the
+// application group, which follows userSettingsStorage. While the audio group
+// is scoped to the session they would carry an old pick into every new
+// meeting, so they only speak under audioFilterStorage: 'local'.
+const isLegacyFilterRecordHonoured = () => !isSessionScoped(SETTINGS.AUDIO);
+
 const getEffectiveAudioProcessingMode = () => {
   const Settings = getSettingsSingletonInstance();
 
@@ -230,7 +239,8 @@ const getEffectiveAudioProcessingMode = () => {
   }
 
   // backwards compatibility
-  if (hasPersistedChange(SETTINGS.APPLICATION, 'audioWasmProcessing')) {
+  if (isLegacyFilterRecordHonoured()
+    && hasPersistedChange(SETTINGS.APPLICATION, 'audioWasmProcessing')) {
     return resolveAudioProcessingMode(
       isAudioFilterEnabled(Settings.application.microphoneConstraints) ? 'standard' : 'original',
     );
@@ -242,17 +252,17 @@ const getEffectiveAudioProcessingMode = () => {
 const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
   const Settings = getSettingsSingletonInstance();
-  const configuredConstraints = window.meetingClientSettings.public
-    .media.audio.microphoneConstraints;
   // Derive from the effective mode rather than the persisted constraints: an
   // 'advanced' pick that later loses WASM support resolves to 'standard', and
   // the all-false constraints it stored must not survive that coercion.
-  // microphoneConstraints only speaks for a pre-4.0 record with no mode of
-  // its own.
+  // microphoneConstraints only speaks for an older record with no mode of
+  // its own (see isLegacyFilterRecordHonoured); media.audio.microphoneConstraints
+  // needs no rung of its own because getConstraintsForMode('standard') already
+  // returns it - honouring it under 'advanced'/'original' would leave the
+  // browser's own filters on.
   const audioDeviceConstraints = hasPersistedChange(SETTINGS.AUDIO, 'processingMode')
     ? getConstraintsForMode(getEffectiveAudioProcessingMode())
-    : Settings.application.microphoneConstraints
-      || configuredConstraints
+    : (isLegacyFilterRecordHonoured() && Settings.application.microphoneConstraints)
       || getConstraintsForMode(getEffectiveAudioProcessingMode());
 
   const matchConstraints = filterSupportedConstraints(

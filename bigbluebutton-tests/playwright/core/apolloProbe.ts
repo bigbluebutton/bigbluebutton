@@ -1,5 +1,7 @@
 import { expect, type Page as PlaywrightPage } from '@playwright/test';
 
+import { type ClientSettingsOverrides } from './page';
+
 /* eslint-disable no-underscore-dangle */
 
 // Generic machinery for probing server state through the in-page Apollo client.
@@ -11,7 +13,7 @@ import { expect, type Page as PlaywrightPage } from '@playwright/test';
 //
 // That client is only published at window-level when enableApolloDevTools is on
 // or the client is a dev bundle, so any spec using this module must enable it
-// via clientSettingsOverride (APOLLO_CLIENT_SETTINGS_MODULE) on meeting create
+// server-side on meeting create (createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE)
 // and guarantee isApolloClientExposed before using this.
 
 interface FieldNode {
@@ -47,11 +49,10 @@ type ApolloQueryWindow = Window & {
   };
 };
 
-export const APOLLO_CLIENT_SETTINGS_MODULE = [
-  '<modules><module name="clientSettingsOverride"><![CDATA[',
-  JSON.stringify({ public: { app: { enableApolloDevTools: true } } }),
-  ']]></module></modules>',
-].join('');
+// Passed as createClientSettingsOverride to Page.init, which also asserts the server applied it.
+export const APOLLO_CLIENT_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: { app: { enableApolloDevTools: true } },
+};
 
 export const isApolloClientExposed = (page: PlaywrightPage, timeout: number): Promise<boolean> =>
   page

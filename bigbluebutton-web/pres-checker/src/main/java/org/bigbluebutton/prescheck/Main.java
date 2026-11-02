@@ -2,7 +2,6 @@ package org.bigbluebutton.prescheck;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFPictureData;

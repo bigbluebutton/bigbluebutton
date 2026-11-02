@@ -281,6 +281,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
           }}
           disabled={isCameraLoading || !availableWebcams || availableWebcams.length === 0 || isTransitioning}
           iconStart={hasCameraAsContent ? <Icon iconName="video_off" /> : undefined}
+          fullWidth
         />
       </ModalStyled.FooterContainer>
     </>

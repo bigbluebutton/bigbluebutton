@@ -4,7 +4,7 @@ import { test } from '../core/setup/fixtures';
 import { Layouts, MOBILE_VIEWPORT } from './layouts';
 
 test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({
+  test('First minimize of presentation shows participant tiles for moderator without audio', async ({
     browser,
     context,
   }, testInfo) => {
@@ -39,7 +39,7 @@ test.describe.parallel('Unified Layout - restored presentation', { tag: '@ci' },
 });
 
 test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({
+  test('First minimize of presentation shows participant tiles for moderator in audio', async ({
     browser,
     context,
   }, testInfo) => {
@@ -185,6 +185,32 @@ test.describe.parallel('Unified Layout - phone landscape propagation', { tag: '@
           testInfo,
         });
         await layouts.phoneLandscapePublishesFinitePresentationVideoRate();
+      } finally {
+        await context.close();
+      }
+    },
+  );
+
+  test(
+    'Rotating a presenting phone keeps its landscape camera dock to itself',
+    { tag: '@media' },
+    async ({ browser }, testInfo) => {
+      linkIssue(25681);
+      const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+      try {
+        const layouts = new Layouts(browser, context);
+        await layouts.configureLayoutMutationProbe();
+        const page = await context.newPage();
+        await layouts.initModPage(page, {
+          createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+          joinParameter: 'userdata-bbb_auto_join_audio=false',
+          shouldCloseAudioModal: false,
+          clientSettingsOverrides: {
+            public: { app: { defaultSettings: { layout: { pushLayout: true } } } },
+          },
+          testInfo,
+        });
+        await layouts.phoneLandscapeKeepsTheMeetingCameraDock();
       } finally {
         await context.close();
       }

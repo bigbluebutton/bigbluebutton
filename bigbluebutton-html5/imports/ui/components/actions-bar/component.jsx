@@ -176,6 +176,7 @@ class ActionsBar extends PureComponent {
 
     return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
+        className="bbb-actions-bar"
         id="ActionsBar"
         role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
@@ -202,14 +203,14 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Left>
+          <Styled.Left className="bbb-actions-bar__left">
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <LocatedErrorBoundary Fallback={AudioCaptionsFallback}>
               <AudioCaptionsButtonContainer />
             </LocatedErrorBoundary>
 
           </Styled.Left>
-          <Styled.Center>
+          <Styled.Center className="bbb-actions-bar__center">
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (
@@ -227,8 +228,8 @@ class ActionsBar extends PureComponent {
             {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
-          <Styled.Right>
-            <Styled.PresentationButtonsWrapper>
+          <Styled.Right className="bbb-actions-bar__right">
+            <Styled.PresentationButtonsWrapper className="bbb-actions-bar__media-buttons">
               {shouldShowPresentationButton && shouldShowOptionsButton
                 && (
                   <PresentationOptionsContainer

@@ -8,7 +8,9 @@ import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
+import AudioModalFooterContext from './context';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
@@ -88,6 +90,9 @@ const propTypes = {
   supportsTransparentListenOnly: PropTypes.bool.isRequired,
   getAudioConstraints: PropTypes.func.isRequired,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  transcriptionNotReady: PropTypes.bool.isRequired,
+  transcriptionNeedsDownload: PropTypes.bool.isRequired,
+  downloadTranscriptionLanguage: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -215,6 +220,9 @@ const AudioModal = ({
   unmuteOnExit = false,
   permissionStatus = null,
   isTranscriptionEnabled,
+  transcriptionNotReady,
+  transcriptionNeedsDownload,
+  downloadTranscriptionLanguage,
   updateInputDevices,
   updateOutputDevices,
 }) => {
@@ -225,6 +233,7 @@ const AudioModal = ({
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [findingDevices, setFindingDevices] = useState(false);
   const [initialJoinExecuted, setInitialJoinExecuted] = useState(false);
+  const [footerContent, setFooterContent] = useState(null);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
 
@@ -437,6 +446,18 @@ const AudioModal = ({
     [hasError, isConnecting, forceListenOnlyAttendee, autoplayChecked, listenOnlyMode],
   );
 
+  // Joining right away with a transcription language first downloads its on-device language
+  // pack, with the modal open until the download ends
+  const handleJoinMicrophoneWithTranscription = () => {
+    if (!transcriptionNeedsDownload) {
+      handleJoinMicrophone();
+      return;
+    }
+    downloadTranscriptionLanguage().then((installed) => {
+      if (installed) handleJoinMicrophone();
+    });
+  };
+
   const renderAudioOptions = () => {
     const hideMicrophone = forceListenOnlyAttendee || audioLocked;
     const arrow = isRTL ? '←' : '→';
@@ -454,10 +475,10 @@ const AudioModal = ({
                 icon="unmute"
                 circle
                 size="jumbo"
-                disabled={audioLocked}
+                disabled={audioLocked || (joinFullAudioImmediately && transcriptionNotReady)}
                 onClick={
                   joinFullAudioImmediately
-                    ? handleJoinMicrophone
+                    ? handleJoinMicrophoneWithTranscription
                     : handleGoToEchoTest
                 }
               />
@@ -551,6 +572,9 @@ const AudioModal = ({
         toggleVoice={voiceToggle}
         permissionStatus={permissionStatus}
         isTranscriptionEnabled={isTranscriptionEnabled}
+        transcriptionNotReady={transcriptionNotReady}
+        transcriptionNeedsDownload={transcriptionNeedsDownload}
+        downloadTranscriptionLanguage={downloadTranscriptionLanguage}
         skipAudioOptions={skipAudioOptions}
         updateInputDevices={updateInputDevices}
         updateOutputDevices={updateOutputDevices}
@@ -718,35 +742,39 @@ const AudioModal = ({
 
   return (
     <Styled.Background isBlurred={Session.getItem('audioModalIsOpen')}>
-      <Styled.AudioModal
+      <ModalSimple
         modalName="AUDIO"
         onRequestClose={closeModal}
-        data-test="audioModal"
+        dataTest="audioModal"
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={title}
-        {...{
-          setIsOpen,
-          isOpen,
-          priority,
-          modalIsOpen: isOpen,
-        }}
+        contentStyle={{ minHeight: '20rem' }}
+        showDividers={content === 'settings'}
+        noFooter={!footerContent}
+        footerContent={footerContent}
+        setIsOpen={setIsOpen}
+        isOpen={isOpen}
+        priority={priority}
+        closeButtonDataTest="closeModal"
       >
-        {isIE ? (
-          <Styled.BrowserWarning>
-            <FormattedMessage
-              id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isn't supported"
-              values={{
-                supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
-                supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
-              }}
-            />
-          </Styled.BrowserWarning>
-        ) : null}
-        <Styled.Content>
-          {renderContent()}
-        </Styled.Content>
-      </Styled.AudioModal>
+        <AudioModalFooterContext.Provider value={{ setFooterContent }}>
+          {isIE ? (
+            <Styled.BrowserWarning>
+              <FormattedMessage
+                id="app.audioModal.unsupportedBrowserLabel"
+                description="Warning when someone joins with a browser that isn't supported"
+                values={{
+                  supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
+                  supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
+                }}
+              />
+            </Styled.BrowserWarning>
+          ) : null}
+          <Styled.Content>
+            {renderContent()}
+          </Styled.Content>
+        </AudioModalFooterContext.Provider>
+      </ModalSimple>
     </Styled.Background>
   );
 };

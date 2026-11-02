@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -67,8 +66,12 @@ const AudioDial = styled(Button)`
 `;
 
 const Connecting = styled.div`
-  margin-top: auto;
-  margin-bottom: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 3rem;
   font-size: 2rem;
   text-align: center;
 `;
@@ -103,11 +106,6 @@ const ConnectingAnimation = styled.span`
       animation: ${ellipsis} steps(4, end) 900ms infinite;
     `}
   }
-`;
-
-const AudioModal = styled(ModalSimple)`
-  padding: 1rem;
-  min-height: 20rem;
 `;
 
 const BrowserWarning = styled.p`
@@ -174,7 +172,6 @@ export default {
   Connecting,
   ConnectingAnimation,
   ConnectingSubtext,
-  AudioModal,
   BrowserWarning,
   Content,
 };

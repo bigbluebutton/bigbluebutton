@@ -254,6 +254,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const reactPlayerPlayingRef = useRef(false);
   const firstPlayRef = useRef(true);
   const [playerUrl, setPlayerUrl] = React.useState('');
+  const [playerName, setPlayerName] = React.useState<string>();
+  const captionsListenerPlayerRef = useRef<unknown>(null);
   const lastCursorRef = useRef<{ position: number, updateAt: number }>({ position: 0, updateAt: 0 });
   // Tracks the last onProgress tick (playedSeconds + wall-clock) so handleProgress
   // can detect a seek the player did not surface via onSeek (every provider except
@@ -615,6 +617,41 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => () => autoplayMuteRecoveryRef.current.releaseGestureListener?.(), []);
 
+  const handleOnReady = (player: ReactPlayer) => {
+    // displayName rather than constructor.name: production builds minify class names, so the
+    // latter never matched there.
+    // @ts-ignore accessing lib private property
+    const name = player?.player?.player?.constructor?.displayName;
+    setPlayerName(name);
+    if (name !== 'YouTube') return;
+
+    // YouTube turns captions on by itself when the video or the viewer defaults to them, so the
+    // subtitles button follows what the player shows: its captions module reports the track it
+    // shows (none while off) and fires onApiChange when it loads or unloads.
+    const internalPlayer = player.getInternalPlayer();
+    const syncSubtitlesOn = () => {
+      setSubtitlesOn(!!internalPlayer?.getOption?.('captions', 'track')?.languageCode);
+    };
+    // onReady fires again for every video the same player loads.
+    if (captionsListenerPlayerRef.current !== internalPlayer) {
+      captionsListenerPlayerRef.current = internalPlayer;
+      internalPlayer?.addEventListener?.('onApiChange', syncSubtitlesOn);
+    }
+    syncSubtitlesOn();
+  };
+
+  const toggleSubtitle = () => {
+    const nextSubtitlesOn = !subtitlesOn;
+    setSubtitlesOn(nextSubtitlesOn);
+    // YouTube's captions module (only YouTube viewers get this toggle).
+    const internalPlayer = playerRef.current?.getInternalPlayer();
+    if (nextSubtitlesOn) {
+      internalPlayer?.setOption?.('captions', 'reload', true);
+    } else {
+      internalPlayer?.unloadModule?.('captions');
+    }
+  };
+
   const handleOnStart = async () => {
     // A start means a fresh player (new video, or a remount via playerKey), so the previous
     // player's autoplay-mute verdict must not carry over, and a gesture listener still waiting on
@@ -882,10 +919,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const isMinimized = width === 0 && height === 0;
 
-  // @ts-ignore accessing lib private property
-  const playerName = playerRef.current && playerRef.current.player
-    // @ts-ignore accessing lib private property
-    && playerRef.current.player.player && playerRef.current.player.player.constructor.name as string;
   let toolbarStyle = 'hoverToolbar';
 
   if (deviceInfo.isMobile && !showHoverToolBar) {
@@ -948,6 +981,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               width="100%"
               ref={playerRef}
               volume={volume}
+              onReady={handleOnReady}
               onStart={handleOnStart}
               onPlay={handleOnPlay}
               onSeek={handleOnSeek}
@@ -975,7 +1009,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               mutedByEchoTest={isEchoTest}
               playing={playing}
               playerName={playerName}
-              toggleSubtitle={() => setSubtitlesOn(!subtitlesOn)}
+              toggleSubtitle={toggleSubtitle}
               playerParent={playerParentRef.current}
               played={played}
               loaded={loaded}

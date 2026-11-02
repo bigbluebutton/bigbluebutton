@@ -32,4 +32,22 @@ test.describe.parallel('Recording indicator', { tag: '@ci' }, () => {
     await recording.initUserPage(context, { ...joinWithoutAudio, testInfo });
     await recording.recordingIndicatorIsReadOnlyForViewers();
   });
+
+  test('Pausing shows the paused state to moderator and viewer and stops the timer', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const recording = new Recording(browser, context);
+    await recording.initModPage(page, { createParameter: c.recordMeeting, ...joinWithoutAudio, testInfo });
+    await recording.initUserPage(context, { ...joinWithoutAudio, testInfo });
+    await recording.pausingShowsThePausedState();
+  });
+
+  test('Resuming continues the timer from the paused value', async ({ browser, context, page }, testInfo) => {
+    const recording = new Recording(browser, context);
+    await recording.initModPage(page, { createParameter: c.recordMeeting, ...joinWithoutAudio, testInfo });
+    await recording.initUserPage(context, { ...joinWithoutAudio, testInfo });
+    await recording.resumingContinuesFromThePausedTime();
+  });
 });

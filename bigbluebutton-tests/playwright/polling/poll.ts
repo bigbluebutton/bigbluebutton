@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { skipSlide } from '../presentation/util';
 import { MultiUsers } from '../user/multiusers';
 import * as util from './util';
 
@@ -38,7 +39,6 @@ export class Polling extends MultiUsers {
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     if (!quickPollConfirmationStep) {
-
       await this.userPage.hasElement(
         e.pollingContainer,
         'should display the polling container for the attendee to answer it',
@@ -134,7 +134,10 @@ export class Polling extends MultiUsers {
       'should not display the polling container after the poll is canceled',
     );
 
-    await this.modPage.hasElement(e.pollQuestionArea, 'should display the poll question area after the poll is canceled');
+    await this.modPage.hasElement(
+      e.pollQuestionArea,
+      'should display the poll question area after the poll is canceled',
+    );
   }
 
   async manageResponseChoices() {
@@ -150,7 +153,10 @@ export class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.addPollItem);
     await this.typeOnLastChoiceInput();
     await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is started');
+    await this.modPage.hasElementDisabled(
+      e.publishPollingLabel,
+      'should display the publish poll button disabled before the poll is started',
+    );
 
     await expect(initialRespCount + 1, 'should display the initial quantity of poll options itens plus 1').toEqual(
       await this.getAnswerOptionCount(),
@@ -161,7 +167,10 @@ export class Polling extends MultiUsers {
     await this.startNewPoll();
     await this.modPage.waitAndClick(e.deletePollOption);
     await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is started');
+    await this.modPage.hasElementDisabled(
+      e.publishPollingLabel,
+      'should display the publish poll button disabled before the poll is started',
+    );
 
     await expect(initialRespCount - 1, 'should display the initial quantity of poll options itens minus 1').toEqual(
       await this.getAnswerOptionCount(),
@@ -171,7 +180,10 @@ export class Polling extends MultiUsers {
     await this.startNewPoll();
     await this.typeOnLastChoiceInput();
     await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is started');
+    await this.modPage.hasElementDisabled(
+      e.publishPollingLabel,
+      'should display the publish poll button disabled before the poll is started',
+    );
 
     await expect(initialRespCount, 'should display the initial quantity of poll options itens').toEqual(
       await this.getAnswerOptionCount(),
@@ -279,7 +291,10 @@ export class Polling extends MultiUsers {
     );
 
     await this.modPage.waitAndClick(e.minimizePolling);
-    await this.modPage.wasRemoved(e.minimizePolling, 'should not display the minimize polling button after the poll is closed');
+    await this.modPage.wasRemoved(
+      e.minimizePolling,
+      'should not display the minimize polling button after the poll is closed',
+    );
   }
 
   async oneOptionAnswer() {
@@ -287,9 +302,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.waitAndClick(e.nextSlide);
+    await skipSlide(this.modPage);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button when the presentation finishes uploading',
@@ -317,9 +331,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 3');
+    await util.goToSlide(this.modPage, 3);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -350,11 +363,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 4');
-    // avoid error when the tooltip is in front of the button due to layout shift
-    await this.modPage.page.waitForTimeout(500);
+    await util.goToSlide(this.modPage, 4);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -377,11 +387,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 5');
-    // avoid error when the tooltip is in front of the button due to layout shift
-    await this.modPage.page.waitForTimeout(500);
+    await util.goToSlide(this.modPage, 5);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -404,9 +411,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 6');
+    await util.goToSlide(this.modPage, 6);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(
@@ -426,9 +432,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 8');
+    await util.goToSlide(this.modPage, 8);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button when the presentation finishes uploading',
@@ -455,9 +460,8 @@ export class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
-    await this.modPage.selectSlide('Slide 9');
+    await util.goToSlide(this.modPage, 9);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button when the presentation finishes uploading',
@@ -491,10 +495,9 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
     // Slide 1 — lettered poll: "What is the dose (one per day) for adults?"
-    await this.modPage.selectSlide('Slide 1');
+    await util.goToSlide(this.modPage, 1);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button once the smart slides deck is converted',
@@ -526,24 +529,20 @@ export class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.page.waitForTimeout(5000);
 
     // Slide 4 — typed response: "How long (in min) for a 2 mg/m3 sample?"
-    await this.modPage.selectSlide('Slide 4');
+    await util.goToSlide(this.modPage, 4);
     await this.modPage.hasElement(
       e.quickPoll,
       'should display the quick poll button once the smart slides deck is converted',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
-    // Let the current slide propagate to the quick-poll dropdown before triggering it, otherwise
-    // the click can capture the previous slide's (stale) parsed question.
-    await this.modPage.page.waitForTimeout(3000);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     const typedQuestion = this.modPage.page.locator(e.pollQuestionArea);
-    await expect(
-      typedQuestion,
-      'the typed-response question should keep the "(in min)" clause',
-    ).toHaveValue(/How long \(in min\) for/, { timeout: ELEMENT_WAIT_TIME });
+    await expect(typedQuestion, 'the typed-response question should keep the "(in min)" clause').toHaveValue(
+      /How long \(in min\) for/,
+      { timeout: ELEMENT_WAIT_TIME },
+    );
     await expect(
       typedQuestion,
       'the words around the parenthetical must not be joined together (no "longfor")',
@@ -630,13 +629,122 @@ export class Polling extends MultiUsers {
     await this.modPage.hasElement(e.wbPollShape, 'should display the poll shape on the whiteboard');
   }
 
+  async quizLiveResults() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.initUserPage2();
+    await util.openQuiz(this.modPage);
+    await util.selectQuizCorrectAnswer(this.modPage, 1);
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await util.answerPollOption(this.userPage, 'B');
+    await util.answerPollOption(this.userPage2, 'C');
+    await this.modPage.hasText(e.pollStatus, 'Done', 'should display the quiz as done after both attendees answered');
+
+    const correctRow = util.liveResultRow(this.modPage, this.userPage.username);
+    await expect(correctRow.locator(e.userVoteLiveResult), 'should display the first attendee answer').toHaveText('B');
+    await expect(
+      correctRow.locator(e.quizCorrectResultMark),
+      'should mark the first attendee answer as correct',
+    ).toBeVisible();
+    await expect(
+      correctRow.locator(e.quizIncorrectResultMark),
+      'should not mark the first attendee answer as incorrect',
+    ).toHaveCount(0);
+
+    const incorrectRow = util.liveResultRow(this.modPage, this.userPage2.username);
+    await expect(incorrectRow.locator(e.userVoteLiveResult), 'should display the second attendee answer').toHaveText(
+      'C',
+    );
+    await expect(
+      incorrectRow.locator(e.quizIncorrectResultMark),
+      'should mark the second attendee answer as incorrect',
+    ).toBeVisible();
+    await expect(
+      incorrectRow.locator(e.quizCorrectResultMark),
+      'should not mark the second attendee answer as correct',
+    ).toHaveCount(0);
+  }
+
+  async quizWithoutCorrectAnswer() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await util.openQuiz(this.modPage);
+    await this.modPage.hasElementCount(e.correctAnswerLabel, 0, 'should not label any option as correct by default');
+    await this.modPage.hasElementDisabled(
+      e.startPoll,
+      'should display the start quiz button disabled while no correct answer is selected',
+    );
+    // the disabled button ignores the pointer, so the reason shows in a tooltip on its wrapper
+    const startQuizLocator = this.modPage.page.locator(e.startPoll);
+    await startQuizLocator.hover({ force: true });
+    await expect(
+      this.modPage.page.getByText(e.quizNoCorrectAnswerError),
+      'should explain that the quiz needs a correct answer',
+    ).toBeVisible();
+    await startQuizLocator.click({ force: true });
+    await this.modPage.wasRemoved(e.publishPollingLabel, 'should not start the quiz without a correct answer');
+    await this.userPage.wasRemoved(e.pollingContainer, 'should not display a quiz to the attendee');
+
+    await util.selectQuizCorrectAnswer(this.modPage, 0);
+    await this.modPage.hasElementEnabled(
+      e.startPoll,
+      'should enable the start quiz button once a correct answer is set',
+    );
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the quiz to the attendee once started');
+  }
+
+  async quizResultsOnChat() {
+    const { pollChatMessage } = this.modPage.settings || {};
+    test.skip(!pollChatMessage, 'Poll results are not published to the chat');
+
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await util.openQuiz(this.modPage);
+    await util.selectQuizCorrectAnswer(this.modPage, 1);
+    await this.modPage.waitAndClick(e.startPoll);
+    await util.answerPollOption(this.userPage, 'B');
+
+    await this.modPage.page.locator(e.showCorrectAnswerCheckbox).setChecked(true);
+    await this.modPage.hasElementChecked(
+      e.showCorrectAnswerCheckbox,
+      'should have the option to display the correct answer to all participants checked',
+    );
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
+    const quizResultMessage = this.userPage.page
+      .locator(e.chatMessageItem)
+      .filter({ has: this.userPage.page.locator(e.chatPollMessageText) })
+      .last();
+    await expect(
+      quizResultMessage,
+      'should label the published results as quiz results for the attendee',
+    ).toContainText(e.quizResultsChatSender);
+    const quizResultChart = quizResultMessage.locator(e.chatPollMessageText);
+    await expect(quizResultChart, 'should mark the correct answer in the published quiz results').toContainText('✅ B');
+    await expect(
+      quizResultChart,
+      'should mark only the correct answer in the published quiz results',
+    ).not.toContainText(/✅ [ACD]/);
+  }
+
   async startNewPoll() {
     const hasPollStarted = await this.modPage.checkElement(e.cancelPollBtn);
     if (hasPollStarted) {
       await this.modPage.waitAndClick(e.cancelPollBtn);
       await this.modPage.wasRemoved(
-        e.publishPollingLabel, 
-        'should not display the publish poll button after the poll is canceled'
+        e.publishPollingLabel,
+        'should not display the publish poll button after the poll is canceled',
       );
       await this.userPage.wasRemoved(
         e.pollingContainer,

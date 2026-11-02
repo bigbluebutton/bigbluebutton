@@ -79,7 +79,7 @@ export class Create extends MultiUsers {
     await this.modPage.hasElement(e.roomOptions1, 'should display the first breakout room options button');
   }
 
-  private async joinFirstBreakoutRoomAsModerator() {
+  protected async joinFirstBreakoutRoomAsModerator() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     const isRoomOptionsVisible = await this.modPage.page
@@ -109,20 +109,22 @@ export class Create extends MultiUsers {
   }
 
   // Create BreakoutRooms
-  async create(captureNotes = false, captureWhiteboard = false) {
+  async create(captureNotes = false, captureWhiteboard = false, record = false) {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
     // needed for better create breakout rooms button disposition
     await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.page.waitForTimeout(2000); // wait for the breakout sidebar to be fully loaded.
+    await this.modPage.hasElement(e.attendeeNotAssigned, 'should list the users not assigned to a room yet');
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the first room to assign users to');
 
     // assign user to first room
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.waitAndClick(e.moreOptionsToggle);
     if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
+    if (record) await this.modPage.page.check(e.recordBreakoutRooms);
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
     await this.userPage.waitAndClick(e.modalDismissButton);

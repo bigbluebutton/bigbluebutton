@@ -28,7 +28,7 @@ done
 
 VERSION_NUMBER="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f1)"
 # this contains stuff like alpha4 etc
-VERSION_ADDON="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f2)"
+VERSION_ADDON="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -s -d "-" -f2)"
 BUILD_NUMBER=${BUILD_NUMBER:=1}
 EPOCH=${EPOCH:=2}
 
@@ -39,7 +39,7 @@ if [[ $BUILD_TYPE == 'release' ]]; then
 else
     # devel builds
     # 2:2.3.0~alpha4+20210729T022518-git.abcdef
-    VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
+    VERSION="${VERSION_NUMBER}${VERSION_ADDON:+~${VERSION_ADDON}}+${COMMIT_DATE}-git.${GIT_REV}"
 fi
 
 DISTRO=noble

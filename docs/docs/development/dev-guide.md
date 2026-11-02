@@ -53,7 +53,7 @@ The instructions in this guide are step-by-step so you can understand each step 
 
 Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/administration/install)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
 
-We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v3/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url (just run the command `bbb-conf --salt` to obtain a link for API MATE).
+We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v3/install) or navigate to [API MATE](https://bigbluebutton.github.io/api-mate/) using your server's secret and url (just run the command `bbb-conf --salt` to obtain a link for API MATE).
 
 By starting with a working BigBlueButton server, you have the ability to switch back-and-forth between the default-packaged components and any modifications you make.
 
@@ -161,11 +161,13 @@ In the next step, you need to install a number of tools using sdkman.
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-sdk install gradle 8.14.3 
-sdk install grails 7.0.12
+sdk install gradle 9.8.0
 sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
+
+A system-wide Grails install is no longer needed: bbb-web is built with the
+Gradle wrapper (`./gradlew`), which provisions the Grails toolchain itself.
 
 ### Checking out the Source
 

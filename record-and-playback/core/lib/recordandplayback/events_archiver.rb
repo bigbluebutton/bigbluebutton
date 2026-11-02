@@ -24,11 +24,6 @@ require 'yaml'
 require 'fileutils'
 
 module BigBlueButton
-  $bbb_props = BigBlueButton.load_yaml(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__))
-  $recording_dir = $bbb_props['recording_dir']
-  $raw_recording_dir = "#{$recording_dir}/raw"
-  $store_recording_status = $bbb_props['store_recording_status']
-
   # Class to wrap Redis so we can mock
   # for testing
   class RedisWrapper
@@ -139,7 +134,8 @@ module BigBlueButton
     RAP_STATUS_LIST = "bigbluebutton:rap:status"
 
     def put_message(message_type, meeting_id, additional_payload = {})
-      events_xml = "#{$raw_recording_dir}/#{meeting_id}/events.xml"
+      props = BigBlueButton.read_props
+      events_xml = "#{props['recording_dir']}/raw/#{meeting_id}/events.xml"
       if File.exist?(events_xml)
         additional_payload.merge!({
           "external_meeting_id" => BigBlueButton::Events.get_external_meeting_id(events_xml)
@@ -152,7 +148,7 @@ module BigBlueButton
       })
       @redis.publish RECORDINGS_CHANNEL, msg.to_json
 
-      if $store_recording_status
+      if props['store_recording_status']
         @redis.lpush RAP_STATUS_LIST, msg.to_json
       end
 

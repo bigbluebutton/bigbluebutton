@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { connectMicrophone } from '../audio/util';
 import { openPublicChat } from '../chat/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -7,7 +8,11 @@ import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
-import { openPoll, rowFilter, timeInSeconds } from './util';
+import { cellTimeInSeconds, DASHBOARD_UPDATE_TIME, openPoll, rowFilter, timeInSeconds } from './util';
+
+const SPEAKING_TIME = 6000;
+// Server-side times may run a little past what the test measured around them
+const MEASURED_TIME_SLACK_SECONDS = 2;
 
 export class LearningDashboard extends MultiUsers {
   public dashboardPage!: Page;
@@ -65,7 +70,7 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.recordingIndicator, '00:00', 'should start recording at the initial time');
 
     const timeLocator = this.dashboardPage.page.locator(e.userOnlineTime);
-    const timeContent = await (timeLocator).textContent();
+    const timeContent = await timeLocator.textContent();
     if (!timeContent) throw new Error('Time content is null');
     const time = timeInSeconds(timeContent);
     await this.dashboardPage.page.waitForTimeout(1000);
@@ -304,21 +309,26 @@ export class LearningDashboard extends MultiUsers {
 
     // Meeting Time Duration check
     const timeLocator = this.dashboardPage.page.locator(e.meetingDurationTimeDashboard);
-    const timeContent = await timeLocator.textContent();
-    if (!timeContent) throw new Error('Time content is null');
+    await expect(timeLocator, 'should display the meeting duration').toHaveText(/\d+:\d+:\d+/);
+    const timeContent = (await timeLocator.textContent()) ?? '';
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
-    await this.dashboardPage.page.waitForTimeout(10000);
-    await this.dashboardPage.reloadPage();
-    const timeContentGreater = await timeLocator.textContent();
-    if (!timeContentGreater) throw new Error('Time content is null');
-    const arrayGreater = timeContentGreater.split(':').map(Number);
-    const secondTime = arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
-
-    await expect(secondTime).toBeGreaterThan(firstTime);
+    await expect
+      .poll(
+        async () => {
+          await this.dashboardPage.reloadPage();
+          const timeContentGreater = await timeLocator.textContent();
+          if (!timeContentGreater) return Number.NaN;
+          const arrayGreater = timeContentGreater.split(':').map(Number);
+          return arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
+        },
+        { intervals: [1000], timeout: ELEMENT_WAIT_LONGER_TIME },
+      )
+      .toBeGreaterThan(firstTime);
   }
 
   async overview() {
+    const webcamSharedFrom = Date.now();
     await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.waitAndClick(e.raiseHandBtn);
@@ -327,15 +337,49 @@ export class LearningDashboard extends MultiUsers {
     // User Name check
     const userNameCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userNameDashboard);
     await expect(userNameCheck).toHaveText(/Moderator/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
-    // Webcam Time check
+    // Webcam Time check: some time counted, and no more than has passed since the camera was shared
     const webcamCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userWebcamTimeDashboard);
-    await expect(webcamCheck).toHaveText(/00/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    await expect
+      .poll(() => cellTimeInSeconds(webcamCheck), {
+        message: 'should count the time the webcam has been shared',
+        timeout: DASHBOARD_UPDATE_TIME,
+      })
+      .toBeGreaterThan(0);
+    expect(
+      await cellTimeInSeconds(webcamCheck),
+      'should not count more webcam time than has passed since sharing it',
+    ).toBeLessThanOrEqual((Date.now() - webcamSharedFrom) / 1000 + MEASURED_TIME_SLACK_SECONDS);
     // Raise Hand check
     const raiseHandCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userRaiseHandDashboard);
     await expect(raiseHandCheck).toHaveText(/1/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     // Current Status check
     const userStatusCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userStatusDashboard);
     await expect(userStatusCheck).toHaveText(/Online/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+  }
+
+  async talkTime() {
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+    const unmutedAt = Date.now();
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.checkUserTalkingIndicator();
+    await this.modPage.page.waitForTimeout(SPEAKING_TIME);
+    await this.modPage.waitAndClick(e.muteMicButton);
+    const unmutedSeconds = (Date.now() - unmutedAt) / 1000;
+    await this.modPage.wasRemoved(e.isTalking, 'should stop showing the moderator talking once muted');
+
+    // Talk time is added up when the talking stops; pauses in the speech may leave some of it out.
+    const talkTime = await rowFilter(this.dashboardPage, /Moderator/, e.userTalkTimeDashboard);
+    await expect
+      .poll(() => cellTimeInSeconds(talkTime), {
+        message: 'should count most of the time the moderator spoke',
+        timeout: DASHBOARD_UPDATE_TIME,
+      })
+      .toBeGreaterThanOrEqual(Math.floor(SPEAKING_TIME / 2000));
+    expect(
+      await cellTimeInSeconds(talkTime),
+      'should not count more talk time than the moderator was unmuted',
+    ).toBeLessThanOrEqual(unmutedSeconds + MEASURED_TIME_SLACK_SECONDS);
   }
 
   async downloadSessionLearningDashboard() {
