@@ -1,0 +1,11 @@
+# Recorded by bbb-conform record. Review it with bbb-conform review before committing.
+case end.callbacks.retry-status-500
+target bbb-web
+
+== step 4: sink ${uid}
+$.method "GET"
+$.path "/${uid}/ended"
+$.query._first "1"
+$.query._status "500"
+$.query.meetingID "${uid}"
+$.query.recordingmarks "false"

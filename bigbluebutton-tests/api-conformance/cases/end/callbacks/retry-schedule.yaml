@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../runner/schema/case.schema.json
+# An end callback that keeps failing is tried five times in all, 30
+# seconds, 1, 2 and 5 minutes apart, and then given up: no sixth attempt
+# comes a minute after the fifth.
+id: end.callbacks.retry-schedule
+title: An end callback that keeps failing is tried five times, then given up
+endpoint: end
+class: contract
+tags: [slow]
+requires: [akka]
+steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}/ended?_status=500"}
+    golden: off
+    expect: {returncode: SUCCESS}
+    capture: {intId: /response/internalMeetingID}
+  - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+  - call: end
+    params: {meetingID: "${uid}"}
+    golden: off
+    expect: {returncode: SUCCESS}
+  # The fifth attempt is due about 8.5 minutes after the first.
+  - sink: {key: "${uid}", within: 9m30s}
+    golden: off
+    expect: {count: 5}
+  - sink: {key: "${uid}", within: 1m}
+    golden: off
+    expect: {count: 5}
+teardown:
+  # Again until bbb-web no longer knows the meeting: an end that reaches
+  # akka-apps before the create does is lost.
+  - call: end
+    params: {meetingID: "${uid}"}
+    ignoreResult: true
+    eventually: {within: 2s, every: 100ms, until: {messageKey: notFound}}
