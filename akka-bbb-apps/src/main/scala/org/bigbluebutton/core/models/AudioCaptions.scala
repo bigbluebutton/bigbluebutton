@@ -5,6 +5,11 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.SystemConfiguration
 
 object AudioCaptions extends SystemConfiguration {
+  // Bounds the per-meeting transcript map, which is never pruned while the
+  // meeting runs. 20 is well above the number of transcription languages a
+  // meeting offers (public.app.audioCaptions.language.available). A transcript
+  // in a new locale beyond this is dropped, and UpdateTranscriptPubMsgHdlr
+  // logs a warning.
   val MaxLocalesPerMeeting = 20
 
   def parseTranscript(transcript: String): String = {
