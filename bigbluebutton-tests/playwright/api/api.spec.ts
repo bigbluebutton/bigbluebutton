@@ -190,6 +190,7 @@ test.describe.parallel('API', () => {
   // bbb-web reads each create parameter as one string; a repeated parameter arrives as an array and
   // the cast in ParamsProcessorUtil.processCreateParams throws, so create answers HTTP 500.
   test('repeatedCreateParameterRefused', { tag: '@known-issue' }, async ({ request }) => {
+    linkIssue(26359);
     await APIParameters.testRepeatedCreateParameterRefused(request);
   });
 

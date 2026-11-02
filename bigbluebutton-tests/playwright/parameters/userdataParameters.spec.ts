@@ -1,3 +1,4 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { constants as c } from './constants';
 import { JOIN_PARAMETERS, NAMED_ATTENDEES, routeAvatarImage, UserdataParameters } from './userdataParameters';
@@ -123,6 +124,7 @@ test(
   'userdata-bbb_hide_sidebar_navigation=true also keeps the sidebar content panel closed',
   { tag: '@known-issue' },
   async ({ browser, context, page }, testInfo) => {
+    linkIssue(26358);
     const userdata = new UserdataParameters(browser, context);
     await userdata.initModPage(page, { joinParameter: JOIN_PARAMETERS.hideSidebarNavigation, testInfo });
     await userdata.hideSidebarContentPanel();
