@@ -478,6 +478,8 @@
     "app.presentationUploder.tableHeading.status": "Status",
     "app.presentationUploder.uploading": "Uploading 1 item",
     "app.presentationUploder.uploadingPlural": "Uploading {numberOfPresentations} items",
+    "app.presentationUploder.uploadFailed": "1 upload failed",
+    "app.presentationUploder.uploadFailedPlural": "{numberOfPresentations} uploads failed",
     "app.presentationUploder.uploadStatus": "{completeUploads} of {totalUploads} uploads complete",
     "app.presentationUploder.completed": "{numberOfCompleteUploads} uploads complete",
     "app.presentationUploder.clearErrors": "Clear errors",

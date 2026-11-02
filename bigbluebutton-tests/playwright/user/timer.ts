@@ -48,10 +48,7 @@ export class Timer extends MultiUsers {
     await expect(async () => {
       const { r, b } = await this.getStartStopButtonColor();
       // Stopped state uses the primary (blue-dominant) color.
-      expect(
-        b,
-        'should switch the button color to the same as stopped after resetting the timer',
-      ).toBeGreaterThan(r);
+      expect(b, 'should switch the button color to the same as stopped after resetting the timer').toBeGreaterThan(r);
     }).toPass({ timeout: ELEMENT_WAIT_TIME });
     await this.modPage.hasText(
       e.stopwatchCurrent,
@@ -286,12 +283,10 @@ export class Timer extends MultiUsers {
   }
 
   async getStartStopButtonColor() {
-    const backgroundColor = await this.modPage.page.locator(e.startStopTimer).evaluate(
-      (elem) => getComputedStyle(elem).backgroundColor,
-    );
+    const backgroundColor = await this.modPage.page
+      .locator(e.startStopTimer)
+      .evaluate((elem) => getComputedStyle(elem).backgroundColor);
     const match = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    return match
-      ? { r: Number(match[1]), g: Number(match[2]), b: Number(match[3]) }
-      : { r: 0, g: 0, b: 0 };
+    return match ? { r: Number(match[1]), g: Number(match[2]), b: Number(match[3]) } : { r: 0, g: 0, b: 0 };
   }
 }

@@ -10,8 +10,8 @@ name: "Nightly tests"
 # Every job uses one worker and ends with bigbluebutton-tests/server-health-check.sh. The report job
 # merges the results into one HTML report per group (artifact nightly-test-reports) and lists in its
 # summary the tests that passed only on retry.
-# Screenshot comparisons are skipped, as in the per-PR gate: the suite runs them only with CI unset,
-# and GitHub sets CI=true on its runners.
+# Screenshot comparisons run as in the per-PR gate: GitHub sets CI=true on its runners, which skips
+# only the ones the suite wraps in `if (!CI)` (in options/options.ts and presentation/presentation.ts).
 #
 # What it needs:
 #   - Packages: it builds nothing. It installs the all-bbb-artifacts artifact of an "Automated tests"
