@@ -7,16 +7,12 @@ import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 import {
   APOLLO_CLIENT_SETTINGS_OVERRIDE,
+  expectApolloClientExposed,
   expectFloorHolder,
   getOwnUserId,
   getUserVoiceRows,
-  isApolloClientExposed,
 } from './floorProbe';
 import { connectMicrophone } from './util';
-
-const APOLLO_EXPOSURE_SKIP_REASON =
-  'requires window.__APOLLO_CLIENT__ for the floor probe ' +
-  '(dev bundle or enableApolloDevTools provisioned via clientSettingsOverride)';
 
 // Moderator + attendee in one meeting, both with a connected (muted) microphone.
 const initTwoSpeakers = async (browser: Browser, testInfo: TestInfo) => {
@@ -28,7 +24,7 @@ const initTwoSpeakers = async (browser: Browser, testInfo: TestInfo) => {
   });
   await audio.initUserPage(context, { testInfo });
   const { modPage, userPage } = audio;
-  test.skip(!(await isApolloClientExposed(modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
+  await expectApolloClientExposed(modPage.page);
   await modPage.waitAndClick(e.joinAudio);
   await connectMicrophone(modPage);
   await userPage.waitAndClick(e.joinAudio);
@@ -59,7 +55,7 @@ test.describe('Audio floor control', { tag: ['@ci', '@media'] }, () => {
       fullName: 'ModeratorB',
       createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
     });
-    test.skip(!(await isApolloClientExposed(audioB.modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
+    await expectApolloClientExposed(audioB.modPage.page);
     const modB = audioB.modPage;
 
     await modB.waitAndClick(e.joinAudio);
