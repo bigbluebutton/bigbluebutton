@@ -132,6 +132,7 @@ The client logger has two targets, `console` and `external`, configured under `p
 | method | external | "POST", "PUT"                  | HTTP method used to send the logs.                                                                      |
 | throttleInterval | external | milliseconds         | How often buffered log entries are sent.                                                                |
 | flushOnClose | external | true / false             | Send the remaining entries when the page is closed.                                                     |
+| logTag | external | string                         | When not empty, added to every log entry as `logTag`.                                                   |
 
 The default values are:
 
@@ -151,15 +152,16 @@ clientLog:
       method: POST,
       throttleInterval: 400,
       flushOnClose: true,
+      logTag: '',
     }
 ```
 
 Notice that the `external` option is disabled by default - you can enable it on your own server after a few configuration changes.
 
-When enabling the `external` logging output, the BigBlueButton client will POST the log events to the URL endpoint provided by `url`. To create an associated endpoint on the BigBlueButton server for the POST request, create a file `/etc/bigbluebutton/nginx/html5-client-log.nginx` with the following contents:
+When enabling the `external` logging output, the BigBlueButton client will POST the log events to the URL endpoint provided by `url`. `LOG_HOST` in the default value is a placeholder that nothing replaces, so set `public.clientLog.external.url` to your server's address, for example `https://bbb.example.com/html5log`. To create an associated endpoint on the BigBlueButton server for the POST request, create a file `/etc/bigbluebutton/nginx/html5-client-log.nginx` with the following contents. Its `location` must match the path in `url` exactly, including case:
 
 ```nginx
-location /html5Log {
+location /html5log {
     access_log /var/log/nginx/html5-client.log postdata;
     echo_read_request_body;
 }
