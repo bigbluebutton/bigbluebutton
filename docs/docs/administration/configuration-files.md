@@ -121,6 +121,17 @@ The HTML5 client is a static bundle served by nginx, so it has no service of its
 
 To assist with monitoring and debugging, the HTML5 client can send its logs to the BigBlueButton server via the `logger` function. Here's an example of its use:
 
+```javascript
+import logger from '/imports/startup/client/logger';
+
+logger.info({
+  logCode: 'app_component_componentdidmount',
+  extraInfo: { meetingId, meetingName },
+}, 'User joined main room');
+```
+
+The first argument holds structured fields added to the log entry: `logCode` identifies the entry and `extraInfo` carries any additional data. The second argument is the message. Use `logger.debug`, `logger.info`, `logger.warn` or `logger.error` to choose the log level.
+
 The client logger has two targets, `console` and `external`, configured under `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml`. Each target has its own settings:
 
 | Name   | Target | Accepted Values                  | Description                                                                                             |
