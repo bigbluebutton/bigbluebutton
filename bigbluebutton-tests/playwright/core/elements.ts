@@ -542,6 +542,7 @@ export const elements = {
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
   presentationFileUpload: 'div#upload-modal input[type="file"]',
+  uploadConstraintsHint: 'div[data-test="uploadConstraintsHint"]',
   presentationToolbarWrapper: 'div[id="presentationToolbarWrapper"]',
   nextSlide: 'button[data-test="nextSlide"]',
   prevSlide: 'button[data-test="prevSlide"]',

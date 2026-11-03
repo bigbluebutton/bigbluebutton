@@ -1040,4 +1040,52 @@ export class Presentation extends MultiUsers {
   async tooManyPagesIsRefused() {
     await uploadRefusedPresentation(this.modPage, buildPdfWithPages(201), e.presentationPageCountExceededLabel);
   }
+
+  private async openPresentationManager() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(
+      e.presentationFileUpload,
+      'should display the presentation space for uploading a new file, when the manage presentations is opened',
+    );
+  }
+
+  // The spec lowers uploadSizeMax to 1 kB
+  async fileOverSizeLimitIsNotSent() {
+    const file = { name: 'over-the-limit.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(5000, 0x25) };
+    const uploads: string[] = [];
+    this.modPage.page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().endsWith('/upload')) uploads.push(request.url());
+    });
+
+    await this.openPresentationManager();
+    await this.modPage.page.setInputFiles(e.presentationFileUpload, file);
+
+    await expect(
+      this.modPage.page.locator(e.smallToastMsg).filter({ hasText: file.name }),
+      'should say why the file was refused, without waiting for the server',
+    ).toContainText(`${e.presentationTooLargeLabel} 1.00 kB`);
+    await this.modPage.page.waitForTimeout(2000); // an upload would have started by now: its token takes a round trip
+    expect(uploads, 'should not send the file').toEqual([]);
+    await expect(
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: file.name }),
+      'should not add the refused file to the presentations',
+    ).toHaveCount(0);
+  }
+
+  // The spec sets uploadSizeMax to 50 MB and uploadPagesMax to 7
+  async uploadConstraintsHintShowsLimits() {
+    await this.openPresentationManager();
+    await this.modPage.hasText(
+      e.uploadConstraintsHint,
+      'each file may not exceed 50 MB and 7 pages',
+      'should display both limits on the upload panel',
+    );
+  }
+
+  async uploadConstraintsHintIsHidden() {
+    await this.openPresentationManager();
+    await this.modPage.wasRemoved(e.uploadConstraintsHint, 'should not display the limits when the hint is off');
+  }
 }

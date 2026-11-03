@@ -313,3 +313,44 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     });
   });
 });
+
+// At the top level so the @ci 'Presentation' describe does not tag these
+test.describe.parallel('Presentation upload limits', { tag: '@nightly' }, () => {
+  test('A file over uploadSizeMax is refused without being sent', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { presentation: { mirroredFromBBBCore: { uploadSizeMax: 1000 } } } },
+    });
+    await presentation.fileOverSizeLimitIsNotSent();
+  });
+
+  test('fileUploadConstraintsHint shows uploadSizeMax and uploadPagesMax', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: {
+        public: {
+          presentation: {
+            fileUploadConstraintsHint: true,
+            mirroredFromBBBCore: { uploadSizeMax: 50000000, uploadPagesMax: 7 },
+          },
+        },
+      },
+    });
+    await presentation.uploadConstraintsHintShowsLimits();
+  });
+
+  test('fileUploadConstraintsHint off shows no limits', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { presentation: { fileUploadConstraintsHint: false } } },
+    });
+    await presentation.uploadConstraintsHintIsHidden();
+  });
+});

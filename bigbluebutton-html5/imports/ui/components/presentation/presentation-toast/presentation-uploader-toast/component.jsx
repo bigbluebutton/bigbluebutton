@@ -184,7 +184,7 @@ const intlMessages = defineMessages({
   },
 });
 
-function getSizeWithUnit(size) {
+export function getSizeWithUnit(size) {
   // If the size in MB is negligible (0.00), switch to kB for better precision
   const mbString = (size / 1000000).toFixed(2);
   const kbString = (size / 1000).toFixed(2);

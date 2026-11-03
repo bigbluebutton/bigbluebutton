@@ -9,7 +9,7 @@ import {
   UPLOAD_PDF_WAIT_TIME,
 } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ClientSettingsOverrides, Page } from '../core/page';
 
 // The host never resolves: the browser only gets this video through routeExternalVideo.
 export const EXTERNAL_VIDEO_URL = 'https://bbb-test-stub.local/external-video.webm';
@@ -255,10 +255,15 @@ export async function uploadSinglePresentation(
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 
-// The browser sends the whole file and bbb-web refuses it on size (maxFileSizeUpload, 30 MB
-// by default) before the PDF is ever parsed, so the payload only has to be big enough, not a
-// valid document. Building it in memory keeps a file that large out of the repo.
+// bbb-web refuses the file on size (maxFileSizeUpload, 30 MB by default) before the PDF is ever
+// parsed, so the payload only has to be big enough, not a valid document. Building it in memory
+// keeps a file that large out of the repo.
 const OVERSIZED_PRESENTATION_BYTES = 31 * 1000 * 1000;
+
+// The client refuses a file over uploadSizeMax on its own: raising it lets the file reach bbb-web
+export const REACH_BBB_WEB_SIZE_CHECK_OVERRIDE: ClientSettingsOverrides = {
+  public: { presentation: { mirroredFromBBBCore: { uploadSizeMax: 2 * OVERSIZED_PRESENTATION_BYTES } } },
+};
 
 function buildOversizedPdf(sizeInBytes: number): Buffer {
   const header = Buffer.from(

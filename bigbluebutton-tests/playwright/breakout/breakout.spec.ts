@@ -1,6 +1,7 @@
 import { RECORDING_PROCESSING_WAIT_TIME } from '../core/constants';
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
+import { REACH_BBB_WEB_SIZE_CHECK_OVERRIDE } from '../presentation/util';
 import { ClientSettingsOverride } from './clientSettingsOverride';
 import { Create } from './create';
 import { Join } from './join';
@@ -46,7 +47,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     test('Rejected presentation does not enable the slide selection', async ({ browser, context, page }, testInfo) => {
       linkIssue(25704);
       const create = new Create(browser, context);
-      await create.initModPage(page, { testInfo });
+      await create.initModPage(page, { testInfo, clientSettingsOverrides: REACH_BBB_WEB_SIZE_CHECK_OVERRIDE });
       await create.rejectedPresentationDoesNotEnableSlideSelection();
     });
 
@@ -58,7 +59,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     }, testInfo) => {
       linkIssue(25704);
       const create = new Create(browser, context);
-      await create.initModPage(page, { testInfo });
+      await create.initModPage(page, { testInfo, clientSettingsOverrides: REACH_BBB_WEB_SIZE_CHECK_OVERRIDE });
       await create.rejectedPresentationIsNotOfferedAsBreakoutSlide();
     });
 
