@@ -1,5 +1,5 @@
 
-import { throwErrorIfInvalidInput, throwErrorIfNotModerator } from '../imports/validation';
+import { throwErrorIfInvalidInput, throwErrorIfInvalidLocale, throwErrorIfNotModerator } from '../imports/validation';
 import { RedisMessage } from '../types';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
@@ -15,6 +15,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       {name: 'captionType', type: 'string', required: true},
     ]
 )
+  throwErrorIfInvalidLocale(input.locale);
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

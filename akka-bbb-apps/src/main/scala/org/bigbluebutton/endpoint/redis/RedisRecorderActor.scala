@@ -5,6 +5,7 @@ import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+import org.bigbluebutton.core.db.CaptionTypes
 import org.bigbluebutton.core.record.events._
 import org.apache.pekko.actor.Actor
 import org.apache.pekko.actor.ActorLogging
@@ -111,14 +112,12 @@ class RedisRecorderActor(
       case m: MediaGroupDestroyedEvtMsg             => handleMediaGroupDestroyedEvtMsg(m)
       case m: MediaGroupUpdatedEvtMsg               => handleMediaGroupUpdatedEvtMsg(m)
 
-      // Caption
-      case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
+      // Captions: audio transcription and typed captions, one segment per captionId
+      case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
+      case m: CaptionSubmitTranscriptEvtMsg         => handleCaptionSubmitTranscriptEvtMsg(m)
 
       // Pads
       case m: PadCreatedRespMsg                     => handlePadCreatedRespMsg(m)
-
-      // AudioCaptions
-      //case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m) // temporarily disabling due to issue https://github.com/bigbluebutton/bigbluebutton/issues/19701
 
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
@@ -569,16 +568,28 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
-    val ev = new EditCaptionHistoryRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setStartIndex(msg.body.startIndex)
-    ev.setEndIndex(msg.body.endIndex)
-    ev.setName(msg.body.name)
-    ev.setLocale(msg.body.locale)
-    ev.setText(msg.body.text)
+  private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
+    recordCaptionUpdated(msg.header.meetingId, msg.body.transcriptId, msg.header.userId, msg.body.locale,
+      CaptionTypes.AUDIO_TRANSCRIPTION, msg.body.transcript, msg.body.result)
+  }
 
-    record(msg.header.meetingId, ev.toMap.asJava)
+  private def handleCaptionSubmitTranscriptEvtMsg(msg: CaptionSubmitTranscriptEvtMsg) {
+    recordCaptionUpdated(msg.header.meetingId, msg.body.transcriptId, msg.header.userId, msg.body.locale,
+      msg.body.captionType, msg.body.transcript, isFinal = true)
+  }
+
+  private def recordCaptionUpdated(meetingId: String, captionId: String, userId: String, locale: String,
+                                   captionType: String, text: String, isFinal: Boolean) {
+    val ev = new CaptionUpdatedRecordEvent()
+    ev.setMeetingId(meetingId)
+    ev.setCaptionId(captionId)
+    ev.setUserId(userId)
+    ev.setLocale(locale)
+    ev.setCaptionType(captionType)
+    ev.setText(text)
+    ev.setIsFinal(isFinal)
+
+    record(meetingId, ev.toMap.asJava)
   }
 
   private def handlePadCreatedRespMsg(msg: PadCreatedRespMsg) {
@@ -589,17 +600,6 @@ class RedisRecorderActor(
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
-
-  /* temporarily disabling due to issue https://github.com/bigbluebutton/bigbluebutton/issues/19701
-  private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
-    val ev = new TranscriptUpdatedRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setLocale(msg.body.locale)
-    ev.setTranscript(msg.body.transcript)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
-  }
-  */
 
   private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()

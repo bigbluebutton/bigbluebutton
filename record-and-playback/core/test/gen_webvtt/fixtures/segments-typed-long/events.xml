@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recording meeting_id="fixture" bbb_version="4.1.0">
+  <meeting id="fixture" externalId="fixture" name="fixture" breakout="false"/>
+  <metadata isBreakout="false" meetingId="fixture" meetingName="fixture"/>
+  <event timestamp="1000" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Alice</name>
+    <role>MODERATOR</role>
+    <userId>w_alice</userId>
+    <externalUserId>alice-ext</externalUserId>
+  </event>
+  <event timestamp="1000" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <name>Bob</name>
+    <role>VIEWER</role>
+    <userId>w_bob</userId>
+    <externalUserId>bob-ext</externalUserId>
+  </event>
+  <event timestamp="1000" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <status>true</status>
+    <userId>system</userId>
+  </event>
+  <!-- a typed caption arrives whole, in one event: six lines at the same time -->
+  <event timestamp="2000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>3f0c8a52-2b1e-4c55-9d0a-6a1f0b7e2c01</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>TYPED</captionType>
+    <text>This third message is a much longer one, written as a captioner would while a speaker goes on for a while about several topics, so that it does not fit on one caption line.</text>
+    <isFinal>true</isFinal>
+  </event>
+  <!-- a typed caption with line breaks (Shift+Enter in the typed captions plugin) -->
+  <event timestamp="30000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>9b7d1e44-6c3a-4f0e-8a21-5e9c2d4f7a02</captionId>
+    <userId>w_alice</userId>
+    <locale>en-US</locale>
+    <captionType>TYPED</captionType>
+    <text>first line of a note
+second line of the same note
+third line, added with Shift+Enter</text>
+    <isFinal>true</isFinal>
+  </event>
+  <!-- speech whose first result already fills three lines, then goes on a second later -->
+  <event timestamp="50000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-1</captionId>
+    <userId>w_bob</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>a pot of tea helps to pass the evening smoky fires lack flame and heat the soft</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="51000" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-1</captionId>
+    <userId>w_bob</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>a pot of tea helps to pass the evening smoky fires lack flame and heat the soft cushion broke</text>
+    <isFinal>false</isFinal>
+  </event>
+  <event timestamp="51500" module="CAPTION" eventname="CaptionUpdatedEvent">
+    <captionId>w_bob-1</captionId>
+    <userId>w_bob</userId>
+    <locale>en-US</locale>
+    <captionType>AUDIO_TRANSCRIPTION</captionType>
+    <text>a pot of tea helps to pass the evening smoky fires lack flame and heat the soft cushion broke the mans fall</text>
+    <isFinal>true</isFinal>
+  </event>
+  <event timestamp="70000" module="PARTICIPANT" eventname="RecordStatusEvent">
+    <status>false</status>
+    <userId>system</userId>
+  </event>
+</recording>

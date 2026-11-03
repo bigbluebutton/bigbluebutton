@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps.audiocaptions
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.UserTranscriptionErrorDAO
-import org.bigbluebutton.core.models.AudioCaptions
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait TranscriptionProviderErrorMsgHdlr {

@@ -201,10 +201,35 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     });
   };
 
-  const transcriptUpdate = debounce(captionSubmitText, THROTTLE_TIMEOUT);
+  // One debounced sender for the component's lifetime, so that cancel() always reaches
+  // the pending interim update, whichever render created the handler calling it
+  const transcriptUpdateRef = useRef<ReturnType<typeof debounce> | null>(null);
+  if (!transcriptUpdateRef.current) {
+    transcriptUpdateRef.current = debounce(captionSubmitText, THROTTLE_TIMEOUT);
+  }
+  const transcriptUpdate = transcriptUpdateRef.current;
 
   const updateFinalTranscript = (id: string, transcript: string, locale: string) => {
+    // The final result follows the last interim one within the debounce delay: a pending
+    // interim update would be sent after the final one and shorten the caption again
+    transcriptUpdate.cancel();
     captionSubmitText(id, transcript, locale, true);
+  };
+
+  // An utterance whose final result never came (the browser ended the session, or the
+  // component goes away) ends with its last interim transcript
+  const finalizePendingTranscript = () => {
+    const {
+      id,
+      transcript,
+      isFinal,
+      lang,
+    } = resultRef.current;
+    if (!isFinal && transcript) {
+      updateFinalTranscript(id, transcript, lang);
+    }
+    transcriptUpdate.cancel();
+    resultRef.current.isFinal = true;
   };
 
   const releaseTrack = () => {
@@ -219,6 +244,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     speechHasStarted.started = false;
     releaseTrack();
+    finalizePendingTranscript();
     if (connectedRef.current && !mutedRef.current) {
       logger.debug("Speech recognition ended by browser, but we're not muted. Restart it");
       const timeSinceLastStart = new Date().getTime() - lastStartedAt.current;
@@ -395,6 +421,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     return () => {
       clearTimeout(restartTimeoutRef.current);
+      finalizePendingTranscript();
 
       if (speechRecognitionRef.current) {
         unbindHandlers();
