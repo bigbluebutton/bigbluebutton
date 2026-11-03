@@ -1,4 +1,4 @@
-FROM node:24@sha256:8fa96264f302f58bbb13aa7339c541547b56975766ce956c875da149452a3e40 AS build
+FROM node:24.22.2@sha256:8fa96264f302f58bbb13aa7339c541547b56975766ce956c875da149452a3e40 AS build
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG CLIENT_BUILD=0
@@ -21,7 +21,7 @@ RUN HASH=$(ls | grep -Eo 'bundle\.[a-f0-9]{20}\.js' | head -n 1 | grep -Eo '[a-f
     fi \
  && sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" index.html stylesheets/fonts.css
 
-FROM nginxinc/nginx-unprivileged:1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
 
 COPY --from=build /app/dist /usr/share/bigbluebutton/html5-client
 COPY --from=client-build bbb-html5.nginx* /usr/share/bigbluebutton/nginx/

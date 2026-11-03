@@ -1,4 +1,4 @@
-FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS build
+FROM node:24.22.2-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS build
 
 # mediasoup builds its worker from source; some dependencies are git URLs
 # hadolint ignore=DL3008
@@ -24,7 +24,7 @@ RUN yq '.mediasoup.workerBalancing.strategy = "least-loaded" | .mediasoup.enable
     | .recordingAdapter = "bbb-webrtc-recorder" | .kurento = [] | .mcs-address = "127.0.0.1" | .livekit.enabled = true \
     | .clientHost = "0.0.0.0" | .log.file = false' config/default.example.yml > config/default.yml
 
-FROM node:24-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9
+FROM node:24.22.2-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9
 
 RUN groupadd -g 998 bigbluebutton && useradd -u 998 -g 998 -m bigbluebutton
 COPY --from=build /usr/local/bigbluebutton/bbb-webrtc-sfu /usr/local/bigbluebutton/bbb-webrtc-sfu
