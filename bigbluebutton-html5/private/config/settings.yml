@@ -225,10 +225,9 @@ public:
     reactionsButton:
       enabled: true
     emojiRain:
-      # If true, new reactions will be activated
+      # If true, every reaction plays an animated burst of its emoji from the reactions button
       enabled: false
-      # Can set the throttle, the number of emojis that will be displayed and their size
-      intervalEmojis: 2000
+      # numberOfEmojis: how many emojis each reaction bursts
       numberOfEmojis: 5
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
