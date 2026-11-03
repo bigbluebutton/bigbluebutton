@@ -36,6 +36,7 @@ export const meetingComparator = <T>(
   if ((aData.cameraBridge ?? '') !== (bData.cameraBridge ?? '')) return false;
   if ((aData.screenShareBridge ?? '') !== (bData.screenShareBridge ?? '')) return false;
   if ((aData.audioBridge ?? '') !== (bData.audioBridge ?? '')) return false;
+  if ((aData.roomMode ?? '') !== (bData.roomMode ?? '')) return false;
   if ((aData.meetingId ?? '') !== (bData.meetingId ?? '')) return false;
   if ((aData.name ?? '') !== (bData.name ?? '')) return false;
   if ((aData.notifyRecordingIsOn ?? false) !== (bData.notifyRecordingIsOn ?? false)) return false;

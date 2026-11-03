@@ -29,12 +29,15 @@ export const field = (name: string, selections?: FieldNode[]): FieldNode => ({
   ...(selections ? { selectionSet: { kind: 'SelectionSet', selections } } : {}),
 });
 
-export const queryDocument = (selections: FieldNode[]) => ({
+// A name is needed before joining: the middleware forwards only the operations it
+// allowlists for users who are not in the meeting.
+export const queryDocument = (selections: FieldNode[], operationName?: string) => ({
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
+      ...(operationName ? { name: { kind: 'Name', value: operationName } } : {}),
       selectionSet: { kind: 'SelectionSet', selections },
     },
   ],
@@ -129,9 +132,10 @@ export interface MutationResult {
   errors: string[];
 }
 
-// Fires a mutation through the in-page Apollo client. Uses errorPolicy 'all' so a
-// server-rejected action resolves (surfacing errors) instead of throwing, letting
-// adversarial specs assert on the resulting server state rather than on the call.
+// Fires a mutation through the in-page Apollo client. A server-rejected action
+// rejects the call even with errorPolicy 'all', so the rejection is caught here and
+// returned as errors: every caller gets one shape and can assert on the resulting
+// server state rather than on the call.
 export const runMutation = async (page: PlaywrightPage, request: MutationRequest): Promise<MutationResult> =>
   page.evaluate(async ({ document, variables }) => {
     const w = window as ApolloQueryWindow;
@@ -140,11 +144,15 @@ export const runMutation = async (page: PlaywrightPage, request: MutationRequest
         'window.__APOLLO_CLIENT__ is not exposed - the meeting needs enableApolloDevTools (clientSettingsOverride) or a development bundle',
       );
     }
-    const res = await w.__APOLLO_CLIENT__.mutate({ mutation: document, variables, errorPolicy: 'all' });
-    return {
-      data: res.data ?? null,
-      errors: (res.errors ?? []).map((err) => err.message),
-    };
+    try {
+      const res = await w.__APOLLO_CLIENT__.mutate({ mutation: document, variables, errorPolicy: 'all' });
+      return {
+        data: res.data ?? null,
+        errors: (res.errors ?? []).map((err) => err.message),
+      };
+    } catch (err) {
+      return { data: null, errors: [(err as Error).message] };
+    }
   }, request);
 
 const USER_CURRENT_QUERY = queryDocument([field('user_current', [field('userId')])]);
