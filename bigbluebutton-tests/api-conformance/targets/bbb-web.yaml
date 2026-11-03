@@ -46,4 +46,5 @@ profiles:
   guest-unauthenticated: {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" guest-unauthenticated'}
   alt-defaults:          {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" alt-defaults'}
   fetch-http:            {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" fetch-http'}
+  short-users-timeout:   {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" short-users-timeout'}
   default:               {command: '"${BBB_PROFILE_CMD:-../env/full-install/profile.sh}" default'}
