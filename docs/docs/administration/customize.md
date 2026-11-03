@@ -481,7 +481,7 @@ To ensure that your modifications are not lost when a new version of the package
 
 #### Validating client settings overrides
 
-When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverrideJsonUrl` create parameter or the `clientSettingsOverride` POST module - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
 
 BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
 
@@ -2033,7 +2033,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverrideJsonUrl` (and the `clientSettingsOverride` POST module), and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join
