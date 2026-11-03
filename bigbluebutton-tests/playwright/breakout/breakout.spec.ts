@@ -391,3 +391,15 @@ test.describe.parallel('Breakout recording', { tag: '@nightly' }, () => {
     await join.recordInBreakoutRoom();
   });
 });
+
+test.describe.parallel('Breakout infinite whiteboard', { tag: '@nightly' }, () => {
+  test('Disabled feature hides the button in the room', async ({ browser, context, page }, testInfo) => {
+    const override = new ClientSettingsOverride(browser, context);
+    await override.infiniteWhiteboardDisabledInRoom(page, testInfo);
+  });
+
+  test('Excluded feature keeps the button in the room', async ({ browser, context, page }, testInfo) => {
+    const override = new ClientSettingsOverride(browser, context);
+    await override.infiniteWhiteboardExcludedInRoom(page, testInfo);
+  });
+});
