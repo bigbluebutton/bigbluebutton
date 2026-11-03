@@ -210,16 +210,35 @@ You can follow the logs on the server with the command
 $ tail -f /var/log/nginx/html5-client.log | sed -u -e 's/\\x22/"/g' -e 's/\\x5C/\\/g'
 ```
 
-Here's a sample log entry
+Here's the log entry the example above produces:
 
 ```json
-      "requesterUserId":"w_klfavdlkumj8",
-      "fullname":"Ios",
-      "confname":"Demo Meeting",
-      "externUserID":"w_klfavdlkumj8"
+{
+   "name":"clientLogger",
+   "level":30,
+   "logCode":"app_component_componentdidmount",
+   "extraInfo":{
+      "meetingId":"b1f6e9c84d0a7f35e2c6a9d1047b38f5ce21a6d4-1793665760000",
+      "meetingName":"Demo Meeting"
    },
-   "url":"https://demo.bigbluebutton.org/html5client/users",
-   "userAgent":"Mozilla/5.0 (iPad; CPU OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1",
+   "levelName":"info",
+   "msg":"User joined main room",
+   "time":"2026-11-03T00:29:28.069Z",
+   "src":"e.value (https://bbb.example.com/html5client/bundle.0123456789abcdef0123.js:2:3043034)",
+   "v":1,
+   "userInfo":{
+      "meetingId":"b1f6e9c84d0a7f35e2c6a9d1047b38f5ce21a6d4-1793665760000",
+      "requesterUserId":"w_klfavdlkumj8",
+      "fullname":"Demo User",
+      "confname":"Demo Meeting",
+      "externUserID":"w_klfavdlkumj8",
+      "logoutUrl":"https://bbb.example.com",
+      "sessionToken":"abcdefgh12345678",
+      "clientSessionUUID":"00000000-0000-4000-8000-000000000000"
+   },
+   "clientBuild":"20261103T002928",
+   "url":"https://bbb.example.com/html5client/",
+   "userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.7390.37 Safari/537.36",
    "count":1
 }
 ```
