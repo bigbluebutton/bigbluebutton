@@ -700,6 +700,7 @@ export interface LiveKitSettings {
 export interface AudioWasmProcessingSettings {
   enabled: boolean
   provider?: 'bbba' | 'workadventureDtln'
+  intensity?: number
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }
