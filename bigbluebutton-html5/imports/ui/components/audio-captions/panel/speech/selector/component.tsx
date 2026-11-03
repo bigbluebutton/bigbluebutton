@@ -94,7 +94,11 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
   // A forced locale has no language to pick, but its on-device language pack still has to be
   // downloaded when transcription is on outside the audio modal, which the notice does
   if (useLocaleHook) {
-    return <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />;
+    return (
+      <Styled.CaptionsSelectorContainer>
+        <AudioCaptionsOnDeviceNotice locale={speechLocale} inAudioModal={inAudioModal} />
+      </Styled.CaptionsSelectorContainer>
+    );
   }
 
   return (
