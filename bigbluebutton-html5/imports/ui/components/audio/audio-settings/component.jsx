@@ -46,6 +46,9 @@ const propTypes = {
   toggleVoice: PropTypes.func.isRequired,
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  transcriptionNotReady: PropTypes.bool,
+  transcriptionNeedsDownload: PropTypes.bool,
+  downloadTranscriptionLanguage: PropTypes.func,
   skipAudioOptions: PropTypes.func.isRequired,
 };
 
@@ -55,6 +58,9 @@ const defaultProps = {
   withEcho: false,
   unmuteOnExit: false,
   permissionStatus: null,
+  transcriptionNotReady: false,
+  transcriptionNeedsDownload: false,
+  downloadTranscriptionLanguage: () => Promise.resolve(false),
 };
 
 const intlMessages = defineMessages({
@@ -194,6 +200,7 @@ class AudioSettings extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const {
       permissionStatus, isConnecting, isConnected, skipAudioOptions, handleBack,
+      transcriptionNotReady,
     } = this.props;
     const { producingStreams } = this.state;
 
@@ -205,7 +212,8 @@ class AudioSettings extends React.Component {
       || prevProps.isConnected !== isConnected
       || prevState.producingStreams !== producingStreams
       || prevProps.skipAudioOptions !== skipAudioOptions
-      || prevProps.handleBack !== handleBack;
+      || prevProps.handleBack !== handleBack
+      || prevProps.transcriptionNotReady !== transcriptionNotReady;
 
     if (footerChanged) {
       this._registerFooter();
@@ -248,14 +256,25 @@ class AudioSettings extends React.Component {
     this.setOutputDevice(deviceId);
   }
 
-  handleConfirmationClick() {
+  handleConfirmationClick({ languagePackReady = false } = {}) {
     const { stream, inputDeviceId: selectedInputDeviceId } = this.state;
     const {
       isConnected,
       produceStreams,
       handleConfirmation,
       liveChangeInputDevice,
+      transcriptionNeedsDownload,
+      downloadTranscriptionLanguage,
     } = this.props;
+
+    // A transcription language without its on-device language pack: confirming downloads it,
+    // and the modal stays open until the download ends. A failure leaves it open to try again.
+    if (transcriptionNeedsDownload && !languagePackReady) {
+      downloadTranscriptionLanguage().then((installed) => {
+        if (installed && this._isMounted) this.handleConfirmationClick({ languagePackReady: true });
+      });
+      return;
+    }
 
     const confirm = () => {
       // Stream generation disabled or there isn't any stream: just run the provided callback
@@ -439,10 +458,12 @@ class AudioSettings extends React.Component {
   _registerFooter() {
     const { setFooterContent } = this.context;
     const {
-      intl, isConnected, isConnecting, skipAudioOptions, handleBack,
+      intl, isConnected, isConnecting, skipAudioOptions, handleBack, transcriptionNotReady,
     } = this.props;
     const { producingStreams } = this.state;
 
+    // Both disabled while the on-device language pack of the transcription language is checked or
+    // downloaded
     setFooterContent(
       <Styled.SettingsFooter>
         <Styled.SettingsBackButton
@@ -451,7 +472,7 @@ class AudioSettings extends React.Component {
             : intl.formatMessage(intlMessages.backLabel)}
           color="secondary"
           onClick={handleBack}
-          disabled={isConnecting}
+          disabled={isConnecting || transcriptionNotReady}
         />
         <Button
           data-test="joinEchoTestButton"
@@ -460,8 +481,8 @@ class AudioSettings extends React.Component {
           label={isConnected
             ? intl.formatMessage(intlMessages.confirmLabel)
             : intl.formatMessage(intlMessages.retryLabel)}
-          onClick={this.handleConfirmationClick}
-          disabled={isConnecting || producingStreams}
+          onClick={() => this.handleConfirmationClick()}
+          disabled={isConnecting || producingStreams || transcriptionNotReady}
         />
       </Styled.SettingsFooter>,
     );
@@ -571,7 +592,7 @@ class AudioSettings extends React.Component {
       <Styled.FormElement>
         <Styled.LabelSmall htmlFor="audioSettingsCaptionsSelector">
           {intl.formatMessage(intlMessages.captionsSelectorLabel)}
-          <AudioCaptionsSelectContainer showTitleLabel={false} />
+          <AudioCaptionsSelectContainer showTitleLabel={false} inAudioModal />
         </Styled.LabelSmall>
       </Styled.FormElement>
     );

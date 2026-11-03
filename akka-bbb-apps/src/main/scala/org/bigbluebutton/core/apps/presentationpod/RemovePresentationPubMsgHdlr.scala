@@ -40,20 +40,28 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
       val presentationId = msg.body.presentationId
       val meetingId = liveMeeting.props.meetingProp.intId
 
-      val newState = for {
-        pod <- PresentationPodsApp.getPresentationPod(state, podId)
-      } yield {
-        PresPresentationDAO.delete(meetingId, presentationId)
+      PresentationPodsApp.findPodWithPresentation(state, presentationId) match {
+        case Some(pod) if pod.id == podId =>
+          PresPresentationDAO.delete(meetingId, presentationId)
+          liveMeeting.droppedPresentations.addRemoved(presentationId)
+          broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
+          state.update(state.presentationPodManager.removePresentationInPod(pod.id, presentationId))
 
-        broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
+        case Some(pod) =>
+          log.warning("Not removing presentation held by a different pod. " +
+            s"meetingId=$meetingId requestedPodId=$podId podId=${pod.id} presentationId=$presentationId")
+          state
 
-        val pods = state.presentationPodManager.removePresentationInPod(pod.id, presentationId)
-        state.update(pods)
-      }
-
-      newState match {
-        case Some(ns) => ns
-        case None     => state
+        // In no pod (refused, or not yet converted): delete the row so it does not linger.
+        // Not announced; consumers of the remove event assume the presentation was in a pod.
+        // Only a well-formed id can belong to a presentation still converting, so only such an
+        // id is remembered.
+        case None =>
+          PresPresentationDAO.delete(meetingId, presentationId)
+          if (PresentationPodsApp.isPresentationId(presentationId)) {
+            liveMeeting.droppedPresentations.addRemoved(presentationId)
+          }
+          state
       }
     }
 

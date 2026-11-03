@@ -1,4 +1,5 @@
 import React from 'react';
+import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 
 export interface WebcamDevice {
   deviceId: string;
@@ -54,6 +55,7 @@ export interface UseVideoPreviewProps {
   // Doesn't enumerate devices nor acquire a stream on mount; the consumer calls
   // initializeCameras() when the user asks for the camera.
   deferInitialization?: boolean;
+  cameraDisabled?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;
@@ -108,11 +110,7 @@ export interface CameraProfileProps {
   default?: boolean;
   bitrate: number;
   hidden?: boolean;
-  constraints?: {
-    width: number;
-    height: number;
-    frameRate?: number;
-  };
+  constraints?: Constraints2;
 }
 export interface CustomBackground {
   uniqueId: string;

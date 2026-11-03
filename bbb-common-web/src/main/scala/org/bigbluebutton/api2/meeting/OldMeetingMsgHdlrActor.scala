@@ -9,6 +9,13 @@ import org.bigbluebutton.common2.msgs._
 object OldMeetingMsgHdlrActor {
   def props(olgMsgGW: OldMessageReceivedGW): Props =
     Props(classOf[OldMeetingMsgHdlrActor], olgMsgGW)
+
+  def toPresentationUploadToken(msg: PresentationUploadTokenSysPubMsg): PresentationUploadToken =
+    new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename,
+      msg.body.meetingId, msg.body.presentationId, msg.header.userId)
+
+  def toPresentationConversionRejected(msg: PresentationConversionRejectedSysMsg): PresentationConversionRejected =
+    new PresentationConversionRejected(msg.body.meetingId, msg.body.podId, msg.body.presentationId, msg.body.reason)
 }
 
 class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
@@ -37,6 +44,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserBroadcastCamStoppedEvtMsg     => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
       case m: PresentationUploadTokenSysPubMsg  => handlePresentationUploadTokenSysPubMsg(m)
+      case m: PresentationConversionRejectedSysMsg => handlePresentationConversionRejectedSysMsg(m)
       case m: GuestsWaitingApprovedEvtMsg       => handleGuestsWaitingApprovedEvtMsg(m)
       case m: PosInWaitingQueueUpdatedRespMsg   => handlePosInWaitingQueueUpdatedRespMsg(m)
       case m: GuestPolicyChangedEvtMsg          => handleGuestPolicyChangedEvtMsg(m)
@@ -210,7 +218,11 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename, msg.body.meetingId, msg.body.presentationId))
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationUploadToken(msg))
+  }
+
+  def handlePresentationConversionRejectedSysMsg(msg: PresentationConversionRejectedSysMsg): Unit = {
+    olgMsgGW.handle(OldMeetingMsgHdlrActor.toPresentationConversionRejected(msg))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {

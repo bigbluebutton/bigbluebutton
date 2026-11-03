@@ -9,7 +9,12 @@ import { PresenterRequest } from './presenterRequest';
 import { RaisedHands } from './raisedHands';
 import { Timer } from './timer';
 import { UserListSearch } from './userListSearch';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride, SHORT_REACTION_EXPIRY_MODULE } from './util';
+import {
+  AUDIO_ONLY_TILE_SETTINGS_OVERRIDE,
+  emojiRainSettingsOverride,
+  LIVEKIT_AUDIO_STATE_OVERRIDE,
+  SHORT_REACTION_EXPIRY_MODULE,
+} from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -432,6 +437,58 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesJoinNotification();
       });
+
+      // Regression test for the getUserVoiceStateStream hideUserList bypass:
+      // a speaker's name must not reach a locked viewer through the talking indicator.
+      test(
+        'Hide user list suppresses talking indicator name for locked viewer',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListSuppressesTalkingIndicator();
+        },
+      );
+
+      // Companion to the test above, with the lock applied AFTER the speaker is already
+      // talking: the client has to drop the state it gathered before the lock, because the
+      // server stops reporting the speaker rather than retracting them.
+      test(
+        'Hide user list suppresses talking indicator name applied mid-talk',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk();
+        },
+      );
+
+      // Both cases again against LiveKit's client-side audio state. The two settings are
+      // served by different talking-indicator paths, and the shipped default is off, so
+      // without pinning it here the LiveKit path is never exercised.
+      test(
+        'Hide user list suppresses talking indicator name for locked viewer (LiveKit audio state)',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
+          await lockViewers.hideUserListSuppressesTalkingIndicator(LIVEKIT_AUDIO_STATE_OVERRIDE);
+        },
+      );
+
+      test(
+        'Hide user list suppresses talking indicator name applied mid-talk (LiveKit audio state)',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
+          await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk(LIVEKIT_AUDIO_STATE_OVERRIDE);
+        },
+      );
 
       test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);

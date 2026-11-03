@@ -4,7 +4,7 @@ import { Stress } from './stress';
 // @ci Note: Stress tests are not intended to be run in CI
 
 // timeouts are several times the usual duration, so a hang fails the test instead of blocking the whole run
-test.describe.parallel('Stress', () => {
+test.describe.parallel('Stress', { tag: '@stress' }, () => {
   test('First moderator joining as presenter', async ({ browser, context, page }, testInfo) => {
     test.setTimeout(15 * 60 * 1000);
     const stress = new Stress(browser, context, page, testInfo);

@@ -267,6 +267,7 @@ class NavBar extends Component {
 
     return (
       <Styled.Navbar
+        className="bbb-navbar"
         id="Navbar"
         style={
           main === 'new'
@@ -286,11 +287,12 @@ class NavBar extends Component {
       >
         {!hideTopRow && (
           <Styled.Top>
-            <Styled.Left>
+            <Styled.Left className="bbb-navbar__left">
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
-            <Styled.Center>
+            <Styled.Center className="bbb-navbar__center">
               <Styled.PresentationTitle
+                className="bbb-navbar__title"
                 data-test="presentationTitle"
                 id="presentationTitle"
               >
@@ -326,7 +328,7 @@ class NavBar extends Component {
               </ModalRegistration>
               {renderPluginItems(centerPluginItems)}
             </Styled.Center>
-            <Styled.Right>
+            <Styled.Right className="bbb-navbar__right">
               <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               <RecordingIndicator
                 amIModerator={amIModerator}
@@ -344,7 +346,7 @@ class NavBar extends Component {
             </Styled.Right>
           </Styled.Top>
         )}
-        <Styled.Bottom>
+        <Styled.Bottom className="bbb-navbar__bottom">
           <h2 className="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
           {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
           <TimerIndicatorContainer />

@@ -27,7 +27,7 @@ env:
 
 jobs:
   targets:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     outputs:
       targets: ${{ steps.list.outputs.targets }}
       client-build: ${{ steps.version.outputs.client-build }}
@@ -51,7 +51,7 @@ jobs:
   build:
     needs: targets
     name: ${{ matrix.target }} (${{ matrix.platform }})
-    runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     env:
       CLIENT_BUILD: ${{ needs.targets.outputs.client-build }}
       VERSION: ${{ needs.targets.outputs.version }}
@@ -100,7 +100,7 @@ jobs:
   merge:
     needs: [targets, build]
     if: github.event_name != 'pull_request' && github.repository == 'bigbluebutton/bigbluebutton'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-24.04' }}
     env:
       VERSION: ${{ needs.targets.outputs.version }}
     permissions:

@@ -6,7 +6,7 @@ import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 import {
-  APOLLO_CLIENT_SETTINGS_MODULE,
+  APOLLO_CLIENT_SETTINGS_OVERRIDE,
   expectFloorHolder,
   getOwnUserId,
   getUserVoiceRows,
@@ -22,7 +22,10 @@ const APOLLO_EXPOSURE_SKIP_REASON =
 const initTwoSpeakers = async (browser: Browser, testInfo: TestInfo) => {
   const context = await browser.newContext();
   const audio = new Audio(browser, context);
-  await audio.initModPage(await context.newPage(), { testInfo, createModules: APOLLO_CLIENT_SETTINGS_MODULE });
+  await audio.initModPage(await context.newPage(), {
+    testInfo,
+    createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
+  });
   await audio.initUserPage(context, { testInfo });
   const { modPage, userPage } = audio;
   test.skip(!(await isApolloClientExposed(modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
@@ -54,7 +57,7 @@ test.describe('Audio floor control', { tag: ['@ci', '@media'] }, () => {
     await audioB.initModPage(await contextB.newPage(), {
       testInfo,
       fullName: 'ModeratorB',
-      createModules: APOLLO_CLIENT_SETTINGS_MODULE,
+      createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE,
     });
     test.skip(!(await isApolloClientExposed(audioB.modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
     const modB = audioB.modPage;
