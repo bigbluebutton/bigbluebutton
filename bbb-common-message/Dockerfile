@@ -1,5 +1,5 @@
 # Build stage only: publishes bbb-common-message to ~/.m2 for the Java builds that use it.
-FROM sbtscala/scala-sbt:eclipse-temurin-21.0.12_8_1.13.0_2.13.18@sha256:bb964ad5eb711de572bd937a7f8400f06fdeb75613464edb29449dd7a789f21d
+FROM sbtscala/scala-sbt:eclipse-temurin-21.0.12.1_1_2.x@sha256:7cd33af05642529b0f2d626d99b145290b67462046e25a34885b45d3b2cad6b9
 
 WORKDIR /bbb-common-message
 
