@@ -337,7 +337,7 @@ Going forward, when users connect behind a restrictive firewall that prevents ou
 
 ## Test your TURN server
 
-By default, the browser tries to connect directly to the media server (LiveKit, or FreeSWITCH and mediasoup where those are used). If it is unable to make a direct connection, it falls back to the TURN server as one of the ICE candidates to relay the media.
+By default, the browser tries to connect directly to the media server (LiveKit or mediasoup). If it is unable to make a direct connection, it falls back to the TURN server as one of the ICE candidates to relay the media.
 
 To make every client use the TURN server, so that you can verify it works, set the following in `/etc/bigbluebutton/bbb-html5.yml` and run `sudo bbb-conf --restart`:
 
