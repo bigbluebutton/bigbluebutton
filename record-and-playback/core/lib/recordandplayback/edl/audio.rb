@@ -364,11 +364,12 @@ module BigBlueButton
               # Build track label
               track_label = "t#{i}_#{idx}"
               line = "[#{input_index}]"
-              # Trim what was read before the seek point, or it would be stretched into the cut too
-              line << "atrim=start=0,atempo=#{speed}," if speed != 1.0
-              # Ensure the aresample filter doesn't see the next audio packet after a long pts gap
-              line << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])},apad,"
+              # Ensure the aresample filter doesn't see the next audio packet after a long pts gap. This is
+              # before any stretching, so it is the cut's length in the file's own time.
+              line << "atrim=end=#{ms_to_s(((entry[:next_timestamp] - entry[:timestamp]) * speed).round)},apad,"
               line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}"
+              # Stretch after the resampler, which has trimmed the start and filled any gaps with silence
+              line << ",atempo=#{speed}" if speed != 1.0
               line << "[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
@@ -428,9 +429,6 @@ module BigBlueButton
       # fill the gap, but it enqueues the full length of the gap into the filter chain all at once,
       # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
       # and remove the audio file from the mix for the duration of the gap.
-      #
-      # In a speed-adjusted file, gaps shorter than DEFAULT_PTS_GAP_MS stay inside cuts, where atempo closes
-      # them up instead of filling them with silence, but FreeSWITCH recordings have none.
       def self.remove_audio_gaps(edl, audioinfo, process_dir)
         audio_gaps = audioinfo.each_with_object({}) do |(filename, info), gaps|
           # Stretched, a file covers its whole original duration, so its end is not a gap
