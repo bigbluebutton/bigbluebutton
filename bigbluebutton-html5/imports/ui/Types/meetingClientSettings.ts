@@ -186,7 +186,6 @@ export interface ReactionsButton {
 
 export interface EmojiRain {
   enabled: boolean
-  intervalEmojis: number
   numberOfEmojis: number
   emojiSize: number
 }

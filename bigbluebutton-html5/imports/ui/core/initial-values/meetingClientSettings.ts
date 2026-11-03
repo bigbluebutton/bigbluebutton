@@ -131,7 +131,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       emojiRain: {
         enabled: false,
-        intervalEmojis: 2000,
         numberOfEmojis: 5,
         emojiSize: 2,
       },

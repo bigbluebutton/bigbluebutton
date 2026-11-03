@@ -38,6 +38,7 @@ export const elements = {
   reactionsButtonLabel: `${reactionsButton} span:nth-child(2)`,
   singleReactionButton: 'li[data-test="reaction"]',
   removeReactionButton: 'li[data-test="remove-reaction"]',
+  emojiRainContainer: 'div[data-test="emojiRain"]',
   emojiRain: 'div[data-test="emojiRain"] svg',
   raiseHandBtn: 'button[data-test="raiseHandBtn"]',
   lowerHandBtn: 'button[data-test="lowerHandBtn"]',

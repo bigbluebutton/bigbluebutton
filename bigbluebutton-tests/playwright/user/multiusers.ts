@@ -20,6 +20,8 @@ interface InitExtraPageOptionsProps extends InitOptionsProps {
 
 // How long the disabled emoji rain is watched for after a reaction; when enabled it starts well within this.
 const EMOJI_RAIN_WATCH_TIME = 2000;
+// A rain burst's elements are removed 2 s after the reaction (emoji-rain/component.jsx).
+const EMOJI_RAIN_BURST_DURATION = 2000;
 
 export class MultiUsers {
   public browser: Browser;
@@ -724,6 +726,80 @@ export class MultiUsers {
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
     });
+  }
+
+  /**
+   * Every reaction rains, and reactions in quick succession are not throttled: a second reaction sent
+   * while the first burst is still on screen rains too. A MutationObserver on the rain container counts
+   * the rain elements per emoji as they are added, so the check does not depend on polling catching both
+   * bursts on screen at the same moment.
+   */
+  async emojiRainForEveryReaction(numberOfEmojis: number) {
+    expect(this.modPage.settings?.emojiRain, 'emojiRain.enabled should be on for this check').toBe(true);
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitForSelector(e.emojiRainContainer);
+
+    // The emoji each picker entry sends, in picker order (the picker renders them in a shadow DOM).
+    const reactionEmojis: string[] = await this.modPage.page.evaluate(() => {
+      const settings = (
+        window as unknown as {
+          meetingClientSettings: { public: { userReaction: { reactions: { native: string }[] } } };
+        }
+      ).meetingClientSettings;
+      return settings.public.userReaction.reactions.map((reaction) => reaction.native);
+    });
+    const [firstReaction, secondReaction] = [0, 4];
+
+    await this.modPage.page.evaluate((containerSelector) => {
+      const counts: Record<string, number> = {};
+      (window as unknown as { emojiRainCounts: Record<string, number> }).emojiRainCounts = counts;
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            const emoji = node.textContent ?? '';
+            counts[emoji] = (counts[emoji] ?? 0) + 1;
+          });
+        });
+      });
+      observer.observe(document.querySelector(containerSelector) as Element, { childList: true });
+    }, e.emojiRainContainer);
+
+    const sendReaction = async (index: number): Promise<number> => {
+      await this.modPage.waitAndClick(e.reactionsButton);
+      await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(${index + 1})`);
+      return Date.now();
+    };
+    const firstSentAt = await sendReaction(firstReaction);
+    const secondSentAt = await sendReaction(secondReaction);
+    expect(
+      secondSentAt - firstSentAt,
+      'the second reaction should be sent while the first burst is still on screen',
+    ).toBeLessThan(EMOJI_RAIN_BURST_DURATION);
+
+    // Lower bound per emoji: the rain component re-runs its effect on every render, so a re-render within a
+    // second of a reaction replays that burst (seen on about one run in eight). A replay is not a throttle,
+    // so the counts are capped at the burst size and only a missing burst fails the check.
+    const readCappedCounts = async () => {
+      const counts = await this.modPage.page.evaluate(
+        () => (window as unknown as { emojiRainCounts: Record<string, number> }).emojiRainCounts,
+      );
+      return Object.fromEntries(
+        [firstReaction, secondReaction].map((index) => [
+          reactionEmojis[index],
+          Math.min(counts[reactionEmojis[index]] ?? 0, numberOfEmojis),
+        ]),
+      );
+    };
+    await expect
+      .poll(readCappedCounts, {
+        message: `each of the two reactions should rain ${numberOfEmojis} emojis; the second one is not throttled`,
+        timeout: ELEMENT_WAIT_TIME,
+      })
+      .toEqual({ [reactionEmojis[firstReaction]]: numberOfEmojis, [reactionEmojis[secondReaction]]: numberOfEmojis });
+    await expect(
+      this.modPage.page.locator(e.emojiRain),
+      'should remove the rain elements after the bursts',
+    ).toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async leaveMeeting() {
