@@ -530,7 +530,7 @@ For more information about the pre-upload slides check the following [link](http
 
 #### clientSettingsOverride
 
-We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
+We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, the shipped defaults that `/etc/bigbluebutton/bbb-html5.yml` overrides) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
 By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.

@@ -686,35 +686,44 @@ The switch only shows when the user's page size is above `0`. With the default `
 
 #### Use custom images for virtual background
 
-BigBlueButton offers virtual backgrounds for webcams.
-To use your own background images copy them into the directory
-`/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds`.
-For each image copy a thumbnail of the image of 50x50 pixels size into
-`/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds/thumbnails`.
+BigBlueButton offers virtual backgrounds for webcams. The shipped images are in `/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds/`, with 50x50 pixel thumbnails in its `thumbnails/` subdirectory; that directory belongs to the `bbb-html5` package, so do not add your images there. The client fetches an image from `<client path><imagesPath><file name>` and its thumbnail from `<client path><thumbnailsPath><file name>`, with `imagesPath` and `thumbnailsPath` taken from `public.virtualBackgrounds`, so an nginx `location` under the client path can serve your images from a directory of your own.
 
-To generate thumbnails you can use the following shell snippet:
+Copy the images into that directory, for example `/var/www/bigbluebutton-default/site/virtual-backgrounds/`, and generate the thumbnails:
 
 ```bash
 #!/bin/bash
-FULL="/usr/share/bigbluebutton/html5-client/resources/images/virtual-backgrounds"
+FULL="/var/www/bigbluebutton-default/site/virtual-backgrounds"
 THUMB="${FULL}/thumbnails"
 
+mkdir -p "$THUMB"
 cd "$FULL"
 for pic in *.jpg; do
     convert "$pic" -resize 50x50^ -gravity Center -extent 50x50 "${THUMB}/${pic}"
 done
 ```
 
-Reference them in the configuration file `/etc/bigbluebutton/bbb-html5.yml`:
+Create `/etc/bigbluebutton/nginx/virtual-backgrounds.nginx` to serve the directory under the client path (`/html5client` by default), then reload nginx with `sudo systemctl reload nginx`:
 
+```nginx
+location /html5client/virtual-backgrounds/ {
+    alias /var/www/bigbluebutton-default/site/virtual-backgrounds/;
+}
 ```
+
+Then point the client at the directory and list the images in `/etc/bigbluebutton/bbb-html5.yml`. The list replaces the shipped one, so copy the shipped images into your directory and list them too if you want to keep them:
+
+```yaml
 public:
   virtualBackgrounds:
+    imagesPath: /virtual-backgrounds/
+    thumbnailsPath: /virtual-backgrounds/thumbnails/
     fileNames:
       - image1.jpg
       - image2.jpg
       - image3.jpg
 ```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the client settings to take effect.
 
 Background images should not be too large as clients have to download them. You
 can optimize them using the `jpegoptim` command which is available as an Ubuntu
@@ -1133,13 +1142,19 @@ $ sudo bbb-conf --restart
 
 #### Change the default presentation
 
-When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users. Note that this file may be overwritten when BigBlueButton is upgraded. 
+When a new meeting starts, BigBlueButton displays a default presentation: whenever a meeting is created, `bbb-web` downloads the file at the URL in its property `beans.presentationService.defaultUploadedPresentation`, converts it and displays it for all users. The shipped file, `/var/www/bigbluebutton-default/assets/default.pdf`, belongs to the `bbb-config` package and is restored on every upgrade of that package, so do not replace it in place. Instead, keep your presentation outside the package directory, for example as `/var/www/bigbluebutton-default/site/default.pdf`, served by nginx through a file `/etc/bigbluebutton/nginx/site.nginx` (every `*.nginx` file in that directory is included):
 
-Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
+```nginx
+location /site/ {
+    alias /var/www/bigbluebutton-default/site/;
+}
+```
+
+Reload nginx with `sudo systemctl reload nginx`, then set the URL in `/etc/bigbluebutton/bbb-web.properties` (any other web server the BigBlueButton server can reach works too):
 
 ```properties
 # Default Uploaded presentation file
-beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/default.pdf
+beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/site/default.pdf
 ```
 
 Please use the file name "default.pdf" if you would not like BigBlueButton to generate thumbnails from this file. The thumbnails will be used in some frontend apps, such as Greenlight.
@@ -1473,13 +1488,19 @@ You can test your setup with one of the files from [eicar.org](https://www.eicar
 
 #### Modify the default landing page
 
-The default HTML landing page is located in
+The default HTML landing page is `/var/www/bigbluebutton-default/assets/index.html`, a file of the `bbb-config` package that is restored on every upgrade of that package, so do not change it in place. Instead, put your own page in a directory of your own, for example `/var/www/bigbluebutton-default/site/index.html`, and serve it from there with a file `/etc/bigbluebutton/nginx/landing.nginx` (every `*.nginx` file in that directory is included):
 
-```bash
-/var/www/bigbluebutton-default/assets/index.html
+```nginx
+location = / {
+    root /var/www/bigbluebutton-default/site;
+    index index.html;
+}
+location = /index.html {
+    root /var/www/bigbluebutton-default/site;
+}
 ```
 
-Change this page to create your own landing page (and keep a back-up copy of it as it will be overwritten during package updates to `bbb-config`).
+The second block is needed because `index` redirects `/` to `/index.html` internally. Other files your page links to (images, stylesheets) can be served the same way, for example under `/site/` as shown in [Change the default presentation](#change-the-default-presentation). Reload nginx with `sudo systemctl reload nginx` afterwards.
 
 #### Use the Greenlight front-end
 
@@ -1684,21 +1705,28 @@ The welcome message is fixed for the duration of a meeting. If you want to see t
 #### Modify localization for the client (override with the latest locale)
 
 A common use case is to modify a particular string from the locales or to include newer localizations from upstream.
-For example, if you would like to replace `de.json` with the version from a specific branch/tag of the repository, you could do the following:
+The client fetches each locale file from `<client path>/locales/<locale>.json`, which nginx serves from `/usr/share/bigbluebutton/html5-client/locales/`. That directory belongs to the `bbb-html5` package and is replaced on upgrades, so do not change the files in it. Instead, keep your version of the file outside the package directory and let nginx serve it in place of the shipped one, through a file in `/etc/bigbluebutton/nginx/` (every `*.nginx` file there is included, see [the nginx override mechanism](/administration/configuration-files#nginx)).
+
+For example, to replace `de.json` with the version from a specific branch/tag of the repository:
 
 ```bash
-cd /usr/share/bigbluebutton/html5-client/locales/
-mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
+sudo mkdir -p /var/www/bigbluebutton-default/site/locales
+sudo wget -O /var/www/bigbluebutton-default/site/locales/de.json https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 ```
 
-No restart is needed: the client loads the locale files from this directory when it starts.
+Then create `/etc/bigbluebutton/nginx/locales.nginx` with one `location` per replaced file (the path starts with the client path, `/html5client` by default):
 
-Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached.
+```nginx
+location = /html5client/locales/de.json {
+    alias /var/www/bigbluebutton-default/site/locales/de.json;
+}
+```
 
-The `locales` directory belongs to the `bbb-html5` package, so an upgrade of that package replaces the files in it, your copy included. There is no override location for locale files; re-apply the change after upgrades, for example from [apply-config.sh](#preserving-customizations-using-apply-configsh).
+and reload nginx with `sudo systemctl reload nginx`. No BigBlueButton restart is needed: the client fetches the locale files when it starts.
 
-Please use caution when replacing/editing locales. If you followed the steps above you should have a backup copy of `de.json` (with ".old" appended) in `/tmp` in case you need to revert.
+Start a new meeting on the server, switch to German localization in Settings, **clear the cache** if needed -- frequently locales are cached. To revert, remove the `location` block (or the whole file) and reload nginx: the shipped file is served again.
+
+Please use caution when replacing/editing locales.
 Note that the json files across BigBlueButton versions are not always interchangeable. The workflow described above is only really meant for cases like
  - I would like to tweak a translation for my own use
  - I would like to adopt a change from upstream without having to wait for the official release in a few days
@@ -1707,22 +1735,15 @@ Note that the json files across BigBlueButton versions are not always interchang
 
 #### Change favicon
 
-First method:
+The shipped favicon is `/var/www/bigbluebutton-default/assets/favicon.ico`, a file of the `bbb-config` package that is restored on every upgrade of that package, so do not overwrite it. Instead, create a custom directory under `/var/www/bigbluebutton-default/` like `/var/www/bigbluebutton-default/site` and copy your favicon.ico into this directory. Add a new file `favicon.nginx` to `/etc/bigbluebutton/nginx` with the following lines:
 
-To change the favicon, overwrite the file `/var/www/bigbluebutton-default/assets/favicon.ico`.
-
-You'll need to update file each time the `bbb-config` package updates.
-
-Second method:
-
-Create a custom directory under `/var/www/bigbluebutton-default/` like `/var/www/bigbluebutton-default/site` and copy your favicon.ico into this directory. Add a new file `favicon.nginx` to `/etc/bigbluebutton/nginx` and add the following lines:
-
-```
+```nginx
 location = /favicon.ico {
     alias /var/www/bigbluebutton-default/site/favicon.ico;
+}
 ```
 
-After a restart of nginx, your customized favicon.ico will be delivered. This change will affect BigBlueButton and Greenlight and will persist during updates.
+After a reload of nginx (`sudo systemctl reload nginx`), your customized favicon.ico will be delivered. This change will affect BigBlueButton and Greenlight and will persist during updates.
 
 #### Change title in the HTML5 client
 
@@ -1930,11 +1951,21 @@ Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effe
 
 #### Show a custom logo on the client
 
-Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
+Ensure that `public.app.branding.displayBrandingArea` is set to `true` in `/etc/bigbluebutton/bbb-html5.yml`, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
 
 #### Changing the default logo
 
-To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
+Meetings created without a `logo` parameter show the logo at `defaultLogoURL` when the `bbb-web` property `useDefaultLogo` is `true`; `useDefaultDarkLogo` and `defaultDarkLogoURL` do the same for the dark theme, which falls back to `defaultLogoURL` while `useDefaultDarkLogo` is `false`. The shipped default, `/var/www/bigbluebutton-default/assets/images/logo.png`, belongs to the `bbb-config` package and is restored on every upgrade of that package, so do not replace it. Instead, host your logo at a URL of your own, for example in `/var/www/bigbluebutton-default/site/` served through the `site.nginx` file shown in [Change the default presentation](#change-the-default-presentation), and set the properties in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+useDefaultLogo=true
+defaultLogoURL=${bigbluebutton.web.serverURL}/site/logo.png
+# Optional: a different logo for the dark theme
+useDefaultDarkLogo=true
+defaultDarkLogoURL=${bigbluebutton.web.serverURL}/site/darklogo.png
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` afterwards.
 
 ### Other meeting configs available
 These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#get-post-create) parameter.
