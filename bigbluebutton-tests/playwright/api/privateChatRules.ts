@@ -1,12 +1,12 @@
 import { expect } from '@playwright/test';
 
+import { Join } from '../breakout/join';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getOwnUserId, graphql, readRows, sendMutation, waitForServerToCatchUp } from '../core/graphql';
 import { getRandomInt } from '../core/helpers';
 import { Page } from '../core/page';
-import { MultiUsers } from '../user/multiusers';
-import { BREAKOUT_ROOM_CREATE } from './breakout';
+import { breakoutRoomCreateVariables, sendBreakoutRoomCreate } from './breakout';
 import { CREATE_PRIVATE_CHAT, getPrivateMessages, PRIVATE_CHATS, sendPrivateMessage } from './disabledFeatures';
 
 const pollOptions = { timeout: ELEMENT_WAIT_LONGER_TIME };
@@ -16,11 +16,11 @@ const pollOptions = { timeout: ELEMENT_WAIT_LONGER_TIME };
 const LOCK_CHANGE_GRACE_TIME = 5000;
 
 // The mutations the client sends (bigbluebutton-html5 mutations.ts files) and the views a participant
-// reads the result from. The chat helpers below are copied from api/disabledFeatures.ts.
+// reads the result from. The chat helpers come from api/disabledFeatures.ts and the breakout mutation
+// from api/breakout.ts.
 // the user list's lock toggle (bigbluebutton-html5/imports/ui/core/graphql/mutations/userMutations.ts SET_LOCKED)
 const SET_USER_LOCKED =
   'mutation SetUserLocked($userId: String!, $locked: Boolean!) { userSetLocked(userId: $userId, locked: $locked) }';
-// the create breakout rooms panel (bigbluebutton-html5/imports/ui/components/breakout-room/mutations.ts)
 const CURRENT_USER = 'subscription { user_current { userId raiseHand locked } }';
 const PRIVATE_CHAT_LOCK = 'subscription { meeting { lockSettings { disablePrivateChat lockOnJoin } } }';
 
@@ -54,7 +54,7 @@ async function waitForLockGraceToPass(since: number) {
 
 // The server's private chat rules, driven through GraphQL as the client would send them
 // (CreateGroupChatReqMsgHdlr.scala, SendGroupChatMessageMsgHdlr.scala)
-export class PrivateChatRules extends MultiUsers {
+export class PrivateChatRules extends Join {
   // Checks that `sender` cannot start a private chat with `receiver`: the receiver gets neither
   // the chat nor the message
   private static async expectPrivateChatRefused(sender: Page, receiver: Page, description: string) {
@@ -156,39 +156,14 @@ export class PrivateChatRules extends MultiUsers {
     );
   }
 
-  private async joinFromInvitation(attendee: Page): Promise<Page> {
-    const roomTab = await attendee.handleNewTab(e.modalConfirmButton, attendee.page.context());
-    const roomPage = new Page(this.browser, roomTab, this.modPage.testInfo);
-    await roomPage.hasElement(e.presentationTitle, 'should load the breakout room', ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await roomPage.closeAudioModal();
-    return roomPage;
-  }
-
   // The parent has lockSettingsDisablePrivateChat=true; the moderator creates the rooms through the
   // panel's mutation with both attendees in room 1, and the attendees try a private chat in the room
   async privateChatLockInRoom(inheritLockSettings: boolean) {
     const attendeeIds = [await getOwnUserId(this.userPage), await getOwnUserId(this.userPage2)];
-    const room = (sequence: number, users: string[]) => ({
-      name: `Room ${sequence}`,
-      shortName: `Room ${sequence}`,
-      sequence,
-      isDefaultName: true,
-      freeJoin: false,
-      captureNotesFilename: `Room_${sequence}_Notes`,
-      captureSlidesFilename: `Room_${sequence}_Whiteboard`,
-      users,
-      allPages: false,
-      presId: '',
-    });
-    await sendMutation(this.modPage, BREAKOUT_ROOM_CREATE, 'breakoutRoomCreate', {
-      record: false,
-      captureNotes: false,
-      captureSlides: false,
-      durationInSeconds: 15 * 60,
-      sendInviteToModerators: false,
-      inheritLockSettings,
-      rooms: [room(1, attendeeIds), room(2, [])],
-    });
+    await sendBreakoutRoomCreate(
+      this.modPage,
+      breakoutRoomCreateVariables(2, { firstRoomUsers: attendeeIds, inheritLockSettings }),
+    );
 
     await this.userPage.hasElement(
       e.modalConfirmButton,
@@ -197,8 +172,8 @@ export class PrivateChatRules extends MultiUsers {
     );
     // the room exists, so its lock settings were set before this moment
     const roomsOpenedAt = Date.now();
-    const roomPage = await this.joinFromInvitation(this.userPage);
-    const otherRoomPage = await this.joinFromInvitation(this.userPage2);
+    const roomPage = await this.joinRoomFromInvitation(this.userPage);
+    const otherRoomPage = await this.joinRoomFromInvitation(this.userPage2);
 
     const [roomMeeting] = await readRows<{ lockSettings: { disablePrivateChat: boolean; lockOnJoin: boolean } }>(
       roomPage,

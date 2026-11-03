@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { readRows } from '../core/graphql';
 import { applyClientSettingsOverridesToContext, ClientSettingsOverrides, Page } from '../core/page';
@@ -53,13 +53,6 @@ export class PanelDefaults extends Create {
     await expect(option, `should ${checked ? '' : 'not '}pre-tick the option: ${description}`).toBeChecked({
       checked,
     });
-  }
-
-  private async assignToFirstRoom(name: string) {
-    await this.modPage.page
-      .locator(e.unassignedUser, { hasText: name })
-      .dragTo(this.modPage.page.locator(e.breakoutBox1), { timeout: ELEMENT_WAIT_TIME });
-    await this.modPage.hasText(e.breakoutBox1, name, `should list ${name} in the first room`);
   }
 
   async allowChooseRoomPreTicked(checked: boolean) {

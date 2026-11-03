@@ -38,9 +38,13 @@ interface BreakoutRoomRow {
 // The variables the panel sends for `roomCount` rooms with the default names
 // (sidebar-create-breakout/component.tsx handleCreateRoom); `firstRoomUsers`
 // are assigned to the first room.
-function breakoutRoomCreateVariables(
+export function breakoutRoomCreateVariables(
   roomCount: number,
-  { record = false, firstRoomUsers = [] }: { record?: boolean; firstRoomUsers?: string[] } = {},
+  {
+    record = false,
+    firstRoomUsers = [],
+    inheritLockSettings = false,
+  }: { record?: boolean; firstRoomUsers?: string[]; inheritLockSettings?: boolean } = {},
 ) {
   const rooms = Array.from({ length: roomCount }, (_, index) => {
     const sequence = index + 1;
@@ -64,12 +68,12 @@ function breakoutRoomCreateVariables(
     captureSlides: false,
     durationInSeconds: 900,
     sendInviteToModerators: false,
-    inheritLockSettings: false,
+    inheritLockSettings,
     rooms,
   };
 }
 
-const sendBreakoutRoomCreate = (page: Page, variables: ReturnType<typeof breakoutRoomCreateVariables>) =>
+export const sendBreakoutRoomCreate = (page: Page, variables: ReturnType<typeof breakoutRoomCreateVariables>) =>
   sendMutation(page, BREAKOUT_ROOM_CREATE, 'breakoutRoomCreate', variables);
 
 const readBreakoutRooms = (page: Page) => readRows<BreakoutRoomRow>(page, BREAKOUT_ROOMS, 'breakoutRoom');
@@ -242,17 +246,6 @@ export class APIBreakout extends Join {
     return this.waitForListedRooms(request, count);
   }
 
-  // The moderator half of Create.create(): the attendee goes to the first room of two
-  private async createRoomsFromPanel() {
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.hasElement(e.attendeeNotAssigned, 'should list the users not assigned to a room yet');
-    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.setHeightWidthViewPortSize();
-  }
-
   // A room's voice bridge is the parent's plus its sequence (BreakoutApp2x.createVoiceConfId).
   // When another running meeting already holds that number, the room is still expected to
   // exist and be joinable.
@@ -274,7 +267,7 @@ export class APIBreakout extends Join {
 
       await this.initModPage(page, { testInfo, createParameter: `voiceBridge=${parentVoiceBridge}` });
       await this.initUserPage(this.modPage.context, { testInfo });
-      await this.createRoomsFromPanel();
+      await this.createRoomsWith([this.userPage]);
 
       await expect
         .poll(async () => (await readBreakoutRooms(this.modPage)).length, {
@@ -531,10 +524,16 @@ export class APIBreakout extends Join {
   async testEndingParentEndsRooms(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
     await this.initPages(page, testInfo);
     await this.create();
-    const roomPage = await this.joinRoom();
     const [firstRoom] = await this.waitForListedRooms(request, 2);
     const firstRoomId = firstRoom.meetingID?.[0] as string;
-    expect(firstRoom.running, 'control: the first room should run with the attendee in it').toEqual(['true']);
+    const roomPage = await this.joinRoom();
+    // bbb-web counts the attendee once it has handled the user-joined event, a moment after the room loaded
+    await expect
+      .poll(async () => (await getMeetingInfoXml(request, firstRoomId)).running, {
+        ...pollOptions,
+        message: 'control: the first room should run with the attendee in it',
+      })
+      .toEqual(['true']);
 
     await endMeetings(request, [this.modPage.meetingId]);
     await roomPage.hasElement(

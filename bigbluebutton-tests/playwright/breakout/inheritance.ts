@@ -99,18 +99,6 @@ async function isPresenter(page: Page): Promise<boolean> {
   return user?.presenter === true;
 }
 
-// Starts the recording as the moderator in the given meeting
-async function startRecording(moderatorPage: Page) {
-  // toasts of a freshly joined meeting cover the recording indicator
-  await moderatorPage.closeAllToastNotifications();
-  await moderatorPage.waitAndClick(e.recordingIndicator);
-  await moderatorPage.waitAndClick(e.confirmRecordingButton);
-  await expect(
-    moderatorPage.page.locator(`${e.recordingIndicator} button`),
-    'the moderator should start the recording',
-  ).toHaveAttribute('aria-label', 'Pause recording', { timeout: ELEMENT_WAIT_LONGER_TIME });
-}
-
 export class Inheritance extends Join {
   // The attendee joins the first room from the breakout panel (the invitation was dismissed).
   // onOpen sees the room's tab before it loads.
@@ -123,20 +111,6 @@ export class Inheritance extends Join {
     await breakoutPage.page.bringToFront();
     await breakoutPage.hasElement(e.presentationTitle, 'should load the breakout room', ELEMENT_WAIT_EXTRA_LONG_TIME);
     return breakoutPage;
-  }
-
-  // Puts the attendees in the first room and creates the rooms, leaving their invitations open
-  private async createWithAttendeesInFirstRoom(attendees: Page[]) {
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    // the unassigned users are listed by name, so the attendees come before the moderator
-    for (const attendee of attendees) {
-      await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-      await this.modPage.hasText(e.breakoutBox1, attendee.username, `should assign ${attendee.username} to room 1`);
-    }
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 
   // The rooms must have been created from the panel; the parent with roomsApiCreateParameter(parentVoiceBridge)
@@ -283,7 +257,7 @@ export class Inheritance extends Join {
     expect(parent.usersPolicies.multiUserWhiteboardEnabled, 'the parent should be single-user').toBe(false);
 
     const attendees = [this.userPage, this.userPage2];
-    await this.createWithAttendeesInFirstRoom(attendees);
+    await this.createRoomsWith(attendees);
     const breakoutPages = [
       await this.joinRoomFromInvitation(attendees[0]),
       await this.joinRoomFromInvitation(attendees[1]),
@@ -365,7 +339,7 @@ export class Inheritance extends Join {
   async recordingConsentInRooms() {
     // control: the parent asks the attendee to consent once its recording starts
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await startRecording(this.modPage);
+    await Inheritance.startRecording(this.modPage);
     await this.userPage.hasElement(
       e.recordingNotifyModal,
       'should ask the attendee in the parent to consent to the recording',
@@ -381,7 +355,7 @@ export class Inheritance extends Join {
       await this.joinFirstBreakoutRoomAsModerator(),
       this.modPage.testInfo,
     );
-    await startRecording(breakoutModPage);
+    await Inheritance.startRecording(breakoutModPage);
 
     await breakoutUserPage.hasElement(
       e.recordingNotifyModal,
@@ -415,7 +389,7 @@ export class Inheritance extends Join {
     expect(parent.usersPolicies.guestPolicy, 'the parent should ask the moderator').toBe('ASK_MODERATOR');
 
     // nobody approves anyone in the room: the guest gets in only because the room accepts everyone
-    await this.createWithAttendeesInFirstRoom([this.userPage]);
+    await this.createRoomsWith([this.userPage]);
     const breakoutPage = await this.joinRoomFromInvitation(this.userPage);
     await breakoutPage.wasRemoved(e.guestMessage, 'should not hold the guest in a lobby of the room');
     const room = await readMeetingRow(breakoutPage);

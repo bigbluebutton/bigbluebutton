@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { readRows } from '../core/graphql';
+import { getOwnUserId, readRows } from '../core/graphql';
 import { Page } from '../core/page';
 import { Join } from './join';
 
@@ -25,7 +25,6 @@ const MEETING_LOCK_SETTINGS = `subscription { meeting { lockSettings {
   disableCam disablePrivateChat disablePublicChat disableNotes hideUserList hideViewersCursor
   hideViewersAnnotation lockOnJoin lockOnJoinConfigurable webcamsOnlyForModerator
 } } }`;
-const OWN_USER_ID = 'subscription { user_current { userId } }';
 const CAMERAS = 'subscription { user_camera { streamId userId } }';
 
 // The Lock viewers switches no other breakout test denies, with the lock setting each one sets
@@ -53,11 +52,6 @@ async function waitForLockSettings(testPage: Page, expected: Partial<LockSetting
     .toMatchObject(expected);
 }
 
-async function ownUserId(testPage: Page): Promise<string> {
-  const [user] = await readRows<{ userId: string }>(testPage, OWN_USER_ID, 'user_current');
-  return user.userId;
-}
-
 async function camerasOf(testPage: Page, userId: string) {
   const cameras = await readRows<{ streamId: string; userId: string }>(testPage, CAMERAS, 'user_camera');
   return cameras.filter((camera) => camera.userId === userId);
@@ -74,22 +68,6 @@ export class BreakoutLocks extends Join {
     }
     await testPage.waitAndClick(e.applyLockSettings);
     await testPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers modal once applied');
-  }
-
-  // Assigns the attendees to the first room and creates the rooms with "inherit lock settings" set as asked
-  private async createRoomsFor(attendees: Page[], inheritLockSettings: boolean) {
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    // the unassigned users are listed by name, so the attendees come before the moderator
-    for (const attendee of attendees) {
-      await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-      await this.modPage.hasText(e.breakoutBox1, attendee.username, `should assign ${attendee.username} to room 1`);
-    }
-    await this.modPage.waitAndClick(e.moreOptionsToggle);
-    await BreakoutLocks.setCheckboxChecked(this.modPage.page, e.inheritLockSettingsCheckbox, inheritLockSettings);
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.roomOptions1, 'should display the first room in the breakout panel');
   }
 
   private async joinFirstRoomAsModerator(): Promise<Page> {
@@ -110,7 +88,7 @@ export class BreakoutLocks extends Join {
     );
     await waitForLockSettings(this.modPage, parentLocks, 'the main room should apply the locks before the rooms exist');
 
-    await this.createRoomsFor([this.userPage], inherit);
+    await this.createRoomsWith([this.userPage], { inheritLockSettings: inherit });
     await this.userPage.waitAndClick(e.modalDismissButton);
     const roomModPage = await this.joinFirstRoomAsModerator();
 
@@ -139,7 +117,7 @@ export class BreakoutLocks extends Join {
       { disablePublicChat: true, disableNotes: true },
       'the main room should apply the locks before the rooms exist',
     );
-    await this.createRoomsFor([this.userPage], inherit);
+    await this.createRoomsWith([this.userPage], { inheritLockSettings: inherit });
     const roomUserPage = await this.joinRoomFromInvitation(this.userPage);
 
     if (inherit) {
@@ -181,7 +159,7 @@ export class BreakoutLocks extends Join {
   // The attendee is in room 1 before the moderator locks public chat and webcams there. The parent locks
   // nothing, so inheritance carries only its lockOnJoin=true into the room.
   async locksAppliedInRoomBindAttendee(inherit: boolean) {
-    await this.createRoomsFor([this.userPage], inherit);
+    await this.createRoomsWith([this.userPage], { inheritLockSettings: inherit });
     const roomUserPage = await this.joinRoomFromInvitation(this.userPage);
     await roomUserPage.hasElementEnabled(
       e.chatBox,
@@ -218,13 +196,13 @@ export class BreakoutLocks extends Join {
       { webcamsOnlyForModerator: true },
       'the main room should apply the lock before the rooms exist',
     );
-    await this.createRoomsFor([this.userPage, this.userPage2], inherit);
+    await this.createRoomsWith([this.userPage, this.userPage2], { inheritLockSettings: inherit });
     const sharingPage = await this.joinRoomFromInvitation(this.userPage);
     const watchingPage = await this.joinRoomFromInvitation(this.userPage2);
 
     const { videoPreviewTimeout } = this.userPage.settings || {};
     await sharingPage.shareWebcam({ videoPreviewTimeout });
-    const sharerId = await ownUserId(sharingPage);
+    const sharerId = await getOwnUserId(sharingPage);
     await expect
       .poll(async () => (await camerasOf(sharingPage, sharerId)).length, {
         message: 'the room should register the webcam of the attendee who shares it',
