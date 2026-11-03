@@ -270,7 +270,7 @@ Ensure that `coturn` has bound to ports 443 and 3478 with `ss -tulnp | grep turn
 
 ## Configure BigBlueButton to use your TURN server
 
-`bbb-web` hands the list of STUN and TURN servers to the web client, which uses it for every WebRTC connection: with the default LiveKit media server as well as with FreeSWITCH and mediasoup. The client fetches the list from `/bigbluebutton/api/stuns`; for each TURN server, `bbb-web` generates time-limited credentials from the shared secret.
+`bbb-web` hands the list of STUN and TURN servers to the web client, which uses it for every WebRTC connection. The client fetches the list from `/bigbluebutton/api/stuns`; for each TURN server, `bbb-web` generates time-limited credentials from the shared secret.
 
 ### With bbb-install.sh
 
