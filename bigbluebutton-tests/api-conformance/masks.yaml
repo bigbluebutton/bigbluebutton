@@ -33,6 +33,12 @@ masks:
     as: regex
     regex: '^[0-9][0-9A-Za-z.+-]*$'
     replace: '<version>'
+  # A logout URL's %%USERID%% placeholder becomes the user's internal ID,
+  # which changes from run to run.
+  - field: logoutUrl
+    as: regex
+    regex: 'w_[a-z0-9]{12}'
+    replace: 'w_<id>'
 unordered: []
 scope: []
 drop: []
