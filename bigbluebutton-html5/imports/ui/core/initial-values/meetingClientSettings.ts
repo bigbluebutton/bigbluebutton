@@ -771,7 +771,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       allowDownloadOriginal: true,
       allowDownloadWithAnnotations: true,
       allowSnapshotOfCurrentSlide: true,
-      panZoomThrottle: 32,
       restoreOnUpdate: true,
       uploadEndpoint: '/bigbluebutton/presentation/upload',
       fileUploadConstraintsHint: false,
