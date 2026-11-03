@@ -63,11 +63,8 @@ export interface App {
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
   skipMeetingEnded: boolean
-  dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   showGuestLobbyWaitingQueuePosition: boolean
-  guestPolicyExtraAllowOptions: boolean
-  alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean
