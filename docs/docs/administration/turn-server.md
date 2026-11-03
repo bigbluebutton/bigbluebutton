@@ -53,7 +53,7 @@ Note: coturn will not start until a configuration is applied (see below).
 
 The `bbb-coturn` package provides a newer coturn (4.16.0) built by the BigBlueButton project. It is what `bbb-install.sh` installs on the BigBlueButton server; it is not a dependency of the `bigbluebutton` package, so it is not pulled in when you install BigBlueButton by other means.
 
-`bbb-coturn` is a drop-in replacement for the distro `coturn` package. It declares `Provides`/`Conflicts`/`Replaces` on `coturn`, so apt removes the distro package when you install it, and it keeps the same `/usr/bin/turnserver` binary, `/etc/turnserver.conf` config file, and `coturn.service` unit name (a `turnserver.service` alias is included). Everything else on this page applies unchanged, including the systemd override below.
+`bbb-coturn` is a drop-in replacement for the distro `coturn` package. Everything else on this page applies unchanged, including the systemd override below.
 
 To install it on a dedicated TURN server, add the BigBlueButton package repository for the release you are running, then install the package. Replace `<version>` with the value you pass to `bbb-install.sh -v`; it is also in `/etc/apt/sources.list.d/bigbluebutton.list` on your BigBlueButton server:
 
