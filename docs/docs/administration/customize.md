@@ -1210,6 +1210,8 @@ maxFileSizeUpload=30000000
 
 You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` or `/etc/bigbluebutton/bbb-html5.yml` (recommended) and modify `uploadSizeMax`.
 
+To show presenters the limits on the upload panel, also set `public.presentation.fileUploadConstraintsHint: true` in the same file. The hint displays `uploadSizeMax` and `uploadPagesMax` from `public.presentation.mirroredFromBBBCore`, so keep `uploadPagesMax` in step with `maxNumPages`; it does not follow a meeting's `maxNumPages` `create` parameter.
+
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
 #### Limit the number of presentations per API request

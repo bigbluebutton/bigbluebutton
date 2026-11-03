@@ -1192,7 +1192,9 @@ public:
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
-    # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
+    # mirroredFromBBBCore are copies of values controlled in bbb-web properties file (maxFileSizeUpload and maxNumPages)
+    # The client refuses a file over uploadSizeMax before sending it, so raise it together with maxFileSizeUpload
+    # uploadPagesMax is only displayed, by fileUploadConstraintsHint: the page count is known after the upload
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
