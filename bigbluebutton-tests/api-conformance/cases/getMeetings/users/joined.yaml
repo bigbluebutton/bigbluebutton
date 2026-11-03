@@ -33,7 +33,7 @@ steps:
         "/response/meetings/meeting[meetingID='${uid}']/running": "true"
         "/response/meetings/meeting[meetingID='${uid}']/participantCount": "2"
         "/response/meetings/meeting[meetingID='${uid}']/moderatorCount": "1"
-        "count(/response/meetings/meeting[meetingID='${uid}']/attendees/attendee)": "2"
+        "/response/meetings/meeting[meetingID='${uid}']/attendees/attendee": {count: 2}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

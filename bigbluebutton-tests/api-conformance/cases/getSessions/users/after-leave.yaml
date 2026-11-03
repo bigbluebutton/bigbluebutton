@@ -40,8 +40,8 @@ steps:
   - call: getSessions
     expect:
       xpath:
-        "count(/response/sessions/meeting[meetingID='${intId}'])": "2"
-        "/response/sessions/meeting[meetingID='${intId}' and userName='Vic']/meetingName": Users
+        "/response/sessions/meeting[meetingID='${intId}']": {count: 2}
+        "/response/sessions/meeting[meetingID='${intId}'][userName='Vic']/meetingName": Users
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

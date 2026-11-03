@@ -35,8 +35,8 @@ steps:
       xpath:
         "/response/attendees/attendee[userID='vic']/customdata/color": red
         "/response/attendees/attendee[userID='vic']/customdata/y": kept
-        "count(/response/attendees/attendee[userID='vic']/customdata/*)": "2"
-        "count(/response/attendees/attendee[userID='ann']/customdata/*)": "0"
+        "/response/attendees/attendee[userID='vic']/customdata/*": {count: 2}
+        "/response/attendees/attendee[userID='ann']/customdata/*": {count: 0}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
   # akka-apps before the create does is lost.

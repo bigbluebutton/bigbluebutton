@@ -777,8 +777,10 @@ capability; `presence` and `graphql` steps need it.
   `loggedOut`, `ejected`, `ejectReasonCode`, `joinErrorCode`,
   `joinErrorMessage`, and the `sessionToken`. A failed join stops the case,
   unless the step expects it: when `expect` checks `$.joinErrorCode`, a join
-  the server turns down passes or fails on those checks, and the case goes
-  on without that user.
+  akka-apps turns down on entry, with a join error code, passes or fails on
+  those checks, and the case goes on without that user (a later step as
+  them starts afresh). A refusal by bbb-web's join call, or a guest denied
+  or a user ejected, still stops the case.
 
   ```yaml
   - presence: {action: join, as: bob, sessionToken: "${bobToken}"}

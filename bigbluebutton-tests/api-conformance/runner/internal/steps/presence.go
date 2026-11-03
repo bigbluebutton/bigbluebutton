@@ -56,11 +56,12 @@ func (x *exec) presence(ctx context.Context, phase string, index int, s spec.Ste
 	case p.Action == "reconnect":
 		err = u.Reconnect(ctx)
 	}
-	// A join the server turns down is what a step that checks
+	// A join akka-apps turns down is what a step that checks
 	// $.joinErrorCode expects: its checks judge the refusal, and the
 	// case goes on without the user.
 	var refused *presence.RefusedError
-	if p.Action == "join" && errors.As(err, &refused) && expectsJoinError(s.Expect) {
+	expected := p.Action == "join" && errors.As(err, &refused) && refused.JoinErrorCode != "" && expectsJoinError(s.Expect)
+	if expected {
 		err = nil
 	}
 	var extra []assert.Result
@@ -71,6 +72,11 @@ func (x *exec) presence(ctx context.Context, phase string, index int, s spec.Ste
 	if err != nil && p.Action == "join" {
 		sr.Stopped = true // later steps would act as a user who isn't there
 	}
+	if expected {
+		// Later steps as the user find them gone, and a join starts afresh.
+		u.Close()
+		delete(x.users, p.As)
+	}
 }
 
 // expectsJoinError says whether a step's checks name the user's
@@ -80,7 +86,8 @@ func expectsJoinError(e *spec.Expect) bool {
 		return false
 	}
 	for _, m := range e.JSONPath {
-		if m.Key == "$.joinErrorCode" {
+		switch m.Key {
+		case "$.joinErrorCode", "$['joinErrorCode']", `$["joinErrorCode"]`:
 			return true
 		}
 	}

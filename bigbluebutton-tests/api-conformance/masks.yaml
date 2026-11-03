@@ -34,11 +34,11 @@ masks:
     regex: '^[0-9][0-9A-Za-z.+-]*$'
     replace: '<version>'
   # A logout URL's %%USERID%% placeholder becomes the user's internal ID,
-  # which changes from run to run.
+  # which changes from run to run: a whole path segment or query value.
   - field: logoutUrl
     as: regex
-    regex: 'w_[a-z0-9]{12}'
-    replace: 'w_<id>'
+    regex: '([=/])w_[a-z0-9]{12}(&|$)'
+    replace: '${1}w_<id>${2}'
 unordered: []
 scope: []
 drop: []

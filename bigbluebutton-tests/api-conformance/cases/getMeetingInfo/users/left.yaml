@@ -40,7 +40,7 @@ steps:
     expect:
       xpath:
         /response/participantCount: "1"
-        "count(/response/attendees/attendee)": "1"
+        /response/attendees/attendee: {count: 1}
         /response/attendees/attendee/userID: ann
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches

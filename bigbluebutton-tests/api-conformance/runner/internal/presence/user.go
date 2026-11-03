@@ -26,8 +26,9 @@ var ErrNotJoined = errors.New("the user isn't in the meeting (not yet, or not an
 
 // RefusedError is a join the server turned down, or a user who can't be
 // in the meeting: their state says why (a join error, an ejection, a
-// logout or a denied guest).
-type RefusedError struct{ Why string }
+// logout or a denied guest). JoinErrorCode is set when akka-apps refused
+// the join itself.
+type RefusedError struct{ Why, JoinErrorCode string }
 
 func (e *RefusedError) Error() string { return e.Why }
 
@@ -244,7 +245,7 @@ func (u *User) Join(ctx context.Context, waitForApproval bool) error {
 		st = u.State()
 	}
 	if why := gone(st); why != "" {
-		return &RefusedError{why}
+		return &RefusedError{Why: why, JoinErrorCode: str(st, "joinErrorCode")}
 	}
 	vars, _ := json.Marshal(map[string]any{"authToken": str(st, "authToken"), "clientType": "HTML5", "clientIsMobile": false})
 	res, err := u.connection().Do(ctx, Request{
@@ -260,7 +261,7 @@ func (u *User) Join(ctx context.Context, waitForApproval bool) error {
 	}
 	err = u.waitFor(ctx, func(st map[string]any) (bool, error) {
 		if why := gone(st); why != "" {
-			return false, &RefusedError{why}
+			return false, &RefusedError{Why: why, JoinErrorCode: str(st, "joinErrorCode")}
 		}
 		return flag(st, "joined"), nil
 	})

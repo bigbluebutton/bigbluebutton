@@ -917,38 +917,72 @@ func TestFailedJoinStops(t *testing.T) {
 	noOpenConnections(t, fake)
 }
 
-// A join step that checks $.joinErrorCode passes when the server turns the
-// user down with that code, and the case goes on; with another code it
-// fails, and without the check a refusal still fails and stops the case.
+// A join step that checks $.joinErrorCode passes when akka-apps turns the
+// user down with that code, and the case goes on without the user; with
+// another code it fails, and without the check a refusal still fails and
+// stops the case. A bot isn't refused.
 func TestExpectedJoinRefusal(t *testing.T) {
 	const src = `steps:
   - call: create
     params: {meetingID: "${uid}", name: Presence, maxParticipants: "1"}
   - call: join
     client: bob
-    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"%s}
     capture: {bobToken: /response/session_token}
   - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
   - presence: {action: join, as: bob, sessionToken: "${bobToken}"}
-%s  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+%s`
+	const annQuery = `  - graphql: {as: ann, query: "query Me { user_current { name } }"}
 `
 	for _, tc := range []struct {
-		name, expect string
-		status       report.Status
-		steps        int
+		name, params, rest string
+		status             report.Status
+		steps              int
+		reason             string
 	}{
-		{"expected", "    expect: {jsonpath: {$.joinErrorCode: max_participants_reason, $.joined: \"false\"}}\n", report.Pass, 5},
-		{"other code", "    expect: {jsonpath: {$.joinErrorCode: PERMISSION_FAILED}}\n", report.Fail, 4},
-		{"unchecked", "", report.Fail, 4},
+		{"expected", "", "    expect: {jsonpath: {$.joinErrorCode: max_participants_reason, $.joined: \"false\"}}\n" + annQuery, report.Pass, 5, ""},
+		{"bracket key", "", "    expect: {jsonpath: {\"$['joinErrorCode']\": max_participants_reason}}\n" + annQuery, report.Pass, 5, ""},
+		{"other code", "", "    expect: {jsonpath: {$.joinErrorCode: PERMISSION_FAILED}}\n" + annQuery, report.Fail, 4, ""},
+		{"unchecked", "", annQuery, report.Fail, 4, ""},
+		// The refused user is gone: a later step as them errors at once,
+		// instead of acting for a user who never joined.
+		{"gone after", "", "    expect: {jsonpath: {$.joinErrorCode: max_participants_reason}}\n  - presence: {action: leave, as: bob}\n", report.Error, 5, "isn't connected"},
+		{"bot", ", bot: \"true\"", "    expect: {jsonpath: {$.joined: \"true\"}}\n" + annQuery, report.Pass, 5, ""},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			res, fake := runWithUsers(t, fmt.Sprintf(src, tc.expect), nil)
-			if res.Status != tc.status || len(res.Steps) != tc.steps {
-				t.Errorf("status %s after %d step(s), want %s after %d: %s", res.Status, len(res.Steps), tc.status, tc.steps, res.Reason)
+			start := time.Now()
+			res, fake := runWithUsers(t, fmt.Sprintf(src, tc.params, tc.rest), nil)
+			if res.Status != tc.status || len(res.Steps) != tc.steps || !strings.Contains(res.Reason, tc.reason) || time.Since(start) > 10*time.Second {
+				t.Errorf("status %s after %d step(s) in %s, want %s after %d: %s", res.Status, len(res.Steps), time.Since(start), tc.status, tc.steps, res.Reason)
 			}
 			noOpenConnections(t, fake)
 		})
 	}
+}
+
+// Only a join akka-apps refuses counts as an expected refusal: a denied
+// guest has no joinErrorCode, so a check that it has none doesn't turn
+// their failed join into a pass.
+func TestDeniedGuestIsNotAnExpectedRefusal(t *testing.T) {
+	res, fake := runWithUsers(t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence, guestPolicy: ASK_MODERATOR}
+  - presence: {action: join, as: mod, args: {meetingID: "${uid}", fullName: Mod, role: MODERATOR}}
+  - presence: {action: join, as: eve, args: {meetingID: "${uid}", fullName: Eve, role: VIEWER, guest: "true"}}
+    capture: {eveId: $.userId}
+  - graphql:
+      as: mod
+      query: "mutation Approve($guests: [GuestUserApprovalStatus]!) { guestUsersSubmitApprovalStatus(guests: $guests) }"
+      variables:
+        guests: [{guest: "${eveId}", status: DENY}]
+  - presence: {action: join, as: eve}
+    expect: {jsonpath: {$.joinErrorCode: {absent: true}}}
+  - graphql: {as: mod, query: "query Me { user_current { name } }"}
+`, nil)
+	if res.Status != report.Fail || len(res.Steps) != 5 || !strings.Contains(res.Reason, "denied") {
+		t.Errorf("status %s after %d step(s): %s", res.Status, len(res.Steps), res.Reason)
+	}
+	noOpenConnections(t, fake)
 }
 
 // Users' connections close when the case ends, even when it's cancelled.

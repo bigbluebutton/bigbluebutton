@@ -94,7 +94,7 @@ type session struct {
 	userID, extID, authToken   string
 	role, guestStatus, avatar  string
 	registeredAt               string
-	guest, presenter           bool
+	guest, presenter, bot      bool
 	joined, loggedOut          bool
 	joinErrorCode              string
 	probeFails                 int // in-meeting queries that still fail after the join
@@ -490,7 +490,7 @@ func (s *Server) join(w http.ResponseWriter, r *http.Request, p url.Values) {
 	s.seq++
 	sess := &session{token: fmt.Sprintf("st%06d", s.seq), meetingID: m.id, fullName: p.Get("fullName"),
 		jsession: fmt.Sprintf("js%06d", s.seq), userID: fmt.Sprintf("w_%012d", s.seq), authToken: fmt.Sprintf("at%06d", s.seq),
-		role: strings.ToUpper(p.Get("role")), guest: p.Get("guest") == "true", guestStatus: "ALLOW", avatar: p.Get("avatarURL"),
+		role: strings.ToUpper(p.Get("role")), guest: p.Get("guest") == "true", bot: p.Get("bot") == "true", guestStatus: "ALLOW", avatar: p.Get("avatarURL"),
 		registeredAt: time.UnixMilli(s.clock + int64(s.seq)).UTC().Format("2006-01-02T15:04:05.000+00:00")}
 	if sess.role != "MODERATOR" {
 		sess.role = "VIEWER"

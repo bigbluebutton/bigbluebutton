@@ -392,10 +392,10 @@ func (s *Server) user(meetingID, userID string) *session {
 
 // full says whether u's meeting has as many users in it as
 // maxParticipants allows, none of them with u's external ID: akka-apps
-// then refuses u's join.
+// then refuses u's join, unless u is a bot.
 func (s *Server) full(u *session) bool {
 	m := s.meetings[u.meetingID]
-	if m == nil || m.maxUsers <= 0 {
+	if m == nil || m.maxUsers <= 0 || u.bot {
 		return false
 	}
 	in := map[string]bool{}
