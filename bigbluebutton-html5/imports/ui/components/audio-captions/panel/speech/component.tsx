@@ -140,6 +140,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
             sx={{ marginRight: '1rem' }}
             checked={hasSupport && speechChecked}
             disabled={noSupport}
+            inputProps={{ 'data-test': 'transcriptionToggle' } as React.InputHTMLAttributes<HTMLInputElement>}
             onChange={(_: unknown, checked: boolean) => {
               setSpeechChecked(checked);
             }}

@@ -10,6 +10,7 @@ export function audioCaptionsOverrides(
   locale: string,
   defaultSelectLocale = true,
   speechProcessing: 'cloud' | 'local' | 'auto' = 'cloud',
+  { forceLocale = false, showInSidebarNavigation = false } = {},
 ): ClientSettingsOverrides {
   return {
     public: {
@@ -18,7 +19,8 @@ export function audioCaptionsOverrides(
           enabled: true,
           provider: 'webspeech',
           speechProcessing,
-          language: { defaultSelectLocale, locale },
+          showInSidebarNavigation,
+          language: { defaultSelectLocale, locale, forceLocale },
         },
       },
     },
@@ -122,6 +124,13 @@ export class AudioCaptions extends MultiUsers {
     await this.modPage.waitForSelector(e.audioModal);
     await this.modPage.clickMicrophoneButton();
     await this.modPage.waitForSelector(e.stopHearingButton);
+  }
+
+  // The transcription and captions panel (showInSidebarNavigation)
+  async openTranscriptionPanel(): Promise<void> {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    await this.modPage.waitAndClick(e.audioCaptionsSidebarButton);
+    await this.modPage.hasElement(e.audioCaptionsPanel, 'should open the transcription and captions panel');
   }
 
   async hasTranscriptionLocale(value: string, label: string, description: string): Promise<void> {
