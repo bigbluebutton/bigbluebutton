@@ -881,7 +881,7 @@ Mind that no plugin will interfere into another's extensible area. So feel free 
 
 This feature allows administrators to highlight new or featured plugins by displaying a "New" badge next to them in the Apps Gallery.
 
-To enable this badge for a specific plugin, add the `isNew: true` flag to its entry in the `public.plugins` client setting, in `/etc/bigbluebutton/bbb-html5.yml`.
+To enable this badge for a specific plugin, add `isNew: true` to the `settings` of the plugin's entry in the `public.plugins` client setting, in `/etc/bigbluebutton/bbb-html5.yml`. `public.plugins` is one array and the client reads it as a whole (an array in `bbb-html5.yml` replaces the shipped value instead of being merged with it), so keep every other plugin entry in it with its own settings; do not reduce the array to the plugin you are tagging.
 
 **Example (`/etc/bigbluebutton/bbb-html5.yml`):**
 
@@ -891,9 +891,13 @@ public:
     - name: my-plugin-name
       settings:
         isNew: true
+    - name: my-other-plugin
+      settings:
+        myJson:
+          abc: my123
 ```
 
-When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery.
+When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery; "my-other-plugin" keeps its settings and shows no badge.
 
 #### Configurable button styles
 
