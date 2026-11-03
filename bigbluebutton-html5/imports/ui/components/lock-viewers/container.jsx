@@ -3,6 +3,7 @@ import { useMutation } from '@apollo/client';
 import LockViewersComponent from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { SET_LOCK_SETTINGS_PROPS, SET_WEBCAM_ONLY_FOR_MODERATOR } from './mutations';
+import { lockSettingsVariables } from './service';
 import { SET_POLICY, SET_LOBBY_MESSAGE } from '../user-list/guest-management/waiting-users/mutations';
 import useMeeting from '../../core/hooks/useMeeting';
 import { useIsChatEnabled, useIsPrivateChatEnabled, useIsSharedNotesEnabled } from '../../services/features';
@@ -19,21 +20,7 @@ const LockViewersContainer = (props) => {
   const [setLobbyMessageMutation] = useMutation(SET_LOBBY_MESSAGE);
 
   const updateLockSettings = (lockSettings) => {
-    setLockSettingsProps({
-      variables: {
-        disableCam: lockSettings.disableCam,
-        disableMic: lockSettings.disableMic,
-        disablePrivChat: lockSettings.disablePrivateChat,
-        disablePubChat: lockSettings.disablePublicChat,
-        disableNotes: lockSettings.disableNotes,
-        hideUserList: lockSettings.hideUserList,
-        lockOnJoin: lockSettings.lockOnJoin,
-        lockOnJoinConfigurable: lockSettings.lockOnJoinConfigurable,
-        hideViewersCursor: lockSettings.hideViewersCursor,
-        hideViewersAnnotation: lockSettings.hideViewersAnnotation,
-        presenterPolicy: lockSettings.presenterPolicy,
-      },
-    });
+    setLockSettingsProps({ variables: lockSettingsVariables(lockSettings) });
   };
 
   const updateWebcamsOnlyForModerator = (webcamsOnlyForModerator) => {

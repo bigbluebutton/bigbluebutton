@@ -17,6 +17,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { isRoomModePanelEnabled } from '/imports/ui/components/pre-flight/service';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 
@@ -29,11 +30,14 @@ export const useSettingsProps = () => {
   const { data: currentUser } = useCurrentUser((u) => ({
     presenter: u.presenter,
     isModerator: u.isModerator,
+    joined: u.joined,
   }));
   const { data: meeting } = useMeeting((m) => ({
     usersPolicies: {
       guestPolicy: m.usersPolicies.guestPolicy,
     },
+    roomMode: m.roomMode,
+    isBreakout: m.isBreakout,
   }));
   const application = useSettings(SETTINGS.APPLICATION);
   const audio = useSettings(SETTINGS.AUDIO);
@@ -44,6 +48,9 @@ export const useSettingsProps = () => {
   const isModerator = currentUser?.isModerator ?? false;
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const showGuestNotification = meeting?.usersPolicies?.guestPolicy === ASK_MODERATOR;
+  // Changing the room mode needs a moderator in the room: breakout rooms have no mode.
+  const isRoomModeTabEnabled = isModerator && !!currentUser?.joined && !meeting?.isBreakout
+    && isRoomModePanelEnabled();
   const isReactionsEnabled = UserReactionService.useIsEnabled();
   const isGladiaEnabled = AudioCaptionsService.isGladia();
   const isChatEnabled = useIsChatEnabled();
@@ -66,6 +73,8 @@ export const useSettingsProps = () => {
     isVideoEnabled: window.meetingClientSettings.public.kurento.enableVideo,
     isGladiaEnabled,
     isChatEnabled,
+    isRoomModeTabEnabled,
+    roomMode: meeting?.roomMode ?? '',
     modalHeight,
     modalWidth,
     paginationToggleEnabled,
