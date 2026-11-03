@@ -266,7 +266,7 @@ $ sudo systemctl enable --now coturn                   # Start now and on every 
 $ sudo systemctl restart coturn                        # If it was already running
 ```
 
-Ensure that `coturn` has bound to ports 443 and 3478 with `ss -tlnp | grep turnserver`. Also reboot your TURN server and ensure that `coturn` is running (and binding to port 443 after the reboot).
+Ensure that `coturn` has bound to ports 443 and 3478 with `ss -tulnp | grep turnserver`. Also reboot your TURN server and ensure that `coturn` is running (and binding to port 443 after the reboot).
 
 ## Configure BigBlueButton to use your TURN server
 
