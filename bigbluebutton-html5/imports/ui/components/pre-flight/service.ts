@@ -26,6 +26,19 @@ export const isPreFlightEnabled = (): boolean => {
   return !isBreakout;
 };
 
+// The moderator's room mode panel. Breakouts are already out through the
+// pre-flight itself.
+export const isRoomModePanelEnabled = (): boolean => {
+  if (!isPreFlightEnabled()) return false;
+
+  const enabled = getFromUserSettings(
+    'bbb_pre_flight_room_modes',
+    window.meetingClientSettings?.public?.app?.preFlight?.roomModes?.enabled,
+  );
+
+  return enabled === true;
+};
+
 // Flag-gated too: the keys outlive a reload, so a tab moving on to a meeting
 // without the pre-flight must not skip the join modals on stale selections.
 export const isPreFlightCompleted = (): boolean => (
