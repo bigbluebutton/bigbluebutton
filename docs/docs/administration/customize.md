@@ -2036,6 +2036,23 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#get-post-create) for the complete list and descriptions.
 
 
+#### End a meeting once no authenticated user is left
+
+`bbb-apps-akka` can end a meeting a set number of minutes after its last authenticated user left it, even while guests are still in it. A user is authenticated when the [`join`](/development/api/#get-join) call did not send `guest=true`. The setting is off by default. To enable it, add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`, **below** the `include` line:
+
+```properties
+apps {
+  # End the meeting once its last authenticated user has left; guests do not count
+  endMeetingWhenNoMoreAuthedUsers = true
+  # Minutes to wait for an authenticated user to return before ending it
+  endMeetingWhenNoMoreAuthedUsersAfterMinutes = 2
+}
+```
+
+An authenticated user who returns in time cancels the countdown. The users still in the meeting when it ends see "The session has ended because there was no authenticated user in the room". Breakout rooms are not ended on their own; they end with their parent meeting. The similar `endWhenNoModerator` and `endWhenNoModeratorDelayInMinutes` in the table above count moderators instead, and can be set per meeting.
+
+Apply the change with `sudo systemctl restart bbb-apps-akka`, or restart everything with `sudo bbb-conf --restart`.
+
 #### Passing user metadata to the client on join
 
 The `join` API call accepts `userdata-bbb_*` parameters that change the look and default behaviour of the HTML5 client for the user who joins: automatic audio join, skipping the echo test or the webcam preview, locale, initial layout, hidden navigation and action bars, whiteboard tools, recording permission, custom CSS and more. They are documented with the API call, in [User metadata parameters](/development/api#user-metadata-parameters), together with the `settings.yml` default each one overrides.
