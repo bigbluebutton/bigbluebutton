@@ -548,7 +548,7 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 			BrowserConnectionsMutex.Unlock()
 
 			for _, replacedConnection := range replacedConnections {
-				invalidateBrowserConnectionForSessionToken(
+				go invalidateBrowserConnectionForSessionToken(
 					replacedConnection,
 					sessionToken,
 					"joined_another_window_reason",
