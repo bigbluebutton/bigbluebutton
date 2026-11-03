@@ -282,8 +282,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadAndRemoveAllPresentations();
     });
 
-    // The server reports PAGE_COUNT_FAILED, which the upload toast has no message for: it shows "Converting file ...".
-    test('A truncated PDF is refused', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
+    test('A truncated PDF is refused', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
       await presentation.truncatedPdfIsRefused();

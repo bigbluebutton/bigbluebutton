@@ -82,6 +82,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.invalidMimeType',
     description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
   },
+  PAGE_COUNT_FAILED: {
+    id: 'app.presentationUploder.conversion.pageCountFailed',
+    description: 'warns the user that the number of pages of the file could not be determined',
+  },
   PAGE_COUNT_EXCEEDED: {
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
@@ -218,7 +222,7 @@ function renderPresentationItemStatus(item, intl) {
 
   if (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey) {
     const errorMessage = intlMessages[item.uploadErrorMsgKey]
-      || intlMessages.genericConversionStatus;
+      || intlMessages.genericError;
 
     switch (item.uploadErrorMsgKey) {
       case 'CONVERSION_TIMEOUT':
