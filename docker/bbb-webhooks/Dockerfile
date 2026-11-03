@@ -1,4 +1,4 @@
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS build
+FROM node:24.22.2-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS build
 
 COPY --from=mikefarah/yq:4.53.2@sha256:0cb4a78491b6e62ee8a9bf4fbeacbd15b5013d19bc420591b05383a696315e60 /usr/bin/yq /usr/local/bin/yq
 # The source at the tag the package builds, cloned by the same script (build/get_external_dependencies.sh)
@@ -12,7 +12,7 @@ WORKDIR /usr/local/bigbluebutton/bbb-webhooks
 RUN npm ci --omit=dev && yq '.bbb.auth2_0 = true | .modules."../out/webhooks/index.js".config.getRaw = false \
     | .modules."../out/webhooks/index.js".config.api.bind = "0.0.0.0"' config/default.example.yml > config/default.yml
 
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85
+FROM node:24.22.2-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85
 
 RUN addgroup -S -g 998 bigbluebutton && adduser -S -u 998 -G bigbluebutton bigbluebutton
 COPY --from=build /usr/local/bigbluebutton/bbb-webhooks /usr/local/bigbluebutton/bbb-webhooks
