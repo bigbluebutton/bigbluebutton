@@ -344,7 +344,7 @@ To make every client use the TURN server, so that you can verify it works, set t
 ```yaml
 public:
   media:
-    # FreeSWITCH and mediasoup connections
+    # mediasoup connections
     forceRelay: true
     livekit:
       # LiveKit connections (the default media server)
