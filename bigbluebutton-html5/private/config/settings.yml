@@ -1184,7 +1184,6 @@ public:
       warning: 500
       danger: 1000
       critical: 2000
-    help: STATS_HELP_URL
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true

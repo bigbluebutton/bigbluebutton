@@ -761,7 +761,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'danger',
         'critical',
       ],
-      help: 'STATS_HELP_URL',
     },
     presentation: {
       allowDownloadOriginal: true,
