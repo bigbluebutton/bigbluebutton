@@ -1331,7 +1331,6 @@
     "app.connection-status.title": "Konexioaren egoera",
     "app.connection-status.description": "Ikusi erabiltzaileen konexio egoera",
     "app.connection-status.empty": "Une honetan ez dago konexio huts egiteen txostenik",
-    "app.connection-status.more": "gehiago",
     "app.connection-status.copy": "Kopiatu estatistikak",
     "app.connection-status.copied": "Kopiatu dira!",
     "app.connection-status.jitter": "Bibrazioa",
