@@ -37,7 +37,13 @@ there compares like with like.
   that need users in the meeting (`create/create.expiry.no-moderator*`,
   `create/create.expiry.last-user-left*`) and the usersTimeout ones
   (`join/join.max-participants.left-user*`, one of them under the
-  short-users-timeout profile), from the same packages.
+  short-users-timeout profile), from the same packages. So, later that
+  day, were the cases that need users in the meeting: the join ones
+  (`join/join.user-state.*`, one of them under the alt-defaults profile,
+  `join.customdata.*`, `join.user-id.*`, `join.request-metadata.*`,
+  `join.guest.policy-change` and the rest of `join.max-participants.*`)
+  and the `*.users.*` ones of getMeetingInfo, isMeetingRunning,
+  getMeetings and getSessions.
 
 ## Reviewing
 
