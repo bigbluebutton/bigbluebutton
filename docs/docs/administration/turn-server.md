@@ -196,7 +196,7 @@ keep-address-family
 no-multicast-peers
 
 # The TURN server only needs to relay to your BigBlueButton servers, where the
-# media servers (LiveKit, FreeSWITCH, mediasoup) run. Deny every other peer.
+# media servers (LiveKit, mediasoup) run. Deny every other peer.
 denied-peer-ip=0.0.0.0-255.255.255.255
 denied-peer-ip=::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
 allowed-peer-ip=<bbb-server-ip>
