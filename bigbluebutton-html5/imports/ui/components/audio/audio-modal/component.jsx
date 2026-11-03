@@ -741,41 +741,40 @@ const AudioModal = ({
     : null;
 
   return (
-    <Styled.Background isBlurred={Session.getItem('audioModalIsOpen')}>
-      <ModalSimple
-        modalName="AUDIO"
-        onRequestClose={closeModal}
-        dataTest="audioModal"
-        contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
-        title={title}
-        contentStyle={{ minHeight: '20rem' }}
-        showDividers={content === 'settings'}
-        noFooter={!footerContent}
-        footerContent={footerContent}
-        setIsOpen={setIsOpen}
-        isOpen={isOpen}
-        priority={priority}
-        closeButtonDataTest="closeModal"
-      >
-        <AudioModalFooterContext.Provider value={{ setFooterContent }}>
-          {isIE ? (
-            <Styled.BrowserWarning>
-              <FormattedMessage
-                id="app.audioModal.unsupportedBrowserLabel"
-                description="Warning when someone joins with a browser that isn't supported"
-                values={{
-                  supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
-                  supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
-                }}
-              />
-            </Styled.BrowserWarning>
-          ) : null}
-          <Styled.Content>
-            {renderContent()}
-          </Styled.Content>
-        </AudioModalFooterContext.Provider>
-      </ModalSimple>
-    </Styled.Background>
+    <ModalSimple
+      modalName="AUDIO"
+      onRequestClose={closeModal}
+      dataTest="audioModal"
+      contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+      title={title}
+      contentStyle={{ minHeight: '20rem' }}
+      showDividers={content === 'settings'}
+      noFooter={!footerContent}
+      footerContent={footerContent}
+      setIsOpen={setIsOpen}
+      isOpen={isOpen}
+      priority={priority}
+      closeButtonDataTest="closeModal"
+      overlayStyle={Session.getItem('audioModalIsOpen') ? Styled.autoJoinOverlayStyle : undefined}
+    >
+      <AudioModalFooterContext.Provider value={{ setFooterContent }}>
+        {isIE ? (
+          <Styled.BrowserWarning>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isn't supported"
+              values={{
+                supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
+                supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </Styled.BrowserWarning>
+        ) : null}
+        <Styled.Content>
+          {renderContent()}
+        </Styled.Content>
+      </AudioModalFooterContext.Provider>
+    </ModalSimple>
   );
 };
 
