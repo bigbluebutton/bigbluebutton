@@ -15,6 +15,7 @@ import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
+import RoomModeTab, { isRoomModeChangePending } from '/imports/ui/components/settings/submenus/room-mode/component';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import { SETTINGS_TABS, getSettingsTabs } from './enums';
 import { applyAudioDeviceSelection, getAudioDeviceSelection } from './service';
@@ -56,6 +57,22 @@ const intlMessages = defineMessages({
   SaveLabel: {
     id: 'app.settings.main.save.label',
     description: 'Save the changes and close the settings menu',
+  },
+  roomModeTabLabel: {
+    id: 'app.settings.roomModeTab.label',
+    description: 'Label of the room modes tab in the settings window',
+  },
+  changeRoomModeLabel: {
+    id: 'app.settings.roomMode.changeLabel',
+    description: 'Footer button of the room modes tab: applies the picked room mode',
+  },
+  unsavedPickMessage: {
+    id: 'app.settings.roomMode.unsavedPick.message',
+    description: 'Dialog on Save while a room mode pick is pending: the mode was not changed',
+  },
+  unsavedPickIgnoreMessage: {
+    id: 'app.settings.roomMode.unsavedPick.ignoreMessage',
+    description: 'Dialog on Save while a room mode pick is pending: what ignoring it does',
   },
   notificationLabel: {
     id: 'app.submenu.notification.SectionTitle', // set menu label identical to section title
@@ -132,6 +149,19 @@ const propTypes = {
   })).isRequired,
   isShowAudioFiltersEnabled: PropTypes.bool.isRequired,
   isAudioDeviceTestEnabled: PropTypes.bool.isRequired,
+  isRoomModeTabEnabled: PropTypes.bool,
+  roomMode: PropTypes.string,
+  // A pick handed over to the Room modes tab, pre-selected.
+  initialRoomModeChange: PropTypes.shape({
+    pick: PropTypes.string,
+    edits: PropTypes.shape({}),
+  }),
+};
+
+const defaultProps = {
+  isRoomModeTabEnabled: false,
+  roomMode: '',
+  initialRoomModeChange: null,
 };
 
 class Settings extends Component {
@@ -149,6 +179,7 @@ class Settings extends Component {
 
     const {
       dataSaving, application, audio, selectedTab, transcription,
+      initialRoomModeChange, roomMode,
     } = props;
 
     const tabs = this.getVisibleTabs();
@@ -176,8 +207,22 @@ class Settings extends Component {
       selectedTab: resolvedTabIndex >= 0 ? resolvedTabIndex : 0,
       unsavedModalOpen: false,
       // Keys edited away from their saved value: one edit must not clear another's.
-      unsavedKeys: [],
+      unsavedKeys: initialRoomModeChange && isRoomModeChangePending(initialRoomModeChange, roomMode)
+        ? ['roomMode'] : [],
+      // Not a setting: applied to the room from the room modes tab, not saved.
+      roomModeChange: initialRoomModeChange ?? { pick: null, edits: {} },
+      roomModeReady: false,
+      // A mode's settings are open in the tab: their edits are not kept yet.
+      roomModeEditing: false,
+      roomModeApplying: false,
+      // What confirming the unsaved-changes dialog goes on to do.
+      unsavedConfirm: null,
     };
+    // The room modes tab hands over how to apply its pick.
+    this.roomModeApply = null;
+    // A tab asked for on open may be gated on data still loading (the room
+    // modes tab waits for the current user): selected once it shows up.
+    this.pendingTab = resolvedTabIndex >= 0 ? null : selectedTab;
 
     this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
@@ -188,6 +233,11 @@ class Settings extends Component {
     this.handleClose = this.handleClose.bind(this);
     this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
     this.performClose = this.performClose.bind(this);
+    this.handleRoomModeChange = this.handleRoomModeChange.bind(this);
+    this.handleRoomModeReady = this.handleRoomModeReady.bind(this);
+    this.handleRoomModeEditing = this.handleRoomModeEditing.bind(this);
+    this.registerRoomModeApply = this.registerRoomModeApply.bind(this);
+    this.handleChangeRoomMode = this.handleChangeRoomMode.bind(this);
   }
 
   componentDidMount() {
@@ -217,6 +267,14 @@ class Settings extends Component {
     });
   }
 
+  componentDidUpdate() {
+    if (this.pendingTab == null) return;
+    const index = this.getVisibleTabs().indexOf(this.pendingTab);
+    if (index < 0) return;
+    this.pendingTab = null;
+    this.setState({ selectedTab: index });
+  }
+
   handleUpdateSettings(key, newSettings) {
     const { saved } = this.state;
     const changed = JSON.stringify(saved[key]) !== JSON.stringify(newSettings);
@@ -242,7 +300,126 @@ class Settings extends Component {
   }
 
   handleSave() {
-    const { intl, setIsOpen, setLocalSettings } = this.props;
+    const { unsavedKeys } = this.state;
+
+    // Save applies the settings, not the room mode tab's pick: say it goes.
+    if (unsavedKeys.includes('roomMode')) {
+      this.setState({ unsavedModalOpen: true, unsavedConfirm: 'save' });
+      return;
+    }
+    this.performSave();
+  }
+
+  handleRoomModeChange(roomModeChange) {
+    const { roomMode } = this.props;
+    const pending = isRoomModeChangePending(roomModeChange, roomMode);
+
+    this.setState((prevState) => ({
+      roomModeChange,
+      unsavedKeys: Settings.markUnsaved(prevState.unsavedKeys, 'roomMode', pending),
+    }));
+  }
+
+  handleRoomModeReady(roomModeReady) {
+    this.setState({ roomModeReady });
+  }
+
+  handleRoomModeEditing(roomModeEditing) {
+    this.setState({ roomModeEditing });
+  }
+
+  async handleChangeRoomMode() {
+    if (!this.roomModeApply) return;
+
+    this.setState({ roomModeApplying: true });
+    try {
+      await this.roomModeApply();
+    } catch {
+      // The tab told the moderator; the window stays open to try again.
+      this.setState({ roomModeApplying: false });
+      return;
+    }
+    // Settings changed in other tabs go with the change, as Save would take
+    // them; without any, the window closes as Cancel does, dropping previews.
+    const { unsavedKeys } = this.state;
+    if (unsavedKeys.some((key) => key !== 'roomMode')) {
+      this.performSave();
+      return;
+    }
+    this.performClose();
+  }
+
+  handleSelectTab(tab) {
+    const { roomModeApplying } = this.state;
+
+    // The window stays on the room modes tab until its change lands or fails.
+    if (roomModeApplying) return;
+    this.pendingTab = null;
+    this.setState({
+      selectedTab: tab,
+    });
+  }
+
+  handleClose() {
+    const { unsavedKeys, roomModeApplying } = this.state;
+
+    // The room mode is being changed: the window stays until it lands or fails.
+    if (roomModeApplying) return;
+    if (unsavedKeys.length > 0) {
+      this.setState({ unsavedModalOpen: true, unsavedConfirm: 'close' });
+      return;
+    }
+    this.performClose();
+  }
+
+  handleIgnoreChanges() {
+    const { unsavedConfirm } = this.state;
+
+    // From Save, only the room mode pick is ignored: the settings are saved.
+    this.setState({ unsavedModalOpen: false, unsavedConfirm: null }, () => {
+      if (unsavedConfirm === 'save') {
+        this.performSave();
+        return;
+      }
+      this.performClose();
+    });
+  }
+
+  getVisibleTabs() {
+    const {
+      isShowAudioFiltersEnabled, isAudioDeviceTestEnabled, isScreenSharingEnabled, isVideoEnabled,
+      isGladiaEnabled, isRoomModeTabEnabled,
+    } = this.props;
+
+    return getSettingsTabs({
+      isShowAudioFiltersEnabled,
+      isAudioDeviceTestEnabled,
+      isDataSavingTabEnabled: isScreenSharingEnabled || isVideoEnabled,
+      isGladiaEnabled,
+      isRoomModeTabEnabled,
+    });
+  }
+
+  performClose() {
+    const { saved } = this.state;
+    const { setIsOpen } = this.props;
+    Settings.setHtmlFontSize(this.openingFontSize);
+    document.getElementsByTagName('html')[0].lang = saved.application.locale;
+    setIsOpen(false);
+  }
+
+  performSave() {
+    const { setIsOpen } = this.props;
+
+    this.saveSettings();
+    /* We need to use setIsOpen(false) here to prevent submenu state updates,
+    *  from re-opening the modal.
+    */
+    setIsOpen(false);
+  }
+
+  saveSettings() {
+    const { intl, setLocalSettings } = this.props;
     const {
       current, saved, audioDeviceSelection, savedAudioDeviceSelection,
     } = this.state;
@@ -258,55 +435,10 @@ class Settings extends Component {
       setUseCurrentLocale(newLanguage);
       document.body.classList.remove(`lang-${language}`);
     }
-
-    /* We need to use setIsOpen(false) here to prevent submenu state updates,
-    *  from re-opening the modal.
-    */
-    setIsOpen(false);
   }
 
-  handleSelectTab(tab) {
-    this.setState({
-      selectedTab: tab,
-    });
-  }
-
-  handleClose() {
-    const { unsavedKeys } = this.state;
-
-    if (unsavedKeys.length > 0) {
-      this.setState({ unsavedModalOpen: true });
-      return;
-    }
-    this.performClose();
-  }
-
-  handleIgnoreChanges() {
-    this.setState({ unsavedModalOpen: false }, () => {
-      this.performClose();
-    });
-  }
-
-  getVisibleTabs() {
-    const {
-      isShowAudioFiltersEnabled, isAudioDeviceTestEnabled, isScreenSharingEnabled, isVideoEnabled,
-      isGladiaEnabled,
-    } = this.props;
-
-    return getSettingsTabs({
-      isShowAudioFiltersEnabled,
-      isAudioDeviceTestEnabled,
-      isDataSavingTabEnabled: isScreenSharingEnabled || isVideoEnabled,
-      isGladiaEnabled,
-    });
-  }
-
-  performClose() {
-    const { saved } = this.state;
-    const { setIsOpen } = this.props;
-    Settings.setHtmlFontSize(this.openingFontSize);
-    document.getElementsByTagName('html')[0].lang = saved.application.locale;
-    setIsOpen(false);
+  registerRoomModeApply(apply) {
+    this.roomModeApply = apply;
   }
 
   displaySettingsStatus(status, textOnly = false) {
@@ -337,6 +469,7 @@ class Settings extends Component {
       paginationToggleEnabled,
       isChatEnabled,
       isShowAudioFiltersEnabled,
+      roomMode,
     } = this.props;
 
     const {
@@ -345,6 +478,8 @@ class Settings extends Component {
       saved,
       allLocales,
       audioDeviceSelection,
+      roomModeChange,
+      roomModeApplying,
     } = this.state;
 
     const tabs = this.getVisibleTabs();
@@ -408,6 +543,22 @@ class Settings extends Component {
             displaySettingsStatus={this.displaySettingsStatus}
             isScreenSharingEnabled={isScreenSharingEnabled}
             isVideoEnabled={isVideoEnabled}
+          />
+        ),
+      },
+      [SETTINGS_TABS.ROOM_MODE]: {
+        ariaId: 'roomModeTab',
+        labelMsg: intlMessages.roomModeTabLabel,
+        dataTest: 'roomModeTabButton',
+        panel: (
+          <RoomModeTab
+            currentMode={roomMode}
+            change={roomModeChange}
+            onChange={this.handleRoomModeChange}
+            registerApply={this.registerRoomModeApply}
+            onReadyChange={this.handleRoomModeReady}
+            onEditingChange={this.handleRoomModeEditing}
+            applying={roomModeApplying}
           />
         ),
       },
@@ -478,13 +629,22 @@ class Settings extends Component {
       modalHeight,
       modalWidth,
     } = this.props;
-    const { unsavedModalOpen } = this.state;
+    const {
+      unsavedModalOpen, unsavedConfirm, selectedTab,
+      roomModeChange, roomModeReady, roomModeApplying, roomModeEditing,
+    } = this.state;
+    const { roomMode } = this.props;
+    // The room modes tab applies its pick to the room instead of saving settings.
+    const onRoomModeTab = this.getVisibleTabs()[selectedTab] === SETTINGS_TABS.ROOM_MODE;
 
     if (unsavedModalOpen) {
       return (
         <UnsavedChangesModal
           isOpen={unsavedModalOpen}
-          onCancel={() => this.setState({ unsavedModalOpen: false })}
+          onCancel={() => this.setState({ unsavedModalOpen: false, unsavedConfirm: null })}
+          // From Save, only the room mode pick is dropped: the dialog says so.
+          message={unsavedConfirm === 'save' ? intlMessages.unsavedPickMessage : undefined}
+          ignoreMessage={unsavedConfirm === 'save' ? intlMessages.unsavedPickIgnoreMessage : undefined}
           onConfirm={this.handleIgnoreChanges}
         />
       );
@@ -498,19 +658,32 @@ class Settings extends Component {
         onRequestClose={this.handleClose}
         contentStyle={{ width: `min(${modalWidth}, 90vw)`, height: modalHeight }}
         showDividers
+        allowScroll={false}
         footerContent={(
           <>
             <BBButton
               variant="secondary"
               label={intl.formatMessage(intlMessages.CancelLabel)}
+              disabled={roomModeApplying}
               onClick={this.performClose}
             />
-            <BBButton
-              variant="primary"
-              dataTest="saveSettingsButton"
-              label={intl.formatMessage(intlMessages.SaveLabel)}
-              onClick={this.handleSave}
-            />
+            {onRoomModeTab ? (
+              <BBButton
+                variant="primary"
+                dataTest="settingsRoomModeChangeButton"
+                label={intl.formatMessage(intlMessages.changeRoomModeLabel)}
+                disabled={!roomModeReady || roomModeApplying || roomModeEditing
+                  || !isRoomModeChangePending(roomModeChange, roomMode)}
+                onClick={this.handleChangeRoomMode}
+              />
+            ) : (
+              <BBButton
+                variant="primary"
+                dataTest="saveSettingsButton"
+                label={intl.formatMessage(intlMessages.SaveLabel)}
+                onClick={this.handleSave}
+              />
+            )}
           </>
         )}
       >
@@ -521,4 +694,5 @@ class Settings extends Component {
 }
 
 Settings.propTypes = propTypes;
+Settings.defaultProps = defaultProps;
 export default injectIntl(Settings);

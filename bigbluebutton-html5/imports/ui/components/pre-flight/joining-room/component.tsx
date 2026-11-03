@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { defineMessages, MessageDescriptor, useIntl } from 'react-intl';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from '../styles';
 import { usePreFlight } from '../context';
+import JoinNotices, { DEVICE_PENDING_NOTICE_ID } from '../join-notices/component';
 
 const intlMessages = defineMessages({
   readyDescription: {
@@ -13,27 +14,19 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.joinLabel',
     description: 'Label of the button that joins the session',
   },
-  withoutAudio: {
-    id: 'app.preFlight.joiningWithoutAudio',
-    description: 'Shown above the join button after the user passed over a denied microphone',
-  },
   joiningLabel: {
     id: 'app.preFlight.joiningLabel',
     description: 'Label of the join button while the join is underway',
   },
-  devicePending: {
-    id: 'app.preFlight.devicePermissionPending',
-    description: 'Shown above the join button while the browser has yet to answer for a device',
-  },
 });
-
-// Describes the join button while it is held, so one page-wide id will do.
-const DEVICE_PENDING_NOTICE_ID = 'preFlightDevicePendingNotice';
 
 interface JoiningRoomHeaderProps {
   meetingName: string;
   clientTitle: string;
   isJoining: boolean;
+  // Off when something else above the join button carries the notices (the
+  // room mode panel's footer): the button points at their id.
+  withNotices?: boolean;
 }
 
 /**
@@ -45,9 +38,9 @@ export const JoiningRoomHeader: React.FC<JoiningRoomHeaderProps> = ({
   meetingName,
   clientTitle,
   isJoining,
+  withNotices = true,
 }) => {
   const intl = useIntl();
-  const { joiningWithoutAudio, devicesPending } = usePreFlight();
 
   useEffect(() => {
     document.title = meetingName || clientTitle;
@@ -64,20 +57,7 @@ export const JoiningRoomHeader: React.FC<JoiningRoomHeaderProps> = ({
       )}
       <Styled.Heading>{meetingName || clientTitle}</Styled.Heading>
       <Styled.Description>{intl.formatMessage(intlMessages.readyDescription)}</Styled.Description>
-      {joiningWithoutAudio && (
-        <Styled.JoinNotice aria-live="polite" data-test="preFlightJoiningWithoutAudio">
-          {intl.formatMessage(intlMessages.withoutAudio)}
-        </Styled.JoinNotice>
-      )}
-      {devicesPending && (
-        <Styled.JoinNotice
-          id={DEVICE_PENDING_NOTICE_ID}
-          aria-live="polite"
-          data-test="preFlightDevicePending"
-        >
-          {intl.formatMessage(intlMessages.devicePending)}
-        </Styled.JoinNotice>
-      )}
+      {withNotices && <JoinNotices />}
     </>
   );
 };
@@ -85,11 +65,17 @@ export const JoiningRoomHeader: React.FC<JoiningRoomHeaderProps> = ({
 interface JoiningRoomActionsProps {
   isJoining: boolean;
   onJoin: () => void;
+  // The room mode panel starts the room with the same join.
+  label?: MessageDescriptor;
+  // Rendered before the join button, in the same row.
+  secondaryAction?: React.ReactNode;
 }
 
 export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
   isJoining,
   onJoin,
+  label = intlMessages.joinLabel,
+  secondaryAction = null,
 }) => {
   const intl = useIntl();
   const { commit, devicesPending } = usePreFlight();
@@ -101,10 +87,11 @@ export const JoiningRoomActions: React.FC<JoiningRoomActionsProps> = ({
 
   return (
     <Styled.ActionsWrapper>
+      {secondaryAction}
       <BBButton
         variant="primary"
         disabled={isJoining || devicesPending}
-        label={intl.formatMessage(isJoining ? intlMessages.joiningLabel : intlMessages.joinLabel)}
+        label={intl.formatMessage(isJoining ? intlMessages.joiningLabel : label)}
         onClick={handleJoin}
         ariaDescribedBy={devicesPending ? DEVICE_PENDING_NOTICE_ID : undefined}
         dataTest="preFlightJoinButton"

@@ -153,7 +153,8 @@ export const PreFlightErrorDialog: React.FC<PreFlightErrorDialogProps> = ({ onCl
           backgroundColor: colorScrim,
         },
       }}
-      data={{ test: 'preFlightErrorDialog' }}
+      // Opens only in the phone layout, whose styles it carries out of the page.
+      data={{ test: 'preFlightErrorDialog', 'phone-layout': 'true' }}
     >
       <Styled.DialogClose>
         <BBButton

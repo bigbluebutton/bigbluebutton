@@ -4,6 +4,7 @@ import scala.collection.immutable.StringOps
 import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
+import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.record.events._
 import org.apache.pekko.actor.Actor
@@ -124,6 +125,7 @@ class RedisRecorderActor(
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
+      case m: RoomConfiguredEvtMsg                  => handleRoomConfiguredEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
       case m: BroadcastLayoutEvtMsg                 => handleBroadcastLayoutEvtMsg(m)
@@ -722,6 +724,17 @@ class RedisRecorderActor(
     ev.setMeetingId(msg.header.meetingId)
     ev.setUserId(msg.body.setBy)
     ev.setWebcamsOnlyForModerator(msg.body.webcamsOnlyForModerator)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleRoomConfiguredEvtMsg(msg: RoomConfiguredEvtMsg): Unit = {
+    val ev = new RoomConfiguredRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.timestampUTC(msg.body.setOn)
+    ev.setUserId(msg.body.setBy)
+    ev.setRoomMode(msg.body.roomMode)
+    ev.setSettings(JsonUtil.toJson(msg.body.settings))
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
