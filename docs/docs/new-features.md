@@ -128,6 +128,12 @@ A chat message that contains only emoji (up to three emoji, whitespace ignored) 
 
 The Learning Dashboard is no longer disabled in breakout rooms: each breakout gets its own dashboard, tracking activity the same way the parent meeting does (an inherited `disabledFeatures=learningDashboard` still turns it off). A breakout's dashboard data is also kept until the *parent* meeting ends - previously cleanup was anchored to the breakout's own end - so instructors can review breakout activity for as long as the main room is running (plus `learningDashboardCleanupDelayInMinutes`).
 
+#### Equations and diagrams in shared notes
+
+Shared notes can now hold **LaTeX equations** and **Mermaid diagrams**. Type `/` and pick *Block Equation*, *Inline Equation* or *Diagram* (or convert a block from the block type menu), then edit the source in the popup that opens; equations are typeset with KaTeX and diagrams drawn with Mermaid, live for every participant.
+
+In the exports and in the recording's notes, equations keep their LaTeX source: they are rendered in the HTML and PDF exports and written as `$...$` and `$$...$$` in the Markdown export. Diagrams are exported as their Mermaid source in a code block. Markdown imported into the notes, or passed in `sharedNotesInitialContentMarkdown`, turns ` ```mermaid ` fences into diagrams; `$$` blocks stay as text.
+
 <!-- ### Analytics -->
 
 ### Behind the scenes
