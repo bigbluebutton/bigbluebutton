@@ -759,7 +759,6 @@ export interface Stats {
   loss: number[]
   rtt: number[]
   level: string[]
-  help: string
 }
 
 export interface LogMediaStats {

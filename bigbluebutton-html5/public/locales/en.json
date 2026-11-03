@@ -1331,7 +1331,6 @@
     "app.connection-status.title": "Connection status",
     "app.connection-status.description": "View users' connection status",
     "app.connection-status.empty": "There are currently no reported connection issues",
-    "app.connection-status.more": "more",
     "app.connection-status.copy": "Copy Stats",
     "app.connection-status.copied": "Copied!",
     "app.connection-status.jitter": "Jitter",
