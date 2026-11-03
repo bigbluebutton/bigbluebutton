@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { colorTextDefault } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite,
@@ -29,8 +29,14 @@ import {
   titlesFontWeight,
   textFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ProfileStyled from '/imports/ui/components/profile-settings/styles';
+import { visuallyHidden } from '/imports/ui/components/common/visually-hidden/styles';
+
+// The phone layout: a phone, and a tablet while the room mode panel is up,
+// since the panel does not fit beside the setup there. The page carries it,
+// as does the error dialog, which only opens in this layout.
+const PHONE_LAYOUT = '[data-phone-layout]';
 
 const Page = styled.div`
   display: flex;
@@ -42,7 +48,7 @@ const Page = styled.div`
   background-color: ${colorBackground};
   overflow: auto;
 
-  @media ${smallOnly} {
+  &${PHONE_LAYOUT} {
     flex-direction: column;
     gap: 0;
     height: 100%;
@@ -77,7 +83,7 @@ const SetupColumn = styled(Card)`
     flex: 0 0 22rem;
   }
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     flex: 0 0 auto;
     border-width: 0;
     border-radius: 0;
@@ -104,6 +110,16 @@ const SetupColumn = styled(Card)`
          overflow-x stays hidden, keeping the nested scrollbox alive. */
       overflow: visible;
     }
+
+    /* A tablet: the card fills its tab, the setup growing so that the footer
+       stays at the bottom. */
+    @media ${mediumOnly} {
+      flex: 1 0 auto;
+
+      & > ${ProfileStyled.RootContainer} {
+        flex: 1 0 auto;
+      }
+    }
   }
 `;
 
@@ -118,13 +134,51 @@ const ContentColumn = styled(Card)`
   padding: ${lgPaddingX};
   text-align: center;
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     flex: 0 0 auto;
     min-height: auto;
     padding: 0;
     border-width: 0;
     border-radius: 0;
   }
+`;
+
+// The room mode panel in the content column's place: it fills the card, with
+// the actions as a footer instead of a centred stack.
+const PanelColumn = styled(Card)`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+`;
+
+const HiddenHeader = styled.div`
+  ${visuallyHidden}
+`;
+
+// The bar at the foot of a card. The setup card and the room mode panel share
+// it, so their rules meet across the page.
+const cardFooter = css`
+  display: flex;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  /* The setup's Settings button carries an icon and stands taller than the
+     panel's actions: a shared height keeps the two cards' rules level. */
+  min-height: calc(2 * ${jumboPaddingY} + 3.75rem);
+  padding: ${jumboPaddingY};
+  border-top: 1px solid ${colorBorder};
+
+  ${PHONE_LAYOUT} & {
+    min-height: 0;
+  }
+`;
+
+const PanelFooter = styled.div`
+  ${cardFooter}
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: ${mdPaddingX};
 `;
 
 const CenterStack = styled.div`
@@ -172,7 +226,7 @@ const PanelTitle = styled.h2`
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     padding: ${lgPaddingX} ${mdPaddingX} 0;
     font-size: ${fontSizeBase};
   }
@@ -210,7 +264,7 @@ const Heading = styled.h1`
   font-size: 2rem;
   font-weight: ${textFontWeight};
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     font-size: ${fontSizeLarger};
     /* Neither type token: the design goes semibold on the phone heading. */
     font-weight: 600;
@@ -225,7 +279,7 @@ const Description = styled.p`
   font-weight: ${textFontWeight};
   line-height: 1.4;
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     font-size: ${fontSizeBase};
   }
 `;
@@ -282,7 +336,7 @@ const ActionsWrapper = styled.div`
     height: 3.375rem;
   }
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     position: fixed;
     right: 0;
     bottom: 0;
@@ -303,7 +357,7 @@ const ActionsWrapper = styled.div`
 // Holds the space the pinned bar takes out of the flow, so only the states that
 // render one reserve any.
 const ActionBar = styled.div`
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     /* The bar is jumboPaddingY + the 3.5rem button + jumboPaddingY + its border. */
     height: 6.5625rem;
   }
@@ -326,8 +380,16 @@ const PreviewPlaceholder = styled.div`
   text-align: center;
   overflow-wrap: anywhere;
 
-  @media ${smallOnly} {
+  ${PHONE_LAYOUT} & {
     min-height: 15.5rem;
+
+    /* Across a tablet's width the box would stretch into a strip: it keeps
+       the phone's height, at a camera's 16:9. */
+    @media ${mediumOnly} {
+      width: calc(15.5rem * 16 / 9);
+      max-width: 100%;
+      margin-inline: auto;
+    }
   }
 `;
 
@@ -407,9 +469,14 @@ const AudioModeLabel = styled.div`
 `;
 
 export default {
+  PHONE_LAYOUT,
+  cardFooter,
   Page,
   SetupColumn,
   ContentColumn,
+  PanelColumn,
+  HiddenHeader,
+  PanelFooter,
   CenterStack,
   TopInfo,
   PanelTitle,
