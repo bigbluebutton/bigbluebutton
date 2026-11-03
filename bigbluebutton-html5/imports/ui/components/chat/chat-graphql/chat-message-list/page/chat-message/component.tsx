@@ -8,7 +8,7 @@ import React, {
 import { MessageDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import { defineMessages, FormattedTime, useIntl } from 'react-intl';
-import FocusTrap from 'focus-trap-react';
+import { FocusTrap } from 'focus-trap-react';
 import classNames from 'classnames';
 import { useMutation } from '@apollo/client';
 import ChatMessageHeader from './message-header/component';
@@ -462,7 +462,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     });
   }, [message.messageId, setRenderedChatMessages]);
 
-  const scrollEndFrameRef = React.useRef<number>();
+  const scrollEndFrameRef = React.useRef<number | undefined>(undefined);
 
   const pollScrollEndEvent = useCallback((
     setFrameId: (id: number) => void,

@@ -19,7 +19,7 @@ import {
   borderSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import TextareaAutosize from 'react-autosize-textarea';
+import TextareaAutosize from 'react-textarea-autosize';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import Button from '@mui/material/Button';
 

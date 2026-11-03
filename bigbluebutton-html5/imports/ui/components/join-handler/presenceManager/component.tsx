@@ -103,7 +103,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const loadingContextInfo = useContext(LoadingContext);
   const [isGuestAllowed, setIsGuestAllowed] = useState(guestStatus === GUEST_STATUSES.ALLOW);
   const PUBLIC_CONFIG = window.meetingClientSettings.public;
@@ -113,7 +113,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const preFlightEnabled = isPreFlightEnabled() && !isBot;
   const [joinRequested, setJoinRequested] = useState(!preFlightEnabled);
   const [joinFailed, setJoinFailed] = useState(false);
-  const joinRetryRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const joinRetryRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const preFlightCommitRef = React.useRef<(() => boolean) | null>(null);
   const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   // A socket that stops carrying messages stays "connected" until the

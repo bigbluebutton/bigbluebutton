@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import TetherComponent from 'react-tether';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -167,8 +166,8 @@ class Dropdown extends Component {
   handleWindowClick(event) {
     const { keepOpen, onHide } = this.props;
     const { isOpen } = this.state;
-    const triggerElement = findDOMNode(this.trigger);
-    const contentElement = findDOMNode(this.content);
+    const triggerElement = this.getTriggerElement();
+    const contentElement = this.content?.node;
     if (!(triggerElement && contentElement)) return;
     if (triggerElement && triggerElement.contains(event.target)) {
       if (keepOpen) {
@@ -203,6 +202,13 @@ class Dropdown extends Component {
   handleToggle() {
     const { isOpen } = this.state;
     return isOpen ? this.handleHide() : this.handleShow();
+  }
+
+  getTriggerElement() {
+    const { tethered } = this.props;
+    const firstChild = this.dropdown?.firstElementChild;
+    // When tethered, the trigger is wrapped in the tether target span
+    return tethered ? firstChild?.firstElementChild : firstChild;
   }
 
   updateOrientation() {
@@ -245,7 +251,6 @@ class Dropdown extends Component {
     let content = children.find((x) => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
-      ref: (ref) => { this.trigger = ref; },
       dropdownIsOpen: isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,

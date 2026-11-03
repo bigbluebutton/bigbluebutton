@@ -66,7 +66,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 }) => {
   const intl = useIntl();
   const joinAudioShortcut = useShortcut('joinAudio');
-  const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const {
     open: openAudioModal,

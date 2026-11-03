@@ -49,7 +49,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
   const [error, setError] = React.useState<string | null>(null);
   const [errorCode, setErrorCode] = React.useState<string>(ERROR_CODE_GENERIC);
   const [loading, setLoading] = React.useState<boolean>(false);
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     setLoading(true);

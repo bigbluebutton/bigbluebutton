@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, {
   ChangeEvent,
-  RefObject,
   useEffect,
   useRef,
   useMemo,
   useCallback,
 } from 'react';
 import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client';
-import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
@@ -176,7 +174,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
   const editingMessage = React.useRef<EditingMessage | null>(null);
-  const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [, setInputWrapperWidth] = React.useState(0);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
@@ -228,7 +227,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   useEffect(() => {
     setMessageHint();
     if (!isMobile) {
-      if (textAreaRef?.current) textAreaRef.current.textarea.focus();
+      if (textAreaRef?.current) textAreaRef.current.focus();
     }
 
     return () => {
@@ -284,7 +283,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     resetMentionState();
 
     if (!isMobile) {
-      if (textAreaRef?.current) textAreaRef.current.textarea.focus();
+      if (textAreaRef?.current) textAreaRef.current.focus();
     }
     setError(null);
     setHasErrors(false);
@@ -298,10 +297,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const shouldRestoreFocus = textAreaRef.current
       && !chatSendMessageLoading
       && isTextAreaFocused
-      && document.activeElement !== textAreaRef.current.textarea;
+      && document.activeElement !== textAreaRef.current;
 
     if (shouldRestoreFocus) {
-      textAreaRef.current.textarea.focus();
+      textAreaRef.current?.focus();
     }
   }, [chatSendMessageLoading, textAreaRef.current]);
 
@@ -323,7 +322,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const handleEmojiSelect = (emojiObject: { native: string }): void => {
-    const txtArea = textAreaRef?.current?.textarea;
+    const txtArea = textAreaRef?.current;
     if (!txtArea) return;
     const cursor = txtArea.selectionStart;
 
@@ -427,7 +426,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const handleMentionSelect = (user: MentionUser) => {
-    const txtArea = textAreaRef?.current?.textarea;
+    const txtArea = textAreaRef?.current;
     const cursorPos = txtArea?.selectionStart ?? message.length;
     // The caret can have moved since the candidate was computed, so it is recomputed here:
     // replacing from a stale '@' would eat unrelated text.
@@ -474,21 +473,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, [message]);
 
   useEffect(() => {
-    if (editingMessage.current) {
-      textAreaRef.current?.dispatchEvent?.('autosize:update');
-    }
-  }, [message]);
-
-  useEffect(() => {
     const wrapper = inputWrapperRef.current;
     if (!wrapper) return undefined;
     let lastWidth = wrapper.clientWidth;
-    // autosize re-measures on input and on window resize only; dragging the
-    // panel edge changes the textarea's width with neither.
+    // TextareaAutosize re-measures on render and on window resize only;
+    // dragging the panel edge changes the textarea's width with neither,
+    // so re-render when the width changes.
     const observer = new ResizeObserver(() => {
       if (wrapper.clientWidth === lastWidth) return;
       lastWidth = wrapper.clientWidth;
-      textAreaRef.current?.dispatchEvent('autosize:update');
+      setInputWrapperWidth(lastWidth);
     });
     observer.observe(wrapper);
     return () => observer.disconnect();
@@ -498,7 +492,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const handleReplyIntention = (e: Event) => {
       if (e instanceof CustomEvent) {
         setRepliedMessageId(e.detail.messageId);
-        textAreaRef.current?.textarea.focus();
+        textAreaRef.current?.focus();
       }
     };
 
@@ -512,7 +506,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           setMessage(e.detail.message);
           resetMentionState();
           pickedMentionsRef.current = pickedMentionsFromHtml(e.detail.message, e.detail.messageAsHtml ?? '');
-          textAreaRef.current?.textarea.focus();
+          textAreaRef.current?.focus();
         }
       }
     };
@@ -719,7 +713,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         if (chatList?.contains(event.target as Node)) {
           const selection = window.getSelection()?.toString();
           if (selection?.length === 0 && !hasSelectedTextInChat.current) {
-            textAreaRef.current?.textarea.focus();
+            textAreaRef.current?.focus();
           }
         }
       };
@@ -788,7 +782,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         {mentionCandidate !== null ? (
           <ChatMentionPicker
             searchText={mentionCandidate.search}
-            inputElement={textAreaRef.current?.textarea ?? null}
+            inputElement={textAreaRef.current ?? null}
             onSelect={handleMentionSelect}
             onClose={handleMentionClose}
             onDismiss={handleMentionDismiss}
@@ -809,7 +803,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             ref={inputWrapperRef}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
-                textAreaRef.current?.textarea.focus();
+                textAreaRef.current?.focus();
               }
             }}
           >
@@ -845,13 +839,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   },
                 }));
               }}
-              maxRows={5}
+              // the placeholder is measured wrapped, so cap the empty input at one row
+              maxRows={message ? 5 : 1}
               onChange={handleMessageChange}
               onKeyDown={handleMessageKeyDown}
               onPaste={(e) => { e.stopPropagation(); }}
               onCut={(e) => { e.stopPropagation(); }}
               onCopy={(e) => { e.stopPropagation(); }}
-              async
             />
             {ENABLE_EMOJI_PICKER ? (
               <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>

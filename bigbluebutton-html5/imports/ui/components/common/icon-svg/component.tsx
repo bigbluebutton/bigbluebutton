@@ -7,7 +7,7 @@ interface IconProps {
   wrapped?: boolean;
 }
 
-const iconsMap: { [key: string]: JSX.Element } = {
+const iconsMap: { [key: string]: React.JSX.Element } = {
   reactions: (
     <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path fillRule="evenodd" clipRule="evenodd" d="M18.4 7.4C18.4 7.73137 18.6686 8 19 8C19.3313 8 19.6 7.73137 19.6 7.4L19.6 5.6001L21.4 5.6001C21.7314 5.6001 22 5.33147 22 5.0001C22 4.66873 21.7314 4.4001 21.4 4.4001L19.6 4.4001L19.6 2.6C19.6 2.26863 19.3313 2 19 2C18.6686 2 18.4 2.26863 18.4 2.6L18.4 4.4001L16.6 4.4001C16.2686 4.4001 16 4.66873 16 5.0001C16 5.33147 16.2686 5.6001 16.6 5.6001L18.4 5.6001L18.4 7.4Z" fill="currentcolor" />

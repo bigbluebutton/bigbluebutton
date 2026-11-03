@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useRef, useCallback,
+  useState, useEffect, useRef, useCallback, useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Resizable } from 're-resizable';
@@ -90,6 +90,11 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const cameraSizeRef = useRef(cameraSize);
   const cameraDockGridSettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const intl = useIntl();
+  const resizableRef = useRef<Resizable>(null);
+  // react-draggable needs the DOM node, which Resizable exposes as `resizable`
+  const draggableNodeRef = useMemo(() => ({
+    get current() { return resizableRef.current?.resizable ?? null; },
+  }), []);
 
   cameraDockRef.current = cameraDock;
   cameraSizeRef.current = cameraSize;
@@ -283,6 +288,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
           || cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT}
       >
         <Draggable
+          nodeRef={draggableNodeRef}
           handle="video"
           bounds="html"
           onStart={handleWebcamDragStart}
@@ -304,6 +310,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
           }
         >
           <Resizable
+            ref={resizableRef}
             minWidth={isDragging ? cameraSize?.width : cameraDock.minWidth}
             minHeight={isDragging ? cameraSize?.height : cameraDock.minHeight}
             maxWidth={isDragging ? cameraSize?.width : cameraMaxWidth}

@@ -12,8 +12,8 @@ const checkLockReason = (reason: string): boolean => reason === 'Lock rules chan
 
 const useHocuspocusProvider = () => {
   const [hocuspocusProvider, setHocuspocusProvider] = useState<HocuspocusProvider>();
-  const hocuspocusProviderRef = useRef<HocuspocusProvider>();
-  const wsProviderRef = useRef<HocuspocusProviderWebsocket>();
+  const hocuspocusProviderRef = useRef<HocuspocusProvider | undefined>(undefined);
+  const wsProviderRef = useRef<HocuspocusProviderWebsocket | undefined>(undefined);
   const isAuthenticating = useRef<boolean>(false);
   const autoRetryCount = useRef<number>(0);
   const [error, setError] = useState<string | null>(null);

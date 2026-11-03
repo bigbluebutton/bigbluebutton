@@ -44,8 +44,8 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
   const [isSending, setIsSending] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
   const [lastSentMessage, setLastSentMessage] = useState(initialMessage);
-  const messageSentTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const isSendingTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const messageSentTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isSendingTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => () => {
     clearTimeout(messageSentTimerRef.current);

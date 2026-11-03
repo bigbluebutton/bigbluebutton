@@ -21,7 +21,7 @@ const IntersectionWatcher: React.FC<IntersectionWatcherProps> = ({
   restOfUsers,
 }) => {
   const childrenRef = React.useRef<HTMLDivElement | null>(null);
-  const setTimoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const setTimoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [renderPage, setRenderPage] = React.useState(false);
   const {
     childRefProxy,

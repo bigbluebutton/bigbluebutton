@@ -243,9 +243,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const [subtitlesOn, setSubtitlesOn] = React.useState(false);
   const [played, setPlayed] = React.useState(0);
   const [loaded, setLoaded] = React.useState(0);
-  const playerRef = useRef<ReactPlayer>();
+  const playerRef = useRef<ReactPlayer | undefined>(undefined);
   const playerParentRef = useRef<HTMLDivElement| null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
   // Mirrors reactPlayerPlaying for synchronous reads inside callbacks (avoids a stale

@@ -30,8 +30,8 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   sidebarContentIsOpen,
 }) => {
   const timeRef = useRef<HTMLSpanElement>(null);
-  const alarm = useRef<HTMLAudioElement>();
-  const music = useRef<HTMLAudioElement>();
+  const alarm = useRef<HTMLAudioElement | undefined>(undefined);
+  const music = useRef<HTMLAudioElement | undefined>(undefined);
   const triggered = useRef<boolean>(true);
   const alreadyNotified = useRef<boolean>(false);
   const [startTimerMutation] = useMutation(TIMER_START);

@@ -88,6 +88,7 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
   return (
     isDraggable ? (
       <Draggable
+        nodeRef={contentRef}
         bounds="parent"
         position={position}
         onDrag={(_, data) => setPosition({ x: data.x, y: data.y })}
