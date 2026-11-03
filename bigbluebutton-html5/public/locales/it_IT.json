@@ -1331,7 +1331,6 @@
     "app.connection-status.title": "Stato connessione",
     "app.connection-status.description": "Visualizza lo stato di connessione degli utenti",
     "app.connection-status.empty": "Al momento non ci sono problemi di connessione",
-    "app.connection-status.more": "altro",
     "app.connection-status.copy": "Copia le statistiche",
     "app.connection-status.copied": "Copiati!",
     "app.connection-status.jitter": "Jitter",
