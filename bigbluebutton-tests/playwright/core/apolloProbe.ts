@@ -1,5 +1,6 @@
 import { expect, type Page as PlaywrightPage } from '@playwright/test';
 
+import { ELEMENT_WAIT_LONGER_TIME } from './constants';
 import { type ClientSettingsOverrides } from './page';
 
 /* eslint-disable no-underscore-dangle */
@@ -14,7 +15,7 @@ import { type ClientSettingsOverrides } from './page';
 // That client is only published at window-level when enableApolloDevTools is on
 // or the client is a dev bundle, so any spec using this module must enable it
 // server-side on meeting create (createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE)
-// and guarantee isApolloClientExposed before using this.
+// and call expectApolloClientExposed before using this.
 
 interface FieldNode {
   kind: string;
@@ -61,6 +62,16 @@ export const isApolloClientExposed = (page: PlaywrightPage, timeout: number): Pr
       () => true,
       () => false,
     );
+
+export const expectApolloClientExposed = async (
+  page: PlaywrightPage,
+  timeout: number = ELEMENT_WAIT_LONGER_TIME,
+): Promise<void> => {
+  expect(
+    await isApolloClientExposed(page, timeout),
+    'window.__APOLLO_CLIENT__ should be exposed (createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE)',
+  ).toBe(true);
+};
 
 export const runQuery = async (page: PlaywrightPage, queryAst: object): Promise<Record<string, unknown>> =>
   page.evaluate(async (ast) => {

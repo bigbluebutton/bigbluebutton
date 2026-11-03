@@ -1,6 +1,6 @@
 import { type Browser, expect, type TestInfo, type WebSocketRoute } from '@playwright/test';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { isLiveKit } from '../core/livekit';
 import { Page } from '../core/page';
@@ -8,11 +8,11 @@ import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 import {
   APOLLO_CLIENT_SETTINGS_OVERRIDE,
+  expectApolloClientExposed,
   expectUserRemoved,
   getMeetingUserIds,
   getOwnUserId,
   getUnsyncedVoiceUsers,
-  isApolloClientExposed,
 } from './floorProbe';
 import {
   exposeLiveKitRoom,
@@ -27,10 +27,6 @@ import {
 import { connectMicrophone, ensureUnmuted } from './util';
 
 const VIEWER_NAME = 'StrandedViewer';
-
-const APOLLO_EXPOSURE_SKIP_REASON =
-  'requires window.__APOLLO_CLIENT__ for the server-state probe ' +
-  '(dev bundle or enableApolloDevTools provisioned via clientSettingsOverride)';
 
 // Passive user removal: natural eject by akka-apps on disconnects. Lands
 // ~20s after the client's GraphQL closes: 10s user-left flag plus a 10s akka-audit tick.
@@ -68,7 +64,7 @@ const initAudioStateSyncScenario = async (browser: Browser, testInfo: TestInfo):
   await exposeLiveKitRoom(modRawPage);
   await audio.initModPage(modRawPage, { testInfo, createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE });
   const { modPage } = audio;
-  test.skip(!(await isApolloClientExposed(modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
+  await expectApolloClientExposed(modPage.page);
 
   const viewerRawPage = await context.newPage();
   await exposeLiveKitRoom(viewerRawPage);
