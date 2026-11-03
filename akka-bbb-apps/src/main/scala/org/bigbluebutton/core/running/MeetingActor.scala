@@ -1136,6 +1136,7 @@ class MeetingActor(
         val authedUsers = Users2x.findAllAuthedUsers(liveMeeting.users2x)
 
         if (authedUsers.isEmpty) {
+          state = endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER)
           sendEndMeetingDueToExpiry(
             MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
             eventBus, outGW, liveMeeting,

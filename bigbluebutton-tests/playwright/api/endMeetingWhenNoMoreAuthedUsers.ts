@@ -21,14 +21,19 @@ const MINUTE = 60000;
 // bbb-apps-akka checks the timer every few seconds, and lists a user who left for 10 more seconds
 const TIMER_CHECK_SLACK = 45000;
 const POLL_INTERVAL = 5000;
-// A join without the guest parameter is authenticated; one with guest=true is not.
+// A join without the guest parameter is authenticated; one with it (and without auth=true) is not.
 const GUEST_JOIN = 'guest=true';
 // Let guests straight in, and rule out the other timer that ends a meeting once its moderators left.
 const CREATE_PARAMETERS = 'guestPolicy=ALWAYS_ACCEPT&endWhenNoModerator=false';
 
+// True while bbb-web knows the meeting, false once it answers notFound. Any other error (a transient bbb-web
+// failure, say) throws, so it fails the test instead of passing for a meeting that ended.
 async function meetingExists(request: APIRequestContext, meetingID: string): Promise<boolean> {
-  const { response } = await requestApiCall(request, getApiCallUrl('getMeetingInfo', { meetingID }));
-  return response.returncode?.[0] === 'SUCCESS';
+  const { status, response } = await requestApiCall(request, getApiCallUrl('getMeetingInfo', { meetingID }));
+  if (response.returncode?.[0] === 'SUCCESS') return true;
+  const messageKey = response.messageKey?.[0];
+  if (messageKey === 'notFound') return false;
+  throw new Error(`getMeetingInfo for ${meetingID} failed: HTTP ${status}, messageKey ${messageKey ?? 'missing'}`);
 }
 
 // Waits until bbb-web no longer knows the meeting; returns the time that took since `since`.

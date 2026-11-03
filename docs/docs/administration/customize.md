@@ -2038,7 +2038,7 @@ Some `/create` parameters set per-meeting state but have no default in `bigblueb
 
 #### End a meeting once no authenticated user is left
 
-`bbb-apps-akka` can end a meeting a set number of minutes after its last authenticated user left it, even while guests are still in it. A user is authenticated when the [`join`](/development/api/#get-join) call did not send `guest=true`. The setting is off by default. To enable it, add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`, **below** the `include` line:
+`bbb-apps-akka` can end a meeting a set number of minutes after its last authenticated user left it, even while guests are still in it. A user is authenticated when the [`join`](/development/api/#get-join) call sends no `guest` parameter, or sends `auth=true`; a `guest` parameter with any value, `guest=false` included, makes the user a guest unless `auth=true` is sent too. The setting is off by default. To enable it, add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`, **below** the `include` line:
 
 ```properties
 apps {
@@ -2049,7 +2049,7 @@ apps {
 }
 ```
 
-An authenticated user who returns in time cancels the countdown. The users still in the meeting when it ends see "The session has ended because there was no authenticated user in the room". Breakout rooms are not ended on their own; they end with their parent meeting. The similar `endWhenNoModerator` and `endWhenNoModeratorDelayInMinutes` in the table above count moderators instead, and can be set per meeting.
+An authenticated user who returns in time cancels the countdown. The users still in the meeting when it ends see "The session has ended because there was no authenticated user in the room". The check does not run inside breakout rooms; they end with their parent meeting. The similar `endWhenNoModerator` and `endWhenNoModeratorDelayInMinutes` in the table above count moderators instead, and can be set per meeting.
 
 Apply the change with `sudo systemctl restart bbb-apps-akka`, or restart everything with `sudo bbb-conf --restart`.
 
