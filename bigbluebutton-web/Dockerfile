@@ -57,4 +57,4 @@ HEALTHCHECK --start-period=120s CMD ["curl", "-fsS", "-o", "/dev/null", "http://
 ENV MALLOC_ARENA_MAX=2 \
     BBB_LOG_FILE_APPENDER=STDOUT \
     JDK_JAVA_OPTIONS="-Xms384m -Xmx384m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/bigbluebutton/diagnostics"
-ENTRYPOINT ["java", "-Dgrails.env=prod", "-Dserver.address=0.0.0.0", "-Dserver.port=8090", "-Dspring.main.allow-circular-references=true", "-cp", ".", "org.springframework.boot.loader.launch.WarLauncher"]
+ENTRYPOINT ["java", "-Dgrails.env=prod", "-Dserver.address=0.0.0.0", "-Dserver.port=8090", "-cp", ".", "org.springframework.boot.loader.launch.WarLauncher"]
