@@ -356,7 +356,7 @@ export class Audio extends MultiUsers {
     await this.expectMutedAfterPushToTalk();
   }
 
-  async pushToTalkReleaseDuringPublication() {
+  async pushToTalkReleaseDuringPublication(resumeBeforePublication = false) {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
     await joinMutedMicrophone(this.modPage);
@@ -372,10 +372,36 @@ export class Audio extends MultiUsers {
         0,
       );
 
+      if (resumeBeforePublication) {
+        // Push-to-talk ignores a new press for 800 ms after a release.
+        await this.modPage.page.waitForTimeout(1000);
+        await this.modPage.down('m');
+        await this.modPage.hasElement(e.muteMicButton, 'should confirm the latest unmute while publication is pending');
+      }
+
       await publication.release();
       await publication.waitUntilSettled();
+
+      if (resumeBeforePublication) {
+        await this.modPage.page.waitForTimeout(PUSH_TO_TALK_RELEASE_WAIT);
+        await this.modPage.hasElement(e.muteMicButton, 'should stay unmuted while the second M press is held');
+        await expect(isTalkingLocator(this.modPage, this.modPage.username)).toBeVisible();
+        const mic = await getLocalMicState(this.modPage.page);
+        expect(mic.micPublications, 'should publish the microphone for the latest unmute').toBeGreaterThan(0);
+        expect(mic.allMuted, 'should not apply the earlier mute to the latest publication').toBe(false);
+        await this.modPage.up('m');
+      }
+
+      await this.expectMutedAfterPushToTalk();
+
+      // A corrected late publication must not prevent a subsequent unmute.
+      await this.modPage.down('m');
+      await this.modPage.hasElement(e.muteMicButton, 'should allow a new push-to-talk after the publication settles');
+      await expect(isTalkingLocator(this.modPage, this.modPage.username)).toBeVisible();
+      await this.modPage.up('m');
       await this.expectMutedAfterPushToTalk();
     } finally {
+      await this.modPage.up('m');
       await publication.release();
     }
   }

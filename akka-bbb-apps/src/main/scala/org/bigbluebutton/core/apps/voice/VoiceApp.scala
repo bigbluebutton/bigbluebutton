@@ -8,7 +8,7 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
@@ -162,6 +162,15 @@ object VoiceApp extends SystemConfiguration {
       voiceUserId: String,
       muted:       Boolean
   )(implicit context: ActorContext): Unit = {
+    VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId) match {
+      case Some(u) if !muted && u.muteRequested =>
+        // A microphone published by an earlier unmute must not overwrite a
+        // newer mute. Reapply it now that the bridge has a track to mute.
+        muteUserInVoiceConf(liveMeeting, outGW, u.intId, muted = true)
+        return
+      case _ =>
+    }
+
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
@@ -869,6 +878,16 @@ object VoiceApp extends SystemConfiguration {
         // A matching confirmed state does not mean there is no opposite
         // command in flight. The voice bridge must receive the latest request.
         if (muted || !u.deafened) {
+          // LiveKit web users explicitly request an unmute (including consent
+          // to a moderator request). Keep their latest request through track
+          // publication events, until another request or a new voice session.
+          // Dial-in users can also change mute state outside the web client.
+          if (HandlerHelpers.isUsingLiveKitAudio(liveMeeting)
+            && !u.intId.startsWith(IntIdPrefixType.DIAL_IN)
+            && Users2x.findWithIntId(liveMeeting.users2x, u.intId).exists(_.clientType != ClientType.DIAL_IN)) {
+            VoiceUsers.setMuteRequested(liveMeeting.voiceUsers, u.intId, muted)
+          }
+
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
             liveMeeting.props.voiceProp.voiceConf,
