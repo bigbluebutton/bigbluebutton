@@ -18,6 +18,7 @@ import {
   expectExternalVideoPlaying,
   expectSlidesEqualBetweenPages,
   EXTERNAL_VIDEO_URL,
+  fixtureFile,
   getCurrentPresentationHeight,
   getCurrentSlideAspectRatio,
   getCurrentSlideDarkPixelRatio,
@@ -1049,27 +1050,39 @@ export class Presentation extends MultiUsers {
       e.presentationFileUpload,
       'should display the presentation space for uploading a new file, when the manage presentations is opened',
     );
+    await this.modPage.hasElement(
+      e.presentationThumbnails,
+      'should list the current presentation in the presentation manager',
+    );
   }
 
-  // The spec lowers uploadSizeMax to 1 kB
+  // The spec sets uploadSizeMax to the size of the mask sample PDF, so that file sits exactly on the limit
   async fileOverSizeLimitIsNotSent() {
-    const file = { name: 'over-the-limit.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(5000, 0x25) };
-    const uploads: string[] = [];
+    const atTheLimit = fixtureFile(e.maskSamplePdf);
+    const limit = atTheLimit.buffer.length;
+    const overTheLimit = {
+      name: 'over-the-limit.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.alloc(limit + 1, 0x25),
+    };
+    let uploads = 0;
     this.modPage.page.on('request', (request) => {
-      if (request.method() === 'POST' && request.url().endsWith('/upload')) uploads.push(request.url());
+      if (request.method() === 'POST' && request.url().endsWith('/upload')) uploads += 1;
     });
 
     await this.openPresentationManager();
-    await this.modPage.page.setInputFiles(e.presentationFileUpload, file);
+    const thumbnailsBefore = await this.modPage.getSelectorCount(e.presentationThumbnails);
+    await this.modPage.page.setInputFiles(e.presentationFileUpload, [atTheLimit, overTheLimit]);
 
     await expect(
-      this.modPage.page.locator(e.smallToastMsg).filter({ hasText: file.name }),
-      'should say why the file was refused, without waiting for the server',
-    ).toContainText(`${e.presentationTooLargeLabel} 1.00 kB`);
-    await this.modPage.page.waitForTimeout(2000); // an upload would have started by now: its token takes a round trip
-    expect(uploads, 'should not send the file').toEqual([]);
+      this.modPage.page.locator(e.smallToastMsg).filter({ hasText: overTheLimit.name }),
+      'should say why the file was refused',
+    ).toContainText(`${e.presentationTooLargeLabel} ${(limit / 1000).toFixed(2)} kB`);
+    // The uploads of a drop start together, so once the file at the limit is listed every POST of the drop is out
+    await this.modPage.waitUntilHaveCountSelector(e.presentationThumbnails, thumbnailsBefore + 1, UPLOAD_PDF_WAIT_TIME);
+    expect(uploads, 'should send only the file at the limit').toBe(1);
     await expect(
-      this.modPage.page.locator(e.presentationNames).filter({ hasText: file.name }),
+      this.modPage.page.locator(e.presentationNames).filter({ hasText: overTheLimit.name }),
       'should not add the refused file to the presentations',
     ).toHaveCount(0);
   }

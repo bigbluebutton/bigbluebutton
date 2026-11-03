@@ -310,6 +310,18 @@ export interface GeneratedFile {
   buffer: Buffer;
 }
 
+// A fixture as a drop payload, so it can share a drop with a generated file
+export function fixtureFile(fileName: string): GeneratedFile {
+  return {
+    name: fileName,
+    mimeType: 'application/pdf',
+    buffer: readFileSync(path.join(__dirname, `../core/media/${fileName}`)),
+  };
+}
+
+// The smallest fixture: a spec can set uploadSizeMax to exactly this size
+export const MASK_SAMPLE_PDF_BYTES = fixtureFile(e.maskSamplePdf).buffer.length;
+
 // The first half of a real PDF, as an interrupted download leaves it: no trailer and no
 // cross-reference table, so the page count cannot be read.
 export function buildTruncatedPdf(): GeneratedFile {

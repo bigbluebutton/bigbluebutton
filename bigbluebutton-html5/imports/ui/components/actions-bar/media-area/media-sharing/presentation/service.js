@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
 import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { getSizeWithUnit } from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
+import getSizeWithUnit from '/imports/utils/getSizeWithUnit';
 import { getPresentationUploadToken } from './queries';
 import { requestPresentationUploadTokenMutation } from './mutation';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -335,10 +335,11 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
       notify(intl.formatMessage(intlMessages.rejectedError), 'error');
     }
 
-    tooLarge.forEach((file) => {
+    if (tooLarge.length > 0) {
       const maxFileSize = getSizeWithUnit(fileSizeMax);
-      notify(`${file.name}: ${intl.formatMessage(intlMessages[413], { maxFileSize })}`, 'error');
-    });
+      const names = tooLarge.map((file) => file.name).join(', ');
+      notify(`${names}: ${intl.formatMessage(intlMessages[413], { maxFileSize })}`, 'error');
+    }
   }
 }
 
