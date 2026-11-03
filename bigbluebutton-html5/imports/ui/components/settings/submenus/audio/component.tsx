@@ -26,8 +26,8 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.advancedFiltering',
     description: 'advanced audio filtering option label',
   },
-  advancedFilteringDesc: {
-    id: 'app.submenu.audio.advancedFilteringDesc',
+  advancedFilteringSummary: {
+    id: 'app.submenu.audio.advancedFilteringSummary',
     description: 'advanced audio filtering option description',
   },
   advancedFilteringIdealFor: {
@@ -38,8 +38,8 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.standardFiltering',
     description: 'standard audio filtering option label',
   },
-  standardFilteringDesc: {
-    id: 'app.submenu.audio.standardFilteringDesc',
+  standardFilteringSummary: {
+    id: 'app.submenu.audio.standardFilteringSummary',
     description: 'standard audio filtering option description',
   },
   standardFilteringIdealFor: {
@@ -50,8 +50,8 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.originalAudio',
     description: 'original/unprocessed audio option label',
   },
-  originalAudioDesc: {
-    id: 'app.submenu.audio.originalAudioDesc',
+  originalAudioSummary: {
+    id: 'app.submenu.audio.originalAudioSummary',
     description: 'original/unprocessed audio option description',
   },
   originalAudioIdealFor: {
@@ -66,8 +66,8 @@ const intlMessages = defineMessages({
     id: 'app.submenu.audio.voiceIsolation',
     description: 'voice isolation option label',
   },
-  voiceIsolationDesc: {
-    id: 'app.submenu.audio.voiceIsolationDesc',
+  voiceIsolationSummary: {
+    id: 'app.submenu.audio.voiceIsolationSummary',
     description: 'voice isolation option description',
   },
   voiceIsolationIdealFor: {
@@ -132,7 +132,7 @@ class AudioMenu extends BaseMenu {
       {
         value: 'original',
         titleMsg: intlMessages.originalAudioLabel,
-        descMsg: intlMessages.originalAudioDesc,
+        descMsg: intlMessages.originalAudioSummary,
         idealForMsg: intlMessages.originalAudioIdealFor,
         disabled: false,
         dataTest: 'originalAudioRadio',
@@ -140,7 +140,7 @@ class AudioMenu extends BaseMenu {
       {
         value: 'standard',
         titleMsg: intlMessages.standardFilteringLabel,
-        descMsg: intlMessages.standardFilteringDesc,
+        descMsg: intlMessages.standardFilteringSummary,
         idealForMsg: intlMessages.standardFilteringIdealFor,
         disabled: false,
         dataTest: 'standardFilteringRadio',
@@ -150,7 +150,7 @@ class AudioMenu extends BaseMenu {
       options.push({
         value: 'advanced',
         titleMsg: intlMessages.advancedFilteringLabel,
-        descMsg: intlMessages.advancedFilteringDesc,
+        descMsg: intlMessages.advancedFilteringSummary,
         idealForMsg: intlMessages.advancedFilteringIdealFor,
         disabled: !wasmBrowserSupported,
         disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
@@ -161,7 +161,7 @@ class AudioMenu extends BaseMenu {
       options.push({
         value: 'voiceIsolation',
         titleMsg: intlMessages.voiceIsolationLabel,
-        descMsg: intlMessages.voiceIsolationDesc,
+        descMsg: intlMessages.voiceIsolationSummary,
         idealForMsg: intlMessages.voiceIsolationIdealFor,
         disabled: !wasmBrowserSupported,
         disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
