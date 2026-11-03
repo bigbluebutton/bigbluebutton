@@ -43,14 +43,15 @@ steps:
     params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
     golden: off
     expect: {returncode: FAILED, messageKey: maxParticipantsReached}
-  - wait: 40s
+  # Just short of the earliest the seat can free.
+  - wait: 55s
   - call: join
     params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
     golden: off
     expect: {returncode: FAILED, messageKey: maxParticipantsReached}
   - call: join
     params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
-    eventually: {within: 45s, every: 1s, until: {returncode: SUCCESS}}
+    eventually: {within: 30s, every: 1s, until: {returncode: SUCCESS}}
     expect: {returncode: SUCCESS, messageKey: successfullyJoined}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches

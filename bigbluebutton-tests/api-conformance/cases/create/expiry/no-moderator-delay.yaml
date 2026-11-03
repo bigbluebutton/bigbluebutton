@@ -3,7 +3,8 @@
 # left, not from when akka-apps removed them, which is 10 to 20 seconds
 # later (no-moderator.yaml). With a delay of one minute, the meeting ends
 # at akka-apps' first audit (every 10 seconds) a minute or more after the
-# leave: 50 seconds after the removal. A viewer stays throughout.
+# leave: normally 50 seconds after the removal, 40 when the removal came
+# a full 20 seconds after the leave. A viewer stays throughout.
 id: create.expiry.no-moderator-delay
 title: A meeting with endWhenNoModerator ends endWhenNoModeratorDelayInMinutes after its moderator left
 endpoint: create
@@ -29,8 +30,8 @@ steps:
   - bus: {name: UserLeftMeetingEvtMsg, meetingId: "${intId}", within: 25s}
     golden: off
     expect: {jsonpath: {$.core.body.intId: "${annId}"}}
-  # Until 50 to 60 seconds after the leave.
-  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 40s}
+  # Until 45 to 55 seconds after the leave.
+  - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 35s}
     expect: {absent: true}
   - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 30s}
     expect:

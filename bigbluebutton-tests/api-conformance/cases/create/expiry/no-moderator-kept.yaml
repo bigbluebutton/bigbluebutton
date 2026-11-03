@@ -1,9 +1,11 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # A meeting keeps running without a moderator when endWhenNoModerator is
 # off, its shipped default, and when no moderator has joined yet: the rule
-# applies only once a moderator has been there. The delay is 0, so the
-# meeting would otherwise end as soon as akka-apps removes the user who
-# left (no-moderator.yaml). A viewer stays throughout.
+# applies only once a moderator has been there. The delay is 0, so with
+# the rule in force the meeting would end as soon as akka-apps removed the
+# moderator who left (no-moderator.yaml); a meeting where no moderator
+# ever joined would end at the first audit after the joins. A viewer stays
+# throughout.
 id: create.expiry.no-moderator-kept
 title: "A meeting without a moderator keeps running: ${why}"
 endpoint: create

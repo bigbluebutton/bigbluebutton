@@ -2,9 +2,10 @@
 # With usersTimeout at 5 seconds (the short-users-timeout profile), the
 # seat of a user who left frees up within 55 seconds of akka-apps removing
 # them, where the shipped 60 seconds holds it for at least a minute
-# (left-user.yaml). This shows bbb-web reads the setting. Usually it takes
-# 5 to 20 seconds, but bbb-web's cleanup first runs a minute after it
-# starts, and the profile switch has just restarted it.
+# (left-user.yaml). This shows bbb-web reads the setting. Once bbb-web's
+# cleanup is running it takes 5 to 20 seconds, but the cleanup first runs
+# a minute after bbb-web starts, and switching to the profile restarts
+# bbb-web just before this case, so here it is usually 20 to 50 seconds.
 id: join.max-participants.left-user-short-timeout
 title: A user who left frees their maxParticipants seat after a short usersTimeout (short-users-timeout)
 endpoint: join

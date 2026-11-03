@@ -2,7 +2,7 @@
 case create.expiry.no-moderator-demoted
 target bbb-web
 
-== step 6: bus MeetingEndingEvtMsg
+== step 7: bus MeetingEndingEvtMsg
 $.channel "from-akka-apps-redis-channel"
 $.core.body.meetingId "<sha1(meetingID)>-<time>"
 $.core.body.reason "ENDED_DUE_TO_NO_MODERATOR"
@@ -15,7 +15,7 @@ $.envelope.routing.msgType "BROADCAST_TO_MEETING"
 $.envelope.routing.userId "system"
 $.envelope.timestamp "<time>"
 
-== step 7: call getMeetingInfo
+== step 8: call getMeetingInfo
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8

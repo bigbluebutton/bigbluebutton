@@ -27,6 +27,10 @@ steps:
       query: "mutation SetRole($id: String!, $role: String!) { userSetRole(userId: $id, role: $role) }"
       variables: {id: "${annId}", role: VIEWER}
     golden: off
+  # akka-apps made the change.
+  - bus: {name: UserRoleChangedEvtMsg, meetingId: "${intId}", within: 5s}
+    golden: off
+    expect: {jsonpath: {$.core.body.userId: "${annId}", $.core.body.role: VIEWER}}
   - bus: {name: MeetingEndingEvtMsg, meetingId: "${intId}", within: 15s}
     expect:
       jsonpath: {$.core.body.reason: ENDED_DUE_TO_NO_MODERATOR}
