@@ -56,6 +56,13 @@ func (x *exec) presence(ctx context.Context, phase string, index int, s spec.Ste
 	case p.Action == "reconnect":
 		err = u.Reconnect(ctx)
 	}
+	// A join the server turns down is what a step that checks
+	// $.joinErrorCode expects: its checks judge the refusal, and the
+	// case goes on without the user.
+	var refused *presence.RefusedError
+	if p.Action == "join" && errors.As(err, &refused) && expectsJoinError(s.Expect) {
+		err = nil
+	}
 	var extra []assert.Result
 	if err != nil {
 		extra = append(extra, assert.Result{What: p.Action, Expected: "done", Actual: err.Error()})
@@ -64,6 +71,20 @@ func (x *exec) presence(ctx context.Context, phase string, index int, s spec.Ste
 	if err != nil && p.Action == "join" {
 		sr.Stopped = true // later steps would act as a user who isn't there
 	}
+}
+
+// expectsJoinError says whether a step's checks name the user's
+// joinErrorCode.
+func expectsJoinError(e *spec.Expect) bool {
+	if e == nil {
+		return false
+	}
+	for _, m := range e.JSONPath {
+		if m.Key == "$.joinErrorCode" {
+			return true
+		}
+	}
+	return false
 }
 
 // attach starts the user's session, by joining through the API unless

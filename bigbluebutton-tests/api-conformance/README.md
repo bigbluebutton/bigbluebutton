@@ -775,7 +775,15 @@ capability; `presence` and `graphql` steps need it.
 - **The result** is the user's state from `user_current`: `userId`, `extId`,
   `name`, `role`, `isModerator`, `guest`, `guestStatus`, `joined`,
   `loggedOut`, `ejected`, `ejectReasonCode`, `joinErrorCode`,
-  `joinErrorMessage`, and the `sessionToken`. A failed join stops the case.
+  `joinErrorMessage`, and the `sessionToken`. A failed join stops the case,
+  unless the step expects it: when `expect` checks `$.joinErrorCode`, a join
+  the server turns down passes or fails on those checks, and the case goes
+  on without that user.
+
+  ```yaml
+  - presence: {action: join, as: bob, sessionToken: "${bobToken}"}
+    expect: {jsonpath: {$.joinErrorCode: max_participants_reason}}
+  ```
 - **Connections close** when the case ends, whatever happened in it.
 
 A `graphql` step runs one operation as a user who joined:

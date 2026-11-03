@@ -917,6 +917,40 @@ func TestFailedJoinStops(t *testing.T) {
 	noOpenConnections(t, fake)
 }
 
+// A join step that checks $.joinErrorCode passes when the server turns the
+// user down with that code, and the case goes on; with another code it
+// fails, and without the check a refusal still fails and stops the case.
+func TestExpectedJoinRefusal(t *testing.T) {
+	const src = `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Presence, maxParticipants: "1"}
+  - call: join
+    client: bob
+    params: {meetingID: "${uid}", fullName: Bob, role: viewer, redirect: "false"}
+    capture: {bobToken: /response/session_token}
+  - presence: {action: join, as: ann, args: {meetingID: "${uid}", fullName: Ann, role: moderator}}
+  - presence: {action: join, as: bob, sessionToken: "${bobToken}"}
+%s  - graphql: {as: ann, query: "query Me { user_current { name } }"}
+`
+	for _, tc := range []struct {
+		name, expect string
+		status       report.Status
+		steps        int
+	}{
+		{"expected", "    expect: {jsonpath: {$.joinErrorCode: max_participants_reason, $.joined: \"false\"}}\n", report.Pass, 5},
+		{"other code", "    expect: {jsonpath: {$.joinErrorCode: PERMISSION_FAILED}}\n", report.Fail, 4},
+		{"unchecked", "", report.Fail, 4},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, fake := runWithUsers(t, fmt.Sprintf(src, tc.expect), nil)
+			if res.Status != tc.status || len(res.Steps) != tc.steps {
+				t.Errorf("status %s after %d step(s), want %s after %d: %s", res.Status, len(res.Steps), tc.status, tc.steps, res.Reason)
+			}
+			noOpenConnections(t, fake)
+		})
+	}
+}
+
 // Users' connections close when the case ends, even when it's cancelled.
 func TestUsersClosedWhenCancelled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())

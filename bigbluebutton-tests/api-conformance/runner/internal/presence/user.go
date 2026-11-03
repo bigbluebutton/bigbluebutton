@@ -24,6 +24,13 @@ var PreJoinOps = map[string]bool{
 var ErrNotJoined = errors.New("the user isn't in the meeting (not yet, or not any more), so bbb-graphql-middleware would drop this query without an answer; " +
 	"join first, or name the operation as one it answers outside the meeting (getUserInfo, getGuestLobbyInfo, userCurrentSubscription, ...)")
 
+// RefusedError is a join the server turned down, or a user who can't be
+// in the meeting: their state says why (a join error, an ejection, a
+// logout or a denied guest).
+type RefusedError struct{ Why string }
+
+func (e *RefusedError) Error() string { return e.Why }
+
 // stateFields is what the driver follows of its user. Each is visible to
 // the user both before and after the join.
 const stateFields = "userId extId name role isModerator guest guestStatus joined loggedOut ejected ejectReasonCode joinErrorCode joinErrorMessage authToken"
@@ -237,7 +244,7 @@ func (u *User) Join(ctx context.Context, waitForApproval bool) error {
 		st = u.State()
 	}
 	if why := gone(st); why != "" {
-		return errors.New(why)
+		return &RefusedError{why}
 	}
 	vars, _ := json.Marshal(map[string]any{"authToken": str(st, "authToken"), "clientType": "HTML5", "clientIsMobile": false})
 	res, err := u.connection().Do(ctx, Request{
@@ -253,7 +260,7 @@ func (u *User) Join(ctx context.Context, waitForApproval bool) error {
 	}
 	err = u.waitFor(ctx, func(st map[string]any) (bool, error) {
 		if why := gone(st); why != "" {
-			return false, errors.New(why)
+			return false, &RefusedError{why}
 		}
 		return flag(st, "joined"), nil
 	})

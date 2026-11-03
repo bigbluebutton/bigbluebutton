@@ -310,6 +310,8 @@ func (c *gqlConn) mutation(id string, req gqlRequest) []push {
 			me.joinErrorCode = "INVALID_AUTH_TOKEN"
 		case me.guestStatus != "ALLOW":
 			me.joinErrorCode = "PERMISSION_FAILED" // sticky, as in akka-apps
+		case !me.joined && s.full(me):
+			me.joinErrorCode = "max_participants_reason"
 		case !me.joined:
 			me.joined, me.probeFails = true, 1
 		}
@@ -386,6 +388,23 @@ func (s *Server) user(meetingID, userID string) *session {
 		}
 	}
 	return nil
+}
+
+// full says whether u's meeting has as many users in it as
+// maxParticipants allows, none of them with u's external ID: akka-apps
+// then refuses u's join.
+func (s *Server) full(u *session) bool {
+	m := s.meetings[u.meetingID]
+	if m == nil || m.maxUsers <= 0 {
+		return false
+	}
+	in := map[string]bool{}
+	for _, o := range s.sessions {
+		if o.meetingID == u.meetingID && o.joined {
+			in[o.extID] = true
+		}
+	}
+	return len(in) >= m.maxUsers && !in[u.extID]
 }
 
 // inMeeting is akka-apps' currentlyInMeeting.

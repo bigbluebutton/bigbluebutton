@@ -77,6 +77,7 @@ type meeting struct {
 	createTime              int64
 	meta                    map[string]string
 	guestPolicy             string
+	maxUsers                int // maxParticipants; 0 is no limit
 	voiceConf               string
 	record                  bool
 	meetingKeepEvents       bool
@@ -395,6 +396,7 @@ func (s *Server) create(w http.ResponseWriter, r *http.Request, p url.Values) {
 		intID: hex.EncodeToString(sum[:]) + "-" + strconv.FormatInt(s.clock, 10), guestPolicy: p.Get("guestPolicy"),
 		voiceConf: voiceBridge(s.seq), record: p.Get("record") == "true", meetingKeepEvents: p.Get("meetingKeepEvents") == "true",
 		endedURL: p.Get("meetingEndedURL")}
+	m.maxUsers, _ = strconv.Atoi(p.Get("maxParticipants"))
 	for k, vs := range p {
 		if rest, ok := strings.CutPrefix(k, "meta_"); ok && rest != "" {
 			m.meta[strings.ToLower(rest)] = vs[0]
