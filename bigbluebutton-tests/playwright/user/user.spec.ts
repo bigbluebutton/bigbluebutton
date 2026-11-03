@@ -601,3 +601,17 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     });
   });
 });
+
+// Timing-sensitive on a loaded runner: the second reaction has to go out while the first burst (2 s) is still
+// on screen, so this stays out of the gate.
+test.describe.parallel('Emoji rain', { tag: '@nightly' }, () => {
+  test('Every reaction rains, consecutive reactions included', async ({ browser, context, page }, testInfo) => {
+    const numberOfEmojis = 3;
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
+    });
+    await multiusers.emojiRainForEveryReaction(numberOfEmojis);
+  });
+});
