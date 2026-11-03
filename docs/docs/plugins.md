@@ -103,7 +103,7 @@ npm run build-bundle
 The above command will generate the `dist` folder, containing the bundled JavaScript file named `SampleActionButtonDropdownPlugin.js` along with the `manifest.json`.
 These files can be hosted on any HTTPS server.
 
-To use the plugin with BigBlueButton, add the plugin's `manifest.json` URL to `bigbluebutton.properties` or you can simply send it via `/create` parameter:
+To use the plugin with BigBlueButton, add the plugin's `manifest.json` URL to the `pluginManifests` property in `/etc/bigbluebutton/bbb-web.properties` or you can simply send it via `/create` parameter:
 
 ```
 pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]
@@ -881,9 +881,9 @@ Mind that no plugin will interfere into another's extensible area. So feel free 
 
 This feature allows administrators to highlight new or featured plugins by displaying a "New" badge next to them in the Apps Gallery.
 
-To enable this badge for a specific plugin, add the `isNew: true` flag to its configuration within the `settings.yml` file.
+To enable this badge for a specific plugin, add the `isNew: true` flag to its entry in the `public.plugins` client setting, in `/etc/bigbluebutton/bbb-html5.yml`.
 
-**Example (`settings.yml`):**
+**Example (`/etc/bigbluebutton/bbb-html5.yml`):**
 
 ```yml
 public:
@@ -1583,7 +1583,7 @@ module.exports = {
 ```
 
 **Does the builded plugin need to be in the same BBB server?**
-No, feel free to host it anywhere you want, just make sure to point the URL from `manifest.json` correctly (into the create endpoint or `bigbluebutton.properties`).
+No, feel free to host it anywhere you want, just make sure to point the URL from `manifest.json` correctly (in the `pluginManifests` create parameter or the property of the same name in `/etc/bigbluebutton/bbb-web.properties`).
 
 **I am making my plugin based on a sample inside the SDK, but somehow, the sample is not working properly, what do I do to run it in dev mode and make it work?**
 Well there are several motives to why the sample is not working properly, so I will go through each one of them briefly:

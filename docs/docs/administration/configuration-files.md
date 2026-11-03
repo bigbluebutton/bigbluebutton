@@ -36,8 +36,14 @@ Many of the configuration files have local overrides so the administrator can sp
 | /usr/share/livekit-server/livekit.yaml                                  | /etc/bigbluebutton/livekit.yaml                  | Merged when `livekit-server` starts; holds the API keys                          |
 | /usr/share/livekit-server/livekit-sip.yaml                              | /etc/bigbluebutton/livekit-sip.yaml              | Merged when `livekit-sip` starts                                                 |
 | /usr/share/bbb-shared-notes-server/config/default.yml                   | /etc/bigbluebutton/bbb-shared-notes-server.yml   |                                                  |
-| /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       |
-| /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    |
+| /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       | Top-level keys in the override replace the shipped values as a whole (for example the complete `steps` map) |
+| /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    | Top-level keys in the override replace the shipped values as a whole                |
+| /usr/local/bigbluebutton/core/scripts/video.yml                         | /etc/bigbluebutton/recording/video.yml           | Presets are merged by name: a preset in the override replaces the shipped preset of the same name as a whole |
+| /usr/local/bigbluebutton/core/scripts/screenshare.yml                   |                                                  | No override file; replaced on upgrades of `bbb-playback-screenshare`               |
+| /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml | /etc/bigbluebutton/bbb-transcription-controller/production.yml | `default.yml` is regenerated on every install and upgrade of the package |
+| /usr/local/bigbluebutton/bbb-export-annotations/config/settings.json    |                                                  | No override file; replaced on upgrades of `bbb-export-annotations`                 |
+| /usr/local/bigbluebutton/bbb-webhooks/config/default.yml                |                                                  | No override file; regenerated on every install and upgrade of `bbb-webhooks`        |
+| /usr/share/bigbluebutton/nginx/*.nginx                                  | /etc/bigbluebutton/nginx/*.nginx                 | See [nginx](#nginx) below                                                          |
 | /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
 
 <br /><br />
@@ -95,7 +101,7 @@ Redis has no password by default. To require one, set `requirepass` in `/etc/red
 
 ### Configuration files
 
-For `bbb-html5.yml` the settings file are YAML formatted. Any setting in this file overrides the corresponding setting in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. For example, the following `bbb-html5.yml` overrides the values for `public.kurento.screenshare.constraints.audio` to `true`.
+For `bbb-html5.yml` the settings file are YAML formatted. Any setting in this file overrides the corresponding setting in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, the shipped defaults, which are replaced on upgrades. Maps are merged key by key; any other value, arrays included, replaces the shipped value as a whole. The override is read when `bbb-apps-akka` starts, so restart it (`sudo systemctl restart bbb-apps-akka`) or run `sudo bbb-conf --restart` after changing the file. For example, the following `bbb-html5.yml` overrides the values for `public.kurento.screenshare.constraints.audio` to `true`.
 
 ```
 public:
@@ -217,7 +223,10 @@ Here's a sample log entry
 
 Located in `/etc/nginx/sites-enabled/bigbluebutton`
 
-This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx)) The configuration of each component is included from `/etc/bigbluebutton/nginx/*.nginx`.
+This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/build/packages-template/bbb-html5/bigbluebutton.nginx)) It includes every `/etc/bigbluebutton/nginx/*.nginx` file. By default that directory holds a single entry, `include_default.nginx`, a symlink to `/usr/share/bigbluebutton/include_default.nginx`, which in turn includes the configuration of each component from `/usr/share/bigbluebutton/nginx/*.nginx`. The files under `/usr/share` are installed by the component packages and replaced on upgrades, so do not edit them:
+
+- To add nginx configuration (a custom favicon, the locations of a [cluster proxy](/administration/cluster-proxy)), put a `*.nginx` file in `/etc/bigbluebutton/nginx/`.
+- To change one of the component files, replace the `include_default.nginx` symlink with a copy of the file it points to, replace the wildcard `include` in the copy with one `include` line per component file you keep unchanged, and put your changed copy of the component file in `/etc/bigbluebutton/nginx/`. `bbb-config` leaves an existing `include_default.nginx` alone on upgrades; component files that later packages add have to be included by hand.
 
 On a server installed by `bbb-install.sh` with the built-in TURN server, port 443 belongs to HAProxy, which terminates TLS and passes HTTP connections to nginx on ports 81 and 82 (with the PROXY protocol) and TURN connections to coturn. nginx itself listens on port 80 and on those two local ports.
 
@@ -238,7 +247,7 @@ On a server installed by `bbb-install.sh` with the built-in TURN server, port 44
  /etc/bigbluebutton/bbb-web.properties
 ```
 
-This is one of the main configuration files for BigBlueButton applications.
+This is one of the main configuration files for BigBlueButton applications. The first file holds the shipped defaults and is replaced on upgrades; set your values in the second one, the override.
 
 https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-web/grails-app/conf/bigbluebutton.properties
 
