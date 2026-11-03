@@ -172,7 +172,9 @@ log:
   level: error
 ```
 
-`livekit-server` and `livekit-sip` log to the journal. `livekit-server`'s log config is `log_level` (default `info`) in `/etc/bigbluebutton/livekit.yaml`, while `livekit-sip`'s is `logging.level` (default `info`) in `/etc/bigbluebutton/livekit-sip.yaml`. The GraphQL server (Hasura) logs at `warn` by default (`HASURA_GRAPHQL_LOG_LEVEL`, overridable in `/etc/bigbluebutton/bbb-graphql-server.env`).
+`livekit-server` and `livekit-sip` log to the journal. Both read their log level from `logging.level` (default `info`): `livekit-server` in `/etc/bigbluebutton/livekit.yaml`, `livekit-sip` in `/etc/bigbluebutton/livekit-sip.yaml`. For `livekit-server`, a deprecated `log_level` key overrides `logging.level`.
+
+The GraphQL server (Hasura) logs at `warn` by default (`HASURA_GRAPHQL_LOG_LEVEL`, overridable in `/etc/bigbluebutton/bbb-graphql-server.env`).
 
 The client can send its own logs to the server. `public.clientLog` in `/etc/bigbluebutton/bbb-html5.yml` controls this: with the default configuration the browser only logs to its console; the `external` target, which posts the client log (with the user's and meeting's identifiers) to a URL of your choice, is disabled by default. Leave it disabled unless you need it, and keep the receiving endpoint under the same retention rules as the server logs.
 
@@ -194,7 +196,9 @@ Browsers use STUN and TURN servers for NAT traversal. The `turn-stun-servers.xml
 
 #### Live captions and transcription
 
-Automatic transcription is disabled by default (`public.app.audioCaptions.enabled` in `/etc/bigbluebutton/bbb-html5.yml`). When it is enabled, the users' audio leaves the server: the default `webspeech` provider uses the browser's speech recognition API, which in Chrome sends the audio to Google, and the `gladia` provider sends it to gladia.io, through `bbb-transcription-controller` or `bbb-livekit-stt` (see [Configuration of gladia.io](/administration/customize#configuration-of-gladiaio)). Inform your users before enabling it.
+Automatic transcription is disabled by default (`public.app.audioCaptions.enabled` in `/etc/bigbluebutton/bbb-html5.yml`). When it is enabled, the users' audio is, by default, sent to a third party: the default `webspeech` provider uses the browser's speech recognition API, which in Chrome sends the audio to Google unless the language pack is already installed on the computer, and the `gladia` provider sends it to gladia.io, through `bbb-transcription-controller` or `bbb-livekit-stt` (see [Configuration of gladia.io](/administration/customize#configuration-of-gladiaio)). Inform your users before enabling it.
+
+The `webspeech` provider can keep the audio on the user's device instead (added in 4.0.1). Set `public.app.audioCaptions.speechProcessing` to `local` and the browser always transcribes on the device and never sends the audio to a speech recognition service; only the languages it can transcribe on the device are offered, and browsers without on-device speech recognition (Chrome has it from version 139, on desktop) show live captions as unsupported. With `auto`, the browser transcribes on the device where it can and, for the other languages, sends the audio to its speech recognition service, telling the user so. The default, `cloud`, leaves it to the browser as described above. See [Where the speech is transcribed](/administration/customize#where-the-speech-is-transcribed) and [Live captions transcribed on the user's device](/new-features#live-captions-transcribed-on-the-users-device).
 
 #### Webhooks and callbacks
 

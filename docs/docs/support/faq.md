@@ -670,11 +670,11 @@ Both these browsers support web real-time communications (WebRTC) audio. BigBlue
 
 #### Where is the record button?
 
-In BigBlueButton, the external application that uses the BigBlueButton API can now pass an additional parameter `record=true` when creating a session. This additional parameter instructs the BigBlueButton server to record the session and make a recording available through subsequent [getRecordings](/development/api#getrecordings) calls.
+In BigBlueButton, the external application that uses the BigBlueButton API can now pass an additional parameter `record=true` when creating a session. This additional parameter instructs the BigBlueButton server to record the session and make a recording available through subsequent [getRecordings](/development/api#get-getrecordings) calls.
 
 There is no user interface for the presenter to turn on or turn off a recording.
 
-When instructed through the API call, the BigBlueButton server will record all of the meeting, from the time the first person joins to when the last person leaves. A meeting may also end when it reaches its duration or the [end](/development/api#end) is called on the meeting.
+When instructed through the API call, the BigBlueButton server will record all of the meeting, from the time the first person joins to when the last person leaves. A meeting may also end when it reaches its duration or the [end](/development/api#get-post-end) is called on the meeting.
 
 #### What parts of the session does BigBlueButton record?
 
@@ -777,7 +777,7 @@ You can checkout the latest code from Git. See [BigBlueButton GitHub repository]
 
 #### Users do not appear in the listeners window
 
-For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#create) call.
+For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#get-post-create) call.
 
 Next, BigBlueButton must successfully connect to FreeSWITCH's SIP port and FreeSWITCH's Event Socket Layer. To resolve connection problems, see question below.
 

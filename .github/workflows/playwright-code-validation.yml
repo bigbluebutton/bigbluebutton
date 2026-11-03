@@ -1,0 +1,35 @@
+name: Playwright tests - validate code (prettier, eslint, tsc)
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "bigbluebutton-tests/playwright/**"
+      - ".github/workflows/playwright-code-validation.yml"
+permissions:
+  contents: read
+jobs:
+  playwright-code-validation:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+      - name: install npm dependencies
+        working-directory: bigbluebutton-tests/playwright
+        run: npm ci
+      - name: check formatting with prettier
+        working-directory: bigbluebutton-tests/playwright
+        run: npm run format:check
+      - name: validate code with eslint
+        working-directory: bigbluebutton-tests/playwright
+        run: npm run lint
+      - name: check types with tsc
+        working-directory: bigbluebutton-tests/playwright
+        run: npm run typecheck

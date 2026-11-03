@@ -37,6 +37,7 @@ const NotificationsBar = ({
 
   return (
     <Styled.NotificationsBar
+      className="bbb-notifications-bar"
       data-test="notificationBannerBar"
       role={alert ? 'alert' : 'status'}
       aria-live={alert ? 'assertive' : 'polite'}
