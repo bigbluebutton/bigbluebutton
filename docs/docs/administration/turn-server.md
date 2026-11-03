@@ -355,7 +355,7 @@ Both are `false` by default; remove them again after the test. Alternatively, us
 
 Then join a BigBlueButton session and share your webcam. If your webcam appears, you can verify that the browser is using your TURN server: in Firefox, open a new tab with `about:webrtc`, click `show details`, and look at the ICE Stats table. The successful connection, shown at the top of the table, should have `(relay-tcp)` or `(relay-udp)` in the Local Candidate column. In Chrome, `chrome://webrtc-internals` shows the selected candidate pair for each connection.
 
-If, however, you received error 1020 ("Media could not reach the server") when sharing a webcam, the browser may not be able to connect to the TURN server, or the TURN server is not running or configured correctly. Check the browser console in Firefox. If you see
+If, however, you an error when sharing a webcam, the browser may not be able to connect to the TURN server, or the TURN server is not running or configured correctly. Check the browser console in Firefox. If you see
 
 ```
 WebRTC: ICE failed, your TURN server appears to be broken, see about:webrtc for more details
