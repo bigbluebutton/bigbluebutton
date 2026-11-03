@@ -30,7 +30,14 @@ there compares like with like.
   checksum and method ones) were added the same day from that stack, some
   under the alt-defaults profile. So were the end callback cases
   (`end/end.callbacks.*`), from the same packages once the stack had its
-  sink.
+  sink. On 2026-11-02 the rest of the end callback cases and the first
+  expiry cases (`create/create.expiry.not-joined-*`,
+  `create/create.expiry.duration`) were added the same way, from a stack
+  built from this tree that day. On 2026-11-03 so were the expiry cases
+  that need users in the meeting (`create/create.expiry.no-moderator*`,
+  `create/create.expiry.last-user-left*`) and the usersTimeout ones
+  (`join/join.max-participants.left-user*`, one of them under the
+  short-users-timeout profile), from the same packages.
 
 ## Reviewing
 
