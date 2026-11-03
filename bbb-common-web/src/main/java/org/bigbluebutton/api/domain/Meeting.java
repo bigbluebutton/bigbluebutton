@@ -602,7 +602,6 @@ public class Meeting {
 		if (guest) {
 			switch(guestPolicy) {
 				case GuestPolicy.ALWAYS_ACCEPT:
-				case GuestPolicy.ALWAYS_ACCEPT_AUTH:
 					return GuestPolicy.ALLOW;
 				case GuestPolicy.ASK_MODERATOR:
 					return GuestPolicy.WAIT;
@@ -630,12 +629,6 @@ public class Meeting {
 			return GuestPolicy.DENY;
 		} else if (GuestPolicy.ASK_MODERATOR.equals(guestPolicy)) {
 			if  (guest || (!ROLE_MODERATOR.equals(role) && authned)) {
-				return GuestPolicy.WAIT ;
-			}
-			return GuestPolicy.ALLOW;
-		} else if (GuestPolicy.ALWAYS_ACCEPT_AUTH.equals(guestPolicy)) {
-			if (guest){
-				// Only ask moderator for guests.
 				return GuestPolicy.WAIT ;
 			}
 			return GuestPolicy.ALLOW;
