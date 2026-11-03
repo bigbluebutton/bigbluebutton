@@ -70,7 +70,7 @@ object VoiceUsers {
   // publication can report unmuted after the mute command was acknowledged.
   def setMuteRequested(users: VoiceUsers, intId: String, muted: Boolean): Unit = {
     findWithIntId(users, intId).foreach { u =>
-      users.save(u.copy(muteRequested = muted))
+      users.save(u.copy(muteRequested = muted, unmuteOnUndeafen = !muted && u.deafened))
     }
   }
 
@@ -291,5 +291,6 @@ case class VoiceUserState(
     lastFloorTime:         String,
     hold:                  Boolean,
     uuid:                  String,
-    muteRequested:         Boolean = false
+    muteRequested:         Boolean = false,
+    unmuteOnUndeafen:       Boolean = false
 )

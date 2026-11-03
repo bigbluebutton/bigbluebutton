@@ -25,6 +25,7 @@ const DECLINED_UNMUTE_WAIT = 3000;
 // The button can still show the initial muted state immediately after keyup.
 // Let delayed unmute responses and track publication reach the client first.
 const PUSH_TO_TALK_RELEASE_WAIT = 3000;
+const AUDIO_REJOIN_SETTLE_TIME = 3000;
 
 export class Audio extends MultiUsers {
   async muteButtonCooldown() {
@@ -213,7 +214,10 @@ export class Audio extends MultiUsers {
     if (listenOnlyMode) await this.modPage.clickMicrophoneButton();
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'Audio should be established', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.unmuteMicButton, 'should be muted');
+    await this.modPage.hasElement(e.audioDropdownMenu, 'should be connected to audio again');
+    await this.modPage.page.waitForTimeout(AUDIO_REJOIN_SETTLE_TIME);
+    await this.modPage.hasElement(e.unmuteMicButton, 'should keep the microphone muted after rejoining audio');
+    await expect(isTalkingLocator(this.modPage, this.modPage.username)).toBeHidden();
   }
 
   async muteYourselfByTalkingIndicator() {
