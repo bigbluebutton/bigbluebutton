@@ -567,7 +567,6 @@ class ApiController {
     us.guestStatus = guestStatusVal
     us.logoutUrl = logoutUrl
     us.defaultLayout = meeting.getMeetingLayout()
-    us.leftGuestLobby = false
 
     if (!StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
@@ -638,7 +637,6 @@ class ApiController {
         us.authed,
         guestStatusVal,
         us.excludeFromDashboard,
-        us.leftGuestLobby,
         us.enforceLayout,
         us.logoutUrl,
         joinRequestMetadata,
@@ -748,7 +746,6 @@ class ApiController {
     us.guestStatus = existingUserSession.guestStatus
     us.logoutUrl = meeting.getLogoutUrl()
     us.defaultLayout = meeting.getMeetingLayout()
-    us.leftGuestLobby = false
     us.avatarURL = existingUserSession.avatarURL
     us.excludeFromDashboard = existingUserSession.excludeFromDashboard
 
