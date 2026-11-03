@@ -4,7 +4,7 @@
 #   /usr/local/bigbluebutton/core/scripts/rap-starter.rb
 #   /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
 #   /etc/cron.daily/bigbluebutton   (the daily cleanup of bbb-config; schedule it from outside)
-FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac AS build
+FROM ubuntu:24.10@sha256:cdf755952ed117f6126ff4e65810bf93767d4c38f5c7185b50ec1f1078b464cc AS build
 
 # Versions come from the pinned base image's Ubuntu release.
 # hadolint ignore=DL3008
@@ -40,7 +40,7 @@ RUN bundle config set --local deployment true \
     && rm -r vendor/bundle/ruby/*/cache \
     && find vendor/bundle -name '*.o' -delete
 
-FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+FROM ubuntu:24.10@sha256:cdf755952ed117f6126ff4e65810bf93767d4c38f5c7185b50ec1f1078b464cc
 
 # The user of bbb-record-core's before-install with the packages' UID 998, created first:
 # systemd, pulled in by the GTK dependencies, would take 998 otherwise.
