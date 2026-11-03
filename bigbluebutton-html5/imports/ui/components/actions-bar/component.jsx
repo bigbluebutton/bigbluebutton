@@ -159,6 +159,7 @@ class ActionsBar extends PureComponent {
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
       isRaiseHandEnabled,
+      isPresentationDetached,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -256,6 +257,7 @@ class ActionsBar extends PureComponent {
                     hasPinnedSharedNotes={isSharedNotesPinned}
                     hasGenericContent={hasGenericContent}
                     hasCameraAsContent={hasCameraAsContent}
+                    isPresentationDetached={isPresentationDetached}
                   />
                 )
                 : null}
