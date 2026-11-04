@@ -39,6 +39,9 @@ public class ParamsUtil {
   }
 
   public static String getSessionToken(String url) {
+    if (url == null || url.isEmpty()) {
+      return null;
+    }
     String token = "undefined";
     try {
       String decodedURL = URLDecoder.decode(url, "UTF-8");
@@ -47,11 +50,14 @@ public class ParamsUtil {
         String params = splitURL[1];
         for (String param : params.split("\\&")) {
           if (param.startsWith("sessionToken=")) {
-            token = param.split("\\=")[1];
+            String[] keyValue = param.split("\\=");
+            if (keyValue.length > 1) {
+              token = keyValue[1];
+            }
           }
         }
       }
-    } catch (UnsupportedEncodingException e) {
+    } catch (UnsupportedEncodingException | IllegalArgumentException e) {
       log.error(e.toString());
     }
     return token;

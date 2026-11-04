@@ -90,6 +90,9 @@ const propTypes = {
   supportsTransparentListenOnly: PropTypes.bool.isRequired,
   getAudioConstraints: PropTypes.func.isRequired,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
+  transcriptionNotReady: PropTypes.bool.isRequired,
+  transcriptionNeedsDownload: PropTypes.bool.isRequired,
+  downloadTranscriptionLanguage: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -217,6 +220,9 @@ const AudioModal = ({
   unmuteOnExit = false,
   permissionStatus = null,
   isTranscriptionEnabled,
+  transcriptionNotReady,
+  transcriptionNeedsDownload,
+  downloadTranscriptionLanguage,
   updateInputDevices,
   updateOutputDevices,
 }) => {
@@ -440,6 +446,18 @@ const AudioModal = ({
     [hasError, isConnecting, forceListenOnlyAttendee, autoplayChecked, listenOnlyMode],
   );
 
+  // Joining right away with a transcription language first downloads its on-device language
+  // pack, with the modal open until the download ends
+  const handleJoinMicrophoneWithTranscription = () => {
+    if (!transcriptionNeedsDownload) {
+      handleJoinMicrophone();
+      return;
+    }
+    downloadTranscriptionLanguage().then((installed) => {
+      if (installed) handleJoinMicrophone();
+    });
+  };
+
   const renderAudioOptions = () => {
     const hideMicrophone = forceListenOnlyAttendee || audioLocked;
     const arrow = isRTL ? '←' : '→';
@@ -457,10 +475,10 @@ const AudioModal = ({
                 icon="unmute"
                 circle
                 size="jumbo"
-                disabled={audioLocked}
+                disabled={audioLocked || (joinFullAudioImmediately && transcriptionNotReady)}
                 onClick={
                   joinFullAudioImmediately
-                    ? handleJoinMicrophone
+                    ? handleJoinMicrophoneWithTranscription
                     : handleGoToEchoTest
                 }
               />
@@ -554,6 +572,9 @@ const AudioModal = ({
         toggleVoice={voiceToggle}
         permissionStatus={permissionStatus}
         isTranscriptionEnabled={isTranscriptionEnabled}
+        transcriptionNotReady={transcriptionNotReady}
+        transcriptionNeedsDownload={transcriptionNeedsDownload}
+        downloadTranscriptionLanguage={downloadTranscriptionLanguage}
         skipAudioOptions={skipAudioOptions}
         updateInputDevices={updateInputDevices}
         updateOutputDevices={updateOutputDevices}

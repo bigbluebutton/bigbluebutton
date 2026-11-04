@@ -110,6 +110,7 @@ export const useVideoPreview = ({
   forceOpen,
   skipPreview = false,
   deferInitialization = false,
+  cameraDisabled = false,
   onStreamChange,
   startSharing,
   startSharingCameraAsContent,
@@ -154,6 +155,9 @@ export const useVideoPreview = ({
   const invalidateCameraAcquisition = useCallback(() => {
     acquisitionId.current += 1;
   }, []);
+  // Read by the async camera flows, which may outlive the render that started them
+  const isCameraDisabled = useRef(cameraDisabled);
+  isCameraDisabled.current = cameraDisabled;
 
   const handleGUMError = useCallback((error: Error & { name: string }) => {
     logger.error({
@@ -531,6 +535,8 @@ export const useVideoPreview = ({
     deviceId: string | null,
     profile: CameraProfileProps,
   ) => {
+    if (isCameraDisabled.current) return null;
+
     cameraStreamRequestId.current += 1;
     const requestId = cameraStreamRequestId.current;
     // A newer call terminates this call's stream when it starts, so once superseded
@@ -758,15 +764,32 @@ export const useVideoPreview = ({
   useEffect(() => {
     isMounted.current = true;
 
-    // Read once on purpose: an entry-state decision, not a reactive one.
-    if (!deferInitialization) initializeCameras();
-
     return () => {
       isMounted.current = false;
       terminateCameraStream(currentVideoStream.current);
       cleanupStreamAndVideo();
     };
   }, []);
+
+  // A disabled camera (e.g. locked webcam sharing) must not be opened, and is
+  // released if it gets disabled while open
+  useEffect(() => {
+    if (cameraDisabled) {
+      // Supersede a pending getCameraStream, so it drops the camera it's still opening
+      cameraStreamRequestId.current += 1;
+      terminateCameraStream(currentVideoStream.current);
+      cleanupStreamAndVideo();
+      return;
+    }
+
+    // Read once on purpose: an entry-state decision, not a reactive one.
+    if (deferInitialization) return;
+
+    // Clear a device error from a previous attempt, so a successful retry recovers
+    setDeviceError(null);
+    setViewState(VIEW_STATES.finding);
+    initializeCameras();
+  }, [cameraDisabled]);
 
   useEffect(() => {
     if (viewState === VIEW_STATES.found && !videoRef.current?.srcObject) {

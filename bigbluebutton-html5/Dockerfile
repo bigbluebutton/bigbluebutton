@@ -1,4 +1,4 @@
-FROM node:24@sha256:14078204b6bb268c107ceff6d3c43f45a888105e5c2b18b14c32b3409d93a1b0 AS build
+FROM node:24@sha256:e7add2a490bb17d97b485b8641bd88455fff7839ade0f5eba493c3508124d413 AS build
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG CLIENT_BUILD=0

@@ -7,7 +7,7 @@ import { Page } from '../core/page';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 import {
-  APOLLO_CLIENT_SETTINGS_MODULE,
+  APOLLO_CLIENT_SETTINGS_OVERRIDE,
   expectUserRemoved,
   getMeetingUserIds,
   getOwnUserId,
@@ -66,7 +66,7 @@ const initAudioStateSyncScenario = async (browser: Browser, testInfo: TestInfo):
 
   const modRawPage = await context.newPage();
   await exposeLiveKitRoom(modRawPage);
-  await audio.initModPage(modRawPage, { testInfo, createModules: APOLLO_CLIENT_SETTINGS_MODULE });
+  await audio.initModPage(modRawPage, { testInfo, createClientSettingsOverride: APOLLO_CLIENT_SETTINGS_OVERRIDE });
   const { modPage } = audio;
   test.skip(!(await isApolloClientExposed(modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
 
