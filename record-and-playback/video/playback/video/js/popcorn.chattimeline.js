@@ -12,7 +12,12 @@ function sanitizeChatHTML(html) {
       var child = children[c];
       if (child.nodeType === 1) {
         if (allowedTags.indexOf(child.tagName.toLowerCase()) === -1) {
-          node.replaceChild(document.createTextNode(child.textContent), child);
+          // Unwrap instead of flattening, so allowed descendants (links, line breaks) survive
+          sanitize(child);
+          while (child.firstChild) {
+            node.insertBefore(child.firstChild, child);
+          }
+          node.removeChild(child);
         } else {
           var tagAttrs = allowedAttrs[child.tagName.toLowerCase()] || [];
           var attrs = Array.from(child.attributes);

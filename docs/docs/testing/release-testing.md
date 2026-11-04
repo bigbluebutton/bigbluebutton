@@ -1756,7 +1756,7 @@ Client should apply user metadata according to the descriptions from [here](/adm
 
 ### Override default presentation on CREATE meeting API call
 
-(for more information, see the documentation [here](/new-features/#override-default-presentation-on-create-via-url))
+(for more information, see the documentation [here](/development/api#get-post-create))
 
 1. When creating a meeting, use the following settings (required):
 ```sh
