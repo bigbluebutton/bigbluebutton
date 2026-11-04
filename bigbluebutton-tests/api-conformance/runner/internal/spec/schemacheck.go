@@ -9,9 +9,9 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/schema"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"github.com/santhosh-tekuri/jsonschema/v6/kind"
+	"go.yaml.in/yaml/v3"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"gopkg.in/yaml.v3"
 )
 
 var (
