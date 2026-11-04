@@ -16,7 +16,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 	"unicode/utf8"
 
@@ -400,10 +399,7 @@ func (r *Runner) runProfile(ctx context.Context, name, command string) error {
 	defer cancel()
 	cmd := osexec.CommandContext(ctx, "sh", "-c", command)
 	cmd.Dir = r.Target.Dir
-	// Kill the whole process group on cancellation; killing only sh would
-	// leave its children holding the output pipe open.
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	killGroupOnCancel(cmd)
 	cmd.WaitDelay = 5 * time.Second
 	out, err := cmd.CombinedOutput()
 	if err != nil {
