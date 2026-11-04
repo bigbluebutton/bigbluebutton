@@ -20,6 +20,6 @@ export HOME=/home/bigbluebutton USER=bigbluebutton
 cd /usr/share/bbb-web
 exec setpriv --reuid=bigbluebutton --regid=bigbluebutton --init-groups \
 	java -Dgrails.env="$ENV" -Dserver.address="$LISTEN_ADDRESS" -Dserver.port="$LISTEN_PORT" \
-	-Dspring.main.allow-circular-references=true -Xms"$INITIAL_HEAP_SIZE" -Xmx"$MAX_HEAP_SIZE" \
+	-Xms"$INITIAL_HEAP_SIZE" -Xmx"$MAX_HEAP_SIZE" \
 	-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="$HEAP_DUMP_PATH" \
 	-cp . org.springframework.boot.loader.launch.WarLauncher

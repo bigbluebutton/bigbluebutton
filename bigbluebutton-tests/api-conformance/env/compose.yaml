@@ -19,6 +19,9 @@ x-build: &build
 # a single-server install.
 x-pod: &pod
   network_mode: service:net
+  # As the packages' units restart theirs (Restart=always): the GraphQL
+  # middleware, for one, exits when it loses its redis subscription.
+  restart: unless-stopped
   depends_on:
     net:
       condition: service_started

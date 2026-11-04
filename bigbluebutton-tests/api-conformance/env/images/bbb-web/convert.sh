@@ -20,7 +20,7 @@ fi;
 # Each call gets its own directory, and its own LibreOffice profile in it:
 # conversions running at once would fail on a shared one.
 mkdir -p "/tmp/bbb-soffice-$(whoami)/"
-tempDir="$(mktemp -d -p /tmp/bbb-soffice-$(whoami)/)"
+tempDir="$(mktemp -d -p "/tmp/bbb-soffice-$(whoami)/")"
 trap 'rm -fr "$tempDir"' EXIT
 
 source="$1"

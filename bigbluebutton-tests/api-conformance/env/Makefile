@@ -14,7 +14,7 @@ COMPOSE += --profile clamav
 SERVICES += clamav
 endif
 
-.PHONY: debs images render up down reset logs ps env profile
+.PHONY: debs images render up down reset logs ps env profile check-copies
 
 # Build the five debs the stack runs, from a snapshot of the tree.
 # PKGS=bbb-web rebuilds just that one.
@@ -32,7 +32,7 @@ render:
 
 # Start the stack and wait until it answers, rebuilding what changed.
 up: render
-	$(COMPOSE) up -d --build --wait $(SERVICES)
+	$(COMPOSE) up -d --build --wait --wait-timeout 900 $(SERVICES)
 	@echo "Tier 1 is up. For the runner: eval \"\$$(make -s -C $(CURDIR) env)\""
 
 # Every service, the optional ones included.
@@ -41,10 +41,13 @@ down:
 
 # Start again from nothing: no meetings, an empty data directory, no
 # profile in force.
+# A profile switch waits for the whole reset: it holds the switcher's lock.
 reset:
-	mkdir -p $(STATE) && flock $(STATE)/profile.lock sh -c 'rm -f $(STATE)/profile && $(TIER1)/render.sh'
-	$(COMPOSE) --profile clamav down --volumes
-	$(COMPOSE) up -d --build --wait $(SERVICES)
+	mkdir -p $(STATE) && flock $(STATE)/profile.lock sh -c '\
+		rm -f $(STATE)/profile && $(TIER1)/render.sh && \
+		$(COMPOSE) --profile clamav down --volumes && \
+		$(COMPOSE) up -d --build --wait --wait-timeout 900 $(SERVICES)'
+
 
 # The services' last lines (TAIL=200, or TAIL=all), or just SERVICE's;
 # like ps, ClamAV's too when it runs.
@@ -59,6 +62,11 @@ ps:
 # the one in force: make profile NAME=reveal-version, make profile.
 profile:
 	@$(TIER1)/profile.sh $(or $(NAME),status)
+
+# Warn about the package files the stack mirrors by hand that changed
+# since it last followed them.
+check-copies:
+	@$(TIER1)/check-copies.sh
 
 # The variables the runner reads, for eval.
 env:

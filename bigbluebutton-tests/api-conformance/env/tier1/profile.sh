@@ -3,7 +3,7 @@
 # names it as BBB_PROFILE_CMD. A profile is an overlay in
 # ../bbb-web/profiles/NAME.properties: render.sh appends it to the stack's
 # bbb-web.properties, where the last value of a key wins, and bbb-web is
-# restarted.
+# restarted, and akka-apps too when the switch changes a setting it reads.
 #
 #   profile.sh NAME      apply a profile
 #   profile.sh default   Tier 1's own settings
@@ -75,6 +75,13 @@ if [ "$name" = "$current" ] && [ "$started" -ge "$written" ]; then
 	exit 0
 fi
 
+# akka-apps reads one of bbb-web's settings at startup
+# (SystemConfiguration.scala): a switch that changes it restarts akka-apps
+# too. The last value of a key wins.
+akka_reads() {
+	grep -E '^clientSettingsOverrideStrictValidation=' "$state/conform/bbb-web.properties" 2>/dev/null | tail -n 1 || true
+}
+before=$(akka_reads)
 # The record follows the file, so a switch that fails part way is retried
 # rather than taken as done.
 "$here/render.sh" "$name"
@@ -84,23 +91,31 @@ else
 	echo "$name" > "$state/profile"
 fi
 # Values are read at startup only.
-started=$(docker inspect -f '{{.State.StartedAt}}' "$cid")
-if ! out=$($compose restart bbb-web 2>&1); then
-	echo "$out" >&2
-	exit 1
-fi
-waited=0
-while :; do
-	now=$(docker inspect -f '{{.State.StartedAt}} {{.State.Health.Status}}' "$cid")
-	if [ "${now% *}" != "$started" ] && [ "${now#* }" = healthy ]; then
-		break
-	fi
-	if [ "$waited" -ge 300 ]; then
-		echo "bbb-web wasn't healthy within 300s of the restart" >&2
-		$compose logs --tail=30 bbb-web >&2 || true
+services=bbb-web
+[ "$(akka_reads)" = "$before" ] || services="akka-apps bbb-web"
+restart() {
+	id=$($compose ps -q "$1")
+	started=$(docker inspect -f '{{.State.StartedAt}}' "$id")
+	if ! out=$($compose restart "$1" 2>&1); then
+		echo "$out" >&2
 		exit 1
 	fi
-	sleep 2
-	waited=$((waited + 2))
+	waited=0
+	while :; do
+		now=$(docker inspect -f '{{.State.StartedAt}} {{.State.Health.Status}}' "$id")
+		if [ "${now% *}" != "$started" ] && [ "${now#* }" = healthy ]; then
+			break
+		fi
+		if [ "$waited" -ge 300 ]; then
+			echo "$1 wasn't healthy within 300s of the restart" >&2
+			$compose logs --tail=30 "$1" >&2 || true
+			exit 1
+		fi
+		sleep 2
+		waited=$((waited + 2))
+	done
+}
+for service in $services; do
+	restart "$service"
 done
-echo "bbb-web restarted with $name"
+echo "$(echo "$services" | sed 's/ / and /') restarted with $name"

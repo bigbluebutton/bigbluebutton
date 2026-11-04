@@ -50,6 +50,7 @@ if [ ! -s "$tokens" ]; then
 	token() { od -An -N16 -tx1 /dev/urandom | tr -d ' \n'; }
 	(umask 077 && printf 'BBB_TAP_TOKEN=%s\nBBB_SINK_TOKEN=%s\n' "$(token)" "$(token)" > "$tokens")
 fi
+# shellcheck source=/dev/null # made just above
 . "$tokens"
 
 cat > "$out/conform.env" <<END

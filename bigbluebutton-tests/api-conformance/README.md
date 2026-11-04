@@ -208,7 +208,8 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
 | `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
-| `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. |
+| `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. A profile switch waits until it is done. |
+| `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
 
 It needs Linux on amd64, Docker with Compose 2.17 or later, and network
@@ -244,12 +245,29 @@ access for the first build.
 - **Where it differs from a packaged server:**
   - converters run without systemd's memory limit and sandbox, and
     LibreOffice (the build the packages use) runs in bbb-web's container,
-    without its own container's limits;
+    without its own container's limits, through `env/images/bbb-web/convert.sh`,
+    which stands in for bbb-libreoffice-docker's `convert-local.sh` (that
+    one starts a container through `sudo docker`);
   - nginx terminates TLS itself, on port 8443;
   - there is no FreeSWITCH, LiveKit, shared notes or recording processing:
     messages for them go unanswered, and recording markers stay where
     bbb-web writes them;
   - bbb-api isn't part of it yet.
+- **What it mirrors by hand.** Parts of the packages are copied rather
+  than run: bbb-web's Depends and the edits its install script makes,
+  the units' command lines, the GraphQL server's database setup,
+  akka-apps' preinst, the data directory bbb-config creates, the
+  LibreOffice converter. `env/tier1/check-copies.sh` (`make check-copies`)
+  warns about each of those sources that changed since Tier 1 last
+  followed it, from the hashes in `env/tier1/copies.sha256`; CI shows the
+  warnings as annotations. Once the stack follows the change, `--update`
+  records the sources as they are. nginx's site is bbb-install's, which
+  isn't in this repository, so nothing checks it.
+- **Restarts.** Services are restarted when they exit, as the packages'
+  units restart theirs; the GraphQL middleware exits when it loses its
+  redis subscription. A profile switch restarts bbb-web, and akka-apps too
+  when it changes `clientSettingsOverrideStrictValidation`, the one
+  bbb-web setting akka-apps reads.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
 - **In CI.** `.github/workflows/api-conformance.yml` builds and starts the
