@@ -616,6 +616,7 @@ export const elements = {
   advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
   standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
   originalAudioRadio: 'input[data-test="originalAudioRadio"]',
+  voiceIsolationRadio: 'input[data-test="voiceIsolationRadio"]',
 
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',

@@ -230,7 +230,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
-  processingMode: 'advanced' | 'standard' | 'original'
+  processingMode: 'voiceIsolation' | 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -708,6 +708,7 @@ export interface LiveKitSettings {
 export interface AudioWasmProcessingSettings {
   enabled: boolean
   provider?: 'bbba' | 'workadventureDtln'
+  intensity?: number
   // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
   constraints?: Record<string, unknown>
 }

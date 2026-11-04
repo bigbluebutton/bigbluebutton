@@ -650,6 +650,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audioWasmProcessing: {
           enabled: false,
           provider: 'bbba',
+          intensity: 95,
           constraints: {
             echoCancellation: true,
             autoGainControl: true,
