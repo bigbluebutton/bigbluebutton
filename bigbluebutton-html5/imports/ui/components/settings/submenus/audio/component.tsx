@@ -163,7 +163,8 @@ class AudioMenu extends BaseMenu {
         titleMsg: intlMessages.voiceIsolationLabel,
         descMsg: intlMessages.voiceIsolationDesc,
         idealForMsg: intlMessages.voiceIsolationIdealFor,
-        disabled: false,
+        disabled: !wasmBrowserSupported,
+        disabledReasonMsg: intlMessages.advancedFilteringDisabledReason,
         dataTest: 'voiceIsolationRadio',
       });
     }
