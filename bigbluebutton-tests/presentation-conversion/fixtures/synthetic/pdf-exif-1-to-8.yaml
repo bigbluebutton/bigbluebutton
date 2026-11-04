@@ -1,0 +1,19 @@
+id: pdf-exif-1-to-8
+title: "Eight pages, the same upright JPEG tagged EXIF Orientation 1 to 8"
+tier: synthetic
+file: pdf-exif-1-to-8.pdf
+issues: [26001]
+catalog: ["EXIF orientation, JPEG inside a PDF"]
+upload:
+  method: create
+pages: 8
+expect: converted
+kind: { defaults: vector, rasterize-all: raster }
+marker: true
+aspect: auto
+profiles: [defaults, rasterize-all]
+notes: >-
+  Port of exif-orientation-1-to-8.pdf with 240x160 px pictures on 240x160 pt pages. The pixels are
+  upright and the content stream does not compensate: PDF ignores EXIF, so every page must show
+  the marker upright. pdftocairo copies the JPEG bytes, EXIF included, into the SVG and browsers
+  then apply the orientation (#26001).

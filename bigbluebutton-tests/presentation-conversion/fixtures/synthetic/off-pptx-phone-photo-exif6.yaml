@@ -1,0 +1,21 @@
+id: off-pptx-phone-photo-exif6
+title: "python-pptx 4:3 deck holding the EXIF-6 phone photo"
+tier: synthetic
+file: off-pptx-phone-photo-exif6.pptx
+issues: [26001]
+catalog: ["EXIF orientation, photo in an Office deck"]
+upload:
+  method: create
+pages: 1
+expect: converted
+kind: any
+marker: true
+aspect: 1.3333
+checks: [outcome, pages, kind, aspect, exif, text, marker]
+profiles: [defaults]
+notes: >-
+  Port of deck-camera-exif6.pptx, with the picture centred instead of overflowing the right edge.
+  python-pptx sizes the frame from the stored 480x320 pixels and ignores EXIF, and LibreOffice
+  draws the stored pixels, so the slide shows the photo sideways: known to fail the marker check.
+  Compare with PowerPoint before calling it a bug (#26001 analysis). LibreOffice 25.8: one 720x540
+  page, photo turned 90 degrees counter-clockwise (red band on the left).

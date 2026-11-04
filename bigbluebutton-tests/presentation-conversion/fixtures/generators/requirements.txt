@@ -1,0 +1,18 @@
+# Exact pins, including transitive dependencies (pip freeze in the pinned base image).
+# Changing any line changes the image tag computed by run.sh and may change fixture bytes:
+# run `run.sh` and commit the regenerated fixtures together with the pin change.
+defusedxml==0.7.1
+et_xmlfile==2.0.0
+img2pdf==0.6.3
+lxml==6.1.3
+numpy==2.5.3
+odfpy==1.4.1
+openpyxl==3.1.5
+packaging==26.3
+pikepdf==10.16.0
+pillow==12.3.0
+python-docx==1.2.0
+python-pptx==1.0.2
+PyYAML==6.0.3
+typing_extensions==4.16.0
+xlsxwriter==3.2.9

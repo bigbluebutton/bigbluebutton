@@ -1,0 +1,13 @@
+   Not       A little                 Very
+                        Confident
+confident   confident               confident
+
+
+
+
+                                     How confident are you?
+
+                                         A.    Not confident
+                                         B.    A little confident
+                                         C.    Confident
+                                         D.    Very confident

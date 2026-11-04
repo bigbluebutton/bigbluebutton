@@ -1,0 +1,91 @@
+                                                                                                                   Energy and Climate Courses at Stanford
+
+
+                                                                                                                                              Quantitative methods for assessing the economics of
+                                                                                                                                              greenhouse gas emissions reductions. Historical success
+                                                                                                                                              of previous energy and carbon emissions forecasting
+                  Quantitative Methods for
+   CEE 172M                                                      3      Aut                                                     Koomey, J.    efforts, top-down and bottom-up modeling methods, and the
+                 Forecasting Energy Futures
+                                                                                                                                              implications of market imperfections and regulatory
+                                                                                                                                              distortions. Analytic techniques to explore the future in the
+                                                                                                                                              face of rapid technological changes.
+                                                                                                                                              Renewable generation technologies and their use in the
+                                                                                                                                              electric power system. Conventional electricity generation
+                                                                                                                                              systems and the historical development of renewables.
+                  Distributed Generation and                                                                                                  Development and operation of the electrical power system
+   CEE 172P            Grid Integration of                      3-4    Win                                                                    for high penetrations of renewables and demand side
+                          Renewables                                                                                                          participation. Wind energy and wind farms. Design of wind
+                                                                                                                                              turbines. Photovoltaics systems (grid connected), micro-
+                                                                                                                                              hydro and marine renewables (wave and tidal stream
+                                                                                                                                              devices). Analysis of the electric power system and the
+                                                                                                                                              integration of renewable energy generators.
+                                                                                                                                              Fossil and renewable energy resources: oil, natural gas,
+                                                                                                                                              coal, nuclear, hydropower, solar, geothermal, biomass,
+                                                                                                                                              wind, ocean energy, and energy efficiency. Topics for each
+                                                                                                                                              resource: resource abundance, location, recovery,
+                                                   CEE 207A,                                                                                  conversion, consumption, end-uses, the environmental
+   CEE 173A           Energy Resources                          4-5     Aut                                                    Woodward, J.
+                                                 EARTHSYS 103                                                                                 impacts, economics, policy, and technology. buildings,
+                                                                                                                                              transportation, the electricity industry, and energy in the
+                                                                                                                                              developing world. Required field trips to local energy
+                                                                                                                                              facilities. Optional discussion section for extra units.
+                                                                                                                                              Analysis and design. Thermal analysis of building
+                                                                                                                                              envelope, heating and cooling requirements, HVAC, and
+   CEE 176A        Energy Efficient Buildings                   3-4    Win                                                      Masters, G.
+                                                                                                                                              building integrated PV systems. Emphasis is on residential
+                                                                                                                                              passive solar design and solar water heating.
+                                                                                                                                              Renewable and efficient electric power systems
+                                                                                                                                              emphasizing analysis and sizing of photovoltaic arrays and
+                      Electric Power:
+   CEE 176B                                                     3-4     Spr                                                     Masters, G.   wind turbines. Basic electric power generation,
+                  Renewables and Efficiency
+                                                                                                                                              transmission and distribution, distributed generation,
+                                                                                                                                              combined heat and power, fuel cells. End use demand,
+                                                                                                          Upper    Consent                    Energy resources and policies in use and under
+                                                                       Win,                     Enginee    level      of                      development in China. 12-day field trip to China during
+                                                                                      Lecture
+ CEE 176F/276F Energy Systems Field Trips             --        1-2   Alternat   --               ring/ undergrad instructor   Woodward, J    Spring Break. One unit for seminar and readings; one unit http://www.maproyalty.com/stanford/176F/
+                                                                                       (28)
+                                                                      e years                    Policy uates and for field                   for field trip.
+                                                                                                        graduates    trip
+                                                                                                                                              The multidimensional concept of sustainable development.
+                                                                                                                                              Students evaluate engineered systems using tools such as
+                  Sustainability in Theory and                                                                                                cost-benefit analysis, trade-off analysis, and lifecycle
+   CEE 177 P                                                     3
+                           Practice                                                                                                           analysis. How to make judgments about sustainable and
+                                                                                                                                              unsustainable courses of action. Case studies dealing with
+                                                                                                                                              contemporary environmental and economic challenges.
+                                                                                                                                              Technology-based problems faced by developing
+                                                                                                                                              communities worldwide. Student groups partner with
+                                                                                                                                              organizations abroad to work on concept, feasibility, design,
+                   Design for a Sustainable                            Aut,                                                                   implementation, and evaluation phases of various projects.
+ CEE 177S/277S                                                  1-5                                                                Staff      Past projects include a water and health initiative, a green
+                            World                                      Spr
+                                                                                                                                              school design, seismic safety, and medical device.
+                                                                                                                                              Admission based on written application and interview. See
+                                                                                                                                              http://esw.stanford.edu for application.
+                                                                                                                                              Life cycle modeling of products, industrial processes, and
+                                                                                                                                              infrastructure/building systems; material and energy
+                                                                                                                                              balances for large interdependent systems; environmental
+                                                                                                                                              accounting; and life cycle costing. These methods, based
+                  Life Cycle Assessment for                                                                                                   on ISO 14000 standards, are used to examine emerging
+    CEE 226                                                     3-4     Aut                                                        Staff      technologies, such as biobased products, building materials,
+                      Complex Systems
+                                                                                                                                              building integrated photovoltaics, and alternative design
+                                                                                                                                              strategies, such as remanufacturing, dematerialization,
+                                                                                                                                              LEED, and Design for Environment: DfE. Student teams
+                                                                                                                                              complete a life cycle assessment of a product or system
+                                                                                                                                              chosen from industry.
+                                                                                                                                              Innovative methods and systems for the integrated design
+                      Advanced Topics in
+                                                                                                                                              and evaluation of energy efficient buildings. Guest
+   CEE 226E       Integrated, Energy-Efficient                   2      Spr
+                                                                                                                                              practicioners and researchers in energy efficient buildings.
+                        Building Design
+                                                                                                                                              Student initiated final project.
+
+
+
+
+Last updated: March 17, 2009                                                                                                                                                                                                    Send additions and corrections to leighj@stanford.edu

@@ -1,0 +1,7 @@
+id: repo-big
+title: One heavy letter page (198 KB) from the old bbb-web test resources
+tier: repo
+file: ../../../../bigbluebutton-web/test/resources/big.pdf
+pages: 1
+expect: converted
+kind: any

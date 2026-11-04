@@ -1,0 +1,23 @@
+id: pdf-type3-mixed-3p
+title: "Type 3 text on pages 1 and 3 (3000x500 pt), Helvetica on page 2"
+tier: synthetic
+file: pdf-type3-mixed-3p.pdf
+issues: [8835, 12200, 15688]
+catalog: ["Type3 fonts", "Slide dimensions"]
+upload:
+  method: create
+pages: 3
+expect: converted
+kind: raster
+pageOverrides:
+  1: { kind: raster }
+  2: { kind: { defaults: vector, rasterize-all: raster, tight-limits: vector } }
+  3: { kind: raster }
+marker: false
+aspect: auto
+profiles: [defaults, rasterize-all, tight-limits]
+notes: >-
+  Hand-made Type 3 font (pdffonts: PCFPixel, Type 3): 5x7 pixel glyphs drawn as filled rectangles
+  from d1 glyph procs, with standard glyph names so pdftotext extracts 'TYPE 3 FONT ...'. bbb-web
+  rasterises pages whose pdffonts output lists Type 3, so only page 2 stays vector. tight-limits
+  shortens pdfFontsTimeout to 1 s.

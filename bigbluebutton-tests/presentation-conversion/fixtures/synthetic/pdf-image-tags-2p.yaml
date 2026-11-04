@@ -1,0 +1,22 @@
+id: pdf-image-tags-2p
+title: "10 and 820 distinct tiny images around the 800 <image threshold"
+tier: synthetic
+file: pdf-image-tags-2p.pdf
+issues: [24143]
+catalog: ["SVG too complex for the client"]
+upload:
+  method: create
+pages: 2
+expect: converted
+kind: { defaults: vector, low-thresholds: raster }
+pageOverrides:
+  1: { kind: { defaults: vector, low-thresholds: raster } }
+  2: { kind: raster }
+marker: false
+aspect: auto
+profiles: [defaults, low-thresholds]
+goldenProfiles: [defaults, low-thresholds]
+notes: >-
+  Each image is its own 4x4 RGB Flate XObject with different samples: cairo writes one <image per
+  distinct XObject (re-drawing one XObject reuses a single <image) plus one <use per drawing.
+  imageTagThreshold is 800 (5 in low-thresholds).

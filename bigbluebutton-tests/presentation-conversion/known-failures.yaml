@@ -1,0 +1,146 @@
+# Presentations where bbb-web's defaults do not give the correct result today.
+# A listed check that fails is reported as "known" and does not fail the run; a listed check that passes is
+# reported as "fixed" so the entry can be removed. Fields: fixture, profiles (list or "*"), pages (list or "*"),
+# checks (outcome, pages, kind, aspect, exif, text, marker, pixels, thumb, served), issue, since, note.
+
+- fixture: rt-pdf-oversized-31mb-insert
+  profiles: "*"
+  checks: [outcome]
+  issue: "not filed yet: FILE_TOO_LARGE from insertDocument is lost"
+  since: 2026-10-09
+  note: >-
+    bbb-web rejects the download and sends FILE_TOO_LARGE, but akka-apps only updates an existing pres_presentation
+    row (PresPresentationDAO.updateErrors) and an insertDocument upload that fails before conversion has none, so
+    the error never reaches the database or the presenter.
+
+- fixture: pdf-exif-1-to-8
+  profiles: [defaults]
+  pages: [2, 3, 4, 5, 6, 7, 8]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+  note: pdftocairo copies the JPEG into the slide SVG with its EXIF block; browsers then rotate or mirror it.
+
+- fixture: pdf-exif6-plus-control
+  profiles: [defaults]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+
+- fixture: pdf-img2pdf-rotate90-exif6
+  profiles: [defaults]
+  checks: [exif]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/26001
+  since: 2026-10-09
+
+- fixture: img-jpg-exif6-camera
+  profiles: "*"
+  checks: [thumb]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/13351
+  since: 2026-10-09
+  note: >-
+    The slide is auto-oriented by ImageMagick, but ThumbnailCreatorImp runs `convert -thumbnail` without
+    -auto-orient, so the thumbnail of a portrait phone photo is sideways. The golden is the correct thumbnail.
+
+- fixture: pdf-rotate-cropbox-3p
+  profiles: "*"
+  pages: [3]
+  checks: [thumb]
+  issue: "not filed yet: thumbnails ignore the PDF CropBox"
+  since: 2026-10-09
+  note: >-
+    ThumbnailCreatorImp runs pdftoppm without -cropbox, so the thumbnail of a cropped page shows the whole
+    MediaBox (content outside the crop, 3:2 instead of 16:9) while the slide itself is cropped. The golden is the
+    thumbnail with -cropbox.
+
+- fixture: off-pptx-phone-photo-exif6
+  profiles: "*"
+  checks: [marker]
+  issue: "not filed yet: LibreOffice ignores the EXIF orientation of pictures in PowerPoint decks"
+  since: 2026-10-09
+  note: >-
+    The deck holds a portrait phone photo stored sideways with EXIF Orientation 6; LibreOffice draws the stored
+    pixels, so the slide, its thumbnail and the recording show it rotated. Compare with PowerPoint before filing.
+
+- fixture: rt-pdf-padded-500k-insert
+  profiles: [tight-limits]
+  checks: [outcome]
+  issue: "not filed yet: FILE_TOO_LARGE from insertDocument is lost"
+  since: 2026-10-09
+  note: Same cause as rt-pdf-oversized-31mb-insert, here for a base64 document over maxFileSizeUpload=400000.
+
+- fixture: pdf-rotate-cropbox-3p
+  profiles: [rasterize-all]
+  pages: [3]
+  checks: [aspect, pixels]
+  issue: "not filed yet: rasterized slides ignore the PDF CropBox"
+  since: 2026-10-09
+  note: >-
+    SvgImageCreatorImp.createRasterizationProcess runs pdftoppm without -cropbox, so a rasterized cropped page
+    shows the whole MediaBox (content outside the crop, 3:2 instead of 16:9). The vector path is correct.
+
+- fixture: pdf-image-slide-300k
+  profiles: [tight-limits]
+  checks: [aspect]
+  issue: "not filed yet: the blank substitute slide is always A4"
+  since: 2026-10-09
+  note: >-
+    A slide whose SVG exceeds maxBigSvgSize becomes the blank slide, as designed, but blank-svg.svg is
+    841.89x595.28, so a 16:9 page changes shape (and the stored page width and height with it).
+
+- fixture: pdf-use-tags-2p
+  profiles: [tight-limits]
+  pages: [2]
+  checks: [aspect]
+  issue: "not filed yet: the blank substitute slide is always A4"
+  since: 2026-10-09
+
+- fixture: repo-hello-txt
+  profiles: [office-precheck]
+  checks: [outcome, pages]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
+  since: 2026-10-09
+  note: >-
+    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
+    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
+    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
+
+- fixture: repo-bbb-pptx
+  profiles: [office-precheck]
+  checks: [outcome, pages]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
+  since: 2026-10-09
+  note: >-
+    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
+    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
+    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
+
+- fixture: off-rtf-one-page
+  profiles: [office-precheck]
+  checks: [outcome, pages]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
+  since: 2026-10-09
+  note: >-
+    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
+    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
+    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
+
+- fixture: off-pptx-one-slide
+  profiles: [office-precheck]
+  checks: [outcome, pages]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
+  since: 2026-10-09
+  note: >-
+    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
+    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
+    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
+
+- fixture: off-docx-lorem-a4
+  profiles: [office-precheck]
+  checks: [outcome, pages]
+  issue: https://github.com/bigbluebutton/bigbluebutton/issues/25432
+  since: 2026-10-09
+  note: >-
+    With skipOfficePrecheck=false, OfficeToPdfConversionService rejects every file the pre-check finds valid (the
+    condition lost its negation in 4f453c4026, 2020), before LibreOffice runs. The message then says
+    OFFICE_DOC_CONVERSION_FAILED, not INVALID, because OfficeToPdfConversionSuccessFilter hardcodes that key.
