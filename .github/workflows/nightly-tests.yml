@@ -1,9 +1,11 @@
 name: "Nightly tests"
 # Runs the Playwright suite against freshly installed servers, outside the per-PR gate:
 #   chromium-*  every test except the quarantined ones (config.quarantine in the suite's package.json),
-#               @nightly and @stress, once per media bridge; then the quarantined tests 3 times each,
-#               report-only, for a pass rate (except @only-headed, which cannot run headless, and
+#               @nightly and @stress, on the default media bridge; then the quarantined tests 3 times
+#               each, report-only, for a pass rate (except @only-headed, which cannot run headless, and
 #               @setting-required, which runs in the setting-* jobs)
+#   media-*     the gate's @media tests on the legacy bbb-webrtc-sfu bridge: the selection of the per-PR
+#               job install-and-run-legacy-media-tests, which ran until it moved here
 #   recording-* the @nightly tests with every recording format installed and enabled
 #   stress      the @stress tests
 #   setting-*   the @setting-required:<setting> tests, on a server installed with that bbb-web setting
@@ -17,7 +19,7 @@ name: "Nightly tests"
 #   - Packages: it builds nothing. It installs the all-bbb-artifacts artifact of an "Automated tests"
 #     run and tests the commit that run built: by default the newest push run on the branch below
 #     whose artifact has not expired; a manual run can name another run.
-#   - Runners: 12 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
+#   - Runners: 8 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
 #   - Permissions: actions: read, to find that run and download its artifact. No secrets.
 #   - Schedule: GitHub starts scheduled workflows only from the default branch, so the schedule takes
 #     effect once this file is on the default branch; it still tests the branch named below. It runs
@@ -117,19 +119,15 @@ jobs:
           - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 2, shards: 4, quarantined: true }
           - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 3, shards: 4, quarantined: true }
           - { group: chromium-livekit, project: chromium, bridge: livekit, shard: 4, shards: 4, quarantined: true }
-          - { group: chromium-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 1, shards: 4, quarantined: true }
-          - { group: chromium-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 2, shards: 4, quarantined: true }
-          - { group: chromium-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 3, shards: 4, quarantined: true }
-          - { group: chromium-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 4, shards: 4, quarantined: true }
+          - { group: media-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 1, shards: 1, grep: "@media", exclude-tags: true }
           - { group: recording-livekit, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@nightly" }
-          - { group: recording-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 1, shards: 1, grep: "@nightly" }
           - { group: stress, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@stress" }
           - { group: setting-masktagthreshold, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@setting-required:maskTagThreshold", bbb-web-properties: "maskTagThreshold=1" }
     env:
       MEDIA_BRIDGE: ${{ matrix.bridge }}
       # workers, retries, reporters, traces and videos come from playwright.nightly.config.ts
       TIMEOUT_MULTIPLIER: 2
-      # left out of the full-suite steps: they have their own jobs, or cannot pass on these servers
+      # left out of the full-suite and media-* steps: they have their own jobs, or cannot pass on these servers
       EXCLUDED_TAGS: "@only-headed|@setting-required|@nightly|@stress"
     steps:
       - name: Checkout the commit that was built
@@ -193,13 +191,15 @@ jobs:
           PROJECT: ${{ matrix.project }}
           SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
           GREP: ${{ matrix.grep }}
+          EXCLUDE_TAGS: ${{ matrix.exclude-tags }}
           RECORDING_FORMATS: ${{ startsWith(matrix.group, 'recording-') && 'presentation,podcast,video,screenshare,notes' || '' }}
           PLAYWRIGHT_BLOB_OUTPUT_DIR: nightly-output/blob-tests
         run: |
           args=(-c playwright.nightly.config.ts "--project=$PROJECT" "--shard=$SHARD")
           if [ -n "$GREP" ]; then
             args+=(--grep "$GREP")
-          else
+          fi
+          if [ -z "$GREP" ] || [ "$EXCLUDE_TAGS" = "true" ]; then
             args+=(--grep-invert "$QUARANTINE_TAGS|$EXCLUDED_TAGS")
           fi
           npx playwright test "${args[@]}"
