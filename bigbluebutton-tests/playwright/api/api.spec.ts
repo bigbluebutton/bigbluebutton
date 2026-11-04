@@ -136,6 +136,17 @@ test.describe.parallel('API', () => {
     },
   );
 
+  // Waits more than a minute for the parent to expire, so it runs nightly
+  test(
+    'apiCreatedBreakoutRoomEndsWhenParentExpires',
+    { tag: '@nightly' },
+    async ({ browser, context, page, request }, testInfo) => {
+      test.setTimeout(4 * 60 * 1000);
+      const api = new APIBreakout(browser, context);
+      await api.testApiCreatedRoomEndsWhenParentExpires(page, testInfo, request);
+    },
+  );
+
   test.describe('Checksum', { tag: '@ci' }, () => {
     test('checksumAlgorithmsAccepted', async ({ request }) => {
       await APIChecksum.testAlgorithmsAccepted(request);

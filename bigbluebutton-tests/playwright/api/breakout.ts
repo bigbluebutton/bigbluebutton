@@ -14,6 +14,9 @@ import {
 } from '../core/helpers';
 import { parameters } from '../core/parameters';
 
+// meetingExpireIfNoUserJoinedInMinutes=1 plus the margin akka-apps takes to notice it
+const PARENT_EXPIRY_TIMEOUT = 150000;
+
 export class APIBreakout extends Join {
   // Attempt to use API to create a breakout room without a parent
   static async testBreakoutWithoutParent() {
@@ -227,6 +230,30 @@ export class APIBreakout extends Join {
 
       await endMeetings(request, [parentID]);
       await APIBreakout.expectMeetingEnded(request, roomID, 'should end the emptied room with its parent');
+    } finally {
+      await endMeetings(request, [parentID, roomID]);
+    }
+  }
+
+  // A parent that ends on its own takes its API-created rooms with it: nobody joins the parent
+  // (a user in the room does not count for it), so it expires after a minute
+  async testApiCreatedRoomEndsWhenParentExpires(page: PlaywrightPage, testInfo: TestInfo, request: APIRequestContext) {
+    const parentID = await createMeeting('meetingExpireIfNoUserJoinedInMinutes=1');
+    const roomID = `api-room-${getRandomInt(1000, 9999)}`;
+    try {
+      await APIBreakout.createApiRoom(request, roomID, parentID);
+      await this.initModPage(page, { testInfo, meetingId: roomID, fullName: 'RoomModerator' });
+      await this.modPage.hasElement(e.presentationTitle, 'should load the room for its moderator');
+
+      await expect
+        .poll(async () => (await APIBreakout.getMeetingInfoXml(request, parentID)).messageKey, {
+          timeout: PARENT_EXPIRY_TIMEOUT,
+          intervals: [5000],
+          message: 'the parent nobody joined should expire',
+        })
+        .toEqual(['notFound']);
+      await APIBreakout.expectMeetingEnded(request, roomID, 'should end the room with its expired parent');
+      await this.modPage.hasElement(e.meetingEndedModal, 'should show the meeting ended screen in the room');
     } finally {
       await endMeetings(request, [parentID, roomID]);
     }
