@@ -454,19 +454,15 @@ const setupColorThemePaletteOverrides = () => {
     p3: 'color(display-p3 1 1 0)',
   };
   // Override the default yellow color to be a more vibrant yellow
-  DefaultColorThemePalette.lightMode.yellow = {
-    solid: '#FFFF00',
-    highlight: {
-      srgb: '#FFFF00',
-      p3: 'color(display-p3 1 1 0)',
-    },
+  DefaultColorThemePalette.lightMode.yellow.solid = '#FFFF00';
+  DefaultColorThemePalette.lightMode.yellow.highlight = {
+    srgb: '#FFFF00',
+    p3: 'color(display-p3 1 1 0)',
   };
-  DefaultColorThemePalette.darkMode.yellow = {
-    solid: '#FFFF00',
-    highlight: {
-      srgb: '#FFFF00',
-      p3: 'color(display-p3 1 1 0)',
-    },
+  DefaultColorThemePalette.darkMode.yellow.solid = '#FFFF00';
+  DefaultColorThemePalette.darkMode.yellow.highlight = {
+    srgb: '#FFFF00',
+    p3: 'color(display-p3 1 1 0)',
   };
 };
 
