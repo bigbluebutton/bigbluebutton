@@ -2,6 +2,9 @@ import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Options } from './options';
 
+// Shown as "Join by URL" in the session details; the client never opens it.
+const JOIN_URL = 'https://bbb-test-stub.local/join/session-details';
+
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   let options: Options;
 
@@ -18,7 +21,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.openHelp();
   });
 
-  test('Locales', async () => {
+  test('Locales', { tag: '@nightly' }, async () => {
     await options.localesTest();
   });
 
@@ -39,6 +42,27 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.keyboardNavigationOptionsDropdown();
   });
 
+  test('Unsaved settings changes', async () => {
+    await options.unsavedSettingsChanges();
+  });
+
+  test('Dark mode kept after reload', async () => {
+    await options.darkModeKeptAfterReload();
+  });
+
+  test('Font size kept after reload', async () => {
+    linkIssue(26129);
+    await options.fontSizeKeptAfterReload();
+  });
+
+  test('Right-to-left layout', async () => {
+    await options.rightToLeftLayout();
+  });
+
+  test('Locale kept after reload', async () => {
+    await options.localeKeptAfterReload();
+  });
+
   test.describe('Data savings', () => {
     test('Webcam sharing settings', { tag: '@media' }, async () => {
       await options.initUserPage(options.modPage.context);
@@ -49,5 +73,13 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
       await options.initUserPage(options.modPage.context);
       await options.enableOtherParticipantsDesktopSharing();
     });
+  });
+});
+
+test.describe.parallel('Session details', { tag: '@ci' }, () => {
+  test('Open from the meeting title and copy the join URL', async ({ browser, context, page }, testInfo) => {
+    const options = new Options(browser, context);
+    await options.initModPage(page, { createParameter: `loginURL=${encodeURIComponent(JOIN_URL)}`, testInfo });
+    await options.sessionDetails(JOIN_URL);
   });
 });

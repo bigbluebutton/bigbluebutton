@@ -94,6 +94,24 @@ export async function getProcessorPortMessages(page: PlaywrightPage): Promise<Pr
   return page.evaluate(() => window.processorPortMessages ?? []);
 }
 
+// Advanced filtering runs the microphone through an AudioWorklet, so it needs an
+// AudioContext that actually starts. Headless Firefox on a host without an audio
+// output device (no PulseAudio) never starts one: resume() neither resolves nor
+// rejects. Call before initModPage(), while the page is still blank.
+export async function canStartAudioContext(page: PlaywrightPage, timeoutMs = 3000): Promise<boolean> {
+  return page.evaluate(async (timeout) => {
+    const audioContext = new AudioContext();
+    const started = await Promise.race([
+      audioContext.resume().then(() => audioContext.state === 'running'),
+      new Promise<boolean>((resolve) => {
+        setTimeout(() => resolve(false), timeout);
+      }),
+    ]);
+    audioContext.close().catch(() => {});
+    return started;
+  }, timeoutMs);
+}
+
 export type AudioProcessingModeValue = 'voiceIsolation' | 'advanced' | 'standard' | 'original';
 
 // Deep-merged into window.meetingClientSettings before the client boots (see

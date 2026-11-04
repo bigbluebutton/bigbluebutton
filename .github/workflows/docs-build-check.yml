@@ -1,0 +1,35 @@
+name: Docs build check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs-build-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ./docs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ./docs/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build website
+        run: npm run build

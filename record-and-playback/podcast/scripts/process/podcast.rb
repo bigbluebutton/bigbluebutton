@@ -37,8 +37,7 @@ end
 
 meeting_id = opts[:meeting_id]
 
-# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = BigBlueButton.load_yaml('../../core/scripts/bigbluebutton.yml')
+props = BigBlueButton.read_props
 podcast_props = BigBlueButton.load_yaml('podcast.yml')
 
 recording_dir = props['recording_dir']

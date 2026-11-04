@@ -50,8 +50,12 @@ trait PresentationUploadedFileTimeoutErrorPubMsgHdlr {
       state.update(pods)
     }
 
-    PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
-    broadcastEvent(msg)
+    // A presentation that was refused or removed keeps its reason: work bbb-web already had
+    // running for it can still time out afterwards.
+    if (!liveMeeting.droppedPresentations.contains(msg.body.presentationId)) {
+      PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
+      broadcastEvent(msg)
+    }
 
     newState match {
       case Some(ns) => ns

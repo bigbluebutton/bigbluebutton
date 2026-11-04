@@ -147,7 +147,7 @@ The `bbb-graphql-server` leverages the Hasura platform and listens on port `8085
 
 ### bbb-graphql-middleware
 
-The `bbb-graphql-middleware` sits between the browser and the `bbb-graphql-server` service, forwarding messages back and forth. It's a Go application that listens for WebSocket connections on port `8378`. Apart from message forwarding, it reconnects to `the bbb-graphql-server` service whenever the client needs to refresh permissions and creates JSON patches to minimize data transfer by sending only the differences.
+The `bbb-graphql-middleware` sits between the browser and the `bbb-graphql-server` service, forwarding messages back and forth. It's a Go application that listens for WebSocket connections on port `8378`. Apart from message forwarding, it reconnects to `the bbb-graphql-server` service whenever the client needs to refresh permissions and creates JSON patches to minimize data transfer by sending only the differences. Meeting-wide lock settings are not part of that refresh: the Hasura permission rules read the current `meeting_lockSettings` row, so changing them reaches every client as data, without re-establishing any connection.
 
 ### bbb-graphql-actions
 

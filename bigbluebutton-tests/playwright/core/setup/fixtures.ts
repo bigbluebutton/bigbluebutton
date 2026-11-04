@@ -1,5 +1,7 @@
 import { test as base, type Video } from '@playwright/test';
 
+import { endMeetingsCreatedByTest, startTrackingCreatedMeetings } from '../helpers';
+
 interface TestFixtures {
   sharedBeforeEachTestHook: void;
 }
@@ -8,6 +10,7 @@ const testWithValidation = base.extend<TestFixtures>({
   sharedBeforeEachTestHook: [
     async ({ browser }, use, testInfo) => {
       // Before test
+      startTrackingCreatedMeetings();
       await use();
       // After test — collect video refs before closing (videos finalize on context close)
       const contexts = browser.contexts();
@@ -19,6 +22,7 @@ const testWithValidation = base.extend<TestFixtures>({
         }
       }
       await Promise.all(contexts.map((context) => context.close()));
+      await endMeetingsCreatedByTest();
       // Only attach videos for failed/timed-out tests to avoid bloating CI artifacts on passing runs
       if (testInfo.status !== 'passed') {
         for (let i = 0; i < videos.length; i++) {

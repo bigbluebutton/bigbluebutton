@@ -205,7 +205,8 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.voiceProp.voiceConf,
           mutedUser.intId,
           Some(mutedUser),
-          leftVoiceConf = false
+          leftVoiceConf = false,
+          hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
         )
         outGW.send(eventUserVoiceStatus)
       }
@@ -452,7 +453,8 @@ object VoiceApp extends SystemConfiguration {
       liveMeeting.props.voiceProp.voiceConf,
       voiceUserState.intId,
       Some(voiceUserState),
-      leftVoiceConf = false
+      leftVoiceConf = false,
+      hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
     )
     outGW.send(eventUserVoiceStatus)
 
@@ -559,7 +561,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         user.intId,
         None,
-        leftVoiceConf = true
+        leftVoiceConf = true,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
 
@@ -826,7 +829,8 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.voiceProp.voiceConf,
           vu.intId,
           Some(vu),
-          leftVoiceConf = false
+          leftVoiceConf = false,
+          hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
         )
         outGW.send(eventUserVoiceStatus)
 
@@ -1016,7 +1020,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         talkingUser.intId,
         Some(talkingUser),
-        leftVoiceConf = false
+        leftVoiceConf = false,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
 
@@ -1084,7 +1089,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         u.intId,
         Some(u),
-        leftVoiceConf = false
+        leftVoiceConf = false,
+        hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
       )
       outGW.send(eventUserVoiceStatus)
     }
