@@ -2,7 +2,7 @@
 case end.callbacks.http-allowed
 target bbb-web
 
-== step 4: sink ${uid}
+== step 5: sink ${uid}
 $.method "GET"
 $.path "/${uid}/ended"
 $.query.meetingID "${uid}"

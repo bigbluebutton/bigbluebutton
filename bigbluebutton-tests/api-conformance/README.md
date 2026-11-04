@@ -1170,6 +1170,10 @@ In YAML flow style (`{...}` and `[...]`), quote any value that contains
 Defaults: `off` in teardown and in steps with `ignoreResult`, whose answers
 may vary by design; `document` in `defect` cases; otherwise `compare`.
 
+Case files are YAML 1.2, as the runner and the schema read them: there,
+`golden: off` is the string `off`. A YAML 1.1 tool (PyYAML, for one) reads
+an unquoted `off` as false; quote it for such a tool.
+
 ## Public-repo rule
 
 Anything found while writing cases that could be exploited must not appear

@@ -43,7 +43,12 @@ there compares like with like.
   `join.customdata.*`, `join.user-id.*`, `join.request-metadata.*`,
   `join.guest.policy-change` and the rest of `join.max-participants.*`)
   and the `*.users.*` ones of getMeetingInfo, isMeetingRunning,
-  getMeetings and getSessions.
+  getMeetings and getSessions. On 2026-11-04 the removed-call cases
+  (`enter/`, `feedback/`), `getMeetings.checksum.missing-message` and
+  `end/end.callbacks.expired` were added, and `create.expiry.not-joined-*`
+  and `end.callbacks.http-*`, whose steps changed, were re-recorded, from a
+  stack started that day from packages whose build key still matched this
+  tree.
 
 ## Reviewing
 

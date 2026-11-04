@@ -15,13 +15,7 @@ $.envelope.routing.msgType "BROADCAST_TO_MEETING"
 $.envelope.routing.userId "system"
 $.envelope.timestamp "<time>"
 
-== step 4: sink ${uid}
-$.method "GET"
-$.path "/${uid}/ended"
-$.query.meetingID "${uid}"
-$.query.recordingmarks "false"
-
-== step 5: call getMeetingInfo
+== step 4: call getMeetingInfo
 status 200
 header Cache-Control no-cache
 header Content-Type text/xml;charset=utf-8

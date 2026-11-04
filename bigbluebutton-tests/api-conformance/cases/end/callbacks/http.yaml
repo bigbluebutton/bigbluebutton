@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # bbb-web calls back https:// URLs only (fetchUrlSupportedProtocols): an
-# http:// end callback URL is never called. With http allowed (the
-# fetch-http profile), the same URL is, which shows the sink would have
-# seen the request.
+# http:// end callback URL is never called. The https meetingEndedURL of
+# the same meeting is, which shows the server reaches the sink. With http
+# allowed (the fetch-http profile), the http URL is called too, which
+# shows the sink's plain-HTTP listener would have seen the request.
 id: end.callbacks.http
 title: "An http:// end callback URL ${outcome}"
 endpoint: end
@@ -14,7 +15,7 @@ variants:
   - {id: allowed, vars: {outcome: "is called when http is allowed (fetch-http)", n: "1"}, profile: fetch-http, tags: [disruptive]}
 steps:
   - call: create
-    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkHttpUrl}/${uid}/ended"}
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkHttpUrl}/${uid}/ended", meetingEndedURL: "${sinkUrl}/${uid}-https/ended"}
     golden: off
     expect: {returncode: SUCCESS}
     capture: {intId: /response/internalMeetingID}
@@ -24,7 +25,10 @@ steps:
     params: {meetingID: "${uid}"}
     golden: off
     expect: {returncode: SUCCESS}
-  - sink: {key: "${uid}", within: 10s}
+  - sink: {key: "${uid}-https", within: 10s}
+    golden: off
+    expect: {method: GET}
+  - sink: {key: "${uid}", within: 5s}
     expect: {count: "${n}"}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches
