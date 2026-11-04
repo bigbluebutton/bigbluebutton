@@ -34,19 +34,27 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' }, () => {
     await learningDashboard.polls();
   });
 
-  // eslint-disable-next-line no-empty-pattern
-  test('Polls without a question are numbered in the order they were asked', async ({}, testInfo) => {
-    linkIssue(25818);
-    await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
-    await learningDashboard.pollsWithoutQuestionNumbering();
-  });
+  test(
+    'Polls without a question are numbered in the order they were asked',
+    { tag: '@nightly' },
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, testInfo) => {
+      linkIssue(25818);
+      await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
+      await learningDashboard.pollsWithoutQuestionNumbering();
+    },
+  );
 
-  // eslint-disable-next-line no-empty-pattern
-  test('Quizzes without a question are numbered in the order they were asked', async ({}, testInfo) => {
-    linkIssue(25818);
-    await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
-    await learningDashboard.quizzesWithoutQuestionNumbering();
-  });
+  test(
+    'Quizzes without a question are numbered in the order they were asked',
+    { tag: '@nightly' },
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, testInfo) => {
+      linkIssue(25818);
+      await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
+      await learningDashboard.quizzesWithoutQuestionNumbering();
+    },
+  );
 
   // eslint-disable-next-line no-empty-pattern
   test('Session data lists polls in the order they were asked', async ({}, testInfo) => {

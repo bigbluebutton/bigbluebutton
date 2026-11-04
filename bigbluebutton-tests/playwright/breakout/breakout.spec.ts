@@ -44,12 +44,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.dragDropUserInRoom();
     });
 
-    test('Rejected presentation does not enable the slide selection', async ({ browser, context, page }, testInfo) => {
-      linkIssue(25704);
-      const create = new Create(browser, context);
-      await create.initModPage(page, { testInfo, clientSettingsOverrides: REACH_BBB_WEB_SIZE_CHECK_OVERRIDE });
-      await create.rejectedPresentationDoesNotEnableSlideSelection();
-    });
+    test(
+      'Rejected presentation does not enable the slide selection',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(25704);
+        const create = new Create(browser, context);
+        await create.initModPage(page, { testInfo, clientSettingsOverrides: REACH_BBB_WEB_SIZE_CHECK_OVERRIDE });
+        await create.rejectedPresentationDoesNotEnableSlideSelection();
+      },
+    );
 
     // Assumes default.pdf exists and maxFileSizeUpload is the 30 MB default; overriding either fails this confusingly.
     test('Rejected presentation is not offered as a breakout room slide', async ({
@@ -120,35 +124,35 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.lockViewersVisibleInBreakoutGearMenu();
     });
 
-    test('Moderator can disable inherited lock settings in breakout room', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.modCanDisableInheritedLockInBreakout();
-    });
+    test(
+      'Moderator can disable inherited lock settings in breakout room',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.modCanDisableInheritedLockInBreakout();
+      },
+    );
 
-    test('Moderator can apply lock settings in breakout room without inheritance', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.modCanApplyLockSettingsInBreakout();
-    });
+    test(
+      'Moderator can apply lock settings in breakout room without inheritance',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.modCanApplyLockSettingsInBreakout();
+      },
+    );
 
-    test('Moderator can apply lock settings in breakout room with inheritance', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.modCanApplyLockSettingsInBreakoutWithInheritance();
-    });
+    test(
+      'Moderator can apply lock settings in breakout room with inheritance',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.modCanApplyLockSettingsInBreakoutWithInheritance();
+      },
+    );
 
     test('Lock settings are NOT propagated to breakout when checkbox is unchecked', async ({
       browser,
@@ -170,25 +174,25 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.lockSettingsPropagatedWhenChecked();
     });
 
-    test('See other viewers webcams (webcamsOnlyForModerator) IS propagated to breakout when checkbox is checked', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.webcamsOnlyForModeratorPropagatedWhenChecked();
-    });
+    test(
+      'See other viewers webcams (webcamsOnlyForModerator) IS propagated to breakout when checkbox is checked',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.webcamsOnlyForModeratorPropagatedWhenChecked();
+      },
+    );
 
-    test('See other viewers webcams (webcamsOnlyForModerator) is NOT propagated to breakout when checkbox is unchecked', async ({
-      browser,
-      context,
-      page,
-    }, testInfo) => {
-      const create = new Create(browser, context);
-      await create.initPages(page, testInfo);
-      await create.webcamsOnlyForModeratorNotPropagatedByDefault();
-    });
+    test(
+      'See other viewers webcams (webcamsOnlyForModerator) is NOT propagated to breakout when checkbox is unchecked',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const create = new Create(browser, context);
+        await create.initPages(page, testInfo);
+        await create.webcamsOnlyForModeratorNotPropagatedByDefault();
+      },
+    );
   });
 
   test.describe.parallel('After creating', () => {
@@ -233,12 +237,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinWithAudio();
     });
 
-    test('Join Breakout room with Audio and Video', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create();
-      await join.joinWithAudioAndVideo();
-    });
+    test(
+      'Join Breakout room with Audio and Video',
+      { tag: ['@media', '@nightly'] },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.joinWithAudioAndVideo();
+      },
+    );
 
     test('Message to all rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
@@ -320,12 +328,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create(false, true);
-      await join.exportBreakoutWhiteboard();
-    });
+    test(
+      'Export breakout room whiteboard annotations',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create(false, true);
+        await join.exportBreakoutWhiteboard();
+      },
+    );
 
     test('User can choose a room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
@@ -334,11 +346,15 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.userCanChooseRoom();
     });
 
-    test('Breakout rooms can use different presentations', async ({ browser, context, page }, testInfo) => {
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.breakoutWithDifferentPresentations();
-    });
+    test(
+      'Breakout rooms can use different presentations',
+      { tag: '@nightly' },
+      async ({ browser, context, page }, testInfo) => {
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.breakoutWithDifferentPresentations();
+      },
+    );
 
     test('Call moderator from breakout room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);

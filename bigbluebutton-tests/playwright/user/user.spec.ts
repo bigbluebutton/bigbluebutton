@@ -144,7 +144,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.removeReaction();
     });
 
-    test('Reaction expires', async ({ browser, context, page }, testInfo) => {
+    test('Reaction expires', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo, createModules: SHORT_REACTION_EXPIRY_MODULE });
       await multiusers.initUserPage(context, { testInfo });
@@ -460,7 +460,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       // server stops reporting the speaker rather than retracting them.
       test(
         'Hide user list suppresses talking indicator name applied mid-talk',
-        { tag: '@media' },
+        { tag: ['@media', '@nightly'] },
         async ({ browser, context, page, browserName }, testInfo) => {
           test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
           const lockViewers = new LockViewers(browser, context);
@@ -474,7 +474,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       // without pinning it here the LiveKit path is never exercised.
       test(
         'Hide user list suppresses talking indicator name for locked viewer (LiveKit audio state)',
-        { tag: '@media' },
+        { tag: ['@media', '@nightly'] },
         async ({ browser, context, page, browserName }, testInfo) => {
           test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
           const lockViewers = new LockViewers(browser, context);
@@ -485,7 +485,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       test(
         'Hide user list suppresses talking indicator name applied mid-talk (LiveKit audio state)',
-        { tag: '@media' },
+        { tag: ['@media', '@nightly'] },
         async ({ browser, context, page, browserName }, testInfo) => {
           test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
           const lockViewers = new LockViewers(browser, context);
@@ -504,45 +504,45 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.hideUserListSuppressesLeaveNotification();
       });
 
-      test('Hide user list join notification is shown only to moderator and unlocked viewer', async ({
-        browser,
-        context,
-        page,
-      }, testInfo) => {
-        const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, { testInfo });
-        await lockViewers.hideUserListJoinNotificationVisibleForUnlockedAndModOnly();
-      });
+      test(
+        'Hide user list join notification is shown only to moderator and unlocked viewer',
+        { tag: '@nightly' },
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListJoinNotificationVisibleForUnlockedAndModOnly();
+        },
+      );
 
-      test('Hide user list leave notification is shown only to moderator and unlocked viewer', async ({
-        browser,
-        context,
-        page,
-      }, testInfo) => {
-        const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, { testInfo });
-        await lockViewers.hideUserListLeaveNotificationVisibleForUnlockedAndModOnly();
-      });
+      test(
+        'Hide user list leave notification is shown only to moderator and unlocked viewer',
+        { tag: '@nightly' },
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListLeaveNotificationVisibleForUnlockedAndModOnly();
+        },
+      );
 
-      test('Hide user list join notification is visible to locked viewer when a moderator joins', async ({
-        browser,
-        context,
-        page,
-      }, testInfo) => {
-        const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, { testInfo });
-        await lockViewers.hideUserListModeratorJoinNotificationVisibleToAll();
-      });
+      test(
+        'Hide user list join notification is visible to locked viewer when a moderator joins',
+        { tag: '@nightly' },
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListModeratorJoinNotificationVisibleToAll();
+        },
+      );
 
-      test('Hide user list leave notification is visible to locked viewer when a moderator leaves', async ({
-        browser,
-        context,
-        page,
-      }, testInfo) => {
-        const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, { testInfo });
-        await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
-      });
+      test(
+        'Hide user list leave notification is visible to locked viewer when a moderator leaves',
+        { tag: '@nightly' },
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
+        },
+      );
 
       // Regression tests for PR #25921: with hideUserList active a locked viewer keeps
       // receiving the voice state of moderators, and only of moderators.
@@ -556,11 +556,15 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.hideUserListModeratorVoiceStateVisibleToLockedViewer();
       });
 
-      test('Hide user list voice state follows a role change', async ({ browser, context, page }, testInfo) => {
-        const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, { testInfo });
-        await lockViewers.hideUserListVoiceStateFollowsRoleChange();
-      });
+      test(
+        'Hide user list voice state follows a role change',
+        { tag: '@nightly' },
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListVoiceStateFollowsRoleChange();
+        },
+      );
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
