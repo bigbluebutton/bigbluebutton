@@ -623,6 +623,7 @@ export const elements = {
   audioCaptionsSidebarButton: 'div[data-test="audioCaptionsSidebarButton"]',
   audioCaptionsPanel: '[data-test="audioCaptionsTitle"]',
   transcriptionToggle: 'input[data-test="transcriptionToggle"]',
+  transcriptionPanelLanguageSelect: 'div[id="speechSelect"]',
   toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
   currentUser: 'div[data-test="userListItemCurrent"]',
   raisedHandsListItem: 'div[data-test="raisedHandsListItem"]',

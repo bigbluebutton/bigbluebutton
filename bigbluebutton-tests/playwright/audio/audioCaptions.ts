@@ -126,11 +126,14 @@ export class AudioCaptions extends MultiUsers {
     await this.modPage.waitForSelector(e.stopHearingButton);
   }
 
-  // The transcription and captions panel (showInSidebarNavigation)
-  async openTranscriptionPanel(): Promise<void> {
+  // The transcription switch of the transcription and captions panel (showInSidebarNavigation).
+  // It can already be on: the audio modal's select applies a forced or default-selected locale
+  // when it mounts, which depends on the audio bridge's join flow
+  async turnTranscriptionOnInPanel(): Promise<void> {
     if (!this?.modPage) throw new Error('modPage not initialized');
     await this.modPage.waitAndClick(e.audioCaptionsSidebarButton);
     await this.modPage.hasElement(e.audioCaptionsPanel, 'should open the transcription and captions panel');
+    await this.modPage.page.locator(e.transcriptionToggle).check();
   }
 
   async hasTranscriptionLocale(value: string, label: string, description: string): Promise<void> {
