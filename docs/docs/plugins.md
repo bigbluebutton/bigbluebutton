@@ -20,79 +20,12 @@ have a look at the READMEs in the respective [samples](https://github.com/bigblu
 
 ### Running the Plugin from Source
 
-For development purposes you can run a plugin locally from source.
+For development purposes you can run a plugin from source. The plugin's `npm start` brings up a development server on port `4701`, but don't use the `localhost` URL it creates for you: Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment).
+
+The recommended way is to run the development server inside the BBB server or container itself (for instance, a BBB 4.0 development container) and expose it through the server's own nginx, at the fixed path `https://<your-host>/plugins/dev/`. The manifest is then fetched through the server's public hostname, just like an installed plugin.
 
 For example if you take the [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.1.x/samples/sample-action-button-dropdown-plugin),
 you do the following:
-
-*Running from source code with local BBB-server*
-
-1. Start the development server:
-
-   ```bash
-   cd $HOME/src/bigbluebutton-html-plugin-sdk/samples/sample-action-button-dropdown-plugin
-   npm install
-   npm start
-   ```
-
-2. Add reference to it on BigBlueButton's `/create` call or add it on `/etc/bigbluebutton/bbb-web.properties`:
-
-```
-pluginManifests=[{"url": "http://<your-URL>/manifest.json"}]
-```
-
-*Reminder:* Don't use the `localhost` URL that the `npm start` will create for you, Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment). Therefore, what we recommend is to follow instructions on the section *Running from source code with a remote BBB-server* to test the plugin as if it is in a remote BBB server (heads up: you'll be using NGROK). If the plugin source code lives inside the BBB server/container itself, you can also expose the development server through the server's own nginx, as described in *Running from source code inside the BBB server/container (nginx proxy)* further below.
-
-*Running from source code with a remote BBB-server*
-
-If you are running your BBB-server elsewhere, than you can't simply point the manifest URL to a local address, you'll need to either serve the built version into a CDN or serve the dev version using a service to make it public. And for the second option we'd recommend NGROK. Here are the instructions to do that:
-
-1. Create an account on https://ngrok.com/ (Official website of NGROK);
-
-2. Install NGROK in your computer. They have a guide for that right after you created your account;
-
-3. Start the Plugin development server:
-
-```bash
-cd $HOME/src/plugin-pick-random-user-plugin
-npm install
-npm start
-```
-
-4. Start the NGROK server into your machine with the following command:
-
-```bash
-ngrok http http://172.17.0.1:4701
-```
-
-Make sure to point NGROK to the correct local URL (In our case - The samples are made this way, for instance - we used `http://172.17.0.1:4701`)
-
-Right after that, NGROK will create an interface into your terminal and will display the URL which your static files are being served.
-
-Here's an example of URL: `https://<uuid>.ngrok-free.app`
-
-You can already interact with this URL and access both
-
-`https://<uuid>.ngrok-free.app/manifest.json`
-
-or
-
-`https://<uuid>.ngrok-free.app/PickRandomUserPlugin.js`
-
-
-5. Add this create parameter into the API-mate of the server you are testing it on:
-
-```
-pluginManifests=[{"url": "https://<uuid>.ngrok-free.app/manifest.json"}]
-```
-
-And there you go, you can test it freely.
-
-*Running from source code inside the BBB server/container (nginx proxy)*
-
-If the plugin source code lives inside the BBB server or container itself (for instance, a BBB 4.0 development container), the server's own nginx can expose the development server for you: the fixed path `https://<your-host>/plugins/dev/` is proxied to the plugin development server on `127.0.0.1:4701`. The manifest is then fetched through the server's public hostname, just like an installed plugin, instead of `localhost`.
-
-Since the proxy points to `127.0.0.1:4701`, `npm start` must run on the same server/container as nginx. If the development server runs on your own machine, use the NGROK flow above.
 
 :::warning
 This technique is for **development environments only**. **Never** use it on a production server. The block below publicly exposes, without authentication, whatever is listening on `127.0.0.1:4701`; the webpack-dev-server is not hardened for production (development build, open CORS, no caching), and any process that binds to that port can inject arbitrary JavaScript into every meeting referencing this manifest. In production, use the bundled build (`npm run build-bundle`) hosted as described in [Hosting the Plugin on a BBB Server](#hosting-the-plugin-on-a-bbb-server). When you are done developing, remove `/usr/share/bigbluebutton/nginx/plugins-dev.nginx` and reload nginx.
@@ -123,7 +56,7 @@ sudo nginx -t && sudo systemctl reload nginx
 3. Start the plugin development server, inside the BBB server/container:
 
 ```bash
-cd $HOME/src/plugin-pick-random-user-plugin
+cd $HOME/src/bigbluebutton-html-plugin-sdk/samples/sample-action-button-dropdown-plugin
 npm install
 npm start
 ```
@@ -134,9 +67,11 @@ npm start
 pluginManifests=[{"url": "https://<your-host>/plugins/dev/manifest.json"}]
 ```
 
-The JavaScript bundle and locales are resolved automatically, since `javascriptEntrypointUrl` and `localesBaseUrl` in the manifest are relative to the manifest URL (e.g. `https://<your-host>/plugins/dev/PickRandomUserPlugin.js` and `https://<your-host>/plugins/dev/locales/en.json`).
+The JavaScript bundle and locales are resolved automatically, since `javascriptEntrypointUrl` and `localesBaseUrl` in the manifest are relative to the manifest URL (e.g. `https://<your-host>/plugins/dev/SampleActionButtonDropdownPlugin.js`, and `https://<your-host>/plugins/dev/locales/en.json` for plugins with locales).
 
 This serves one plugin at a time: the URL is always the same and points to whichever plugin's `npm start` is currently running. To switch plugins, stop one development server and start the other. If no development server is running, nginx answers `502` and the plugin won't load.
+
+If you don't have SSH access to a BBB server where you can run the development server, you can make your local development server public with NGROK instead. Check out [this guide on how to set up a development environment using NGROK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/blob/v0.1.x/docs/running-with-ngrok.md).
 
 ### Building the Plugin (Production)
 
