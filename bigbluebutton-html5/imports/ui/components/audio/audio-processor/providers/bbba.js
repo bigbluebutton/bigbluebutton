@@ -136,7 +136,7 @@ const createWasmProcessor = (audioContext, stream) => new Promise((resolve, reje
             resolve({ stream: contextDestination.stream, processor });
             break;
           case 'error':
-            reject(event.data.error);
+            reject(new Error(String(event.data.error)));
             break;
           case 'need-bytes':
             // this browser cannot pass a compiled module to the worklet
