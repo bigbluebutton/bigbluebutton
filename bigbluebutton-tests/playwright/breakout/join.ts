@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getMeetingInfo } from '../core/endpoints';
-import { readRows } from '../core/graphql';
+import { graphql, readRows } from '../core/graphql';
 import { Page } from '../core/page';
 import {
   getCurrentSlideSrc,
@@ -23,6 +23,12 @@ const AUDIO_REJOIN_SETTLE_TIME = 3000;
 // The running rooms accept no less than one minute left; the server checks the time
 // every few seconds after that.
 const SHORTEST_BREAKOUT_END_TIME = 90000;
+
+// a public chat message sent the way the client sends it, and the public messages a participant reads
+const SEND_CHAT_MESSAGE =
+  'mutation SendChatMessage($chatId: String!, $message: String!) { chatSendMessage(chatId: $chatId, chatMessageInMarkdownFormat: $message) }';
+const PUBLIC_CHAT_MESSAGES = 'subscription { chat_message_public { message } }';
+const PUBLIC_CHAT_ID = 'MAIN-PUBLIC-GROUP-CHAT';
 
 // the room's own meeting row: the choice it took from its parent and the feature that enforces it
 const ROOM_PRIVATE_CHAT = 'subscription { meeting { disabledFeatures breakoutPolicies { privateChatEnabled } } }';
@@ -856,6 +862,77 @@ export class Join extends Create {
     await breakoutPage.hasElement(e.presentationTitle, 'should load the breakout room', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutPage.closeAudioModal();
     return breakoutPage;
+  }
+
+  // The attendee is already in a room created without "inherit lock settings" when the moderator denies
+  // public chat and webcams there: the locks have to bind the attendee, as they do in the main room
+  async locksAppliedInRoomWithoutInheritanceBindAttendee() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitForSelector(e.attendeeNotAssigned, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should assign the attendee to the first room');
+    // unticked explicitly: public.app.breakouts.inheritLockSettingsByDefault sets the checkbox's initial state
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    await Create.setCheckboxChecked(this.modPage.page, e.inheritLockSettingsCheckbox, false);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
+
+    const roomUserPage = await this.joinRoomFromInvitation(this.userPage);
+    await roomUserPage.hasElementEnabled(
+      e.chatBox,
+      'should let the attendee use the public chat of the room before any lock',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await roomUserPage.hasElementEnabled(e.joinVideo, 'should let the attendee share a webcam before any lock');
+
+    const roomModTab = await this.joinFirstBreakoutRoomAsModerator();
+    const roomModPage = new Page(this.browser, roomModTab, this.modPage.testInfo);
+    await Create.openLockViewersPermissions(roomModTab);
+    await Create.setCheckboxChecked(roomModTab, e.lockPublicChat, false);
+    await Create.setCheckboxChecked(roomModTab, e.lockShareWebcam, false);
+    await roomModPage.waitAndClick(e.applyLockSettings);
+    await roomModPage.wasRemoved(e.applyLockSettings, 'should close the lock viewers modal once applied');
+
+    await roomUserPage.hasElementDisabled(
+      e.chatBox,
+      'should disable the public chat input for the attendee once the moderator locks it in the room',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await roomUserPage.hasElementDisabled(
+      e.joinVideo,
+      'should disable the webcam button for the attendee once the moderator locks webcams in the room',
+    );
+
+    // The server has to refuse the attendee's message too, not only the client. akka-apps handles a meeting's
+    // messages in order, so once the moderator sees their own later message the attendee's has been handled.
+    const attendeeMessage = `attendee message ${Date.now()}`;
+    const moderatorMessage = `moderator message ${Date.now()}`;
+    for (const [sender, message] of [
+      [roomUserPage, attendeeMessage],
+      [roomModPage, moderatorMessage],
+    ] as const) {
+      const { data, errors } = await graphql(sender, SEND_CHAT_MESSAGE, { chatId: PUBLIC_CHAT_ID, message });
+      expect(errors, 'the GraphQL layer should pass the public chat message on').toBeUndefined();
+      expect(data?.chatSendMessage, 'the GraphQL layer should accept the public chat message').toBe(true);
+    }
+    const readPublicMessages = async () =>
+      (await readRows<{ message: string }>(roomModPage, PUBLIC_CHAT_MESSAGES, 'chat_message_public')).map(
+        ({ message }) => message,
+      );
+    await expect
+      .poll(readPublicMessages, {
+        message: 'the moderator should receive their own message',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toContainEqual(expect.stringContaining(moderatorMessage));
+    expect(
+      (await readPublicMessages()).some((message) => message.includes(attendeeMessage)),
+      'the server should not deliver a public message from the locked attendee',
+    ).toBe(false);
   }
 
   // breakoutRoomsPrivateChatEnabled=false on the parent puts privateChat among the disabled features

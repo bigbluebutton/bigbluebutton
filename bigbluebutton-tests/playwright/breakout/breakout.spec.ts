@@ -144,6 +144,17 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       },
     );
 
+    test('Locks the moderator applies in a room without inheritance bind the attendee', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      linkIssue(26275);
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.locksAppliedInRoomWithoutInheritanceBindAttendee();
+    });
+
     test(
       'Moderator can apply lock settings in breakout room with inheritance',
       { tag: '@nightly' },
