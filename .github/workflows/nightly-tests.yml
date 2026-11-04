@@ -6,7 +6,8 @@ name: "Nightly tests"
 #               @setting-required, which runs in the setting-* jobs)
 #   recording-* the @nightly tests with every recording format installed and enabled
 #   stress      the @stress tests
-#   setting-*   the @setting-required:<setting> tests, on a server installed with that bbb-web setting
+#   setting-*   the @setting-required:<setting> tests, on a server installed with that bbb-web or
+#               bbb-apps-akka setting
 # Every job uses one worker and ends with bigbluebutton-tests/server-health-check.sh. The report job
 # merges the results into one HTML report per group (artifact nightly-test-reports) and lists in its
 # summary the tests that passed only on retry.
@@ -17,7 +18,7 @@ name: "Nightly tests"
 #   - Packages: it builds nothing. It installs the all-bbb-artifacts artifact of an "Automated tests"
 #     run and tests the commit that run built: by default the newest push run on the branch below
 #     whose artifact has not expired; a manual run can name another run.
-#   - Runners: 12 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
+#   - Runners: 13 ubuntu-24.04 jobs per run, each installing BigBlueButton (up to about 2 hours each).
 #   - Permissions: actions: read, to find that run and download its artifact. No secrets.
 #   - Schedule: GitHub starts scheduled workflows only from the default branch, so the schedule takes
 #     effect once this file is on the default branch; it still tests the branch named below. It runs
@@ -125,6 +126,7 @@ jobs:
           - { group: recording-bbb-webrtc-sfu, project: chromium, bridge: bbb-webrtc-sfu, shard: 1, shards: 1, grep: "@nightly" }
           - { group: stress, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@stress" }
           - { group: setting-masktagthreshold, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@setting-required:maskTagThreshold", bbb-web-properties: "maskTagThreshold=1" }
+          - { group: setting-endmeetingwhennomoreauthedusers, project: chromium, bridge: livekit, shard: 1, shards: 1, grep: "@setting-required:endMeetingWhenNoMoreAuthedUsers", bbb-apps-akka-conf: "apps { endMeetingWhenNoMoreAuthedUsers = true, endMeetingWhenNoMoreAuthedUsersAfterMinutes = 1 }" }
     env:
       MEDIA_BRIDGE: ${{ matrix.bridge }}
       # workers, retries, reporters, traces and videos come from playwright.nightly.config.ts
@@ -144,6 +146,7 @@ jobs:
           artifacts-run-id: ${{ needs.find-build.outputs.run-id }}
           github-token: ${{ github.token }}
           bbb-web-properties: ${{ matrix.bbb-web-properties }}
+          bbb-apps-akka-conf: ${{ matrix.bbb-apps-akka-conf }}
       - name: Install and enable every recording format
         if: ${{ startsWith(matrix.group, 'recording-') }}
         run: |

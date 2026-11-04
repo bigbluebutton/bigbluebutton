@@ -51,6 +51,7 @@ export const elements = {
   loggedOutMessage: 'You have logged out of the conference',
   joinedAnotherWindowMessage: 'This session seems to be opened in another browser window.',
   meetingEndedByDurationMessage: 'The session has ended due to exceeding the maximum duration',
+  meetingEndedByNoAuthedUserMessage: 'The session has ended because there was no authenticated user in the room',
   removedFromSessionMessage: 'You have been removed from the session',
   bannedFromSessionMessage: 'You have been removed for the remaining duration of this session.',
   redirectButton: 'button[data-test="redirectButton"]',

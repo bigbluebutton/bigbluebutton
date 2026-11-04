@@ -317,9 +317,11 @@ class MeetingActor(
     case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
       state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
       updateModeratorsPresence()
+      updateAuthedUsersPresence()
     case msg: UserEstablishedGraphqlConnectionInternalMsg =>
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
+      updateAuthedUsersPresence()
 
     case msg: ExtendMeetingDuration                => handleExtendMeetingDuration(msg)
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
@@ -431,6 +433,23 @@ class MeetingActor(
     }
   }
 
+  // Keeps lastAuthedUserLeftOn, which checkIfNeedToEndMeetingWhenNoAuthedUsers measures from: set when the
+  // last authenticated user leaves (left flag, as for moderators), cleared as soon as one is back.
+  private def updateAuthedUsersPresence() {
+    if (Users2x.numActiveAuthedUsers(liveMeeting.users2x) > 0) {
+      if (MeetingStatus2x.getLastAuthedUserLeftOn(liveMeeting.status) != 0L) {
+        log.info("An authenticated user has joined. Resetting lastAuthedUserLeftOn. meetingId=" + props.meetingProp.intId)
+        MeetingStatus2x.resetLastAuthedUserLeftOn(liveMeeting.status)
+      }
+    } else {
+      if (MeetingStatus2x.hasAuthedUserJoined(liveMeeting.status) &&
+        MeetingStatus2x.getLastAuthedUserLeftOn(liveMeeting.status) == 0L) {
+        log.info("All authenticated users have left. Setting lastAuthedUserLeftOn. meetingId=" + props.meetingProp.intId)
+        MeetingStatus2x.setLastAuthedUserLeftOn(liveMeeting.status)
+      }
+    }
+  }
+
   private def endTimedOutBreakoutRooms(): Unit = {
     for {
       model <- state.breakout
@@ -470,9 +489,11 @@ class MeetingActor(
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
         updateModeratorsPresence()
+        updateAuthedUsersPresence()
       case m: UserLeaveReqMsg =>
         state = handleUserLeaveReqMsg(m, state)
         updateModeratorsPresence()
+        updateAuthedUsersPresence()
 
       case m: UserJoinedVoiceConfEvtMsg =>
         state = handleUserJoinedVoiceConfEvtMsg(m, state)
@@ -1100,16 +1121,22 @@ class MeetingActor(
   }
 
   private def checkIfNeedToEndMeetingWhenNoAuthedUsers(liveMeeting: LiveMeeting): Unit = {
+    // Also evaluated on every audit, so a removal that produced no leave message (e.g. an eject) starts
+    // the clock too.
+    updateAuthedUsersPresence()
     val authUserJoined = MeetingStatus2x.hasAuthedUserJoined(liveMeeting.status)
+    val lastAuthedUserLeftOn = MeetingStatus2x.getLastAuthedUserLeftOn(liveMeeting.status)
 
     if (endMeetingWhenNoMoreAuthedUsers &&
       !liveMeeting.props.meetingProp.isBreakout &&
-      authUserJoined) {
-      val lastAuthedUserLeftLimitMs = TimeUtil.timeNowInMs() - MeetingStatus2x.getLastAuthedUserLeftOn(liveMeeting.status)
+      authUserJoined &&
+      lastAuthedUserLeftOn != 0L) {
+      val lastAuthedUserLeftLimitMs = TimeUtil.timeNowInMs() - lastAuthedUserLeftOn
       if (lastAuthedUserLeftLimitMs > TimeUtil.minutesToMillis(endMeetingWhenNoMoreAuthedUsersAfterMinutes)) {
         val authedUsers = Users2x.findAllAuthedUsers(liveMeeting.users2x)
 
         if (authedUsers.isEmpty) {
+          state = endAllBreakoutRooms(eventBus, liveMeeting, state, MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER)
           sendEndMeetingDueToExpiry(
             MeetingEndReason.ENDED_DUE_TO_NO_AUTHED_USER,
             eventBus, outGW, liveMeeting,
