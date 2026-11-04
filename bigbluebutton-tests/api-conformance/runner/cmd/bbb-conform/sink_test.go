@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 
@@ -30,7 +31,7 @@ func writeCert(t *testing.T) (certFile, keyFile string) {
 		t.Fatal(err)
 	}
 	tmpl := &x509.Certificate{SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "sink"},
-		IPAddresses: []net.IP{net.ParseIP("127.0.0.1")}, NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour)}
+		IPAddresses: []net.IP{net.ParseIP("127.0.0.1")}, DNSNames: []string{"sink.test"}, NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour)}
 	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &key.PublicKey, key)
 	if err != nil {
 		t.Fatal(err)
@@ -156,5 +157,18 @@ func TestServeSinkTLSFailure(t *testing.T) {
 	if resp, err := (&http.Client{Timeout: time.Second}).Get("http://" + httpLn.Addr().String() + "/_info"); err == nil {
 		resp.Body.Close()
 		t.Error("the plain listener still answers")
+	}
+}
+
+// /_received answers to the names the certificate covers as well as
+// --hosts: the runner reads the sink by the server's name for it.
+func TestSinkHosts(t *testing.T) {
+	certFile, keyFile := writeCert(t)
+	got, err := sinkHosts("a,b", certFile, keyFile)
+	if err != nil || !reflect.DeepEqual(got, []string{"a", "b", "sink.test"}) {
+		t.Errorf("%v %v", got, err)
+	}
+	if got, err := sinkHosts("a", "", ""); err != nil || !reflect.DeepEqual(got, []string{"a"}) {
+		t.Errorf("without a certificate: %v %v", got, err)
 	}
 }

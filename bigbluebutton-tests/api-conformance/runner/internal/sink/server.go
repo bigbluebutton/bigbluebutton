@@ -23,7 +23,6 @@ import (
 	"cmp"
 	"context"
 	"crypto/rand"
-	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -31,7 +30,6 @@ import (
 	"fmt"
 	"io"
 	"mime"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -41,6 +39,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/guard"
 )
 
 const (
@@ -131,43 +131,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // mayRead says why r may not read what the sink recorded, or returns nil.
 func (s *Server) mayRead(r *http.Request) (int, error) {
-	if !answersTo(r.Host, s.cfg.Hosts) {
+	if !guard.AnswersTo(r.Host, s.cfg.Hosts) {
 		return http.StatusMisdirectedRequest, fmt.Errorf("the sink doesn't answer to %q: start it with --hosts naming it", r.Host)
 	}
-	if !BearerOK(r, s.cfg.Token) {
+	if !guard.BearerOK(r, s.cfg.Token) {
 		return http.StatusUnauthorized, errors.New("the sink needs its token (BBB_SINK_TOKEN) as a bearer token")
 	}
 	return 0, nil
-}
-
-// answersTo says whether a request for host is addressed to a server by
-// an IP address, localhost or one of names, and not by some other name
-// that happens to resolve to it.
-func answersTo(host string, names []string) bool {
-	h, _, err := net.SplitHostPort(host)
-	if err != nil {
-		h = host
-	}
-	h = strings.TrimSuffix(strings.Trim(h, "[]"), ".")
-	if net.ParseIP(h) != nil || strings.EqualFold(h, "localhost") {
-		return true
-	}
-	for _, name := range names {
-		if strings.EqualFold(h, name) {
-			return true
-		}
-	}
-	return false
-}
-
-// BearerOK says whether r carries token as its bearer token; any request
-// does when token is "".
-func BearerOK(r *http.Request, token string) bool {
-	if token == "" {
-		return true
-	}
-	got, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-	return ok && subtle.ConstantTimeCompare([]byte(got), []byte(token)) == 1
 }
 
 // CheckKey says why requests can't be recorded under key, or returns nil:

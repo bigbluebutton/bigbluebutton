@@ -126,14 +126,7 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 		return nil, err
 	}
 	red := &tmpl.Redactor{}
-	red.Add("[salt]", t.Salt)
-	red.Add("[tap-token]", t.TapToken)
-	red.Add("[sink-token]", t.SinkToken)
-	for name, v := range t.Vars {
-		if v.Secret {
-			red.Add("[secret:"+name+"]", v.Value)
-		}
-	}
+	AddSecrets(red, t)
 	r := &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, TLS: tlsCfg, Redactor: red, Version: version, NewUID: randomUID}
 	if t.TapURL != "" {
 		r.Tap = tap.NewClient(t.TapURL, t.TapToken)
@@ -142,6 +135,19 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 		r.Sink = sink.NewClient(t.SinkReadURL, tlsCfg, t.SinkToken)
 	}
 	return r, nil
+}
+
+// AddSecrets registers t's secrets with red: the salt, the tap's and the
+// sink's tokens, and the vars marked secret.
+func AddSecrets(red *tmpl.Redactor, t *target.Target) {
+	red.Add("[salt]", t.Salt)
+	red.Add("[tap-token]", t.TapToken)
+	red.Add("[sink-token]", t.SinkToken)
+	for name, v := range t.Vars {
+		if v.Secret {
+			red.Add("[secret:"+name+"]", v.Value)
+		}
+	}
 }
 
 func randomUID(int) string {

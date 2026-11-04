@@ -229,7 +229,7 @@ jobs:
   # cases it changes (see the suite's README). The slow cases (callback
   # retries, expiry timing) run in nightly-tests.yml.
   api-conformance:
-    needs: [build-package, api-conformance-changes]
+    needs: [unify-artifacts, api-conformance-changes]
     if: needs.api-conformance-changes.outputs.run == 'true'
     runs-on: ${{ vars.CI_HEAVY_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 60
@@ -259,22 +259,22 @@ jobs:
         with:
           go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
           cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
-      # The five debs Tier 1 runs, as build-package made them.
-      - name: Download artifacts_bbb-web
+      # The five debs Tier 1 runs, from the packages unify-artifacts
+      # gathered (it deletes the per-package artifacts once it has).
+      - name: Download all-bbb-artifacts
         uses: actions/download-artifact@v7
         with:
-          name: artifacts_bbb-web
-          path: bigbluebutton-tests/api-conformance/env/.state/debs
-      - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-apps-akka
-          path: bigbluebutton-tests/api-conformance/env/.state/debs
-      - name: Download artifacts_bbb-graphql-server
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-graphql-server
-          path: bigbluebutton-tests/api-conformance/env/.state/debs
+          name: all-bbb-artifacts
+          path: ${{ runner.temp }}/bbb-artifacts
+      - name: Pick Tier 1's debs
+        env:
+          ARTIFACTS: ${{ runner.temp }}/bbb-artifacts
+        run: |
+          mkdir -p env/.state/debs
+          for p in bbb-web bbb-apps-akka bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions; do
+            cp "$ARTIFACTS/${p}"_*.deb env/.state/debs/
+          done
+          ls -l env/.state/debs
       - name: Check the package files Tier 1 mirrors
         run: env/tier1/check-copies.sh
       - name: Bring up Tier 1

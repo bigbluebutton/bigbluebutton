@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -29,7 +30,7 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	cert := fl.String("cert", "", "the TLS certificate, for a name the server under test resolves to this host; without one, plain HTTP")
 	key := fl.String("key", "", "the certificate's key")
 	fixtures := fl.String("fixtures", "", `the fixtures directory, served under /fixtures/; "" serves none`)
-	hosts := fl.String("hosts", "", "host names the runner reads it by; IP addresses and localhost always work")
+	hosts := fl.String("hosts", "", "host names the runner reads it by; IP addresses, localhost and the names --cert covers always work")
 	maxMB := fl.Int("max-mb", 64, "the most the log keeps, in MiB")
 	maxAge := fl.Duration("max-age", 2*time.Hour, "how long the log keeps a request")
 	if err := fl.Parse(args); err != nil {
@@ -73,8 +74,13 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	if *cert == "" {
 		plain = *listen
 	}
+	names, err := sinkHosts(*hosts, *cert, *key)
+	if err != nil {
+		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
+		return exitUsage
+	}
 	s, err := sink.New(sink.Config{Fixtures: *fixtures, MaxBytes: *maxMB << 20, MaxAge: *maxAge, HTTPAddr: plain,
-		Hosts: splitList(*hosts), Token: token})
+		Hosts: names, Token: token})
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
 		return exitUsage
@@ -148,4 +154,19 @@ func serveSink(ctx context.Context, s *sink.Server, ln, httpLn net.Listener, cer
 	stop()
 	<-shutDown
 	return code
+}
+
+// sinkHosts is the host names /_received answers to: --hosts, and the
+// names the certificate covers, since the runner reads the sink by the
+// server's name for it unless told another.
+func sinkHosts(hosts, cert, key string) ([]string, error) {
+	names := splitList(hosts)
+	if cert == "" {
+		return names, nil
+	}
+	pair, err := tls.LoadX509KeyPair(cert, key)
+	if err != nil {
+		return nil, err
+	}
+	return append(names, pair.Leaf.DNSNames...), nil
 }

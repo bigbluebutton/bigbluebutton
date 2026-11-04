@@ -3,7 +3,6 @@ package tap
 import (
 	"context"
 	"crypto/rand"
-	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -11,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"net"
 	"net/http"
 	"os"
 	"path"
@@ -23,6 +21,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/guard"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/resp"
 )
 
@@ -214,11 +213,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var status int
 	var err error
 	switch {
-	case !s.answersTo(r.Host):
+	case !guard.AnswersTo(r.Host, s.cfg.Hosts):
 		status, err = http.StatusMisdirectedRequest, fmt.Errorf("the tap doesn't answer to %q: start it with --hosts naming it", r.Host)
 	case r.URL.Path == "/info":
 		v = s.info()
-	case !bearerOK(r, s.cfg.Token):
+	case !guard.BearerOK(r, s.cfg.Token):
 		status, err = http.StatusUnauthorized, errors.New("the tap needs its token (BBB_TAP_TOKEN) as a bearer token")
 	case r.URL.Path == "/mark":
 		v, status, err = s.mark()
@@ -239,35 +238,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
 	enc.Encode(v)
-}
-
-// bearerOK says whether r carries token as its bearer token; any request
-// does when token is "".
-func bearerOK(r *http.Request, token string) bool {
-	if token == "" {
-		return true
-	}
-	got, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-	return ok && subtle.ConstantTimeCompare([]byte(got), []byte(token)) == 1
-}
-
-// answersTo says whether a request for host is addressed to the tap: to
-// an IP address, localhost or a name it was given.
-func (s *Server) answersTo(host string) bool {
-	h, _, err := net.SplitHostPort(host)
-	if err != nil {
-		h = host
-	}
-	h = strings.TrimSuffix(strings.Trim(h, "[]"), ".")
-	if net.ParseIP(h) != nil || strings.EqualFold(h, "localhost") {
-		return true
-	}
-	for _, name := range s.cfg.Hosts {
-		if strings.EqualFold(h, name) {
-			return true
-		}
-	}
-	return false
 }
 
 func (s *Server) info() Info {

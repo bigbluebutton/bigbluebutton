@@ -212,7 +212,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 | `check-copies` | Warns about the package files Tier 1 mirrors by hand that changed since it last followed them (see below). |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
 
-It needs Linux on amd64, Docker with Compose 2.17 or later, and network
+It needs Linux on amd64, Docker with Compose 2.24 or later, and network
 access for the first build.
 
 - **The packages.** `make debs` builds from a snapshot of the tree: the
@@ -379,7 +379,7 @@ It also serves the fixtures cases have the server fetch.
 | Option | Default |
 |---|---|
 | `--listen ADDR` | `127.0.0.1:8444`. An address other hosts reach needs `BBB_SINK_TOKEN` set, as does `--listen-http` on one. |
-| `--hosts a,b` | None: host names the runner reads it by. `/_received` always answers requests sent to an IP address or `localhost`. |
+| `--hosts a,b` | None: host names the runner reads it by. `/_received` always answers requests sent to an IP address, `localhost` or a name `--cert` covers, the name the server reaches it by. |
 | `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
 | `--listen-http ADDR` | None. With `--cert`, also serve plain HTTP there, for cases that check the server won't call an `http://` URL (`${sinkHttpUrl}`). Both listeners record into one log. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
@@ -419,8 +419,8 @@ server got an error from the sink rather than the answer the case meant.
   `/_received` needs that token as a bearer token, which the runner sends
   when its own `BBB_SINK_TOKEN` is set; without one, anyone who reaches
   its port can read what it recorded. `/_received` answers only requests
-  addressed to an IP address, `localhost` or one of its `--hosts` (HTTP
-  421 otherwise). Recording and fixtures need neither, since the server
+  addressed to an IP address, `localhost`, a name its certificate covers
+  or one of its `--hosts` (HTTP 421 otherwise). Recording and fixtures need neither, since the server
   under test sends no token. It serves files from the fixtures directory
   only, never outside it.
 - **What it keeps:** each request's method, path (as sent, encoded),

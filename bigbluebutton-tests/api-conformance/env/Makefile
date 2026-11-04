@@ -44,7 +44,7 @@ down:
 # A profile switch waits for the whole reset: it holds the switcher's lock.
 reset:
 	mkdir -p $(STATE) && flock $(STATE)/profile.lock sh -c '\
-		rm -f $(STATE)/profile && $(TIER1)/render.sh && \
+		rm -f $(STATE)/profile $(STATE)/akka-restart-pending && $(TIER1)/render.sh && \
 		$(COMPOSE) --profile clamav down --volumes && \
 		$(COMPOSE) up -d --build --wait --wait-timeout 900 $(SERVICES)'
 

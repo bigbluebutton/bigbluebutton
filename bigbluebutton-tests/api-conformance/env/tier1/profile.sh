@@ -57,27 +57,32 @@ case $name in
 		fi
 		;;
 esac
-cid=$($compose ps -q bbb-web)
 
-# One switch, or render, at a time (make reset and render take this lock too).
+# One switch, or render, at a time (make reset and render take this lock
+# too, a reset for up to its 15 minutes).
 mkdir -p "$state"
 exec 9>"$state/profile.lock"
-if ! flock -w 600 9; then
-	echo "another profile switch has held $state/profile.lock for 10 minutes" >&2
+if ! flock -w 1200 9; then
+	echo "another profile switch has held $state/profile.lock for 20 minutes" >&2
 	exit 1
 fi
-# In force: recorded, and bbb-web started after the file was written.
+cid=$($compose ps -q bbb-web)
+# akka-apps still to be restarted for a switch that failed part way.
+pending=$state/akka-restart-pending
+# In force: recorded, bbb-web started after the file was written, and
+# akka-apps restarted if the switch needed it.
 current=$(cat "$state/profile" 2>/dev/null || echo default)
 written=$(date -r "$state/conform/bbb-web.properties" +%s)
 started=$(date -d "$(docker inspect -f '{{.State.StartedAt}}' "$cid")" +%s)
-if [ "$name" = "$current" ] && [ "$started" -ge "$written" ]; then
+if [ "$name" = "$current" ] && [ "$started" -ge "$written" ] && [ ! -e "$pending" ]; then
 	echo "bbb-web already runs with $name"
 	exit 0
 fi
 
 # akka-apps reads one of bbb-web's settings at startup
 # (SystemConfiguration.scala): a switch that changes it restarts akka-apps
-# too. The last value of a key wins.
+# too, and until it has been, a later switch does it. The last value of a
+# key wins.
 akka_reads() {
 	grep -E '^clientSettingsOverrideStrictValidation=' "$state/conform/bbb-web.properties" 2>/dev/null | tail -n 1 || true
 }
@@ -91,8 +96,9 @@ else
 	echo "$name" > "$state/profile"
 fi
 # Values are read at startup only.
+[ "$(akka_reads)" = "$before" ] || : > "$pending"
 services=bbb-web
-[ "$(akka_reads)" = "$before" ] || services="akka-apps bbb-web"
+[ ! -e "$pending" ] || services="akka-apps bbb-web"
 restart() {
 	id=$($compose ps -q "$1")
 	started=$(docker inspect -f '{{.State.StartedAt}}' "$id")
@@ -118,4 +124,5 @@ restart() {
 for service in $services; do
 	restart "$service"
 done
+rm -f "$pending"
 echo "$(echo "$services" | sed 's/ / and /') restarted with $name"

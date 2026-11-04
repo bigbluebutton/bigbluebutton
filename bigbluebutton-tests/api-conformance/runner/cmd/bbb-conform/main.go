@@ -525,12 +525,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "bbb-conform: target: %v\n", err)
 			return exitUsage
 		}
-		red.Add("[salt]", tg.Salt)
-		for name, v := range tg.Vars {
-			if v.Secret {
-				red.Add("[secret:"+name+"]", v.Value)
-			}
-		}
+		steps.AddSecrets(red, tg)
 		if newUID != nil {
 			side := string(rune('a' + i))
 			r.NewUID = func(n int) string { return side + "-" + newUID(n) }

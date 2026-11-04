@@ -277,28 +277,24 @@ jobs:
         with:
           go-version-file: bigbluebutton-tests/api-conformance/runner/go.mod
           cache-dependency-path: bigbluebutton-tests/api-conformance/runner/go.sum
-      # The five debs Tier 1 runs, as that build's build-package job made them.
-      - name: Download artifacts_bbb-web
+      # The five debs Tier 1 runs, from the packages unify-artifacts
+      # gathered (it deletes the per-package artifacts once it has).
+      - name: Download all-bbb-artifacts
         uses: actions/download-artifact@v7
         with:
-          name: artifacts_bbb-web
-          path: bigbluebutton-tests/api-conformance/env/.state/debs
+          name: all-bbb-artifacts
+          path: ${{ runner.temp }}/bbb-artifacts
           run-id: ${{ needs.find-build.outputs.run-id }}
           github-token: ${{ github.token }}
-      - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-apps-akka
-          path: bigbluebutton-tests/api-conformance/env/.state/debs
-          run-id: ${{ needs.find-build.outputs.run-id }}
-          github-token: ${{ github.token }}
-      - name: Download artifacts_bbb-graphql-server
-        uses: actions/download-artifact@v7
-        with:
-          name: artifacts_bbb-graphql-server
-          path: bigbluebutton-tests/api-conformance/env/.state/debs
-          run-id: ${{ needs.find-build.outputs.run-id }}
-          github-token: ${{ github.token }}
+      - name: Pick Tier 1's debs
+        env:
+          ARTIFACTS: ${{ runner.temp }}/bbb-artifacts
+        run: |
+          mkdir -p env/.state/debs
+          for p in bbb-web bbb-apps-akka bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions; do
+            cp "$ARTIFACTS/${p}"_*.deb env/.state/debs/
+          done
+          ls -l env/.state/debs
       - name: Bring up Tier 1
         run: make -C env up
       - name: Run the slow cases

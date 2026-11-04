@@ -20,6 +20,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/signer"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/spec"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/target"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-tests/api-conformance/runner/internal/tmpl"
 )
 
 const salt = "steps-test-salt"
@@ -1061,5 +1062,17 @@ func TestObservedWhenExpectErrors(t *testing.T) {
 	}
 	if got := strings.Join(kinds, " "); got != "call presence graphql" {
 		t.Errorf("observed %s", got)
+	}
+}
+
+// The tap's and the sink's tokens are redacted like the salt, by the run
+// and by diff alike.
+func TestAddSecrets(t *testing.T) {
+	red := &tmpl.Redactor{}
+	AddSecrets(red, &target.Target{Salt: "salty", TapToken: "taptok", SinkToken: "sinktok",
+		Vars: map[string]target.Var{"turn": {Value: "turnsecret", Secret: true}, "plain": {Value: "shown"}}})
+	got := red.Redact("salty taptok sinktok turnsecret shown")
+	if want := "[salt] [tap-token] [sink-token] [secret:turn] shown"; got != want {
+		t.Errorf("%q, want %q", got, want)
 	}
 }

@@ -44,15 +44,20 @@ func generate(name, size string) (io.ReadSeeker, error) {
 	return io.NewSectionReader(ps, 0, ps.size()), nil
 }
 
-// part is a stretch of a generated file: bytes given, or a pattern
-// computed byte by byte.
+// part is a stretch of a generated file: bytes given, or a unit repeated.
 type part struct {
-	n   int64
-	lit []byte           // the bytes, when not nil
-	at  func(int64) byte // else byte i of the stretch
+	n    int64
+	lit  []byte // the bytes, when not nil
+	unit []byte // else byte i is unit[i%len(unit)]
 }
 
 func literal(b []byte) part { return part{n: int64(len(b)), lit: b} }
+
+// periodic is n bytes of unit repeated, copied in runs of at least 4 KiB.
+func periodic(unit []byte, n int) part {
+	k := max(1, 4096/len(unit))
+	return part{n: int64(n), unit: bytes.Repeat(unit, k)}
+}
 
 // parts is a generated file, read through ReadAt.
 type parts []part
@@ -82,8 +87,11 @@ func (ps parts) ReadAt(b []byte, off int64) (int, error) {
 			c := copy(b[n:], p.lit[off:])
 			n, off = n+c, off+int64(c)
 		} else {
-			for ; off < p.n && n < len(b); off, n = off+1, n+1 {
-				b[n] = p.at(off)
+			u := int64(len(p.unit))
+			for off < p.n && n < len(b) {
+				run := min(p.n-off, u-off%u, int64(len(b)-n))
+				c := copy(b[n:n+int(run)], p.unit[off%u:])
+				n, off = n+c, off+int64(c)
 			}
 		}
 		off = 0
@@ -96,18 +104,11 @@ func (ps parts) ReadAt(b []byte, off int64) (int, error) {
 
 // filler is n bytes of text: lines of x.
 func filler(n int) part {
-	return part{n: int64(n), at: func(i int64) byte {
-		if i%lineLen == lineLen-1 {
-			return '\n'
-		}
-		return 'x'
-	}}
+	return periodic(append(bytes.Repeat([]byte{'x'}, lineLen-1), '\n'), n)
 }
 
 // repeat is n copies of c.
-func repeat(c byte, n int) part {
-	return part{n: int64(n), at: func(int64) byte { return c }}
-}
+func repeat(c byte, n int) part { return periodic([]byte{c}, n) }
 
 func generateJSON(n int) (parts, error) {
 	const head, tail = `{"padding":"`, `"}`
@@ -137,27 +138,24 @@ func generatePDF(n int) (parts, error) {
 		body = pdfBody(len(pdfHead) + pad)
 	}
 	rest := n - len(pdfHead) - pad - len(body)
-	return parts{literal([]byte(pdfHead)), padding(pad), literal(body), repeat('\n', rest)}, nil
+	return append(append(parts{literal([]byte(pdfHead))}, padding(pad)...), literal(body), repeat('\n', rest)), nil
 }
 
 // padding is pad bytes of PDF comment lines: %, x up to the line's length,
 // a newline. A last line of one byte is the newline alone.
-func padding(pad int) part {
-	full, last := int64(pad/lineLen), int64(pad%lineLen)
-	return part{n: int64(pad), at: func(i int64) byte {
-		line, pos := i/lineLen, i%lineLen
-		end := int64(lineLen) - 1
-		if line == full {
-			end = last - 1
+func padding(pad int) parts {
+	line := func(n int) []byte {
+		if n == 1 {
+			return []byte{'\n'}
 		}
-		switch pos {
-		case end:
-			return '\n'
-		case 0:
-			return '%'
-		}
-		return 'x'
-	}}
+		return append(append([]byte{'%'}, bytes.Repeat([]byte{'x'}, n-2)...), '\n')
+	}
+	full, last := pad/lineLen, pad%lineLen
+	ps := parts{periodic(line(lineLen), full*lineLen)}
+	if last > 0 {
+		ps = append(ps, literal(line(last)))
+	}
+	return ps
 }
 
 // pdfBody is a PDF's objects, cross-reference table and trailer, for
