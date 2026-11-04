@@ -38,8 +38,8 @@ export const LIVEKIT_AUDIO_STATE_OVERRIDE: ClientSettingsOverrides = {
   },
 };
 
-export function emojiRainSettingsOverride(enabled: boolean): ClientSettingsOverrides {
-  return { public: { app: { emojiRain: { enabled, numberOfEmojis: 5 } } } };
+export function emojiRainSettingsOverride(enabled: boolean, numberOfEmojis: number = 5): ClientSettingsOverrides {
+  return { public: { app: { emojiRain: { enabled, numberOfEmojis } } } };
 }
 
 // The server expires reactions, checking every 5 seconds, so only the meeting's clientSettingsOverride
@@ -58,6 +58,11 @@ export function audioOnlyTilesLocator(testPage: Page): Locator {
     .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
     .filter({ has: testPage.page.locator(e.webcamConnecting) });
 }
+
+// a row of the participants list, by the whole user name
+export const userListRowOf = (userName: string) => `${e.userListItem}[aria-label="${userName}"]`;
+// the private chat option of that row
+export const privateChatOptionOf = (userName: string) => `${userListRowOf(userName)} ${e.startPrivateChat}`;
 
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page

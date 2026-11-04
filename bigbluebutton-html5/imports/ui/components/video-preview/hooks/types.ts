@@ -49,6 +49,7 @@ export interface UseVideoPreviewProps {
   isCameraAsContent?: boolean;
   isCameraShared?: boolean;
   forceOpen?: boolean;
+  cameraDisabled?: boolean;
   startSharing?: (deviceId: string) => void;
   startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;

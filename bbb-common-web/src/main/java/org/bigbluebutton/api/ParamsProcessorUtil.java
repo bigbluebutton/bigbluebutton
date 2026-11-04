@@ -36,7 +36,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api.service.RedirectValidator;
@@ -142,6 +141,7 @@ public class ParamsProcessorUtil {
         private String defaultLockSettingsPresenterPolicy = "requireApproval";
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
+    private int maxPresentationsPerRequest = 10; // max documents processed per create/insertDocument call
 
     private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;
     private Integer defaultMeetingExpireWhenLastUserLeftInMinutes = 1;
@@ -760,7 +760,7 @@ public class ParamsProcessorUtil {
         String learningDashboardAccessToken = "";
 	int learningDashboardCleanupMins = 0;
         if(listOfDisabledFeatures.contains("learningDashboard") == false) {
-            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+            learningDashboardAccessToken = Util.randomAlphanumeric(12).toLowerCase();
 
 	    learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
             if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
@@ -920,6 +920,11 @@ public class ParamsProcessorUtil {
 
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
+
+        // the client and bbb-apps-akka turn private chat off through this feature
+        if (isBreakout && !breakoutParams.privateChatEnabled && !listOfDisabledFeatures.contains("privateChat")) {
+            listOfDisabledFeatures.add("privateChat");
+        }
 
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -1256,7 +1261,7 @@ public class ParamsProcessorUtil {
 	}
 
     public String processPassword(String pass) {
-        return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+        return StringUtils.isEmpty(pass) ? Util.randomAlphanumeric(8) : pass;
     }
 
     public boolean hasChecksumAndQueryString(String checksum, String queryString) {
@@ -1264,7 +1269,7 @@ public class ParamsProcessorUtil {
 	}
 
 	public String processTelVoice(String telNum) {
-		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
+		return StringUtils.isEmpty(telNum) ? Util.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}
 
 	public String processDialNumber(String dial) {
@@ -1674,6 +1679,14 @@ public class ParamsProcessorUtil {
 
 	public Long getMaxPresentationFileUpload() {
 		return maxPresentationFileUpload;
+	}
+
+	public void setMaxPresentationsPerRequest(int max) {
+		maxPresentationsPerRequest = max;
+	}
+
+	public int getMaxPresentationsPerRequest() {
+		return maxPresentationsPerRequest;
 	}
 
 	public void setMuteOnStart(Boolean mute) {
