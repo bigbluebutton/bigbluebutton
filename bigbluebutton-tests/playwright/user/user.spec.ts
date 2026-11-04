@@ -432,7 +432,11 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       // Regression tests for issue #24888:
       // usernames must not leak through join/leave notifications when hideUserList is active.
-      test('Hide user list suppresses join notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+      test('Hide user list suppresses join notification for locked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesJoinNotification();
@@ -490,47 +494,55 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         },
       );
 
-      test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+      test('Hide user list suppresses leave notification for locked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesLeaveNotification();
       });
 
-      test(
-        'Hide user list join notification is shown only to moderator and unlocked viewer',
-        async ({ browser, context, page }, testInfo) => {
-          const lockViewers = new LockViewers(browser, context);
-          await lockViewers.initModPage(page, { testInfo });
-          await lockViewers.hideUserListJoinNotificationVisibleForUnlockedAndModOnly();
-        },
-      );
+      test('Hide user list join notification is shown only to moderator and unlocked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListJoinNotificationVisibleForUnlockedAndModOnly();
+      });
 
-      test(
-        'Hide user list leave notification is shown only to moderator and unlocked viewer',
-        async ({ browser, context, page }, testInfo) => {
-          const lockViewers = new LockViewers(browser, context);
-          await lockViewers.initModPage(page, { testInfo });
-          await lockViewers.hideUserListLeaveNotificationVisibleForUnlockedAndModOnly();
-        },
-      );
+      test('Hide user list leave notification is shown only to moderator and unlocked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListLeaveNotificationVisibleForUnlockedAndModOnly();
+      });
 
-      test(
-        'Hide user list join notification is visible to locked viewer when a moderator joins',
-        async ({ browser, context, page }, testInfo) => {
-          const lockViewers = new LockViewers(browser, context);
-          await lockViewers.initModPage(page, { testInfo });
-          await lockViewers.hideUserListModeratorJoinNotificationVisibleToAll();
-        },
-      );
+      test('Hide user list join notification is visible to locked viewer when a moderator joins', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListModeratorJoinNotificationVisibleToAll();
+      });
 
-      test(
-        'Hide user list leave notification is visible to locked viewer when a moderator leaves',
-        async ({ browser, context, page }, testInfo) => {
-          const lockViewers = new LockViewers(browser, context);
-          await lockViewers.initModPage(page, { testInfo });
-          await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
-        },
-      );
+      test('Hide user list leave notification is visible to locked viewer when a moderator leaves', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
+      });
 
       // Regression tests for PR #25921: with hideUserList active a locked viewer keeps
       // receiving the voice state of moderators, and only of moderators.
@@ -587,5 +599,19 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await mobileDevices.initModPage(mobilePage, { testInfo });
       await mobileDevices.mobileTagName();
     });
+  });
+});
+
+// Timing-sensitive on a loaded runner: the second reaction has to go out while the first burst (2 s) is still
+// on screen, so this stays out of the gate.
+test.describe.parallel('Emoji rain', { tag: '@nightly' }, () => {
+  test('Every reaction rains, consecutive reactions included', async ({ browser, context, page }, testInfo) => {
+    const numberOfEmojis = 3;
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
+    });
+    await multiusers.emojiRainForEveryReaction(numberOfEmojis);
   });
 });

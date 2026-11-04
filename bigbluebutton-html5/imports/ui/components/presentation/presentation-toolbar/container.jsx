@@ -2,7 +2,12 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled, useIsQuizEnabled } from '/imports/ui/services/features';
+import {
+  useIsInfiniteWhiteboardEnabled,
+  useIsInfiniteWhiteboardInBreakoutsEnabled,
+  useIsPollingEnabled,
+  useIsQuizEnabled,
+} from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
@@ -208,6 +213,7 @@ const PresentationToolbarContainer = (props) => {
   const isPollingEnabled = useIsPollingEnabled();
   const meetingIsBreakout = useMeetingIsBreakout();
   const allowInfiniteWhiteboard = useIsInfiniteWhiteboardEnabled();
+  const allowInfiniteWhiteboardInBreakouts = useIsInfiniteWhiteboardInBreakoutsEnabled();
   const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
   const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
@@ -224,7 +230,7 @@ const PresentationToolbarContainer = (props) => {
         {...props}
         amIPresenter={userIsPresenter}
         isPollingEnabled={isPollingEnabled}
-        allowInfiniteWhiteboardInBreakouts={WHITEBOARD_CONFIG?.allowInfiniteWhiteboardInBreakouts}
+        allowInfiniteWhiteboardInBreakouts={allowInfiniteWhiteboardInBreakouts}
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
         isConnected={connected}

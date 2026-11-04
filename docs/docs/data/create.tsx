@@ -692,8 +692,8 @@ const createEndpointTableData = [
     "type": "JSON",
     "description": (
       <>
-        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. This data can also be provided in the body of a POST request, see <a href='#clientsettingsoverride'>clientSettingsOverride</a> for details.</p>
-        <p><i>Added:</i> 3.0.0-alpha.5</p>
+        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. It is not read from the query string or from form fields: send it as an XML module, <code>&lt;module name="clientSettingsOverride"&gt;</code>, in an <code>application/xml</code> POST body (see <a href='#clientsettingsoverride'>clientSettingsOverride</a>). The module is applied only when <code>allowOverrideClientSettingsOnCreateCall=true</code> is set in <code>/etc/bigbluebutton/bbb-web.properties</code> (default <code>false</code>). Integrations that can only send GET parameters can use <code>clientSettingsOverrideJsonUrl</code>, which takes precedence when both are present.</p>
+        <p><i>Added:</i> 3.0.0-alpha.1</p>
       </>
     )
   },

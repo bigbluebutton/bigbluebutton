@@ -6,6 +6,7 @@ import {
   PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import SET_PRESENTATION_RENDERED_IN_TOAST from './mutation';
 
 const PresentationUploaderToastContainer = (props) => {
@@ -21,8 +22,16 @@ const PresentationUploaderToastContainer = (props) => {
   const [setPresentationUploadCompletionNotified] = useMutation(SET_PRESENTATION_RENDERED_IN_TOAST);
   const presentations = presentationData?.pres_presentation || [];
 
+  const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
+
+  // Rows are served to the current presenter only. An error on an upload made by an earlier
+  // presenter is not shown to the next one. Presentations with no uploader (API documents,
+  // breakout room captures) show their errors to the presenter, the one who can act on them.
   const presentationsToBeShowed = presentations.filter(
-    (p) => (!p.uploadCompletionNotified),
+    (p) => (!p.uploadCompletionNotified
+      && (!p.uploadErrorMsgKey
+        || !p.uploadUserId
+        || p.uploadUserId === currentUser?.userId)),
   );
 
   if (presentationLoading) return null;

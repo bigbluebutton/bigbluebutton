@@ -63,11 +63,8 @@ export interface App {
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
   skipMeetingEnded: boolean
-  dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   showGuestLobbyWaitingQueuePosition: boolean
-  guestPolicyExtraAllowOptions: boolean
-  alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean
@@ -186,7 +183,6 @@ export interface ReactionsButton {
 
 export interface EmojiRain {
   enabled: boolean
-  intervalEmojis: number
   numberOfEmojis: number
   emojiSize: number
 }
@@ -678,10 +674,20 @@ export interface LiveKitAudioSettings {
   useLiveKitAudioState?: boolean
 }
 
+export type LastNAudioConfig = {
+  enabled: boolean;
+  audibleSize: number;
+  standbySize: number;
+  speechHoldMs: number;
+  minAudibleMs: number;
+  standbyGraceMs: number;
+};
+
 export type SelectiveSubscriptionConfig = {
   enabled: boolean;
   audioSubscriptionPoolSize: number;
   muteDebounceMs: number;
+  lastN?: LastNAudioConfig;
 };
 
 export interface LiveKitSettings {
@@ -749,7 +755,6 @@ export interface Stats {
   loss: number[]
   rtt: number[]
   level: string[]
-  help: string
 }
 
 export interface LogMediaStats {
