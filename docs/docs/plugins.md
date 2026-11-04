@@ -61,6 +61,14 @@ npm install
 npm start
 ```
 
+If you prefer, you can keep the plugin source code on your own machine instead, so you don't need to copy or sync the project to the server and you keep your local IDE and tooling. Run the same `npm install` and `npm start` commands on your machine and, in another terminal, open an SSH reverse tunnel to the BBB server (or container), keeping it open while you develop:
+
+```bash
+ssh -N -o ExitOnForwardFailure=yes -R 4701:localhost:4701 <user>@<your-host>
+```
+
+This makes port `4701` on the server (bound to its `127.0.0.1` only) forward to port `4701` on your machine, which is exactly where the nginx block points to, so nothing changes on the server side. `ExitOnForwardFailure` makes `ssh` fail right away if port `4701` is already taken on the server, instead of keeping a tunnel that doesn't forward anything.
+
 4. Add reference to it on BigBlueButton's `/create` call or add it on `/etc/bigbluebutton/bbb-web.properties`:
 
 ```
@@ -69,9 +77,9 @@ pluginManifests=[{"url": "https://<your-host>/plugins/dev/manifest.json"}]
 
 The JavaScript bundle and locales are resolved automatically, since `javascriptEntrypointUrl` and `localesBaseUrl` in the manifest are relative to the manifest URL (e.g. `https://<your-host>/plugins/dev/SampleActionButtonDropdownPlugin.js`, and `https://<your-host>/plugins/dev/locales/en.json` for plugins with locales).
 
-This serves one plugin at a time: the URL is always the same and points to whichever plugin's `npm start` is currently running. To switch plugins, stop one development server and start the other. If no development server is running, nginx answers `502` and the plugin won't load.
+This serves one plugin at a time: the URL is always the same and points to whichever plugin's `npm start` is currently running. To switch plugins, stop one development server and start the other. If no development server is running (or the SSH tunnel is closed), nginx answers `502` and the plugin won't load.
 
-If you don't have SSH access to a BBB server where you can run the development server, you can make your local development server public with NGROK instead. Check out [this guide on how to set up a development environment using NGROK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/blob/v0.1.x/docs/running-with-ngrok.md).
+If you don't have SSH access to a BBB server, you can make your local development server public with NGROK instead. Check out [this guide on how to set up a development environment using NGROK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/blob/v0.1.x/docs/running-with-ngrok.md).
 
 ### Building the Plugin (Production)
 
