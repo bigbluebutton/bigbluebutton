@@ -37,7 +37,7 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
       onRequestClose={onCancel}
       noFooter={false}
       footerContent={(
-        <>
+        <Styled.Footer>
           <Styled.FooterButton
             variant="secondary"
             dataTest="unsavedChangesCancel"
@@ -50,7 +50,7 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
             label={intl.formatMessage(intlMessages.ignoreButtonLabel)}
             onClick={onConfirm}
           />
-        </>
+        </Styled.Footer>
       )}
     >
       <Styled.Text>

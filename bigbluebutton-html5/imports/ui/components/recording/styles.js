@@ -5,6 +5,15 @@ import {
   confirmationButtonMinWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
 
+// The floor as a shrinkable basis: a short label still renders at the floor,
+// and on a narrow phone the buttons shrink down to their labels instead of
+// overflowing the toast. They never wrap - the pair always stays on one row.
+const confirmationButtonFloor = `
+  flex: 0 1 ${confirmationButtonMinWidth};
+  min-width: max-content;
+  white-space: nowrap;
+`;
+
 const NotificationContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -21,7 +30,7 @@ const NotificationActions = styled.div`
 const ConfirmationButton = styled.button`
   background-color: ${btnPrimaryBg};
   color: white;
-  min-width: ${confirmationButtonMinWidth};
+  ${confirmationButtonFloor}
   padding: 10px 24px;
   border: none;
   border-radius: ${lgBorderRadius};
@@ -30,8 +39,7 @@ const ConfirmationButton = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center
-  height: 3.5rem;
+  justify-content: center;
   
   svg {
     margin-right: 0.5rem;
@@ -45,7 +53,7 @@ const ConfirmationButton = styled.button`
 const CancelButton = styled.button`
   background-color: transparent;
   color: #333;
-  min-width: ${confirmationButtonMinWidth};
+  ${confirmationButtonFloor}
   padding: 10px 24px;
   font-size: 1rem;
   font-weight: 400;
