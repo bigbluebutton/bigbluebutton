@@ -2,10 +2,11 @@
 # An end callback that keeps failing is tried five times in all, 30
 # seconds, 1, 2 and 5 minutes apart, and then given up: no sixth attempt
 # comes in the 6 minutes after the fifth, longer than the last gap.
+# api.md documents the callback, not its retries, so this is compat.
 id: end.callbacks.retry-schedule
 title: An end callback that keeps failing is tried five times, then given up
 endpoint: end
-class: contract
+class: compat
 tags: [slow]
 requires: [akka]
 steps:
@@ -20,10 +21,38 @@ steps:
     params: {meetingID: "${uid}"}
     golden: off
     expect: {returncode: SUCCESS}
-  # The fifth attempt is due about 8.5 minutes after the first.
-  - sink: {key: "${uid}", within: 9m30s}
+  # The first attempt. The others are due 30 s, 1 min 30 s, 3 min 30 s
+  # and 8 min 30 s after it: each window below ends at most 10 seconds
+  # before one is due, or starts at most 10 seconds after, so attempts
+  # sent back to back, or late, fail the count.
+  - sink: {key: "${uid}", within: 10s}
+    golden: off
+    expect: {method: GET}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 1}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 2}
+  - sink: {key: "${uid}", within: 40s}
+    golden: off
+    expect: {count: 2}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 3}
+  - sink: {key: "${uid}", within: 100s}
+    golden: off
+    expect: {count: 3}
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 4}
+  - sink: {key: "${uid}", within: 280s}
+    golden: off
+    expect: {count: 4}
+  - sink: {key: "${uid}", within: 20s}
     golden: off
     expect: {count: 5}
+  # Given up: nothing in the 6 minutes after the fifth.
   - sink: {key: "${uid}", within: 6m}
     golden: off
     expect: {count: 5}

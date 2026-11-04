@@ -2,7 +2,8 @@
 # An end callback that doesn't answer with a 2xx is tried again 30 seconds
 # later: a 5xx, a 4xx and a redirect (which bbb-web doesn't follow) all
 # count as failures. The sink answers the first attempt as the variant
-# says and the second with a 200.
+# says and the second with a 200. api.md documents the callback, not its
+# retries, so this is compat.
 id: end.callbacks.retry
 title: "An end callback answered with ${status} is tried again"
 endpoint: end
@@ -10,7 +11,7 @@ class: compat
 tags: [slow]
 requires: [akka]
 variants:
-  - {id: status-500, vars: {status: "500"}, class: contract}
+  - {id: status-500, vars: {status: "500"}}
   - {id: status-404, vars: {status: "404"}}
   - {id: status-302, vars: {status: "302"}}
 steps:
@@ -30,7 +31,11 @@ steps:
       method: GET
       path: /${uid}/ended
       query: {_status: "${status}", meetingID: "${uid}", recordingmarks: "false"}
-  - sink: {key: "${uid}", within: 45s}
+  # Not at once: 30 seconds later, give or take 10.
+  - sink: {key: "${uid}", within: 20s}
+    golden: off
+    expect: {count: 1}
+  - sink: {key: "${uid}", within: 20s}
     golden: off
     expect: {count: 2}
 teardown:

@@ -1,11 +1,12 @@
 # yaml-language-server: $schema=../../../runner/schema/case.schema.json
 # bbb-web doesn't follow a redirect from an end callback URL: the target of
 # the Location is never called. (bbb-web counts the redirect as a failed
-# attempt and tries the URL again later; retry.yaml checks that.)
+# attempt and tries the URL again later; retry.yaml checks that.) api.md
+# doesn't say whether a callback follows a redirect, so this is compat.
 id: end.callbacks.redirect-not-followed
 title: An end callback that answers with a redirect isn't followed
 endpoint: end
-class: contract
+class: compat
 tags: [ci]
 requires: [akka]
 steps:
