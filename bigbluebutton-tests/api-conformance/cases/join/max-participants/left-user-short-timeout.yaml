@@ -6,10 +6,11 @@
 # cleanup is running it takes 5 to 20 seconds, but the cleanup first runs
 # a minute after bbb-web starts, and switching to the profile restarts
 # bbb-web just before this case, so here it is usually 20 to 50 seconds.
+# create.tsx doesn't say a user who left keeps a seat, so this is compat.
 id: join.max-participants.left-user-short-timeout
 title: A user who left frees their maxParticipants seat after a short usersTimeout (short-users-timeout)
 endpoint: join
-class: contract
+class: compat
 tags: [ci, presence, disruptive]
 requires: [akka, presence]
 profile: short-users-timeout

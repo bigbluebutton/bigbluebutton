@@ -3,11 +3,13 @@
 # the last user, at the first audit (every 10 seconds) more than 10 seconds
 # after they left, not from the leave itself. With one minute, the meeting
 # ends with the reason ENDED_WHEN_LAST_USER_LEFT 60 to 70 seconds after
-# the removal.
+# the removal. create.tsx says the meeting ends that many minutes "after
+# last user left", which would be 10 to 20 seconds earlier, so this is
+# compat.
 id: create.expiry.last-user-left-delay
 title: A meeting ends meetingExpireWhenLastUserLeftInMinutes after its last user is removed
 endpoint: create
-class: contract
+class: compat
 tags: [slow, presence]
 requires: [akka, presence]
 steps:

@@ -4,7 +4,8 @@
 # answer and reaches akka-apps' voice props as the conference number. A
 # voiceBridge must be unique among the server's meetings, and these are
 # fixed, so the case runs alone. One that isn't an integer is in
-# create/validation/voice-bridge.yaml.
+# create/validation/voice-bridge.yaml. create.tsx asks for 5 digits,
+# 00000 to 99999, so all of these are compat.
 id: create.numeric.voice-bridge
 title: create with voiceBridge=${value}
 endpoint: create
@@ -12,7 +13,7 @@ class: compat
 tags: [ci, serial]
 requires: [akka, bus]
 variants:
-  - {id: seven-digits, vars: {value: "7123456"}, class: contract}
+  - {id: seven-digits, vars: {value: "7123456"}}
   - {id: zero, vars: {value: "0"}}
   - {id: negative, vars: {value: "-5"}}
   - {id: plus-sign, vars: {value: "+71234"}}
