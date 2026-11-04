@@ -397,7 +397,8 @@
             "method": {"$ref": "#/$defs/matcher"},
             "path": {"$ref": "#/$defs/matcher"},
             "query": {"$ref": "#/$defs/matcherTable"},
-            "headers": {"$ref": "#/$defs/matcherTable"}
+            "headers": {"$ref": "#/$defs/matcherTable"},
+            "body": {"$ref": "#/$defs/matcher"}
           }
         },
         "capture": {"$ref": "#/$defs/capture"},

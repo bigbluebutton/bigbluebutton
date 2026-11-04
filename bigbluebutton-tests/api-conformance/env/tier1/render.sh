@@ -5,6 +5,8 @@
 #   bbb-apps-akka.conf
 #   certs/               the CA and nginx's certificate (certs.sh)
 #   conform.env          the variables the runner reads
+# and, once, env/.state/tokens.env: the tap's and the sink's tokens, which
+# the two services and the runner read.
 #
 #   render.sh [profile]  a name in env/bbb-web/profiles/, or default; without
 #                        one, the profile profile.sh last put in force
@@ -43,14 +45,23 @@ write_changed() {
 } | write_changed "$out/bbb-web.properties"
 subst "$env_dir/akka-apps/bbb-apps-akka.conf.in" | write_changed "$out/bbb-apps-akka.conf"
 
+tokens=$env_dir/.state/tokens.env
+if [ ! -s "$tokens" ]; then
+	token() { od -An -N16 -tx1 /dev/urandom | tr -d ' \n'; }
+	(umask 077 && printf 'BBB_TAP_TOKEN=%s\nBBB_SINK_TOKEN=%s\n' "$(token)" "$(token)" > "$tokens")
+fi
+. "$tokens"
+
 cat > "$out/conform.env" <<END
 export BBB_URL=https://localhost:8443/bigbluebutton/
 export BBB_SECRET=$TIER1_SALT
 export BBB_WEB_DIRECT_URL=http://localhost:8090
 export BBB_TAP_URL=http://localhost:8099
+export BBB_TAP_TOKEN=$BBB_TAP_TOKEN
 export BBB_SINK_URL=https://sink.test:8444
 export BBB_SINK_READ_URL=https://localhost:8444
 export BBB_SINK_HTTP_URL=http://sink.test:8445
+export BBB_SINK_TOKEN=$BBB_SINK_TOKEN
 export BBB_FIXTURE_URL=https://sink.test:8444/fixtures
 export BBB_PROFILE_CMD=$here/profile.sh
 export SSL_CERT_FILE=$out/certs/bundle.pem

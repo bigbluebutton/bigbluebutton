@@ -46,7 +46,7 @@ func startWorld(t *testing.T) *world {
 	t.Cleanup(s.Close)
 	srv := httptest.NewServer(s)
 	t.Cleanup(srv.Close)
-	return &world{redis: r, tap: s, client: NewClient(srv.URL), dataDir: dir}
+	return &world{redis: r, tap: s, client: NewClient(srv.URL, ""), dataDir: dir}
 }
 
 func ctx(t *testing.T) context.Context {
@@ -67,7 +67,7 @@ func TestMarkWaitsForTheSubscription(t *testing.T) {
 	defer s.Close()
 	srv := httptest.NewServer(s)
 	defer srv.Close()
-	c := NewClient(srv.URL)
+	c := NewClient(srv.URL, "")
 	short, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 	defer cancel()
 	var te *Error
@@ -261,6 +261,47 @@ func TestHosts(t *testing.T) {
 		if res.StatusCode != want {
 			t.Errorf("Host %s: HTTP %d", host, res.StatusCode)
 		}
+	}
+}
+
+// With a token, every endpoint but /info needs it as a bearer token.
+func TestToken(t *testing.T) {
+	s, err := Start(Config{Redis: resp.Options{Addr: "127.0.0.1:1"}, Token: "tok", MaxBytes: 1 << 20, MaxAge: time.Hour})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	srv := httptest.NewServer(s)
+	defer srv.Close()
+	for _, tt := range []struct {
+		path, token string
+		want        int
+	}{
+		{"/info", "", http.StatusOK},
+		{"/redis?key=meeting:x", "", http.StatusUnauthorized},
+		{"/redis?key=meeting:x", "wrong", http.StatusUnauthorized},
+		{"/fs?path=x", "", http.StatusUnauthorized},
+		{"/nothing", "", http.StatusUnauthorized},
+		{"/nothing", "tok", http.StatusNotFound},
+	} {
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+tt.path, nil)
+		if tt.token != "" {
+			req.Header.Set("Authorization", "Bearer "+tt.token)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		res.Body.Close()
+		if res.StatusCode != tt.want {
+			t.Errorf("%s token %q: HTTP %d, want %d", tt.path, tt.token, res.StatusCode, tt.want)
+		}
+	}
+	var te *Error
+	short, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	defer cancel()
+	if _, err := NewClient(srv.URL, "").Mark(short); !errors.As(err, &te) || te.Status != http.StatusUnauthorized {
+		t.Errorf("a mark without the token: %v", err)
 	}
 }
 

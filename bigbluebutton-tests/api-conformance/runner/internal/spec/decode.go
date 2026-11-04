@@ -559,11 +559,11 @@ func validGlob(p string) bool {
 
 // sinkExpect decodes a sink step's expect. Its filters, which choose the
 // requests that count, become JSONPath matchers on the request as the
-// step sees it: $.method, $.path, $.query['<name>'] and
+// step sees it: $.method, $.path, $.body, $.query['<name>'] and
 // $.headers['<Canonical-Name>'].
 func (d *decoder) sinkExpect(n *yaml.Node) *Expect {
 	e := &Expect{Absent: boolean(mapGet(n, "absent")), Count: d.optMatcher(mapGet(n, "count"))}
-	for _, f := range []string{"method", "path"} {
+	for _, f := range []string{"method", "path", "body"} {
 		if v := mapGet(n, f); v != nil {
 			e.JSONPath = append(e.JSONPath, NamedMatcher{Key: "$." + f, M: d.matcher(v), Line: v.Line})
 		}

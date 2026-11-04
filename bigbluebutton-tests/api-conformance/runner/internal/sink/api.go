@@ -25,13 +25,17 @@ type Request struct {
 	At            time.Time   `json:"at"`
 	Key           string      `json:"key"`
 	Method        string      `json:"method"`
-	Path          string      `json:"path"`     // decoded
+	Path          string      `json:"path"`     // as sent, percent-encoding kept
 	RawQuery      string      `json:"rawQuery"` // as sent
 	Header        http.Header `json:"headers"`  // with Host
 	Body          string      `json:"body,omitempty"`
 	BodyEncoding  string      `json:"bodyEncoding,omitempty"` // base64 when the body isn't UTF-8
 	BodySize      int64       `json:"bodySize"`
 	BodyTruncated bool        `json:"bodyTruncated,omitempty"` // only the first MaxBody bytes are kept
+	// SinkError says why the sink couldn't answer as the URL asked, e.g. a
+	// fixture that isn't there or a modifier it doesn't know: the server
+	// got an error from the sink instead.
+	SinkError string `json:"sinkError,omitempty"`
 }
 
 // Received answers GET /_received: a key's requests after the given seq,

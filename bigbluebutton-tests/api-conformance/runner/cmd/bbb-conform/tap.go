@@ -19,12 +19,13 @@ import (
 )
 
 // cmdTap runs a tap next to a BigBlueButton server until interrupted.
-// It reads the server's redis and files and serves them, unauthenticated,
-// to whoever reaches its port: run it on test servers only.
+// It reads the server's redis and files and serves them to whoever
+// reaches its port with its token (BBB_TAP_TOKEN), which it needs unless
+// it listens on this host only: run it on test servers only.
 func cmdTap(args []string, stdout, stderr io.Writer) int {
 	fl := flag.NewFlagSet("tap", flag.ContinueOnError)
 	fl.SetOutput(stderr)
-	listen := fl.String("listen", "127.0.0.1:8099", "where to serve; 0.0.0.0:8099 to reach it from another host on a private network")
+	listen := fl.String("listen", "127.0.0.1:8099", "where to serve; 0.0.0.0:8099 to reach it from another host on a private network, with BBB_TAP_TOKEN set")
 	hosts := fl.String("hosts", "", "host names the runner reaches it by, e.g. tap in a compose network; IP addresses and localhost always work")
 	redisURL := fl.String("redis", "redis://127.0.0.1:6379", "the server's redis")
 	passwordEnv := fl.String("redis-password-env", "", "the environment variable that holds redis's password")
@@ -42,6 +43,15 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 	}
 	if fl.NArg() > 0 {
 		fmt.Fprintf(stderr, "bbb-conform tap: unexpected argument %q\n", fl.Arg(0))
+		return exitUsage
+	}
+	if *maxMB < 1 || *maxAge <= 0 {
+		fmt.Fprintln(stderr, "bbb-conform tap: --max-mb and --max-age must be positive")
+		return exitUsage
+	}
+	token := os.Getenv("BBB_TAP_TOKEN")
+	if token == "" && !loopbackOnly(*listen) {
+		fmt.Fprintf(stderr, "bbb-conform tap: listening on %s, which other hosts reach, needs a token: set BBB_TAP_TOKEN here and for the runner\n", *listen)
 		return exitUsage
 	}
 	ropts, err := resp.ParseURL(*redisURL)
@@ -64,7 +74,7 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	s, err := tap.Start(tap.Config{Redis: ropts, Channels: splitList(*channels), DataDir: *dataDir, Watch: splitList(*watch),
-		RedisKeys: splitList(*keys), Hosts: splitList(*hosts), MaxBytes: *maxMB << 20, MaxAge: *maxAge})
+		RedisKeys: splitList(*keys), Hosts: splitList(*hosts), Token: token, MaxBytes: *maxMB << 20, MaxAge: *maxAge})
 	if err != nil {
 		ln.Close()
 		fmt.Fprintf(stderr, "bbb-conform tap: %v\n", err)
@@ -86,4 +96,18 @@ func cmdTap(args []string, stdout, stderr io.Writer) int {
 		return exitFailed
 	}
 	return exitOK
+}
+
+// loopbackOnly says whether listening on addr (host:port) accepts
+// connections from this host only.
+func loopbackOnly(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }

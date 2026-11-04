@@ -111,6 +111,37 @@ func TestSinkSteps(t *testing.T) {
 	}
 }
 
+// A request the sink couldn't answer as its URL asked (here, a misspelt
+// modifier) makes the step that looks at its key ERROR: the server got an
+// error from the sink, not the answer the case wanted. A body filter
+// narrows what counts.
+func TestSinkStepSinkError(t *testing.T) {
+	w := startSink(t, nil)
+	res := w.run(t, `steps:
+  - call: create
+    params: {meetingID: "${uid}", name: Callback, meta_endCallbackUrl: "${sinkUrl}/${uid}/end?_stauts=500"}
+    expect: {returncode: SUCCESS}
+  - call: end
+    params: {meetingID: "${uid}"}
+    expect: {returncode: SUCCESS}
+  - sink: {key: "${uid}", within: 3s}
+    expect: {method: GET}
+`)
+	if res.Status != report.Error || !strings.Contains(res.Steps[2].Message, "unknown modifier _stauts") {
+		logSteps(t, res)
+		t.Errorf("%s: %s", res.Status, res.Reason)
+	}
+	res = w.run(t, endWithCallbacks+`  - sink: {key: "${uid}-meta", within: 3s}
+    expect: {method: GET, body: {absent: true}}
+  - sink: {key: "${uid}-meta", within: 300ms}
+    expect: {absent: true, body: {contains: x}}
+`)
+	if res.Status != report.Pass {
+		logSteps(t, res)
+		t.Errorf("body filter: %s: %s", res.Status, res.Reason)
+	}
+}
+
 // ${sinkHttpUrl} is the sink's plain-HTTP listener: a case that uses it is
 // skipped on a target that doesn't name one, and fails at once with a sink
 // that serves no plain HTTP, where a check that nothing came would pass

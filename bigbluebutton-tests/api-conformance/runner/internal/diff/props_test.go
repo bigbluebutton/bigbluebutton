@@ -45,7 +45,7 @@ func startSide(t *testing.T) side {
 	t.Cleanup(s.Close)
 	srv := httptest.NewServer(s)
 	t.Cleanup(srv.Close)
-	c := tap.NewClient(srv.URL)
+	c := tap.NewClient(srv.URL, "")
 	if _, err := c.Mark(t.Context()); err != nil { // subscribed
 		t.Fatal(err)
 	}

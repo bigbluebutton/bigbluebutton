@@ -17,8 +17,10 @@ import (
 )
 
 // cmdSink runs a sink until interrupted: it records the callbacks and
-// fetches a server sends it, and serves fixtures. Anyone who reaches its
-// port can read what it recorded: run it for test servers only.
+// fetches a server sends it, and serves fixtures. What it recorded goes to
+// whoever reaches its port, by an IP address, localhost or a --hosts name,
+// with its token (BBB_SINK_TOKEN), which it needs unless it listens on
+// this host only: run it for test servers only.
 func cmdSink(args []string, stdout, stderr io.Writer) int {
 	fl := flag.NewFlagSet("sink", flag.ContinueOnError)
 	fl.SetOutput(stderr)
@@ -27,6 +29,7 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	cert := fl.String("cert", "", "the TLS certificate, for a name the server under test resolves to this host; without one, plain HTTP")
 	key := fl.String("key", "", "the certificate's key")
 	fixtures := fl.String("fixtures", "", `the fixtures directory, served under /fixtures/; "" serves none`)
+	hosts := fl.String("hosts", "", "host names the runner reads it by; IP addresses and localhost always work")
 	maxMB := fl.Int("max-mb", 64, "the most the log keeps, in MiB")
 	maxAge := fl.Duration("max-age", 2*time.Hour, "how long the log keeps a request")
 	if err := fl.Parse(args); err != nil {
@@ -42,6 +45,13 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	if *maxMB < 1 || *maxAge <= 0 {
 		fmt.Fprintln(stderr, "bbb-conform sink: --max-mb and --max-age must be positive")
 		return exitUsage
+	}
+	token := os.Getenv("BBB_SINK_TOKEN")
+	for _, addr := range []string{*listen, *listenHTTP} {
+		if addr != "" && token == "" && !loopbackOnly(addr) {
+			fmt.Fprintf(stderr, "bbb-conform sink: listening on %s, which other hosts reach, needs a token: set BBB_SINK_TOKEN here and for the runner\n", addr)
+			return exitUsage
+		}
 	}
 	if (*cert == "") != (*key == "") {
 		fmt.Fprintln(stderr, "bbb-conform sink: --cert and --key go together")
@@ -63,7 +73,8 @@ func cmdSink(args []string, stdout, stderr io.Writer) int {
 	if *cert == "" {
 		plain = *listen
 	}
-	s, err := sink.New(sink.Config{Fixtures: *fixtures, MaxBytes: *maxMB << 20, MaxAge: *maxAge, HTTPAddr: plain})
+	s, err := sink.New(sink.Config{Fixtures: *fixtures, MaxBytes: *maxMB << 20, MaxAge: *maxAge, HTTPAddr: plain,
+		Hosts: splitList(*hosts), Token: token})
 	if err != nil {
 		fmt.Fprintf(stderr, "bbb-conform sink: %v\n", err)
 		return exitUsage

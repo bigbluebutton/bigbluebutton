@@ -93,7 +93,9 @@ Blank fields fall back to the variables the Playwright suite uses: `BBB_URL`
 (e.g. `https://bbb-ci.test/bigbluebutton/`) and `BBB_SECRET`; to
 `BBB_TAP_URL` for `tapUrl`; and to `BBB_SINK_URL`, `BBB_SINK_READ_URL`,
 `BBB_SINK_HTTP_URL` and `BBB_FIXTURE_URL` for the sink's. `targets/bbb-web.yaml` and
-`targets/bbb-api.yaml` are set up that way.
+`targets/bbb-api.yaml` are set up that way. The tap's and the sink's tokens
+come only from `BBB_TAP_TOKEN` and `BBB_SINK_TOKEN`, never a target file;
+like the salt, they are redacted from what the runner writes.
 
 A target with a tap has the `bus`, `fs` and `redis` capabilities, and one
 with a sink the `callbacks` capability. Listing them without one is an
@@ -204,7 +206,7 @@ go run ./cmd/bbb-conform run --target ../targets/bbb-web.yaml --cases ../cases -
 |---|---|
 | `debs` | Builds the five packages the stack runs (bbb-web, bbb-apps-akka, bbb-graphql-server, bbb-graphql-middleware, bbb-graphql-actions) with their own build scripts, in the image CI builds them in. `PKGS=bbb-web` builds one. About 20 minutes cold. |
 | `up` | Renders the configuration, builds what changed and starts the stack, then waits until every service is healthy (about a minute). `CLAMAV=1` adds a ClamAV daemon. |
-| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. |
+| `env` | Prints the variables the runner reads: `BBB_URL`, `BBB_SECRET`, `BBB_TAP_URL`, `BBB_TAP_TOKEN`, `BBB_SINK_URL`, `BBB_SINK_READ_URL`, `BBB_SINK_HTTP_URL`, `BBB_SINK_TOKEN`, `BBB_FIXTURE_URL`, `BBB_WEB_DIRECT_URL`, `BBB_PROFILE_CMD` and `SSL_CERT_FILE`. The tokens are made once, in `env/.state/tokens.env`. |
 | `profile` | `NAME=reveal-version` switches bbb-web to a profile in `env/bbb-web/profiles/`, `NAME=default` back; without `NAME`, prints the one in force. Cases use it through `BBB_PROFILE_CMD`. |
 | `reset` | Starts again from nothing: no meetings, an empty data directory, the default profile. |
 | `logs`, `ps`, `down` | `SERVICE=bbb-web` for one service's log; `TAIL=all` for all of it, not the last 200 lines. |
@@ -271,33 +273,40 @@ through a tap: `bbb-conform tap`, running on the server itself. The tap:
 - reads redis keys;
 - reads files in the data directory.
 
-It serves all three over HTTP to the runner, which can run anywhere.
+It serves all three over HTTP to the runner, which can run on another
+host.
 
 ```sh
 # A static binary for the server:
 CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
 # On the server, as a user that can read the data directory:
 ./bbb-conform tap
+# Or, for a runner on another host, with a token the runner sends too:
+BBB_TAP_TOKEN=$(openssl rand -hex 16) ./bbb-conform tap --listen 10.0.0.5:8099
 ```
 
 | Option | Default |
 |---|---|
-| `--listen ADDR` | `127.0.0.1:8099`. |
+| `--listen ADDR` | `127.0.0.1:8099`. An address other hosts reach needs `BBB_TAP_TOKEN` set. |
 | `--hosts a,b` | None: host names the runner reaches it by, such as a compose service name. It always answers requests sent to an IP address or `localhost`. |
 | `--redis URL` | `redis://127.0.0.1:6379`. `--redis-password-env NAME` names the variable that holds the password. |
 | `--data-dir DIR` | `/var/bigbluebutton`. `""` serves no files. |
 | `--watch a,b` | `recording/status,learning-dashboard`: directories under the data directory that are watched for files that come and go. |
 | `--channels a,b` | The to-akka-apps, from-akka-apps, from-akka-apps-pres and from-bbb-web redis channels. |
 | `--redis-keys a,b` | `meeting:*,recording:*,captions:*`: globs of the only keys it reads. |
-| `--max-mb N`, `--max-age D` | 128 MiB and 2h: how much of what it saw it keeps. |
+| `--max-mb N`, `--max-age D` | 128 MiB and 2h: how much of what it saw it keeps. Both must be positive. |
 
-- **Test servers only.** The tap has no authentication: anyone who reaches
-  its port can read whatever it can read. It never writes to redis or to
-  files. It listens on 127.0.0.1 unless told otherwise. To reach it from
-  another host, listen on a private interface or use an SSH tunnel
-  (`ssh -L 8099:127.0.0.1:8099 server`). Never expose it on a public
-  interface. It answers only requests addressed to an IP address,
-  `localhost` or one of its `--hosts`; any other host name gets HTTP 421.
+- **Test servers only.** What the tap serves includes the session tokens
+  and passwords on the bus. With `BBB_TAP_TOKEN` set in its environment,
+  every endpoint but `/info` needs that token as a bearer token, which the
+  runner sends when its own `BBB_TAP_TOKEN` is set; without one, anyone who
+  reaches its port can read whatever it can read. It listens on 127.0.0.1
+  unless told otherwise, and won't listen anywhere else without a token.
+  To reach it from another host, listen on a private interface with a
+  token, or use an SSH tunnel (`ssh -L 8099:127.0.0.1:8099 server`). Never
+  expose it on a public interface. It never writes to redis or to files.
+  It answers only requests addressed to an IP address, `localhost` or one
+  of its `--hosts`; any other host name gets HTTP 421.
 - **What it keeps:**
   - every message on its channels, indexed by name and meeting;
   - every file created under the watched directories, even one deleted at
@@ -319,8 +328,9 @@ CGO_ENABLED=0 GOOS=linux go build -o bbb-conform ./cmd/bbb-conform
     It tries a directory asked for with `--watch` again every second. An
     `fs` step that looks there and rests on not finding a file ERRORs
     meanwhile, since a file that came and went would be missed.
-- **Files** are read from the data directory, never outside it: up to 1 MiB
-  of each, and up to 100 files and 16 MiB in all per query. Watching them
+- **Files** are read from the data directory, never outside it: regular
+  files only, up to 1 MiB of each, and up to 100 files and 16 MiB in all
+  per query. Watching them
   needs Linux (inotify); elsewhere the tap sees only files that still
   exist.
 
@@ -341,7 +351,8 @@ It also serves the fixtures cases have the server fetch.
 
 | Option | Default |
 |---|---|
-| `--listen ADDR` | `127.0.0.1:8444`. |
+| `--listen ADDR` | `127.0.0.1:8444`. An address other hosts reach needs `BBB_SINK_TOKEN` set, as does `--listen-http` on one. |
+| `--hosts a,b` | None: host names the runner reads it by. `/_received` always answers requests sent to an IP address or `localhost`. |
 | `--cert FILE`, `--key FILE` | None, for plain HTTP. bbb-web fetches and calls back over https only (`fetchUrlSupportedProtocols`), so give the sink a certificate for a name the server resolves to it, from a CA the server's JVM trusts. A name that resolves to a private address must also be in the server's `fetchUrlAllowedLocalHosts`. |
 | `--listen-http ADDR` | None. With `--cert`, also serve plain HTTP there, for cases that check the server won't call an `http://` URL (`${sinkHttpUrl}`). Both listeners record into one log. |
 | `--fixtures DIR` | None: the directory served under `fixtures/`. |
@@ -352,8 +363,8 @@ It also serves the fixtures cases have the server fetch.
 | Path | Answer |
 |---|---|
 | `/<key>`, `/<key>/...` | Recorded under the key; 200 with no body. |
-| `/<key>/fixtures/<path>` | Recorded; the file at `<path>` in the fixtures directory, or 404. |
-| `/<key>/fixtures/generated/<name>?_size=N` | Recorded; a file of exactly N bytes (up to 64 MiB) made for the request: a valid one-page PDF for a `.pdf` name, a JSON document for `.json`, lines of text otherwise. A file over an upload limit needs no commit. |
+| `/<key>/fixtures/<path>` | Recorded; the regular file at `<path>` in the fixtures directory, or 404. |
+| `/<key>/fixtures/generated/<name>?_size=N` | Recorded; a file of exactly N bytes (up to 64 MiB) computed as it is sent: a valid one-page PDF for a `.pdf` name, a JSON document for `.json`, lines of text otherwise. A file over an upload limit needs no commit. |
 | `/fixtures/...` | The same files, not recorded. |
 | `/_received?key=K` | The requests recorded under K, as JSON: what `sink` steps read. |
 | `/_info` | The sink's instance, the number of its last request, and where it serves plain HTTP, if it does. |
@@ -372,15 +383,23 @@ to an end callback.
 | `_size=N` | A generated file's length; only for `fixtures/generated/`. |
 
 An unknown or misplaced `_` param gets a 400, so a misspelt one isn't
-ignored. Every
-request to a key is recorded, those it refused included.
+ignored. Every request to a key is recorded, with why the sink couldn't
+answer it as asked when it couldn't (that 400, or a 404 for a fixture that
+isn't there): a `sink` step that sees such a request ERRORs, since the
+server got an error from the sink rather than the answer the case meant.
 
-- **Test servers only.** The sink has no authentication: anyone who reaches
-  its port can read what it recorded. It serves files from the fixtures
-  directory only, never outside it.
-- **What it keeps:** each request's method, path, query, headers and the
-  first 64 KiB of its body, numbered in order. A restarted sink is a new
-  instance, so a case that took its mark before the restart ERRORs.
+- **Test servers only.** With `BBB_SINK_TOKEN` set in its environment,
+  `/_received` needs that token as a bearer token, which the runner sends
+  when its own `BBB_SINK_TOKEN` is set; without one, anyone who reaches
+  its port can read what it recorded. `/_received` answers only requests
+  addressed to an IP address, `localhost` or one of its `--hosts` (HTTP
+  421 otherwise). Recording and fixtures need neither, since the server
+  under test sends no token. It serves files from the fixtures directory
+  only, never outside it.
+- **What it keeps:** each request's method, path (as sent, encoded),
+  query, headers and the first 64 KiB of its body, numbered in order. A
+  restarted sink is a new instance, so a case that took its mark before
+  the restart ERRORs.
 
 Before a run, the runner checks that the sink answers; if it doesn't, the
 cases that use it ERROR at once. So do the cases that use `${sinkHttpUrl}`
@@ -958,8 +977,10 @@ starting with `_`, which the sink keeps for itself.
   for the key `${uid}-to`): either way it could never fail. `validate`
   checks both, and the `within` of an absent `bus`, `fs` or `redis` step
   too.
-- **What matches:** `method`, `path`, `query` (by name) and `headers` (by
-  name, in any case, so not a template) narrow what counts.
+- **What matches:** `method`, `path` (as sent, percent-encoding kept),
+  `query` (by name), `body` (as recorded, so base64 for one that isn't
+  UTF-8; `{absent: true}` for none) and `headers` (by name, in any case,
+  so not a template) narrow what counts.
 - **The document** that `capture` and recordings see is
   `{method, path, query, body}`: `query` holds each name's value, or a list
   when the name repeats, as when bbb-web adds a param the URL already had
@@ -969,8 +990,9 @@ starting with `_`, which the sink keeps for itself.
   but aren't recorded or captured: the User-Agent and the like change with
   the server's libraries. The document is `null` when nothing matched.
 - **How the sink answers** follows the URL: see [the sink](#the-sink-sink).
-- **Errors:** a step ERRORs when the sink restarted during the case, or no
-  longer holds its window (raise its `--max-mb`).
+- **Errors:** a step ERRORs when the sink restarted during the case, no
+  longer holds its window (raise its `--max-mb`), or couldn't answer a
+  request to the key as its URL asked, e.g. for a fixture that isn't there.
 
 #### HTTP requests
 

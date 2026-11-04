@@ -220,6 +220,11 @@ func (x *exec) sink(ctx context.Context, phase string, index int, s spec.Step, s
 		}
 		after = res.Seq
 		for _, req := range res.Requests {
+			if req.SinkError != "" {
+				sr.Status = report.Error
+				sr.Message = fmt.Sprintf("the sink couldn't answer %s %s as its URL asked, so the server got an error from it: %s", req.Method, req.Path, req.SinkError)
+				return
+			}
 			candidates++
 			full, doc := sinkDocs(req)
 			results, err := assert.Check(filters(e), documentObservation(full), assert.Eval(x.expand))

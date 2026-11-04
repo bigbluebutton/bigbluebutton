@@ -127,6 +127,8 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 	}
 	red := &tmpl.Redactor{}
 	red.Add("[salt]", t.Salt)
+	red.Add("[tap-token]", t.TapToken)
+	red.Add("[sink-token]", t.SinkToken)
 	for name, v := range t.Vars {
 		if v.Secret {
 			red.Add("[secret:"+name+"]", v.Value)
@@ -134,10 +136,10 @@ func NewRunner(t *target.Target, fixturesDir, version string) (*Runner, error) {
 	}
 	r := &Runner{Target: t, FixturesDir: fixturesDir, Transport: tr, TLS: tlsCfg, Redactor: red, Version: version, NewUID: randomUID}
 	if t.TapURL != "" {
-		r.Tap = tap.NewClient(t.TapURL)
+		r.Tap = tap.NewClient(t.TapURL, t.TapToken)
 	}
 	if t.SinkReadURL != "" {
-		r.Sink = sink.NewClient(t.SinkReadURL, tlsCfg)
+		r.Sink = sink.NewClient(t.SinkReadURL, tlsCfg, t.SinkToken)
 	}
 	return r, nil
 }

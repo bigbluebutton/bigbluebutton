@@ -55,8 +55,13 @@ type Target struct {
 	// TapURL is the tap running next to the server (bbb-conform tap), or
 	// BBB_TAP_URL when blank. It gives the target the bus, fs and redis
 	// capabilities.
-	TapURL string         `yaml:"tapUrl"`
-	Vars   map[string]Var `yaml:"vars"`
+	TapURL string `yaml:"tapUrl"`
+	// TapToken and SinkToken are the bearer tokens the tap and the sink
+	// were started with, from BBB_TAP_TOKEN and BBB_SINK_TOKEN: secrets,
+	// so never in a target file.
+	TapToken  string         `yaml:"-"`
+	SinkToken string         `yaml:"-"`
+	Vars      map[string]Var `yaml:"vars"`
 	// Routes maps the route names of non-API calls to this target's paths.
 	Routes map[string]Route `yaml:"routes"`
 	// Profiles are the config profiles cases can ask for, and the commands
@@ -159,6 +164,7 @@ func (t *Target) complete(getenv func(string) string) error {
 		t.TapURL = getenv("BBB_TAP_URL")
 	}
 	t.TapURL = strings.TrimSuffix(t.TapURL, "/")
+	t.TapToken, t.SinkToken = getenv("BBB_TAP_TOKEN"), getenv("BBB_SINK_TOKEN")
 	if t.TapURL != "" {
 		if u, err := url.Parse(t.TapURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
 			return fmt.Errorf("tapUrl %q must be an http:// URL, e.g. http://10.0.0.5:8099", t.TapURL)

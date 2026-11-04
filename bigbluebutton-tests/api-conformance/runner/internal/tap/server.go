@@ -3,6 +3,7 @@ package tap
 import (
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -50,6 +51,7 @@ type Config struct {
 	Watch     []string // directories under DataDir to watch for new files
 	RedisKeys []string // globs of the keys it may read
 	Hosts     []string // host names it answers to, besides IP addresses and localhost
+	Token     string   // the bearer token every endpoint but /info needs; "" for none
 	MaxBytes  int
 	MaxAge    time.Duration
 }
@@ -216,6 +218,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		status, err = http.StatusMisdirectedRequest, fmt.Errorf("the tap doesn't answer to %q: start it with --hosts naming it", r.Host)
 	case r.URL.Path == "/info":
 		v = s.info()
+	case !bearerOK(r, s.cfg.Token):
+		status, err = http.StatusUnauthorized, errors.New("the tap needs its token (BBB_TAP_TOKEN) as a bearer token")
 	case r.URL.Path == "/mark":
 		v, status, err = s.mark()
 	case r.URL.Path == "/bus":
@@ -235,6 +239,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
 	enc.Encode(v)
+}
+
+// bearerOK says whether r carries token as its bearer token; any request
+// does when token is "".
+func bearerOK(r *http.Request, token string) bool {
+	if token == "" {
+		return true
+	}
+	got, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	return ok && subtle.ConstantTimeCompare([]byte(got), []byte(token)) == 1
 }
 
 // answersTo says whether a request for host is addressed to the tap: to
@@ -533,8 +547,12 @@ func mayMatchUnder(glob, dir string) bool {
 	return true
 }
 
-// readFile reads a regular file, up to MaxFile.
+// readFile reads a regular file, up to MaxFile. It checks the type before
+// opening: opening a named pipe would wait for a writer.
 func (s *Server) readFile(name string) (File, bool) {
+	if st, err := s.root.Stat(name); err != nil || !st.Mode().IsRegular() {
+		return File{}, false
+	}
 	f, err := s.root.Open(name)
 	if err != nil {
 		return File{}, false

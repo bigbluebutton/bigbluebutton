@@ -39,6 +39,10 @@ func TestRun(t *testing.T) {
 func TestTapUsage(t *testing.T) {
 	for _, args := range [][]string{
 		{"tap", "--redis", "http://x"},
+		{"tap", "--max-mb", "0"},
+		{"tap", "--max-age", "0s"},
+		// Beyond this host, only with a token (BBB_TAP_TOKEN).
+		{"tap", "--listen", "0.0.0.0:0"},
 		{"tap", "--data-dir", "no/such/dir"},
 		{"tap", "extra"},
 	} {
@@ -53,7 +57,8 @@ func TestTapUsage(t *testing.T) {
 // for a real server (eval "$(make -s -C env env)") can't reach the fake
 // targets the tests write.
 func TestMain(m *testing.M) {
-	for _, v := range []string{"BBB_URL", "BBB_SECRET", "BBB_TAP_URL", "BBB_SINK_URL", "BBB_SINK_READ_URL", "BBB_SINK_HTTP_URL", "BBB_FIXTURE_URL", "BBB_WEB_DIRECT_URL"} {
+	for _, v := range []string{"BBB_URL", "BBB_SECRET", "BBB_TAP_URL", "BBB_SINK_URL", "BBB_SINK_READ_URL", "BBB_SINK_HTTP_URL", "BBB_FIXTURE_URL", "BBB_WEB_DIRECT_URL",
+		"BBB_TAP_TOKEN", "BBB_SINK_TOKEN"} {
 		os.Unsetenv(v)
 	}
 	os.Exit(m.Run())
@@ -70,6 +75,9 @@ func TestSinkUsage(t *testing.T) {
 		{"sink", "--max-mb", "0"},
 		{"sink", "--max-age", "0s"},
 		{"sink", "extra"},
+		// Beyond this host, only with a token (BBB_SINK_TOKEN).
+		{"sink", "--listen", "0.0.0.0:0"},
+		{"sink", "--cert", "testdata/no.crt", "--key", "testdata/no.key", "--listen", "127.0.0.1:0", "--listen-http", ":0"},
 	} {
 		var stdout, stderr bytes.Buffer
 		if code := run(args, &stdout, &stderr); code != exitUsage {
@@ -119,6 +127,17 @@ func TestValidateGolden(t *testing.T) {
 	} {
 		if !strings.Contains(stdout.String(), want) {
 			t.Errorf("stdout lacks %q:\n%s", want, stdout.String())
+		}
+	}
+}
+
+func TestLoopbackOnly(t *testing.T) {
+	for addr, want := range map[string]bool{
+		"127.0.0.1:8099": true, "127.0.0.2:1": true, "[::1]:8099": true, "localhost:8444": true,
+		"0.0.0.0:8099": false, ":8099": false, "[::]:1": false, "10.0.0.5:8099": false, "sink.test:8444": false, "nonsense": false,
+	} {
+		if got := loopbackOnly(addr); got != want {
+			t.Errorf("%s: %v", addr, got)
 		}
 	}
 }

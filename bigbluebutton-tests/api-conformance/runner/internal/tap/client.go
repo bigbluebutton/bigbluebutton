@@ -16,17 +16,19 @@ import (
 
 // Client is the runner's side of a tap.
 type Client struct {
-	base string
-	hc   *http.Client
+	base  string
+	token string // sent as a bearer token when not ""
+	hc    *http.Client
 }
 
-// NewClient talks to the tap at base, e.g. http://10.0.0.5:8099. A host
-// name works only if the tap was started with --hosts naming it.
+// NewClient talks to the tap at base, e.g. http://10.0.0.5:8099, sending
+// token, when there is one, as a bearer token. A host name works only if
+// the tap was started with --hosts naming it.
 // A tap that doesn't accept the connection within 5s isn't waited for.
-func NewClient(base string) *Client {
+func NewClient(base, token string) *Client {
 	tr := http.DefaultTransport.(*http.Transport).Clone()
 	tr.DialContext = (&net.Dialer{Timeout: 5 * time.Second, KeepAlive: 30 * time.Second}).DialContext
-	return &Client{base: strings.TrimSuffix(base, "/"), hc: &http.Client{Transport: tr, Timeout: maxWait + 15*time.Second}}
+	return &Client{base: strings.TrimSuffix(base, "/"), token: token, hc: &http.Client{Transport: tr, Timeout: maxWait + 15*time.Second}}
 }
 
 // Error is the tap refusing a query, with its HTTP status.
@@ -45,6 +47,9 @@ func (c *Client) get(ctx context.Context, p string, q url.Values, v any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return err
+	}
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
 	}
 	resp, err := c.hc.Do(req)
 	if err != nil {

@@ -14,14 +14,16 @@
 //	/_info                            the sink's instance and last sequence number
 //
 // Query params that start with an underscore change the answer; see
-// parseModifiers.
+// parseModifiers. /_received answers only requests addressed to the sink
+// by an IP address, localhost or a name in Hosts, and carrying Token as a
+// bearer token when there is one: what it holds is the server's.
 package sink
 
 import (
-	"bytes"
 	"cmp"
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -29,6 +31,7 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -52,8 +55,10 @@ const (
 
 // Config configures a sink.
 type Config struct {
-	Fixtures string // the fixtures directory; "" serves none
-	HTTPAddr string // where it also serves plain HTTP, for /_info; "" for nowhere
+	Fixtures string   // the fixtures directory; "" serves none
+	HTTPAddr string   // where it also serves plain HTTP, for /_info; "" for nowhere
+	Hosts    []string // host names /_received answers to, besides IP addresses and localhost
+	Token    string   // the bearer token /_received needs; "" for none
 	MaxBytes int
 	MaxAge   time.Duration
 }
@@ -96,15 +101,73 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case key == "_info":
 		writeJSON(w, Info{Instance: s.instance, Seq: s.log.Last(), Fixtures: s.cfg.Fixtures, HTTP: s.cfg.HTTPAddr}, 0, nil)
 	case key == "_received":
+		if status, err := s.mayRead(r); err != nil {
+			writeJSON(w, nil, status, err)
+			return
+		}
 		v, status, err := s.received(r)
 		writeJSON(w, v, status, err)
 	case key == "" || strings.HasPrefix(key, "_"):
 		writeJSON(w, nil, http.StatusNotFound, errors.New("no such path: requests go to /<key>/..., fixtures to /fixtures/<path>, and /_received?key=<key> lists a key's requests"))
 	case key == fixturesDir:
-		s.answer(w, r, fixturesDir+"/"+rest, 0)
+		a, status, err := s.prepare(r, fixturesDir+"/"+rest, false)
+		if err != nil {
+			fail(w, status, err)
+			return
+		}
+		s.answer(w, r, a, 0)
 	default:
-		s.answer(w, r, rest, s.record(r, key))
+		// Recorded with what went wrong, if anything: a step then sees
+		// that the server didn't get the answer the case asked for.
+		a, status, err := s.prepare(r, rest, true)
+		seq := s.record(r, key, err)
+		if err != nil {
+			fail(w, status, err)
+			return
+		}
+		s.answer(w, r, a, seq)
 	}
+}
+
+// mayRead says why r may not read what the sink recorded, or returns nil.
+func (s *Server) mayRead(r *http.Request) (int, error) {
+	if !answersTo(r.Host, s.cfg.Hosts) {
+		return http.StatusMisdirectedRequest, fmt.Errorf("the sink doesn't answer to %q: start it with --hosts naming it", r.Host)
+	}
+	if !BearerOK(r, s.cfg.Token) {
+		return http.StatusUnauthorized, errors.New("the sink needs its token (BBB_SINK_TOKEN) as a bearer token")
+	}
+	return 0, nil
+}
+
+// answersTo says whether a request for host is addressed to a server by
+// an IP address, localhost or one of names, and not by some other name
+// that happens to resolve to it.
+func answersTo(host string, names []string) bool {
+	h, _, err := net.SplitHostPort(host)
+	if err != nil {
+		h = host
+	}
+	h = strings.TrimSuffix(strings.Trim(h, "[]"), ".")
+	if net.ParseIP(h) != nil || strings.EqualFold(h, "localhost") {
+		return true
+	}
+	for _, name := range names {
+		if strings.EqualFold(h, name) {
+			return true
+		}
+	}
+	return false
+}
+
+// BearerOK says whether r carries token as its bearer token; any request
+// does when token is "".
+func BearerOK(r *http.Request, token string) bool {
+	if token == "" {
+		return true
+	}
+	got, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	return ok && subtle.ConstantTimeCompare([]byte(got), []byte(token)) == 1
 }
 
 // CheckKey says why requests can't be recorded under key, or returns nil:
@@ -123,14 +186,18 @@ func CheckKey(key string) error {
 }
 
 // record logs a request under key, with as much of its body as the sink
-// keeps, and returns its sequence number.
-func (s *Server) record(r *http.Request, key string) int64 {
+// keeps and why it can't answer as asked, if it can't, and returns its
+// sequence number.
+func (s *Server) record(r *http.Request, key string, problem error) int64 {
 	body, _ := io.ReadAll(io.LimitReader(r.Body, MaxBody))
 	more, _ := io.Copy(io.Discard, io.LimitReader(r.Body, maxDiscard))
 	h := r.Header.Clone()
 	h.Set("Host", r.Host)
-	req := Request{Key: key, Method: r.Method, Path: r.URL.Path, RawQuery: r.URL.RawQuery, Header: h,
+	req := Request{Key: key, Method: r.Method, Path: r.URL.EscapedPath(), RawQuery: r.URL.RawQuery, Header: h,
 		BodySize: int64(len(body)) + more, BodyTruncated: more > 0}
+	if problem != nil {
+		req.SinkError = problem.Error()
+	}
 	if len(body) > 0 {
 		if utf8.Valid(body) {
 			req.Body = string(body)
@@ -198,25 +265,50 @@ func parseModifiers(q url.Values) (modifiers, error) {
 	return m, nil
 }
 
-// answer answers a request as its query asks. rest is its path after the
-// key: a fixture when it starts with fixtures/, else nothing. seq is the
-// request's number in the log, 0 when it isn't recorded.
-func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string, seq int64) {
+// answering is how the sink will answer a request: its modifiers, and the
+// fixture to send, if any.
+type answering struct {
+	m modifiers
+	f *file
+}
+
+// prepare reads how a request asks to be answered, and opens the fixture
+// it asks for, with the status to answer when it can't be answered so.
+// rest is its path after the key: a fixture when it starts with
+// fixtures/, else nothing. recorded says whether it is recorded.
+func (s *Server) prepare(r *http.Request, rest string, recorded bool) (answering, int, error) {
 	m, err := parseModifiers(r.URL.Query())
 	name, isFixture := strings.CutPrefix(rest, fixturesDir+"/")
 	switch {
 	case err != nil:
 	case r.URL.Query().Has("_size") && !(isFixture && strings.HasPrefix(name, generatedDir+"/")):
 		err = errors.New("_size is for generated files: fixtures/generated/<name>")
-	case m.first > 0 && seq == 0:
+	case m.first > 0 && !recorded:
 		err = errors.New("_first needs a key: the sink counts a path's requests in what it recorded")
 	}
 	if err != nil {
-		fail(w, http.StatusBadRequest, err)
-		return
+		return answering{}, http.StatusBadRequest, err
+	}
+	a := answering{m: m}
+	if isFixture {
+		f, status, err := s.open(name, r.URL.Query().Get("_size"))
+		if err != nil {
+			return answering{}, status, err
+		}
+		a.f = f
+	}
+	return a, 0, nil
+}
+
+// answer answers a request as prepare found it asks. seq is the request's
+// number in the log, 0 when it isn't recorded.
+func (s *Server) answer(w http.ResponseWriter, r *http.Request, a answering, seq int64) {
+	m, f := a.m, a.f
+	if f != nil {
+		defer f.close()
 	}
 	// Past the first N requests to the path, the answer is a plain one.
-	if m.first > 0 && s.log.countBefore(r.URL.Path, seq) >= m.first {
+	if m.first > 0 && s.log.countBefore(r.URL.EscapedPath(), seq) >= m.first {
 		m = modifiers{}
 	}
 	if m.delay > 0 {
@@ -234,19 +326,13 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, rest string, seq
 	if m.ctype != "" {
 		w.Header().Set("Content-Type", m.ctype)
 	}
-	if !isFixture {
+	if f == nil {
 		if m.ctype == "" {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		}
 		w.WriteHeader(cmp.Or(m.status, http.StatusOK))
 		return
 	}
-	f, status, err := s.open(name, r.URL.Query().Get("_size"))
-	if err != nil {
-		fail(w, status, err)
-		return
-	}
-	defer f.close()
 	if m.status == 0 {
 		http.ServeContent(w, r, f.name, f.modTime, f.content)
 		return
@@ -272,22 +358,26 @@ type file struct {
 // when it can't.
 func (s *Server) open(p, size string) (*file, int, error) {
 	if name, ok := strings.CutPrefix(p, generatedDir+"/"); ok {
-		b, err := generate(name, size)
+		content, err := generate(name, size)
 		if err != nil {
 			return nil, http.StatusBadRequest, err
 		}
-		return &file{content: bytes.NewReader(b), name: path.Base(name), close: func() {}}, 0, nil
+		return &file{content: content, name: path.Base(name), close: func() {}}, 0, nil
 	}
 	if s.root == nil {
 		return nil, http.StatusNotFound, errors.New("this sink serves no fixtures")
 	}
 	notFound := fmt.Errorf("no fixture %s", p)
+	// Only a regular file: opening a named pipe would wait for a writer.
+	if st, err := s.root.Stat(p); err != nil || !st.Mode().IsRegular() {
+		return nil, http.StatusNotFound, notFound
+	}
 	f, err := s.root.Open(p)
 	if err != nil {
 		return nil, http.StatusNotFound, notFound
 	}
 	st, err := f.Stat()
-	if err != nil || st.IsDir() {
+	if err != nil || !st.Mode().IsRegular() {
 		f.Close()
 		return nil, http.StatusNotFound, notFound
 	}

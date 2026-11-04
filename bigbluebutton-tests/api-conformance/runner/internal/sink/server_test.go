@@ -40,7 +40,7 @@ func startWorld(t *testing.T) *world {
 	srv := httptest.NewTLSServer(s)
 	t.Cleanup(srv.Close)
 	tr := srv.Client().Transport.(*http.Transport)
-	return &world{sink: s, srv: srv, client: NewClient(srv.URL, tr.TLSClientConfig), dir: dir}
+	return &world{sink: s, srv: srv, client: NewClient(srv.URL, tr.TLSClientConfig, ""), dir: dir}
 }
 
 func write(t *testing.T, path, contents string) {
@@ -348,5 +348,88 @@ func TestCheckKey(t *testing.T) {
 		if err := CheckKey(key); err == nil {
 			t.Errorf("%q was accepted", key)
 		}
+	}
+}
+
+// A keyed request the sink can't answer as asked is recorded with why, so
+// a step can tell the server got an error from the sink, not the answer
+// the case wanted.
+func TestSinkErrorRecorded(t *testing.T) {
+	w := startWorld(t)
+	for _, p := range []string{"/k/fixtures/plugins/missing.json", "/k/x?_stauts=500", "/k/fixtures/generated/a.pdf"} {
+		if resp, _ := w.send(t, "GET", p, ""); resp.StatusCode/100 != 4 {
+			t.Errorf("%s: %d", p, resp.StatusCode)
+		}
+	}
+	w.send(t, "GET", "/k/fine", "")
+	r, err := w.client.Received(ctx(t), Query{Key: "k"})
+	if err != nil || len(r.Requests) != 4 {
+		t.Fatalf("%+v %v", r, err)
+	}
+	for i, want := range []string{"no fixture plugins/missing.json", "unknown modifier _stauts", "a generated file needs _size", ""} {
+		if got := r.Requests[i].SinkError; !strings.Contains(got, want) || (want == "") != (got == "") {
+			t.Errorf("request %d: sinkError %q, want %q", i+1, got, want)
+		}
+	}
+}
+
+// The path is recorded as sent, percent-encoding kept.
+func TestPathAsSent(t *testing.T) {
+	w := startWorld(t)
+	w.send(t, "GET", "/k/a%2Fb/c%20d", "")
+	r, err := w.client.Received(ctx(t), Query{Key: "k"})
+	if err != nil || len(r.Requests) != 1 || r.Requests[0].Path != "/k/a%2Fb/c%20d" {
+		t.Errorf("%+v %v", r, err)
+	}
+}
+
+// What the sink recorded goes only to a request addressed to it by an IP
+// address, localhost or a --hosts name, with its token when it has one.
+// Recording and fixtures need neither: the server under test sends no
+// token.
+func TestReadNeedsHostAndToken(t *testing.T) {
+	s, err := New(Config{MaxBytes: 1 << 20, MaxAge: time.Hour, Hosts: []string{"sink.test"}, Token: "tok"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := httptest.NewServer(s)
+	defer srv.Close()
+	get := func(host, path, token string) int {
+		req, _ := http.NewRequest("GET", srv.URL+path, nil)
+		req.Host = host
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		return resp.StatusCode
+	}
+	for _, tt := range []struct {
+		host, path, token string
+		want              int
+	}{
+		{"evil.example", "/k/callback", "", 200},
+		{"localhost:1", "/_received?key=k", "tok", 200},
+		{"127.0.0.1", "/_received?key=k", "tok", 200},
+		{"sink.test:8444", "/_received?key=k", "tok", 200},
+		{"localhost", "/_received?key=k", "", 401},
+		{"localhost", "/_received?key=k", "wrong", 401},
+		{"evil.example", "/_received?key=k", "tok", 421},
+		{"evil.example", "/_info", "", 200},
+	} {
+		if got := get(tt.host, tt.path, tt.token); got != tt.want {
+			t.Errorf("%s %s token %q: %d, want %d", tt.host, tt.path, tt.token, got, tt.want)
+		}
+	}
+	c := NewClient(srv.URL, nil, "tok")
+	if r, err := c.Received(ctx(t), Query{Key: "k"}); err != nil || len(r.Requests) != 1 {
+		t.Errorf("with the token: %+v %v", r, err)
+	}
+	var se *Error
+	if _, err := NewClient(srv.URL, nil, "").Received(ctx(t), Query{Key: "k"}); !errors.As(err, &se) || se.Status != http.StatusUnauthorized {
+		t.Errorf("without: %v", err)
 	}
 }

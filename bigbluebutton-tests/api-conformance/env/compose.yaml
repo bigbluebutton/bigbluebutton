@@ -133,6 +133,8 @@ services:
     <<: *pod
     build: {<<: *build, target: tap}
     init: true
+    # BBB_TAP_TOKEN, which render.sh makes once.
+    env_file: ./.state/tokens.env
     volumes:
       - data:/var/bigbluebutton:ro
     depends_on:
@@ -149,6 +151,8 @@ services:
     <<: *pod
     build: {<<: *build, target: sink}
     init: true
+    # BBB_SINK_TOKEN, which render.sh makes once.
+    env_file: ./.state/tokens.env
     volumes:
       - ./.state/conform:/etc/bigbluebutton/conform:ro
       - ../fixtures:/fixtures:ro

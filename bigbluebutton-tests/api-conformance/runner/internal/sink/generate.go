@@ -3,6 +3,7 @@ package sink
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"path"
 	"strconv"
 	"strings"
@@ -18,8 +19,9 @@ const lineLen = 77
 // generate makes the file a fixtures/generated/<name> request asks for:
 // size bytes whose kind follows the name's extension. A .pdf is a valid
 // one-page PDF and a .json a valid JSON document; anything else is lines
-// of text.
-func generate(name, size string) ([]byte, error) {
+// of text. The file is computed as it is read, so a large one never sits
+// in memory, however many requests read it at once.
+func generate(name, size string) (io.ReadSeeker, error) {
 	if size == "" {
 		return nil, fmt.Errorf("a generated file needs _size, its length in bytes")
 	}
@@ -27,66 +29,142 @@ func generate(name, size string) ([]byte, error) {
 	if err != nil || n < 0 || n > MaxGenerated {
 		return nil, fmt.Errorf("bad _size %q: a number of bytes up to %d", size, MaxGenerated)
 	}
+	var ps parts
 	switch strings.ToLower(path.Ext(name)) {
 	case ".pdf":
-		return generatePDF(n)
+		ps, err = generatePDF(n)
 	case ".json":
-		return generateJSON(n)
+		ps, err = generateJSON(n)
+	default:
+		ps = parts{filler(n)}
 	}
-	return filler(n), nil
+	if err != nil {
+		return nil, err
+	}
+	return io.NewSectionReader(ps, 0, ps.size()), nil
+}
+
+// part is a stretch of a generated file: bytes given, or a pattern
+// computed byte by byte.
+type part struct {
+	n   int64
+	lit []byte           // the bytes, when not nil
+	at  func(int64) byte // else byte i of the stretch
+}
+
+func literal(b []byte) part { return part{n: int64(len(b)), lit: b} }
+
+// parts is a generated file, read through ReadAt.
+type parts []part
+
+func (ps parts) size() int64 {
+	var n int64
+	for _, p := range ps {
+		n += p.n
+	}
+	return n
+}
+
+func (ps parts) ReadAt(b []byte, off int64) (int, error) {
+	if off < 0 {
+		return 0, fmt.Errorf("negative offset %d", off)
+	}
+	n := 0
+	for _, p := range ps {
+		if n == len(b) {
+			return n, nil
+		}
+		if off >= p.n {
+			off -= p.n
+			continue
+		}
+		if p.lit != nil {
+			c := copy(b[n:], p.lit[off:])
+			n, off = n+c, off+int64(c)
+		} else {
+			for ; off < p.n && n < len(b); off, n = off+1, n+1 {
+				b[n] = p.at(off)
+			}
+		}
+		off = 0
+	}
+	if n == len(b) {
+		return n, nil
+	}
+	return n, io.EOF
 }
 
 // filler is n bytes of text: lines of x.
-func filler(n int) []byte {
-	b := bytes.Repeat([]byte{'x'}, n)
-	for i := lineLen - 1; i < n; i += lineLen {
-		b[i] = '\n'
-	}
-	return b
+func filler(n int) part {
+	return part{n: int64(n), at: func(i int64) byte {
+		if i%lineLen == lineLen-1 {
+			return '\n'
+		}
+		return 'x'
+	}}
 }
 
-func generateJSON(n int) ([]byte, error) {
+// repeat is n copies of c.
+func repeat(c byte, n int) part {
+	return part{n: int64(n), at: func(int64) byte { return c }}
+}
+
+func generateJSON(n int) (parts, error) {
 	const head, tail = `{"padding":"`, `"}`
 	if n < len(head)+len(tail) {
 		return nil, fmt.Errorf("a JSON file needs at least %d bytes", len(head)+len(tail))
 	}
-	return []byte(head + strings.Repeat("x", n-len(head)-len(tail)) + tail), nil
+	return parts{literal([]byte(head)), repeat('x', n-len(head)-len(tail)), literal([]byte(tail))}, nil
 }
+
+// pdfHead is a PDF's header, with the binary comment that marks it as
+// holding binary data.
+const pdfHead = "%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"
 
 // generatePDF returns a one-page PDF of exactly n bytes. The padding is
 // comment lines after the header, which shift the objects but nothing
 // else; the bytes the padding can't place, at most a few, are newlines
 // after %%EOF, where readers look for it.
-func generatePDF(n int) ([]byte, error) {
-	least := len(pdfWithPadding(0))
+func generatePDF(n int) (parts, error) {
+	least := len(pdfHead) + len(pdfBody(len(pdfHead)))
 	if n < least {
 		return nil, fmt.Errorf("a PDF needs at least %d bytes", least)
 	}
 	pad := n - least
-	b := pdfWithPadding(pad)
-	for len(b) > n { // the xref offset grew a digit or two
-		pad -= len(b) - n
-		b = pdfWithPadding(pad)
+	body := pdfBody(len(pdfHead) + pad)
+	for len(pdfHead)+pad+len(body) > n { // the xref offset grew a digit or two
+		pad -= len(pdfHead) + pad + len(body) - n
+		body = pdfBody(len(pdfHead) + pad)
 	}
-	return append(b, bytes.Repeat([]byte{'\n'}, n-len(b))...), nil
+	rest := n - len(pdfHead) - pad - len(body)
+	return parts{literal([]byte(pdfHead)), padding(pad), literal(body), repeat('\n', rest)}, nil
 }
 
-// pdfWithPadding builds the PDF with pad bytes of comments after its
-// header: a blank US Letter page with a grey rectangle on it.
-func pdfWithPadding(pad int) []byte {
-	var b bytes.Buffer
-	b.WriteString("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
-	for pad > 0 {
-		line := min(pad, lineLen)
-		if line == 1 {
-			b.WriteByte('\n')
-		} else {
-			b.WriteByte('%')
-			b.Write(bytes.Repeat([]byte{'x'}, line-2))
-			b.WriteByte('\n')
+// padding is pad bytes of PDF comment lines: %, x up to the line's length,
+// a newline. A last line of one byte is the newline alone.
+func padding(pad int) part {
+	full, last := int64(pad/lineLen), int64(pad%lineLen)
+	return part{n: int64(pad), at: func(i int64) byte {
+		line, pos := i/lineLen, i%lineLen
+		end := int64(lineLen) - 1
+		if line == full {
+			end = last - 1
 		}
-		pad -= line
-	}
+		switch pos {
+		case end:
+			return '\n'
+		case 0:
+			return '%'
+		}
+		return 'x'
+	}}
+}
+
+// pdfBody is a PDF's objects, cross-reference table and trailer, for
+// objects starting at offset base: a blank US Letter page with a grey
+// rectangle on it.
+func pdfBody(base int) []byte {
+	var b bytes.Buffer
 	content := "0.9 g 72 72 468 648 re f\n"
 	objects := []string{
 		"<< /Type /Catalog /Pages 2 0 R >>",
@@ -96,10 +174,10 @@ func pdfWithPadding(pad int) []byte {
 	}
 	offsets := make([]int, len(objects))
 	for i, o := range objects {
-		offsets[i] = b.Len()
+		offsets[i] = base + b.Len()
 		fmt.Fprintf(&b, "%d 0 obj\n%s\nendobj\n", i+1, o)
 	}
-	xref := b.Len()
+	xref := base + b.Len()
 	fmt.Fprintf(&b, "xref\n0 %d\n0000000000 65535 f \n", len(objects)+1)
 	for _, off := range offsets {
 		fmt.Fprintf(&b, "%010d 00000 n \n", off)
