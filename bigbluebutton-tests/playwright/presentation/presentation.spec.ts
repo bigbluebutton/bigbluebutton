@@ -5,6 +5,7 @@ import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { ExportedAnnotationsOverlap } from './exportedAnnotationsOverlap';
 import { Presentation } from './presentation';
+import { MASK_SAMPLE_PDF_BYTES } from './util';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
@@ -290,8 +291,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadAndRemoveAllPresentations();
     });
 
-    // The server reports PAGE_COUNT_FAILED, which the upload toast has no message for: it shows "Converting file ...".
-    test('A truncated PDF is refused', { tag: '@known-issue' }, async ({ browser, context, page }, testInfo) => {
+    test('A truncated PDF is refused', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, { testInfo });
       await presentation.truncatedPdfIsRefused();
@@ -319,5 +319,52 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.initUserPage(context, { testInfo });
       await presentation.removePreviousPresentationFromPreviousPresenter();
     });
+  });
+});
+
+// At the top level so the @ci 'Presentation' describe does not tag these
+test.describe.parallel('Presentation upload limits', { tag: '@nightly' }, () => {
+  test('A file over uploadSizeMax is refused without being sent, one at the limit uploads', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: {
+        public: { presentation: { mirroredFromBBBCore: { uploadSizeMax: MASK_SAMPLE_PDF_BYTES } } },
+      },
+    });
+    await presentation.fileOverSizeLimitIsNotSent();
+  });
+
+  test('fileUploadConstraintsHint shows uploadSizeMax and uploadPagesMax', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: {
+        public: {
+          presentation: {
+            fileUploadConstraintsHint: true,
+            mirroredFromBBBCore: { uploadSizeMax: 50000000, uploadPagesMax: 7 },
+          },
+        },
+      },
+    });
+    await presentation.uploadConstraintsHintShowsLimits();
+  });
+
+  test('fileUploadConstraintsHint off shows no limits', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: { public: { presentation: { fileUploadConstraintsHint: false } } },
+    });
+    await presentation.uploadConstraintsHintIsHidden();
   });
 });

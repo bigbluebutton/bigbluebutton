@@ -51,11 +51,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       allowDefaultLogoutUrl: true,
       skipMeetingEnded: false,
-      dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       showGuestLobbyWaitingQueuePosition: true,
-      guestPolicyExtraAllowOptions: false,
-      alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
       enableMultipleCameras: true,
       enableCameraAsContent: true,
@@ -131,7 +128,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       emojiRain: {
         enabled: false,
-        intervalEmojis: 2000,
         numberOfEmojis: 5,
         emojiSize: 2,
       },
@@ -765,7 +761,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'danger',
         'critical',
       ],
-      help: 'STATS_HELP_URL',
     },
     presentation: {
       allowDownloadOriginal: true,

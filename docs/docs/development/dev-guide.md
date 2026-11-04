@@ -357,7 +357,7 @@ cd ~/dev/bigbluebutton/akka-bbb-apps
 ./run.sh
 ```
 
-Don't forget to modify service-bbbWebAPI, service-sharedSecret in ~/dev/bigbluebutton/akka-bbb-apps/src/universal/conf/application.conf, to get it work properly. For instance, these are necessary for starting the breakout rooms.
+Don't forget to modify `services.bbbWebAPI` and `services.sharedSecret` in /etc/bigbluebutton/bbb-apps-akka.conf, to get it work properly. For instance, these are necessary for starting the breakout rooms.
 
 You can deploy locally akka-apps by building a simple .deb package using `sbt` and deploying it right away:
 

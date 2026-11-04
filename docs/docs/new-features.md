@@ -128,6 +128,12 @@ A chat message that contains only emoji (up to three emoji, whitespace ignored) 
 
 The Learning Dashboard is no longer disabled in breakout rooms: each breakout gets its own dashboard, tracking activity the same way the parent meeting does (an inherited `disabledFeatures=learningDashboard` still turns it off). A breakout's dashboard data is also kept until the *parent* meeting ends - previously cleanup was anchored to the breakout's own end - so instructors can review breakout activity for as long as the main room is running (plus `learningDashboardCleanupDelayInMinutes`).
 
+#### Equations and diagrams in shared notes
+
+Shared notes can now hold **LaTeX equations** and **Mermaid diagrams**. Type `/` and pick *Block Equation*, *Inline Equation* or *Diagram* (or convert a block from the block type menu), then edit the source in the popup that opens; equations are typeset with KaTeX and diagrams drawn with Mermaid, live for every participant.
+
+In the exports and in the recording's notes, equations keep their LaTeX source: they are rendered in the HTML and PDF exports and written as `$...$` and `$$...$$` in the Markdown export. Diagrams are exported as their Mermaid source in a code block. Markdown imported into the notes, or passed in `sharedNotesInitialContentMarkdown`, turns ` ```mermaid ` fences into diagrams; `$$` blocks stay as text.
+
 <!-- ### Analytics -->
 
 ### Behind the scenes
@@ -329,6 +335,13 @@ See [Play recordings made with BigBlueButton 0.81 or 0.9](/administration/custom
 #### New administration tool: bbbctl
 
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
+
+
+#### Configurable whiteboard annotation types
+
+BigBlueButton 4.0 adds a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
+
+Two related behaviour changes ship with it. The server now rejects the `video` shape type, which the HTML5 client still permits, so a video inserted on the whiteboard is drawn for its author but not shared or recorded. And annotations carrying a link that is not an `http://` or `https://` URL are rejected; the whiteboard's own link editor only ever produces `https://` URLs, so this does not affect normal use.
 
 
 #### Plugin SDK 1.0 pre-release
