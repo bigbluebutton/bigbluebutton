@@ -7,7 +7,7 @@ class: contract
 requires: [akka]
 steps:
   - call: create
-    params: {meetingID: "${uid}", name: Props, record: "true", muteOnStart: "true"}
+    params: {meetingID: "${uid}", name: Props, record: "true", muteOnStart: "true", meetingEndedURL: "${sinkUrl}/${uid}/ended"}
     capture: {intId: /response/internalMeetingID}
   - bus: {name: MeetingCreatedEvtMsg, meetingId: "${intId}", within: 5s}
     expect:
@@ -29,7 +29,7 @@ steps:
     expect: {exists: true}
     golden: document
   - sink: {key: "${uid}", within: 10s}
-    expect: {absent: true}
+    expect: {absent: true, method: POST}
   - env: {action: restart, service: akka-apps}
 teardown:
   # Again until bbb-web no longer knows the meeting: an end that reaches

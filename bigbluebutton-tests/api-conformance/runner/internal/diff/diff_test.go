@@ -34,3 +34,21 @@ func TestErroredIsNotIdentical(t *testing.T) {
 		t.Errorf("both pass: counts %+v, differs %t", rep.Counts, rep.Differs())
 	}
 }
+
+// A case that passes on one side and fails on the other differs, even when
+// the answers match once normalized.
+func TestStatusMismatchDiffers(t *testing.T) {
+	col := func() *golden.Collector {
+		return golden.NewCollector(&target.Target{Name: "t", BaseURL: "https://h"}, normalize.Default(), &tmpl.Redactor{})
+	}
+	run := func(name string, st report.Status) *report.Run {
+		return &report.Run{Target: name, Cases: []*report.CaseResult{{ID: "getMeetings.x.y", Status: st}}}
+	}
+	rep := Compare(run("a", report.Pass), run("b", report.Fail), col(), col())
+	if c := rep.Cases[0]; c.Outcome != "differing" || c.Note != "the normalized answers match, but the case is PASS on A and FAIL on B" {
+		t.Errorf("%+v", c)
+	}
+	if rep.Counts != (Counts{Differing: 1}) || !rep.Differs() {
+		t.Errorf("counts %+v, differs %t", rep.Counts, rep.Differs())
+	}
+}

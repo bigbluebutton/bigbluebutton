@@ -94,8 +94,8 @@ func TestSinkSteps(t *testing.T) {
     expect: {count: 1, query: {recordingmarks: "${marks}"}}
   - sink: {key: "${uid}-meta", within: 300ms}
     expect: {count: 0, method: POST}
-  - sink: {key: "${uid}-none", within: 300ms}
-    expect: {absent: true}
+  - sink: {key: "${uid}-param", within: 300ms}
+    expect: {absent: true, method: POST}
 `)
 	if res.Status != report.Pass {
 		logSteps(t, res)

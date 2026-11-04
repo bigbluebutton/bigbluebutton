@@ -226,6 +226,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	goldenDir := fl.String("golden", "", "compare each step with the recordings in this directory, e.g. golden/bbb-web")
 	masksFile := fl.String("masks", "", "with --golden: extra normalization rules (default: masks.yaml next to the cases directory)")
 	verbose := fl.Bool("v", false, "list every failed check and warning")
+	failOnSkip := fl.Bool("fail-on-skip", false, "fail the run if any case is skipped, e.g. in CI, where every case selected should run")
 	if err := fl.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return exitOK
@@ -278,6 +279,9 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
+	if len(selected) == 0 {
+		return noneSelected("run", stderr)
+	}
 
 	r, err := steps.NewRunner(tg, fixturesDir, version)
 	if err != nil {
@@ -327,6 +331,10 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "bbb-conform: json: %v\n", err)
 		return exitUsage
 	}
+	if *failOnSkip && run.Counts.Skipped > 0 {
+		fmt.Fprintf(stderr, "bbb-conform: %d case(s) skipped, and --fail-on-skip is set\n", run.Counts.Skipped)
+		return exitFailed
+	}
 	if !run.OK() || ctx.Err() != nil {
 		return exitFailed
 	}
@@ -373,6 +381,13 @@ func splitList(s string) []string {
 		}
 	}
 	return out
+}
+
+// noneSelected reports that the filters left no case to run: a misspelt
+// --id or tag would otherwise make an empty run that passes.
+func noneSelected(cmd string, stderr io.Writer) int {
+	fmt.Fprintf(stderr, "bbb-conform %s: no case matches --tags, --exclude-tags and --id\n", cmd)
+	return exitUsage
 }
 
 // filterCases keeps cases with any of tags (all cases when tags is empty),
@@ -494,6 +509,9 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
+	if len(selected) == 0 {
+		return noneSelected("diff", stderr)
+	}
 	ctx, abort, stop := interruptible(stderr)
 	defer stop()
 	red := &tmpl.Redactor{}

@@ -113,6 +113,9 @@ func cmdRecord(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	selected := filterCases(res.Cases, splitList(*tags), splitList(*exclude), splitList(*ids))
+	if len(selected) == 0 {
+		return noneSelected("record", stderr)
+	}
 
 	r, err := steps.NewRunner(tg, fixturesDir, version)
 	if err != nil {

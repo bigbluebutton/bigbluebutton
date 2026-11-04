@@ -44,6 +44,7 @@ go run ./cmd/bbb-conform run --target my-server.yaml --cases ../cases \
 | `--golden DIR` | Compare each step with the reviewed recordings in DIR, e.g. `golden/bbb-web` (see [record](#recording-what-a-server-answers-record)). `--masks FILE` as for `diff`. |
 | `--junit FILE`, `--json FILE` | Write reports. The JSON report has every request, response and check. |
 | `-v` | List every failed check and warning on the console. |
+| `--fail-on-skip` | Fail the run if any case is skipped: for CI, where every case selected should run. |
 
 Each case ends as one of:
 - **PASS**;
@@ -57,8 +58,9 @@ Each case ends as one of:
   the case started.
 
 The exit status is 0 when nothing failed or errored, 1 when something did
-or the run was interrupted, and 2 for a bad command line, target or case
-file. Ctrl-C stops the run: cases that haven't started are skipped, and
+or the run was interrupted (or, with `--fail-on-skip`, a case was skipped),
+and 2 for a bad command line, target or case file, or for filters that
+select no case. Ctrl-C stops the run: cases that haven't started are skipped, and
 those running stop and run their teardowns. A second Ctrl-C skips the
 teardowns too. Restoring the default profile after a switch always
 finishes, so the server isn't left on another profile. The salt and secret target
@@ -447,6 +449,9 @@ Content-Type, error formats.
   defaults differently. When only one target has a tap, there is a warning.
 - **Errored cases:** a case that ERRORs on a side before anything differs is
   reported as errored, not identical: what came after wasn't compared.
+- **Checks that disagree:** a case that passes on one side and fails on the
+  other differs, even when the normalized answers match: the difference is
+  in a value normalization hides, or a header.
 - **Exit status:** 0, unless `--fail-on-diff` is given and a case differs,
   is one-sided or errored, or the run is interrupted.
 - **Comparing two releases:** give two bbb-web targets, e.g. 3.0 and 4.0. The
@@ -939,15 +944,20 @@ starting with `_`, which the sink keeps for itself.
     query: {meetingID: "${uid}", recordingmarks: "false"}
     headers: {accept-language: {regex: "^en-US"}}
   capture: {marks: $.query.recordingmarks}
-- sink: {key: "${uid}-unused", within: 1s}
-  expect: {absent: true}
+- sink: {key: "${uid}", within: 1s}
+  expect: {absent: true, method: POST}
 ```
 
 - **The window:** a case with a `sink` step takes a mark from the sink
   before its first step. Each step looks at the requests to its key since
   then, for up to `within` (required) after it starts. As for `bus`, it
   passes at the first match; `absent: true` takes the whole window, and
-  `count` checks how many matched by its end.
+  `count` checks how many matched by its end. A step that expects nothing
+  (`absent`, or `count: 0`) needs a `within` longer than 0 and a key some
+  URL in the case uses, written the same way (`${sinkUrl}/${uid}-to/...`
+  for the key `${uid}-to`): either way it could never fail. `validate`
+  checks both, and the `within` of an absent `bus`, `fs` or `redis` step
+  too.
 - **What matches:** `method`, `path`, `query` (by name) and `headers` (by
   name, in any case, so not a template) narrow what counts.
 - **The document** that `capture` and recordings see is

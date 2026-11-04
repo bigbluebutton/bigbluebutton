@@ -109,6 +109,12 @@ func Compare(a, b *report.Run, ca, cb *golden.Collector) *Report {
 			// the steps after it weren't compared.
 			cd.Outcome, cd.Note = "errored", errorNote(ra, rb)
 			rep.Counts.Errored++
+		case ra.Status != rb.Status:
+			// The answers match once normalized, but the checks didn't:
+			// a value normalization hides, or a header, decided.
+			cd.Outcome = "differing"
+			cd.Note = fmt.Sprintf("the normalized answers match, but the case is %s on A and %s on B", ra.Status, rb.Status)
+			rep.Counts.Differing++
 		default:
 			cd.Outcome = "identical"
 			rep.Counts.Identical++
@@ -162,6 +168,9 @@ func (r *Report) WriteConsole(w io.Writer) {
 		switch c.Outcome {
 		case "differing", "one-sided":
 			fmt.Fprintf(w, "%-9s %s (%s / %s)\n", strings.ToUpper(c.Outcome), c.ID, c.StatusA, c.StatusB)
+			if c.Note != "" {
+				fmt.Fprintf(w, "          %s\n", c.Note)
+			}
 		case "errored":
 			fmt.Fprintf(w, "%-9s %s (%s / %s): %s\n", strings.ToUpper(c.Outcome), c.ID, c.StatusA, c.StatusB, c.Note)
 		}

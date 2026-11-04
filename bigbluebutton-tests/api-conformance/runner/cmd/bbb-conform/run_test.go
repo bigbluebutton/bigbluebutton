@@ -208,7 +208,6 @@ func TestRunFilters(t *testing.T) {
 		summary string
 	}{
 		{[]string{"--tags", "ci"}, "14 case(s)"},
-		{[]string{"--tags", "ci", "--exclude-tags", "ci"}, "0 case(s)"},
 		{[]string{"--id", "getMeetings.checksum.*,version.*"}, "6 case(s)"},
 	}
 	for _, tt := range tests {
@@ -223,6 +222,27 @@ func TestRunFilters(t *testing.T) {
 	}
 }
 
+// --fail-on-skip turns a skipped case into a failed run.
+func TestRunFailOnSkip(t *testing.T) {
+	tf := startFake(t, "akka, presence", true)
+	for _, tt := range []struct {
+		flag bool
+		want int
+	}{{false, exitOK}, {true, exitFailed}} {
+		var stdout, stderr bytes.Buffer
+		args := []string{"run", "--target", tf, "--cases", "../../testdata/cases", "--id", "create.props.mute-on-start"}
+		if tt.flag {
+			args = append(args, "--fail-on-skip")
+		}
+		if code := run(args, &stdout, &stderr); code != tt.want {
+			t.Errorf("--fail-on-skip=%v: exit %d, want %d\n%s%s", tt.flag, code, tt.want, stdout.String(), stderr.String())
+		}
+		if !strings.Contains(stdout.String(), "1 skipped") {
+			t.Errorf("--fail-on-skip=%v: summary:\n%s", tt.flag, stdout.String())
+		}
+	}
+}
+
 func TestRunUsage(t *testing.T) {
 	tf := startFake(t, "akka, presence", true)
 	for _, args := range [][]string{
@@ -230,6 +250,9 @@ func TestRunUsage(t *testing.T) {
 		{"run", "--target", "missing.yaml"},
 		{"run", "--target", tf, "--cases", "../../internal/spec/testdata/invalid"},
 		{"run", "--target", tf, "--id", "["},
+		// Filters that leave nothing to run: a typo would otherwise pass.
+		{"run", "--target", tf, "--cases", "../../testdata/cases", "--tags", "ci", "--exclude-tags", "ci"},
+		{"run", "--target", tf, "--cases", "../../testdata/cases", "--id", "no.such.case*"},
 		{"run", "--target", tf, "--expect", "../../../expectations/bbb-web.yaml"}, // for another target
 		{"run", "--target", tf, "--expect", "missing.yaml"},
 	} {

@@ -154,6 +154,7 @@ func (d *decoder) decodeCase(root *yaml.Node, file, variantID string) *Case {
 	}
 
 	c.Uses = sortedKeys(d.uses)
+	d.sinkKeysUsed(root, c)
 
 	// A profile restarts the server, which --exclude-tags disruptive must
 	// be able to avoid. A triage case's answers aren't decided yet, so
@@ -599,6 +600,48 @@ func (d *decoder) sinkKey(n *yaml.Node, key, where string) {
 	}
 }
 
+// sinkURLKey finds the sink keys a case's URLs send requests to: the
+// first path segment after ${sinkUrl}/ or ${sinkHttpUrl}/.
+var sinkURLKey = regexp.MustCompile(`\$\{(?:sinkUrl|sinkHttpUrl)\}/([^/?&#\s"]+)`)
+
+// sinkKeysUsed checks that a sink step that expects nothing (absent, or a
+// count of 0) watches a key a URL in the case sends requests to, written
+// the same way: on any other key it sees nothing, so it can't fail.
+func (d *decoder) sinkKeysUsed(root *yaml.Node, c *Case) {
+	sent := map[string]bool{}
+	var walk func(n *yaml.Node)
+	walk = func(n *yaml.Node) {
+		if n.Kind == yaml.ScalarNode {
+			for _, m := range sinkURLKey.FindAllStringSubmatch(n.Value, -1) {
+				sent[m[1]] = true
+			}
+		}
+		for _, k := range n.Content {
+			walk(k)
+		}
+	}
+	walk(root)
+	for _, part := range []string{"steps", "teardown"} {
+		list := mapGet(root, part)
+		if list == nil {
+			continue
+		}
+		steps := c.Steps
+		if part == "teardown" {
+			steps = c.Teardown
+		}
+		for i, st := range list.Content {
+			if i >= len(steps) || steps[i].Sink == nil || steps[i].Expect == nil || sent[steps[i].Sink.Key] {
+				continue
+			}
+			e := steps[i].Expect
+			if e.Absent || e.Count != nil && e.Count.Op == "eq" && e.Count.Arg == "0" {
+				d.f.errf(st, "%s[%d]: no URL in the case sends requests to sink key %q (${sinkUrl}/%s/...), so this step can't fail", part, i, steps[i].Sink.Key, steps[i].Sink.Key)
+			}
+		}
+	}
+}
+
 // jsonPathName quotes a member name for a JSONPath bracket selector.
 func jsonPathName(name string) string {
 	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(name) + "'"
@@ -609,9 +652,11 @@ func jsonPathName(name string) string {
 // (absent), how many times (count), or goes away (exists: false).
 func (d *decoder) sideEffectModes(step, n *yaml.Node, e *Expect, where string) {
 	if e.Absent {
-		for _, k := range []string{"bus", "fs", "redis"} {
-			if m := mapGet(step, k); m != nil && mapGet(m, "within") == nil {
-				d.f.errf(mapKey(n, "absent"), "%s: give an absent step a within: it passes only if nothing turns up during it", where)
+		for _, k := range []string{"bus", "fs", "redis", "sink"} {
+			if m := mapGet(step, k); m != nil {
+				if w := mapGet(m, "within"); w == nil || duration(w) <= 0 {
+					d.f.errf(mapKey(n, "absent"), "%s: give an absent step a within longer than 0: it passes only if nothing turns up during it", where)
+				}
 			}
 		}
 		for _, k := range []string{"count", "exists"} {

@@ -1343,12 +1343,12 @@
           "duration_ms": 0,
           "request": {
             "method": "SINK",
-            "url": "http://fake.test/_received?key=uid-012-other"
+            "url": "http://fake.test/_received?key=uid-012-meta"
           },
           "document": "null",
           "assertions": [
             {
-              "what": "sink uid-012-other",
+              "what": "sink uid-012-meta",
               "expected": "none within 300ms",
               "actual": "nothing",
               "ok": true

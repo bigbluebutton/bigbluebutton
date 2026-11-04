@@ -15,5 +15,5 @@ $.path "/${uid}-param"
 $.query.meetingID "${uid}"
 $.query.recordingmarks "false"
 
-== step 5: sink ${uid}-other
+== step 5: sink ${uid}-meta
 $ null
