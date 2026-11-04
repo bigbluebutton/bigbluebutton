@@ -772,7 +772,7 @@
     "app.submenu.audio.standardFilteringDesc": "Reduces noise while maintaining a natural sound.",
     "app.submenu.audio.standardFilteringIdealFor": "everyday use.",
     "app.submenu.audio.originalAudio": "Original Audio",
-    "app.submenu.audio.originalAudioDesc": "Transmits sound in stereo without any processing.",
+    "app.submenu.audio.originalAudioDesc": "Transmits sound without any processing.",
     "app.submenu.audio.originalAudioIdealFor": "music, lessons, singing, or instruments.",
     "app.submenu.notification.SectionTitle": "Notifications",
     "app.submenu.notification.Desc": "Define how and what you will be notified.",
