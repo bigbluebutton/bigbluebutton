@@ -270,18 +270,27 @@ access for the first build.
   bbb-web setting akka-apps reads.
 - **ClamAV.** `make up CLAMAV=1` runs the daemon where bbb-web looks for
   it; the `clamav-scan` profile turns scanning on.
-- **In CI.** `.github/workflows/api-conformance.yml` builds and starts the
-  stack, without ClamAV, for every pull request that touches the suite or
-  what Tier 1 is built from, and for every such push to a base branch. It
-  runs every case Tier 1 can (all but `full-stack` and `slow`; the
-  `clamav-scan` ones are skipped) against the recordings. A change to an
-  answer fails it until the PR re-records the cases it changes (`record`,
-  then review the diff). The debs are cached under `build-debs.sh --key`, a
-  hash of what they're built from: the five packages' sources and build
-  scripts, the release file, `build-debs.sh` and the build image. A PR that
-  changes none of them skips the build. The reports, the gap matrix and, when
-  the job fails, the services' logs are uploaded as `api-conformance-bbb-web`,
-  and the matrix is the job's summary.
+- **In CI.** The `api-conformance` job of `.github/workflows/automated-tests.yml`
+  starts the stack, without ClamAV, from the debs that workflow's
+  `build-package` job made for the same change, so nothing is built twice.
+  It runs for every pull request and every push to a base branch that
+  touches the suite or what Tier 1 is built from or mirrors (the job
+  lists the paths), and skips its steps otherwise. It runs every case
+  Tier 1 can (all but `full-stack` and `slow`) against the recordings and
+  `expectations/bbb-web.yaml`, with `--fail-on-skip`: a case that needs
+  something CI lacks, such as ClamAV, must be tagged `full-stack`. A
+  change to an answer fails it until the PR re-records the cases it
+  changes (`record`, then review the diff). The reports, the gap matrix
+  and, when the job fails, the services' logs are uploaded as
+  `api-conformance-bbb-web`, and the matrix is the job's summary;
+  `check-copies.sh`'s warnings are annotations on the run. The `slow`
+  cases, about 20 minutes, run every night instead: the
+  `api-conformance-slow` job of `.github/workflows/nightly-tests.yml`
+  starts the stack from the packages of the newest Automated tests build of
+  v4.0.x-develop, at the commit that build is of, and uploads
+  `api-conformance-bbb-web-slow`. A manual run of that workflow can name
+  another branch or build. `build-debs.sh --key`, a hash of what the debs
+  are built from, is for local caches.
 
 ## The tap: `tap`
 
