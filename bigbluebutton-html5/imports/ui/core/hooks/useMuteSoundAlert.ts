@@ -4,9 +4,10 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { useReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
-const MUTE_SOUND_PATH = '/resources/sounds/conf-muted.mp3';
-const UNMUTE_SOUND_PATH = '/resources/sounds/conf-unmuted.mp3';
+const MUTE_SOUND_PATH = 'resources/sounds/conf-muted.mp3';
+const UNMUTE_SOUND_PATH = 'resources/sounds/conf-unmuted.mp3';
 
 const useMuteSoundAlert = () => {
   /* eslint no-underscore-dangle: 0 */
@@ -29,10 +30,7 @@ const useMuteSoundAlert = () => {
 
     if (hasMuteStateChanged && typeof isMuted === 'boolean') {
       const soundToPlay = isMuted ? MUTE_SOUND_PATH : UNMUTE_SOUND_PATH;
-
-      const basePath = window.meetingClientSettings.public.app.cdn
-        + window.meetingClientSettings.public.app.basename;
-      const fullSoundUrl = basePath + soundToPlay;
+      const fullSoundUrl = assetUrl(soundToPlay);
 
       AudioService.playAlertSound(fullSoundUrl).then((played) => {
         if (!played) {

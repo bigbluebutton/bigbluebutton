@@ -19,6 +19,7 @@ import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -794,7 +795,7 @@ class Presentation extends PureComponent {
                       onClick={() => tldrawAPI?.undo()}
                       className="tlui-undo"
                     >
-                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
+                      <Styled.IconWithMask mask={assetUrl('svgs/tldraw/undo.svg')} />
                     </Styled.Button>
                   </TooltipContainer>
                   <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
@@ -803,7 +804,7 @@ class Presentation extends PureComponent {
                       onClick={() => tldrawAPI?.redo()}
                       className="tlui-redo"
                     >
-                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
+                      <Styled.IconWithMask mask={assetUrl('svgs/tldraw/redo.svg')} />
                     </Styled.Button>
                   </TooltipContainer>
                 </Styled.ExtraTools>

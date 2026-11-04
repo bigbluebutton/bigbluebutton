@@ -5,6 +5,7 @@ import { defineMessages } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Styled from './styles';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -76,7 +77,7 @@ class ActivityCheck extends Component {
   }
 
   playAudioAlert() {
-    this.alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/notify.mp3`);
+    this.alert = new Audio(assetUrl('resources/sounds/notify.mp3'));
     this.alert.addEventListener('ended', () => { this.alert.src = null; });
     this.alert.play();
   }

@@ -1,4 +1,5 @@
 import { isGenericWasmProcessingSupported } from '../wasmCapability';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 // files loaded during loadFiles()
 const loadedFiles = {
@@ -168,24 +169,21 @@ const loadFiles = () => new Promise((resolve, reject) => {
     new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11]),
   );
 
-  // load wasm files and worklet
-  const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
-  const serverPathPrefix = pathMatch ? pathMatch[1] : '';
-  const basepath = `${serverPathPrefix}/html5client/wasm/`;
+  // load wasm files and worklet (assetUrl applies cdn/basename + ?v=)
   const suffix = supportsSIMD ? '' : '-nosimd';
-  fetch(`${basepath}BBBA${suffix}-mapi.wasm`).then((resp) => {
+  fetch(assetUrl(`wasm/BBBA${suffix}-mapi.wasm`)).then((resp) => {
     resp.arrayBuffer().then((bytes) => {
       loadedFiles.wasmBlob = bytes;
       checkResolved();
     }).catch(catchHandler);
   }).catch(catchHandler);
-  fetch(`${basepath}BBBA${suffix}-mapi.js`).then((resp) => {
+  fetch(assetUrl(`wasm/BBBA${suffix}-mapi.js`)).then((resp) => {
     resp.text().then((text) => {
       loadedFiles.wasmJS = text;
       checkResolved();
     }).catch(catchHandler);
   }).catch(catchHandler);
-  fetch(`${basepath}mapi-proc.js`).then((resp) => {
+  fetch(assetUrl('wasm/mapi-proc.js')).then((resp) => {
     resp.text().then((text) => {
       loadedFiles.worklet = text;
       checkResolved();

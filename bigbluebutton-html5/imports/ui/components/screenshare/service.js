@@ -12,6 +12,7 @@ import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
 import { liveKitScreenshareHasAudioVar } from './livekit-screenshare-state';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 let screenShareBridge = liveKitScreenShareBridge;
 
@@ -384,9 +385,7 @@ export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options =
 };
 
 export const screenShareEndAlert = () => AudioService
-  .playAlertSound(`${window.meetingClientSettings.public.app.cdn
-    + window.meetingClientSettings.public.app.basename}`
-    + '/resources/sounds/ScreenshareOff.mp3');
+  .playAlertSound(assetUrl('resources/sounds/ScreenshareOff.mp3'));
 
 /**
    * Get stats about all active screenshare peers.

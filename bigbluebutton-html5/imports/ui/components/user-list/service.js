@@ -9,6 +9,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { getDateString } from '/imports/utils/string-utils';
 import { isEmpty } from 'radash';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 const intlMessages = defineMessages({
   savedNamesListTitle: {
@@ -405,9 +406,7 @@ const UserJoinedMeetingAlert = (obj) => {
   if (!userJoinAudioAlerts && !userJoinPushAlerts) return;
 
   if (userJoinAudioAlerts) {
-    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename}`
-      + '/resources/sounds/userJoin.mp3');
+    AudioService.playAlertSound(assetUrl('resources/sounds/userJoin.mp3'));
   }
 
   if (userJoinPushAlerts) {
@@ -434,9 +433,7 @@ const UserLeftMeetingAlert = (obj) => {
   if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
 
   if (userLeaveAudioAlerts) {
-    AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename}`
-      + '/resources/sounds/notify.mp3');
+    AudioService.playAlertSound(assetUrl('resources/sounds/notify.mp3'));
   }
 
   if (userLeavePushAlerts) {

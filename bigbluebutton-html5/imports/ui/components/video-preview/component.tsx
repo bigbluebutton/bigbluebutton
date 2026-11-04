@@ -25,6 +25,7 @@ import AppService from '/imports/ui/components/app/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useVideoPreview } from './hooks/useVideoPreview';
 import { CameraProfileProps } from './hooks/types';
+import { assetUrl } from '/imports/ui/services/url-builder';
 
 interface VideoPreviewProps {
   closeModal: () => void;
@@ -650,10 +651,8 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     && !isCameraAsContentDevice(webcamDeviceId)
     && isVirtualBackgroundSupported();
 
-  // @ts-ignore
-  const BASE_NAME = window.meetingClientSettings.public.app.basename;
-  const WebcamSettingsImg = `${BASE_NAME}/resources/images/webcam_settings.svg`;
-  const WebcamBackgroundImg = `${BASE_NAME}/resources/images/webcam_background.svg`;
+  const WebcamSettingsImg = assetUrl('resources/images/webcam_settings.svg');
+  const WebcamBackgroundImg = assetUrl('resources/images/webcam_background.svg');
   const darkThemeState = AppService.isDarkThemeEnabled();
 
   return (

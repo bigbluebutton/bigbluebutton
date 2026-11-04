@@ -36,6 +36,7 @@ import {
   getDifferences,
 } from './utils';
 import { useMouseEvents, useCursor } from './hooks';
+import { assetUrl } from '/imports/ui/services/url-builder';
 import {
   notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls,
   debouncedUpdateShapes, sanitizeShape, setupColorThemePaletteOverrides,
@@ -2563,9 +2564,7 @@ const Whiteboard = React.memo((props) => {
   }, [tlEditorRef?.current?.camera, presentationAreaWidth, presentationAreaHeight, presentationId]);
 
   React.useEffect(() => {
-    const baseName = window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename;
-    const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
+    const makeCursorUrl = (filename) => assetUrl(`resources/images/whiteboard-cursor/${filename}`);
 
     const TOOL_CURSORS = {
       draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,

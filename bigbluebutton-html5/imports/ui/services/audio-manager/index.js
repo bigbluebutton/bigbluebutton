@@ -23,6 +23,7 @@ import {
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
+import { assetUrl } from '/imports/ui/services/url-builder';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import GrahqlSubscriptionStore, { getSubscriptionHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
@@ -1283,12 +1284,7 @@ class AudioManager {
   }
 
   playHangUpSound() {
-    this.playAlertSound(
-      `${
-        window.meetingClientSettings.public.app.cdn +
-        window.meetingClientSettings.public.app.basename
-      }` + '/resources/sounds/LeftCall.mp3'
-    );
+    this.playAlertSound(assetUrl('resources/sounds/LeftCall.mp3'));
   }
 
   notify(message, error = false, icon = 'unmute') {
