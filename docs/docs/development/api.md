@@ -806,7 +806,7 @@ Values are URL encoded. The client parses each value as JSON where possible and 
 
 Each parameter overrides one default of the client's `settings.yml`, named in the **Default** column; the same key can be changed for the whole server in `/etc/bigbluebutton/bbb-html5.yml` (see [Configuration Files](/administration/configuration-files)).
 
-[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, audio bridge and whiteboard tool parameters).
+[`getJoinUrl`](#get-post-getjoinurl) forwards `userdata-` parameters into the new session it creates. Moderators can pass any of them, except inside a breakout room; for viewers, and for everyone in a breakout room, the parameters named in `getJoinUrlUserdataBlocklist` in `bbb-web.properties` are dropped (by default the recording, transparent listen-only and whiteboard tool parameters). Set the list to `all` to drop every `userdata-` parameter in those cases.
 
 Tools for experimenting:
 
