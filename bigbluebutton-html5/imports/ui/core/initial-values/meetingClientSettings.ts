@@ -51,11 +51,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       allowDefaultLogoutUrl: true,
       skipMeetingEnded: false,
-      dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       showGuestLobbyWaitingQueuePosition: true,
-      guestPolicyExtraAllowOptions: false,
-      alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
       enableMultipleCameras: true,
       enableCameraAsContent: true,
@@ -131,7 +128,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       emojiRain: {
         enabled: false,
-        intervalEmojis: 2000,
         numberOfEmojis: 5,
         emojiSize: 2,
       },
@@ -654,6 +650,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audioWasmProcessing: {
           enabled: false,
           provider: 'bbba',
+          intensity: 95,
           constraints: {
             echoCancellation: true,
             autoGainControl: true,
@@ -698,6 +695,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           enabled: true,
           audioSubscriptionPoolSize: 0,
           muteDebounceMs: 2500,
+          lastN: {
+            enabled: false,
+            audibleSize: 3,
+            standbySize: 12,
+            speechHoldMs: 1500,
+            minAudibleMs: 2000,
+            standbyGraceMs: 5000,
+          },
         },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: true,
@@ -757,7 +762,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'danger',
         'critical',
       ],
-      help: 'STATS_HELP_URL',
     },
     presentation: {
       allowDownloadOriginal: true,

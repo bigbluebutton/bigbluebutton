@@ -6,7 +6,7 @@ import { routeGraphqlSockets, routeServerConnection, SHOW_RECONNECTING_TOAST } f
 test.describe.parallel('Reconnection', () => {
   test(
     'Hidden presentation stays hidden after a reconnection when the slide has annotations',
-    { tag: '@ci' },
+    { tag: '@nightly' },
     async ({ browser, context, page }, testInfo) => {
       const graphqlSockets = await routeGraphqlSockets(page, [ANNOTATION_HISTORY_STREAM_FIELD]);
       const reconnection = new Reconnection(browser, context);

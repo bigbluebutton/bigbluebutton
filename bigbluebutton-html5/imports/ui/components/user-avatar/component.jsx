@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import Styled from './styles';
@@ -48,7 +49,12 @@ const UserAvatar = ({
           presenter={presenter}
           you={you}
           viewer={!you && !moderator}
-          className={className}
+          className={cx('bbb-avatar', {
+            'bbb-avatar--moderator': moderator,
+            'bbb-avatar--presenter': presenter,
+            'bbb-avatar--you': you,
+            'bbb-avatar--talking': talking && !muted,
+          }, className)}
           isChrome={isChrome}
           isFirefox={isFirefox}
           isEdge={isEdge}

@@ -41,6 +41,7 @@ const PinArea: React.FC<PinAreaProps> = (props) => {
     <Styled.PinButtonWrapper>
       {presenter && (
         <Styled.PresenterButton
+          className="bbb-webcam__presenter-badge"
           color="primary"
           icon="presentation"
           size="sm"

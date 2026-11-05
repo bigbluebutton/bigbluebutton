@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   publiccode_yml_validation:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_LIGHT_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v5
       - uses: italia/publiccode-parser-action@v1

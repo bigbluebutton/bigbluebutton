@@ -145,11 +145,19 @@ Updated in 4.0:
   - **Changed:** Breakout rooms now always inherit the parent meeting's effective `meetingKeepEvents` value; an explicit `meetingKeepEvents` parameter and the server-wide `defaultKeepEvents` fallback only apply to top-level meetings (previously breakouts always fell back to `defaultKeepEvents`, even when the parent had an explicit override).
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
   - **Removed option:** `captions` is no longer a valid `disabledFeatures` value (it has had no effect since BBB 3.0, when typed captions moved to a plugin). Use `liveTranscription` to disable automatic transcription.
+  - **Changed:** At most `maxPresentationsPerRequest` pre-uploaded documents (10 by default; the default presentation is not counted) are uploaded per call (added in 4.0.1). The meeting is still created, and the response carries the `messageKey` `documentsDropped`; see [Pre-upload Slides](#pre-upload-slides).
+  - **Changed:** The `meetingEndedURL` callback carries the query parameters `recordingmarks` and `meetingID`, appended to the query of the URL (added in 4.0.1; 4.0.0 called the URL unchanged). See [Meeting Ended Callback URL](#meeting-ended-callback-url).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Changed:** Parameter `fullName` is now limited to 255 characters; a longer value is rejected with the `fullNameTooLong` message key (previously unbounded).
-  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
+  - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist), `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`) and `userdata-bbb_parent_room_moderator` (removed in 4.0.1; akka-apps no longer appends it to the breakout join URLs it generates; nothing has read it since 3.0.25, when breakout rooms started keeping the parent-room role, so the role itself tells who may remove users).
   - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
+- **insertDocument**
+  - **Changed:** At most `maxPresentationsPerRequest` documents (10 by default) are uploaded per call (added in 4.0.1). The response is still `SUCCESS` and carries the `messageKey` `documentsDropped`.
+  - **Changed:** Calls are rate limited per meeting, by default to 30 calls per 60 seconds (`insertDocumentMaxRequests`, `insertDocumentRateWindowSec`); a call over the limit fails with the `messageKey` `rateLimitExceeded` (added in 4.0.1).
+  - **Changed:** Every `FAILED` response carries a `messageKey` (added in 4.0.1): an unknown meeting, an invalid filename, a disabled presentation feature and a request without documents now return `notFound`, `invalidFilename`, `presentationDisabled` and `noDocuments`, with the same messages as before. See [insertDocument](#post-insertdocument).
+- **end**
+  - **Changed:** Ending a meeting now also ends the breakout rooms created through `create` with `isBreakout=true` (previously only the rooms created from the client's breakout panel ended with their parent).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
@@ -518,6 +526,8 @@ In the payload the variables are passed inside each `<document>` tag of the xml,
 The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
 The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
+A request may carry at most `maxPresentationsPerRequest` documents (10 by default; the default presentation is not counted); see [Limit the number of presentations per API request](/administration/customize#limit-the-number-of-presentations-per-api-request). The document that is loaded first in the client is always kept, the remaining slots go to the other documents in the order they appear in the request, and the documents beyond that are not uploaded. The meeting is still created, and the response carries the `messageKey` `documentsDropped` with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with the `messageKey` `invalidPresentationUrl` even when its document would not have been uploaded.
+
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
 #### clientSettingsOverride
@@ -542,11 +552,11 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
                   "wsUrl": "wss://test.bigbluebutton.org/bbb-webrtc-sfu"
                },
                "app": {
-                    "appName": "Test",
+                    "clientTitle": "Test",
                     "helpLink": "https://www.bigbluebutton.org",
                     "autoJoin": false,
                     "askForConfirmationOnLeave": false,
-                    "userSettingsStorage": "localStorage",
+                    "userSettingsStorage": "local",
                     "defaultSettings": {
                      "application": {
                         "overrideLocale": "en"
@@ -562,7 +572,7 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
 
 #### Upload slides from external application to a live BigBlueButton session
 
-For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
+For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#post-insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog.
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
@@ -574,7 +584,9 @@ Upon receiving the callback your application could, for example, change the inte
 To specify the callback to BigBlueButton, pass a URL using the parameter `meetingEndedURL` on the `create` request.
 When the BigBlueButton server ends the meeting, it will make an HTTP GET request to the passed URL.
 
-BigBlueButton will add an additional query parameter, `recordingmarks=true|false`,
+BigBlueButton will add two query parameters to the URL:
+`meetingID`, the meeting ID that was passed on the create API call,
+and `recordingmarks=true|false`,
 which provides a hint as to whether a recording will be generated for the meeting.
 The value will be `true` if the meeting was set to be recorded
 (`record=true` was passed on the create API call)
@@ -591,10 +603,16 @@ add the following parameter to the `create` API call:
 &meetingEndedURL=https%3A%2F%2Fmyapp.example.com%2FmeetingEndedCallback%3Ftoken%3Da817dde5-0a18-43ad-9016-2d5d4c758a50
 ```
 (note the callback URL needs to be URLEncoded).
-The actual URL that the callback will be made to will look like
+The actual URL that the callback will be made to, for a meeting created with `meetingID=test01`, will look like
 ```
-https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true
+https://myapp.example.com/meetingEndedCallback?token=a817dde5-0a18-43ad-9016-2d5d4c758a50&recordingmarks=true&meetingID=test01
 ```
+BigBlueButton appends the parameters to the query string that your URL already has
+and does not replace a parameter of the same name:
+if your URL already contains `meetingID` or `recordingmarks`, the callback carries both values, yours first.
+Your existing parameters keep their values, but BigBlueButton may re-encode them
+(for example, `redirect=https://x/a` is sent as `redirect=https%3A%2F%2Fx%2Fa`),
+so do not rely on the raw query string, for example to verify a signature over it.
 
 For security reasons, the callback URL that your application generates should be authenticated in some way,
 to prevent malicious users from causing your application to think a meeting has ended while it is still running.
@@ -931,6 +949,42 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 
 There is also the possibility of passing the removable, downloadable and current variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
 
+**Example Response:**
+
+```xml
+<response>
+  <returncode>SUCCESS</returncode>
+  <message>Presentation is being uploaded</message>
+</response>
+```
+
+When the request carries more than `maxPresentationsPerRequest` documents (10 by default), only that many are uploaded: the first document with `current="true"`, if there is one, and then the others in the order they appear in the request. The `returncode` is still `SUCCESS`, and the response adds the `messageKey` `documentsDropped`, with a `message` saying how many documents were accepted. All document URLs are checked before the limit is applied, so a malformed URL fails the call with `invalidPresentationUrl` even when its document would not have been uploaded.
+
+**Errors:**
+
+In addition to the standard BigBlueButton checksum and validation errors, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
+
+notFound
+: No meeting with the given meeting ID was found.
+
+malformedXml
+: The request body is not well-formed XML.
+
+invalidPresentationUrl
+: A document URL is not valid URI syntax.
+
+invalidFilename
+: A document's filename is invalid, or no filename can be derived from its URL: the URL is not absolute (for example `url="notaurl"`), or the document has no `filename` and the URL path does not end in a name with an extension. No document from the request is uploaded.
+
+presentationDisabled
+: The presentation feature is disabled for the meeting.
+
+noDocuments
+: The request body has no `presentation` module, or the module has no document with a `url` or `name`.
+
+rateLimitExceeded
+: The meeting has made more `insertDocument` calls than `insertDocumentMaxRequests` allows within the window; see [Limit `insertDocument` API calls](/administration/customize#limit-insertdocument-api-calls). Only calls that pass the checks above count towards this limit, but once it is reached every call is refused with this error, before its body is read.
+
 ### `GET` `POST` isMeetingRunning
 
 This call enables you to simply check on whether or not a meeting is running by looking it up with your meeting ID.
@@ -962,7 +1016,7 @@ running can be “true” or “false” that signals whether a meeting with thi
 
 ### `GET` `POST` end
 
-Use this to forcibly end a meeting and kick all participants out of the meeting.
+Use this to forcibly end a meeting and kick all participants out of the meeting. Ending a meeting also ends all of its breakout rooms, including the ones created through `create` with `isBreakout=true`.
 
 **Resource URL:**
 
@@ -1839,7 +1893,6 @@ For example, the application may be able to register a URL that BigBlueButton wo
   - .jpeg
   - .png
   - .webp
-  - .svg
 
 #### Text Files
 
@@ -1848,4 +1901,4 @@ For example, the application may be able to register a URL that BigBlueButton wo
 - Plain Text:
   - .txt
 
-All these valid formats are also present in a list in the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java#L28-L47) and in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.10/bigbluebutton-html5/private/config/settings.yml#L824-L862) if more details are needed.
+All these valid formats are also present in the `EXTENSIONS_MIME` map of the [back-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java) and under `uploadValidMimeTypes` in the [front-end](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-html5/private/config/settings.yml) if more details are needed.

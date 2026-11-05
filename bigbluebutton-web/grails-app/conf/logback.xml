@@ -22,7 +22,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="akka" level="INFO" />
+	<logger name="org.apache.pekko" level="INFO" />
 	<logger name="io.lettuce" level="INFO" />
 	<logger name="org.bigbluebutton" level="DEBUG" />
 

@@ -283,19 +283,38 @@ export class API extends MultiUsers {
   }
 
   // Grails makes every public method and closure property of a controller an action, reachable
-  // through the generic /bigbluebutton/$controller/$action mapping without a checksum.
+  // through the generic /bigbluebutton/$controller/$action mapping without a checksum. The
+  // helpers that handle sessions and documents must stay private.
   static async testControllerHelpersNotReachable() {
     const server = parameters.server!.replace(/\/$/, '');
     const index = await axios.get(`${server}/api/index`, { adapter: 'http' });
     expect(String(index.data), 'an action should be reachable through the generic mapping').toContain('SUCCESS');
     for (const helper of [
       'api/handleCreateUserClientUrl',
+      'api/handleJoinExistingUser',
+      'api/getUserSession',
+      'api/sanitizeSessionToken',
+      'api/uploadDocuments',
       'api/initResponseBuilder',
       'api/beforeInterceptor',
       'recording/initResponseBuilder',
     ]) {
       const response = await axios.get(`${server}/${helper}`, { adapter: 'http', validateStatus: () => true });
       expect(response.status, `${helper} should not be an action`).toBe(404);
+    }
+  }
+
+  // The generic mapping also matches a controller name alone. A controller without an index
+  // action failed on the default action it does not have, answering 500. Such a URL, like one
+  // naming an action the controller lacks, gets the same JSON 404 as any unknown path.
+  static async testControllerWithoutActionNotFound() {
+    const server = parameters.server!.replace(/\/$/, '');
+    const api = await axios.get(`${server}/api`, { adapter: 'http' });
+    expect(String(api.data), 'a controller with an index action should still answer').toContain('SUCCESS');
+    for (const path of ['presentation', 'recording', 'connection', 'presentation/noSuchAction', 'error']) {
+      const response = await axios.get(`${server}/${path}`, { adapter: 'http', validateStatus: () => true });
+      expect(response.status, `${path} should not be a resource`).toBe(404);
+      expect(response.data?.status, `${path} should get the JSON body of an unknown path`).toBe(404);
     }
   }
 
