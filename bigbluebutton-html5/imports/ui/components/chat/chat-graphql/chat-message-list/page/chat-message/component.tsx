@@ -978,7 +978,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   const contentElement = (
     <ChatMessageContentWrapper
-      className="chat-message-content"
+      className="chat-message-content bbb-chat-message__bubble"
       ref={chatMessageContentWrapperRef}
       sameSender={message?.user ? sameSender : false}
       isCustomPluginMessage={isCustomPluginMessage}
@@ -1056,7 +1056,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
               </EditLabel>
             </Tooltip>
           )}
-          <ChatTime data-test="chatMessageFooterTime">
+          <ChatTime className="bbb-chat-message__time" data-test="chatMessageFooterTime">
             <FormattedTime value={dateTime} />
           </ChatTime>
         </ChatContentFooter>
