@@ -286,7 +286,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             File tempPng = null;
             String basePresentationame = UUID.randomUUID().toString();
             try {
-                tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
+                tempPng = createSandboxTempPng(pres, basePresentationame + "-" + page);
             } catch (IOException ioException) {
                 // We should never fall into this if the server is correctly
                 // configured
@@ -494,6 +494,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
+    // The renders run in run-in-systemd.sh, whose PrivateTmp hides the server's /tmp wherever
+    // systemd can apply it, so a file created there stays empty. Create it next to the uploaded
+    // file instead, under the presentation dir the sandbox can write.
+    private File createSandboxTempPng(UploadedPresentation pres, String prefix) throws IOException {
+        return File.createTempFile(prefix, ".png", pres.getUploadedFile().getParentFile());
+    }
+
     // Tells whether the cairo backend, the one generating the svg, renders the page noticeably
     // different from the splash backend. The svg is kept whenever that cannot be determined.
     private boolean cairoRenderDiffersFromSplash(UploadedPresentation pres, int page, String source, long timeout)
@@ -501,8 +508,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         File cairoPng = null;
         File splashPng = null;
         try {
-            cairoPng = File.createTempFile("cairo-" + page + "-", ".png");
-            splashPng = File.createTempFile("splash-" + page + "-", ".png");
+            cairoPng = createSandboxTempPng(pres, "cairo-" + page + "-");
+            splashPng = createSandboxTempPng(pres, "splash-" + page + "-");
 
             NuProcessBuilder renderBoth = createRenderComparisonProcess(page, source,
                     cairoPng.getAbsolutePath().substring(0, cairoPng.getAbsolutePath().lastIndexOf('.')),
