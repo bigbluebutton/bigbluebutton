@@ -271,7 +271,7 @@ export const useShowButtonForNonPresenters = () => {
 };
 
 export const useIsScreenshareAllowedOnDevice = () => {
-  const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
+  const SCREENSHARE_CONFIG = window.meetingClientSettings.public.media.screenshare;
 
   return !deviceInfo.isMobile
     || browserInfo.isTabletApp

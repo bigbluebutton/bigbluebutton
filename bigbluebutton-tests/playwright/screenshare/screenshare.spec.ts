@@ -8,7 +8,7 @@ import { ScreenShare } from './screenshare';
 
 const iPhone11 = devices['iPhone 11'];
 const MOBILE_SCREENSHARE_SETTINGS = {
-  public: { kurento: { screenshare: { enableOnMobile: true } } },
+  public: { media: { screenshare: { enableOnMobile: true } } },
 };
 
 test.describe.parallel('Screenshare', { tag: ['@ci', '@media'] }, () => {

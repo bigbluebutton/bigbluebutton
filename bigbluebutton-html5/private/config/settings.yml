@@ -423,9 +423,6 @@ public:
       maxTimeout: 60000
     screenshare:
       showButtonForNonPresenters: false
-      # Experimental. Allow screen sharing on mobile browsers that expose the
-      # getDisplayMedia API.
-      enableOnMobile: false
       # Whether volume control should be allowed if screen sharing has audio
       enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
@@ -1058,6 +1055,10 @@ public:
     #  0: 'https://link.bigbluebutton.org/unk'
     # muteAudioOutputWhenAway: mute output audio if user is in away mode
     muteAudioOutputWhenAway: false
+    screenshare:
+      # Experimental. Allow screen sharing on mobile browsers that expose the
+      # getDisplayMedia API.
+      enableOnMobile: false
     # Index is the error code:
     #   - 1136: permission denied
     screenshareTroubleshootingLinks:

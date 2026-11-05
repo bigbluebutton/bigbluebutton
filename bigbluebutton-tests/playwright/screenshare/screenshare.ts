@@ -91,6 +91,16 @@ export class ScreenShare extends MultiUsers {
       e.screenShareVideo,
       'the desktop viewer should decode the mobile presenter screen share',
     );
+
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.isSharingScreen, 'should not display the screenshare element after stopping');
+    await this.modPage.wasRemoved(e.stopScreenSharing, 'should not display the stop screenshare button after stopping');
+    await this.modPage.hasElement(e.startScreenSharing, 'should display the start screenshare button after stopping');
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'the desktop viewer should stop receiving the screen share once the mobile presenter stops it',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
   }
 
   async screenshareStopsExternalVideo() {
