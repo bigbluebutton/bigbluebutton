@@ -12,8 +12,8 @@ const MAC_MODIFIER_SYMBOLS: Record<string, string> = {
 
 const formatCombo = (modifier: string, key: string): string => {
   if (!deviceInfo.isMacos) return `${modifier} + ${key}`;
-  const symbols = modifier.split(' + ').map((m) => MAC_MODIFIER_SYMBOLS[m] ?? `${m} + `).join('');
-  return `${symbols}${key}`;
+  // Space separated so the glyphs don't merge into a single "drawing" (⌃ ⌥ M)
+  return [...modifier.split(' + ').map((m) => MAC_MODIFIER_SYMBOLS[m] ?? m), key].join(' ');
 };
 
 /**
@@ -24,7 +24,7 @@ const formatCombo = (modifier: string, key: string): string => {
  * on mobile devices (no physical keyboard is assumed), when the shortcut is
  * disabled (empty access key) or when the browser modifier is unknown.
  *
- * On macOS the modifiers are shown with Apple's symbols (⌃⌥M), as in native apps.
+ * On macOS the modifiers are shown with Apple's symbols, space separated (⌃ ⌥ M).
  *
  * `extraHint` is shown on a second line, for shortcuts that are not handled
  * through `accesskey` (e.g. push-to-talk).
