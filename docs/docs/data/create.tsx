@@ -98,13 +98,13 @@ const createEndpointTableData = [
     "name": "isBreakout",
     "required": false,
     "type": "Boolean",
-    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room.</>)
+    "description": (<>Must be set to <code className="language-plaintext highlighter-rouge">true</code> to create a breakout room. A breakout room does not end when it is empty or has no moderator, only when its own <code className="language-plaintext highlighter-rouge">duration</code> runs out or its parent meeting ends; see <code className="language-plaintext highlighter-rouge">parentMeetingID</code>.</>)
   },
   {
     "name": "parentMeetingID",
     "required": false,
     "type": "String",
-    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running.</>)
+    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running. The breakout room ends when its parent meeting ends, whether the parent is ended through <code className="language-plaintext highlighter-rouge">end</code> or ends on its own (<code className="language-plaintext highlighter-rouge">duration</code>, <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code>, <code className="language-plaintext highlighter-rouge">meetingExpireWhenLastUserLeftInMinutes</code>, <code className="language-plaintext highlighter-rouge">endWhenNoModerator</code>). Users who join only the breakout room do not count as users of the parent, so a parent that nobody joins ends after <code className="language-plaintext highlighter-rouge">meetingExpireIfNoUserJoinedInMinutes</code> (5 minutes by default) and takes its breakout rooms with it.</>)
   },
   {
     "name": "sequence",
