@@ -32,8 +32,10 @@ steps:
     params: {meetingID: "${uid}"}
     golden: off
     expect: {returncode: SUCCESS, messageKey: sentEndMeetingRequest}
+  # akka-apps logs the users out and marks the meeting ended in two
+  # writes, users first: wait for both.
   - graphql: {as: ann, query: "query getMeetingEndData { user_current { currentlyInMeeting loggedOut meeting { ended endedReasonCode } } }"}
-    eventually: {within: 5s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].loggedOut": "true"}}}
+    eventually: {within: 5s, every: 300ms, until: {jsonpath: {"$.data.user_current[0].loggedOut": "true", "$.data.user_current[0].meeting.ended": "true"}}}
     expect:
       jsonpath:
         "$.data.user_current[0].currentlyInMeeting": "false"
