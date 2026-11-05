@@ -146,6 +146,19 @@ format_allowed() {
    done
 }
 
+# Apply a yq expression to the recording steps map the workers use: the one
+# from the last file that defines it, matching the shallow merge read_props
+# applies to the override.
+yq_steps() {
+   local -a files=( "$BBB_YML" )
+   local override=/etc/bigbluebutton/recording/recording.yml
+   if [[ -e "$override" ]]; then
+      files+=("$override")
+   fi
+
+   yq-go ea "[.steps].[-1]$1" --prettyPrint "${files[@]}" 2>/dev/null
+}
+
 # What the recording steps chain runs after the given step, empty when nothing
 # follows it. Returns non-zero if the step name could not be looked up.
 step_after() {
@@ -153,15 +166,7 @@ step_after() {
    # check for unexpected characters - no escaping is performed in yq expression substitution
    [[ $step =~ ^[a-z0-9_:]+$ ]] || return 1
 
-   local -a files=( "$BBB_YML" )
-   local override=/etc/bigbluebutton/recording/recording.yml
-   if [[ -e "$override" ]]; then
-      files+=("$override")
-   fi
-
-   # Use the 'steps' map from the last file that defines one, matching the
-   # shallow merge read_props applies to the override.
-   yq-go ea '[.steps].[-1]."'"${step}"'" // ""' "${files[@]}" 2>/dev/null
+   yq_steps '."'"${step}"'" // ""'
 }
 
 # Remove a format's status files for the meeting, from the given $STATUS
@@ -963,7 +968,7 @@ if [ $LISTWORKFLOWS ]; then
    echo "# Enabled recording processing steps:"
    echo "#"
    prev_workflow=""
-   for workflow in $(get_yml_value steps); do
+   for workflow in $(yq_steps ''); do
       # Remove trailing : if present
       workflow=$(sed "s/:$//" <<< $workflow)
       if [ "$prev_workflow" != "$workflow" ]; then
