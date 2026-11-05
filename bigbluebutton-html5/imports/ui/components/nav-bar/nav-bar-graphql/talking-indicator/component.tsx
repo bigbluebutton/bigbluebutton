@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import cx from 'classnames';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEqual } from 'radash';
 import Auth from '/imports/ui/services/auth/index';
@@ -91,6 +92,12 @@ const TalkingIndicatorItem: React.FC<TalkingIndicatorItemProps> = ({
   icon = muted ? 'mute' : icon;
   return (
     <Styled.TalkingIndicatorWrapper
+      className={cx('bbb-talking-indicator__item', {
+        'bbb-talking-indicator__item--talking': talking,
+        'bbb-talking-indicator__item--muted': muted,
+        'bbb-talking-indicator__item--moderator': isTalkingUserMod,
+        'bbb-talking-indicator__item--you': isYou,
+      })}
       talking={talking}
       muted={muted}
     >
@@ -185,7 +192,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   ));
 
   return (
-    <Styled.IsTalkingWrapper data-test="talkingIndicator">
+    <Styled.IsTalkingWrapper className="bbb-talking-indicator" data-test="talkingIndicator">
       <Styled.Speaking>
         {talkingElements}
         {moreThanMaxIndicators ? (

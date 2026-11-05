@@ -83,20 +83,21 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const chatPinEnabled = useIsPinChatMessageEnabled();
   const SHOW_PIN_MESSAGE_TOOL = window.meetingClientSettings.public.chat.toolbar.includes('pin');
 
-  if ([
-    chatReplyEnabled,
-    chatReactionsEnabled,
-    chatEditEnabled,
-    chatDeleteEnabled,
-    chatPinEnabled,
-  ].every((config) => !config) || !hasToolbar || locked || deleted) return null;
-
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
   const showEditButton = chatEditEnabled && own && !isCustomPluginMessage;
   const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
   const showPinMessageButton = chatPinEnabled && SHOW_PIN_MESSAGE_TOOL
     && amIModerator && !isCustomPluginMessage && isPublicChat;
+
+  if ([
+    showReplyButton,
+    showReactionsButton,
+    showEditButton,
+    showDeleteButton,
+    showPinMessageButton,
+  ].every((showButton) => !showButton) || !hasToolbar || locked || deleted) return null;
+
   const showDivider = (showReplyButton || showReactionsButton || showPinMessageButton)
     && (showEditButton || showDeleteButton);
 

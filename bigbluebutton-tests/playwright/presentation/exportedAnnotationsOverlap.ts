@@ -161,9 +161,11 @@ export class ExportedAnnotationsOverlap extends Presentation {
 
     // the typed text must round-trip unchanged, otherwise the width tuning below is void
     const stored = await this.modPage.page.evaluate((n) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { editor } = window as { editor?: any };
       const shape = editor
         .getCurrentPageShapes()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .find((s: any) => s.type === 'text' && (s.props?.text || '').includes(n));
       return { text: shape?.props?.text, props: { ...shape?.props, text: undefined } };
     }, 'Beispielzeilen');
@@ -228,10 +230,7 @@ ${describe(annotationRows)}`,
   private async downloadCurrentStateExport(testInfo: TestInfo, fileName: string): Promise<string> {
     // the download link arrives as a public chat message, so the chat panel must be open
     if (!(await this.modPage.page.locator(e.chatMessages).isVisible())) {
-      if (!(await this.modPage.page.locator(e.chatButton).isVisible())) {
-        await this.modPage.waitAndClick(e.userListToggleBtn);
-      }
-      await this.modPage.waitAndClick(e.chatButton);
+      await this.modPage.waitAndClick(e.messagesSidebarButton);
       await this.modPage.hasElement(e.chatMessages, 'should display the public chat messages');
     }
 
@@ -252,10 +251,12 @@ ${describe(annotationRows)}`,
   private async setTextShapeWidthAndScale(needle: string, targetPageW: number, scale: number) {
     const props = await this.modPage.page.evaluate(
       ([n, w, sc]) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { editor } = window as { editor?: any };
         if (!editor) throw new Error('window.editor is not exposed by the whiteboard');
         const shape = editor
           .getCurrentPageShapes()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .find((s: any) => s.type === 'text' && (s.props?.text || '').includes(n));
         if (!shape) throw new Error(`text shape containing "${n}" not found`);
         editor.updateShape({ id: shape.id, type: 'text', props: { w, autoSize: false, scale: sc } });
@@ -271,9 +272,11 @@ ${describe(annotationRows)}`,
 
   private async getLiveLineCount(needle: string, scale: number): Promise<number> {
     const height = await this.modPage.page.evaluate((n) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { editor } = window as { editor?: any };
       const shape = editor
         .getCurrentPageShapes()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .find((s: any) => s.type === 'text' && (s.props?.text || '').includes(n));
       if (!shape) throw new Error(`text shape containing "${n}" not found`);
       return editor.getShapePageBounds(shape.id).h;
@@ -365,10 +368,12 @@ ${describe(annotationRows)}`,
   private async resizeTextToPageWidth(needle: string, targetPageW: number) {
     const finalW = await this.modPage.page.evaluate(
       ([n, w]) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { editor } = window as { editor?: any };
         if (!editor) throw new Error('window.editor is not exposed by the whiteboard');
         const shape = editor
           .getCurrentPageShapes()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .find((s: any) => s.type === 'text' && (s.props?.text || '').includes(n));
         if (!shape) throw new Error(`text shape containing "${n}" not found`);
         editor.updateShape({ id: shape.id, type: 'text', props: { w, autoSize: false } });

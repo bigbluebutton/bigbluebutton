@@ -157,15 +157,18 @@ export const generateActionsPermissions = (
   const preventSelfChat = !amISubjectUser;
   const moderatorOverride = currentUserIsModerator
     && !amISubjectUser && !isDialInUser && isPrivateChatEnabled;
+  // the server lets private chats with a moderator through while privateChat is disabled
   const viewerToModeratorOverride = isSubjectUserModerator
-    && isChatEnabled && isPrivateChatEnabled && !isDialInUser && !isSubjectUserBot;
+    && isChatEnabled && !isDialInUser && !isSubjectUserBot;
   const regularUserCondition = (isPrivateChatEnabled
     && isChatEnabled
     && !lockSettings?.disablePrivateChat
     && !isDialInUser)
     || currentUserIsModerator;
+  const unlockedUserCondition = !userChatIsLocked
+    && isPrivateChatEnabled && isChatEnabled && !isDialInUser;
   const allowedToChatPrivately = preventSelfChat
-    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || !userChatIsLocked)
+    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || unlockedUserCondition)
     && type === 'participant';
 
   // Neither checks the mute state; the audio entry consults the one that applies.

@@ -9,7 +9,12 @@ import { PresenterRequest } from './presenterRequest';
 import { RaisedHands } from './raisedHands';
 import { Timer } from './timer';
 import { UserListSearch } from './userListSearch';
-import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, emojiRainSettingsOverride, SHORT_REACTION_EXPIRY_MODULE } from './util';
+import {
+  AUDIO_ONLY_TILE_SETTINGS_OVERRIDE,
+  emojiRainSettingsOverride,
+  LIVEKIT_AUDIO_STATE_OVERRIDE,
+  SHORT_REACTION_EXPIRY_MODULE,
+} from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -139,7 +144,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.removeReaction();
     });
 
-    test('Reaction expires', async ({ browser, context, page }, testInfo) => {
+    test('Reaction expires', { tag: '@nightly' }, async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo, createModules: SHORT_REACTION_EXPIRY_MODULE });
       await multiusers.initUserPage(context, { testInfo });
@@ -427,13 +432,73 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       // Regression tests for issue #24888:
       // usernames must not leak through join/leave notifications when hideUserList is active.
-      test('Hide user list suppresses join notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+      test('Hide user list suppresses join notification for locked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesJoinNotification();
       });
 
-      test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+      // Regression test for the getUserVoiceStateStream hideUserList bypass:
+      // a speaker's name must not reach a locked viewer through the talking indicator.
+      test(
+        'Hide user list suppresses talking indicator name for locked viewer',
+        { tag: '@media' },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListSuppressesTalkingIndicator();
+        },
+      );
+
+      // Companion to the test above, with the lock applied AFTER the speaker is already
+      // talking: the client has to drop the state it gathered before the lock, because the
+      // server stops reporting the speaker rather than retracting them.
+      test(
+        'Hide user list suppresses talking indicator name applied mid-talk',
+        { tag: ['@media', '@nightly'] },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk();
+        },
+      );
+
+      // Both cases again against LiveKit's client-side audio state. The two settings are
+      // served by different talking-indicator paths, and the shipped default is off, so
+      // without pinning it here the LiveKit path is never exercised.
+      test(
+        'Hide user list suppresses talking indicator name for locked viewer (LiveKit audio state)',
+        { tag: ['@media', '@nightly'] },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
+          await lockViewers.hideUserListSuppressesTalkingIndicator(LIVEKIT_AUDIO_STATE_OVERRIDE);
+        },
+      );
+
+      test(
+        'Hide user list suppresses talking indicator name applied mid-talk (LiveKit audio state)',
+        { tag: ['@media', '@nightly'] },
+        async ({ browser, context, page, browserName }, testInfo) => {
+          test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate the audio.');
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo, clientSettingsOverrides: LIVEKIT_AUDIO_STATE_OVERRIDE });
+          await lockViewers.hideUserListSuppressesTalkingIndicatorAppliedMidTalk(LIVEKIT_AUDIO_STATE_OVERRIDE);
+        },
+      );
+
+      test('Hide user list suppresses leave notification for locked viewer', async ({
+        browser,
+        context,
+        page,
+      }, testInfo) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initModPage(page, { testInfo });
         await lockViewers.hideUserListSuppressesLeaveNotification();
@@ -441,6 +506,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       test(
         'Hide user list join notification is shown only to moderator and unlocked viewer',
+        { tag: '@nightly' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -450,6 +516,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       test(
         'Hide user list leave notification is shown only to moderator and unlocked viewer',
+        { tag: '@nightly' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -459,6 +526,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       test(
         'Hide user list join notification is visible to locked viewer when a moderator joins',
+        { tag: '@nightly' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -468,6 +536,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
       test(
         'Hide user list leave notification is visible to locked viewer when a moderator leaves',
+        { tag: '@nightly' },
         async ({ browser, context, page }, testInfo) => {
           const lockViewers = new LockViewers(browser, context);
           await lockViewers.initModPage(page, { testInfo });
@@ -487,11 +556,15 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.hideUserListModeratorVoiceStateVisibleToLockedViewer();
       });
 
-      test('Hide user list voice state follows a role change', async ({ browser, context, page }, testInfo) => {
-        const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, { testInfo });
-        await lockViewers.hideUserListVoiceStateFollowsRoleChange();
-      });
+      test(
+        'Hide user list voice state follows a role change',
+        { tag: '@nightly' },
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListVoiceStateFollowsRoleChange();
+        },
+      );
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
@@ -530,5 +603,19 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await mobileDevices.initModPage(mobilePage, { testInfo });
       await mobileDevices.mobileTagName();
     });
+  });
+});
+
+// Timing-sensitive on a loaded runner: the second reaction has to go out while the first burst (2 s) is still
+// on screen, so this stays out of the gate.
+test.describe.parallel('Emoji rain', { tag: '@nightly' }, () => {
+  test('Every reaction rains, consecutive reactions included', async ({ browser, context, page }, testInfo) => {
+    const numberOfEmojis = 3;
+    const multiusers = new MultiUsers(browser, context);
+    await multiusers.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: emojiRainSettingsOverride(true, numberOfEmojis),
+    });
+    await multiusers.emojiRainForEveryReaction(numberOfEmojis);
   });
 });

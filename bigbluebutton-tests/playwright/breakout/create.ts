@@ -520,6 +520,24 @@ export class Create extends MultiUsers {
     );
   }
 
+  // lockBreakoutRecordingSetting takes the recording decision away from the moderator: the record
+  // option comes up on, whatever recordRoomByDefault says, and cannot be switched off.
+  async lockedRecordingSettingForcesRecordOn() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
+    const recordSwitch = this.modPage.page.locator(e.recordBreakoutRooms);
+    await expect(
+      recordSwitch,
+      'should offer the record option switched on although recordRoomByDefault is false',
+    ).toBeChecked();
+    await expect(recordSwitch, 'should not let the moderator switch the locked record option off').toBeDisabled();
+    await recordSwitch.click({ force: true });
+    await expect(recordSwitch, 'should keep the record option on after a click').toBeChecked();
+  }
+
   async rejectedPresentationIsNotOfferedAsBreakoutSlide() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 

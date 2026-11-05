@@ -160,7 +160,10 @@ const LayoutObserver: React.FC = () => {
     const APP_CONFIG = window.meetingClientSettings.public.app;
     const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
     const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-    const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+    // application.fontSize has no server default: it is only set once the
+    // user saves a size in Settings, and that choice wins over the default.
+    const fontSize = Settings.application.fontSize
+      || (isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE);
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
     layoutContextDispatch({
